@@ -1,0 +1,38 @@
+/* CTR-32 to CTR-36, the claim register and the early-warning register of a contract. Tokens only; the kit (apps/web/src/ui) draws the cards, the tables, the pills and the dialog. */
+
+.ctrreg-page .ui-section { margin-bottom: var(--mv-space-16); }
+.ctrreg-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-16) 0; }
+.ctrreg-tile { display: flex; align-items: flex-start; gap: var(--mv-space-4); }
+.ctrreg-tile > :first-child { flex: 1 1 auto; min-width: 0; }
+.ctrreg-with-info { display: inline-flex; align-items: center; gap: var(--mv-space-4); }
+.ctrreg-limitation { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.ctrreg-day { font-variant-numeric: tabular-nums; }
+.ctrreg-filter { display: grid; gap: var(--mv-space-4); min-width: 160px; }
+.ctrreg-filter > span { color: var(--mv-color-text-secondary); font-size: 12px; }
+.ctrreg-check { display: inline-flex; align-items: center; gap: var(--mv-space-8); min-height: 44px; }
+.ctrreg-notice { margin: 0 0 var(--mv-space-12); padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-warning); border-radius: var(--mv-radius-control); background: var(--mv-color-warning-soft); }
+.ctrreg-receipt { margin: 0 0 var(--mv-space-12); padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-success); border-radius: var(--mv-radius-control); background: var(--mv-color-success-soft); }
+.ctrreg-refusal { margin: var(--mv-space-8) 0; padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-danger); border-radius: var(--mv-radius-control); background: var(--mv-color-danger-soft); }
+.ctrreg-facts { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: var(--mv-space-8) var(--mv-space-16); margin: 0; }
+.ctrreg-facts dt { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.ctrreg-facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .ctrreg-facts { grid-template-columns: minmax(0, 1fr); }
+}
+.ctrreg-clocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--mv-space-12); margin: 0 0 var(--mv-space-16); padding: 0; list-style: none; }
+.ctrreg-clock { padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); }
+.ctrreg-clock[data-state='MISSED'] { border-color: var(--mv-color-danger); }
+.ctrreg-clock[data-state='APPROACHING'] { border-color: var(--mv-color-warning); }
+.ctrreg-clock header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--mv-space-8); margin-bottom: var(--mv-space-8); }
+.ctrreg-clock h3 { margin: 0; font-size: 14px; }
+.ctrreg-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.ctrreg-row-actions { display: inline-flex; gap: var(--mv-space-8); }
+.ctrreg-periods { margin: 0 0 var(--mv-space-8); padding-left: var(--mv-space-20); }
+.ctrreg-timeline { display: grid; gap: var(--mv-space-12); margin: 0; padding: 0; list-style: none; }
+.ctrreg-timeline > li { display: grid; gap: var(--mv-space-4); padding-bottom: var(--mv-space-8); border-bottom: 1px solid var(--mv-color-border); }
+.ctrreg-timeline p { margin: 0; overflow-wrap: anywhere; }
+.ctrreg-templates { display: grid; gap: var(--mv-space-8); margin: 0 0 var(--mv-space-12); padding: 0; list-style: none; }
+.ctrreg-templates > li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.ctrreg-reviews { display: grid; gap: var(--mv-space-12); margin: var(--mv-space-12) 0 0; padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); }
+.ctrreg-review { display: grid; gap: var(--mv-space-8); padding-bottom: var(--mv-space-8); border-bottom: 1px solid var(--mv-color-border); }
+.ctrreg-review label { display: grid; gap: var(--mv-space-4); }

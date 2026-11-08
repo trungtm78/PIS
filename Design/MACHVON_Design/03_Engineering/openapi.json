@@ -208877,7 +208877,9 @@
               "PROJECT_GOVERNANCE",
               "CONNECTOR",
               "EGP_POSTING",
-              "VENDOR"
+              "VENDOR",
+              "CONTRACT_CLAIM",
+              "CONTRACT_EARLY_WARNING"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -210230,7 +210232,9 @@
               "PROJECT_GOVERNANCE",
               "CONNECTOR",
               "EGP_POSTING",
-              "VENDOR"
+              "VENDOR",
+              "CONTRACT_CLAIM",
+              "CONTRACT_EARLY_WARNING"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -210296,7 +210300,9 @@
               "PROJECT_GOVERNANCE",
               "CONNECTOR",
               "EGP_POSTING",
-              "VENDOR"
+              "VENDOR",
+              "CONTRACT_CLAIM",
+              "CONTRACT_EARLY_WARNING"
             ],
             "description": "The kind of source the item comes from."
           },

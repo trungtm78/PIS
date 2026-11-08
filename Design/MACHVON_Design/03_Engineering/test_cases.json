@@ -21846,5 +21846,195 @@
     "covers": [
       "FR-VND-06"
     ]
+  },
+  {
+    "id": "UI-CTR-32",
+    "source": "FR-CTR-32",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ claim hợp đồng; user có quyền và user chỉ đọc; route CTR-32",
+    "steps": [
+      "Mở CTR-32 từ menu và deep link; kiểm nhãn trường: Mã claim, Hợp đồng, Bên claim, Loại, Trạng thái, Ngày biết sự việc, Mốc thời hiệu gần nhất, Số tiền claim, Số ngày claim, Đã quyết toán",
+      "Thực hiện thao tác chính theo quy tắc: Mốc thời hiệu do máy chủ tính từ điều khoản của chính hợp đồng đã được duyệt; hợp đồng chưa có điều khoản thì ghi chưa có thời hiệu, không gán số của mẫu quốc tế; số mặc định ghi chưa kiểm chứng; tổng do máy chủ cộng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-32"
+    ],
+    "expected": "Sổ claim hợp đồng: hiển thị đúng 10 trường, áp quy tắc \"Mốc thời hiệu do máy chủ tính từ điều khoản của chính hợp đồng đã được duyệt; hợp đồng chưa có điều khoản thì ghi chưa có thời hiệu, không gán số của mẫu quốc tế; số mặc định ghi chưa kiểm chứng; tổng do máy chủ cộng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-32"
+    ]
+  },
+  {
+    "id": "UI-CTR-33",
+    "source": "FR-CTR-33",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ claim và đồng hồ thời hiệu; user có quyền và user chỉ đọc; route CTR-33",
+    "steps": [
+      "Mở CTR-33 từ menu và deep link; kiểm nhãn trường: Thông tin claim, Điều khoản áp dụng, Bốn mốc: thông báo, hồ sơ chi tiết, phản hồi, quyết toán, Dòng thời gian, Liên kết thay đổi và thanh toán, Quyết toán",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi bước ghi theo ngày xảy ra; quyết toán do người khác người đề xuất duyệt; tuyên bố hết thời hiệu chỉ khi đã qua mốc, điều khoản nêu mất quyền và do người khác người ghi sổ xác nhận; nhật ký chỉ thêm",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-33"
+    ],
+    "expected": "Hồ sơ claim và đồng hồ thời hiệu: hiển thị đúng 6 trường, áp quy tắc \"Mỗi bước ghi theo ngày xảy ra; quyết toán do người khác người đề xuất duyệt; tuyên bố hết thời hiệu chỉ khi đã qua mốc, điều khoản nêu mất quyền và do người khác người ghi sổ xác nhận; nhật ký chỉ thêm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-33"
+    ]
+  },
+  {
+    "id": "UI-CTR-34",
+    "source": "FR-CTR-34",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Điều khoản thời hiệu claim của hợp đồng; user có quyền và user chỉ đọc; route CTR-34",
+    "steps": [
+      "Mở CTR-34 từ menu và deep link; kiểm nhãn trường: Bên claim, Số ngày thông báo, Số ngày hồ sơ chi tiết, Số ngày phản hồi, Số ngày quyết toán, Cách tính ngày, Hậu quả khi bỏ lỡ, Điều khoản hợp đồng, Văn bản căn cứ, Mẫu tham khảo",
+      "Thực hiện thao tác chính theo quy tắc: Điều khoản nhập từ hợp đồng đã ký, một người đề xuất và người khác duyệt; mẫu FIDIC và NEC chỉ là ví dụ chưa kiểm chứng, không tự áp cho hợp đồng nào",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-34"
+    ],
+    "expected": "Điều khoản thời hiệu claim của hợp đồng: hiển thị đúng 10 trường, áp quy tắc \"Điều khoản nhập từ hợp đồng đã ký, một người đề xuất và người khác duyệt; mẫu FIDIC và NEC chỉ là ví dụ chưa kiểm chứng, không tự áp cho hợp đồng nào\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-34"
+    ]
+  },
+  {
+    "id": "UI-CTR-35",
+    "source": "FR-CTR-35",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ cảnh báo sớm hợp đồng; user có quyền và user chỉ đọc; route CTR-35",
+    "steps": [
+      "Mở CTR-35 từ menu và deep link; kiểm nhãn trường: Mã cảnh báo, Hợp đồng, Tiêu đề, Nhóm, Bên nêu, Khả năng xảy ra, Tác động thời gian, Tác động chi phí, Người phụ trách, Trạng thái, Nhịp phát hành và họp",
+      "Thực hiện thao tác chính theo quy tắc: Nhịp phát hành lần đầu, họp và phát hành lại lấy từ quy tắc EARLY_WARNING_POLICY (chưa kiểm chứng); tách khỏi cảnh báo giải ngân của DIS; cuộc họp phải kết luận mọi cảnh báo đang mở",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-35"
+    ],
+    "expected": "Sổ cảnh báo sớm hợp đồng: hiển thị đúng 11 trường, áp quy tắc \"Nhịp phát hành lần đầu, họp và phát hành lại lấy từ quy tắc EARLY_WARNING_POLICY (chưa kiểm chứng); tách khỏi cảnh báo giải ngân của DIS; cuộc họp phải kết luận mọi cảnh báo đang mở\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-35"
+    ]
+  },
+  {
+    "id": "UI-CTR-36",
+    "source": "FR-CTR-36",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ cảnh báo sớm; user có quyền và user chỉ đọc; route CTR-36",
+    "steps": [
+      "Mở CTR-36 từ menu và deep link; kiểm nhãn trường: Nội dung cảnh báo, Đánh giá, Biện pháp giảm thiểu và hạn, Các cuộc họp đã soát xét, Đóng cảnh báo",
+      "Thực hiện thao tác chính theo quy tắc: Cảnh báo chỉ đánh giá khi nêu rõ tác động hoặc không có tác động; đóng là đã xử lý khi hết biện pháp mở và không do người phụ trách tự đóng; đã xảy ra thì nêu thay đổi hoặc claim đã phát sinh",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-36"
+    ],
+    "expected": "Hồ sơ cảnh báo sớm: hiển thị đúng 5 trường, áp quy tắc \"Cảnh báo chỉ đánh giá khi nêu rõ tác động hoặc không có tác động; đóng là đã xử lý khi hết biện pháp mở và không do người phụ trách tự đóng; đã xảy ra thì nêu thay đổi hoặc claim đã phát sinh\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-36"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-141",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Contract HD-1 in force with no approved term; a claim of the contractor registered; clerk A proposes a term from clause 20.1 (notice 28, particulars 42, response 14 days, a late notice bars the claim); legal officer B.",
+    "steps": [
+      "Read the claim before any term exists",
+      "A approves the term A proposed",
+      "B approves it",
+      "Read the claim again"
+    ],
+    "expected": "Step 1: limitation NO_TERM and no due day; step 2: 403 SELF_APPROVAL_DENIED; step 3: term APPROVED, the claim bound to it with a TERM_BOUND step; step 4: notice day = awareness day + 28.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-32",
+      "FR-CTR-34"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-142",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Claim with awareness day 2026-06-05 and an approved term with notice 28 days that bars a late claim; a second claim under a term with bar effect NOT_STATED.",
+    "steps": [
+      "Read the claim on 2026-07-03 and on 2026-07-04",
+      "Registrant declares it barred",
+      "Another person declares it barred",
+      "Declare the second claim barred"
+    ],
+    "expected": "Step 1: approaching on the 3rd, MISSED on the 4th; step 2: 403 SELF_APPROVAL_DENIED; step 3: TIME_BARRED with the reason on the timeline; step 4: 409 CLAIM_BAR_NOT_DUE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-32",
+      "FR-CTR-33"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-143",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Claim responded with ACCEPTED; claimed 1,000,000 VND and 10 days.",
+    "steps": [
+      "Propose a settlement of 1,000,001",
+      "Propose 800,000 and 8 days",
+      "The proposer approves",
+      "Another person approves",
+      "Try to withdraw the claim"
+    ],
+    "expected": "Step 1: 422 CLAIM_SETTLEMENT_EXCEEDS_CLAIM; step 3: 403 SELF_APPROVAL_DENIED; step 4: SETTLED with the amounts; step 5: 409 CTR_CLAIM_STATE_INVALID; the timeline cannot be rewritten.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-33"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-144",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Warning raised by the contractor on contract HD-2; owner L; reviewer R; one mitigation action.",
+    "steps": [
+      "Assess with no impact figure",
+      "Add an action to the raised warning",
+      "Assess it, add an action, close as RESOLVED with the action open",
+      "Complete the action, L closes it as resolved",
+      "R closes it as resolved"
+    ],
+    "expected": "Step 1: 422 on expected_time_days; step 2: 409 EARLY_WARNING_STATE_INVALID; step 3: 409 EARLY_WARNING_ACTIONS_OPEN; step 4: 403 SELF_APPROVAL_DENIED; step 5: CLOSED_RESOLVED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-35",
+      "FR-CTR-36"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-145",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Contract in force since 2026-06-01, default rhythm 7/14/7, one open warning; clock days 2026-06-05 and 2026-06-20.",
+    "steps": [
+      "Read the register on 2026-06-05 and 2026-06-20",
+      "Record a meeting that skips the open warning",
+      "Record a meeting that concludes on it",
+      "Issue the register after the meeting"
+    ],
+    "expected": "Step 1: first issue approaching, then missed (alert EW_REGISTER_OVERDUE), meeting missed (EW_MEETING_OVERDUE); step 2: 422 on reviews; step 3: meeting kept append-only; step 4: AFTER_MEETING issue with snapshot and hash, re-issue clock met.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-35"
+    ]
   }
 ]

@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 460,
-    "webCatalog": 460,
+    "webRoutes": 465,
+    "webCatalog": 465,
     "webModules": 26,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -7238,6 +7238,56 @@
       "group": "Chứng chỉ và uy tín",
       "role": "workspace",
       "parent": null
+    },
+    {
+      "id": "CTR-32",
+      "title": "Sổ claim hợp đồng",
+      "kind": "table",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Sổ claim và cảnh báo sớm",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-33",
+      "title": "Hồ sơ claim và đồng hồ thời hiệu",
+      "kind": "detail",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Sổ claim và cảnh báo sớm",
+      "role": "detail",
+      "parent": "CTR-32"
+    },
+    {
+      "id": "CTR-34",
+      "title": "Điều khoản thời hiệu claim của hợp đồng",
+      "kind": "form",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Sổ claim và cảnh báo sớm",
+      "role": "detail",
+      "parent": "CTR-32"
+    },
+    {
+      "id": "CTR-35",
+      "title": "Sổ cảnh báo sớm hợp đồng",
+      "kind": "table",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Sổ claim và cảnh báo sớm",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-36",
+      "title": "Hồ sơ cảnh báo sớm",
+      "kind": "detail",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Sổ claim và cảnh báo sớm",
+      "role": "detail",
+      "parent": "CTR-35"
     }
   ],
   "mobileRoutes": [

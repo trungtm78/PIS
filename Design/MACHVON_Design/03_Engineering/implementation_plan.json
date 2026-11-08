@@ -955,6 +955,11 @@
       "id": "FT-VND-02",
       "epic": "EP-VND",
       "title": "Debarment, payee accounts, certificates and the ledger of bid conduct"
+    },
+    {
+      "id": "FT-CTR-10",
+      "epic": "EP-CTR",
+      "title": "Claim register with limitation per contract and the early-warning register"
     }
   ],
   "stories": [
@@ -51171,6 +51176,267 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-VND-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-CTR-021",
+      "epic": "EP-CTR",
+      "feature": "FT-CTR-10",
+      "module": "CTR",
+      "title": "Claim register: limitation terms entered from the contract, claims with notice, response and settlement steps, and alerts for approaching or missed limitation",
+      "narrative": "As a contract manager I record the limits a signed contract gives the claims of each side, register the claims of both sides and follow their notice, response and settlement against those limits, so that a time bar is never missed and never assumed.",
+      "release": "R2",
+      "screens": [
+        "CTR-32",
+        "CTR-33",
+        "CTR-34"
+      ],
+      "operations": [
+        "listClaimTerms",
+        "proposeClaimTerm",
+        "decideClaimTerm",
+        "registerClaim",
+        "listClaims",
+        "getClaim",
+        "recordClaimStep",
+        "decideClaimSettlement",
+        "declareClaimBar",
+        "linkClaim"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-CTR-021-1",
+          "given": "A contract with no approved term, then a term proposed by one person from clause 20.1 and approved by the same person and by another",
+          "when": "A claim is registered and the term is proposed and decided",
+          "then": "The claim of a contract with no term has no limitation clock and says NO_TERM (no number is borrowed from an international form), the proposer cannot approve (403 SELF_APPROVAL_DENIED), the approval supersedes the earlier term and binds the open claims that had none, with a step each",
+          "test_id": "UAT-PLAN-141"
+        },
+        {
+          "id": "AC-ST-CTR-021-2",
+          "given": "A claim whose awareness day is 5 June with a notice limit of 28 days, read on days before, on and after 3 July, and a term whose clause does not say a late notice bars the claim",
+          "when": "The notice is served late, and a bar is declared by the registrant, by another person, and under a term without a bar effect",
+          "then": "The limit ends on 3 July (day 0 is the awareness day) and is missed only after that day, a late notice is MET_LATE by the day it was served, a bar is refused by the registrant (SELF_APPROVAL_DENIED) and when the term says nothing of the effect (409 CLAIM_BAR_NOT_DUE), and allowed once the day passed under a term that bars the claim",
+          "test_id": "UAT-PLAN-142"
+        },
+        {
+          "id": "AC-ST-CTR-021-3",
+          "given": "A claim that was responded to with acceptance and a settlement proposed by one person",
+          "when": "The proposer approves it, then another person approves it, and a settlement above the claim is proposed",
+          "then": "The proposer is refused (SELF_APPROVAL_DENIED), the other person settles the claim and nothing moves it afterwards, a settlement above the claimed amount or days is 422 CLAIM_SETTLEMENT_EXCEEDS_CLAIM, and the timeline of the claim is append-only",
+          "test_id": "UAT-PLAN-143"
+        },
+        {
+          "id": "AC-ST-CTR-021-4",
+          "given": "CTR-32 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-32"
+        },
+        {
+          "id": "AC-ST-CTR-021-5",
+          "given": "CTR-33 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-33"
+        },
+        {
+          "id": "AC-ST-CTR-021-6",
+          "given": "CTR-34 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-34"
+        }
+      ],
+      "dependencies": [
+        "ST-CTR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "low",
+        "assumption": "The limitation periods are entered per contract from its clauses and approved by a second person; the templates of the rule CLAIM_TERM_TEMPLATE and the working numbers of CLAIM_POLICY are unverified defaults, and the register never applies a template to a contract."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-CTR-021-1",
+          "kind": "backend",
+          "title": "Kernel rules, tables, store, controllers, authorization matrix and alert source behind the screens",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-021-2",
+          "kind": "web",
+          "title": "Screens built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-021-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-021-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-141",
+            "UAT-PLAN-142",
+            "UAT-PLAN-143"
+          ]
+        },
+        {
+          "id": "TK-CTR-021-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-CTR-32",
+            "UI-CTR-33",
+            "UI-CTR-34"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-CTR-022",
+      "epic": "EP-CTR",
+      "feature": "FT-CTR-10",
+      "module": "CTR",
+      "title": "Early-warning register of a contract: warnings raised by any party, assessment, mitigation actions, review meetings and issues of the register, feeding the alert centre",
+      "narrative": "As a contract manager I keep with the other parties the register of risks that may delay or raise the price of the work, review it in meetings at the rhythm of the contract, issue it again after each meeting and see what is late in the alert centre.",
+      "release": "R2",
+      "screens": [
+        "CTR-35",
+        "CTR-36"
+      ],
+      "operations": [
+        "raiseContractEarlyWarning",
+        "listContractEarlyWarnings",
+        "getContractEarlyWarning",
+        "assessContractEarlyWarning",
+        "addContractEarlyWarningAction",
+        "completeContractEarlyWarningAction",
+        "closeContractEarlyWarning",
+        "recordContractEarlyWarningMeeting",
+        "issueContractEarlyWarningRegister",
+        "getContractEarlyWarningRegister"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-CTR-022-1",
+          "given": "A warning raised by the contractor, assessed with an owner, a likelihood and an impact, and one mitigation action",
+          "when": "The warning is assessed without an impact figure, an action is added to a raised warning, and the owner closes it as resolved",
+          "then": "An assessment without a time or cost figure or an explicit no-impact statement is 422, an action on a raised warning is 409 EARLY_WARNING_STATE_INVALID, a warning with an open action cannot be resolved (409 EARLY_WARNING_ACTIONS_OPEN) and the person who answers for it cannot close it (403 SELF_APPROVAL_DENIED)",
+          "test_id": "UAT-PLAN-144"
+        },
+        {
+          "id": "AC-ST-CTR-022-2",
+          "given": "A contract in force since 1 June with the rhythm of the default policy (first issue within 7 days, a meeting every 14 days, a re-issue within 7 days after a meeting)",
+          "when": "The register is read on 5 June, on 20 June without any issue, and after a meeting on 12 June",
+          "then": "The first issue is due 8 June (approaching, then missed), the meeting is due 14 days after the start or the last meeting, the re-issue is due 7 days after the meeting, a meeting must conclude on every open warning, an issue keeps a snapshot and a hash, and each late clock is an item of the alert centre with its type, severity and consequence",
+          "test_id": "UAT-PLAN-145"
+        },
+        {
+          "id": "AC-ST-CTR-022-3",
+          "given": "CTR-35 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-35"
+        },
+        {
+          "id": "AC-ST-CTR-022-4",
+          "given": "CTR-36 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-36"
+        }
+      ],
+      "dependencies": [
+        "ST-CTR-021"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "low",
+        "assumption": "The rhythm of seven, fourteen and seven days is the starting value of the rule EARLY_WARNING_POLICY, flagged unverified until the tenant approves its own; the register is separate from the disbursement early warning of DIS."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-CTR-022-1",
+          "kind": "backend",
+          "title": "Kernel rules, tables, store, controllers, authorization matrix and alert source behind the screens",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-022-2",
+          "kind": "web",
+          "title": "Screens built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-022-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-022-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-144",
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-CTR-022-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-CTR-35",
+            "UI-CTR-36"
           ]
         }
       ]

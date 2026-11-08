@@ -18848,5 +18848,190 @@
     "stories": [
       "ST-DIR-005"
     ]
+  },
+  {
+    "id": "BL-CTR-32",
+    "requirement": "FR-CTR-32",
+    "screen": "CTR-32",
+    "title": "Sổ claim hợp đồng",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,ADM",
+    "fields": [
+      "Mã claim",
+      "Hợp đồng",
+      "Bên claim",
+      "Loại",
+      "Trạng thái",
+      "Ngày biết sự việc",
+      "Mốc thời hiệu gần nhất",
+      "Số tiền claim",
+      "Số ngày claim",
+      "Đã quyết toán"
+    ],
+    "rule": "Mốc thời hiệu do máy chủ tính từ điều khoản của chính hợp đồng đã được duyệt; hợp đồng chưa có điều khoản thì ghi chưa có thời hiệu, không gán số của mẫu quốc tế; số mặc định ghi chưa kiểm chứng; tổng do máy chủ cộng",
+    "test_ids": [
+      "UI-CTR-32",
+      "UAT-PLAN-141",
+      "UAT-PLAN-142"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-CTR-021"
+    ]
+  },
+  {
+    "id": "BL-CTR-33",
+    "requirement": "FR-CTR-33",
+    "screen": "CTR-33",
+    "title": "Hồ sơ claim và đồng hồ thời hiệu",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,ADM",
+    "fields": [
+      "Thông tin claim",
+      "Điều khoản áp dụng",
+      "Bốn mốc: thông báo, hồ sơ chi tiết, phản hồi, quyết toán",
+      "Dòng thời gian",
+      "Liên kết thay đổi và thanh toán",
+      "Quyết toán"
+    ],
+    "rule": "Mỗi bước ghi theo ngày xảy ra; quyết toán do người khác người đề xuất duyệt; tuyên bố hết thời hiệu chỉ khi đã qua mốc, điều khoản nêu mất quyền và do người khác người ghi sổ xác nhận; nhật ký chỉ thêm",
+    "test_ids": [
+      "UI-CTR-33",
+      "UAT-PLAN-142",
+      "UAT-PLAN-143"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-CTR-021"
+    ]
+  },
+  {
+    "id": "BL-CTR-34",
+    "requirement": "FR-CTR-34",
+    "screen": "CTR-34",
+    "title": "Điều khoản thời hiệu claim của hợp đồng",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,ADM",
+    "fields": [
+      "Bên claim",
+      "Số ngày thông báo",
+      "Số ngày hồ sơ chi tiết",
+      "Số ngày phản hồi",
+      "Số ngày quyết toán",
+      "Cách tính ngày",
+      "Hậu quả khi bỏ lỡ",
+      "Điều khoản hợp đồng",
+      "Văn bản căn cứ",
+      "Mẫu tham khảo"
+    ],
+    "rule": "Điều khoản nhập từ hợp đồng đã ký, một người đề xuất và người khác duyệt; mẫu FIDIC và NEC chỉ là ví dụ chưa kiểm chứng, không tự áp cho hợp đồng nào",
+    "test_ids": [
+      "UI-CTR-34",
+      "UAT-PLAN-141"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-CTR-021"
+    ]
+  },
+  {
+    "id": "BL-CTR-35",
+    "requirement": "FR-CTR-35",
+    "screen": "CTR-35",
+    "title": "Sổ cảnh báo sớm hợp đồng",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,ADM",
+    "fields": [
+      "Mã cảnh báo",
+      "Hợp đồng",
+      "Tiêu đề",
+      "Nhóm",
+      "Bên nêu",
+      "Khả năng xảy ra",
+      "Tác động thời gian",
+      "Tác động chi phí",
+      "Người phụ trách",
+      "Trạng thái",
+      "Nhịp phát hành và họp"
+    ],
+    "rule": "Nhịp phát hành lần đầu, họp và phát hành lại lấy từ quy tắc EARLY_WARNING_POLICY (chưa kiểm chứng); tách khỏi cảnh báo giải ngân của DIS; cuộc họp phải kết luận mọi cảnh báo đang mở",
+    "test_ids": [
+      "UI-CTR-35",
+      "UAT-PLAN-144",
+      "UAT-PLAN-145"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-CTR-022"
+    ]
+  },
+  {
+    "id": "BL-CTR-36",
+    "requirement": "FR-CTR-36",
+    "screen": "CTR-36",
+    "title": "Hồ sơ cảnh báo sớm",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,ADM",
+    "fields": [
+      "Nội dung cảnh báo",
+      "Đánh giá",
+      "Biện pháp giảm thiểu và hạn",
+      "Các cuộc họp đã soát xét",
+      "Đóng cảnh báo"
+    ],
+    "rule": "Cảnh báo chỉ đánh giá khi nêu rõ tác động hoặc không có tác động; đóng là đã xử lý khi hết biện pháp mở và không do người phụ trách tự đóng; đã xảy ra thì nêu thay đổi hoặc claim đã phát sinh",
+    "test_ids": [
+      "UI-CTR-36",
+      "UAT-PLAN-144"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-CTR-022"
+    ]
   }
 ]

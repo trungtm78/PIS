@@ -52,6 +52,14 @@ export const WORK_KINDS = [
   'VENDOR_DEBARMENT_DECISION',
   'VENDOR_PAYEE_ACCOUNT',
   'VENDOR_QUALIFICATION_EXPIRY',
+  // The claim register and the early-warning register of a contract (lane GOV-8).
+  'CLAIM_LIMITATION_APPROACHING',
+  'CLAIM_LIMITATION_MISSED',
+  'CLAIM_RESPONSE_DUE',
+  'CLAIM_SETTLEMENT_OVERDUE',
+  'EW_REGISTER_OVERDUE',
+  'EW_MEETING_OVERDUE',
+  'EW_ACTION_OVERDUE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
@@ -131,6 +139,13 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
       return `/pay/pay-03?request=${item.target.id}`;
     case 'DIS-26':
       return `/dis/dis-26?snapshot=${item.target.id}`;
+    // The claim register and the early-warning register of a contract (lane GOV-8): a claim by its id, the register of a contract by the id of the contract, a warning by its id.
+    case 'CTR-33':
+      return `/ctr/ctr-33?claim=${item.target.id}`;
+    case 'CTR-35':
+      return `/ctr/ctr-35?contract=${item.target.id}`;
+    case 'CTR-36':
+      return `/ctr/ctr-36?warning=${item.target.id}`;
     // The alert of the baseline (lane B1): the item names the project.
     case 'PRJ-26':
       return `/prj/prj-26?project=${item.target.id}`;

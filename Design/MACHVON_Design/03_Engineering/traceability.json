@@ -10515,5 +10515,98 @@
       "UI-VND-06",
       "UAT-PLAN-145"
     ]
+  },
+  {
+    "requirement": "FR-CTR-32",
+    "screen": "CTR-32",
+    "title": "Sổ claim hợp đồng",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8); docs/ctr-claims.md, docs/ctr-early-warning.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-32",
+    "test_ids": [
+      "UI-CTR-32",
+      "UAT-PLAN-141",
+      "UAT-PLAN-142"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-33",
+    "screen": "CTR-33",
+    "title": "Hồ sơ claim và đồng hồ thời hiệu",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8); docs/ctr-claims.md, docs/ctr-early-warning.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-33",
+    "test_ids": [
+      "UI-CTR-33",
+      "UAT-PLAN-142",
+      "UAT-PLAN-143"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-34",
+    "screen": "CTR-34",
+    "title": "Điều khoản thời hiệu claim của hợp đồng",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8); docs/ctr-claims.md, docs/ctr-early-warning.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 2 test",
+    "backlog_id": "BL-CTR-34",
+    "test_ids": [
+      "UI-CTR-34",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-35",
+    "screen": "CTR-35",
+    "title": "Sổ cảnh báo sớm hợp đồng",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8); docs/ctr-claims.md, docs/ctr-early-warning.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-35",
+    "test_ids": [
+      "UI-CTR-35",
+      "UAT-PLAN-144",
+      "UAT-PLAN-145"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-36",
+    "screen": "CTR-36",
+    "title": "Hồ sơ cảnh báo sớm",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8); docs/ctr-claims.md, docs/ctr-early-warning.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 2 test",
+    "backlog_id": "BL-CTR-36",
+    "test_ids": [
+      "UI-CTR-36",
+      "UAT-PLAN-144"
+    ]
   }
 ]

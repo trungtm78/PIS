@@ -803,3 +803,77 @@ Bộ fixture synthetic dùng chung được định nghĩa tại `PAY.md` §10 (
 | R-CTR-03 | Hợp đồng đang thực hiện khi chuyển đổi có lịch sử phụ lục không đầy đủ | Data Owner | Quy tắc migration: chỉ phiên bản có văn bản mới là EFFECTIVE |
 | R-CTR-04 | Interface BID về xung đột lợi ích chưa chốt hợp đồng dữ liệu | Kiến trúc | BID công bố `hasConflict(membership, contractor, at)` |
 | R-CTR-05 | Ngưỡng xếp hạng bảng điểm là [GIẢ ĐỊNH] | PO | Chủ nghiệp vụ ký rule `CTR.SCORECARD` |
+
+## 14. Sổ claim có thời hiệu theo hợp đồng và sổ cảnh báo sớm hợp đồng (GOV-8; G1-9, G1-15)
+
+Căn cứ: `docs/governance-roadmap-10of10.md` mục G1-9 và G1-15; chi tiết cài đặt ở `docs/ctr-claims.md` và `docs/ctr-early-warning.md`. Migration `V1980`–`V1985` (khối GOV-8 1980–1999). Màn hình CTR-32 đến CTR-36; story ST-CTR-021, ST-CTR-022.
+
+### 14.1 Sổ claim
+
+**Mục đích.** Ghi các yêu cầu (claim) của một bên với bên kia vì một sự việc: nhà thầu xin thêm thời gian hoặc tiền (`EXTENSION_OF_TIME`, `ADDITIONAL_PAYMENT`, `TIME_AND_COST`), chủ đầu tư đòi phạt chậm, chi phí khắc phục khiếm khuyết hoặc bù trừ (`DELAY_DAMAGES`, `DEFECT_COST`, `SET_OFF`), và `OTHER` cho cả hai. Theo dõi ba bước thông báo, phản hồi, quyết toán và mốc thời hiệu của từng bước.
+
+**Quy tắc gốc: thời hiệu lấy từ điều khoản của chính hợp đồng, không gán mặc định.** Hợp đồng nội địa không mặc nhiên áp số của mẫu quốc tế (FIDIC, NEC). Hợp đồng chưa có điều khoản thời hiệu được duyệt thì claim của nó không có đồng hồ thời hiệu và hiện `NO_TERM`; hệ thống không mượn con số nào. Các mẫu `FIDIC_2017_EXAMPLE` (thông báo 28 ngày, hồ sơ chi tiết 84 ngày, phản hồi 42 ngày) và `NEC4_EXAMPLE` (thông báo 56 ngày, phản hồi 14 ngày) chỉ là ví dụ chưa kiểm chứng trong quy tắc `CLAIM_TERM_TEMPLATE`: người đề xuất có thể chép vào đề xuất, không bao giờ tự áp cho hợp đồng nào.
+
+**Điều khoản (`contract_claim_term`).** Mỗi bên claim (`CONTRACTOR`, `OWNER`) của một hợp đồng có tối đa một điều khoản đang hiệu lực. Trường: số ngày thông báo (`notice_days`), hồ sơ chi tiết (`particulars_days`), phản hồi (`response_days`), quyết toán (`settlement_days`), mỗi trường để trống nếu hợp đồng không cho; `basis` (`CALENDAR_DAYS` hoặc `WORKING_DAYS`, ngày làm việc tính trên lịch làm việc đã công bố, năm chưa công bố thì `CALENDAR_UNAVAILABLE`, không đoán); `particulars_from` (`AWARENESS` hoặc `NOTICE`); `bar_effect` (`BARS_CLAIM`, `REDUCES_RELIEF`, `NONE`, `NOT_STATED`); điều khoản hợp đồng (`clause_reference`, bắt buộc); văn bản căn cứ (tùy chọn, tệp sạch). Người đề xuất khác người duyệt (CHECK `contract_claim_term_maker_checker_chk` và 403 `SELF_APPROVAL_DENIED`). Mỗi bên chỉ một đề xuất chờ duyệt (409 `CLAIM_TERM_PENDING`). Duyệt điều khoản mới thay thế điều khoản cũ (`SUPERSEDED`, lịch sử giữ nguyên) và gắn các claim đang mở chưa có điều khoản, mỗi claim có một bước `TERM_BOUND`. `BARS_CLAIM` và `REDUCES_RELIEF` đòi có thời hạn thông báo hoặc hồ sơ chi tiết. Điều khoản đã đề xuất không bao giờ được sửa (trigger).
+
+**Claim (`contract_claim`).** Mã `CLM-nnn` theo hợp đồng. Ghi với ngày xảy ra sự việc và ngày biết sự việc (`awareness_on`, không trước ngày xảy ra, không ở tương lai): mốc thông báo tính từ ngày biết. Hợp đồng phải đã qua giai đoạn nháp (`DRAFT`, `IN_REVIEW`, `CANCELLED` bị 409 `CONTRACT_STATE_INVALID`). Người phụ trách (`responsible_membership_id`) mặc định là người ghi và là chủ của cảnh báo.
+
+**Trạng thái và bước.** `EVENT_RECORDED` → (thông báo) `NOTICE_SERVED` → (hồ sơ chi tiết) `PARTICULARS_SUBMITTED` → (phản hồi: `ACCEPTED`, `PARTLY_ACCEPTED`, `REJECTED`, `MORE_INFORMATION_REQUESTED`) `RESPONDED` → (đề xuất quyết toán) `SETTLEMENT_PROPOSED` → (duyệt) `SETTLED`. Phản hồi có thể đến ngay sau thông báo; sau phản hồi xin thêm thông tin thì nộp lại hồ sơ chi tiết; đề xuất quyết toán chỉ khi phản hồi chấp nhận hoặc chấp nhận một phần; chuyển tranh chấp (`REFERRED`) chỉ khi bị từ chối hoặc chấp nhận một phần; từ chối quyết toán đưa về `RESPONDED`. Kết thúc: `SETTLED`, `WITHDRAWN`, `REFERRED`, `TIME_BARRED`; claim đã kết thúc không đổi nữa (409 `CTR_CLAIM_STATE_INVALID`). Mỗi bước là một dòng của dòng thời gian chỉ thêm (`contract_claim_step`) với ngày xảy ra trong thế giới hợp đồng (không ở tương lai, không trước ngày biết, không trước bước trước), ghi chú, quyết định, số liệu và văn bản bằng chứng tùy chọn.
+
+**Bốn mốc (máy chủ tính theo ngày xem, không lưu).** Thông báo: ngày biết + số ngày. Hồ sơ chi tiết: từ ngày biết hoặc ngày thông báo theo `particulars_from`. Phản hồi: từ lần nộp chi tiết gần nhất (từ ngày thông báo nếu điều khoản không có hồ sơ chi tiết); bên nhận là chủ đầu tư với claim của nhà thầu. Quyết toán: từ phản hồi chấp nhận gần nhất. Ngày đầu tính là ngày 0, bỏ lỡ chỉ sau khi hết ngày đến hạn. Trạng thái mốc: `NOT_DEFINED`, `NOT_STARTED`, `NOT_APPLICABLE`, `CALENDAR_UNAVAILABLE`, `RUNNING`, `APPROACHING`, `MET`, `MET_LATE`, `MISSED`. Thời hiệu của claim (chỉ thông báo và hồ sơ chi tiết mang hậu quả mất quyền): `NO_TERM`, `NOT_DEFINED`, `CALENDAR_UNAVAILABLE`, `RUNNING`, `APPROACHING`, `MISSED`, `MET`, `MET_LATE`, `BARRED`, `CLOSED`. Số ngày báo sắp đến lấy từ quy tắc `CLAIM_POLICY` (7 và 3, chưa kiểm chứng).
+
+**Tuyên bố hết thời hiệu (`declareClaimBar`).** Chỉ khi đã qua một mốc thời hiệu và điều khoản ghi `BARS_CLAIM` (nếu không 409 `CLAIM_BAR_NOT_DUE`, chi tiết `limitation` hoặc `bar_effect`), kèm lý do, và do người khác người ghi sổ thực hiện (403 `SELF_APPROVAL_DENIED`; CHECK `contract_claim_bar_maker_checker_chk`). Quyết toán do người khác người đề xuất duyệt (403 `SELF_APPROVAL_DENIED`; CHECK `contract_claim_settle_maker_checker_chk`); quyết toán không vượt mức claim về tiền hoặc ngày (422 `CLAIM_SETTLEMENT_EXCEEDS_CLAIM`).
+
+**Liên kết.** Một claim liên kết với một thay đổi hợp đồng (`change_request`) và một đề nghị thanh toán (`payment_request`) của cùng hợp đồng (422 nếu của hợp đồng khác); liên kết giữ nguyên khi claim kết thúc vì thanh toán quyết toán đến sau.
+
+### 14.2 Sổ cảnh báo sớm hợp đồng
+
+**Mục đích.** Sổ các bên của một hợp đồng cùng giữ về điều có thể làm chậm, tăng giá hoặc giảm chất lượng công việc (kiểu FIDIC và NEC). Tách khỏi cảnh báo giải ngân của DIS (`early_warning`, HOME-06).
+
+**Mô hình.** Cảnh báo (`contract_early_warning`, mã `EW-nnn`) do bất kỳ bên nào nêu (`OWNER`, `CONTRACTOR`, `SUPERVISOR`, `DESIGNER`, `OTHER`), nhóm `TIME`, `COST`, `QUALITY`, `SAFETY`, `SCOPE`, `LEGAL`, `ENVIRONMENT`, `OTHER`. Trạng thái `RAISED` → (đánh giá: người phụ trách, khả năng `LOW`/`MEDIUM`/`HIGH`, tác động thời gian và chi phí hoặc tuyên bố không có tác động, không bao giờ để trống) `ASSESSED` → (biện pháp đầu tiên) `MITIGATING` → đóng: `CLOSED_RESOLVED`, `CLOSED_MATERIALISED` (đã thành thay đổi hoặc claim của cùng hợp đồng, nêu đúng một), `CLOSED_WITHDRAWN`. Biện pháp giảm thiểu (`contract_early_warning_action`) có người chịu trách nhiệm, hạn (không trong quá khứ), kết thúc `DONE` hoặc `CANCELLED` kèm lý do. Đóng là đã xử lý chỉ khi hết biện pháp mở (409 `EARLY_WARNING_ACTIONS_OPEN`) và không do người phụ trách tự đóng (403 `SELF_APPROVAL_DENIED`; CHECK `contract_early_warning_resolved_checker_chk`); cảnh báo chưa đánh giá chỉ được rút. Cảnh báo đã đóng không mở lại (trigger).
+
+**Họp và phát hành.** Cuộc họp soát xét (`contract_early_warning_meeting`, `contract_early_warning_review`) phải kết luận cho mọi cảnh báo đang mở, mỗi cảnh báo một lần (`NO_CHANGE`, `UPDATED`, `ACTION_AGREED`, `CLOSURE_PROPOSED`, `ESCALATED`); ngày họp không ở tương lai, sau cuộc họp trước, không trước ngày hợp đồng bắt đầu. Phát hành sổ (`contract_early_warning_issue`): `INITIAL`, `AFTER_MEETING` (một lần cho mỗi cuộc họp) hoặc `PERIODIC`, kèm ảnh chụp các cảnh báo và mã băm SHA-256. Họp, đánh giá và phát hành chỉ thêm, không sửa, không xóa.
+
+**Nhịp (quy tắc `EARLY_WARNING_POLICY`, chưa kiểm chứng).** Phát hành lần đầu trong 7 ngày sau khi hợp đồng bắt đầu hiệu lực, họp ít nhất mỗi 14 ngày, phát hành lại trong 7 ngày sau mỗi cuộc họp, báo sắp đến từ 3 ngày; tính theo ngày lịch hoặc ngày làm việc. Hợp đồng không ở trạng thái `ACTIVE` không có nhịp.
+
+### 14.3 Cảnh báo (ALERT_TYPE)
+
+Nguồn mới của trung tâm cảnh báo: `CONTRACT_CLAIM` và `CONTRACT_EARLY_WARNING` (`packages/db/src/home-contract-register-sources.ts`). Tính khi đọc danh sách, không có job. Claim chưa có điều khoản không phát cảnh báo thời hiệu.
+
+| Mã | Chủ sở hữu | Hành động mong đợi | Hậu quả | Hạn đáp ứng | Mức |
+|---|---|---|---|---|---|
+| `CLAIM_LIMITATION_APPROACHING` | `CONTRACT_MANAGER` | Gửi thông báo hoặc hồ sơ chi tiết trước ngày hết thời hiệu và ghi ngày gửi | Qua ngày có thể mất quyền claim hoặc bị giảm phần được xem xét | 48 giờ | ACTION (chỉ khi bước thuộc bên chủ đầu tư) |
+| `CLAIM_LIMITATION_MISSED` | `CONTRACT_MANAGER` | Quyết định: ghi nhận thông báo muộn có lý do hoặc đề nghị tuyên bố hết thời hiệu, có người thứ hai xác nhận | Claim lơ lửng, không bên nào biết còn quyền gì | 24 giờ | URGENT nếu là bước của chủ đầu tư, ACTION nếu của bên kia |
+| `CLAIM_RESPONSE_DUE` | `CONTRACT_MANAGER` | Trả lời claim của nhà thầu và ghi vào sổ | Có thể bị coi là chấp nhận hoặc mất quyền từ chối; nhà thầu đưa sang tranh chấp | 48 giờ | ACTION khi sắp đến, URGENT khi quá hạn |
+| `CLAIM_SETTLEMENT_OVERDUE` | `CONTRACT_MANAGER` | Chốt quyết toán: đề xuất mức thỏa thuận và để người khác duyệt | Tiền và thời gian được cấp chưa vào hợp đồng, chậm thanh toán | 72 giờ | ACTION |
+| `EW_REGISTER_OVERDUE` | `CONTRACT_MANAGER` | Phát hành sổ (lần đầu hoặc sau họp) và ghi ngày | Các bên làm việc với sổ cũ, không chứng minh được đã cảnh báo đúng hạn | 72 giờ | WATCH khi sắp đến, ACTION khi quá hạn |
+| `EW_MEETING_OVERDUE` | `CONTRACT_MANAGER` | Họp soát xét sổ với các bên và ghi cuộc họp | Cảnh báo đang mở không được bàn biện pháp | 72 giờ | WATCH, ACTION |
+| `EW_ACTION_OVERDUE` | `EARLY_WARNING_ACTION_OWNER` | Hoàn thành biện pháp hoặc báo người giữ sổ và thỏa thuận ngày mới | Rủi ro lớn dần, cảnh báo mất tác dụng | 72 giờ | ACTION |
+
+### 14.4 Quyền, API, màn hình, lỗi
+
+Quyền: `claim.read`, `claim.manage`, `claim.term.propose`, `claim.term.approve`, `claim.settle`, `claim.bar`, `early_warning.read`, `early_warning.raise`, `early_warning.manage`, `early_warning.close`; phạm vi như các sổ khác của CTR (quyền theo đơn vị của dự án; 404 nếu không thấy, 403 `SCOPE_DENIED` nếu chỉ đọc).
+
+| Operation | Route | Quyền |
+|---|---|---|
+| `proposeClaimTerm`, `listClaimTerms` | `POST/GET /contracts/{id}/claim-terms` | `claim.term.propose`, `claim.read` |
+| `decideClaimTerm` | `POST /claim-terms/{id}/decision` (If-Match) | `claim.term.approve` |
+| `registerClaim` | `POST /contracts/{id}/claims` | `claim.manage` |
+| `listClaims`, `getClaim` | `GET /claims`, `GET /claims/{id}` | `claim.read` |
+| `recordClaimStep`, `linkClaim` | `POST /claims/{id}/steps`, `/links` (If-Match) | `claim.manage` |
+| `decideClaimSettlement` | `POST /claims/{id}/settlement-decision` (If-Match) | `claim.settle` |
+| `declareClaimBar` | `POST /claims/{id}/bar` (If-Match) | `claim.bar` |
+| `raiseContractEarlyWarning` | `POST /contracts/{id}/early-warnings` | `early_warning.raise` |
+| `listContractEarlyWarnings`, `getContractEarlyWarning`, `getContractEarlyWarningRegister` | `GET /contract-early-warnings`, `/contract-early-warnings/{id}`, `/contracts/{id}/early-warning-register` | `early_warning.read` |
+| `assessContractEarlyWarning`, `addContractEarlyWarningAction`, `completeContractEarlyWarningAction`, `recordContractEarlyWarningMeeting`, `issueContractEarlyWarningRegister` | `POST /contract-early-warnings/{id}/assessment` (If-Match), `/actions`, `/contract-early-warning-actions/{id}/completion` (If-Match), `/contracts/{id}/early-warning-meetings`, `/contracts/{id}/early-warning-issues` | `early_warning.manage` |
+| `closeContractEarlyWarning` | `POST /contract-early-warnings/{id}/closure` (If-Match) | `early_warning.close` |
+
+Màn hình: CTR-32 sổ claim (lọc, tổng do máy chủ cộng, mốc thời hiệu gần nhất), CTR-33 hồ sơ claim và đồng hồ thời hiệu, CTR-34 điều khoản thời hiệu của hợp đồng (mẫu tham khảo ghi chưa kiểm chứng), CTR-35 sổ cảnh báo sớm (ba đồng hồ nhịp, họp, phát hành), CTR-36 hồ sơ cảnh báo sớm. Mọi con số có nút "i" (công thức, nguồn, giờ cập nhật, quy tắc và phiên bản).
+
+Mã lỗi mới: `CTR_CLAIM_STATE_INVALID` (409), `CLAIM_TERM_PENDING` (409), `CLAIM_BAR_NOT_DUE` (409), `CLAIM_SETTLEMENT_EXCEEDS_CLAIM` (422), `EARLY_WARNING_STATE_INVALID` (409), `EARLY_WARNING_ACTIONS_OPEN` (409); dùng lại `VALIDATION_FAILED`, `VERSION_CONFLICT`, `SELF_APPROVAL_DENIED`, `SCOPE_DENIED`, `RESOURCE_NOT_FOUND`, `CONTRACT_STATE_INVALID`.
+
+### 14.5 Dữ liệu và móc cho báo cáo CA-3
+
+Bảng (tất cả có RLS bắt buộc, chỉ mục dẫn đầu bằng `tenant_id` cho mọi cột `*_id`, ứng dụng không xóa dòng nào): `contract_claim_term` (V1980), `contract_claim` (V1981), `contract_claim_step` chỉ thêm (V1982), `contract_early_warning`, `contract_early_warning_action` (V1983), `contract_early_warning_meeting`, `contract_early_warning_review`, `contract_early_warning_issue` chỉ thêm (V1984); V1985 thêm hai nguồn vào kiểm tra của `work_action.source`. Cột và ràng buộc xem chú thích đầu từng tệp migration.
+
+Móc báo cáo (báo cáo CA-3 do làn khác dựng): kernel `claimRegisterReport` (đọc từng claim theo điều khoản, cộng theo trạng thái, bên, thời hiệu, tiền và ngày yêu cầu và đã quyết toán, số claim chưa có điều khoản), `limitationHorizon` (các mốc thời hiệu sắp tới và đã bỏ lỡ, gần nhất trước), `earlyWarningSummary` (đếm, tác động dự kiến cộng gộp, cảnh báo chưa có người phụ trách); db `CtrClaimStore.reportInputs` (đầu vào theo phạm vi đọc) và `CtrEarlyWarningStore.list` (tổng hợp).
