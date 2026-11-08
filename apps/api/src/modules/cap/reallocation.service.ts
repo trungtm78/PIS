@@ -86,10 +86,12 @@ export class ReallocationApprovalService {
     return resultOf(done.row);
   }
 
-  /** The impact is recorded for the version that is decided (when the policy asks for it), and the approver is within the delegation for the total. A stale version is left to the store to refuse (409). */
+  /** The impact is recorded for the version that is decided (when the policy asks for it), and the approver is within the delegation for the total. A stale version and a state that cannot be decided are left to the store to refuse (409). */
   private async assertReadyToApprove(step: StepScope, access: EffectiveAccess, id: string, expectedVersion: number, now: Date): Promise<void> {
     const proposal = await this.store.find(step.tx, id);
     if (proposal === undefined || proposal.version !== expectedVersion) return;
+    // A proposal that is not waiting for a decision has no impact to ask for: the state is refused by the store (409 STAGE_TRANSITION_DENIED), not by a missing record.
+    if (proposal.status !== 'SUBMITTED') return;
     const policy = await this.impacts.policy(step.tx, now);
     if (policy.policy.simulation_required && !(await this.impacts.isRecorded(step.tx, id, expectedVersion))) {
       throw new DomainError('REALLOCATION_IMPACT_MISSING', 422, 'id', { extensions: { proposal_version: expectedVersion } });
