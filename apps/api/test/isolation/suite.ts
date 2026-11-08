@@ -1387,6 +1387,12 @@ export const AVC_POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; poli
   'TNT-B': { id: '00000000-0000-4000-b0c3-000000000001', policyCode: 'BETA-AVC-0001', legalBasis: 'Beta capital control resolution 0001/2026' },
 };
 
+/** A batch of funding figures (FND-1) of the project of each tenant: an estimate of March waiting for its checker. */
+export const FUNDING_FIGURE_FIXTURES: Readonly<Record<TenantName, { batchId: string; figureId: string }>> = {
+  'TNT-A': { batchId: '00000000-0000-4000-a0f1-000000000001', figureId: '00000000-0000-4000-a0f1-000000000002' },
+  'TNT-B': { batchId: '00000000-0000-4000-b0f1-000000000001', figureId: '00000000-0000-4000-b0f1-000000000002' },
+};
+
 /** A request to carry capital over to the next year of each tenant, on the line of its capital plan (the justification is distinctive). */
 export const EXTENSION_FIXTURES: Readonly<Record<TenantName, { id: string; justification: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d9-000000000001', justification: 'Alpha carry-over justification 0001 for the isolation suite' },
@@ -1981,6 +1987,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'fiscal year close note', value: FISCAL_YEAR_FIXTURES[tenant].reason },
     { kind: 'carry-over request id', value: EXTENSION_FIXTURES[tenant].id },
     { kind: 'carry-over request justification', value: EXTENSION_FIXTURES[tenant].justification },
+    { kind: 'funding figure batch id', value: FUNDING_FIGURE_FIXTURES[tenant].batchId },
+    { kind: 'funding figure id', value: FUNDING_FIGURE_FIXTURES[tenant].figureId },
     { kind: 'avc policy id', value: AVC_POLICY_FIXTURES[tenant].id },
     { kind: 'avc policy code', value: AVC_POLICY_FIXTURES[tenant].policyCode },
     { kind: 'avc policy legal basis', value: AVC_POLICY_FIXTURES[tenant].legalBasis },

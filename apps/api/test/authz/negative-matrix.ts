@@ -2831,6 +2831,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   requestPackageStepException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/exceptions', body: { kind: 'SKIP_ITEMS', reason: REASON } }) },
   decidePackageStepException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-step-exceptions/00000000-0000-4000-8000-0000000000f1/decision', body: { decision: 'REJECT', note: REASON } }) },
   cancelPackageWorkflow: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  // FND-1: the stored figures of the funding model; a caller who is refused prepares, hands in, accepts or returns nothing.
+  proposeFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches', body: { project_id: '00000000-0000-4000-8000-0000000000f1', class_code: 'EQUITY', tier_code: 'ALL', measure: 'DISBURSED', figure_kind: 'ESTIMATE', period_grain: 'MONTH', plan_year: 2026, as_of_date: '2026-03-10', entries: [{ period_ordinal: 3, amount_vnd: '100' }] } }) },
+  submitFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/submission', ifMatch: '"1"', body: {} }) },
+  acceptFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/acceptance', ifMatch: '"1"', body: {} }) },
+  returnFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/return', ifMatch: '"1"', body: { reason: REASON } }) },
+  withdrawFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/withdrawal', ifMatch: '"1"', body: { reason: REASON } }) },
   // EGP-1: the connection of the national procurement network and the codes it carries; a caller who is refused changes nothing and reads no file.
   setEgpConnectionState: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/connection/state', ifMatch: '"1"', body: { enabled: false, reason: REASON } }) },
   uploadEgpFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/imports/files', body: {} }) },

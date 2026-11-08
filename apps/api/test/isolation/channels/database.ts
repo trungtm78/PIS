@@ -103,7 +103,8 @@ import {
 } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
-import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES } from '../suite';
+import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES, FUNDING_FIGURE_FIXTURES } from '../suite';
+
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
 import { INTEGRATION_FIXTURES } from '../suite';
@@ -1356,6 +1357,10 @@ const INSERT_AVC_POLICY = `insert into machvon.avc_policy
   (tenant_id, id, policy_code, scope_kind, control_object, warn_pct, block_pct, legal_basis, effective_from, revision, status, created_by, updated_by, version)
   values ($1, $2, $3, 'TENANT', 'ALLOCATION_LINE', 90, 100, $4, date '2026-01-01', 1, 'DRAFT', $5, $5, 1) on conflict do nothing`;
 
+const INSERT_FUNDING_FIGURE = `insert into machvon.plan_figure_revision
+  (tenant_id, id, batch_id, project_id, taxonomy_pack, bucket, budget_level, measure, figure_kind, period_grain, plan_year, period_ordinal, amount_vnd, basis, as_of_date, revision, status, prepared_by, updated_by, version)
+  values ($1, $2, $3, $4, 'ENTERPRISE', 'EQUITY', 'ALL', 'DISBURSED', 'ESTIMATE', 'MONTH', 2026, 3, 100, 'OWNER_ESTIMATE', date '2026-03-10', 1, 'SUBMITTED', $5, $5, 1) on conflict do nothing`;
+
 const INSERT_RETENTION_POLICY = `insert into machvon.data_retention_policy
   (tenant_id, id, record_class, revision, retention_years, retention_basis, legal_basis_ref, end_action, effective_from, status, created_by, version)
   values ($1, $2, $3, 1, 10, 'FROM_CLOSED', $4, 'REVIEW_FOR_DESTRUCTION', date '2026-01-01', 'Draft', $5, 1) on conflict do nothing`;
@@ -2237,6 +2242,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CURSOR, [tenantId, crosswalk.cursorId, crosswalk.sourceScope, crosswalk.fileSha256]);
     const project = PROJECT_FIXTURES[tenant];
     await client.query(INSERT_PROJECT, [tenantId, project.id, project.code, project.name, home, master.versionId, ACTOR_ID]);
+    await client.query(INSERT_FUNDING_FIGURE, [tenantId, FUNDING_FIGURE_FIXTURES[tenant].figureId, FUNDING_FIGURE_FIXTURES[tenant].batchId, project.id, ACTOR_ID]);
     await client.query(INSERT_APPRAISAL, [tenantId, APPRAISAL_FIXTURES[tenant].id, project.id, master.versionId, MEMBERSHIP_ID]);
     await client.query(INSERT_SECTION, [tenantId, SECTION_FIXTURES[tenant].id, project.id, SECTION_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
