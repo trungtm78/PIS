@@ -5,7 +5,7 @@ import { policyVersionOf } from './home-work-policy.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
-const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 export const DECISION_RESOURCE = 'analytics_decision';
 export const DECISION_LIST_MAX = 100;
 
@@ -205,6 +205,11 @@ export class AnaDecisionStore {
       sql: `(d.decided_by = $${first}::uuid or d.follow_up_owner_id = $${first}::uuid or (d.unit_id is null and ${wholeTenant ? 'true' : 'false'}) or (d.unit_id is not null and exists (select 1 from machvon.organization_unit u where u.id = d.unit_id and ${scope.sql})))`,
       params: [membershipId, ...scope.params],
     };
+  }
+
+  /** Serializes the outcomes of one decision for the rest of the transaction (the log is append-only, so the row itself cannot be locked): the later outcome reads the earlier one before it checks the state. */
+  async lock(tx: TenantTx, id: string): Promise<void> {
+    await tx.query("select pg_advisory_xact_lock(hashtextextended('analytics_decision:' || nullif(current_setting('app.tenant_id', true), '') || ':' || $1::text, 0))", [id]);
   }
 
   async find(tx: TenantTx, id: string, unitScope: ScopeBuilder, membershipId: string, wholeTenant: boolean): Promise<AnalyticsDecisionRow | undefined> {

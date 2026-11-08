@@ -111,6 +111,40 @@ describe('the decision log over HTTP (G3-6)', () => {
     expect(gone.json.code).toBe('WORK_ITEM_GONE');
   });
 
+  it('keeps the outcomes of one decision in order when they arrive together, so nothing follows a superseded decision (review finding)', async () => {
+    await week('2027-10-12', '600000000000');
+    const first = id(await fx.post('/home/decisions', body()));
+    const second = id(await fx.post('/home/decisions', body({ kind: 'ESCALATE' })));
+    const replies = await Promise.all([
+      fx.post(`/home/decisions/${first}/outcomes`, { outcome: 'SUPERSEDED', note: 'Replaced by the escalation.', superseded_by: second }),
+      fx.post(`/home/decisions/${first}/outcomes`, { outcome: 'RESOLVED', note: 'Caught up as asked.' }),
+      fx.post(`/home/decisions/${first}/outcomes`, { outcome: 'STILL_OPEN', note: 'The north unit asked for time.' }),
+    ]);
+    expect(replies.every((reply) => reply.status === 200 || reply.status === 409)).toBe(true);
+    const detail = (await fx.get(`/home/decisions/${first}`)).json as unknown as Detail;
+    const kinds = detail.outcomes.map((one) => one.outcome);
+    // Once superseded, nothing is added: the superseding outcome is the last one on record.
+    expect(kinds.filter((kind) => kind === 'SUPERSEDED')).toHaveLength(1);
+    expect(kinds[kinds.length - 1]).toBe('SUPERSEDED');
+  });
+
+  it('pages through decisions that fall in the same millisecond without skipping one (review finding)', async () => {
+    const stamps = ['2027-10-06T03:00:00.000900Z', '2027-10-06T03:00:00.000500Z', '2027-10-06T03:00:00.000100Z'];
+    for (const [index, stamp] of stamps.entries()) {
+      await fx.insert('analytics_decision', { subject_kind: 'FREE', subject_title: `Same millisecond ${index}`, decision_kind: 'NO_ACTION', reason: 'Recorded in the same millisecond.', figures: {}, figures_sha256: 'a'.repeat(64), decided_by: memberId(MEMBERS.LEADER), decided_at: stamp }, undefined, { replica: true });
+    }
+    const seen: string[] = [];
+    let cursor = '';
+    for (let turn = 0; turn < 5; turn += 1) {
+      const page = (await fx.get(`/home/decisions?limit=1${cursor}`)).json as { items: Item[]; next_cursor: string | null };
+      seen.push(...page.items.map((item) => item.id));
+      if (page.next_cursor === null) break;
+      cursor = `&cursor=${encodeURIComponent(page.next_cursor)}`;
+    }
+    expect(seen).toHaveLength(3);
+    expect(new Set(seen).size).toBe(3);
+  });
+
   it('adds outcomes, closes the follow-up and stops after the decision is superseded', async () => {
     await week('2027-10-12', '600000000000');
     const first = id(await fx.post('/home/decisions', body()));

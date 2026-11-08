@@ -87,6 +87,17 @@ describe('the back-test of the early-warning thresholds (G3-11)', () => {
     expect(red).toMatchObject({ threshold: 60, isCurrent: false, tp: 1, fp: 1, fn: 2, tn: 12, precisionPct: '50.0', recallPct: '33.3', meanLeadWeeks: null, missedUnits: 1, warnedEarlyUnits: 0 });
   });
 
+  it('leaves out a pair whose horizon has a week that was never stored, and counts it as no outcome (review finding)', () => {
+    // Unit B stops reporting after its week 6: its weeks 5 and 6 have no stored follow-up, so only its weeks 1 to 4 make pairs; A is whole.
+    const stopped = B.slice(0, 6);
+    const result = backtestThresholds([...A, ...stopped], lines, small);
+    expect(result.pairs).toBe(8 + 4);
+    expect(result.positives).toBe(3);
+    // A hole inside the series takes out the pairs whose horizon crosses it.
+    const holed = B.filter((week) => week.weekStart !== MONDAYS[3]);
+    expect(backtestThresholds([...A, ...holed], lines, small).pairs).toBe(8 + 5);
+  });
+
   it('makes one candidate for each shift of each line, sorted by threshold', () => {
     const result = backtestThresholds([...A, ...B], lines, { backtestHorizonWeeks: 2, candidateShifts: [-5, 0, 5], backtestMinPairs: 4 });
     expect(result.candidates.map((one) => [one.line, one.threshold])).toEqual([['AMBER', 25], ['AMBER', 30], ['AMBER', 35], ['RED', 55], ['RED', 60], ['RED', 65]]);

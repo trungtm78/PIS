@@ -159,6 +159,7 @@ export class AnaDecisionController {
     const today = vietnamDateOf(now);
     const scopes = workScopes(access, now);
     const whole = scopes.holds(HOME_READ_PERMISSION, true);
+    await this.decisions.lock(scope.tx, id);
     const decision = await this.decisions.find(scope.tx, id, scopes.unitScope, scope.tenant.membershipId, whole);
     if (decision === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     if (decision.latestOutcome === 'SUPERSEDED') throw new DomainError('ANALYTICS_DECISION_SUPERSEDED', 409, 'id');

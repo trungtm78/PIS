@@ -229,13 +229,16 @@ export interface RankingResult {
  * flagged thin and says so.
  */
 export function rankMultiMetric(model: RankingModel, units: readonly UnitMeasures[], annotations: readonly ApprovedAnnotation[], complaints: readonly OpenComplaint[], today: string): RankingResult {
+  // Every approved note in force counts: a unit may hold several for different measures, and the one shown is the one that lasts longest (ties by id), never an arbitrary one.
+  const inForce = new Map<string, ApprovedAnnotation[]>();
+  for (const annotation of annotations) if (annotation.validFrom <= today && today <= annotation.validTo) inForce.set(annotation.unitId, [...(inForce.get(annotation.unitId) ?? []), annotation]);
   const active = new Map<string, ApprovedAnnotation>();
-  for (const annotation of annotations) if (annotation.validFrom <= today && today <= annotation.validTo) active.set(annotation.unitId, annotation);
+  for (const [unitId, list] of inForce) active.set(unitId, [...list].sort((left, right) => (left.validTo < right.validTo ? 1 : left.validTo > right.validTo ? -1 : left.id < right.id ? -1 : 1))[0] as ApprovedAnnotation);
   const disputed = new Set(complaints.filter((one) => one.status === 'FILED' || one.status === 'UNDER_REVIEW').map((one) => `${one.unitId}:${one.metricCode}`));
   const raw = units.map((unit) => ({ unit, band: bandOf(model, unit.planPmVnd), readings: model.metrics.map((rule) => ({ rule, ...measureValue(rule.code, unit) })) }));
   const bandSizes = new Map<string, number>();
   for (const one of raw) bandSizes.set(one.band, (bandSizes.get(one.band) ?? 0) + 1);
-  const taken = (unitId: string, code: RankMetricCode): boolean => model.annotationEffect === 'EXCLUDE_METRIC' && (active.get(unitId)?.metricCodes.includes(code) ?? false);
+  const taken = (unitId: string, code: RankMetricCode): boolean => model.annotationEffect === 'EXCLUDE_METRIC' && ((inForce.get(unitId) ?? []).some((annotation) => annotation.metricCodes.includes(code)));
   // The lines of each measure in each band: only the values that stand count.
   const lines = new Map<string, { low: number; high: number }>();
   for (const one of raw) {

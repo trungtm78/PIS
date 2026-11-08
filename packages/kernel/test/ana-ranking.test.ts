@@ -129,6 +129,18 @@ describe('the ranking over the size bands (G3-8)', () => {
     expect(by(rankMultiMetric(excluding, [A, B, C], [{ ...note, validTo: '2027-10-19' }], [], TODAY), 'A').annotation).toBeNull();
   });
 
+  it('applies every approved note in force of a unit, whatever the order they arrive in (review finding)', () => {
+    const excluding = rankingModelOf({ ...RANKING_DEFAULTS, annotation_effect: 'EXCLUDE_METRIC' });
+    const rate: ApprovedAnnotation = { id: 'n1', unitId: 'id-A', reasonCode: 'LAND_CLEARANCE', metricCodes: ['RATE'], validFrom: '2027-10-01', validTo: '2027-12-31' };
+    const warnings: ApprovedAnnotation = { id: 'n2', unitId: 'id-A', reasonCode: 'FORCE_MAJEURE', metricCodes: ['WARNINGS'], validFrom: '2027-10-01', validTo: '2027-11-30' };
+    const one = rankMultiMetric(excluding, [A, B, C], [rate, warnings], [], TODAY);
+    const two = rankMultiMetric(excluding, [A, B, C], [warnings, rate], [], TODAY);
+    expect(two).toEqual(one);
+    expect(by(one, 'A').metrics.filter((reading) => reading.excluded === 'ANNOTATION').map((reading) => reading.code).sort()).toEqual(['RATE', 'WARNINGS']);
+    // The note shown is the one that lasts longest.
+    expect(by(one, 'A').annotation?.id).toBe('n1');
+  });
+
   it('marks the figure a unit disputes until the complaint is answered, without changing the score', () => {
     const open: OpenComplaint = { id: 'c1', unitId: 'id-C', metricCode: 'RATE', status: 'FILED' };
     const result = rankMultiMetric(model, [A, B, C], [], [open, { id: 'c2', unitId: 'id-C', metricCode: 'WARNINGS', status: 'UPHELD' }], TODAY);

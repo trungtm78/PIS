@@ -239,9 +239,15 @@ export function backtestThresholds(weeks: readonly WeekScore[], lines: { amberFr
   for (const [unit, held] of byUnit) {
     for (const [week, row] of held) {
       if (row.score === null || addDays(week, 7 * horizon) > latest) continue;
+      // A week that was never stored is not observed: it is no outcome, so the pair is left out unless every week of its horizon is on record.
       let outcome = false;
-      for (let step = 1; step <= horizon; step += 1) if (held.get(addDays(week, 7 * step))?.band === 'RED') outcome = true;
-      pairs.push({ unit, week, score: row.score, outcome });
+      let observed = true;
+      for (let step = 1; step <= horizon; step += 1) {
+        const next = held.get(addDays(week, 7 * step));
+        if (next === undefined) observed = false;
+        else if (next.band === 'RED') outcome = true;
+      }
+      if (observed) pairs.push({ unit, week, score: row.score, outcome });
     }
   }
   const positives = pairs.filter((pair) => pair.outcome).length;
