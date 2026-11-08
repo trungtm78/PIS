@@ -85,7 +85,6 @@ class _Body extends StatelessWidget {
                 TierPill(tier: risk.tier),
                 Text(risk.tier == null ? context.t('mob.vnd.grade.none') : context.t('mob.vnd.grade.carried', <String, Object>{'tier': tierWord(context, risk.tier!)}), style: theme.textTheme.titleSmall),
               ],
-              children: <Widget>[TierPill(tier: risk.tier), Text(context.t('mob.vnd.grade.carried', <String, Object>{'tier': tierWord(context, risk.tier)}), style: theme.textTheme.titleSmall)],
             ),
             if (live != null) ...<Widget>[
               Text(context.t('mob.vnd.grade.live', <String, Object>{'tier': tierWord(context, live.tier), 'score': live.score}), style: theme.textTheme.bodyMedium),
