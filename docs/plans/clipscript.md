@@ -28,12 +28,12 @@ that every screen of a scene has a route and an implementation. This lane closes
 
 ## Steps
 
-- [ ] 1. Plan (this file) committed.
-- [ ] 2. Scenarios follow the merged catalogue and contract; `planned.json` shrinks to what is really missing. Test: `scenario.mjs check` stays ok.
-- [ ] 3. Chapter "province-committee" in the public clip (BAN-01..07, FEED-01..04), figures from the committee and feed reads; sentences over the TTS limit split; re-stamp.
-- [ ] 4. Production data: `scripts/clips/production/{rules,shots,music,readiness}.json` and the pure builder `scripts/clips/production.mjs`. Tests in `scripts/clips/production.test.mjs`.
-- [ ] 5. `scripts/clip-scripts-check.mjs` + `scripts/clip-scripts-check.test.mjs` (every check has a negative test), wired into `qa:check`.
-- [ ] 6. `docs/clips/<clip>.script.md` generated and kept in sync by the check; README of the clips updated.
+- [x] 1. Plan (this file) committed.
+- [x] 2. Scenarios follow the merged catalogue and contract; `planned.json` shrinks to what is really missing. Test: `scenario.mjs check` stays ok.
+- [x] 3. Chapter "province-committee" in the public clip (BAN-01..07, FEED-01..04), figures from the committee and feed reads; sentences over the TTS limit split; re-stamp.
+- [x] 4. Production data: `scripts/clips/production/{rules,shots,music,readiness}.json` and the pure builder `scripts/clips/production.mjs`. Tests in `scripts/clips/production.test.mjs`.
+- [x] 5. `scripts/clip-scripts-check.mjs` + `scripts/clip-scripts-check.test.mjs` (every check has a negative test), wired into `qa:check`.
+- [x] 6. `docs/clips/<clip>.script.md` generated and kept in sync by the check; README of the clips updated.
 - [ ] 7. Gates (scan, eslint, i18n, clips tests, qa:check), Codex review with gpt-6-astra, triage, fixes.
 
 ## Tests per step
