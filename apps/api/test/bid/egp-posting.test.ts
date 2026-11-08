@@ -508,7 +508,7 @@ describe('the duties of posting to the national procurement network, the reconci
       const settled = await call('GET', '/egp/reconciliation/items?state=RESOLVED', { member: READER });
       const row = (settled.json.items as Array<Record<string, unknown>>).find((entry) => entry.id === itemId);
       expect(row).toMatchObject({ state: 'RESOLVED', resolution: { kind: 'DISPUTE', follow_up: 'ESCALATE_TO_OPERATOR', evidence_ref: 'CV-77/SKHDT ngày 05/11/2026' } });
-      expect((settled.json.counts as Record<string, Record<string, number>>).by_resolution.DISPUTE).toBeGreaterThanOrEqual(1);
+      expect((settled.json.counts as { by_resolution: Record<string, number> }).by_resolution.DISPUTE).toBeGreaterThanOrEqual(1);
       const next = await call('POST', '/egp/reconciliation/run', { member: RECONCILER, body: { subject_type: 'PACKAGE' } });
       expect((next.json.items as Array<Record<string, unknown>>).filter((entry) => entry.subject_id === one.packageId)).toEqual([]);
       expect((next.json.settled_already as number) >= 1).toBe(true);
