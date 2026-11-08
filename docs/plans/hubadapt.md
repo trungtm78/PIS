@@ -15,13 +15,13 @@ Owner rule 2026-11-08: no scope cut, decide by deepest governance and extensibil
 ## Steps
 
 - [x] 0. Plan and migration block registered.
-- [ ] 1. Kernel: descriptors for fin.sotaichinh, access.open-api, bi.read-views, indicator.import, master.data_import, backup.tenant (if it fits); conformance cases for each; alert types and freshness codes they need. Tests: `connector-hub.test.ts` additions.
-- [ ] 2. Enterprise: descriptors hpm.reports and ebs.ledger, freshness code `HPM_PUSH`, registration when the edition loads. Tests: `connection-descriptors.test.ts`.
-- [ ] 3. DB: `HubRunPort`, `HubProbe` registry and sweep hook, state adapters for fin.sotaichinh and the enterprise connections, feed and HPM report their runs through the port; access probe. Tests: `hub-adapt.test.ts` through the db lane.
+- [x] 1. Kernel: descriptors for fin.sotaichinh, access.open-api (machine accounts and BI reader views in one connector, protocol API_SERVE), ind.figure-import, mdm.catalogue-import; tenant restore and backup do not fit (platform plane), land parcels and the budget code cursor have no fixed code or no layout. Conformance cases in `connector-hub-adopted.test.ts`. DONE.
+- [x] 2. Enterprise: descriptors hpm.reports and ebs.ledger, freshness code `HPM_PUSH`, registration and switch adapters when the edition loads. Tests: `hub-descriptors.test.ts`. DONE.
+- [x] 3. DB (test run queued on the db lane, see the report): `HubRunPort`, `HubProbe` registry and sweep hook, state adapters for fin.sotaichinh and the enterprise connections, feed and HPM report their runs through the port; access probe. Hub incidents as alert-centre work (`HomeConnectorSources.hubItems`). Tests: `hub-adapt.test.ts`, `home-hub-incident-sources.test.ts`.
 - [x] 4. Alert sources (MR-1, BAN-1, GOV-8 check): kernel kinds, db sources, migration V2620 for the check on `work_action.source`, `WORK_SOURCES`, web alert kit, work model, contract enums. Tests: kernel, db, web.
-- [ ] 5. Registry read: operation `listHubRegistry` (contract-patch), controller, authz, story row. API test.
-- [ ] 6. Web: Registry tab on HUB-01, i18n parts `hubadapt.{vi,en}.json`, vitest.
-- [ ] 7. Shared suite entries (not run): isolation, reachability, command-conformance counts, outbox consumers, workers/jobs lists; docs (`docs/integration-hub.md`, finance feed, notes).
+- [x] 5. Registry read: decided against a new operation; `HubConnectorSummary` carries an optional `registry` object (schema `HubRegistryFacts`), so no new operation, permission or authz row. API test assertions in `hub.test.ts`.
+- [x] 6. Web: Registry section on HUB-01 (`RegistrySection.tsx`), i18n parts folded, vitest.
+- [x] 7. Shared suites: no new operation, event, screen, tenant table or job, so no entry changes (a scheduled hub sweep job is a follow-up); docs `docs/integration-hub.md` section 7.
 - [ ] 8. Gates: lint, typecheck, tests of what changed; Codex review (gpt-6-astra, base main) with triage.
 
 ## Risks

@@ -124,6 +124,26 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     for (const item of items) expect(item).toMatchObject({ status: 'PENDING_EXTERNAL', acceptance: 'PENDING_EXTERNAL', alert: null, enabled: true });
     expect(items[0]).toMatchObject({ direction: 'BOTH', protocols: ['FILE_DROP'], planned_protocols: ['HTTPS_REST', 'SOAP_XML'], screens: [{ code: 'BID-22', route: '/bid/bid-22' }, { code: 'BID-23', route: '/bid/bid-23' }, { code: 'BID-24', route: '/bid/bid-24' }] });
     expect(reply.json.summary).toMatchObject({ total: 4, monitored: 0, healthy: 0, healthy_percent: null, hub_alert: null });
+    expect(reply.json.summary).toMatchObject({ total: 8, monitored: 0, healthy: 0, healthy_percent: null, hub_alert: null });
+    // HUB-2: the registry facts of each descriptor ride with the summary, so the catalogue can show what every connection is declared to be.
+    const feed = items.find((item) => item.code === 'fin.sotaichinh');
+    expect(feed).toMatchObject({
+      registry: {
+        transports: ['FILE', 'GENERATOR'],
+        layouts: [{ code: 'PROJECT', version: 'WORKING-ASSUMPTION-FIN-2026.1', acceptance: 'PENDING_EXTERNAL' }, { code: 'PLAN' }, { code: 'DISBURSEMENT' }, { code: 'MILESTONE' }],
+        freshness_rule: 'FIN_FEED',
+        max_age_hours: 48,
+        warn_after_hours: 24,
+        credential_kind: 'NONE',
+        state_owner: 'CONNECTOR',
+        history: 'FILE_FRAMEWORK',
+      },
+    });
+    expect((feed?.registry as { alert_types: string[] }).alert_types).toEqual(expect.arrayContaining(['CONNECTOR_FAILING', 'CONNECTOR_STALE', 'FEED_STALE']));
+    expect(items.find((item) => item.code === 'access.open-api')).toMatchObject({
+      registry: { transports: ['API_PULL'], layouts: [], freshness_rule: null, max_age_hours: null, rule_source: 'NOT_JUDGED', credential_kind: 'MACHINE_ACCOUNT', state_owner: 'HUB', history: 'HUB_RUNS', alert_types: ['CONNECTOR_FAILING'] },
+    });
+    expect(items.find((item) => item.code === 'mdm.catalogue-import')).toMatchObject({ registry: { layouts: [{ code: 'MASTER_FILE', version: 'TENANT-MAPPING', acceptance: 'NOT_APPLICABLE' }], history: 'HUB_RUNS' } });
     expect((await rows('select 1 from machvon.hub_connector_state')).length).toBe(0);
     expect((await rows('select 1 from machvon.hub_health_snapshot')).length).toBe(0);
   });

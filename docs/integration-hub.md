@@ -160,11 +160,34 @@ Tests of the runner (`packages/kernel/test/etl-pipeline.test.ts`): clean batch, 
 
 Reads: `listHubConnectors`, `getHubConnector` (every tab), `listHubConnectorRuns`, `listHubRejects`, `listHubIncidents`, `getHubHealthSummary`, `listHubAgents`. Commands (all audited, announced in the outbox with ids and codes only): `setHubConnectorState` (If-Match, reason; delegated to the connector's own command when it has one), `recordHubRun`, `openHubIncident`, `decideHubIncident` (acknowledge or resolve, If-Match, reason), `captureHubSnapshot`, `proposeHubMapping`, `decideHubMapping` (If-Match, another person), `decideHubReject`, `registerHubAgent`, `heartbeatHubAgent`. Permissions `hub.read`, `hub.state.manage`, `hub.run.record`, `hub.incident.manage`, `hub.snapshot.capture`, `hub.mapping.propose`, `hub.mapping.approve`, `hub.reject.manage`, `hub.agent.manage`, `hub.agent.heartbeat`; every one is held over the whole tenant (a connection belongs to no unit). Error codes: `HUB_INCIDENT_STATE_INVALID`, `HUB_MAPPING_VERSION_TAKEN`, `HUB_MAPPING_STATE_INVALID`, `HUB_MAPPING_NOT_APPROVED`, `HUB_REJECT_STATE_INVALID`, `HUB_AGENT_CODE_TAKEN`, `HUB_AGENT_RETIRED`, `HUB_PIPELINE_NOT_WIRED`, `HUB_PROTOCOL_UNAVAILABLE`, `HUB_MANIFEST_INVALID`, `HUB_CONNECTOR_DISABLED`, `WEBHOOK_SIGNATURE_INVALID`.
 
-The alert centre raises `CONNECTOR_FAILING` and `CONNECTOR_HUB_STALE` as kinds of work (source `CONNECTOR`); the severity facets are `FAILING_*` and `HUB_STALE_*` from the policy rule. The generalisation of `HomeConnectorSources` from the e-GP connection to every hub connector is a follow-up; the kinds, their consequences and their alert types are registered.
+The alert centre raises `CONNECTOR_FAILING` and `CONNECTOR_HUB_STALE` as kinds of work (source `CONNECTOR`); the severity facets are `FAILING_*` and `HUB_STALE_*` from the policy rule. Since HUB-2 `HomeConnectorSources` also reads the open incidents of the hub (kinds `CONNECTOR_FAILING`, `CONNECTOR_STALE` and `CONNECTOR_HUB_STALE`, audience `hub.incident.manage` on the whole tenant, target HUB-03, cause key `connector:<code>` so that the stale incident of e-GP and of the feed, which have alerts of their own, is shown once).
 
 ## 7. Built-in descriptors
 
-`egp.muasamcong` (BID-22 to BID-24), `treasury.statement` (PAY-13), `procurement.milestones` (BID-17, BID-19), `national.project_codes` (PRJ-21). Written as data in `connector-hub-builtins.ts`; the e-GP one reads the constants of `egp.ts`, so a new layout version shows without an edit. The lead adapts EGP-2 (BID-32, BID-33), FEED-1, ENT-2 and INT-1 by descriptors.
+Public edition (`connector-hub-builtins.ts`, plain data; the e-GP one reads the constants of `egp.ts`, so a new layout version shows without an edit):
+
+| Code | Direction, protocols | Layouts (acceptance) | Freshness | History | Switch |
+|---|---|---|---|---|---|
+| `egp.muasamcong` (BID-22 to BID-24) | both, FILE_DROP | five e-GP layouts (PENDING_EXTERNAL) | `EGP_FILE` | file framework | connector (adapter) |
+| `treasury.statement` (PAY-13) | in, FILE_DROP | STATEMENT (PENDING_EXTERNAL) | `TREASURY_STATEMENT` | file framework | hub |
+| `procurement.milestones` (BID-17, BID-19) | in, FILE_DROP | MILESTONES (PENDING_EXTERNAL) | `PROCUREMENT_FILE` | file framework | hub |
+| `national.project_codes` (PRJ-21) | in, FILE_DROP | PROJECT_CODES (PENDING_EXTERNAL) | `NATIONAL_PIM_FILE` | file framework | hub |
+| `fin.sotaichinh` (FEED-01 to FEED-05) | in, FILE_DROP and GENERATOR (WEBHOOK_INBOUND planned) | four feed layouts (PENDING_EXTERNAL) | `FIN_FEED` | file framework plus the run port for push and generator | connector (adapter) |
+| `access.open-api` (INT-01 to INT-05) | both, API_SERVE | none | not judged | hourly CHECK run (probe) | hub |
+| `ind.figure-import` (IND-03) | in, FILE_DROP | INDICATOR_FIGURES (tenant mapping, NOT_APPLICABLE) | not judged | file framework, no cursor | hub |
+| `mdm.catalogue-import` (MDM-29) | in, FILE_DROP | MASTER_FILE (tenant mapping, NOT_APPLICABLE) | not judged | run port | hub |
+
+Enterprise edition (`packages/edition-enterprise/src/integration/hub-descriptors.ts`, registered when the edition loads, so a public process never lists them): `hpm.reports` (HPM-01, HPM-02; out, FILE_DROP, HTTPS_REST planned; layout DELIVERY_PACKAGE PENDING_EXTERNAL; freshness `HPM_PUSH`, the same numbers as `HPM_PUSH_POLICY`; every push attempt goes to the run log through the port; switch kept by `ent_connection`) and `ebs.ledger` (EBS-01, EBS-02; in, FILE_DROP; layout LEDGER_EXTRACT PENDING_EXTERNAL; freshness `EBS_FILE`; file framework; switch kept by `ent_connection`).
+
+Not registered, by decision: the tenant restore and backup of SAS (a platform-plane workflow run by a worker across tenants and not an exchange with an outside system, so it has no tenant run log to feed), the land parcel files of LND (one dynamic position per project; a descriptor needs a fixed code) and the seeded cursor `BUDGET_CODE_FILE` (no layout and no adapter exist yet).
+
+### How the connections report (HUB-2)
+
+- **File framework**: a connector whose files pass the framework (`FileImportStore.run`) needs nothing; its positions are read.
+- **Run port** (`HubRunPort`, `packages/db/src/hub-run-port.ts`): a store that has a history of its own calls `report` in the transaction of its own work (feed generator and push runs, every HPM push attempt, every applied master data batch). One row of `hub_run_log` per source reference, an error code that is not a stable code becomes `RUN_FAILED`, an unknown connector writes nothing. Runs that pass through the framework must not be reported (they would count twice).
+- **Probe** (`HubProbe`, `hub-probes.ts`): a connector with nothing to read answers how it stands, and the sweep records one CHECK run per hour. The open interface: FAILED when an active consumer has an expired credential, PARTIAL when one needs a look, SKIPPED (so NEVER_RUN) for a tenant that never opened it.
+- **State adapter**: a connector that owns its switch registers a `HubStateAdapter` (e-GP, feed, HPM, EBS).
+- A connector never used (NEVER_RUN) is left out of the healthy share, like one that is switched off or waits for the other side; the KPI text says so.
 
 ## 8. Collector agents (ARM and any operating system)
 
@@ -174,7 +197,7 @@ The alert centre raises `CONNECTOR_FAILING` and `CONNECTOR_HUB_STALE` as kinds o
 
 - Store and commands of egress exceptions (HUB-2); the gate and the refusing adapters are done.
 - The stage runner as the implementation of the e-GP, national-code, Treasury, FEED-1 and ENT-2 imports (section 5).
-- `HomeConnectorSources` over every connector.
+- A scheduled job for the sweep (the snapshots and the probes run when someone captures a snapshot; a job `hub-sweep` every hour needs the lists of jobs of the workers).
 - A working calendar from ADM for the schedule (the screen uses Monday to Friday).
 - Real adapters for HTTPS_REST, SOAP_XML, SFTP, DB_READ, MESSAGE_QUEUE and EMAIL_INBOX.
 - Notification channels and the e-signature as descriptors (the circuit state of channels would be an `ADAPTER` ledger).
