@@ -19,7 +19,6 @@
   "bi.export.row.total": "Tổng",
   "bi.export.title": "Xuất số liệu {code}",
   "bi.export.default_dimension": "Nhóm",
-
   "bid.report.status.SUPPORTED": "đáp ứng",
   "bid.report.status.CONTRADICTED": "mâu thuẫn với hồ sơ",
   "bid.report.status.MISSING": "thiếu",
@@ -42,9 +41,7 @@
   "bid.report.signed_heading": "Các thành viên đã ký:",
   "bid.report.dissent_heading": "Ý kiến khác:",
   "bid.report.title": "BIÊN BẢN ĐÁNH GIÁ HỒ SƠ DỰ THẦU - GÓI THẦU {code}",
-
   "dgv.recon.basis": "VND, ngày Kho bạc thanh toán",
-
   "dis.export.column.project_code": "Mã dự án",
   "dis.export.column.project_name": "Tên dự án",
   "dis.export.column.unit_code": "Mã đơn vị",
@@ -75,7 +72,6 @@
   "dis.export.header.created_at": "Thời điểm tạo tệp",
   "dis.export.header.definition_status": "Trạng thái định nghĩa chỉ tiêu",
   "dis.export.header.row_count": "Số dòng",
-
   "mne.export.watermark.unconfirmed": "CHƯA XÁC NHẬN PHÁP LÝ",
   "mne.export.column.label": "Chỉ tiêu",
   "mne.export.column.value": "Giá trị",
@@ -90,14 +86,12 @@
   "mne.export.header.as_of_date": "Số liệu đến ngày",
   "mne.export.header.payload_sha256": "Mã băm nội dung",
   "mne.export.header.document_id": "Mã văn bản phát hành",
-
   "mne.report.slow.none": "Không có dự án nào đang bị cảnh báo chậm giải ngân.",
   "mne.report.slow.no_leader": "chưa phân công",
   "mne.report.slow.line": "{index}. {code} - {name}; lãnh đạo phụ trách: {leader}; chậm {gap} điểm so với kỳ vọng",
   "mne.report.money_unit": "đồng",
   "mne.report.period": "Kỳ báo cáo {period} - {unit} ({code}); hạn nộp {due}",
   "mne.report.period_as_of": "; số liệu đến ngày {date}",
-
   "prj.scurve.export.title": "Đường S của dự án {project}",
   "prj.scurve.export.header.project": "Dự án",
   "prj.scurve.export.header.as_of": "Xem tại ngày",
@@ -114,13 +108,11 @@
   "prj.scurve.export.column.ev_vnd": "Giá trị thu được (EV, đồng)",
   "prj.scurve.export.column.ac_vnd": "Chi phí thực tế đã xác nhận (AC, đồng)",
   "prj.scurve.export.notice.insufficient": "Chưa đủ dữ liệu để tính giá trị thu được và chi phí thực tế: {reasons}. Các ô trống không phải là số không.",
-
   "pay.form.summary": "Giấy đề nghị thanh toán {request} của hợp đồng {contract}",
   "pay.settlement.subject.annual": "quyết toán niên độ {year} của dự án {project}",
   "pay.settlement.subject.project": "quyết toán dự án hoàn thành {project}",
   "pay.settlement.summary.decision": "Quyết định phê duyệt {subject}",
   "pay.settlement.summary.report": "Báo cáo {subject}",
-
   "ctr.report.header.report": "Báo cáo",
   "ctr.report.header.scope": "Phạm vi",
   "ctr.report.header.period": "Kỳ",
@@ -219,5 +211,27 @@
   "ctr.report.filter.type": "Loại hợp đồng",
   "ctr.report.filter.fund": "Nguồn vốn",
   "ctr.report.filter.q": "Từ khóa",
-  "ctr.report.filter.sort": "Sắp xếp"
+  "ctr.report.filter.sort": "Sắp xếp",
+  "bid.workflow.export.column.method": "Hình thức lựa chọn nhà thầu",
+  "bid.workflow.export.column.step_code": "Mã bước",
+  "bid.workflow.export.column.step_name": "Tên bước",
+  "bid.workflow.export.column.completed_visits": "Số lần rời bước trong kỳ",
+  "bid.workflow.export.column.median_days": "Trung vị số ngày ở bước",
+  "bid.workflow.export.column.basis": "Cách đếm ngày",
+  "bid.workflow.export.column.on_time_share_pct": "Tỷ lệ đúng hạn (%)",
+  "bid.workflow.export.column.open_visits": "Số gói đang ở bước",
+  "bid.workflow.export.column.over_standard": "Số gói quá số ngày chuẩn",
+  "bid.workflow.export.title": "Báo cáo tiến độ lựa chọn nhà thầu theo bước",
+  "bid.workflow.export.header.period": "Kỳ báo cáo",
+  "bid.workflow.export.header.as_of": "Ngày chốt",
+  "bid.workflow.export.header.median_days": "Trung vị số ngày ở bước (mọi bước)",
+  "bid.workflow.export.header.on_time_share_pct": "Tỷ lệ rời bước đúng hạn (%)",
+  "bid.workflow.export.header.formula": "Công thức",
+  "bid.workflow.export.header.source": "Nguồn",
+  "bid.workflow.export.header.truncated": "Lưu ý",
+  "bid.workflow.export.value.formula": "Trung vị số ngày làm việc ở bước của các lần rời bước trong kỳ; đúng hạn là số ngày làm việc ở bước không vượt số ngày chuẩn của bước (ngày dương lịch khi lịch làm việc chưa công bố)",
+  "bid.workflow.export.value.source": "Lịch sử bước của quy trình lựa chọn nhà thầu (package_step), phạm vi đọc của người xuất",
+  "bid.workflow.export.value.truncated": "Phạm vi có nhiều gói hơn giới hạn đọc; số liệu là cận dưới",
+  "bid.workflow.export.notice": "Số ngày chuẩn của các bước là cấu hình; giá trị mặc định dựng sẵn theo trình tự Luật Đấu thầu 22/2023/QH15 chưa được kiểm chứng với văn bản gốc.",
+  "bid.workflow.export.value.period": "{from} đến {to}"
 }

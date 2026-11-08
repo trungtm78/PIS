@@ -21,7 +21,7 @@ const personView = (person: CertPerson | null): { id: string; name: string } | n
 const stateView = (view: CertificationView): Record<string, unknown> => ({ status: view.status, version: view.version, origin: view.origin, certified_by: personView(view.actor !== null && view.status === 'CERTIFIED' ? view.actor : null), confirmed_by: personView(view.confirmedBy), note: view.note, at: view.at });
 
 /**
- * The certification of figures and data (G3-1, BI and HOME): a definition of the KPI register and a BI dataset are Nháp, Đã xác nhận, Đã chứng nhận or Lỗi thời, with who moved it, when, and for which version. The leader's
+ * The certification of figures and data (G3-1, BI and HOME): a definition of the KPI register and a BI dataset are Draft, Confirmed, Certified or Obsolete (the Vietnamese names are in the web catalogue), with who moved it, when, and for which version. The leader's
  * dashboards and the command center give a leader only a figure whose definition is certified; a dataset that is not certified says so on the numbers made of it. The metrics keep the certification they already have in their
  * registry (a publication request decided by someone other than its author, ST-BI-006): this list reads them in the same four words and does not certify them a second time. A person confirms, another certifies (maker is
  * not checker, in the code and in the table); sending back and making obsolete need words; the version must be the one in force now; and every move is an append-only line with an audit row and an event.

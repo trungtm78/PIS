@@ -3,7 +3,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { PERMISSIONS } from '@machvon/contracts';
 import { BidWorkflowReads, BidWorkflowStore, TenantDatabase, projectScope } from '@machvon/db';
 import type { BidWorkflowFilter, BidWorkflowPackageRow, BidWorkflowResult } from '@machvon/db';
-import { DomainError, asUuid, csvOf, isTreeNodeId, isWorkflowDay, isWorkflowMethod, vietnamDateOf, xlsxOf } from '@machvon/kernel';
+import { DomainError, asUuid, csvOf, isTreeNodeId, isWorkflowDay, isWorkflowMethod, message, vietnamDateOf, xlsxOf } from '@machvon/kernel';
 import type { EffectiveAccess, ExportColumn, ExportDocument, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -80,15 +80,15 @@ function pageOf(rows: readonly BidWorkflowPackageRow[], limit: unknown, cursor: 
 }
 
 const COLUMNS: readonly ExportColumn[] = [
-  { key: 'method', label: 'Hình thức lựa chọn nhà thầu', numeric: false },
-  { key: 'step_code', label: 'Mã bước', numeric: false },
-  { key: 'step_name', label: 'Tên bước', numeric: false },
-  { key: 'completed_visits', label: 'Số lần rời bước trong kỳ', numeric: true },
-  { key: 'median_days', label: 'Trung vị số ngày ở bước', numeric: true },
-  { key: 'basis', label: 'Cách đếm ngày', numeric: false },
-  { key: 'on_time_share_pct', label: 'Tỷ lệ đúng hạn (%)', numeric: true },
-  { key: 'open_visits', label: 'Số gói đang ở bước', numeric: true },
-  { key: 'over_standard', label: 'Số gói quá số ngày chuẩn', numeric: true },
+  { key: 'method', label: message('bid.workflow.export.column.method'), numeric: false },
+  { key: 'step_code', label: message('bid.workflow.export.column.step_code'), numeric: false },
+  { key: 'step_name', label: message('bid.workflow.export.column.step_name'), numeric: false },
+  { key: 'completed_visits', label: message('bid.workflow.export.column.completed_visits'), numeric: true },
+  { key: 'median_days', label: message('bid.workflow.export.column.median_days'), numeric: true },
+  { key: 'basis', label: message('bid.workflow.export.column.basis'), numeric: false },
+  { key: 'on_time_share_pct', label: message('bid.workflow.export.column.on_time_share_pct'), numeric: true },
+  { key: 'open_visits', label: message('bid.workflow.export.column.open_visits'), numeric: true },
+  { key: 'over_standard', label: message('bid.workflow.export.column.over_standard'), numeric: true },
 ];
 
 /**
@@ -425,19 +425,19 @@ export class PackageWorkflowReadsController {
     const period = periodOf(query, now);
     const stats = await this.database.withTenant(tenant, (tx) => this.reads.statistics(tx, filterOf(query), period, projectScope(access, READ, now), now));
     const document: ExportDocument = {
-      title: 'Báo cáo tiến độ lựa chọn nhà thầu theo bước',
+      title: message('bid.workflow.export.title'),
       header: [
-        { key: 'period', label: 'Kỳ báo cáo', value: `${period.from} đến ${period.to}` },
-        { key: 'as_of', label: 'Ngày chốt', value: vietnamDateOf(now) },
-        { key: 'median_days', label: 'Trung vị số ngày ở bước (mọi bước)', value: stats.kpis.medianDays === null ? '' : String(stats.kpis.medianDays) },
-        { key: 'on_time_share_pct', label: 'Tỷ lệ rời bước đúng hạn (%)', value: stats.kpis.onTimeShare === null ? '' : String(Math.round(stats.kpis.onTimeShare * 10_000) / 100) },
-        { key: 'formula', label: 'Công thức', value: 'Trung vị số ngày làm việc ở bước của các lần rời bước trong kỳ; đúng hạn là số ngày làm việc ở bước không vượt số ngày chuẩn của bước (ngày dương lịch khi lịch làm việc chưa công bố)' },
-        { key: 'source', label: 'Nguồn', value: 'Lịch sử bước của quy trình lựa chọn nhà thầu (package_step), phạm vi đọc của người xuất' },
-        ...(stats.truncated ? [{ key: 'truncated', label: 'Lưu ý', value: 'Phạm vi có nhiều gói hơn giới hạn đọc; số liệu là cận dưới' }] : []),
+        { key: 'period', label: message('bid.workflow.export.header.period'), value: message('bid.workflow.export.value.period', { from: period.from, to: period.to }) },
+        { key: 'as_of', label: message('bid.workflow.export.header.as_of'), value: vietnamDateOf(now) },
+        { key: 'median_days', label: message('bid.workflow.export.header.median_days'), value: stats.kpis.medianDays === null ? '' : String(stats.kpis.medianDays) },
+        { key: 'on_time_share_pct', label: message('bid.workflow.export.header.on_time_share_pct'), value: stats.kpis.onTimeShare === null ? '' : String(Math.round(stats.kpis.onTimeShare * 10_000) / 100) },
+        { key: 'formula', label: message('bid.workflow.export.header.formula'), value: message('bid.workflow.export.value.formula') },
+        { key: 'source', label: message('bid.workflow.export.header.source'), value: message('bid.workflow.export.value.source') },
+        ...(stats.truncated ? [{ key: 'truncated', label: message('bid.workflow.export.header.truncated'), value: message('bid.workflow.export.value.truncated') }] : []),
       ],
       columns: COLUMNS,
       rows: stats.steps.map((one) => [one.method, one.stepCode, one.stepName ?? '', String(one.completedVisits), one.medianDays === null ? '' : String(one.medianDays), one.basis, one.onTimeShare === null ? '' : String(Math.round(one.onTimeShare * 10_000) / 100), String(one.openVisits), String(one.overStandard)]),
-      notice: 'Số ngày chuẩn của các bước là cấu hình; giá trị mặc định dựng sẵn theo trình tự Luật Đấu thầu 22/2023/QH15 chưa được kiểm chứng với văn bản gốc.',
+      notice: message('bid.workflow.export.notice'),
     };
     const bytes = format === 'csv' ? Buffer.from(csvOf(document), 'utf8') : Buffer.from(xlsxOf(document));
     return {
