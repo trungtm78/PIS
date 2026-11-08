@@ -190,7 +190,7 @@ export class HubController {
   @HttpCode(200)
   @OperationId('captureHubSnapshot')
   @Command({ operation: 'captureHubSnapshot' })
-  async capture(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() _body: Schemas['HubSnapshotRequest']): Promise<Schemas['HubSnapshotResult']> {
+  async capture(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess): Promise<Schemas['HubSnapshotResult']> {
     this.assertWhole(access, PERMISSIONS.captureHubSnapshot);
     const now = this.clock();
     const swept = await this.hub.sweep(scope.tx, connectorDescriptors(), now, scope.tenant.membershipId);
