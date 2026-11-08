@@ -198,6 +198,7 @@ export async function enterpriseReportChecks(plan, reader) {
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
   if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await biChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
   if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
   return [];
 }
