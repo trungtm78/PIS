@@ -154,7 +154,7 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
       ],
       [
         `insert into machvon.audit_recommendation (tenant_id, id, conclusion_id, finding_id, rec_code, rec_type, description, amount_vnd, recovered_vnd, project_id, status, is_overdue, created_by, updated_by, version)
-         values ($1, gen_random_uuid(), $2, $3, $4, 'FINANCIAL_RECOVERY', 'Recover', $5, $6, $7, 'OPEN', $8, $9, $9, 1)`,
+         values ($1, gen_random_uuid(), $2, $3, $4, 'FINANCIAL_RECOVERY', 'Recover the amount', $5, $6, $7, 'OPEN', $8, $9, $9, 1)`,
         [TENANT_A, conclusion, findingId, `R-C3-${counter}`, recommended, recovered, project, overdue, memberId(ADMIN)],
       ],
     ]);
