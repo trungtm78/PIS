@@ -1,0 +1,248 @@
+{
+  "schema": "clip-bindings/1",
+  "note": "How the symbolic refs of the scenario steps (scripts/clips/refs.json) find a place on the real screen. Order of lookup: refs[<ref>], then tails.<verb>[<last segment of the ref>], then the kinds a word of the ref points to. A candidate is a target such as role:button:Luu|Ghi (the name is a case-insensitive pattern; a bar separates alternatives), label:, text:, testid:, placeholder:, css:. The first candidate that is visible on the screen wins. Add a line to refs when a screen needs an exact binding. Words are Vietnamese because the product screens are.",
+  "refs": {
+    "shell.alert-bell": [
+      "css:[data-testid='alert-bell']",
+      "role:button:Cảnh báo|Thông báo|Chuông",
+      "css:header [aria-label*='ảnh báo' i]",
+      "css:header [aria-label*='hông báo' i]"
+    ],
+    "home.rate-tiles.drill-link": [
+      "css:[data-screen-id] [data-testid*='tile'] a[href]",
+      "css:[data-screen-id] a[href*='drill' i]",
+      "css:[data-screen-id] a[href]"
+    ],
+    "alerts.item.claim": [
+      "role:button:Nhận|Tiếp nhận|Nhận xử lý"
+    ],
+    "alerts.item.snooze": [
+      "role:button:Hoãn|Tạm hoãn"
+    ],
+    "alerts.snooze.reason": [
+      "label:Lý do",
+      "placeholder:Lý do",
+      "css:[role='dialog'] textarea",
+      "css:[role='dialog'] input[type='text']",
+      "css:[data-screen-id] textarea"
+    ]
+  },
+  "tails": {
+    "click": {
+      "new": [
+        "role:button:Thêm|Tạo|Mới"
+      ],
+      "save": [
+        "role:button:Lưu|Ghi"
+      ],
+      "submit": [
+        "role:button:Gửi|Trình|Nộp"
+      ],
+      "simulate": [
+        "role:button:Mô phỏng|Chạy thử"
+      ],
+      "run-scenarios": [
+        "role:button:Chạy|Kịch bản|Phân tích"
+      ],
+      "certify-button": [
+        "role:button:Chứng nhận|Xác nhận|Công bố"
+      ],
+      "export-xlsx": [
+        "role:button:Xuất|Excel|xlsx"
+      ],
+      "retry": [
+        "role:button:Thử lại|Gửi lại|Đẩy lại"
+      ],
+      "claim": [
+        "role:button:Nhận|Tiếp nhận"
+      ],
+      "snooze": [
+        "role:button:Hoãn|Tạm hoãn"
+      ],
+      "ask": [
+        "role:button:Hỏi|Gửi câu hỏi|Gửi"
+      ],
+      "review-dossier": [
+        "role:button:Rà soát|Kiểm tra hồ sơ|Duyệt"
+      ],
+      "open-chart-builder": [
+        "role:button:Tạo biểu đồ|Biểu đồ mới|Trình dựng biểu đồ",
+        "role:link:Tạo biểu đồ|Trình dựng biểu đồ"
+      ],
+      "info-button": [
+        "role:button:Thông tin|Công thức|Giải thích|Chi tiết"
+      ],
+      "presentation-mode": [
+        "role:button:Trình chiếu|Chế độ trình|Toàn màn hình"
+      ],
+      "view-at-date": [
+        "role:button:Xem tại ngày|Tại ngày|Xem"
+      ],
+      "sort-by-gap": [
+        "role:columnheader:Chênh lệch|Chênh",
+        "role:button:Chênh lệch|Chênh"
+      ],
+      "fill-template": [
+        "role:button:Điền mẫu|Điền|Mẫu"
+      ],
+      "word-narrative": [
+        "role:button:Word|Thuyết minh|Báo cáo thuyết minh"
+      ],
+      "compare-versions": [
+        "role:button:So sánh|Phiên bản"
+      ],
+      "trace-metric": [
+        "role:button:Truy vết|Truy nguồn|Dòng dõi"
+      ],
+      "assign-owner": [
+        "role:button:Giao|Phân công|Gán"
+      ],
+      "pause-clock": [
+        "role:button:Tạm dừng|Dừng đồng hồ"
+      ],
+      "report-wrong": [
+        "role:button:Báo sai|Báo cáo sai|Không đúng"
+      ],
+      "acknowledge": [
+        "role:button:Xác nhận|Đã xem|Ghi nhận"
+      ],
+      "drill-link": [
+        "css:[data-screen-id] a[href]"
+      ],
+      "new-evaluation": [
+        "role:button:Đánh giá mới|Thêm đánh giá|Tạo đánh giá|Thêm|Tạo"
+      ],
+      "dry-run": [
+        "role:button:Chạy thử|Kiểm tra trước|Xem trước"
+      ],
+      "apply": [
+        "role:button:Áp dụng|Nhập"
+      ],
+      "approve": [
+        "role:button:Duyệt|Phê duyệt|Chấp thuận"
+      ]
+    },
+    "choose": {
+      "dataset": [
+        "role:combobox:Bộ dữ liệu|Dữ liệu",
+        "label:Bộ dữ liệu",
+        "css:[data-screen-id] select"
+      ],
+      "kind-filter": [
+        "role:combobox:Loại|Phân loại",
+        "label:Loại",
+        "css:[data-screen-id] select"
+      ],
+      "form": [
+        "role:combobox:Biểu mẫu|Mẫu",
+        "label:Biểu mẫu",
+        "css:[data-screen-id] select"
+      ],
+      "wrong-reason": [
+        "role:combobox:Lý do",
+        "label:Lý do",
+        "css:[role='dialog'] select",
+        "css:[data-screen-id] select"
+      ]
+    }
+  },
+  "kinds": {
+    "first-item": [
+      "css:[data-screen-id] tbody tr a[href]",
+      "css:[data-screen-id] tbody tr",
+      "css:[data-screen-id] [role='row'] a[href]",
+      "css:[data-screen-id] [role='listitem'] a[href]",
+      "css:[data-screen-id] ul li a[href]",
+      "css:[data-screen-id] ul li button",
+      "css:[data-screen-id] article a[href]",
+      "css:[data-screen-id] article button",
+      "css:[data-screen-id] a[href]"
+    ],
+    "marker": [
+      "css:[data-screen-id] [class*='marker' i]",
+      "css:[data-screen-id] svg circle",
+      "css:[data-screen-id] svg path[role='button']",
+      "css:[data-screen-id] [class*=\"node\" i]",
+      "css:[data-screen-id] svg g[role=\"button\"]"
+    ],
+    "table": [
+      "css:[data-screen-id] table",
+      "css:[data-screen-id] [role='table']",
+      "css:[data-screen-id] [role='grid']"
+    ],
+    "list": [
+      "css:[data-screen-id] ul",
+      "css:[data-screen-id] [role='list']",
+      "css:[data-screen-id] table"
+    ],
+    "chart": [
+      "css:[data-screen-id] svg",
+      "css:[data-screen-id] canvas",
+      "css:[data-screen-id] [role='img']"
+    ],
+    "cards": [
+      "css:[data-screen-id] [class*='grid' i]",
+      "css:[data-screen-id] [class*='card' i]",
+      "css:[data-screen-id] section"
+    ],
+    "form": [
+      "css:[data-screen-id] form",
+      "css:[data-screen-id] fieldset",
+      "css:[data-screen-id] section"
+    ],
+    "region": [
+      "css:[data-screen-id] section",
+      "css:[data-screen-id] article",
+      "css:[data-screen-id] > div > div",
+      "css:[data-screen-id]"
+    ],
+    "select": [
+      "role:combobox",
+      "css:[data-screen-id] select"
+    ]
+  },
+  "words": [
+    {
+      "match": "node|marker|pin",
+      "kind": "marker",
+      "verbs": [
+        "click",
+        "point"
+      ]
+    },
+    {
+      "match": "method|resolution|kind|filter|dataset|form|type|reason",
+      "kind": "select",
+      "verbs": [
+        "choose"
+      ]
+    },
+    {
+      "match": "first-|row|item|record",
+      "kind": "first-item",
+      "verbs": [
+        "click"
+      ]
+    },
+    {
+      "match": "table|rows|ranking|matrix|columns?|register|ledger|history|trail",
+      "kind": "table"
+    },
+    {
+      "match": "list|feed|checklist|warnings|findings|criteria",
+      "kind": "list"
+    },
+    {
+      "match": "curve|band|bar|map|canvas|timeline|chart|trend|forecast|s-curve|stepper|edge",
+      "kind": "chart"
+    },
+    {
+      "match": "grid|cards|strip|tiles|kpi|hub|board|panel",
+      "kind": "cards"
+    },
+    {
+      "match": "form|field|reason|input|preview|sheet",
+      "kind": "form"
+    }
+  ]
+}
