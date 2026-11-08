@@ -166,10 +166,10 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     const reply = await call('GET', '/report-engine/catalogue', { member: READER });
     expect(reply.status).toBe(200);
     const items = reply.json.items as Array<Record<string, unknown>>;
-    // The public forms: the weekly report of DIS and the meeting pack of the committee (BAN-1).
-    expect(items.map((item) => item.code)).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE]);
+    // The public forms: the weekly report of DIS, the meeting pack of the committee (BAN-1) and the four forms for the Ministry of Finance (GOV-12).
+    expect(items.map((item) => item.code)).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE, 'MOF-DIS-MONTHLY', 'MOF-DIS-QUARTERLY', 'MOF-DIS-WEEKLY', 'MOF-DIS-YEARLY']);
     expect(items.find((item) => item.code === DIS_WEEKLY_CODE)).toMatchObject({ edition: 'public', status: 'READY', official: 'CONFIRMED', data_source: 'LIVE', registered: false, issuable: true, demo_mark: null, whole_tenant: true });
-    expect(items.map((item) => item.code).filter((code) => !String(code).startsWith('MOF-DIS-'))).toEqual([DIS_WEEKLY_CODE]);
+    expect(items.map((item) => item.code).filter((code) => !String(code).startsWith('MOF-DIS-'))).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE]);
     expect(items[0]).toMatchObject({ edition: 'public', status: 'READY', official: 'CONFIRMED', data_source: 'LIVE', registered: false, issuable: true, demo_mark: null, whole_tenant: true });
     expect(reply.json).toMatchObject({ demo_mode: false, can_generate: false });
     // No enterprise form is in a public process (npm run edition:check holds the sources to it too).
