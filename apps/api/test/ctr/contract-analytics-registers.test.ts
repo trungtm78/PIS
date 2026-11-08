@@ -118,14 +118,16 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
   async function variation(code: string, status: string, estimated: number, approved: number | null, createdOffset: number): Promise<void> {
     counter += 1;
     const [revision] = await rows<{ id: string }>('select id from machvon.contract_revision where contract_id = $1::uuid limit 1', [ids[code]]);
-    await rows(
+    await seedAs(harness, [
+      [
       `insert into machvon.change_request (tenant_id, id, contract_id, baseline_revision_id, amount_delta_vnd, schedule_impact_days, reason, status, version, code, stage, event_kind, estimated_delta_vnd, approved_delta_vnd, effective_on,
          decision_document_version_id, decided_by, decided_at, submitted_by, created_by, updated_by, created_at, status_reason, resulting_revision_id)
        values ($1, gen_random_uuid(), $2, $3, $4::numeric, 5, $5, $6, 1, $7, 'CO', 'DESIGN_CHANGE', $4::numeric, $8::numeric, case when $6 = 'APPROVED' then date '2026-02-01' else null end,
                case when $6 = 'APPROVED' then $9::uuid else null end, case when $6 in ('APPROVED', 'REJECTED') then $10::uuid else null end, case when $6 in ('APPROVED', 'REJECTED') then now() else null end, $10, $10, $10, $11::timestamptz,
                case when $6 in ('APPROVED', 'REJECTED') then 'Decided' else null end, case when $6 = 'APPROVED' then gen_random_uuid() else null end)`,
       [TENANT_A, ids[code], (revision as { id: string }).id, estimated, `Variation ${counter}`, status, `CR-C3-${counter}`, approved, decision, memberId(ADMIN), at(createdOffset)],
-    );
+      ],
+    ]);
   }
 
   async function auditFinding(code: string, recommended: number, recovered: number, overdue: boolean): Promise<void> {
