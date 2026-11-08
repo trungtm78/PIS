@@ -134,7 +134,7 @@ export function useReturnReasons(enabled = true) {
   return useQuery<ReturnReasons>({
     queryKey: [...key, 'return-reasons'],
     queryFn: async () => {
-      const answer = (await client.read('listPaymentReturnReasons' as never)) as { items?: Array<{ code: string; category: string; requires_note: boolean; active: boolean }>; reason_code_required?: boolean };
+      const answer = (await client.read('listPaymentReturnReasons' as never, {} as never)) as { items?: Array<{ code: string; category: string; requires_note: boolean; active: boolean }>; reason_code_required?: boolean };
       return { items: (answer.items ?? []).filter((item) => item.active !== false).map((item) => ({ code: item.code, category: item.category, requiresNote: item.requires_note })), required: answer.reason_code_required === true };
     },
     enabled: enabled && key[1] !== undefined,

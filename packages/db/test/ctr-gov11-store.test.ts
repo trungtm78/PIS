@@ -50,7 +50,6 @@ async function completed(group: string | null, completedOn: string): Promise<str
 describe('the settlement clock, the adjustment versions and the linkage of a contract (G1-18)', () => {
   beforeAll(async () => {
     await fixtures.start();
-    await fixtures.harness.seedMembership(TENANT_A, REVIEWER, 1);
   }, 240_000);
 
   afterAll(async () => {

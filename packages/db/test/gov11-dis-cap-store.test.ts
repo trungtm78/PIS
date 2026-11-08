@@ -191,11 +191,11 @@ describe('GOV-11a DIS and CAP stores (G1-16, G1-12)', () => {
       ]);
       await as((tx) => milestones.record(tx, w.snapshotId, WORKER, NOW));
       const codes = (await owner<{ code: string }>('select code from machvon.project where id = any($1::uuid[]) order by code', [w.projects.map((project) => project.id)])).map((row) => row.code);
-      const only = (code: string) => (first: number) => ({ sql: `p.code = ${first}`, params: [code] });
+      const only = (code: string) => (first: number) => ({ sql: `p.code = $${first}`, params: [code] });
       const partial = await as((tx) => milestones.board(tx, only(codes[0] as string), { snapshotId: w.snapshotId }, NOW));
       expect(partial.milestones).toEqual([]);
       expect(await as((tx) => milestones.atRisk(tx, only(codes[0] as string)))).toEqual([]);
-      const both = await as((tx) => milestones.board(tx, (first: number) => ({ sql: `p.code = any(${first}::text[])`, params: [codes] }), { snapshotId: w.snapshotId }, NOW));
+      const both = await as((tx) => milestones.board(tx, (first: number) => ({ sql: `p.code = any($${first}::text[])`, params: [codes] }), { snapshotId: w.snapshotId }, NOW));
       expect(both.milestones).toHaveLength(3);
     });
 

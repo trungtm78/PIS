@@ -56,7 +56,6 @@ const giveBack = (target: { id: string; version: number }, input: { reason: stri
 describe('the clock of the Treasury control and the standard return reasons (G1-17)', () => {
   beforeAll(async () => {
     await fixtures.start();
-    await fixtures.harness.seedMembership(TENANT_A, CHECKER, 1);
   }, 240_000);
 
   afterAll(async () => {

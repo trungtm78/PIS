@@ -100,7 +100,7 @@ const submit = (target: Ready, options: { member?: number; version?: number; gro
   );
 const verify = (id: string, version: number, member = CHECKER, note?: string, scopes: ContractScopes = everything) => as((tx) => claims.verify(tx, id, version, note, memberId(member), scopes), member);
 const giveBack = (id: string, version: number, reason = 'The invoice is wrong.', options: { member?: number; treasury?: boolean } = {}) =>
-  as((tx) => claims.returnRequest(tx, id, version, { reason, returnedByTreasury: options.treasury, requestId: randomUUID() }, memberId(options.member ?? CHECKER), everything), options.member ?? CHECKER);
+  as((tx) => claims.returnRequest(tx, id, version, { reason, reasonCode: 'MISSING_DOCUMENT', returnedByTreasury: options.treasury, requestId: randomUUID() }, memberId(options.member ?? CHECKER), everything), options.member ?? CHECKER);
 
 const requestRow = async (id: string) =>
   (await owner<{ status: string; version: string; claims_acceptance: boolean; submitted_by: string | null; verified_by: string | null; returned_by: string | null; return_reason: string | null; verification_note: string | null }>(
