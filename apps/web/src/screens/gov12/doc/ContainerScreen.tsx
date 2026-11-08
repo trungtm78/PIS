@@ -9,6 +9,7 @@ import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { Figure, InfoRule, LoadMore, Pill, WordSelect, refusalText, shortHash, useCommand, usePagedList, useRead, useRights, vietnamDateTime, vietnamDay, word } from '../docaud-support';
 import '../docaud.css';
+import { ContainerDetail } from './ContainerDetail';
 import { CONTAINER_STATES, NEXT_STATES, PURPOSES, REASON_MIN, UUID, needsReason, stateTone } from './docModel';
 import type { Container, ContainerList, ContainerState, Inbox, Purpose, TransmittalHead } from './docModel';
 
@@ -214,6 +215,7 @@ function ContainerContent({ route }: ScreenProps) {
   const [picked, setPicked] = useState<string[]>([]);
   const [dialog, setDialog] = useState<'register' | 'send' | undefined>(undefined);
   const [moving, setMoving] = useState<Container | undefined>(undefined);
+  const [viewing, setViewing] = useState<string | undefined>(undefined);
   const [receipt, setReceipt] = useState<string | undefined>(undefined);
   const project = UUID.test(projectFilter) ? projectFilter : undefined;
   const containerPages = usePagedList<Container>('listDocContainers', { state: stateFilter, project_id: project }, 100);
@@ -243,9 +245,14 @@ function ContainerContent({ route }: ScreenProps) {
     {
       key: 'action',
       header: t('gov12da.doc28.col.action'),
-      render: (row) => (mayManage && NEXT_STATES[row.state].length > 0 ? (
-        <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`move-${row.id}`} onClick={() => setMoving(row)}>{t('gov12da.doc28.action.move')}</button>
-      ) : <span className="g12-muted">{t('gov12da.doc28.action.none')}</span>),
+      render: (row) => (
+        <span className="g12-actions">
+          {mayManage && NEXT_STATES[row.state].length > 0 ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`move-${row.id}`} onClick={() => setMoving(row)}>{t('gov12da.doc28.action.move')}</button>
+          ) : <span className="g12-muted">{t('gov12da.doc28.action.none')}</span>}
+          <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('gov12da.doc28.detail.openFor', { title: row.title })} aria-expanded={viewing === row.id} data-testid={`detail-${row.id}`} onClick={() => setViewing(viewing === row.id ? undefined : row.id)}>{t('gov12da.doc28.detail.open')}</button>
+        </span>
+      ),
     },
   ];
 
@@ -283,6 +290,7 @@ function ContainerContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void containers.refetch()}>
         {data !== undefined && <DataTable caption={t('gov12da.doc28.table.caption')} columns={columns} rows={data.items} rowKey={(row) => row.id} />}
+        {viewing === undefined ? null : <ContainerDetail id={viewing} onClose={() => setViewing(undefined)} />}
         <LoadMore shown={containerPages.items.length} hasMore={containerPages.hasMore} loading={containerPages.loading} failed={containerPages.failed} onLoad={() => void containerPages.loadMore()} />
       </StateBoundary>
 

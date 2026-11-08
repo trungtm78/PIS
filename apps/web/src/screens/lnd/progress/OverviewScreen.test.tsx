@@ -20,7 +20,7 @@ describe('OverviewScreen (LND-01): the land clearance of a project', () => {
     const h = progressClient(() => overview());
     mount(<OverviewScreen route={ROUTE} />, h, { permissions: READER, path: '/lnd/lnd-01' });
     expect((await screen.findByTestId('choose-project')).textContent).toBe(vi_['lnd.progress.project.notice']);
-    expect(h.read).not.toHaveBeenCalled();
+    expect(h.read).not.toHaveBeenCalledWith('getLandProgress', expect.anything());
     await screen.findByRole('option', { name: /DA-2026-001/ });
     fireEvent.change(screen.getByLabelText(vi_['lnd.progress.project.label']), { target: { value: PROJECT } });
     await ready();

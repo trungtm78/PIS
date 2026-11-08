@@ -7,6 +7,7 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { amountText } from '../../ctr/model';
 import { useHandovers } from '../handover/hooks';
+import { ExpiringWarranties } from './ExpiringWarranties';
 import { useWarranties } from './hooks';
 import { gradeLabel, statusLabel } from './labels';
 import { canManage, daysLeft, vietnamToday } from './model';
@@ -62,6 +63,7 @@ function WarrantyContent({ route }: ScreenProps) {
           </div>
         ) : null}
       </div>
+      <ExpiringWarranties />
       {accepted.length === 0 ? null : (
         <div className="card">
           <div className="field">

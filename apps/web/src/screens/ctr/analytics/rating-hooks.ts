@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useScopeKey } from './hooks';
-import { toProposals } from './rating-model';
+import { toProposal, toProposals } from './rating-model';
 import type { ProposalView } from './rating-model';
 
 /** The proposals of a rating the caller reads, newest first; the proposals of one contract when it is named. */
@@ -18,6 +18,22 @@ export function useRatingProposals(contractId: string | undefined, enabled: bool
       return items;
     },
     enabled: enabled && key[1] !== undefined,
+    retry: false,
+  });
+}
+
+/** One proposal of a rating by its identifier (a link from an alert or a letter); the answer is a list of one so that the screen shows it as it shows the others. A proposal that is not there for the caller is a failure of the read the screen can retry. */
+export function useRatingProposal(id: string | undefined, enabled: boolean) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<ProposalView[]>({
+    queryKey: [...key, 'rating-proposal', id ?? ''],
+    queryFn: async () => {
+      const found = toProposal(await client.read('getContractRatingProposal', { path: { id: id ?? '' } }));
+      if (found === undefined) throw new Error('getContractRatingProposal: the answer is not what the contract says');
+      return [found];
+    },
+    enabled: enabled && id !== undefined && key[1] !== undefined,
     retry: false,
   });
 }

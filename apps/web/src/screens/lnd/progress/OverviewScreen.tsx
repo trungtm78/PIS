@@ -15,6 +15,7 @@ import { useOverview } from './hooks';
 import { PROGRESS_PATH, lateStages } from './model';
 import type { Overview, SectionLine, StageLine } from './model';
 import { ProjectPicker } from './ProjectPicker';
+import { UpcomingDeadlines } from './UpcomingDeadlines';
 import '../lnd.css';
 
 /**
@@ -51,6 +52,7 @@ function OverviewContent({ route }: ScreenProps) {
         ]}
       />
       <ProjectPicker id="overview-project" projects={projects.data ?? []} value={projectId} onChange={(id) => setParams(id === '' ? {} : { project: id })} />
+      <UpcomingDeadlines onOpenProject={(id) => setParams({ project: id })} />
       {projectId === undefined ? (
         <p className="callout" role="status" data-testid="choose-project">
           {t('lnd.progress.project.notice')}

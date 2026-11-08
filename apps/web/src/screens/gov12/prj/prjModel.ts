@@ -289,3 +289,19 @@ export function refusalKey(error: unknown): string {
 }
 
 export const hasRight = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
+
+/** One move on a community feedback, as `getMonitoringFeedback` writes it (append-only). */
+export interface FeedbackEvent {
+  id: string;
+  move: 'RECEIVED' | 'TAKE' | 'RESPOND' | 'CLOSE' | 'REOPEN' | 'DECLINE';
+  from_status: string | null;
+  to_status: string;
+  actor_id: string;
+  reason: string | null;
+  at: string;
+}
+
+export interface FeedbackHistoryRead extends FeedbackView {
+  as_of: string;
+  history: FeedbackEvent[];
+}

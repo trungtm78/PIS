@@ -10,6 +10,7 @@ import { ConfirmDialog, ContextBar, SectionCard, StatusPill } from '../../../ui'
 import { useAddItem, useCloseFile, useLogFeedback, useMonitoringFile, useMoveFeedback, useSendNotice, useSetTrigger, useWithdrawItem } from './prjHooks';
 import { CHANNELS, PACK_ITEMS, REASON_MIN, REQUIRED_ITEMS, TOPICS, TRIGGERS, dayText, feedbackTone, hasRight, refusalKey, word } from './prjModel';
 import type { FeedbackView, FileDetail, PackItem } from './prjModel';
+import { FeedbackHistory } from './FeedbackHistory';
 import { DaysText, Facts, Figure, NoticePill, Provenance, ResponsePill } from './prjParts';
 import './prj.css';
 
@@ -77,6 +78,7 @@ function DetailContent({ route }: ScreenProps) {
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [receipt, setReceipt] = useState<string | undefined>(undefined);
+  const [historyOf, setHistoryOf] = useState<string[]>([]);
   const state = useScreenState({ isLoading: id !== undefined && query.isLoading, error: data === undefined ? query.error : undefined, data });
   const refreshFailed = query.isError && data !== undefined;
   const editable = mode !== 'READ_ONLY' && data?.status === 'OPEN';
@@ -515,7 +517,17 @@ function DetailContent({ route }: ScreenProps) {
                           </span>
                         )}
                         {feedback.declined_reason === null ? null : <span>{t('prj.monDetail.feedback.declined', { reason: feedback.declined_reason })}</span>}
-                        <span className="prj-actions">{feedbackActions(feedback)}</span>
+                        <span className="prj-actions">
+                          {feedbackActions(feedback)}
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={historyOf.includes(feedback.id)} aria-controls={`history-panel-${feedback.id}`} data-testid={`history-toggle-${feedback.id}`} onClick={() => setHistoryOf(historyOf.includes(feedback.id) ? historyOf.filter((one) => one !== feedback.id) : [...historyOf, feedback.id])}>
+                            {historyOf.includes(feedback.id) ? t('prj.monDetail.history.hide') : t('prj.monDetail.history.show')}
+                          </button>
+                        </span>
+                        {historyOf.includes(feedback.id) ? (
+                          <div id={`history-panel-${feedback.id}`}>
+                            <FeedbackHistory feedbackId={feedback.id} />
+                          </div>
+                        ) : null}
                       </li>
                     ))}
                   </ul>

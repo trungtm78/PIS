@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
-import type { FeedbackView, FileDetail, FileList, Oc4idsExport, PortalRecordList, PortalSettingsRead } from './prjModel';
+import type { FeedbackHistoryRead, FeedbackView, FileDetail, FileList, Oc4idsExport, PortalRecordList, PortalSettingsRead } from './prjModel';
 
 // What the screens show depends on the membership as well as the tenant (the right is over the whole tenant): both are part of every key.
 function useScopeKey(): readonly ['prj12', string | undefined, string | undefined] {
@@ -202,4 +202,16 @@ export function usePublishRecord() {
 export function useWithdrawRecord() {
   const client = useApiClient();
   return useCommand<{ projectId: string; reason: string }>((input, attempt) => client.command('withdrawPortalRecord', { path: path({ project_id: input.projectId }), body: { reason: input.reason }, attempt }));
+}
+
+/** The handling history of one community feedback; read only when the person opens it. */
+export function useMonitoringFeedback(id: string, enabled: boolean) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<FeedbackHistoryRead>({
+    queryKey: [...key, 'feedback-history', id],
+    queryFn: () => client.read('getMonitoringFeedback', { path: path({ id }) }) as unknown as Promise<FeedbackHistoryRead>,
+    enabled: key[1] !== undefined && enabled,
+    retry: false,
+  });
 }

@@ -115,3 +115,21 @@ export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 export interface RuleHolder {
   rule?: RuleView;
 }
+
+/** One move of a container between states, as getDocContainer writes it (append-only). */
+export interface ContainerMove {
+  id: string;
+  from_state: ContainerState | null;
+  to_state: ContainerState;
+  actor_id: string;
+  transmittal_id: string | null;
+  reason: string | null;
+  at: string;
+}
+
+export interface ContainerDetailRead extends Container {
+  as_of: string;
+  moves: ContainerMove[];
+  /** The answers of the newest review of the container, or null when it was never sent for review. */
+  latest_review: { required: number; answered: number; approved: number; rejected: number; overdue: number; all_required_answered: boolean } | null;
+}

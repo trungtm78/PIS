@@ -8,7 +8,7 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, SectionCard, StatusPill } from '../../../ui';
-import { useAdopt, useNotify, usePropose, useRatingProposals, useRespond, useWithdraw } from './rating-hooks';
+import { useAdopt, useNotify, usePropose, useRatingProposal, useRatingProposals, useRespond, useWithdraw } from './rating-hooks';
 import { RATING_CRITERIA, RATING_KINDS, RATING_PROPOSE_PERMISSION, RATING_READ_PERMISSION, RESPONSE_KINDS, clockTone, emptyProposal, missingCriteria, overridesBody, proposalBody, proposalProblem, responseBody, responseProblem, stateTone } from './rating-model';
 import type { OverrideForm, ProposalView, ResponseForm, ResponseKind } from './rating-model';
 import { camel, dateText } from './model';
@@ -43,7 +43,11 @@ function RatingContent({ route }: ScreenProps) {
   const contractId = search.get('contract') ?? undefined;
   const canRead = permissions === undefined || permissions.includes(RATING_READ_PERMISSION);
   const canPropose = (permissions === undefined || permissions.includes(RATING_PROPOSE_PERMISSION)) && mode !== 'READ_ONLY';
-  const proposals = useRatingProposals(contractId, canRead);
+  const proposalRaw = search.get('proposal') ?? '';
+  const proposalId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(proposalRaw) ? proposalRaw.toLowerCase() : undefined;
+  const listed = useRatingProposals(contractId, canRead && proposalId === undefined);
+  const single = useRatingProposal(proposalId, canRead);
+  const proposals = proposalId === undefined ? listed : single;
   const state = useScreenState({ isLoading: proposals.isLoading, error: proposals.error, data: proposals.data, isEmpty: () => false });
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const writable = mode !== 'READ_ONLY';
@@ -63,6 +67,14 @@ function RatingContent({ route }: ScreenProps) {
         {contractId !== undefined ? (
           <p className="callout ca1-notice" role="status" data-testid="contract-filter">
             {t('ca3.rating.contractOnly')}{' '}
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setSearch({})}>
+              {t('ca3.rating.showAll')}
+            </button>
+          </p>
+        ) : null}
+        {proposalId !== undefined ? (
+          <p className="callout ca1-notice" role="status" data-testid="proposal-only">
+            {t('lookahead.prj.rating.proposalOnly')}{' '}
             <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setSearch({})}>
               {t('ca3.rating.showAll')}
             </button>

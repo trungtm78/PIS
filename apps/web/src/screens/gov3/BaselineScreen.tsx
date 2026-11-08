@@ -6,6 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { GovernanceAlertRegister } from './GovernanceAlertRegister';
 import { useAcknowledgeAlert, useBaseline, useCaptureBaseline, useDecideReappraisal } from './hooks';
 import { refusalText } from './labels';
 import { asOfText, dayText, describeRefusal, deviationTone, idFrom, incompleteIssues, vnd } from './model';
@@ -67,9 +68,12 @@ function BaselineContent({ route }: ScreenProps) {
         {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })}
       />
       {projectId === undefined ? (
-        <p className="callout" data-testid="no-target">
-          {t('govb1.baseline.noTarget')}
-        </p>
+        <>
+          <p className="callout" data-testid="no-target">
+            {t('govb1.baseline.noTarget')}
+          </p>
+          <GovernanceAlertRegister />
+        </>
       ) : (
         <StateBoundary state={state} onRetry={() => void baseline.refetch()}>
           {view === undefined ? (

@@ -60,6 +60,8 @@ export interface World {
   handovers: Array<Record<string, unknown>>;
   warranties: Array<Record<string, unknown>>;
   assets: Array<Record<string, unknown>>;
+  /** The obligations the expiring list answers (none unless a test says so). */
+  expiring?: Array<Record<string, unknown>>;
   /** Reads that fail, by operation. */
   failing: Set<string>;
 }
@@ -82,6 +84,7 @@ export function client(state: World, command: (operation: string, input: unknown
     const page = (items: Array<Record<string, unknown>>) => ({ items, next_cursor: null, as_of: '2026-10-25T03:00:00.000Z' });
     if (operation === 'get_resources_handover') return page(state.handovers);
     if (operation === 'get_resources_asset_record') return page(state.assets);
+    if (operation === 'listExpiringWarranties') return { ...page(state.expiring ?? []), next_cursor: state.expiring !== undefined && state.expiring.length >= 50 ? 'next' : null };
     if (operation === 'listWarrantyObligations') return page(state.warranties.filter((entry) => query.handover_id === undefined || (entry.handover as { id: string }).id === query.handover_id));
     return new Error(`unexpected read ${operation}`);
   }, command);

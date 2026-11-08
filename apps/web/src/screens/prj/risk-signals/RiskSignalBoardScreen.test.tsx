@@ -140,7 +140,7 @@ function open(answers: Record<string, Answer>, command: (operation: string, inpu
   const h = client(world(), command);
   const previous = h.read.getMockImplementation();
   h.read.mockImplementation((operation: string, input?: unknown) => {
-    const answer = answers[operation];
+    const answer = answers[operation] ?? (operation === 'listProjectRiskAlerts' ? { items: [], as_of: '2026-11-08' } : undefined);
     if (answer === undefined) return previous === undefined ? Promise.reject(new Error(`unexpected read ${operation}`)) : previous(operation, input);
     const value = typeof answer === 'function' ? (answer as (given: unknown) => unknown)(input) : answer;
     return value instanceof Error ? Promise.reject(value) : value instanceof Promise ? value : Promise.resolve(value);

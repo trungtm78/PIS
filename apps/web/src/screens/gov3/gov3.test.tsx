@@ -76,11 +76,11 @@ describe('PRJ-26: the baseline, the deviation and the number of moves', () => {
     return h;
   };
 
-  it('says what to open it from when the address names no project, and reads nothing', () => {
-    const h = serve({});
+  it('says what to open it from when the address names no project, and reads no project (only the register of alerts)', () => {
+    const h = serve({ listGovernanceAlerts: { items: [], as_of: '2026-11-08' } });
     mount(<BaselineScreen route={route} />, h, ['project.baseline.read'], '/prj/prj-26');
     expect(screen.getByTestId('no-target').textContent).toBe(text('govb1.baseline.noTarget'));
-    expect(h.read).not.toHaveBeenCalled();
+    expect(h.read.mock.calls.every((call) => call[0] === 'listGovernanceAlerts')).toBe(true);
   });
 
   it('shows the versions, the deviation against the thresholds, the policy as not confirmed, the moves, the events, the requests and the alerts', async () => {

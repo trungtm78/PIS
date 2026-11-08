@@ -9,6 +9,7 @@ import { ConfirmDialog, ContextBar, DataTable, FilterPanel, FlowChart, KpiStrip,
 import type { FlowSeries } from '../../../ui';
 import { dayText, idFrom } from '../../gov3/model';
 import { BackLink } from '../components';
+import { RiskAlertRegister } from './RiskAlertRegister';
 import { EvidenceSummary, LevelPill, RuleInfo, RuleThresholds, TrendCell, UnverifiedPill } from './components';
 import { useAcknowledgeRiskAlert, useProjectSignals, useRiskBoard } from './hooks';
 import { alertStatusText, alertTypeText, kindText, levelText, refusalText } from './labels';
@@ -178,6 +179,7 @@ function BoardContent({ route }: ScreenProps) {
                 </p>
               ) : null}
             </SectionCard>
+            <RiskAlertRegister policy={head.policy} asOf={head.asOf} />
             <RuleThresholds policy={head.policy} asOf={head.asOf} />
           </>
         )}

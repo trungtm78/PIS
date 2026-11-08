@@ -70,6 +70,7 @@ export const overview = (overrides: Record<string, unknown> = {}) => ({
 /** A client whose `getLandProgress` is answered by `read(projectId)`; the lists of the project, its sections and the units come from the shared world. */
 export function progressClient(read: (projectId: string, query: unknown) => unknown, command: (operation: string, input: unknown) => unknown = () => ({}), state: World = world()): Harness {
   return client(state, command, (operation, input) => {
+    if (operation === 'listUpcomingLandDeadlines') return { items: [], next_cursor: null, as_of: '2026-11-08T03:00:00.000Z' };
     if (operation !== 'getLandProgress') return new Error(`unexpected read ${operation}`);
     const parts = input as { path?: { id?: string }; query?: unknown };
     return read(parts.path?.id ?? '', parts.query);
