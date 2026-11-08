@@ -42,7 +42,7 @@ export const REPORT_LINKS: Readonly<Record<RegisterReportCode, ReadonlyArray<{ i
   'audit-findings': [{ id: 'aud12', to: '/aud/aud-12' }],
   'performance-rating': [
     { id: 'ctr23', to: '/ctr/ctr-23' },
-    { id: 'ctr32', to: '/ctr/ctr-32' },
+    { id: 'ctr37', to: '/ctr/ctr-37' },
   ],
   'contract-health': [
     { id: 'ctr23', to: '/ctr/ctr-23' },

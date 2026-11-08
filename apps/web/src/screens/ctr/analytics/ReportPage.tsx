@@ -122,7 +122,7 @@ function ReportContent({ route, code }: ReportPageProps) {
   const from = index * size + 1;
   const link = (row: RowView) => (
     <span data-contract-id={row.contractId}>
-      <Link to={code === 'performance-rating' ? `/ctr/ctr-32?contract=${row.contractId}` : `/ctr/ctr-03?id=${row.contractId}`}>{String(row.cells.code ?? row.cells[firstKey(view)] ?? row.contractId)}</Link>
+      <Link to={code === 'performance-rating' ? `/ctr/ctr-37?contract=${row.contractId}` : `/ctr/ctr-03?id=${row.contractId}`}>{String(row.cells.code ?? row.cells[firstKey(view)] ?? row.contractId)}</Link>
     </span>
   );
 

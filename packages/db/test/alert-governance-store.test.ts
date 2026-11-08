@@ -531,7 +531,7 @@ describe('the stores of the governance of the alert system', () => {
       const context = (holds: boolean, scope: ScopeBuilder) => ({ membershipId: memberId(LEADER), now: T2, today: '2027-10-15', view: 'mine' as const, unitScope: scope, projectScope: EVERYTHING, rules, counting: false, holds: () => holds });
       const seen = await as(async (tx) => sources.coverageGaps({ ...context(true, EVERYTHING), tx }));
       const item = seen.find((row) => row.status === 'ABSENT_NO_COVER');
-      expect(item).toMatchObject({ kind: 'COVERAGE_GAP', source: 'COVERAGE', severity: 'ACTION', target: { screen: 'ADM-25' } });
+      expect(item).toMatchObject({ kind: 'COVERAGE_GAP', source: 'COVERAGE', severity: 'ACTION', target: { screen: 'ADM-28' } });
       expect(item?.consequence).not.toBeNull();
       expect(await as(async (tx) => sources.coverageGaps({ ...context(false, EVERYTHING), tx }))).toEqual([]);
       expect(await as(async (tx) => sources.coverageGaps({ ...context(true, () => ({ sql: 'false', params: [] })), tx }))).toEqual([]);

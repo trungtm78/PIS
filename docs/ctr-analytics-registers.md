@@ -63,4 +63,4 @@ The registers are not part of the frozen contract fact, so none of the new indic
 | Proposals store | `packages/db/src/ctr-rating-store.ts`, migration `db/migrations/V1924__ctr4_contract_rating_proposal.sql` |
 | Reports on the endpoint | `apps/api/src/modules/ctr/analytics.controller.ts` |
 | Rating commands and reads | `apps/api/src/modules/ctr/rating.controller.ts` |
-| Screens | the six reports in the hub CTR-28, the proposals in CTR-32 (`apps/web/src/screens/ctr/analytics/`) |
+| Screens | the six reports in the hub CTR-28, the proposals in CTR-37 (`apps/web/src/screens/ctr/analytics/`) |

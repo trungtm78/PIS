@@ -14,4 +14,4 @@ Migration block 2040-2059: V2040-V2043 red flags, V2044-V2046 channel ladder, V2
 ## Decisions
 - Thresholds only through governance rules (RED_FLAG_RULE codes, ALERT_CHANNEL_LADDER, ALERT_FLOOD_POLICY, ALERT_FEEDBACK_POLICY, CONTRACT_CLOCK_RULE, DOC_REVIEW_RULE, DATA_FRESHNESS_RULE, ANOMALY_RULE), all flagged unverified.
 - A failing source never closes an alert; a report never hides or silences an alert.
-- Screen ids are constants in packages/kernel/src/gov10-screens.ts (GOV-9a took HOME-13, NOT-18, ADM-25; ours are NOT-30, HOME-30, HOME-31).
+- Screen ids are constants in packages/kernel/src/gov10-screens.ts (GOV-9a took HOME-13, NOT-18, ADM-28; ours are NOT-30, HOME-30, HOME-31).

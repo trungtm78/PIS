@@ -294,7 +294,7 @@ function Coverage() {
 }
 
 /**
- * ADM-25: absences, deputies and the coverage of the receivers of alerts (G2-7). A person declares that they are away and proposes who takes their alerts over (all of them or some sources); a third person who manages covers allows it, never the proposer, the
+ * ADM-28: absences, deputies and the coverage of the receivers of alerts (G2-7). A person declares that they are away and proposes who takes their alerts over (all of them or some sources); a third person who manages covers allows it, never the proposer, the
  * absent person or the deputy; the deputy receives the alerts, not the authority to decide in a module (that goes through the delegation of ADM). A person away with nobody to cover them is a gap: it is shown here, counted as orphaned alerts, and the alerts
  * go up to the leadership meanwhile. The policy that sets the limits is shown with its version and the label of a starting value that nobody confirmed.
  */

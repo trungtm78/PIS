@@ -79,7 +79,7 @@ export function useMyDigest(enabled = true) {
   });
 }
 
-/** The absences of the person (mine) or of the people they manage (ADM-25). */
+/** The absences of the person (mine) or of the people they manage (ADM-28). */
 export function useAbsences(mine: boolean, state: 'current' | 'all', enabled: boolean) {
   const client = useApiClient();
   const key = useScopeKey();

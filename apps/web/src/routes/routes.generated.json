@@ -148,7 +148,6 @@
     {"id":"CTR-29","path":"/ctr/ctr-29","title":"Danh mục và trạng thái hợp đồng (phân tích)","kind":"table","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-29"},
     {"id":"CTR-30","path":"/ctr/ctr-30","title":"Chênh lệch giá trúng thầu và giá hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-30"},
     {"id":"CTR-31","path":"/ctr/ctr-31","title":"Tập trung và tải của nhà thầu","kind":"dashboard","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-31"},
-    {"id":"CTR-32","path":"/ctr/ctr-32","title":"Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu","kind":"detail","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-37"},
     {"id":"ISS-01","path":"/iss/iss-01","title":"Danh sách vướng mắc","kind":"kanban","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"workspace","parent":null,"req":"FR-ISS-01"},
     {"id":"ISS-02","path":"/iss/iss-02","title":"Ghi nhận vướng mắc","kind":"form","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"detail","parent":"ISS-01","req":"FR-ISS-02"},
     {"id":"ISS-03","path":"/iss/iss-03","title":"Không gian xử lý","kind":"detail","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"detail","parent":"ISS-01","req":"FR-ISS-03"},
@@ -287,6 +286,7 @@
     {"id":"ADM-25","path":"/adm/adm-25","title":"Ủy quyền vĩnh viễn","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-25"},
     {"id":"ADM-26","path":"/adm/adm-26","title":"Làm thay có người duyệt","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-26"},
     {"id":"ADM-27","path":"/adm/adm-27","title":"Phạm vi theo kỳ báo cáo","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-27"},
+    {"id":"ADM-28","path":"/adm/adm-28","title":"Vắng mặt, người thay và độ phủ người nhận cảnh báo","kind":"list","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-28"},
     {"id":"SAS-01","path":"/sas/sas-01","title":"Danh sách tenant","kind":"list","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"workspace","parent":null,"req":"FR-SAS-01"},
     {"id":"SAS-02","path":"/sas/sas-02","title":"Khởi tạo tenant","kind":"form","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"detail","parent":"SAS-01","req":"FR-SAS-02"},
     {"id":"SAS-03","path":"/sas/sas-03","title":"Chi tiết tenant","kind":"detail","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"detail","parent":"SAS-01","req":"FR-SAS-03"},
@@ -454,20 +454,13 @@
     {"id":"DIR-03","path":"/dir/dir-03","title":"Bảng theo dõi chỉ đạo","kind":"board","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"workspace","parent":null,"req":"FR-DIR-03"},
     {"id":"DIR-04","path":"/dir/dir-04","title":"Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng","kind":"timeline","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"detail","parent":"DIR-03","req":"FR-DIR-04"},
     {"id":"DIR-05","path":"/dir/dir-05","title":"Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau","kind":"table","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"workspace","parent":null,"req":"FR-DIR-05"},
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     {"id":"RPT-01","path":"/rpt/rpt-01","title":"Danh mục biểu mẫu báo cáo và lập báo cáo","kind":"table","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-01"},
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
     {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
-<<<<<<< HEAD
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
-<<<<<<< HEAD
     {"id":"VND-01","path":"/vnd/vnd-01","title":"Sổ nhà thầu","kind":"table","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"workspace","parent":null,"req":"FR-VND-01"},
     {"id":"VND-02","path":"/vnd/vnd-02","title":"Hồ sơ nhà thầu chủ","kind":"detail","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"detail","parent":"VND-01","req":"FR-VND-02"},
     {"id":"VND-03","path":"/vnd/vnd-03","title":"Hồ sơ cấm tham gia đấu thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-03"},
@@ -479,57 +472,47 @@
     {"id":"CTR-34","path":"/ctr/ctr-34","title":"Điều khoản thời hiệu claim của hợp đồng","kind":"form","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-34"},
     {"id":"CTR-35","path":"/ctr/ctr-35","title":"Sổ cảnh báo sớm hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"workspace","parent":null,"req":"FR-CTR-35"},
     {"id":"CTR-36","path":"/ctr/ctr-36","title":"Hồ sơ cảnh báo sớm","kind":"detail","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-35","req":"FR-CTR-36"},
+    {"id":"CTR-37","path":"/ctr/ctr-37","title":"Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu","kind":"detail","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-37"},
     {"id":"NOT-18","path":"/not/not-18","title":"Hồ sơ thông báo cảnh báo của tôi","kind":"form","area":"engagement","module":"NOT","group":"Của tôi","role":"workspace","parent":null,"req":"FR-NOT-18"},
     {"id":"NOT-19","path":"/not/not-19","title":"Leo thang cảnh báo","kind":"list","area":"engagement","module":"NOT","group":"Theo dõi vận hành","role":"workspace","parent":null,"req":"FR-NOT-19"},
-    {"id":"ADM-25","path":"/adm/adm-25","title":"Vắng mặt, người thay và độ phủ người nhận cảnh báo","kind":"list","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-25"},
-    {"id":"HOME-13","path":"/home/home-13","title":"Sức khỏe hệ thống cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-13"}
-=======
+    {"id":"HOME-13","path":"/home/home-13","title":"Sức khỏe hệ thống cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-13"},
     {"id":"AUD-14","path":"/aud/aud-14","title":"Tín hiệu rủi ro mua sắm (red flag)","kind":"table","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-14"},
     {"id":"AUD-15","path":"/aud/aud-15","title":"Chi tiết tín hiệu rủi ro mua sắm","kind":"detail","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-15"},
     {"id":"AUD-16","path":"/aud/aud-16","title":"Sổ chỉ báo red flag","kind":"table","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-16"},
     {"id":"NOT-30","path":"/not/not-30","title":"Thang kênh và biên nhận cảnh báo","kind":"policy","area":"engagement","module":"NOT","group":"Kênh & kiểm soát","role":"workspace","parent":null,"req":"FR-NOT-20"},
     {"id":"HOME-30","path":"/home/home-30","title":"Phản hồi cảnh báo không đúng","kind":"review","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-14"},
-    {"id":"HOME-31","path":"/home/home-31","title":"Cảnh báo đã đóng, mở lại và lũ cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-15"}
->>>>>>> dac426ec (chore(web): route table after the navigation rows of GOV-10)
-=======
+    {"id":"HOME-31","path":"/home/home-31","title":"Cảnh báo đã đóng, mở lại và lũ cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-15"},
     {"id":"INT-01","path":"/int/int-01","title":"Tài khoản máy","kind":"table","area":"admin","module":"INT","group":"Tài khoản máy và API mở","role":"workspace","parent":null,"req":"FR-INT-01"},
     {"id":"INT-02","path":"/int/int-02","title":"Phạm vi và khóa","kind":"detail","area":"admin","module":"INT","group":"Tài khoản máy và API mở","role":"detail","parent":"INT-01","req":"FR-INT-02"},
     {"id":"INT-03","path":"/int/int-03","title":"Ánh xạ mã dự án đa hệ thống","kind":"table","area":"admin","module":"INT","group":"Dữ liệu cho hệ thống khác","role":"workspace","parent":null,"req":"FR-INT-03"},
     {"id":"INT-04","path":"/int/int-04","title":"Tài khoản BI và tập dữ liệu chứng nhận","kind":"table","area":"admin","module":"INT","group":"Dữ liệu cho hệ thống khác","role":"workspace","parent":null,"req":"FR-INT-04"},
-    {"id":"INT-05","path":"/int/int-05","title":"Nhật ký truy cập API mở","kind":"table","area":"admin","module":"INT","group":"Tài khoản máy và API mở","role":"workspace","parent":null,"req":"FR-INT-05"}
->>>>>>> df5e14ef (feat(web): INT-01 to INT-05 screens for machine accounts, keys, project codes, BI logins and the access log)
-=======
+    {"id":"INT-05","path":"/int/int-05","title":"Nhật ký truy cập API mở","kind":"table","area":"admin","module":"INT","group":"Tài khoản máy và API mở","role":"workspace","parent":null,"req":"FR-INT-05"},
     {"id":"LLM-22","path":"/llm/llm-22","title":"Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi","kind":"ai","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-22"},
     {"id":"LLM-23","path":"/llm/llm-23","title":"Chi tiết lượt hỏi của trợ lý AI và quyết định của người","kind":"detail","area":"admin","module":"LLM","group":"Trợ lý AI","role":"detail","parent":"LLM-22","req":"FR-LLM-23"},
     {"id":"LLM-24","path":"/llm/llm-24","title":"Rà soát hồ sơ trước khi trình","kind":"ai","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-24"},
     {"id":"LLM-25","path":"/llm/llm-25","title":"Đề xuất đánh giá thực hiện hợp đồng","kind":"ai","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-25"},
     {"id":"LLM-26","path":"/llm/llm-26","title":"Danh mục rà soát và bộ tiêu chí đánh giá","kind":"table","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-26"},
-    {"id":"LLM-27","path":"/llm/llm-27","title":"Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu","kind":"table","area":"admin","module":"LLM","group":"Model & định tuyến","role":"workspace","parent":null,"req":"FR-LLM-27"}
->>>>>>> 105b2273 (feat(web): AI assistant screens LLM-22 to LLM-27 with model, labels and strings)
-=======
+    {"id":"LLM-27","path":"/llm/llm-27","title":"Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu","kind":"table","area":"admin","module":"LLM","group":"Model & định tuyến","role":"workspace","parent":null,"req":"FR-LLM-27"},
     {"id":"HUB-01","path":"/hub/hub-01","title":"Danh mục bộ kết nối và sức khỏe tích hợp","kind":"table","area":"data","module":"HUB","group":"Kết nối và sức khỏe","role":"workspace","parent":null,"req":"FR-HUB-01"},
     {"id":"HUB-02","path":"/hub/hub-02","title":"Chi tiết bộ kết nối","kind":"detail","area":"data","module":"HUB","group":"Kết nối và sức khỏe","role":"workspace","parent":null,"req":"FR-HUB-02"},
-    {"id":"HUB-03","path":"/hub/hub-03","title":"Nhật ký sự cố tích hợp","kind":"table","area":"data","module":"HUB","group":"Sự cố","role":"workspace","parent":null,"req":"FR-HUB-03"}
->>>>>>> ff2b50cb (feat(web): register HUB screens, navigation, routes and folded i18n)
-=======
+    {"id":"HUB-03","path":"/hub/hub-03","title":"Nhật ký sự cố tích hợp","kind":"table","area":"data","module":"HUB","group":"Sự cố","role":"workspace","parent":null,"req":"FR-HUB-03"},
     {"id":"BAN-01","path":"/ban/ban-01","title":"Bảng điều hành Ban chỉ đạo","kind":"dashboard","area":"overview","module":"BAN","group":"Điều hành","role":"workspace","parent":null,"req":"FR-BAN-01"},
     {"id":"BAN-02","path":"/ban/ban-02","title":"Dự án cần Trưởng ban quan tâm","kind":"table","area":"overview","module":"BAN","group":"Điều hành","role":"workspace","parent":null,"req":"FR-BAN-02"},
     {"id":"BAN-03","path":"/ban/ban-03","title":"Hồ sơ họp Ban chỉ đạo","kind":"documents","area":"overview","module":"BAN","group":"Điều hành","role":"workspace","parent":null,"req":"FR-BAN-03"},
     {"id":"BAN-04","path":"/ban/ban-04","title":"Theo dõi chỉ đạo của Ban chỉ đạo","kind":"board","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-04"},
     {"id":"BAN-05","path":"/ban/ban-05","title":"Cảnh báo của Ban chỉ đạo","kind":"list","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-05"},
     {"id":"BAN-06","path":"/ban/ban-06","title":"Danh sách Ban chỉ đạo và vị trí","kind":"form","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-06"},
-    {"id":"BAN-07","path":"/ban/ban-07","title":"Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo","kind":"table","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-07"}
->>>>>>> 70baf081 (feat(web): committee workspace screens BAN-01 to BAN-07, PWA card, routes and strings)
-=======
+    {"id":"BAN-07","path":"/ban/ban-07","title":"Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo","kind":"table","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-07"},
+    {"id":"IND-01","path":"/ind/ind-01","title":"Từ điển chỉ tiêu","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-01"},
+    {"id":"IND-02","path":"/ind/ind-02","title":"Quy tắc nhập liệu","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-02"},
+    {"id":"IND-03","path":"/ind/ind-03","title":"Bảng ánh xạ nhập Excel","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-03"},
+    {"id":"HPM-01","path":"/hpm/hpm-01","title":"Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận","kind":"table","area":"data","module":"HPM","group":"Báo cáo gửi HPM","role":"workspace","parent":null,"req":"FR-HPM-01"},
+    {"id":"HPM-02","path":"/hpm/hpm-02","title":"Đính chính kỳ báo cáo đã được HPM nhận","kind":"table","area":"data","module":"HPM","group":"Báo cáo gửi HPM","role":"detail","parent":"HPM-01","req":"FR-HPM-02"},
+    {"id":"EBS-01","path":"/ebs/ebs-01","title":"Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp","kind":"import","area":"data","module":"EBS","group":"Dữ liệu từ Oracle EBS","role":"workspace","parent":null,"req":"FR-EBS-01"},
+    {"id":"EBS-02","path":"/ebs/ebs-02","title":"Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch","kind":"reconcile","area":"data","module":"EBS","group":"Dữ liệu từ Oracle EBS","role":"workspace","parent":null,"req":"FR-EBS-02"},
     {"id":"DOC-24","path":"/doc/doc-24","title":"Kho hồ sơ dự án","kind":"table","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-24"},
     {"id":"DOC-25","path":"/doc/doc-25","title":"Hồ sơ và trình xem có dẫn nguồn","kind":"detail","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-24","req":"FR-DOC-25"},
     {"id":"DOC-26","path":"/doc/doc-26","title":"Bảng luồng duyệt hồ sơ","kind":"approval","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-26"},
     {"id":"DOC-27","path":"/doc/doc-27","title":"So sánh hai phiên bản hồ sơ","kind":"compare","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-25","req":"FR-DOC-27"}
->>>>>>> 82112183 (feat(web): DOC-24 to DOC-27 repository, document viewer with citations, review board and compare)
-=======
-    {"id":"IND-01","path":"/ind/ind-01","title":"Từ điển chỉ tiêu","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-01"},
-    {"id":"IND-02","path":"/ind/ind-02","title":"Quy tắc nhập liệu","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-02"},
-    {"id":"IND-03","path":"/ind/ind-03","title":"Bảng ánh xạ nhập Excel","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-03"}
->>>>>>> 90a46bf6 (docs(design): IND module spec, stories, traceability, backlog, navigation, and the operation counts of the tests)
   ]
 }

@@ -148,7 +148,7 @@ export class RatingController {
   }
 }
 
-/** The reads of the proposals (CTR-32 and the rating report): inside the scope of `contractor.performance.read`; never for a contractor of the contract, whose standing is the owner's to judge. */
+/** The reads of the proposals (CTR-37 and the rating report): inside the scope of `contractor.performance.read`; never for a contractor of the contract, whose standing is the owner's to judge. */
 @Controller()
 export class RatingReadsController {
   private readonly ratings = new CtrRatingStore();

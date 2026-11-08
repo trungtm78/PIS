@@ -16,6 +16,6 @@ Items of `docs/governance-roadmap-10of10.md`: G2-3 escalation (functional / hier
 - [x] Kernel pure rules + tests (escalation, coverage, notify, health), rule registration, texts
 - [x] Migrations V2000-V2005 (RLS, guards, indexes), stores, sources ESCALATION and COVERAGE, db tests
 - [x] Jobs, 13 operations through contract-patch, authz matrix, isolation cases, command registry, api tests
-- [x] Web screens HOME-13, NOT-18, NOT-19, ADM-25, i18n, tests
+- [x] Web screens HOME-13, NOT-18, NOT-19, ADM-28, i18n, tests
 - [x] Stories, traceability, backlog, test catalogue, module specs
 - [ ] Full gate (lint, typecheck, isolation, conformance, outbox, dis report), Codex review and dispositions

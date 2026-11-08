@@ -177,12 +177,12 @@ const proposal = (over: Record<string, unknown> = {}) => ({
 
 function ratingClient(items: unknown[], command: (operation: string, input: unknown) => unknown = () => ({ resource_id: 'x', resource_version: 2 })) {
   const h = harness((operation) => (operation === 'listContractRatingProposals' ? { items, as_of: '2026-11-08T01:00:00.000Z' } : new Error(`unexpected read ${operation}`)), command);
-  mount(<RatingScreen route={routeOf('CTR-32', 'FR-CTR-37')} />, h, { permissions: RATER, path: '/ctr/ctr-32' });
+  mount(<RatingScreen route={routeOf('CTR-37', 'FR-CTR-37')} />, h, { permissions: RATER, path: '/ctr/ctr-37' });
   return h;
 }
 const commandsOf = (h: ReturnType<typeof ratingClient>, operation: string) => h.command.mock.calls.filter((call) => call[0] === operation).map((call) => call[1] as { path?: { id?: string }; body: Record<string, unknown>; ifMatchVersion?: number });
 
-describe('the proposals of a rating (CTR-32)', () => {
+describe('the proposals of a rating (CTR-37)', () => {
   it('reads the proposals defensively and keeps what is allowed', () => {
     expect(toProposals({ items: [proposal()], as_of: 'x' })).toHaveLength(1);
     expect(toProposals({ items: [{ id: 'x' }] })).toBeUndefined();
@@ -250,7 +250,7 @@ describe('the proposals of a rating (CTR-32)', () => {
   it('is denied without the right to read, and says there is nothing when the list is empty', async () => {
     cleanup();
     const h = harness(() => new Error('no read'));
-    mount(<RatingScreen route={routeOf('CTR-32', 'FR-CTR-37')} />, h, { permissions: [], path: '/ctr/ctr-32' });
+    mount(<RatingScreen route={routeOf('CTR-37', 'FR-CTR-37')} />, h, { permissions: [], path: '/ctr/ctr-37' });
     await waitFor(() => expect(screen.queryByTestId('proposals')).toBeNull());
     expect(h.read).not.toHaveBeenCalled();
     cleanup();

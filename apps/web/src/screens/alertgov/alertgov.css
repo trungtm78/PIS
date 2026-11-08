@@ -1,4 +1,4 @@
-/* The governance of the alert system (HOME-13, NOT-18, NOT-19, ADM-25; lane GOV-9a): layout only, colours are the --mv-color-* tokens. */
+/* The governance of the alert system (HOME-13, NOT-18, NOT-19, ADM-28; lane GOV-9a): layout only, colours are the --mv-color-* tokens. */
 .alertgov-stack { display: grid; gap: var(--mv-space-16); margin-bottom: var(--mv-space-16); }
 .alertgov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--mv-space-16); }
 .alertgov-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mv-space-16); align-items: start; }

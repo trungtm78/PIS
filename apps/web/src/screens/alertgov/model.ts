@@ -1,5 +1,5 @@
 /**
- * The shapes the governance of the alert system reads (lane GOV-9a): the health of the alert system (HOME-13), the escalations (NOT-19), the profile of a person (NOT-18), the absences and covers (ADM-25).
+ * The shapes the governance of the alert system reads (lane GOV-9a): the health of the alert system (HOME-13), the escalations (NOT-19), the profile of a person (NOT-18), the absences and covers (ADM-28).
  * The server sends snake_case; a row that has not the shape of its kind is dropped rather than shown half filled, and an answer that has not the shape of its page is refused (the screen shows an error, never an empty page).
  */
 
@@ -447,7 +447,7 @@ export function defectsOf(extensions: Record<string, unknown>): Array<{ field: s
   return list(extensions.defects).flatMap((entry) => (isRecord(entry) && text(entry.field) !== '' ? [{ field: text(entry.field), code: text(entry.code) }] : []));
 }
 
-// -- ADM-25: absences, covers, coverage ---------------------------------------------------------------------------------------------------------------------------------------------
+// -- ADM-28: absences, covers, coverage ---------------------------------------------------------------------------------------------------------------------------------------------
 
 export const ABSENCE_KINDS = ['LEAVE', 'SICK', 'MISSION', 'TRAINING', 'OTHER'] as const;
 export const COVER_STATUSES = ['PENDING', 'APPROVED', 'REJECTED', 'REVOKED'] as const;

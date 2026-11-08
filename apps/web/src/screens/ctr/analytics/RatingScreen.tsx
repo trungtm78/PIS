@@ -27,7 +27,7 @@ function refusalText(t: ReturnType<typeof useTranslation>['t'], error: unknown):
 }
 
 /**
- * CTR-32: the proposals of a rating of the performance of a contractor (CA-3, in the manner of the CPARS): the score proposed from the data with what each criterion was made of (a criterion with no data has no score and
+ * CTR-37: the proposals of a rating of the performance of a contractor (CA-3, in the manner of the CPARS): the score proposed from the data with what each criterion was made of (a criterion with no data has no score and
  * says why, never zero), the window the contractor has to answer with its clock, the answer, and the steps: a second person tells the contractor, the contractor answers, a person other than the proposer adopts the
  * proposal into the evaluation of CTR-23. The server judges every step again.
  */

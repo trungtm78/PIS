@@ -19,7 +19,7 @@ export const ABSENCE_RESOURCE = 'alert_absence';
 export const COVER_RESOURCE = 'alert_absence_cover';
 
 /**
- * Absences, deputies and their coverage (roadmap G2-7, ADM-25). A person declares that they are away (or a person who manages covers does it for somebody in the units they may read); a deputy takes over their alerts for a period, for all sources or for
+ * Absences, deputies and their coverage (roadmap G2-7, ADM-28). A person declares that they are away (or a person who manages covers does it for somebody in the units they may read); a deputy takes over their alerts for a period, for all sources or for
  * some, on a proposal of the absent person or of a manager; a third person allows it (never the proposer, the absent person or the deputy: 403 SELF_APPROVAL_DENIED). A cover routes attention only, never authority: what a deputy may decide in a module stays what
  * that module grants them. The rules (window, loop, depth, rank, sources) are the kernel's and are refused with the field and every defect; every change is audited (ADM-11), idempotent under its key, and under the version of the row.
  */

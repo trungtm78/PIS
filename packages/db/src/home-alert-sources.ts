@@ -13,7 +13,7 @@ import type { TenantTx } from './tenant-database.ts';
 /** The permission of the people who manage covers and close the gaps in coverage (the audience of the alert `COVERAGE_GAP`, owner ALERT_COVER_MANAGER). */
 export const COVER_MANAGER_PERMISSION = 'home.alert.cover.manage';
 /** Where a gap in coverage is opened from: the screen of absences and covers. */
-export const COVERAGE_SCREEN = 'ADM-25';
+export const COVERAGE_SCREEN = 'ADM-28';
 
 const label = (...parts: Array<string | null | undefined>): string | null => {
   const text = parts.filter((part): part is string => part !== null && part !== undefined && part !== '').join(' · ');

@@ -386,7 +386,7 @@ describe('the governance of the alert system', () => {
       expect(gap).toMatchObject({ kind: 'ABSENT_NO_COVER', item_count: 1, membership_id: memberId(AWAY), closed_at: null });
       expect(await runCoverage(later)).toMatchObject({ opened: 0 });
       // The managers see it as an alert of the alert centre and in the coverage report, and the health page counts it as orphaned.
-      expect(items(await list(NORTH_LEADER)).find((one) => one.source === 'COVERAGE')).toMatchObject({ kind: 'COVERAGE_GAP', severity: 'ACTION', target: { screen: 'ADM-25' } });
+      expect(items(await list(NORTH_LEADER)).find((one) => one.source === 'COVERAGE')).toMatchObject({ kind: 'COVERAGE_GAP', severity: 'ACTION', target: { screen: 'ADM-28' } });
       expect(items(await list(OFFICER)).some((one) => one.source === 'COVERAGE')).toBe(false);
       const report = await call('GET', '/home/alert-coverage', { member: LEADER });
       expect(report.status).toBe(200);

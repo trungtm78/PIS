@@ -244,7 +244,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CTR-27': () => import('../../screens/gov4/ChangeTierScreen'),
   // The analytics of the contract portfolio (CA-1, part 2).
   'CTR-28': () => import('../../screens/ctr/analytics/HubScreen'),
-  'CTR-32': () => import('../../screens/ctr/analytics/RatingScreen'),
+  'CTR-37': () => import('../../screens/ctr/analytics/RatingScreen'),
   'CTR-29': () => import('../../screens/ctr/analytics/PortfolioScreen'),
   'CTR-30': () => import('../../screens/ctr/analytics/BidVarianceScreen'),
   'CTR-31': () => import('../../screens/ctr/analytics/ConcentrationScreen'),
@@ -482,27 +482,23 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'RPT-02': () => import('../../screens/rpt/DraftScreen'),
   'RPT-03': () => import('../../screens/rpt/IssuedScreen'),
   'RPT-04': () => import('../../screens/rpt/DeliveryLogScreen'),
-=======
   'VND-01': () => import('../../screens/vnd/register/RegisterScreen'),
   'VND-02': () => import('../../screens/vnd/profile/ProfileScreen'),
   'VND-03': () => import('../../screens/vnd/cases/CasesScreen'),
   'VND-04': () => import('../../screens/vnd/payee/PayeeScreen'),
   'VND-05': () => import('../../screens/vnd/certificates/CertificatesScreen'),
   'VND-06': () => import('../../screens/vnd/reputation/ReputationScreen'),
-=======
   // The claim register and the early-warning register of a contract (lane GOV-8).
   'CTR-32': () => import('../../screens/ctr/claims/ClaimRegisterScreen'),
   'CTR-33': () => import('../../screens/ctr/claims/ClaimRecordScreen'),
   'CTR-34': () => import('../../screens/ctr/claims/ClaimTermsScreen'),
   'CTR-35': () => import('../../screens/ctr/early-warning/EarlyWarningRegisterScreen'),
   'CTR-36': () => import('../../screens/ctr/early-warning/EarlyWarningRecordScreen'),
-=======
   // The governance of the alert system (lane GOV-9a, G2-3, G2-5, G2-7, G2-10).
   'HOME-13': () => import('../../screens/alertgov/HealthScreen'),
   'NOT-18': () => import('../../screens/alertgov/ProfileScreen'),
   'NOT-19': () => import('../../screens/alertgov/EscalationScreen'),
-  'ADM-25': () => import('../../screens/alertgov/CoverScreen'),
-=======
+  'ADM-28': () => import('../../screens/alertgov/CoverScreen'),
   // GOV-10: the red flags of procurement, the channel ladder, the reports that an alert was wrong, and the closing and the storms of alerts.
   'AUD-14': () => import('../../screens/gov10/RedFlagListScreen'),
   'AUD-15': () => import('../../screens/gov10/RedFlagDetailScreen'),
@@ -510,17 +506,14 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'NOT-30': () => import('../../screens/gov10/AlertLadderScreen'),
   'HOME-30': () => import('../../screens/gov10/AlertFeedbackQueueScreen'),
   'HOME-31': () => import('../../screens/gov10/AlertClosuresScreen'),
-=======
   'INT-01': () => import('../../screens/int/accounts/AccountsScreen'),
   'INT-02': () => import('../../screens/int/accounts/ScopesKeysScreen'),
   'INT-03': () => import('../../screens/int/codes/CodesScreen'),
   'INT-04': () => import('../../screens/int/bi/BiScreen'),
   'INT-05': () => import('../../screens/int/log/AccessLogScreen'),
-=======
   'HUB-01': () => import('../../screens/hub/CatalogueScreen'),
   'HUB-02': () => import('../../screens/hub/ConnectorScreen'),
   'HUB-03': () => import('../../screens/hub/IncidentScreen'),
-=======
   // The committee workspace (BAN-1): dashboard, attention list, meeting pack, directive tracker, alerts, roster, audit of views.
   'BAN-01': () => import('../../screens/ban/DashboardScreen'),
   'BAN-02': () => import('../../screens/ban/AttentionScreen'),
@@ -529,13 +522,11 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'BAN-05': () => import('../../screens/ban/AlertsScreen'),
   'BAN-06': () => import('../../screens/ban/RosterScreen'),
   'BAN-07': () => import('../../screens/ban/ViewAuditScreen'),
-=======
   // The project document repository (DOC-2).
   'DOC-24': () => import('../../screens/doc/repository/RepositoryScreen'),
   'DOC-25': () => import('../../screens/doc/repository/DocumentScreen'),
   'DOC-26': () => import('../../screens/doc/repository/ReviewBoardScreen'),
   'DOC-27': () => import('../../screens/doc/repository/CompareScreen'),
-=======
   'IND-01': () => import('../../screens/ind/DictionaryScreen'),
   'IND-02': () => import('../../screens/ind/EntryRulesScreen'),
   'IND-03': () => import('../../screens/ind/MappingsScreen'),

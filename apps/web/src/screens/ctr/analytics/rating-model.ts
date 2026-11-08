@@ -1,5 +1,5 @@
 /**
- * The proposals of a rating of the performance of a contractor (CA-3, CTR-32): the shapes the server answers with, read defensively (a body that is not what the contract says is an error of the read, never an empty
+ * The proposals of a rating of the performance of a contractor (CA-3, CTR-37): the shapes the server answers with, read defensively (a body that is not what the contract says is an error of the read, never an empty
  * list), and the checks of the forms before they are sent. The server judges every command again: the person who proposed does not notify and does not adopt, the contractor has a window to answer.
  */
 

@@ -7,7 +7,7 @@ import CoverScreen from './CoverScreen';
 import { ABSENCE_ID, AS_OF, COVER_ID, DEPUTY, HEALTH_READER, MANAGER, ME, OTHER, READER, absenceRow, client, coverRow, coverageDto, failing, mount, route, rule, world } from './test-support';
 import type { World } from './test-support';
 
-const ROUTE = route('ADM-25', 'FR-ADM-25', 'ADM');
+const ROUTE = route('ADM-28', 'FR-ADM-28', 'ADM');
 const text = (key: string, params: Record<string, string | number> = {}): string => translate(key, params);
 const OTHER_ABSENCE = '00000000-0000-4000-8000-00000000a002';
 const iso = (local: string): string => new Date(`${local}:00+07:00`).toISOString();
@@ -19,7 +19,7 @@ afterEach(() => {
 
 function open(state: World, permissions: readonly string[] | undefined = MANAGER) {
   const h = client(state);
-  const view = mount(<CoverScreen route={ROUTE} />, h, { permissions, path: '/adm/adm-25' });
+  const view = mount(<CoverScreen route={ROUTE} />, h, { permissions, path: '/adm/adm-28' });
   return { h, ...view };
 }
 
@@ -27,7 +27,7 @@ const fill = (id: string, value: string): void => {
   fireEvent.change(screen.getByTestId(id), { target: { value } });
 };
 
-describe('CoverScreen (ADM-25): absences, deputies and the coverage of who receives', () => {
+describe('CoverScreen (ADM-28): absences, deputies and the coverage of who receives', () => {
   it('shows a skeleton while it loads, then my absences, the pending covers, the people I manage and the coverage', async () => {
     const { h } = open(world());
     expect(screen.getByRole('status', { name: text('states.loading.label') })).toBeInTheDocument();
