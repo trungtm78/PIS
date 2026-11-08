@@ -1,0 +1,12 @@
+{
+  "alerts.source.projectRisk": "Rủi ro dự án chấm từ tín hiệu",
+  "alerts.source.committee": "Cảnh báo của Ban chỉ đạo",
+  "alerts.source.egpPosting": "Đăng tải lên mạng đấu thầu quốc gia",
+  "alerts.source.vendor": "Quản lý nhà thầu",
+  "alerts.source.paymentClock": "Đồng hồ trả lời của Kho bạc",
+  "alerts.source.disbursementForecast": "Dự báo mốc giải ngân",
+  "alerts.source.settlementClock": "Đồng hồ quyết toán hợp đồng",
+  "alerts.source.contractAdjustment": "Điều chỉnh đường cơ sở hợp đồng",
+  "alerts.source.lookAhead": "Kế hoạch nhìn trước của công trường",
+  "alerts.source.lessonsLearned": "Bài học kinh nghiệm"
+}

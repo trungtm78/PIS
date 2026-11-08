@@ -85,6 +85,17 @@ export const WORK_KINDS = [
   // The Integration Hub (lane HUB-1): a failing connector, many connectors stale at once.
   'CONNECTOR_FAILING',
   'CONNECTOR_HUB_STALE',
+  // The feed of the Finance Department (lane FEED-1): stale, a unit late with its monthly report, a large difference with our own figures.
+  'FEED_STALE',
+  'FEED_UNIT_LATE',
+  'FEED_DISCREPANCY_LARGE',
+  // The risk register scored from live signals (lane MR-1) and the committee workspace (lane BAN-1).
+  'RISK_SCORE_CRITICAL',
+  'RISK_SCORE_JUMP',
+  'COMMITTEE_PROVINCE_BEHIND',
+  'COMMITTEE_SECTOR_BEHIND',
+  'COMMITTEE_UNIT_NOT_REPORTING',
+  'COMMITTEE_DIRECTIVE_OVERDUE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
