@@ -17,6 +17,8 @@ Screens complete: 63 of 526 (12.0 percent); screens with no test of the design: 
 Requirement rows complete: 63 of 526 (526 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 461, SKIPPED 0, FAIL 1, GAP 0.
 Screens complete: 63 of 535 (11.8 percent); screens with no test of the design: 0.
 Requirement rows complete: 63 of 535 (535 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 470, SKIPPED 0, FAIL 1, GAP 0.
+Screens complete: 63 of 534 (11.8 percent); screens with no test of the design: 0.
+Requirement rows complete: 63 of 534 (534 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 469, SKIPPED 0, FAIL 1, GAP 0.
 A row is PASS only when every test it names has a recorded PASS with its evidence (when it ran, the build, the schema version, the hash of the dataset, the request ids and a link to the evidence). FAIL, SKIPPED and NOT_RUN never count as PASS; a PASS without its evidence is UNPROVEN; a row without any known test is a GAP; WAIVED needs an approved waiver with an owner, a reason and an expiry that has not passed.
 
 ## Critical tests (money, isolation, restore)
@@ -624,6 +626,13 @@ Every screen names at least one test.
 | HUB-01 | HUB | NOT_RUN |
 | HUB-02 | HUB | NOT_RUN |
 | HUB-03 | HUB | NOT_RUN |
+| BAN-01 | BAN | NOT_RUN |
+| BAN-02 | BAN | NOT_RUN |
+| BAN-03 | BAN | NOT_RUN |
+| BAN-04 | BAN | NOT_RUN |
+| BAN-05 | BAN | NOT_RUN |
+| BAN-06 | BAN | NOT_RUN |
+| BAN-07 | BAN | NOT_RUN |
 
 ## Requirements
 
@@ -1187,3 +1196,10 @@ Every screen names at least one test.
 | FR-HUB-01 | HUB-01 | UI-HUB-01 NOT_RUN<br>UAT-HUB-001 NOT_RUN<br>UAT-HUB-002 NOT_RUN | NOT_RUN |
 | FR-HUB-02 | HUB-02 | UI-HUB-02 NOT_RUN<br>UAT-HUB-002 NOT_RUN<br>UAT-HUB-004 NOT_RUN | NOT_RUN |
 | FR-HUB-03 | HUB-03 | UI-HUB-03 NOT_RUN<br>UAT-HUB-003 NOT_RUN | NOT_RUN |
+| FR-BAN-01 | BAN-01 | UI-BAN-01 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
+| FR-BAN-02 | BAN-02 | UI-BAN-02 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
+| FR-BAN-03 | BAN-03 | UI-BAN-03 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
+| FR-BAN-04 | BAN-04 | UI-BAN-04 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
+| FR-BAN-05 | BAN-05 | UI-BAN-05 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
+| FR-BAN-06 | BAN-06 | UI-BAN-06 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
+| FR-BAN-07 | BAN-07 | UI-BAN-07 NOT_RUN<br>UAT-BAN-001 NOT_RUN<br>UAT-BAN-002 NOT_RUN | NOT_RUN |
