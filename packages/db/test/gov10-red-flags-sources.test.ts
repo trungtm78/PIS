@@ -200,7 +200,7 @@ describe('red flags and the new alert sources', () => {
         [`insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, signed_on, effective_from, contract_value_vnd) values ($1, $2, $3, $4, $5, 'HD-AN-1', 'LUMP_SUM', 'VND', 'ACTIVE', 1, date '2027-01-01', date '2027-01-01', 1000000)`, [TENANT_A, contract, PROJECT, FIRST, randomUUID()]],
         [
           `insert into machvon.contract_advance (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, status, paid_vnd, recovered_vnd, paid_on, recovery_deadline, recovery_threshold_pct, created_by, updated_by)
-           values ($1, $2, $3, $4, 1, 'GPMB', 100, 1000, 'PAID', 100, 10, '2027-08-01', '2027-12-01', 80, $5, $5), ($1, $6, $3, $4, 2, 'GPMB', 100, 1000, 'PAID', 100, 0, '2027-10-01', '2028-01-01', 80, $5, $5)`,
+           values ($1, $2, $3, $4, 1, 'GPMB', 100, 1000, 'RECOVERING', 100, 10, '2027-08-01', '2027-12-01', 80, $5, $5), ($1, $6, $3, $4, 2, 'GPMB', 100, 1000, 'PAID', 100, 0, '2027-10-01', '2028-01-01', 80, $5, $5)`,
           [TENANT_A, randomUUID(), contract, randomUUID(), memberId(AUDITOR), randomUUID()],
         ],
       ]);
