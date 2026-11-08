@@ -151,7 +151,7 @@ export class HomeContractRegisterSources {
               ${initial} as see_initial, ${meeting} as see_meeting
          from machvon.contract c
          ${PROJECT_JOINS('c', 'c.project_id')}
-        where c.status = 'ACTIVE' and c.effective_from is not null
+        where c.status = 'ACTIVE' and c.effective_from is not null and (${initial} or ${meeting})
         order by c.code, c.id limit ${SOURCE_LIMIT}`,
       params.values,
     );
@@ -202,7 +202,7 @@ export class HomeContractRegisterSources {
          join machvon.contract_early_warning w on w.tenant_id = a.tenant_id and w.id = a.warning_id
          join machvon.contract c on c.tenant_id = w.tenant_id and c.id = w.contract_id
          ${PROJECT_JOINS('c', 'c.project_id')}
-        where a.status = 'OPEN' and a.due_on < ${today}::date and ${visible}
+        where a.status = 'OPEN' and w.status in ('RAISED', 'ASSESSED', 'MITIGATING') and a.due_on < ${today}::date and ${visible}
         order by a.due_on, a.id limit ${SOURCE_LIMIT}`,
       params.values,
     );

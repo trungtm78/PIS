@@ -193,6 +193,18 @@ describe('the early-warning register of a contract (G1-15)', () => {
       expect(await databaseRefusal(owner("update machvon.contract_early_warning set status = 'RAISED' where id = $1::uuid", [warning.id]))).toBe('23514');
     });
 
+    it('lets an action that was left open when its warning was withdrawn be ended, and raises no alert for it', async () => {
+      const contract = await activeContract();
+      const warning = await raise(contract);
+      await assess(warning.id, 1);
+      const action = await addAction(warning.id, { dueOn: '2026-06-22' });
+      const withdrawn = await close(warning.id, 3, { outcome: 'WITHDRAWN', reason: 'Raised in error by the supplier.' });
+      expect(withdrawn.status).toBe('CLOSED_WITHDRAWN');
+      const found = (await as((tx) => sources.earlyWarnings(sourceContext(tx, day(5))))).filter((item) => item.kind === 'EW_ACTION_OVERDUE' && item.id === action.actionId);
+      expect(found).toEqual([]);
+      expect(await complete(action.actionId, 1, 'CANCELLED', 'The warning was withdrawn: no action is needed.')).toMatchObject({ actionStatus: 'CANCELLED', actionVersion: 2 });
+    });
+
     it('names the change order or the claim a warning that came true became, of the same contract only, and withdraws one raised in error', async () => {
       const contract = await activeContract();
       const other = await activeContract();

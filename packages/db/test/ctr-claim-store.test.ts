@@ -325,6 +325,30 @@ describe('the claim register of a contract (G1-9: limitation per contract, no de
       expect(await refusal(bar(claim.id, 1, day(30)))).toEqual({ code: 'CLAIM_BAR_NOT_DUE', status: 409, detail: 'bar_effect' });
     });
 
+    it('restarts the response clock when the particulars answer a request for more information on the very day of that response', async () => {
+      const contract = await activeContract();
+      await approvedTerm(contract);
+      const claim = await register(contract);
+      await step(claim.id, 1, { kind: 'NOTICE', occurredOn: '2026-06-08', note: 'Notice served by registered letter.' });
+      await step(claim.id, 2, { kind: 'PARTICULARS', occurredOn: '2026-06-10', note: 'Fully detailed claim with the programme.' });
+      await step(claim.id, 3, { kind: 'RESPONSE', occurredOn: '2026-06-12', note: 'The engineer asks for the programme in native format.', decision: 'MORE_INFORMATION_REQUESTED' });
+      expect((await get(claim.id, NOW)).deadlines.RESPONSE).toMatchObject({ state: 'MET', doneOn: '2026-06-12' });
+      await step(claim.id, 4, { kind: 'PARTICULARS', occurredOn: '2026-06-12', note: 'The programme in native format is attached.' });
+      expect(await row(claim.id)).toMatchObject({ response_on: null, response_decision: null, status: 'PARTICULARS_SUBMITTED' });
+      // Late in the month the response owed for the new submission is overdue; it is not met by the response dated the same day as the submission.
+      const late = (await get(claim.id, day(30))).deadlines.RESPONSE;
+      expect(late).toMatchObject({ state: 'MISSED', startedOn: '2026-06-12', doneOn: null, dueOn: '2026-06-26' });
+      const alerts = await as((tx) => sources.claims(sourceContext(tx, day(30))));
+      expect(alerts.find((item) => item.id === claim.id)).toMatchObject({ kind: 'CLAIM_RESPONSE_DUE', status: 'OVERDUE' });
+    });
+
+    it('binds the claim to the term whichever of a registration and the approval of the term comes first, even when they run together', async () => {
+      const contract = await activeContract();
+      const proposed = await propose(contract);
+      const [registered] = await Promise.all([register(contract), decideTerm(proposed.id, 1, 'APPROVE')]);
+      expect((await row(registered.id))?.term_id).toBe(proposed.id);
+    });
+
     it('links a change order and a payment request of the same contract, never of another, and keeps the links when the claim ends', async () => {
       const contract = await activeContract();
       const other = await activeContract();

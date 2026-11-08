@@ -603,6 +603,9 @@ export class CtrClaimStore {
       case 'PARTICULARS':
         set.add('particulars_on', held.particularsOn ?? step.occurredOn, 'date');
         set.add('last_particulars_on', step.occurredOn, 'date');
+        // New particulars answer the request for more information: the response clock starts again, whatever day the earlier response was dated.
+        set.add('response_on', null, 'date');
+        set.add('response_decision', null);
         if (step.figures.claimedAmountVnd !== null) set.add('claimed_amount_vnd', step.figures.claimedAmountVnd, 'numeric');
         if (step.figures.claimedDays !== null) set.add('claimed_days', step.figures.claimedDays);
         break;

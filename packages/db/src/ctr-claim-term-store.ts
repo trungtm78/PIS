@@ -139,6 +139,10 @@ export class CtrClaimTermStore {
    * person who proposed it. A stale version is 409 `VERSION_CONFLICT`; a term that is not waiting for a decision is 409 `CTR_CLAIM_STATE_INVALID`.
    */
   async decide(tx: TenantTx, id: string, expectedVersion: number, decision: unknown, note: unknown, actor: string, scopes: ContractScopes, now: Date): Promise<ClaimTermMove> {
+    // The contract is locked first, as every command of the register does: a registration in flight and this approval then see each other, so no claim is left without the term it should be bound to.
+    const owning = await tx.query<{ contract_id: string }>('select contract_id from machvon.contract_claim_term where id = $1::uuid', [id]);
+    if (owning[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await lockRegisterContract(tx, owning[0].contract_id, scopes);
     const held = await lockScopedRow<TermSql & { contract_code: string }>(tx, { columns: `${COLUMNS}, c.code as contract_code`, from: FROM, alias: 't', id }, scopes);
     if (Number(held.version) !== expectedVersion) throw versionConflict(Number(held.version));
     if (held.status !== 'PROPOSED') throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, 'status');

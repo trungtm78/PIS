@@ -406,8 +406,8 @@ export class CtrEarlyWarningStore {
     if (found.status !== 'OPEN') throw new DomainError('EARLY_WARNING_STATE_INVALID', 409, 'status');
     if (outcome !== 'DONE' && outcome !== 'CANCELLED') throw new DomainError('VALIDATION_FAILED', 422, 'outcome');
     const text = claimTextOf(note, 'note');
+    // An action that was left open when its warning was withdrawn or came true can still be ended: nothing is left that nobody can resolve.
     const held = await this.lock(tx, found.warning_id, scopes, now);
-    if (!isEwOpen(held.status)) throw new DomainError('EARLY_WARNING_STATE_INVALID', 409, 'status');
     const today = vietnamDateOf(now);
     const version = Number(found.version) + 1;
     await tx.query('update machvon.contract_early_warning_action set status = $2, done_on = $3::date, done_by = $4::uuid, done_note = $5, version = $6, updated_at = now() where id = $1::uuid', [actionId, outcome, today, actor, text, version]);
