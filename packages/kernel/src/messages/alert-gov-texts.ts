@@ -55,6 +55,7 @@ const KPI_SOURCE: Readonly<Record<string, string>> = {
 };
 
 export const ALERT_GOV_TEXT = {
+  chain_owner: 'Người nhận việc',
   chain_hierarchical: (levels: number): string => `Lãnh đạo trực tiếp, bậc ${levels}`,
   chain_functional: (role: string): string => `Đơn vị chuyên môn, vai trò ${role}`,
   push_title: (kind: PushKind, severity: Severity): string => (severity === 'URGENT' ? `Khẩn: ${PUSH_TITLE[kind]}` : PUSH_TITLE[kind]),

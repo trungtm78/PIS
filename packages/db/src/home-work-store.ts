@@ -16,6 +16,9 @@ import { HomeDirectiveSources } from './home-directive-sources.ts';
 import { HomeIntegritySources } from './home-integrity-sources.ts';
 import { HomePrcSources } from './home-prc-sources.ts';
 import { HomeMoneySources } from './home-money-sources.ts';
+import { AlertEscalationStore } from './alert-escalation-store.ts';
+import { AlertGovernancePolicyReader } from './alert-governance-policy.ts';
+import { HomeAlertSources, applyPromotions, overlayEscalation } from './home-alert-sources.ts';
 import { applyAlertTypes } from './home-work-alert-types.ts';
 import type { AlertTypeReading } from './home-work-alert-types.ts';
 import { HomeCrossSources, Params, SOURCE_LIMIT, VIETNAM_DAY } from './home-work-sources.ts';
@@ -58,6 +61,8 @@ export interface WorkRow extends WorkItem {
   policyVersion: string | null;
   /** The alert type the item has in the registry (G0-3): its owner, the response time and the version of the rule; the consequence above comes from it. */
   alertType?: AlertTypeReading | null;
+  /** The item was only to be watched and was raised one step by the escalation (G2-3): the severity it came from. */
+  promotedFrom?: WorkSeverity | undefined;
 }
 
 /** The most a source gives (a person with more than this has a list that says it is cut: the counts are then a lower bound). */
@@ -148,6 +153,9 @@ export class HomeWorkStore {
   private readonly policies = new WorkPolicyReader();
   private readonly calendars = new HomeWorkCalendars();
   private readonly reminders = new HomeWorkReminderStore();
+  private readonly alerts = new HomeAlertSources();
+  private readonly escalations = new AlertEscalationStore();
+  private readonly governance = new AlertGovernancePolicyReader();
 
   async collect(tx: TenantTx, input: WorkInput): Promise<WorkCollection> {
     const context: SourceContext = {
@@ -190,6 +198,8 @@ export class HomeWorkStore {
       ['VENDOR', () => this.vendors.items(context)],
       ['CONTRACT_CLAIM', () => this.contractRegisters.claims(context)],
       ['CONTRACT_EARLY_WARNING', () => this.contractRegisters.earlyWarnings(context)],
+      ['ESCALATION', () => this.alerts.escalated(context)],
+      ['COVERAGE', () => this.alerts.coverageGaps(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];
@@ -224,6 +234,8 @@ export class HomeWorkStore {
       if (row.native !== undefined) natives.set(actionKey(row.source, row.id), row.native);
       rows.push(state === undefined ? withoutDecisions(row) : withState(row, state));
     }
+    // G2-3: an item that was only to be watched and was raised one step by the escalation is shown to be acted on, in the list and in the counts.
+    await applyPromotions(tx, rows);
     if (context.counting) return { rows, truncated, unavailableSources, policies: null };
     const policies = await this.decorate(tx, rows, natives, states, input);
     // G0-3: the consequence and the response time of an item are those of its alert type, an `ALERT_TYPE` rule read through the governance port.
@@ -283,6 +295,9 @@ export class HomeWorkStore {
       row.existingClock = EXISTING_CLOCKS.find((clock) => clock.source === row.source) ?? null;
       row.policyVersion = policies.versions.clock;
     }
+    // G2-3: the chain of escalation, where an item stands on it and when the next level comes.
+    const escalation = (await this.governance.read(tx, input.today)).escalation;
+    overlayEscalation(rows, { policy: escalation, climbs: await this.escalations.climbOf(tx, keys), calendars, now: input.now });
     return policies;
   }
 

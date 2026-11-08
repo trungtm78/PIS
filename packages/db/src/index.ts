@@ -1698,3 +1698,15 @@ export type { ClaimDetail, ClaimFilter, ClaimListItem, ClaimMove, ClaimRegisterP
 export { CtrEarlyWarningStore, WARNING_REGISTER_LIMIT, warningFactsOf } from './ctr-early-warning-store.ts';
 export type { EarlyWarningActionMove, EarlyWarningActionRow, EarlyWarningIssueMove, EarlyWarningIssueRow, EarlyWarningMeetingMove, EarlyWarningMeetingRow, EarlyWarningRegisterView, EarlyWarningDetail, EarlyWarningFilter, EarlyWarningMove, EarlyWarningPage, EarlyWarningRow } from './ctr-early-warning-store.ts';
 export { HomeContractRegisterSources, topClaimAlert } from './home-contract-register-sources.ts';
+
+export { AlertGovernancePolicyReader } from './alert-governance-policy.ts';
+export type { AlertGovernancePolicies } from './alert-governance-policy.ts';
+export { AlertCoverStore, edgeOf } from './alert-cover-store.ts';
+export type { AbsenceListQuery, AbsenceRecord, AbsenceStatus, CoverRecord } from './alert-cover-store.ts';
+export { AlertGapStore, AlertTraceStore, ORPHAN_GAP_KINDS } from './alert-trace-store.ts';
+export type { GapCloseReason, GapDesired, GapKind, GapRecord, TraceObservation, TraceRow } from './alert-trace-store.ts';
+export { AlertEscalationStore, commonDepth } from './alert-escalation-store.ts';
+export type { EscalationCloseReason, AlertEscalationInput, EscalationRecord, AlertEscalationStatus, ItemClimb, RoutedVia } from './alert-escalation-store.ts';
+export { AlertProfileStore } from './alert-profile-store.ts';
+export type { NoticeEntry, StoredAlertProfile } from './alert-profile-store.ts';
+export { COVERAGE_SCREEN, COVER_MANAGER_PERMISSION, HomeAlertSources, applyPromotions, overlayEscalation } from './home-alert-sources.ts';

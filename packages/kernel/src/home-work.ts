@@ -60,6 +60,9 @@ export const WORK_KINDS = [
   'EW_REGISTER_OVERDUE',
   'EW_MEETING_OVERDUE',
   'EW_ACTION_OVERDUE',
+  // The governance of the alert system (lane GOV-9a): an item that was sent up to the person by the chain of escalation, and a gap in the coverage of the receivers of alerts (an absence nobody covers, an owner who left).
+  'ESCALATED_ITEM',
+  'COVERAGE_GAP',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -115,6 +118,8 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   EW_REGISTER_OVERDUE: 44,
   EW_MEETING_OVERDUE: 45,
   EW_ACTION_OVERDUE: 46,
+  ESCALATED_ITEM: 47,
+  COVERAGE_GAP: 48,
 };
 
 export interface WorkItem {

@@ -17,6 +17,8 @@ export interface AlertTypeReading {
   source: 'RULE' | 'DEFAULT';
   /** The day the type is next reviewed has passed. */
   reviewOverdue: boolean;
+  /** An urgent alert of this type may break the quiet hours of a person once nobody took it up in time (G2-5). */
+  quietBypass: boolean;
 }
 
 /** The part of an item this hook reads and writes. */
@@ -52,6 +54,7 @@ function readingOf(resolved: ResolvedGovernanceRule, today: string): AlertTypeRe
     version: resolved.version,
     source: resolved.source,
     reviewOverdue: review !== null && review < today,
+    quietBypass: params.quiet_bypass === true,
   };
 }
 

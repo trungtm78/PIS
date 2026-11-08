@@ -5,7 +5,7 @@ export type WorkSeverity = 'URGENT' | 'ACTION' | 'WATCH';
 export const WORK_SEVERITIES: readonly WorkSeverity[] = ['URGENT', 'ACTION', 'WATCH'];
 
 /** The module source an item comes from (the `source` of `WorkActionTarget`). */
-export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING'] as const;
+export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE'] as const;
 export type WorkSource = (typeof WORK_SOURCES)[number];
 
 /** Read is not handled: a new item, one somebody took up, one that is being worked on (given to someone, or in the hands of its module), and one that is done. */
@@ -69,6 +69,8 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   EW_REGISTER_OVERDUE: 'CONTRACT_EARLY_WARNING',
   EW_MEETING_OVERDUE: 'CONTRACT_EARLY_WARNING',
   EW_ACTION_OVERDUE: 'CONTRACT_EARLY_WARNING',
+  ESCALATED_ITEM: 'ESCALATION',
+  COVERAGE_GAP: 'COVERAGE',
 };
 
 /**
@@ -121,6 +123,9 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   CONTRACT_CLAIM: { LIMITATION_APPROACHING: 'ACTION', LIMITATION_MISSED_OWN: 'URGENT', LIMITATION_MISSED_OTHER: 'ACTION', RESPONSE_DUE_SOON: 'ACTION', RESPONSE_OVERDUE: 'URGENT', SETTLEMENT_OVERDUE: 'ACTION' },
   // G1-15 (lane GOV-8): the rhythm of the early-warning register is watched while it is approaching and acted on once it is past; an action past its day is acted on.
   CONTRACT_EARLY_WARNING: { DUE_SOON: 'WATCH', OVERDUE: 'ACTION' },
+  // G2-3: an item sent up to a person keeps the severity it has (the facet is the severity of the item); G2-7: a person away with nobody to cover and an owner who left are to be acted on, an absence that is about to start is to be watched.
+  ESCALATION: { URGENT: 'URGENT', ACTION: 'ACTION', WATCH: 'WATCH' },
+  COVERAGE: { ABSENT: 'ACTION', OWNER_INACTIVE: 'ACTION', STARTING: 'WATCH' },
   // The work that was there before the alert centre has no severity of its own: what is late or due within the week is to be acted on, the rest is to be watched.
   APPROVAL: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
   EXPLANATION: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
@@ -196,5 +201,7 @@ const CONSEQUENCE_KEYS = [
   'EW_REGISTER_OVERDUE',
   'EW_MEETING_OVERDUE',
   'EW_ACTION_OVERDUE',
+  'ESCALATED_ITEM',
+  'COVERAGE_GAP',
 ] as const;
 export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

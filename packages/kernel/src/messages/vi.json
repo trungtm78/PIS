@@ -300,6 +300,8 @@
   "home.consequence.payment_integrity_signal": "Tín hiệu bất thường không được xem xét sẽ còn nguyên trong hồ sơ cho kiểm toán.",
   "home.consequence.disbursement_exception_expiring": "Ngoại lệ giải ngân hết hạn thì thanh toán vượt trần bị chặn trở lại.",
   "home.consequence.reschedule_count": "Đường cơ sở bị sửa nhiều lần mà không ai xem lại: kiểm toán theo dõi muộn.",
+  "home.consequence.escalated_item": "Việc không ai xử lý ở cấp dưới đã được chuyển lên bạn; nếu bạn cũng không xử lý, nó sẽ lên cấp tiếp theo của chuỗi leo thang.",
+  "home.consequence.coverage_gap": "Cảnh báo của người vắng mặt không có người nhận hợp lệ và đang tự rơi lên lãnh đạo trực tiếp.",
   "home.consequence.connector_stale": "Số liệu lấy từ nguồn bên ngoài cũ hơn mức cho phép và chỉ tiêu dựa vào đó phải ghi rõ là chưa cập nhật.",
   "home.consequence.egp_posting_due": "Bài đăng sắp quá hạn: đăng muộn sẽ bị ghi nhận là vi phạm quy định công khai thông tin đấu thầu.",
   "home.consequence.egp_posting_overdue": "Bài đăng đã quá hạn: đơn vị đang vi phạm quy định công khai thông tin đấu thầu cho đến khi đăng.",
