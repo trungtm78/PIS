@@ -15,7 +15,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSyn
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FFMPEG, probeMs } from '../../hdsd/tts.mjs';
-import { Screen, adb, readScreen, sleep } from '../../hdsd/mobile.mjs';
+import { Screen, adb, centre, readScreen, sleep, tap } from '../../hdsd/mobile.mjs';
 import { operate } from '../../hdsd/mobile-run.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -79,7 +79,23 @@ export async function signIn(serial, { persona, unit, log = console.log }) {
   const data = spawnSync(process.execPath, ['scripts/hdsd/mobile-data.mjs', 'persona', persona], { cwd: REPO_ROOT, encoding: 'utf8' });
   if (data.status !== 0) throw new Error(`persona ${persona}: ${data.stderr || data.stdout}`);
   log(data.stdout.trim());
-  await walk(serial, [{ clear: true }, { wait: 2500 }, { relaunch: true }, { see: '^Đăng nhập bằng SSO', timeout: 40000 }, { sso: true }, { unit }, { mfa: true }, { wait: 3000 }], undefined, log);
+  await walk(serial, [{ clear: true }, { wait: 2500 }, { relaunch: true }, { see: '^Đăng nhập bằng SSO', timeout: 40000 }, { sso: true }], undefined, log);
+  // A person with one unit goes straight to the second factor or the home screen: each step is done only when the screen asks for it.
+  for (let look = 0; look < 8; look += 1) {
+    await sleep(2500);
+    const nodes = readScreen(serial);
+    const labels = nodes.map((node) => node.label);
+    if (labels.some((label) => /Tab 1 trong tổng số/u.test(label))) return;
+    if (labels.some((label) => /^Chọn đơn vị và vai trò/u.test(label))) {
+      const wanted = nodes.find((node) => new RegExp(`^${unit}`, 'u').test(node.label));
+      const choice = wanted ?? nodes.find((node) => node.clickable && node.bounds.top > 330 && !/^Tiếp tục$/u.test(node.label));
+      log(`unit choice: ${choice?.label ?? 'none'}`);
+      if (choice !== undefined) tap(serial, ...centre(choice));
+      await sleep(1000);
+      const next = readScreen(serial).find((node) => /^Tiếp tục$/u.test(node.label));
+      if (next !== undefined) tap(serial, ...centre(next));
+    } else if (labels.some((label) => /Xác thực trong trình duyệt/u.test(label))) await walk(serial, [{ mfa: true }], undefined, log);
+  }
 }
 
 /** Films one scene of the plan and saves the portrait film and its entry in the index. */

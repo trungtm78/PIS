@@ -1,0 +1,18 @@
+{
+  "schema": "clip-edge-voices/1",
+  "note": "Settings of the free fallback voice (edge-tts). Each voice has its own rate and pitch; sentences are spoken one by one and joined with a pause, and every scene is brought to the same loudness before the mix. VieNeuTTS (tts.mjs) stays the final voice when its key exists.",
+  "default": "vi-VN-HoaiMyNeural",
+  "voices": {
+    "vi-VN-HoaiMyNeural": { "rate": "-3%", "pitch": "+0Hz", "gender": "female", "accent": "northern" },
+    "vi-VN-NamMinhNeural": { "rate": "-4%", "pitch": "-2Hz", "gender": "male", "accent": "northern" }
+  },
+  "sentencePauseMs": 320,
+  "sceneLufs": -18,
+  "comparison": {
+    "date": "2026-11-08",
+    "method": "Two sentences of the clips (figures and a list of three) spoken by each voice with the service defaults; measured with ffmpeg ebur128 and silencedetect. Nobody listened: the choice rests on the numbers and on the reasons below, and the owner should audition both before the final film.",
+    "sentence-1": { "HoaiMy": { "seconds": 6.26, "wordsPerSec": 3.83, "lufs": -18.5, "lra": 1.6, "pauses": 3 }, "NamMinh": { "seconds": 6.22, "wordsPerSec": 3.86, "lufs": -20.0, "lra": 0.9, "pauses": 3 } },
+    "sentence-2": { "HoaiMy": { "seconds": 6.19, "wordsPerSec": 3.23, "lufs": -18.2, "lra": 2.2, "pauses": 5 }, "NamMinh": { "seconds": 6.29, "wordsPerSec": 3.18, "lufs": -19.5, "lra": 2.7, "pauses": 5 } },
+    "decision": "vi-VN-HoaiMyNeural stays the default: the pace and the pauses of the two voices are the same, HoaiMy is 1.5 LU louder at the source (less gain, less noise after the normalisation), it is the voice the guide recorder already uses, and it matches the northern female broadcast voice chosen for VieNeuTTS in voices.json. NamMinh is available with CLIPS_EDGE_VOICE=vi-VN-NamMinhNeural."
+  }
+}
