@@ -821,7 +821,7 @@ describe('standard jobs', () => {
       llmKnowledgeReindex: { run: async () => ({}) },
       einvoiceBilling: { run: async () => ({ failed: 0 }) },
       paymentReconciliation: { run: async () => ({ waiting: 0 }) },
-      delegationLifecycle: { run: async () => ({ activated: 0, expired: 0, sourceEnded: 0, active: 0 }) },
+      delegationLifecycle: { run: async () => ({ activated: 0, expired: 0, sourceEnded: 0, reviewLapsed: 0, reviewReminded: 0, active: 0 }) },
       supportAccessLifecycle: { run: async () => ({ activated: [], expired: [], lapsed: [], active: 0 }) },
       tenantExport: { run: async () => ({ expired: [], pending: 0 }), pending: async () => 0 },
       tenantRestore: { run: async () => ({ pending: 0, failed: 0 }) },

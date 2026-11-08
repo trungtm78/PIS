@@ -1,4 +1,4 @@
-import { DomainError, activeGrants, addWorkingTime, advanceWorkflow, assertValidDefinition, businessTypeOf, canonicalJson, finalCommandKey, requiredApprovals, scopeContains, sha256Hex, slaAction, vietnamDateOf, versionConflict, withinDelegation } from '@machvon/kernel';
+import { DomainError, activeGrants, periodCoveredByDays, addWorkingTime, advanceWorkflow, assertValidDefinition, businessTypeOf, canonicalJson, finalCommandKey, requiredApprovals, scopeContains, sha256Hex, slaAction, vietnamDateOf, versionConflict, withinDelegation } from '@machvon/kernel';
 import type { ApprovalDecisionKind, ApprovalSlaAction, ApprovalWorkflowDefinition, EffectiveAccess, ResourceRef, WorkflowOutcome, WorkflowStep } from '@machvon/kernel';
 import { randomUUID } from 'node:crypto';
 import { DoaMatrixStore } from './doa-matrix-store.ts';
@@ -319,7 +319,7 @@ export interface SlaSweepResult {
 
 /** What a decision did, for the audit row and the answer. */
 export type DecisionResult =
-  | { kind: 'DECIDED'; task: TaskRecord; instance: InstanceRecord; step: 'STAYED' | 'NEXT_STEP' | 'RETURNED_TO_STEP' | 'COMPLETED'; outcome: string | null; finalCommand: string | null; createdTaskIds: string[] }
+  | { kind: 'DECIDED'; task: TaskRecord; instance: InstanceRecord; step: 'STAYED' | 'NEXT_STEP' | 'RETURNED_TO_STEP' | 'COMPLETED'; outcome: string | null; finalCommand: string | null; createdTaskIds: string[]; delegationId: string | null }
   | { kind: 'SELF_APPROVAL'; task: TaskRecord; reassignedTo: string | null };
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
@@ -601,15 +601,19 @@ export class ApprovalStore {
     let onBehalfOf: string | null = null;
     let delegationId: string | null = null;
     if (task.assigneeId !== caller) {
-      const [delegation] = await tx.query<{ id: string }>(
-        `select d.id from machvon.delegation_grant d
+      // Every delegation that could carry the decision: one limited to report periods carries it only for a report of those periods (a task of a resource without a period is out of its reach).
+      const candidates = await tx.query<{ id: string; period_codes: string[] | null }>(
+        `select d.id, d.period_codes from machvon.delegation_grant d
           where d.delegator_membership_id = $1::uuid and d.delegate_membership_id = $2::uuid and d.status = 'Active' and d.valid_from <= $3::timestamptz and $3::timestamptz < d.valid_until
             and exists (select 1 from unnest(d.permissions) p where p = $4 or p = 'approval.*' or p = '*')
             and ${SCOPE_CONTAINS_UNIT("d.scope_json->>'kind'", "array(select jsonb_array_elements_text(coalesce(d.scope_json->'ref_ids', '[]'::jsonb))::uuid)", '$5')}
-          order by d.valid_from desc limit 1`,
+          order by d.valid_from desc, d.id`,
         [task.assigneeId, caller, input.now.toISOString(), DECIDE_PERMISSION, instance.unitId],
       );
-      if (delegation === undefined) throw new DomainError('APPROVER_NOT_AUTHORIZED', 403, 'assignee');
+      const limited = candidates.some((candidate) => candidate.period_codes !== null);
+      const days = limited ? await this.periodDaysOf(tx, instance.resourceType, instance.resourceId) : undefined;
+      const delegation = candidates.find((candidate) => candidate.period_codes === null || (days !== undefined && periodCoveredByDays(candidate.period_codes, days.startsOn, days.endsOn)));
+      if (delegation === undefined) throw new DomainError(candidates.length > 0 ? 'PERIOD_SCOPE_DENIED' : 'APPROVER_NOT_AUTHORIZED', 403, candidates.length > 0 ? 'period' : 'assignee');
       onBehalfOf = task.assigneeId;
       delegationId = delegation.id;
     }
@@ -706,7 +710,7 @@ export class ApprovalStore {
         });
       }
     }
-    return { kind: 'DECIDED', task: decided ?? task, instance: after ?? instance, step: stepResult, outcome, finalCommand, createdTaskIds: created };
+    return { kind: 'DECIDED', task: decided ?? task, instance: after ?? instance, step: stepResult, outcome, finalCommand, createdTaskIds: created, delegationId };
   }
 
   // ---- the operations on a running approval (ADM-18) -----------------------------------------------------------------------------------
@@ -948,6 +952,17 @@ export class ApprovalStore {
       }
     }
     return new Set(valid.filter((entry) => entry.stepIndex < belowIndex).map((entry) => entry.user));
+  }
+
+  /** The first and last day of the reporting period of a resource, for the resources that have one (a weekly or monthly report revision); undefined for any other. */
+  private async periodDaysOf(tx: TenantTx, resourceType: string, resourceId: string): Promise<{ startsOn: string; endsOn: string } | undefined> {
+    if (resourceType !== 'report_revision') return undefined;
+    const [row] = await tx.query<{ starts_on: string; ends_on: string }>(
+      `select to_char(rp.start_date, 'YYYY-MM-DD') as starts_on, to_char(rp.end_date, 'YYYY-MM-DD') as ends_on
+         from machvon.report_revision r join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id where r.id = $1::uuid`,
+      [resourceId],
+    );
+    return row === undefined ? undefined : { startsOn: row.starts_on, endsOn: row.ends_on };
   }
 
   private async placeOf(tx: TenantTx, unitId: string): Promise<ResourceRef> {

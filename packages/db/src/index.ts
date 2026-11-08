@@ -1733,3 +1733,10 @@ export { AccessLogStore, AccessOverviewReads, ExportDatasetStore, MachineAccount
 export type { AccessLogFilter, AccessLogRow, ClientLookup, ExportDatasetRow, LiveAccount, MachineAccountFilter, MachineAccountRow, MachineCredentialRow, OpenPage, ProductChoice } from './int-open-api-store.ts';
 export { ProjectCodeStore, SourceSystemStore } from './int-project-code-store.ts';
 export type { ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
+export { StandingRequestStore } from './iam-standing-store.ts';
+export type { NewStandingRequest, StandingRequestRecord, StandingRequestStatus } from './iam-standing-store.ts';
+export { ActingStore } from './iam-acting-store.ts';
+export type { ActingRecord, NewActing } from './iam-acting-store.ts';
+export { PeriodScopeStore } from './iam-period-scope-store.ts';
+export type { PeriodScopeRecord, PeriodScopeStatus } from './iam-period-scope-store.ts';
+export type { DelegationKind, NewStandingDelegation } from './delegation-store.ts';

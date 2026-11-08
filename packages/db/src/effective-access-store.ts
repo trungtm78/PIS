@@ -20,6 +20,8 @@ export interface GrantRow {
   status: string;
   effective_from: Date;
   effective_until: Date | null;
+  /** The report periods an Active limit of the grant lists (IAM-2); null when it is not limited. */
+  period_codes?: string[] | null;
 }
 
 // Active is decided by the database clock: the membership has started (valid_from) and has not ended (valid_until).
@@ -30,7 +32,8 @@ const MEMBERSHIP_SQL = `select scope_version::text as scope_version,
 
 // Grant windows are not filtered here: a cached access must stay correct as time passes, so the pure PDP applies them.
 const GRANTS_SQL = `select r.code, r.rank, r.permissions, g.scope_kind, g.scope_ref_ids, g.status, g.effective_from, g.effective_until,
-    coalesce((select array_agg(u.path order by u.path) from machvon.organization_unit u where u.id = any(g.scope_ref_ids)), '{}') as unit_paths
+    coalesce((select array_agg(u.path order by u.path) from machvon.organization_unit u where u.id = any(g.scope_ref_ids)), '{}') as unit_paths,
+    (select ps.period_codes from machvon.role_grant_period_scope ps where ps.tenant_id = g.tenant_id and ps.role_grant_id = g.id and ps.status = 'Active') as period_codes
   from machvon.role_grant g
   join machvon.role_definition r on r.tenant_id = g.tenant_id and r.id = g.role_id
   where g.membership_id = $1::uuid and g.status = 'Active'
@@ -53,6 +56,7 @@ export function grantViewOf(row: GrantRow): GrantView {
     status: row.status,
     effectiveFrom: row.effective_from,
     effectiveUntil: row.effective_until,
+    ...(row.period_codes === undefined || row.period_codes === null ? {} : { periodCodes: row.period_codes }),
   };
 }
 
