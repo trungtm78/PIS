@@ -22659,5 +22659,113 @@
     "covers": [
       "FR-ADM-27"
     ]
+  },
+  {
+    "id": "UI-LLM-22",
+    "source": "FR-LLM-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi; user có quyền và user chỉ đọc; route LLM-22",
+    "steps": [
+      "Mở LLM-22 từ menu và deep link; kiểm nhãn trường: Loại yêu cầu, Câu hỏi, Nguồn (dự án, hợp đồng, tài liệu), Nhận định theo nguồn, giả định, suy luận, Dẫn nguồn đã kiểm chứng, Hạng dữ liệu và tuyến xử lý, Lịch sử lượt hỏi",
+      "Thực hiện thao tác chính theo quy tắc: Mọi nhận định có dẫn nguồn đọc được bởi người hỏi; nhận định không có nguồn hiện là chưa có căn cứ; đề xuất của AI không tự áp dụng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LLM-22"
+    ],
+    "expected": "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi: hiển thị đúng 7 trường, áp quy tắc \"Mọi nhận định có dẫn nguồn đọc được bởi người hỏi; nhận định không có nguồn hiện là chưa có căn cứ; đề xuất của AI không tự áp dụng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LLM-22"
+    ]
+  },
+  {
+    "id": "UI-LLM-23",
+    "source": "FR-LLM-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết lượt hỏi của trợ lý AI và quyết định của người; user có quyền và user chỉ đọc; route LLM-23",
+    "steps": [
+      "Mở LLM-23 từ menu và deep link; kiểm nhãn trường: Nhận định, Nhãn nguồn/giả định/suy luận, Dẫn nguồn và trích đoạn, Dẫn nguồn bị ẩn do không đủ quyền, Tín hiệu chỉ dẫn trong tài liệu, Quyết định của người (chấp nhận, sửa, từ chối)",
+      "Thực hiện thao tác chính theo quy tắc: Dẫn nguồn được kiểm lại theo quyền đọc hiện tại; không thể giữ nhận định thiếu nguồn; một quyết định cho mỗi lượt",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LLM-23"
+    ],
+    "expected": "Chi tiết lượt hỏi của trợ lý AI và quyết định của người: hiển thị đúng 6 trường, áp quy tắc \"Dẫn nguồn được kiểm lại theo quyền đọc hiện tại; không thể giữ nhận định thiếu nguồn; một quyết định cho mỗi lượt\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LLM-23"
+    ]
+  },
+  {
+    "id": "UI-LLM-24",
+    "source": "FR-LLM-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Rà soát hồ sơ trước khi trình; user có quyền và user chỉ đọc; route LLM-24",
+    "steps": [
+      "Mở LLM-24 từ menu và deep link; kiểm nhãn trường: Hồ sơ cần rà soát, Danh mục rà soát, Kết quả từng mục (đạt, không đạt, chưa chứng minh được), Mức độ (chặn, cảnh báo, thông tin), Kết luận sẵn sàng hay chưa, Dẫn nguồn của câu trả lời",
+      "Thực hiện thao tác chính theo quy tắc: Kết luận chỉ là tư vấn và không chặn việc trình; mục do AI trả lời chỉ đạt khi có dẫn nguồn đã kiểm chứng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LLM-24"
+    ],
+    "expected": "Rà soát hồ sơ trước khi trình: hiển thị đúng 6 trường, áp quy tắc \"Kết luận chỉ là tư vấn và không chặn việc trình; mục do AI trả lời chỉ đạt khi có dẫn nguồn đã kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LLM-24"
+    ]
+  },
+  {
+    "id": "UI-LLM-25",
+    "source": "FR-LLM-25",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đề xuất đánh giá thực hiện hợp đồng; user có quyền và user chỉ đọc; route LLM-25",
+    "steps": [
+      "Mở LLM-25 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Bộ tiêu chí và trọng số, Điểm AI đề xuất và dẫn nguồn, Tiêu chí bị giữ điểm do thiếu bằng chứng, Điểm người chấp nhận hoặc sửa, Tổng điểm có trọng số",
+      "Thực hiện thao tác chính theo quy tắc: Tổng điểm chỉ tính từ điểm người đã chấp nhận; không tự ghi sang module khác",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LLM-25"
+    ],
+    "expected": "Đề xuất đánh giá thực hiện hợp đồng: hiển thị đúng 6 trường, áp quy tắc \"Tổng điểm chỉ tính từ điểm người đã chấp nhận; không tự ghi sang module khác\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LLM-25"
+    ]
+  },
+  {
+    "id": "UI-LLM-26",
+    "source": "FR-LLM-26",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Danh mục rà soát và bộ tiêu chí đánh giá; user có quyền và user chỉ đọc; route LLM-26",
+    "steps": [
+      "Mở LLM-26 từ menu và deep link; kiểm nhãn trường: Mã và phiên bản, Áp dụng cho, Các mục hoặc tiêu chí, Trọng số (điểm cơ bản), Trạng thái, Người soạn và người ban hành",
+      "Thực hiện thao tác chính theo quy tắc: Người soạn khác người ban hành; bản đã ban hành bị khóa; trọng số cộng đủ 10000",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LLM-26"
+    ],
+    "expected": "Danh mục rà soát và bộ tiêu chí đánh giá: hiển thị đúng 6 trường, áp quy tắc \"Người soạn khác người ban hành; bản đã ban hành bị khóa; trọng số cộng đủ 10000\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LLM-26"
+    ]
+  },
+  {
+    "id": "UI-LLM-27",
+    "source": "FR-LLM-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu; user có quyền và user chỉ đọc; route LLM-27",
+    "steps": [
+      "Mở LLM-27 từ menu và deep link; kiểm nhãn trường: Nhà cung cấp và tuyến, Vị trí lưu trữ dữ liệu, Cam kết không huấn luyện, Đề nghị ngoại lệ, Căn cứ phê duyệt và hiệu lực, Nhật ký sử dụng",
+      "Thực hiện thao tác chính theo quy tắc: Nhà cung cấp ngoài tắt mặc định ở phiên bản doanh nghiệp; mở cần ngoại lệ đã duyệt và mọi lần dùng đều được ghi",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LLM-27"
+    ],
+    "expected": "Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu: hiển thị đúng 6 trường, áp quy tắc \"Nhà cung cấp ngoài tắt mặc định ở phiên bản doanh nghiệp; mở cần ngoại lệ đã duyệt và mọi lần dùng đều được ghi\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LLM-27"
+    ]
   }
 ]

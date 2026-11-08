@@ -10931,5 +10931,107 @@
       "UI-ADM-27",
       "UAT-IAM2-03"
     ]
+  },
+  {
+    "requirement": "FR-LLM-22",
+    "screen": "LLM-22",
+    "title": "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Làn AI-2 (AI.01, AI.05, AI.07; LLM F9; lane AI-2); tài liệu 05_modules/LLM.md §F9",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 1 test",
+    "backlog_id": "BL-LLM-22",
+    "test_ids": [
+      "UI-LLM-22"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-23",
+    "screen": "LLM-23",
+    "title": "Chi tiết lượt hỏi của trợ lý AI và quyết định của người",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Làn AI-2 (AI.01, AI.04; LLM F8, F9; lane AI-2); tài liệu 05_modules/LLM.md §F9",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 1 test",
+    "backlog_id": "BL-LLM-23",
+    "test_ids": [
+      "UI-LLM-23"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-24",
+    "screen": "LLM-24",
+    "title": "Rà soát hồ sơ trước khi trình",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Làn AI-2 (AI.02; LLM F9; lane AI-2); tài liệu 05_modules/LLM.md §F9",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 1 test",
+    "backlog_id": "BL-LLM-24",
+    "test_ids": [
+      "UI-LLM-24"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-25",
+    "screen": "LLM-25",
+    "title": "Đề xuất đánh giá thực hiện hợp đồng",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Làn AI-2 (AI.04; LLM F9; lane AI-2); tài liệu 05_modules/LLM.md §F9",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 1 test",
+    "backlog_id": "BL-LLM-25",
+    "test_ids": [
+      "UI-LLM-25"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-26",
+    "screen": "LLM-26",
+    "title": "Danh mục rà soát và bộ tiêu chí đánh giá",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Làn AI-2 (AI.02, AI.04; lane AI-2); tài liệu 05_modules/LLM.md §F9",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 1 test",
+    "backlog_id": "BL-LLM-26",
+    "test_ids": [
+      "UI-LLM-26"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-27",
+    "screen": "LLM-27",
+    "title": "Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Làn AI-2 (AI.07, HT.01; eng-review R5, KT.02; lane AI-2); tài liệu 05_modules/LLM.md §F9",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 1 test",
+    "backlog_id": "BL-LLM-27",
+    "test_ids": [
+      "UI-LLM-27"
+    ]
   }
 ]

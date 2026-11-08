@@ -52689,6 +52689,179 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-LLM-012",
+      "epic": "EP-LLM",
+      "feature": "FT-LLM-05",
+      "module": "LLM",
+      "title": "AI assistant over the records and documents of the tenant: cited answers, review before submission, contract evaluation, feasibility support, and the processing location of an edition",
+      "narrative": "As a person who prepares or checks a file I can ask questions over what I may read, get summaries and drafts whose every statement is labelled source, assumption or inference and carries a verified citation, review a file against a checklist, and get a proposal of a contract evaluation that I accept or reject; and as a security officer of an edition that keeps processing on the customer servers I can allow an external provider only by an approved, logged exception.",
+      "release": "R2",
+      "screens": [
+        "LLM-22",
+        "LLM-23",
+        "LLM-24",
+        "LLM-25",
+        "LLM-26",
+        "LLM-27"
+      ],
+      "operations": [
+        "createAiAssistRun",
+        "listAiAssistRuns",
+        "getAiAssistRun",
+        "decideAiAssistRun",
+        "createAiReviewChecklist",
+        "publishAiReviewChecklist",
+        "listAiReviewChecklists",
+        "getAiReviewChecklist",
+        "createAiEvalCriteriaSet",
+        "publishAiEvalCriteriaSet",
+        "listAiEvalCriteriaSets",
+        "getAiEvalCriteriaSet",
+        "attestAiProvider",
+        "requestAiExternalException",
+        "decideAiExternalException",
+        "revokeAiExternalException",
+        "listAiExternalExceptions",
+        "getAiExternalException",
+        "getAiEditionPolicy"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-04",
+        "NFR-AI-01",
+        "NFR-SECURITY-12"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-LLM-012-1",
+          "given": "A question over a project, its contracts and a report, a model answer that cites a record the asker cannot read, and a report page that holds an injected instruction",
+          "when": "The run is made and shown again",
+          "then": "Every statement carries its label, a citation the asker cannot read is dropped and counted, the statement shown as unsupported, the injected text stays inside the sources and the answer cannot add an action",
+          "test_id": "UAT-AC466"
+        },
+        {
+          "id": "AC-ST-LLM-012-2",
+          "given": "A proposal of an evaluation of a contract with one score withheld for want of evidence",
+          "when": "The person accepts it as it is, then accepts it with their own score",
+          "then": "The first is refused (AI_EVALUATION_INCOMPLETE), the second is recorded once, the total is computed only from the scores the person accepted and nothing outside the assistant changes",
+          "test_id": "UAT-AC468"
+        },
+        {
+          "id": "AC-ST-LLM-012-3",
+          "given": "The enterprise edition with an external provider and no exception, then an approved exception",
+          "when": "A request would go to the external provider",
+          "then": "It is refused with AI_EXTERNAL_EXCEPTION_REQUIRED and no model is called; under an approved exception it is served and the use is logged",
+          "test_id": "UAT-AC458"
+        },
+        {
+          "id": "AC-ST-LLM-012-4",
+          "given": "LLM-22 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-LLM-22"
+        },
+        {
+          "id": "AC-ST-LLM-012-5",
+          "given": "LLM-23 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-LLM-23"
+        },
+        {
+          "id": "AC-ST-LLM-012-6",
+          "given": "LLM-24 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-LLM-24"
+        },
+        {
+          "id": "AC-ST-LLM-012-7",
+          "given": "LLM-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-LLM-25"
+        },
+        {
+          "id": "AC-ST-LLM-012-8",
+          "given": "LLM-26 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-LLM-26"
+        },
+        {
+          "id": "AC-ST-LLM-012-9",
+          "given": "LLM-27 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-LLM-27"
+        }
+      ],
+      "dependencies": [
+        "ST-LLM-005",
+        "ST-LLM-004",
+        "ST-LLM-006"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "ai-decision",
+          "security"
+        ],
+        "hours": {
+          "min": 3,
+          "max": 6
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "medium",
+        "assumption": "The models are behind the AI gateway port; the adapter that goes through LiteLLM on the customer servers is a deployment matter and the stand-in is the test adapter."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-LLM-012-1",
+          "kind": "backend",
+          "title": "Kernel rules, stores, migrations V2180 to V2185 and the endpoints of the assistant, the checklists, the criteria, the exceptions and the attestation",
+          "test_ids": [
+            "UAT-AC466",
+            "UAT-AC468",
+            "UAT-AC458"
+          ]
+        },
+        {
+          "id": "TK-LLM-012-2",
+          "kind": "web",
+          "title": "LLM-22 to LLM-27 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-LLM-012-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for LLM-22 to LLM-27; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-LLM-012-4",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-LLM-22",
+            "UI-LLM-23",
+            "UI-LLM-24",
+            "UI-LLM-25",
+            "UI-LLM-26",
+            "UI-LLM-27"
+          ]
+        }
+      ]
     }
   ]
 }

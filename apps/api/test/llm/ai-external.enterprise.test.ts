@@ -126,8 +126,8 @@ describe('the AI of the enterprise edition: external providers off by default, o
   });
 
   it('asks two people, for a reason, for at most ninety days, and keeps the history', async () => {
-    expect(await request(world.providers.domestic, { valid_days: 91 })).toMatchObject({ status: 400 });
-    expect(await request(world.providers.domestic, { reason: 'Too short.' })).toMatchObject({ status: 400 });
+    expect(await request(world.providers.domestic, { valid_days: 91 })).toMatchObject({ status: 422 });
+    expect(await request(world.providers.domestic, { reason: 'Too short.' })).toMatchObject({ status: 422 });
     expect(await request(randomUUID())).toMatchObject({ status: 404 });
     const made = await request(world.providers.domestic);
     expect(made).toMatchObject({ status: 200, json: { status: 'REQUESTED', resource_version: 1 } });
@@ -159,7 +159,7 @@ describe('the AI of the enterprise edition: external providers off by default, o
     expect(await activate()).toMatchObject({ status: 409, json: { code: 'PROVIDER_ATTESTATION_REQUIRED' } });
     const attestation = { data_location_country: 'VN', data_location_detail: 'Data hall 2, Ho Chi Minh City', no_training_attested: true, attestation_ref: 'DPA-2026-07 clause 9' };
     expect(await world.call('POST', `/ai-providers/${provider}/attestation`, { member: PROVIDER_ADMIN, ifMatch: '"7"', body: attestation })).toMatchObject({ status: 409 });
-    expect(await world.call('POST', `/ai-providers/${provider}/attestation`, { member: PROVIDER_ADMIN, ifMatch: '"1"', body: { ...attestation, data_location_country: 'vn' } })).toMatchObject({ status: 400 });
+    expect(await world.call('POST', `/ai-providers/${provider}/attestation`, { member: PROVIDER_ADMIN, ifMatch: '"1"', body: { ...attestation, data_location_country: 'vn' } })).toMatchObject({ status: 422 });
     expect(await world.call('POST', `/ai-providers/${provider}/attestation`, { member: PROVIDER_ADMIN, ifMatch: '"1"', body: attestation })).toMatchObject({ status: 200, json: { status: 'ATTESTED', resource_version: 2 } });
     const listed = await world.call('GET', '/ai-providers', { member: PROVIDER_ADMIN });
     expect(asObjects(listed.json.items).find((item) => item.id === provider)).toMatchObject({ data_location_country: 'VN', no_training_attested: true, attestation_ref: 'DPA-2026-07 clause 9', attested_by: expect.any(String) });

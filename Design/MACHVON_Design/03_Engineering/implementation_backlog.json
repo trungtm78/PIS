@@ -19601,5 +19601,204 @@
     "stories": [
       "ST-ADM-025"
     ]
+  },
+  {
+    "id": "BL-LLM-22",
+    "requirement": "FR-LLM-22",
+    "screen": "LLM-22",
+    "title": "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LLM",
+    "fields": [
+      "Loại yêu cầu",
+      "Câu hỏi",
+      "Nguồn (dự án, hợp đồng, tài liệu)",
+      "Nhận định theo nguồn, giả định, suy luận",
+      "Dẫn nguồn đã kiểm chứng",
+      "Hạng dữ liệu và tuyến xử lý",
+      "Lịch sử lượt hỏi"
+    ],
+    "rule": "Mọi nhận định có dẫn nguồn đọc được bởi người hỏi; nhận định không có nguồn hiện là chưa có căn cứ; đề xuất của AI không tự áp dụng",
+    "test_ids": [
+      "UI-LLM-22"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-LLM-012"
+    ]
+  },
+  {
+    "id": "BL-LLM-23",
+    "requirement": "FR-LLM-23",
+    "screen": "LLM-23",
+    "title": "Chi tiết lượt hỏi của trợ lý AI và quyết định của người",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LLM",
+    "fields": [
+      "Nhận định",
+      "Nhãn nguồn/giả định/suy luận",
+      "Dẫn nguồn và trích đoạn",
+      "Dẫn nguồn bị ẩn do không đủ quyền",
+      "Tín hiệu chỉ dẫn trong tài liệu",
+      "Quyết định của người (chấp nhận, sửa, từ chối)"
+    ],
+    "rule": "Dẫn nguồn được kiểm lại theo quyền đọc hiện tại; không thể giữ nhận định thiếu nguồn; một quyết định cho mỗi lượt",
+    "test_ids": [
+      "UI-LLM-23"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-LLM-012"
+    ]
+  },
+  {
+    "id": "BL-LLM-24",
+    "requirement": "FR-LLM-24",
+    "screen": "LLM-24",
+    "title": "Rà soát hồ sơ trước khi trình",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LLM",
+    "fields": [
+      "Hồ sơ cần rà soát",
+      "Danh mục rà soát",
+      "Kết quả từng mục (đạt, không đạt, chưa chứng minh được)",
+      "Mức độ (chặn, cảnh báo, thông tin)",
+      "Kết luận sẵn sàng hay chưa",
+      "Dẫn nguồn của câu trả lời"
+    ],
+    "rule": "Kết luận chỉ là tư vấn và không chặn việc trình; mục do AI trả lời chỉ đạt khi có dẫn nguồn đã kiểm chứng",
+    "test_ids": [
+      "UI-LLM-24"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-LLM-012"
+    ]
+  },
+  {
+    "id": "BL-LLM-25",
+    "requirement": "FR-LLM-25",
+    "screen": "LLM-25",
+    "title": "Đề xuất đánh giá thực hiện hợp đồng",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LLM",
+    "fields": [
+      "Hợp đồng",
+      "Bộ tiêu chí và trọng số",
+      "Điểm AI đề xuất và dẫn nguồn",
+      "Tiêu chí bị giữ điểm do thiếu bằng chứng",
+      "Điểm người chấp nhận hoặc sửa",
+      "Tổng điểm có trọng số"
+    ],
+    "rule": "Tổng điểm chỉ tính từ điểm người đã chấp nhận; không tự ghi sang module khác",
+    "test_ids": [
+      "UI-LLM-25"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-LLM-012"
+    ]
+  },
+  {
+    "id": "BL-LLM-26",
+    "requirement": "FR-LLM-26",
+    "screen": "LLM-26",
+    "title": "Danh mục rà soát và bộ tiêu chí đánh giá",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LLM",
+    "fields": [
+      "Mã và phiên bản",
+      "Áp dụng cho",
+      "Các mục hoặc tiêu chí",
+      "Trọng số (điểm cơ bản)",
+      "Trạng thái",
+      "Người soạn và người ban hành"
+    ],
+    "rule": "Người soạn khác người ban hành; bản đã ban hành bị khóa; trọng số cộng đủ 10000",
+    "test_ids": [
+      "UI-LLM-26"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-LLM-012"
+    ]
+  },
+  {
+    "id": "BL-LLM-27",
+    "requirement": "FR-LLM-27",
+    "screen": "LLM-27",
+    "title": "Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LLM",
+    "fields": [
+      "Nhà cung cấp và tuyến",
+      "Vị trí lưu trữ dữ liệu",
+      "Cam kết không huấn luyện",
+      "Đề nghị ngoại lệ",
+      "Căn cứ phê duyệt và hiệu lực",
+      "Nhật ký sử dụng"
+    ],
+    "rule": "Nhà cung cấp ngoài tắt mặc định ở phiên bản doanh nghiệp; mở cần ngoại lệ đã duyệt và mọi lần dùng đều được ghi",
+    "test_ids": [
+      "UI-LLM-27"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-LLM-012"
+    ]
   }
 ]
