@@ -1686,6 +1686,8 @@ export { IND_FIGURE_RESOURCE, figureSetLockKey, IndDictionaryStore, IndEntryRule
 export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter as IndFigureFilter, FigureOutcome, FigureRow as IndFigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
 export type { IndImportDeps, IndImportWritten, IndRowOutcome } from './ind-import.ts';
+=======
+export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
 // FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
 export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore } from './fnd-figure-store.ts';
 export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
