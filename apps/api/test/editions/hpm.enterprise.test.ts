@@ -8,6 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { registerEnterpriseIntegrationRules } from '@machvon/edition-enterprise/src/server.ts';
 import { HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
 import type { PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
 import { CommandModule } from '../../src/command.module';
@@ -116,6 +117,8 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
   }
 
   beforeAll(async () => {
+    // The process of the enterprise edition registers its rules and alert types when it loads (load-enterprise.ts).
+    registerEnterpriseIntegrationRules();
     root = await mkdtemp(join(tmpdir(), 'machvon-hpm-'));
     await harness.start();
     for (const tenant of [TENANT_A, TENANT_B]) {

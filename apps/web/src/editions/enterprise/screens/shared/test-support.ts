@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { harness } from '../../../../screens/sas/test-support';
 import type { Harness } from '../../../../screens/sas/test-support';
 
@@ -237,14 +238,23 @@ export function difference(n: number, over: Record<string, unknown> = {}, action
   };
 }
 
+export const upload = (over: Record<string, unknown> = {}) => ({ file_object_key: 'tenants/t/import/0001', file_sha256: 'd'.repeat(64), size_bytes: 2048, format: 'CSV', columns: ['project_code', 'period', 'extract_date', 'disbursed_vnd', 'committed_vnd'], row_count: 3, matches_layout: true, missing_columns: [], ...over });
+
 export interface EbsWorld {
   connection: Record<string, unknown>;
   differences: Array<Record<string, unknown>>;
+  /** The answer of the upload door (a value, or an Error to throw). */
+  upload?: () => unknown;
   failing?: Record<string, { error: Error; times: number }>;
 }
 
-export function ebsClient(world: EbsWorld, command: (operation: string, input: unknown) => unknown = () => ({ operation_id: 'o', status: 'OK', resource_version: 6 })): Harness {
-  return harness((operation, input) => {
+export function ebsClient(world: EbsWorld, command: (operation: string, input: unknown) => unknown = () => ({ operation_id: 'o', status: 'OK', resource_version: 6 })): Harness & { upload: ReturnType<typeof vi.fn> } {
+  const send = vi.fn(async () => {
+    const answer = world.upload?.() ?? upload();
+    if (answer instanceof Error) throw answer;
+    return answer;
+  });
+  const made = harness((operation, input) => {
     const failing = world.failing?.[operation];
     if (failing !== undefined && failing.times > 0) {
       failing.times -= 1;
@@ -258,4 +268,6 @@ export function ebsClient(world: EbsWorld, command: (operation: string, input: u
     }
     return new Error(`unexpected read ${operation}`);
   }, command);
+  (made.client as unknown as { upload: unknown }).upload = send;
+  return Object.assign(made, { upload: send });
 }

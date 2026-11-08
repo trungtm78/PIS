@@ -7,6 +7,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { registerEnterpriseIntegrationRules } from '@machvon/edition-enterprise/src/server.ts';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
@@ -141,6 +142,8 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
   }
 
   beforeAll(async () => {
+    // The process of the enterprise edition registers its rules and alert types when it loads (load-enterprise.ts).
+    registerEnterpriseIntegrationRules();
     root = await mkdtemp(join(tmpdir(), 'machvon-ebs-'));
     await harness.start();
     for (const tenant of [TENANT_A, TENANT_B]) {
