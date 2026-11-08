@@ -2563,3 +2563,4 @@ export type { LadderChannel, LadderInput, LadderMove, LadderPayload, LadderPolic
 export { BUILT_IN_OCP_IDS, BUILT_IN_RED_FLAG_CODES, RED_FLAG_STATUSES, RED_FLAG_RANKING_RULE_TYPE, RED_FLAG_RULE_TYPE, compareFindings, evaluateRedFlags, isInvolved, nextRedFlagStatus, rankingDefaults, redFlagIndicator, registerBuiltInRedFlagIndicators, registerRedFlagIndicator, registeredRedFlagIndicators, reopensAfterRescan, scoreOf } from './red-flags.ts';
 export type { RedFlagMove, RedFlagStatus, IndicatorParams, IndicatorReading, IndicatorStatus, RankingParams, RedFlagBand, RedFlagFacts, RedFlagIndicator, RedFlagSubjectType, Score as RedFlagScore } from './red-flags.ts';
 export { FEEDBACK_RULE_TYPE } from './gov10-rule-types.ts';
+export { GOV10_SCREENS } from './gov10-screens.ts';

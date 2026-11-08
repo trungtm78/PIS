@@ -1150,5 +1150,17 @@
   "gov.rules.gov10.ladder.formula": "Mỗi mức có một thang kênh: các bậc theo thứ tự, mỗi bậc chờ wait_minutes phút để có biên nhận (đã giao hoặc đã xem, theo stop_when); bậc lỗi hoặc không gửi được thì sang bậc kế ngay; hết bậc thì chuyển cho cấp trên sau hand_off_after_minutes phút; thông điệp không chứa số liệu tài chính",
   "gov.rules.gov10.flood.formula": "Lũ bắt đầu khi số cảnh báo mới của một người trong window_minutes phút vượt start_above và kết thúc khi dưới end_below; trong lũ và khi số cảnh báo mới trong ngày vượt max_new_per_day, cảnh báo mới dưới mức Khẩn được gom thành thẻ tóm tắt (theo nguyên nhân rồi nguồn) từ min_group_size mục; mức Khẩn không bao giờ bị gộp",
   "gov.rules.gov10.feedback.formula": "Tỷ lệ phản hồi không đúng của một loại = số phản hồi chia số cảnh báo loại đó đã hiện trong kỳ; từ review_line_pct phần trăm trở lên và có ít nhất min_shown cảnh báo thì đưa vào xét lại; phản hồi chưa xem quá pending_long_days ngày thì nâng mức",
-  "gov.rules.gov10.red_flag.involved_hidden": "Người tham gia gói thầu hoặc hợp đồng không thấy tín hiệu về nó"
+  "gov.rules.gov10.red_flag.involved_hidden": "Người tham gia gói thầu hoặc hợp đồng không thấy tín hiệu về nó",
+  "home.source.red_flag.title": "Tín hiệu rủi ro mua sắm: {code}",
+  "home.source.red_flag.band_low": "Mức thấp, điểm {score}",
+  "home.source.red_flag.band_medium": "Mức trung bình, điểm {score}",
+  "home.source.red_flag.band_high": "Mức cao, điểm {score}",
+  "home.source.feedback.title": "Phản hồi: cảnh báo loại {type} không đúng",
+  "alert.feedback.reason.not_applicable": "Không áp dụng cho trường hợp này",
+  "alert.feedback.reason.wrong_data": "Số liệu sai",
+  "alert.feedback.reason.duplicate": "Trùng với cảnh báo khác",
+  "alert.feedback.reason.already_handled": "Đã xử lý rồi",
+  "alert.feedback.reason.not_my_role": "Không thuộc việc của tôi",
+  "alert.feedback.reason.too_early": "Báo quá sớm",
+  "alert.feedback.reason.other": "Lý do khác"
 }
