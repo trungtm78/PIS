@@ -1,0 +1,43 @@
+# Controls of contractors, part alpha: independence, finance and load (lane VND-2)
+
+Research items V5 (independence and conflict of interest), V7 (financial ratios), V9 (concurrent load) of `research-vendor.md`, and the table that holds what a package asks of its bidders (shared with V10). Code: `packages/kernel/src/vendor-independence.ts` and `vendor-finance.ts` (pure rules), `packages/db/src/vendor-independence-store.ts`, `vendor-finance-store.ts`, `vendor-package-control-store.ts`, `home-vendor-alpha-sources.ts`, `apps/api/src/modules/bid/vendor-independence*.ts`, `apps/web/src/screens/vnd/controls/` (VND-07) and `finance/` (VND-08). Migrations V2420 to V2423.
+
+Every number is a rule of governance (`VENDOR_INDEPENDENCE`, `VENDOR_FINANCE`, `VENDOR_CAPACITY`, read through `VendorPolicyReader`), flagged **UNVERIFIED** with formula, source and as-of day; the 30 and 20 percent limits of cross ownership and the 12 months of a former official come from the summaries of Điều 6 and 16 Luật Đấu thầu 22/2023 and are not checked against the Gazette. **A signal is never a verdict**: a finding goes to a person; a ratio below a line is shown to the panel; nothing here rejects a bid by itself.
+
+## 1. Independence (V5, VND-07)
+
+**Facts.** For the bidders of a package (the contractors with a proposal RECEIVED) the check reads the keys of VND-1 (tax head, address, telephone, e-mail, representative, owners by name key and identity key, account keys), never the personal values. For the people it reads the display name of the member (as a key) and what the member declared about themselves in `vendor_person_interest` (a relative, a share, a former employment, an advisory role; the identity number of a relative is kept only as a blind index of the field cipher). The owner organisation is named by its tax code in the request; its owners are known only when it is a registered contractor.
+
+**Links** (`detectIndependence`): between bidders the same tax head, representative, owner or account is STRONG, the same address, telephone or e-mail is MEDIUM, one bidder holding another above 20 percent is STRONG; between a bidder and the owner organisation the same tax head or a holding above 30 percent either way is STRONG, a shared owner is MEDIUM; between a member and a bidder the member being its representative or owner (by name MEDIUM, by identity STRONG), a declared relative doing so, a share held, an advisory role, and a former employment ended less than 12 months ago are STRONG. A name alone is never an identity. An organisation owner is tied to a registered contractor through the blind index of its tax code (an organisation entered without its tax code as identity number is not recognised: a limit of the data, not guessed).
+
+**Findings and decisions.** One run writes one `vendor_independence_check` and one `vendor_independence_finding` per link (fingerprint = kind and the two sides). A run over the same facts and the same rule version as the latest one writes nothing (`UNCHANGED`, still audited). A finding found again carries the decision it had (`carried_from_id`), and the person who first raised it stays its maker, so nobody is asked twice. A person other than the one who raised it and the one who ran the check decides once: CLEARED, RECUSED (a person) or BLOCKED (a bidder or the owner), with a reason of at least 20 characters (CHECK in the database too, `decided_by <> raised_by`); a decision is immutable (trigger). Only the findings of the latest check can be decided (409 otherwise).
+
+**Gate.** `independenceGate`: closed when a finding is BLOCKED or, by the rule, a STRONG finding is undecided. `VendorIndependenceGate.assertOpen(tx, packageId, policy)` throws 422 `INDEPENDENCE_FINDING_OPEN` only when a check exists and its gate is closed; a package never checked is not blocked and the indicator `VENDOR_INDEPENDENCE_CHECKED` measures the work to do. **Hook for the lead:** call `assertOpen` in `BidResultStore` at the submission and approval of an AWARDED result (and in `CtrContractLifecycleStore.activate` if wished); the recusal of a panel member is not copied into `bid_conflict_declaration` (that store reopens reports; wire it deliberately).
+
+## 2. Finance (V7, VND-08)
+
+`vendor_financial_period` keeps the nine figures of a fiscal year in whole dong. Entered by one person from the audited report, **verified against the paper by another** (CHECK and the store; a paper is needed). Figures never change: a corrected year is a new row and the active row of that year is marked superseded (the unique index holds one active row per year; the reference to the new row is deferred); the corrected year does not count until it is verified; identical figures are 409 `FINANCIAL_PERIOD_DUPLICATE`.
+
+`assessFinance` judges the latest verified year: current ratio = current assets over current liabilities (line 1.00), debt to assets = total debt over total assets (at most 80 percent), interest cover = EBIT over interest (at least 1.5), and the average revenue of the latest 3 verified years against 2 times the yearly value of the package (value over months times 12; the value is `vendor_package_control.estimated_value`, else the budget of the package; 12 months when not set). A ratio that cannot be computed because nothing is owed is unlimited; fewer than 2 verified years is `INSUFFICIENT_DATA`, never a pass. A joint venture is judged by `ventureFinance` (the share of each member added year by year) in the kernel; the screen reads the contractor, not the venture (follow-up).
+
+## 3. Load (V9)
+
+`VendorFinanceStore.capacity`: remaining value of the contracts SIGNED, ACTIVE or SUSPENDED (contract value minus the total accepted; as a member of a venture the work value of its place less its share of the accepted), the contracts past `completion_due`, and the awards (result AWARDED, SUBMITTED or APPROVED, with no contract on the package) at 100 percent of their value, against the average revenue. `OVER` when the load passes 3 times the revenue or more than 2 contracts are late; `NO_DATA` when no revenue is verified and nothing else is over.
+
+## 4. Package controls
+
+`vendor_package_control` (V2420): security base amount, bid validity day, estimated value, months. BETA reads it for the bid security. One row per package, replaced under a version (`setVendorPackageControls`, `If-Match`, `0` for the first write).
+
+## 5. Alerts and indicators
+
+`VENDOR_INDEPENDENCE_FINDING` (V-A4, facet FINDING_STRONG urgent or FINDING_MEDIUM action; owner the chair of the panel; audience `vnd.independence.decide`): an undecided finding of the latest check of a package. `VENDOR_CAPACITY_FINANCE` (V-A13, facet SIGNAL, watch; audience `vnd.independence.read`): a contractor with a bid received for a package without a contract whose finance is BELOW or whose load is OVER (at most 100 contractors a read). Both are read when the alert centre is read (`alphaVendorAlerts`). Indicator: `VendorIndependenceStore.figures` gives numerator and denominator of `VENDOR_INDEPENDENCE_CHECKED` (the lead adds it to `GET /vendor/control-figures`).
+
+## 6. Permissions and operations
+
+`vnd.read` (finance, capacity, controls reads), `vnd.independence.read` (interests and findings), `vnd.interest.declare` (a member declares about themselves; naming another member needs `vnd.independence.decide`), `vnd.independence.run`, `vnd.independence.decide`, `vnd.finance.write`, `vnd.finance.verify`, `vnd.package.controls`; all on a grant over the whole tenant. 5 reads (`listVendorPersonInterests`, `getVendorIndependence`, `getVendorPackageControls`, `getVendorFinance`, `getVendorCapacity`) and 7 commands (`declareVendorPersonInterest`, `endVendorPersonInterest`, `runVendorIndependenceCheck`, `decideVendorIndependenceFinding`, `recordVendorFinancialPeriod`, `verifyVendorFinancialPeriod`, `setVendorPackageControls`) under `/vendor/...`, tag VND. Every command is audited (classification PERSONAL for interests, CONFIDENTIAL for findings and finance) and announces an outbox event with ids and codes only (`vnd.person_interest.declared.v1`, `vnd.independence.checked.v1`, `vnd.independence.decided.v1`, `vnd.financial_period.recorded.v1` ...). Error codes: `INDEPENDENCE_FINDING_OPEN`, `INDEPENDENCE_DECISION_INVALID`, `FINANCIAL_PERIOD_DUPLICATE`.
+
+## 7. Hooks for other lanes
+
+- GAMMA (risk grade): `VendorIndependenceStore.latest/openFindings` (open STRONG findings), `VendorFinanceStore.assessFor` (finance status) and `capacity` (load status).
+- BETA (bid security): `VendorPackageControlStore.get` (base amount and validity day).
+- Lead: the gate call at the award, the indicator in the figures read, the folding of `vnd2.{vi,en}.json` parts, and the counts of the routes tests.
