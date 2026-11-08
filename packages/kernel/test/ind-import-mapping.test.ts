@@ -181,7 +181,7 @@ describe('the rule type of a mapping', () => {
 
 describe('the problems of a mapping against the dictionary', () => {
   it('names a line that points at an indicator nobody defined or one that is derived, and none for the sample mappings', async () => {
-    const { INDICATOR_SEEDS, indicatorOf, mappingProblems, resolveGovernanceRule } = await import('../src/index');
+    const { INDICATOR_SEEDS, indicatorOf, mappingProblems, resolveGovernanceRule } = await import('../src/index.ts');
     const entries = INDICATOR_SEEDS.map((seed) => indicatorOf(resolveGovernanceRule([], 'KPI_DEFINITION', seed.code, '2026-11-08') as NonNullable<ReturnType<typeof resolveGovernanceRule>>));
     expect(mappingProblems(sample('SAMPLE_COLUMNS_FORM'), entries)).toEqual([]);
     expect(mappingProblems(sample('SAMPLE_ROWS_FORM'), entries)).toEqual([]);

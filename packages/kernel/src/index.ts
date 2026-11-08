@@ -184,7 +184,7 @@ export {
   sanitizeSpanAttributes,
 } from './telemetry.ts';
 export type { FinishedSpan, Span, SpanAttributeValue, SpanExporter, TraceContext, TracerOptions } from './telemetry.ts';
-export { AlertEvaluator, CollectingTelemetry, LICENSE_EXPIRING_ALERT, MANDATORY_ALERT_RULES, raiseExpiringLicenses } from './alerts.ts';
+export { AlertEvaluator, CollectingTelemetry, LICENSE_EXPIRING_ALERT, MANDATORY_ALERT_RULES, raiseExpiringLicenses, ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
 export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource, Evaluation, FiredAlert, MetricSample, MetricsSnapshot } from './alerts.ts';
 export { LangfuseTraceExporter, SanitisingTraceExporter, maskPii, piiMatches, sanitizeTrace } from './llm-trace.ts';
 export type { LangfuseOptions, LlmTrace, PiiKind, PiiMatch, TraceExporter } from './llm-trace.ts';
@@ -209,7 +209,6 @@ export {
   reportSlo,
 } from './slo.ts';
 export type { BudgetInput, BudgetReport, BudgetStatus, BurnEvaluation, BurnRule, DeclaredOutage, SliBucket, SloReport, SloReportInput, SloService } from './slo.ts';
-export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
 export { CHANGE_REQUEST_STATES, assertFourEyes, canTransition, changeRequestNext } from './four-eyes.ts';
 export type { ChangeRequestAction, ChangeRequestState } from './four-eyes.ts';
 export { ROUNDING_MODES, addDecimal, compareDecimal, convertDecimal, multiplyDecimal, roundDecimal, subtractDecimal } from './decimal.ts';
@@ -223,50 +222,7 @@ export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-c
 export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
 export { assertRuleVersions, resolveRule, ruleOfRevision } from './rule-resolver.ts';
 export type { DatedRule, ResolvedRule, RuleConfirmation } from './rule-resolver.ts';
-export {
-  ALERT_TYPE_FIRST_REVIEW_ON,
-  CONTRACT_HEALTH_INDICATORS,
-  GOVERNANCE_RULE_STATUSES,
-  LEGAL_STATUSES,
-  RULE_CODE_PATTERN,
-  RULE_TYPE_PATTERN,
-  alertTypeDefaults,
-  assertRulePeriod,
-  builtInCodes,
-  builtInDefault,
-  defaultGovernanceRule,
-  describeRuleType,
-  diffRuleParams,
-  isGovernanceRuleType,
-  isRuleCode,
-  isRuleDay,
-  isRuleTypeName,
-  nextRuleStatus,
-  provenanceOf,
-  registerAllGovernanceRules,
-  registerAnalyticsRules,
-  registerBaselineRules,
-  registerContractRules,
-  registerCoreRules,
-  registerDirectiveRules,
-  registerEnterpriseRules,
-  registerFinanceRules,
-  registerGov10Rules,
-  registerIntegrationHubRules,
-  registerIntegrationRules,
-  registerIntegrityRules,
-  registerMoneyRules,
-  registerProcurementWorkflowRules,
-  registerApprovalWorkflowRules,
-  registerRuleDefaults,
-  registerRuleType,
-  registerWorkClockRules,
-  registeredRuleTypes,
-  resolveGovernanceRule,
-  ruleTypeDefinitions,
-  ruleTypeOf,
-  validateRuleParams,
-} from './governance-rules.ts';
+export { ALERT_TYPE_FIRST_REVIEW_ON, CONTRACT_HEALTH_INDICATORS, GOVERNANCE_RULE_STATUSES, LEGAL_STATUSES, RULE_CODE_PATTERN, RULE_TYPE_PATTERN, alertTypeDefaults, assertRulePeriod, builtInCodes, builtInDefault, defaultGovernanceRule, describeRuleType, diffRuleParams, isGovernanceRuleType, isRuleCode, isRuleDay, isRuleTypeName, nextRuleStatus, provenanceOf, registerAllGovernanceRules, registerAnalyticsRules, registerBaselineRules, registerContractRules, registerCoreRules, registerDirectiveRules, registerEnterpriseRules, registerFinanceRules, registerGov10Rules, registerIntegrationHubRules, registerIntegrationRules, registerIntegrityRules, registerMoneyRules, registerProcurementWorkflowRules, registerApprovalWorkflowRules, registerRuleDefaults, registerRuleType, registerWorkClockRules, registeredRuleTypes, resolveGovernanceRule, ruleTypeDefinitions, ruleTypeOf, validateRuleParams, registerClaimRules, registerIndicatorRules } from './governance-rules.ts';
 export type {
   AlertTypeSeed,
   BuiltInDefault,
@@ -1729,7 +1685,7 @@ export { PROFILE_LOCALES, isTimeZone, maskEmail, parseProfilePatch } from './iam
 export type { ProfileLocale, ProfilePatch } from './iam-profile.ts';
 export { REORGANIZATION_KINDS, assertValidReorganization, successorOf as reorganizationSuccessorOf, unmapped as unmappedByReorganization, validateReorganization } from './adm-reorganization.ts';
 export type { ReorganizationDefect, ReorganizationInput, ReorganizationKind, ReorganizationMapping, SuccessorInput } from './adm-reorganization.ts';
-export { DELEGABLE_PERMISSIONS, DELEGATION_SCOPE_KINDS, MAX_DELEGATION_DAYS, assertValidDelegation, delegationAt, delegatorHolds, validateDelegation } from './adm-delegation.ts';
+export { DELEGABLE_PERMISSIONS, DELEGATION_SCOPE_KINDS, MAX_DELEGATION_DAYS, assertValidDelegation, delegationAt, delegatorHolds, validateDelegation, validateDelegationContent } from './adm-delegation.ts';
 export type { DelegationDefect, DelegationRequest } from './adm-delegation.ts';
 export {
   ASSIGNEE_RULE_TYPES,
@@ -2228,9 +2184,8 @@ export type { DirectiveClock, DirectiveEventType, DirectiveHistory, DirectiveHis
 export { SOD_ACTIONS, SOD_ACTION_CODES, SOD_EXPIRING_WITHIN_DAYS, SOD_EXCEPTION_STATUSES, SOD_MIN_EXCEPTION_APPROVERS, SOD_SCOPES, SOD_SEVERITIES, afterApproval, afterRejection, afterRevocation, approversNeeded, assertExceptionWindow, assertMayDecide, assertReason as assertSodReason, checksFor as sodChecksFor, conflictOf as sodConflictOf, expiringWithin as sodExpiringWithin, heldKey as sodHeldKey, isSodAction, isSodDay, isSodScope, lookupsFor as sodLookupsFor, pairKey as sodPairKey, sodMatrixOf, subjectKeyOf as sodSubjectKeyOf, usable as sodExceptionUsable, viewOf as sodExceptionView, violationError as sodViolationError, violationsOf as sodViolationsOf } from './gov-d-sod.ts';
 export type { SodActionInfo, SodCheck, SodConflict, SodExceptionFacts, SodExceptionStatus, SodExceptionView, SodMatrix, SodPair, SodScope, SodSeverity, SodSubject } from './gov-d-sod.ts';
 // The daily reconciliation with the Treasury and the cross-total control (lane D, G4-4 and G4-5).
-export { CROSS_TOTAL_DIMENSIONS, RECONCILIATION_POLICY_CODE, RECONCILIATION_POLICY_TYPE, RECON_LINE_KINDS, RECON_PARTIAL_REASONS, RECON_RUN_STATUSES, TREASURY_RECON_FALLBACK, UNMATCHED_FUND, classifyLine, crossTotal, differenceOf, dueOn, isWeekday, keyGaps, opensItem, parseReconPolicy, runStatusOf, sumKeys } from './gov-d-recon.ts';
+export { CROSS_TOTAL_DIMENSIONS, RECONCILIATION_POLICY_CODE, RECONCILIATION_POLICY_TYPE, RECON_LINE_KINDS, RECON_PARTIAL_REASONS, RECON_RUN_STATUSES, TREASURY_RECON_FALLBACK, UNMATCHED_FUND, classifyLine, crossTotal, differenceOf, dueOn, isWeekday, keyGaps, opensItem, parseReconPolicy, runStatusOf, sumKeys, addDays as reconAddDays } from './gov-d-recon.ts';
 export type { CrossTotalDimension, CrossTotalKey, CrossTotalResult, DimensionTotal, KeyGap, ReconLine, ReconLineKind, ReconPartialReason, ReconPolicy, ReconRunStatus } from './gov-d-recon.ts';
-export { addDays as reconAddDays } from './gov-d-recon.ts';
 // The checks of a payment request before money goes out (lane D, G4-2) and the ceilings of disbursement (G4-5).
 export { EXCEPTIONAL_CEILINGS, INTEGRITY_CODES, INTEGRITY_SOURCES, PAYMENT_INTEGRITY_CODE, PAYMENT_INTEGRITY_TYPE, acceptedCeilingFinding, blockingCode, contractCeilingFinding, diaryFindings, duplicateFindings, exceptionFor, exceptionWindowEnd, isExceptionalCeiling, judgeIntegrity, microUnits, normalizedNumber, parsePaymentIntegrityParams, paymentIntegrityFallback, planCeilingFinding, robustCentre, unitPriceFindings } from './gov-d-integrity.ts';
 export type { AcceptedCeilingFacts, CeilingMode, ClaimIdentity, ContractCeilingFacts, DiaryPeriod, DiaryQuantity, DuplicateAttribute, ExceptionalCeiling, IntegrityCode, IntegrityFinding, IntegrityKind, IntegrityOutcome, IntegritySeverity, IntegritySource, IntegrityValue, IntegrityVerdict, JudgedFinding, LiveException, PaymentIntegrityParams, PlanCeilingFacts, PriceLine } from './gov-d-integrity.ts';
@@ -2283,28 +2238,7 @@ export {
   tierBandOf,
   totalsOfSums,
 } from './ctr-reports.ts';
-export type {
-  CellReason,
-  CellValue,
-  ColumnKind,
-  ConcentrationDimensionReport,
-  ConcentrationInput,
-  ConcentrationLevel,
-  ConcentrationParams,
-  ConcentrationReport,
-  ContractFact,
-  ContractorLoad,
-  CtrReportCode,
-  PaymentClockParams,
-  PaymentClockStatus,
-  ReportColumn,
-  ReportDocumentInput,
-  ReportRow,
-  ReportTotals as CtrReportTotals,
-  SumKey,
-  Sums,
-} from './ctr-reports.ts';
-export type { MoneyContext } from './ctr-reports.ts';
+export type { CellReason, CellValue, ColumnKind, ConcentrationDimensionReport, ConcentrationInput, ConcentrationLevel, ConcentrationParams, ConcentrationReport, ContractFact, ContractorLoad, CtrReportCode, PaymentClockParams, PaymentClockStatus, ReportColumn, ReportDocumentInput, ReportRow, ReportTotals as CtrReportTotals, SumKey, Sums, MoneyContext } from './ctr-reports.ts';
 export {
   CHANGE_TIER_KEYS,
   GUARANTEE_LADDER_KEYS,
@@ -2618,7 +2552,6 @@ export * from './vendor-defaults.ts';
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export * from './ctr-claim.ts';
 export * from './ctr-early-warning.ts';
-export { registerClaimRules } from './governance-rules.ts';
 export { ESCALATION_DEFAULT_CODE, ESCALATION_KINDS, ESCALATION_RULE_TYPE, ESCALATION_TRIGGERS, PROMOTION_REASON, escalationChainLabels, escalationPolicyDefaults, escalationPolicyOf, escalationSeriesKey, evaluateEscalation, evaluatePromotion, levelsToRecord, promotionSeriesKey, resolveEscalationRecipients } from './alert-escalation.ts';
 export type { AcknowledgedLevel, EscalationCandidate, EscalationEvaluation, EscalationGap, EscalationInput, EscalationKind, EscalationLevelPlan, EscalationOwner, EscalationPolicy, EscalationStep, EscalationTarget, EscalationTrigger, EscalationVia, PromotionInput, PromotionVerdict, TargetOptions } from './alert-escalation.ts';
 export { ABSENCE_DEFAULT_CODE, ABSENCE_KINDS, ABSENCE_RULE_TYPE, COVER_SCOPE_KINDS, absencePhaseAt, absencePolicyDefaults, absencePolicyOf, assertValidAbsence, assertValidCover, coverInForce, detectCoverageGaps, gapKey, nextCoverStatus, positionCoverage, routeAlert, validateAbsence, validateCover } from './alert-coverage.ts';
@@ -2643,14 +2576,11 @@ export { BUILT_IN_OCP_IDS, BUILT_IN_RED_FLAG_CODES, RED_FLAG_STATUSES, RED_FLAG_
 export type { RedFlagMove, RedFlagStatus, IndicatorParams, IndicatorReading, IndicatorStatus, RankingParams, RedFlagBand, RedFlagFacts, RedFlagIndicator, RedFlagSubjectType, Score as RedFlagScore } from './red-flags.ts';
 export { FEEDBACK_RULE_TYPE } from './gov10-rule-types.ts';
 export { GOV10_SCREENS } from './gov10-screens.ts';
-export { validateDelegationContent } from './adm-delegation.ts';
 export { END_CONDITION_KINDS, END_CONDITION_TEXT_MAX, END_CONDITION_TEXT_MIN, STANDING_END_MAX_DAYS, STANDING_REVIEW_MAX_DAYS, STANDING_REVIEW_WARNING_DAYS, assertNoDelegationCycle, assertValidReview, assertValidStandingDelegation, findDelegationCycle, reviewDueSoon, standingEndReason, validateReview, validateStandingDelegation } from './iam-standing-delegation.ts';
 export type { DelegationEdge, EndConditionKind, StandingDelegationDefect, StandingDelegationRequest, StandingEndReason } from './iam-standing-delegation.ts';
 export { ACTING_DECISION_VERBS, ACTING_MAX_HOURS, ACTING_REASON_MAX, ACTING_REASON_MIN, ACTING_REQUEST_TTL_HOURS, actingAllowsPermission, actingPhase, actingWindow, assertActingApprover, assertActingParties, assertValidActingRequest, restrictAccessForActing, validateActingRequest } from './iam-acting.ts';
 export type { ActingDefect, ActingParties, ActingPhase, ActingRequest, ActingStatus } from './iam-acting.ts';
-export { MAX_PERIOD_SCOPE_CODES, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
-export type { PeriodScopeDefect } from './iam-period-scope.ts';
-export { MAX_PERIOD_SCOPE_CODES, accessForPeriod, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
+export { MAX_PERIOD_SCOPE_CODES, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes, accessForPeriod } from './iam-period-scope.ts';
 export type { PeriodScopeDefect } from './iam-period-scope.ts';
 
 export {
@@ -2897,12 +2827,8 @@ export { INDICATOR_RULE_TYPE, dictionaryFindings, filterDictionary, indicatorOf,
 export type { DictionaryFilter, DictionaryFinding, IndicatorEntry } from './ind-dictionary.ts';
 export { assertEntryAllowed, entryRefusal, entryRuleOf, evaluateEntryRules, verdictTrail } from './ind-entry.ts';
 export type { EntryFacts, EntryRule, EntrySkip, EntryVerdict, EntryViolation } from './ind-entry.ts';
-export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
-export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, ScaleOutcome } from './ind-import-mapping.ts';
-export { registerIndicatorRules } from './governance-rules.ts';
 export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, mappingProblems, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
 export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, MappingProblem, ScaleOutcome } from './ind-import-mapping.ts';
-export { registerIndicatorRules } from './governance-rules.ts';
 
 export {
   CLAIM_LIMITATION_RULE,
