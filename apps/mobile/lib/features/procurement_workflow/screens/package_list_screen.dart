@@ -12,6 +12,8 @@ import '../../read_support/loaded.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../navigation.dart';
+import '../node_stats.dart';
+import '../node_stats_card.dart';
 import '../widgets.dart';
 import '../workflow_models.dart';
 
@@ -30,11 +32,17 @@ final class PrcListData {
     required this.tree,
     required this.nodeId,
     required this.page,
+    this.stats,
+    this.statsError,
   });
 
   final PrcTree tree;
   final String nodeId;
   final PrcRowPage page;
+
+  /// The statistics of the node, or null when the server could not give them (the code is in `statsError`).
+  final PrcNodeStats? stats;
+  final String? statsError;
 }
 
 PrcListData? parsePrcListData(Object? raw) {
@@ -47,7 +55,9 @@ PrcListData? parsePrcListData(Object? raw) {
       nodeId is! String ||
       tree.byId(nodeId) == null)
     return null;
-  return PrcListData(tree: tree, nodeId: nodeId, page: page);
+  final PrcNodeStats? stats = parsePrcNodeStats(raw['stats']);
+  final Object? statsError = raw['stats_error'];
+  return PrcListData(tree: tree, nodeId: nodeId, page: page, stats: stats, statsError: stats == null ? (statsError is String ? statsError : 'CONTRACT_MISMATCH') : null);
 }
 
 /// The node to show when none was asked for: the method with most packages.
@@ -98,7 +108,15 @@ class _PackageListScreenState extends State<PackageListScreen> {
       'listPackageProcessTreeNodePackages',
       query: <String, Object?>{'node_id': node, 'limit': kPrcPageSize},
     );
-    return <String, Object?>{'tree': tree, 'node': node, 'page': page};
+    // The statistics of the node are read on their own: when they fail the packages still show, and the card says why it is empty.
+    Object? stats;
+    String? statsError;
+    try {
+      stats = await client.execute('getPackageProcessTreeNode', query: <String, Object?>{'node_id': node});
+    } on ApiError catch (error) {
+      statsError = error.code;
+    }
+    return <String, Object?>{'tree': tree, 'node': node, 'page': page, 'stats': stats, 'stats_error': statsError};
   }
 
   @override
@@ -232,6 +250,7 @@ class _ListBody extends StatelessWidget {
             onRefresh: onRefresh,
             onNode: onNode,
             methodId: methodId,
+            stats: NodeStatsCard(stats: data.stats, errorCode: data.statsError),
           ),
         ),
       ],
@@ -319,6 +338,7 @@ class _RowList extends ConsumerStatefulWidget {
     required this.onRefresh,
     required this.onNode,
     required this.methodId,
+    required this.stats,
     super.key,
   });
 
@@ -327,6 +347,9 @@ class _RowList extends ConsumerStatefulWidget {
   final Future<void> Function() onRefresh;
   final ValueChanged<String> onNode;
   final String methodId;
+
+  /// The statistics of the node, the first thing in the scrolling list so that it never takes room from the rows.
+  final Widget stats;
 
   @override
   ConsumerState<_RowList> createState() => _RowListState();
@@ -395,6 +418,7 @@ class _RowListState extends ConsumerState<_RowList> {
         onRefresh: widget.onRefresh,
         child: ListView(
           children: <Widget>[
+            widget.stats,
             SizedBox(
               height: 360,
               child: EmptyStateView(
@@ -424,6 +448,7 @@ class _RowListState extends ConsumerState<_RowList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  widget.stats,
                   Text(
                     context.t('mob.prc.list.count', <String, Object>{
                       'shown': _rows.length,
