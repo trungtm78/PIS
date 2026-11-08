@@ -73,6 +73,7 @@ String alertSourceLabel(BuildContext context, String source) {
     case 'APPROVAL':
       return context.t('mob.alert.source.approval.label');
     case 'EXPLANATION':
+    case 'EXPLANATION_CONCLUDE':
     case 'EXPLANATION_REVIEW':
       return context.t('mob.alert.source.explanation.label');
     case 'REPORT':
@@ -80,6 +81,7 @@ String alertSourceLabel(BuildContext context, String source) {
     case 'REPORT_DRAFT_OVERDUE':
       return context.t('mob.alert.source.report.label');
     case 'MNE_OBLIGATION':
+    case 'OBLIGATION':
       return context.t('mob.alert.source.mne.label');
     case 'EARLY_WARNING':
       return context.t('mob.alert.source.earlyWarning.label');
@@ -115,6 +117,48 @@ String alertSourceLabel(BuildContext context, String source) {
       return context.t('mob.alert.source.disbursementException.label');
     case 'PROJECT_GOVERNANCE':
       return context.t('mob.alert.source.projectGovernance.label');
+    case 'CONNECTOR':
+      return context.t('mob.alert.source.connector.label');
+    case 'EGP_POSTING':
+      return context.t('mob.alert.source.egpPosting.label');
+    case 'VENDOR':
+      return context.t('mob.alert.source.vendor.label');
+    case 'CONTRACT_CLAIM':
+      return context.t('mob.alert.source.contractClaim.label');
+    case 'CONTRACT_EARLY_WARNING':
+      return context.t('mob.alert.source.contractEarlyWarning.label');
+    case 'ESCALATION':
+      return context.t('mob.alert.source.escalation.label');
+    case 'COVERAGE':
+      return context.t('mob.alert.source.coverage.label');
+    case 'RED_FLAG':
+      return context.t('mob.alert.source.redFlag.label');
+    case 'CONTRACT_CLOCK':
+      return context.t('mob.alert.source.contractClock.label');
+    case 'DOC_REVIEW':
+      return context.t('mob.alert.source.docReview.label');
+    case 'DATA_FRESHNESS':
+      return context.t('mob.alert.source.dataFreshness.label');
+    case 'ANOMALY':
+      return context.t('mob.alert.source.anomaly.label');
+    case 'ALERT_FEEDBACK':
+      return context.t('mob.alert.source.alertFeedback.label');
+    case 'PAYMENT_CLOCK':
+      return context.t('mob.alert.source.paymentClock.label');
+    case 'DISBURSEMENT_FORECAST':
+      return context.t('mob.alert.source.disbursementForecast.label');
+    case 'SETTLEMENT_CLOCK':
+      return context.t('mob.alert.source.settlementClock.label');
+    case 'CONTRACT_ADJUSTMENT':
+      return context.t('mob.alert.source.contractAdjustment.label');
+    case 'LOOK_AHEAD':
+      return context.t('mob.alert.source.lookAhead.label');
+    case 'LESSONS_LEARNED':
+      return context.t('mob.alert.source.lessonsLearned.label');
+    case 'PROJECT_RISK':
+      return context.t('mob.alert.source.projectRisk.label');
+    case 'COMMITTEE':
+      return context.t('mob.alert.source.committee.label');
     case '':
       return context.t('mob.alert.source.other.label');
     default:

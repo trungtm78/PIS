@@ -495,19 +495,60 @@ AlertDue describeInstant(String due, DateTime now) {
 
 // ---- where an alert opens ----------------------------------------------------------------------------------------------------
 
-/// The screen of the phone an alert opens, by the web screen its target names: an approval task is MOB-24, a project MOB-10.
-/// Null when the phone has no screen for it (the alert is then handled from its actions). [has] tells whether a screen id is
-/// a screen of the phone that takes no parameter.
-({String screenId, String pathSuffix})? alertScreenOf(AlertItem item, {required bool Function(String screenId) has}) {
-  final String id = item.targetId;
-  final bool plain = RegExp(r'^[A-Za-z0-9_-]{1,64}$').hasMatch(id);
-  switch (item.targetScreen) {
-    case 'ADM-06':
-    case 'MOB-24':
-      return plain ? (screenId: 'MOB-24', pathSuffix: '/${Uri.encodeComponent(id)}') : null;
-    case 'PRJ-03':
-    case 'MOB-10':
-      return plain ? (screenId: 'MOB-10', pathSuffix: '/${Uri.encodeComponent(id)}') : null;
+/// Every module source the contract names (`WorkSource` of `WorkActionTarget`). A test compares this list with the contract, and
+/// another asserts that each one has a label, so a source added to the contract cannot reach the phone as a bare code.
+const List<String> kAlertSources = <String>[
+  'APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION',
+  'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL',
+  'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR',
+  'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE', 'RED_FLAG', 'CONTRACT_CLOCK', 'DOC_REVIEW', 'DATA_FRESHNESS',
+  'ANOMALY', 'ALERT_FEEDBACK', 'PAYMENT_CLOCK', 'DISBURSEMENT_FORECAST', 'SETTLEMENT_CLOCK', 'CONTRACT_ADJUSTMENT', 'LOOK_AHEAD',
+  'LESSONS_LEARNED', 'PROJECT_RISK', 'COMMITTEE',
+];
+
+/// How the web screen an alert names opens on the phone: the screen of the phone, and whether the id of the record goes into its path.
+typedef AlertTargetRule = ({String screenId, bool withId});
+
+/// The web screens that alerts name as their target and the screen of the phone each one opens. A web screen that is not here opens
+/// nothing: the alert is then handled from its actions, and the web screen is named in the detail.
+const Map<String, AlertTargetRule> kAlertTargets = <String, AlertTargetRule>{
+  // an approval task
+  'ADM-06': (screenId: 'MOB-24', withId: true),
+  'MOB-24': (screenId: 'MOB-24', withId: true),
+  // a project: its workspace, the look-ahead plan, the baseline, the risk register and the lessons of the project name the project id
+  'PRJ-03': (screenId: 'MOB-10', withId: true),
+  'PRJ-26': (screenId: 'MOB-10', withId: true),
+  'PRJ-28': (screenId: 'MOB-10', withId: true),
+  'PRJ-29': (screenId: 'MOB-10', withId: true),
+  'PRJ-30': (screenId: 'MOB-10', withId: true),
+  'MOB-10': (screenId: 'MOB-10', withId: true),
+  // one package of the procurement workflow: its progress and day-by-day timeline
+  'BID-29': (screenId: 'MOB-70', withId: true),
+  'MOB-70': (screenId: 'MOB-70', withId: true),
+  // the directives of the steering meetings (the list carries the directive and its timeline)
+  'DIR-04': (screenId: 'DIR-06', withId: false),
+  // the steering committee: its alerts are read on the dashboard
+  'BAN-05': (screenId: 'MOB-72', withId: false),
+  // a contractor: the grade of risk and the performance of its contracts
+  'VND-11': (screenId: 'MOB-74', withId: true),
+  'VND-12': (screenId: 'MOB-74', withId: true),
+  'MOB-74': (screenId: 'MOB-74', withId: true),
+};
+
+final RegExp _plainId = RegExp(r'^[A-Za-z0-9_-]{1,64}$');
+
+/// The screen of the phone an alert opens, by the web screen its target names (see [kAlertTargets]). Null when the phone has no screen
+/// for it (the alert is then handled from its actions). [has] tells whether a screen id is a screen of the phone that takes no
+/// parameter; [available] tells whether a screen that takes the record in its path is part of this build (it defaults to yes).
+({String screenId, String pathSuffix})? alertScreenOf(AlertItem item, {required bool Function(String screenId) has, bool Function(String screenId)? available}) {
+  final AlertTargetRule? rule = kAlertTargets[item.targetScreen];
+  if (rule != null) {
+    if (rule.withId) {
+      if (!_plainId.hasMatch(item.targetId)) return null;
+      if (available != null && !available(rule.screenId)) return null;
+      return (screenId: rule.screenId, pathSuffix: '/${Uri.encodeComponent(item.targetId)}');
+    }
+    return has(rule.screenId) ? (screenId: rule.screenId, pathSuffix: '') : null;
   }
   final String screen = item.targetScreen;
   if (screen.startsWith('MOB-') && has(screen)) return (screenId: screen, pathSuffix: '');

@@ -97,10 +97,14 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
   /// The screen of the phone the alert opens, or null when there is none.
   ({String screenId, String pathSuffix})? _screenOf(AlertItem item) {
     final RouteTable table = ref.read(routeTableProvider);
-    return alertScreenOf(item, has: (String id) {
-      final ScreenSpec? spec = table.implementations[id];
-      return table.routeOf(id) != null && spec != null && spec.pathSuffix.isEmpty;
-    });
+    return alertScreenOf(
+      item,
+      has: (String id) {
+        final ScreenSpec? spec = table.implementations[id];
+        return table.routeOf(id) != null && spec != null && spec.pathSuffix.isEmpty;
+      },
+      available: (String id) => table.routeOf(id) != null && table.implementations[id] != null,
+    );
   }
 
   void _open(AlertItem item) {
