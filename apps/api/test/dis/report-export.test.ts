@@ -298,7 +298,7 @@ describe('the report export over HTTP (ST-DIS-016)', () => {
     expect([bad.status, bad.json.code, bad.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'columns[1]']);
     const scale = await create(w.snapshotId, 'CSV', EXPORTER, { unit_scale: 'BILLION' });
     expect([scale.status, scale.json.code, scale.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'unit_scale']);
-    const format = await create(w.snapshotId, 'DOCX', EXPORTER);
+    const format = await create(w.snapshotId, 'ODT', EXPORTER);
     expect([format.status, format.json.code, format.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'format']);
   });
 
