@@ -300,6 +300,8 @@ export interface HubPolicy {
   /** Whether a failing or stale connector opens an incident of its own. */
   incidentAutoOpen: boolean;
   snapshotRetentionDays: number;
+  /** Minutes without a heartbeat after which a collector agent counts as STALE. */
+  agentStaleAfterMinutes: number;
 }
 
 /** What the rule says when nobody has approved one: our own operational choice, flagged UNVERIFIED in the rule. */
@@ -311,6 +313,7 @@ export const HUB_POLICY_DEFAULTS: HubPolicy = {
   hubStaleSeverity: 'URGENT',
   incidentAutoOpen: true,
   snapshotRetentionDays: 400,
+  agentStaleAfterMinutes: 15,
 };
 
 /** The policy a rule of the governance store gives (the params object of the resolved rule); a member that is missing or malformed is 422 `VALIDATION_FAILED` naming it. */
@@ -334,6 +337,7 @@ export function hubPolicyOf(params: Readonly<Record<string, unknown>>): HubPolic
     hubStaleSeverity: severity('hub_stale_severity'),
     incidentAutoOpen: params.incident_auto_open,
     snapshotRetentionDays: int('snapshot_retention_days', 30, 3650),
+    agentStaleAfterMinutes: int('agent_stale_after_minutes', 1, 10080),
   };
 }
 
@@ -656,4 +660,52 @@ export function consecutiveFailuresOf(outcomesNewestFirst: readonly RunOutcome[]
     count += 1;
   }
   return count;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Collector agents (owner clarification 2026-11-08: collectors may run on ARM hardware and any operating system).
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+export const AGENT_OS = ['linux', 'windows', 'darwin', 'freebsd', 'other'] as const;
+export type AgentOs = (typeof AGENT_OS)[number];
+export const AGENT_ARCHITECTURES = ['amd64', 'arm64', 'arm', '386', 'riscv64', 'ppc64le', 's390x', 'other'] as const;
+export type AgentArchitecture = (typeof AGENT_ARCHITECTURES)[number];
+export const AGENT_HEALTH = ['ONLINE', 'STALE', 'NEVER_SEEN', 'RETIRED'] as const;
+export type AgentHealth = (typeof AGENT_HEALTH)[number];
+
+export interface AgentRegistration {
+  agentCode: string;
+  os: AgentOs;
+  cpuArch: AgentArchitecture;
+  agentVersion: string;
+  connectors: string[];
+}
+
+const AGENT_VERSION = /^[A-Za-z0-9][A-Za-z0-9._+-]{0,39}$/;
+
+/** The registration of an agent as asked (422 VALIDATION_FAILED naming the field): a code, the platform (os and cpu_arch, so linux/arm64 and windows/amd64 are both plain data), a version and the connectors it serves. */
+export function agentRegistrationOf(body: Readonly<Record<string, unknown>>): AgentRegistration {
+  const agentCode = body.agent_code;
+  if (typeof agentCode !== 'string' || !/^[a-z0-9][a-z0-9_.-]{2,59}$/.test(agentCode)) throw invalid('agent_code');
+  if (!oneOf(AGENT_OS, body.os)) throw invalid('os');
+  if (!oneOf(AGENT_ARCHITECTURES, body.cpu_arch)) throw invalid('cpu_arch');
+  if (typeof body.agent_version !== 'string' || !AGENT_VERSION.test(body.agent_version)) throw invalid('agent_version');
+  const connectors = body.connectors;
+  if (!Array.isArray(connectors) || connectors.length === 0 || connectors.length > 20 || new Set(connectors).size !== connectors.length || !connectors.every((code) => typeof code === 'string' && CODE.test(code))) throw invalid('connectors');
+  return { agentCode, os: body.os, cpuArch: body.cpu_arch, agentVersion: body.agent_version, connectors: connectors as string[] };
+}
+
+/** A heartbeat: the version the agent runs now and the depth of its spool (records waiting on the agent to be handed over). */
+export function agentHeartbeatOf(body: Readonly<Record<string, unknown>>): { agentVersion: string; spoolDepth: number } {
+  if (typeof body.agent_version !== 'string' || !AGENT_VERSION.test(body.agent_version)) throw invalid('agent_version');
+  const depth = body.spool_depth;
+  if (typeof depth !== 'number' || !Number.isInteger(depth) || depth < 0 || depth > 1_000_000_000) throw invalid('spool_depth');
+  return { agentVersion: body.agent_version, spoolDepth: depth };
+}
+
+/** The health of an agent: RETIRED when retired; NEVER_SEEN before the first heartbeat; STALE when the last heartbeat is older than the policy; ONLINE otherwise. */
+export function agentHealthOf(input: { state: 'ACTIVE' | 'RETIRED'; lastHeartbeatAt: Date | null; now: Date; staleAfterMinutes: number }): AgentHealth {
+  if (input.state === 'RETIRED') return 'RETIRED';
+  if (input.lastHeartbeatAt === null) return 'NEVER_SEEN';
+  return input.now.getTime() - input.lastHeartbeatAt.getTime() > input.staleAfterMinutes * 60_000 ? 'STALE' : 'ONLINE';
 }

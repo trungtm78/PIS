@@ -16,6 +16,7 @@ export const HUB_POLICY_PARAMS: Readonly<Record<string, unknown>> = {
   hub_stale_severity: HUB_POLICY_DEFAULTS.hubStaleSeverity,
   incident_auto_open: HUB_POLICY_DEFAULTS.incidentAutoOpen,
   snapshot_retention_days: HUB_POLICY_DEFAULTS.snapshotRetentionDays,
+  agent_stale_after_minutes: HUB_POLICY_DEFAULTS.agentStaleAfterMinutes,
 };
 
 export const hubPolicyFormula = (): string => message('hub.rule.policy.formula');

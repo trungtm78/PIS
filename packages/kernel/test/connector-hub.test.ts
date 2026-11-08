@@ -4,6 +4,9 @@ import {
   HUB_HEALTH_STATUSES,
   HUB_POLICY_DEFAULTS,
   assertConnectorDescriptor,
+  agentHealthOf,
+  agentHeartbeatOf,
+  agentRegistrationOf,
   assertRunLayoutKnown,
   connectorAcceptance,
   connectorAlertTypes,
@@ -349,5 +352,27 @@ describe('the conformance helper', () => {
       await fetch('https://example.invalid/');
     });
     expect(attempts).toEqual(['fetch']);
+  });
+});
+
+describe('collector agents (any operating system, ARM included)', () => {
+  const body = { agent_code: 'collector-hn-01', os: 'linux', cpu_arch: 'arm64', agent_version: '1.4.2', connectors: ['egp.muasamcong', 'treasury.statement'] };
+
+  it('registers a platform as plain data and refuses what does not fit', () => {
+    expect(agentRegistrationOf(body)).toEqual({ agentCode: 'collector-hn-01', os: 'linux', cpuArch: 'arm64', agentVersion: '1.4.2', connectors: ['egp.muasamcong', 'treasury.statement'] });
+    expect(agentRegistrationOf({ ...body, os: 'windows', cpu_arch: 'amd64' }).cpuArch).toBe('amd64');
+    for (const [field, patch] of [['agent_code', { agent_code: 'X' }], ['os', { os: 'beos' }], ['cpu_arch', { cpu_arch: 'x87' }], ['agent_version', { agent_version: '' }], ['connectors', { connectors: [] }], ['connectors', { connectors: ['a.b', 'a.b'] }]] as const) {
+      expect(refusal(() => agentRegistrationOf({ ...body, ...patch })).detail).toBe(field);
+    }
+  });
+
+  it('reads a heartbeat and judges health from it against the policy minutes', () => {
+    expect(agentHeartbeatOf({ agent_version: '1.4.3', spool_depth: 12 })).toEqual({ agentVersion: '1.4.3', spoolDepth: 12 });
+    expect(refusal(() => agentHeartbeatOf({ agent_version: '1.4.3', spool_depth: -1 })).detail).toBe('spool_depth');
+    const base = { state: 'ACTIVE' as const, now: NOW, staleAfterMinutes: 15 };
+    expect(agentHealthOf({ ...base, lastHeartbeatAt: null })).toBe('NEVER_SEEN');
+    expect(agentHealthOf({ ...base, lastHeartbeatAt: new Date(NOW.getTime() - 10 * 60_000) })).toBe('ONLINE');
+    expect(agentHealthOf({ ...base, lastHeartbeatAt: new Date(NOW.getTime() - 16 * 60_000) })).toBe('STALE');
+    expect(agentHealthOf({ ...base, state: 'RETIRED', lastHeartbeatAt: NOW })).toBe('RETIRED');
   });
 });

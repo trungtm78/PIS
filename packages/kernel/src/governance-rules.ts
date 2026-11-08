@@ -1739,6 +1739,7 @@ export const registerIntegrationHubRules = (): void =>
         hub_stale_severity: oneOf(...SEVERITIES),
         incident_auto_open: bool,
         snapshot_retention_days: int(30, 3650),
+        agent_stale_after_minutes: int(1, 10080),
       },
       defaults: { DEFAULT: rule(plain({ ...HUB_POLICY_PARAMS })) },
     });
