@@ -5,7 +5,7 @@ export type WorkSeverity = 'URGENT' | 'ACTION' | 'WATCH';
 export const WORK_SEVERITIES: readonly WorkSeverity[] = ['URGENT', 'ACTION', 'WATCH'];
 
 /** The module source an item comes from (the `source` of `WorkActionTarget`). */
-export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE'] as const;
+export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR'] as const;
 export type WorkSource = (typeof WORK_SOURCES)[number];
 
 /** Read is not handled: a new item, one somebody took up, one that is being worked on (given to someone, or in the hands of its module), and one that is done. */
@@ -54,6 +54,7 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   PAYMENT_INTEGRITY_SIGNAL: 'PAYMENT_INTEGRITY',
   DISBURSEMENT_EXCEPTION_EXPIRING: 'DISBURSEMENT_EXCEPTION',
   RESCHEDULE_COUNT: 'PROJECT_GOVERNANCE',
+  CONNECTOR_STALE: 'CONNECTOR',
 };
 
 /**
@@ -96,6 +97,8 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   DISBURSEMENT_EXCEPTION: { EXPIRING: 'WATCH' },
   // G1-3 (lane B1): a milestone or an end date moved as many times as the rule says goes to the auditors, who acknowledge it with a note: to be acted on.
   PROJECT_GOVERNANCE: { RESCHEDULE_COUNT: 'ACTION' },
+  // EGP-1: a connection whose data is older than its rule allows (CONNECTOR_FRESHNESS); the severity is the `stale_severity` of that rule, so the facet is STALE_ plus the word (the tenant sets it on the rule, not here).
+  CONNECTOR: { STALE_URGENT: 'URGENT', STALE_ACTION: 'ACTION', STALE_WATCH: 'WATCH' },
   // The work that was there before the alert centre has no severity of its own: what is late or due within the week is to be acted on, the rest is to be watched.
   APPROVAL: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
   EXPLANATION: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
@@ -157,4 +160,5 @@ export const CONSEQUENCES: Readonly<Record<string, string>> = {
   PAYMENT_INTEGRITY_SIGNAL: 'Tín hiệu bất thường không được xem xét sẽ còn nguyên trong hồ sơ cho kiểm toán.',
   DISBURSEMENT_EXCEPTION_EXPIRING: 'Ngoại lệ giải ngân hết hạn thì thanh toán vượt trần bị chặn trở lại.',
   RESCHEDULE_COUNT: 'Đường cơ sở bị sửa nhiều lần mà không ai xem lại: kiểm toán theo dõi muộn.',
+  CONNECTOR_STALE: 'Số liệu lấy từ nguồn bên ngoài cũ hơn mức cho phép và chỉ tiêu dựa vào đó phải ghi rõ là chưa cập nhật.',
 };

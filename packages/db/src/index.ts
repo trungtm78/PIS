@@ -431,6 +431,10 @@ export { BidMilestoneStore, PACKAGE_STATUSES_WITHOUT_MILESTONES } from './bid-mi
 export type { NewMilestone, ProcurementMilestoneLine, RecordedMilestone } from './bid-milestone-store.ts';
 export { BidProcurementImport, ProcurementImportAdapter } from './bid-procurement-import.ts';
 export type { BatchCounts, ImportedMilestone, ProcurementImportContext, ProcurementOutcome } from './bid-procurement-import.ts';
+export { EGP_DIFFERENCE_CODES, EgpImportAdapter } from './egp-import.ts';
+export type { EgpImportContext, EgpRowOutcome, EgpWrittenRestriction } from './egp-import.ts';
+export { EgpConnectionStore, EgpMappingStore, egpMappingOf, resolveEgpSubject } from './egp-store.ts';
+export type { EgpConnectionRow, EgpHealthReading, EgpMappingCounts, EgpMappingFilter, EgpMappingRow, EgpPositionRow, EgpRunRow, EgpSubject, EgpSubjectLookup, EgpSuggestion } from './egp-store.ts';
 export { BidLinkReads, LINK_DIFF_STATUSES } from './bid-link-reads.ts';
 export type { LinkDiffStatus, LinkLine } from './bid-link-reads.ts';
 export { PACKAGE_STATUS_OPEN_FOR_BIDS, PROPOSAL_FILE_DOC_TYPE, PROPOSAL_SUBJECT_MODULE, BidProposalStore } from './bid-proposal-store.ts';

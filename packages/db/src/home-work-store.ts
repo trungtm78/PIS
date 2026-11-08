@@ -8,6 +8,7 @@ import type { WorkPolicies } from './home-work-policy.ts';
 import { HomeWorkReminderStore } from './home-work-reminder-store.ts';
 import { CONSEQUENCES, DEFAULT_SEVERITY_RULES, SEVERITY_RANK, SOURCE_OF_KIND, furtherLifecycle, severityOf } from './home-work-rules.ts';
 import type { SeverityRules, WorkEscalation, WorkLifecycle, WorkSeverity, WorkSource } from './home-work-rules.ts';
+import { HomeConnectorSources } from './home-connector-sources.ts';
 import { HomeDirectiveSources } from './home-directive-sources.ts';
 import { HomeIntegritySources } from './home-integrity-sources.ts';
 import { HomePrcSources } from './home-prc-sources.ts';
@@ -135,6 +136,7 @@ export class HomeWorkStore {
   private readonly directives = new HomeDirectiveSources();
   private readonly procurement = new HomePrcSources();
   private readonly integrity = new HomeIntegritySources();
+  private readonly connectors = new HomeConnectorSources();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -177,6 +179,7 @@ export class HomeWorkStore {
       ['PAYMENT_INTEGRITY', () => this.integrity.paymentIntegrity(context)],
       ['DISBURSEMENT_EXCEPTION', () => this.integrity.disbursementExceptions(context)],
       ['PROJECT_GOVERNANCE', () => this.integrity.projectGovernance(context)],
+      ['CONNECTOR', () => this.connectors.items(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];

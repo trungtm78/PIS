@@ -43,7 +43,7 @@ async function handedTo(context: SourceContext, source: WorkSource, keys: readon
  * The items of a source that is for a role (an alert to the auditors, to the administrator of the duties, to the data steward): all of them to a reader who holds the permission of the role, and only the ones somebody handed
  * to the reader to anybody else. `wholeTenant`: the permission is read through a grant on the whole tenant (these records belong to no unit).
  */
-async function forAudience<T extends SourceRow>(context: SourceContext, source: WorkSource, permission: string, rows: readonly T[], wholeTenant: boolean): Promise<T[]> {
+export async function forAudience<T extends SourceRow>(context: SourceContext, source: WorkSource, permission: string, rows: readonly T[], wholeTenant: boolean): Promise<T[]> {
   if (context.holds?.(permission, wholeTenant) === true) return [...rows];
   const handed = await handedTo(
     context,
