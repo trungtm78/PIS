@@ -13,8 +13,12 @@ import { VendorGate } from './vendor-gate.ts';
 export const PROPOSAL_FILE_DOC_TYPE = 'BID-PROPOSAL-FILE';
 /** What the documents of a proposal are about: the reads of the document module leave the documents of this subject out. */
 export const PROPOSAL_SUBJECT_MODULE = SEALED_SUBJECT_MODULE;
-/** A package takes proposals while its plan is in force. */
-export const PACKAGE_STATUS_OPEN_FOR_BIDS = 'APPROVED';
+/**
+ * A package takes proposals while its plan is in force. Approving a plan puts its packages in PLANNED (bid-plan-store), so a package of an approved plan is PLANNED;
+ * APPROVED is kept for the packages that were given that status before.
+ */
+export const PACKAGE_STATUSES_OPEN_FOR_BIDS: readonly string[] = ['PLANNED', 'APPROVED'];
+export const isOpenForBids = (status: string): boolean => PACKAGE_STATUSES_OPEN_FOR_BIDS.includes(status);
 
 /** A file of a proposal as the controller read it from the shared upload pipeline: clean, with the digest and the page count read from its bytes. */
 export interface ProposalFileInput {
@@ -83,7 +87,7 @@ export class BidProposalStore {
     this.assertFiles(input.files);
 
     const pack = await this.lockPackage(tx, input.packageId, scope);
-    if (pack.status !== PACKAGE_STATUS_OPEN_FOR_BIDS) throw new DomainError('PACKAGE_STATE_INVALID', 409, 'package_id', { extensions: { package_status: pack.status } });
+    if (!isOpenForBids(pack.status)) throw new DomainError('PACKAGE_STATE_INVALID', 409, 'package_id', { extensions: { package_status: pack.status } });
     const window = await bidWindowOf(tx, pack.id);
     const refusal = receiptRefusal(window, submittedAt, now);
     if (refusal === 'SUBMITTED_IN_FUTURE') throw invalid('submitted_at');

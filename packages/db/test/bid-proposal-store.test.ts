@@ -131,6 +131,12 @@ describe('the sealed proposal (ST-BID-004)', () => {
       expect(received.accessReleasedAt).toBe(actual);
     });
 
+    it('takes a proposal for a package in PLANNED, the status that approving its plan gives it', async () => {
+      const setup = await open();
+      await owner('update machvon.procurement_package set status = $2 where id = $1::uuid', [setup.seeded.packageId, 'PLANNED']);
+      expect((await receive(setup)).revision).toBe(1);
+    });
+
     it('takes a proposal without a price', async () => {
       const setup = await open();
       const received = await receive(setup, { bidPriceVnd: undefined });

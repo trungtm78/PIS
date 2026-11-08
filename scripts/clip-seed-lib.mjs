@@ -8,7 +8,7 @@ export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-directives', 'clip-public-committee'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-directives', 'clip-public-committee'],
   enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports'],
 };
 
@@ -24,7 +24,7 @@ export const DATASET_PHASES = {
   public: [
     // The capital plan is published in the past, so the snapshots of the closed months find the plan in force.
     { clockDays: -80, groups: ['base', 'capital'] },
-    { clockDays: 0, groups: ['clip-public-documents', 'clip-public-procurement'] },
+    { clockDays: 0, groups: ['clip-public-documents', 'clip-public-procurement', 'clip-public-contracts'] },
     ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-public-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
     { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-directives', 'clip-public-committee'] },
   ],

@@ -442,7 +442,7 @@ export type { EgpMilestoneFill, EgpMilestoneResult } from './egp-milestone-hook.
 export { HomeEgpPostingSources } from './home-egp-posting-sources.ts';
 export { BidLinkReads, LINK_DIFF_STATUSES } from './bid-link-reads.ts';
 export type { LinkDiffStatus, LinkLine } from './bid-link-reads.ts';
-export { PACKAGE_STATUS_OPEN_FOR_BIDS, PROPOSAL_FILE_DOC_TYPE, PROPOSAL_SUBJECT_MODULE, BidProposalStore } from './bid-proposal-store.ts';
+export { PACKAGE_STATUSES_OPEN_FOR_BIDS, isOpenForBids, PROPOSAL_FILE_DOC_TYPE, PROPOSAL_SUBJECT_MODULE, BidProposalStore } from './bid-proposal-store.ts';
 export type { NewProposalInput, ProposalFileInput, ReceivedProposal } from './bid-proposal-store.ts';
 export { BidProposalReads } from './bid-proposal-reads.ts';
 export type { ProposalFile, ProposalLine, ProposalViewer } from './bid-proposal-reads.ts';

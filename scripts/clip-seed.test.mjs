@@ -145,6 +145,7 @@ function seededPublic(plan) {
     '/home/warnings': [{ severity: 'INFO' }, { severity: 'WARNING' }, { severity: 'CRITICAL' }],
     '/period-snapshots': [{ status: 'FROZEN' }, { status: 'FROZEN' }],
     '/directives': plan.meetings.flatMap((meeting) => meeting.directives),
+    '/resources/contract': Array.from({ length: 5 }, () => ({ status: 'ACTIVE' })),
   };
   const gets = {
     '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } },

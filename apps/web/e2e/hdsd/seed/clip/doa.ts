@@ -5,7 +5,7 @@ import type { Obj, SeedContext } from '../context.ts';
  * whole organisation, whatever the amount. Drafted by the project manager, decided by the leader (maker is not checker). Asked first and skipped when a
  * matrix is already in force, so a second run does nothing.
  */
-const DOCUMENT_TYPES = ['QD', 'CV', 'BC', 'GM', 'KH', 'TB', 'TTR', 'HD', 'BB', 'BL', 'HSNL'];
+const DOCUMENT_TYPES = ['QD', 'CV', 'BC', 'GM', 'KH', 'TB', 'TTR', 'HD', 'BB', 'BL', 'HSNL', 'CTR_CONTRACT'];
 
 export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
   const versions = await ctx.list<Obj>('owner', '/resources/doa_matrix_version');

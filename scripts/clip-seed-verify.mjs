@@ -89,6 +89,12 @@ const tileValue = (center, code) => {
   return value === undefined || value === null ? undefined : Number(value);
 };
 
+/** Checks of the contracts: the five awarded packages of the guide projects have an active contract. */
+export async function contractChecks(plan, reader) {
+  const contracts = await safe(() => reader.list('projectManager', '/resources/contract'));
+  return [{ name: 'contracts active', value: contracts === undefined ? undefined : contracts.filter((row) => row.status === 'ACTIVE').length, min: 5 }];
+}
+
 /** Checks of the process tree of the packages: how many run, are late, are on hold, have not started (the plan names the targets). */
 export async function workflowChecks(plan, reader) {
   const targets = plan.procurement.plans.flatMap((entry) => entry.packages.map((item) => item.target));
@@ -166,7 +172,7 @@ export async function enterpriseReportChecks(plan, reader) {
 
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
-  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
   if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
   return [];
 }

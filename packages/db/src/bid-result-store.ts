@@ -15,7 +15,7 @@ import {
 import type { ResultDecision, ResultOutcome, ResultStatus } from '@machvon/kernel';
 import { assertDecisionDocument } from './bid-decision-document.ts';
 import { BidContractorStore } from './bid-contractor-store.ts';
-import { PACKAGE_STATUS_OPEN_FOR_BIDS } from './bid-proposal-store.ts';
+import { isOpenForBids } from './bid-proposal-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -183,7 +183,7 @@ export class BidResultStore {
     const minutes = input.evaluationReportId.toLowerCase();
 
     const pack = await this.lockPackage(tx, input.packageId, scope);
-    if (pack.status !== PACKAGE_STATUS_OPEN_FOR_BIDS) throw new DomainError('PLAN_NOT_APPROVED', 409, 'package_id', { extensions: { package_status: pack.status } });
+    if (!isOpenForBids(pack.status)) throw new DomainError('PLAN_NOT_APPROVED', 409, 'package_id', { extensions: { package_status: pack.status } });
     const open = await tx.query<{ id: string; status: string }>("select id, status from machvon.procurement_result where package_id = $1::uuid and status in ('DRAFT', 'SUBMITTED')", [pack.id]);
     if (open[0] !== undefined) throw stateInvalid(open[0].status, 'OPEN_RESULT');
     if (price !== undefined) assertPriceWithinBudget(price, pack.budget_vnd);
@@ -331,7 +331,7 @@ export class BidResultStore {
 
   /** What was true when the award was submitted is judged again when it is approved: the plan, the price and the winner may have moved since. */
   private async assertAwardStillStands(tx: TenantTx, held: LockSql, now: Date): Promise<void> {
-    if (held.package_status !== PACKAGE_STATUS_OPEN_FOR_BIDS) throw new DomainError('PLAN_NOT_APPROVED', 409, 'package_id', { extensions: { package_status: held.package_status } });
+    if (!isOpenForBids(held.package_status)) throw new DomainError('PLAN_NOT_APPROVED', 409, 'package_id', { extensions: { package_status: held.package_status } });
     if (held.award_price_vnd !== null) assertPriceWithinBudget(held.award_price_vnd, held.budget_vnd);
     if (held.winner_contractor_id !== null) await this.assertWinner(tx, held.winner_contractor_id, held.package_id, now);
   }
