@@ -12,7 +12,7 @@ import type { ObjectStoragePort } from '@machvon/kernel';
 import { FOREIGN_ATTEMPT_SPECS, attempt, createApiChannel, tokenFor } from './channels/api';
 import { GOVRULE_FIXTURES } from './channels/gov/govrule.fixtures';
 import type { ForeignAttemptSpec } from './channels/api';
-import { DOCUMENT_FIXTURES, HOUSEHOLD_FIXTURES, MASTER_IMPORT_FIXTURES, PROJECT_FIXTURES, REPORT_EXPORT_FIXTURES, SCORECARD_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, exportManifestObjectId, exportManifestOf, runIsolationSuite } from './suite';
+import { DOCUMENT_FIXTURES, HOUSEHOLD_FIXTURES, MASTER_IMPORT_FIXTURES, PROJECT_FIXTURES, REPO_FIXTURES, REPORT_EXPORT_FIXTURES, SCORECARD_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, exportManifestObjectId, exportManifestOf, runIsolationSuite } from './suite';
 import type { ForeignAttempt, IsolationChannel } from './suite';
 import { TENANT_HEADER } from './test-auth.guard';
 import { ERROR_CODES_PATH, loadOpenApi, startIsolationDatabase, startTestApp } from './test-app';
@@ -72,6 +72,9 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
     const exportKey = objectKey(TENANT_IDS['TNT-B'], 'report_export', REPORT_EXPORT_FIXTURES['TNT-B'].id);
     await storage.put(owner, exportKey, Buffer.from('key,label,value\r\n'), { contentType: 'text/csv' });
     await files.scan(owner, exportKey);
+    // The file of a document of the project repository of TNT-B: its download, its re-reading and a new version made of it open the file after the row is found.
+    await storage.put(owner, REPO_FIXTURES['TNT-B'].fileObjectKey, Buffer.from('%PDF-1.4\n%%EOF\n'), { contentType: 'application/pdf' });
+    await files.scan(owner, REPO_FIXTURES['TNT-B'].fileObjectKey);
     // The file of the batch of the export of the records of the contractors.
     const recordsKey = objectKey(TENANT_IDS['TNT-B'], 'contractor_export', SCORECARD_FIXTURES['TNT-B'].exportSha256);
     await storage.put(owner, recordsKey, Buffer.from('record_type,contractor_name\r\n'), { contentType: 'text/csv' });
@@ -189,7 +192,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
 
   // These cases find a row and then read a stored file. The isolation suite seeds the rows only: with no file behind them the answer is 404
   // whoever asks, so a lookup that leaked would go unseen. With the files in place the 404 can only come from the lookup.
-  const FILE_BACKED = ['getDocumentVersionDownload', 'verifyDocumentSignatures', 'getDocumentSignatureReport', 'applyMasterImport', 'getReportExportDownload', 'getContractorExportDownload', 'getTenantExportManifest', 'downloadTenantExportFile'];
+  const FILE_BACKED = ['getProjectDocumentVersionDownload', 'addProjectDocumentVersion', 'rerunDocumentExtraction', 'getDocumentVersionDownload', 'verifyDocumentSignatures', 'getDocumentSignatureReport', 'applyMasterImport', 'getReportExportDownload', 'getContractorExportDownload', 'getTenantExportManifest', 'downloadTenantExportFile'];
 
   it('still answers 404 to another tenant for the cases that read a stored file, when the file of the object exists', async () => {
     const options = { baseUrl: app.baseUrl, signingKey: SIGNING_KEY, ownerUrl, doc };

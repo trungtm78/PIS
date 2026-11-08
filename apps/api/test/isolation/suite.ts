@@ -386,10 +386,11 @@ export const PROPOSAL_FIXTURES: Readonly<Record<TenantName, { id: string; declar
 };
 
 /** A document of the project repository of each tenant with its first version, one cited paragraph, a comment and a round of review (the title, the paragraph and the comment are distinctive; tenant confidential data). */
-export const REPO_FIXTURES: Readonly<Record<TenantName, { documentId: string; versionId: string; commentId: string; reviewId: string; citationId: string; title: string; reference: string; unitText: string; commentBody: string; fileObjectKey: string }>> = {
+export const REPO_FIXTURES: Readonly<Record<TenantName, { documentId: string; versionId: string; versionTwoId: string; commentId: string; reviewId: string; citationId: string; title: string; reference: string; unitText: string; commentBody: string; fileObjectKey: string }>> = {
   'TNT-A': {
     documentId: '00000000-0000-4000-a2d0-000000000001',
     versionId: '00000000-0000-4000-a2d0-000000000002',
+    versionTwoId: '00000000-0000-4000-a2d0-000000000005',
     commentId: '00000000-0000-4000-a2d0-000000000003',
     reviewId: '00000000-0000-4000-a2d0-000000000004',
     citationId: 'cit_a2d0a2d0a2d0a2d0a2d0',
@@ -402,6 +403,7 @@ export const REPO_FIXTURES: Readonly<Record<TenantName, { documentId: string; ve
   'TNT-B': {
     documentId: '00000000-0000-4000-b2d0-000000000001',
     versionId: '00000000-0000-4000-b2d0-000000000002',
+    versionTwoId: '00000000-0000-4000-b2d0-000000000005',
     commentId: '00000000-0000-4000-b2d0-000000000003',
     reviewId: '00000000-0000-4000-b2d0-000000000004',
     citationId: 'cit_b2d0b2d0b2d0b2d0b2d0',

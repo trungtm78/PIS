@@ -2129,6 +2129,9 @@ const INSERT_REPO_DOCUMENT = `insert into machvon.project_document (tenant_id, i
 const INSERT_REPO_VERSION = `insert into machvon.project_document_version (tenant_id, id, document_id, version_no, file_object_key, file_sha256, size_bytes, format, mime, created_by)
   values ($1, $2, $3, 1, $4, repeat('d', 64), 2048, 'PDF', 'application/pdf', $5) on conflict do nothing`;
 
+const INSERT_REPO_VERSION_TWO = `insert into machvon.project_document_version (tenant_id, id, document_id, version_no, file_object_key, file_sha256, size_bytes, format, mime, created_by)
+  values ($1, $2, $3, 2, $4, repeat('f', 64), 2048, 'PDF', 'application/pdf', $5) on conflict do nothing`;
+
 const INSERT_REPO_UNIT = `insert into machvon.document_text_unit (tenant_id, version_id, seq, citation_id, kind, locator_key, label, page_no, paragraph_no, text, text_sha256)
   values ($1, $2, 1, $3, 'PARAGRAPH', 'p1/para1', 'p1 para1', 1, 1, $4, repeat('e', 64)) on conflict do nothing`;
 
@@ -2757,6 +2760,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_REPO_DOCUMENT, [tenantId, repo.documentId, project.id, repo.title, repo.reference, ACTOR_ID]);
     await client.query(INSERT_REPO_VERSION, [tenantId, repo.versionId, repo.documentId, repo.fileObjectKey, ACTOR_ID]);
     await client.query(INSERT_REPO_UNIT, [tenantId, repo.versionId, repo.citationId, repo.unitText]);
+    await client.query(INSERT_REPO_VERSION_TWO, [tenantId, repo.versionTwoId, repo.documentId, repo.fileObjectKey, ACTOR_ID]);
     await client.query(READ_REPO_VERSION, [repo.versionId]);
     await client.query(POINT_REPO_DOCUMENT, [repo.documentId, repo.versionId]);
     await client.query(INSERT_REPO_COMMENT, [tenantId, repo.commentId, repo.documentId, repo.versionId, repo.citationId, repo.commentBody, ACTOR_ID]);
