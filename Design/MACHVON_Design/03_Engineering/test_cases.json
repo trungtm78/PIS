@@ -19330,5 +19330,2052 @@
     "covers": [
       "FR-MNE-08"
     ]
+  },
+  {
+    "id": "UAT-PLAN-75",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Rule type ALERT_TYPE code X with approved version V1 in force; V2 drafted by A with start date next Monday, submitted by B.",
+    "steps": [
+      "A approves V2",
+      "B approves V2",
+      "C approves V2 with adm.governance.approve"
+    ],
+    "expected": "Step 1 and 2: 403 SELF_APPROVAL_DENIED; step 3: V2 APPROVED, V1 effective_to equals the day before V2 effective_from, one adm.governance_rule.approved.v1 event, one audit row per step.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-19",
+      "FR-ADM-20",
+      "FR-ADM-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-76",
+    "source": "ADM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Rule type with a numeric parameter 1..365; approved version V1 effective 2026-01-01 without an end.",
+    "steps": [
+      "Create a draft with the parameter 0",
+      "Create a draft starting yesterday",
+      "Create a draft overlapping V1 that is not its successor",
+      "PATCH-style edit of V1 through the draft command"
+    ],
+    "expected": "Drafts 1 and 2: 422 VALIDATION_FAILED with the offending field; draft 3: 409; V1 columns are byte-identical afterwards and the edit produced version V2 in DRAFT.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-19",
+      "FR-ADM-20",
+      "FR-ADM-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-77",
+    "source": "ADM.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Two rule types: SOD_MATRIX with 1 approved version, KPI_DEFINITION with none (built-in default).",
+    "steps": [
+      "getGovernanceRuleCatalog",
+      "getEffectiveGovernanceRule for SOD_MATRIX on a date inside V1",
+      "getEffectiveGovernanceRule for KPI_DEFINITION"
+    ],
+    "expected": "Catalogue shows 1 own and the rest default per type; step 2 returns V1 with its version number and as_of; step 3 returns the built-in default flagged source=DEFAULT with the unverified marker.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-19",
+      "FR-ADM-20",
+      "FR-ADM-21"
+    ]
+  },
+  {
+    "id": "UI-ADM-19",
+    "source": "FR-ADM-19",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kho quy tắc quản trị; user có quyền và user chỉ đọc; route ADM-19",
+    "steps": [
+      "Mở ADM-19 từ menu và deep link; kiểm nhãn trường: Loại quy tắc, Đơn vị sở hữu, Số mã, Mã đang dùng quy tắc riêng, Mã đang dùng mặc định, Trạng thái kiểm chứng, Căn cứ, Ngày lấy số",
+      "Thực hiện thao tác chính theo quy tắc: getGovernanceRuleCatalog; mỗi loại quy tắc nói đơn vị sở hữu, số mã, bao nhiêu mã đang dùng quy tắc riêng và bao nhiêu mã còn dùng mặc định có sẵn; con số chưa xác nhận với luật hoặc khách hàng ghi 'chưa kiểm chứng'; mỗi con số có công thức, căn cứ và ngày lấy số (G0-1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-19"
+    ],
+    "expected": "Kho quy tắc quản trị: hiển thị đúng 8 trường, áp quy tắc \"getGovernanceRuleCatalog; mỗi loại quy tắc nói đơn vị sở hữu, số mã, bao nhiêu mã đang dùng quy tắc riêng và bao nhiêu mã còn dùng mặc định có sẵn; con số chưa xác nhận với luật hoặc khách hàng ghi 'chưa kiểm chứng'; mỗi con số có công thức, căn cứ và ngày lấy số (G0-1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-19"
+    ]
+  },
+  {
+    "id": "UI-ADM-20",
+    "source": "FR-ADM-20",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết loại quy tắc quản trị; user có quyền và user chỉ đọc; route ADM-20",
+    "steps": [
+      "Mở ADM-20 từ menu và deep link; kiểm nhãn trường: Mã quy tắc, Quy tắc đang áp dụng, Mặc định có sẵn, Công thức và căn cứ, Lịch sử phiên bản, Trạng thái và hiệu lực, Người lập, người trình, người duyệt, Lý do",
+      "Thực hiện thao tác chính theo quy tắc: listGovernanceRuleVersions, getEffectiveGovernanceRule, submitGovernanceRule, withdrawGovernanceRule, approveGovernanceRule, retireGovernanceRule; quy tắc đang áp dụng đặt cạnh mặc định có sẵn; phiên bản không bao giờ sửa, đổi là một phiên bản mới; người duyệt khác người lập và khác người trình (SELF_APPROVAL_DENIED); ngừng một phiên bản đang hiệu lực cần cả quyền soạn lẫn quyền duyệt; mọi thao tác hỏi lý do và có ghi nhật ký (G0-1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-20"
+    ],
+    "expected": "Chi tiết loại quy tắc quản trị: hiển thị đúng 8 trường, áp quy tắc \"listGovernanceRuleVersions, getEffectiveGovernanceRule, submitGovernanceRule, withdrawGovernanceRule, approveGovernanceRule, retireGovernanceRule; quy tắc đang áp dụng đặt cạnh mặc định có sẵn; phiên bản không bao giờ sửa, đổi là một phiên bản mới; người duyệt khác người lập và khác người trình (SELF_APPROVAL_DENIED); ngừng một phiên bản đang hiệu lực cần cả quyền soạn lẫn quyền duyệt; mọi thao tác hỏi lý do và có ghi nhật ký (G0-1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-20"
+    ]
+  },
+  {
+    "id": "UI-ADM-21",
+    "source": "FR-ADM-21",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Soạn phiên bản quy tắc; user có quyền và user chỉ đọc; route ADM-21",
+    "steps": [
+      "Mở ADM-21 từ menu và deep link; kiểm nhãn trường: Loại và mã quy tắc, Đơn vị áp dụng, Tham số theo lược đồ của loại, Đơn vị tính, Hiệu lực từ, Hiệu lực đến, Cảnh báo chồng hiệu lực, Lý do",
+      "Thực hiện thao tác chính theo quy tắc: createGovernanceRuleDraft; biểu mẫu sinh từ lược đồ tham số của loại quy tắc, thông báo lỗi theo lược đồ và nêu rõ trường sai; tiền ghi ĐVT; hiệu lực không chồng lên phiên bản đã duyệt trừ khi là kế nhiệm; ngày bắt đầu không ở quá khứ; lý do bắt buộc 5 đến 500 ký tự; loại cảnh báo không có hành động mong đợi thì chỉ được mức Theo dõi (G0-1, G0-3)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-21"
+    ],
+    "expected": "Soạn phiên bản quy tắc: hiển thị đúng 8 trường, áp quy tắc \"createGovernanceRuleDraft; biểu mẫu sinh từ lược đồ tham số của loại quy tắc, thông báo lỗi theo lược đồ và nêu rõ trường sai; tiền ghi ĐVT; hiệu lực không chồng lên phiên bản đã duyệt trừ khi là kế nhiệm; ngày bắt đầu không ở quá khứ; lý do bắt buộc 5 đến 500 ký tự; loại cảnh báo không có hành động mong đợi thì chỉ được mức Theo dõi (G0-1, G0-3)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-78",
+    "source": "ADM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Rule code X with V2 and V3; V3 adds param p4, drops p2, changes p1 from 5 to 7.",
+    "steps": [
+      "getGovernanceRuleDiff V3 against V2",
+      "getGovernanceRuleDiff V3 against the default",
+      "Read a diff of a version in another tenant"
+    ],
+    "expected": "Step 1: 1 added, 1 removed, 1 changed with old and new values 5 and 7; step 2 uses source DEFAULT; step 3: 404 with no tenant disclosure.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-22"
+    ]
+  },
+  {
+    "id": "UI-ADM-22",
+    "source": "FR-ADM-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của So sánh phiên bản quy tắc; user có quyền và user chỉ đọc; route ADM-22",
+    "steps": [
+      "Mở ADM-22 từ menu và deep link; kiểm nhãn trường: Phiên bản gốc, Phiên bản so sánh, Tham số thêm, Tham số bỏ, Tham số đổi, Trước, Sau",
+      "Thực hiện thao tác chính theo quy tắc: getGovernanceRuleDiff; so với phiên bản trước, phiên bản được chọn hoặc mặc định có sẵn; thêm, bỏ và đổi đều có chữ và biểu tượng, không chỉ dựa vào màu (G0-1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-22"
+    ],
+    "expected": "So sánh phiên bản quy tắc: hiển thị đúng 7 trường, áp quy tắc \"getGovernanceRuleDiff; so với phiên bản trước, phiên bản được chọn hoặc mặc định có sẵn; thêm, bỏ và đổi đều có chữ và biểu tượng, không chỉ dựa vào màu (G0-1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-79",
+    "source": "ADM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Alert types T1 (no expected action), T2 (review date yesterday), T3 (complete) with owners ADM and HOME.",
+    "steps": [
+      "listAlertTypes",
+      "Filter by owner HOME",
+      "Draft a version of T1 with level CRITICAL"
+    ],
+    "expected": "Step 1: T1 level options WATCH only, T2 flagged overdue_review, header count of overdue reviews 1; step 2: only HOME rows with equal count; step 3: 422 VALIDATION_FAILED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-23"
+    ]
+  },
+  {
+    "id": "UI-ADM-23",
+    "source": "FR-ADM-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ loại cảnh báo; user có quyền và user chỉ đọc; route ADM-23",
+    "steps": [
+      "Mở ADM-23 từ menu và deep link; kiểm nhãn trường: Mã loại, Nguồn, Chủ sở hữu, Hành động mong đợi, Hậu quả nếu không làm, Thời hạn đáp ứng (giờ), Mức mặc định, Lý do tồn tại, Ngày xét lại, Phiên bản và nguồn quy tắc",
+      "Thực hiện thao tác chính theo quy tắc: listAlertTypes; mỗi loại cảnh báo có chủ sở hữu, hành động mong đợi, hậu quả, thời hạn đáp ứng, lý do tồn tại và ngày xét lại; loại không có hành động mong đợi thì chỉ được mức Theo dõi; loại quá ngày xét lại được đánh dấu; lọc theo nguồn và chủ sở hữu (G0-3)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-23"
+    ],
+    "expected": "Sổ loại cảnh báo: hiển thị đúng 10 trường, áp quy tắc \"listAlertTypes; mỗi loại cảnh báo có chủ sở hữu, hành động mong đợi, hậu quả, thời hạn đáp ứng, lý do tồn tại và ngày xét lại; loại không có hành động mong đợi thì chỉ được mức Theo dõi; loại quá ngày xét lại được đánh dấu; lọc theo nguồn và chủ sở hữu (G0-3)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-23"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-80",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "SOD_MATRIX with pair (payment.create, payment.approve) exception_max_days 0 and pair (contract.create, contract.approve) exception_max_days 14; user U holds both duties of each.",
+    "steps": [
+      "U creates then approves a payment request",
+      "U requests an exception for the contract pair for 30 days",
+      "U requests it for 10 days"
+    ],
+    "expected": "Step 1: 422 SOD_VIOLATION (pair named, user not named) and no state change; step 2: 422 VALIDATION_FAILED; step 3: 200 REQUESTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-81",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Exception E for pair P requested by R for user A, valid 3 days, matrix needs 2 approvers.",
+    "steps": [
+      "R approves",
+      "A approves",
+      "Approver X approves",
+      "Approver Y approves",
+      "Advance the clock past the last day and A runs the command again"
+    ],
+    "expected": "Steps 1-2: 403 SELF_APPROVAL_DENIED; step 3: still REQUESTED; step 4: ACTIVE; step 5: 422 SOD_VIOLATION and E shown as expired; every earlier pass left one sod_exception_use row.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-24"
+    ]
+  },
+  {
+    "id": "UI-ADM-24",
+    "source": "FR-ADM-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tách bạch nhiệm vụ; user có quyền và user chỉ đọc; route ADM-24",
+    "steps": [
+      "Mở ADM-24 từ menu và deep link; kiểm nhãn trường: Cặp nhiệm vụ, Tính trong (hồ sơ, dự án, hợp đồng, gói thầu), Mức xử lý (chặn hoặc cảnh báo), Ngoại lệ tối đa (ngày), Số người duyệt ngoại lệ, Người được áp dụng, Đối tượng, Khoảng ngày, Lý do, Số lần dùng, Trạng thái",
+      "Thực hiện thao tác chính theo quy tắc: Ma trận là quy tắc SOD_MATRIX; mỗi lệnh của hợp đồng, thanh toán và đấu thầu kiểm tra ngay khi ghi và trả 422 SOD_VIOLATION nêu hai nhiệm vụ của cặp (không nêu người); ngoại lệ có thời hạn không dài hơn exception_max_days của cặp (0: không có), cần tối thiểu 2 người duyệt khác người xin và người được áp dụng; hết ngày cuối tự hết hiệu lực; số mặc định ghi rõ chưa kiểm chứng (G4-1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-24"
+    ],
+    "expected": "Tách bạch nhiệm vụ: hiển thị đúng 11 trường, áp quy tắc \"Ma trận là quy tắc SOD_MATRIX; mỗi lệnh của hợp đồng, thanh toán và đấu thầu kiểm tra ngay khi ghi và trả 422 SOD_VIOLATION nêu hai nhiệm vụ của cặp (không nêu người); ngoại lệ có thời hạn không dài hơn exception_max_days của cặp (0: không có), cần tối thiểu 2 người duyệt khác người xin và người được áp dụng; hết ngày cuối tự hết hiệu lực; số mặc định ghi rõ chưa kiểm chứng (G4-1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-82",
+    "source": "AUD.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Uses U1 (PASSED_BY_EXCEPTION), U2 (PASSED_WARN_ONLY), U3 (BLOCKED) and exception E expired by schedule but still flagged ACTIVE in storage.",
+    "steps": [
+      "listSodAuditUses with no filter",
+      "listSodAuditUses outcome=BLOCKED",
+      "listSodAuditExceptions status=EXPIRED",
+      "Direct SQL UPDATE of a use row"
+    ],
+    "expected": "Step 1: 3 rows; step 2: only U3; step 3: E listed as expired by schedule; step 4: rejected by the database.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-13"
+    ]
+  },
+  {
+    "id": "UI-AUD-13",
+    "source": "FR-AUD-13",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kiểm toán tách bạch nhiệm vụ; user có quyền và user chỉ đọc; route AUD-13",
+    "steps": [
+      "Mở AUD-13 từ menu và deep link; kiểm nhãn trường: Thời điểm, Người thực hiện, Nhiệm vụ đang làm, Cặp xung đột, Tính trong, Lệnh, Kết quả (đi qua bằng ngoại lệ, đi qua với cảnh báo, bị chặn), Phiên bản quy tắc, Ngoại lệ: người xin, người được áp dụng, số người duyệt, số lần dùng",
+      "Thực hiện thao tác chính theo quy tắc: Đọc sod_exception và sod_exception_use: mỗi lần một lệnh gặp xung đột nhiệm vụ đều để lại một dòng không sửa, không xóa (đi qua bằng ngoại lệ, đi qua vì cặp chỉ cảnh báo, hoặc bị chặn); lọc theo kết quả và trạng thái ngoại lệ; ngoại lệ hết hạn theo lịch hiển thị là đã hết hạn (G4-1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-13"
+    ],
+    "expected": "Kiểm toán tách bạch nhiệm vụ: hiển thị đúng 9 trường, áp quy tắc \"Đọc sod_exception và sod_exception_use: mỗi lần một lệnh gặp xung đột nhiệm vụ đều để lại một dòng không sửa, không xóa (đi qua bằng ngoại lệ, đi qua vì cặp chỉ cảnh báo, hoặc bị chặn); lọc theo kết quả và trạng thái ngoại lệ; ngoại lệ hết hạn theo lịch hiển thị là đã hết hạn (G4-1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-13"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-83",
+    "source": "AUD.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Ten findings across two contracts: 4 blocking, 6 signal, dates in two months.",
+    "steps": [
+      "List with no filter",
+      "Filter type=DUPLICATE and contract C-1",
+      "Filter by date range of the second month"
+    ],
+    "expected": "Step 1: header shows 4 blocking and 6 signal; step 2 and 3: only matching rows and counts equal row numbers; a reader outside the contract scope sees none of the rows.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-12"
+    ]
+  },
+  {
+    "id": "UI-AUD-12",
+    "source": "FR-AUD-12",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Phát hiện toàn vẹn thanh toán; user có quyền và user chỉ đọc; route AUD-12",
+    "steps": [
+      "Mở AUD-12 từ menu và deep link; kiểm nhãn trường: Mã phát hiện, Loại (chặn hoặc tín hiệu), Đề nghị thanh toán, Hợp đồng, Dự án, Phiên bản quy tắc, Được ngoại lệ che, Ngày lập",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi lượt kiểm một đề nghị thanh toán ghi lại các phát hiện (trùng lặp, đơn giá lệch, khối lượng so với nhật ký công trường, vượt trần kế hoạch, hợp đồng, giá trị nghiệm thu), bất biến; lọc theo mã, loại, hợp đồng, ngày; số phát hiện chặn khác với tín hiệu; ngưỡng là dữ liệu có hiệu lực theo ngày, số mặc định ghi rõ chưa kiểm chứng (G4-2)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-12"
+    ],
+    "expected": "Phát hiện toàn vẹn thanh toán: hiển thị đúng 8 trường, áp quy tắc \"Mỗi lượt kiểm một đề nghị thanh toán ghi lại các phát hiện (trùng lặp, đơn giá lệch, khối lượng so với nhật ký công trường, vượt trần kế hoạch, hợp đồng, giá trị nghiệm thu), bất biến; lọc theo mã, loại, hợp đồng, ngày; số phát hiện chặn khác với tín hiệu; ngưỡng là dữ liệu có hiệu lực theo ngày, số mặc định ghi rõ chưa kiểm chứng (G4-2)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-84",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Payment PR-1 PAID for contract C-1 period 2026-09 amount 1,000,000,000 VND; draft PR-2 same contract, period and amount.",
+    "steps": [
+      "checkPaymentIntegrity PR-2",
+      "Submit PR-2",
+      "Change PR-2 amount and checkPaymentIntegrity again",
+      "getPaymentIntegrityChecks PR-2"
+    ],
+    "expected": "Step 1: finding DUPLICATE blocking; step 2: 409 with a registered code that names the blocking finding; step 4: two check rows, the first unchanged.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-85",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Plan line balance 800,000,000 VND, draft gross 900,000,000 VND; second draft with measured quantity 120 against diary quantity 100.",
+    "steps": [
+      "checkPaymentIntegrity on draft 1",
+      "checkPaymentIntegrity on draft 2"
+    ],
+    "expected": "Draft 1: plan-ceiling blocking, excess 100,000,000 VND; draft 2: site-diary-quantity signal not blocking; both findings show the rule version.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-86",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Draft PR-3 blocked by plan-ceiling excess 100,000,000 VND; rule maximum 14 days; draft PR-4 not blocked.",
+    "steps": [
+      "Request 80,000,000 VND for 7 days",
+      "Request 100,000,000 VND for 30 days",
+      "Request 100,000,000 VND for 7 days",
+      "Request on PR-4"
+    ],
+    "expected": "Steps 1-2: 422 VALIDATION_FAILED; step 3: REQUESTED; step 4: refused with a registered state code and no row written.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-87",
+    "source": "PAY.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Exception E1 requested by R on draft created by C and submitted by S; exception E2 approved but unused.",
+    "steps": [
+      "R approves E1",
+      "C approves E1",
+      "S approves E1",
+      "Independent approver approves E1",
+      "Submit the payment twice",
+      "Revoke E2 and submit its payment"
+    ],
+    "expected": "Steps 1-3: 403 SELF_APPROVAL_DENIED; step 5: first submit passes, second is refused as already used; step 6: refused.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-21"
+    ]
+  },
+  {
+    "id": "UI-PAY-21",
+    "source": "FR-PAY-21",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ngoại lệ vượt trần giải ngân; user có quyền và user chỉ đọc; route PAY-21",
+    "steps": [
+      "Mở PAY-21 từ menu và deep link; kiểm nhãn trường: Đề nghị thanh toán, Hợp đồng, Trần bị vượt, Số tiền tối đa được phép, Hạn hiệu lực, Người xin, Người duyệt, Trạng thái",
+      "Thực hiện thao tác chính theo quy tắc: Ngoại lệ chỉ xin cho đề nghị nháp đang bị chặn bởi trần kế hoạch hoặc trần hợp đồng, có hạn không quá số ngày của quy tắc, số tiền không thấp hơn phần vượt; người duyệt khác người xin, người lập và người gửi đề nghị; dùng một lần; không có ngoại lệ cho giá trị nghiệm thu (G4-2, G4-5)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-21"
+    ],
+    "expected": "Ngoại lệ vượt trần giải ngân: hiển thị đúng 8 trường, áp quy tắc \"Ngoại lệ chỉ xin cho đề nghị nháp đang bị chặn bởi trần kế hoạch hoặc trần hợp đồng, có hạn không quá số ngày của quy tắc, số tiền không thấp hơn phần vượt; người duyệt khác người xin, người lập và người gửi đề nghị; dùng một lần; không có ngoại lệ cho giá trị nghiệm thu (G4-2, G4-5)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-88",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Contract C-9 value 2,000,000,000 VND, advance 600,000,000 VND recovered 0, paid to date 1,500,000,000 VND.",
+    "steps": [
+      "getContractAdvancePosition C-9",
+      "Create the FINAL payment request",
+      "Record recovery of 600,000,000 VND and create the FINAL request again"
+    ],
+    "expected": "Step 1: outstanding 600,000,000, left to pay 500,000,000, excess 100,000,000 VND, alert URGENT; step 2: 409 with a registered final-payment code; step 3: accepted.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-18"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-89",
+    "source": "PAY.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Policy P1 effective 2026-01-01..2026-06-30 (verified), P2 from 2026-07-01 (unverified).",
+    "steps": [
+      "listAdvancePolicy as_of 2026-03-01",
+      "listAdvancePolicy as_of 2026-08-01",
+      "listAdvancePolicy as_of invalid text"
+    ],
+    "expected": "Step 1 returns P1; step 2 returns P2 flagged unverified; step 3: 422 VALIDATION_FAILED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-18"
+    ]
+  },
+  {
+    "id": "UI-PAY-18",
+    "source": "FR-PAY-18",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bảng thu hồi tạm ứng: kế hoạch và thực tế; user có quyền và user chỉ đọc; route PAY-18",
+    "steps": [
+      "Mở PAY-18 từ menu và deep link; kiểm nhãn trường: Đề nghị thanh toán, Lũy kế đề nghị, Kế hoạch thu hồi, Thực tế đã thu hồi, Còn thiếu, Dư nợ tạm ứng, Còn phải thanh toán, Chính sách mức tạm ứng",
+      "Thực hiện thao tác chính theo quy tắc: Dư nợ tạm ứng lớn hơn giá trị còn lại phải thanh toán thì cảnh báo Khẩn; thanh toán cuối bị chặn đến khi thu hồi hết; mức tạm ứng là dữ liệu có hiệu lực theo ngày, số của văn bản chưa kiểm chứng là cấu hình (G1-11)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-18"
+    ],
+    "expected": "Bảng thu hồi tạm ứng: kế hoạch và thực tế: hiển thị đúng 8 trường, áp quy tắc \"Dư nợ tạm ứng lớn hơn giá trị còn lại phải thanh toán thì cảnh báo Khẩn; thanh toán cuối bị chặn đến khi thu hồi hết; mức tạm ứng là dữ liệu có hiệu lực theo ngày, số của văn bản chưa kiểm chứng là cấu hình (G1-11)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-18"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-90",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Project P-1 stage CONCEPT with no plan; project P-2 stage IMPLEMENTATION with plan approved 5,000,000,000 VND.",
+    "steps": [
+      "checkProjectDisbursement P-1",
+      "checkProjectDisbursement P-2",
+      "Create a payment request on P-1"
+    ],
+    "expected": "Step 1: allowed=false, code, cause stage CONCEPT and remedy text; step 2: allowed=true with 5,000,000,000 VND; step 3: 422 with the same code.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-19"
+    ]
+  },
+  {
+    "id": "UI-PAY-19",
+    "source": "FR-PAY-19",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Điều kiện giải ngân của dự án; user có quyền và user chỉ đọc; route PAY-19",
+    "steps": [
+      "Mở PAY-19 từ menu và deep link; kiểm nhãn trường: Giai đoạn dự án, Có trong danh mục dự án đầu tư, Số vốn đã duyệt trên hệ thống, Nguyên nhân từ chối, Cách khắc phục, Cảnh báo thẩm định lại",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ thanh toán cho dự án đã nằm trong danh mục dự án đầu tư và có kế hoạch vốn đã duyệt trên hệ thống; số trên hệ thống thắng giấy tờ; từ chối nêu nguyên nhân và cách khắc phục (G1-2)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-19"
+    ],
+    "expected": "Điều kiện giải ngân của dự án: hiển thị đúng 6 trường, áp quy tắc \"Chỉ thanh toán cho dự án đã nằm trong danh mục dự án đầu tư và có kế hoạch vốn đã duyệt trên hệ thống; số trên hệ thống thắng giấy tờ; từ chối nêu nguyên nhân và cách khắc phục (G1-2)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-91",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Ledger 1,000,000,000 VND against Treasury 940,000,000 VND for P-1 and source NSTW, threshold 10,000,000 VND; 2026-09-05 has no statement.",
+    "steps": [
+      "runTreasuryDailyRecon for the first day",
+      "runTreasuryDailyRecon for 2026-09-05",
+      "Run the first day again"
+    ],
+    "expected": "Step 1: one item, difference 60,000,000 VND, due date in working days; step 2: run state PARTIAL with no line; step 3: same item, no duplicate.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-20"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-92",
+    "source": "PAY.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Item I-1 opened by C, assigned to A, explained by B.",
+    "steps": [
+      "A clears I-1",
+      "B clears I-1",
+      "C clears I-1",
+      "Fourth user clears I-1 with a reason",
+      "Assign I-1 to a user outside the unit scope"
+    ],
+    "expected": "Steps 1-3: 403 SELF_APPROVAL_DENIED; step 4: RESOLVED with reason and history; step 5: 422 or 403 with a registered code.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-20"
+    ]
+  },
+  {
+    "id": "UI-PAY-20",
+    "source": "FR-PAY-20",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đối soát Kho bạc hằng ngày theo dự án và nguồn vốn; user có quyền và user chỉ đọc; route PAY-20",
+    "steps": [
+      "Mở PAY-20 từ menu và deep link; kiểm nhãn trường: Ngày đối soát, Mã dự án, Nguồn vốn, Số theo sổ, Số theo Kho bạc, Chênh lệch, Chủ xử lý, Hạn xử lý, Trạng thái lượt (đủ hay một phần)",
+      "Thực hiện thao tác chính theo quy tắc: Chênh lệch lớn hơn hẳn ngưỡng mới mở mục xử lý có chủ và hạn tính theo ngày làm việc; ngày chưa có sao kê là một phần, không phải không lệch; người xóa chênh lệch không phải chủ, người giải trình hay người mở; ngưỡng là cấu hình chưa xác nhận (G4-4)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-20"
+    ],
+    "expected": "Đối soát Kho bạc hằng ngày theo dự án và nguồn vốn: hiển thị đúng 9 trường, áp quy tắc \"Chênh lệch lớn hơn hẳn ngưỡng mới mở mục xử lý có chủ và hạn tính theo ngày làm việc; ngày chưa có sao kê là một phần, không phải không lệch; người xóa chênh lệch không phải chủ, người giải trình hay người mở; ngưỡng là cấu hình chưa xác nhận (G4-4)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-20"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-93",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Snapshot S-1 totals 10,000,000,000 VND on all three axes; snapshot S-2 project axis 9,999,999,999 VND.",
+    "steps": [
+      "evaluateCrossTotal S-1",
+      "Freeze S-1",
+      "evaluateCrossTotal S-2",
+      "Freeze S-2"
+    ],
+    "expected": "S-1 passes and freezes; S-2 reports dimension PROJECT with a difference of 1 VND and the freeze is refused with 409; two evaluation rows exist.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-26"
+    ]
+  },
+  {
+    "id": "UI-DIS-26",
+    "source": "FR-DIS-26",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kiểm tổng chéo số giải ngân theo đơn vị, nguồn vốn, dự án; user có quyền và user chỉ đọc; route DIS-26",
+    "steps": [
+      "Mở DIS-26 từ menu và deep link; kiểm nhãn trường: Snapshot, Tổng theo đơn vị, Tổng theo nguồn vốn, Tổng theo dự án, Chiều đang lệch, Dự án lệch, Tiền chưa rõ nguồn vốn, Lịch sử các lần kiểm",
+      "Thực hiện thao tác chính theo quy tắc: Ba tổng bằng nhau đến từng đồng thì chỉ tiêu mới được công bố; lệch thì không đóng băng snapshot và màn hình nêu chiều nào lệch (G4-5)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-26"
+    ],
+    "expected": "Kiểm tổng chéo số giải ngân theo đơn vị, nguồn vốn, dự án: hiển thị đúng 8 trường, áp quy tắc \"Ba tổng bằng nhau đến từng đồng thì chỉ tiêu mới được công bố; lệch thì không đóng băng snapshot và màn hình nêu chiều nào lệch (G4-5)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-26"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-94",
+    "source": "HOME.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Reader R with items W1..W5 (W1,W2 URGENT, W3..W5 ACTION); W3 claimed by colleague K.",
+    "steps": [
+      "getMyWorkCounts",
+      "claimWork W1",
+      "claimWork W3"
+    ],
+    "expected": "Step 1: urgent 2, action 3; step 2: owner R and two clocks started; step 3: 409 with a registered code.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-95",
+    "source": "HOME.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Item W6 claimed by A at day 0, re-claim interval 3 working days; item W7 free.",
+    "steps": [
+      "Advance 4 working days and B claims W6",
+      "Assign W7 to a user outside scope",
+      "Assign W7 to an in-scope user with due date"
+    ],
+    "expected": "Step 1: W6 owner B and A claim kept in history; step 2: 403 SCOPE_DENIED; step 3: owner set with the due date.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-96",
+    "source": "HOME.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Clock policy snooze_max_days 5, snooze_max_count 2; item W1 ACTION, item W2 URGENT.",
+    "steps": [
+      "snoozeWork W1 with no reason",
+      "snoozeWork W1 for 9 days",
+      "snoozeWork W1 for 3 days twice then a third time",
+      "snoozeWork W2"
+    ],
+    "expected": "Step 1: 422 VALIDATION_FAILED; step 2: 422 WORK_SNOOZE_TOO_LONG; step 3: first two accepted then 422 WORK_SNOOZE_LIMIT; step 4: 422 WORK_SNOOZE_NOT_ALLOWED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-97",
+    "source": "HOME.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Item W3 with a response clock due day 10; allower L1 holds the right, L2 does not.",
+    "steps": [
+      "pauseWorkClock allower L2",
+      "pauseWorkClock allower L1 for 3 days",
+      "pauseWorkClock again",
+      "resumeWorkClock",
+      "resumeWorkClock again"
+    ],
+    "expected": "Step 1: 422 WORK_CLOCK_ALLOWER_INVALID; step 3: 409 WORK_CLOCK_ALREADY_PAUSED; step 4: due date moved by the paused days; step 5: 409 WORK_CLOCK_NOT_PAUSED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-12"
+    ]
+  },
+  {
+    "id": "UI-HOME-12",
+    "source": "FR-HOME-12",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Việc đang bị hoãn; user có quyền và user chỉ đọc; route HOME-12",
+    "steps": [
+      "Mở HOME-12 từ menu và deep link; kiểm nhãn trường: Việc, Nguồn, Mức, Người hoãn, Hoãn đến, Lý do, Lần hoãn, Hạn xử lý",
+      "Thực hiện thao tác chính theo quy tắc: Danh sách việc đang bị hoãn trong phạm vi quyền: ai hoãn, đến khi nào, vì sao, lần thứ mấy; chính sách hoãn đọc từ cấu hình, không cố định trong giao diện",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HOME-12"
+    ],
+    "expected": "Việc đang bị hoãn: hiển thị đúng 8 trường, áp quy tắc \"Danh sách việc đang bị hoãn trong phạm vi quyền: ai hoãn, đến khi nào, vì sao, lần thứ mấy; chính sách hoãn đọc từ cấu hình, không cố định trong giao diện\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-98",
+    "source": "HOME.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Unit U-1 red from disbursement pace and Serious alerts; unit U-2 missing the pace factor entirely.",
+    "steps": [
+      "getRagReading"
+    ],
+    "expected": "U-1 shows 1-3 factors, coverage percent and previous score; U-2 shows insufficient data, never green; colour is paired with text and icon.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-11"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-99",
+    "source": "HOME.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Unit U-1 red by rule; snapshot week 2026-W36.",
+    "steps": [
+      "setRagOverride with no reason",
+      "setRagOverride expiry in 120 days",
+      "setRagOverride expiry in 60 days",
+      "scoreEarlyWarningWeek twice",
+      "revokeRagOverride before expiry"
+    ],
+    "expected": "Steps 1-2: 422 VALIDATION_FAILED; step 3: stored beside the rule colour; step 4: SCORED then ALREADY_SCORED; step 5: override ended with a recorded reason.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-11"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-100",
+    "source": "HOME.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Week 35 and week 36 snapshots with 12 changed figures and warnings.",
+    "steps": [
+      "getHomeChanges"
+    ],
+    "expected": "Exactly 5 lines ordered by rule, each carries a single deep link, no user names appear.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-11"
+    ]
+  },
+  {
+    "id": "UI-HOME-11",
+    "source": "FR-HOME-11",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Màu xanh vàng đỏ có giải thích; user có quyền và user chỉ đọc; route HOME-11",
+    "steps": [
+      "Mở HOME-11 từ menu và deep link; kiểm nhãn trường: Đơn vị, Màu, Điểm cảnh báo sớm, Vì sao (1 đến 3 yếu tố), Độ bao phủ dữ liệu, Tuần trước, Ghi đè và lý do",
+      "Thực hiện thao tác chính theo quy tắc: Màu do quy tắc quyết định; mỗi màu đi kèm yếu tố làm đổi màu, độ bao phủ dữ liệu và điểm tuần trước; thiếu dữ liệu là chưa đủ dữ liệu, không phải xanh; ghi đè bắt buộc lý do và ngày hết hiệu lực không quá 90 ngày, hiển thị cạnh màu của quy tắc",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HOME-11"
+    ],
+    "expected": "Màu xanh vàng đỏ có giải thích: hiển thị đúng 7 trường, áp quy tắc \"Màu do quy tắc quyết định; mỗi màu đi kèm yếu tố làm đổi màu, độ bao phủ dữ liệu và điểm tuần trước; thiếu dữ liệu là chưa đủ dữ liệu, không phải xanh; ghi đè bắt buộc lý do và ngày hết hiệu lực không quá 90 ngày, hiển thị cạnh màu của quy tắc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-11"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-101",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "KPI DISB_RATE definition v3 certified; unit U-1 snapshot SV-10a rate 62.5 percent.",
+    "steps": [
+      "getKpiRegister",
+      "exportHomeFigures CSV for U-1",
+      "exportHomeFigures XLSX for U-1",
+      "Export for a unit outside scope"
+    ],
+    "expected": "Entry shows v3 with formula and owner; CSV and XLSX both read 62.5 and include the hash; step 4: 403 SCOPE_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-20"
+    ]
+  },
+  {
+    "id": "UI-BI-20",
+    "source": "FR-BI-20",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ chỉ tiêu; user có quyền và user chỉ đọc; route BI-20",
+    "steps": [
+      "Mở BI-20 từ menu và deep link; kiểm nhãn trường: Mã, Tên, Công thức, Tử số, Mẫu số, Không tính, Kỳ, Nguồn, Chủ sở hữu, Độ trễ cho phép, Phiên bản, Chứng nhận",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi chỉ tiêu một định nghĩa, đọc từ quy tắc KPI_DEFINITION của kho quy tắc quản trị; web, điện thoại và tệp Excel dùng cùng định nghĩa và cùng chữ số",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BI-20"
+    ],
+    "expected": "Sổ chỉ tiêu: hiển thị đúng 12 trường, áp quy tắc \"Mỗi chỉ tiêu một định nghĩa, đọc từ quy tắc KPI_DEFINITION của kho quy tắc quản trị; web, điện thoại và tệp Excel dùng cùng định nghĩa và cùng chữ số\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-20"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-102",
+    "source": "BI.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "KPI X in DRAFT, confirmed by A; HOME shows NOT_CERTIFIED flag.",
+    "steps": [
+      "A certifies X",
+      "B certifies X",
+      "Read the HOME figure",
+      "Change the definition of X",
+      "Read the HOME figure again"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: CERTIFIED with a log row; step 3: figure present; step 4-5: NOT_CERTIFIED flag with no zero value.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-103",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Dataset DS-DISB CERTIFIED.",
+    "steps": [
+      "Return to DRAFT with no reason",
+      "Return to DRAFT with a reason",
+      "Mark STALE from DRAFT",
+      "getAnalyticsCertificationLog"
+    ],
+    "expected": "Step 1: 422 VALIDATION_FAILED; step 2: DRAFT; step 3: 409 STAGE_TRANSITION_DENIED; step 4: three entries with actor and reason.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-19"
+    ]
+  },
+  {
+    "id": "UI-BI-19",
+    "source": "FR-BI-19",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chứng nhận chỉ tiêu và bộ dữ liệu; user có quyền và user chỉ đọc; route BI-19",
+    "steps": [
+      "Mở BI-19 từ menu và deep link; kiểm nhãn trường: Loại, Mã, Phiên bản, Trạng thái (Nháp, Đã xác nhận, Đã chứng nhận, Lỗi thời), Người xác nhận, Người chứng nhận, Ngày, Ghi chú",
+      "Thực hiện thao tác chính theo quy tắc: Người chứng nhận khác người xác nhận; đưa về Nháp hoặc Lỗi thời phải có lý do; dashboard lãnh đạo và trung tâm điều hành chỉ dùng số đã chứng nhận; đổi định nghĩa phải chứng nhận lại; metric dùng luồng đề nghị phát hành của BI",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BI-19"
+    ],
+    "expected": "Chứng nhận chỉ tiêu và bộ dữ liệu: hiển thị đúng 8 trường, áp quy tắc \"Người chứng nhận khác người xác nhận; đưa về Nháp hoặc Lỗi thời phải có lý do; dashboard lãnh đạo và trung tâm điều hành chỉ dùng số đã chứng nhận; đổi định nghĩa phải chứng nhận lại; metric dùng luồng đề nghị phát hành của BI\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-104",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Contract C-5 current price 10,000,000,000 VND; change CO-1 pending 1,000,000,000 VND; requests 9,500,000,000 VND; advance 500,000,000 VND.",
+    "steps": [
+      "getContractAvailability C-5",
+      "Create a payment request that would take cumulative requests to 10,200,000,000 VND",
+      "getContractAvailability for a contract in another tenant"
+    ],
+    "expected": "Step 1: all figures with as_of and CO-1 against its funding line; step 2: 409 VALUE_EXCEEDED; step 3: 404 with no disclosure.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-105",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Project P-7 EAC 120,000,000,000 VND, approved total 110,000,000,000 VND; project P-8 with no accepted quantity yet.",
+    "steps": [
+      "getProjectEacControl P-7",
+      "getProjectEacControl P-8"
+    ],
+    "expected": "P-7: excess 10,000,000,000 VND, URGENT alert once, method and rule version shown; P-8: insufficient data reason and no zero excess.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-22"
+    ]
+  },
+  {
+    "id": "UI-CAP-22",
+    "source": "FR-CAP-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kiểm soát vốn theo hợp đồng và dự báo hoàn thành; user có quyền và user chỉ đọc; route CAP-22",
+    "steps": [
+      "Mở CAP-22 từ menu và deep link; kiểm nhãn trường: Giá hiện hành, Tăng giá chờ hiệu lực, Đã đề nghị thanh toán, Dư nợ tạm ứng, Còn phải thanh toán, Dòng vốn, Lệnh thay đổi so với dòng vốn, Dự báo hoàn thành, Tổng mức đầu tư đã duyệt, Khoảng trống vốn",
+      "Thực hiện thao tác chính theo quy tắc: Lũy kế thanh toán không vượt giá hiện hành; cam kết không vượt vốn khả dụng; dự báo hoàn thành vượt tổng mức đầu tư đã duyệt thì cảnh báo Khẩn (G1-6)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-22"
+    ],
+    "expected": "Kiểm soát vốn theo hợp đồng và dự báo hoàn thành: hiển thị đúng 10 trường, áp quy tắc \"Lũy kế thanh toán không vượt giá hiện hành; cam kết không vượt vốn khả dụng; dự báo hoàn thành vượt tổng mức đầu tư đã duyệt thì cảnh báo Khẩn (G1-6)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-106",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Fund F-1 CONTINGENCY balance 500,000,000 VND; risk R-3 open.",
+    "steps": [
+      "requestReserveDrawdown 600,000,000 VND on R-3",
+      "requestReserveDrawdown 100,000,000 VND with no link",
+      "requestReserveDrawdown 100,000,000 VND on R-3",
+      "Requester decides the request"
+    ],
+    "expected": "Step 1: 422 RESERVE_BALANCE_INSUFFICIENT; step 2: 422 RESERVE_LINK_REQUIRED; step 3: REQUESTED; step 4: 403 SELF_APPROVAL_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-107",
+    "source": "PRJ.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Risks R-3 (p 0.5, cost 800,000,000 VND) and R-4 (p 0.75, cost 400,000,000 VND); fund balance 500,000,000 VND.",
+    "steps": [
+      "setRiskExposure on R-3 and R-4",
+      "getProjectReserve",
+      "Approve a drawdown of 100,000,000 VND by an independent approver",
+      "Direct SQL UPDATE of a ledger row"
+    ],
+    "expected": "Step 2: expected 700,000,000 VND, shortfall 200,000,000 VND, warning; step 3: contingency 400,000,000 VND, management reserve unchanged; step 4: rejected by the database.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-22"
+    ]
+  },
+  {
+    "id": "UI-PRJ-22",
+    "source": "FR-PRJ-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ dự phòng và dự trữ quản lý; user có quyền và user chỉ đọc; route PRJ-22",
+    "steps": [
+      "Mở PRJ-22 từ menu và deep link; kiểm nhãn trường: Quỹ, Số dư, Sổ cái, Rủi ro mở, Xác suất, Chi phí nếu xảy ra, Giá trị kỳ vọng, Độ phủ, Đề nghị rút, Người duyệt",
+      "Thực hiện thao tác chính theo quy tắc: Hai quỹ tách bạch; mỗi lần rút gắn một rủi ro hoặc một lệnh thay đổi; người duyệt khác người đề nghị; sổ cái bất biến; cảnh báo khi dự phòng thấp hơn giá trị kỳ vọng của rủi ro mở (G1-7)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-22"
+    ],
+    "expected": "Sổ dự phòng và dự trữ quản lý: hiển thị đúng 10 trường, áp quy tắc \"Hai quỹ tách bạch; mỗi lần rút gắn một rủi ro hoặc một lệnh thay đổi; người duyệt khác người đề nghị; sổ cái bất biến; cảnh báo khi dự phòng thấp hơn giá trị kỳ vọng của rủi ro mở (G1-7)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-108",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Project P-1 with WBS and dates; project P-2 without a WBS.",
+    "steps": [
+      "captureProjectBaseline P-1",
+      "captureProjectBaseline P-1 again",
+      "captureProjectBaseline P-2"
+    ],
+    "expected": "Step 1: version 0 with line count and BAC; step 2: 409 BASELINE_ALREADY_TAKEN; step 3: 422 BASELINE_NO_WBS.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-26"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-109",
+    "source": "PRJ.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Milestone M-1 moved 3 times by user U; deviation 18 percent against threshold 10 percent.",
+    "steps": [
+      "getProjectBaseline",
+      "U decides the re-appraisal request",
+      "Independent approver decides it",
+      "Audit acknowledges the governance alert with a note"
+    ],
+    "expected": "Step 1: reschedule count 3, alert present, request open; step 2: 403 SELF_APPROVAL_DENIED; step 3: decided; step 4: acknowledged with the note stored.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-26"
+    ]
+  },
+  {
+    "id": "UI-PRJ-26",
+    "source": "FR-PRJ-26",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đường cơ sở, độ lệch và số lần dời mốc; user có quyền và user chỉ đọc; route PRJ-26",
+    "steps": [
+      "Mở PRJ-26 từ menu và deep link; kiểm nhãn trường: Phiên bản đường cơ sở, Tổng mức đầu tư v0 và hiện hành, Độ lệch chi phí, Độ lệch ngày hoàn thành, Số lần dời mốc, Cảnh báo gửi kiểm toán, Yêu cầu thẩm định lại, Ngưỡng và phiên bản quy tắc",
+      "Thực hiện thao tác chính theo quy tắc: Đường cơ sở v0 chụp một lần và bất biến; độ lệch luôn đo từ v0; mốc dời từ ba lần trở lên báo kiểm toán; độ lệch vượt ngưỡng thì yêu cầu thẩm định lại, người quyết định khác người gây ra thay đổi; ngưỡng đọc từ quy tắc quản trị BASELINE_DEVIATION (G1-3)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-26"
+    ],
+    "expected": "Đường cơ sở, độ lệch và số lần dời mốc: hiển thị đúng 8 trường, áp quy tắc \"Đường cơ sở v0 chụp một lần và bất biến; độ lệch luôn đo từ v0; mốc dời từ ba lần trở lên báo kiểm toán; độ lệch vượt ngưỡng thì yêu cầu thẩm định lại, người quyết định khác người gây ra thay đổi; ngưỡng đọc từ quy tắc quản trị BASELINE_DEVIATION (G1-3)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-26"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-110",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Project P-1: accepted 4,000,000,000 VND, confirmed paid 4,400,000,000 VND, PV 5,000,000,000 VND; project P-2 without acceptance.",
+    "steps": [
+      "getProjectEvm P-1 as_of today",
+      "getProjectEvm P-2",
+      "getProjectEvm with an invalid as_of"
+    ],
+    "expected": "Step 1: EV 4,000,000,000, AC 4,400,000,000, PV 5,000,000,000 VND, CPI and SPI from them; step 2: insufficient data reason; step 3: 422 VALIDATION_FAILED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-111",
+    "source": "PRJ.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Period 2026-08 closed with snapshot SV-8; contract C-3 and package PK-1.",
+    "steps": [
+      "linkContractComponent C-3 to PK-1",
+      "linkContractComponent again",
+      "getProjectSCurve snapshot_id SV-8",
+      "exportProjectSCurve"
+    ],
+    "expected": "Step 2: 409 COMPONENT_CONTRACT_UNCHANGED; step 3: values equal to SV-8; step 4: file figures equal step 3 with as-of date and hash.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-27"
+    ]
+  },
+  {
+    "id": "UI-PRJ-27",
+    "source": "FR-PRJ-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Giá trị thu được (EVM) và đường S; user có quyền và user chỉ đọc; route PRJ-27",
+    "steps": [
+      "Mở PRJ-27 từ menu và deep link; kiểm nhãn trường: Xem tại ngày, PV, EV, AC, CPI, SPI, EAC, Công thức EAC, Đường S kế hoạch v0, hiện hành, thực tế, Hợp đồng gánh từng gói, Xuất Excel",
+      "Thực hiện thao tác chính theo quy tắc: EV chỉ từ khối lượng đã nghiệm thu, AC chỉ từ thanh toán đã xác nhận; chưa đủ dữ liệu thì nêu lý do, không ghi bằng không; kỳ đã đóng đọc kết quả đóng băng cùng bản chụp DIS; công thức EAC theo quy tắc EVM_POLICY (G1-4, G1-5)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-27"
+    ],
+    "expected": "Giá trị thu được (EVM) và đường S: hiển thị đúng 11 trường, áp quy tắc \"EV chỉ từ khối lượng đã nghiệm thu, AC chỉ từ thanh toán đã xác nhận; chưa đủ dữ liệu thì nêu lý do, không ghi bằng không; kỳ đã đóng đọc kết quả đóng băng cùng bản chụp DIS; công thức EAC theo quy tắc EVM_POLICY (G1-4, G1-5)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-112",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Appraisal A-1 DRAFT, discount rate 8 percent, cash flows -1000, 300, 400, 500, 600 (millions VND); input discount_rate has no source.",
+    "steps": [
+      "runInvestmentAppraisal A-1",
+      "submitInvestmentAppraisal A-1",
+      "Add the source and responsible person then submit"
+    ],
+    "expected": "Step 1: NPV and IRR from the server with result_hash and formula_version, no user-typed result; step 2: 422 APPRAISAL_ASSUMPTION_MISSING; step 3: SUBMITTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-113",
+    "source": "PRJ.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Dossier A-2 created by A, edited by B, submitted by C; a later input edit makes the run stale.",
+    "steps": [
+      "A approves",
+      "B approves",
+      "C approves",
+      "Independent approver approves with a stale run",
+      "Re-run, resubmit and approve",
+      "Edit the approved dossier"
+    ],
+    "expected": "Steps 1-3: 403 SELF_APPROVAL_DENIED; step 4: 409 APPRAISAL_RESULTS_STALE; step 5: APPROVED with a frozen hash; step 6: 409 APPRAISAL_STATE_INVALID and createInvestmentAppraisal makes a new revision.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-24"
+    ]
+  },
+  {
+    "id": "UI-PRJ-24",
+    "source": "FR-PRJ-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bàn thẩm định hiệu quả đầu tư; user có quyền và user chỉ đọc; route PRJ-24",
+    "steps": [
+      "Mở PRJ-24 từ menu và deep link; kiểm nhãn trường: Tham số (kỳ, tỷ lệ chiết khấu, quy ước giữa kỳ hay cuối kỳ), Dòng tiền theo kỳ (lợi ích, vốn đầu tư, vận hành, bảo trì, giá trị thu hồi), ĐVT, Giả định: nguồn và người chịu trách nhiệm, Kịch bản cơ sở, thuận lợi, bất lợi, NPV, IRR, Hoàn vốn và hoàn vốn có chiết khấu, Tỷ số lợi ích trên chi phí, Tổng chi phí sở hữu, Độ nhạy một chiều và hai chiều, Biểu đồ tornado, Giá trị chuyển đổi, Tiêu chí phi tài chính, Công thức và mã băm kết quả, Xuất công thức và dữ liệu vào Excel",
+      "Thực hiện thao tác chính theo quy tắc: Máy chủ tính bằng mô-đun công thức đã kiểm chứng (số thập phân chính xác, không dùng số thực cho tiền); người dùng không nhập kết quả; trợ lý AI chỉ giải thích kết quả, không tạo ra đầu vào; mọi đầu vào có nguồn và người chịu trách nhiệm trước khi trình; kết quả đóng băng cùng mã băm và phiên bản công thức khi duyệt; người duyệt khác người lập, người sửa và người trình; trọng số tiêu chí phi tài chính là quy tắc FIN_CRITERIA của nền tảng quản trị (đề xuất rồi duyệt bởi người khác, bộ mặc định chưa kiểm chứng) (AI.06, KT.02)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-24"
+    ],
+    "expected": "Bàn thẩm định hiệu quả đầu tư: hiển thị đúng 16 trường, áp quy tắc \"Máy chủ tính bằng mô-đun công thức đã kiểm chứng (số thập phân chính xác, không dùng số thực cho tiền); người dùng không nhập kết quả; trợ lý AI chỉ giải thích kết quả, không tạo ra đầu vào; mọi đầu vào có nguồn và người chịu trách nhiệm trước khi trình; kết quả đóng băng cùng mã băm và phiên bản công thức khi duyệt; người duyệt khác người lập, người sửa và người trình; trọng số tiêu chí phi tài chính là quy tắc FIN_CRITERIA của nền tảng quản trị (đề xuất rồi duyệt bởi người khác, bộ mặc định chưa kiểm chứng) (AI.06, KT.02)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-114",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Dossier A-3 APPROVED (unit U-1), A-4 DRAFT (unit U-1), A-5 (unit U-2).",
+    "steps": [
+      "listInvestmentAppraisals as a U-1 reader",
+      "getInvestmentAppraisal A-3",
+      "getInvestmentAppraisal A-4",
+      "getInvestmentAppraisal A-5"
+    ],
+    "expected": "Step 1: A-3 and A-4 only; step 2: frozen true with hash; step 3: provisional label; step 4: 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-23"
+    ]
+  },
+  {
+    "id": "UI-PRJ-23",
+    "source": "FR-PRJ-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Thẩm định hiệu quả đầu tư; user có quyền và user chỉ đọc; route PRJ-23",
+    "steps": [
+      "Mở PRJ-23 từ menu và deep link; kiểm nhãn trường: Mã hồ sơ, Tên hồ sơ, Loại, Dự án, gói thầu, hợp đồng, Trạng thái, Phiên bản, NPV kịch bản cơ sở, IRR, Thời gian hoàn vốn, Người lập, Người duyệt",
+      "Thực hiện thao tác chính theo quy tắc: Danh sách theo phạm vi đơn vị của người xem; hồ sơ đã duyệt chỉ đọc, sửa bằng phiên bản mới; số liệu lấy từ kết quả đã đóng băng khi duyệt, không tính lại ở màn hình (AI.06)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-23"
+    ],
+    "expected": "Thẩm định hiệu quả đầu tư: hiển thị đúng 11 trường, áp quy tắc \"Danh sách theo phạm vi đơn vị của người xem; hồ sơ đã duyệt chỉ đọc, sửa bằng phiên bản mới; số liệu lấy từ kết quả đã đóng băng khi duyệt, không tính lại ở màn hình (AI.06)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-23"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-115",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Contract C-1 original 10,000,000,000 VND; approved changes 1,400,000,000 VND; new change CO-9 increase 200,000,000 VND; thresholds tier 2 at 5 percent, tier 3 at 15 percent.",
+    "steps": [
+      "getChangeTier CO-9",
+      "Approve CO-9",
+      "Approve CO-9 after the check but without a funding source"
+    ],
+    "expected": "Step 1: tier 3, cumulative 16 percent; step 2: 422 PROJECT_ADJUSTMENT_CHECK_REQUIRED; step 3: 422 CHANGE_FUNDING_REQUIRED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-116",
+    "source": "CTR.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "CO-9 tier 3 prepared by M; CO-2 tier 1.",
+    "steps": [
+      "M clears the check on CO-9",
+      "Independent person clears with no document",
+      "Independent person clears with the document",
+      "Clear the check on CO-2"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: 422 DECISION_DOCUMENT_REQUIRED; step 3: CLEARED; step 4: 409 ADJUSTMENT_CHECK_NOT_REQUIRED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-27"
+    ]
+  },
+  {
+    "id": "UI-CTR-27",
+    "source": "FR-CTR-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bậc của lệnh thay đổi và kiểm tra điều chỉnh dự án; user có quyền và user chỉ đọc; route CTR-27",
+    "steps": [
+      "Mở CTR-27 từ menu và deep link; kiểm nhãn trường: Bậc, Biến động cộng dồn, Giá trị trình cấp ủy quyền, Nguồn chi trả, Kiểm tra điều chỉnh dự án, Người hoàn tất, Văn bản",
+      "Thực hiện thao tác chính theo quy tắc: Bậc 1, 2, 3 theo ngưỡng cấu hình và % cộng dồn so với giá gốc; cộng dồn đạt ngưỡng bắt buộc kiểm tra điều chỉnh dự án; phần tăng giá cần nguồn dự phòng đã duyệt hoặc điều chỉnh dự án; người lập khác người duyệt (G1-8)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-27"
+    ],
+    "expected": "Bậc của lệnh thay đổi và kiểm tra điều chỉnh dự án: hiển thị đúng 7 trường, áp quy tắc \"Bậc 1, 2, 3 theo ngưỡng cấu hình và % cộng dồn so với giá gốc; cộng dồn đạt ngưỡng bắt buộc kiểm tra điều chỉnh dự án; phần tăng giá cần nguồn dự phòng đã duyệt hoặc điều chỉnh dự án; người lập khác người duyệt (G1-8)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-117",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "40 contracts, 12 with status EXECUTING; reader R without contract.analytics ledger.read; guest contractor G.",
+    "steps": [
+      "getContractPortfolio status=EXECUTING page 1",
+      "getContractPortfolio page 2",
+      "R reads ledger columns",
+      "G reads the portfolio"
+    ],
+    "expected": "Totals equal the sum of the 12 filtered rows on both pages; step 3: ledger columns absent, not zero; step 4: 403 SCOPE_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-28",
+      "FR-CTR-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-118",
+    "source": "CTR.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Snapshot SN-1 of 2026-08 on dataset version 3; version 4 published afterwards.",
+    "steps": [
+      "listContractFactSnapshots period 2026-08",
+      "getContractPortfolio snapshot_id SN-1"
+    ],
+    "expected": "SN-1 flagged old with version 3 and the newer version 4 named; portfolio figures equal the values stored in SN-1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-28",
+      "FR-CTR-29"
+    ]
+  },
+  {
+    "id": "UI-CTR-28",
+    "source": "FR-CTR-28",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Trung tâm báo cáo phân tích hợp đồng; user có quyền và user chỉ đọc; route CTR-28",
+    "steps": [
+      "Mở CTR-28 từ menu và deep link; kiểm nhãn trường: Báo cáo R1 đến R7 và R14, Kỳ hoặc ngày số liệu, Ngày chốt, Độ mới của bản chốt, Tệp xuất (Excel, CSV, PDF)",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi báo cáo có công thức, nguồn và thời điểm; số cộng được là tổng của các dòng, tỷ lệ là tỷ lệ của các tổng; cột sổ cái cần ledger.read; số liệu chốt ghi phiên bản của kỳ và báo cũ khi kỳ có phiên bản mới hơn (CA-1, R17)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-28"
+    ],
+    "expected": "Trung tâm báo cáo phân tích hợp đồng: hiển thị đúng 5 trường, áp quy tắc \"Mỗi báo cáo có công thức, nguồn và thời điểm; số cộng được là tổng của các dòng, tỷ lệ là tỷ lệ của các tổng; cột sổ cái cần ledger.read; số liệu chốt ghi phiên bản của kỳ và báo cũ khi kỳ có phiên bản mới hơn (CA-1, R17)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-28"
+    ]
+  },
+  {
+    "id": "UI-CTR-29",
+    "source": "FR-CTR-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Danh mục và trạng thái hợp đồng (phân tích); user có quyền và user chỉ đọc; route CTR-29",
+    "steps": [
+      "Mở CTR-29 từ menu và deep link; kiểm nhãn trường: Mã hợp đồng, Dự án, Nhà thầu, Trạng thái, Giá trị hiện hành, Tăng trưởng do thay đổi, Đã nghiệm thu, Đã thanh toán, Ngày trễ, Sức khỏe",
+      "Thực hiện thao tác chính theo quy tắc: Lọc, sắp, phân trang và dòng tổng do máy chủ tính từ cùng các dòng; nhà thầu khách không xem; số sổ cái ẩn khi không có ledger.read, không ghi bằng không; sức khỏe là xanh, vàng, đỏ theo quy tắc CONTRACT_HEALTH_RAG (CA-1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-29"
+    ],
+    "expected": "Danh mục và trạng thái hợp đồng (phân tích): hiển thị đúng 10 trường, áp quy tắc \"Lọc, sắp, phân trang và dòng tổng do máy chủ tính từ cùng các dòng; nhà thầu khách không xem; số sổ cái ẩn khi không có ledger.read, không ghi bằng không; sức khỏe là xanh, vàng, đỏ theo quy tắc CONTRACT_HEALTH_RAG (CA-1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-119",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contracts K1 (award 1,000, signed 1,050), K2 (2,000, 1,900), K3 (no award price) in millions VND.",
+    "steps": [
+      "getContractReport bid-variance"
+    ],
+    "expected": "K1 +5 percent, K2 -5 percent, total (2,950 - 3,000) over 3,000 = -1.67 percent over K1 and K2 only; K3 shows the reason and no number.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-30",
+      "FR-CTR-31"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-120",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contracts totalling 100 with shares 60, 25, 15 percent; unit U-9 with 2 contracts and minimum 5; row cap 10,000.",
+    "steps": [
+      "getContractReport contractor-concentration",
+      "exportContractReport xlsx, csv and pdf",
+      "Export a report with 20,000 rows"
+    ],
+    "expected": "Step 1: HHI 4,450 and top-1 60 percent; U-9 insufficient data; step 2: three files with formula, source and hash; step 3: 422 EXPORT_ROW_CAP_EXCEEDED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-30",
+      "FR-CTR-31"
+    ]
+  },
+  {
+    "id": "UI-CTR-30",
+    "source": "FR-CTR-30",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chênh lệch giá trúng thầu và giá hợp đồng; user có quyền và user chỉ đọc; route CTR-30",
+    "steps": [
+      "Mở CTR-30 từ menu và deep link; kiểm nhãn trường: Mã hợp đồng, Giá trúng thầu, Giá ký ban đầu, Chênh lệch, Chênh lệch (%), Số nhà thầu dự thầu",
+      "Thực hiện thao tác chính theo quy tắc: Chênh lệch = (giá ký ban đầu - giá trúng) / giá trúng; tổng là tỷ lệ của các tổng trên các hợp đồng có giá trúng; hợp đồng không có giá trúng thì không có số và nêu lý do (CA-1, R1)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-30"
+    ],
+    "expected": "Chênh lệch giá trúng thầu và giá hợp đồng: hiển thị đúng 6 trường, áp quy tắc \"Chênh lệch = (giá ký ban đầu - giá trúng) / giá trúng; tổng là tỷ lệ của các tổng trên các hợp đồng có giá trúng; hợp đồng không có giá trúng thì không có số và nêu lý do (CA-1, R1)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-30"
+    ]
+  },
+  {
+    "id": "UI-CTR-31",
+    "source": "FR-CTR-31",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tập trung và tải của nhà thầu; user có quyền và user chỉ đọc; route CTR-31",
+    "steps": [
+      "Mở CTR-31 từ menu và deep link; kiểm nhãn trường: Top N nhà thầu, Chỉ số HHI, Tỷ lệ gói một nhà thầu, Giá trị đang thực hiện, Giá trị đã trúng chưa ký",
+      "Thực hiện thao tác chính theo quy tắc: Top N và HHI theo chủ đầu tư, đơn vị, nguồn vốn, nhà thầu trên giá trị hợp đồng đang hiệu lực, liên danh chia theo tỷ lệ góp; ngưỡng theo quy tắc CONTRACT_CONCENTRATION (chưa kiểm chứng); dưới số hợp đồng tối thiểu thì ghi chưa đủ dữ liệu (CA-1, R14)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-31"
+    ],
+    "expected": "Tập trung và tải của nhà thầu: hiển thị đúng 5 trường, áp quy tắc \"Top N và HHI theo chủ đầu tư, đơn vị, nguồn vốn, nhà thầu trên giá trị hợp đồng đang hiệu lực, liên danh chia theo tỷ lệ góp; ngưỡng theo quy tắc CONTRACT_CONCENTRATION (chưa kiểm chứng); dưới số hợp đồng tối thiểu thì ghi chưa đủ dữ liệu (CA-1, R14)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-31"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-121",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "External code EXT-1 mapped to our package PK-1 ACTIVE; contractor with tax id 0101234567 and a similar name.",
+    "steps": [
+      "Create a second ACTIVE mapping for EXT-1",
+      "Match a contractor by name only",
+      "Confirm a name suggestion with the same price"
+    ],
+    "expected": "Step 1: 409 CROSSWALK_DUPLICATE; step 2: not matched, shown as a difference; step 3: matched only after a person confirmation recorded.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-22",
+      "FR-BID-23",
+      "FR-BID-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-122",
+    "source": "BID.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Plan file F-1 with 10 rows (1 invalid, 1 conflict, 1 duplicate), file layout flagged PENDING-EXTERNAL.",
+    "steps": [
+      "Dry run F-1",
+      "Apply F-1",
+      "Apply F-1 again",
+      "Check the outbound network log"
+    ],
+    "expected": "Step 1: zero rows written; step 2: 7 rows applied, error report lists the invalid row with code and field, conflict refused, duplicate skipped; step 3: already loaded; step 4: no outbound call.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-22",
+      "FR-BID-23",
+      "FR-BID-24"
+    ]
+  },
+  {
+    "id": "UI-BID-22",
+    "source": "FR-BID-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kết nối hệ thống mạng đấu thầu quốc gia; user có quyền và user chỉ đọc; route BID-22",
+    "steps": [
+      "Mở BID-22 từ menu và deep link; kiểm nhãn trường: Mã kết nối (egp.muasamcong), Trạng thái adapter, Chế độ (nhập tệp), Phiên bản mẫu tệp, Lần nhập gần nhất, Độ tuổi dữ liệu, Độ mới theo quy tắc, Hạng mục chờ bên ngoài",
+      "Thực hiện thao tác chính theo quy tắc: Adapter PROPOSED, mẫu tệp là giả định (WORKING-ASSUMPTION-2026.2) nên mọi thứ dựng trên đó ghi PENDING-EXTERNAL; kết nối ở trạng thái Draft cho đến khi adapter VERIFIED; không có lời gọi nào ra hệ thống mạng đấu thầu quốc gia; số liệu quá cũ hiện là cũ (CONNECTOR_STALE), không hiện là không có dữ liệu",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-22"
+    ],
+    "expected": "Kết nối hệ thống mạng đấu thầu quốc gia: hiển thị đúng 8 trường, áp quy tắc \"Adapter PROPOSED, mẫu tệp là giả định (WORKING-ASSUMPTION-2026.2) nên mọi thứ dựng trên đó ghi PENDING-EXTERNAL; kết nối ở trạng thái Draft cho đến khi adapter VERIFIED; không có lời gọi nào ra hệ thống mạng đấu thầu quốc gia; số liệu quá cũ hiện là cũ (CONNECTOR_STALE), không hiện là không có dữ liệu\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-22"
+    ]
+  },
+  {
+    "id": "UI-BID-23",
+    "source": "FR-BID-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ánh xạ mã hệ thống mạng đấu thầu quốc gia; user có quyền và user chỉ đọc; route BID-23",
+    "steps": [
+      "Mở BID-23 từ menu và deep link; kiểm nhãn trường: Loại đối tượng, Mã của ta, Mã trên hệ thống mạng, Cách khớp, Độ tin cậy, Hiệu lực từ-đến, Trạng thái, Gợi ý chờ xác nhận",
+      "Thực hiện thao tác chính theo quy tắc: Mở rộng bảng master_crosswalk, không có bảng mới; mỗi mã ngoài chỉ một ánh xạ ACTIVE (CROSSWALK_DUPLICATE); hệ thống không tự nối theo tên: gợi ý theo tên cần cùng giá và do người xác nhận, nhà thầu chỉ khớp theo mã số thuế; đối tượng đã nối mã khác không bị nối lại mà thành chênh lệch",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-23"
+    ],
+    "expected": "Ánh xạ mã hệ thống mạng đấu thầu quốc gia: hiển thị đúng 8 trường, áp quy tắc \"Mở rộng bảng master_crosswalk, không có bảng mới; mỗi mã ngoài chỉ một ánh xạ ACTIVE (CROSSWALK_DUPLICATE); hệ thống không tự nối theo tên: gợi ý theo tên cần cùng giá và do người xác nhận, nhà thầu chỉ khớp theo mã số thuế; đối tượng đã nối mã khác không bị nối lại mà thành chênh lệch\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-23"
+    ]
+  },
+  {
+    "id": "UI-BID-24",
+    "source": "FR-BID-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Các lần nhập tệp từ hệ thống mạng đấu thầu quốc gia; user có quyền và user chỉ đọc; route BID-24",
+    "steps": [
+      "Mở BID-24 từ menu và deep link; kiểm nhãn trường: Loại tệp (KHLCNT, TBMT, kết quả, nhà thầu, danh sách cấm), Phiên bản mẫu, Băm tệp, Chế độ (chạy thử/áp dụng), Dòng hợp lệ, Dòng lỗi (mã, trường), Dòng trùng và xung đột, Người nạp, Thời điểm, Chênh lệch đang mở",
+      "Thực hiện thao tác chính theo quy tắc: Chạy thử không ghi gì (BR-BID-13); áp dụng một lần theo băm tệp, nạp lại trả đã nạp; dòng lỗi vào báo cáo và không làm hỏng cả tệp; dòng trùng bỏ qua, dòng xung đột bị từ chối; mẫu tệp là giả định nên PENDING-EXTERNAL",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-24"
+    ],
+    "expected": "Các lần nhập tệp từ hệ thống mạng đấu thầu quốc gia: hiển thị đúng 10 trường, áp quy tắc \"Chạy thử không ghi gì (BR-BID-13); áp dụng một lần theo băm tệp, nạp lại trả đã nạp; dòng lỗi vào báo cáo và không làm hỏng cả tệp; dòng trùng bỏ qua, dòng xung đột bị từ chối; mẫu tệp là giả định nên PENDING-EXTERNAL\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-123",
+    "source": "BID.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Definition v1 effective; v2 drafted by A; package PK-1 started on v1.",
+    "steps": [
+      "A approves v2",
+      "Independent approver approves v2",
+      "Read the workflow of PK-1"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: v2 APPROVED; step 3: PK-1 still on v1 definition.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-31"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-124",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Packages PK-2 (DRAFT), PK-3 (workflow running), PK-4 (method with no definition), PK-5 (valid).",
+    "steps": [
+      "startPackageWorkflow PK-2",
+      "startPackageWorkflow PK-3",
+      "startPackageWorkflow PK-4",
+      "startPackageWorkflow PK-5"
+    ],
+    "expected": "Step 1: 409 PACKAGE_STATE_INVALID; step 2: 409 WORKFLOW_ALREADY_RUNNING; step 3: 422 PACKAGE_WORKFLOW_METHOD_UNSUPPORTED; step 4: at step 1 with frozen definition version.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-31"
+    ]
+  },
+  {
+    "id": "UI-BID-31",
+    "source": "FR-BID-31",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Định nghĩa quy trình lựa chọn nhà thầu; user có quyền và user chỉ đọc; route BID-31",
+    "steps": [
+      "Mở BID-31 từ menu và deep link; kiểm nhãn trường: Hình thức lựa chọn nhà thầu, Các bước (mã, tên, điều kiện vào, điều kiện ra, vai trò chịu trách nhiệm, số ngày làm việc chuẩn, loại bằng chứng, người duyệt khác người lập), Danh mục kiểm của bước (bắt buộc hoặc tùy chọn, vai trò, hạn so với ngày vào bước, bằng chứng), Các phiên bản (nháp, trình, duyệt, ngưng) và so sánh, Cờ chưa kiểm chứng và nguồn",
+      "Thực hiện thao tác chính theo quy tắc: Định nghĩa là dữ liệu quy tắc PROCUREMENT_WORKFLOW có phiên bản, người soạn khác người duyệt; gói đã bắt đầu giữ bản đã đóng băng; số ngày và thứ tự mặc định theo Luật Đấu thầu 22/2023/QH15 là giá trị khởi điểm chưa kiểm chứng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-31"
+    ],
+    "expected": "Định nghĩa quy trình lựa chọn nhà thầu: hiển thị đúng 5 trường, áp quy tắc \"Định nghĩa là dữ liệu quy tắc PROCUREMENT_WORKFLOW có phiên bản, người soạn khác người duyệt; gói đã bắt đầu giữ bản đã đóng băng; số ngày và thứ tự mặc định theo Luật Đấu thầu 22/2023/QH15 là giá trị khởi điểm chưa kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-31"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-125",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Package PK-1 at step TECHNICAL_REVIEW with required items I1 and I2.",
+    "steps": [
+      "advancePackageStep",
+      "completePackageChecklistItem I1 without evidence",
+      "completePackageChecklistItem I1 and I2 with evidence",
+      "advancePackageStep"
+    ],
+    "expected": "Step 1: 409 PACKAGE_WORKFLOW_BLOCKED; step 2: 422 CHECKLIST_EVIDENCE_REQUIRED; step 4: at the next step with a history row.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-126",
+    "source": "BID.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Step APPROVAL is maker-checker; item completed by A; item I3 still open.",
+    "steps": [
+      "A advances the package",
+      "A requests an exception for I3",
+      "A decides the exception",
+      "Independent approver approves the exception",
+      "Another person advances the package"
+    ],
+    "expected": "Step 1: 409 WORKFLOW_MAKER_IS_APPROVER; step 3: 403 SELF_APPROVAL_DENIED; step 4: exception APPROVED; step 5: moved with the exception reason in history.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-127",
+    "source": "BID.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Package PK-6 with 3 moves, a hold of 4 days and a return in 20 days.",
+    "steps": [
+      "getPackageWorkflowTimeline all",
+      "getPackageWorkflowTimeline status changes only",
+      "Direct SQL UPDATE of a history row"
+    ],
+    "expected": "Step 1: grouped by day with the 4 quiet days as one line; step 2: only the 5 status changes; step 3: rejected by the database.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-29"
+    ]
+  },
+  {
+    "id": "UI-BID-29",
+    "source": "FR-BID-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tiến trình một gói thầu; user có quyền và user chỉ đọc; route BID-29",
+    "steps": [
+      "Mở BID-29 từ menu và deep link; kiểm nhãn trường: Thanh các bước (xong, đang ở đây, sắp tới, trễ, tạm dừng) với số ngày chuẩn và thực tế, Bước hiện tại, người giữ, đếm ngược, điều đang chặn, Danh mục kiểm của bước (bắt buộc hoặc tùy chọn, người, hạn, bằng chứng), Dòng thời gian từng ngày và dải ngày kế hoạch so với thực tế, Ngoại lệ, tạm dừng, trả lại, lịch sử chuyển bước, Đường tắt sang mốc BID-17, kiến nghị BID-20, kết quả BID-18, hợp đồng và liên kết BID-19",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ sang bước kế khi mọi mục bắt buộc của bước đã xong và đủ bằng chứng, hoặc có ngoại lệ do người khác duyệt (có lý do); bước maker-checker: người rời bước không phải người đã hoàn thành mục của bước; định nghĩa của gói được đóng băng khi bắt đầu; lịch sử chỉ thêm, không sửa; mốc đã có ngày thực tế (BID-17, nhập tệp BID-19) là bằng chứng của mục cùng loại",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-29"
+    ],
+    "expected": "Tiến trình một gói thầu: hiển thị đúng 6 trường, áp quy tắc \"Chỉ sang bước kế khi mọi mục bắt buộc của bước đã xong và đủ bằng chứng, hoặc có ngoại lệ do người khác duyệt (có lý do); bước maker-checker: người rời bước không phải người đã hoàn thành mục của bước; định nghĩa của gói được đóng băng khi bắt đầu; lịch sử chỉ thêm, không sửa; mốc đã có ngày thực tế (BID-17, nhập tệp BID-19) là bằng chứng của mục cùng loại\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-128",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "30 packages: step TECHNICAL_REVIEW holds 8, of which 2 are outside the reader scope.",
+    "steps": [
+      "getPackageProcessTree",
+      "getPackageProcessTreeNode TECHNICAL_REVIEW",
+      "listPackageProcessTreeNodePackages TECHNICAL_REVIEW"
+    ],
+    "expected": "Node count 6, list rows 6, no name or count of the 2 hidden packages, formula and cut-off date on each figure.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-27",
+      "FR-BID-28"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-129",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Method OPEN_BIDDING with 5 packages in step 2 (ages 3, 9, 12, 5, 1 days) and 2 not started.",
+    "steps": [
+      "getPackageWorkflowBoard",
+      "getPackageWorkflowSummary"
+    ],
+    "expected": "Column of step 2 starts with the 12-day package; a \"not started\" column holds 2; summary running count equals the board.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-27",
+      "FR-BID-28"
+    ]
+  },
+  {
+    "id": "UI-BID-27",
+    "source": "FR-BID-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tiến độ theo quy trình (cây tiến độ); user có quyền và user chỉ đọc; route BID-27",
+    "steps": [
+      "Mở BID-27 từ menu và deep link; kiểm nhãn trường: Cây trạng thái theo hình thức lựa chọn và bước (số gói, giá trị, tỷ trọng, trung vị ngày, số trễ), Đường chuyển giữa các trạng thái trong kỳ, Bộ lọc đơn vị, dự án, hình thức, người phụ trách, chỉ gói trễ, kỳ, Bảng điều khiển bên: tổng quan nút, gói thầu của nút, biến động gần đây, Dòng thời gian từng ngày của gói được chọn",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi gói thầu ở đúng một trạng thái; số đếm của nút và danh sách gói của nút dùng cùng một quy tắc; số ngày đếm theo lịch làm việc đã công bố (không đoán khi chưa có lịch); mỗi con số có công thức, nguồn, ngày chốt; gói ngoài phạm vi không được đếm hay nêu tên; bước và số ngày chuẩn là cấu hình PROCUREMENT_WORKFLOW, mặc định chưa kiểm chứng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-27"
+    ],
+    "expected": "Tiến độ theo quy trình (cây tiến độ): hiển thị đúng 5 trường, áp quy tắc \"Mỗi gói thầu ở đúng một trạng thái; số đếm của nút và danh sách gói của nút dùng cùng một quy tắc; số ngày đếm theo lịch làm việc đã công bố (không đoán khi chưa có lịch); mỗi con số có công thức, nguồn, ngày chốt; gói ngoài phạm vi không được đếm hay nêu tên; bước và số ngày chuẩn là cấu hình PROCUREMENT_WORKFLOW, mặc định chưa kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-27"
+    ]
+  },
+  {
+    "id": "UI-BID-28",
+    "source": "FR-BID-28",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bảng gói thầu theo bước; user có quyền và user chỉ đọc; route BID-28",
+    "steps": [
+      "Mở BID-28 từ menu và deep link; kiểm nhãn trường: Cột theo bước của một hình thức lựa chọn (số gói, giá trị, số trễ), Thẻ gói: mã, dự án, giá gói, hình thức, số ngày ở bước, người giữ, cờ trễ, Danh sách theo bước (lọc, phân trang), Bộ lọc đơn vị, dự án, hình thức, người phụ trách, chỉ gói trễ",
+      "Thực hiện thao tác chính theo quy tắc: Nhìn một công đoạn thấy có những gói nào; thẻ xếp gói lâu nhất ở bước lên đầu; gói chưa bắt đầu quy trình ở cột riêng; thao tác chỉ hiện khi người gọi có quyền trên dự án của gói",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-28"
+    ],
+    "expected": "Bảng gói thầu theo bước: hiển thị đúng 4 trường, áp quy tắc \"Nhìn một công đoạn thấy có những gói nào; thẻ xếp gói lâu nhất ở bước lên đầu; gói chưa bắt đầu quy trình ở cột riêng; thao tác chỉ hiện khi người gọi có quyền trên dự án của gói\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-28"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-130",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Step CONTRACTOR_SELECTION with six departures in 2026-Q3; standard 5 working days.",
+    "steps": [
+      "getPackageWorkflowStatistics 2026-Q3",
+      "exportPackageWorkflowReport xlsx",
+      "exportPackageWorkflowReport csv with an invalid period"
+    ],
+    "expected": "Median 5, on time 4 of 6; file lists formula, source, cut-off date and the notice; step 3: 422 VALIDATION_FAILED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-30"
+    ]
+  },
+  {
+    "id": "UI-BID-30",
+    "source": "FR-BID-30",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Phân tích nút nghẽn và báo cáo tiến độ lựa chọn nhà thầu; user có quyền và user chỉ đọc; route BID-30",
+    "steps": [
+      "Mở BID-30 từ menu và deep link; kiểm nhãn trường: Trung vị số ngày và tỷ lệ đúng hạn ở mỗi bước (công thức, nguồn, ngày chốt), Số gói quá số ngày chuẩn của từng bước, Gói kẹt lâu nhất, Xuất Excel hoặc CSV theo kỳ",
+      "Thực hiện thao tác chính theo quy tắc: Trung vị tính trên các lần rời bước trong kỳ; đúng hạn là số ngày làm việc ở bước không vượt số ngày chuẩn; ngày dương lịch khi lịch làm việc chưa công bố và nói rõ; xuất tệp mang công thức, nguồn, ngày chốt và lưu ý số ngày chuẩn chưa kiểm chứng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-30"
+    ],
+    "expected": "Phân tích nút nghẽn và báo cáo tiến độ lựa chọn nhà thầu: hiển thị đúng 4 trường, áp quy tắc \"Trung vị tính trên các lần rời bước trong kỳ; đúng hạn là số ngày làm việc ở bước không vượt số ngày chuẩn; ngày dương lịch khi lịch làm việc chưa công bố và nói rõ; xuất tệp mang công thức, nguồn, ngày chốt và lưu ý số ngày chuẩn chưa kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-30"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-131",
+    "source": "MOB.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Device synced 2 hours ago; package PK-1 with 4 quiet days; web tree node count 6.",
+    "steps": [
+      "Open MOB-69 offline",
+      "Open MOB-70 for PK-1",
+      "Open MOB-71 and compare with the web tree"
+    ],
+    "expected": "Sync time shown on all three; the 4 quiet days are one line; node count 6 equals the web; no action button for moving a step.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-69",
+      "FR-MOB-70",
+      "FR-MOB-71"
+    ]
+  },
+  {
+    "id": "UI-MOB-69",
+    "source": "Screen MOB-69",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-69; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-69 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-69"
+    ]
+  },
+  {
+    "id": "UI-MOB-70",
+    "source": "Screen MOB-70",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-70; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-70 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-70"
+    ]
+  },
+  {
+    "id": "UI-MOB-71",
+    "source": "Screen MOB-71",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-71; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-71 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-71"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-132",
+    "source": "DIR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Today 2026-11-08; unit U-1 chairs; one infected file and one clean file.",
+    "steps": [
+      "createSteeringMeeting dated 2026-11-09",
+      "attachMeetingMinutes with the infected file",
+      "createSteeringMeeting dated today with the clean file",
+      "createSteeringMeeting again the same day"
+    ],
+    "expected": "Step 1: 422 VALIDATION_FAILED; step 2: 422 DECISION_DOCUMENT_REQUIRED; step 3: code GB-2026-001; step 4: GB-2026-002.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01",
+      "FR-DIR-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-133",
+    "source": "DIR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Meeting GB-2026-001 dated 2026-11-01; project P-1 and unit U-2.",
+    "steps": [
+      "addDirective due 2026-10-30",
+      "addDirective for P-1 and U-2 together",
+      "addDirective for P-1 due 2026-11-20",
+      "Edit the directive text"
+    ],
+    "expected": "Steps 1-2: 422 VALIDATION_FAILED; step 3: created for P-1 only; step 4: rejected, a new directive is the only way to change the instruction.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01",
+      "FR-DIR-02"
+    ]
+  },
+  {
+    "id": "UI-DIR-01",
+    "source": "FR-DIR-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Các cuộc giao ban đầu tư; user có quyền và user chỉ đọc; route DIR-01",
+    "steps": [
+      "Mở DIR-01 từ menu và deep link; kiểm nhãn trường: Mã cuộc giao ban, Ngày, Loại, Đơn vị chủ trì, Biên bản, Số chỉ đạo, Quá hạn",
+      "Thực hiện thao tác chính theo quy tắc: Ngày giao ban không ở tương lai; mã GB-năm-số đánh theo năm; biên bản là phiên bản tệp của tenant không nhiễm mã độc",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-01"
+    ],
+    "expected": "Các cuộc giao ban đầu tư: hiển thị đúng 7 trường, áp quy tắc \"Ngày giao ban không ở tương lai; mã GB-năm-số đánh theo năm; biên bản là phiên bản tệp của tenant không nhiễm mã độc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01"
+    ]
+  },
+  {
+    "id": "UI-DIR-02",
+    "source": "FR-DIR-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết cuộc giao ban và các chỉ đạo đã giao; user có quyền và user chỉ đọc; route DIR-02",
+    "steps": [
+      "Mở DIR-02 từ menu và deep link; kiểm nhãn trường: Cuộc giao ban, Biên bản, Chỉ đạo, Về dự án hoặc đơn vị, Đơn vị thực hiện, Người thực hiện, Hạn, Trạng thái",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, có đơn vị thực hiện và hạn không trước ngày họp; chỉ đạo ghi lại không sửa nội dung",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-02"
+    ],
+    "expected": "Chi tiết cuộc giao ban và các chỉ đạo đã giao: hiển thị đúng 8 trường, áp quy tắc \"Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, có đơn vị thực hiện và hạn không trước ngày họp; chỉ đạo ghi lại không sửa nội dung\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-134",
+    "source": "DIR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Directives D1 due 2026-11-05 and D2 due 2026-11-12, both open, unit U-1; reader of unit U-2.",
+    "steps": [
+      "listDirectives on 2026-11-08",
+      "getDirectiveSummary",
+      "listDirectives on 2026-11-13",
+      "U-2 reader lists directives"
+    ],
+    "expected": "Step 1: D1 overdue first; step 2: counts equal rows; step 3: D2 overdue; step 4: no rows of U-1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-135",
+    "source": "DIR.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Directive D3 due 2026-11-20 assigned to X in unit U-1 with leader L; escalate_after_overdue_days 7.",
+    "steps": [
+      "Advance to 2026-11-17",
+      "Advance to 2026-11-21",
+      "Advance to 2026-11-27"
+    ],
+    "expected": "Step 1: item in X work list as ACTION; step 2: overdue; step 3: URGENT and visible to L once.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UI-DIR-03",
+    "source": "FR-DIR-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bảng theo dõi chỉ đạo; user có quyền và user chỉ đọc; route DIR-03",
+    "steps": [
+      "Mở DIR-03 từ menu và deep link; kiểm nhãn trường: Trạng thái, Đơn vị thực hiện, Quá hạn trước, Hạn, Dự án, Cuộc giao ban, Số theo trạng thái, Đã nâng cấp",
+      "Thực hiện thao tác chính theo quy tắc: Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính theo đồng hồ trong ngày, không lưu; số liệu có công thức, nguồn và thời điểm",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-03"
+    ],
+    "expected": "Bảng theo dõi chỉ đạo: hiển thị đúng 8 trường, áp quy tắc \"Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính theo đồng hồ trong ngày, không lưu; số liệu có công thức, nguồn và thời điểm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-136",
+    "source": "DIR.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Directive D-1 recorded by G, executor X, closer C holds directive.close.",
+    "steps": [
+      "G closes D-1",
+      "X closes D-1",
+      "C closes D-1 with no evidence",
+      "C closes D-1 with an evidence file"
+    ],
+    "expected": "Steps 1-2: 403 SELF_APPROVAL_DENIED; step 3: 422 DIRECTIVE_EVIDENCE_REQUIRED; step 4: CLOSED with the evidence and the closer in history.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-137",
+    "source": "DIR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Policy max_extensions 2, max_extension_days 15; directive D-2 with 2 granted extensions; directive D-3 with a pending request by X.",
+    "steps": [
+      "requestDirectiveExtension on D-2",
+      "requestDirectiveExtension of 30 days on D-4",
+      "X decides own request on D-3",
+      "closeDirective D-3"
+    ],
+    "expected": "Step 1: 422 DIRECTIVE_EXTENSION_LIMIT; step 2: 422 DIRECTIVE_EXTENSION_INVALID; step 3: 403 SELF_APPROVAL_DENIED; step 4: 409 DIRECTIVE_EXTENSION_PENDING.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-138",
+    "source": "DIR.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Directive D-5 CLOSED; directive D-6 OPEN.",
+    "steps": [
+      "reopenDirective D-5 with a reason",
+      "reopenDirective D-6",
+      "Direct SQL UPDATE and DELETE of a D-5 history row"
+    ],
+    "expected": "Step 1: OPEN again with a history row; step 2: 409 DIRECTIVE_STATE_INVALID; step 3: both rejected by the database.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UI-DIR-04",
+    "source": "FR-DIR-04",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng; user có quyền và user chỉ đọc; route DIR-04",
+    "steps": [
+      "Mở DIR-04 từ menu và deep link; kiểm nhãn trường: Nội dung chỉ đạo, Đơn vị và người thực hiện, Hạn gốc và hạn hiện tại, Dòng thời gian, Tiến độ, Đề nghị gia hạn, Bằng chứng, Đóng chỉ đạo",
+      "Thực hiện thao tác chính theo quy tắc: Đóng cần bằng chứng và người đóng khác người ghi chỉ đạo và người thực hiện; gia hạn có lý do, người duyệt khác người đề nghị, trong số ngày và số lần chính sách cho phép; lịch sử không sửa",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-04"
+    ],
+    "expected": "Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng: hiển thị đúng 8 trường, áp quy tắc \"Đóng cần bằng chứng và người đóng khác người ghi chỉ đạo và người thực hiện; gia hạn có lý do, người duyệt khác người đề nghị, trong số ngày và số lần chính sách cho phép; lịch sử không sửa\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-139",
+    "source": "DIR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Period 2026-W44 ends 2026-11-01; directive D-7 due 2026-11-01 closed 2026-11-03; directive D-8 closed 2026-10-30.",
+    "steps": [
+      "getDirectivesForReport 2026-W44"
+    ],
+    "expected": "D-7 overdue and not done at period end, D-8 done; totals by state equal row count; latest note shown for each.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-05"
+    ]
+  },
+  {
+    "id": "UI-DIR-05",
+    "source": "FR-DIR-05",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau; user có quyền và user chỉ đọc; route DIR-05",
+    "steps": [
+      "Mở DIR-05 từ menu và deep link; kiểm nhãn trường: Kỳ, Số theo trạng thái cuối kỳ, Chỉ đạo giao trong kỳ, Đã đóng trong kỳ, Đã gia hạn trong kỳ, Còn mở cuối kỳ, Quá hạn cuối kỳ, Ghi chú mới nhất",
+      "Thực hiện thao tác chính theo quy tắc: Trạng thái cuối kỳ dựng lại từ dòng thời gian; chỉ đạo đến hạn đúng ngày cuối kỳ mà chưa đóng tính là quá hạn cuối ngày; số liệu cộng khớp với danh sách",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-05"
+    ],
+    "expected": "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau: hiển thị đúng 8 trường, áp quy tắc \"Trạng thái cuối kỳ dựng lại từ dòng thời gian; chỉ đạo đến hạn đúng ngày cuối kỳ mà chưa đóng tính là quá hạn cuối ngày; số liệu cộng khớp với danh sách\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-05"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-140",
+    "source": "DIR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Device synced 2026-11-07 18:00; directive D-9 overdue on the server; user assigned 3 directives.",
+    "steps": [
+      "Open DIR-06 Assigned to me offline",
+      "Open Overdue",
+      "Open the timeline of D-9"
+    ],
+    "expected": "Counts 3 and the overdue count equal rows; data time shown with a not-latest notice; no action buttons.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-06"
+    ]
+  },
+  {
+    "id": "UI-DIR-06",
+    "source": "Screen DIR-06",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem DIR-06; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "DIR-06 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-06"
+    ]
   }
 ]

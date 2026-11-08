@@ -9394,5 +9394,852 @@
       "UI-DGV-21",
       "UAT-AC493"
     ]
+  },
+  {
+    "requirement": "FR-ADM-19",
+    "screen": "ADM-19",
+    "title": "Kho quy tắc quản trị",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 05_modules/ADM.md; lộ trình quản trị sâu 08/11/2026 (làn A1, G0-1 và G0-3)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md §10–§11; 4 test",
+    "backlog_id": "BL-ADM-19",
+    "test_ids": [
+      "UI-ADM-19",
+      "UAT-PLAN-75",
+      "UAT-PLAN-76",
+      "UAT-PLAN-77"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-20",
+    "screen": "ADM-20",
+    "title": "Chi tiết loại quy tắc quản trị",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 05_modules/ADM.md; lộ trình quản trị sâu 08/11/2026 (làn A1, G0-1 và G0-3)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md §10–§11; 4 test",
+    "backlog_id": "BL-ADM-20",
+    "test_ids": [
+      "UI-ADM-20",
+      "UAT-PLAN-75",
+      "UAT-PLAN-76",
+      "UAT-PLAN-77"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-21",
+    "screen": "ADM-21",
+    "title": "Soạn phiên bản quy tắc",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 05_modules/ADM.md; lộ trình quản trị sâu 08/11/2026 (làn A1, G0-1 và G0-3)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md §10–§11; 4 test",
+    "backlog_id": "BL-ADM-21",
+    "test_ids": [
+      "UI-ADM-21",
+      "UAT-PLAN-75",
+      "UAT-PLAN-76",
+      "UAT-PLAN-77"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-22",
+    "screen": "ADM-22",
+    "title": "So sánh phiên bản quy tắc",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 05_modules/ADM.md; lộ trình quản trị sâu 08/11/2026 (làn A1, G0-1 và G0-3)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md §10–§11; 2 test",
+    "backlog_id": "BL-ADM-22",
+    "test_ids": [
+      "UI-ADM-22",
+      "UAT-PLAN-78"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-23",
+    "screen": "ADM-23",
+    "title": "Sổ loại cảnh báo",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 05_modules/ADM.md; lộ trình quản trị sâu 08/11/2026 (làn A1, G0-1 và G0-3)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md §10–§11; 2 test",
+    "backlog_id": "BL-ADM-23",
+    "test_ids": [
+      "UI-ADM-23",
+      "UAT-PLAN-79"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-24",
+    "screen": "ADM-24",
+    "title": "Tách bạch nhiệm vụ",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 05_modules/ADM.md; lộ trình quản trị sâu 08/11/2026 (làn D, G4-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md §10–§11; 3 test",
+    "backlog_id": "BL-ADM-24",
+    "test_ids": [
+      "UI-ADM-24",
+      "UAT-PLAN-80",
+      "UAT-PLAN-81"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-13",
+    "screen": "AUD-13",
+    "title": "Kiểm toán tách bạch nhiệm vụ",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; lộ trình quản trị sâu 08/11/2026 (làn D, G4-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-13",
+    "test_ids": [
+      "UI-AUD-13",
+      "UAT-PLAN-82"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-12",
+    "screen": "AUD-12",
+    "title": "Phát hiện toàn vẹn thanh toán",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; lộ trình quản trị sâu 08/11/2026 (làn D, G4-2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-12",
+    "test_ids": [
+      "UI-AUD-12",
+      "UAT-PLAN-83"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-21",
+    "screen": "PAY-21",
+    "title": "Ngoại lệ vượt trần giải ngân",
+    "use_cases": [
+      "UC04"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; lộ trình quản trị sâu 08/11/2026 (làn D, G4-5)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 3 test",
+    "backlog_id": "BL-PAY-21",
+    "test_ids": [
+      "UI-PAY-21",
+      "UAT-PLAN-86",
+      "UAT-PLAN-87"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-18",
+    "screen": "PAY-18",
+    "title": "Bảng thu hồi tạm ứng: kế hoạch và thực tế",
+    "use_cases": [
+      "UC04"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; lộ trình quản trị sâu 08/11/2026 (làn B2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 3 test",
+    "backlog_id": "BL-PAY-18",
+    "test_ids": [
+      "UI-PAY-18",
+      "UAT-PLAN-88",
+      "UAT-PLAN-89"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-19",
+    "screen": "PAY-19",
+    "title": "Điều kiện giải ngân của dự án",
+    "use_cases": [
+      "UC04"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; lộ trình quản trị sâu 08/11/2026 (làn B1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 2 test",
+    "backlog_id": "BL-PAY-19",
+    "test_ids": [
+      "UI-PAY-19",
+      "UAT-PLAN-90"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-20",
+    "screen": "PAY-20",
+    "title": "Đối soát Kho bạc hằng ngày theo dự án và nguồn vốn",
+    "use_cases": [
+      "UC04"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; lộ trình quản trị sâu 08/11/2026 (làn D)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 3 test",
+    "backlog_id": "BL-PAY-20",
+    "test_ids": [
+      "UI-PAY-20",
+      "UAT-PLAN-91",
+      "UAT-PLAN-92"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-26",
+    "screen": "DIS-26",
+    "title": "Kiểm tổng chéo số giải ngân theo đơn vị, nguồn vốn, dự án",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; lộ trình quản trị sâu 08/11/2026 (làn D)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
+    "backlog_id": "BL-DIS-26",
+    "test_ids": [
+      "UI-DIS-26",
+      "UAT-PLAN-93"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-12",
+    "screen": "HOME-12",
+    "title": "Việc đang bị hoãn",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị sâu A2 (G2-1, G2-2, G2-4)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HOME.md §10–§11; 3 test",
+    "backlog_id": "BL-HOME-12",
+    "test_ids": [
+      "UI-HOME-12",
+      "UAT-PLAN-96",
+      "UAT-PLAN-97"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-11",
+    "screen": "HOME-11",
+    "title": "Màu xanh vàng đỏ có giải thích",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-2); thiết kế làn C",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HOME.md §10–§11; 4 test",
+    "backlog_id": "BL-HOME-11",
+    "test_ids": [
+      "UI-HOME-11",
+      "UAT-PLAN-98",
+      "UAT-PLAN-99",
+      "UAT-PLAN-100"
+    ]
+  },
+  {
+    "requirement": "FR-BI-20",
+    "screen": "BI-20",
+    "title": "Sổ chỉ tiêu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G0-4); thiết kế làn C",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §10–§11; 2 test",
+    "backlog_id": "BL-BI-20",
+    "test_ids": [
+      "UI-BI-20",
+      "UAT-PLAN-101"
+    ]
+  },
+  {
+    "requirement": "FR-BI-19",
+    "screen": "BI-19",
+    "title": "Chứng nhận chỉ tiêu và bộ dữ liệu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-1); thiết kế làn C",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §10–§11; 3 test",
+    "backlog_id": "BL-BI-19",
+    "test_ids": [
+      "UI-BI-19",
+      "UAT-PLAN-102",
+      "UAT-PLAN-103"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-22",
+    "screen": "CAP-22",
+    "title": "Kiểm soát vốn theo hợp đồng và dự báo hoàn thành",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; lộ trình quản trị sâu 08/11/2026 (làn B2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
+    "backlog_id": "BL-CAP-22",
+    "test_ids": [
+      "UI-CAP-22",
+      "UAT-PLAN-104",
+      "UAT-PLAN-105"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-22",
+    "screen": "PRJ-22",
+    "title": "Sổ dự phòng và dự trữ quản lý",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; lộ trình quản trị sâu 08/11/2026 (làn B2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-22",
+    "test_ids": [
+      "UI-PRJ-22",
+      "UAT-PLAN-106",
+      "UAT-PLAN-107"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-26",
+    "screen": "PRJ-26",
+    "title": "Đường cơ sở, độ lệch và số lần dời mốc",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; lộ trình quản trị sâu 08/11/2026 (làn B1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-26",
+    "test_ids": [
+      "UI-PRJ-26",
+      "UAT-PLAN-108",
+      "UAT-PLAN-109"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-27",
+    "screen": "PRJ-27",
+    "title": "Giá trị thu được (EVM) và đường S",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; lộ trình quản trị sâu 08/11/2026 (làn B1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-27",
+    "test_ids": [
+      "UI-PRJ-27",
+      "UAT-PLAN-110",
+      "UAT-PLAN-111"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-24",
+    "screen": "PRJ-24",
+    "title": "Bàn thẩm định hiệu quả đầu tư",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; yêu cầu khách hàng AI.06, KT.02; lộ trình quản trị sâu 08/11/2026 (làn FIN-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-24",
+    "test_ids": [
+      "UI-PRJ-24",
+      "UAT-PLAN-112",
+      "UAT-PLAN-113"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-23",
+    "screen": "PRJ-23",
+    "title": "Thẩm định hiệu quả đầu tư",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; yêu cầu khách hàng AI.06, KT.02; lộ trình quản trị sâu 08/11/2026 (làn FIN-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
+    "backlog_id": "BL-PRJ-23",
+    "test_ids": [
+      "UI-PRJ-23",
+      "UAT-PLAN-114"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-27",
+    "screen": "CTR-27",
+    "title": "Bậc của lệnh thay đổi và kiểm tra điều chỉnh dự án",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu 08/11/2026 (làn B2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-27",
+    "test_ids": [
+      "UI-CTR-27",
+      "UAT-PLAN-115",
+      "UAT-PLAN-116"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-28",
+    "screen": "CTR-28",
+    "title": "Trung tâm báo cáo phân tích hợp đồng",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; kế hoạch nền phân tích hợp đồng CA-1 phần 2, rà soát R12, R16, R17",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-28",
+    "test_ids": [
+      "UI-CTR-28",
+      "UAT-PLAN-117",
+      "UAT-PLAN-118"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-29",
+    "screen": "CTR-29",
+    "title": "Danh mục và trạng thái hợp đồng (phân tích)",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; kế hoạch nền phân tích hợp đồng CA-1 phần 2, rà soát R12, R16, R17",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-29",
+    "test_ids": [
+      "UI-CTR-29",
+      "UAT-PLAN-117",
+      "UAT-PLAN-118"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-30",
+    "screen": "CTR-30",
+    "title": "Chênh lệch giá trúng thầu và giá hợp đồng",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; kế hoạch nền phân tích hợp đồng CA-1 phần 2, rà soát R12, R16, R17",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-30",
+    "test_ids": [
+      "UI-CTR-30",
+      "UAT-PLAN-119",
+      "UAT-PLAN-120"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-31",
+    "screen": "CTR-31",
+    "title": "Tập trung và tải của nhà thầu",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; kế hoạch nền phân tích hợp đồng CA-1 phần 2, rà soát R12, R16, R17",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-31",
+    "test_ids": [
+      "UI-CTR-31",
+      "UAT-PLAN-119",
+      "UAT-PLAN-120"
+    ]
+  },
+  {
+    "requirement": "FR-BID-22",
+    "screen": "BID-22",
+    "title": "Kết nối hệ thống mạng đấu thầu quốc gia",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch EGP-1 (muasamcong chiều vào) và docs/egp-connector.md; thiết kế sâu hóa quản trị 08/11/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-22",
+    "test_ids": [
+      "UI-BID-22",
+      "UAT-PLAN-121",
+      "UAT-PLAN-122"
+    ]
+  },
+  {
+    "requirement": "FR-BID-23",
+    "screen": "BID-23",
+    "title": "Ánh xạ mã hệ thống mạng đấu thầu quốc gia",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch EGP-1 (cấu trúc B của rà soát kỹ thuật) và docs/egp-connector.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-23",
+    "test_ids": [
+      "UI-BID-23",
+      "UAT-PLAN-121",
+      "UAT-PLAN-122"
+    ]
+  },
+  {
+    "requirement": "FR-BID-24",
+    "screen": "BID-24",
+    "title": "Các lần nhập tệp từ hệ thống mạng đấu thầu quốc gia",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch EGP-1 (nhập tệp KHLCNT, TBMT, kết quả, hồ sơ nhà thầu, danh sách cấm có phiên bản) và docs/egp-connector.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-24",
+    "test_ids": [
+      "UI-BID-24",
+      "UAT-PLAN-121",
+      "UAT-PLAN-122"
+    ]
+  },
+  {
+    "requirement": "FR-BID-31",
+    "screen": "BID-31",
+    "title": "Định nghĩa quy trình lựa chọn nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PRC-1 (theo dõi quy trình lựa chọn nhà thầu theo luồng và danh mục kiểm), docs/bid-workflow.md và docs/process-tree-design.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-31",
+    "test_ids": [
+      "UI-BID-31",
+      "UAT-PLAN-123",
+      "UAT-PLAN-124"
+    ]
+  },
+  {
+    "requirement": "FR-BID-29",
+    "screen": "BID-29",
+    "title": "Tiến trình một gói thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PRC-1 (theo dõi quy trình lựa chọn nhà thầu theo luồng và danh mục kiểm), docs/bid-workflow.md và docs/process-tree-design.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 4 test",
+    "backlog_id": "BL-BID-29",
+    "test_ids": [
+      "UI-BID-29",
+      "UAT-PLAN-125",
+      "UAT-PLAN-126",
+      "UAT-PLAN-127"
+    ]
+  },
+  {
+    "requirement": "FR-BID-27",
+    "screen": "BID-27",
+    "title": "Tiến độ theo quy trình (cây tiến độ)",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PRC-1 (theo dõi quy trình lựa chọn nhà thầu theo luồng và danh mục kiểm), docs/bid-workflow.md và docs/process-tree-design.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-27",
+    "test_ids": [
+      "UI-BID-27",
+      "UAT-PLAN-128",
+      "UAT-PLAN-129"
+    ]
+  },
+  {
+    "requirement": "FR-BID-28",
+    "screen": "BID-28",
+    "title": "Bảng gói thầu theo bước",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PRC-1 (theo dõi quy trình lựa chọn nhà thầu theo luồng và danh mục kiểm), docs/bid-workflow.md và docs/process-tree-design.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-28",
+    "test_ids": [
+      "UI-BID-28",
+      "UAT-PLAN-128",
+      "UAT-PLAN-129"
+    ]
+  },
+  {
+    "requirement": "FR-BID-30",
+    "screen": "BID-30",
+    "title": "Phân tích nút nghẽn và báo cáo tiến độ lựa chọn nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PRC-1 (theo dõi quy trình lựa chọn nhà thầu theo luồng và danh mục kiểm), docs/bid-workflow.md và docs/process-tree-design.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 2 test",
+    "backlog_id": "BL-BID-30",
+    "test_ids": [
+      "UI-BID-30",
+      "UAT-PLAN-130"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-69",
+    "screen": "MOB-69",
+    "title": "Gói thầu theo bước trên điện thoại",
+    "use_cases": [
+      "UC02"
+    ],
+    "source": "Kế hoạch PRC-1, docs/bid-workflow.md; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-69",
+    "test_ids": [
+      "UI-MOB-69",
+      "UAT-PLAN-131"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-70",
+    "screen": "MOB-70",
+    "title": "Tiến trình một gói thầu trên điện thoại",
+    "use_cases": [
+      "UC02"
+    ],
+    "source": "Kế hoạch PRC-1, docs/bid-workflow.md; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-70",
+    "test_ids": [
+      "UI-MOB-70",
+      "UAT-PLAN-131"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-71",
+    "screen": "MOB-71",
+    "title": "Cây tiến độ trên điện thoại",
+    "use_cases": [
+      "UC02"
+    ],
+    "source": "Kế hoạch PRC-1, docs/bid-workflow.md; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-71",
+    "test_ids": [
+      "UI-MOB-71",
+      "UAT-PLAN-131"
+    ]
+  },
+  {
+    "requirement": "FR-DIR-01",
+    "screen": "DIR-01",
+    "title": "Các cuộc giao ban đầu tư",
+    "use_cases": [
+      "UC-DIR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIR.md; yêu cầu khách hàng CN.03, QT.02 (chỉ đạo giao ban); lộ trình quản trị sâu 08/11/2026 (làn DIR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIR.md §10–§11; 3 test",
+    "backlog_id": "BL-DIR-01",
+    "test_ids": [
+      "UI-DIR-01",
+      "UAT-PLAN-132",
+      "UAT-PLAN-133"
+    ]
+  },
+  {
+    "requirement": "FR-DIR-02",
+    "screen": "DIR-02",
+    "title": "Chi tiết cuộc giao ban và các chỉ đạo đã giao",
+    "use_cases": [
+      "UC-DIR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIR.md; yêu cầu khách hàng CN.03, QT.02 (chỉ đạo giao ban); lộ trình quản trị sâu 08/11/2026 (làn DIR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIR.md §10–§11; 3 test",
+    "backlog_id": "BL-DIR-02",
+    "test_ids": [
+      "UI-DIR-02",
+      "UAT-PLAN-132",
+      "UAT-PLAN-133"
+    ]
+  },
+  {
+    "requirement": "FR-DIR-03",
+    "screen": "DIR-03",
+    "title": "Bảng theo dõi chỉ đạo",
+    "use_cases": [
+      "UC-DIR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIR.md; yêu cầu khách hàng CN.03, QT.02 (chỉ đạo giao ban); lộ trình quản trị sâu 08/11/2026 (làn DIR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIR.md §10–§11; 3 test",
+    "backlog_id": "BL-DIR-03",
+    "test_ids": [
+      "UI-DIR-03",
+      "UAT-PLAN-134",
+      "UAT-PLAN-135"
+    ]
+  },
+  {
+    "requirement": "FR-DIR-04",
+    "screen": "DIR-04",
+    "title": "Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng",
+    "use_cases": [
+      "UC-DIR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIR.md; yêu cầu khách hàng CN.03, QT.02 (chỉ đạo giao ban); lộ trình quản trị sâu 08/11/2026 (làn DIR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIR.md §10–§11; 4 test",
+    "backlog_id": "BL-DIR-04",
+    "test_ids": [
+      "UI-DIR-04",
+      "UAT-PLAN-136",
+      "UAT-PLAN-137",
+      "UAT-PLAN-138"
+    ]
+  },
+  {
+    "requirement": "FR-DIR-05",
+    "screen": "DIR-05",
+    "title": "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau",
+    "use_cases": [
+      "UC-DIR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIR.md; yêu cầu khách hàng CN.03, QT.02 (chỉ đạo giao ban); lộ trình quản trị sâu 08/11/2026 (làn DIR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIR.md §10–§11; 2 test",
+    "backlog_id": "BL-DIR-05",
+    "test_ids": [
+      "UI-DIR-05",
+      "UAT-PLAN-139"
+    ]
+  },
+  {
+    "requirement": "FR-DIR-06",
+    "screen": "DIR-06",
+    "title": "Chỉ đạo giao ban trên điện thoại",
+    "use_cases": [
+      "UC-DIR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIR.md; yêu cầu khách hàng CN.03, QT.02 (chỉ đạo giao ban); lộ trình quản trị sâu 08/11/2026 (làn DIR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIR.md §10–§11; 2 test",
+    "backlog_id": "BL-DIR-06",
+    "test_ids": [
+      "UI-DIR-06",
+      "UAT-PLAN-140"
+    ]
   }
 ]
