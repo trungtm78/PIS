@@ -63,6 +63,8 @@ Then, in the lane's tests:
 registerAllGovernanceRules(); registerConnector(MY_DESCRIPTOR);
 expect(connectorConformanceProblems(MY_DESCRIPTOR)).toEqual([]);
 expect(await runWithNetworkWatch(async () => { /* run the adapter */ })).toEqual([]);   // egress NONE only
+// in a db test, after the connector's own ensure made its ledger rows:
+expect(await new HubStore().conformanceProblems(tx, MY_DESCRIPTOR, new Date())).toEqual([]);   // positions have their integration_cursor row, the switch adapter is registered, the hub can read it
 ```
 
 A connector with a switch of its own (`stateOwner: 'CONNECTOR'`) also calls `registerHubStateAdapter(code, { read, set })` from `packages/db/src/hub-adapters.ts` (see the e-GP adapter, 25 lines): the hub then moves the switch through the connector's own store, so its history and its rules stay the connector's. A connector that reports its runs by command (an API pull, a machine account, a reader of the Lakehouse) uses `ledger.kind: 'HUB_RUNS'` and the command `recordHubRun`. Adapting FEED-1, ENT-2 and INT-1 at merge time is one descriptor each.
