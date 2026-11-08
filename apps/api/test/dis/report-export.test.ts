@@ -10,6 +10,7 @@ import { loadErrorRegistry, objectKey, signTenantContext } from '@machvon/kernel
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportExportController } from '../../src/modules/dis/report-export.controller';
+import { DOCX_MEDIA_TYPE, readDocxParagraphs } from '../../src/modules/reports';
 import { DIS_CLOCK, DIS_METRICS } from '../../src/modules/dis/tokens';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
@@ -266,6 +267,24 @@ describe('the report export over HTTP (ST-DIS-016)', () => {
     expect(sheet).toContain(w.snapshotId);
     expect(sheet).toContain('PROPOSED_PENDING_SIGNOFF');
     expect(sheet).toContain(w.projects[0]?.code);
+  });
+
+  it('IAM-2: makes a Word document of the same table behind the same permission, with the format on the audit row and the same bytes for the same snapshot', async () => {
+    const w = await world();
+    const made = await create(w.snapshotId, 'DOCX');
+    expect(made.status).toBe(200);
+    const response = await fetchLink((await download(made.json.resource_id as string)).json.url as string);
+    expect(response.headers.get('content-type')).toBe(DOCX_MEDIA_TYPE);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const text = readDocxParagraphs(bytes).join('
+');
+    expect(text).toContain(w.snapshotId);
+    expect(text).toContain(w.projects[0]?.code);
+    expect(text).toContain('PROPOSED_PENDING_SIGNOFF');
+    const rows = await harness.owner<{ safe_diff: Record<string, unknown> }>(TENANT_A, [["select safe_diff from machvon.audit_event where action = 'dis.report_exported' and resource_id = $1::uuid", [made.json.resource_id]]]);
+    expect(rows[0]?.safe_diff).toMatchObject({ format: 'DOCX', rows: 3 });
+    // The same permission: a person without the export right is refused, and a Word file is not made for them.
+    expect((await create(w.snapshotId, 'DOCX', NOBODY)).status).toBe(403);
   });
 
   it('writes the columns that were asked for and the million-dong scale, and refuses an unknown column naming it', async () => {

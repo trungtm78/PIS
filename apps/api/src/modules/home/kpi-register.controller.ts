@@ -8,12 +8,14 @@ import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { HomeFigureReader } from './figures';
 import type { Figure } from './figures';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 import { HOME_CLOCK } from './tokens';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const FORMATS = ['CSV', 'XLSX'] as const;
+const FORMATS = ['CSV', 'XLSX', 'DOCX'] as const;
 type Format = (typeof FORMATS)[number];
-const MEDIA_TYPE: Readonly<Record<Format, string>> = { CSV: 'text/csv; charset=utf-8', XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+const MEDIA_TYPE: Readonly<Record<Format, string>> = { CSV: 'text/csv; charset=utf-8', XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', DOCX: DOCX_MEDIA_TYPE };
+const EXTENSION: Readonly<Record<Format, string>> = { CSV: 'csv', XLSX: 'xlsx', DOCX: 'docx' };
 const EXPORT_ACTION = 'home.figures_exported';
 const RESOURCE_TYPE = 'home_figures';
 const DENOMINATORS = ['PM_ASSIGNED', 'TOTAL'] as const;
@@ -121,7 +123,7 @@ export class KpiRegisterController {
         owner: figure.kpi?.owner ?? '',
       })),
     });
-    const bytes: Uint8Array = kind === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : xlsxOf(document);
+    const bytes: Uint8Array = kind === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : kind === 'DOCX' ? await docxOf(document) : xlsxOf(document);
     // A file of figures leaves the system: it is a record of who took which figures out (classification of the figures, not their content).
     await this.audit.record(tenant, {
       action: EXPORT_ACTION,
@@ -133,7 +135,7 @@ export class KpiRegisterController {
       requestId: randomUUID(),
     });
     return {
-      file_name: `chi-tieu-trung-tam-dieu-hanh-${read.snapshot.asOfDate}.${kind === 'CSV' ? 'csv' : 'xlsx'}`,
+      file_name: `chi-tieu-trung-tam-dieu-hanh-${read.snapshot.asOfDate}.${EXTENSION[kind]}`,
       media_type: MEDIA_TYPE[kind],
       format: kind,
       snapshot_id: read.snapshot.id,

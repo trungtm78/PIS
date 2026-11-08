@@ -14,6 +14,7 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { Public } from '../../public.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
+import { DOCX_MEDIA_TYPE } from '../reports';
 import { BiExportRunner, EXPORT_KIND, EXPORT_PERMISSION, holdsNow, parseExportSpec } from './export-runner';
 import type { Outcome } from './export-runner';
 import { BiQueryCache } from './query-cache';
@@ -24,7 +25,7 @@ const JOB_RESOURCE = 'bi_export_job';
 const SCHEDULE_RESOURCE = 'bi_export_schedule';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SIGNATURE = /^[0-9a-f]{64}$/;
-const EXTENSION: Readonly<Record<BiExportFormat, string>> = { CSV: 'csv', XLSX: 'xlsx', PDF: 'pdf' };
+const EXTENSION: Readonly<Record<BiExportFormat, string>> = { CSV: 'csv', XLSX: 'xlsx', PDF: 'pdf', DOCX: 'docx' };
 
 export const jobView = (job: BiExportJobRow): Record<string, unknown> => ({
   id: job.id,
@@ -209,7 +210,7 @@ export class BiExportController {
     const { object, bytes } = await this.files.redeemDownload({ method: 'GET', key, expires: Number(expires), signature }).catch((error: unknown) => {
       throw error instanceof DomainError ? error : invalid();
     });
-    const format = (object.contentType === 'application/pdf' ? 'PDF' : object.contentType === 'text/csv' ? 'CSV' : 'XLSX') as BiExportFormat;
+    const format = (object.contentType === 'application/pdf' ? 'PDF' : object.contentType === 'text/csv' ? 'CSV' : object.contentType === DOCX_MEDIA_TYPE ? 'DOCX' : 'XLSX') as BiExportFormat;
     return new StreamableFile(bytes, { type: object.contentType, disposition: `attachment; filename="bi-export-${id}.${EXTENSION[format]}"`, length: bytes.length });
   }
 }

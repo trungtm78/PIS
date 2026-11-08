@@ -2,6 +2,8 @@ export { sha256Hex } from './digest';
 export { fillXlsxTemplate, parseRange, readXlsxMap, readXlsxMarks, shiftRows, translateRows } from './xlsx-template';
 export type { XlsxCellEntry, XlsxFillOptions, XlsxSheetMap } from './xlsx-template';
 export { readDocxHeaderFooter, readDocxParagraphs, renderDocx } from './docx-render';
+export { DOCX_MEDIA_TYPE, docxOf } from './export-docx';
+export type { ExportDocxOptions } from './export-docx';
 export type { DocxOptions, DocxPageSetup } from './docx-render';
 export { DEFAULT_FILE_NAME_RULE, assertFileNameRule, asciiSlug, reportFileName } from './file-name';
 export type { FileNameParts, FileNameRule } from './file-name';

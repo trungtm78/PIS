@@ -7,6 +7,7 @@ import { BI_DIMENSION_LABELS, BI_EXPORT_ROW_CAP, BI_EXPORT_TTL_DAYS, DomainError
 import type { BiExportFormat, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import type { FileService } from '../files/file.service';
 import { pdfOf } from '../dis/export-pdf';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 import { DATASET_CODE, EXPORT_PERMISSION, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
 export { EXPORT_PERMISSION };
 import type { BiQueryEngine } from './query-engine';
@@ -32,7 +33,7 @@ function exportMessage(key: ExportMessageKey): string {
 
 /** The kind of the object key the files of the exports are stored under. */
 export const EXPORT_KIND = 'bi_export';
-const MEDIA_TYPE: Readonly<Record<BiExportFormat, string>> = { CSV: 'text/csv', XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', PDF: 'application/pdf' };
+const MEDIA_TYPE: Readonly<Record<BiExportFormat, string>> = { CSV: 'text/csv', XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', PDF: 'application/pdf', DOCX: DOCX_MEDIA_TYPE };
 const OPERATORS: readonly string[] = ['eq', 'in', 'gte', 'lte'];
 
 /** What an export asks: a certified metric, cut by at most one dimension, narrowed by filters; the snapshot is named, or the period, or neither (the latest frozen version). */
@@ -153,7 +154,8 @@ export class BiExportRunner {
     if (spec.datasetCode !== undefined && version.datasetCode !== spec.datasetCode) throw new DomainError('VALIDATION_FAILED', 422, 'query_spec.dataset_code');
     // A snapshot that is named and a period that is named are the same period.
     if (spec.snapshotId !== undefined && spec.asOfPeriod !== undefined && version.periodCode !== spec.asOfPeriod) throw new DomainError('VALIDATION_FAILED', 422, 'as_of_period');
-    const cap = input.format === 'PDF' ? PDF_ROW_CAP : BI_EXPORT_ROW_CAP;
+    // A page of Word weighs like a page of PDF: the same cap.
+    const cap = input.format === 'PDF' || input.format === 'DOCX' ? PDF_ROW_CAP : BI_EXPORT_ROW_CAP;
     const jobId = randomUUID();
     const scopeHash = await this.engine.exportScopeHash(tx, input.subject, input.access, version.datasetId, now);
     const make = (scopeDescription: string): Promise<BiExportJobRow> =>
@@ -204,7 +206,7 @@ export class BiExportRunner {
         rows: figures.map((figure) => ({ key: figure.key, label: figure.label, value: figure.value, numerator: figure.numerator, denominator: figure.denominator, nullReason: figure.nullReason })),
         total: { value: total.value, numerator: total.numerator, denominator: total.denominator, nullReason: total.nullReason },
       });
-      const bytes: Uint8Array = input.format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : input.format === 'XLSX' ? xlsxOf(document) : await pdfOf(document, { stamp: now });
+      const bytes: Uint8Array = input.format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : input.format === 'XLSX' ? xlsxOf(document) : input.format === 'DOCX' ? await docxOf(document) : await pdfOf(document, { stamp: now });
       const key = await this.files.storeGenerated(tenant, EXPORT_KIND, jobId, bytes, MEDIA_TYPE[input.format]);
       const expires = new Date(now.getTime() + BI_EXPORT_TTL_DAYS * 24 * 60 * 60 * 1000);
       let job: BiExportJobRow;

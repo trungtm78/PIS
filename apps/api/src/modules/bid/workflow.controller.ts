@@ -14,12 +14,14 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 import { detailDto, entryDto, peopleOf, rowDto, timelineDto, treeDto } from './workflow-view';
 
 const RESOURCE_TYPE = 'package_workflow';
 const CLASSIFICATION = 'INTERNAL';
 const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const CSV_TYPE = 'text/csv; charset=utf-8';
+const REPORT_TYPE: Readonly<Record<'xlsx' | 'csv' | 'docx', string>> = { xlsx: XLSX_TYPE, csv: CSV_TYPE, docx: DOCX_MEDIA_TYPE };
 const READ = PERMISSIONS.getPackageWorkflow;
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
@@ -421,7 +423,7 @@ export class PackageWorkflowReadsController {
   async export(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>): Promise<Record<string, unknown>> {
     const now = new Date();
     const format = text(query.format, 'format') ?? 'xlsx';
-    if (format !== 'xlsx' && format !== 'csv') throw invalid('format');
+    if (format !== 'xlsx' && format !== 'csv' && format !== 'docx') throw invalid('format');
     const period = periodOf(query, now);
     const stats = await this.database.withTenant(tenant, (tx) => this.reads.statistics(tx, filterOf(query), period, projectScope(access, READ, now), now));
     const document: ExportDocument = {
@@ -439,10 +441,10 @@ export class PackageWorkflowReadsController {
       rows: stats.steps.map((one) => [one.method, one.stepCode, one.stepName ?? '', String(one.completedVisits), one.medianDays === null ? '' : String(one.medianDays), one.basis, one.onTimeShare === null ? '' : String(Math.round(one.onTimeShare * 10_000) / 100), String(one.openVisits), String(one.overStandard)]),
       notice: message('bid.workflow.export.notice'),
     };
-    const bytes = format === 'csv' ? Buffer.from(csvOf(document), 'utf8') : Buffer.from(xlsxOf(document));
+    const bytes = format === 'csv' ? Buffer.from(csvOf(document), 'utf8') : format === 'docx' ? Buffer.from(await docxOf(document)) : Buffer.from(xlsxOf(document));
     return {
       file_name: `tien-do-lua-chon-nha-thau-${period.from}-${period.to}.${format}`,
-      content_type: format === 'csv' ? CSV_TYPE : XLSX_TYPE,
+      content_type: REPORT_TYPE[format],
       size_bytes: bytes.length,
       sha256: createHash('sha256').update(bytes).digest('hex'),
       content_base64: bytes.toString('base64'),

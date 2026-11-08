@@ -24,24 +24,27 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { assertPeriodReach } from './period-gate';
 import { OperationId } from '../../operation-id.decorator';
 import { Public } from '../../public.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 import { pdfOf } from './export-pdf';
 import { DIS_CLOCK, DIS_METRICS } from './tokens';
 
 const EXPORT_PERMISSION = PERMISSIONS.createReportExport;
 export const REPORT_EXPORT_METRIC = 'dis_report_export_total';
 export const REPORT_EXPORT_DOWNLOAD_METRIC = 'dis_report_export_download_total';
-const FORMATS: readonly ExportFormat[] = ['CSV', 'XLSX', 'PDF'];
+const FORMATS: readonly ExportFormat[] = ['CSV', 'XLSX', 'PDF', 'DOCX'];
 const SCALES: readonly UnitScale[] = ['VND', 'MILLION_VND'];
 const MEDIA_TYPE: Readonly<Record<ExportFormat, string>> = {
   CSV: 'text/csv',
   XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   PDF: 'application/pdf',
+  DOCX: DOCX_MEDIA_TYPE,
 };
-const EXTENSION: Readonly<Record<ExportFormat, string>> = { CSV: 'csv', XLSX: 'xlsx', PDF: 'pdf' };
+const EXTENSION: Readonly<Record<ExportFormat, string>> = { CSV: 'csv', XLSX: 'xlsx', PDF: 'pdf', DOCX: 'docx' };
 /** The kernel caps a signed link at five minutes; a new one is issued each time the download is asked for, and the permission is judged each time. */
 const LINK_TTL_SECONDS = 300;
 const SIGNATURE = /^[0-9a-f]{64}$/;
@@ -89,7 +92,9 @@ export class ReportExportController {
     if (snapshot.status !== 'FROZEN') throw new DomainError('SNAPSHOT_NOT_FROZEN', 422, 'snapshot_id');
     const period = await this.periods.find(scope.tx, snapshot.periodId);
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'snapshot_id');
-    const cap = format === 'PDF' ? PDF_ROW_CAP : EXPORT_ROW_CAP;
+    await assertPeriodReach(scope.tx, this.periods, period.id, access, EXPORT_PERMISSION, now);
+    // A page of Word weighs like a page of PDF: the same cap.
+    const cap = format === 'PDF' || format === 'DOCX' ? PDF_ROW_CAP : EXPORT_ROW_CAP;
     const read = await this.exports.lines(scope.tx, projectScope(access, EXPORT_PERMISSION, now), snapshot.id, cap);
     if (read.overflow || read.projectIds.length > EXPORT_PROJECT_CAP) throw new DomainError('EXPORT_ROW_CAP_EXCEEDED', 422, 'snapshot_id', { extensions: { row_cap: cap } });
     // Nothing of the snapshot is in the scope of the caller: there is no file to make.
@@ -107,7 +112,7 @@ export class ReportExportController {
       columns: body.columns,
       unitScale,
     });
-    const bytes: Uint8Array = format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : format === 'XLSX' ? xlsxOf(document) : await pdfOf(document);
+    const bytes: Uint8Array = format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : format === 'XLSX' ? xlsxOf(document) : format === 'DOCX' ? await docxOf(document) : await pdfOf(document);
     const stored = await this.files.upload(scope.tenant, { purpose: 'report_export', declaredType: MEDIA_TYPE[format], bytes });
     // Only a file the antivirus has passed is ever offered (SCAN_PENDING, FILE_NOT_CLEAN).
     assertLinkable(stored.scanStatus);

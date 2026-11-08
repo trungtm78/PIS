@@ -14,6 +14,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { reaches } from '../ctr/contract.controller';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 
 const READ = PERMISSIONS.getInvestmentAppraisal;
 const MANAGE = PERMISSIONS.createInvestmentAppraisal;
@@ -22,7 +23,8 @@ const APPROVE = PERMISSIONS.approveInvestmentAppraisal;
 const EXPORT = PERMISSIONS.exportInvestmentAppraisal;
 const RESOURCE = 'investment_appraisal';
 const CLASSIFICATION = 'CONFIDENTIAL';
-const MEDIA_TYPE: Readonly<Record<string, string>> = { CSV: 'text/csv; charset=utf-8', XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+const MEDIA_TYPE: Readonly<Record<string, string>> = { CSV: 'text/csv; charset=utf-8', XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', DOCX: DOCX_MEDIA_TYPE };
+const EXTENSION: Readonly<Record<string, string>> = { CSV: 'csv', XLSX: 'xlsx', DOCX: 'docx' };
 
 const positiveInt = (value: unknown, field: string, min: number, max: number): number | undefined => {
   if (value === undefined || value === '') return undefined;
@@ -235,9 +237,9 @@ export class InvestmentAppraisalController {
     const now = new Date();
     const made = await this.appraisals.exportData(scope.tx, id.toLowerCase(), appraisalScope(access, EXPORT, now), now);
     const document = finExportDocument(made.input);
-    const bytes: Uint8Array = body.format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : xlsxOf(document);
+    const bytes: Uint8Array = body.format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : body.format === 'DOCX' ? await docxOf(document) : xlsxOf(document);
     const sha256 = createHash('sha256').update(bytes).digest('hex');
-    const fileName = `${made.input.code}-v${made.input.revision}.${body.format === 'CSV' ? 'csv' : 'xlsx'}`;
+    const fileName = `${made.input.code}-v${made.input.revision}.${EXTENSION[body.format] as string}`;
     await this.record(scope, made.appraisal, 'project.fin_appraisal_exported', 'project.fin_appraisal_exported.v1', now, { format: body.format, sha256, size_bytes: bytes.length });
     return {
       ...commandResult(scope, 'EXPORTED', made.appraisal.version, made.appraisal.id),

@@ -31,6 +31,7 @@ import { OperationId } from '../../operation-id.decorator';
 import { Public } from '../../public.decorator';
 import { pdfOf } from '../dis/export-pdf';
 import { FileService } from '../files';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 import { packageDiffOf, reportDiffOf } from './mne-views';
 import { MNE_METRICS } from './tokens';
 
@@ -39,8 +40,9 @@ const MEDIA_TYPE: Readonly<Record<string, string>> = {
   CSV: 'text/csv',
   XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   PDF: 'application/pdf',
+  DOCX: DOCX_MEDIA_TYPE,
 };
-const EXTENSION: Readonly<Record<string, string>> = { CSV: 'csv', XLSX: 'xlsx', PDF: 'pdf' };
+const EXTENSION: Readonly<Record<string, string>> = { CSV: 'csv', XLSX: 'xlsx', PDF: 'pdf', DOCX: 'docx' };
 /** The kernel caps a signed link at five minutes; a new one is issued each time the report is read, and the right to export is judged each time. */
 export const MNE_LINK_TTL_SECONDS = 300;
 const SIGNATURE = /^[0-9a-f]{64}$/;
@@ -239,6 +241,8 @@ export class MneExportController {
   private async bytesOf(document: ReturnType<typeof mneExportDocument>, format: MneExportFormat, stamp: Date): Promise<Uint8Array> {
     if (format === 'CSV') return new Uint8Array(Buffer.from(csvOf(document), 'utf8'));
     if (format === 'XLSX') return xlsxOf(document);
+    // The same document as the other files, with the day the report was issued as its mark (the file depends on the report alone).
+    if (format === 'DOCX') return docxOf(document);
     // The cells hold the words of the report: they are written out in full, over as many lines and pages as they need.
     return pdfOf(document, { stamp, wrap: true });
   }

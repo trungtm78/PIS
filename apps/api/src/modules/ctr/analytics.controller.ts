@@ -57,15 +57,16 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { pdfOf } from '../dis/export-pdf';
+import { DOCX_MEDIA_TYPE, docxOf } from '../reports';
 
 const READ_PERMISSION = 'contract.read';
 const ANALYTICS_PERMISSION = 'contract.analytics.read';
 const LEDGER_PERMISSION = 'ledger.read';
 const DEFAULT_PAGE = 50;
 const MAX_PAGE = 200;
-const FORMATS = ['xlsx', 'csv', 'pdf'] as const;
+const FORMATS = ['xlsx', 'csv', 'pdf', 'docx'] as const;
 type Format = (typeof FORMATS)[number];
-const MEDIA_TYPE: Readonly<Record<Format, string>> = { xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', csv: 'text/csv', pdf: 'application/pdf' };
+const MEDIA_TYPE: Readonly<Record<Format, string>> = { xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', csv: 'text/csv', pdf: 'application/pdf', docx: DOCX_MEDIA_TYPE };
 const AUDIT_RESOURCE = 'contract_report';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -420,7 +421,8 @@ export class ContractAnalyticsController {
     const chosen = format as Format;
     const now = new Date();
     const request = analyticsRequestOf({ ...raw, format: undefined, limit: undefined, cursor: undefined }, vietnamDateOf(now));
-    const cap = chosen === 'pdf' ? PDF_ROW_CAP : BI_EXPORT_ROW_CAP;
+    // A page of Word weighs like a page of PDF: the same cap.
+    const cap = chosen === 'pdf' || chosen === 'docx' ? PDF_ROW_CAP : BI_EXPORT_ROW_CAP;
     return this.database.withTenant(tenant, async (tx) => {
       const prepared = await this.prepare(tx, tenant, access, request, ANALYTICS_PERMISSION, now);
       const scopeText = reportScopeDescription(prepared.province);
@@ -455,7 +457,7 @@ export class ContractAnalyticsController {
         document = reportDocumentOf({ ...header, code, columns: REPORT_COLUMNS[code], rows, totals });
         rowCount = rows.length;
       }
-      const bytes: Uint8Array = chosen === 'csv' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : chosen === 'xlsx' ? xlsxOf(document) : await pdfOf(document, { stamp: now, wrap: true });
+      const bytes: Uint8Array = chosen === 'csv' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : chosen === 'xlsx' ? xlsxOf(document) : chosen === 'docx' ? await docxOf(document) : await pdfOf(document, { stamp: now, wrap: true });
       const sha = createHash('sha256').update(bytes).digest('hex');
       await this.audit.recordInTx(tx, tenant.membershipId, {
         action: 'contract.report_exported',
