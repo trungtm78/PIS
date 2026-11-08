@@ -339,7 +339,7 @@
     }
   ],
   "modulesTitle": "Các phân hệ của hệ thống",
-  "modulesLead": "Hệ thống gồm 25 phân hệ nghiệp vụ và nền tảng. Mỗi thẻ dưới đây nói phân hệ làm gì, ai dùng, nó đóng góp gì cho quản trị, và dẫn đến các chương clip hướng dẫn.",
+  "modulesLead": "Hệ thống gồm 26 phân hệ nghiệp vụ và nền tảng. Mỗi thẻ dưới đây nói phân hệ làm gì, ai dùng, nó đóng góp gì cho quản trị, và dẫn đến các chương clip hướng dẫn.",
   "modules": [
     {
       "code": "HOME",
@@ -358,6 +358,12 @@
       "does": "Danh mục dự án, tạo dự án, không gian dự án, vòng đời từ ý tưởng đến đóng hồ sơ, chấm điểm thẩm định, WBS và tiến độ, rủi ro, phân công lãnh đạo phụ trách, tổ công tác đôn đốc, giải trình, mã dự án quốc gia.",
       "users": "Ban quản lý dự án, chủ đầu tư, lãnh đạo",
       "governance": "Dự án chỉ chuyển giai đoạn khi đủ điều kiện; có người chịu trách nhiệm và yêu cầu giải trình có hạn."
+    },
+    {
+      "code": "DIR",
+      "does": "Chỉ đạo giao ban: các cuộc giao ban đầu tư kèm biên bản, từng chỉ đạo giao cho một dự án hoặc một đơn vị với người thực hiện và hạn, bảng theo dõi quá hạn, dòng thời gian, gia hạn và đóng chỉ đạo có bằng chứng, và số chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau; trên điện thoại lãnh đạo xem được chỉ đạo giao cho mình.",
+      "users": "Văn phòng lãnh đạo, thư ký giao ban, đơn vị thực hiện, lãnh đạo",
+      "governance": "Mỗi chỉ đạo có người thực hiện và hạn rõ; đóng cần bằng chứng và người đóng khác người ghi và người thực hiện; gia hạn có lý do và người duyệt khác người đề nghị; lịch sử không sửa."
     },
     {
       "code": "CAP",

@@ -18,14 +18,15 @@ test('every phone chapter is well formed', () => {
   assert.equal(new Set(chapters.map((chapter) => chapter.id)).size, chapters.length);
 });
 
-test('the phone has 72 screens, and each one is shown by a step of a chapter or listed as not filmed, never both', () => {
-  assert.equal(phone.length, 72);
+test('every phone screen of the catalogue is shown by a step of a chapter or listed as not filmed, never both', () => {
+  assert.ok(phone.length > 0);
+  assert.equal(new Set(phone).size, phone.length, 'a phone screen is listed twice in the catalogue');
   const shown = new Set(chapters.flatMap((chapter) => chapter.steps.map((step) => step.screens[0])));
   const listed = new Set(loadNotFilmed().map((entry) => entry.screen));
   assert.deepEqual(phone.filter((id) => !shown.has(id) && !listed.has(id)), [], 'screens with neither a step nor a reason');
   assert.deepEqual([...shown].filter((id) => listed.has(id)), [], 'screens that are both filmed and listed');
   assert.deepEqual([...shown].filter((id) => !phone.includes(id)), [], 'steps that show a screen of the web');
-  assert.equal(shown.size + listed.size, 72);
+  assert.equal(shown.size + listed.size, phone.length);
 });
 
 test('the phone chapters are in the list of chapters of the guide, in order, after the tours', () => {

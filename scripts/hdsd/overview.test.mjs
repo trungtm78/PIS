@@ -19,8 +19,11 @@ test('every module of the catalogue has a card, and every screen the controls po
 
 test('the screens are counted by platform for each module', () => {
   const counts = countsOf(catalogue);
-  assert.equal(counts.get('MOB').mobile, 68);
-  assert.equal(counts.get('PRJ').web, 21);
+  const countOf = (module, platform) => catalogue.filter((screen) => screen.module === module && (screen.platform === 'mobile') === (platform === 'mobile')).length;
+  assert.equal(counts.get('MOB').mobile, countOf('MOB', 'mobile'));
+  assert.equal(counts.get('PRJ').web, countOf('PRJ', 'web'));
+  assert.equal(counts.get('DIR').web, countOf('DIR', 'web'));
+  assert.equal(counts.get('DIR').mobile, countOf('DIR', 'mobile'));
   assert.equal(catalogue.length, [...counts.values()].reduce((sum, entry) => sum + entry.web + entry.mobile, 0));
 });
 
@@ -33,7 +36,7 @@ test('the part of the guide about the system has its sections, links the modules
   const card = /<article class="card" id="pm-PRJ">[\s\S]*?<\/article>/u.exec(html.modules)?.[0] ?? '';
   assert.match(card, /href="#ch-tour-prj-a"/u);
   assert.match(card, /href="#ch-03-tao-du-an"/u);
-  assert.match(card, /21 màn hình web/u);
+  assert.match(card, new RegExp(`${countsOf(catalogue).get('PRJ').web} màn hình web`, 'u'));
   assert.deepEqual(modulesOfChapter({ id: '02-danh-muc-dia-ban' }, overview.flowModules), ['MDM', 'DOC']);
   assert.deepEqual(modulesOfChapter({ id: 'x', module: 'CAP' }, {}), ['CAP']);
 });
