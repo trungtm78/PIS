@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `enterprise-phu-my`
 - Bản: enterprise
-- Video chính: 10:32 (43 cảnh)
+- Video chính: 10:46 (44 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,9 +12,9 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 43 | 10:32 |
-| Giới thiệu phần mềm (`intro`) | 3 | 0:50 |
-| Tổng quan điều hành (`leader-home`) | 7 | 1:34 |
+| Video chính (`main`) | 44 | 10:46 |
+| Giới thiệu phần mềm (`intro`) | 4 | 1:07 |
+| Tổng quan điều hành (`leader-home`) | 7 | 1:29 |
 | Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:07 |
 | Dự án đầu tư xây dựng (`projects`) | 5 | 1:15 |
 | Báo cáo gửi Tập đoàn (`reports-pvn`) | 6 | 1:41 |
@@ -27,7 +27,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Quản lý nhà thầu và nhà cung cấp (`contractors`) | 9 | 2:26 |
 | Cây tiến độ (`process-tree`) | 9 | 2:09 |
 | Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:28 |
-| Tin cậy và kết thúc (`close`) | 2 | 0:30 |
+| Tin cậy và kết thúc (`close`) | 2 | 0:32 |
 
 ## Dữ liệu và độ sẵn sàng
 
@@ -74,30 +74,31 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 | Điểm nhạc | Chương | Bắt đầu | Mức so với nền | Tính chất |
 |---|---|---|---|---|
 | `ent-open` | `intro` | 0:00 | 0 dB | Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán. |
-| `ent-overview` | `leader-home`, `capital`, `projects` | 0:50 | 0 dB | Phần điều hành, cơ cấu vốn và dự án: nền ổn định. |
-| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:17 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
-| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:31 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
-| `ent-tree-phone` | `process-tree`, `phone` | 7:55 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `ent-close` | `close` | 10:02 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `ent-overview` | `leader-home`, `capital`, `projects` | 1:07 | 0 dB | Phần điều hành, cơ cấu vốn và dự án: nền ổn định. |
+| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:30 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
+| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:43 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
+| `ent-tree-phone` | `process-tree`, `phone` | 8:07 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
+| `ent-close` | `close` | 10:15 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu phần mềm (`intro`)
 
 ### `ent-intro-title`
 
-Nền tảng: title; 15.4 giây; có trong video chính
+Nền tảng: title; 19.1 giây; có trong video chính
 
 **Lời đọc**
 
-> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.
+> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng web và ứng dụng di động. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu đê-mô, chờ mẫu chính thức.
+> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng quép và ứng dụng di động. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu đê-mô, chờ mẫu chính thức.
 
 **Phụ đề**
 
-- Phần mềm quản lý đầu tư xây / dựng của Đạm Phú Mỹ theo
-- dõi dự án từ kế hoạch vốn / đến báo cáo gửi Tập đoàn.
+- Phần mềm quản lý đầu / tư xây dựng của Đạm Phú
+- Mỹ gồm nền tảng web và ứng dụng di động.
+- Phần mềm theo dõi dự án từ kế / hoạch vốn đến báo cáo gửi Tập đoàn.
 - Dữ liệu trong đoạn phim là minh họa,
 - và sáu biểu mẫu là mẫu / demo, chờ mẫu chính thức.
 
@@ -112,6 +113,33 @@ Nền tảng: title; 15.4 giây; có trong video chính
 - [ ] Chú thích "MẪU DEMO — chờ mẫu chính thức" hiện từ giây 6, kéo dài 6 giây
 - [ ] Dấu bắt buộc hiện rõ trên hình: "Dữ liệu minh họa"
 - [ ] Dấu bắt buộc hiện rõ trên hình: "MẪU DEMO — chờ mẫu chính thức"
+- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
+
+### `ent-intro-web-phone`
+
+Nền tảng: animatic; 13.9 giây; có trong video chính
+
+**Lời đọc**
+
+> Phần mềm gồm hai phần dùng chung một nguồn số liệu và một bộ quyền. Nền tảng web chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường.
+
+**Lời gửi cho giọng đọc (đã phiên âm)**
+
+> Phần mềm gồm hai phần dùng chung một nguồn số liệu và một bộ quyền. Nền tảng quép chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường.
+
+**Phụ đề**
+
+- Phần mềm gồm hai phần dùng chung / một nguồn số liệu và một bộ quyền.
+- Nền tảng web chạy trên trình / duyệt cho người điều hành.
+- Ứng dụng di động chạy trên điện / thoại cho người làm ở hiện trường.
+
+**Các bước quay**
+
+- `do=animatic id=platform-enterprise`
+
+**Cần thấy trên hình**
+
+- [ ] Hoạt cảnh platform-enterprise chạy hết thời lượng của lời đọc, chữ trên hình là tiếng Việt
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `ent-intro-problem`
@@ -174,24 +202,23 @@ Nền tảng: animatic; 16.3 giây; có trong video chính
 
 ### `ent-home`
 
-Nền tảng: web; 18.7 giây; có trong video chính
+Nền tảng: web; 13.5 giây; có trong video chính
 
 Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HOME-01` Tổng quan điều hành (/home/home-01)
 
 **Lời đọc**
 
-> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}} và giải ngân lũy kế {{figure:ent-rate-disbursed}}. Có {{figure:ent-projects-delayed}} trên {{figure:ent-projects-total}} dự án đang chậm.
+> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}} và giải ngân lũy kế {{figure:ent-rate-disbursed}}. Có {{figure:ent-projects-delayed}} trên {{figure:ent-projects-total}} dự án đang chậm.
+> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.
 
 **Phụ đề**
 
-- Trang điều hành của Tổng công ty
-- cho thấy tổng mức đầu tư {n},
-- kế hoạch vốn năm {n} và / giải ngân lũy kế {n}.
-- Có {n} trên {n} dự án đang chậm.
+- Trang điều hành của Tổng công
+- ty cho thấy tổng mức
+- đầu tư {n}, kế hoạch vốn / năm {n}, trên {n} dự án.
 
 **Các bước quay**
 
@@ -210,8 +237,6 @@ Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HO
 - [ ] Chú thích "Dữ liệu minh họa" hiện từ giây 1, kéo dài 5 giây
 - [ ] Con số ent-total-investment đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_TOTAL_INVESTMENT].value); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Con số ent-plan-year đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PLAN_IN_FORCE].value); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số ent-rate-disbursed đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_RATE_DISBURSED_YTD].value); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số ent-projects-delayed đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PROJECTS_DELAYED].value); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Con số ent-projects-total đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PROJECTS_TOTAL].value); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -3259,20 +3284,20 @@ Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `ADM-14` Cấu hình
 
 ### `ent-close-outro`
 
-Nền tảng: title; 14.5 giây; có trong video chính
+Nền tảng: title; 16.3 giây; có trong video chính
 
 **Lời đọc**
 
-> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
+> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng web và ứng dụng di động, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
+> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng quép và ứng dụng di động, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
 
 **Phụ đề**
 
-- Từ kế hoạch vốn đến báo cáo gửi Tập đoàn,
-- một nền tảng, một bộ chỉ / tiêu, mỗi con số có nguồn.
+- Từ kế hoạch vốn đến báo cáo / gửi Tập đoàn, một nền tảng web
+- và ứng dụng di động, một bộ / chỉ tiêu, mỗi con số có nguồn.
 - Đội ngũ đầu tư ít chép số / hơn, lãnh đạo thấy sớm hơn,
 - và kiểm toán dựng lại được từng kỳ.
 

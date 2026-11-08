@@ -170,7 +170,7 @@
       "id": "ent-intro-title",
       "chapter": "intro",
       "main": true,
-      "narration": "Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.",
+      "narration": "Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng web và ứng dụng di động. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.",
       "screen": {
         "platform": "title",
         "screens": [],
@@ -198,7 +198,35 @@
         "illustrative-data",
         "demo-form"
       ],
-      "expectedSec": 15.4
+      "expectedSec": 19.1
+    },
+    {
+      "id": "ent-intro-web-phone",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Phần mềm gồm hai phần dùng chung một nguồn số liệu và một bộ quyền. Nền tảng web chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường.",
+      "layout": "split",
+      "headline": "Nền tảng web và ứng dụng di động",
+      "showcase": {
+        "screens": [
+          "HOME-09"
+        ],
+        "persona": "owner",
+        "phone": "ent-intro-web-phone"
+      },
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "platform-enterprise"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "platform-enterprise"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
     },
     {
       "id": "ent-intro-problem",
@@ -275,7 +303,7 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 18.7
+      "expectedSec": 13.5
     },
     {
       "include": "shared/leader-home.json"
@@ -1375,7 +1403,7 @@
       "id": "ent-close-outro",
       "chapter": "close",
       "main": true,
-      "narration": "Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.",
+      "narration": "Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng web và ứng dụng di động, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.",
       "screen": {
         "platform": "title",
         "screens": [],
@@ -1388,7 +1416,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 14.5
+      "expectedSec": 16.3
     }
   ]
 }
