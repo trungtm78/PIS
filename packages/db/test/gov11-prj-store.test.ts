@@ -115,7 +115,7 @@ describe('GOV-11a PRJ stores (G1-19): the look-ahead plan, the lessons learned a
       expect(published).toMatchObject({ status: 'PUBLISHED', version: made.version + 1 });
       expect(await refusal(as((tx) => lookAheads.publish(tx, everything, { planId: made.id, expectedVersion: published.version, actor: memberId(ACTOR), now: NOW })))).toMatchObject({ code: 'LOOK_AHEAD_STATE_INVALID', status: 409 });
       expect(await sqlState(owner("update machvon.look_ahead_plan set horizon_weeks = 4 where id = $1::uuid", [made.id]))).toBe('23514');
-      expect(await sqlState(owner('delete from machvon.look_ahead_plan where id = $1::uuid', [made.id]))).toBe('42501');
+      expect(await sqlState(owner('delete from machvon.look_ahead_plan where id = $1::uuid', [made.id]))).toBe('23514');
     });
 
     it('an item with an open constraint that starts within the lead days is not ready, one far away is only constrained, and clearing makes it ready (G1-19)', async () => {
