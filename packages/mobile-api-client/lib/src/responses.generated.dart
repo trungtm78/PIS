@@ -9,6 +9,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'acceptIssueEscalation': CommandResultResponse.fromJson,
   'acknowledgeAdvanceAlert': CommandResultResponse.fromJson,
   'acknowledgeAlertEscalation': CommandResultResponse.fromJson,
+  'acknowledgeCommitteeAlert': CommandResultResponse.fromJson,
   'acknowledgeEarlyWarning': CommandResultResponse.fromJson,
   'acknowledgeEvaluationTrigger': CommandResultResponse.fromJson,
   'acknowledgeGovernanceAlert': CommandResultResponse.fromJson,
@@ -19,9 +20,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'addContactIdentity': CommandResultResponse.fromJson,
   'addContractEarlyWarningAction': CommandResultResponse.fromJson,
   'addDirective': CommandResultResponse.fromJson,
+  'addDocumentComment': CommandResultResponse.fromJson,
   'addDocumentToDossier': CommandResultResponse.fromJson,
   'addPermit': CommandResultResponse.fromJson,
   'addProjectComponent': CommandResultResponse.fromJson,
+  'addProjectDocumentVersion': CommandResultResponse.fromJson,
   'addProjectMilestone': CommandResultResponse.fromJson,
   'addPunchItem': CommandResultResponse.fromJson,
   'addSupervisorRemark': CommandResultResponse.fromJson,
@@ -30,6 +33,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'addVendorKeyStaff': CommandResultResponse.fromJson,
   'addVendorOwner': CommandResultResponse.fromJson,
   'addVendorQualification': CommandResultResponse.fromJson,
+  'adoptContractRating': CommandResultResponse.fromJson,
   'advanceEnforcement': CommandResultResponse.fromJson,
   'advancePackageStep': CommandResultResponse.fromJson,
   'advanceVendorRestrictionCase': CommandResultResponse.fromJson,
@@ -39,6 +43,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'applyMigrationBatch': CommandResultResponse.fromJson,
   'applyReallocationProposal': CommandResultResponse.fromJson,
   'applyReportImport': CommandResultResponse.fromJson,
+  'appointCommitteeMember': CommandResultResponse.fromJson,
   'approveAiModel': CommandResultResponse.fromJson,
   'approveAiPromptVersion': CommandResultResponse.fromJson,
   'approveCompensationPlan': CommandResultResponse.fromJson,
@@ -54,6 +59,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'approveSettlementException': CommandResultResponse.fromJson,
   'approveSodException': CommandResultResponse.fromJson,
   'approveVendorPayeeChange': CommandResultResponse.fromJson,
+  'archiveProjectDocument': CommandResultResponse.fromJson,
   'archiveTenant': TenantLifecycleResultResponse.fromJson,
   'assessContractEarlyWarning': CommandResultResponse.fromJson,
   'assignAuditRecommendation': CommandResultResponse.fromJson,
@@ -122,6 +128,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'closeVendorPayeeAccount': CommandResultResponse.fromJson,
   'closeWarrantyObligation': CommandResultResponse.fromJson,
   'commentIssue': CommandResultResponse.fromJson,
+  'compareDocumentVersions': DocumentComparisonResponse.fromJson,
   'compareProposals': BidComparisonResponse.fromJson,
   'completeContract': CommandResultResponse.fromJson,
   'completeContractEarlyWarningAction': CommandResultResponse.fromJson,
@@ -129,6 +136,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'completeProject': CommandResultResponse.fromJson,
   'completeRemediationAction': CommandResultResponse.fromJson,
   'completeSigningSession': CommandResultResponse.fromJson,
+  'confirmClearRedFlag': CommandResultResponse.fromJson,
   'confirmCompensationPayment': CommandResultResponse.fromJson,
   'confirmContractorViolation': CommandResultResponse.fromJson,
   'confirmDocumentRetentionRuleLegalBasis': CommandResultResponse.fromJson,
@@ -158,6 +166,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createAvcPolicyVersion': CommandResultResponse.fromJson,
   'createBiAccessPolicy': CommandResultResponse.fromJson,
   'createBiExportSchedule': CommandResultResponse.fromJson,
+  'createBiReader': BiReaderIssuedResponse.fromJson,
   'createCampaign': CommandResultResponse.fromJson,
   'createCannedReply': CommandResultResponse.fromJson,
   'createCapitalPlan': CommandResultResponse.fromJson,
@@ -186,6 +195,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createIssue': CommandResultResponse.fromJson,
   'createLandParcel': CommandResultResponse.fromJson,
   'createLandSection': CommandResultResponse.fromJson,
+  'createMachineAccount': MachineCredentialIssuedResponse.fromJson,
   'createMasterChangeRequest': CommandResultResponse.fromJson,
   'createMasterCrosswalk': CommandResultResponse.fromJson,
   'createMaturityAssessment': CommandResultResponse.fromJson,
@@ -204,6 +214,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createPlanVersion': CommandResultResponse.fromJson,
   'createProcurementPlan': CommandResultResponse.fromJson,
   'createProject': CommandResultResponse.fromJson,
+  'createProjectDocument': CommandResultResponse.fromJson,
   'createQualityAcceptance': CommandResultResponse.fromJson,
   'createQualityRuleVersion': CommandResultResponse.fromJson,
   'createReplacementDocument': CommandResultResponse.fromJson,
@@ -233,6 +244,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideAppropriation': CommandResultResponse.fromJson,
   'decideApprovalTask': CommandResultResponse.fromJson,
   'decideBiPublication': CommandResultResponse.fromJson,
+  'decideBiReader': CommandResultResponse.fromJson,
   'decideCampaign': CommandResultResponse.fromJson,
   'decideCapitalPlan': CommandResultResponse.fromJson,
   'decideClaimSettlement': CommandResultResponse.fromJson,
@@ -244,9 +256,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideEgpMapping': CommandResultResponse.fromJson,
   'decideEntitlementOverride': CommandResultResponse.fromJson,
   'decideGlossaryTerm': CommandResultResponse.fromJson,
+  'decideHpmCorrection': CommandResultResponse.fromJson,
   'decideHubIncident': CommandResultResponse.fromJson,
   'decideHubMapping': CommandResultResponse.fromJson,
   'decideHubReject': CommandResultResponse.fromJson,
+  'decideMachineAccount': CommandResultResponse.fromJson,
   'decideMasterChangeRequest': CommandResultResponse.fromJson,
   'decideMasterImport': CommandResultResponse.fromJson,
   'decideMneEvaluation': CommandResultResponse.fromJson,
@@ -257,6 +271,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideProcurementPlan': CommandResultResponse.fromJson,
   'decideProcurementResult': CommandResultResponse.fromJson,
   'decideProjectAppraisal': CommandResultResponse.fromJson,
+  'decideProjectCode': CommandResultResponse.fromJson,
   'decideProjectRevision': CommandResultResponse.fromJson,
   'decideProjectTransfer': CommandResultResponse.fromJson,
   'decideQualityAcceptance': CommandResultResponse.fromJson,
@@ -292,15 +307,19 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'editMneReport': CommandResultResponse.fromJson,
   'endAlertAbsence': CommandResultResponse.fromJson,
   'endAuditFieldwork': CommandResultResponse.fromJson,
+  'endCommitteeMember': CommandResultResponse.fromJson,
   'endMembership': CommandResultResponse.fromJson,
   'endProjectLeaderAssignment': CommandResultResponse.fromJson,
   'endVendorJointVenture': CommandResultResponse.fromJson,
   'endVendorOwner': CommandResultResponse.fromJson,
   'engageAiKillSwitch': CommandResultResponse.fromJson,
+  'enterIndicatorFigures': IndFigureEntryResultResponse.fromJson,
   'escalateIssue': CommandResultResponse.fromJson,
   'evaluateChangeRequest': CommandResultResponse.fromJson,
+  'evaluateCommitteeAlerts': CommitteeAlertEvaluationResponse.fromJson,
   'evaluateContractor': CommandResultResponse.fromJson,
   'evaluateCrossTotal': CrossTotalCheckResultResponse.fromJson,
+  'evaluateIndicatorEntry': IndEntryVerdictResponse.fromJson,
   'evaluatePermitGates': asObject,
   'explainBiMetric': BiDrillExplanationResponse.fromJson,
   'explainHomeMetric': HomeDrillExplanationResponse.fromJson,
@@ -518,8 +537,14 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getAiRequestRoute': LlmRouteDecisionResponse.fromJson,
   'getAiReviewChecklist': AiReviewChecklistResponse.fromJson,
   'getAiSpendSummary': asObject,
+  'getAlertClosureSummary': asObject,
   'getAlertCoverageReport': AlertCoverageReportResponse.fromJson,
+  'getAlertFeedbackStats': asObject,
+  'getAlertFlood': asObject,
   'getAlertHealth': AlertHealthResponse.fromJson,
+  'getAlertLadderForItem': asObject,
+  'getAlertLadderKpi': asObject,
+  'getAlertLadderPolicy': asObject,
   'getAlertType': asObject,
   'getAnalyticsCertificationLog': asObject,
   'getAuditEngagement': asObject,
@@ -529,6 +554,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getBiExport': asObject,
   'getBiLineage': asObject,
   'getBiQueryRun': asObject,
+  'getBiReader': BiReaderDetailResponse.fromJson,
   'getCampaign': CampaignViewResponse.fromJson,
   'getCapitalAvailability': CapAvailabilityResponse.fromJson,
   'getCapitalPlanAsOf': CapPlanAsOfResponse.fromJson,
@@ -536,6 +562,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getChangeTier': CtrChangeTierResponse.fromJson,
   'getClaim': CtrClaimResponse.fromJson,
   'getCommandCenter': HomeCommandCenterResponse.fromJson,
+  'getCommitteeDirectiveTracker': CommitteeDirectiveTrackerResponse.fromJson,
+  'getCommitteeMeetingPack': CommitteeMeetingPackResponse.fromJson,
+  'getCommitteeRoster': CommitteeRosterResponse.fromJson,
+  'getCommitteeWorkspace': CommitteeWorkspaceResponse.fromJson,
   'getCompensationPlanTimers': asObject,
   'getContractAdvancePosition': PayContractAdvancePositionResponse.fromJson,
   'getContractAvailability': CapContractAvailabilityResponse.fromJson,
@@ -545,6 +575,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getContractorHistory': ContractorHistoryResponse.fromJson,
   'getContractorScorecard': ContractorScorecardResponse.fromJson,
   'getContractPortfolio': CtrContractReportResponse.fromJson,
+  'getContractRatingProposal': CtrContractRatingProposalResponse.fromJson,
   'getContractReport': asAny,
   'getContractScheduleSCurve': CtrScheduleSCurveResponse.fromJson,
   'getContractSummary': asObject,
@@ -563,11 +594,13 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getDisbursementRates': DisRatesResponse.fromJson,
   'getDocumentLayoutProfile': asObject,
   'getDocumentOverview': asObject,
+  'getDocumentReview': DocumentReviewDetailResponse.fromJson,
   'getDocumentSignatureReport': DocSignatureReportResponse.fromJson,
   'getDocumentTemplate': asObject,
   'getDocumentTimeline': asObject,
   'getDocumentVersionDownload': asObject,
   'getDossier': asObject,
+  'getEbsConnection': EbsConnectionResponse.fromJson,
   'getEffectiveGovernanceRule': asObject,
   'getEgpConnection': EgpConnectionResponse.fromJson,
   'getEgpImport': EgpImportDetailResponse.fromJson,
@@ -584,15 +617,19 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getHomeChanges': asObject,
   'getHomeChannelHealth': asObject,
   'getHomeWarnings': asObject,
+  'getHpmConnection': HpmConnectionResponse.fromJson,
   'getHubConnector': HubConnectorDetailResponse.fromJson,
   'getHubHealthSummary': HubHealthSummaryResponse.fromJson,
   'getIncomingDocument': asObject,
+  'getIndicator': IndIndicatorDetailResponse.fromJson,
+  'getIndicatorImportMapping': IndMappingDetailResponse.fromJson,
   'getInspection': QmsInspectionLineResponse.fromJson,
   'getInvestmentAppraisal': PrjFinAppraisalResponse.fromJson,
   'getIssueWeeklyMatrix': IssueWeeklyMatrixResponse.fromJson,
   'getKpiRegister': asObject,
   'getLandProgress': asObject,
   'getLineageGraph': asObject,
+  'getMachineAccount': MachineAccountResponse.fromJson,
   'getMasterChangeRequest': asObject,
   'getMasterImport': asObject,
   'getMasterRecordAsOf': asObject,
@@ -612,6 +649,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getMyUsage': UsageSummaryResponse.fromJson,
   'getMyWork': asObject,
   'getMyWorkCounts': asObject,
+  'getOpenApiDocument': asObject,
   'getOutgoingDocument': asObject,
   'getPackageProcessTree': PackageProcessTreeResponse.fromJson,
   'getPackageProcessTreeNode': PackageProcessTreeNodeOverviewResponse.fromJson,
@@ -625,6 +663,9 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getPaymentIntegrityChecks': asObject,
   'getPlacementMigration': PlacementMigrationDetailResponse.fromJson,
   'getProjectBaseline': PrjProjectBaselineResponse.fromJson,
+  'getProjectDocument': ProjectDocumentDetailResponse.fromJson,
+  'getProjectDocumentVersion': ProjectDocumentVersionDetailResponse.fromJson,
+  'getProjectDocumentVersionDownload': DocumentFileDownloadResponse.fromJson,
   'getProjectEacControl': CapProjectEacControlResponse.fromJson,
   'getProjectEvm': PrjProjectEvmResponse.fromJson,
   'getProjectLifecycle': asObject,
@@ -636,6 +677,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getRagReading': asObject,
   'getReconciliation': asObject,
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
+  'getRedFlag': asObject,
+  'getRedFlagSummary': asObject,
   'getReportDraft': RptDraftResponse.fromJson,
   'getReportDraftFile': RptFileContentResponse.fromJson,
   'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
@@ -675,7 +718,9 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'heartbeatHubAgent': CommandResultResponse.fromJson,
   'holdPackageWorkflow': CommandResultResponse.fromJson,
   'importBoqLines': CommandResultResponse.fromJson,
+  'importEbsFile': EbsImportResultResponse.fromJson,
   'importEgpFile': EgpApplyResultResponse.fromJson,
+  'importIndicatorFile': IndApplyResultResponse.fromJson,
   'importLandParcels': CommandResultResponse.fromJson,
   'importNationalProjectCodes': CommandResultResponse.fromJson,
   'importProcurementFile': CommandResultResponse.fromJson,
@@ -685,6 +730,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'inviteMember': CommandResultResponse.fromJson,
   'issueContractEarlyWarningRegister': CommandResultResponse.fromJson,
   'issueEInvoice': CommandResultResponse.fromJson,
+  'issueOpenApiToken': OpenTokenResponseResponse.fromJson,
   'issueOutgoingDocument': CommandResultResponse.fromJson,
   'issueReport': CommandResultResponse.fromJson,
   'issueSupportAccessToken': SupportTokenResponse.fromJson,
@@ -717,7 +763,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAiReviewChecklists': AiReviewChecklistPageResponse.fromJson,
   'listAiVirtualKeys': asObject,
   'listAlertAbsences': AlertAbsenceListResponse.fromJson,
+  'listAlertClosures': asObject,
   'listAlertEscalations': AlertEscalationListResponse.fromJson,
+  'listAlertFeedback': asObject,
+  'listAlertLadderRuns': asObject,
+  'listAlertStorms': asObject,
   'listAlertTypes': asObject,
   'listAllocationExtensions': AllocationExtensionPageResponse.fromJson,
   'listAllocationScenarios': CapScenarioPageResponse.fromJson,
@@ -741,12 +791,16 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listBillingPayments': BillingPaymentListResponse.fromJson,
   'listBiPublicationRequests': asObject,
   'listBiQueryRuns': asObject,
+  'listBiReaders': BiReaderPageResponse.fromJson,
   'listCampaigns': CampaignPageResponse.fromJson,
   'listCannedReplies': CannedReplyListResponse.fromJson,
   'listCapitalLedger': CapLedgerPageResponse.fromJson,
   'listCapitalPlanLines': asObject,
   'listClaims': CtrClaimPageResponse.fromJson,
   'listClaimTerms': CtrClaimTermListResponse.fromJson,
+  'listCommitteeAlerts': CommitteeAlertListResponse.fromJson,
+  'listCommitteeAttention': CommitteeAttentionListResponse.fromJson,
+  'listCommitteeViewAudit': CommitteeViewAuditListResponse.fromJson,
   'listCompensationPayments': asObject,
   'listCompensationPlanItems': asObject,
   'listCompensationPlans': asObject,
@@ -755,6 +809,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listContractEarlyWarnings': CtrEarlyWarningPageResponse.fromJson,
   'listContractFactSnapshots': CtrFactSnapshotListResponse.fromJson,
   'listContractorExports': ContractorExportPageResponse.fromJson,
+  'listContractRatingProposals': CtrContractRatingProposalsResponse.fromJson,
   'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
   'listDashboards': asObject,
   'listDataProducts': DgvDataProductsResponse.fromJson,
@@ -762,14 +817,18 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listDirectives': DirDirectiveListResponse.fromJson,
   'listDisbursementExceptions': asObject,
   'listDisbursementSchedules': asObject,
+  'listDocumentComments': DocumentCommentListResponse.fromJson,
   'listDocumentLayoutProfiles': asObject,
   'listDocumentNumberRegisters': asObject,
   'listDocumentRegisterEntries': DocRegisterEntryResponse.fromJson,
   'listDocumentRetentionRules': asObject,
+  'listDocumentReviews': DocumentReviewPageResponse.fromJson,
   'listDocumentTemplates': asObject,
+  'listDocumentTextUnits': DocumentTextUnitPageResponse.fromJson,
   'listDossiers': asObject,
   'listEarlyWarningRules': asObject,
   'listEarlyWarnings': asObject,
+  'listEbsDifferences': EbsDifferencePageResponse.fromJson,
   'listEgpImports': EgpImportPageResponse.fromJson,
   'listEgpMappings': EgpMappingPageResponse.fromJson,
   'listEgpMappingSuggestions': EgpSuggestionListResponse.fromJson,
@@ -782,6 +841,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listExpiringPermits': asObject,
   'listExpiringWarranties': asObject,
   'listExplanationRequests': asObject,
+  'listExportDatasets': ExportDatasetListResponse.fromJson,
   'listFeatureFlags': FeatureFlagListResponse.fromJson,
   'listFiscalYears': FiscalYearListResponse.fromJson,
   'listFundingFigureBatches': FundingFigureBatchListResponse.fromJson,
@@ -790,12 +850,21 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listGovernanceAlerts': PrjGovernanceAlertListResponse.fromJson,
   'listGovernanceRules': asObject,
   'listGovernanceRuleVersions': asObject,
+  'listHpmCorrections': HpmCorrectionPageResponse.fromJson,
+  'listHpmPushes': HpmPushPageResponse.fromJson,
   'listHubAgents': HubAgentListResponse.fromJson,
   'listHubConnectorRuns': HubRunPageResponse.fromJson,
   'listHubConnectors': HubConnectorListResponse.fromJson,
   'listHubIncidents': HubIncidentPageResponse.fromJson,
   'listHubRejects': HubRejectPageResponse.fromJson,
   'listIncomingDocuments': asObject,
+  'listIndicatorEntryRules': IndEntryRuleListResponse.fromJson,
+  'listIndicatorFigureHistory': IndFigureListResponse.fromJson,
+  'listIndicatorFigures': IndFigureListResponse.fromJson,
+  'listIndicatorImportMappings': IndMappingListResponse.fromJson,
+  'listIndicatorImportRows': IndImportRowsResponse.fromJson,
+  'listIndicatorImports': IndImportPageResponse.fromJson,
+  'listIndicators': IndIndicatorListResponse.fromJson,
   'listInspections': QmsInspectionListResponse.fromJson,
   'listInteropMessages': DocInteropMessageListResponse.fromJson,
   'listInventoryRecords': asObject,
@@ -806,6 +875,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listLandComplaints': asObject,
   'listLandParcels': asObject,
   'listLandSections': asObject,
+  'listMachineAccounts': MachineAccountPageResponse.fromJson,
   'listMasterChangeRequests': asObject,
   'listMasterCrosswalks': asObject,
   'listMasterImports': asObject,
@@ -821,6 +891,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMneForms': asObject,
   'listMneObligationRules': asObject,
   'listMneObligations': MneObligationStatusResponse.fromJson,
+  'listMyAlertFeedback': asObject,
   'listMyConsents': ConsentPageResponse.fromJson,
   'listMyDevices': ListMyDevicesResponse.fromJson,
   'listMyNotifications': NotificationPageResponse.fromJson,
@@ -828,6 +899,12 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listNotificationEventTypes': NotificationEventTypePageResponse.fromJson,
   'listNotificationTestRecipients': NotificationTestRecipientsResponse.fromJson,
   'listNotificationWorkflows': NotificationWorkflowPageResponse.fromJson,
+  'listOpenAccessLog': OpenAccessLogPageResponse.fromJson,
+  'listOpenContractLines': OpenContractPageResponse.fromJson,
+  'listOpenDatasets': OpenDatasetListResponse.fromJson,
+  'listOpenDisbursementLines': OpenDisbursementPageResponse.fromJson,
+  'listOpenProjectCodes': OpenProjectCodePageResponse.fromJson,
+  'listOpenProjects': OpenProjectPageResponse.fromJson,
   'listOutgoingDocuments': asObject,
   'listOverdueAdvances': asObject,
   'listOverdueDirectives': DirDirectiveListResponse.fromJson,
@@ -846,9 +923,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProcurementPetitions': BidPetitionListResponse.fromJson,
   'listProcurementPlans': asObject,
   'listProcurementResults': BidResultListResponse.fromJson,
+  'listProjectCodes': ProjectCodePageResponse.fromJson,
   'listProjectComponentContracts': PrjComponentContractListResponse.fromJson,
   'listProjectComponents': PrjComponentListResponse.fromJson,
   'listProjectDirectives': DirDirectiveListResponse.fromJson,
+  'listProjectDocuments': ProjectDocumentPageResponse.fromJson,
   'listProjectMilestones': PrjMilestoneListResponse.fromJson,
   'listProjectPipeline': asObject,
   'listProjectRevisions': PrjRevisionListResponse.fromJson,
@@ -859,6 +938,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listReallocationProposals': asObject,
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
   'listReconciliations': ListReconciliationsResponse.fromJson,
+  'listRedFlagIndicators': asObject,
+  'listRedFlags': asObject,
   'listReportCatalogue': RptCatalogueResponse.fromJson,
   'listReportDeliveries': RptDeliveryPageResponse.fromJson,
   'listReportDrafts': RptDraftPageResponse.fromJson,
@@ -873,6 +954,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listSodAuditUses': asObject,
   'listSodExceptions': asObject,
   'listSourceMappings': ListSourceMappingsResponse.fromJson,
+  'listSourceSystems': SourceSystemListResponse.fromJson,
   'listSteeringMeetings': DirSteeringMeetingListResponse.fromJson,
   'listSurvivorshipRules': asObject,
   'listSystemTenantExports': SystemTenantExportsResponse.fromJson,
@@ -909,6 +991,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'matchTreasuryTransaction': PayMatchResultResponse.fromJson,
   'mergeContacts': CommandResultResponse.fromJson,
   'moveOrganizationUnit': CommandResultResponse.fromJson,
+  'notifyContractRating': CommandResultResponse.fromJson,
   'openDocumentNumberRegister': CommandResultResponse.fromJson,
   'openEgpObligation': EgpObligationResponse.fromJson,
   'openHubIncident': CommandResultResponse.fromJson,
@@ -958,18 +1041,24 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'prepareEgpObligation': CommandResultResponse.fromJson,
   'previewAvcPolicy': CapAvcPreviewResponse.fromJson,
   'previewCampaignRecipients': CampaignPreviewResponse.fromJson,
+  'previewEbsFile': EbsImportPreviewResponse.fromJson,
   'previewEgpFile': EgpPreviewResultResponse.fromJson,
+  'previewIndicatorImport': IndPreviewResultResponse.fromJson,
   'previewPlanChange': PlanChangePreviewResponse.fromJson,
   'promoteAllocationScenario': CommandResultResponse.fromJson,
   'promoteChangeRequest': CommandResultResponse.fromJson,
   'proposeAlertCover': CommandResultResponse.fromJson,
   'proposeClaimTerm': CommandResultResponse.fromJson,
+  'proposeClearRedFlag': CommandResultResponse.fromJson,
+  'proposeContractRating': CommandResultResponse.fromJson,
   'proposeDossierDisposal': CommandResultResponse.fromJson,
   'proposeEgpMapping': EgpMappingResponse.fromJson,
   'proposeFundingFigures': CommandResultResponse.fromJson,
   'proposeGlossaryTerm': CommandResultResponse.fromJson,
+  'proposeHpmCorrection': CommandResultResponse.fromJson,
   'proposeHubMapping': CommandResultResponse.fromJson,
   'proposeMasterRecord': CommandResultResponse.fromJson,
+  'proposeProjectCode': ProjectCodeResponse.fromJson,
   'proposeProjectRevision': CommandResultResponse.fromJson,
   'proposeSourceMapping': CommandResultResponse.fromJson,
   'proposeUnitReorganization': CommandResultResponse.fromJson,
@@ -1003,6 +1092,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'raiseNonconformance': CommandResultResponse.fromJson,
   'reactivateMembership': CommandResultResponse.fromJson,
   'reassignApprovalTask': CommandResultResponse.fromJson,
+  'reassignEbsDifference': CommandResultResponse.fromJson,
   'recallOutgoingDocument': CommandResultResponse.fromJson,
   'receiptEgpObligation': CommandResultResponse.fromJson,
   'receiveChannelWebhook': WebhookAckResponse.fromJson,
@@ -1014,8 +1104,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'receiveProposal': CommandResultResponse.fromJson,
   'receiveTreasuryCallback': CommandResultResponse.fromJson,
   'reconcileAiInvoice': CommandResultResponse.fromJson,
+  'reconcileEbs': EbsReconcileResultResponse.fromJson,
   'recordAdvanceRecovery': PayAdvanceCommandResultResponse.fromJson,
   'recordAiDecision': CommandResultResponse.fromJson,
+  'recordAttentionDecision': CommandResultResponse.fromJson,
   'recordAuditConclusion': CommandResultResponse.fromJson,
   'recordAuditDisputeDecision': CommandResultResponse.fromJson,
   'recordAuditFinding': CommandResultResponse.fromJson,
@@ -1026,9 +1118,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'recordContractEarlyWarningMeeting': CommandResultResponse.fromJson,
   'recordContractorRestriction': CommandResultResponse.fromJson,
   'recordContractorViolation': CommandResultResponse.fromJson,
+  'recordContractRatingResponse': CommandResultResponse.fromJson,
   'recordContractSigning': CommandResultResponse.fromJson,
   'recordDirectiveProgress': CommandResultResponse.fromJson,
   'recordDistributionAcknowledgement': CommandResultResponse.fromJson,
+  'recordHpmReceipt': CommandResultResponse.fromJson,
   'recordHubRun': CommandResultResponse.fromJson,
   'recordInspectionResult': CommandResultResponse.fromJson,
   'recordInventory': CommandResultResponse.fromJson,
@@ -1051,6 +1145,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'recordVendorPayeeCallback': CommandResultResponse.fromJson,
   'recordVendorReputationEvent': CommandResultResponse.fromJson,
   'recordWarrantyFix': CommandResultResponse.fromJson,
+  'referRedFlag': CommandResultResponse.fromJson,
   'refreshBiQueryContext': CommandResultResponse.fromJson,
   'refreshSettlementFigures': CommandResultResponse.fromJson,
   'registerAffectedHousehold': CommandResultResponse.fromJson,
@@ -1059,6 +1154,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'registerAppropriation': CommandResultResponse.fromJson,
   'registerAsset': CommandResultResponse.fromJson,
   'registerClaim': CommandResultResponse.fromJson,
+  'registerCommittee': CommandResultResponse.fromJson,
   'registerContractor': CommandResultResponse.fromJson,
   'registerDataset': CommandResultResponse.fromJson,
   'registerDevice': CommandResultResponse.fromJson,
@@ -1073,7 +1169,9 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'registerProjectRisk': CommandResultResponse.fromJson,
   'registerSigningCertificate': CommandResultResponse.fromJson,
   'registerSitePhoto': CommandResultResponse.fromJson,
+  'registerSourceSystem': SourceSystemResponse.fromJson,
   'reinstateLicense': CommandResultResponse.fromJson,
+  'rejectClearRedFlag': CommandResultResponse.fromJson,
   'rejectDisbursementException': CommandResultResponse.fromJson,
   'rejectEgpObligation': CommandResultResponse.fromJson,
   'rejectIncomingDocument': CommandResultResponse.fromJson,
@@ -1090,11 +1188,13 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'renewPermit': CommandResultResponse.fromJson,
   'reopenConversation': CommandResultResponse.fromJson,
   'reopenDirective': CommandResultResponse.fromJson,
+  'reopenDocumentComment': CommandResultResponse.fromJson,
   'reopenFiscalYear': CommandResultResponse.fromJson,
   'reopenIssue': CommandResultResponse.fromJson,
   'reopenNonconformance': CommandResultResponse.fromJson,
   'replaceContractParties': CommandResultResponse.fromJson,
   'replayInboxEvent': CommandResultResponse.fromJson,
+  'reportAlertWrong': CommandResultResponse.fromJson,
   'reportLandStageProgress': CommandResultResponse.fromJson,
   'requestActing': CommandResultResponse.fromJson,
   'requestAdvance': PayAdvanceCommandResultResponse.fromJson,
@@ -1120,10 +1220,14 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'requestTenantProvisioning': TenantLifecycleResultResponse.fromJson,
   'requestTenantRestore': CommandResultResponse.fromJson,
   'requestVendorPayeeChange': CommandResultResponse.fromJson,
+  'rerunDocumentExtraction': CommandResultResponse.fromJson,
   'resetIntegrationCursor': CommandResultResponse.fromJson,
   'resolveConversation': CommandResultResponse.fromJson,
   'resolveDiaryConflict': CommandResultResponse.fromJson,
+  'resolveDocumentCitation': DocumentCitationResponse.fromJson,
+  'resolveDocumentComment': CommandResultResponse.fromJson,
   'resolveDocumentReference': asObject,
+  'resolveEbsDifference': CommandResultResponse.fromJson,
   'resolveEgpReconciliationItem': CommandResultResponse.fromJson,
   'resolveIncomingDocument': CommandResultResponse.fromJson,
   'resolveLandComplaint': CommandResultResponse.fromJson,
@@ -1131,6 +1235,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'resolveReconciliationItem': PayReconciliationCommandResultResponse.fromJson,
   'resolveTreasuryDailyReconItem': TreasuryDailyReconItemResultResponse.fromJson,
   'restoreDraftReport': CommandResultResponse.fromJson,
+  'restoreProjectDocument': CommandResultResponse.fromJson,
   'resumeContract': CommandResultResponse.fromJson,
   'resumePackageWorkflow': CommandResultResponse.fromJson,
   'resumeProject': CommandResultResponse.fromJson,
@@ -1143,8 +1248,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'retireMasterCrosswalk': CommandResultResponse.fromJson,
   'retirePermitGateRule': CommandResultResponse.fromJson,
   'retirePermitType': CommandResultResponse.fromJson,
+  'retireProjectCode': CommandResultResponse.fromJson,
+  'retireSourceSystem': CommandResultResponse.fromJson,
   'retractVendorReputationEvent': CommandResultResponse.fromJson,
   'retryDocumentDistribution': CommandResultResponse.fromJson,
+  'retryHpmPush': HpmPushResultResponse.fromJson,
   'retryInteropMessage': CommandResultResponse.fromJson,
   'retryTenantProvisioning': TenantLifecycleResultResponse.fromJson,
   'returnContractDraft': CommandResultResponse.fromJson,
@@ -1156,6 +1264,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'revealHouseholdIdentity': asObject,
   'reverseAuditRecovery': CommandResultResponse.fromJson,
   'reversePayment': PayReversalResultResponse.fromJson,
+  'reviewAlertFeedback': CommandResultResponse.fromJson,
   'reviewAnalysisFinding': BidFindingReviewedResponse.fromJson,
   'reviewDelegation': CommandResultResponse.fromJson,
   'reviewExplanation': CommandResultResponse.fromJson,
@@ -1190,6 +1299,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'revokeVendorQualification': CommandResultResponse.fromJson,
   'rollbackMigrationBatch': CommandResultResponse.fromJson,
   'rotateAiVirtualKey': CommandResultResponse.fromJson,
+  'rotateBiReaderPassword': BiReaderIssuedResponse.fromJson,
+  'rotateMachineCredential': MachineCredentialIssuedResponse.fromJson,
   'runAllocationScenario': CommandResultResponse.fromJson,
   'runBillingCycle': CommandResultResponse.fromJson,
   'runEgpReconciliation': EgpReconcileResultResponse.fromJson,
@@ -1199,6 +1310,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'runTreasuryDailyRecon': TreasuryDailyReconRunResultResponse.fromJson,
   'saveDashboardVersion': CommandResultResponse.fromJson,
   'saveSiteDiaryDraft': CommandResultResponse.fromJson,
+  'scanRedFlags': CommandResultResponse.fromJson,
   'scanVendorDuplicates': VendorDuplicateListResponse.fromJson,
   'scheduleCompensationPayments': CommandResultResponse.fromJson,
   'scheduleEvaluationTrigger': CommandResultResponse.fromJson,
@@ -1214,7 +1326,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'sendTestNotification': CommandResultResponse.fromJson,
   'setChangeChainTiers': CommandResultResponse.fromJson,
   'setChannelLimits': CommandResultResponse.fromJson,
+  'setEbsConnectionState': CommandResultResponse.fromJson,
   'setEgpConnectionState': CommandResultResponse.fromJson,
+  'setExportDataset': CommandResultResponse.fromJson,
+  'setHpmConnectionState': CommandResultResponse.fromJson,
   'setHubConnectorState': CommandResultResponse.fromJson,
   'setMilestoneDependency': CommandResultResponse.fromJson,
   'setNotificationTestRecipients': CommandResultResponse.fromJson,
@@ -1247,11 +1362,13 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'submitContractForReview': CommandResultResponse.fromJson,
   'submitCorrectiveEvidence': CommandResultResponse.fromJson,
   'submitDoaMatrix': CommandResultResponse.fromJson,
+  'submitDocumentForReview': CommandResultResponse.fromJson,
   'submitEgpObligation': CommandResultResponse.fromJson,
   'submitExplanation': CommandResultResponse.fromJson,
   'submitFundingFigures': CommandResultResponse.fromJson,
   'submitGlossaryTerm': CommandResultResponse.fromJson,
   'submitGovernanceRule': CommandResultResponse.fromJson,
+  'submitHpmPush': HpmPushResultResponse.fromJson,
   'submitInvestmentAppraisal': CommandResultResponse.fromJson,
   'submitMasterChangeRequest': CommandResultResponse.fromJson,
   'submitMeasurement': CommandResultResponse.fromJson,
@@ -1272,6 +1389,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'suspendTenant': TenantLifecycleResultResponse.fromJson,
   'sweepEgpObligations': EgpObligationSweepResultResponse.fromJson,
   'syncMetricRegistry': CommandResultResponse.fromJson,
+  'takeRedFlag': CommandResultResponse.fromJson,
   'terminateContract': CommandResultResponse.fromJson,
   'transferAsset': CommandResultResponse.fromJson,
   'transferIssueUnit': CommandResultResponse.fromJson,
@@ -1285,17 +1403,21 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'updateFeatureFlag': CommandResultResponse.fromJson,
   'updateIntegrationConnector': CommandResultResponse.fromJson,
   'updateInvestmentAppraisalInputs': CommandResultResponse.fromJson,
+  'updateMachineAccount': CommandResultResponse.fromJson,
   'updateMyAlertProfile': CommandResultResponse.fromJson,
   'updateMyNotificationPreferences': CommandResultResponse.fromJson,
   'updateMyProfile': UserProfileResponse.fromJson,
   'updateOrganizationUnit': CommandResultResponse.fromJson,
   'updateOutgoingDocumentDraft': CommandResultResponse.fromJson,
+  'updateProjectDocument': CommandResultResponse.fromJson,
   'updateProjectProfile': CommandResultResponse.fromJson,
   'updateProjectRisk': CommandResultResponse.fromJson,
   'updateVendorProfile': CommandResultResponse.fromJson,
   'updateWorkflowDraft': CommandResultResponse.fromJson,
   'uploadDocumentFile': DocFileUploadResponse.fromJson,
+  'uploadEbsFile': EbsFileUploadResponse.fromJson,
   'uploadEgpFile': EgpFileUploadResponse.fromJson,
+  'uploadIndicatorFile': IndFileUploadResponse.fromJson,
   'uploadLandParcelFile': LndParcelFileResponse.fromJson,
   'uploadLeaderSignedDocument': CommandResultResponse.fromJson,
   'uploadMasterImportFile': MdmImportFileResponse.fromJson,
@@ -1303,6 +1425,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'uploadNationalCodeFile': PrjNationalCodeFileUploadResponse.fromJson,
   'uploadOcrCorrectionFile': BidOcrCorrectionFileUploadResponse.fromJson,
   'uploadProcurementFile': BidProcurementFileUploadResponse.fromJson,
+  'uploadProjectDocumentFile': ProjectDocumentFileUploadResponse.fromJson,
   'uploadProposalFile': BidProposalFileUploadResponse.fromJson,
   'uploadReportFile': DisReportFileResponse.fromJson,
   'uploadReportImportFile': DisImportFileResponse.fromJson,
@@ -1325,8 +1448,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'verifyWarrantyClaim': CommandResultResponse.fromJson,
   'voidOutgoingDocumentNumber': CommandResultResponse.fromJson,
   'waivePunchItem': CommandResultResponse.fromJson,
+  'withdrawAlertFeedback': CommandResultResponse.fromJson,
   'withdrawChangeRequest': CommandResultResponse.fromJson,
   'withdrawContactConsent': CommandResultResponse.fromJson,
+  'withdrawContractRating': CommandResultResponse.fromJson,
+  'withdrawDocumentReview': CommandResultResponse.fromJson,
   'withdrawFundingFigures': CommandResultResponse.fromJson,
   'withdrawGovernanceRule': CommandResultResponse.fromJson,
   'withdrawMyConsent': CommandResultResponse.fromJson,
@@ -7875,6 +8001,370 @@ final class BillingPaymentResponseActions implements ResponseModel {
       };
 }
 
+final class BiReaderActionsResponse implements ResponseModel {
+  const BiReaderActionsResponse({
+    required this.rotate,
+    required this.decide,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderActionsResponse.fromJson(Object? json, [String path = 'BiReaderActionsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderActionsResponse(
+      rotate: requiredField(map, path, 'rotate', asBool),
+      decide: requiredField(map, path, 'decide', asBool),
+      extra: unknownFields(map, path, const <String>{'rotate', 'decide'}, strict: true),
+    );
+  }
+
+  final bool rotate;
+  final bool decide;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rotate': rotate,
+        'decide': decide,
+        ...extra,
+      };
+}
+
+final class BiReaderCountsResponse implements ResponseModel {
+  const BiReaderCountsResponse({
+    required this.aCTIVE,
+    required this.sUSPENDED,
+    required this.rETIRED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderCountsResponse.fromJson(Object? json, [String path = 'BiReaderCountsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderCountsResponse(
+      aCTIVE: requiredField(map, path, 'ACTIVE', asInt),
+      sUSPENDED: requiredField(map, path, 'SUSPENDED', asInt),
+      rETIRED: requiredField(map, path, 'RETIRED', asInt),
+      extra: unknownFields(map, path, const <String>{'ACTIVE', 'SUSPENDED', 'RETIRED'}, strict: true),
+    );
+  }
+
+  final int aCTIVE;
+  final int sUSPENDED;
+  final int rETIRED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'ACTIVE': aCTIVE,
+        'SUSPENDED': sUSPENDED,
+        'RETIRED': rETIRED,
+        ...extra,
+      };
+}
+
+final class BiReaderDetailResponse implements ResponseModel {
+  const BiReaderDetailResponse({
+    required this.reader,
+    required this.events,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderDetailResponse.fromJson(Object? json, [String path = 'BiReaderDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderDetailResponse(
+      reader: requiredField(map, path, 'reader', BiReaderResponse.fromJson),
+      events: requiredField(map, path, 'events', asList(BiReaderEventResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'reader', 'events', 'as_of'}, strict: true),
+    );
+  }
+
+  final BiReaderResponse reader;
+  final List<BiReaderEventResponse> events;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reader': reader.toJson(),
+        'events': events.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class BiReaderEventResponse implements ResponseModel {
+  const BiReaderEventResponse({
+    required this.id,
+    required this.action,
+    required this.reason,
+    required this.actorName,
+    required this.readerVersion,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderEventResponse.fromJson(Object? json, [String path = 'BiReaderEventResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderEventResponse(
+      id: requiredField(map, path, 'id', asString),
+      action: requiredField(map, path, 'action', asString),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      readerVersion: requiredField(map, path, 'reader_version', asInt),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'action', 'reason', 'actor_name', 'reader_version', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String action;
+  final String? reason;
+  final String? actorName;
+  final int readerVersion;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'action': action,
+        'reason': reason,
+        'actor_name': actorName,
+        'reader_version': readerVersion,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class BiReaderIssuedResponse implements ResponseModel {
+  const BiReaderIssuedResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.readerId,
+    required this.loginName,
+    required this.password,
+    required this.shownOnce,
+    required this.schemaName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderIssuedResponse.fromJson(Object? json, [String path = 'BiReaderIssuedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderIssuedResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      readerId: requiredField(map, path, 'reader_id', asString),
+      loginName: requiredField(map, path, 'login_name', asString),
+      password: requiredField(map, path, 'password', asString),
+      shownOnce: requiredField(map, path, 'shown_once', asBool),
+      schemaName: requiredField(map, path, 'schema_name', asString),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'reader_id', 'login_name', 'password', 'shown_once', 'schema_name'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final String readerId;
+  final String loginName;
+  final String password;
+  final bool shownOnce;
+  final String schemaName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'reader_id': readerId,
+        'login_name': loginName,
+        'password': password,
+        'shown_once': shownOnce,
+        'schema_name': schemaName,
+        ...extra,
+      };
+}
+
+final class BiReaderPageResponse implements ResponseModel {
+  const BiReaderPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.views,
+    required this.schemaName,
+    required this.canCreate,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderPageResponse.fromJson(Object? json, [String path = 'BiReaderPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderPageResponse(
+      items: requiredField(map, path, 'items', asList(BiReaderResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', BiReaderCountsResponse.fromJson),
+      views: requiredField(map, path, 'views', asList(BiViewInfoResponse.fromJson)),
+      schemaName: requiredField(map, path, 'schema_name', asString),
+      canCreate: requiredField(map, path, 'can_create', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'views', 'schema_name', 'can_create', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<BiReaderResponse> items;
+  final String? nextCursor;
+  final BiReaderCountsResponse counts;
+  final List<BiViewInfoResponse> views;
+  final String schemaName;
+  final bool canCreate;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'views': views.map((e0) => e0.toJson()).toList(),
+        'schema_name': schemaName,
+        'can_create': canCreate,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class BiReaderResponse implements ResponseModel {
+  const BiReaderResponse({
+    required this.id,
+    required this.name,
+    required this.tool,
+    required this.loginName,
+    required this.connectionLimit,
+    required this.status,
+    required this.statusReason,
+    required this.statusChangedAt,
+    required this.passwordRotatedAt,
+    required this.version,
+    required this.createdAt,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiReaderResponse.fromJson(Object? json, [String path = 'BiReaderResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiReaderResponse(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      tool: requiredField(map, path, 'tool', nullable(asString)),
+      loginName: requiredField(map, path, 'login_name', asString),
+      connectionLimit: requiredField(map, path, 'connection_limit', asInt),
+      status: requiredField(map, path, 'status', asString),
+      statusReason: requiredField(map, path, 'status_reason', nullable(asString)),
+      statusChangedAt: requiredField(map, path, 'status_changed_at', nullable(asString)),
+      passwordRotatedAt: requiredField(map, path, 'password_rotated_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      actions: requiredField(map, path, 'actions', BiReaderActionsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'name', 'tool', 'login_name', 'connection_limit', 'status', 'status_reason', 'status_changed_at', 'password_rotated_at', 'version', 'created_at', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String? tool;
+  final String loginName;
+  final int connectionLimit;
+  final String status;
+  final String? statusReason;
+  final String? statusChangedAt;
+  final String passwordRotatedAt;
+  final int version;
+  final String createdAt;
+  final BiReaderActionsResponse actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        'tool': tool,
+        'login_name': loginName,
+        'connection_limit': connectionLimit,
+        'status': status,
+        'status_reason': statusReason,
+        'status_changed_at': statusChangedAt,
+        'password_rotated_at': passwordRotatedAt,
+        'version': version,
+        'created_at': createdAt,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class BiViewInfoResponse implements ResponseModel {
+  const BiViewInfoResponse({
+    required this.datasetCode,
+    required this.view,
+    required this.grain,
+    required this.columns,
+    required this.open,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BiViewInfoResponse.fromJson(Object? json, [String path = 'BiViewInfoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BiViewInfoResponse(
+      datasetCode: requiredField(map, path, 'dataset_code', asString),
+      view: requiredField(map, path, 'view', asString),
+      grain: requiredField(map, path, 'grain', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      open: requiredField(map, path, 'open', asBool),
+      extra: unknownFields(map, path, const <String>{'dataset_code', 'view', 'grain', 'columns', 'open'}, strict: true),
+    );
+  }
+
+  final String datasetCode;
+  final String view;
+  final String grain;
+  final List<String> columns;
+  final bool open;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'dataset_code': datasetCode,
+        'view': view,
+        'grain': grain,
+        'columns': columns,
+        'open': open,
+        ...extra,
+      };
+}
+
 final class CampaignPageResponse implements ResponseModel {
   const CampaignPageResponse({
     required this.items,
@@ -9423,6 +9913,1756 @@ final class CommandResultResponse implements ResponseModel {
         'status': status,
         'resource_version': resourceVersion,
         if (resourceId != null) 'resource_id': resourceId,
+        ...extra,
+      };
+}
+
+final class CommitteeAggregateRowResponse implements ResponseModel {
+  const CommitteeAggregateRowResponse({
+    required this.dimension,
+    required this.key,
+    required this.label,
+    required this.projects,
+    required this.planSharePct,
+    required this.attentionProjects,
+    required this.planVnd,
+    required this.disbursedVnd,
+    required this.ratePct,
+    required this.lastYearVnd,
+    required this.lastYearCoverage,
+    required this.changeVsLastYearVnd,
+    required this.expectedPct,
+    required this.gapPoints,
+    required this.rag,
+    required this.outlook,
+    required this.unknownLines,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAggregateRowResponse.fromJson(Object? json, [String path = 'CommitteeAggregateRowResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAggregateRowResponse(
+      dimension: requiredField(map, path, 'dimension', asString),
+      key: requiredField(map, path, 'key', asString),
+      label: requiredField(map, path, 'label', asString),
+      projects: requiredField(map, path, 'projects', asInt),
+      planSharePct: requiredField(map, path, 'plan_share_pct', nullable(asString)),
+      attentionProjects: requiredField(map, path, 'attention_projects', asInt),
+      planVnd: requiredField(map, path, 'plan_vnd', asString),
+      disbursedVnd: requiredField(map, path, 'disbursed_vnd', nullable(asString)),
+      ratePct: requiredField(map, path, 'rate_pct', nullable(asString)),
+      lastYearVnd: requiredField(map, path, 'last_year_vnd', nullable(asString)),
+      lastYearCoverage: requiredField(map, path, 'last_year_coverage', CommitteeAggregateRowResponseLastYearCoverage.fromJson),
+      changeVsLastYearVnd: requiredField(map, path, 'change_vs_last_year_vnd', nullable(asString)),
+      expectedPct: requiredField(map, path, 'expected_pct', asString),
+      gapPoints: requiredField(map, path, 'gap_points', nullable(asString)),
+      rag: requiredField(map, path, 'rag', asString),
+      outlook: requiredField(map, path, 'outlook', CommitteeOutlookResponse.fromJson),
+      unknownLines: requiredField(map, path, 'unknown_lines', asInt),
+      extra: unknownFields(map, path, const <String>{'dimension', 'key', 'label', 'projects', 'plan_share_pct', 'attention_projects', 'plan_vnd', 'disbursed_vnd', 'rate_pct', 'last_year_vnd', 'last_year_coverage', 'change_vs_last_year_vnd', 'expected_pct', 'gap_points', 'rag', 'outlook', 'unknown_lines'}, strict: true),
+    );
+  }
+
+  final String dimension;
+  final String key;
+  final String label;
+  final int projects;
+  final String? planSharePct;
+  final int attentionProjects;
+  final String planVnd;
+  final String? disbursedVnd;
+  final String? ratePct;
+  final String? lastYearVnd;
+  final CommitteeAggregateRowResponseLastYearCoverage lastYearCoverage;
+  final String? changeVsLastYearVnd;
+  final String expectedPct;
+  final String? gapPoints;
+  final String rag;
+  final CommitteeOutlookResponse outlook;
+  final int unknownLines;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'dimension': dimension,
+        'key': key,
+        'label': label,
+        'projects': projects,
+        'plan_share_pct': planSharePct,
+        'attention_projects': attentionProjects,
+        'plan_vnd': planVnd,
+        'disbursed_vnd': disbursedVnd,
+        'rate_pct': ratePct,
+        'last_year_vnd': lastYearVnd,
+        'last_year_coverage': lastYearCoverage.toJson(),
+        'change_vs_last_year_vnd': changeVsLastYearVnd,
+        'expected_pct': expectedPct,
+        'gap_points': gapPoints,
+        'rag': rag,
+        'outlook': outlook.toJson(),
+        'unknown_lines': unknownLines,
+        ...extra,
+      };
+}
+
+final class CommitteeAggregateRowResponseLastYearCoverage implements ResponseModel {
+  const CommitteeAggregateRowResponseLastYearCoverage({
+    required this.known,
+    required this.total,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAggregateRowResponseLastYearCoverage.fromJson(Object? json, [String path = 'CommitteeAggregateRowResponseLastYearCoverage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAggregateRowResponseLastYearCoverage(
+      known: requiredField(map, path, 'known', asInt),
+      total: requiredField(map, path, 'total', asInt),
+      extra: unknownFields(map, path, const <String>{'known', 'total'}, strict: true),
+    );
+  }
+
+  final int known;
+  final int total;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'known': known,
+        'total': total,
+        ...extra,
+      };
+}
+
+final class CommitteeAlertEvaluationResponse implements ResponseModel {
+  const CommitteeAlertEvaluationResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.opened,
+    required this.kept,
+    required this.resolved,
+    required this.asOf,
+    this.resourceId,
+    this.alerts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAlertEvaluationResponse.fromJson(Object? json, [String path = 'CommitteeAlertEvaluationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAlertEvaluationResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: optionalField(map, path, 'resource_id', asString),
+      opened: requiredField(map, path, 'opened', asInt),
+      kept: requiredField(map, path, 'kept', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      alerts: optionalField(map, path, 'alerts', asList(CommitteeAlertResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'opened', 'kept', 'resolved', 'as_of', 'alerts'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String? resourceId;
+  final int opened;
+  final int kept;
+  final int resolved;
+  final String asOf;
+  final List<CommitteeAlertResponse>? alerts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        if (resourceId != null) 'resource_id': resourceId,
+        'opened': opened,
+        'kept': kept,
+        'resolved': resolved,
+        'as_of': asOf,
+        if (alerts != null) 'alerts': alerts!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CommitteeAlertListResponse implements ResponseModel {
+  const CommitteeAlertListResponse({
+    required this.asOf,
+    required this.policy,
+    required this.alerts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAlertListResponse.fromJson(Object? json, [String path = 'CommitteeAlertListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAlertListResponse(
+      asOf: requiredField(map, path, 'as_of', asString),
+      policy: requiredField(map, path, 'policy', CommitteePolicyInfoResponse.fromJson),
+      alerts: requiredField(map, path, 'alerts', asList(CommitteeAlertResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'as_of', 'policy', 'alerts'}, strict: true),
+    );
+  }
+
+  final String asOf;
+  final CommitteePolicyInfoResponse policy;
+  final List<CommitteeAlertResponse> alerts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'as_of': asOf,
+        'policy': policy.toJson(),
+        'alerts': alerts.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CommitteeAlertResponse implements ResponseModel {
+  const CommitteeAlertResponse({
+    required this.id,
+    required this.alertType,
+    required this.subjectKind,
+    required this.subjectKey,
+    required this.severity,
+    required this.status,
+    required this.openedOn,
+    required this.lastSeenOn,
+    required this.version,
+    this.subjectLabel,
+    this.value,
+    this.threshold,
+    this.detail,
+    this.fiscalYear,
+    this.resolvedOn,
+    this.acknowledgedByName,
+    this.acknowledgedAt,
+    this.acknowledgedNote,
+    this.owner,
+    this.expectedAction,
+    this.consequence,
+    this.responseHours,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAlertResponse.fromJson(Object? json, [String path = 'CommitteeAlertResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAlertResponse(
+      id: requiredField(map, path, 'id', asString),
+      alertType: requiredField(map, path, 'alert_type', asString),
+      subjectKind: requiredField(map, path, 'subject_kind', asString),
+      subjectKey: requiredField(map, path, 'subject_key', asString),
+      subjectLabel: optionalField(map, path, 'subject_label', nullable(asString)),
+      severity: requiredField(map, path, 'severity', asString),
+      value: optionalField(map, path, 'value', nullable(asString)),
+      threshold: optionalField(map, path, 'threshold', nullable(asString)),
+      detail: optionalField(map, path, 'detail', asObject),
+      fiscalYear: optionalField(map, path, 'fiscal_year', asInt),
+      status: requiredField(map, path, 'status', asString),
+      openedOn: requiredField(map, path, 'opened_on', asString),
+      lastSeenOn: requiredField(map, path, 'last_seen_on', asString),
+      resolvedOn: optionalField(map, path, 'resolved_on', nullable(asString)),
+      acknowledgedByName: optionalField(map, path, 'acknowledged_by_name', nullable(asString)),
+      acknowledgedAt: optionalField(map, path, 'acknowledged_at', nullable(asString)),
+      acknowledgedNote: optionalField(map, path, 'acknowledged_note', nullable(asString)),
+      owner: optionalField(map, path, 'owner', nullable(asString)),
+      expectedAction: optionalField(map, path, 'expected_action', nullable(asString)),
+      consequence: optionalField(map, path, 'consequence', nullable(asString)),
+      responseHours: optionalField(map, path, 'response_hours', nullable(asInt)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'alert_type', 'subject_kind', 'subject_key', 'subject_label', 'severity', 'value', 'threshold', 'detail', 'fiscal_year', 'status', 'opened_on', 'last_seen_on', 'resolved_on', 'acknowledged_by_name', 'acknowledged_at', 'acknowledged_note', 'owner', 'expected_action', 'consequence', 'response_hours', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String alertType;
+  final String subjectKind;
+  final String subjectKey;
+  final String? subjectLabel;
+  final String severity;
+  final String? value;
+  final String? threshold;
+  final Map<String, Object?>? detail;
+  final int? fiscalYear;
+  final String status;
+  final String openedOn;
+  final String lastSeenOn;
+  final String? resolvedOn;
+  final String? acknowledgedByName;
+  final String? acknowledgedAt;
+  final String? acknowledgedNote;
+  final String? owner;
+  final String? expectedAction;
+  final String? consequence;
+  final int? responseHours;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'alert_type': alertType,
+        'subject_kind': subjectKind,
+        'subject_key': subjectKey,
+        if (subjectLabel != null) 'subject_label': subjectLabel,
+        'severity': severity,
+        if (value != null) 'value': value,
+        if (threshold != null) 'threshold': threshold,
+        if (detail != null) 'detail': detail,
+        if (fiscalYear != null) 'fiscal_year': fiscalYear,
+        'status': status,
+        'opened_on': openedOn,
+        'last_seen_on': lastSeenOn,
+        if (resolvedOn != null) 'resolved_on': resolvedOn,
+        if (acknowledgedByName != null) 'acknowledged_by_name': acknowledgedByName,
+        if (acknowledgedAt != null) 'acknowledged_at': acknowledgedAt,
+        if (acknowledgedNote != null) 'acknowledged_note': acknowledgedNote,
+        if (owner != null) 'owner': owner,
+        if (expectedAction != null) 'expected_action': expectedAction,
+        if (consequence != null) 'consequence': consequence,
+        if (responseHours != null) 'response_hours': responseHours,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CommitteeAttentionItemResponse implements ResponseModel {
+  const CommitteeAttentionItemResponse({
+    required this.rank,
+    required this.projectId,
+    required this.code,
+    required this.name,
+    required this.sectorCode,
+    required this.sectorName,
+    required this.districtName,
+    required this.investorUnitId,
+    required this.investorName,
+    required this.planVnd,
+    required this.disbursedVnd,
+    required this.ratePct,
+    required this.expectedPct,
+    required this.exposureVnd,
+    required this.score,
+    required this.signals,
+    required this.decision,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAttentionItemResponse.fromJson(Object? json, [String path = 'CommitteeAttentionItemResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAttentionItemResponse(
+      rank: requiredField(map, path, 'rank', asInt),
+      projectId: requiredField(map, path, 'project_id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      sectorCode: requiredField(map, path, 'sector_code', asString),
+      sectorName: requiredField(map, path, 'sector_name', asString),
+      districtName: requiredField(map, path, 'district_name', asString),
+      investorUnitId: requiredField(map, path, 'investor_unit_id', asString),
+      investorName: requiredField(map, path, 'investor_name', asString),
+      planVnd: requiredField(map, path, 'plan_vnd', asString),
+      disbursedVnd: requiredField(map, path, 'disbursed_vnd', nullable(asString)),
+      ratePct: requiredField(map, path, 'rate_pct', nullable(asString)),
+      expectedPct: requiredField(map, path, 'expected_pct', asString),
+      exposureVnd: requiredField(map, path, 'exposure_vnd', asString),
+      score: requiredField(map, path, 'score', asString),
+      signals: requiredField(map, path, 'signals', asList(CommitteeAttentionItemResponseSignalsItem.fromJson)),
+      decision: requiredField(map, path, 'decision', asAny),
+      extra: unknownFields(map, path, const <String>{'rank', 'project_id', 'code', 'name', 'sector_code', 'sector_name', 'district_name', 'investor_unit_id', 'investor_name', 'plan_vnd', 'disbursed_vnd', 'rate_pct', 'expected_pct', 'exposure_vnd', 'score', 'signals', 'decision'}, strict: true),
+    );
+  }
+
+  final int rank;
+  final String projectId;
+  final String code;
+  final String name;
+  final String sectorCode;
+  final String sectorName;
+  final String districtName;
+  final String investorUnitId;
+  final String investorName;
+  final String planVnd;
+  final String? disbursedVnd;
+  final String? ratePct;
+  final String expectedPct;
+  final String exposureVnd;
+  final String score;
+  final List<CommitteeAttentionItemResponseSignalsItem> signals;
+  final Object? decision;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rank': rank,
+        'project_id': projectId,
+        'code': code,
+        'name': name,
+        'sector_code': sectorCode,
+        'sector_name': sectorName,
+        'district_name': districtName,
+        'investor_unit_id': investorUnitId,
+        'investor_name': investorName,
+        'plan_vnd': planVnd,
+        'disbursed_vnd': disbursedVnd,
+        'rate_pct': ratePct,
+        'expected_pct': expectedPct,
+        'exposure_vnd': exposureVnd,
+        'score': score,
+        'signals': signals.map((e0) => e0.toJson()).toList(),
+        'decision': decision,
+        ...extra,
+      };
+}
+
+final class CommitteeAttentionItemResponseSignalsItem implements ResponseModel {
+  const CommitteeAttentionItemResponseSignalsItem({
+    required this.reason,
+    required this.value,
+    required this.threshold,
+    required this.unit,
+    required this.severity,
+    required this.weight,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAttentionItemResponseSignalsItem.fromJson(Object? json, [String path = 'CommitteeAttentionItemResponseSignalsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAttentionItemResponseSignalsItem(
+      reason: requiredField(map, path, 'reason', asString),
+      value: requiredField(map, path, 'value', nullable(asString)),
+      threshold: requiredField(map, path, 'threshold', asNum),
+      unit: requiredField(map, path, 'unit', asString),
+      severity: requiredField(map, path, 'severity', asNum),
+      weight: requiredField(map, path, 'weight', asNum),
+      extra: unknownFields(map, path, const <String>{'reason', 'value', 'threshold', 'unit', 'severity', 'weight'}, strict: true),
+    );
+  }
+
+  final String reason;
+  final String? value;
+  final num threshold;
+  final String unit;
+  final num severity;
+  final num weight;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+        'value': value,
+        'threshold': threshold,
+        'unit': unit,
+        'severity': severity,
+        'weight': weight,
+        ...extra,
+      };
+}
+
+final class CommitteeAttentionListResponse implements ResponseModel {
+  const CommitteeAttentionListResponse({
+    required this.asOf,
+    required this.feed,
+    required this.policy,
+    required this.total,
+    required this.shown,
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeAttentionListResponse.fromJson(Object? json, [String path = 'CommitteeAttentionListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeAttentionListResponse(
+      asOf: requiredField(map, path, 'as_of', asString),
+      feed: requiredField(map, path, 'feed', CommitteeFeedInfoResponse.fromJson),
+      policy: requiredField(map, path, 'policy', CommitteePolicyInfoResponse.fromJson),
+      total: requiredField(map, path, 'total', asInt),
+      shown: requiredField(map, path, 'shown', asInt),
+      items: requiredField(map, path, 'items', asList(CommitteeAttentionItemResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'as_of', 'feed', 'policy', 'total', 'shown', 'items'}, strict: true),
+    );
+  }
+
+  final String asOf;
+  final CommitteeFeedInfoResponse feed;
+  final CommitteePolicyInfoResponse policy;
+  final int total;
+  final int shown;
+  final List<CommitteeAttentionItemResponse> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'as_of': asOf,
+        'feed': feed.toJson(),
+        'policy': policy.toJson(),
+        'total': total,
+        'shown': shown,
+        'items': items.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CommitteeChangeLineResponse implements ResponseModel {
+  const CommitteeChangeLineResponse({
+    required this.kind,
+    required this.direction,
+    required this.params,
+    required this.link,
+    required this.metricCode,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeChangeLineResponse.fromJson(Object? json, [String path = 'CommitteeChangeLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeChangeLineResponse(
+      kind: requiredField(map, path, 'kind', asString),
+      direction: requiredField(map, path, 'direction', asString),
+      params: requiredField(map, path, 'params', asObject),
+      link: requiredField(map, path, 'link', asString),
+      metricCode: requiredField(map, path, 'metric_code', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'kind', 'direction', 'params', 'link', 'metric_code'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final String direction;
+  final Map<String, Object?> params;
+  final String link;
+  final String? metricCode;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'direction': direction,
+        'params': params,
+        'link': link,
+        'metric_code': metricCode,
+        ...extra,
+      };
+}
+
+final class CommitteeDirectiveTrackerResponse implements ResponseModel {
+  const CommitteeDirectiveTrackerResponse({
+    required this.asOf,
+    required this.units,
+    required this.directives,
+    required this.totals,
+    required this.truncated,
+    required this.escalateAfterDays,
+    required this.figures,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeDirectiveTrackerResponse.fromJson(Object? json, [String path = 'CommitteeDirectiveTrackerResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeDirectiveTrackerResponse(
+      asOf: requiredField(map, path, 'as_of', asString),
+      units: requiredField(map, path, 'units', asList(CommitteeDirectiveTrackerResponseUnitsItem.fromJson)),
+      directives: requiredField(map, path, 'directives', asList(CommitteeDirectiveTrackerResponseDirectivesItem.fromJson)),
+      totals: requiredField(map, path, 'totals', CommitteeDirectiveTrackerResponseTotals.fromJson),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      escalateAfterDays: requiredField(map, path, 'escalate_after_days', asInt),
+      figures: requiredField(map, path, 'figures', asList(CommitteeFigureResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'as_of', 'units', 'directives', 'totals', 'truncated', 'escalate_after_days', 'figures'}, strict: true),
+    );
+  }
+
+  final String asOf;
+  final List<CommitteeDirectiveTrackerResponseUnitsItem> units;
+  final List<CommitteeDirectiveTrackerResponseDirectivesItem> directives;
+  final CommitteeDirectiveTrackerResponseTotals totals;
+  final bool truncated;
+  final int escalateAfterDays;
+  final List<CommitteeFigureResponse> figures;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'as_of': asOf,
+        'units': units.map((e0) => e0.toJson()).toList(),
+        'directives': directives.map((e0) => e0.toJson()).toList(),
+        'totals': totals.toJson(),
+        'truncated': truncated,
+        'escalate_after_days': escalateAfterDays,
+        'figures': figures.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CommitteeDirectiveTrackerResponseDirectivesItem implements ResponseModel {
+  const CommitteeDirectiveTrackerResponseDirectivesItem({
+    required this.id,
+    required this.code,
+    required this.text,
+    required this.projectId,
+    required this.projectCode,
+    required this.assigneeUnitId,
+    required this.assigneeUnitName,
+    required this.dueOn,
+    required this.overdueDays,
+    required this.phase,
+    required this.status,
+    required this.extensionCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeDirectiveTrackerResponseDirectivesItem.fromJson(Object? json, [String path = 'CommitteeDirectiveTrackerResponseDirectivesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeDirectiveTrackerResponseDirectivesItem(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      text: requiredField(map, path, 'text', asString),
+      projectId: requiredField(map, path, 'project_id', nullable(asString)),
+      projectCode: requiredField(map, path, 'project_code', nullable(asString)),
+      assigneeUnitId: requiredField(map, path, 'assignee_unit_id', asString),
+      assigneeUnitName: requiredField(map, path, 'assignee_unit_name', asString),
+      dueOn: requiredField(map, path, 'due_on', asString),
+      overdueDays: requiredField(map, path, 'overdue_days', asInt),
+      phase: requiredField(map, path, 'phase', asString),
+      status: requiredField(map, path, 'status', asString),
+      extensionCount: requiredField(map, path, 'extension_count', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'text', 'project_id', 'project_code', 'assignee_unit_id', 'assignee_unit_name', 'due_on', 'overdue_days', 'phase', 'status', 'extension_count'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String text;
+  final String? projectId;
+  final String? projectCode;
+  final String assigneeUnitId;
+  final String assigneeUnitName;
+  final String dueOn;
+  final int overdueDays;
+  final String phase;
+  final String status;
+  final int extensionCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'text': text,
+        'project_id': projectId,
+        'project_code': projectCode,
+        'assignee_unit_id': assigneeUnitId,
+        'assignee_unit_name': assigneeUnitName,
+        'due_on': dueOn,
+        'overdue_days': overdueDays,
+        'phase': phase,
+        'status': status,
+        'extension_count': extensionCount,
+        ...extra,
+      };
+}
+
+final class CommitteeDirectiveTrackerResponseTotals implements ResponseModel {
+  const CommitteeDirectiveTrackerResponseTotals({
+    required this.open,
+    required this.overdue,
+    required this.escalated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeDirectiveTrackerResponseTotals.fromJson(Object? json, [String path = 'CommitteeDirectiveTrackerResponseTotals']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeDirectiveTrackerResponseTotals(
+      open: requiredField(map, path, 'open', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      escalated: requiredField(map, path, 'escalated', asInt),
+      extra: unknownFields(map, path, const <String>{'open', 'overdue', 'escalated'}, strict: true),
+    );
+  }
+
+  final int open;
+  final int overdue;
+  final int escalated;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'open': open,
+        'overdue': overdue,
+        'escalated': escalated,
+        ...extra,
+      };
+}
+
+final class CommitteeDirectiveTrackerResponseUnitsItem implements ResponseModel {
+  const CommitteeDirectiveTrackerResponseUnitsItem({
+    required this.unitId,
+    required this.unitName,
+    required this.open,
+    required this.overdue,
+    required this.escalated,
+    required this.oldestOverdueDays,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeDirectiveTrackerResponseUnitsItem.fromJson(Object? json, [String path = 'CommitteeDirectiveTrackerResponseUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeDirectiveTrackerResponseUnitsItem(
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', asString),
+      open: requiredField(map, path, 'open', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      escalated: requiredField(map, path, 'escalated', asInt),
+      oldestOverdueDays: requiredField(map, path, 'oldest_overdue_days', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'unit_id', 'unit_name', 'open', 'overdue', 'escalated', 'oldest_overdue_days'}, strict: true),
+    );
+  }
+
+  final String unitId;
+  final String unitName;
+  final int open;
+  final int overdue;
+  final int escalated;
+  final int? oldestOverdueDays;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'open': open,
+        'overdue': overdue,
+        'escalated': escalated,
+        'oldest_overdue_days': oldestOverdueDays,
+        ...extra,
+      };
+}
+
+final class CommitteeFeedInfoResponse implements ResponseModel {
+  const CommitteeFeedInfoResponse({
+    required this.basis,
+    required this.reference,
+    required this.lastDeliveredAt,
+    required this.empty,
+    required this.projects,
+    required this.lines,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeFeedInfoResponse.fromJson(Object? json, [String path = 'CommitteeFeedInfoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeFeedInfoResponse(
+      basis: requiredField(map, path, 'basis', asString),
+      reference: requiredField(map, path, 'reference', nullable(asString)),
+      lastDeliveredAt: requiredField(map, path, 'last_delivered_at', nullable(asString)),
+      empty: requiredField(map, path, 'empty', asBool),
+      projects: requiredField(map, path, 'projects', asInt),
+      lines: requiredField(map, path, 'lines', asInt),
+      extra: unknownFields(map, path, const <String>{'basis', 'reference', 'last_delivered_at', 'empty', 'projects', 'lines'}, strict: true),
+    );
+  }
+
+  final String basis;
+  final String? reference;
+  final String? lastDeliveredAt;
+  final bool empty;
+  final int projects;
+  final int lines;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'basis': basis,
+        'reference': reference,
+        'last_delivered_at': lastDeliveredAt,
+        'empty': empty,
+        'projects': projects,
+        'lines': lines,
+        ...extra,
+      };
+}
+
+final class CommitteeFigureResponse implements ResponseModel {
+  const CommitteeFigureResponse({
+    required this.metricCode,
+    required this.value,
+    required this.displayValue,
+    required this.nullReason,
+    required this.unit,
+    required this.formula,
+    required this.flags,
+    this.numerator,
+    this.denominator,
+    this.definitionStatus,
+    this.kpi,
+    this.certification,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeFigureResponse.fromJson(Object? json, [String path = 'CommitteeFigureResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeFigureResponse(
+      metricCode: requiredField(map, path, 'metric_code', asString),
+      value: requiredField(map, path, 'value', nullable(asString)),
+      displayValue: requiredField(map, path, 'display_value', nullable(asString)),
+      numerator: optionalField(map, path, 'numerator', nullable(asString)),
+      denominator: optionalField(map, path, 'denominator', nullable(asString)),
+      nullReason: requiredField(map, path, 'null_reason', nullable(asString)),
+      unit: requiredField(map, path, 'unit', asString),
+      formula: requiredField(map, path, 'formula', asString),
+      definitionStatus: optionalField(map, path, 'definition_status', asString),
+      kpi: optionalField(map, path, 'kpi', asAny),
+      certification: optionalField(map, path, 'certification', asAny),
+      flags: requiredField(map, path, 'flags', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'metric_code', 'value', 'display_value', 'numerator', 'denominator', 'null_reason', 'unit', 'formula', 'definition_status', 'kpi', 'certification', 'flags'}, strict: true),
+    );
+  }
+
+  final String metricCode;
+  final String? value;
+  final String? displayValue;
+  final String? numerator;
+  final String? denominator;
+  final String? nullReason;
+  final String unit;
+  final String formula;
+  final String? definitionStatus;
+  final Object? kpi;
+  final Object? certification;
+  final List<String> flags;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'metric_code': metricCode,
+        'value': value,
+        'display_value': displayValue,
+        if (numerator != null) 'numerator': numerator,
+        if (denominator != null) 'denominator': denominator,
+        'null_reason': nullReason,
+        'unit': unit,
+        'formula': formula,
+        if (definitionStatus != null) 'definition_status': definitionStatus,
+        if (kpi != null) 'kpi': kpi,
+        if (certification != null) 'certification': certification,
+        'flags': flags,
+        ...extra,
+      };
+}
+
+final class CommitteeMeetingPackResponse implements ResponseModel {
+  const CommitteeMeetingPackResponse({
+    required this.asOf,
+    required this.fiscalYear,
+    required this.feed,
+    required this.policy,
+    required this.layoutCode,
+    required this.layoutVersion,
+    required this.figures,
+    required this.province,
+    required this.bySector,
+    required this.byDistrict,
+    required this.byInvestor,
+    required this.byFundSource,
+    required this.attention,
+    required this.directives,
+    required this.generation,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeMeetingPackResponse.fromJson(Object? json, [String path = 'CommitteeMeetingPackResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeMeetingPackResponse(
+      asOf: requiredField(map, path, 'as_of', asString),
+      fiscalYear: requiredField(map, path, 'fiscal_year', asInt),
+      feed: requiredField(map, path, 'feed', CommitteeFeedInfoResponse.fromJson),
+      policy: requiredField(map, path, 'policy', CommitteePolicyInfoResponse.fromJson),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      figures: requiredField(map, path, 'figures', asList(CommitteeFigureResponse.fromJson)),
+      province: requiredField(map, path, 'province', CommitteeAggregateRowResponse.fromJson),
+      bySector: requiredField(map, path, 'by_sector', asList(CommitteeAggregateRowResponse.fromJson)),
+      byDistrict: requiredField(map, path, 'by_district', asList(CommitteeAggregateRowResponse.fromJson)),
+      byInvestor: requiredField(map, path, 'by_investor', asList(CommitteeAggregateRowResponse.fromJson)),
+      byFundSource: requiredField(map, path, 'by_fund_source', asList(CommitteeAggregateRowResponse.fromJson)),
+      attention: requiredField(map, path, 'attention', asList(CommitteeAttentionItemResponse.fromJson)),
+      directives: requiredField(map, path, 'directives', CommitteeDirectiveTrackerResponse.fromJson),
+      generation: requiredField(map, path, 'generation', CommitteeMeetingPackResponseGeneration.fromJson),
+      extra: unknownFields(map, path, const <String>{'as_of', 'fiscal_year', 'feed', 'policy', 'layout_code', 'layout_version', 'figures', 'province', 'by_sector', 'by_district', 'by_investor', 'by_fund_source', 'attention', 'directives', 'generation'}, strict: true),
+    );
+  }
+
+  final String asOf;
+  final int fiscalYear;
+  final CommitteeFeedInfoResponse feed;
+  final CommitteePolicyInfoResponse policy;
+  final String layoutCode;
+  final String layoutVersion;
+  final List<CommitteeFigureResponse> figures;
+  final CommitteeAggregateRowResponse province;
+  final List<CommitteeAggregateRowResponse> bySector;
+  final List<CommitteeAggregateRowResponse> byDistrict;
+  final List<CommitteeAggregateRowResponse> byInvestor;
+  final List<CommitteeAggregateRowResponse> byFundSource;
+  final List<CommitteeAttentionItemResponse> attention;
+  final CommitteeDirectiveTrackerResponse directives;
+  final CommitteeMeetingPackResponseGeneration generation;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'as_of': asOf,
+        'fiscal_year': fiscalYear,
+        'feed': feed.toJson(),
+        'policy': policy.toJson(),
+        'layout_code': layoutCode,
+        'layout_version': layoutVersion,
+        'figures': figures.map((e0) => e0.toJson()).toList(),
+        'province': province.toJson(),
+        'by_sector': bySector.map((e0) => e0.toJson()).toList(),
+        'by_district': byDistrict.map((e0) => e0.toJson()).toList(),
+        'by_investor': byInvestor.map((e0) => e0.toJson()).toList(),
+        'by_fund_source': byFundSource.map((e0) => e0.toJson()).toList(),
+        'attention': attention.map((e0) => e0.toJson()).toList(),
+        'directives': directives.toJson(),
+        'generation': generation.toJson(),
+        ...extra,
+      };
+}
+
+final class CommitteeMeetingPackResponseGeneration implements ResponseModel {
+  const CommitteeMeetingPackResponseGeneration({
+    required this.period,
+    required this.recentDrafts,
+    required this.recentIssues,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeMeetingPackResponseGeneration.fromJson(Object? json, [String path = 'CommitteeMeetingPackResponseGeneration']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeMeetingPackResponseGeneration(
+      period: requiredField(map, path, 'period', CommitteeMeetingPackResponseGenerationPeriod.fromJson),
+      recentDrafts: requiredField(map, path, 'recent_drafts', asList(CommitteeMeetingPackResponseGenerationRecentDraftsItem.fromJson)),
+      recentIssues: requiredField(map, path, 'recent_issues', asList(CommitteeMeetingPackResponseGenerationRecentIssuesItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'period', 'recent_drafts', 'recent_issues'}, strict: true),
+    );
+  }
+
+  final CommitteeMeetingPackResponseGenerationPeriod period;
+  final List<CommitteeMeetingPackResponseGenerationRecentDraftsItem> recentDrafts;
+  final List<CommitteeMeetingPackResponseGenerationRecentIssuesItem> recentIssues;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period': period.toJson(),
+        'recent_drafts': recentDrafts.map((e0) => e0.toJson()).toList(),
+        'recent_issues': recentIssues.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CommitteeMeetingPackResponseGenerationPeriod implements ResponseModel {
+  const CommitteeMeetingPackResponseGenerationPeriod({
+    required this.kind,
+    required this.year,
+    required this.day,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeMeetingPackResponseGenerationPeriod.fromJson(Object? json, [String path = 'CommitteeMeetingPackResponseGenerationPeriod']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeMeetingPackResponseGenerationPeriod(
+      kind: requiredField(map, path, 'kind', asString),
+      year: requiredField(map, path, 'year', asInt),
+      day: requiredField(map, path, 'day', asString),
+      extra: unknownFields(map, path, const <String>{'kind', 'year', 'day'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final int year;
+  final String day;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'year': year,
+        'day': day,
+        ...extra,
+      };
+}
+
+final class CommitteeMeetingPackResponseGenerationRecentDraftsItem implements ResponseModel {
+  const CommitteeMeetingPackResponseGenerationRecentDraftsItem({
+    required this.id,
+    required this.status,
+    required this.revision,
+    required this.createdAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeMeetingPackResponseGenerationRecentDraftsItem.fromJson(Object? json, [String path = 'CommitteeMeetingPackResponseGenerationRecentDraftsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeMeetingPackResponseGenerationRecentDraftsItem(
+      id: requiredField(map, path, 'id', asString),
+      status: requiredField(map, path, 'status', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'status', 'revision', 'created_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String status;
+  final int revision;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'status': status,
+        'revision': revision,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class CommitteeMeetingPackResponseGenerationRecentIssuesItem implements ResponseModel {
+  const CommitteeMeetingPackResponseGenerationRecentIssuesItem({
+    required this.id,
+    required this.revision,
+    required this.sha256,
+    required this.issuedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeMeetingPackResponseGenerationRecentIssuesItem.fromJson(Object? json, [String path = 'CommitteeMeetingPackResponseGenerationRecentIssuesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeMeetingPackResponseGenerationRecentIssuesItem(
+      id: requiredField(map, path, 'id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      issuedAt: requiredField(map, path, 'issued_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'revision', 'sha256', 'issued_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int revision;
+  final String sha256;
+  final String issuedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'revision': revision,
+        'sha256': sha256,
+        'issued_at': issuedAt,
+        ...extra,
+      };
+}
+
+final class CommitteeMemberResponse implements ResponseModel {
+  const CommitteeMemberResponse({
+    required this.id,
+    required this.committeeId,
+    required this.membershipId,
+    required this.displayName,
+    required this.committeeRole,
+    required this.agencyCode,
+    required this.agencyName,
+    required this.decisionRef,
+    required this.validFrom,
+    required this.validUntil,
+    required this.mfaRequired,
+    required this.status,
+    required this.appointedAt,
+    required this.endedAt,
+    required this.endReason,
+    required this.roleGranted,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeMemberResponse.fromJson(Object? json, [String path = 'CommitteeMemberResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeMemberResponse(
+      id: requiredField(map, path, 'id', asString),
+      committeeId: requiredField(map, path, 'committee_id', asString),
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      committeeRole: requiredField(map, path, 'committee_role', asString),
+      agencyCode: requiredField(map, path, 'agency_code', nullable(asString)),
+      agencyName: requiredField(map, path, 'agency_name', nullable(asString)),
+      decisionRef: requiredField(map, path, 'decision_ref', nullable(asString)),
+      validFrom: requiredField(map, path, 'valid_from', asString),
+      validUntil: requiredField(map, path, 'valid_until', nullable(asString)),
+      mfaRequired: requiredField(map, path, 'mfa_required', asBool),
+      status: requiredField(map, path, 'status', asString),
+      appointedAt: requiredField(map, path, 'appointed_at', asString),
+      endedAt: requiredField(map, path, 'ended_at', nullable(asString)),
+      endReason: requiredField(map, path, 'end_reason', nullable(asString)),
+      roleGranted: requiredField(map, path, 'role_granted', asBool),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'committee_id', 'membership_id', 'display_name', 'committee_role', 'agency_code', 'agency_name', 'decision_ref', 'valid_from', 'valid_until', 'mfa_required', 'status', 'appointed_at', 'ended_at', 'end_reason', 'role_granted', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String committeeId;
+  final String membershipId;
+  final String? displayName;
+  final String committeeRole;
+  final String? agencyCode;
+  final String? agencyName;
+  final String? decisionRef;
+  final String validFrom;
+  final String? validUntil;
+  final bool mfaRequired;
+  final String status;
+  final String appointedAt;
+  final String? endedAt;
+  final String? endReason;
+  final bool roleGranted;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'committee_id': committeeId,
+        'membership_id': membershipId,
+        'display_name': displayName,
+        'committee_role': committeeRole,
+        'agency_code': agencyCode,
+        'agency_name': agencyName,
+        'decision_ref': decisionRef,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        'mfa_required': mfaRequired,
+        'status': status,
+        'appointed_at': appointedAt,
+        'ended_at': endedAt,
+        'end_reason': endReason,
+        'role_granted': roleGranted,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CommitteeOutlookResponse implements ResponseModel {
+  const CommitteeOutlookResponse({
+    required this.lowVnd,
+    required this.highVnd,
+    required this.lowPct,
+    required this.highPct,
+    required this.methods,
+    required this.thin,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeOutlookResponse.fromJson(Object? json, [String path = 'CommitteeOutlookResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeOutlookResponse(
+      lowVnd: requiredField(map, path, 'low_vnd', nullable(asString)),
+      highVnd: requiredField(map, path, 'high_vnd', nullable(asString)),
+      lowPct: requiredField(map, path, 'low_pct', nullable(asString)),
+      highPct: requiredField(map, path, 'high_pct', nullable(asString)),
+      methods: requiredField(map, path, 'methods', asList(CommitteeOutlookResponseMethodsItem.fromJson)),
+      thin: requiredField(map, path, 'thin', asBool),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'low_vnd', 'high_vnd', 'low_pct', 'high_pct', 'methods', 'thin', 'reason'}, strict: true),
+    );
+  }
+
+  final String? lowVnd;
+  final String? highVnd;
+  final String? lowPct;
+  final String? highPct;
+  final List<CommitteeOutlookResponseMethodsItem> methods;
+  final bool thin;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'low_vnd': lowVnd,
+        'high_vnd': highVnd,
+        'low_pct': lowPct,
+        'high_pct': highPct,
+        'methods': methods.map((e0) => e0.toJson()).toList(),
+        'thin': thin,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class CommitteeOutlookResponseMethodsItem implements ResponseModel {
+  const CommitteeOutlookResponseMethodsItem({
+    required this.method,
+    required this.vnd,
+    required this.capped,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeOutlookResponseMethodsItem.fromJson(Object? json, [String path = 'CommitteeOutlookResponseMethodsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeOutlookResponseMethodsItem(
+      method: requiredField(map, path, 'method', asString),
+      vnd: requiredField(map, path, 'vnd', asString),
+      capped: requiredField(map, path, 'capped', asBool),
+      extra: unknownFields(map, path, const <String>{'method', 'vnd', 'capped'}, strict: true),
+    );
+  }
+
+  final String method;
+  final String vnd;
+  final bool capped;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'method': method,
+        'vnd': vnd,
+        'capped': capped,
+        ...extra,
+      };
+}
+
+final class CommitteePolicyInfoResponse implements ResponseModel {
+  const CommitteePolicyInfoResponse({
+    required this.code,
+    required this.version,
+    required this.source,
+    required this.unverified,
+    required this.formula,
+    required this.ruleSource,
+    required this.asOf,
+    required this.curve,
+    required this.expectedPct,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteePolicyInfoResponse.fromJson(Object? json, [String path = 'CommitteePolicyInfoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteePolicyInfoResponse(
+      code: requiredField(map, path, 'code', asString),
+      version: requiredField(map, path, 'version', nullable(asInt)),
+      source: requiredField(map, path, 'source', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      formula: requiredField(map, path, 'formula', asString),
+      ruleSource: requiredField(map, path, 'rule_source', asString),
+      asOf: requiredField(map, path, 'as_of', asString),
+      curve: requiredField(map, path, 'curve', asList(CommitteePolicyInfoResponseCurveItem.fromJson)),
+      expectedPct: requiredField(map, path, 'expected_pct', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'version', 'source', 'unverified', 'formula', 'rule_source', 'as_of', 'curve', 'expected_pct'}, strict: true),
+    );
+  }
+
+  final String code;
+  final int? version;
+  final String source;
+  final bool unverified;
+  final String formula;
+  final String ruleSource;
+  final String asOf;
+  final List<CommitteePolicyInfoResponseCurveItem> curve;
+  final String expectedPct;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'version': version,
+        'source': source,
+        'unverified': unverified,
+        'formula': formula,
+        'rule_source': ruleSource,
+        'as_of': asOf,
+        'curve': curve.map((e0) => e0.toJson()).toList(),
+        'expected_pct': expectedPct,
+        ...extra,
+      };
+}
+
+final class CommitteePolicyInfoResponseCurveItem implements ResponseModel {
+  const CommitteePolicyInfoResponseCurveItem({
+    required this.month,
+    required this.cumulativePct,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteePolicyInfoResponseCurveItem.fromJson(Object? json, [String path = 'CommitteePolicyInfoResponseCurveItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteePolicyInfoResponseCurveItem(
+      month: requiredField(map, path, 'month', asInt),
+      cumulativePct: requiredField(map, path, 'cumulative_pct', asNum),
+      extra: unknownFields(map, path, const <String>{'month', 'cumulative_pct'}, strict: true),
+    );
+  }
+
+  final int month;
+  final num cumulativePct;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'month': month,
+        'cumulative_pct': cumulativePct,
+        ...extra,
+      };
+}
+
+final class CommitteeRosterResponse implements ResponseModel {
+  const CommitteeRosterResponse({
+    required this.committees,
+    required this.classification,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeRosterResponse.fromJson(Object? json, [String path = 'CommitteeRosterResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeRosterResponse(
+      committees: requiredField(map, path, 'committees', asList(CommitteeRosterResponseCommitteesItem.fromJson)),
+      classification: requiredField(map, path, 'classification', asString),
+      extra: unknownFields(map, path, const <String>{'committees', 'classification'}, strict: true),
+    );
+  }
+
+  final List<CommitteeRosterResponseCommitteesItem> committees;
+  final String classification;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'committees': committees.map((e0) => e0.toJson()).toList(),
+        'classification': classification,
+        ...extra,
+      };
+}
+
+final class CommitteeRosterResponseCommitteesItem implements ResponseModel {
+  const CommitteeRosterResponseCommitteesItem({
+    required this.id,
+    required this.code,
+    required this.name,
+    required this.legalBasis,
+    required this.status,
+    required this.version,
+    required this.members,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeRosterResponseCommitteesItem.fromJson(Object? json, [String path = 'CommitteeRosterResponseCommitteesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeRosterResponseCommitteesItem(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      legalBasis: requiredField(map, path, 'legal_basis', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      version: requiredField(map, path, 'version', asInt),
+      members: requiredField(map, path, 'members', asList(CommitteeMemberResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'legal_basis', 'status', 'version', 'members'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+  final String? legalBasis;
+  final String status;
+  final int version;
+  final List<CommitteeMemberResponse> members;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        'legal_basis': legalBasis,
+        'status': status,
+        'version': version,
+        'members': members.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CommitteeUnitReportingResponse implements ResponseModel {
+  const CommitteeUnitReportingResponse({
+    required this.unitId,
+    required this.unitName,
+    required this.expected,
+    required this.received,
+    required this.reportingRatePct,
+    required this.lastReportedOn,
+    required this.daysSinceReport,
+    required this.notReporting,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeUnitReportingResponse.fromJson(Object? json, [String path = 'CommitteeUnitReportingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeUnitReportingResponse(
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', asString),
+      expected: requiredField(map, path, 'expected', asInt),
+      received: requiredField(map, path, 'received', asInt),
+      reportingRatePct: requiredField(map, path, 'reporting_rate_pct', nullable(asString)),
+      lastReportedOn: requiredField(map, path, 'last_reported_on', nullable(asString)),
+      daysSinceReport: requiredField(map, path, 'days_since_report', nullable(asInt)),
+      notReporting: requiredField(map, path, 'not_reporting', asBool),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'unit_id', 'unit_name', 'expected', 'received', 'reporting_rate_pct', 'last_reported_on', 'days_since_report', 'not_reporting', 'reason'}, strict: true),
+    );
+  }
+
+  final String unitId;
+  final String unitName;
+  final int expected;
+  final int received;
+  final String? reportingRatePct;
+  final String? lastReportedOn;
+  final int? daysSinceReport;
+  final bool notReporting;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'expected': expected,
+        'received': received,
+        'reporting_rate_pct': reportingRatePct,
+        'last_reported_on': lastReportedOn,
+        'days_since_report': daysSinceReport,
+        'not_reporting': notReporting,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class CommitteeViewAuditListResponse implements ResponseModel {
+  const CommitteeViewAuditListResponse({
+    required this.rows,
+    required this.next,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeViewAuditListResponse.fromJson(Object? json, [String path = 'CommitteeViewAuditListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeViewAuditListResponse(
+      rows: requiredField(map, path, 'rows', asList(CommitteeViewAuditListResponseRowsItem.fromJson)),
+      next: requiredField(map, path, 'next', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'rows', 'next'}, strict: true),
+    );
+  }
+
+  final List<CommitteeViewAuditListResponseRowsItem> rows;
+  final String? next;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rows': rows.map((e0) => e0.toJson()).toList(),
+        'next': next,
+        ...extra,
+      };
+}
+
+final class CommitteeViewAuditListResponseRowsItem implements ResponseModel {
+  const CommitteeViewAuditListResponseRowsItem({
+    required this.id,
+    required this.membershipId,
+    required this.displayName,
+    required this.committeeRole,
+    required this.screen,
+    required this.filters,
+    required this.asOf,
+    required this.recordCount,
+    required this.feedBasis,
+    required this.assuranceLevel,
+    required this.mfaRequired,
+    required this.viewedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeViewAuditListResponseRowsItem.fromJson(Object? json, [String path = 'CommitteeViewAuditListResponseRowsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeViewAuditListResponseRowsItem(
+      id: requiredField(map, path, 'id', asString),
+      membershipId: requiredField(map, path, 'membership_id', asString),
+      displayName: requiredField(map, path, 'display_name', nullable(asString)),
+      committeeRole: requiredField(map, path, 'committee_role', nullable(asString)),
+      screen: requiredField(map, path, 'screen', asString),
+      filters: requiredField(map, path, 'filters', asObject),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      recordCount: requiredField(map, path, 'record_count', nullable(asInt)),
+      feedBasis: requiredField(map, path, 'feed_basis', nullable(asString)),
+      assuranceLevel: requiredField(map, path, 'assurance_level', asString),
+      mfaRequired: requiredField(map, path, 'mfa_required', asBool),
+      viewedAt: requiredField(map, path, 'viewed_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'membership_id', 'display_name', 'committee_role', 'screen', 'filters', 'as_of', 'record_count', 'feed_basis', 'assurance_level', 'mfa_required', 'viewed_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String membershipId;
+  final String? displayName;
+  final String? committeeRole;
+  final String screen;
+  final Map<String, Object?> filters;
+  final String? asOf;
+  final int? recordCount;
+  final String? feedBasis;
+  final String assuranceLevel;
+  final bool mfaRequired;
+  final String viewedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'membership_id': membershipId,
+        'display_name': displayName,
+        'committee_role': committeeRole,
+        'screen': screen,
+        'filters': filters,
+        'as_of': asOf,
+        'record_count': recordCount,
+        'feed_basis': feedBasis,
+        'assurance_level': assuranceLevel,
+        'mfa_required': mfaRequired,
+        'viewed_at': viewedAt,
+        ...extra,
+      };
+}
+
+final class CommitteeWorkspaceResponse implements ResponseModel {
+  const CommitteeWorkspaceResponse({
+    required this.asOf,
+    required this.fiscalYear,
+    required this.feed,
+    required this.policy,
+    required this.figures,
+    required this.province,
+    required this.bySector,
+    required this.byDistrict,
+    required this.byInvestor,
+    required this.byFundSource,
+    required this.attentionTotal,
+    required this.attention,
+    required this.units,
+    required this.alerts,
+    required this.changes,
+    required this.directives,
+    required this.filters,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeWorkspaceResponse.fromJson(Object? json, [String path = 'CommitteeWorkspaceResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeWorkspaceResponse(
+      asOf: requiredField(map, path, 'as_of', asString),
+      fiscalYear: requiredField(map, path, 'fiscal_year', asInt),
+      feed: requiredField(map, path, 'feed', CommitteeFeedInfoResponse.fromJson),
+      policy: requiredField(map, path, 'policy', CommitteePolicyInfoResponse.fromJson),
+      figures: requiredField(map, path, 'figures', asList(CommitteeFigureResponse.fromJson)),
+      province: requiredField(map, path, 'province', CommitteeAggregateRowResponse.fromJson),
+      bySector: requiredField(map, path, 'by_sector', asList(CommitteeAggregateRowResponse.fromJson)),
+      byDistrict: requiredField(map, path, 'by_district', asList(CommitteeAggregateRowResponse.fromJson)),
+      byInvestor: requiredField(map, path, 'by_investor', asList(CommitteeAggregateRowResponse.fromJson)),
+      byFundSource: requiredField(map, path, 'by_fund_source', asList(CommitteeAggregateRowResponse.fromJson)),
+      attentionTotal: requiredField(map, path, 'attention_total', asInt),
+      attention: requiredField(map, path, 'attention', asList(CommitteeAttentionItemResponse.fromJson)),
+      units: requiredField(map, path, 'units', asList(CommitteeUnitReportingResponse.fromJson)),
+      alerts: requiredField(map, path, 'alerts', asList(CommitteeAlertResponse.fromJson)),
+      changes: requiredField(map, path, 'changes', CommitteeWorkspaceResponseChanges.fromJson),
+      directives: requiredField(map, path, 'directives', CommitteeDirectiveTrackerResponse.fromJson),
+      filters: requiredField(map, path, 'filters', asObject),
+      extra: unknownFields(map, path, const <String>{'as_of', 'fiscal_year', 'feed', 'policy', 'figures', 'province', 'by_sector', 'by_district', 'by_investor', 'by_fund_source', 'attention_total', 'attention', 'units', 'alerts', 'changes', 'directives', 'filters'}, strict: true),
+    );
+  }
+
+  final String asOf;
+  final int fiscalYear;
+  final CommitteeFeedInfoResponse feed;
+  final CommitteePolicyInfoResponse policy;
+  final List<CommitteeFigureResponse> figures;
+  final CommitteeAggregateRowResponse province;
+  final List<CommitteeAggregateRowResponse> bySector;
+  final List<CommitteeAggregateRowResponse> byDistrict;
+  final List<CommitteeAggregateRowResponse> byInvestor;
+  final List<CommitteeAggregateRowResponse> byFundSource;
+  final int attentionTotal;
+  final List<CommitteeAttentionItemResponse> attention;
+  final List<CommitteeUnitReportingResponse> units;
+  final List<CommitteeAlertResponse> alerts;
+  final CommitteeWorkspaceResponseChanges changes;
+  final CommitteeDirectiveTrackerResponse directives;
+  final Map<String, Object?> filters;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'as_of': asOf,
+        'fiscal_year': fiscalYear,
+        'feed': feed.toJson(),
+        'policy': policy.toJson(),
+        'figures': figures.map((e0) => e0.toJson()).toList(),
+        'province': province.toJson(),
+        'by_sector': bySector.map((e0) => e0.toJson()).toList(),
+        'by_district': byDistrict.map((e0) => e0.toJson()).toList(),
+        'by_investor': byInvestor.map((e0) => e0.toJson()).toList(),
+        'by_fund_source': byFundSource.map((e0) => e0.toJson()).toList(),
+        'attention_total': attentionTotal,
+        'attention': attention.map((e0) => e0.toJson()).toList(),
+        'units': units.map((e0) => e0.toJson()).toList(),
+        'alerts': alerts.map((e0) => e0.toJson()).toList(),
+        'changes': changes.toJson(),
+        'directives': directives.toJson(),
+        'filters': filters,
+        ...extra,
+      };
+}
+
+final class CommitteeWorkspaceResponseChanges implements ResponseModel {
+  const CommitteeWorkspaceResponseChanges({
+    required this.lines,
+    required this.previousAsOf,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CommitteeWorkspaceResponseChanges.fromJson(Object? json, [String path = 'CommitteeWorkspaceResponseChanges']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CommitteeWorkspaceResponseChanges(
+      lines: requiredField(map, path, 'lines', asList(CommitteeChangeLineResponse.fromJson)),
+      previousAsOf: requiredField(map, path, 'previous_as_of', nullable(asString)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'lines', 'previous_as_of', 'reason'}, strict: true),
+    );
+  }
+
+  final List<CommitteeChangeLineResponse> lines;
+  final String? previousAsOf;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'lines': lines.map((e0) => e0.toJson()).toList(),
+        'previous_as_of': previousAsOf,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class CompareEntryResponse implements ResponseModel {
+  const CompareEntryResponse({
+    required this.op,
+    required this.before,
+    required this.after,
+    required this.words,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CompareEntryResponse.fromJson(Object? json, [String path = 'CompareEntryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CompareEntryResponse(
+      op: requiredField(map, path, 'op', asString),
+      before: requiredField(map, path, 'before', asAny),
+      after: requiredField(map, path, 'after', asAny),
+      words: requiredField(map, path, 'words', asAny),
+      extra: unknownFields(map, path, const <String>{'op', 'before', 'after', 'words'}, strict: true),
+    );
+  }
+
+  final String op;
+  final Object? before;
+  final Object? after;
+  final Object? words;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'op': op,
+        'before': before,
+        'after': after,
+        'words': words,
         ...extra,
       };
 }
@@ -13041,6 +15281,454 @@ final class CtrClaimTotalsResponseByStatus implements ResponseModel {
       };
 }
 
+final class CtrContractRatingProposalResponse implements ResponseModel {
+  const CtrContractRatingProposalResponse({
+    required this.id,
+    required this.contractId,
+    required this.contractCode,
+    required this.contractorId,
+    required this.evaluationKind,
+    required this.periodLabel,
+    required this.asOfDate,
+    required this.state,
+    required this.rule,
+    required this.criteria,
+    required this.covered,
+    required this.overallScore,
+    required this.rating,
+    required this.inputsSha256,
+    required this.proposedBy,
+    required this.allowed,
+    required this.version,
+    required this.createdAt,
+    this.proposedNote,
+    this.notified,
+    this.responseDueAt,
+    this.responseClock,
+    this.response,
+    this.adopted,
+    this.withdrawn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponse.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponse(
+      id: requiredField(map, path, 'id', asString),
+      contractId: requiredField(map, path, 'contract_id', asString),
+      contractCode: requiredField(map, path, 'contract_code', asString),
+      contractorId: requiredField(map, path, 'contractor_id', asString),
+      evaluationKind: requiredField(map, path, 'evaluation_kind', asString),
+      periodLabel: requiredField(map, path, 'period_label', asString),
+      asOfDate: requiredField(map, path, 'as_of_date', asString),
+      state: requiredField(map, path, 'state', asString),
+      rule: requiredField(map, path, 'rule', CtrContractRatingProposalResponseRule.fromJson),
+      criteria: requiredField(map, path, 'criteria', asMap(CtrContractRatingProposalResponseCriteriaValue.fromJson)),
+      covered: requiredField(map, path, 'covered', asInt),
+      overallScore: requiredField(map, path, 'overall_score', nullable(asString)),
+      rating: requiredField(map, path, 'rating', nullable(asString)),
+      inputsSha256: requiredField(map, path, 'inputs_sha256', asString),
+      proposedBy: requiredField(map, path, 'proposed_by', asString),
+      proposedNote: optionalField(map, path, 'proposed_note', nullable(asString)),
+      notified: optionalField(map, path, 'notified', nullable(CtrContractRatingProposalResponseNotified.fromJson)),
+      responseDueAt: optionalField(map, path, 'response_due_at', nullable(asString)),
+      responseClock: optionalField(map, path, 'response_clock', nullable(CtrContractRatingProposalResponseResponseClock.fromJson)),
+      response: optionalField(map, path, 'response', nullable(CtrContractRatingProposalResponseResponse.fromJson)),
+      adopted: optionalField(map, path, 'adopted', nullable(CtrContractRatingProposalResponseAdopted.fromJson)),
+      withdrawn: optionalField(map, path, 'withdrawn', nullable(CtrContractRatingProposalResponseWithdrawn.fromJson)),
+      allowed: requiredField(map, path, 'allowed', CtrContractRatingProposalResponseAllowed.fromJson),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'contract_id', 'contract_code', 'contractor_id', 'evaluation_kind', 'period_label', 'as_of_date', 'state', 'rule', 'criteria', 'covered', 'overall_score', 'rating', 'inputs_sha256', 'proposed_by', 'proposed_note', 'notified', 'response_due_at', 'response_clock', 'response', 'adopted', 'withdrawn', 'allowed', 'version', 'created_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String contractId;
+  final String contractCode;
+  final String contractorId;
+  final String evaluationKind;
+  final String periodLabel;
+  final String asOfDate;
+  final String state;
+  final CtrContractRatingProposalResponseRule rule;
+  final Map<String, CtrContractRatingProposalResponseCriteriaValue> criteria;
+  final int covered;
+  final String? overallScore;
+  final String? rating;
+  final String inputsSha256;
+  final String proposedBy;
+  final String? proposedNote;
+  final CtrContractRatingProposalResponseNotified? notified;
+  final String? responseDueAt;
+  final CtrContractRatingProposalResponseResponseClock? responseClock;
+  final CtrContractRatingProposalResponseResponse? response;
+  final CtrContractRatingProposalResponseAdopted? adopted;
+  final CtrContractRatingProposalResponseWithdrawn? withdrawn;
+  final CtrContractRatingProposalResponseAllowed allowed;
+  final int version;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'contract_id': contractId,
+        'contract_code': contractCode,
+        'contractor_id': contractorId,
+        'evaluation_kind': evaluationKind,
+        'period_label': periodLabel,
+        'as_of_date': asOfDate,
+        'state': state,
+        'rule': rule.toJson(),
+        'criteria': <String, Object?>{for (final entry0 in criteria.entries) entry0.key: entry0.value.toJson()},
+        'covered': covered,
+        'overall_score': overallScore,
+        'rating': rating,
+        'inputs_sha256': inputsSha256,
+        'proposed_by': proposedBy,
+        if (proposedNote != null) 'proposed_note': proposedNote,
+        if (notified != null) 'notified': notified!.toJson(),
+        if (responseDueAt != null) 'response_due_at': responseDueAt,
+        if (responseClock != null) 'response_clock': responseClock!.toJson(),
+        if (response != null) 'response': response!.toJson(),
+        if (adopted != null) 'adopted': adopted!.toJson(),
+        if (withdrawn != null) 'withdrawn': withdrawn!.toJson(),
+        'allowed': allowed.toJson(),
+        'version': version,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseAdopted implements ResponseModel {
+  const CtrContractRatingProposalResponseAdopted({
+    this.by,
+    this.at,
+    this.note,
+    this.evaluationId,
+    this.overrides,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseAdopted.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseAdopted']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseAdopted(
+      by: optionalField(map, path, 'by', asString),
+      at: optionalField(map, path, 'at', asString),
+      note: optionalField(map, path, 'note', nullable(asString)),
+      evaluationId: optionalField(map, path, 'evaluation_id', asString),
+      overrides: optionalField(map, path, 'overrides', nullable(asObject)),
+      extra: unknownFields(map, path, const <String>{'by', 'at', 'note', 'evaluation_id', 'overrides'}, strict: false),
+    );
+  }
+
+  final String? by;
+  final String? at;
+  final String? note;
+  final String? evaluationId;
+  final Map<String, Object?>? overrides;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (by != null) 'by': by,
+        if (at != null) 'at': at,
+        if (note != null) 'note': note,
+        if (evaluationId != null) 'evaluation_id': evaluationId,
+        if (overrides != null) 'overrides': overrides,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseAllowed implements ResponseModel {
+  const CtrContractRatingProposalResponseAllowed({
+    required this.notify,
+    required this.respond,
+    required this.adopt,
+    required this.withdraw,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseAllowed.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseAllowed']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseAllowed(
+      notify: requiredField(map, path, 'notify', asBool),
+      respond: requiredField(map, path, 'respond', asBool),
+      adopt: requiredField(map, path, 'adopt', asBool),
+      withdraw: requiredField(map, path, 'withdraw', asBool),
+      extra: unknownFields(map, path, const <String>{'notify', 'respond', 'adopt', 'withdraw'}, strict: false),
+    );
+  }
+
+  final bool notify;
+  final bool respond;
+  final bool adopt;
+  final bool withdraw;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'notify': notify,
+        'respond': respond,
+        'adopt': adopt,
+        'withdraw': withdraw,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseCriteriaValue implements ResponseModel {
+  const CtrContractRatingProposalResponseCriteriaValue({
+    required this.score,
+    required this.reason,
+    this.readings,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseCriteriaValue.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseCriteriaValue']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseCriteriaValue(
+      score: requiredField(map, path, 'score', nullable(asInt)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      readings: optionalField(map, path, 'readings', asMap(asAny)),
+      extra: unknownFields(map, path, const <String>{'score', 'reason', 'readings'}, strict: false),
+    );
+  }
+
+  final int? score;
+  final String? reason;
+  final Map<String, Object?>? readings;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'score': score,
+        'reason': reason,
+        if (readings != null) 'readings': readings,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseNotified implements ResponseModel {
+  const CtrContractRatingProposalResponseNotified({
+    this.by,
+    this.at,
+    this.note,
+    this.letterDocumentVersionId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseNotified.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseNotified']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseNotified(
+      by: optionalField(map, path, 'by', asString),
+      at: optionalField(map, path, 'at', asString),
+      note: optionalField(map, path, 'note', nullable(asString)),
+      letterDocumentVersionId: optionalField(map, path, 'letter_document_version_id', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'by', 'at', 'note', 'letter_document_version_id'}, strict: false),
+    );
+  }
+
+  final String? by;
+  final String? at;
+  final String? note;
+  final String? letterDocumentVersionId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (by != null) 'by': by,
+        if (at != null) 'at': at,
+        if (note != null) 'note': note,
+        if (letterDocumentVersionId != null) 'letter_document_version_id': letterDocumentVersionId,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseResponse implements ResponseModel {
+  const CtrContractRatingProposalResponseResponse({
+    this.kind,
+    this.text,
+    this.receivedOn,
+    this.at,
+    this.by,
+    this.evidenceDocumentVersionId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseResponse.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseResponse(
+      kind: optionalField(map, path, 'kind', asString),
+      text: optionalField(map, path, 'text', nullable(asString)),
+      receivedOn: optionalField(map, path, 'received_on', asString),
+      at: optionalField(map, path, 'at', asString),
+      by: optionalField(map, path, 'by', asString),
+      evidenceDocumentVersionId: optionalField(map, path, 'evidence_document_version_id', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'kind', 'text', 'received_on', 'at', 'by', 'evidence_document_version_id'}, strict: false),
+    );
+  }
+
+  final String? kind;
+  final String? text;
+  final String? receivedOn;
+  final String? at;
+  final String? by;
+  final String? evidenceDocumentVersionId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (kind != null) 'kind': kind,
+        if (text != null) 'text': text,
+        if (receivedOn != null) 'received_on': receivedOn,
+        if (at != null) 'at': at,
+        if (by != null) 'by': by,
+        if (evidenceDocumentVersionId != null) 'evidence_document_version_id': evidenceDocumentVersionId,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseResponseClock implements ResponseModel {
+  const CtrContractRatingProposalResponseResponseClock({
+    this.status,
+    this.dueAt,
+    this.basis,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseResponseClock.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseResponseClock']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseResponseClock(
+      status: optionalField(map, path, 'status', asString),
+      dueAt: optionalField(map, path, 'due_at', asString),
+      basis: optionalField(map, path, 'basis', asString),
+      extra: unknownFields(map, path, const <String>{'status', 'due_at', 'basis'}, strict: false),
+    );
+  }
+
+  final String? status;
+  final String? dueAt;
+  final String? basis;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (status != null) 'status': status,
+        if (dueAt != null) 'due_at': dueAt,
+        if (basis != null) 'basis': basis,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseRule implements ResponseModel {
+  const CtrContractRatingProposalResponseRule({
+    required this.version,
+    required this.source,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseRule.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseRule(
+      version: requiredField(map, path, 'version', asInt),
+      source: requiredField(map, path, 'source', asString),
+      extra: unknownFields(map, path, const <String>{'version', 'source'}, strict: false),
+    );
+  }
+
+  final int version;
+  final String source;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'version': version,
+        'source': source,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalResponseWithdrawn implements ResponseModel {
+  const CtrContractRatingProposalResponseWithdrawn({
+    this.by,
+    this.at,
+    this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalResponseWithdrawn.fromJson(Object? json, [String path = 'CtrContractRatingProposalResponseWithdrawn']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalResponseWithdrawn(
+      by: optionalField(map, path, 'by', asString),
+      at: optionalField(map, path, 'at', asString),
+      reason: optionalField(map, path, 'reason', asString),
+      extra: unknownFields(map, path, const <String>{'by', 'at', 'reason'}, strict: false),
+    );
+  }
+
+  final String? by;
+  final String? at;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (by != null) 'by': by,
+        if (at != null) 'at': at,
+        if (reason != null) 'reason': reason,
+        ...extra,
+      };
+}
+
+final class CtrContractRatingProposalsResponse implements ResponseModel {
+  const CtrContractRatingProposalsResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRatingProposalsResponse.fromJson(Object? json, [String path = 'CtrContractRatingProposalsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRatingProposalsResponse(
+      items: requiredField(map, path, 'items', asList(CtrContractRatingProposalResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<CtrContractRatingProposalResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
 final class CtrContractRefResponse implements ResponseModel {
   const CtrContractRefResponse({
     required this.id,
@@ -13089,6 +15777,7 @@ final class CtrContractReportResponse implements ResponseModel {
     this.rules,
     this.tierSplit,
     this.ladders,
+    this.notes,
     this.extra = const <String, Object?>{},
   });
 
@@ -13111,7 +15800,8 @@ final class CtrContractReportResponse implements ResponseModel {
       rules: optionalField(map, path, 'rules', asList(CtrContractReportResponseRulesItem.fromJson)),
       tierSplit: optionalField(map, path, 'tier_split', CtrContractReportResponseTierSplit.fromJson),
       ladders: optionalField(map, path, 'ladders', CtrContractReportResponseLadders.fromJson),
-      extra: unknownFields(map, path, const <String>{'code', 'ref', 'as_of', 'context', 'columns', 'items', 'totals', 'breakdown', 'definitions', 'next_cursor', 'evm', 'payment_clock', 'breakdowns', 'rules', 'tier_split', 'ladders'}, strict: false),
+      notes: optionalField(map, path, 'notes', asObject),
+      extra: unknownFields(map, path, const <String>{'code', 'ref', 'as_of', 'context', 'columns', 'items', 'totals', 'breakdown', 'definitions', 'next_cursor', 'evm', 'payment_clock', 'breakdowns', 'rules', 'tier_split', 'ladders', 'notes'}, strict: false),
     );
   }
 
@@ -13131,6 +15821,7 @@ final class CtrContractReportResponse implements ResponseModel {
   final List<CtrContractReportResponseRulesItem>? rules;
   final CtrContractReportResponseTierSplit? tierSplit;
   final CtrContractReportResponseLadders? ladders;
+  final Map<String, Object?>? notes;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -13153,6 +15844,7 @@ final class CtrContractReportResponse implements ResponseModel {
         if (rules != null) 'rules': rules!.map((e0) => e0.toJson()).toList(),
         if (tierSplit != null) 'tier_split': tierSplit!.toJson(),
         if (ladders != null) 'ladders': ladders!.toJson(),
+        if (notes != null) 'notes': notes,
         ...extra,
       };
 }
@@ -13601,6 +16293,7 @@ final class CtrContractReportResponseItemsItem implements ResponseModel {
     required this.cells,
     required this.na,
     this.health,
+    this.recordId,
     this.extra = const <String, Object?>{},
   });
 
@@ -13611,7 +16304,8 @@ final class CtrContractReportResponseItemsItem implements ResponseModel {
       cells: requiredField(map, path, 'cells', asMap(asAny)),
       na: requiredField(map, path, 'na', asMap(asString)),
       health: optionalField(map, path, 'health', asObject),
-      extra: unknownFields(map, path, const <String>{'contract_id', 'cells', 'na', 'health'}, strict: false),
+      recordId: optionalField(map, path, 'record_id', asString),
+      extra: unknownFields(map, path, const <String>{'contract_id', 'cells', 'na', 'health', 'record_id'}, strict: false),
     );
   }
 
@@ -13619,6 +16313,7 @@ final class CtrContractReportResponseItemsItem implements ResponseModel {
   final Map<String, Object?> cells;
   final Map<String, String> na;
   final Map<String, Object?>? health;
+  final String? recordId;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -13629,6 +16324,7 @@ final class CtrContractReportResponseItemsItem implements ResponseModel {
         'cells': cells,
         'na': na,
         if (health != null) 'health': health,
+        if (recordId != null) 'record_id': recordId,
         ...extra,
       };
 }
@@ -19023,6 +21719,70 @@ final class DocRegisterEntryResponse implements ResponseModel {
       };
 }
 
+final class DocRepoLinkRefResponse implements ResponseModel {
+  const DocRepoLinkRefResponse({
+    required this.id,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocRepoLinkRefResponse.fromJson(Object? json, [String path = 'DocRepoLinkRefResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocRepoLinkRefResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        ...extra,
+      };
+}
+
+final class DocRepoProjectRefResponse implements ResponseModel {
+  const DocRepoProjectRefResponse({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocRepoProjectRefResponse.fromJson(Object? json, [String path = 'DocRepoProjectRefResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocRepoProjectRefResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
 final class DocSignatureReportResponse implements ResponseModel {
   const DocSignatureReportResponse({
     required this.versionId,
@@ -19053,6 +21813,1060 @@ final class DocSignatureReportResponse implements ResponseModel {
         'version_id': versionId,
         'overall': overall,
         'signatures': signatures,
+        ...extra,
+      };
+}
+
+final class DocumentCitationResponse implements ResponseModel {
+  const DocumentCitationResponse({
+    required this.citationRef,
+    required this.document,
+    required this.version,
+    required this.unit,
+    required this.before,
+    required this.after,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentCitationResponse.fromJson(Object? json, [String path = 'DocumentCitationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentCitationResponse(
+      citationRef: requiredField(map, path, 'citation_ref', asString),
+      document: requiredField(map, path, 'document', DocumentCitationResponseDocument.fromJson),
+      version: requiredField(map, path, 'version', DocumentCitationResponseVersion.fromJson),
+      unit: requiredField(map, path, 'unit', DocumentTextUnitResponse.fromJson),
+      before: requiredField(map, path, 'before', asAny),
+      after: requiredField(map, path, 'after', asAny),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'citation_ref', 'document', 'version', 'unit', 'before', 'after', 'as_of'}, strict: true),
+    );
+  }
+
+  final String citationRef;
+  final DocumentCitationResponseDocument document;
+  final DocumentCitationResponseVersion version;
+  final DocumentTextUnitResponse unit;
+  final Object? before;
+  final Object? after;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'citation_ref': citationRef,
+        'document': document.toJson(),
+        'version': version.toJson(),
+        'unit': unit.toJson(),
+        'before': before,
+        'after': after,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DocumentCitationResponseDocument implements ResponseModel {
+  const DocumentCitationResponseDocument({
+    required this.id,
+    required this.title,
+    required this.reference,
+    required this.docClass,
+    required this.project,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentCitationResponseDocument.fromJson(Object? json, [String path = 'DocumentCitationResponseDocument']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentCitationResponseDocument(
+      id: requiredField(map, path, 'id', asString),
+      title: requiredField(map, path, 'title', asString),
+      reference: requiredField(map, path, 'reference', nullable(asString)),
+      docClass: requiredField(map, path, 'doc_class', asString),
+      project: requiredField(map, path, 'project', DocRepoProjectRefResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'title', 'reference', 'doc_class', 'project'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String title;
+  final String? reference;
+  final String docClass;
+  final DocRepoProjectRefResponse project;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'title': title,
+        'reference': reference,
+        'doc_class': docClass,
+        'project': project.toJson(),
+        ...extra,
+      };
+}
+
+final class DocumentCitationResponseVersion implements ResponseModel {
+  const DocumentCitationResponseVersion({
+    required this.id,
+    required this.versionNo,
+    required this.status,
+    required this.locked,
+    required this.fileSha256,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentCitationResponseVersion.fromJson(Object? json, [String path = 'DocumentCitationResponseVersion']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentCitationResponseVersion(
+      id: requiredField(map, path, 'id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      status: requiredField(map, path, 'status', asString),
+      locked: requiredField(map, path, 'locked', asBool),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'version_no', 'status', 'locked', 'file_sha256'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int versionNo;
+  final String status;
+  final bool locked;
+  final String fileSha256;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version_no': versionNo,
+        'status': status,
+        'locked': locked,
+        'file_sha256': fileSha256,
+        ...extra,
+      };
+}
+
+final class DocumentCommentListResponse implements ResponseModel {
+  const DocumentCommentListResponse({
+    required this.items,
+    required this.openCount,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentCommentListResponse.fromJson(Object? json, [String path = 'DocumentCommentListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentCommentListResponse(
+      items: requiredField(map, path, 'items', asList(DocumentCommentViewResponse.fromJson)),
+      openCount: requiredField(map, path, 'open_count', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'open_count', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<DocumentCommentViewResponse> items;
+  final int openCount;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'open_count': openCount,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DocumentCommentViewResponse implements ResponseModel {
+  const DocumentCommentViewResponse({
+    required this.id,
+    required this.versionId,
+    required this.citationId,
+    required this.citationLabel,
+    required this.parentId,
+    required this.reviewId,
+    required this.body,
+    required this.authorName,
+    required this.authorId,
+    required this.status,
+    required this.resolvedBy,
+    required this.resolvedAt,
+    required this.resolutionNote,
+    required this.createdAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentCommentViewResponse.fromJson(Object? json, [String path = 'DocumentCommentViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentCommentViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      versionId: requiredField(map, path, 'version_id', asString),
+      citationId: requiredField(map, path, 'citation_id', nullable(asString)),
+      citationLabel: requiredField(map, path, 'citation_label', nullable(asString)),
+      parentId: requiredField(map, path, 'parent_id', nullable(asString)),
+      reviewId: requiredField(map, path, 'review_id', nullable(asString)),
+      body: requiredField(map, path, 'body', asString),
+      authorName: requiredField(map, path, 'author_name', nullable(asString)),
+      authorId: requiredField(map, path, 'author_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resolvedBy: requiredField(map, path, 'resolved_by', nullable(asString)),
+      resolvedAt: requiredField(map, path, 'resolved_at', nullable(asString)),
+      resolutionNote: requiredField(map, path, 'resolution_note', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'version_id', 'citation_id', 'citation_label', 'parent_id', 'review_id', 'body', 'author_name', 'author_id', 'status', 'resolved_by', 'resolved_at', 'resolution_note', 'created_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String versionId;
+  final String? citationId;
+  final String? citationLabel;
+  final String? parentId;
+  final String? reviewId;
+  final String body;
+  final String? authorName;
+  final String authorId;
+  final String status;
+  final String? resolvedBy;
+  final String? resolvedAt;
+  final String? resolutionNote;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version_id': versionId,
+        'citation_id': citationId,
+        'citation_label': citationLabel,
+        'parent_id': parentId,
+        'review_id': reviewId,
+        'body': body,
+        'author_name': authorName,
+        'author_id': authorId,
+        'status': status,
+        'resolved_by': resolvedBy,
+        'resolved_at': resolvedAt,
+        'resolution_note': resolutionNote,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class DocumentComparisonResponse implements ResponseModel {
+  const DocumentComparisonResponse({
+    required this.documentId,
+    required this.from,
+    required this.to,
+    required this.mode,
+    required this.summary,
+    required this.entries,
+    required this.formula,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentComparisonResponse.fromJson(Object? json, [String path = 'DocumentComparisonResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentComparisonResponse(
+      documentId: requiredField(map, path, 'document_id', asString),
+      from: requiredField(map, path, 'from', DocumentComparisonResponseFrom.fromJson),
+      to: requiredField(map, path, 'to', DocumentComparisonResponseTo.fromJson),
+      mode: requiredField(map, path, 'mode', asString),
+      summary: requiredField(map, path, 'summary', DocumentComparisonResponseSummary.fromJson),
+      entries: requiredField(map, path, 'entries', asList(CompareEntryResponse.fromJson)),
+      formula: requiredField(map, path, 'formula', asString),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'document_id', 'from', 'to', 'mode', 'summary', 'entries', 'formula', 'as_of'}, strict: true),
+    );
+  }
+
+  final String documentId;
+  final DocumentComparisonResponseFrom from;
+  final DocumentComparisonResponseTo to;
+  final String mode;
+  final DocumentComparisonResponseSummary summary;
+  final List<CompareEntryResponse> entries;
+  final String formula;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document_id': documentId,
+        'from': from.toJson(),
+        'to': to.toJson(),
+        'mode': mode,
+        'summary': summary.toJson(),
+        'entries': entries.map((e0) => e0.toJson()).toList(),
+        'formula': formula,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DocumentComparisonResponseFrom implements ResponseModel {
+  const DocumentComparisonResponseFrom({
+    required this.id,
+    required this.versionNo,
+    required this.status,
+    required this.locked,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentComparisonResponseFrom.fromJson(Object? json, [String path = 'DocumentComparisonResponseFrom']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentComparisonResponseFrom(
+      id: requiredField(map, path, 'id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      status: requiredField(map, path, 'status', asString),
+      locked: requiredField(map, path, 'locked', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'version_no', 'status', 'locked'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int versionNo;
+  final String status;
+  final bool locked;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version_no': versionNo,
+        'status': status,
+        'locked': locked,
+        ...extra,
+      };
+}
+
+final class DocumentComparisonResponseSummary implements ResponseModel {
+  const DocumentComparisonResponseSummary({
+    required this.equal,
+    required this.added,
+    required this.removed,
+    required this.changed,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentComparisonResponseSummary.fromJson(Object? json, [String path = 'DocumentComparisonResponseSummary']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentComparisonResponseSummary(
+      equal: requiredField(map, path, 'equal', asInt),
+      added: requiredField(map, path, 'added', asInt),
+      removed: requiredField(map, path, 'removed', asInt),
+      changed: requiredField(map, path, 'changed', asInt),
+      extra: unknownFields(map, path, const <String>{'equal', 'added', 'removed', 'changed'}, strict: true),
+    );
+  }
+
+  final int equal;
+  final int added;
+  final int removed;
+  final int changed;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'equal': equal,
+        'added': added,
+        'removed': removed,
+        'changed': changed,
+        ...extra,
+      };
+}
+
+final class DocumentComparisonResponseTo implements ResponseModel {
+  const DocumentComparisonResponseTo({
+    required this.id,
+    required this.versionNo,
+    required this.status,
+    required this.locked,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentComparisonResponseTo.fromJson(Object? json, [String path = 'DocumentComparisonResponseTo']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentComparisonResponseTo(
+      id: requiredField(map, path, 'id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      status: requiredField(map, path, 'status', asString),
+      locked: requiredField(map, path, 'locked', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'version_no', 'status', 'locked'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int versionNo;
+  final String status;
+  final bool locked;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version_no': versionNo,
+        'status': status,
+        'locked': locked,
+        ...extra,
+      };
+}
+
+final class DocumentFileDownloadResponse implements ResponseModel {
+  const DocumentFileDownloadResponse({
+    required this.versionId,
+    required this.url,
+    required this.expiresAt,
+    required this.mime,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.pageCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentFileDownloadResponse.fromJson(Object? json, [String path = 'DocumentFileDownloadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentFileDownloadResponse(
+      versionId: requiredField(map, path, 'version_id', asString),
+      url: requiredField(map, path, 'url', asString),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      mime: requiredField(map, path, 'mime', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      pageCount: requiredField(map, path, 'page_count', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'version_id', 'url', 'expires_at', 'mime', 'file_sha256', 'size_bytes', 'page_count'}, strict: true),
+    );
+  }
+
+  final String versionId;
+  final String url;
+  final String expiresAt;
+  final String mime;
+  final String fileSha256;
+  final int sizeBytes;
+  final int? pageCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'version_id': versionId,
+        'url': url,
+        'expires_at': expiresAt,
+        'mime': mime,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'page_count': pageCount,
+        ...extra,
+      };
+}
+
+final class DocumentReviewDetailResponse implements ResponseModel {
+  const DocumentReviewDetailResponse({
+    required this.review,
+    required this.document,
+    required this.stages,
+    required this.workflowRevision,
+    required this.instanceStatus,
+    required this.outcome,
+    required this.events,
+    required this.openComments,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewDetailResponse.fromJson(Object? json, [String path = 'DocumentReviewDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewDetailResponse(
+      review: requiredField(map, path, 'review', DocumentReviewRoundResponse.fromJson),
+      document: requiredField(map, path, 'document', DocumentReviewDetailResponseDocument.fromJson),
+      stages: requiredField(map, path, 'stages', asList(DocumentReviewStageResponse.fromJson)),
+      workflowRevision: requiredField(map, path, 'workflow_revision', nullable(asInt)),
+      instanceStatus: requiredField(map, path, 'instance_status', nullable(asString)),
+      outcome: requiredField(map, path, 'outcome', nullable(asString)),
+      events: requiredField(map, path, 'events', asList(DocumentReviewEventResponse.fromJson)),
+      openComments: requiredField(map, path, 'open_comments', asInt),
+      actions: requiredField(map, path, 'actions', DocumentReviewDetailResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'review', 'document', 'stages', 'workflow_revision', 'instance_status', 'outcome', 'events', 'open_comments', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final DocumentReviewRoundResponse review;
+  final DocumentReviewDetailResponseDocument document;
+  final List<DocumentReviewStageResponse> stages;
+  final int? workflowRevision;
+  final String? instanceStatus;
+  final String? outcome;
+  final List<DocumentReviewEventResponse> events;
+  final int openComments;
+  final DocumentReviewDetailResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'review': review.toJson(),
+        'document': document.toJson(),
+        'stages': stages.map((e0) => e0.toJson()).toList(),
+        'workflow_revision': workflowRevision,
+        'instance_status': instanceStatus,
+        'outcome': outcome,
+        'events': events.map((e0) => e0.toJson()).toList(),
+        'open_comments': openComments,
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DocumentReviewDetailResponseActions implements ResponseModel {
+  const DocumentReviewDetailResponseActions({
+    required this.withdraw,
+    required this.resubmit,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewDetailResponseActions.fromJson(Object? json, [String path = 'DocumentReviewDetailResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewDetailResponseActions(
+      withdraw: requiredField(map, path, 'withdraw', asBool),
+      resubmit: requiredField(map, path, 'resubmit', asBool),
+      extra: unknownFields(map, path, const <String>{'withdraw', 'resubmit'}, strict: true),
+    );
+  }
+
+  final bool withdraw;
+  final bool resubmit;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'withdraw': withdraw,
+        'resubmit': resubmit,
+        ...extra,
+      };
+}
+
+final class DocumentReviewDetailResponseDocument implements ResponseModel {
+  const DocumentReviewDetailResponseDocument({
+    required this.id,
+    required this.title,
+    required this.reference,
+    required this.docClass,
+    required this.project,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewDetailResponseDocument.fromJson(Object? json, [String path = 'DocumentReviewDetailResponseDocument']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewDetailResponseDocument(
+      id: requiredField(map, path, 'id', asString),
+      title: requiredField(map, path, 'title', asString),
+      reference: requiredField(map, path, 'reference', nullable(asString)),
+      docClass: requiredField(map, path, 'doc_class', asString),
+      project: requiredField(map, path, 'project', DocRepoProjectRefResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'title', 'reference', 'doc_class', 'project'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String title;
+  final String? reference;
+  final String docClass;
+  final DocRepoProjectRefResponse project;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'title': title,
+        'reference': reference,
+        'doc_class': docClass,
+        'project': project.toJson(),
+        ...extra,
+      };
+}
+
+final class DocumentReviewerResponse implements ResponseModel {
+  const DocumentReviewerResponse({
+    required this.taskId,
+    required this.assigneeId,
+    required this.assigneeName,
+    required this.state,
+    required this.decision,
+    required this.reason,
+    required this.decidedAt,
+    required this.dueAt,
+    required this.canDecide,
+    required this.taskVersion,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewerResponse.fromJson(Object? json, [String path = 'DocumentReviewerResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewerResponse(
+      taskId: requiredField(map, path, 'task_id', asString),
+      assigneeId: requiredField(map, path, 'assignee_id', asString),
+      assigneeName: requiredField(map, path, 'assignee_name', nullable(asString)),
+      state: requiredField(map, path, 'state', asString),
+      decision: requiredField(map, path, 'decision', nullable(asString)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
+      dueAt: requiredField(map, path, 'due_at', asString),
+      canDecide: requiredField(map, path, 'can_decide', asBool),
+      taskVersion: requiredField(map, path, 'task_version', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'assignee_id', 'assignee_name', 'state', 'decision', 'reason', 'decided_at', 'due_at', 'can_decide', 'task_version'}, strict: true),
+    );
+  }
+
+  final String taskId;
+  final String assigneeId;
+  final String? assigneeName;
+  final String state;
+  final String? decision;
+  final String? reason;
+  final String? decidedAt;
+  final String dueAt;
+  final bool canDecide;
+  final int? taskVersion;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_id': taskId,
+        'assignee_id': assigneeId,
+        'assignee_name': assigneeName,
+        'state': state,
+        'decision': decision,
+        'reason': reason,
+        'decided_at': decidedAt,
+        'due_at': dueAt,
+        'can_decide': canDecide,
+        'task_version': taskVersion,
+        ...extra,
+      };
+}
+
+final class DocumentReviewEventResponse implements ResponseModel {
+  const DocumentReviewEventResponse({
+    required this.seq,
+    required this.kind,
+    required this.actorName,
+    required this.occurredAt,
+    required this.detail,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewEventResponse.fromJson(Object? json, [String path = 'DocumentReviewEventResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewEventResponse(
+      seq: requiredField(map, path, 'seq', asInt),
+      kind: requiredField(map, path, 'kind', asString),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      detail: requiredField(map, path, 'detail', asObject),
+      extra: unknownFields(map, path, const <String>{'seq', 'kind', 'actor_name', 'occurred_at', 'detail'}, strict: true),
+    );
+  }
+
+  final int seq;
+  final String kind;
+  final String? actorName;
+  final String occurredAt;
+  final Map<String, Object?> detail;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'seq': seq,
+        'kind': kind,
+        'actor_name': actorName,
+        'occurred_at': occurredAt,
+        'detail': detail,
+        ...extra,
+      };
+}
+
+final class DocumentReviewListItemResponse implements ResponseModel {
+  const DocumentReviewListItemResponse({
+    required this.id,
+    required this.documentId,
+    required this.documentTitle,
+    required this.docClass,
+    required this.project,
+    required this.versionId,
+    required this.versionNo,
+    required this.round,
+    required this.status,
+    required this.submittedByName,
+    required this.submittedAt,
+    required this.concludedAt,
+    required this.currentStage,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewListItemResponse.fromJson(Object? json, [String path = 'DocumentReviewListItemResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewListItemResponse(
+      id: requiredField(map, path, 'id', asString),
+      documentId: requiredField(map, path, 'document_id', asString),
+      documentTitle: requiredField(map, path, 'document_title', asString),
+      docClass: requiredField(map, path, 'doc_class', asString),
+      project: requiredField(map, path, 'project', DocRepoProjectRefResponse.fromJson),
+      versionId: requiredField(map, path, 'version_id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      round: requiredField(map, path, 'round', asInt),
+      status: requiredField(map, path, 'status', asString),
+      submittedByName: requiredField(map, path, 'submitted_by_name', nullable(asString)),
+      submittedAt: requiredField(map, path, 'submitted_at', asString),
+      concludedAt: requiredField(map, path, 'concluded_at', nullable(asString)),
+      currentStage: requiredField(map, path, 'current_stage', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'document_id', 'document_title', 'doc_class', 'project', 'version_id', 'version_no', 'round', 'status', 'submitted_by_name', 'submitted_at', 'concluded_at', 'current_stage'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String documentId;
+  final String documentTitle;
+  final String docClass;
+  final DocRepoProjectRefResponse project;
+  final String versionId;
+  final int versionNo;
+  final int round;
+  final String status;
+  final String? submittedByName;
+  final String submittedAt;
+  final String? concludedAt;
+  final String? currentStage;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'document_id': documentId,
+        'document_title': documentTitle,
+        'doc_class': docClass,
+        'project': project.toJson(),
+        'version_id': versionId,
+        'version_no': versionNo,
+        'round': round,
+        'status': status,
+        'submitted_by_name': submittedByName,
+        'submitted_at': submittedAt,
+        'concluded_at': concludedAt,
+        'current_stage': currentStage,
+        ...extra,
+      };
+}
+
+final class DocumentReviewPageResponse implements ResponseModel {
+  const DocumentReviewPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewPageResponse.fromJson(Object? json, [String path = 'DocumentReviewPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewPageResponse(
+      items: requiredField(map, path, 'items', asList(DocumentReviewListItemResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<DocumentReviewListItemResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DocumentReviewRoundResponse implements ResponseModel {
+  const DocumentReviewRoundResponse({
+    required this.id,
+    required this.documentId,
+    required this.versionId,
+    required this.versionNo,
+    required this.round,
+    required this.previousReviewId,
+    required this.status,
+    required this.submittedByName,
+    required this.submittedAt,
+    required this.submitNote,
+    required this.concludedAt,
+    required this.conclusionNote,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewRoundResponse.fromJson(Object? json, [String path = 'DocumentReviewRoundResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewRoundResponse(
+      id: requiredField(map, path, 'id', asString),
+      documentId: requiredField(map, path, 'document_id', asString),
+      versionId: requiredField(map, path, 'version_id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      round: requiredField(map, path, 'round', asInt),
+      previousReviewId: requiredField(map, path, 'previous_review_id', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      submittedByName: requiredField(map, path, 'submitted_by_name', nullable(asString)),
+      submittedAt: requiredField(map, path, 'submitted_at', asString),
+      submitNote: requiredField(map, path, 'submit_note', nullable(asString)),
+      concludedAt: requiredField(map, path, 'concluded_at', nullable(asString)),
+      conclusionNote: requiredField(map, path, 'conclusion_note', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'document_id', 'version_id', 'version_no', 'round', 'previous_review_id', 'status', 'submitted_by_name', 'submitted_at', 'submit_note', 'concluded_at', 'conclusion_note', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String documentId;
+  final String versionId;
+  final int versionNo;
+  final int round;
+  final String? previousReviewId;
+  final String status;
+  final String? submittedByName;
+  final String submittedAt;
+  final String? submitNote;
+  final String? concludedAt;
+  final String? conclusionNote;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'document_id': documentId,
+        'version_id': versionId,
+        'version_no': versionNo,
+        'round': round,
+        'previous_review_id': previousReviewId,
+        'status': status,
+        'submitted_by_name': submittedByName,
+        'submitted_at': submittedAt,
+        'submit_note': submitNote,
+        'concluded_at': concludedAt,
+        'conclusion_note': conclusionNote,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class DocumentReviewStageResponse implements ResponseModel {
+  const DocumentReviewStageResponse({
+    required this.index,
+    required this.id,
+    required this.name,
+    required this.minApprovals,
+    required this.approvals,
+    required this.state,
+    required this.reviewers,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentReviewStageResponse.fromJson(Object? json, [String path = 'DocumentReviewStageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentReviewStageResponse(
+      index: requiredField(map, path, 'index', asInt),
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      minApprovals: requiredField(map, path, 'min_approvals', asInt),
+      approvals: requiredField(map, path, 'approvals', asInt),
+      state: requiredField(map, path, 'state', asString),
+      reviewers: requiredField(map, path, 'reviewers', asList(DocumentReviewerResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'index', 'id', 'name', 'min_approvals', 'approvals', 'state', 'reviewers'}, strict: true),
+    );
+  }
+
+  final int index;
+  final String id;
+  final String name;
+  final int minApprovals;
+  final int approvals;
+  final String state;
+  final List<DocumentReviewerResponse> reviewers;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'index': index,
+        'id': id,
+        'name': name,
+        'min_approvals': minApprovals,
+        'approvals': approvals,
+        'state': state,
+        'reviewers': reviewers.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class DocumentTextUnitPageResponse implements ResponseModel {
+  const DocumentTextUnitPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentTextUnitPageResponse.fromJson(Object? json, [String path = 'DocumentTextUnitPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentTextUnitPageResponse(
+      items: requiredField(map, path, 'items', asList(DocumentTextUnitResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<DocumentTextUnitResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DocumentTextUnitResponse implements ResponseModel {
+  const DocumentTextUnitResponse({
+    required this.id,
+    required this.seq,
+    required this.citationId,
+    required this.citationRef,
+    required this.kind,
+    required this.locator,
+    required this.label,
+    required this.page,
+    required this.paragraph,
+    required this.sheet,
+    required this.cell,
+    required this.box,
+    required this.text,
+    required this.textSha256,
+    required this.confidence,
+    required this.openComments,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DocumentTextUnitResponse.fromJson(Object? json, [String path = 'DocumentTextUnitResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DocumentTextUnitResponse(
+      id: requiredField(map, path, 'id', asString),
+      seq: requiredField(map, path, 'seq', asInt),
+      citationId: requiredField(map, path, 'citation_id', asString),
+      citationRef: requiredField(map, path, 'citation_ref', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      locator: requiredField(map, path, 'locator', asString),
+      label: requiredField(map, path, 'label', asString),
+      page: requiredField(map, path, 'page', nullable(asInt)),
+      paragraph: requiredField(map, path, 'paragraph', nullable(asInt)),
+      sheet: requiredField(map, path, 'sheet', nullable(asString)),
+      cell: requiredField(map, path, 'cell', nullable(asString)),
+      box: requiredField(map, path, 'box', asAny),
+      text: requiredField(map, path, 'text', asString),
+      textSha256: requiredField(map, path, 'text_sha256', asString),
+      confidence: requiredField(map, path, 'confidence', nullable(asString)),
+      openComments: requiredField(map, path, 'open_comments', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'seq', 'citation_id', 'citation_ref', 'kind', 'locator', 'label', 'page', 'paragraph', 'sheet', 'cell', 'box', 'text', 'text_sha256', 'confidence', 'open_comments'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int seq;
+  final String citationId;
+  final String citationRef;
+  final String kind;
+  final String locator;
+  final String label;
+  final int? page;
+  final int? paragraph;
+  final String? sheet;
+  final String? cell;
+  final Object? box;
+  final String text;
+  final String textSha256;
+  final String? confidence;
+  final int openComments;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'seq': seq,
+        'citation_id': citationId,
+        'citation_ref': citationRef,
+        'kind': kind,
+        'locator': locator,
+        'label': label,
+        'page': page,
+        'paragraph': paragraph,
+        'sheet': sheet,
+        'cell': cell,
+        'box': box,
+        'text': text,
+        'text_sha256': textSha256,
+        'confidence': confidence,
+        'open_comments': openComments,
         ...extra,
       };
 }
@@ -19091,6 +22905,1438 @@ final class DomainChallengeResponse implements ResponseModel {
         'txt_record_name': txtRecordName,
         'txt_record_value': txtRecordValue,
         if (expiresAt != null) 'expires_at': expiresAt,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponse implements ResponseModel {
+  const EbsConnectionResponse({
+    required this.connectorCode,
+    required this.mode,
+    required this.adapterStatus,
+    required this.registryStatus,
+    required this.registered,
+    required this.enabled,
+    required this.stateReason,
+    required this.stateChangedAt,
+    required this.stateChangedByName,
+    required this.layoutVersion,
+    required this.supportedLayouts,
+    required this.acceptance,
+    required this.version,
+    required this.apiAdapter,
+    required this.health,
+    required this.pendingExternal,
+    required this.columns,
+    required this.positions,
+    required this.lastRuns,
+    required this.recordCounts,
+    required this.itemCounts,
+    required this.dueRule,
+    required this.history,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponse.fromJson(Object? json, [String path = 'EbsConnectionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponse(
+      connectorCode: requiredField(map, path, 'connector_code', asString),
+      mode: requiredField(map, path, 'mode', asString),
+      adapterStatus: requiredField(map, path, 'adapter_status', asString),
+      registryStatus: requiredField(map, path, 'registry_status', asString),
+      registered: requiredField(map, path, 'registered', asBool),
+      enabled: requiredField(map, path, 'enabled', asBool),
+      stateReason: requiredField(map, path, 'state_reason', nullable(asString)),
+      stateChangedAt: requiredField(map, path, 'state_changed_at', nullable(asString)),
+      stateChangedByName: requiredField(map, path, 'state_changed_by_name', nullable(asString)),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      supportedLayouts: requiredField(map, path, 'supported_layouts', asList(asString)),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      version: requiredField(map, path, 'version', asInt),
+      apiAdapter: requiredField(map, path, 'api_adapter', EbsConnectionResponseApiAdapter.fromJson),
+      health: requiredField(map, path, 'health', EbsConnectionResponseHealth.fromJson),
+      pendingExternal: requiredField(map, path, 'pending_external', asList(EbsConnectionResponsePendingExternalItem.fromJson)),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      positions: requiredField(map, path, 'positions', asList(EbsConnectionResponsePositionsItem.fromJson)),
+      lastRuns: requiredField(map, path, 'last_runs', asList(EbsConnectionResponseLastRunsItem.fromJson)),
+      recordCounts: requiredField(map, path, 'record_counts', EbsConnectionResponseRecordCounts.fromJson),
+      itemCounts: requiredField(map, path, 'item_counts', EbsConnectionResponseItemCounts.fromJson),
+      dueRule: requiredField(map, path, 'due_rule', EbsConnectionResponseDueRule.fromJson),
+      history: requiredField(map, path, 'history', asList(EbsConnectionResponseHistoryItem.fromJson)),
+      actions: requiredField(map, path, 'actions', EbsConnectionResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'connector_code', 'mode', 'adapter_status', 'registry_status', 'registered', 'enabled', 'state_reason', 'state_changed_at', 'state_changed_by_name', 'layout_version', 'supported_layouts', 'acceptance', 'version', 'api_adapter', 'health', 'pending_external', 'columns', 'positions', 'last_runs', 'record_counts', 'item_counts', 'due_rule', 'history', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final String connectorCode;
+  final String mode;
+  final String adapterStatus;
+  final String registryStatus;
+  final bool registered;
+  final bool enabled;
+  final String? stateReason;
+  final String? stateChangedAt;
+  final String? stateChangedByName;
+  final String layoutVersion;
+  final List<String> supportedLayouts;
+  final String acceptance;
+  final int version;
+  final EbsConnectionResponseApiAdapter apiAdapter;
+  final EbsConnectionResponseHealth health;
+  final List<EbsConnectionResponsePendingExternalItem> pendingExternal;
+  final List<String> columns;
+  final List<EbsConnectionResponsePositionsItem> positions;
+  final List<EbsConnectionResponseLastRunsItem> lastRuns;
+  final EbsConnectionResponseRecordCounts recordCounts;
+  final EbsConnectionResponseItemCounts itemCounts;
+  final EbsConnectionResponseDueRule dueRule;
+  final List<EbsConnectionResponseHistoryItem> history;
+  final EbsConnectionResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'connector_code': connectorCode,
+        'mode': mode,
+        'adapter_status': adapterStatus,
+        'registry_status': registryStatus,
+        'registered': registered,
+        'enabled': enabled,
+        'state_reason': stateReason,
+        'state_changed_at': stateChangedAt,
+        'state_changed_by_name': stateChangedByName,
+        'layout_version': layoutVersion,
+        'supported_layouts': supportedLayouts,
+        'acceptance': acceptance,
+        'version': version,
+        'api_adapter': apiAdapter.toJson(),
+        'health': health.toJson(),
+        'pending_external': pendingExternal.map((e0) => e0.toJson()).toList(),
+        'columns': columns,
+        'positions': positions.map((e0) => e0.toJson()).toList(),
+        'last_runs': lastRuns.map((e0) => e0.toJson()).toList(),
+        'record_counts': recordCounts.toJson(),
+        'item_counts': itemCounts.toJson(),
+        'due_rule': dueRule.toJson(),
+        'history': history.map((e0) => e0.toJson()).toList(),
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseActions implements ResponseModel {
+  const EbsConnectionResponseActions({
+    required this.maySwitch,
+    required this.mayPreview,
+    required this.mayImport,
+    required this.mayReconcile,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseActions.fromJson(Object? json, [String path = 'EbsConnectionResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseActions(
+      maySwitch: requiredField(map, path, 'may_switch', asBool),
+      mayPreview: requiredField(map, path, 'may_preview', asBool),
+      mayImport: requiredField(map, path, 'may_import', asBool),
+      mayReconcile: requiredField(map, path, 'may_reconcile', asBool),
+      extra: unknownFields(map, path, const <String>{'may_switch', 'may_preview', 'may_import', 'may_reconcile'}, strict: true),
+    );
+  }
+
+  final bool maySwitch;
+  final bool mayPreview;
+  final bool mayImport;
+  final bool mayReconcile;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'may_switch': maySwitch,
+        'may_preview': mayPreview,
+        'may_import': mayImport,
+        'may_reconcile': mayReconcile,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseApiAdapter implements ResponseModel {
+  const EbsConnectionResponseApiAdapter({
+    required this.status,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseApiAdapter.fromJson(Object? json, [String path = 'EbsConnectionResponseApiAdapter']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseApiAdapter(
+      status: requiredField(map, path, 'status', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      extra: unknownFields(map, path, const <String>{'status', 'reason'}, strict: true),
+    );
+  }
+
+  final String status;
+  final String reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseDueRule implements ResponseModel {
+  const EbsConnectionResponseDueRule({
+    required this.source,
+    required this.version,
+    required this.unverified,
+    required this.legalStatus,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    required this.dueInWorkingDays,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseDueRule.fromJson(Object? json, [String path = 'EbsConnectionResponseDueRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseDueRule(
+      source: requiredField(map, path, 'source', asString),
+      version: requiredField(map, path, 'version', asInt),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      dueInWorkingDays: requiredField(map, path, 'due_in_working_days', asInt),
+      extra: unknownFields(map, path, const <String>{'source', 'version', 'unverified', 'legal_status', 'formula', 'source_text', 'as_of', 'due_in_working_days'}, strict: true),
+    );
+  }
+
+  final String source;
+  final int version;
+  final bool unverified;
+  final String? legalStatus;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+  final int dueInWorkingDays;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'version': version,
+        'unverified': unverified,
+        'legal_status': legalStatus,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
+        'due_in_working_days': dueInWorkingDays,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseHealth implements ResponseModel {
+  const EbsConnectionResponseHealth({
+    required this.status,
+    required this.ageHours,
+    required this.lastImportAt,
+    required this.alert,
+    required this.figuresBlocked,
+    required this.applyBlocked,
+    required this.rule,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseHealth.fromJson(Object? json, [String path = 'EbsConnectionResponseHealth']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseHealth(
+      status: requiredField(map, path, 'status', asString),
+      ageHours: requiredField(map, path, 'age_hours', nullable(asNum)),
+      lastImportAt: requiredField(map, path, 'last_import_at', nullable(asString)),
+      alert: requiredField(map, path, 'alert', nullable(EbsConnectionResponseHealthAlert.fromJson)),
+      figuresBlocked: requiredField(map, path, 'figures_blocked', asBool),
+      applyBlocked: requiredField(map, path, 'apply_blocked', asBool),
+      rule: requiredField(map, path, 'rule', EbsConnectionResponseHealthRule.fromJson),
+      extra: unknownFields(map, path, const <String>{'status', 'age_hours', 'last_import_at', 'alert', 'figures_blocked', 'apply_blocked', 'rule'}, strict: true),
+    );
+  }
+
+  final String status;
+  final num? ageHours;
+  final String? lastImportAt;
+  final EbsConnectionResponseHealthAlert? alert;
+  final bool figuresBlocked;
+  final bool applyBlocked;
+  final EbsConnectionResponseHealthRule rule;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'age_hours': ageHours,
+        'last_import_at': lastImportAt,
+        'alert': (alert == null ? null : alert!.toJson()),
+        'figures_blocked': figuresBlocked,
+        'apply_blocked': applyBlocked,
+        'rule': rule.toJson(),
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseHealthAlert implements ResponseModel {
+  const EbsConnectionResponseHealthAlert({
+    required this.code,
+    required this.severity,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseHealthAlert.fromJson(Object? json, [String path = 'EbsConnectionResponseHealthAlert']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseHealthAlert(
+      code: requiredField(map, path, 'code', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'severity'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String severity;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'severity': severity,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseHealthRule implements ResponseModel {
+  const EbsConnectionResponseHealthRule({
+    required this.source,
+    required this.version,
+    required this.unverified,
+    required this.legalStatus,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    required this.warnAfterHours,
+    required this.maxAgeHours,
+    required this.staleSeverity,
+    required this.figuresBlockedWhenStale,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseHealthRule.fromJson(Object? json, [String path = 'EbsConnectionResponseHealthRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseHealthRule(
+      source: requiredField(map, path, 'source', asString),
+      version: requiredField(map, path, 'version', asInt),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      warnAfterHours: requiredField(map, path, 'warn_after_hours', asInt),
+      maxAgeHours: requiredField(map, path, 'max_age_hours', asInt),
+      staleSeverity: requiredField(map, path, 'stale_severity', asString),
+      figuresBlockedWhenStale: requiredField(map, path, 'figures_blocked_when_stale', asBool),
+      extra: unknownFields(map, path, const <String>{'source', 'version', 'unverified', 'legal_status', 'formula', 'source_text', 'as_of', 'warn_after_hours', 'max_age_hours', 'stale_severity', 'figures_blocked_when_stale'}, strict: true),
+    );
+  }
+
+  final String source;
+  final int version;
+  final bool unverified;
+  final String? legalStatus;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+  final int warnAfterHours;
+  final int maxAgeHours;
+  final String staleSeverity;
+  final bool figuresBlockedWhenStale;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'version': version,
+        'unverified': unverified,
+        'legal_status': legalStatus,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
+        'warn_after_hours': warnAfterHours,
+        'max_age_hours': maxAgeHours,
+        'stale_severity': staleSeverity,
+        'figures_blocked_when_stale': figuresBlockedWhenStale,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseHistoryItem implements ResponseModel {
+  const EbsConnectionResponseHistoryItem({
+    required this.id,
+    required this.action,
+    required this.reason,
+    required this.actorName,
+    required this.version,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseHistoryItem.fromJson(Object? json, [String path = 'EbsConnectionResponseHistoryItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseHistoryItem(
+      id: requiredField(map, path, 'id', asString),
+      action: requiredField(map, path, 'action', asString),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'action', 'reason', 'actor_name', 'version', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String action;
+  final String? reason;
+  final String? actorName;
+  final int version;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'action': action,
+        'reason': reason,
+        'actor_name': actorName,
+        'version': version,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseItemCounts implements ResponseModel {
+  const EbsConnectionResponseItemCounts({
+    required this.open,
+    required this.resolved,
+    required this.overdue,
+    required this.reviewsDue,
+    required this.byResolution,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseItemCounts.fromJson(Object? json, [String path = 'EbsConnectionResponseItemCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseItemCounts(
+      open: requiredField(map, path, 'open', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      reviewsDue: requiredField(map, path, 'reviews_due', asInt),
+      byResolution: requiredField(map, path, 'by_resolution', EbsConnectionResponseItemCountsByResolution.fromJson),
+      extra: unknownFields(map, path, const <String>{'open', 'resolved', 'overdue', 'reviews_due', 'by_resolution'}, strict: true),
+    );
+  }
+
+  final int open;
+  final int resolved;
+  final int overdue;
+  final int reviewsDue;
+  final EbsConnectionResponseItemCountsByResolution byResolution;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'open': open,
+        'resolved': resolved,
+        'overdue': overdue,
+        'reviews_due': reviewsDue,
+        'by_resolution': byResolution.toJson(),
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseItemCountsByResolution implements ResponseModel {
+  const EbsConnectionResponseItemCountsByResolution({
+    required this.oURSWRONG,
+    required this.eBSWRONG,
+    required this.tIMING,
+    required this.wAIVED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseItemCountsByResolution.fromJson(Object? json, [String path = 'EbsConnectionResponseItemCountsByResolution']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseItemCountsByResolution(
+      oURSWRONG: requiredField(map, path, 'OURS_WRONG', asInt),
+      eBSWRONG: requiredField(map, path, 'EBS_WRONG', asInt),
+      tIMING: requiredField(map, path, 'TIMING', asInt),
+      wAIVED: requiredField(map, path, 'WAIVED', asInt),
+      extra: unknownFields(map, path, const <String>{'OURS_WRONG', 'EBS_WRONG', 'TIMING', 'WAIVED'}, strict: true),
+    );
+  }
+
+  final int oURSWRONG;
+  final int eBSWRONG;
+  final int tIMING;
+  final int wAIVED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'OURS_WRONG': oURSWRONG,
+        'EBS_WRONG': eBSWRONG,
+        'TIMING': tIMING,
+        'WAIVED': wAIVED,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseLastRunsItem implements ResponseModel {
+  const EbsConnectionResponseLastRunsItem({
+    required this.id,
+    required this.layoutVersion,
+    required this.fileSha256,
+    required this.status,
+    required this.errorCode,
+    required this.counts,
+    required this.importedByName,
+    required this.createdAt,
+    required this.completedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseLastRunsItem.fromJson(Object? json, [String path = 'EbsConnectionResponseLastRunsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseLastRunsItem(
+      id: requiredField(map, path, 'id', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      status: requiredField(map, path, 'status', asString),
+      errorCode: requiredField(map, path, 'error_code', nullable(asString)),
+      counts: requiredField(map, path, 'counts', EbsConnectionResponseLastRunsItemCounts.fromJson),
+      importedByName: requiredField(map, path, 'imported_by_name', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      completedAt: requiredField(map, path, 'completed_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_version', 'file_sha256', 'status', 'error_code', 'counts', 'imported_by_name', 'created_at', 'completed_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String layoutVersion;
+  final String fileSha256;
+  final String status;
+  final String? errorCode;
+  final EbsConnectionResponseLastRunsItemCounts counts;
+  final String? importedByName;
+  final String createdAt;
+  final String? completedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'layout_version': layoutVersion,
+        'file_sha256': fileSha256,
+        'status': status,
+        'error_code': errorCode,
+        'counts': counts.toJson(),
+        'imported_by_name': importedByName,
+        'created_at': createdAt,
+        'completed_at': completedAt,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseLastRunsItemCounts implements ResponseModel {
+  const EbsConnectionResponseLastRunsItemCounts({
+    required this.total,
+    required this.applied,
+    required this.duplicate,
+    required this.conflict,
+    required this.quarantined,
+    required this.differencesOpened,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseLastRunsItemCounts.fromJson(Object? json, [String path = 'EbsConnectionResponseLastRunsItemCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseLastRunsItemCounts(
+      total: requiredField(map, path, 'total', asInt),
+      applied: requiredField(map, path, 'applied', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      conflict: requiredField(map, path, 'conflict', asInt),
+      quarantined: requiredField(map, path, 'quarantined', asInt),
+      differencesOpened: requiredField(map, path, 'differences_opened', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'applied', 'duplicate', 'conflict', 'quarantined', 'differences_opened'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int applied;
+  final int duplicate;
+  final int conflict;
+  final int quarantined;
+  final int differencesOpened;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'applied': applied,
+        'duplicate': duplicate,
+        'conflict': conflict,
+        'quarantined': quarantined,
+        'differences_opened': differencesOpened,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponsePendingExternalItem implements ResponseModel {
+  const EbsConnectionResponsePendingExternalItem({
+    required this.code,
+    required this.what,
+    required this.owner,
+    required this.consequence,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponsePendingExternalItem.fromJson(Object? json, [String path = 'EbsConnectionResponsePendingExternalItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponsePendingExternalItem(
+      code: requiredField(map, path, 'code', asString),
+      what: requiredField(map, path, 'what', asString),
+      owner: requiredField(map, path, 'owner', asString),
+      consequence: requiredField(map, path, 'consequence', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'what', 'owner', 'consequence'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String what;
+  final String owner;
+  final String consequence;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'what': what,
+        'owner': owner,
+        'consequence': consequence,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponsePositionsItem implements ResponseModel {
+  const EbsConnectionResponsePositionsItem({
+    required this.connectorCode,
+    required this.cursorStatus,
+    required this.adapterStatus,
+    required this.lastSuccessAt,
+    required this.lastErrorCode,
+    required this.lastFileSha256,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponsePositionsItem.fromJson(Object? json, [String path = 'EbsConnectionResponsePositionsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponsePositionsItem(
+      connectorCode: requiredField(map, path, 'connector_code', asString),
+      cursorStatus: requiredField(map, path, 'cursor_status', nullable(asString)),
+      adapterStatus: requiredField(map, path, 'adapter_status', nullable(asString)),
+      lastSuccessAt: requiredField(map, path, 'last_success_at', nullable(asString)),
+      lastErrorCode: requiredField(map, path, 'last_error_code', nullable(asString)),
+      lastFileSha256: requiredField(map, path, 'last_file_sha256', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'connector_code', 'cursor_status', 'adapter_status', 'last_success_at', 'last_error_code', 'last_file_sha256'}, strict: true),
+    );
+  }
+
+  final String connectorCode;
+  final String? cursorStatus;
+  final String? adapterStatus;
+  final String? lastSuccessAt;
+  final String? lastErrorCode;
+  final String? lastFileSha256;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'connector_code': connectorCode,
+        'cursor_status': cursorStatus,
+        'adapter_status': adapterStatus,
+        'last_success_at': lastSuccessAt,
+        'last_error_code': lastErrorCode,
+        'last_file_sha256': lastFileSha256,
+        ...extra,
+      };
+}
+
+final class EbsConnectionResponseRecordCounts implements ResponseModel {
+  const EbsConnectionResponseRecordCounts({
+    required this.records,
+    required this.projects,
+    required this.periods,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsConnectionResponseRecordCounts.fromJson(Object? json, [String path = 'EbsConnectionResponseRecordCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsConnectionResponseRecordCounts(
+      records: requiredField(map, path, 'records', asInt),
+      projects: requiredField(map, path, 'projects', asInt),
+      periods: requiredField(map, path, 'periods', asInt),
+      extra: unknownFields(map, path, const <String>{'records', 'projects', 'periods'}, strict: true),
+    );
+  }
+
+  final int records;
+  final int projects;
+  final int periods;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'records': records,
+        'projects': projects,
+        'periods': periods,
+        ...extra,
+      };
+}
+
+final class EbsDifferencePageResponse implements ResponseModel {
+  const EbsDifferencePageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsDifferencePageResponse.fromJson(Object? json, [String path = 'EbsDifferencePageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsDifferencePageResponse(
+      items: requiredField(map, path, 'items', asList(EbsDifferenceResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', EbsDifferencePageResponseCounts.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<EbsDifferenceResponse> items;
+  final String? nextCursor;
+  final EbsDifferencePageResponseCounts counts;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EbsDifferencePageResponseCounts implements ResponseModel {
+  const EbsDifferencePageResponseCounts({
+    required this.open,
+    required this.resolved,
+    required this.overdue,
+    required this.reviewsDue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsDifferencePageResponseCounts.fromJson(Object? json, [String path = 'EbsDifferencePageResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsDifferencePageResponseCounts(
+      open: requiredField(map, path, 'open', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      reviewsDue: requiredField(map, path, 'reviews_due', asInt),
+      extra: unknownFields(map, path, const <String>{'open', 'resolved', 'overdue', 'reviews_due'}, strict: true),
+    );
+  }
+
+  final int open;
+  final int resolved;
+  final int overdue;
+  final int reviewsDue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'open': open,
+        'resolved': resolved,
+        'overdue': overdue,
+        'reviews_due': reviewsDue,
+        ...extra,
+      };
+}
+
+final class EbsDifferenceResponse implements ResponseModel {
+  const EbsDifferenceResponse({
+    required this.id,
+    required this.projectId,
+    required this.projectCode,
+    required this.period,
+    required this.measure,
+    required this.differenceKind,
+    required this.ours,
+    required this.theirs,
+    required this.delta,
+    required this.state,
+    required this.ownerId,
+    required this.ownerName,
+    required this.openedAt,
+    required this.dueAt,
+    required this.overdue,
+    required this.resolution,
+    required this.acceptance,
+    required this.version,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsDifferenceResponse.fromJson(Object? json, [String path = 'EbsDifferenceResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsDifferenceResponse(
+      id: requiredField(map, path, 'id', asString),
+      projectId: requiredField(map, path, 'project_id', nullable(asString)),
+      projectCode: requiredField(map, path, 'project_code', asString),
+      period: requiredField(map, path, 'period', asString),
+      measure: requiredField(map, path, 'measure', asString),
+      differenceKind: requiredField(map, path, 'difference_kind', asString),
+      ours: requiredField(map, path, 'ours', nullable(asString)),
+      theirs: requiredField(map, path, 'theirs', asString),
+      delta: requiredField(map, path, 'delta', nullable(asString)),
+      state: requiredField(map, path, 'state', asString),
+      ownerId: requiredField(map, path, 'owner_id', asString),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      openedAt: requiredField(map, path, 'opened_at', asString),
+      dueAt: requiredField(map, path, 'due_at', asString),
+      overdue: requiredField(map, path, 'overdue', asBool),
+      resolution: requiredField(map, path, 'resolution', nullable(EbsDifferenceResponseResolution.fromJson)),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      version: requiredField(map, path, 'version', asInt),
+      actions: requiredField(map, path, 'actions', EbsDifferenceResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'project_code', 'period', 'measure', 'difference_kind', 'ours', 'theirs', 'delta', 'state', 'owner_id', 'owner_name', 'opened_at', 'due_at', 'overdue', 'resolution', 'acceptance', 'version', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String? projectId;
+  final String projectCode;
+  final String period;
+  final String measure;
+  final String differenceKind;
+  final String? ours;
+  final String theirs;
+  final String? delta;
+  final String state;
+  final String ownerId;
+  final String? ownerName;
+  final String openedAt;
+  final String dueAt;
+  final bool overdue;
+  final EbsDifferenceResponseResolution? resolution;
+  final String acceptance;
+  final int version;
+  final EbsDifferenceResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project_id': projectId,
+        'project_code': projectCode,
+        'period': period,
+        'measure': measure,
+        'difference_kind': differenceKind,
+        'ours': ours,
+        'theirs': theirs,
+        'delta': delta,
+        'state': state,
+        'owner_id': ownerId,
+        'owner_name': ownerName,
+        'opened_at': openedAt,
+        'due_at': dueAt,
+        'overdue': overdue,
+        'resolution': (resolution == null ? null : resolution!.toJson()),
+        'acceptance': acceptance,
+        'version': version,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class EbsDifferenceResponseActions implements ResponseModel {
+  const EbsDifferenceResponseActions({
+    required this.mayResolve,
+    required this.mayReassign,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsDifferenceResponseActions.fromJson(Object? json, [String path = 'EbsDifferenceResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsDifferenceResponseActions(
+      mayResolve: requiredField(map, path, 'may_resolve', asBool),
+      mayReassign: requiredField(map, path, 'may_reassign', asBool),
+      extra: unknownFields(map, path, const <String>{'may_resolve', 'may_reassign'}, strict: true),
+    );
+  }
+
+  final bool mayResolve;
+  final bool mayReassign;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'may_resolve': mayResolve,
+        'may_reassign': mayReassign,
+        ...extra,
+      };
+}
+
+final class EbsDifferenceResponseResolution implements ResponseModel {
+  const EbsDifferenceResponseResolution({
+    required this.kind,
+    required this.resolvedBy,
+    required this.resolvedByName,
+    required this.resolvedAt,
+    required this.reason,
+    required this.evidenceRef,
+    required this.reviewOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsDifferenceResponseResolution.fromJson(Object? json, [String path = 'EbsDifferenceResponseResolution']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsDifferenceResponseResolution(
+      kind: requiredField(map, path, 'kind', asString),
+      resolvedBy: requiredField(map, path, 'resolved_by', asString),
+      resolvedByName: requiredField(map, path, 'resolved_by_name', nullable(asString)),
+      resolvedAt: requiredField(map, path, 'resolved_at', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      evidenceRef: requiredField(map, path, 'evidence_ref', nullable(asString)),
+      reviewOn: requiredField(map, path, 'review_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'kind', 'resolved_by', 'resolved_by_name', 'resolved_at', 'reason', 'evidence_ref', 'review_on'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final String resolvedBy;
+  final String? resolvedByName;
+  final String resolvedAt;
+  final String reason;
+  final String? evidenceRef;
+  final String? reviewOn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'resolved_by': resolvedBy,
+        'resolved_by_name': resolvedByName,
+        'resolved_at': resolvedAt,
+        'reason': reason,
+        'evidence_ref': evidenceRef,
+        'review_on': reviewOn,
+        ...extra,
+      };
+}
+
+final class EbsFileUploadResponse implements ResponseModel {
+  const EbsFileUploadResponse({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.columns,
+    required this.rowCount,
+    required this.matchesLayout,
+    required this.missingColumns,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsFileUploadResponse.fromJson(Object? json, [String path = 'EbsFileUploadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsFileUploadResponse(
+      fileObjectKey: requiredField(map, path, 'file_object_key', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      matchesLayout: requiredField(map, path, 'matches_layout', asBool),
+      missingColumns: requiredField(map, path, 'missing_columns', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'file_object_key', 'file_sha256', 'size_bytes', 'format', 'columns', 'row_count', 'matches_layout', 'missing_columns'}, strict: true),
+    );
+  }
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final List<String> columns;
+  final int rowCount;
+  final bool matchesLayout;
+  final List<String> missingColumns;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'columns': columns,
+        'row_count': rowCount,
+        'matches_layout': matchesLayout,
+        'missing_columns': missingColumns,
+        ...extra,
+      };
+}
+
+final class EbsImportPreviewResponse implements ResponseModel {
+  const EbsImportPreviewResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.mode,
+    required this.layoutVersion,
+    required this.acceptance,
+    required this.fileSha256,
+    required this.alreadyApplied,
+    required this.connectionEnabled,
+    required this.counts,
+    required this.rows,
+    required this.rowsTruncated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsImportPreviewResponse.fromJson(Object? json, [String path = 'EbsImportPreviewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsImportPreviewResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      mode: requiredField(map, path, 'mode', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      alreadyApplied: requiredField(map, path, 'already_applied', asBool),
+      connectionEnabled: requiredField(map, path, 'connection_enabled', asBool),
+      counts: requiredField(map, path, 'counts', EbsImportPreviewResponseCounts.fromJson),
+      rows: requiredField(map, path, 'rows', asList(EbsImportPreviewResponseRowsItem.fromJson)),
+      rowsTruncated: requiredField(map, path, 'rows_truncated', asBool),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'mode', 'layout_version', 'acceptance', 'file_sha256', 'already_applied', 'connection_enabled', 'counts', 'rows', 'rows_truncated'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String mode;
+  final String layoutVersion;
+  final String acceptance;
+  final String fileSha256;
+  final bool alreadyApplied;
+  final bool connectionEnabled;
+  final EbsImportPreviewResponseCounts counts;
+  final List<EbsImportPreviewResponseRowsItem> rows;
+  final bool rowsTruncated;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'mode': mode,
+        'layout_version': layoutVersion,
+        'acceptance': acceptance,
+        'file_sha256': fileSha256,
+        'already_applied': alreadyApplied,
+        'connection_enabled': connectionEnabled,
+        'counts': counts.toJson(),
+        'rows': rows.map((e0) => e0.toJson()).toList(),
+        'rows_truncated': rowsTruncated,
+        ...extra,
+      };
+}
+
+final class EbsImportPreviewResponseCounts implements ResponseModel {
+  const EbsImportPreviewResponseCounts({
+    required this.total,
+    required this.valid,
+    required this.errors,
+    required this.duplicate,
+    required this.conflict,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsImportPreviewResponseCounts.fromJson(Object? json, [String path = 'EbsImportPreviewResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsImportPreviewResponseCounts(
+      total: requiredField(map, path, 'total', asInt),
+      valid: requiredField(map, path, 'valid', asInt),
+      errors: requiredField(map, path, 'errors', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      conflict: requiredField(map, path, 'conflict', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'valid', 'errors', 'duplicate', 'conflict'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int valid;
+  final int errors;
+  final int duplicate;
+  final int conflict;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'valid': valid,
+        'errors': errors,
+        'duplicate': duplicate,
+        'conflict': conflict,
+        ...extra,
+      };
+}
+
+final class EbsImportPreviewResponseRowsItem implements ResponseModel {
+  const EbsImportPreviewResponseRowsItem({
+    required this.line,
+    required this.businessKey,
+    required this.status,
+    required this.code,
+    required this.field,
+    required this.outcome,
+    required this.preview,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsImportPreviewResponseRowsItem.fromJson(Object? json, [String path = 'EbsImportPreviewResponseRowsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsImportPreviewResponseRowsItem(
+      line: requiredField(map, path, 'line', asInt),
+      businessKey: requiredField(map, path, 'business_key', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      code: requiredField(map, path, 'code', nullable(asString)),
+      field: requiredField(map, path, 'field', nullable(asString)),
+      outcome: requiredField(map, path, 'outcome', nullable(asString)),
+      preview: requiredField(map, path, 'preview', nullable(asMap(asString))),
+      extra: unknownFields(map, path, const <String>{'line', 'business_key', 'status', 'code', 'field', 'outcome', 'preview'}, strict: true),
+    );
+  }
+
+  final int line;
+  final String? businessKey;
+  final String status;
+  final String? code;
+  final String? field;
+  final String? outcome;
+  final Map<String, String>? preview;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'line': line,
+        'business_key': businessKey,
+        'status': status,
+        'code': code,
+        'field': field,
+        'outcome': outcome,
+        'preview': preview,
+        ...extra,
+      };
+}
+
+final class EbsImportResultResponse implements ResponseModel {
+  const EbsImportResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.mode,
+    required this.layoutVersion,
+    required this.acceptance,
+    required this.fileSha256,
+    required this.counts,
+    required this.unknownProjects,
+    required this.errors,
+    required this.errorsTruncated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsImportResultResponse.fromJson(Object? json, [String path = 'EbsImportResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsImportResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      mode: requiredField(map, path, 'mode', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      counts: requiredField(map, path, 'counts', EbsImportResultResponseCounts.fromJson),
+      unknownProjects: requiredField(map, path, 'unknown_projects', asInt),
+      errors: requiredField(map, path, 'errors', asList(EbsImportResultResponseErrorsItem.fromJson)),
+      errorsTruncated: requiredField(map, path, 'errors_truncated', asBool),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'mode', 'layout_version', 'acceptance', 'file_sha256', 'counts', 'unknown_projects', 'errors', 'errors_truncated'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final String mode;
+  final String layoutVersion;
+  final String acceptance;
+  final String fileSha256;
+  final EbsImportResultResponseCounts counts;
+  final int unknownProjects;
+  final List<EbsImportResultResponseErrorsItem> errors;
+  final bool errorsTruncated;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'mode': mode,
+        'layout_version': layoutVersion,
+        'acceptance': acceptance,
+        'file_sha256': fileSha256,
+        'counts': counts.toJson(),
+        'unknown_projects': unknownProjects,
+        'errors': errors.map((e0) => e0.toJson()).toList(),
+        'errors_truncated': errorsTruncated,
+        ...extra,
+      };
+}
+
+final class EbsImportResultResponseCounts implements ResponseModel {
+  const EbsImportResultResponseCounts({
+    required this.total,
+    required this.applied,
+    required this.duplicate,
+    required this.conflict,
+    required this.quarantined,
+    required this.differencesOpened,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsImportResultResponseCounts.fromJson(Object? json, [String path = 'EbsImportResultResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsImportResultResponseCounts(
+      total: requiredField(map, path, 'total', asInt),
+      applied: requiredField(map, path, 'applied', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      conflict: requiredField(map, path, 'conflict', asInt),
+      quarantined: requiredField(map, path, 'quarantined', asInt),
+      differencesOpened: requiredField(map, path, 'differences_opened', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'applied', 'duplicate', 'conflict', 'quarantined', 'differences_opened'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int applied;
+  final int duplicate;
+  final int conflict;
+  final int quarantined;
+  final int differencesOpened;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'applied': applied,
+        'duplicate': duplicate,
+        'conflict': conflict,
+        'quarantined': quarantined,
+        'differences_opened': differencesOpened,
+        ...extra,
+      };
+}
+
+final class EbsImportResultResponseErrorsItem implements ResponseModel {
+  const EbsImportResultResponseErrorsItem({
+    required this.line,
+    required this.businessKey,
+    required this.code,
+    required this.field,
+    required this.preview,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsImportResultResponseErrorsItem.fromJson(Object? json, [String path = 'EbsImportResultResponseErrorsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsImportResultResponseErrorsItem(
+      line: requiredField(map, path, 'line', asInt),
+      businessKey: requiredField(map, path, 'business_key', nullable(asString)),
+      code: requiredField(map, path, 'code', asString),
+      field: requiredField(map, path, 'field', asString),
+      preview: requiredField(map, path, 'preview', nullable(asMap(asString))),
+      extra: unknownFields(map, path, const <String>{'line', 'business_key', 'code', 'field', 'preview'}, strict: true),
+    );
+  }
+
+  final int line;
+  final String? businessKey;
+  final String code;
+  final String field;
+  final Map<String, String>? preview;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'line': line,
+        'business_key': businessKey,
+        'code': code,
+        'field': field,
+        'preview': preview,
+        ...extra,
+      };
+}
+
+final class EbsReconcileResultResponse implements ResponseModel {
+  const EbsReconcileResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.examined,
+    required this.differences,
+    required this.opened,
+    required this.refreshed,
+    required this.unchanged,
+    required this.settledAlready,
+    required this.noOwner,
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EbsReconcileResultResponse.fromJson(Object? json, [String path = 'EbsReconcileResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EbsReconcileResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      examined: requiredField(map, path, 'examined', asInt),
+      differences: requiredField(map, path, 'differences', asInt),
+      opened: requiredField(map, path, 'opened', asInt),
+      refreshed: requiredField(map, path, 'refreshed', asInt),
+      unchanged: requiredField(map, path, 'unchanged', asInt),
+      settledAlready: requiredField(map, path, 'settled_already', asInt),
+      noOwner: requiredField(map, path, 'no_owner', asInt),
+      items: requiredField(map, path, 'items', asList(EbsDifferenceResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'examined', 'differences', 'opened', 'refreshed', 'unchanged', 'settled_already', 'no_owner', 'items'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final int examined;
+  final int differences;
+  final int opened;
+  final int refreshed;
+  final int unchanged;
+  final int settledAlready;
+  final int noOwner;
+  final List<EbsDifferenceResponse> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'examined': examined,
+        'differences': differences,
+        'opened': opened,
+        'refreshed': refreshed,
+        'unchanged': unchanged,
+        'settled_already': settledAlready,
+        'no_owner': noOwner,
+        'items': items.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }
@@ -21827,6 +27073,198 @@ final class EntitlementViewResponseFeaturesItem implements ResponseModel {
         if (used != null) 'used': used,
         if (source != null) 'source': source,
         if (mode != null) 'mode': mode,
+        ...extra,
+      };
+}
+
+final class ExportDatasetGateResponse implements ResponseModel {
+  const ExportDatasetGateResponse({
+    required this.open,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ExportDatasetGateResponse.fromJson(Object? json, [String path = 'ExportDatasetGateResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ExportDatasetGateResponse(
+      open: requiredField(map, path, 'open', asBool),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'open', 'reason'}, strict: true),
+    );
+  }
+
+  final bool open;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'open': open,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class ExportDatasetListResponse implements ResponseModel {
+  const ExportDatasetListResponse({
+    required this.items,
+    required this.products,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ExportDatasetListResponse.fromJson(Object? json, [String path = 'ExportDatasetListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ExportDatasetListResponse(
+      items: requiredField(map, path, 'items', asList(ExportDatasetResponse.fromJson)),
+      products: requiredField(map, path, 'products', asList(ExportProductChoiceResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'products', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<ExportDatasetResponse> items;
+  final List<ExportProductChoiceResponse> products;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'products': products.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ExportDatasetResponse implements ResponseModel {
+  const ExportDatasetResponse({
+    required this.datasetCode,
+    required this.viewName,
+    required this.scope,
+    required this.grain,
+    required this.columns,
+    required this.productId,
+    required this.productCode,
+    required this.productTitle,
+    required this.certification,
+    required this.certificationExpiresOn,
+    required this.enabled,
+    required this.stateReason,
+    required this.stateChangedAt,
+    required this.version,
+    required this.gate,
+    required this.canSet,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ExportDatasetResponse.fromJson(Object? json, [String path = 'ExportDatasetResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ExportDatasetResponse(
+      datasetCode: requiredField(map, path, 'dataset_code', asString),
+      viewName: requiredField(map, path, 'view_name', asString),
+      scope: requiredField(map, path, 'scope', asString),
+      grain: requiredField(map, path, 'grain', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      productId: requiredField(map, path, 'product_id', nullable(asString)),
+      productCode: requiredField(map, path, 'product_code', nullable(asString)),
+      productTitle: requiredField(map, path, 'product_title', nullable(asString)),
+      certification: requiredField(map, path, 'certification', nullable(asString)),
+      certificationExpiresOn: requiredField(map, path, 'certification_expires_on', nullable(asString)),
+      enabled: requiredField(map, path, 'enabled', asBool),
+      stateReason: requiredField(map, path, 'state_reason', nullable(asString)),
+      stateChangedAt: requiredField(map, path, 'state_changed_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      gate: requiredField(map, path, 'gate', ExportDatasetGateResponse.fromJson),
+      canSet: requiredField(map, path, 'can_set', asBool),
+      extra: unknownFields(map, path, const <String>{'dataset_code', 'view_name', 'scope', 'grain', 'columns', 'product_id', 'product_code', 'product_title', 'certification', 'certification_expires_on', 'enabled', 'state_reason', 'state_changed_at', 'version', 'gate', 'can_set'}, strict: true),
+    );
+  }
+
+  final String datasetCode;
+  final String viewName;
+  final String scope;
+  final String grain;
+  final List<String> columns;
+  final String? productId;
+  final String? productCode;
+  final String? productTitle;
+  final String? certification;
+  final String? certificationExpiresOn;
+  final bool enabled;
+  final String? stateReason;
+  final String? stateChangedAt;
+  final int version;
+  final ExportDatasetGateResponse gate;
+  final bool canSet;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'dataset_code': datasetCode,
+        'view_name': viewName,
+        'scope': scope,
+        'grain': grain,
+        'columns': columns,
+        'product_id': productId,
+        'product_code': productCode,
+        'product_title': productTitle,
+        'certification': certification,
+        'certification_expires_on': certificationExpiresOn,
+        'enabled': enabled,
+        'state_reason': stateReason,
+        'state_changed_at': stateChangedAt,
+        'version': version,
+        'gate': gate.toJson(),
+        'can_set': canSet,
+        ...extra,
+      };
+}
+
+final class ExportProductChoiceResponse implements ResponseModel {
+  const ExportProductChoiceResponse({
+    required this.id,
+    required this.code,
+    required this.title,
+    required this.certification,
+    required this.certificationExpiresOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ExportProductChoiceResponse.fromJson(Object? json, [String path = 'ExportProductChoiceResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ExportProductChoiceResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      title: requiredField(map, path, 'title', asString),
+      certification: requiredField(map, path, 'certification', asString),
+      certificationExpiresOn: requiredField(map, path, 'certification_expires_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'title', 'certification', 'certification_expires_on'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String title;
+  final String certification;
+  final String? certificationExpiresOn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'title': title,
+        'certification': certification,
+        'certification_expires_on': certificationExpiresOn,
         ...extra,
       };
 }
@@ -28801,6 +34239,1060 @@ final class HomeMetricTileResponse implements ResponseModel {
       };
 }
 
+final class HpmConnectionResponse implements ResponseModel {
+  const HpmConnectionResponse({
+    required this.connectorCode,
+    required this.mode,
+    required this.adapterStatus,
+    required this.registryStatus,
+    required this.registered,
+    required this.enabled,
+    required this.stateReason,
+    required this.stateChangedAt,
+    required this.stateChangedByName,
+    required this.packageFormat,
+    required this.supportedFormats,
+    required this.acceptance,
+    required this.version,
+    required this.apiAdapter,
+    required this.health,
+    required this.pendingExternal,
+    required this.acceptedSeries,
+    required this.counts,
+    required this.history,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponse.fromJson(Object? json, [String path = 'HpmConnectionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponse(
+      connectorCode: requiredField(map, path, 'connector_code', asString),
+      mode: requiredField(map, path, 'mode', asString),
+      adapterStatus: requiredField(map, path, 'adapter_status', asString),
+      registryStatus: requiredField(map, path, 'registry_status', asString),
+      registered: requiredField(map, path, 'registered', asBool),
+      enabled: requiredField(map, path, 'enabled', asBool),
+      stateReason: requiredField(map, path, 'state_reason', nullable(asString)),
+      stateChangedAt: requiredField(map, path, 'state_changed_at', nullable(asString)),
+      stateChangedByName: requiredField(map, path, 'state_changed_by_name', nullable(asString)),
+      packageFormat: requiredField(map, path, 'package_format', asString),
+      supportedFormats: requiredField(map, path, 'supported_formats', asList(asString)),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      version: requiredField(map, path, 'version', asInt),
+      apiAdapter: requiredField(map, path, 'api_adapter', HpmConnectionResponseApiAdapter.fromJson),
+      health: requiredField(map, path, 'health', HpmConnectionResponseHealth.fromJson),
+      pendingExternal: requiredField(map, path, 'pending_external', asList(HpmConnectionResponsePendingExternalItem.fromJson)),
+      acceptedSeries: requiredField(map, path, 'accepted_series', asList(HpmConnectionResponseAcceptedSeriesItem.fromJson)),
+      counts: requiredField(map, path, 'counts', HpmConnectionResponseCounts.fromJson),
+      history: requiredField(map, path, 'history', asList(HpmConnectionResponseHistoryItem.fromJson)),
+      actions: requiredField(map, path, 'actions', HpmConnectionResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'connector_code', 'mode', 'adapter_status', 'registry_status', 'registered', 'enabled', 'state_reason', 'state_changed_at', 'state_changed_by_name', 'package_format', 'supported_formats', 'acceptance', 'version', 'api_adapter', 'health', 'pending_external', 'accepted_series', 'counts', 'history', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final String connectorCode;
+  final String mode;
+  final String adapterStatus;
+  final String registryStatus;
+  final bool registered;
+  final bool enabled;
+  final String? stateReason;
+  final String? stateChangedAt;
+  final String? stateChangedByName;
+  final String packageFormat;
+  final List<String> supportedFormats;
+  final String acceptance;
+  final int version;
+  final HpmConnectionResponseApiAdapter apiAdapter;
+  final HpmConnectionResponseHealth health;
+  final List<HpmConnectionResponsePendingExternalItem> pendingExternal;
+  final List<HpmConnectionResponseAcceptedSeriesItem> acceptedSeries;
+  final HpmConnectionResponseCounts counts;
+  final List<HpmConnectionResponseHistoryItem> history;
+  final HpmConnectionResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'connector_code': connectorCode,
+        'mode': mode,
+        'adapter_status': adapterStatus,
+        'registry_status': registryStatus,
+        'registered': registered,
+        'enabled': enabled,
+        'state_reason': stateReason,
+        'state_changed_at': stateChangedAt,
+        'state_changed_by_name': stateChangedByName,
+        'package_format': packageFormat,
+        'supported_formats': supportedFormats,
+        'acceptance': acceptance,
+        'version': version,
+        'api_adapter': apiAdapter.toJson(),
+        'health': health.toJson(),
+        'pending_external': pendingExternal.map((e0) => e0.toJson()).toList(),
+        'accepted_series': acceptedSeries.map((e0) => e0.toJson()).toList(),
+        'counts': counts.toJson(),
+        'history': history.map((e0) => e0.toJson()).toList(),
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseAcceptedSeriesItem implements ResponseModel {
+  const HpmConnectionResponseAcceptedSeriesItem({
+    required this.layoutCode,
+    required this.period,
+    required this.revision,
+    required this.acceptedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseAcceptedSeriesItem.fromJson(Object? json, [String path = 'HpmConnectionResponseAcceptedSeriesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseAcceptedSeriesItem(
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      period: requiredField(map, path, 'period', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      acceptedAt: requiredField(map, path, 'accepted_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'layout_code', 'period', 'revision', 'accepted_at'}, strict: true),
+    );
+  }
+
+  final String layoutCode;
+  final String period;
+  final int revision;
+  final String? acceptedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'layout_code': layoutCode,
+        'period': period,
+        'revision': revision,
+        'accepted_at': acceptedAt,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseActions implements ResponseModel {
+  const HpmConnectionResponseActions({
+    required this.maySwitch,
+    required this.mayPush,
+    required this.mayRecordReceipt,
+    required this.mayProposeCorrection,
+    required this.mayDecideCorrection,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseActions.fromJson(Object? json, [String path = 'HpmConnectionResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseActions(
+      maySwitch: requiredField(map, path, 'may_switch', asBool),
+      mayPush: requiredField(map, path, 'may_push', asBool),
+      mayRecordReceipt: requiredField(map, path, 'may_record_receipt', asBool),
+      mayProposeCorrection: requiredField(map, path, 'may_propose_correction', asBool),
+      mayDecideCorrection: requiredField(map, path, 'may_decide_correction', asBool),
+      extra: unknownFields(map, path, const <String>{'may_switch', 'may_push', 'may_record_receipt', 'may_propose_correction', 'may_decide_correction'}, strict: true),
+    );
+  }
+
+  final bool maySwitch;
+  final bool mayPush;
+  final bool mayRecordReceipt;
+  final bool mayProposeCorrection;
+  final bool mayDecideCorrection;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'may_switch': maySwitch,
+        'may_push': mayPush,
+        'may_record_receipt': mayRecordReceipt,
+        'may_propose_correction': mayProposeCorrection,
+        'may_decide_correction': mayDecideCorrection,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseApiAdapter implements ResponseModel {
+  const HpmConnectionResponseApiAdapter({
+    required this.status,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseApiAdapter.fromJson(Object? json, [String path = 'HpmConnectionResponseApiAdapter']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseApiAdapter(
+      status: requiredField(map, path, 'status', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      extra: unknownFields(map, path, const <String>{'status', 'reason'}, strict: true),
+    );
+  }
+
+  final String status;
+  final String reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseCounts implements ResponseModel {
+  const HpmConnectionResponseCounts({
+    required this.pushes,
+    required this.written,
+    required this.accepted,
+    required this.failed,
+    required this.rejected,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseCounts.fromJson(Object? json, [String path = 'HpmConnectionResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseCounts(
+      pushes: requiredField(map, path, 'pushes', asInt),
+      written: requiredField(map, path, 'written', asInt),
+      accepted: requiredField(map, path, 'accepted', asInt),
+      failed: requiredField(map, path, 'failed', asInt),
+      rejected: requiredField(map, path, 'rejected', asInt),
+      extra: unknownFields(map, path, const <String>{'pushes', 'written', 'accepted', 'failed', 'rejected'}, strict: true),
+    );
+  }
+
+  final int pushes;
+  final int written;
+  final int accepted;
+  final int failed;
+  final int rejected;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'pushes': pushes,
+        'written': written,
+        'accepted': accepted,
+        'failed': failed,
+        'rejected': rejected,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseHealth implements ResponseModel {
+  const HpmConnectionResponseHealth({
+    required this.status,
+    required this.ageHours,
+    required this.lastDeliveryAt,
+    required this.failedPushes,
+    required this.awaitingReceipt,
+    required this.alert,
+    required this.pushBlocked,
+    required this.rule,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseHealth.fromJson(Object? json, [String path = 'HpmConnectionResponseHealth']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseHealth(
+      status: requiredField(map, path, 'status', asString),
+      ageHours: requiredField(map, path, 'age_hours', nullable(asNum)),
+      lastDeliveryAt: requiredField(map, path, 'last_delivery_at', nullable(asString)),
+      failedPushes: requiredField(map, path, 'failed_pushes', asInt),
+      awaitingReceipt: requiredField(map, path, 'awaiting_receipt', asInt),
+      alert: requiredField(map, path, 'alert', nullable(HpmConnectionResponseHealthAlert.fromJson)),
+      pushBlocked: requiredField(map, path, 'push_blocked', asBool),
+      rule: requiredField(map, path, 'rule', HpmConnectionResponseHealthRule.fromJson),
+      extra: unknownFields(map, path, const <String>{'status', 'age_hours', 'last_delivery_at', 'failed_pushes', 'awaiting_receipt', 'alert', 'push_blocked', 'rule'}, strict: true),
+    );
+  }
+
+  final String status;
+  final num? ageHours;
+  final String? lastDeliveryAt;
+  final int failedPushes;
+  final int awaitingReceipt;
+  final HpmConnectionResponseHealthAlert? alert;
+  final bool pushBlocked;
+  final HpmConnectionResponseHealthRule rule;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'age_hours': ageHours,
+        'last_delivery_at': lastDeliveryAt,
+        'failed_pushes': failedPushes,
+        'awaiting_receipt': awaitingReceipt,
+        'alert': (alert == null ? null : alert!.toJson()),
+        'push_blocked': pushBlocked,
+        'rule': rule.toJson(),
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseHealthAlert implements ResponseModel {
+  const HpmConnectionResponseHealthAlert({
+    required this.code,
+    required this.severity,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseHealthAlert.fromJson(Object? json, [String path = 'HpmConnectionResponseHealthAlert']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseHealthAlert(
+      code: requiredField(map, path, 'code', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'severity'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String severity;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'severity': severity,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseHealthRule implements ResponseModel {
+  const HpmConnectionResponseHealthRule({
+    required this.source,
+    required this.version,
+    required this.unverified,
+    required this.legalStatus,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    required this.maxAttempts,
+    required this.warnAfterHours,
+    required this.maxAgeHours,
+    required this.staleSeverity,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseHealthRule.fromJson(Object? json, [String path = 'HpmConnectionResponseHealthRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseHealthRule(
+      source: requiredField(map, path, 'source', asString),
+      version: requiredField(map, path, 'version', asInt),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      maxAttempts: requiredField(map, path, 'max_attempts', asInt),
+      warnAfterHours: requiredField(map, path, 'warn_after_hours', asInt),
+      maxAgeHours: requiredField(map, path, 'max_age_hours', asInt),
+      staleSeverity: requiredField(map, path, 'stale_severity', asString),
+      extra: unknownFields(map, path, const <String>{'source', 'version', 'unverified', 'legal_status', 'formula', 'source_text', 'as_of', 'max_attempts', 'warn_after_hours', 'max_age_hours', 'stale_severity'}, strict: true),
+    );
+  }
+
+  final String source;
+  final int version;
+  final bool unverified;
+  final String? legalStatus;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+  final int maxAttempts;
+  final int warnAfterHours;
+  final int maxAgeHours;
+  final String staleSeverity;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'version': version,
+        'unverified': unverified,
+        'legal_status': legalStatus,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
+        'max_attempts': maxAttempts,
+        'warn_after_hours': warnAfterHours,
+        'max_age_hours': maxAgeHours,
+        'stale_severity': staleSeverity,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponseHistoryItem implements ResponseModel {
+  const HpmConnectionResponseHistoryItem({
+    required this.id,
+    required this.action,
+    required this.reason,
+    required this.actorName,
+    required this.version,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponseHistoryItem.fromJson(Object? json, [String path = 'HpmConnectionResponseHistoryItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponseHistoryItem(
+      id: requiredField(map, path, 'id', asString),
+      action: requiredField(map, path, 'action', asString),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'action', 'reason', 'actor_name', 'version', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String action;
+  final String? reason;
+  final String? actorName;
+  final int version;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'action': action,
+        'reason': reason,
+        'actor_name': actorName,
+        'version': version,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class HpmConnectionResponsePendingExternalItem implements ResponseModel {
+  const HpmConnectionResponsePendingExternalItem({
+    required this.code,
+    required this.what,
+    required this.owner,
+    required this.consequence,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmConnectionResponsePendingExternalItem.fromJson(Object? json, [String path = 'HpmConnectionResponsePendingExternalItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmConnectionResponsePendingExternalItem(
+      code: requiredField(map, path, 'code', asString),
+      what: requiredField(map, path, 'what', asString),
+      owner: requiredField(map, path, 'owner', asString),
+      consequence: requiredField(map, path, 'consequence', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'what', 'owner', 'consequence'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String what;
+  final String owner;
+  final String consequence;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'what': what,
+        'owner': owner,
+        'consequence': consequence,
+        ...extra,
+      };
+}
+
+final class HpmCorrectionPageResponse implements ResponseModel {
+  const HpmCorrectionPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmCorrectionPageResponse.fromJson(Object? json, [String path = 'HpmCorrectionPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmCorrectionPageResponse(
+      items: requiredField(map, path, 'items', asList(HpmCorrectionResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HpmCorrectionResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HpmCorrectionResponse implements ResponseModel {
+  const HpmCorrectionResponse({
+    required this.id,
+    required this.layoutCode,
+    required this.period,
+    required this.fromRevision,
+    required this.periodReopenId,
+    required this.reason,
+    required this.state,
+    required this.proposedBy,
+    required this.proposedByName,
+    required this.decidedBy,
+    required this.decidedByName,
+    required this.decidedAt,
+    required this.decisionReason,
+    required this.consumedByPushId,
+    required this.consumedAt,
+    required this.version,
+    required this.createdAt,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmCorrectionResponse.fromJson(Object? json, [String path = 'HpmCorrectionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmCorrectionResponse(
+      id: requiredField(map, path, 'id', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      period: requiredField(map, path, 'period', asString),
+      fromRevision: requiredField(map, path, 'from_revision', asInt),
+      periodReopenId: requiredField(map, path, 'period_reopen_id', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      state: requiredField(map, path, 'state', asString),
+      proposedBy: requiredField(map, path, 'proposed_by', asString),
+      proposedByName: requiredField(map, path, 'proposed_by_name', nullable(asString)),
+      decidedBy: requiredField(map, path, 'decided_by', nullable(asString)),
+      decidedByName: requiredField(map, path, 'decided_by_name', nullable(asString)),
+      decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: requiredField(map, path, 'decision_reason', nullable(asString)),
+      consumedByPushId: requiredField(map, path, 'consumed_by_push_id', nullable(asString)),
+      consumedAt: requiredField(map, path, 'consumed_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      actions: requiredField(map, path, 'actions', HpmCorrectionResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'period', 'from_revision', 'period_reopen_id', 'reason', 'state', 'proposed_by', 'proposed_by_name', 'decided_by', 'decided_by_name', 'decided_at', 'decision_reason', 'consumed_by_push_id', 'consumed_at', 'version', 'created_at', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String layoutCode;
+  final String period;
+  final int fromRevision;
+  final String periodReopenId;
+  final String reason;
+  final String state;
+  final String proposedBy;
+  final String? proposedByName;
+  final String? decidedBy;
+  final String? decidedByName;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? consumedByPushId;
+  final String? consumedAt;
+  final int version;
+  final String createdAt;
+  final HpmCorrectionResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'layout_code': layoutCode,
+        'period': period,
+        'from_revision': fromRevision,
+        'period_reopen_id': periodReopenId,
+        'reason': reason,
+        'state': state,
+        'proposed_by': proposedBy,
+        'proposed_by_name': proposedByName,
+        'decided_by': decidedBy,
+        'decided_by_name': decidedByName,
+        'decided_at': decidedAt,
+        'decision_reason': decisionReason,
+        'consumed_by_push_id': consumedByPushId,
+        'consumed_at': consumedAt,
+        'version': version,
+        'created_at': createdAt,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class HpmCorrectionResponseActions implements ResponseModel {
+  const HpmCorrectionResponseActions({
+    required this.mayDecide,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmCorrectionResponseActions.fromJson(Object? json, [String path = 'HpmCorrectionResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmCorrectionResponseActions(
+      mayDecide: requiredField(map, path, 'may_decide', asBool),
+      extra: unknownFields(map, path, const <String>{'may_decide'}, strict: true),
+    );
+  }
+
+  final bool mayDecide;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'may_decide': mayDecide,
+        ...extra,
+      };
+}
+
+final class HpmPushPageResponse implements ResponseModel {
+  const HpmPushPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushPageResponse.fromJson(Object? json, [String path = 'HpmPushPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushPageResponse(
+      items: requiredField(map, path, 'items', asList(HpmPushResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HpmPushResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HpmPushResponse implements ResponseModel {
+  const HpmPushResponse({
+    required this.id,
+    required this.key,
+    required this.orgUnitId,
+    required this.layoutCode,
+    required this.period,
+    required this.revision,
+    required this.sha256,
+    required this.snapshot,
+    required this.formStatus,
+    required this.demoMark,
+    required this.packageFormat,
+    required this.acceptance,
+    required this.status,
+    required this.attempts,
+    required this.lastAttemptAt,
+    required this.lastErrorCode,
+    required this.response,
+    required this.correctionId,
+    required this.overwrites,
+    required this.pushedBy,
+    required this.pushedByName,
+    required this.receipt,
+    required this.version,
+    required this.createdAt,
+    required this.attemptLog,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResponse.fromJson(Object? json, [String path = 'HpmPushResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResponse(
+      id: requiredField(map, path, 'id', asString),
+      key: requiredField(map, path, 'key', asString),
+      orgUnitId: requiredField(map, path, 'org_unit_id', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      period: requiredField(map, path, 'period', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      snapshot: requiredField(map, path, 'snapshot', nullable(HpmPushResponseSnapshot.fromJson)),
+      formStatus: requiredField(map, path, 'form_status', nullable(asString)),
+      demoMark: requiredField(map, path, 'demo_mark', nullable(asString)),
+      packageFormat: requiredField(map, path, 'package_format', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      status: requiredField(map, path, 'status', asString),
+      attempts: requiredField(map, path, 'attempts', asInt),
+      lastAttemptAt: requiredField(map, path, 'last_attempt_at', asString),
+      lastErrorCode: requiredField(map, path, 'last_error_code', nullable(asString)),
+      response: requiredField(map, path, 'response', nullable(HpmPushResponseResponse.fromJson)),
+      correctionId: requiredField(map, path, 'correction_id', nullable(asString)),
+      overwrites: requiredField(map, path, 'overwrites', asBool),
+      pushedBy: requiredField(map, path, 'pushed_by', asString),
+      pushedByName: requiredField(map, path, 'pushed_by_name', nullable(asString)),
+      receipt: requiredField(map, path, 'receipt', nullable(HpmPushResponseReceipt.fromJson)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      attemptLog: requiredField(map, path, 'attempt_log', asList(HpmPushResponseAttemptLogItem.fromJson)),
+      actions: requiredField(map, path, 'actions', HpmPushResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'key', 'org_unit_id', 'layout_code', 'period', 'revision', 'sha256', 'snapshot', 'form_status', 'demo_mark', 'package_format', 'acceptance', 'status', 'attempts', 'last_attempt_at', 'last_error_code', 'response', 'correction_id', 'overwrites', 'pushed_by', 'pushed_by_name', 'receipt', 'version', 'created_at', 'attempt_log', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String key;
+  final String orgUnitId;
+  final String layoutCode;
+  final String period;
+  final int revision;
+  final String sha256;
+  final HpmPushResponseSnapshot? snapshot;
+  final String? formStatus;
+  final String? demoMark;
+  final String packageFormat;
+  final String acceptance;
+  final String status;
+  final int attempts;
+  final String lastAttemptAt;
+  final String? lastErrorCode;
+  final HpmPushResponseResponse? response;
+  final String? correctionId;
+  final bool overwrites;
+  final String pushedBy;
+  final String? pushedByName;
+  final HpmPushResponseReceipt? receipt;
+  final int version;
+  final String createdAt;
+  final List<HpmPushResponseAttemptLogItem> attemptLog;
+  final HpmPushResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'key': key,
+        'org_unit_id': orgUnitId,
+        'layout_code': layoutCode,
+        'period': period,
+        'revision': revision,
+        'sha256': sha256,
+        'snapshot': (snapshot == null ? null : snapshot!.toJson()),
+        'form_status': formStatus,
+        'demo_mark': demoMark,
+        'package_format': packageFormat,
+        'acceptance': acceptance,
+        'status': status,
+        'attempts': attempts,
+        'last_attempt_at': lastAttemptAt,
+        'last_error_code': lastErrorCode,
+        'response': (response == null ? null : response!.toJson()),
+        'correction_id': correctionId,
+        'overwrites': overwrites,
+        'pushed_by': pushedBy,
+        'pushed_by_name': pushedByName,
+        'receipt': (receipt == null ? null : receipt!.toJson()),
+        'version': version,
+        'created_at': createdAt,
+        'attempt_log': attemptLog.map((e0) => e0.toJson()).toList(),
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class HpmPushResponseActions implements ResponseModel {
+  const HpmPushResponseActions({
+    required this.mayRetry,
+    required this.mayRecordReceipt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResponseActions.fromJson(Object? json, [String path = 'HpmPushResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResponseActions(
+      mayRetry: requiredField(map, path, 'may_retry', asBool),
+      mayRecordReceipt: requiredField(map, path, 'may_record_receipt', asBool),
+      extra: unknownFields(map, path, const <String>{'may_retry', 'may_record_receipt'}, strict: true),
+    );
+  }
+
+  final bool mayRetry;
+  final bool mayRecordReceipt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'may_retry': mayRetry,
+        'may_record_receipt': mayRecordReceipt,
+        ...extra,
+      };
+}
+
+final class HpmPushResponseAttemptLogItem implements ResponseModel {
+  const HpmPushResponseAttemptLogItem({
+    required this.attemptNo,
+    required this.outcome,
+    required this.errorCode,
+    required this.packageSha256,
+    required this.actorName,
+    required this.attemptedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResponseAttemptLogItem.fromJson(Object? json, [String path = 'HpmPushResponseAttemptLogItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResponseAttemptLogItem(
+      attemptNo: requiredField(map, path, 'attempt_no', asInt),
+      outcome: requiredField(map, path, 'outcome', asString),
+      errorCode: requiredField(map, path, 'error_code', nullable(asString)),
+      packageSha256: requiredField(map, path, 'package_sha256', nullable(asString)),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      attemptedAt: requiredField(map, path, 'attempted_at', asString),
+      extra: unknownFields(map, path, const <String>{'attempt_no', 'outcome', 'error_code', 'package_sha256', 'actor_name', 'attempted_at'}, strict: true),
+    );
+  }
+
+  final int attemptNo;
+  final String outcome;
+  final String? errorCode;
+  final String? packageSha256;
+  final String? actorName;
+  final String attemptedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'attempt_no': attemptNo,
+        'outcome': outcome,
+        'error_code': errorCode,
+        'package_sha256': packageSha256,
+        'actor_name': actorName,
+        'attempted_at': attemptedAt,
+        ...extra,
+      };
+}
+
+final class HpmPushResponseReceipt implements ResponseModel {
+  const HpmPushResponseReceipt({
+    required this.reference,
+    required this.note,
+    required this.by,
+    required this.byName,
+    required this.at,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResponseReceipt.fromJson(Object? json, [String path = 'HpmPushResponseReceipt']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResponseReceipt(
+      reference: requiredField(map, path, 'reference', asString),
+      note: requiredField(map, path, 'note', nullable(asString)),
+      by: requiredField(map, path, 'by', asString),
+      byName: requiredField(map, path, 'by_name', nullable(asString)),
+      at: requiredField(map, path, 'at', asString),
+      extra: unknownFields(map, path, const <String>{'reference', 'note', 'by', 'by_name', 'at'}, strict: true),
+    );
+  }
+
+  final String reference;
+  final String? note;
+  final String by;
+  final String? byName;
+  final String at;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reference': reference,
+        'note': note,
+        'by': by,
+        'by_name': byName,
+        'at': at,
+        ...extra,
+      };
+}
+
+final class HpmPushResponseResponse implements ResponseModel {
+  const HpmPushResponseResponse({
+    required this.mode,
+    required this.location,
+    required this.packageName,
+    required this.packageSha256,
+    required this.packageSize,
+    required this.packageFormat,
+    required this.receiver,
+    required this.acceptance,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResponseResponse.fromJson(Object? json, [String path = 'HpmPushResponseResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResponseResponse(
+      mode: requiredField(map, path, 'mode', asString),
+      location: requiredField(map, path, 'location', asString),
+      packageName: requiredField(map, path, 'package_name', asString),
+      packageSha256: requiredField(map, path, 'package_sha256', asString),
+      packageSize: requiredField(map, path, 'package_size', asInt),
+      packageFormat: requiredField(map, path, 'package_format', asString),
+      receiver: requiredField(map, path, 'receiver', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      extra: unknownFields(map, path, const <String>{'mode', 'location', 'package_name', 'package_sha256', 'package_size', 'package_format', 'receiver', 'acceptance'}, strict: true),
+    );
+  }
+
+  final String mode;
+  final String location;
+  final String packageName;
+  final String packageSha256;
+  final int packageSize;
+  final String packageFormat;
+  final String receiver;
+  final String acceptance;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'mode': mode,
+        'location': location,
+        'package_name': packageName,
+        'package_sha256': packageSha256,
+        'package_size': packageSize,
+        'package_format': packageFormat,
+        'receiver': receiver,
+        'acceptance': acceptance,
+        ...extra,
+      };
+}
+
+final class HpmPushResponseSnapshot implements ResponseModel {
+  const HpmPushResponseSnapshot({
+    required this.snapshotId,
+    required this.revision,
+    required this.cutoff,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResponseSnapshot.fromJson(Object? json, [String path = 'HpmPushResponseSnapshot']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResponseSnapshot(
+      snapshotId: requiredField(map, path, 'snapshot_id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      cutoff: requiredField(map, path, 'cutoff', asString),
+      extra: unknownFields(map, path, const <String>{'snapshot_id', 'revision', 'cutoff'}, strict: true),
+    );
+  }
+
+  final String snapshotId;
+  final int revision;
+  final String cutoff;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'snapshot_id': snapshotId,
+        'revision': revision,
+        'cutoff': cutoff,
+        ...extra,
+      };
+}
+
+final class HpmPushResultResponse implements ResponseModel {
+  const HpmPushResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.push,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HpmPushResultResponse.fromJson(Object? json, [String path = 'HpmPushResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HpmPushResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      push: requiredField(map, path, 'push', HpmPushResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'push'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final HpmPushResponse push;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'push': push.toJson(),
+        ...extra,
+      };
+}
+
 final class HubAgentListResponse implements ResponseModel {
   const HubAgentListResponse({
     required this.items,
@@ -30441,6 +36933,1662 @@ final class IamPartyRefResponse implements ResponseModel {
       };
 }
 
+final class IndApplyResultResponse implements ResponseModel {
+  const IndApplyResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.mode,
+    required this.mappingCode,
+    required this.mappingVersion,
+    required this.formatVersion,
+    required this.fileSha256,
+    required this.counts,
+    required this.figuresWritten,
+    required this.figuresUnchanged,
+    required this.figuresDiffering,
+    required this.errors,
+    required this.errorsTruncated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndApplyResultResponse.fromJson(Object? json, [String path = 'IndApplyResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndApplyResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      mode: requiredField(map, path, 'mode', asString),
+      mappingCode: requiredField(map, path, 'mapping_code', asString),
+      mappingVersion: requiredField(map, path, 'mapping_version', asInt),
+      formatVersion: requiredField(map, path, 'format_version', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      counts: requiredField(map, path, 'counts', IndImportCountsResponse.fromJson),
+      figuresWritten: requiredField(map, path, 'figures_written', asInt),
+      figuresUnchanged: requiredField(map, path, 'figures_unchanged', asInt),
+      figuresDiffering: requiredField(map, path, 'figures_differing', asInt),
+      errors: requiredField(map, path, 'errors', asList(IndRowErrorResponse.fromJson)),
+      errorsTruncated: requiredField(map, path, 'errors_truncated', asBool),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'mode', 'mapping_code', 'mapping_version', 'format_version', 'file_sha256', 'counts', 'figures_written', 'figures_unchanged', 'figures_differing', 'errors', 'errors_truncated'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final String mode;
+  final String mappingCode;
+  final int mappingVersion;
+  final String formatVersion;
+  final String fileSha256;
+  final IndImportCountsResponse counts;
+  final int figuresWritten;
+  final int figuresUnchanged;
+  final int figuresDiffering;
+  final List<IndRowErrorResponse> errors;
+  final bool errorsTruncated;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'mode': mode,
+        'mapping_code': mappingCode,
+        'mapping_version': mappingVersion,
+        'format_version': formatVersion,
+        'file_sha256': fileSha256,
+        'counts': counts.toJson(),
+        'figures_written': figuresWritten,
+        'figures_unchanged': figuresUnchanged,
+        'figures_differing': figuresDiffering,
+        'errors': errors.map((e0) => e0.toJson()).toList(),
+        'errors_truncated': errorsTruncated,
+        ...extra,
+      };
+}
+
+final class IndDictionaryFindingResponse implements ResponseModel {
+  const IndDictionaryFindingResponse({
+    required this.code,
+    required this.indicators,
+    required this.detail,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndDictionaryFindingResponse.fromJson(Object? json, [String path = 'IndDictionaryFindingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndDictionaryFindingResponse(
+      code: requiredField(map, path, 'code', asString),
+      indicators: requiredField(map, path, 'indicators', asList(asString)),
+      detail: requiredField(map, path, 'detail', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'indicators', 'detail'}, strict: true),
+    );
+  }
+
+  final String code;
+  final List<String> indicators;
+  final String detail;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'indicators': indicators,
+        'detail': detail,
+        ...extra,
+      };
+}
+
+final class IndEntryRuleListResponse implements ResponseModel {
+  const IndEntryRuleListResponse({
+    required this.items,
+    required this.surfaces,
+    required this.checks,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndEntryRuleListResponse.fromJson(Object? json, [String path = 'IndEntryRuleListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndEntryRuleListResponse(
+      items: requiredField(map, path, 'items', asList(IndEntryRuleResponse.fromJson)),
+      surfaces: requiredField(map, path, 'surfaces', asList(asString)),
+      checks: requiredField(map, path, 'checks', asList(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'surfaces', 'checks', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<IndEntryRuleResponse> items;
+  final List<String> surfaces;
+  final List<String> checks;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'surfaces': surfaces,
+        'checks': checks,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndEntryRuleResponse implements ResponseModel {
+  const IndEntryRuleResponse({
+    required this.code,
+    required this.check,
+    required this.severity,
+    required this.fields,
+    required this.totalField,
+    required this.tolerance,
+    required this.message,
+    required this.surfaces,
+    required this.min,
+    required this.max,
+    required this.closedStates,
+    required this.version,
+    required this.origin,
+    required this.active,
+    required this.unverified,
+    required this.effectiveFrom,
+    required this.effectiveTo,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndEntryRuleResponse.fromJson(Object? json, [String path = 'IndEntryRuleResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndEntryRuleResponse(
+      code: requiredField(map, path, 'code', asString),
+      check: requiredField(map, path, 'check', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      fields: requiredField(map, path, 'fields', asList(asString)),
+      totalField: requiredField(map, path, 'total_field', nullable(asString)),
+      tolerance: requiredField(map, path, 'tolerance', nullable(asString)),
+      message: requiredField(map, path, 'message', asString),
+      surfaces: requiredField(map, path, 'surfaces', nullable(asList(asString))),
+      min: requiredField(map, path, 'min', nullable(asString)),
+      max: requiredField(map, path, 'max', nullable(asString)),
+      closedStates: requiredField(map, path, 'closed_states', asList(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      origin: requiredField(map, path, 'origin', asString),
+      active: requiredField(map, path, 'active', asBool),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      effectiveFrom: requiredField(map, path, 'effective_from', nullable(asString)),
+      effectiveTo: requiredField(map, path, 'effective_to', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'check', 'severity', 'fields', 'total_field', 'tolerance', 'message', 'surfaces', 'min', 'max', 'closed_states', 'version', 'origin', 'active', 'unverified', 'effective_from', 'effective_to'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String check;
+  final String severity;
+  final List<String> fields;
+  final String? totalField;
+  final String? tolerance;
+  final String message;
+  final List<String>? surfaces;
+  final String? min;
+  final String? max;
+  final List<String> closedStates;
+  final int version;
+  final String origin;
+  final bool active;
+  final bool unverified;
+  final String? effectiveFrom;
+  final String? effectiveTo;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'check': check,
+        'severity': severity,
+        'fields': fields,
+        'total_field': totalField,
+        'tolerance': tolerance,
+        'message': message,
+        'surfaces': surfaces,
+        'min': min,
+        'max': max,
+        'closed_states': closedStates,
+        'version': version,
+        'origin': origin,
+        'active': active,
+        'unverified': unverified,
+        'effective_from': effectiveFrom,
+        'effective_to': effectiveTo,
+        ...extra,
+      };
+}
+
+final class IndEntryVerdictResponse implements ResponseModel {
+  const IndEntryVerdictResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.allowed,
+    required this.violations,
+    required this.evaluated,
+    required this.skipped,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndEntryVerdictResponse.fromJson(Object? json, [String path = 'IndEntryVerdictResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndEntryVerdictResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      allowed: requiredField(map, path, 'allowed', asBool),
+      violations: requiredField(map, path, 'violations', asList(IndEntryViolationResponse.fromJson)),
+      evaluated: requiredField(map, path, 'evaluated', asList(asString)),
+      skipped: requiredField(map, path, 'skipped', asList(IndEntryVerdictResponseSkippedItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'allowed', 'violations', 'evaluated', 'skipped'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final bool allowed;
+  final List<IndEntryViolationResponse> violations;
+  final List<String> evaluated;
+  final List<IndEntryVerdictResponseSkippedItem> skipped;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'allowed': allowed,
+        'violations': violations.map((e0) => e0.toJson()).toList(),
+        'evaluated': evaluated,
+        'skipped': skipped.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class IndEntryVerdictResponseSkippedItem implements ResponseModel {
+  const IndEntryVerdictResponseSkippedItem({
+    required this.ruleCode,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndEntryVerdictResponseSkippedItem.fromJson(Object? json, [String path = 'IndEntryVerdictResponseSkippedItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndEntryVerdictResponseSkippedItem(
+      ruleCode: requiredField(map, path, 'rule_code', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      extra: unknownFields(map, path, const <String>{'rule_code', 'reason'}, strict: true),
+    );
+  }
+
+  final String ruleCode;
+  final String reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rule_code': ruleCode,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class IndEntryViolationResponse implements ResponseModel {
+  const IndEntryViolationResponse({
+    required this.ruleCode,
+    required this.ruleVersion,
+    required this.check,
+    required this.severity,
+    required this.fields,
+    required this.message,
+    required this.detail,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndEntryViolationResponse.fromJson(Object? json, [String path = 'IndEntryViolationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndEntryViolationResponse(
+      ruleCode: requiredField(map, path, 'rule_code', asString),
+      ruleVersion: requiredField(map, path, 'rule_version', asInt),
+      check: requiredField(map, path, 'check', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      fields: requiredField(map, path, 'fields', asList(asString)),
+      message: requiredField(map, path, 'message', asString),
+      detail: requiredField(map, path, 'detail', asString),
+      extra: unknownFields(map, path, const <String>{'rule_code', 'rule_version', 'check', 'severity', 'fields', 'message', 'detail'}, strict: true),
+    );
+  }
+
+  final String ruleCode;
+  final int ruleVersion;
+  final String check;
+  final String severity;
+  final List<String> fields;
+  final String message;
+  final String detail;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rule_code': ruleCode,
+        'rule_version': ruleVersion,
+        'check': check,
+        'severity': severity,
+        'fields': fields,
+        'message': message,
+        'detail': detail,
+        ...extra,
+      };
+}
+
+final class IndFigureEntryResultResponse implements ResponseModel {
+  const IndFigureEntryResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.created,
+    required this.revised,
+    required this.unchanged,
+    required this.warnings,
+    required this.figures,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndFigureEntryResultResponse.fromJson(Object? json, [String path = 'IndFigureEntryResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndFigureEntryResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      created: requiredField(map, path, 'created', asInt),
+      revised: requiredField(map, path, 'revised', asInt),
+      unchanged: requiredField(map, path, 'unchanged', asInt),
+      warnings: requiredField(map, path, 'warnings', asList(IndEntryViolationResponse.fromJson)),
+      figures: requiredField(map, path, 'figures', asList(IndFigureResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'created', 'revised', 'unchanged', 'warnings', 'figures'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final int created;
+  final int revised;
+  final int unchanged;
+  final List<IndEntryViolationResponse> warnings;
+  final List<IndFigureResponse> figures;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'created': created,
+        'revised': revised,
+        'unchanged': unchanged,
+        'warnings': warnings.map((e0) => e0.toJson()).toList(),
+        'figures': figures.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class IndFigureListResponse implements ResponseModel {
+  const IndFigureListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndFigureListResponse.fromJson(Object? json, [String path = 'IndFigureListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndFigureListResponse(
+      items: requiredField(map, path, 'items', asList(IndFigureResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<IndFigureResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndFigureResponse implements ResponseModel {
+  const IndFigureResponse({
+    required this.id,
+    required this.projectId,
+    required this.projectCode,
+    required this.periodId,
+    required this.periodCode,
+    required this.indicatorCode,
+    required this.revision,
+    required this.value,
+    required this.unit,
+    required this.definitionVersion,
+    required this.source,
+    required this.importId,
+    required this.importLine,
+    required this.mappingCode,
+    required this.mappingVersion,
+    required this.reason,
+    required this.enteredBy,
+    required this.enteredByName,
+    required this.enteredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndFigureResponse.fromJson(Object? json, [String path = 'IndFigureResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndFigureResponse(
+      id: requiredField(map, path, 'id', asString),
+      projectId: requiredField(map, path, 'project_id', asString),
+      projectCode: requiredField(map, path, 'project_code', asString),
+      periodId: requiredField(map, path, 'period_id', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      indicatorCode: requiredField(map, path, 'indicator_code', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      value: requiredField(map, path, 'value', asString),
+      unit: requiredField(map, path, 'unit', asString),
+      definitionVersion: requiredField(map, path, 'definition_version', asInt),
+      source: requiredField(map, path, 'source', asString),
+      importId: requiredField(map, path, 'import_id', nullable(asString)),
+      importLine: requiredField(map, path, 'import_line', nullable(asInt)),
+      mappingCode: requiredField(map, path, 'mapping_code', nullable(asString)),
+      mappingVersion: requiredField(map, path, 'mapping_version', nullable(asInt)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      enteredBy: requiredField(map, path, 'entered_by', asString),
+      enteredByName: requiredField(map, path, 'entered_by_name', nullable(asString)),
+      enteredAt: requiredField(map, path, 'entered_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'project_code', 'period_id', 'period_code', 'indicator_code', 'revision', 'value', 'unit', 'definition_version', 'source', 'import_id', 'import_line', 'mapping_code', 'mapping_version', 'reason', 'entered_by', 'entered_by_name', 'entered_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String projectId;
+  final String projectCode;
+  final String periodId;
+  final String periodCode;
+  final String indicatorCode;
+  final int revision;
+  final String value;
+  final String unit;
+  final int definitionVersion;
+  final String source;
+  final String? importId;
+  final int? importLine;
+  final String? mappingCode;
+  final int? mappingVersion;
+  final String? reason;
+  final String enteredBy;
+  final String? enteredByName;
+  final String enteredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project_id': projectId,
+        'project_code': projectCode,
+        'period_id': periodId,
+        'period_code': periodCode,
+        'indicator_code': indicatorCode,
+        'revision': revision,
+        'value': value,
+        'unit': unit,
+        'definition_version': definitionVersion,
+        'source': source,
+        'import_id': importId,
+        'import_line': importLine,
+        'mapping_code': mappingCode,
+        'mapping_version': mappingVersion,
+        'reason': reason,
+        'entered_by': enteredBy,
+        'entered_by_name': enteredByName,
+        'entered_at': enteredAt,
+        ...extra,
+      };
+}
+
+final class IndFileUploadResponse implements ResponseModel {
+  const IndFileUploadResponse({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.columns,
+    required this.rowCount,
+    required this.fittingMappings,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndFileUploadResponse.fromJson(Object? json, [String path = 'IndFileUploadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndFileUploadResponse(
+      fileObjectKey: requiredField(map, path, 'file_object_key', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      fittingMappings: requiredField(map, path, 'fitting_mappings', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'file_object_key', 'file_sha256', 'size_bytes', 'format', 'columns', 'row_count', 'fitting_mappings'}, strict: true),
+    );
+  }
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final List<String> columns;
+  final int rowCount;
+  final List<String> fittingMappings;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'columns': columns,
+        'row_count': rowCount,
+        'fitting_mappings': fittingMappings,
+        ...extra,
+      };
+}
+
+final class IndImportCountsResponse implements ResponseModel {
+  const IndImportCountsResponse({
+    required this.total,
+    required this.applied,
+    required this.duplicate,
+    required this.conflict,
+    required this.quarantined,
+    required this.differencesOpened,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndImportCountsResponse.fromJson(Object? json, [String path = 'IndImportCountsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndImportCountsResponse(
+      total: requiredField(map, path, 'total', asInt),
+      applied: requiredField(map, path, 'applied', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      conflict: requiredField(map, path, 'conflict', asInt),
+      quarantined: requiredField(map, path, 'quarantined', asInt),
+      differencesOpened: requiredField(map, path, 'differences_opened', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'applied', 'duplicate', 'conflict', 'quarantined', 'differences_opened'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int applied;
+  final int duplicate;
+  final int conflict;
+  final int quarantined;
+  final int differencesOpened;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'applied': applied,
+        'duplicate': duplicate,
+        'conflict': conflict,
+        'quarantined': quarantined,
+        'differences_opened': differencesOpened,
+        ...extra,
+      };
+}
+
+final class IndImportPageResponse implements ResponseModel {
+  const IndImportPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndImportPageResponse.fromJson(Object? json, [String path = 'IndImportPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndImportPageResponse(
+      items: requiredField(map, path, 'items', asList(IndImportRunResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<IndImportRunResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndImportRowsResponse implements ResponseModel {
+  const IndImportRowsResponse({
+    required this.importId,
+    required this.errors,
+    required this.errorsTruncated,
+    required this.differences,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndImportRowsResponse.fromJson(Object? json, [String path = 'IndImportRowsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndImportRowsResponse(
+      importId: requiredField(map, path, 'import_id', asString),
+      errors: requiredField(map, path, 'errors', asList(IndRowErrorResponse.fromJson)),
+      errorsTruncated: requiredField(map, path, 'errors_truncated', asBool),
+      differences: requiredField(map, path, 'differences', asList(IndImportRowsResponseDifferencesItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'import_id', 'errors', 'errors_truncated', 'differences', 'as_of'}, strict: true),
+    );
+  }
+
+  final String importId;
+  final List<IndRowErrorResponse> errors;
+  final bool errorsTruncated;
+  final List<IndImportRowsResponseDifferencesItem> differences;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'import_id': importId,
+        'errors': errors.map((e0) => e0.toJson()).toList(),
+        'errors_truncated': errorsTruncated,
+        'differences': differences.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndImportRowsResponseDifferencesItem implements ResponseModel {
+  const IndImportRowsResponseDifferencesItem({
+    required this.id,
+    required this.line,
+    required this.businessKey,
+    required this.code,
+    required this.expected,
+    required this.actual,
+    required this.detail,
+    required this.status,
+    required this.ownerName,
+    required this.dueAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndImportRowsResponseDifferencesItem.fromJson(Object? json, [String path = 'IndImportRowsResponseDifferencesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndImportRowsResponseDifferencesItem(
+      id: requiredField(map, path, 'id', asString),
+      line: requiredField(map, path, 'line', asInt),
+      businessKey: requiredField(map, path, 'business_key', asString),
+      code: requiredField(map, path, 'code', asString),
+      expected: requiredField(map, path, 'expected', nullable(asString)),
+      actual: requiredField(map, path, 'actual', nullable(asString)),
+      detail: requiredField(map, path, 'detail', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      dueAt: requiredField(map, path, 'due_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'line', 'business_key', 'code', 'expected', 'actual', 'detail', 'status', 'owner_name', 'due_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int line;
+  final String businessKey;
+  final String code;
+  final String? expected;
+  final String? actual;
+  final String? detail;
+  final String status;
+  final String? ownerName;
+  final String dueAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'line': line,
+        'business_key': businessKey,
+        'code': code,
+        'expected': expected,
+        'actual': actual,
+        'detail': detail,
+        'status': status,
+        'owner_name': ownerName,
+        'due_at': dueAt,
+        ...extra,
+      };
+}
+
+final class IndImportRunResponse implements ResponseModel {
+  const IndImportRunResponse({
+    required this.id,
+    required this.formatVersion,
+    required this.fileSha256,
+    required this.status,
+    required this.errorCode,
+    required this.counts,
+    required this.openDifferences,
+    required this.importedBy,
+    required this.importedByName,
+    required this.createdAt,
+    required this.completedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndImportRunResponse.fromJson(Object? json, [String path = 'IndImportRunResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndImportRunResponse(
+      id: requiredField(map, path, 'id', asString),
+      formatVersion: requiredField(map, path, 'format_version', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      status: requiredField(map, path, 'status', asString),
+      errorCode: requiredField(map, path, 'error_code', nullable(asString)),
+      counts: requiredField(map, path, 'counts', IndImportCountsResponse.fromJson),
+      openDifferences: requiredField(map, path, 'open_differences', asInt),
+      importedBy: requiredField(map, path, 'imported_by', asString),
+      importedByName: requiredField(map, path, 'imported_by_name', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      completedAt: requiredField(map, path, 'completed_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'format_version', 'file_sha256', 'status', 'error_code', 'counts', 'open_differences', 'imported_by', 'imported_by_name', 'created_at', 'completed_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String formatVersion;
+  final String fileSha256;
+  final String status;
+  final String? errorCode;
+  final IndImportCountsResponse counts;
+  final int openDifferences;
+  final String importedBy;
+  final String? importedByName;
+  final String createdAt;
+  final String? completedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'format_version': formatVersion,
+        'file_sha256': fileSha256,
+        'status': status,
+        'error_code': errorCode,
+        'counts': counts.toJson(),
+        'open_differences': openDifferences,
+        'imported_by': importedBy,
+        'imported_by_name': importedByName,
+        'created_at': createdAt,
+        'completed_at': completedAt,
+        ...extra,
+      };
+}
+
+final class IndIndicatorDetailResponse implements ResponseModel {
+  const IndIndicatorDetailResponse({
+    required this.indicator,
+    required this.versions,
+    required this.usage,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndIndicatorDetailResponse.fromJson(Object? json, [String path = 'IndIndicatorDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndIndicatorDetailResponse(
+      indicator: requiredField(map, path, 'indicator', IndIndicatorResponse.fromJson),
+      versions: requiredField(map, path, 'versions', asList(IndRuleVersionResponse.fromJson)),
+      usage: requiredField(map, path, 'usage', IndIndicatorUsageResponse.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'indicator', 'versions', 'usage', 'as_of'}, strict: true),
+    );
+  }
+
+  final IndIndicatorResponse indicator;
+  final List<IndRuleVersionResponse> versions;
+  final IndIndicatorUsageResponse usage;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'indicator': indicator.toJson(),
+        'versions': versions.map((e0) => e0.toJson()).toList(),
+        'usage': usage.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndIndicatorListResponse implements ResponseModel {
+  const IndIndicatorListResponse({
+    required this.items,
+    required this.findings,
+    required this.categories,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndIndicatorListResponse.fromJson(Object? json, [String path = 'IndIndicatorListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndIndicatorListResponse(
+      items: requiredField(map, path, 'items', asList(IndIndicatorResponse.fromJson)),
+      findings: requiredField(map, path, 'findings', asList(IndDictionaryFindingResponse.fromJson)),
+      categories: requiredField(map, path, 'categories', asList(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'findings', 'categories', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<IndIndicatorResponse> items;
+  final List<IndDictionaryFindingResponse> findings;
+  final List<String> categories;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'findings': findings.map((e0) => e0.toJson()).toList(),
+        'categories': categories,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndIndicatorResponse implements ResponseModel {
+  const IndIndicatorResponse({
+    required this.code,
+    required this.name,
+    required this.formula,
+    required this.numerator,
+    required this.denominator,
+    required this.exclusions,
+    required this.unit,
+    required this.period,
+    required this.source,
+    required this.owner,
+    required this.decimals,
+    required this.refreshHours,
+    required this.allowedLagDays,
+    required this.category,
+    required this.valueKind,
+    required this.enterable,
+    required this.entryField,
+    required this.vatBasis,
+    required this.aliases,
+    required this.requiredOn,
+    required this.version,
+    required this.origin,
+    required this.unverified,
+    required this.effectiveFrom,
+    required this.effectiveTo,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndIndicatorResponse.fromJson(Object? json, [String path = 'IndIndicatorResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndIndicatorResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      formula: requiredField(map, path, 'formula', asString),
+      numerator: requiredField(map, path, 'numerator', nullable(asString)),
+      denominator: requiredField(map, path, 'denominator', nullable(asString)),
+      exclusions: requiredField(map, path, 'exclusions', asList(asString)),
+      unit: requiredField(map, path, 'unit', asString),
+      period: requiredField(map, path, 'period', asString),
+      source: requiredField(map, path, 'source', asString),
+      owner: requiredField(map, path, 'owner', asString),
+      decimals: requiredField(map, path, 'decimals', asInt),
+      refreshHours: requiredField(map, path, 'refresh_hours', asInt),
+      allowedLagDays: requiredField(map, path, 'allowed_lag_days', asInt),
+      category: requiredField(map, path, 'category', nullable(asString)),
+      valueKind: requiredField(map, path, 'value_kind', asString),
+      enterable: requiredField(map, path, 'enterable', asBool),
+      entryField: requiredField(map, path, 'entry_field', nullable(asString)),
+      vatBasis: requiredField(map, path, 'vat_basis', nullable(asString)),
+      aliases: requiredField(map, path, 'aliases', asList(asString)),
+      requiredOn: requiredField(map, path, 'required_on', asList(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      origin: requiredField(map, path, 'origin', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      effectiveFrom: requiredField(map, path, 'effective_from', nullable(asString)),
+      effectiveTo: requiredField(map, path, 'effective_to', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'formula', 'numerator', 'denominator', 'exclusions', 'unit', 'period', 'source', 'owner', 'decimals', 'refresh_hours', 'allowed_lag_days', 'category', 'value_kind', 'enterable', 'entry_field', 'vat_basis', 'aliases', 'required_on', 'version', 'origin', 'unverified', 'effective_from', 'effective_to'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String formula;
+  final String? numerator;
+  final String? denominator;
+  final List<String> exclusions;
+  final String unit;
+  final String period;
+  final String source;
+  final String owner;
+  final int decimals;
+  final int refreshHours;
+  final int allowedLagDays;
+  final String? category;
+  final String valueKind;
+  final bool enterable;
+  final String? entryField;
+  final String? vatBasis;
+  final List<String> aliases;
+  final List<String> requiredOn;
+  final int version;
+  final String origin;
+  final bool unverified;
+  final String? effectiveFrom;
+  final String? effectiveTo;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'formula': formula,
+        'numerator': numerator,
+        'denominator': denominator,
+        'exclusions': exclusions,
+        'unit': unit,
+        'period': period,
+        'source': source,
+        'owner': owner,
+        'decimals': decimals,
+        'refresh_hours': refreshHours,
+        'allowed_lag_days': allowedLagDays,
+        'category': category,
+        'value_kind': valueKind,
+        'enterable': enterable,
+        'entry_field': entryField,
+        'vat_basis': vatBasis,
+        'aliases': aliases,
+        'required_on': requiredOn,
+        'version': version,
+        'origin': origin,
+        'unverified': unverified,
+        'effective_from': effectiveFrom,
+        'effective_to': effectiveTo,
+        ...extra,
+      };
+}
+
+final class IndIndicatorUsageResponse implements ResponseModel {
+  const IndIndicatorUsageResponse({
+    required this.rules,
+    required this.mappings,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndIndicatorUsageResponse.fromJson(Object? json, [String path = 'IndIndicatorUsageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndIndicatorUsageResponse(
+      rules: requiredField(map, path, 'rules', asList(IndIndicatorUsageResponseRulesItem.fromJson)),
+      mappings: requiredField(map, path, 'mappings', asList(IndIndicatorUsageResponseMappingsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'rules', 'mappings'}, strict: true),
+    );
+  }
+
+  final List<IndIndicatorUsageResponseRulesItem> rules;
+  final List<IndIndicatorUsageResponseMappingsItem> mappings;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rules': rules.map((e0) => e0.toJson()).toList(),
+        'mappings': mappings.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class IndIndicatorUsageResponseMappingsItem implements ResponseModel {
+  const IndIndicatorUsageResponseMappingsItem({
+    required this.code,
+    required this.source,
+    required this.active,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndIndicatorUsageResponseMappingsItem.fromJson(Object? json, [String path = 'IndIndicatorUsageResponseMappingsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndIndicatorUsageResponseMappingsItem(
+      code: requiredField(map, path, 'code', asString),
+      source: requiredField(map, path, 'source', asString),
+      active: requiredField(map, path, 'active', asBool),
+      extra: unknownFields(map, path, const <String>{'code', 'source', 'active'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String source;
+  final bool active;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'source': source,
+        'active': active,
+        ...extra,
+      };
+}
+
+final class IndIndicatorUsageResponseRulesItem implements ResponseModel {
+  const IndIndicatorUsageResponseRulesItem({
+    required this.code,
+    required this.check,
+    required this.active,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndIndicatorUsageResponseRulesItem.fromJson(Object? json, [String path = 'IndIndicatorUsageResponseRulesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndIndicatorUsageResponseRulesItem(
+      code: requiredField(map, path, 'code', asString),
+      check: requiredField(map, path, 'check', asString),
+      active: requiredField(map, path, 'active', asBool),
+      extra: unknownFields(map, path, const <String>{'code', 'check', 'active'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String check;
+  final bool active;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'check': check,
+        'active': active,
+        ...extra,
+      };
+}
+
+final class IndMappingDetailResponse implements ResponseModel {
+  const IndMappingDetailResponse({
+    required this.mapping,
+    required this.versions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndMappingDetailResponse.fromJson(Object? json, [String path = 'IndMappingDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndMappingDetailResponse(
+      mapping: requiredField(map, path, 'mapping', IndMappingResponse.fromJson),
+      versions: requiredField(map, path, 'versions', asList(IndRuleVersionResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'mapping', 'versions', 'as_of'}, strict: true),
+    );
+  }
+
+  final IndMappingResponse mapping;
+  final List<IndRuleVersionResponse> versions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'mapping': mapping.toJson(),
+        'versions': versions.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndMappingListResponse implements ResponseModel {
+  const IndMappingListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndMappingListResponse.fromJson(Object? json, [String path = 'IndMappingListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndMappingListResponse(
+      items: requiredField(map, path, 'items', asList(IndMappingResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<IndMappingResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class IndMappingResponse implements ResponseModel {
+  const IndMappingResponse({
+    required this.code,
+    required this.name,
+    required this.layout,
+    required this.numberFormat,
+    required this.projectColumn,
+    required this.periodColumn,
+    required this.labelColumn,
+    required this.valueColumn,
+    required this.lines,
+    required this.version,
+    required this.origin,
+    required this.active,
+    required this.unverified,
+    required this.effectiveFrom,
+    required this.effectiveTo,
+    required this.problems,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndMappingResponse.fromJson(Object? json, [String path = 'IndMappingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndMappingResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      layout: requiredField(map, path, 'layout', asString),
+      numberFormat: requiredField(map, path, 'number_format', asString),
+      projectColumn: requiredField(map, path, 'project_column', nullable(asString)),
+      periodColumn: requiredField(map, path, 'period_column', nullable(asString)),
+      labelColumn: requiredField(map, path, 'label_column', nullable(asString)),
+      valueColumn: requiredField(map, path, 'value_column', nullable(asString)),
+      lines: requiredField(map, path, 'lines', asList(IndMappingResponseLinesItem.fromJson)),
+      version: requiredField(map, path, 'version', asInt),
+      origin: requiredField(map, path, 'origin', asString),
+      active: requiredField(map, path, 'active', asBool),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      effectiveFrom: requiredField(map, path, 'effective_from', nullable(asString)),
+      effectiveTo: requiredField(map, path, 'effective_to', nullable(asString)),
+      problems: requiredField(map, path, 'problems', asList(IndMappingResponseProblemsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'layout', 'number_format', 'project_column', 'period_column', 'label_column', 'value_column', 'lines', 'version', 'origin', 'active', 'unverified', 'effective_from', 'effective_to', 'problems'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String layout;
+  final String numberFormat;
+  final String? projectColumn;
+  final String? periodColumn;
+  final String? labelColumn;
+  final String? valueColumn;
+  final List<IndMappingResponseLinesItem> lines;
+  final int version;
+  final String origin;
+  final bool active;
+  final bool unverified;
+  final String? effectiveFrom;
+  final String? effectiveTo;
+  final List<IndMappingResponseProblemsItem> problems;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'layout': layout,
+        'number_format': numberFormat,
+        'project_column': projectColumn,
+        'period_column': periodColumn,
+        'label_column': labelColumn,
+        'value_column': valueColumn,
+        'lines': lines.map((e0) => e0.toJson()).toList(),
+        'version': version,
+        'origin': origin,
+        'active': active,
+        'unverified': unverified,
+        'effective_from': effectiveFrom,
+        'effective_to': effectiveTo,
+        'problems': problems.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class IndMappingResponseLinesItem implements ResponseModel {
+  const IndMappingResponseLinesItem({
+    required this.indicator,
+    required this.source,
+    required this.scale,
+    required this.required_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndMappingResponseLinesItem.fromJson(Object? json, [String path = 'IndMappingResponseLinesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndMappingResponseLinesItem(
+      indicator: requiredField(map, path, 'indicator', asString),
+      source: requiredField(map, path, 'source', asString),
+      scale: requiredField(map, path, 'scale', asString),
+      required_: requiredField(map, path, 'required', asBool),
+      extra: unknownFields(map, path, const <String>{'indicator', 'source', 'scale', 'required'}, strict: true),
+    );
+  }
+
+  final String indicator;
+  final String source;
+  final String scale;
+  final bool required_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'indicator': indicator,
+        'source': source,
+        'scale': scale,
+        'required': required_,
+        ...extra,
+      };
+}
+
+final class IndMappingResponseProblemsItem implements ResponseModel {
+  const IndMappingResponseProblemsItem({
+    required this.code,
+    required this.indicator,
+    required this.line,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndMappingResponseProblemsItem.fromJson(Object? json, [String path = 'IndMappingResponseProblemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndMappingResponseProblemsItem(
+      code: requiredField(map, path, 'code', asString),
+      indicator: requiredField(map, path, 'indicator', asString),
+      line: requiredField(map, path, 'line', asInt),
+      extra: unknownFields(map, path, const <String>{'code', 'indicator', 'line'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String indicator;
+  final int line;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'indicator': indicator,
+        'line': line,
+        ...extra,
+      };
+}
+
+final class IndPreviewResultResponse implements ResponseModel {
+  const IndPreviewResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.mode,
+    required this.mappingCode,
+    required this.mappingVersion,
+    required this.formatVersion,
+    required this.fileSha256,
+    required this.alreadyApplied,
+    required this.counts,
+    required this.rows,
+    required this.rowsTruncated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndPreviewResultResponse.fromJson(Object? json, [String path = 'IndPreviewResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndPreviewResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      mode: requiredField(map, path, 'mode', asString),
+      mappingCode: requiredField(map, path, 'mapping_code', asString),
+      mappingVersion: requiredField(map, path, 'mapping_version', asInt),
+      formatVersion: requiredField(map, path, 'format_version', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      alreadyApplied: requiredField(map, path, 'already_applied', asBool),
+      counts: requiredField(map, path, 'counts', IndPreviewResultResponseCounts.fromJson),
+      rows: requiredField(map, path, 'rows', asList(IndPreviewRowResponse.fromJson)),
+      rowsTruncated: requiredField(map, path, 'rows_truncated', asBool),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'mode', 'mapping_code', 'mapping_version', 'format_version', 'file_sha256', 'already_applied', 'counts', 'rows', 'rows_truncated'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String mode;
+  final String mappingCode;
+  final int mappingVersion;
+  final String formatVersion;
+  final String fileSha256;
+  final bool alreadyApplied;
+  final IndPreviewResultResponseCounts counts;
+  final List<IndPreviewRowResponse> rows;
+  final bool rowsTruncated;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'mode': mode,
+        'mapping_code': mappingCode,
+        'mapping_version': mappingVersion,
+        'format_version': formatVersion,
+        'file_sha256': fileSha256,
+        'already_applied': alreadyApplied,
+        'counts': counts.toJson(),
+        'rows': rows.map((e0) => e0.toJson()).toList(),
+        'rows_truncated': rowsTruncated,
+        ...extra,
+      };
+}
+
+final class IndPreviewResultResponseCounts implements ResponseModel {
+  const IndPreviewResultResponseCounts({
+    required this.total,
+    required this.valid,
+    required this.errors,
+    required this.duplicate,
+    required this.conflict,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndPreviewResultResponseCounts.fromJson(Object? json, [String path = 'IndPreviewResultResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndPreviewResultResponseCounts(
+      total: requiredField(map, path, 'total', asInt),
+      valid: requiredField(map, path, 'valid', asInt),
+      errors: requiredField(map, path, 'errors', asInt),
+      duplicate: requiredField(map, path, 'duplicate', asInt),
+      conflict: requiredField(map, path, 'conflict', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'valid', 'errors', 'duplicate', 'conflict'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int valid;
+  final int errors;
+  final int duplicate;
+  final int conflict;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'valid': valid,
+        'errors': errors,
+        'duplicate': duplicate,
+        'conflict': conflict,
+        ...extra,
+      };
+}
+
+final class IndPreviewRowResponse implements ResponseModel {
+  const IndPreviewRowResponse({
+    required this.line,
+    required this.businessKey,
+    required this.status,
+    required this.code,
+    required this.field,
+    required this.outcome,
+    required this.preview,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndPreviewRowResponse.fromJson(Object? json, [String path = 'IndPreviewRowResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndPreviewRowResponse(
+      line: requiredField(map, path, 'line', asInt),
+      businessKey: requiredField(map, path, 'business_key', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      code: requiredField(map, path, 'code', nullable(asString)),
+      field: requiredField(map, path, 'field', nullable(asString)),
+      outcome: requiredField(map, path, 'outcome', nullable(asString)),
+      preview: requiredField(map, path, 'preview', nullable(asMap(asString))),
+      extra: unknownFields(map, path, const <String>{'line', 'business_key', 'status', 'code', 'field', 'outcome', 'preview'}, strict: true),
+    );
+  }
+
+  final int line;
+  final String? businessKey;
+  final String status;
+  final String? code;
+  final String? field;
+  final String? outcome;
+  final Map<String, String>? preview;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'line': line,
+        'business_key': businessKey,
+        'status': status,
+        'code': code,
+        'field': field,
+        'outcome': outcome,
+        'preview': preview,
+        ...extra,
+      };
+}
+
+final class IndRowErrorResponse implements ResponseModel {
+  const IndRowErrorResponse({
+    required this.line,
+    required this.businessKey,
+    required this.code,
+    required this.field,
+    required this.preview,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndRowErrorResponse.fromJson(Object? json, [String path = 'IndRowErrorResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndRowErrorResponse(
+      line: requiredField(map, path, 'line', asInt),
+      businessKey: requiredField(map, path, 'business_key', nullable(asString)),
+      code: requiredField(map, path, 'code', asString),
+      field: requiredField(map, path, 'field', asString),
+      preview: requiredField(map, path, 'preview', nullable(asMap(asString))),
+      extra: unknownFields(map, path, const <String>{'line', 'business_key', 'code', 'field', 'preview'}, strict: true),
+    );
+  }
+
+  final int line;
+  final String? businessKey;
+  final String code;
+  final String field;
+  final Map<String, String>? preview;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'line': line,
+        'business_key': businessKey,
+        'code': code,
+        'field': field,
+        'preview': preview,
+        ...extra,
+      };
+}
+
+final class IndRuleVersionResponse implements ResponseModel {
+  const IndRuleVersionResponse({
+    required this.id,
+    required this.version,
+    required this.status,
+    required this.effectiveFrom,
+    required this.effectiveTo,
+    required this.reason,
+    required this.createdBy,
+    required this.createdByName,
+    required this.createdAt,
+    required this.submittedByName,
+    required this.approvedBy,
+    required this.approvedByName,
+    required this.approvedAt,
+    required this.retiredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IndRuleVersionResponse.fromJson(Object? json, [String path = 'IndRuleVersionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IndRuleVersionResponse(
+      id: requiredField(map, path, 'id', asString),
+      version: requiredField(map, path, 'version', asInt),
+      status: requiredField(map, path, 'status', asString),
+      effectiveFrom: requiredField(map, path, 'effective_from', asString),
+      effectiveTo: requiredField(map, path, 'effective_to', nullable(asString)),
+      reason: requiredField(map, path, 'reason', asString),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      createdByName: requiredField(map, path, 'created_by_name', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      submittedByName: requiredField(map, path, 'submitted_by_name', nullable(asString)),
+      approvedBy: requiredField(map, path, 'approved_by', nullable(asString)),
+      approvedByName: requiredField(map, path, 'approved_by_name', nullable(asString)),
+      approvedAt: requiredField(map, path, 'approved_at', nullable(asString)),
+      retiredAt: requiredField(map, path, 'retired_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'version', 'status', 'effective_from', 'effective_to', 'reason', 'created_by', 'created_by_name', 'created_at', 'submitted_by_name', 'approved_by', 'approved_by_name', 'approved_at', 'retired_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int version;
+  final String status;
+  final String effectiveFrom;
+  final String? effectiveTo;
+  final String reason;
+  final String createdBy;
+  final String? createdByName;
+  final String createdAt;
+  final String? submittedByName;
+  final String? approvedBy;
+  final String? approvedByName;
+  final String? approvedAt;
+  final String? retiredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version': version,
+        'status': status,
+        'effective_from': effectiveFrom,
+        'effective_to': effectiveTo,
+        'reason': reason,
+        'created_by': createdBy,
+        'created_by_name': createdByName,
+        'created_at': createdAt,
+        'submitted_by_name': submittedByName,
+        'approved_by': approvedBy,
+        'approved_by_name': approvedByName,
+        'approved_at': approvedAt,
+        'retired_at': retiredAt,
+        ...extra,
+      };
+}
+
 final class InvoiceLineResponse implements ResponseModel {
   const InvoiceLineResponse({
     required this.id,
@@ -31907,6 +40055,364 @@ final class LndResettlementPageResponse implements ResponseModel {
       };
 }
 
+final class MachineAccountActionsResponse implements ResponseModel {
+  const MachineAccountActionsResponse({
+    required this.update,
+    required this.decide,
+    required this.rotate,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineAccountActionsResponse.fromJson(Object? json, [String path = 'MachineAccountActionsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineAccountActionsResponse(
+      update: requiredField(map, path, 'update', asBool),
+      decide: requiredField(map, path, 'decide', asBool),
+      rotate: requiredField(map, path, 'rotate', asBool),
+      extra: unknownFields(map, path, const <String>{'update', 'decide', 'rotate'}, strict: true),
+    );
+  }
+
+  final bool update;
+  final bool decide;
+  final bool rotate;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'update': update,
+        'decide': decide,
+        'rotate': rotate,
+        ...extra,
+      };
+}
+
+final class MachineAccountCountsResponse implements ResponseModel {
+  const MachineAccountCountsResponse({
+    required this.aCTIVE,
+    required this.sUSPENDED,
+    required this.rEVOKED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineAccountCountsResponse.fromJson(Object? json, [String path = 'MachineAccountCountsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineAccountCountsResponse(
+      aCTIVE: requiredField(map, path, 'ACTIVE', asInt),
+      sUSPENDED: requiredField(map, path, 'SUSPENDED', asInt),
+      rEVOKED: requiredField(map, path, 'REVOKED', asInt),
+      extra: unknownFields(map, path, const <String>{'ACTIVE', 'SUSPENDED', 'REVOKED'}, strict: true),
+    );
+  }
+
+  final int aCTIVE;
+  final int sUSPENDED;
+  final int rEVOKED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'ACTIVE': aCTIVE,
+        'SUSPENDED': sUSPENDED,
+        'REVOKED': rEVOKED,
+        ...extra,
+      };
+}
+
+final class MachineAccountPageResponse implements ResponseModel {
+  const MachineAccountPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.scopes,
+    required this.rateLimit,
+    required this.tokenUrl,
+    required this.canCreate,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineAccountPageResponse.fromJson(Object? json, [String path = 'MachineAccountPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineAccountPageResponse(
+      items: requiredField(map, path, 'items', asList(MachineAccountResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', MachineAccountCountsResponse.fromJson),
+      scopes: requiredField(map, path, 'scopes', asList(OpenScopeInfoResponse.fromJson)),
+      rateLimit: requiredField(map, path, 'rate_limit', MachineAccountPageResponseRateLimit.fromJson),
+      tokenUrl: requiredField(map, path, 'token_url', asString),
+      canCreate: requiredField(map, path, 'can_create', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'scopes', 'rate_limit', 'token_url', 'can_create', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<MachineAccountResponse> items;
+  final String? nextCursor;
+  final MachineAccountCountsResponse counts;
+  final List<OpenScopeInfoResponse> scopes;
+  final MachineAccountPageResponseRateLimit rateLimit;
+  final String tokenUrl;
+  final bool canCreate;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'scopes': scopes.map((e0) => e0.toJson()).toList(),
+        'rate_limit': rateLimit.toJson(),
+        'token_url': tokenUrl,
+        'can_create': canCreate,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class MachineAccountPageResponseRateLimit implements ResponseModel {
+  const MachineAccountPageResponseRateLimit({
+    required this.min,
+    required this.max,
+    required this.default_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineAccountPageResponseRateLimit.fromJson(Object? json, [String path = 'MachineAccountPageResponseRateLimit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineAccountPageResponseRateLimit(
+      min: requiredField(map, path, 'min', asInt),
+      max: requiredField(map, path, 'max', asInt),
+      default_: requiredField(map, path, 'default', asInt),
+      extra: unknownFields(map, path, const <String>{'min', 'max', 'default'}, strict: true),
+    );
+  }
+
+  final int min;
+  final int max;
+  final int default_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'min': min,
+        'max': max,
+        'default': default_,
+        ...extra,
+      };
+}
+
+final class MachineAccountResponse implements ResponseModel {
+  const MachineAccountResponse({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.scopes,
+    required this.rateLimitPerMinute,
+    required this.expiresOn,
+    required this.status,
+    required this.statusReason,
+    required this.statusChangedAt,
+    required this.version,
+    required this.createdAt,
+    required this.createdByName,
+    required this.credentials,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineAccountResponse.fromJson(Object? json, [String path = 'MachineAccountResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineAccountResponse(
+      id: requiredField(map, path, 'id', asString),
+      name: requiredField(map, path, 'name', asString),
+      description: requiredField(map, path, 'description', nullable(asString)),
+      scopes: requiredField(map, path, 'scopes', asList(asString)),
+      rateLimitPerMinute: requiredField(map, path, 'rate_limit_per_minute', asInt),
+      expiresOn: requiredField(map, path, 'expires_on', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      statusReason: requiredField(map, path, 'status_reason', nullable(asString)),
+      statusChangedAt: requiredField(map, path, 'status_changed_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      createdByName: requiredField(map, path, 'created_by_name', nullable(asString)),
+      credentials: requiredField(map, path, 'credentials', asList(MachineCredentialResponse.fromJson)),
+      actions: requiredField(map, path, 'actions', MachineAccountActionsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'name', 'description', 'scopes', 'rate_limit_per_minute', 'expires_on', 'status', 'status_reason', 'status_changed_at', 'version', 'created_at', 'created_by_name', 'credentials', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String name;
+  final String? description;
+  final List<String> scopes;
+  final int rateLimitPerMinute;
+  final String? expiresOn;
+  final String status;
+  final String? statusReason;
+  final String? statusChangedAt;
+  final int version;
+  final String createdAt;
+  final String? createdByName;
+  final List<MachineCredentialResponse> credentials;
+  final MachineAccountActionsResponse actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'name': name,
+        'description': description,
+        'scopes': scopes,
+        'rate_limit_per_minute': rateLimitPerMinute,
+        'expires_on': expiresOn,
+        'status': status,
+        'status_reason': statusReason,
+        'status_changed_at': statusChangedAt,
+        'version': version,
+        'created_at': createdAt,
+        'created_by_name': createdByName,
+        'credentials': credentials.map((e0) => e0.toJson()).toList(),
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class MachineCredentialIssuedResponse implements ResponseModel {
+  const MachineCredentialIssuedResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    required this.resourceId,
+    required this.accountId,
+    required this.credentialId,
+    required this.clientId,
+    required this.clientSecret,
+    required this.secretHint,
+    required this.shownOnce,
+    required this.tokenUrl,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineCredentialIssuedResponse.fromJson(Object? json, [String path = 'MachineCredentialIssuedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineCredentialIssuedResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: requiredField(map, path, 'resource_id', asString),
+      accountId: requiredField(map, path, 'account_id', asString),
+      credentialId: requiredField(map, path, 'credential_id', asString),
+      clientId: requiredField(map, path, 'client_id', asString),
+      clientSecret: requiredField(map, path, 'client_secret', asString),
+      secretHint: requiredField(map, path, 'secret_hint', asString),
+      shownOnce: requiredField(map, path, 'shown_once', asBool),
+      tokenUrl: requiredField(map, path, 'token_url', asString),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'account_id', 'credential_id', 'client_id', 'client_secret', 'secret_hint', 'shown_once', 'token_url'}, strict: true),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String resourceId;
+  final String accountId;
+  final String credentialId;
+  final String clientId;
+  final String clientSecret;
+  final String secretHint;
+  final bool shownOnce;
+  final String tokenUrl;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        'resource_id': resourceId,
+        'account_id': accountId,
+        'credential_id': credentialId,
+        'client_id': clientId,
+        'client_secret': clientSecret,
+        'secret_hint': secretHint,
+        'shown_once': shownOnce,
+        'token_url': tokenUrl,
+        ...extra,
+      };
+}
+
+final class MachineCredentialResponse implements ResponseModel {
+  const MachineCredentialResponse({
+    required this.id,
+    required this.clientId,
+    required this.secretHint,
+    required this.state,
+    required this.createdAt,
+    required this.supersededAt,
+    required this.expiresAt,
+    required this.revokedAt,
+    required this.lastUsedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MachineCredentialResponse.fromJson(Object? json, [String path = 'MachineCredentialResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MachineCredentialResponse(
+      id: requiredField(map, path, 'id', asString),
+      clientId: requiredField(map, path, 'client_id', asString),
+      secretHint: requiredField(map, path, 'secret_hint', asString),
+      state: requiredField(map, path, 'state', asString),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      supersededAt: requiredField(map, path, 'superseded_at', nullable(asString)),
+      expiresAt: requiredField(map, path, 'expires_at', nullable(asString)),
+      revokedAt: requiredField(map, path, 'revoked_at', nullable(asString)),
+      lastUsedAt: requiredField(map, path, 'last_used_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'client_id', 'secret_hint', 'state', 'created_at', 'superseded_at', 'expires_at', 'revoked_at', 'last_used_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String clientId;
+  final String secretHint;
+  final String state;
+  final String createdAt;
+  final String? supersededAt;
+  final String? expiresAt;
+  final String? revokedAt;
+  final String? lastUsedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'client_id': clientId,
+        'secret_hint': secretHint,
+        'state': state,
+        'created_at': createdAt,
+        'superseded_at': supersededAt,
+        'expires_at': expiresAt,
+        'revoked_at': revokedAt,
+        'last_used_at': lastUsedAt,
+        ...extra,
+      };
+}
+
 final class MdmImportFileResponse implements ResponseModel {
   const MdmImportFileResponse({
     required this.fileObjectKey,
@@ -32855,6 +41361,744 @@ final class NotificationWorkflowResponse implements ResponseModel {
         if (publishedAt != null) 'published_at': publishedAt,
         if (supersedesId != null) 'supersedes_id': supersedesId,
         'version': version,
+        ...extra,
+      };
+}
+
+final class OpenAccessLogEntryResponse implements ResponseModel {
+  const OpenAccessLogEntryResponse({
+    required this.id,
+    required this.accountId,
+    required this.accountName,
+    required this.credentialId,
+    required this.operation,
+    required this.scope,
+    required this.path,
+    required this.queryKeys,
+    required this.outcome,
+    required this.status,
+    required this.rowCount,
+    required this.correlationId,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenAccessLogEntryResponse.fromJson(Object? json, [String path = 'OpenAccessLogEntryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenAccessLogEntryResponse(
+      id: requiredField(map, path, 'id', asString),
+      accountId: requiredField(map, path, 'account_id', asString),
+      accountName: requiredField(map, path, 'account_name', asString),
+      credentialId: requiredField(map, path, 'credential_id', asString),
+      operation: requiredField(map, path, 'operation', asString),
+      scope: requiredField(map, path, 'scope', nullable(asString)),
+      path: requiredField(map, path, 'path', asString),
+      queryKeys: requiredField(map, path, 'query_keys', asList(asString)),
+      outcome: requiredField(map, path, 'outcome', asString),
+      status: requiredField(map, path, 'status', asInt),
+      rowCount: requiredField(map, path, 'row_count', nullable(asInt)),
+      correlationId: requiredField(map, path, 'correlation_id', asString),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'account_id', 'account_name', 'credential_id', 'operation', 'scope', 'path', 'query_keys', 'outcome', 'status', 'row_count', 'correlation_id', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String accountId;
+  final String accountName;
+  final String credentialId;
+  final String operation;
+  final String? scope;
+  final String path;
+  final List<String> queryKeys;
+  final String outcome;
+  final int status;
+  final int? rowCount;
+  final String correlationId;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'account_id': accountId,
+        'account_name': accountName,
+        'credential_id': credentialId,
+        'operation': operation,
+        'scope': scope,
+        'path': path,
+        'query_keys': queryKeys,
+        'outcome': outcome,
+        'status': status,
+        'row_count': rowCount,
+        'correlation_id': correlationId,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class OpenAccessLogPageResponse implements ResponseModel {
+  const OpenAccessLogPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.outcomes,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenAccessLogPageResponse.fromJson(Object? json, [String path = 'OpenAccessLogPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenAccessLogPageResponse(
+      items: requiredField(map, path, 'items', asList(OpenAccessLogEntryResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      outcomes: requiredField(map, path, 'outcomes', asList(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'outcomes', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<OpenAccessLogEntryResponse> items;
+  final String? nextCursor;
+  final List<String> outcomes;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'outcomes': outcomes,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class OpenContractLineResponse implements ResponseModel {
+  const OpenContractLineResponse({
+    required this.tenantId,
+    required this.snapshotId,
+    required this.periodId,
+    required this.revision,
+    required this.cutoffDate,
+    required this.contractId,
+    required this.contractorId,
+    required this.isLead,
+    required this.sharePct,
+    required this.projectId,
+    required this.unitId,
+    required this.contractStatus,
+    required this.contractType,
+    required this.contractValueVnd,
+    required this.activeValueVnd,
+    required this.paidVnd,
+    this.certificationExpiresOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenContractLineResponse.fromJson(Object? json, [String path = 'OpenContractLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenContractLineResponse(
+      tenantId: requiredField(map, path, 'tenant_id', asString),
+      snapshotId: requiredField(map, path, 'snapshot_id', asString),
+      periodId: requiredField(map, path, 'period_id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      cutoffDate: requiredField(map, path, 'cutoff_date', asString),
+      contractId: requiredField(map, path, 'contract_id', asString),
+      contractorId: requiredField(map, path, 'contractor_id', asString),
+      isLead: requiredField(map, path, 'is_lead', asBool),
+      sharePct: requiredField(map, path, 'share_pct', asString),
+      projectId: requiredField(map, path, 'project_id', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      contractStatus: requiredField(map, path, 'contract_status', asString),
+      contractType: requiredField(map, path, 'contract_type', asString),
+      contractValueVnd: requiredField(map, path, 'contract_value_vnd', asString),
+      activeValueVnd: requiredField(map, path, 'active_value_vnd', asString),
+      paidVnd: requiredField(map, path, 'paid_vnd', asString),
+      certificationExpiresOn: optionalField(map, path, 'certification_expires_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'tenant_id', 'snapshot_id', 'period_id', 'revision', 'cutoff_date', 'contract_id', 'contractor_id', 'is_lead', 'share_pct', 'project_id', 'unit_id', 'contract_status', 'contract_type', 'contract_value_vnd', 'active_value_vnd', 'paid_vnd', 'certification_expires_on'}, strict: false),
+    );
+  }
+
+  final String tenantId;
+  final String snapshotId;
+  final String periodId;
+  final int revision;
+  final String cutoffDate;
+  final String contractId;
+  final String contractorId;
+  final bool isLead;
+  final String sharePct;
+  final String projectId;
+  final String unitId;
+  final String contractStatus;
+  final String contractType;
+  final String contractValueVnd;
+  final String activeValueVnd;
+  final String paidVnd;
+  final String? certificationExpiresOn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'tenant_id': tenantId,
+        'snapshot_id': snapshotId,
+        'period_id': periodId,
+        'revision': revision,
+        'cutoff_date': cutoffDate,
+        'contract_id': contractId,
+        'contractor_id': contractorId,
+        'is_lead': isLead,
+        'share_pct': sharePct,
+        'project_id': projectId,
+        'unit_id': unitId,
+        'contract_status': contractStatus,
+        'contract_type': contractType,
+        'contract_value_vnd': contractValueVnd,
+        'active_value_vnd': activeValueVnd,
+        'paid_vnd': paidVnd,
+        if (certificationExpiresOn != null) 'certification_expires_on': certificationExpiresOn,
+        ...extra,
+      };
+}
+
+final class OpenContractPageResponse implements ResponseModel {
+  const OpenContractPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenContractPageResponse.fromJson(Object? json, [String path = 'OpenContractPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenContractPageResponse(
+      items: requiredField(map, path, 'items', asList(OpenContractLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<OpenContractLineResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class OpenDatasetEntryResponse implements ResponseModel {
+  const OpenDatasetEntryResponse({
+    required this.datasetCode,
+    required this.scope,
+    required this.grain,
+    required this.columns,
+    required this.open,
+    required this.reason,
+    required this.certificationExpiresOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenDatasetEntryResponse.fromJson(Object? json, [String path = 'OpenDatasetEntryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenDatasetEntryResponse(
+      datasetCode: requiredField(map, path, 'dataset_code', asString),
+      scope: requiredField(map, path, 'scope', asString),
+      grain: requiredField(map, path, 'grain', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      open: requiredField(map, path, 'open', asBool),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      certificationExpiresOn: requiredField(map, path, 'certification_expires_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'dataset_code', 'scope', 'grain', 'columns', 'open', 'reason', 'certification_expires_on'}, strict: true),
+    );
+  }
+
+  final String datasetCode;
+  final String scope;
+  final String grain;
+  final List<String> columns;
+  final bool open;
+  final String? reason;
+  final String? certificationExpiresOn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'dataset_code': datasetCode,
+        'scope': scope,
+        'grain': grain,
+        'columns': columns,
+        'open': open,
+        'reason': reason,
+        'certification_expires_on': certificationExpiresOn,
+        ...extra,
+      };
+}
+
+final class OpenDatasetListResponse implements ResponseModel {
+  const OpenDatasetListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenDatasetListResponse.fromJson(Object? json, [String path = 'OpenDatasetListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenDatasetListResponse(
+      items: requiredField(map, path, 'items', asList(OpenDatasetEntryResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<OpenDatasetEntryResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class OpenDisbursementLineResponse implements ResponseModel {
+  const OpenDisbursementLineResponse({
+    required this.tenantId,
+    required this.snapshotId,
+    required this.periodId,
+    required this.asOfDate,
+    required this.lineId,
+    required this.projectId,
+    required this.unitId,
+    required this.bucket,
+    required this.budgetLevel,
+    required this.planTotalVnd,
+    required this.treasuryCoverage,
+    this.fundSourceVersionId,
+    this.disbursedTreasuryVnd,
+    this.disbursedReportedVnd,
+    this.periodDeltaVnd,
+    this.rateTotalPct,
+    this.rateNullReason,
+    this.certificationExpiresOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenDisbursementLineResponse.fromJson(Object? json, [String path = 'OpenDisbursementLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenDisbursementLineResponse(
+      tenantId: requiredField(map, path, 'tenant_id', asString),
+      snapshotId: requiredField(map, path, 'snapshot_id', asString),
+      periodId: requiredField(map, path, 'period_id', asString),
+      asOfDate: requiredField(map, path, 'as_of_date', asString),
+      lineId: requiredField(map, path, 'line_id', asString),
+      projectId: requiredField(map, path, 'project_id', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      fundSourceVersionId: optionalField(map, path, 'fund_source_version_id', nullable(asString)),
+      bucket: requiredField(map, path, 'bucket', asString),
+      budgetLevel: requiredField(map, path, 'budget_level', asString),
+      planTotalVnd: requiredField(map, path, 'plan_total_vnd', asString),
+      disbursedTreasuryVnd: optionalField(map, path, 'disbursed_treasury_vnd', nullable(asString)),
+      disbursedReportedVnd: optionalField(map, path, 'disbursed_reported_vnd', nullable(asString)),
+      periodDeltaVnd: optionalField(map, path, 'period_delta_vnd', nullable(asString)),
+      rateTotalPct: optionalField(map, path, 'rate_total_pct', nullable(asString)),
+      rateNullReason: optionalField(map, path, 'rate_null_reason', nullable(asString)),
+      treasuryCoverage: requiredField(map, path, 'treasury_coverage', asString),
+      certificationExpiresOn: optionalField(map, path, 'certification_expires_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'tenant_id', 'snapshot_id', 'period_id', 'as_of_date', 'line_id', 'project_id', 'unit_id', 'fund_source_version_id', 'bucket', 'budget_level', 'plan_total_vnd', 'disbursed_treasury_vnd', 'disbursed_reported_vnd', 'period_delta_vnd', 'rate_total_pct', 'rate_null_reason', 'treasury_coverage', 'certification_expires_on'}, strict: false),
+    );
+  }
+
+  final String tenantId;
+  final String snapshotId;
+  final String periodId;
+  final String asOfDate;
+  final String lineId;
+  final String projectId;
+  final String unitId;
+  final String? fundSourceVersionId;
+  final String bucket;
+  final String budgetLevel;
+  final String planTotalVnd;
+  final String? disbursedTreasuryVnd;
+  final String? disbursedReportedVnd;
+  final String? periodDeltaVnd;
+  final String? rateTotalPct;
+  final String? rateNullReason;
+  final String treasuryCoverage;
+  final String? certificationExpiresOn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'tenant_id': tenantId,
+        'snapshot_id': snapshotId,
+        'period_id': periodId,
+        'as_of_date': asOfDate,
+        'line_id': lineId,
+        'project_id': projectId,
+        'unit_id': unitId,
+        if (fundSourceVersionId != null) 'fund_source_version_id': fundSourceVersionId,
+        'bucket': bucket,
+        'budget_level': budgetLevel,
+        'plan_total_vnd': planTotalVnd,
+        if (disbursedTreasuryVnd != null) 'disbursed_treasury_vnd': disbursedTreasuryVnd,
+        if (disbursedReportedVnd != null) 'disbursed_reported_vnd': disbursedReportedVnd,
+        if (periodDeltaVnd != null) 'period_delta_vnd': periodDeltaVnd,
+        if (rateTotalPct != null) 'rate_total_pct': rateTotalPct,
+        if (rateNullReason != null) 'rate_null_reason': rateNullReason,
+        'treasury_coverage': treasuryCoverage,
+        if (certificationExpiresOn != null) 'certification_expires_on': certificationExpiresOn,
+        ...extra,
+      };
+}
+
+final class OpenDisbursementPageResponse implements ResponseModel {
+  const OpenDisbursementPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenDisbursementPageResponse.fromJson(Object? json, [String path = 'OpenDisbursementPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenDisbursementPageResponse(
+      items: requiredField(map, path, 'items', asList(OpenDisbursementLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<OpenDisbursementLineResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class OpenExternalCodeResponse implements ResponseModel {
+  const OpenExternalCodeResponse({
+    required this.sourceSystem,
+    required this.externalType,
+    required this.externalCode,
+    required this.validFrom,
+    required this.validUntil,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenExternalCodeResponse.fromJson(Object? json, [String path = 'OpenExternalCodeResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenExternalCodeResponse(
+      sourceSystem: requiredField(map, path, 'source_system', asString),
+      externalType: requiredField(map, path, 'external_type', asString),
+      externalCode: requiredField(map, path, 'external_code', asString),
+      validFrom: requiredField(map, path, 'valid_from', asString),
+      validUntil: requiredField(map, path, 'valid_until', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'source_system', 'external_type', 'external_code', 'valid_from', 'valid_until'}, strict: true),
+    );
+  }
+
+  final String sourceSystem;
+  final String externalType;
+  final String externalCode;
+  final String validFrom;
+  final String? validUntil;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source_system': sourceSystem,
+        'external_type': externalType,
+        'external_code': externalCode,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        ...extra,
+      };
+}
+
+final class OpenProjectCodePageResponse implements ResponseModel {
+  const OpenProjectCodePageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenProjectCodePageResponse.fromJson(Object? json, [String path = 'OpenProjectCodePageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenProjectCodePageResponse(
+      items: requiredField(map, path, 'items', asList(OpenProjectCodeResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<OpenProjectCodeResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class OpenProjectCodeResponse implements ResponseModel {
+  const OpenProjectCodeResponse({
+    required this.id,
+    required this.projectCode,
+    required this.sourceSystem,
+    required this.externalType,
+    required this.externalCode,
+    required this.validFrom,
+    required this.validUntil,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenProjectCodeResponse.fromJson(Object? json, [String path = 'OpenProjectCodeResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenProjectCodeResponse(
+      id: requiredField(map, path, 'id', asString),
+      projectCode: requiredField(map, path, 'project_code', asString),
+      sourceSystem: requiredField(map, path, 'source_system', asString),
+      externalType: requiredField(map, path, 'external_type', asString),
+      externalCode: requiredField(map, path, 'external_code', asString),
+      validFrom: requiredField(map, path, 'valid_from', asString),
+      validUntil: requiredField(map, path, 'valid_until', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'project_code', 'source_system', 'external_type', 'external_code', 'valid_from', 'valid_until'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String projectCode;
+  final String sourceSystem;
+  final String externalType;
+  final String externalCode;
+  final String validFrom;
+  final String? validUntil;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project_code': projectCode,
+        'source_system': sourceSystem,
+        'external_type': externalType,
+        'external_code': externalCode,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        ...extra,
+      };
+}
+
+final class OpenProjectPageResponse implements ResponseModel {
+  const OpenProjectPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenProjectPageResponse.fromJson(Object? json, [String path = 'OpenProjectPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenProjectPageResponse(
+      items: requiredField(map, path, 'items', asList(OpenProjectResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<OpenProjectResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class OpenProjectResponse implements ResponseModel {
+  const OpenProjectResponse({
+    required this.id,
+    required this.code,
+    required this.name,
+    required this.status,
+    required this.classification,
+    required this.totalInvestmentVnd,
+    required this.nationalProjectCode,
+    required this.startYear,
+    required this.endYear,
+    required this.ownerUnitCode,
+    required this.externalCodes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenProjectResponse.fromJson(Object? json, [String path = 'OpenProjectResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenProjectResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      status: requiredField(map, path, 'status', asString),
+      classification: requiredField(map, path, 'classification', asString),
+      totalInvestmentVnd: requiredField(map, path, 'total_investment_vnd', asString),
+      nationalProjectCode: requiredField(map, path, 'national_project_code', nullable(asString)),
+      startYear: requiredField(map, path, 'start_year', nullable(asInt)),
+      endYear: requiredField(map, path, 'end_year', nullable(asInt)),
+      ownerUnitCode: requiredField(map, path, 'owner_unit_code', nullable(asString)),
+      externalCodes: requiredField(map, path, 'external_codes', asList(OpenExternalCodeResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'status', 'classification', 'total_investment_vnd', 'national_project_code', 'start_year', 'end_year', 'owner_unit_code', 'external_codes'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+  final String status;
+  final String classification;
+  final String totalInvestmentVnd;
+  final String? nationalProjectCode;
+  final int? startYear;
+  final int? endYear;
+  final String? ownerUnitCode;
+  final List<OpenExternalCodeResponse> externalCodes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        'status': status,
+        'classification': classification,
+        'total_investment_vnd': totalInvestmentVnd,
+        'national_project_code': nationalProjectCode,
+        'start_year': startYear,
+        'end_year': endYear,
+        'owner_unit_code': ownerUnitCode,
+        'external_codes': externalCodes.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class OpenScopeInfoResponse implements ResponseModel {
+  const OpenScopeInfoResponse({
+    required this.code,
+    required this.datasetCode,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenScopeInfoResponse.fromJson(Object? json, [String path = 'OpenScopeInfoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenScopeInfoResponse(
+      code: requiredField(map, path, 'code', asString),
+      datasetCode: requiredField(map, path, 'dataset_code', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'dataset_code'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String? datasetCode;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'dataset_code': datasetCode,
+        ...extra,
+      };
+}
+
+final class OpenTokenResponseResponse implements ResponseModel {
+  const OpenTokenResponseResponse({
+    required this.accessToken,
+    required this.tokenType,
+    required this.expiresIn,
+    required this.scope,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory OpenTokenResponseResponse.fromJson(Object? json, [String path = 'OpenTokenResponseResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return OpenTokenResponseResponse(
+      accessToken: requiredField(map, path, 'access_token', asString),
+      tokenType: requiredField(map, path, 'token_type', asString),
+      expiresIn: requiredField(map, path, 'expires_in', asInt),
+      scope: requiredField(map, path, 'scope', asString),
+      extra: unknownFields(map, path, const <String>{'access_token', 'token_type', 'expires_in', 'scope'}, strict: true),
+    );
+  }
+
+  final String accessToken;
+  final String tokenType;
+  final int expiresIn;
+  final String scope;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'access_token': accessToken,
+        'token_type': tokenType,
+        'expires_in': expiresIn,
+        'scope': scope,
         ...extra,
       };
 }
@@ -41409,6 +50653,856 @@ final class PrjTransferImpactResponseToUnit implements ResponseModel {
       };
 }
 
+final class ProjectCodeActionsResponse implements ResponseModel {
+  const ProjectCodeActionsResponse({
+    required this.decide,
+    required this.retire,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectCodeActionsResponse.fromJson(Object? json, [String path = 'ProjectCodeActionsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectCodeActionsResponse(
+      decide: requiredField(map, path, 'decide', asBool),
+      retire: requiredField(map, path, 'retire', asBool),
+      extra: unknownFields(map, path, const <String>{'decide', 'retire'}, strict: true),
+    );
+  }
+
+  final bool decide;
+  final bool retire;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decide': decide,
+        'retire': retire,
+        ...extra,
+      };
+}
+
+final class ProjectCodeCountsResponse implements ResponseModel {
+  const ProjectCodeCountsResponse({
+    required this.pROPOSED,
+    required this.aCTIVE,
+    required this.rEJECTED,
+    required this.rETIRED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectCodeCountsResponse.fromJson(Object? json, [String path = 'ProjectCodeCountsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectCodeCountsResponse(
+      pROPOSED: requiredField(map, path, 'PROPOSED', asInt),
+      aCTIVE: requiredField(map, path, 'ACTIVE', asInt),
+      rEJECTED: requiredField(map, path, 'REJECTED', asInt),
+      rETIRED: requiredField(map, path, 'RETIRED', asInt),
+      extra: unknownFields(map, path, const <String>{'PROPOSED', 'ACTIVE', 'REJECTED', 'RETIRED'}, strict: true),
+    );
+  }
+
+  final int pROPOSED;
+  final int aCTIVE;
+  final int rEJECTED;
+  final int rETIRED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'PROPOSED': pROPOSED,
+        'ACTIVE': aCTIVE,
+        'REJECTED': rEJECTED,
+        'RETIRED': rETIRED,
+        ...extra,
+      };
+}
+
+final class ProjectCodePageResponse implements ResponseModel {
+  const ProjectCodePageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.systems,
+    required this.canPropose,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectCodePageResponse.fromJson(Object? json, [String path = 'ProjectCodePageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectCodePageResponse(
+      items: requiredField(map, path, 'items', asList(ProjectCodeResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', ProjectCodeCountsResponse.fromJson),
+      systems: requiredField(map, path, 'systems', asList(ProjectCodeSystemResponse.fromJson)),
+      canPropose: requiredField(map, path, 'can_propose', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'systems', 'can_propose', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<ProjectCodeResponse> items;
+  final String? nextCursor;
+  final ProjectCodeCountsResponse counts;
+  final List<ProjectCodeSystemResponse> systems;
+  final bool canPropose;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'systems': systems.map((e0) => e0.toJson()).toList(),
+        'can_propose': canPropose,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ProjectCodeResponse implements ResponseModel {
+  const ProjectCodeResponse({
+    required this.id,
+    required this.projectId,
+    required this.projectCode,
+    required this.projectName,
+    required this.sourceSystem,
+    required this.externalCode,
+    required this.validFrom,
+    required this.validUntil,
+    required this.status,
+    required this.proposedByName,
+    required this.proposalReason,
+    required this.approvedByName,
+    required this.approvedAt,
+    required this.decisionReason,
+    required this.retiredByName,
+    required this.retiredAt,
+    required this.retireReason,
+    required this.version,
+    required this.createdAt,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectCodeResponse.fromJson(Object? json, [String path = 'ProjectCodeResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectCodeResponse(
+      id: requiredField(map, path, 'id', asString),
+      projectId: requiredField(map, path, 'project_id', asString),
+      projectCode: requiredField(map, path, 'project_code', asString),
+      projectName: requiredField(map, path, 'project_name', asString),
+      sourceSystem: requiredField(map, path, 'source_system', asString),
+      externalCode: requiredField(map, path, 'external_code', asString),
+      validFrom: requiredField(map, path, 'valid_from', asString),
+      validUntil: requiredField(map, path, 'valid_until', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      proposedByName: requiredField(map, path, 'proposed_by_name', nullable(asString)),
+      proposalReason: requiredField(map, path, 'proposal_reason', nullable(asString)),
+      approvedByName: requiredField(map, path, 'approved_by_name', nullable(asString)),
+      approvedAt: requiredField(map, path, 'approved_at', nullable(asString)),
+      decisionReason: requiredField(map, path, 'decision_reason', nullable(asString)),
+      retiredByName: requiredField(map, path, 'retired_by_name', nullable(asString)),
+      retiredAt: requiredField(map, path, 'retired_at', nullable(asString)),
+      retireReason: requiredField(map, path, 'retire_reason', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      actions: requiredField(map, path, 'actions', ProjectCodeActionsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'project_code', 'project_name', 'source_system', 'external_code', 'valid_from', 'valid_until', 'status', 'proposed_by_name', 'proposal_reason', 'approved_by_name', 'approved_at', 'decision_reason', 'retired_by_name', 'retired_at', 'retire_reason', 'version', 'created_at', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String projectId;
+  final String projectCode;
+  final String projectName;
+  final String sourceSystem;
+  final String externalCode;
+  final String validFrom;
+  final String? validUntil;
+  final String status;
+  final String? proposedByName;
+  final String? proposalReason;
+  final String? approvedByName;
+  final String? approvedAt;
+  final String? decisionReason;
+  final String? retiredByName;
+  final String? retiredAt;
+  final String? retireReason;
+  final int version;
+  final String createdAt;
+  final ProjectCodeActionsResponse actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project_id': projectId,
+        'project_code': projectCode,
+        'project_name': projectName,
+        'source_system': sourceSystem,
+        'external_code': externalCode,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        'status': status,
+        'proposed_by_name': proposedByName,
+        'proposal_reason': proposalReason,
+        'approved_by_name': approvedByName,
+        'approved_at': approvedAt,
+        'decision_reason': decisionReason,
+        'retired_by_name': retiredByName,
+        'retired_at': retiredAt,
+        'retire_reason': retireReason,
+        'version': version,
+        'created_at': createdAt,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class ProjectCodeSystemResponse implements ResponseModel {
+  const ProjectCodeSystemResponse({
+    required this.code,
+    required this.name,
+    required this.codePattern,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectCodeSystemResponse.fromJson(Object? json, [String path = 'ProjectCodeSystemResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectCodeSystemResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      codePattern: requiredField(map, path, 'code_pattern', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'code_pattern'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String? codePattern;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'code_pattern': codePattern,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentDetailResponse implements ResponseModel {
+  const ProjectDocumentDetailResponse({
+    required this.document,
+    required this.versions,
+    required this.rounds,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentDetailResponse.fromJson(Object? json, [String path = 'ProjectDocumentDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentDetailResponse(
+      document: requiredField(map, path, 'document', ProjectDocumentSummaryResponse.fromJson),
+      versions: requiredField(map, path, 'versions', asList(ProjectDocumentVersionViewResponse.fromJson)),
+      rounds: requiredField(map, path, 'rounds', asList(DocumentReviewRoundResponse.fromJson)),
+      actions: requiredField(map, path, 'actions', ProjectDocumentDetailResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'document', 'versions', 'rounds', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final ProjectDocumentSummaryResponse document;
+  final List<ProjectDocumentVersionViewResponse> versions;
+  final List<DocumentReviewRoundResponse> rounds;
+  final ProjectDocumentDetailResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document': document.toJson(),
+        'versions': versions.map((e0) => e0.toJson()).toList(),
+        'rounds': rounds.map((e0) => e0.toJson()).toList(),
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentDetailResponseActions implements ResponseModel {
+  const ProjectDocumentDetailResponseActions({
+    required this.update,
+    required this.addVersion,
+    required this.archive,
+    required this.restore,
+    required this.comment,
+    required this.submitForReview,
+    required this.withdrawReview,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentDetailResponseActions.fromJson(Object? json, [String path = 'ProjectDocumentDetailResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentDetailResponseActions(
+      update: requiredField(map, path, 'update', asBool),
+      addVersion: requiredField(map, path, 'add_version', asBool),
+      archive: requiredField(map, path, 'archive', asBool),
+      restore: requiredField(map, path, 'restore', asBool),
+      comment: requiredField(map, path, 'comment', asBool),
+      submitForReview: requiredField(map, path, 'submit_for_review', asBool),
+      withdrawReview: requiredField(map, path, 'withdraw_review', asBool),
+      extra: unknownFields(map, path, const <String>{'update', 'add_version', 'archive', 'restore', 'comment', 'submit_for_review', 'withdraw_review'}, strict: true),
+    );
+  }
+
+  final bool update;
+  final bool addVersion;
+  final bool archive;
+  final bool restore;
+  final bool comment;
+  final bool submitForReview;
+  final bool withdrawReview;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'update': update,
+        'add_version': addVersion,
+        'archive': archive,
+        'restore': restore,
+        'comment': comment,
+        'submit_for_review': submitForReview,
+        'withdraw_review': withdrawReview,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentFileUploadResponse implements ResponseModel {
+  const ProjectDocumentFileUploadResponse({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.mime,
+    required this.pageCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentFileUploadResponse.fromJson(Object? json, [String path = 'ProjectDocumentFileUploadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentFileUploadResponse(
+      fileObjectKey: requiredField(map, path, 'file_object_key', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      mime: requiredField(map, path, 'mime', asString),
+      pageCount: requiredField(map, path, 'page_count', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'file_object_key', 'file_sha256', 'size_bytes', 'format', 'mime', 'page_count'}, strict: true),
+    );
+  }
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final String mime;
+  final int? pageCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'mime': mime,
+        'page_count': pageCount,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentPageResponse implements ResponseModel {
+  const ProjectDocumentPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.classes,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentPageResponse.fromJson(Object? json, [String path = 'ProjectDocumentPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentPageResponse(
+      items: requiredField(map, path, 'items', asList(ProjectDocumentSummaryResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      classes: requiredField(map, path, 'classes', asList(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'classes', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<ProjectDocumentSummaryResponse> items;
+  final String? nextCursor;
+  final List<String> classes;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'classes': classes,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentSummaryResponse implements ResponseModel {
+  const ProjectDocumentSummaryResponse({
+    required this.id,
+    required this.project,
+    required this.contract,
+    required this.package,
+    required this.docClass,
+    required this.title,
+    required this.reference,
+    required this.securityClass,
+    required this.effectiveFrom,
+    required this.effectiveTo,
+    required this.effectiveState,
+    required this.note,
+    required this.status,
+    required this.archiveReason,
+    required this.currentVersion,
+    required this.approvedVersion,
+    required this.versionCount,
+    required this.latestReview,
+    required this.version,
+    required this.createdAt,
+    required this.createdBy,
+    required this.updatedAt,
+    required this.updatedBy,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentSummaryResponse.fromJson(Object? json, [String path = 'ProjectDocumentSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentSummaryResponse(
+      id: requiredField(map, path, 'id', asString),
+      project: requiredField(map, path, 'project', DocRepoProjectRefResponse.fromJson),
+      contract: requiredField(map, path, 'contract', nullable(DocRepoLinkRefResponse.fromJson)),
+      package: requiredField(map, path, 'package', nullable(DocRepoLinkRefResponse.fromJson)),
+      docClass: requiredField(map, path, 'doc_class', asString),
+      title: requiredField(map, path, 'title', asString),
+      reference: requiredField(map, path, 'reference', nullable(asString)),
+      securityClass: requiredField(map, path, 'security_class', asString),
+      effectiveFrom: requiredField(map, path, 'effective_from', nullable(asString)),
+      effectiveTo: requiredField(map, path, 'effective_to', nullable(asString)),
+      effectiveState: requiredField(map, path, 'effective_state', asString),
+      note: requiredField(map, path, 'note', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      archiveReason: requiredField(map, path, 'archive_reason', nullable(asString)),
+      currentVersion: requiredField(map, path, 'current_version', nullable(ProjectDocumentSummaryResponseCurrentVersion.fromJson)),
+      approvedVersion: requiredField(map, path, 'approved_version', nullable(ProjectDocumentSummaryResponseApprovedVersion.fromJson)),
+      versionCount: requiredField(map, path, 'version_count', asInt),
+      latestReview: requiredField(map, path, 'latest_review', nullable(ProjectDocumentSummaryResponseLatestReview.fromJson)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      updatedAt: requiredField(map, path, 'updated_at', asString),
+      updatedBy: requiredField(map, path, 'updated_by', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'project', 'contract', 'package', 'doc_class', 'title', 'reference', 'security_class', 'effective_from', 'effective_to', 'effective_state', 'note', 'status', 'archive_reason', 'current_version', 'approved_version', 'version_count', 'latest_review', 'version', 'created_at', 'created_by', 'updated_at', 'updated_by'}, strict: true),
+    );
+  }
+
+  final String id;
+  final DocRepoProjectRefResponse project;
+  final DocRepoLinkRefResponse? contract;
+  final DocRepoLinkRefResponse? package;
+  final String docClass;
+  final String title;
+  final String? reference;
+  final String securityClass;
+  final String? effectiveFrom;
+  final String? effectiveTo;
+  final String effectiveState;
+  final String? note;
+  final String status;
+  final String? archiveReason;
+  final ProjectDocumentSummaryResponseCurrentVersion? currentVersion;
+  final ProjectDocumentSummaryResponseApprovedVersion? approvedVersion;
+  final int versionCount;
+  final ProjectDocumentSummaryResponseLatestReview? latestReview;
+  final int version;
+  final String createdAt;
+  final String createdBy;
+  final String updatedAt;
+  final String updatedBy;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'project': project.toJson(),
+        'contract': (contract == null ? null : contract!.toJson()),
+        'package': (package == null ? null : package!.toJson()),
+        'doc_class': docClass,
+        'title': title,
+        'reference': reference,
+        'security_class': securityClass,
+        'effective_from': effectiveFrom,
+        'effective_to': effectiveTo,
+        'effective_state': effectiveState,
+        'note': note,
+        'status': status,
+        'archive_reason': archiveReason,
+        'current_version': (currentVersion == null ? null : currentVersion!.toJson()),
+        'approved_version': (approvedVersion == null ? null : approvedVersion!.toJson()),
+        'version_count': versionCount,
+        'latest_review': (latestReview == null ? null : latestReview!.toJson()),
+        'version': version,
+        'created_at': createdAt,
+        'created_by': createdBy,
+        'updated_at': updatedAt,
+        'updated_by': updatedBy,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentSummaryResponseApprovedVersion implements ResponseModel {
+  const ProjectDocumentSummaryResponseApprovedVersion({
+    required this.id,
+    required this.versionNo,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentSummaryResponseApprovedVersion.fromJson(Object? json, [String path = 'ProjectDocumentSummaryResponseApprovedVersion']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentSummaryResponseApprovedVersion(
+      id: requiredField(map, path, 'id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'version_no'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int versionNo;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version_no': versionNo,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentSummaryResponseCurrentVersion implements ResponseModel {
+  const ProjectDocumentSummaryResponseCurrentVersion({
+    required this.id,
+    required this.versionNo,
+    required this.status,
+    required this.format,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentSummaryResponseCurrentVersion.fromJson(Object? json, [String path = 'ProjectDocumentSummaryResponseCurrentVersion']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentSummaryResponseCurrentVersion(
+      id: requiredField(map, path, 'id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      status: requiredField(map, path, 'status', asString),
+      format: requiredField(map, path, 'format', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'version_no', 'status', 'format'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int versionNo;
+  final String status;
+  final String format;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'version_no': versionNo,
+        'status': status,
+        'format': format,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentSummaryResponseLatestReview implements ResponseModel {
+  const ProjectDocumentSummaryResponseLatestReview({
+    required this.id,
+    required this.round,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentSummaryResponseLatestReview.fromJson(Object? json, [String path = 'ProjectDocumentSummaryResponseLatestReview']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentSummaryResponseLatestReview(
+      id: requiredField(map, path, 'id', asString),
+      round: requiredField(map, path, 'round', asInt),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'round', 'status'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int round;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'round': round,
+        'status': status,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentVersionDetailResponse implements ResponseModel {
+  const ProjectDocumentVersionDetailResponse({
+    required this.version,
+    required this.document,
+    required this.outline,
+    required this.citationExample,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentVersionDetailResponse.fromJson(Object? json, [String path = 'ProjectDocumentVersionDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentVersionDetailResponse(
+      version: requiredField(map, path, 'version', ProjectDocumentVersionViewResponse.fromJson),
+      document: requiredField(map, path, 'document', ProjectDocumentSummaryResponse.fromJson),
+      outline: requiredField(map, path, 'outline', ProjectDocumentVersionDetailResponseOutline.fromJson),
+      citationExample: requiredField(map, path, 'citation_example', nullable(asString)),
+      actions: requiredField(map, path, 'actions', ProjectDocumentVersionDetailResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'version', 'document', 'outline', 'citation_example', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final ProjectDocumentVersionViewResponse version;
+  final ProjectDocumentSummaryResponse document;
+  final ProjectDocumentVersionDetailResponseOutline outline;
+  final String? citationExample;
+  final ProjectDocumentVersionDetailResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'version': version.toJson(),
+        'document': document.toJson(),
+        'outline': outline.toJson(),
+        'citation_example': citationExample,
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentVersionDetailResponseActions implements ResponseModel {
+  const ProjectDocumentVersionDetailResponseActions({
+    required this.comment,
+    required this.reExtract,
+    required this.download,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentVersionDetailResponseActions.fromJson(Object? json, [String path = 'ProjectDocumentVersionDetailResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentVersionDetailResponseActions(
+      comment: requiredField(map, path, 'comment', asBool),
+      reExtract: requiredField(map, path, 're_extract', asBool),
+      download: requiredField(map, path, 'download', asBool),
+      extra: unknownFields(map, path, const <String>{'comment', 're_extract', 'download'}, strict: true),
+    );
+  }
+
+  final bool comment;
+  final bool reExtract;
+  final bool download;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'comment': comment,
+        're_extract': reExtract,
+        'download': download,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentVersionDetailResponseOutline implements ResponseModel {
+  const ProjectDocumentVersionDetailResponseOutline({
+    required this.pages,
+    required this.sheets,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentVersionDetailResponseOutline.fromJson(Object? json, [String path = 'ProjectDocumentVersionDetailResponseOutline']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentVersionDetailResponseOutline(
+      pages: requiredField(map, path, 'pages', asList(asInt)),
+      sheets: requiredField(map, path, 'sheets', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'pages', 'sheets'}, strict: true),
+    );
+  }
+
+  final List<int> pages;
+  final List<String> sheets;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'pages': pages,
+        'sheets': sheets,
+        ...extra,
+      };
+}
+
+final class ProjectDocumentVersionViewResponse implements ResponseModel {
+  const ProjectDocumentVersionViewResponse({
+    required this.id,
+    required this.documentId,
+    required this.versionNo,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.pageCount,
+    required this.extractionStatus,
+    required this.extractionEngine,
+    required this.unitCount,
+    required this.truncatedUnits,
+    required this.status,
+    required this.changeNote,
+    required this.locked,
+    required this.lockedAt,
+    required this.lockedByName,
+    required this.openComments,
+    required this.createdAt,
+    required this.createdByName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectDocumentVersionViewResponse.fromJson(Object? json, [String path = 'ProjectDocumentVersionViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectDocumentVersionViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      documentId: requiredField(map, path, 'document_id', asString),
+      versionNo: requiredField(map, path, 'version_no', asInt),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      pageCount: requiredField(map, path, 'page_count', nullable(asInt)),
+      extractionStatus: requiredField(map, path, 'extraction_status', asString),
+      extractionEngine: requiredField(map, path, 'extraction_engine', nullable(asString)),
+      unitCount: requiredField(map, path, 'unit_count', asInt),
+      truncatedUnits: requiredField(map, path, 'truncated_units', asInt),
+      status: requiredField(map, path, 'status', asString),
+      changeNote: requiredField(map, path, 'change_note', nullable(asString)),
+      locked: requiredField(map, path, 'locked', asBool),
+      lockedAt: requiredField(map, path, 'locked_at', nullable(asString)),
+      lockedByName: requiredField(map, path, 'locked_by_name', nullable(asString)),
+      openComments: requiredField(map, path, 'open_comments', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      createdByName: requiredField(map, path, 'created_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'document_id', 'version_no', 'file_sha256', 'size_bytes', 'format', 'page_count', 'extraction_status', 'extraction_engine', 'unit_count', 'truncated_units', 'status', 'change_note', 'locked', 'locked_at', 'locked_by_name', 'open_comments', 'created_at', 'created_by_name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String documentId;
+  final int versionNo;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final int? pageCount;
+  final String extractionStatus;
+  final String? extractionEngine;
+  final int unitCount;
+  final int truncatedUnits;
+  final String status;
+  final String? changeNote;
+  final bool locked;
+  final String? lockedAt;
+  final String? lockedByName;
+  final int openComments;
+  final String createdAt;
+  final String? createdByName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'document_id': documentId,
+        'version_no': versionNo,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'page_count': pageCount,
+        'extraction_status': extractionStatus,
+        'extraction_engine': extractionEngine,
+        'unit_count': unitCount,
+        'truncated_units': truncatedUnits,
+        'status': status,
+        'change_note': changeNote,
+        'locked': locked,
+        'locked_at': lockedAt,
+        'locked_by_name': lockedByName,
+        'open_comments': openComments,
+        'created_at': createdAt,
+        'created_by_name': createdByName,
+        ...extra,
+      };
+}
+
 final class QmsAcceptanceLineResponse implements ResponseModel {
   const QmsAcceptanceLineResponse({
     required this.id,
@@ -43437,6 +53531,118 @@ final class SessionContextResponse implements ResponseModel {
         if (tokenType != null) 'token_type': tokenType,
         if (expiresIn != null) 'expires_in': expiresIn,
         if (mode != null) 'mode': mode,
+        ...extra,
+      };
+}
+
+final class SourceSystemListResponse implements ResponseModel {
+  const SourceSystemListResponse({
+    required this.items,
+    required this.kinds,
+    required this.canRegister,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SourceSystemListResponse.fromJson(Object? json, [String path = 'SourceSystemListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SourceSystemListResponse(
+      items: requiredField(map, path, 'items', asList(SourceSystemResponse.fromJson)),
+      kinds: requiredField(map, path, 'kinds', asList(asString)),
+      canRegister: requiredField(map, path, 'can_register', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'kinds', 'can_register', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<SourceSystemResponse> items;
+  final List<String> kinds;
+  final bool canRegister;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'kinds': kinds,
+        'can_register': canRegister,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class SourceSystemResponse implements ResponseModel {
+  const SourceSystemResponse({
+    required this.id,
+    required this.code,
+    required this.name,
+    required this.kind,
+    required this.codePattern,
+    required this.status,
+    required this.retireReason,
+    required this.retiredAt,
+    required this.activeCodes,
+    required this.proposedCodes,
+    required this.version,
+    required this.createdAt,
+    required this.canRetire,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory SourceSystemResponse.fromJson(Object? json, [String path = 'SourceSystemResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return SourceSystemResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      codePattern: requiredField(map, path, 'code_pattern', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      retireReason: requiredField(map, path, 'retire_reason', nullable(asString)),
+      retiredAt: requiredField(map, path, 'retired_at', nullable(asString)),
+      activeCodes: requiredField(map, path, 'active_codes', asInt),
+      proposedCodes: requiredField(map, path, 'proposed_codes', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      canRetire: requiredField(map, path, 'can_retire', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name', 'kind', 'code_pattern', 'status', 'retire_reason', 'retired_at', 'active_codes', 'proposed_codes', 'version', 'created_at', 'can_retire'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+  final String kind;
+  final String? codePattern;
+  final String status;
+  final String? retireReason;
+  final String? retiredAt;
+  final int activeCodes;
+  final int proposedCodes;
+  final int version;
+  final String createdAt;
+  final bool canRetire;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        'kind': kind,
+        'code_pattern': codePattern,
+        'status': status,
+        'retire_reason': retireReason,
+        'retired_at': retiredAt,
+        'active_codes': activeCodes,
+        'proposed_codes': proposedCodes,
+        'version': version,
+        'created_at': createdAt,
+        'can_retire': canRetire,
         ...extra,
       };
 }

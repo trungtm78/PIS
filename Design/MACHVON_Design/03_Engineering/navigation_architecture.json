@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 495,
-    "webCatalog": 495,
-    "webModules": 28,
+    "webRoutes": 513,
+    "webCatalog": 513,
+    "webModules": 33,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
-    "modulesTotal": 27
+    "modulesTotal": 34
   },
   "libraryGroups": [
     {
@@ -19,7 +19,8 @@
         "HOME",
         "DIR",
         "IAM",
-        "DOC"
+        "DOC",
+        "BAN"
       ]
     },
     {
@@ -48,7 +49,8 @@
         "BI",
         "MNE",
         "AUD",
-        "RPT"
+        "RPT",
+        "VND"
       ]
     },
     {
@@ -66,40 +68,11 @@
       "icon": "data",
       "modules": [
         "MDM",
-        "DGV"
-      ]
-    },
-    {
-      "id": "admin",
-      "name": "Quản trị",
-      "icon": "admin",
-      "modules": [
-        "ADM",
-        "LLM",
-        "SAS"
-      ]
-    },
-    {
-      "id": "insights",
-      "name": "Phân tích",
-      "icon": "insights",
-      "modules": [
-        "BID",
-        "BI",
-        "MNE",
-        "AUD",
-        "VND"
-      ]
-    },
-    {
-      "id": "insights",
-      "name": "Phân tích",
-      "icon": "insights",
-      "modules": [
-        "BID",
-        "BI",
-        "MNE",
-        "AUD"
+        "DGV",
+        "HUB",
+        "IND",
+        "HPM",
+        "EBS"
       ]
     },
     {
@@ -111,38 +84,6 @@
         "LLM",
         "SAS",
         "INT"
-      ]
-    },
-    {
-      "id": "data",
-      "name": "Dữ liệu",
-      "icon": "data",
-      "modules": [
-        "MDM",
-        "DGV",
-        "HUB"
-      ]
-    },
-    {
-      "id": "overview",
-      "name": "Điều hành",
-      "icon": "overview",
-      "modules": [
-        "HOME",
-        "DIR",
-        "IAM",
-        "DOC",
-        "BAN"
-      ]
-    },
-    {
-      "id": "data",
-      "name": "Dữ liệu",
-      "icon": "data",
-      "modules": [
-        "MDM",
-        "DGV",
-        "IND"
       ]
     }
   ],
@@ -677,7 +618,8 @@
             28,
             29,
             30,
-            31
+            31,
+            37
           ],
           "primary": [
             28
@@ -685,7 +627,8 @@
           "parents": {
             "29": 28,
             "30": 28,
-            "31": 28
+            "31": 28,
+            "37": 28
           }
         }
       ]
@@ -1223,13 +1166,19 @@
             22,
             23,
             24,
-            25
+            25,
+            26,
+            27,
+            28
           ],
           "primary": [
             19,
             23,
             24,
-            25
+            25,
+            26,
+            27,
+            28
           ],
           "parents": {
             "20": 19,
@@ -2147,6 +2096,43 @@
           "parents": {}
         }
       ]
+    },
+    "HPM": {
+      "name": "Đẩy báo cáo lên HPM",
+      "groups": [
+        {
+          "title": "Báo cáo gửi HPM",
+          "description": "Kết nối, nhật ký đẩy, biên nhận và đính chính kỳ đã được nhận",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1
+          }
+        }
+      ]
+    },
+    "EBS": {
+      "name": "Oracle EBS",
+      "groups": [
+        {
+          "title": "Dữ liệu từ Oracle EBS",
+          "description": "Kết nối, nhập tệp và đối chiếu theo mã dự án",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2655,7 +2641,9 @@
     "INT": "Mở dữ liệu đã chứng nhận cho máy và công cụ BI mà không có đường vòng qua ranh giới tổ chức.",
     "HUB": "Mọi kết nối dữ liệu với hệ thống bên ngoài trong một trung tâm: sức khỏe, giao thức, quy trình ETL, ánh xạ, sự cố và tác tử thu thập.",
     "BAN": "Tiến độ đầu tư công toàn tỉnh cho Trưởng ban, dự án cần quan tâm, hồ sơ họp, theo dõi chỉ đạo, cảnh báo và nhật ký xem.",
-    "IND": "Từ điển chỉ tiêu của doanh nghiệp, quy tắc kiểm số liệu ngay khi nhập và bảng ánh xạ nhập tệp Excel có phiên bản và người duyệt."
+    "IND": "Từ điển chỉ tiêu của doanh nghiệp, quy tắc kiểm số liệu ngay khi nhập và bảng ánh xạ nhập tệp Excel có phiên bản và người duyệt.",
+    "HPM": "Đẩy báo cáo đã phát hành lên HPM theo khóa chống trùng, biên nhận và đính chính kỳ đã được nhận.",
+    "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch."
   },
   "adminLibraryModules": [
     "IAM",
@@ -2664,7 +2652,9 @@
     "ADM",
     "LLM",
     "SAS",
-    "INT"
+    "INT",
+    "HPM",
+    "EBS"
   ],
   "fallback": {
     "rule": "Module without a hand-written entry: workspaceSeeds[module] if present, otherwise three task groups by screen kind (Tổng quan & theo dõi / Lập & xử lý / Kiểm soát & phê duyệt). Screen number not in any group: joins the group of the nearest lower (else higher) placed screen of the same module. Modules not listed in an area go to area \"Phân hệ mở rộng\". Ids without a catalog screen are dropped and reported.",
@@ -4310,16 +4300,6 @@
       "parent": "CTR-28"
     },
     {
-      "id": "CTR-32",
-      "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
-      "kind": "detail",
-      "area": "investment",
-      "module": "CTR",
-      "group": "Phân tích hợp đồng",
-      "role": "detail",
-      "parent": "CTR-28"
-    },
-    {
       "id": "ISS-01",
       "title": "Danh sách vướng mắc",
       "kind": "kanban",
@@ -5693,6 +5673,16 @@
       "id": "ADM-27",
       "title": "Phạm vi theo kỳ báo cáo",
       "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-28",
+      "title": "Vắng mặt, người thay và độ phủ người nhận cảnh báo",
+      "kind": "list",
       "area": "admin",
       "module": "ADM",
       "group": "Quy tắc quản trị",
@@ -7550,6 +7540,16 @@
       "parent": "CTR-35"
     },
     {
+      "id": "CTR-37",
+      "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
+      "kind": "detail",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Phân tích hợp đồng",
+      "role": "detail",
+      "parent": "CTR-28"
+    },
+    {
       "id": "NOT-18",
       "title": "Hồ sơ thông báo cảnh báo của tôi",
       "kind": "form",
@@ -7566,16 +7566,6 @@
       "area": "engagement",
       "module": "NOT",
       "group": "Theo dõi vận hành",
-      "role": "workspace",
-      "parent": null
-    },
-    {
-      "id": "ADM-25",
-      "title": "Vắng mặt, người thay và độ phủ người nhận cảnh báo",
-      "kind": "list",
-      "area": "admin",
-      "module": "ADM",
-      "group": "Quy tắc quản trị",
       "role": "workspace",
       "parent": null
     },
@@ -7898,6 +7888,86 @@
       "group": "Chỉ tiêu và nhập liệu",
       "role": "workspace",
       "parent": null
+    },
+    {
+      "id": "HPM-01",
+      "title": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận",
+      "kind": "table",
+      "area": "data",
+      "module": "HPM",
+      "group": "Báo cáo gửi HPM",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HPM-02",
+      "title": "Đính chính kỳ báo cáo đã được HPM nhận",
+      "kind": "table",
+      "area": "data",
+      "module": "HPM",
+      "group": "Báo cáo gửi HPM",
+      "role": "detail",
+      "parent": "HPM-01"
+    },
+    {
+      "id": "EBS-01",
+      "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",
+      "kind": "import",
+      "area": "data",
+      "module": "EBS",
+      "group": "Dữ liệu từ Oracle EBS",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "EBS-02",
+      "title": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch",
+      "kind": "reconcile",
+      "area": "data",
+      "module": "EBS",
+      "group": "Dữ liệu từ Oracle EBS",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DOC-24",
+      "title": "Kho hồ sơ dự án",
+      "kind": "table",
+      "area": "overview",
+      "module": "DOC",
+      "group": "Hồ sơ dự án",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DOC-25",
+      "title": "Hồ sơ và trình xem có dẫn nguồn",
+      "kind": "detail",
+      "area": "overview",
+      "module": "DOC",
+      "group": "Hồ sơ dự án",
+      "role": "detail",
+      "parent": "DOC-24"
+    },
+    {
+      "id": "DOC-26",
+      "title": "Bảng luồng duyệt hồ sơ",
+      "kind": "approval",
+      "area": "overview",
+      "module": "DOC",
+      "group": "Hồ sơ dự án",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DOC-27",
+      "title": "So sánh hai phiên bản hồ sơ",
+      "kind": "compare",
+      "area": "overview",
+      "module": "DOC",
+      "group": "Hồ sơ dự án",
+      "role": "detail",
+      "parent": "DOC-25"
     }
   ],
   "mobileRoutes": [

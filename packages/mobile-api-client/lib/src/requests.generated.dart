@@ -389,6 +389,53 @@ final class AlertCoverRevoke implements RequestModel {
       };
 }
 
+final class AlertFeedbackReview implements RequestModel {
+  const AlertFeedbackReview({
+    required this.move,
+    this.reviewNote,
+    this.proposalNote,
+    this.governanceRuleId,
+    this.duplicateOfId,
+  });
+
+  final String move;
+  final String? reviewNote;
+  final String? proposalNote;
+  final String? governanceRuleId;
+  final String? duplicateOfId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'move': move,
+        if (reviewNote != null) 'review_note': reviewNote,
+        if (proposalNote != null) 'proposal_note': proposalNote,
+        if (governanceRuleId != null) 'governance_rule_id': governanceRuleId,
+        if (duplicateOfId != null) 'duplicate_of_id': duplicateOfId,
+      };
+}
+
+final class AlertFeedbackSubmit implements RequestModel {
+  const AlertFeedbackSubmit({
+    required this.source,
+    required this.sourceId,
+    required this.reason,
+    this.note,
+  });
+
+  final String source;
+  final String sourceId;
+  final String reason;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'source_id': sourceId,
+        'reason': reason,
+        if (note != null) 'note': note,
+      };
+}
+
 final class AlertProfileInput implements RequestModel {
   const AlertProfileInput({
     required this.digestEnabled,
@@ -2005,6 +2052,54 @@ final class BiPublicationRequest implements RequestModel {
       };
 }
 
+final class BiReaderCreate implements RequestModel {
+  const BiReaderCreate({
+    required this.name,
+    this.tool,
+    this.connectionLimit,
+  });
+
+  final String name;
+  final String? tool;
+  final int? connectionLimit;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        if (tool != null) 'tool': tool,
+        if (connectionLimit != null) 'connection_limit': connectionLimit,
+      };
+}
+
+final class BiReaderDecision implements RequestModel {
+  const BiReaderDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class BiReaderRotate implements RequestModel {
+  const BiReaderRotate({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class BiScheduleCreate implements RequestModel {
   const BiScheduleCreate({
     required this.querySpec,
@@ -2668,6 +2763,113 @@ final class ChannelLimits implements RequestModel {
       };
 }
 
+final class CommitteeAlertAcknowledge implements RequestModel {
+  const CommitteeAlertAcknowledge({
+    required this.note,
+  });
+
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'note': note,
+      };
+}
+
+final class CommitteeAppoint implements RequestModel {
+  const CommitteeAppoint({
+    required this.committeeId,
+    required this.membershipId,
+    required this.committeeRole,
+    required this.validFrom,
+    this.agencyCode,
+    this.agencyName,
+    this.decisionRef,
+    this.validUntil,
+    this.mfaRequired,
+  });
+
+  final String committeeId;
+  final String membershipId;
+  final String committeeRole;
+  final String? agencyCode;
+  final String? agencyName;
+  final String? decisionRef;
+  final String validFrom;
+  final String? validUntil;
+  final bool? mfaRequired;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'committee_id': committeeId,
+        'membership_id': membershipId,
+        'committee_role': committeeRole,
+        if (agencyCode != null) 'agency_code': agencyCode,
+        if (agencyName != null) 'agency_name': agencyName,
+        if (decisionRef != null) 'decision_ref': decisionRef,
+        'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+        if (mfaRequired != null) 'mfa_required': mfaRequired,
+      };
+}
+
+final class CommitteeAttentionDecide implements RequestModel {
+  const CommitteeAttentionDecide({
+    required this.projectId,
+    required this.decision,
+    this.note,
+    this.deferUntil,
+    this.directiveId,
+  });
+
+  final String projectId;
+  final String decision;
+  final String? note;
+  final String? deferUntil;
+  final String? directiveId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'decision': decision,
+        if (note != null) 'note': note,
+        if (deferUntil != null) 'defer_until': deferUntil,
+        if (directiveId != null) 'directive_id': directiveId,
+      };
+}
+
+final class CommitteeMemberEnd implements RequestModel {
+  const CommitteeMemberEnd({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class CommitteeRegister implements RequestModel {
+  const CommitteeRegister({
+    required this.code,
+    required this.name,
+    this.legalBasis,
+  });
+
+  final String code;
+  final String name;
+  final String? legalBasis;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        if (legalBasis != null) 'legal_basis': legalBasis,
+      };
+}
+
 final class ConnectorCreate implements RequestModel {
   const ConnectorCreate({
     required this.connectorCode,
@@ -2916,6 +3118,38 @@ final class CtrActivateContract implements RequestModel {
         'evidence_ids': evidenceIds,
         'effective_from': effectiveFrom,
         if (note != null) 'note': note,
+      };
+}
+
+final class CtrAdoptContractRating implements RequestModel {
+  const CtrAdoptContractRating({
+    this.note,
+    this.overrides,
+  });
+
+  final String? note;
+  final Map<String, CtrAdoptContractRatingOverridesValue>? overrides;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+        if (overrides != null) 'overrides': overrides,
+      };
+}
+
+final class CtrAdoptContractRatingOverridesValue implements RequestModel {
+  const CtrAdoptContractRatingOverridesValue({
+    required this.score,
+    required this.reason,
+  });
+
+  final int score;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'score': score,
+        'reason': reason,
       };
 }
 
@@ -3688,6 +3922,22 @@ final class CtrMarkContractorExportSubmitted implements RequestModel {
       };
 }
 
+final class CtrNotifyContractRating implements RequestModel {
+  const CtrNotifyContractRating({
+    this.note,
+    this.letterDocumentVersionId,
+  });
+
+  final String? note;
+  final String? letterDocumentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+        if (letterDocumentVersionId != null) 'letter_document_version_id': letterDocumentVersionId,
+      };
+}
+
 final class CtrPromoteChangeRequest implements RequestModel {
   const CtrPromoteChangeRequest({
     required this.reason,
@@ -3698,6 +3948,25 @@ final class CtrPromoteChangeRequest implements RequestModel {
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'reason': reason,
+      };
+}
+
+final class CtrProposeContractRating implements RequestModel {
+  const CtrProposeContractRating({
+    required this.periodLabel,
+    this.evaluationKind,
+    this.note,
+  });
+
+  final String? evaluationKind;
+  final String periodLabel;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (evaluationKind != null) 'evaluation_kind': evaluationKind,
+        'period_label': periodLabel,
+        if (note != null) 'note': note,
       };
 }
 
@@ -3729,6 +3998,28 @@ final class CtrRecordContractorViolation implements RequestModel {
         if (evidenceDocumentVersionId != null) 'evidence_document_version_id': evidenceDocumentVersionId,
         if (sourceModule != null) 'source_module': sourceModule,
         if (sourceRefId != null) 'source_ref_id': sourceRefId,
+      };
+}
+
+final class CtrRecordContractRatingResponse implements RequestModel {
+  const CtrRecordContractRatingResponse({
+    required this.responseKind,
+    required this.receivedOn,
+    this.responseText,
+    this.evidenceDocumentVersionId,
+  });
+
+  final String responseKind;
+  final String? responseText;
+  final String receivedOn;
+  final String? evidenceDocumentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'response_kind': responseKind,
+        if (responseText != null) 'response_text': responseText,
+        'received_on': receivedOn,
+        if (evidenceDocumentVersionId != null) 'evidence_document_version_id': evidenceDocumentVersionId,
       };
 }
 
@@ -4076,6 +4367,19 @@ final class CtrVerifyGuarantee implements RequestModel {
 
 final class CtrWithdrawChangeRequest implements RequestModel {
   const CtrWithdrawChangeRequest({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class CtrWithdrawContractRating implements RequestModel {
+  const CtrWithdrawContractRating({
     required this.reason,
   });
 
@@ -6166,6 +6470,67 @@ final class DocTypeDefinition implements RequestModel {
       };
 }
 
+final class DocumentCommentCreate implements RequestModel {
+  const DocumentCommentCreate({
+    required this.body,
+    this.citationId,
+    this.parentId,
+  });
+
+  final Object? citationId;
+  final Object? parentId;
+  final String body;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (citationId != null) 'citation_id': citationId,
+        if (parentId != null) 'parent_id': parentId,
+        'body': body,
+      };
+}
+
+final class DocumentCommentResolve implements RequestModel {
+  const DocumentCommentResolve({
+    this.note,
+  });
+
+  final Object? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+      };
+}
+
+final class DocumentReviewSubmit implements RequestModel {
+  const DocumentReviewSubmit({
+    required this.versionId,
+    this.note,
+  });
+
+  final String versionId;
+  final Object? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'version_id': versionId,
+        if (note != null) 'note': note,
+      };
+}
+
+final class DocumentReviewWithdraw implements RequestModel {
+  const DocumentReviewWithdraw({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class DocVerifyRequest implements RequestModel {
   const DocVerifyRequest({
     this.policy,
@@ -6242,6 +6607,76 @@ final class DrillQueryFiltersItem implements RequestModel {
         'field': field,
         'operator': operator_,
         'value': value,
+      };
+}
+
+final class EbsDifferenceReassign implements RequestModel {
+  const EbsDifferenceReassign({
+    required this.ownerId,
+  });
+
+  final String ownerId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'owner_id': ownerId,
+      };
+}
+
+final class EbsDifferenceResolution implements RequestModel {
+  const EbsDifferenceResolution({
+    required this.kind,
+    required this.reason,
+    this.evidenceRef,
+    this.reviewOn,
+  });
+
+  final String kind;
+  final String reason;
+  final String? evidenceRef;
+  final String? reviewOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'reason': reason,
+        if (evidenceRef != null) 'evidence_ref': evidenceRef,
+        if (reviewOn != null) 'review_on': reviewOn,
+      };
+}
+
+final class EbsImportRequest implements RequestModel {
+  const EbsImportRequest({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    this.mappingVersion,
+  });
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final String? mappingVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        if (mappingVersion != null) 'mapping_version': mappingVersion,
+      };
+}
+
+final class EbsReconcileRequest implements RequestModel {
+  const EbsReconcileRequest({
+    this.period,
+    this.ownerId,
+  });
+
+  final String? period;
+  final String? ownerId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (period != null) 'period': period,
+        if (ownerId != null) 'owner_id': ownerId,
       };
 }
 
@@ -6489,6 +6924,22 @@ final class EgpReconciliationResolve implements RequestModel {
       };
 }
 
+final class EntConnectionState implements RequestModel {
+  const EntConnectionState({
+    required this.enabled,
+    required this.reason,
+  });
+
+  final bool enabled;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'enabled': enabled,
+        'reason': reason,
+      };
+}
+
 final class EntitlementOverrideRequest implements RequestModel {
   const EntitlementOverrideRequest({
     required this.featureCode,
@@ -6513,6 +6964,28 @@ final class EntitlementOverrideRequest implements RequestModel {
         if (limitValue != null) 'limit_value': limitValue,
         'valid_from': validFrom,
         'valid_until': validUntil,
+        'reason': reason,
+      };
+}
+
+final class ExportDatasetSet implements RequestModel {
+  const ExportDatasetSet({
+    required this.datasetCode,
+    required this.enabled,
+    required this.reason,
+    this.productId,
+  });
+
+  final String datasetCode;
+  final bool enabled;
+  final String? productId;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'dataset_code': datasetCode,
+        'enabled': enabled,
+        if (productId != null) 'product_id': productId,
         'reason': reason,
       };
 }
@@ -6755,6 +7228,141 @@ final class GuestInvite implements RequestModel {
       };
 }
 
+final class HpmCorrectionDecision implements RequestModel {
+  const HpmCorrectionDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class HpmCorrectionPropose implements RequestModel {
+  const HpmCorrectionPropose({
+    required this.layoutCode,
+    required this.period,
+    required this.fromRevision,
+    required this.periodReopenId,
+    required this.reason,
+  });
+
+  final String layoutCode;
+  final String period;
+  final int fromRevision;
+  final String periodReopenId;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'layout_code': layoutCode,
+        'period': period,
+        'from_revision': fromRevision,
+        'period_reopen_id': periodReopenId,
+        'reason': reason,
+      };
+}
+
+final class HpmPushRequest implements RequestModel {
+  const HpmPushRequest({
+    required this.layoutCode,
+    required this.period,
+    required this.revision,
+    required this.sha256,
+    this.fileObjectKey,
+    this.orgUnitId,
+    this.snapshot,
+    this.marks,
+    this.correctionId,
+    this.issueId,
+  });
+
+  final String layoutCode;
+  final String period;
+  final int revision;
+  final String sha256;
+  final String? fileObjectKey;
+  final String? orgUnitId;
+  final HpmPushRequestSnapshot? snapshot;
+  final HpmPushRequestMarks? marks;
+  final String? correctionId;
+  final String? issueId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'layout_code': layoutCode,
+        'period': period,
+        'revision': revision,
+        'sha256': sha256,
+        if (fileObjectKey != null) 'file_object_key': fileObjectKey,
+        if (orgUnitId != null) 'org_unit_id': orgUnitId,
+        if (snapshot != null) 'snapshot': snapshot,
+        if (marks != null) 'marks': marks,
+        if (correctionId != null) 'correction_id': correctionId,
+        if (issueId != null) 'issue_id': issueId,
+      };
+}
+
+final class HpmPushRequestMarks implements RequestModel {
+  const HpmPushRequestMarks({
+    required this.formStatus,
+    this.demoMark,
+  });
+
+  final String formStatus;
+  final Object? demoMark;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'form_status': formStatus,
+        if (demoMark != null) 'demo_mark': demoMark,
+      };
+}
+
+final class HpmPushRequestSnapshot implements RequestModel {
+  const HpmPushRequestSnapshot({
+    required this.snapshotId,
+    required this.revision,
+    required this.cutoff,
+  });
+
+  final String snapshotId;
+  final int revision;
+  final String cutoff;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'snapshot_id': snapshotId,
+        'revision': revision,
+        'cutoff': cutoff,
+      };
+}
+
+final class HpmReceiptRequest implements RequestModel {
+  const HpmReceiptRequest({
+    required this.outcome,
+    required this.reference,
+    this.note,
+  });
+
+  final String outcome;
+  final String reference;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'reference': reference,
+        if (note != null) 'note': note,
+      };
+}
+
 final class HubAgentHeartbeat implements RequestModel {
   const HubAgentHeartbeat({
     required this.agentVersion,
@@ -6960,6 +7568,94 @@ final class IdentityVerify implements RequestModel {
         'method': method,
         if (otp != null) 'otp': otp,
         if (documentRef != null) 'document_ref': documentRef,
+      };
+}
+
+final class IndEntryEvaluate implements RequestModel {
+  const IndEntryEvaluate({
+    required this.surface,
+    required this.values,
+    this.periodStatus,
+    this.includeTemplates,
+  });
+
+  final String surface;
+  final Map<String, String> values;
+  final String? periodStatus;
+  final bool? includeTemplates;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'surface': surface,
+        'values': values,
+        if (periodStatus != null) 'period_status': periodStatus,
+        if (includeTemplates != null) 'include_templates': includeTemplates,
+      };
+}
+
+final class IndFigureEntry implements RequestModel {
+  const IndFigureEntry({
+    required this.projectId,
+    required this.periodId,
+    required this.figures,
+  });
+
+  final String projectId;
+  final String periodId;
+  final List<IndFigureEntryFiguresItem> figures;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'period_id': periodId,
+        'figures': figures,
+      };
+}
+
+final class IndFigureEntryFiguresItem implements RequestModel {
+  const IndFigureEntryFiguresItem({
+    required this.indicatorCode,
+    required this.value,
+    this.reason,
+  });
+
+  final String indicatorCode;
+  final String value;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'indicator_code': indicatorCode,
+        'value': value,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class IndImportRequest implements RequestModel {
+  const IndImportRequest({
+    required this.mappingCode,
+    required this.fileObjectKey,
+    required this.fileSha256,
+    this.projectCode,
+    this.periodId,
+    this.periodCode,
+  });
+
+  final String mappingCode;
+  final String fileObjectKey;
+  final String fileSha256;
+  final String? projectCode;
+  final String? periodId;
+  final String? periodCode;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'mapping_code': mappingCode,
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        if (projectCode != null) 'project_code': projectCode,
+        if (periodId != null) 'period_id': periodId,
+        if (periodCode != null) 'period_code': periodCode,
       };
 }
 
@@ -8618,6 +9314,88 @@ final class LndStartEnforcement implements RequestModel {
       };
 }
 
+final class MachineAccountCreate implements RequestModel {
+  const MachineAccountCreate({
+    required this.name,
+    required this.scopes,
+    this.description,
+    this.rateLimitPerMinute,
+    this.expiresOn,
+  });
+
+  final String name;
+  final String? description;
+  final List<String> scopes;
+  final int? rateLimitPerMinute;
+  final String? expiresOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        if (description != null) 'description': description,
+        'scopes': scopes,
+        if (rateLimitPerMinute != null) 'rate_limit_per_minute': rateLimitPerMinute,
+        if (expiresOn != null) 'expires_on': expiresOn,
+      };
+}
+
+final class MachineAccountDecision implements RequestModel {
+  const MachineAccountDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class MachineAccountUpdate implements RequestModel {
+  const MachineAccountUpdate({
+    required this.reason,
+    this.description,
+    this.scopes,
+    this.rateLimitPerMinute,
+    this.expiresOn,
+  });
+
+  final Object? description;
+  final List<String>? scopes;
+  final int? rateLimitPerMinute;
+  final Object? expiresOn;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (description != null) 'description': description,
+        if (scopes != null) 'scopes': scopes,
+        if (rateLimitPerMinute != null) 'rate_limit_per_minute': rateLimitPerMinute,
+        if (expiresOn != null) 'expires_on': expiresOn,
+        'reason': reason,
+      };
+}
+
+final class MachineCredentialRotate implements RequestModel {
+  const MachineCredentialRotate({
+    required this.reason,
+    this.graceHours,
+  });
+
+  final String reason;
+  final int? graceHours;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+        if (graceHours != null) 'grace_hours': graceHours,
+      };
+}
+
 final class MdmChangeRequest implements RequestModel {
   const MdmChangeRequest({
     required this.changeKind,
@@ -9253,6 +10031,28 @@ final class NotificationWorkflowDraft implements RequestModel {
         'event_type': eventType,
         if (businessType != null) 'business_type': businessType,
         'definition': definition,
+      };
+}
+
+final class OpenTokenRequest implements RequestModel {
+  const OpenTokenRequest({
+    required this.grantType,
+    required this.clientId,
+    required this.clientSecret,
+    this.scope,
+  });
+
+  final String grantType;
+  final String clientId;
+  final String clientSecret;
+  final String? scope;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'grant_type': grantType,
+        'client_id': clientId,
+        'client_secret': clientSecret,
+        if (scope != null) 'scope': scope,
       };
 }
 
@@ -11610,6 +12410,181 @@ final class ProfileUpdate implements RequestModel {
       };
 }
 
+final class ProjectCodeDecision implements RequestModel {
+  const ProjectCodeDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class ProjectCodePropose implements RequestModel {
+  const ProjectCodePropose({
+    required this.sourceSystem,
+    required this.ourCode,
+    required this.externalCode,
+    required this.reason,
+    this.validFrom,
+    this.validUntil,
+  });
+
+  final String sourceSystem;
+  final String ourCode;
+  final String externalCode;
+  final String? validFrom;
+  final String? validUntil;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source_system': sourceSystem,
+        'our_code': ourCode,
+        'external_code': externalCode,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+        'reason': reason,
+      };
+}
+
+final class ProjectCodeRetire implements RequestModel {
+  const ProjectCodeRetire({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class ProjectDocumentArchive implements RequestModel {
+  const ProjectDocumentArchive({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class ProjectDocumentCreate implements RequestModel {
+  const ProjectDocumentCreate({
+    required this.projectId,
+    required this.docClass,
+    required this.title,
+    required this.fileObjectKey,
+    required this.fileSha256,
+    this.reference,
+    this.securityClass,
+    this.effectiveFrom,
+    this.effectiveTo,
+    this.contractId,
+    this.packageId,
+    this.note,
+    this.changeNote,
+  });
+
+  final String projectId;
+  final String docClass;
+  final String title;
+  final Object? reference;
+  final String? securityClass;
+  final Object? effectiveFrom;
+  final Object? effectiveTo;
+  final Object? contractId;
+  final Object? packageId;
+  final Object? note;
+  final String fileObjectKey;
+  final String fileSha256;
+  final Object? changeNote;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'doc_class': docClass,
+        'title': title,
+        if (reference != null) 'reference': reference,
+        if (securityClass != null) 'security_class': securityClass,
+        if (effectiveFrom != null) 'effective_from': effectiveFrom,
+        if (effectiveTo != null) 'effective_to': effectiveTo,
+        if (contractId != null) 'contract_id': contractId,
+        if (packageId != null) 'package_id': packageId,
+        if (note != null) 'note': note,
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        if (changeNote != null) 'change_note': changeNote,
+      };
+}
+
+final class ProjectDocumentUpdate implements RequestModel {
+  const ProjectDocumentUpdate({
+    this.docClass,
+    this.title,
+    this.reference,
+    this.securityClass,
+    this.effectiveFrom,
+    this.effectiveTo,
+    this.contractId,
+    this.packageId,
+    this.note,
+  });
+
+  final String? docClass;
+  final String? title;
+  final Object? reference;
+  final String? securityClass;
+  final Object? effectiveFrom;
+  final Object? effectiveTo;
+  final Object? contractId;
+  final Object? packageId;
+  final Object? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (docClass != null) 'doc_class': docClass,
+        if (title != null) 'title': title,
+        if (reference != null) 'reference': reference,
+        if (securityClass != null) 'security_class': securityClass,
+        if (effectiveFrom != null) 'effective_from': effectiveFrom,
+        if (effectiveTo != null) 'effective_to': effectiveTo,
+        if (contractId != null) 'contract_id': contractId,
+        if (packageId != null) 'package_id': packageId,
+        if (note != null) 'note': note,
+      };
+}
+
+final class ProjectDocumentVersionCreate implements RequestModel {
+  const ProjectDocumentVersionCreate({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    this.changeNote,
+  });
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final Object? changeNote;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        if (changeNote != null) 'change_note': changeNote,
+      };
+}
+
 final class QmsAddSupervisorRemark implements RequestModel {
   const QmsAddSupervisorRemark({
     required this.remark,
@@ -12237,6 +13212,32 @@ final class ReasonOnly implements RequestModel {
       };
 }
 
+final class RedFlagReason implements RequestModel {
+  const RedFlagReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class RedFlagScanRequest implements RequestModel {
+  const RedFlagScanRequest({
+    this.note,
+  });
+
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+      };
+}
+
 final class ReportAttachmentRef implements RequestModel {
   const ReportAttachmentRef({
     required this.fileObjectId,
@@ -12727,6 +13728,41 @@ final class SodExceptionRequest implements RequestModel {
 
 final class SodExceptionRevoke implements RequestModel {
   const SodExceptionRevoke({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class SourceSystemRegister implements RequestModel {
+  const SourceSystemRegister({
+    required this.code,
+    required this.name,
+    required this.kind,
+    this.codePattern,
+  });
+
+  final String code;
+  final String name;
+  final String kind;
+  final String? codePattern;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'kind': kind,
+        if (codePattern != null) 'code_pattern': codePattern,
+      };
+}
+
+final class SourceSystemRetire implements RequestModel {
+  const SourceSystemRetire({
     required this.reason,
   });
 

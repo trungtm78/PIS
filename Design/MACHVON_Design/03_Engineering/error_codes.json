@@ -6488,6 +6488,361 @@
       "module": "CTR",
       "statusBasis": "spec",
       "source": "spec:CTR"
+    },
+    "ALERT_FEEDBACK_STATE_INVALID": {
+      "status": 409,
+      "title": "Alert report is not pending",
+      "meaning": "Phản hồi cảnh báo không còn ở trạng thái chờ xem xét nên không thể chuyển tiếp.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_FEEDBACK_ALREADY_REPORTED": {
+      "status": 409,
+      "title": "Alert already reported by this person",
+      "meaning": "Người này đã có một phản hồi chưa được xem xét về cảnh báo đó.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "RED_FLAG_STATE_INVALID": {
+      "status": 409,
+      "title": "Red flag is not where the move starts",
+      "meaning": "Tín hiệu rủi ro mua sắm không ở trạng thái mà bước xem xét này bắt đầu, hoặc người thao tác đã tham gia gói thầu.",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "IND_ENTRY_RULE_VIOLATED": {
+      "status": 422,
+      "title": "Entry rule violated",
+      "meaning": "Số liệu nhập vi phạm một quy tắc nhập liệu đã được duyệt (lũy kế vượt tổng mức, các phần không bằng tổng, kỳ đã chốt, thiếu trường bắt buộc, ngoài khoảng hợp lý); chi tiết liệt kê từng quy tắc",
+      "module": "IND",
+      "statusBasis": "spec",
+      "source": "spec:IND"
+    },
+    "IND_MAPPING_NOT_APPROVED": {
+      "status": 409,
+      "title": "Import mapping not approved",
+      "meaning": "Bảng ánh xạ nhập Excel chưa có phiên bản được duyệt và đang hiệu lực nên chưa đọc được tệp; bảng mẫu của nền tảng chỉ là khuôn",
+      "module": "IND",
+      "statusBasis": "spec",
+      "source": "spec:IND"
+    },
+    "OPEN_CLIENT_INVALID": {
+      "status": 401,
+      "title": "Client credentials are not valid",
+      "meaning": "Mã khách hoặc bí mật không đúng, đã hết hạn, đã bị thu hồi hoặc tài khoản máy không còn hoạt động; câu trả lời không nói lý do nào (API mở, INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "OPEN_SCOPE_DENIED": {
+      "status": 403,
+      "title": "The token does not hold the scope",
+      "meaning": "Mã truy cập không có phạm vi mà thao tác của API mở đòi hỏi; câu trả lời nêu phạm vi cần (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "OPEN_DATASET_NOT_CERTIFIED": {
+      "status": 403,
+      "title": "The dataset is not open to external readers",
+      "meaning": "Tập dữ liệu chưa bật cho người đọc bên ngoài, sản phẩm dữ liệu chưa ở trạng thái CERTIFIED hoặc chứng nhận đã hết hạn; đọc bị từ chối 403, bật bị từ chối 422 (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT",
+      "otherStatuses": [
+        422
+      ]
+    },
+    "OPEN_ACCOUNT_STATE_INVALID": {
+      "status": 409,
+      "title": "Machine account is not in the state the move needs",
+      "meaning": "Tài khoản máy không ở trạng thái mà thao tác cần: tạm khóa chỉ từ ACTIVE, mở lại chỉ từ SUSPENDED, thu hồi từ ACTIVE hoặc SUSPENDED; REVOKED là trạng thái cuối (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "OPEN_ACCOUNT_NAME_TAKEN": {
+      "status": 409,
+      "title": "Machine account name is taken",
+      "meaning": "Tên tài khoản máy đã có trong tổ chức (không phân biệt hoa thường); tên của tài khoản đã thu hồi dùng lại được (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "BI_READER_STATE_INVALID": {
+      "status": 409,
+      "title": "BI login is not in the state the move needs",
+      "meaning": "Tài khoản đọc cho công cụ BI không ở trạng thái mà thao tác cần; RETIRED là trạng thái cuối và tài khoản CSDL đã bị xóa (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "BI_PROVISIONING_UNAVAILABLE": {
+      "status": 503,
+      "title": "Database logins cannot be made here",
+      "meaning": "Môi trường này không cho tạo hay đổi tài khoản đăng nhập CSDL cho công cụ BI (hàm đặc quyền chưa cài hoặc không đủ quyền); không có gì đã đổi (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "INT_SOURCE_SYSTEM_TAKEN": {
+      "status": 409,
+      "title": "Source system code is taken",
+      "meaning": "Mã hệ thống nguồn đã được đăng ký trong tổ chức (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "INT_SOURCE_SYSTEM_IN_USE": {
+      "status": 409,
+      "title": "Source system still has codes",
+      "meaning": "Không ngừng được hệ thống nguồn khi còn mã dự án đang hiệu lực hoặc đang chờ duyệt, hoặc hệ thống đã ngừng rồi (INT-1).",
+      "module": "INT",
+      "statusBasis": "spec",
+      "source": "spec:INT"
+    },
+    "COMMITTEE_STATE_INVALID": {
+      "status": 409,
+      "title": "Committee state invalid",
+      "meaning": "Thao tác không hợp lệ với trạng thái hiện tại của Ban chỉ đạo, vị trí trong Ban hoặc cảnh báo.",
+      "module": "BAN",
+      "statusBasis": "spec",
+      "source": "spec:BAN"
+    },
+    "COMMITTEE_ROLE_TAKEN": {
+      "status": 409,
+      "title": "Committee role taken",
+      "meaning": "Vị trí Trưởng ban đã có người giữ hoặc người này đã giữ một vị trí đang hiệu lực trong Ban chỉ đạo.",
+      "module": "BAN",
+      "statusBasis": "spec",
+      "source": "spec:BAN"
+    },
+    "DOC_VERSION_LOCKED": {
+      "status": 409,
+      "title": "Document version locked",
+      "meaning": "Phiên bản đã được duyệt và bị khóa: không sửa, không xóa; thay đổi là một phiên bản mới.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_VERSION_STATE_INVALID": {
+      "status": 409,
+      "title": "Document version state invalid",
+      "meaning": "Phiên bản không ở trạng thái cho phép bước này (chỉ bản nháp mới được trình duyệt).",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_VERSION_DUPLICATE": {
+      "status": 409,
+      "title": "Document version duplicate",
+      "meaning": "Tệp này đã là một phiên bản của hồ sơ (cùng SHA-256).",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_DUPLICATE_REFERENCE": {
+      "status": 409,
+      "title": "Document reference duplicate",
+      "meaning": "Dự án đã có hồ sơ đang dùng cùng loại và cùng số hiệu.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_LINK_MISMATCH": {
+      "status": 422,
+      "title": "Document link mismatch",
+      "meaning": "Hợp đồng hoặc gói thầu được nối không thuộc dự án của hồ sơ.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_ARCHIVED": {
+      "status": 409,
+      "title": "Document archived",
+      "meaning": "Hồ sơ đã lưu trữ: khôi phục trước khi sửa hoặc thêm phiên bản.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_NOT_ARCHIVED": {
+      "status": 409,
+      "title": "Document not archived",
+      "meaning": "Hồ sơ chưa lưu trữ nên không có gì để khôi phục.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_REVIEW_ALREADY_OPEN": {
+      "status": 409,
+      "title": "Document review already open",
+      "meaning": "Hồ sơ đang có một vòng duyệt chưa kết thúc.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_REVIEW_IN_PROGRESS": {
+      "status": 409,
+      "title": "Document review in progress",
+      "meaning": "Hồ sơ đang trong vòng duyệt nên chưa thể lưu trữ.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_REVIEW_NOT_OPEN": {
+      "status": 409,
+      "title": "Document review not open",
+      "meaning": "Vòng duyệt đã kết thúc hoặc đã rút nên không còn thao tác này.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_REVIEW_VERSION_NOT_NEWER": {
+      "status": 422,
+      "title": "Review needs a newer version",
+      "meaning": "Sau khi bị yêu cầu bổ sung hoặc từ chối, phải trình phiên bản mới hơn phiên bản đã duyệt.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_EXTRACTION_PENDING": {
+      "status": 409,
+      "title": "Extraction pending",
+      "meaning": "Văn bản của phiên bản chưa được đọc xong nên chưa trình duyệt được.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_EXTRACTION_DONE": {
+      "status": 409,
+      "title": "Extraction already done",
+      "meaning": "Văn bản của phiên bản đã được đọc, không đọc lại.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_EXTRACTION_INVALID": {
+      "status": 422,
+      "title": "Extraction invalid",
+      "meaning": "Kết quả đọc văn bản của bộ trích xuất không hợp lệ (trùng vị trí, tọa độ sai hoặc quá nhiều đơn vị).",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_FILE_FORMAT_MISMATCH": {
+      "status": 422,
+      "title": "File format mismatch",
+      "meaning": "Nội dung tệp không đúng định dạng đã khai (PDF, Word hoặc Excel).",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_COMPARE_TOO_LARGE": {
+      "status": 422,
+      "title": "Comparison too large",
+      "meaning": "Hai phiên bản quá lớn để so sánh từng đoạn.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_COMMENT_ANCHOR_UNKNOWN": {
+      "status": 422,
+      "title": "Comment anchor unknown",
+      "meaning": "Mã dẫn nguồn không thuộc phiên bản đang góp ý.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_COMMENT_PARENT_INVALID": {
+      "status": 422,
+      "title": "Comment parent invalid",
+      "meaning": "Chỉ trả lời được góp ý cấp một của cùng phiên bản.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_COMMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Comment state invalid",
+      "meaning": "Góp ý đang ở đúng trạng thái này rồi.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "HPM_OVERWRITE_NOT_AUTHORISED": {
+      "status": 409,
+      "title": "An accepted period needs a reopened period and an approved correction to be replaced",
+      "meaning": "Kỳ báo cáo đã được HPM nhận chỉ được thay bằng bản mới khi kỳ đã được mở lại và có đính chính đã được người khác duyệt; phản hồi nêu điều còn thiếu (ENT-2, R8).",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "HPM_CONNECTION_DISABLED": {
+      "status": 409,
+      "title": "Connection to HPM is switched off",
+      "meaning": "Kết nối đẩy báo cáo lên HPM đang tắt nên không đẩy được; bật lại kèm lý do ở HPM-01 (ENT-2).",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "HPM_KEY_REUSED": {
+      "status": 409,
+      "title": "The push key was used for other content",
+      "meaning": "Khóa chống trùng (tổ chức, kỳ, phiên bản báo cáo) đã được dùng cho nội dung khác; một phiên bản báo cáo chỉ có một nội dung (R8, R17).",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "HPM_PUSH_STATE_INVALID": {
+      "status": 409,
+      "title": "The push is not in a state that allows this",
+      "meaning": "Lần đẩy không ở trạng thái cho phép thao tác này (ví dụ ghi biên nhận khi gói chưa được ghi, hoặc đẩy lại lần đã bị nơi nhận từ chối).",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "HPM_RETRY_EXHAUSTED": {
+      "status": 409,
+      "title": "The push was retried as often as the rule allows",
+      "meaning": "Lần đẩy đã được thử lại đủ số lần của quy tắc HPM_PUSH_POLICY; ghi nguyên nhân và liên hệ quản trị tích hợp.",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "HPM_CORRECTION_STATE_INVALID": {
+      "status": 409,
+      "title": "The correction is not in a state that allows this",
+      "meaning": "Đính chính không ở trạng thái cho phép quyết định, hoặc đã có một đính chính đang chờ cho phiên bản này.",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "EBS_LAYOUT_VERSION_UNKNOWN": {
+      "status": 422,
+      "title": "The layout version of the Oracle EBS file is not known",
+      "meaning": "Phiên bản mẫu tệp Oracle EBS không nằm trong các phiên bản hệ thống đọc được; phản hồi nêu các phiên bản hỗ trợ (ENT-2, R18).",
+      "module": "EBS",
+      "statusBasis": "spec",
+      "source": "spec:EBS"
+    },
+    "EBS_CONNECTION_DISABLED": {
+      "status": 409,
+      "title": "Connection to Oracle EBS is switched off",
+      "meaning": "Kết nối Oracle EBS đang tắt nên không áp dụng được tệp; chạy thử vẫn dùng được. Bật lại kèm lý do ở EBS-01 (ENT-2).",
+      "module": "EBS",
+      "statusBasis": "spec",
+      "source": "spec:EBS"
+    },
+    "EBS_ITEM_STATE_INVALID": {
+      "status": 409,
+      "title": "The difference is not in a state that allows this",
+      "meaning": "Chênh lệch đã được giải trình hoặc không còn mở nên không thao tác được.",
+      "module": "EBS",
+      "statusBasis": "spec",
+      "source": "spec:EBS"
     }
   }
 }
