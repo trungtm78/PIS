@@ -9,11 +9,13 @@
         "clip-public-documents": { "proof": "RUN_VERIFIED" },
         "clip-public-procurement": { "proof": "RUN_VERIFIED" },
         "clip-public-contracts": { "proof": "WRITTEN_NOT_RUN" },
+        "clip-public-payments": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-workflow": { "proof": "RUN_VERIFIED" },
         "clip-public-alerts": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-egp": { "proof": "RUN_VERIFIED" },
         "clip-public-disbursement": { "proof": "RUN_VERIFIED" },
         "clip-public-feed": { "proof": "WRITTEN_NOT_RUN" },
+        "clip-public-bi": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-directives": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-committee": { "proof": "RUN_VERIFIED" }
       },

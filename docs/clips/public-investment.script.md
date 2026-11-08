@@ -37,11 +37,13 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `clip-public-documents` | RUN_VERIFIED |
 | `clip-public-procurement` | RUN_VERIFIED |
 | `clip-public-contracts` | WRITTEN_NOT_RUN |
+| `clip-public-payments` | WRITTEN_NOT_RUN |
 | `clip-public-workflow` | RUN_VERIFIED |
 | `clip-public-alerts` | WRITTEN_NOT_RUN |
 | `clip-public-egp` | RUN_VERIFIED |
 | `clip-public-disbursement` | RUN_VERIFIED |
 | `clip-public-feed` | WRITTEN_NOT_RUN |
+| `clip-public-bi` | WRITTEN_NOT_RUN |
 | `clip-public-directives` | WRITTEN_NOT_RUN |
 | `clip-public-committee` | RUN_VERIFIED |
 
