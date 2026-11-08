@@ -142,7 +142,7 @@
       "id": "intro-title",
       "chapter": "intro",
       "main": true,
-      "narration": "Hệ thống quản lý đầu tư công theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.",
+      "narration": "Hệ thống quản lý đầu tư công, gồm nền tảng web và ứng dụng di động, theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.",
       "screen": {
         "platform": "title",
         "screens": [],
@@ -164,7 +164,35 @@
       "stamps": [
         "illustrative-data"
       ],
-      "expectedSec": 10.5
+      "expectedSec": 13.3
+    },
+    {
+      "id": "intro-web-phone",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Hệ thống gồm hai phần dùng chung một nguồn số liệu và một bộ quyền. Nền tảng web chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường.",
+      "layout": "split",
+      "headline": "Nền tảng web và ứng dụng di động",
+      "showcase": {
+        "screens": [
+          "HOME-09"
+        ],
+        "persona": "owner",
+        "phone": "intro-web-phone"
+      },
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "platform-map"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "platform-map"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
     },
     {
       "id": "intro-problem",
@@ -1084,7 +1112,7 @@
       "id": "close-outro",
       "chapter": "close",
       "main": true,
-      "narration": "Một nền tảng, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.",
+      "narration": "Một nền tảng web và ứng dụng di động, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.",
       "screen": {
         "platform": "title",
         "screens": [],
@@ -1097,7 +1125,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 10.2
+      "expectedSec": 12.1
     }
   ]
 }

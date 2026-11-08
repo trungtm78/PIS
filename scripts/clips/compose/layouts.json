@@ -1,0 +1,116 @@
+{
+  "schema": "clip-layouts/1",
+  "note": "Geometry of the scene layouts on the 1920x1080 canvas. A window is the browser frame (bar height 38, rounded 18) around a footage hole; a phone is the bezel (rounded 54) around a portrait screen. Layout names are the values of the optional layout field of a scenario scene.",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "tickerHeight": 54,
+  "subtitleBar": {
+    "y": 944,
+    "height": 124
+  },
+  "windowBar": 38,
+  "layouts": {
+    "full-web": {
+      "window": {
+        "x": 222,
+        "y": 70,
+        "hole": {
+          "width": 1456,
+          "height": 819
+        }
+      },
+      "headline": false,
+      "chips": true
+    },
+    "web+callouts": {
+      "window": {
+        "x": 650,
+        "y": 120,
+        "hole": {
+          "width": 1216,
+          "height": 684
+        }
+      },
+      "headline": {
+        "x": 64,
+        "y": 214,
+        "width": 540
+      },
+      "chips": true
+    },
+    "phone-right": {
+      "phone": {
+        "x": 1300,
+        "y": 48,
+        "screen": {
+          "width": 380,
+          "height": 820
+        }
+      },
+      "headline": {
+        "x": 140,
+        "y": 330,
+        "width": 960
+      },
+      "chips": false
+    },
+    "split": {
+      "window": {
+        "x": 56,
+        "y": 318,
+        "hole": {
+          "width": 1008,
+          "height": 567
+        }
+      },
+      "phone": {
+        "x": 1300,
+        "y": 48,
+        "screen": {
+          "width": 380,
+          "height": 820
+        }
+      },
+      "headline": {
+        "x": 56,
+        "y": 84,
+        "width": 1160
+      },
+      "chips": false
+    },
+    "title": {
+      "headline": false,
+      "chips": false
+    }
+  },
+  "windowPad": 10,
+  "phoneBezel": 22,
+  "productNames": {
+    "public": "Hệ thống quản lý đầu tư công",
+    "enterprise": "Phần mềm quản lý đầu tư xây dựng"
+  },
+  "taglines": {
+    "public": "Nền tảng web và ứng dụng di động cho đầu tư công",
+    "enterprise": "Nền tảng web và ứng dụng di động cho đầu tư xây dựng"
+  },
+  "cardLabels": {
+    "open": "Giới thiệu sản phẩm",
+    "phoneFallback": "Ứng dụng di động"
+  },
+  "numberUnits": [
+    "tỷ đồng",
+    "tỷ",
+    "triệu đồng",
+    "triệu",
+    "đồng",
+    "ngày",
+    "dự án",
+    "hợp đồng",
+    "gói thầu",
+    "nhà thầu",
+    "đơn vị",
+    "điểm"
+  ]
+}
