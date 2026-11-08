@@ -254,12 +254,53 @@ test('the enterprise plan has investment and equipment projects with equity and 
   assert.equal(plan.projects.length, dataset.projectsPerKind * 2);
   assert.deepEqual(new Set(plan.projects.map((project) => project.kind)), new Set(['INVESTMENT', 'EQUIPMENT']));
   for (const project of plan.projects) {
-    assert.equal(project.equityBillions + project.loanBillions, project.planBillions, project.code);
+    // A project the plan of the year does not fund yet (pipeline) carries no plan figure of the year, only its equity and loan wishes.
+    if (project.planBillions !== undefined) assert.equal(project.equityBillions + project.loanBillions, project.planBillions, project.code);
     assert.ok(project.equityBillions >= 1 && project.loanBillions >= 0);
   }
   assert.equal(new Set(plan.projects.map((project) => project.code)).size, plan.projects.length);
   assert.equal(planDigest(plan), planDigest(buildPlan(dataset)));
   assert.equal(plan.expect.directives, dataset.meetings.reduce((sum, meeting) => sum + meeting.directives.length, 0));
+});
+
+test('the enterprise plan gives its own capital, contractors, tenders, process tree and dashboards, none of them from the province', () => {
+  const plan = buildPlan(enterpriseDataset());
+  const funded = plan.projects.filter((project) => project.national !== undefined);
+  assert.ok(funded.length >= 8, 'most projects are funded');
+  assert.ok(funded.every((project) => project.planBillions > 0 && ['IMPLEMENTATION', 'BUDGETED'].includes(project.target)));
+  assert.equal(new Set(funded.map((project) => project.national)).size, funded.length);
+  // Every funded project draws one line of equity and one of loan, and the appropriations are wide enough for the lines.
+  for (const project of funded) {
+    assert.deepEqual(plan.capital.lines.filter((line) => line.project === project.code).map((line) => line.appropriation).sort(), ['VAY', 'VCSH']);
+  }
+  for (const appropriation of plan.capital.appropriations) {
+    const drawn = plan.capital.lines.filter((line) => line.appropriation === appropriation.key).reduce((sum, line) => sum + line.billions, 0);
+    assert.ok(appropriation.billions >= drawn, appropriation.key);
+  }
+  // Every package of a tender fits the line it names, and every bidder is a contractor of the table, a verified one.
+  const verified = new Set(plan.contractors.filter((contractor) => contractor.outcome === 'VERIFIED').map((contractor) => contractor.n));
+  assert.equal(plan.contractors.length, 16);
+  for (const entry of plan.tenders) {
+    const own = plan.capital.lines.filter((line) => line.project === entry.project).sort((a, b) => b.billions - a.billions);
+    const drawn = [0, 0];
+    for (const item of entry.packages) {
+      drawn[item.line] += item.millions;
+      for (const bidder of item.bidders ?? []) assert.ok(verified.has(bidder), item.code);
+      if (item.awardMillions !== undefined) assert.ok(item.awardMillions <= item.millions, item.code);
+    }
+    assert.ok(drawn[0] <= own[0].billions * 1000 && drawn[1] <= own[1].billions * 1000, entry.project);
+  }
+  // The tender states are spread: awarded with an active contract, waiting for the result, evaluated, sealed.
+  const fates = new Set(plan.tenders.flatMap((entry) => entry.packages.map((item) => item.fate)));
+  assert.ok(['AWARDED', 'RESULT_PENDING', 'EVALUATING', 'SEALED'].every((fate) => fates.has(fate)));
+  // The packages of the process tree belong to funded projects without tenders, and the tree is spread over many steps and clocks.
+  const tendered = new Set(plan.tenders.map((entry) => entry.project));
+  assert.ok(plan.procurement.plans.every((entry) => !tendered.has(entry.project)));
+  const targets = new Set(plan.procurement.plans.flatMap((entry) => entry.packages.map((item) => item.target)));
+  assert.ok(targets.size >= 6);
+  assert.ok(plan.procurement.plans.flatMap((entry) => entry.packages).every((item) => WORKFLOW_CLOCKS.includes(item.clockDays)));
+  // Nothing of the province in the words the plan writes into the product.
+  assert.doesNotMatch(JSON.stringify([plan.texts, plan.contractors, plan.tenders, plan.capital, plan.procurement, plan.bi]), /Cao Bằng|UBND|tỉnh/u);
 });
 
 test('the accounting rows name projects of the plan, two periods, and differ from the plan figures', () => {
@@ -274,8 +315,8 @@ test('the accounting rows name projects of the plan, two periods, and differ fro
   assert.equal(checkPlan(plan).length, 0);
 });
 
-test('the enterprise dataset runs the four enterprise groups and no group of the public dataset', () => {
-  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports']);
+test('the enterprise dataset runs its own groups (capital, documents, procurement, contracts, process tree, BI) and no group of the public dataset', () => {
+  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-bi']);
   assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
 });
 
@@ -287,12 +328,30 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
   const plan = buildPlan(enterpriseDataset());
   const empty = { async list() { return []; }, async get() { return { ok: true, json: {} }; } };
   assert.equal(judgeAll(await verifyChecks(plan, empty)).ok, false);
-  const projects = plan.projects.map((project, index) => ({ code: project.code, id: `p${index}` }));
+  const projects = plan.projects.map((project, index) => ({ code: project.code, id: `p${index}`, status: 'IMPLEMENTATION' }));
   const batches = projects.flatMap((project) => [{ project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'EQUITY', status: 'ACCEPTED' }, { project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'LOAN', status: 'ACCEPTED' }]);
   const directives = Array.from({ length: plan.expect.directives }, (_, index) => ({ id: index }));
   const issues = Array.from({ length: plan.expect.reportIssues }, (_, index) => ({ id: index, form_status: 'DEMO' }));
-  const lists = { '/resources/project': projects, '/funding-figures/batches': batches, '/directives': directives, '/ebs/differences': [{ id: 1 }], '/report-engine/issues': issues };
-  const gets = { '/hpm/connection': { counts: { pushes: 2, written: 1, rejected: 1, accepted: 0 } } };
+  const rows = (count, row) => Array.from({ length: count }, (_, index) => ({ id: index, ...row }));
+  const lists = {
+    '/resources/project': projects,
+    '/funding-figures/batches': batches,
+    '/directives': directives,
+    '/ebs/differences': [{ id: 1 }],
+    '/report-engine/issues': issues,
+    '/outgoing-documents': rows(5, { status: 'ISSUED' }),
+    '/procurement-plans': rows(plan.tenders.length + plan.procurement.plans.length, { status: 'APPROVED' }),
+    '/resources/procurement_package': rows(plan.expect.packages, {}),
+    '/resources/contractor': rows(plan.expect.contractors, {}),
+    '/resources/contract': rows(6, { status: 'ACTIVE' }),
+    '/resources/metric_definition': rows(3, { status: 'CERTIFIED' }),
+    '/bi/dashboards': plan.bi.dashboards.map((entry) => ({ code: entry.code, status: 'PUBLISHED' })),
+  };
+  const gets = {
+    '/hpm/connection': { counts: { pushes: 2, written: 1, rejected: 1, accepted: 0 } },
+    '/package-workflows/summary': { total: plan.expect.packages, not_started: 3, late: 6, on_hold: 1 },
+    '/package-workflows/process-tree': { nodes: rows(12, {}), total: { count: plan.expect.packages } },
+  };
   assert.equal(judgeAll(await verifyChecks(plan, readerOf({ lists, gets }))).ok, true);
   // Two batches of one project do not stand in for the missing batches of the others.
   const doubled = { ...lists, '/funding-figures/batches': batches.filter((batch) => batch.project_id === 'p0').concat(batches.filter((batch) => batch.project_id === 'p0')) };

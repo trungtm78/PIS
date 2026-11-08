@@ -112,7 +112,8 @@ export async function paymentChecks(plan, reader) {
 /** Checks of BI: the metrics of the platform (certified, synced from the bundle of the repository) and the dashboards the leader published. */
 export async function biChecks(plan, reader) {
   const metrics = await safe(() => reader.list('capApprover', '/resources/metric_definition'));
-  const dashboards = await safe(() => reader.list('projectManager', '/bi/dashboards'));
+  // The officer lists the dashboards; the leader's scope or the owner of the tenant read them when the officer's list is not given.
+  const dashboards = (await safe(() => reader.list('projectManager', '/bi/dashboards'))) ?? (await safe(() => reader.list('capApprover', '/bi/dashboards'))) ?? (await safe(() => reader.list('owner', '/bi/dashboards')));
   const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
   return [
     { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },
@@ -195,9 +196,40 @@ export async function enterpriseReportChecks(plan, reader) {
   ];
 }
 
+/**
+ * Checks of the chapters the enterprise clip shares with the public one: the documents of the office, the funded projects, procurement, contracts, the process tree and
+ * the dashboards, all on the data of the enterprise (nothing of the public dataset is read).
+ */
+export async function enterpriseSharedChecks(plan, reader) {
+  const outgoing = await safe(() => reader.list('projectManager', '/outgoing-documents'));
+  const projects = await safe(() => reader.list('projectManager', '/resources/project'));
+  const codes = new Set(plan.projects.map((project) => project.code));
+  const funded = projects === undefined ? undefined : projects.filter((row) => codes.has(row.code) && ['BUDGETED', 'IMPLEMENTATION'].includes(String(row.status))).length;
+  return [
+    { name: 'enterprise projects budgeted or started', value: funded, min: plan.expect.fundedProjects },
+    { name: 'outgoing documents issued', value: outgoing === undefined ? undefined : outgoing.filter((row) => row.status === 'ISSUED').length, min: 3 },
+    ...(await procurementChecks(plan, reader)),
+    ...(await contractChecks(plan, reader)),
+    ...(await workflowChecks(plan, reader)),
+    ...(await enterpriseBiChecks(plan, reader)),
+  ];
+}
+
+/** Dashboards of the enterprise plan: made over certified metrics (publication needs a role grant that asks for a second factor, so a draft counts). */
+export async function enterpriseBiChecks(plan, reader) {
+  const metrics = await safe(() => reader.list('capApprover', '/resources/metric_definition'));
+  const dashboards = (await safe(() => reader.list('projectManager', '/bi/dashboards'))) ?? (await safe(() => reader.list('capApprover', '/bi/dashboards')));
+  const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
+  return [
+    { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },
+    { name: 'dashboards published', value: dashboards === undefined ? undefined : dashboards.filter((row) => wanted.has(row.code) && row.status === 'PUBLISHED').length, min: wanted.size },
+  ];
+}
+
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
   if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await biChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
-  if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
+  if (plan.dataset === 'enterprise') return [...(await enterpriseChecks(plan, reader)), ...(await enterpriseSharedChecks(plan, reader))];
   return [];
 }

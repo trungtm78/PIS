@@ -17,7 +17,8 @@
         "clip-public-feed": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-bi": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-directives": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-committee": { "proof": "RUN_VERIFIED" }
+        "clip-public-committee": { "proof": "RUN_VERIFIED" },
+        "clip-public-extras": { "proof": "WRITTEN_NOT_RUN" }
       },
       "chapters": {
         "intro": { "groups": [] },
@@ -40,7 +41,14 @@
         "clip-ent-funding": { "proof": "RUN_VERIFIED" },
         "clip-ent-directives": { "proof": "RUN_VERIFIED" },
         "clip-ent-ebs": { "proof": "RUN_VERIFIED" },
-        "clip-ent-reports": { "proof": "WRITTEN_NOT_RUN" }
+        "clip-ent-reports": { "proof": "RUN_VERIFIED" },
+        "clip-ent-capital": { "proof": "RUN_VERIFIED" },
+        "clip-ent-documents": { "proof": "RUN_VERIFIED" },
+        "clip-ent-procurement": { "proof": "RUN_VERIFIED" },
+        "clip-ent-contracts": { "proof": "RUN_VERIFIED" },
+        "clip-ent-workflow": { "proof": "RUN_VERIFIED" },
+        "clip-ent-disbursement": { "proof": "RUN_VERIFIED" },
+        "clip-ent-bi": { "proof": "RUN_VERIFIED" }
       },
       "chapters": {
         "intro": { "groups": [] },

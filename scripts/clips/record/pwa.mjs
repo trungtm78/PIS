@@ -45,13 +45,13 @@ const ffmpeg = (args) => {
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
 async function scrollLikeAFinger(page, seconds) {
-  const total = await page.evaluate(() => Math.max(0, document.documentElement.scrollHeight - window.innerHeight)).catch(() => 0);
+  const total = await page.evaluate(() => Math.max(0, globalThis.document.documentElement.scrollHeight - globalThis.innerHeight)).catch(() => 0);
   const steps = Math.max(6, Math.round(seconds * 3));
   for (let step = 1; step <= steps; step += 1) {
-    await page.evaluate(([to]) => window.scrollTo({ top: to, behavior: 'smooth' }), [Math.round((total * step) / (steps * 1.4))]).catch(() => undefined);
+    await page.evaluate(([to]) => globalThis.scrollTo({ top: to, behavior: 'smooth' }), [Math.round((total * step) / (steps * 1.4))]).catch(() => undefined);
     await sleep((seconds * 1000) / steps);
   }
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' })).catch(() => undefined);
+  await page.evaluate(() => globalThis.scrollTo({ top: 0, behavior: 'smooth' })).catch(() => undefined);
 }
 
 /** Films one screen: the page loads (the film starts after the screen is drawn), rests, scrolls and rests. Returns the path of the film made by the browser. */
@@ -72,11 +72,11 @@ export async function recordScreen(browser, { baseUrl, entry, persona, seconds, 
   const started = Date.now();
   await page.goto(`${baseUrl.replace(/\/+$/u, '')}${withPersona(entry.path, persona)}`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('h1, h2', { timeout: 30000 }).catch(() => undefined);
-  await page.waitForFunction(() => !document.body.innerText.includes('Đang tải') && document.body.innerText.length > 120, null, { timeout: 15000 }).catch(() => undefined);
+  await page.waitForFunction(() => !globalThis.document.body.innerText.includes('Đang tải') && globalThis.document.body.innerText.length > 120, null, { timeout: 15000 }).catch(() => undefined);
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => undefined);
   const contentAt = Date.now() - started;
   await sleep(1800);
-  const problems = await page.evaluate(() => ({ alerts: [...document.querySelectorAll('[role="alert"]')].map((node) => node.textContent?.trim() ?? '').filter(Boolean), busy: document.querySelectorAll('[aria-busy="true"]').length })).catch(() => ({ alerts: [], busy: 0 }));
+  const problems = await page.evaluate(() => ({ alerts: [...globalThis.document.querySelectorAll('[role="alert"]')].map((node) => node.textContent?.trim() ?? '').filter(Boolean), busy: globalThis.document.querySelectorAll('[aria-busy="true"]').length })).catch(() => ({ alerts: [], busy: 0 }));
   await scrollLikeAFinger(page, Math.max(2, seconds - 3.5));
   await sleep(800);
   await context.close();

@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_DEV_SESSION_KEY?: string;
   /** JSON array of the development API's fixture users, see session/dev-users.ts (development builds only). */
   readonly VITE_DEV_USERS?: string;
+  readonly VITE_DEV_TENANT_NAME?: string;
   /** Origin of the API; the same origin when unset. */
   readonly VITE_API_BASE_URL?: string;
   /** Issuer of the OIDC identity provider; unset means no real sign-in is configured (see session/oidc/config.ts). */

@@ -5,9 +5,13 @@ import type { Obj } from '../context.ts';
 import { made, once, remembered } from './shared.ts';
 import { asVersion } from '../context.ts';
 import TEXTS from './data/doc.json' with { type: 'json' };
+import ENTERPRISE_TEXTS from './data/doc.enterprise.json' with { type: 'json' };
 import { textsOf } from '../../../support/texts.ts';
+import { clipPlan } from '../clip/plan.ts';
 
-const tx = textsOf(TEXTS);
+/** The enterprise clip dataset writes the same documents in the words of the enterprise (data/doc.enterprise.json), never those of the province. */
+const ENTERPRISE = clipPlan()?.dataset === 'enterprise';
+const tx = textsOf(ENTERPRISE ? (ENTERPRISE_TEXTS as typeof TEXTS) : TEXTS);
 
 /**
  * Module DOC of the group `platform-records`: the office of the Department of Planning and Investment of Cao Bang at work with documents.
@@ -747,7 +751,12 @@ export async function seedDoc(ctx: SeedContext): Promise<void> {
   const regs = await ctx.step('DOC', 'number registers', () => registers(ctx));
 
   // The decision of the People's Committee that the base group received is the evidence of the legal confirmations.
-  const evidence = await ctx.find(DRAFTER, '/incoming-documents', (row) => row.original_symbol === tx('evidence.148'));
+  let evidence = await ctx.find(DRAFTER, '/incoming-documents', (row) => row.original_symbol === tx('evidence.148'));
+  // The enterprise dataset has no group `base`: its evidence is a decision of the board of members, received here.
+  if (evidence === undefined && ENTERPRISE) {
+    const received = await ctx.letter({ symbol: tx('evidence.148'), title: tx('title.125'), sender: tx('name.018'), issuedOn: ctx.day(-60) });
+    evidence = { document_id: received.documentId };
+  }
   if (evidence === undefined) throw new Error(tx('seedDoc.149'));
   const evidenceDocument = String(evidence.document_id);
 

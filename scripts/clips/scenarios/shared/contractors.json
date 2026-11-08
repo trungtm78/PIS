@@ -58,7 +58,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "bidManager"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -104,7 +104,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "bidManager"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -228,7 +228,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "bidManager"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -333,7 +333,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -362,7 +362,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "projectManager"
         },
         {
           "do": "open",

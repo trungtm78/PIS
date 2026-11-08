@@ -63,6 +63,11 @@ async function dashboardWithVersion(ctx: SeedContext, spec: DashboardSpec, metri
     dataset_version_policy: 'LATEST_FROZEN',
   }, { version });
   if (!saved.ok) return;
+  // The version is published by the real procedure of BI-06: the maker asks (a publication request over the version), a second person approves.
+  const versionId = String(saved.json.version_id ?? '');
+  const asked = await ctx.attempt<CommandReply>(MAKER, 'POST', '/bi/publication-requests', { object_kind: 'DASHBOARD', object_id: versionId });
+  // The request may be refused for the leader of this stack (docs/clip-data.md): the direct publication below is then the way.
+  if (asked.ok) await ctx.attempt(LEADER, 'POST', `/bi/publication-requests/${asked.json.resource_id}/decision`, { decision: 'APPROVED', comment: block.publishReason }, { version: asked.json.resource_version });
   const evidence = await ctx.letter({ symbol: block.evidence.symbol, title: block.evidence.title, sender: block.evidence.sender, issuedOn: ctx.day(-5) });
   const dashboard = await ctx.get<Obj>(MAKER, `/bi/dashboards/${id}`);
   await ctx.attempt(LEADER, 'POST', `/dashboards/${id}/publish`, { decision: 'approve', reason: block.publishReason, evidence_ids: [evidence.documentId] }, { version: Number(dashboard.version) });
