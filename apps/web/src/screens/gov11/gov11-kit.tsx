@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
+import { AttemptRegistry } from '../../api/attempt-registry';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -170,5 +172,81 @@ export function UnverifiedNote({ rules }: { rules: Array<RuleReading | undefined
     <p className="callout gov11-unverified" role="note" data-testid="unverified-note">
       {t('gov11.common.unverified')}
     </p>
+  );
+}
+
+export interface CommandInput {
+  path?: Record<string, string>;
+  body?: Record<string, unknown>;
+  /** The version of the record the person saw: the server refuses the change when it moved (409 VERSION_CONFLICT). */
+  version?: number;
+}
+
+/** A command of this lane: one idempotency attempt for each intention, the reads of the screen refreshed on success. */
+export function useGovCommand(operation: string) {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: CommandInput) =>
+      client.command(operation as never, { ...(input.path === undefined ? {} : { path: input.path }), body: (input.body ?? {}) as never, ...(input.version === undefined ? {} : { ifMatchVersion: input.version }), attempt: attempts.current.forPayload(input) } as never),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: ['gov11'] });
+    },
+    onError: (error) => attempts.current.ended(error),
+    meta: { tenant: tenant?.id },
+  });
+}
+
+/** The words of a refusal of a command: its code is shown as the screen's own sentence when the screen has one, else the code. */
+export function refusalCode(error: unknown): string | undefined {
+  return typeof error === 'object' && error !== null && 'code' in error && typeof (error as { code: unknown }).code === 'string' ? (error as { code: string }).code : undefined;
+}
+
+export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export interface PickIdProps extends ScreenProps {
+  title: string;
+  subtitle: string;
+  /** What was typed in the address and is not an identifier: said, not ignored. */
+  raw: string;
+  onPick: (id: string) => void;
+}
+
+/** A screen about one project opens on its identifier; with none (or a bad one) the person is asked for it, and a bad one is named. */
+export function PickId({ route, title, subtitle, raw, onPick }: PickIdProps) {
+  const { t } = useTranslation();
+  const [typed, setTyped] = useState('');
+  return (
+    <section data-screen-id={route.id} aria-labelledby="screen-title" className="gov11-page">
+      <div className="heading">
+        <div>
+          <h1 id="screen-title">{title}</h1>
+          <p>{subtitle}</p>
+        </div>
+      </div>
+      <form
+        className="gov11-form"
+        onSubmit={(event: FormEvent) => {
+          event.preventDefault();
+          if (UUID_PATTERN.test(typed.trim())) onPick(typed.trim());
+        }}
+      >
+        <label>
+          {t('gov11.common.pick.label')}
+          <input value={typed} onChange={(event) => setTyped(event.target.value)} data-testid="pick-id" aria-invalid={typed !== '' && !UUID_PATTERN.test(typed.trim())} />
+        </label>
+        <button type="submit" className="ui-button ui-button--primary">
+          {t('gov11.common.pick.open')}
+        </button>
+        {raw !== '' && (
+          <p role="alert" data-testid="bad-id">
+            {t('gov11.common.pick.bad')}
+          </p>
+        )}
+      </form>
+    </section>
   );
 }
