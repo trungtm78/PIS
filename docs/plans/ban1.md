@@ -10,8 +10,9 @@ Branch `lane/ban1`, worktree `D:\PIS-ban1`, migration block 2520-2539. Design re
 | API module, report-engine form `BAN-MEETING-PACK` | done | `apps/api/src/modules/committee` |
 | API tests (db lane), authz matrix, isolation, conformance counts | in progress | `apps/api/test/committee` |
 | Spec text BAN.md, story, traceability, backlog, test cases | to do | `Design/MACHVON_Design` |
-| Web screens (dashboard, attention, pack, tracker, alerts, roster, view audit), i18n parts, states matrix | to do | `apps/web/src/screens/ban` |
-| PWA card, phone card | to do | `apps/web/src/pwa`, `apps/mobile/lib/features/dashboard` |
+| Web screens (dashboard, attention, pack, tracker, alerts, roster, view audit), i18n parts, states matrix | done (commits 70baf081 to 513f3b95) | `apps/web/src/screens/ban` |
+| PWA card on the leader dashboard | done (`CommitteeCard`) | `apps/web/src/pwa/screens` |
+| Phone card | to do | `apps/mobile/lib/features/dashboard` |
 | Gates, Codex review with triage | to do | |
 
 Owner decisions applied: real core first, no simulation label; decide by governance criteria; no scope cut.
