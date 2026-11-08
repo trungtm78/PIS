@@ -36844,5 +36844,8 @@
   "gov11.lookAhead.constraint.error.descShort": "Mô tả vướng mắc cần ít nhất 3 ký tự.",
   "gov11.lookAhead.constraint.error.descLong": "Mô tả vướng mắc dài tối đa 500 ký tự.",
   "gov11.lookAhead.constraint.error.due": "Nhập ngày có thật cho hạn gỡ.",
-  "gov11.lookAhead.form.refused.openExisting": "Mở kế hoạch đã có"
+  "gov11.lookAhead.form.refused.openExisting": "Mở kế hoạch đã có",
+  "logo.mark.alt": "Biểu tượng Mạch Vốn, {product}",
+  "logo.tagline.public": "Mạch vốn thông suốt, đầu tư công minh bạch",
+  "logo.tagline.enterprise": "Vốn đến đúng công trình, việc đúng tiến độ"
 }

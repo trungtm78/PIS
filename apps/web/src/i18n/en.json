@@ -36844,5 +36844,8 @@
   "gov11.lookAhead.constraint.error.descShort": "The description of a constraint needs at least 3 characters.",
   "gov11.lookAhead.constraint.error.descLong": "The description of a constraint is at most 500 characters.",
   "gov11.lookAhead.constraint.error.due": "Enter a real day for the due day.",
-  "gov11.lookAhead.form.refused.openExisting": "Open the existing plan"
+  "gov11.lookAhead.form.refused.openExisting": "Open the existing plan",
+  "logo.mark.alt": "Mạch Vốn logo, {product}",
+  "logo.tagline.public": "Capital flowing freely, public investment in the open",
+  "logo.tagline.enterprise": "Capital to the right site, work on schedule"
 }
