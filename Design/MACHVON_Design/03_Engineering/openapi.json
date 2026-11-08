@@ -237300,7 +237300,13 @@
               "DOC_REVIEW",
               "DATA_FRESHNESS",
               "ANOMALY",
-              "ALERT_FEEDBACK"
+              "ALERT_FEEDBACK",
+              "PAYMENT_CLOCK",
+              "DISBURSEMENT_FORECAST",
+              "SETTLEMENT_CLOCK",
+              "CONTRACT_ADJUSTMENT",
+              "LOOK_AHEAD",
+              "LESSONS_LEARNED"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -238663,7 +238669,13 @@
               "DOC_REVIEW",
               "DATA_FRESHNESS",
               "ANOMALY",
-              "ALERT_FEEDBACK"
+              "ALERT_FEEDBACK",
+              "PAYMENT_CLOCK",
+              "DISBURSEMENT_FORECAST",
+              "SETTLEMENT_CLOCK",
+              "CONTRACT_ADJUSTMENT",
+              "LOOK_AHEAD",
+              "LESSONS_LEARNED"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -238739,7 +238751,13 @@
               "DOC_REVIEW",
               "DATA_FRESHNESS",
               "ANOMALY",
-              "ALERT_FEEDBACK"
+              "ALERT_FEEDBACK",
+              "PAYMENT_CLOCK",
+              "DISBURSEMENT_FORECAST",
+              "SETTLEMENT_CLOCK",
+              "CONTRACT_ADJUSTMENT",
+              "LOOK_AHEAD",
+              "LESSONS_LEARNED"
             ],
             "description": "The kind of source the item comes from."
           },

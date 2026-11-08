@@ -104,7 +104,7 @@ export function Info({ name, rule, fallbackFormula, owner, asOf }: InfoProps) {
   );
 }
 
-export interface FigureProps extends InfoProps {
+export interface FigureProps extends Omit<InfoProps, 'name'> {
   label: string;
   value: string;
   tone?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
