@@ -10,6 +10,7 @@ import '../../../core/widgets/figure_info.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../read_support/amounts.dart';
 import '../../read_support/money.dart';
+import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../committee_workspace.dart';
 
@@ -117,11 +118,31 @@ class _CommitteeCardState extends ConsumerState<CommitteeCard> with AutomaticKee
               if (workspace != null && _phase != _Phase.failed) ...<Widget>[
                 _Refresh(busy: _phase == _Phase.loading, onRefresh: _load),
                 if (workspace.feedEmpty) const _EmptyFeed() else _Body(workspace: workspace),
+                if (!workspace.feedEmpty) const _OpenDashboard(),
               ],
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The way in to the full dashboard (MOB-72): by sector, district, investor and funding source, the whole attention list, the directives and the alerts.
+class _OpenDashboard extends StatelessWidget {
+  const _OpenDashboard();
+
+  @override
+  Widget build(BuildContext context) {
+    return TappableRow(
+      semanticLabel: context.t('mob.home.committee.open.action'),
+      onTap: () => openScreen(context, 'MOB-72', stacked: true),
+      child: Row(
+        children: <Widget>[
+          Expanded(child: Text(context.t('mob.home.committee.open.action'), style: const TextStyle(color: MachvonColors.primary))),
+          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+        ],
+      ),
     );
   }
 }
@@ -226,18 +247,18 @@ class _Body extends StatelessWidget {
             child: Semantics(liveRegion: true, child: Wrap(children: <Widget>[StatusPill(label: context.t('mob.home.committee.stale.text'), warn: true)])),
           ),
         const SizedBox(height: MachvonSpace.space8),
-        _RagLine(rag: rag),
-        _FigureRow(figure: workspace.figure(committeeRateMetric), label: context.t('mob.home.committee.label.rate'), headline: true),
-        _FigureRow(figure: gap, label: context.t('mob.home.committee.label.gap'), signed: true),
+        CommitteeRagLine(rag: rag),
+        CommitteeFigureRow(figure: workspace.figure(committeeRateMetric), label: context.t('mob.home.committee.label.rate'), headline: true),
+        CommitteeFigureRow(figure: gap, label: context.t('mob.home.committee.label.gap'), signed: true),
         FactLine(label: context.t('mob.home.committee.label.expected'), value: context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(province.expectedPct, AppStrings.of(context).language)})),
-        _FigureRow(figure: workspace.figure(committeePlanMetric), label: context.t('mob.home.committee.label.plan')),
-        _FigureRow(figure: workspace.figure(committeeDisbursedMetric), label: context.t('mob.home.committee.label.disbursed')),
-        _LastYearRow(workspace: workspace),
-        _OutlookRow(workspace: workspace),
+        CommitteeFigureRow(figure: workspace.figure(committeePlanMetric), label: context.t('mob.home.committee.label.plan')),
+        CommitteeFigureRow(figure: workspace.figure(committeeDisbursedMetric), label: context.t('mob.home.committee.label.disbursed')),
+        CommitteeLastYearRow(workspace: workspace),
+        CommitteeOutlookRow(workspace: workspace),
         const Divider(),
-        _FigureRow(figure: workspace.figure(committeeAttentionMetric), label: context.t('mob.home.committee.label.attention')),
-        _FigureRow(figure: workspace.figure(committeeUnitsMetric), label: context.t('mob.home.committee.label.units')),
-        _FigureRow(figure: workspace.figure(committeeDirectivesMetric), label: context.t('mob.home.committee.label.directives')),
+        CommitteeFigureRow(figure: workspace.figure(committeeAttentionMetric), label: context.t('mob.home.committee.label.attention')),
+        CommitteeFigureRow(figure: workspace.figure(committeeUnitsMetric), label: context.t('mob.home.committee.label.units')),
+        CommitteeFigureRow(figure: workspace.figure(committeeDirectivesMetric), label: context.t('mob.home.committee.label.directives')),
         const Divider(),
         _AttentionList(workspace: workspace),
         const Divider(),
@@ -248,8 +269,8 @@ class _Body extends StatelessWidget {
 }
 
 /// The colour of the province in words and with a shape, never by colour alone.
-class _RagLine extends StatelessWidget {
-  const _RagLine({required this.rag});
+class CommitteeRagLine extends StatelessWidget {
+  const CommitteeRagLine({required this.rag});
 
   final CommitteeRag rag;
 
@@ -269,7 +290,7 @@ class _RagLine extends StatelessWidget {
 }
 
 /// The text a figure is shown with: its digits as the server wrote them, or why it has none (never zero).
-String _figureText(BuildContext context, CommitteeFigure? figure, {bool signed = false}) {
+String committeeFigureText(BuildContext context, CommitteeFigure? figure, {bool signed = false}) {
   if (figure == null || figure.value == null) return _noValueText(context, figure?.nullReason);
   final String language = AppStrings.of(context).language;
   switch (figure.unit) {
@@ -305,8 +326,8 @@ String _noValueText(BuildContext context, String? reason) {
 }
 
 /// One figure: its name, its value (or why it has none), the flags the server set and the "i" of its definition.
-class _FigureRow extends StatelessWidget {
-  const _FigureRow({required this.figure, required this.label, this.headline = false, this.signed = false});
+class CommitteeFigureRow extends StatelessWidget {
+  const CommitteeFigureRow({required this.figure, required this.label, this.headline = false, this.signed = false});
 
   final CommitteeFigure? figure;
   final String label;
@@ -329,7 +350,7 @@ class _FigureRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(label, style: theme.textTheme.bodySmall),
-                  Text(_figureText(context, figure, signed: signed), style: (headline ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(fontWeight: FontWeight.w700)),
+                  Text(committeeFigureText(context, figure, signed: signed), style: (headline ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(fontWeight: FontWeight.w700)),
                   for (final String flag in flags) Text(flag, style: theme.textTheme.bodySmall),
                 ],
               ),
@@ -358,8 +379,8 @@ List<String> _flagWords(BuildContext context, CommitteeFigure? figure) {
 }
 
 /// The same period of last year; when only some funding lines have a figure of last year, it says how many.
-class _LastYearRow extends StatelessWidget {
-  const _LastYearRow({required this.workspace});
+class CommitteeLastYearRow extends StatelessWidget {
+  const CommitteeLastYearRow({required this.workspace});
 
   final CommitteeWorkspace workspace;
 
@@ -368,7 +389,7 @@ class _LastYearRow extends StatelessWidget {
     final CommitteeFigure? figure = workspace.figure(committeeLastYearMetric);
     final CommitteeProvince province = workspace.province;
     final bool partial = (figure == null || !figure.hasValue) && province.lastYearKnown > 0 && province.lastYearKnown < province.lastYearTotal;
-    if (!partial) return _FigureRow(figure: figure, label: context.t('mob.home.committee.label.lastYear'));
+    if (!partial) return CommitteeFigureRow(figure: figure, label: context.t('mob.home.committee.label.lastYear'));
     final ThemeData theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
@@ -394,8 +415,8 @@ class _LastYearRow extends StatelessWidget {
 }
 
 /// The band the year is expected to close in: the lowest to the highest estimate, each end with its own "i", or why there is none.
-class _OutlookRow extends StatelessWidget {
-  const _OutlookRow({required this.workspace});
+class CommitteeOutlookRow extends StatelessWidget {
+  const CommitteeOutlookRow({required this.workspace});
 
   final CommitteeWorkspace workspace;
 
@@ -447,7 +468,7 @@ class _OutlookRow extends StatelessWidget {
   }
 }
 
-String _reasonWord(BuildContext context, CommitteeReason reason) {
+String committeeReasonWord(BuildContext context, CommitteeReason reason) {
   switch (reason) {
     case CommitteeReason.delayed:
       return context.t('mob.home.committee.reason.delayed');
@@ -491,7 +512,7 @@ class _AttentionList extends StatelessWidget {
                     Text(context.t('mob.home.committee.attention.item', <String, Object>{'code': item.code, 'name': item.name}), style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
                     if (item.reasons.isNotEmpty)
                       Text(
-                        context.t('mob.home.committee.attention.reasons', <String, Object>{'reasons': <String>[for (final CommitteeReason reason in item.reasons) _reasonWord(context, reason)].join(', ')}),
+                        context.t('mob.home.committee.attention.reasons', <String, Object>{'reasons': <String>[for (final CommitteeReason reason in item.reasons) committeeReasonWord(context, reason)].join(', ')}),
                         style: theme.textTheme.bodySmall,
                       ),
                   ],
@@ -504,7 +525,7 @@ class _AttentionList extends StatelessWidget {
   }
 }
 
-String _alertTypeWord(BuildContext context, CommitteeAlertType type) {
+String committeeAlertTypeWord(BuildContext context, CommitteeAlertType type) {
   switch (type) {
     case CommitteeAlertType.provinceBehind:
       return context.t('mob.home.committee.alert.provinceBehind');
@@ -545,8 +566,8 @@ class _AlertList extends StatelessWidget {
                   runSpacing: MachvonSpace.space4,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: <Widget>[
-                    _SeverityPill(severity: alert.severity),
-                    Text(alert.subjectLabel == null ? _alertTypeWord(context, alert.type) : context.t('mob.home.committee.alert.subject', <String, Object>{'type': _alertTypeWord(context, alert.type), 'subject': alert.subjectLabel!}), style: theme.textTheme.bodyMedium),
+                    CommitteeSeverityPill(severity: alert.severity),
+                    Text(alert.subjectLabel == null ? committeeAlertTypeWord(context, alert.type) : context.t('mob.home.committee.alert.subject', <String, Object>{'type': committeeAlertTypeWord(context, alert.type), 'subject': alert.subjectLabel!}), style: theme.textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -557,8 +578,8 @@ class _AlertList extends StatelessWidget {
   }
 }
 
-class _SeverityPill extends StatelessWidget {
-  const _SeverityPill({required this.severity});
+class CommitteeSeverityPill extends StatelessWidget {
+  const CommitteeSeverityPill({required this.severity});
 
   final CommitteeSeverity severity;
 

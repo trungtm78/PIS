@@ -5,6 +5,7 @@ import 'account/account_feature.dart' as f_account;
 import 'ai_review/ai_review_feature.dart' as f_ai_review;
 import 'approval_inbox/approval_inbox_feature.dart' as f_approval_inbox;
 import 'attachments/attachments_feature.dart' as f_attachments;
+import 'committee_dashboard/committee_dashboard_feature.dart' as f_committee_dashboard;
 import 'conversations/conversations_feature.dart' as f_conversations;
 import 'dashboard/dashboard_feature.dart' as f_dashboard;
 import 'diary_hub/diary_hub_feature.dart' as f_diary_hub;
@@ -40,6 +41,7 @@ final List<MobileFeature> kAllFeatures = <MobileFeature>[
   f_ai_review.feature,
   f_approval_inbox.feature,
   f_attachments.feature,
+  f_committee_dashboard.feature,
   f_conversations.feature,
   f_dashboard.feature,
   f_diary_hub.feature,

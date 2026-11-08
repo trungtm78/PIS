@@ -306,3 +306,20 @@ class CommitteeRefusals extends Notifier<Set<String>> {
 
   void remember(String who) => state = <String>{...state, who};
 }
+
+// ---- the words of the workspace that the full dashboard (MOB-72) reads again --------------------------------------------------
+
+/// The colour of a row as the server wrote it, or null for a word this phone does not know.
+CommitteeRag? parseCommitteeRag(Object? value) => _rag(value);
+
+/// The reason a project needs attention, or null for a reason this phone does not know.
+CommitteeReason? parseCommitteeReason(Object? value) => _reason(value);
+
+/// The severity of a committee alert, or null.
+CommitteeSeverity? parseCommitteeSeverity(Object? value) => _severity(value);
+
+/// The type of a committee alert, or null.
+CommitteeAlertType? parseCommitteeAlertType(Object? value) => _alertType(value);
+
+/// One figure of the workspace with its definition (the "i"), or null when it lacks its code or its unit.
+CommitteeFigure? parseCommitteeFigure(Object? raw) => _figure(raw);
