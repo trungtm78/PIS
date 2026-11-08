@@ -52,6 +52,7 @@ import { InProcessWorkflowRunner } from './provisioning/workflow-runner';
 import type { WorkflowRunner } from './provisioning/workflow-runner';
 import { DatabaseTenantRuntime } from './session/tenant-runtime';
 import { UserSessionDenyList } from './session/user-session-deny-list';
+import { securityHeaders } from './security/security-headers';
 import { requestTelemetry } from './telemetry/request-telemetry';
 import { DocumentIssueConsumer } from './modules/doc/issue-consumer';
 import { DocumentIssueService } from './modules/doc/issue-request.service';
@@ -218,6 +219,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
 
     app = await NestFactory.create<NestExpressApplication>(RootModule, { bodyParser: false, rawBody: true, logger: ['error', 'warn'] });
     app.use(requestTelemetry(tracer));
+    app.use(securityHeaders());
     // The body size limit applies before any route parses a body; an oversized body is a 413 problem, never a crash.
     app.useBodyParser('json', { limit: config.maxBodyBytes });
     app.enableCors({

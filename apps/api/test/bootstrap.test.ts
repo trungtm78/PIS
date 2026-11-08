@@ -110,6 +110,21 @@ describe('the real API bootstrap (ST-KERNEL-050)', () => {
     });
   });
 
+  describe('security headers (INFRA-1)', () => {
+    it('sends the security headers on a success, a refusal and a health answer, and HSTS behind a TLS proxy', async () => {
+      const api = await start();
+      for (const reply of [await get(api, '/health/live'), await get(api, '/resources/organization_unit?limit=5', authed()), await get(api, '/resources/role_grant', authed())]) {
+        expect(reply.headers.get('x-content-type-options')).toBe('nosniff');
+        expect(reply.headers.get('content-security-policy')).toContain("frame-ancestors 'none'");
+        expect(reply.headers.get('referrer-policy')).toBe('no-referrer');
+        expect(reply.headers.get('x-frame-options')).toBe('DENY');
+        expect(reply.headers.get('strict-transport-security')).toBeNull();
+      }
+      const behindProxy = await get(api, '/health/live', { 'x-forwarded-proto': 'https' });
+      expect(behindProxy.headers.get('strict-transport-security')).toContain('max-age=31536000');
+    });
+  });
+
   describe('telemetry', () => {
     it('records one span per request with only allowlisted attributes, in the trace of the incoming traceparent', async () => {
       const api = await start();
