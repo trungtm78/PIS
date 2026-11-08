@@ -43,6 +43,7 @@ CREATE TABLE machvon.analytics_decision (
 CREATE INDEX analytics_decision_time_idx ON machvon.analytics_decision (tenant_id, decided_at DESC, id);
 CREATE INDEX analytics_decision_metric_idx ON machvon.analytics_decision (tenant_id, subject_kind, metric_code, decided_at DESC) WHERE metric_code IS NOT NULL;
 CREATE INDEX analytics_decision_work_idx ON machvon.analytics_decision (tenant_id, work_source, work_source_id, decided_at DESC) WHERE work_source IS NOT NULL;
+CREATE INDEX analytics_decision_work_source_id_idx ON machvon.analytics_decision (tenant_id, work_source_id) WHERE work_source_id IS NOT NULL;
 CREATE INDEX analytics_decision_follow_up_idx ON machvon.analytics_decision (tenant_id, follow_up_due) WHERE follow_up_due IS NOT NULL;
 CREATE INDEX analytics_decision_unit_idx ON machvon.analytics_decision (tenant_id, unit_id) WHERE unit_id IS NOT NULL;
 CREATE INDEX analytics_decision_snapshot_idx ON machvon.analytics_decision (tenant_id, snapshot_id) WHERE snapshot_id IS NOT NULL;
