@@ -2658,6 +2658,50 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/home/rag/scores', body: undefined }),
   },
+  recordAnalyticsDecision: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/decisions', body: { subject: { kind: 'FREE', title: 'Matrix probe' }, kind: 'DEFER', reason: 'Matrix probe: nothing is recorded.' } }),
+  },
+  recordAnalyticsDecisionOutcome: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/decisions/00000000-0000-4000-8000-0000000000e8/outcomes', body: { outcome: 'STILL_OPEN', note: 'Matrix probe note' } }),
+  },
+  proposeRankingAnnotation: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/rankings/annotations', body: { unit_id: '00000000-0000-4000-8000-0000000000e8', reason_code: 'LAND_CLEARANCE', metric_codes: ['RATE'], evidence: 'Matrix probe: no unit', valid_to: '2999-01-01' } }),
+  },
+  decideRankingAnnotation: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/rankings/annotations/00000000-0000-4000-8000-0000000000e8/decision', body: { decision: 'APPROVE', note: 'Matrix probe note' } }),
+  },
+  fileRankingComplaint: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/rankings/complaints', body: { unit_id: '00000000-0000-4000-8000-0000000000e8', metric_code: 'RATE', as_of_date: '2020-01-01', claim: 'Matrix probe: no unit' } }),
+  },
+  resolveRankingComplaint: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/rankings/complaints/00000000-0000-4000-8000-0000000000e8/resolution', body: { action: 'START_REVIEW' } }),
+  },
+  recordProjectHalt: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/halted-projects', body: { project_id: '00000000-0000-4000-8000-0000000000e8', reason_code: 'OTHER', reason_text: 'Matrix probe: no project', halted_on: '2020-01-01' } }),
+  },
+  saveRestartPlan: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/halted-projects/00000000-0000-4000-8000-0000000000e8/plan', body: { steps: [{ title: 'Matrix probe step', owner_unit_id: '00000000-0000-4000-8000-0000000000e8', due_on: '2999-01-01' }] } }),
+  },
+  decideRestartPlan: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/halted-projects/00000000-0000-4000-8000-0000000000e8/plan-decision', body: { decision: 'APPROVE', note: 'Matrix probe note' } }),
+  },
+  closeRestartStep: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/halted-projects/00000000-0000-4000-8000-0000000000e8/steps/00000000-0000-4000-8000-0000000000e8/closure', body: { status: 'DONE', note: 'Matrix probe note' } }),
+  },
+  closeProjectHalt: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/halted-projects/00000000-0000-4000-8000-0000000000e8/closure', body: { outcome: 'CANCELLED', note: 'Matrix probe note' } }),
+  },
   assignQualityIncident: {
     referencesTenantIds: true,
     build: (t) => ({

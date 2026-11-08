@@ -821,7 +821,18 @@
     "resolveDocumentComment",
     "reopenDocumentComment",
     "submitDocumentForReview",
-    "withdrawDocumentReview"
+    "withdrawDocumentReview",
+    "recordAnalyticsDecision",
+    "recordAnalyticsDecisionOutcome",
+    "proposeRankingAnnotation",
+    "decideRankingAnnotation",
+    "fileRankingComplaint",
+    "resolveRankingComplaint",
+    "recordProjectHalt",
+    "saveRestartPlan",
+    "decideRestartPlan",
+    "closeRestartStep",
+    "closeProjectHalt"
   ],
   "identityCommands": [
     "acceptInvitation",
