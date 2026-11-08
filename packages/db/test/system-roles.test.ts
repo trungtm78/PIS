@@ -29,13 +29,16 @@ const matches = (pattern: string, permission: string): boolean =>
   pattern.endsWith('.*') ? permission.startsWith(pattern.slice(0, -1)) : pattern === permission;
 
 describe('SYSTEM_ROLES', () => {
-  it('lists the fourteen system roles of the IAM role table with their ranks', () => {
+  it('lists the seventeen system roles of the IAM role table with their ranks', () => {
     expect(SYSTEM_ROLES.map((role) => [role.code, role.rank])).toEqual([
       ['TENANT_OWNER', 99],
       ['TENANT_ADMIN', 90],
       ['SECURITY_ADMIN', 85],
       ['UNIT_ADMIN', 70],
       ['LEADER', 60],
+      ['COMMITTEE_HEAD', 62],
+      ['COMMITTEE_MEMBER', 55],
+      ['COMMITTEE_SECRETARIAT', 52],
       ['NOTIFICATION_ADMIN', 50],
       ['OMNI_SUPERVISOR', 50],
       ['SPECIALIST', 40],
@@ -50,6 +53,22 @@ describe('SYSTEM_ROLES', () => {
 
   it('lets every member read their own session data (getMyEntitlements needs session.self)', () => {
     expect(SYSTEM_ROLES.find((role) => role.code === 'MEMBER')?.permissions).toEqual(expect.arrayContaining(['session.self', 'notification.self', 'profile.self', 'tenant.theme.read', 'support.ticket.create', 'support.ticket.read']));
+  });
+
+  it('gives the committee roles read, directive and report rights and NO write right on financial data', () => {
+    const committee = SYSTEM_ROLES.filter((role) => role.code.startsWith('COMMITTEE_'));
+    expect(committee.map((role) => role.code)).toEqual(['COMMITTEE_HEAD', 'COMMITTEE_MEMBER', 'COMMITTEE_SECRETARIAT']);
+    const financial = /^(capital|payment|payment_request|disbursement|treasury|treasury_transaction|settlement|contract|advance|guarantee|invoice_line|allocation_line|budget_reservation|ledger|boq|reconciliation|appropriation|cap|pay|ctr|iam|adm|audit|system)\./;
+    for (const role of committee) {
+      expect(role.permissions.filter((permission) => financial.test(permission))).toEqual([]);
+      expect(role.permissions).toContain('committee.read');
+      expect(role.guestAllowed).toBe(false);
+    }
+    expect(SYSTEM_ROLES.find((role) => role.code === 'COMMITTEE_HEAD')?.permissions).toEqual(expect.arrayContaining(['directive.manage', 'directive.meeting.manage', 'rpt.approve']));
+    // Reading the audit of who viewed the workspace is for the security administrator and the auditor, never for the committee.
+    for (const role of committee) expect(role.permissions).not.toContain('committee.audit.read');
+    expect(SYSTEM_ROLES.find((role) => role.code === 'SECURITY_ADMIN')?.permissions).toContain('committee.audit.read');
+    expect(SYSTEM_ROLES.find((role) => role.code === 'AUDITOR')?.permissions).toContain('committee.audit.read');
   });
 
   it('allows guests only for GUEST_CONTRACTOR and MEMBER', () => {

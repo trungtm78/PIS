@@ -1760,3 +1760,8 @@ export { HubStore } from './hub-store.ts';
 export type { HubAgentRow, HubConnectorReading, HubIncidentRow, HubKpiReading, HubMappingRow, HubRejectRow, HubRuleInfo, HubRunView, HubSnapshotRow, HubSweepChange } from './hub-store.ts';
 export { hubStateAdapterOf, registerBuiltInHubAdapters, registerHubStateAdapter } from './hub-adapters.ts';
 export type { HubStateAdapter } from './hub-adapters.ts';
+export { CommitteeAlertStore, CommitteeDecisionStore, CommitteeDirectiveReader, CommitteeRosterStore, CommitteeViewAuditStore, ATTENTION_DECISIONS } from './committee-store.ts';
+export type { AlertReconciliation, AppointInput, AttentionDecisionKind, AttentionDecisionRow, CommitteeAlertRow, CommitteeMemberRow, CommitteeRow, AttentionDecisionInput, DirectiveTracker, DirectiveUnitRow, TrackedDirective, ViewAuditRow, ViewRecord } from './committee-store.ts';
+export { CommitteePolicyReader } from './committee-policy-reader.ts';
+export { CoreProvinceFactsReader, MemoryProvinceFactsReader, emptyProvinceFacts } from './province-facts.ts';
+export type { ProvinceFactsReader } from './province-facts.ts';
