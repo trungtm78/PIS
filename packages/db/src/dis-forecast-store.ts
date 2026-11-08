@@ -6,6 +6,8 @@ export interface ForecastProject {
   projectId: string;
   projectCode: string;
   projectName: string;
+  /** The investor unit of the project (the owner unit of its lines when it names none): the group the milestone forecast and its accuracy are read by. */
+  investorUnitId: string;
   /** What the lines of the snapshot add up to for the plan of the year. */
   planTotalVnd: string;
   /** What the Treasury paid to the cutoff, or null when it booked nothing for any line of the project. */
@@ -28,17 +30,17 @@ export interface ForecastData {
 export class DisForecastStore {
   async read(tx: TenantTx, scope: ScopeBuilder, input: { snapshotId: string; planYear: number; cutoffDate: string; projectId?: string | undefined; unitId?: string | undefined }): Promise<ForecastData> {
     const visible = scope(4);
-    const lines = await tx.query<{ project_id: string; code: string; name: string; plan: string; disbursed: string | null }>(
-      `select l.project_id, p.code, p.name, sum(l.plan_total_vnd)::text as plan,
+    const lines = await tx.query<{ project_id: string; code: string; name: string; investor_unit_id: string; plan: string; disbursed: string | null }>(
+      `select l.project_id, p.code, p.name, coalesce(p.investor_unit_id, max(l.unit_id::text)::uuid) as investor_unit_id, sum(l.plan_total_vnd)::text as plan,
               case when count(l.disbursed_treasury_vnd) = 0 then null else sum(l.disbursed_treasury_vnd)::text end as disbursed
          from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
         where l.snapshot_id = $1::uuid and ($2::uuid is null or l.project_id = $2::uuid) and ($3::uuid is null or l.unit_id = $3::uuid) and ${visible.sql}
-        group by l.project_id, p.code, p.name
+        group by l.project_id, p.code, p.name, p.investor_unit_id
         order by p.code collate "C", l.project_id`,
       [input.snapshotId, input.projectId ?? null, input.unitId ?? null, ...visible.params],
     );
     const projects = new Map<string, ForecastProject>(
-      lines.map((row) => [row.project_id, { projectId: row.project_id, projectCode: row.code, projectName: row.name, planTotalVnd: row.plan, disbursedVnd: row.disbursed, forecasts: new Map(), registered: new Map() }]),
+      lines.map((row) => [row.project_id, { projectId: row.project_id, projectCode: row.code, projectName: row.name, investorUnitId: row.investor_unit_id, planTotalVnd: row.plan, disbursedVnd: row.disbursed, forecasts: new Map(), registered: new Map() }]),
     );
     const ids = [...projects.keys()];
     if (ids.length === 0) return { projects: [], actualByMonth: new Map() };
