@@ -38,8 +38,8 @@ const SOUTH = 3;
 const NOW = new Date('2027-10-15T03:00:00Z');
 const THURSDAY_08 = new Date('2027-10-14T01:00:00Z');
 
-/** The body of an answer as the fetch types of the platform give it: the checks below read it by the names of the contract. */
-type Json = Awaited<ReturnType<Response['json']>>;
+/** The body of an answer as `JSON.parse` types it (loosely): the checks below read it by the names of the contract and prove each value with an assertion. */
+type Json = ReturnType<typeof JSON.parse>;
 
 interface Reply {
   status: number;
@@ -277,8 +277,10 @@ describe('the governance of the alert system', () => {
       expect(mine.json).toMatchObject({ status: 'Declared', resource_version: 1 });
       const overlap = await declare(OFFICER, { valid_from: new Date(NOW.getTime() + 86_400_000).toISOString() });
       expect([overlap.status, overlap.json.code]).toEqual([409, 'ALERT_ABSENCE_OVERLAP']);
-      const bad = await declare(DEPUTY, { kind: 'HOLIDAY' });
-      expect([bad.status, bad.json.code, bad.json.field ?? bad.json.detail]).toEqual([422, 'ALERT_ABSENCE_INVALID', 'kind']);
+      const bad = await declare(DEPUTY, { valid_until: new Date(NOW.getTime() - 86_400_000).toISOString() });
+      expect([bad.status, bad.json.code, bad.json.field ?? bad.json.detail]).toEqual([422, 'ALERT_ABSENCE_INVALID', 'valid_until']);
+      // A kind that is not in the contract does not reach the rules at all.
+      expect((await declare(DEPUTY, { kind: 'HOLIDAY' })).status).toBe(422);
       // Somebody who does not manage covers cannot declare for another person; a manager of the unit can, and one of another unit cannot.
       expect((await declare(AWAY, {}, OFFICER)).status).toBe(403);
       expect((await declare(AWAY, {}, NORTH_LEADER)).status).toBe(200);
@@ -335,7 +337,8 @@ describe('the governance of the alert system', () => {
       // The absent person is back: the cover is revoked and the item goes back to its owner.
       const revoked = await call('POST', `/home/alert-covers/${cover}/revoke`, { member: OFFICER, version: 2, body: { reason: 'Back at work' } });
       expect(revoked.status).toBe(200);
-      expect(items(await list(DEPUTY)).some((row) => row.id === newer)).toBe(false);
+      // What the deputy took up stays theirs (the one who took an item up keeps it), but it is no longer held on behalf of the absent person.
+      expect(items(await list(DEPUTY)).find((row) => row.id === newer)).toMatchObject({ on_behalf_of: null });
       expect(await rows("select 1 from machvon.audit_event where action in ('home.alert_cover_proposed', 'home.alert_cover_decided', 'home.alert_cover_revoked')")).toHaveLength(4);
     });
 
@@ -414,7 +417,7 @@ describe('the governance of the alert system', () => {
       const read = await call('GET', '/me/alert-profile', { member: OFFICER });
       expect(read.json).toMatchObject({ version: 1, effective: { push_cap_per_day: 3, digest_at: '08:00', push_min_severity: 'URGENT', own: { quiet: true, push_cap_per_day: true } } });
       expect(read.json.effective.channels.URGENT).toEqual(['IN_APP', 'PUSH', 'EMAIL']);
-      const [audit] = await rows<{ diff: Record<string, unknown> }>("select diff from machvon.audit_event where action = 'home.alert_profile_updated'");
+      const [audit] = await rows<{ diff: Record<string, unknown> }>("select safe_diff as diff from machvon.audit_event where action = 'home.alert_profile_updated'");
       expect(audit?.diff).toMatchObject({ channels_chosen: 3, quiet_hours: 'OWN', push_cap_per_day: 3, policy_version: 'builtin' });
       // Another person's profile is their own: the deputy still has the policy.
       expect((await call('GET', '/me/alert-profile', { member: DEPUTY })).json.version).toBe(0);

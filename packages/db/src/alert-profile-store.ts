@@ -163,7 +163,7 @@ export class AlertProfileStore {
     const rows = await tx.query<{ id: string; recipient: string; occasion: NoticeEntry['occasion']; severity: NotifySeverity; source: string | null; source_id: string | null; channel: NoticeEntry['channel']; local_day: string }>(
       `select l.id, l.recipient_membership_id as recipient, l.occasion, l.severity, l.source, l.source_id, l.channel, l.local_day::text as local_day
          from machvon.alert_notification_log l
-        where l.decision = 'HOLD_QUIET' and l.hold_until <= $1::timestamptz and l.created_at > $1::timestamptz - interval '3 days' and l.channel in ('PUSH', 'SMS', 'ZALO')
+        where l.decision = 'HOLD_QUIET' and l.hold_until <= $1::timestamptz and l.hold_until > $1::timestamptz - interval '3 days' and l.channel in ('PUSH', 'SMS', 'ZALO')
           and not exists (select 1 from machvon.alert_notification_log r where r.tenant_id = l.tenant_id and r.series_key = 'RELEASE:' || l.id::text)
           and (l.source_id is null or exists (select 1 from machvon.alert_item_trace t where t.source = l.source and t.source_id = l.source_id and t.state = 'OPEN'))
         order by l.hold_until, l.id limit 500`,
