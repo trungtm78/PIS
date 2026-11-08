@@ -17,6 +17,6 @@ Lane branch `lane/iam2`, migration block 2460-2479 (V2460-V2464 used). Plan sect
 - [x] contract, API controllers, guard and interceptor, authz matrix, isolation fixtures
 - [x] web screens ADM-25..27 with tests; i18n; design rows
 - [x] Word converter and exporters
-- [ ] Word tests, web format pickers
+- [x] Word tests, web format pickers
 - [ ] gate tests (isolation, conformance, outbox consumers, dis/report), lint, typecheck
 - [ ] Codex review and dispositions
