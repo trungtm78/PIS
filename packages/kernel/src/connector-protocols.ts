@@ -398,7 +398,7 @@ const ENTITY = /<!DOCTYPE|<!ENTITY/i;
 /** Reads a flat XML file: a root, then one element per record, each with child elements that hold text. A DOCTYPE or an entity is refused (no external entity, no expansion). */
 export function readFlatXml(text: string): Array<Record<string, string>> {
   if (ENTITY.test(text)) throw new DomainError('IMPORT_SCHEMA_INVALID', 422, 'xml');
-  const body = text.replace(/^﻿/, '').replace(/<\?xml[^>]*\?>/, '').replace(/<!--[\s\S]*?-->/g, '').trim();
+  const body = text.replace(/^\uFEFF/, '').replace(/<\?xml[^>]*\?>/, '').replace(/<!--[\s\S]*?-->/g, '').trim();
   const root = /^<([A-Za-z_][\w.-]*)[^>]*>([\s\S]*)<\/\1>$/.exec(body);
   if (root === null) throw new DomainError('IMPORT_SCHEMA_INVALID', 422, 'xml');
   const unescape = (value: string): string => value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
