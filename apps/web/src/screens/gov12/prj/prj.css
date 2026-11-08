@@ -1,0 +1,22 @@
+.prj-figure { display: inline-flex; align-items: baseline; gap: var(--space-2, 8px); }
+.prj-figure__label, .prj-muted { color: var(--text-muted, #5b6770); font-size: 0.875rem; }
+.prj-figure__value { font-variant-numeric: tabular-nums; font-weight: 600; }
+.prj-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-3, 12px); margin: var(--space-3, 12px) 0; }
+.prj-facts__item dt { color: var(--text-muted, #5b6770); font-size: 0.8125rem; }
+.prj-facts__item dd { margin: 0; overflow-wrap: anywhere; }
+.prj-pager { display: inline-flex; align-items: center; gap: var(--space-3, 12px); margin: var(--space-3, 12px) 0; }
+.prj-form { display: grid; gap: var(--space-3, 12px); max-width: 40rem; }
+.prj-form label { display: flex; flex-direction: column; gap: 4px; }
+.prj-form textarea { min-height: 5rem; }
+.prj-inline { display: flex; flex-wrap: wrap; gap: var(--space-3, 12px); align-items: end; margin: var(--space-3, 12px) 0; }
+.prj-inline label { display: flex; flex-direction: column; gap: 4px; }
+.prj-list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-3, 12px); }
+.prj-list__item { display: grid; gap: 4px; padding: var(--space-3, 12px); border: 1px solid var(--border, #cfd8dc); border-radius: 8px; }
+.prj-actions { display: inline-flex; flex-wrap: wrap; gap: var(--space-2, 8px); }
+.prj-code { display: inline-block; padding: 2px 8px; font-family: var(--font-mono, monospace); font-size: 1.125rem; letter-spacing: 0.04em; border: 1px solid var(--border, #cfd8dc); border-radius: 6px; overflow-wrap: anywhere; }
+.prj-public { max-width: 60rem; margin: 0 auto; padding: var(--space-4, 16px); display: grid; gap: var(--space-4, 16px); }
+.prj-public__field { display: flex; gap: var(--space-2, 8px); flex-wrap: wrap; }
+.prj-public__field dt { color: var(--text-muted, #5b6770); }
+.prj-public__field dd { margin: 0; overflow-wrap: anywhere; }
+.prj-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 640px) { .prj-figure { flex-wrap: wrap; } }

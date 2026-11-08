@@ -26,6 +26,9 @@ import { StateBoundary } from './states/StateBoundary';
 import type { ScreenState } from './states/StateBoundary';
 import { PublishedThemeProvider } from './theme/PublishedThemeProvider';
 
+// The public portal (GOV-12, PRJ-33) needs no session and no shell: it is read by anyone, so it is a route of its own outside the shell.
+const PublicPortalScreen = lazy(() => import('./screens/gov12/prj/PublicPortalScreen'));
+
 const HOME = 'HOME-01';
 const CHOOSER = 'IAM-04';
 const SIGN_IN_SCREENS: ReadonlySet<string> = new Set(['IAM-01', 'IAM-02', 'IAM-03']);
@@ -103,6 +106,14 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
           <Route path="/d/:id" element={<DocumentLink />} />
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route
+          path="/public/portals/:slug"
+          element={
+            <Suspense fallback={<StateBoundary state="loading" />}>
+              <PublicPortalScreen />
+            </Suspense>
+          }
+        />
         <Route path={CALLBACK_PATH} element={<OidcCallback />} />
       </Routes>
     </PublishedThemeProvider>
