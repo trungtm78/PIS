@@ -1,4 +1,5 @@
 import { Client } from 'pg';
+import { PORTAL_CONTRACTOR_TABLES, PORTAL_DENIED_TABLES, PORTAL_POLICY, PORTAL_SETTING } from './portal-boundary.ts';
 import { APP_ROLE, MACHVON_ROLES } from './roles.ts';
 
 /** Schema that holds every product table. */
@@ -78,6 +79,7 @@ export type RlsFailureReason =
   | 'unexpected_policy'
   | 'relay_exception_wrong'
   | 'bi_exception_wrong'
+  | 'portal_exception_wrong'
   | 'control_plane_unexpected'
   | 'control_plane_missing'
   | 'control_plane_granted'
@@ -129,6 +131,23 @@ function sameRoles(actual: readonly string[], expected: readonly string[]): bool
   return actual.length === expected.length && [...actual].sort().every((role, index) => role === expected[index]);
 }
 
+
+/**
+ * VND-3 (V2446): the contractor portal path. A table of one contractor carries ONE restrictive policy named portal_boundary that answers the rows of the contractor of app.portal_contractor_id (or everything while the setting is
+ * absent); a table of the investigation, the debarment register or the accounts carries ONE that answers nothing while the setting is present; no other table carries it.
+ */
+function portalOk(table: CatalogTable): boolean {
+  const own = PORTAL_CONTRACTOR_TABLES[table.name];
+  const denied = PORTAL_DENIED_TABLES.includes(table.name);
+  const portal = table.policies.filter((policy) => policy.name === PORTAL_POLICY);
+  if (own === undefined && !denied) return portal.length === 0;
+  const only = portal[0];
+  if (portal.length !== 1 || only === undefined || only.permissive || only.command !== '*' || !sameRoles(only.roles, ['public'])) return false;
+  const marker = "current_setting('" + PORTAL_SETTING + "'::text, true)";
+  if (!(only.using?.includes(marker) ?? false) || !(only.withCheck?.includes(marker) ?? false)) return false;
+  return own === undefined ? !(only.using?.includes('::uuid') ?? false) : (only.using?.includes(own + ' = ') ?? false);
+}
+
 function policyFailures(table: CatalogTable): RlsFailureReason[] {
   const failures: RlsFailureReason[] = [];
   const permissive = table.policies.filter((policy) => policy.name === PERMISSIVE_POLICY);
@@ -138,7 +157,7 @@ function policyFailures(table: CatalogTable): RlsFailureReason[] {
   if (!restrictive.some((policy) => !policy.permissive && policy.command === '*' && isTenantPredicate(policy) && sameRoles(policy.roles, wanted))) {
     failures.push('no_restrictive');
   }
-  const known = new Set([PERMISSIVE_POLICY, RESTRICTIVE_POLICY, SCOPE_POLICY, RELAY_POLICY, BI_POLICY]);
+  const known = new Set([PERMISSIVE_POLICY, RESTRICTIVE_POLICY, SCOPE_POLICY, RELAY_POLICY, BI_POLICY, PORTAL_POLICY]);
   for (const policy of table.policies) {
     if (!known.has(policy.name) || (policy.name === SCOPE_POLICY && !isScopePolicy(policy))) failures.push('unexpected_policy');
   }
@@ -171,6 +190,7 @@ function policyFailures(table: CatalogTable): RlsFailureReason[] {
       (table.biPrivileges === undefined || (table.biPrivileges.select && !table.biPrivileges.insert && !table.biPrivileges.update && !table.biPrivileges.delete && !table.biPrivileges.truncate))
     : biPolicies.length === 0 && (table.biPrivileges === undefined || !anyPrivilege(table.biPrivileges));
   if (!biOk) failures.push('bi_exception_wrong');
+  if (!portalOk(table)) failures.push('portal_exception_wrong');
   return failures;
 }
 
