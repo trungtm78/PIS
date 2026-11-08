@@ -16,7 +16,6 @@ export const RISK_ALERT_RESOLVED_EVENT = 'project.risk_alert_resolved.v1';
 /** The lines the pass wrote (opened, re-scored or cleared), summed over the tenants by the sweep (gauge). */
 export const RISK_RESCORE_METRIC = 'prj_risk_signal_changed';
 export const RISK_ALERT_METRIC = 'prj_risk_alert_raised_total';
-const RESOURCE_TYPE = 'project_risk_rescore';
 const PAGE = 200;
 /** The most projects one pass reads, in the order of their code: a bound against a pass that never ends. */
 const MAX_PROJECTS = 5000;

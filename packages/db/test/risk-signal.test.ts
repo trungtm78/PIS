@@ -4,7 +4,6 @@ import { WORKER_MEMBERSHIP_ID } from '../src/consumer-inbox';
 import { RISK_ALERT_RAISED_EVENT, RISK_SIGNAL_SCORED_EVENT, RiskRescoreJob } from '../src/risk-rescore-job';
 import { RiskSignalReader } from '../src/risk-signal-reader';
 import { RiskSignalStore } from '../src/risk-signal-store';
-import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
 import { DEPARTMENT, PROVINCE, everything, nothing, seedAs, seedBidPackage, seedMilestone } from './support/bid-proposal-fixtures';
