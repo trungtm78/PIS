@@ -506,6 +506,14 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'VND-11': () => import('../../screens/vnd/risk/RiskScreen'),
   'VND-12': () => import('../../screens/vnd/performance/PerformanceScreen'),
 =======
+=======
+  // The contractor portal and its management (lane VND-3): the home of a contractor, its requests, certificates, evaluations and plans, and the staff screens that manage the portal and the plans of remediation.
+  'VND-16': () => import('../../screens/vnd/portal/PortalHomeScreen'),
+  'VND-17': () => import('../../screens/vnd/portal/PortalRequestsScreen'),
+  'VND-18': () => import('../../screens/vnd/portal/PortalCertificatesScreen'),
+  'VND-19': () => import('../../screens/vnd/portal/PortalEvaluationsScreen'),
+  'VND-20': () => import('../../screens/vnd/portal/PortalManageScreen'),
+  'VND-21': () => import('../../screens/vnd/portal/RemediationScreen'),
   // The investigation of contractors (lane VND-3): leads, one lead with its graph, the screening against lists of banned parties, disputes and the OCDS export.
   'VND-13': () => import('../../screens/vnd/investigation/LeadsScreen'),
   'VND-14': () => import('../../screens/vnd/investigation/LeadDetailScreen'),

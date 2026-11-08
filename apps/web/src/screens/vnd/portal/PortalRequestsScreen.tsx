@@ -110,7 +110,7 @@ function RequestCard({ request, asOf, onAnswer, onCertificate }: { request: Port
         </p>
       )}
       {request.response_text !== null && (
-        <div className="portal-answer" data-testid="answer">
+        <div className="portal-answer" data-testid="answer-text">
           <strong>{t('vnp.requests.answer.label')}</strong>
           {request.responded_at !== null && <span className="vnd-days">{` ${vietnamStamp(request.responded_at)}`}</span>}
           {late && (

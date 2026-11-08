@@ -236,7 +236,7 @@ function ReconfirmationsTab() {
                   </span>
                 </Fact>
                 {RECONFIRM_STATES.map((value) => (
-                  <Fact key={value} label={reconfirmStateLabel(t, value)} testId={`rc-${value.toLowerCase()}`}>
+                  <Fact key={value} label={reconfirmStateLabel(t, value)} testId={`rc-state-${value.toLowerCase()}`}>
                     {countOf(page.counts, value)}
                   </Fact>
                 ))}

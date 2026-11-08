@@ -62,6 +62,19 @@ describe('shell frame', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan điều hành' })).toBeInTheDocument();
   });
 
+  it('gives a contractor account the reduced frame of the portal: no sidebar, no breadcrumb, no module menu', () => {
+    renderApp('/home/home-01', { session: { permissions: ['vnd.portal.read', 'vnd.portal.respond'] } });
+    expect(screen.getByTestId('portal-frame')).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: MAIN_NAV })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: BREADCRUMB })).not.toBeInTheDocument();
+  });
+
+  it('keeps the business frame for staff who also read the register', () => {
+    renderApp('/home/home-01', { session: { permissions: ['vnd.portal.read', 'vnd.read'] } });
+    expect(screen.queryByTestId('portal-frame')).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: MAIN_NAV })).toBeInTheDocument();
+  });
+
   it('shows the signed-out state, not a screen, when nobody is signed in', () => {
     renderApp('/home/home-01', { tenants: [] });
     expect(screen.getByRole('heading', { level: 1, name: vi_['states.signedOut.title'] })).toBeInTheDocument();

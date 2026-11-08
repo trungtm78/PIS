@@ -458,7 +458,6 @@
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
     {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
-<<<<<<< HEAD
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
@@ -468,12 +467,6 @@
     {"id":"VND-04","path":"/vnd/vnd-04","title":"Tài khoản nhận tiền của nhà thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-04"},
     {"id":"VND-05","path":"/vnd/vnd-05","title":"Chứng chỉ và nhân sự chủ chốt","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-05"},
     {"id":"VND-06","path":"/vnd/vnd-06","title":"Sự kiện uy tín dự thầu và liên danh","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-06"},
-    {"id":"VND-07","path":"/vnd/vnd-07","title":"Kiểm soát gói thầu: độc lập, bảo đảm, tài chính","kind":"detail","area":"insights","module":"VND","group":"Kiểm soát gói thầu và tài chính nhà thầu","role":"workspace","parent":null,"req":"FR-VND-07"},
-    {"id":"VND-08","path":"/vnd/vnd-08","title":"Tài chính và tải của nhà thầu","kind":"detail","area":"insights","module":"VND","group":"Kiểm soát gói thầu và tài chính nhà thầu","role":"workspace","parent":null,"req":"FR-VND-08"},
-    {"id":"VND-09","path":"/vnd/vnd-09","title":"Sổ bảo đảm dự thầu","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-09"},
-    {"id":"VND-10","path":"/vnd/vnd-10","title":"Nhà thầu phụ của hợp đồng","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-10"},
-    {"id":"VND-11","path":"/vnd/vnd-11","title":"Hạng rủi ro nhà thầu","kind":"table","area":"insights","module":"VND","group":"Hạng rủi ro và kết quả thực hiện","role":"workspace","parent":null,"req":"FR-VND-11"},
-    {"id":"VND-12","path":"/vnd/vnd-12","title":"Kết quả thực hiện hợp đồng và công khai","kind":"table","area":"insights","module":"VND","group":"Hạng rủi ro và kết quả thực hiện","role":"workspace","parent":null,"req":"FR-VND-12"},
     {"id":"CTR-32","path":"/ctr/ctr-32","title":"Sổ claim hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"workspace","parent":null,"req":"FR-CTR-32"},
     {"id":"CTR-33","path":"/ctr/ctr-33","title":"Hồ sơ claim và đồng hồ thời hiệu","kind":"detail","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-33"},
     {"id":"CTR-34","path":"/ctr/ctr-34","title":"Điều khoản thời hiệu claim của hợp đồng","kind":"form","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-34"},
@@ -545,8 +538,7 @@
     {"id":"FEED-04","path":"/feed/feed-04","title":"Sai lệch giữa số của Sở Tài chính và số của ta","kind":"table","area":"data","module":"FEED","group":"Ánh xạ và đối chiếu","role":"workspace","parent":null,"req":"FR-FEED-04"},
     {"id":"FEED-05","path":"/feed/feed-05","title":"Điều khiển bộ sinh dữ liệu","kind":"detail","area":"data","module":"FEED","group":"Bộ sinh dữ liệu","role":"workspace","parent":null,"req":"FR-FEED-05"},
     {"id":"PRJ-28","path":"/prj/prj-28","title":"Bảng rủi ro chấm từ tín hiệu và lịch sử điểm","kind":"board","area":"investment","module":"PRJ","group":"Danh mục & theo dõi","role":"workspace","parent":null,"req":"FR-PRJ-28"},
-    {"id":"MNE-11","path":"/mne/mne-11","title":"Hiệu quả sau đầu tư: chỉ tiêu mục tiêu và thực tế","kind":"board","area":"insights","module":"MNE","group":"Theo dõi & lịch sử","role":"workspace","parent":null,"req":"FR-MNE-11"}
-=======
+    {"id":"MNE-11","path":"/mne/mne-11","title":"Hiệu quả sau đầu tư: chỉ tiêu mục tiêu và thực tế","kind":"board","area":"insights","module":"MNE","group":"Theo dõi & lịch sử","role":"workspace","parent":null,"req":"FR-MNE-11"},
     {"id":"RPT-05","path":"/rpt/rpt-05","title":"Biểu mẫu báo cáo gửi Bộ Tài chính","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-05"},
     {"id":"RPT-06","path":"/rpt/rpt-06","title":"Khóa kỳ và chữ ký số báo cáo","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-06"},
     {"id":"PRJ-31","path":"/prj/prj-31","title":"Hồ sơ giám sát cộng đồng","kind":"table","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-31"},
@@ -558,7 +550,22 @@
     {"id":"AUD-19","path":"/aud/aud-19","title":"Sổ quà tặng","kind":"table","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-19"},
     {"id":"DOC-28","path":"/doc/doc-28","title":"Tài liệu dự án theo trạng thái và transmittal","kind":"table","area":"overview","module":"DOC","group":"Kiểm soát tài liệu","role":"workspace","parent":null,"req":"FR-DOC-28"},
     {"id":"DOC-29","path":"/doc/doc-29","title":"Chi tiết transmittal tài liệu","kind":"detail","area":"overview","module":"DOC","group":"Kiểm soát tài liệu","role":"workspace","parent":null,"req":"FR-DOC-29"},
-    {"id":"QMS-12","path":"/qms/qms-12","title":"Ảnh hiện trường cần giải trình giữa các dự án","kind":"review","area":"investment","module":"QMS","group":"Chất lượng thi công","role":"workspace","parent":null,"req":"FR-QMS-12"}
->>>>>>> 391b01c4 (feat(web): GOV-12 routes, provider keys and route counts)
+    {"id":"QMS-12","path":"/qms/qms-12","title":"Ảnh hiện trường cần giải trình giữa các dự án","kind":"review","area":"investment","module":"QMS","group":"Chất lượng thi công","role":"workspace","parent":null,"req":"FR-QMS-12"},
+    {"id":"VND-09","path":"/vnd/vnd-09","title":"Sổ bảo đảm dự thầu","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-09"},
+    {"id":"VND-10","path":"/vnd/vnd-10","title":"Nhà thầu phụ của hợp đồng","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-10"},
+    {"id":"VND-11","path":"/vnd/vnd-11","title":"Hạng rủi ro nhà thầu","kind":"table","area":"insights","module":"VND","group":"Hạng rủi ro và kết quả thực hiện","role":"workspace","parent":null,"req":"FR-VND-11"},
+    {"id":"VND-12","path":"/vnd/vnd-12","title":"Kết quả thực hiện hợp đồng và công khai","kind":"table","area":"insights","module":"VND","group":"Hạng rủi ro và kết quả thực hiện","role":"workspace","parent":null,"req":"FR-VND-12"},
+    {"id":"VND-07","path":"/vnd/vnd-07","title":"Kiểm soát gói thầu: độc lập, bảo đảm, tài chính","kind":"detail","area":"insights","module":"VND","group":"Kiểm soát gói thầu và tài chính nhà thầu","role":"workspace","parent":null,"req":"FR-VND-07"},
+    {"id":"VND-08","path":"/vnd/vnd-08","title":"Tài chính và tải của nhà thầu","kind":"detail","area":"insights","module":"VND","group":"Kiểm soát gói thầu và tài chính nhà thầu","role":"workspace","parent":null,"req":"FR-VND-08"},
+    {"id":"VND-13","path":"/vnd/vnd-13","title":"Đầu mối điều tra nhà thầu","kind":"table","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"workspace","parent":null,"req":"FR-VND-13"},
+    {"id":"VND-14","path":"/vnd/vnd-14","title":"Chi tiết đầu mối và đồ thị liên kết","kind":"record","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"detail","parent":"VND-13","req":"FR-VND-14"},
+    {"id":"VND-15","path":"/vnd/vnd-15","title":"Sàng lọc liên tục danh sách bên bị cấm","kind":"table","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"workspace","parent":null,"req":"FR-VND-15"},
+    {"id":"VND-16","path":"/vnd/vnd-16","title":"Cổng nhà thầu: hồ sơ của tôi","kind":"dashboard","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"workspace","parent":null,"req":"FR-VND-16"},
+    {"id":"VND-17","path":"/vnd/vnd-17","title":"Cổng nhà thầu: yêu cầu và trả lời","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"workspace","parent":null,"req":"FR-VND-17"},
+    {"id":"VND-18","path":"/vnd/vnd-18","title":"Cổng nhà thầu: chứng chỉ","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"detail","parent":"VND-16","req":"FR-VND-18"},
+    {"id":"VND-19","path":"/vnd/vnd-19","title":"Cổng nhà thầu: đánh giá và kế hoạch khắc phục","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"detail","parent":"VND-16","req":"FR-VND-19"},
+    {"id":"VND-20","path":"/vnd/vnd-20","title":"Quản lý cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-20"},
+    {"id":"VND-21","path":"/vnd/vnd-21","title":"Kế hoạch khắc phục của nhà thầu","kind":"record","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-21"},
+    {"id":"VND-22","path":"/vnd/vnd-22","title":"Kiến nghị, claim và xuất OCDS của nhà thầu","kind":"dashboard","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"detail","parent":null,"req":"FR-VND-22"}
   ]
 }
