@@ -45,7 +45,7 @@ describe('HUB-01, the catalogue of connectors and the health of the hub', () => 
     expect(screen.getByTestId('status-FAILING').textContent).toBe(word('hub.status.failing'));
     expect(screen.getAllByTestId('acceptance-PENDING_EXTERNAL').length).toBe(3);
     expect(screen.getByText(word('hub.alert.connectorFailing'))).toBeTruthy();
-    expect(screen.getByText(fill('hub.age.hours', { value: '10' }))).toBeTruthy();
+    expect(screen.getAllByText(fill('hub.age.hours', { value: '10' })).length).toBe(2);
     expect(screen.getByText(word('hub.age.none'))).toBeTruthy();
     expect(screen.getByText(word('hub.run.never'))).toBeTruthy();
   });
@@ -192,7 +192,7 @@ describe('HUB-02, one connector', () => {
     const h = mountConnector(readsOf(), (operation, input) => ((input as { body: { decision: string } }).body.decision === 'REPROCESS' ? problem('HUB_PIPELINE_NOT_WIRED', 409) : { operation_id: 'x', status: 'DISCARDED', resource_version: 2, resource_id: uuid(70) }), 'pipeline');
     fireEvent.click(await screen.findByTestId(`reprocess-${uuid(70)}`));
     fireEvent.change(await screen.findByLabelText(new RegExp(`^${word('hub.dialog.reason.label')}`)), { target: { value: 'Corrected at the source' } });
-    fireEvent.click(screen.getByRole('button', { name: word('hub.rej.reprocess'), hidden: false }));
+    fireEvent.click(screen.getAllByRole('button', { name: word('hub.rej.reprocess') }).at(-1) as HTMLElement);
     expect(await screen.findByText(word('hub.error.notWired'))).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: word('hub.dialog.cancel') }));
     fireEvent.click(await screen.findByTestId(`discard-${uuid(70)}`));
@@ -297,7 +297,7 @@ describe('HUB-03, the incident log', () => {
     fireEvent.click(await screen.findByTestId(`ack-${uuid(90)}`));
     expect(screen.queryByTestId(`ack-${uuid(91)}`)).toBeNull();
     expect(screen.queryByTestId(`resolve-${uuid(91)}`)).toBeNull();
-    fireEvent.change(await screen.findByLabelText(new RegExp(`^${word('hub.dialog.reason.label')}`)), { target: { value: 'I take it now' } });
+    fireEvent.change(await screen.findByLabelText(new RegExp(`^${word('hub.dialog.reason.label')}`)), { target: { value: 'too short' } });
     expect((screen.getAllByRole('button', { name: word('hub.inc.acknowledge') }).at(-1) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.change(screen.getByLabelText(new RegExp(`^${word('hub.dialog.reason.label')}`)), { target: { value: 'I take it now, then fix it' } });
     fireEvent.click(screen.getAllByRole('button', { name: word('hub.inc.acknowledge') }).at(-1) as HTMLElement);
