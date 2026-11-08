@@ -1,4 +1,4 @@
-import type { SeedContext } from '../context.ts';
+import type { Obj, SeedContext } from '../context.ts';
 import { seedCapital } from '../capital.ts';
 import { seedDoc } from '../platform-records/doc.ts';
 import { ensureDoaMatrix } from './doa.ts';
@@ -34,8 +34,28 @@ export async function seedClipEnterpriseDocuments(ctx: SeedContext): Promise<voi
   }
 }
 
+/** The people of the BI board hold their permissions through roles the owner of the tenant makes and grants (IAM commands), as the AI board does in the guide seed. */
+const BI_ROLES = [
+  { person: 'projectManager', code: 'LAP_BI', name: 'Lập bảng điều hành', rank: 45, permissions: ['bi.dashboard.manage', 'bi.publish.request', 'bi.query', 'bi.dataset.build', 'bi.admin.read', 'bi.lineage.read'] },
+  { person: 'capApprover', code: 'DUYET_BI', name: 'Duyệt và công bố bảng điều hành', rank: 65, permissions: ['bi.publish', 'bi.query', 'bi.dashboard.share', 'bi.admin.read', 'bi.lineage.read', 'bi.dashboard.manage'] },
+];
+
+async function setUpBiBoard(ctx: SeedContext): Promise<void> {
+  for (const role of BI_ROLES) {
+    let roleId: string;
+    const existing = await ctx.find('owner', '/resources/role_definition', (row) => row.code === role.code);
+    if (existing !== undefined) roleId = String(existing.id);
+    else roleId = (await ctx.command('owner', '/roles', { code: role.code, name: role.name, permissions: role.permissions, rank: role.rank })).resource_id;
+    const membershipId = ctx.person(role.person).membershipId;
+    const granted = await ctx.find('owner', '/resources/role_grant', (row: Obj) => row.membership_id === membershipId && row.role_id === roleId && String(row.status).toUpperCase() === 'ACTIVE');
+    if (granted === undefined) await ctx.command('owner', '/role-grants', { membership_id: membershipId, role_id: roleId, scope_kind: 'TENANT', reason: 'Bảng điều hành lãnh đạo của Tổng công ty' });
+  }
+}
+
 /** BI: the metrics of the platform and the dashboards of the leader (the bundle of the repository, the dashboards of the plan). */
 export async function seedClipEnterpriseBi(ctx: SeedContext): Promise<void> {
   if (!enterprisePlanOnly(ctx)) return;
+  // Granting roles asks for a second factor (MFA_REQUIRED) that no seed has: the board keeps the permissions of the unit roles, and the dashboards stay drafts when publication is refused.
+  void setUpBiBoard;
   await seedClipBi(ctx);
 }

@@ -69,8 +69,13 @@ async function dashboardWithVersion(ctx: SeedContext, spec: DashboardSpec, metri
   // The request may be refused for the leader of this stack (docs/clip-data.md): the direct publication below is then the way.
   if (asked.ok) await ctx.attempt(LEADER, 'POST', `/bi/publication-requests/${asked.json.resource_id}/decision`, { decision: 'APPROVED', comment: block.publishReason }, { version: asked.json.resource_version });
   const evidence = await ctx.letter({ symbol: block.evidence.symbol, title: block.evidence.title, sender: block.evidence.sender, issuedOn: ctx.day(-5) });
-  const dashboard = await ctx.get<Obj>(LEADER, `/bi/dashboards/${id}`);
-  await ctx.attempt(LEADER, 'POST', `/dashboards/${id}/publish`, { decision: 'approve', reason: block.publishReason, evidence_ids: [evidence.documentId] }, { version: Number(dashboard.version) });
+  // The leader's scope may not read a dashboard of the officer (403): the owner of the tenant, a second person, reads it and publishes it.
+  for (const publisher of [LEADER, OWNER]) {
+    const read = await ctx.attempt<Obj>(publisher, 'GET', `/bi/dashboards/${id}`);
+    if (!read.ok) continue;
+    const published = await ctx.attempt(publisher, 'POST', `/dashboards/${id}/publish`, { decision: 'approve', reason: block.publishReason, evidence_ids: [evidence.documentId] }, { version: Number(read.json.version) });
+    if (published.ok) break;
+  }
   ctx.record({ module: 'BI', screen: 'BI-05', kind: 'dashboard', id, code: spec.code, note: spec.title });
 }
 

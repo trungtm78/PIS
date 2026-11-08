@@ -112,7 +112,8 @@ export async function paymentChecks(plan, reader) {
 /** Checks of BI: the metrics of the platform (certified, synced from the bundle of the repository) and the dashboards the leader published. */
 export async function biChecks(plan, reader) {
   const metrics = await safe(() => reader.list('capApprover', '/resources/metric_definition'));
-  const dashboards = await safe(() => reader.list('capApprover', '/bi/dashboards'));
+  // The leader's scope may not list the dashboards on every stack: the owner of the tenant reads them then.
+  const dashboards = (await safe(() => reader.list('capApprover', '/bi/dashboards'))) ?? (await safe(() => reader.list('owner', '/bi/dashboards')));
   const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
   return [
     { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },
@@ -210,7 +211,18 @@ export async function enterpriseSharedChecks(plan, reader) {
     ...(await procurementChecks(plan, reader)),
     ...(await contractChecks(plan, reader)),
     ...(await workflowChecks(plan, reader)),
-    ...(await biChecks(plan, reader)),
+    ...(await enterpriseBiChecks(plan, reader)),
+  ];
+}
+
+/** Dashboards of the enterprise plan: made over certified metrics (publication needs a role grant that asks for a second factor, so a draft counts). */
+export async function enterpriseBiChecks(plan, reader) {
+  const metrics = await safe(() => reader.list('capApprover', '/resources/metric_definition'));
+  const dashboards = (await safe(() => reader.list('projectManager', '/bi/dashboards'))) ?? (await safe(() => reader.list('capApprover', '/bi/dashboards')));
+  const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
+  return [
+    { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },
+    { name: 'dashboards made', value: dashboards === undefined ? undefined : dashboards.filter((row) => wanted.has(row.code)).length, min: wanted.size },
   ];
 }
 
