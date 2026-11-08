@@ -82,7 +82,7 @@ export class PaymentClaimController {
       scope.tx,
       id.toLowerCase(),
       scope.expectedVersion ?? 0,
-      { reason: body.reason, returnedByTreasury: body.returned_by_treasury, requestId: scope.requestId },
+      { reason: body.reason, reasonCode: body.reason_code, returnedByTreasury: body.returned_by_treasury, requestId: scope.requestId },
       scope.tenant.membershipId,
       scopesFor(access, RETURN_PERMISSION, now),
     );

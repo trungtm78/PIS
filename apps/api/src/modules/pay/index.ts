@@ -7,6 +7,7 @@ import { SettlementFormController } from './settlement-form.controller';
 import { PaymentFormController } from './payment-form.controller';
 import { PaymentReversalController } from './payment-reversal.controller';
 import { PaymentClaimController } from './payment-claim.controller';
+import { PaymentClockReadsController } from './payment-clock.controller';
 import { PaymentIntegrityController, PaymentIntegrityReadsController } from './payment-integrity.controller';
 import { PaymentRequestController, PaymentRequestReadsController } from './payment-request.controller';
 import { PaymentChainController } from './payment-chain.controller';
@@ -25,5 +26,5 @@ import { TreasuryTransactionController, TreasuryTransactionReadsController } fro
  */
 export const payModule = defineModule({
   code: 'PAY',
-  controllers: [TreasuryImportController, TreasuryImportReadsController, TreasuryTransactionController, TreasuryTransactionReadsController, CumulativeLedgerController, PaymentRequestController, PaymentClaimController, PaymentFormController, PaymentRequestReadsController, AdvanceController, AdvanceReadsController, TreasuryMatchController, ReconciliationController, ReconciliationReadsController, PaymentReversalController, ProjectSettlementController, ProjectSettlementReadsController, PaymentChainController, AdvanceAlertController, SettlementFormController, AdvanceRecoveryReadsController, PaymentIntegrityController, PaymentIntegrityReadsController, DisbursementCheckController, TreasuryDailyReconController, TreasuryDailyReconReadsController],
+  controllers: [PaymentClockReadsController, TreasuryImportController, TreasuryImportReadsController, TreasuryTransactionController, TreasuryTransactionReadsController, CumulativeLedgerController, PaymentRequestController, PaymentClaimController, PaymentFormController, PaymentRequestReadsController, AdvanceController, AdvanceReadsController, TreasuryMatchController, ReconciliationController, ReconciliationReadsController, PaymentReversalController, ProjectSettlementController, ProjectSettlementReadsController, PaymentChainController, AdvanceAlertController, SettlementFormController, AdvanceRecoveryReadsController, PaymentIntegrityController, PaymentIntegrityReadsController, DisbursementCheckController, TreasuryDailyReconController, TreasuryDailyReconReadsController],
 });

@@ -198990,6 +198990,263 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/disbursement-milestones": {
+      "get": {
+        "operationId": "getDisbursementMilestones",
+        "summary": "Projection of the cumulative disbursement to each directive milestone, per investor, from the vintages of a frozen snapshot",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "disbursement.read",
+        "parameters": [
+          {
+            "name": "snapshot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisMilestoneBoard"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "SNAPSHOT_NOT_FROZEN",
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/disbursement-forecast-accuracy": {
+      "get": {
+        "operationId": "getDisbursementForecastAccuracy",
+        "summary": "Accuracy of the monthly forecasts of each investor against what the Treasury paid (WAPE and bias)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "disbursement.read",
+        "parameters": [
+          {
+            "name": "plan_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "investor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisForecastAccuracy"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -268441,6 +268698,403 @@
           "lines",
           "projects",
           "units",
+          "as_of"
+        ]
+      },
+      "DisRuleReading": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT"
+            ]
+          },
+          "unverified": {
+            "type": "boolean"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "provenance": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "code",
+          "version",
+          "source",
+          "unverified",
+          "params",
+          "provenance"
+        ]
+      },
+      "DisMilestoneUnit": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unit": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "plan_total_vnd": {
+            "type": "string"
+          },
+          "target_vnd": {
+            "type": "string"
+          },
+          "disbursed_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projected_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projected_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gap_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "ACTUAL",
+              "FORECAST"
+            ]
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "PARTIAL",
+              "NONE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACHIEVED",
+              "MISSED",
+              "ON_TRACK",
+              "AT_RISK",
+              "OFF_TRACK",
+              "NO_DATA"
+            ]
+          },
+          "projects": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "unit",
+          "plan_total_vnd",
+          "target_vnd",
+          "disbursed_vnd",
+          "projected_vnd",
+          "projected_pct",
+          "gap_pct",
+          "basis",
+          "coverage",
+          "status",
+          "projects"
+        ]
+      },
+      "DisMilestoneGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "target_pct": {
+            "type": "string"
+          },
+          "margin_pct": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisMilestoneUnit"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "date",
+          "target_pct",
+          "margin_pct",
+          "summary",
+          "units"
+        ]
+      },
+      "DisMilestoneBoard": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "snapshot": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "as_of_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "treasury_cutoff_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "plan_year": {
+                "type": "integer"
+              }
+            }
+          },
+          "run": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisMilestoneGroup"
+            }
+          },
+          "rule": {
+            "$ref": "#/components/schemas/DisRuleReading"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "snapshot",
+          "run",
+          "milestones",
+          "rule",
+          "as_of"
+        ]
+      },
+      "DisForecastAccuracyRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "investor": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "pairs": {
+            "type": "integer"
+          },
+          "months": {
+            "type": "integer"
+          },
+          "forecast_vnd": {
+            "type": "string"
+          },
+          "actual_vnd": {
+            "type": "string"
+          },
+          "abs_error_vnd": {
+            "type": "string"
+          },
+          "wape_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bias_pct": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "band": {
+            "type": "string",
+            "enum": [
+              "GOOD",
+              "FAIR",
+              "POOR",
+              "INSUFFICIENT"
+            ]
+          },
+          "bias_flag": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "OVER",
+              "UNDER",
+              null
+            ]
+          }
+        },
+        "required": [
+          "investor",
+          "pairs",
+          "months",
+          "forecast_vnd",
+          "actual_vnd",
+          "abs_error_vnd",
+          "wape_pct",
+          "bias_pct",
+          "band",
+          "bias_flag"
+        ]
+      },
+      "DisForecastAccuracy": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan_year": {
+            "type": "integer"
+          },
+          "last_measured_month": {
+            "type": "integer"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisForecastAccuracyRow"
+            }
+          },
+          "overall": {
+            "$ref": "#/components/schemas/DisForecastAccuracyRow"
+          },
+          "by_month": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "type": "integer"
+                },
+                "forecast_vnd": {
+                  "type": "string"
+                },
+                "actual_vnd": {
+                  "type": "string"
+                },
+                "wape_pct": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "month",
+                "forecast_vnd",
+                "actual_vnd",
+                "wape_pct"
+              ]
+            }
+          },
+          "rule": {
+            "$ref": "#/components/schemas/DisRuleReading"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "plan_year",
+          "last_measured_month",
+          "rows",
+          "overall",
+          "by_month",
+          "rule",
+          "truncated",
           "as_of"
         ]
       }

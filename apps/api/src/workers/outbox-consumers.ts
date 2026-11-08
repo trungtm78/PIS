@@ -7,6 +7,7 @@ import { TenantStatusChangedConsumer, TENANT_STATUS_CONSUMER } from '../modules/
 import { DatasetBuildConsumer } from '../modules/bi/dataset.consumer';
 import { ContractFactConsumer, CTR_FACT_CONSUMER } from '../modules/ctr/fact.consumer';
 import { DGV_SNAPSHOT_FROZEN_CONSUMER, SnapshotFrozenConsumer } from '../modules/dgv/snapshot-frozen.consumer';
+import { DIS_MILESTONE_FORECAST_CONSUMER, MilestoneForecastConsumer } from '../modules/dis/milestone-forecast.consumer';
 import { DIS_RANKING_COMPUTE_CONSUMER, RankingComputeConsumer } from '../modules/dis/ranking-compute.consumer';
 import { DIS_REGISTRATION_CONSUMER, RegistrationConsumer } from '../modules/dis/registration.consumer';
 import { ExplanationAutoConsumer, PRJ_EXPLANATION_AUTO_CONSUMER } from '../modules/prj/explanation-auto.consumer';
@@ -98,6 +99,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   const contractFact = new ContractFactConsumer({ database: tenants, security });
   const warningEvaluate = new WarningEvaluateConsumer({ database: tenants, security });
   const rankingCompute = new RankingComputeConsumer({ database: tenants, security });
+  const milestoneForecast = new MilestoneForecastConsumer({ database: tenants, security });
   const registration = new RegistrationConsumer({ database: tenants, security });
   const explanationAuto = new ExplanationAutoConsumer({ database: tenants, security });
   const guestContracts = new GuestContractClosedConsumer({ database: tenants, security });
@@ -119,6 +121,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: CTR_FACT_CONSUMER, handle: (delivery) => contractFact.handle(delivery) },
     { name: DIS_WARNING_EVALUATE_CONSUMER, handle: (delivery) => warningEvaluate.handle(delivery) },
     { name: DIS_RANKING_COMPUTE_CONSUMER, handle: (delivery) => rankingCompute.handle(delivery) },
+    { name: DIS_MILESTONE_FORECAST_CONSUMER, handle: (delivery) => milestoneForecast.handle(delivery) },
     { name: DIS_REGISTRATION_CONSUMER, handle: (delivery) => registration.handle(delivery) },
     { name: PRJ_EXPLANATION_AUTO_CONSUMER, handle: (delivery) => explanationAuto.handle(delivery) },
     { name: ADM_GUEST_CONTRACT_CONSUMER, handle: (delivery) => guestContracts.handle(delivery) },
