@@ -133,11 +133,11 @@ describe('seedSystemRoles', () => {
       tx.query<RoleRow>('select code, rank, guest_allowed, is_system, status, permissions from machvon.role_definition order by rank desc, code'),
     );
 
-  it('inserts the fourteen roles once and nothing the second time', async () => {
-    expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 14 });
+  it('inserts the seventeen roles once and nothing the second time', async () => {
+    expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 17 });
     expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 0 });
     const rows = await rolesOf(TENANT_A);
-    expect(rows).toHaveLength(14);
+    expect(rows).toHaveLength(17);
     expect(rows.every((row) => row.is_system && row.status === 'Active')).toBe(true);
     expect(rows.find((row) => row.code === 'TENANT_OWNER')).toMatchObject({ rank: 99, guest_allowed: false });
     expect(rows.find((row) => row.code === 'MEMBER')).toMatchObject({ rank: 5, guest_allowed: true });
@@ -199,7 +199,7 @@ describe('seedSystemRoles', () => {
 
   it('keeps the roles of one tenant invisible to another', async () => {
     expect(await rolesOf(TENANT_B)).toEqual([]);
-    expect(await tenants.withTenant(ctx(TENANT_B), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 14 });
-    expect(await rolesOf(TENANT_B)).toHaveLength(14);
+    expect(await tenants.withTenant(ctx(TENANT_B), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 17 });
+    expect(await rolesOf(TENANT_B)).toHaveLength(17);
   });
 });
