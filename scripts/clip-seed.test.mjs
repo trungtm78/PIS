@@ -146,6 +146,9 @@ function seededPublic(plan) {
     '/period-snapshots': [{ status: 'FROZEN' }, { status: 'FROZEN' }],
     '/directives': plan.meetings.flatMap((meeting) => meeting.directives),
     '/resources/contract': Array.from({ length: 5 }, () => ({ status: 'ACTIVE' })),
+    '/resources/payment_request': [{ status: 'SETTLED' }, { status: 'SENT_TREASURY' }, { status: 'SETTLED' }],
+    '/advances': [{ id: 1 }],
+    '/advances/overdue': [{ id: 1 }],
   };
   const gets = {
     '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } },
@@ -182,6 +185,8 @@ test('verify passes on a fully seeded stack and fails, naming the check, when on
   assert.ok(projects.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
   const noCritical = { ...seeded, lists: { ...seeded.lists, '/home/warnings': [{ severity: 'INFO' }, { severity: 'WARNING' }] } };
   assert.ok(judgeAll(await verifyChecks(plan, readerOf(noCritical))).results.some((result) => !result.ok && result.name === 'warnings CRITICAL'));
+  const noOverdueAdvance = { ...seeded, lists: { ...seeded.lists, '/advances/overdue': [] } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(noOverdueAdvance))).results.some((result) => !result.ok && result.name === 'advances over the recovery deadline'));
   const noWorkflowLate = { ...seeded, gets: { ...seeded.gets, '/package-workflows/summary': { total: 42, not_started: 2, late: 0, on_hold: 2 } } };
   assert.ok(judgeAll(await verifyChecks(plan, readerOf(noWorkflowLate))).results.some((result) => !result.ok && result.name === 'workflows late'));
   const emptyCommittee = { ...seeded, gets: { ...seeded.gets, '/committee/workspace': { feed: { empty: true, projects: 0 } } } };

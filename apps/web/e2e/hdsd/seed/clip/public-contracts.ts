@@ -16,6 +16,8 @@ import { CHECKER, LEADER, MAKER, contractorsByNumber, paper } from '../procureme
  */
 
 const CONTRACT_TYPE = 'UNIT_PRICE';
+/** The contract that takes an advance is a joint venture of one lead (an advance is paid to a party of the contract). */
+export const ADVANCE_PACKAGE = 'DT205-XL02';
 const ADVANCE_CATEGORY: Record<PackageSpec['category'], string> = { CONSTRUCTION: 'CONSTRUCTION', EQUIPMENT: 'EQUIPMENT', CONSULTING: 'CONSULTING', OTHER: 'OTHER' };
 
 async function contractOf(ctx: SeedContext, code: string): Promise<Obj | undefined> {
@@ -51,13 +53,17 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
       completion_due: ctx.day(spec.days ?? 300),
       document_version_id: document.versionId,
       requires_quality_acceptance: false,
-      is_joint_venture: false,
+      is_joint_venture: spec.code === ADVANCE_PACKAGE,
     });
     id = made.resource_id;
     version = made.resource_version;
   } else {
     id = String(existing.id);
     version = Number(existing.version);
+  }
+  if (spec.code === ADVANCE_PACKAGE) {
+    await ctx.attempt(MAKER, 'POST', `/contracts/${id}/parties`, { parties: [{ contractor_id: String(winner.id), role: 'LEAD', share_pct: '100', work_value_vnd: valueVnd }] }, { version });
+    version = Number((await ctx.get<Obj>(MAKER, `/resources/contract/${id}`)).version);
   }
   // The bill of quantities: one line that adds up to the value of the contract.
   const revision = (await ctx.list<Obj>(MAKER, '/resources/contract_revision')).find((row) => String(row.contract_id) === id);

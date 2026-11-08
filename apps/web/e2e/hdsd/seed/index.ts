@@ -7,6 +7,7 @@ import { applyClipPlan } from './clip/plan.ts';
 import { ensureDoaMatrix } from './clip/doa.ts';
 import { seedClipFeed } from './clip/public-feed.ts';
 import { seedClipEnterpriseReports } from './clip/enterprise-reports.ts';
+import { seedClipPayments } from './clip/public-payments.ts';
 import { seedClipContracts } from './clip/public-contracts.ts';
 import { seedClipAlerts } from './clip/public-alerts.ts';
 import { seedClipEnterpriseDirectives, seedMeetings, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
@@ -37,6 +38,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-documents', seed: async (ctx) => { await ctx.step('ADM', 'delegation of authority matrix', () => ensureDoaMatrix(ctx)); try { await seedDoc(ctx); } catch (error) { ctx.warn(`the document seed of the guide stopped: ${error instanceof Error ? error.message.slice(0, 300) : String(error)}`); } } },
   { name: 'clip-public-procurement', seed: seedClipProcurement },
   { name: 'clip-public-contracts', seed: seedClipContracts },
+  { name: 'clip-public-payments', seed: seedClipPayments },
   { name: 'clip-public-workflow', seed: seedClipWorkflow },
   { name: 'clip-public-alerts', seed: seedClipAlerts },
   { name: 'clip-public-egp', seed: seedClipEgp },

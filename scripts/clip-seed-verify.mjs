@@ -95,6 +95,20 @@ export async function contractChecks(plan, reader) {
   return [{ name: 'contracts active', value: contracts === undefined ? undefined : contracts.filter((row) => row.status === 'ACTIVE').length, min: 5 }];
 }
 
+/** Checks of the money of the contracts: payment requests settled and waiting at the Treasury, the advance, and the advance that is over its recovery deadline. */
+export async function paymentChecks(plan, reader) {
+  const requests = await safe(() => reader.list('treasuryMaker', '/resources/payment_request'));
+  const advances = await safe(() => reader.list('treasuryMaker', '/advances'));
+  const overdue = await safe(() => reader.list('treasuryMaker', '/advances/overdue'));
+  const count = (status) => (requests === undefined ? undefined : requests.filter((row) => row.status === status).length);
+  return [
+    { name: 'payment requests settled', value: count('SETTLED'), min: 1 },
+    { name: 'payment requests waiting at the Treasury', value: count('SENT_TREASURY'), min: 1 },
+    { name: 'advances', value: advances?.length, min: 1 },
+    { name: 'advances over the recovery deadline', value: overdue?.length, min: 1 },
+  ];
+}
+
 /** Checks of the process tree of the packages: how many run, are late, are on hold, have not started (the plan names the targets). */
 export async function workflowChecks(plan, reader) {
   const targets = plan.procurement.plans.flatMap((entry) => entry.packages.map((item) => item.target));
@@ -172,7 +186,7 @@ export async function enterpriseReportChecks(plan, reader) {
 
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
-  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
   if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
   return [];
 }

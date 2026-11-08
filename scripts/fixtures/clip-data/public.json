@@ -517,5 +517,17 @@
         }
       ]
     }
-  ]
+  ],
+  "payments": {
+    "place": "Cao Bằng",
+    "formCodes": [
+      "03.a/TT",
+      "04.a/TT",
+      "04.b/TT",
+      "05.a/TT"
+    ],
+    "invoicePrefix": "HDDT",
+    "advanceNote": "Tạm ứng giải phóng mặt bằng",
+    "stageSendClock": -40
+  }
 }
