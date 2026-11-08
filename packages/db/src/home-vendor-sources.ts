@@ -10,6 +10,8 @@ import { VendorPolicyReader } from './vendor-policy.ts';
 import { VendorQualificationStore } from './vendor-qualification-store.ts';
 import { VendorReputationStore } from './vendor-reputation-store.ts';
 import { RestrictionCaseStore } from './vendor-restriction-store.ts';
+import { HomeVendorInvestigationSources } from './home-vendor-investigation-sources.ts';
+import { HomeVendorPortalSources } from './home-vendor-portal-sources.ts';
 
 /** The permissions each audience of the alerts of the contractor register reads them with (the owners of the alert types), on the whole tenant: a register of contractors belongs to no unit. */
 export const VENDOR_AUDIENCE_PERMISSIONS = {
@@ -38,6 +40,8 @@ export class HomeVendorSources {
   private readonly payee = new VendorPayeeStore();
   private readonly qualifications = new VendorQualificationStore();
   private readonly controls = new HomeVendorControlsSources();
+  private readonly investigation = new HomeVendorInvestigationSources();
+  private readonly portal = new HomeVendorPortalSources();
 
   async items(context: SourceContext): Promise<SourceRow[]> {
     const now = context.now;
@@ -48,6 +52,8 @@ export class HomeVendorSources {
     rows.push(...(await forAudience(context, 'VENDOR', VENDOR_AUDIENCE_PERMISSIONS.payee, await this.accounts(context), true)));
     rows.push(...(await forAudience(context, 'VENDOR', VENDOR_AUDIENCE_PERMISSIONS.qualification, await this.expiries(context), true)));
     rows.push(...(await this.controls.items(context)));
+    rows.push(...(await this.investigation.items(context)));
+    rows.push(...(await this.portal.items(context)));
     return rows;
   }
 

@@ -7,6 +7,7 @@ import { VendorPolicyReader } from './vendor-policy.ts';
 import { VendorProfileStore, factsOfProfile } from './vendor-profile-store.ts';
 import { VendorQualificationStore, heldOf } from './vendor-qualification-store.ts';
 import { VendorVentureStore } from './vendor-venture-store.ts';
+import { VendorScreeningStore } from './vnd-screening-store.ts';
 
 /** A condition the gate lets through with a warning: the policy softens it while the records are completed, or a payment goes to a contractor that never had an account. */
 export interface GateWarning {
@@ -38,6 +39,7 @@ export class VendorGate {
   private readonly profiles = new VendorProfileStore();
   private readonly qualifications = new VendorQualificationStore();
   private readonly ventures = new VendorVentureStore();
+  private readonly screening = new VendorScreeningStore();
   private readonly policies: VendorPolicyReader;
   private readonly payee: VendorPayeeStore;
 
@@ -80,6 +82,12 @@ export class VendorGate {
           },
         });
       }
+    }
+
+    // VND-3 (V14): a hit of the screening that holds the contractor, a member of a venture it leads or a party of the contract stops new work until a person decides it (always asked, never softened).
+    const heldBy = await this.screening.holdsOf(tx, gateSubjects(contractorId, await this.ventures.membersLedBy(tx, contractorId, packageId), parties));
+    if (heldBy.length > 0) {
+      throw new DomainError('CONTRACTOR_SCREENING_HOLD', 422, undefined, { extensions: { hit_ids: heldBy.map((hit) => hit.id), sources: [...new Set(heldBy.map((hit) => hit.source))], held_contractor_id: heldBy[0]?.contractorId, action } });
     }
 
     if (checks.includes('VERIFICATION')) {

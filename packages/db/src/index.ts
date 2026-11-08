@@ -1857,3 +1857,25 @@ export { GAMMA_AUDIENCE_PERMISSIONS } from './home-vendor-gamma-sources.ts';
 =======
 // VND-3: the boundary of the contractor portal in the database (V2446).
 export { PORTAL_CONTRACTOR_TABLES, PORTAL_DENIED_TABLES, PORTAL_POLICY, PORTAL_SETTING, enterPortalPath, leavePortalPath } from './portal-boundary.ts';
+// VND-3 (BE-1): the investigation of contractors (links, leads, bid rigging signals, traces of submissions) and the continuous screening against the lists of parties that may not be dealt with.
+export { Vnd3PolicyReader } from './vnd3-policy.ts';
+export { VendorLinkStore } from './vnd-link-store.ts';
+export type { LinkRow as PartyLinkRow, LinkSnapshot } from './vnd-link-store.ts';
+export { VendorLeadStore } from './vnd-lead-store.ts';
+export type { LeadFilter, LeadHistoryRow, LeadRow, ScanSummary } from './vnd-lead-store.ts';
+export { VendorScreeningStore } from './vnd-screening-store.ts';
+export type { HitEventRow, HitFilter, HitRow, ListImportInput, RunRow as ScreeningRunRow, RunSummary as ScreeningRunSummary, SourceState as ScreeningSourceState } from './vnd-screening-store.ts';
+export { VendorTraceStore } from './vnd-trace-store.ts';
+export type { NewSubmissionTrace, SubmissionTraceRow } from './vnd-trace-store.ts';
+export { HomeVendorInvestigationSources } from './home-vendor-investigation-sources.ts';
+// VND-3 (portal, reconfirmation, remediation, disputes, OCDS): stores and the alert source.
+export { VendorPortalPolicyReader } from './vnd3-portal-policy.ts';
+export { VendorPortalStore } from './vnd-portal-store.ts';
+export type { NewPortalRequest, PortalAnswer, PortalCaller, PortalEvaluationRow, PortalRequestRow } from './vnd-portal-store.ts';
+export { VendorReconfirmationStore } from './vnd-reconfirmation-store.ts';
+export type { ReconfirmationDone, ReconfirmationLine, ReconfirmationView } from './vnd-reconfirmation-store.ts';
+export { VendorRemediationStore } from './vnd-remediation-store.ts';
+export type { NewRemediationPlan, RemediationActionRow, RemediationEventRow, RemediationPlanRow } from './vnd-remediation-store.ts';
+export { CLAIM_OUTCOMES, PETITION_OUTCOMES, VendorDisputeStore, VendorOcdsReader } from './vnd-dispute-store.ts';
+export type { DisputeReport, DisputeRow } from './vnd-dispute-store.ts';
+export { HomeVendorPortalSources } from './home-vendor-portal-sources.ts';
