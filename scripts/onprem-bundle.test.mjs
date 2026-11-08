@@ -286,15 +286,27 @@ test('every finding code has a message in both languages and both catalogues hav
 });
 
 test('the egress firewall script prints rules that allow the object store and the directory and drop the rest of the egress network (no change without --apply)', (context) => {
-  const probe = spawnSync('sh', ['-c', 'command -v getent >/dev/null']);
-  if (probe.error !== undefined || probe.status !== 0) return context.skip('no getent on this host');
+  const probe = spawnSync('sh', ['-c', 'exit 0']);
+  if (probe.error !== undefined || probe.status !== 0) return context.skip('no POSIX shell on this host');
+  // The host names come from a getent of the test's own: the first name has two addresses, the second one has none (the answer of a name that does not resolve).
+  const bin = temp('machvon-getent-');
+  writeFileSync(join(bin, 'getent'), '#!/bin/sh\ncase "$2" in\n  store.example.test) printf "10.1.1.5 STREAM store\\n10.1.1.6 STREAM store\\n" ;;\n  directory.example.test) printf "10.2.2.9 STREAM directory\\n" ;;\n  *) exit 2 ;;\nesac\n', { mode: 0o755 });
+  const env = { ...process.env, PATH: `${bin}${process.platform === 'win32' ? ';' : ':'}${process.env.PATH}` };
   const script = join(REPO_ROOT, 'infra', 'onprem', 'config', 'egress-firewall.sh');
-  const printed = spawnSync('sh', [script, 'localhost', '443', 'localhost', '636'], { encoding: 'utf8' });
+  const printed = spawnSync('sh', [script, 'store.example.test', '443', 'directory.example.test', '636'], { encoding: 'utf8', env });
   assert.equal(printed.status, 0, printed.stderr);
-  assert.match(printed.stdout, /iptables -A MACHVON-EGRESS -d 127\.0\.0\.1 -p tcp --dport 443 -j ACCEPT/);
-  assert.match(printed.stdout, /--dport 636 -j ACCEPT/);
+  assert.match(printed.stdout, /iptables -A MACHVON-EGRESS -d 10\.1\.1\.5 -p tcp --dport 443 -j ACCEPT/);
+  assert.match(printed.stdout, /iptables -A MACHVON-EGRESS -d 10\.1\.1\.6 -p tcp --dport 443 -j ACCEPT/);
+  assert.match(printed.stdout, /iptables -A MACHVON-EGRESS -d 10\.2\.2\.9 -p tcp --dport 636 -j ACCEPT/);
   assert.match(printed.stdout, /MACHVON-EGRESS -j DROP/);
   assert.match(printed.stdout, /DOCKER-USER[^\n]*172\.29\.250\.0\/24/);
-  assert.equal(spawnSync('sh', [script, 'only', 'three'], { encoding: 'utf8' }).status, 2);
+  // The traffic inside the egress network (Keycloak to the database) is allowed, whichever address Docker hands out.
+  assert.match(printed.stdout, /MACHVON-EGRESS -d 172\.29\.250\.0\/24 -j ACCEPT/);
+  // A destination that does not resolve stops the script before any rule is written: an empty answer must never become a rule set that blocks it.
+  const unresolved = spawnSync('sh', [script, 'store.example.test', '443', 'no-such-host.invalid', '636', '--apply'], { encoding: 'utf8', env });
+  assert.notEqual(unresolved.status, 0);
+  assert.equal(unresolved.stdout, '');
+  assert.match(unresolved.stderr, /cannot resolve no-such-host\.invalid/);
+  assert.equal(spawnSync('sh', [script, 'only', 'three'], { encoding: 'utf8', env }).status, 2);
   assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'compose', 'compose.yaml'), 'utf8'), /172\.29\.250\.0\/24/, 'the subnet of the script is the one of the compose file');
 });
