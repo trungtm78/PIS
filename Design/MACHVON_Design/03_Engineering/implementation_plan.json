@@ -48565,7 +48565,8 @@
       ],
       "operations": [
         "getContractReport",
-        "exportContractReport"
+        "exportContractReport",
+        "getContractScheduleSCurve"
       ],
       "tables": [],
       "nfr": [
@@ -48629,7 +48630,7 @@
         {
           "id": "TK-CTR-020-1",
           "kind": "backend",
-          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getContractReport, exportContractReport",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getContractReport, exportContractReport, getContractScheduleSCurve",
           "test_ids": []
         },
         {

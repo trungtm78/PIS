@@ -898,6 +898,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getContractReport({required String code, Map<String, Object?>? query}) =>
       execute('getContractReport', path: <String, Object?>{'code': code}, query: query);
 
+  Future<Object?> getContractScheduleSCurve({Map<String, Object?>? query}) =>
+      execute('getContractScheduleSCurve', query: query);
+
   Future<Object?> getContractSummary({required String id, Map<String, Object?>? query}) =>
       execute('getContractSummary', path: <String, Object?>{'id': id}, query: query);
 

@@ -298,6 +298,7 @@ export const OPERATIONS = {
   "getContractAvailability": { method: "get", path: "/contracts/{id}/availability", versioned: false, stepUp: null, permission: "capital.read" },
   "getContractPortfolio": { method: "get", path: "/contracts/analytics/portfolio", versioned: false, stepUp: null, permission: "contract.read" },
   "getContractReport": { method: "get", path: "/contracts/analytics/reports/{code}", versioned: false, stepUp: null, permission: "contract.analytics.read" },
+  "getContractScheduleSCurve": { method: "get", path: "/contracts/analytics/reports/schedule-delay/s-curve", versioned: false, stepUp: null, permission: "contract.analytics.read" },
   "getContractSummary": { method: "get", path: "/contracts/{id}/summary", versioned: false, stepUp: null, permission: "contract.read" },
   "getContractorExportDownload": { method: "get", path: "/contractor-exports/{id}/download", versioned: false, stepUp: null, permission: "contractor.export" },
   "getContractorHistory": { method: "get", path: "/contractors/{id}/history", versioned: false, stepUp: null, permission: "bid.contractor.read" },

@@ -5864,6 +5864,14 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "REPORT_SELECTION_TOO_LARGE": {
+      "status": 422,
+      "title": "Report selection too large",
+      "meaning": "Tập hợp đồng cần tính giá trị thu được quá lớn để trả lời trọn vẹn; thu hẹp bộ lọc (không bao giờ cắt bớt rồi trả lời một phần)",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
     }
   }
 }

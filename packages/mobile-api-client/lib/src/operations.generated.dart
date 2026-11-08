@@ -300,6 +300,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getContractAvailability': OperationDescriptor(method: 'GET', path: '/contracts/{id}/availability', versioned: false, stepUp: null, permission: 'capital.read'),
   'getContractPortfolio': OperationDescriptor(method: 'GET', path: '/contracts/analytics/portfolio', versioned: false, stepUp: null, permission: 'contract.read'),
   'getContractReport': OperationDescriptor(method: 'GET', path: '/contracts/analytics/reports/{code}', versioned: false, stepUp: null, permission: 'contract.analytics.read'),
+  'getContractScheduleSCurve': OperationDescriptor(method: 'GET', path: '/contracts/analytics/reports/schedule-delay/s-curve', versioned: false, stepUp: null, permission: 'contract.analytics.read'),
   'getContractSummary': OperationDescriptor(method: 'GET', path: '/contracts/{id}/summary', versioned: false, stepUp: null, permission: 'contract.read'),
   'getContractorExportDownload': OperationDescriptor(method: 'GET', path: '/contractor-exports/{id}/download', versioned: false, stepUp: null, permission: 'contractor.export'),
   'getContractorHistory': OperationDescriptor(method: 'GET', path: '/contractors/{id}/history', versioned: false, stepUp: null, permission: 'bid.contractor.read'),

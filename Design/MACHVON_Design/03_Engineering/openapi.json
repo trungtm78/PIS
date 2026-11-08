@@ -158828,6 +158828,183 @@
           "bid.egp.mapping.retired.v1"
         ]
       }
+    },
+    "/contracts/analytics/reports/schedule-delay/s-curve": {
+      "get": {
+        "operationId": "getContractScheduleSCurve",
+        "summary": "Đường S của các hợp đồng được lọc: kế hoạch theo đường cơ sở và phiên bản 0, giá trị thu được và chi phí đến ngày xem (báo cáo R3)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contract.analytics.read",
+        "parameters": [
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contractor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fund",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrScheduleSCurve"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "REPORT_SELECTION_TOO_LARGE"
+        ]
+      }
     }
   },
   "components": {
@@ -199590,7 +199767,7 @@
       },
       "CtrContractReport": {
         "type": "object",
-        "description": "Danh mục hợp đồng hoặc một báo cáo R1 đến R7: các dòng một trang, dòng tổng, nhóm theo chiều của báo cáo, định nghĩa các chỉ số; trang sau theo next_cursor.",
+        "description": "Danh mục hợp đồng hoặc một báo cáo R1 đến R7: các dòng một trang, dòng tổng, nhóm theo chiều của báo cáo, định nghĩa các chỉ số, các quy tắc quản trị đã dùng; trang sau theo next_cursor.",
         "required": [
           "code",
           "ref",
@@ -199749,13 +199926,184 @@
           },
           "evm": {
             "type": "object",
-            "description": "Chỗ dành cho giá trị thu được và đường S của làn B1 (báo cáo R3); chưa nối thì UNAVAILABLE.",
+            "description": "Giá trị thu được của các hợp đồng thuộc tập lọc (báo cáo R3): có bao nhiêu hợp đồng có số và vì sao các hợp đồng khác không có, các tổng, SPI và CPI là tỷ số của các tổng; bản chốt theo kỳ không có số này (NOT_IN_SNAPSHOT).",
+            "required": [
+              "status"
+            ],
             "properties": {
               "status": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "OK",
+                  "UNAVAILABLE"
+                ]
               },
               "reason": {
-                "type": "string"
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "as_of": {
+                "type": "string",
+                "format": "date"
+              },
+              "coverage": {
+                "type": "object",
+                "properties": {
+                  "contracts": {
+                    "type": "integer"
+                  },
+                  "covered": {
+                    "type": "integer"
+                  },
+                  "missing": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer"
+                    }
+                  },
+                  "v0_contracts": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "figures": {
+                "type": "object",
+                "properties": {
+                  "bac_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "pv_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "ev_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "ac_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "sv_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "spi": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "numerator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "denominator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "cpi": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "numerator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "denominator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "rag_spi": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "rag_cpi": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "policy": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "eac_method": {
+                    "type": "string"
+                  },
+                  "amber_below": {
+                    "type": "number"
+                  },
+                  "red_below": {
+                    "type": "number"
+                  }
+                }
               }
             }
           },
@@ -199767,6 +200115,200 @@
                 "type": "integer"
               },
               "request_to_treasury_days": {
+                "type": "integer"
+              }
+            }
+          },
+          "breakdowns": {
+            "type": "array",
+            "description": "Mọi chiều phân nhóm của báo cáo (breakdown là chiều đầu tiên).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dimension": {
+                  "type": "string"
+                },
+                "groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "totals"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "totals": {
+                        "$ref": "#/components/schemas/CtrReportTotals"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "rules": {
+            "type": "array",
+            "description": "Các quy tắc quản trị mà báo cáo đã dùng: loại, phiên bản, nguồn, đã xác nhận hay chưa, và các ngưỡng.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "unverified": {
+                  "type": "boolean"
+                },
+                "params": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "tier_split": {
+            "type": "object",
+            "description": "Tăng trưởng do thay đổi cắt theo bậc của từng thay đổi (báo cáo R7): mẫu số là giá trị gốc của cả tập lọc nên các bậc cộng lại bằng tăng trưởng chung.",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "original_value_vnd": {
+                "type": "string"
+              },
+              "total_delta_vnd": {
+                "type": "string"
+              },
+              "total_count": {
+                "type": "integer"
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "delta_vnd": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "growth": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "numerator": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "denominator": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    },
+                    "share_of_growth_pct": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "max_cumulative_variation_pct": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "ladders": {
+            "type": "object",
+            "description": "Thang thời hạn của giữ lại (theo ngày được hoàn trả) và của bảo lãnh (theo ngày hết hạn), toàn tập lọc (báo cáo R6).",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "retention": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "amount_vnd": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "guarantee": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "amount_vnd": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "near_days": {
+                "type": "integer"
+              },
+              "far_days": {
                 "type": "integer"
               }
             }
@@ -201417,6 +201959,270 @@
           },
           "as_of": {
             "type": "string"
+          }
+        }
+      },
+      "CtrScheduleSCurve": {
+        "type": "object",
+        "description": "Đường S của tập hợp đồng được lọc (báo cáo R3): kế hoạch theo đường cơ sở hiện hành và theo phiên bản 0, giá trị thu được và chi phí đến ngày xem; không có số thì không có điểm, không vẽ đường phẳng bằng không.",
+        "required": [
+          "code",
+          "as_of",
+          "context",
+          "evm",
+          "curve"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "context": {
+            "$ref": "#/components/schemas/CtrAnalyticsContext"
+          },
+          "evm": {
+            "type": "object",
+            "description": "Giá trị thu được của các hợp đồng thuộc tập lọc (báo cáo R3): có bao nhiêu hợp đồng có số và vì sao các hợp đồng khác không có, các tổng, SPI và CPI là tỷ số của các tổng; bản chốt theo kỳ không có số này (NOT_IN_SNAPSHOT).",
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "OK",
+                  "UNAVAILABLE"
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "as_of": {
+                "type": "string",
+                "format": "date"
+              },
+              "coverage": {
+                "type": "object",
+                "properties": {
+                  "contracts": {
+                    "type": "integer"
+                  },
+                  "covered": {
+                    "type": "integer"
+                  },
+                  "missing": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer"
+                    }
+                  },
+                  "v0_contracts": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "figures": {
+                "type": "object",
+                "properties": {
+                  "bac_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "pv_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "ev_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "ac_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "sv_vnd": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "spi": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "numerator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "denominator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "cpi": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "numerator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "denominator": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "rag_spi": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "rag_cpi": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "policy": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "eac_method": {
+                    "type": "string"
+                  },
+                  "amber_below": {
+                    "type": "number"
+                  },
+                  "red_below": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "curve": {
+            "type": "object",
+            "required": [
+              "points"
+            ],
+            "properties": {
+              "as_of": {
+                "type": "string",
+                "format": "date"
+              },
+              "contracts": {
+                "type": "integer"
+              },
+              "v0_contracts": {
+                "type": "integer"
+              },
+              "v0_complete": {
+                "type": "boolean"
+              },
+              "points": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "day",
+                    "pv_current_vnd"
+                  ],
+                  "properties": {
+                    "day": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "pv_v0_vnd": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "pv_current_vnd": {
+                      "type": "string"
+                    },
+                    "ev_vnd": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "ac_vnd": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

@@ -482,6 +482,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getContractorScorecard': ContractorScorecardResponse.fromJson,
   'getContractPortfolio': CtrContractReportResponse.fromJson,
   'getContractReport': asAny,
+  'getContractScheduleSCurve': CtrScheduleSCurveResponse.fromJson,
   'getContractSummary': asObject,
   'getConversionOptions': ConversionOptionsResponse.fromJson,
   'getCrossTotalControl': asObject,
@@ -9290,6 +9291,10 @@ final class CtrContractReportResponse implements ResponseModel {
     this.breakdown,
     this.evm,
     this.paymentClock,
+    this.breakdowns,
+    this.rules,
+    this.tierSplit,
+    this.ladders,
     this.extra = const <String, Object?>{},
   });
 
@@ -9308,7 +9313,11 @@ final class CtrContractReportResponse implements ResponseModel {
       nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
       evm: optionalField(map, path, 'evm', CtrContractReportResponseEvm.fromJson),
       paymentClock: optionalField(map, path, 'payment_clock', CtrContractReportResponsePaymentClock.fromJson),
-      extra: unknownFields(map, path, const <String>{'code', 'ref', 'as_of', 'context', 'columns', 'items', 'totals', 'breakdown', 'definitions', 'next_cursor', 'evm', 'payment_clock'}, strict: false),
+      breakdowns: optionalField(map, path, 'breakdowns', asList(CtrContractReportResponseBreakdownsItem.fromJson)),
+      rules: optionalField(map, path, 'rules', asList(CtrContractReportResponseRulesItem.fromJson)),
+      tierSplit: optionalField(map, path, 'tier_split', CtrContractReportResponseTierSplit.fromJson),
+      ladders: optionalField(map, path, 'ladders', CtrContractReportResponseLadders.fromJson),
+      extra: unknownFields(map, path, const <String>{'code', 'ref', 'as_of', 'context', 'columns', 'items', 'totals', 'breakdown', 'definitions', 'next_cursor', 'evm', 'payment_clock', 'breakdowns', 'rules', 'tier_split', 'ladders'}, strict: false),
     );
   }
 
@@ -9324,6 +9333,10 @@ final class CtrContractReportResponse implements ResponseModel {
   final String? nextCursor;
   final CtrContractReportResponseEvm? evm;
   final CtrContractReportResponsePaymentClock? paymentClock;
+  final List<CtrContractReportResponseBreakdownsItem>? breakdowns;
+  final List<CtrContractReportResponseRulesItem>? rules;
+  final CtrContractReportResponseTierSplit? tierSplit;
+  final CtrContractReportResponseLadders? ladders;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -9342,6 +9355,10 @@ final class CtrContractReportResponse implements ResponseModel {
         'next_cursor': nextCursor,
         if (evm != null) 'evm': evm!.toJson(),
         if (paymentClock != null) 'payment_clock': paymentClock!.toJson(),
+        if (breakdowns != null) 'breakdowns': breakdowns!.map((e0) => e0.toJson()).toList(),
+        if (rules != null) 'rules': rules!.map((e0) => e0.toJson()).toList(),
+        if (tierSplit != null) 'tier_split': tierSplit!.toJson(),
+        if (ladders != null) 'ladders': ladders!.toJson(),
         ...extra,
       };
 }
@@ -9406,6 +9423,66 @@ final class CtrContractReportResponseBreakdownGroupsItem implements ResponseMode
       };
 }
 
+final class CtrContractReportResponseBreakdownsItem implements ResponseModel {
+  const CtrContractReportResponseBreakdownsItem({
+    this.dimension,
+    this.groups,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseBreakdownsItem.fromJson(Object? json, [String path = 'CtrContractReportResponseBreakdownsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseBreakdownsItem(
+      dimension: optionalField(map, path, 'dimension', asString),
+      groups: optionalField(map, path, 'groups', asList(CtrContractReportResponseBreakdownsItemGroupsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'dimension', 'groups'}, strict: false),
+    );
+  }
+
+  final String? dimension;
+  final List<CtrContractReportResponseBreakdownsItemGroupsItem>? groups;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (dimension != null) 'dimension': dimension,
+        if (groups != null) 'groups': groups!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseBreakdownsItemGroupsItem implements ResponseModel {
+  const CtrContractReportResponseBreakdownsItemGroupsItem({
+    required this.key,
+    required this.totals,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseBreakdownsItemGroupsItem.fromJson(Object? json, [String path = 'CtrContractReportResponseBreakdownsItemGroupsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseBreakdownsItemGroupsItem(
+      key: requiredField(map, path, 'key', asString),
+      totals: requiredField(map, path, 'totals', CtrReportTotalsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'key', 'totals'}, strict: false),
+    );
+  }
+
+  final String key;
+  final CtrReportTotalsResponse totals;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'key': key,
+        'totals': totals.toJson(),
+        ...extra,
+      };
+}
+
 final class CtrContractReportResponseColumnsItem implements ResponseModel {
   const CtrContractReportResponseColumnsItem({
     required this.key,
@@ -9450,30 +9527,276 @@ final class CtrContractReportResponseColumnsItem implements ResponseModel {
 
 final class CtrContractReportResponseEvm implements ResponseModel {
   const CtrContractReportResponseEvm({
-    this.status,
+    required this.status,
     this.reason,
+    this.asOf,
+    this.coverage,
+    this.figures,
+    this.policy,
     this.extra = const <String, Object?>{},
   });
 
   factory CtrContractReportResponseEvm.fromJson(Object? json, [String path = 'CtrContractReportResponseEvm']) {
     final Map<String, Object?> map = asObject(json, path);
     return CtrContractReportResponseEvm(
-      status: optionalField(map, path, 'status', asString),
-      reason: optionalField(map, path, 'reason', asString),
-      extra: unknownFields(map, path, const <String>{'status', 'reason'}, strict: false),
+      status: requiredField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      coverage: optionalField(map, path, 'coverage', CtrContractReportResponseEvmCoverage.fromJson),
+      figures: optionalField(map, path, 'figures', CtrContractReportResponseEvmFigures.fromJson),
+      policy: optionalField(map, path, 'policy', CtrContractReportResponseEvmPolicy.fromJson),
+      extra: unknownFields(map, path, const <String>{'status', 'reason', 'as_of', 'coverage', 'figures', 'policy'}, strict: false),
     );
   }
 
-  final String? status;
+  final String status;
   final String? reason;
+  final String? asOf;
+  final CtrContractReportResponseEvmCoverage? coverage;
+  final CtrContractReportResponseEvmFigures? figures;
+  final CtrContractReportResponseEvmPolicy? policy;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        if (reason != null) 'reason': reason,
+        if (asOf != null) 'as_of': asOf,
+        if (coverage != null) 'coverage': coverage!.toJson(),
+        if (figures != null) 'figures': figures!.toJson(),
+        if (policy != null) 'policy': policy!.toJson(),
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseEvmCoverage implements ResponseModel {
+  const CtrContractReportResponseEvmCoverage({
+    this.contracts,
+    this.covered,
+    this.missing,
+    this.v0Contracts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseEvmCoverage.fromJson(Object? json, [String path = 'CtrContractReportResponseEvmCoverage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseEvmCoverage(
+      contracts: optionalField(map, path, 'contracts', asInt),
+      covered: optionalField(map, path, 'covered', asInt),
+      missing: optionalField(map, path, 'missing', asMap(asInt)),
+      v0Contracts: optionalField(map, path, 'v0_contracts', asInt),
+      extra: unknownFields(map, path, const <String>{'contracts', 'covered', 'missing', 'v0_contracts'}, strict: false),
+    );
+  }
+
+  final int? contracts;
+  final int? covered;
+  final Map<String, int>? missing;
+  final int? v0Contracts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (contracts != null) 'contracts': contracts,
+        if (covered != null) 'covered': covered,
+        if (missing != null) 'missing': missing,
+        if (v0Contracts != null) 'v0_contracts': v0Contracts,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseEvmFigures implements ResponseModel {
+  const CtrContractReportResponseEvmFigures({
+    this.bacVnd,
+    this.pvVnd,
+    this.evVnd,
+    this.acVnd,
+    this.svVnd,
+    this.spi,
+    this.cpi,
+    this.ragSpi,
+    this.ragCpi,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseEvmFigures.fromJson(Object? json, [String path = 'CtrContractReportResponseEvmFigures']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseEvmFigures(
+      bacVnd: optionalField(map, path, 'bac_vnd', nullable(asString)),
+      pvVnd: optionalField(map, path, 'pv_vnd', nullable(asString)),
+      evVnd: optionalField(map, path, 'ev_vnd', nullable(asString)),
+      acVnd: optionalField(map, path, 'ac_vnd', nullable(asString)),
+      svVnd: optionalField(map, path, 'sv_vnd', nullable(asString)),
+      spi: optionalField(map, path, 'spi', CtrContractReportResponseEvmFiguresSpi.fromJson),
+      cpi: optionalField(map, path, 'cpi', CtrContractReportResponseEvmFiguresCpi.fromJson),
+      ragSpi: optionalField(map, path, 'rag_spi', nullable(asString)),
+      ragCpi: optionalField(map, path, 'rag_cpi', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'bac_vnd', 'pv_vnd', 'ev_vnd', 'ac_vnd', 'sv_vnd', 'spi', 'cpi', 'rag_spi', 'rag_cpi'}, strict: false),
+    );
+  }
+
+  final String? bacVnd;
+  final String? pvVnd;
+  final String? evVnd;
+  final String? acVnd;
+  final String? svVnd;
+  final CtrContractReportResponseEvmFiguresSpi? spi;
+  final CtrContractReportResponseEvmFiguresCpi? cpi;
+  final String? ragSpi;
+  final String? ragCpi;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (bacVnd != null) 'bac_vnd': bacVnd,
+        if (pvVnd != null) 'pv_vnd': pvVnd,
+        if (evVnd != null) 'ev_vnd': evVnd,
+        if (acVnd != null) 'ac_vnd': acVnd,
+        if (svVnd != null) 'sv_vnd': svVnd,
+        if (spi != null) 'spi': spi!.toJson(),
+        if (cpi != null) 'cpi': cpi!.toJson(),
+        if (ragSpi != null) 'rag_spi': ragSpi,
+        if (ragCpi != null) 'rag_cpi': ragCpi,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseEvmFiguresCpi implements ResponseModel {
+  const CtrContractReportResponseEvmFiguresCpi({
+    this.code,
+    this.value,
+    this.status,
+    this.reason,
+    this.numerator,
+    this.denominator,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseEvmFiguresCpi.fromJson(Object? json, [String path = 'CtrContractReportResponseEvmFiguresCpi']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseEvmFiguresCpi(
+      code: optionalField(map, path, 'code', asString),
+      value: optionalField(map, path, 'value', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      numerator: optionalField(map, path, 'numerator', nullable(asString)),
+      denominator: optionalField(map, path, 'denominator', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'value', 'status', 'reason', 'numerator', 'denominator'}, strict: false),
+    );
+  }
+
+  final String? code;
+  final String? value;
+  final String? status;
+  final String? reason;
+  final String? numerator;
+  final String? denominator;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (code != null) 'code': code,
+        if (value != null) 'value': value,
         if (status != null) 'status': status,
         if (reason != null) 'reason': reason,
+        if (numerator != null) 'numerator': numerator,
+        if (denominator != null) 'denominator': denominator,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseEvmFiguresSpi implements ResponseModel {
+  const CtrContractReportResponseEvmFiguresSpi({
+    this.code,
+    this.value,
+    this.status,
+    this.reason,
+    this.numerator,
+    this.denominator,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseEvmFiguresSpi.fromJson(Object? json, [String path = 'CtrContractReportResponseEvmFiguresSpi']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseEvmFiguresSpi(
+      code: optionalField(map, path, 'code', asString),
+      value: optionalField(map, path, 'value', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      numerator: optionalField(map, path, 'numerator', nullable(asString)),
+      denominator: optionalField(map, path, 'denominator', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'value', 'status', 'reason', 'numerator', 'denominator'}, strict: false),
+    );
+  }
+
+  final String? code;
+  final String? value;
+  final String? status;
+  final String? reason;
+  final String? numerator;
+  final String? denominator;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (code != null) 'code': code,
+        if (value != null) 'value': value,
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+        if (numerator != null) 'numerator': numerator,
+        if (denominator != null) 'denominator': denominator,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseEvmPolicy implements ResponseModel {
+  const CtrContractReportResponseEvmPolicy({
+    this.version,
+    this.source,
+    this.eacMethod,
+    this.amberBelow,
+    this.redBelow,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseEvmPolicy.fromJson(Object? json, [String path = 'CtrContractReportResponseEvmPolicy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseEvmPolicy(
+      version: optionalField(map, path, 'version', asString),
+      source: optionalField(map, path, 'source', asString),
+      eacMethod: optionalField(map, path, 'eac_method', asString),
+      amberBelow: optionalField(map, path, 'amber_below', asNum),
+      redBelow: optionalField(map, path, 'red_below', asNum),
+      extra: unknownFields(map, path, const <String>{'version', 'source', 'eac_method', 'amber_below', 'red_below'}, strict: false),
+    );
+  }
+
+  final String? version;
+  final String? source;
+  final String? eacMethod;
+  final num? amberBelow;
+  final num? redBelow;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (version != null) 'version': version,
+        if (source != null) 'source': source,
+        if (eacMethod != null) 'eac_method': eacMethod,
+        if (amberBelow != null) 'amber_below': amberBelow,
+        if (redBelow != null) 'red_below': redBelow,
         ...extra,
       };
 }
@@ -9516,6 +9839,120 @@ final class CtrContractReportResponseItemsItem implements ResponseModel {
       };
 }
 
+final class CtrContractReportResponseLadders implements ResponseModel {
+  const CtrContractReportResponseLadders({
+    this.status,
+    this.reason,
+    this.retention,
+    this.guarantee,
+    this.nearDays,
+    this.farDays,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseLadders.fromJson(Object? json, [String path = 'CtrContractReportResponseLadders']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseLadders(
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', asString),
+      retention: optionalField(map, path, 'retention', asList(CtrContractReportResponseLaddersRetentionItem.fromJson)),
+      guarantee: optionalField(map, path, 'guarantee', asList(CtrContractReportResponseLaddersGuaranteeItem.fromJson)),
+      nearDays: optionalField(map, path, 'near_days', asInt),
+      farDays: optionalField(map, path, 'far_days', asInt),
+      extra: unknownFields(map, path, const <String>{'status', 'reason', 'retention', 'guarantee', 'near_days', 'far_days'}, strict: false),
+    );
+  }
+
+  final String? status;
+  final String? reason;
+  final List<CtrContractReportResponseLaddersRetentionItem>? retention;
+  final List<CtrContractReportResponseLaddersGuaranteeItem>? guarantee;
+  final int? nearDays;
+  final int? farDays;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+        if (retention != null) 'retention': retention!.map((e0) => e0.toJson()).toList(),
+        if (guarantee != null) 'guarantee': guarantee!.map((e0) => e0.toJson()).toList(),
+        if (nearDays != null) 'near_days': nearDays,
+        if (farDays != null) 'far_days': farDays,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseLaddersGuaranteeItem implements ResponseModel {
+  const CtrContractReportResponseLaddersGuaranteeItem({
+    this.key,
+    this.count,
+    this.amountVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseLaddersGuaranteeItem.fromJson(Object? json, [String path = 'CtrContractReportResponseLaddersGuaranteeItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseLaddersGuaranteeItem(
+      key: optionalField(map, path, 'key', asString),
+      count: optionalField(map, path, 'count', asInt),
+      amountVnd: optionalField(map, path, 'amount_vnd', asString),
+      extra: unknownFields(map, path, const <String>{'key', 'count', 'amount_vnd'}, strict: false),
+    );
+  }
+
+  final String? key;
+  final int? count;
+  final String? amountVnd;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (key != null) 'key': key,
+        if (count != null) 'count': count,
+        if (amountVnd != null) 'amount_vnd': amountVnd,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseLaddersRetentionItem implements ResponseModel {
+  const CtrContractReportResponseLaddersRetentionItem({
+    this.key,
+    this.count,
+    this.amountVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseLaddersRetentionItem.fromJson(Object? json, [String path = 'CtrContractReportResponseLaddersRetentionItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseLaddersRetentionItem(
+      key: optionalField(map, path, 'key', asString),
+      count: optionalField(map, path, 'count', asInt),
+      amountVnd: optionalField(map, path, 'amount_vnd', asString),
+      extra: unknownFields(map, path, const <String>{'key', 'count', 'amount_vnd'}, strict: false),
+    );
+  }
+
+  final String? key;
+  final int? count;
+  final String? amountVnd;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (key != null) 'key': key,
+        if (count != null) 'count': count,
+        if (amountVnd != null) 'amount_vnd': amountVnd,
+        ...extra,
+      };
+}
+
 final class CtrContractReportResponsePaymentClock implements ResponseModel {
   const CtrContractReportResponsePaymentClock({
     this.acceptanceToRequestDays,
@@ -9542,6 +9979,186 @@ final class CtrContractReportResponsePaymentClock implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         if (acceptanceToRequestDays != null) 'acceptance_to_request_days': acceptanceToRequestDays,
         if (requestToTreasuryDays != null) 'request_to_treasury_days': requestToTreasuryDays,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseRulesItem implements ResponseModel {
+  const CtrContractReportResponseRulesItem({
+    this.type_,
+    this.version,
+    this.source,
+    this.unverified,
+    this.params,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseRulesItem.fromJson(Object? json, [String path = 'CtrContractReportResponseRulesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseRulesItem(
+      type_: optionalField(map, path, 'type', asString),
+      version: optionalField(map, path, 'version', asInt),
+      source: optionalField(map, path, 'source', asString),
+      unverified: optionalField(map, path, 'unverified', asBool),
+      params: optionalField(map, path, 'params', asObject),
+      extra: unknownFields(map, path, const <String>{'type', 'version', 'source', 'unverified', 'params'}, strict: false),
+    );
+  }
+
+  final String? type_;
+  final int? version;
+  final String? source;
+  final bool? unverified;
+  final Map<String, Object?>? params;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (type_ != null) 'type': type_,
+        if (version != null) 'version': version,
+        if (source != null) 'source': source,
+        if (unverified != null) 'unverified': unverified,
+        if (params != null) 'params': params,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseTierSplit implements ResponseModel {
+  const CtrContractReportResponseTierSplit({
+    this.status,
+    this.reason,
+    this.originalValueVnd,
+    this.totalDeltaVnd,
+    this.totalCount,
+    this.groups,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseTierSplit.fromJson(Object? json, [String path = 'CtrContractReportResponseTierSplit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseTierSplit(
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', asString),
+      originalValueVnd: optionalField(map, path, 'original_value_vnd', asString),
+      totalDeltaVnd: optionalField(map, path, 'total_delta_vnd', asString),
+      totalCount: optionalField(map, path, 'total_count', asInt),
+      groups: optionalField(map, path, 'groups', asList(CtrContractReportResponseTierSplitGroupsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'status', 'reason', 'original_value_vnd', 'total_delta_vnd', 'total_count', 'groups'}, strict: false),
+    );
+  }
+
+  final String? status;
+  final String? reason;
+  final String? originalValueVnd;
+  final String? totalDeltaVnd;
+  final int? totalCount;
+  final List<CtrContractReportResponseTierSplitGroupsItem>? groups;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+        if (originalValueVnd != null) 'original_value_vnd': originalValueVnd,
+        if (totalDeltaVnd != null) 'total_delta_vnd': totalDeltaVnd,
+        if (totalCount != null) 'total_count': totalCount,
+        if (groups != null) 'groups': groups!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseTierSplitGroupsItem implements ResponseModel {
+  const CtrContractReportResponseTierSplitGroupsItem({
+    this.key,
+    this.count,
+    this.deltaVnd,
+    this.growth,
+    this.shareOfGrowthPct,
+    this.maxCumulativeVariationPct,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseTierSplitGroupsItem.fromJson(Object? json, [String path = 'CtrContractReportResponseTierSplitGroupsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseTierSplitGroupsItem(
+      key: optionalField(map, path, 'key', asString),
+      count: optionalField(map, path, 'count', asInt),
+      deltaVnd: optionalField(map, path, 'delta_vnd', nullable(asString)),
+      growth: optionalField(map, path, 'growth', CtrContractReportResponseTierSplitGroupsItemGrowth.fromJson),
+      shareOfGrowthPct: optionalField(map, path, 'share_of_growth_pct', nullable(asString)),
+      maxCumulativeVariationPct: optionalField(map, path, 'max_cumulative_variation_pct', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'key', 'count', 'delta_vnd', 'growth', 'share_of_growth_pct', 'max_cumulative_variation_pct'}, strict: false),
+    );
+  }
+
+  final String? key;
+  final int? count;
+  final String? deltaVnd;
+  final CtrContractReportResponseTierSplitGroupsItemGrowth? growth;
+  final String? shareOfGrowthPct;
+  final String? maxCumulativeVariationPct;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (key != null) 'key': key,
+        if (count != null) 'count': count,
+        if (deltaVnd != null) 'delta_vnd': deltaVnd,
+        if (growth != null) 'growth': growth!.toJson(),
+        if (shareOfGrowthPct != null) 'share_of_growth_pct': shareOfGrowthPct,
+        if (maxCumulativeVariationPct != null) 'max_cumulative_variation_pct': maxCumulativeVariationPct,
+        ...extra,
+      };
+}
+
+final class CtrContractReportResponseTierSplitGroupsItemGrowth implements ResponseModel {
+  const CtrContractReportResponseTierSplitGroupsItemGrowth({
+    this.code,
+    this.value,
+    this.status,
+    this.reason,
+    this.numerator,
+    this.denominator,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractReportResponseTierSplitGroupsItemGrowth.fromJson(Object? json, [String path = 'CtrContractReportResponseTierSplitGroupsItemGrowth']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractReportResponseTierSplitGroupsItemGrowth(
+      code: optionalField(map, path, 'code', asString),
+      value: optionalField(map, path, 'value', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      numerator: optionalField(map, path, 'numerator', nullable(asString)),
+      denominator: optionalField(map, path, 'denominator', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'value', 'status', 'reason', 'numerator', 'denominator'}, strict: false),
+    );
+  }
+
+  final String? code;
+  final String? value;
+  final String? status;
+  final String? reason;
+  final String? numerator;
+  final String? denominator;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (code != null) 'code': code,
+        if (value != null) 'value': value,
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+        if (numerator != null) 'numerator': numerator,
+        if (denominator != null) 'denominator': denominator,
         ...extra,
       };
 }
@@ -10138,6 +10755,408 @@ final class CtrReportTotalsResponse implements ResponseModel {
         'cells': cells,
         'na': na,
         'indicators': indicators,
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponse implements ResponseModel {
+  const CtrScheduleSCurveResponse({
+    required this.code,
+    required this.asOf,
+    required this.context,
+    required this.evm,
+    required this.curve,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponse.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponse(
+      code: requiredField(map, path, 'code', asString),
+      asOf: requiredField(map, path, 'as_of', asString),
+      context: requiredField(map, path, 'context', CtrAnalyticsContextResponse.fromJson),
+      evm: requiredField(map, path, 'evm', CtrScheduleSCurveResponseEvm.fromJson),
+      curve: requiredField(map, path, 'curve', CtrScheduleSCurveResponseCurve.fromJson),
+      extra: unknownFields(map, path, const <String>{'code', 'as_of', 'context', 'evm', 'curve'}, strict: false),
+    );
+  }
+
+  final String code;
+  final String asOf;
+  final CtrAnalyticsContextResponse context;
+  final CtrScheduleSCurveResponseEvm evm;
+  final CtrScheduleSCurveResponseCurve curve;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'as_of': asOf,
+        'context': context.toJson(),
+        'evm': evm.toJson(),
+        'curve': curve.toJson(),
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseCurve implements ResponseModel {
+  const CtrScheduleSCurveResponseCurve({
+    required this.points,
+    this.asOf,
+    this.contracts,
+    this.v0Contracts,
+    this.v0Complete,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseCurve.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseCurve']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseCurve(
+      asOf: optionalField(map, path, 'as_of', asString),
+      contracts: optionalField(map, path, 'contracts', asInt),
+      v0Contracts: optionalField(map, path, 'v0_contracts', asInt),
+      v0Complete: optionalField(map, path, 'v0_complete', asBool),
+      points: requiredField(map, path, 'points', asList(CtrScheduleSCurveResponseCurvePointsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'as_of', 'contracts', 'v0_contracts', 'v0_complete', 'points'}, strict: false),
+    );
+  }
+
+  final String? asOf;
+  final int? contracts;
+  final int? v0Contracts;
+  final bool? v0Complete;
+  final List<CtrScheduleSCurveResponseCurvePointsItem> points;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (asOf != null) 'as_of': asOf,
+        if (contracts != null) 'contracts': contracts,
+        if (v0Contracts != null) 'v0_contracts': v0Contracts,
+        if (v0Complete != null) 'v0_complete': v0Complete,
+        'points': points.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseCurvePointsItem implements ResponseModel {
+  const CtrScheduleSCurveResponseCurvePointsItem({
+    required this.day,
+    required this.pvCurrentVnd,
+    this.pvV0Vnd,
+    this.evVnd,
+    this.acVnd,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseCurvePointsItem.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseCurvePointsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseCurvePointsItem(
+      day: requiredField(map, path, 'day', asString),
+      pvV0Vnd: optionalField(map, path, 'pv_v0_vnd', nullable(asString)),
+      pvCurrentVnd: requiredField(map, path, 'pv_current_vnd', asString),
+      evVnd: optionalField(map, path, 'ev_vnd', nullable(asString)),
+      acVnd: optionalField(map, path, 'ac_vnd', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'day', 'pv_v0_vnd', 'pv_current_vnd', 'ev_vnd', 'ac_vnd'}, strict: false),
+    );
+  }
+
+  final String day;
+  final String? pvV0Vnd;
+  final String pvCurrentVnd;
+  final String? evVnd;
+  final String? acVnd;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'day': day,
+        if (pvV0Vnd != null) 'pv_v0_vnd': pvV0Vnd,
+        'pv_current_vnd': pvCurrentVnd,
+        if (evVnd != null) 'ev_vnd': evVnd,
+        if (acVnd != null) 'ac_vnd': acVnd,
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseEvm implements ResponseModel {
+  const CtrScheduleSCurveResponseEvm({
+    required this.status,
+    this.reason,
+    this.asOf,
+    this.coverage,
+    this.figures,
+    this.policy,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseEvm.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseEvm']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseEvm(
+      status: requiredField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', asString),
+      coverage: optionalField(map, path, 'coverage', CtrScheduleSCurveResponseEvmCoverage.fromJson),
+      figures: optionalField(map, path, 'figures', CtrScheduleSCurveResponseEvmFigures.fromJson),
+      policy: optionalField(map, path, 'policy', CtrScheduleSCurveResponseEvmPolicy.fromJson),
+      extra: unknownFields(map, path, const <String>{'status', 'reason', 'as_of', 'coverage', 'figures', 'policy'}, strict: false),
+    );
+  }
+
+  final String status;
+  final String? reason;
+  final String? asOf;
+  final CtrScheduleSCurveResponseEvmCoverage? coverage;
+  final CtrScheduleSCurveResponseEvmFigures? figures;
+  final CtrScheduleSCurveResponseEvmPolicy? policy;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        if (reason != null) 'reason': reason,
+        if (asOf != null) 'as_of': asOf,
+        if (coverage != null) 'coverage': coverage!.toJson(),
+        if (figures != null) 'figures': figures!.toJson(),
+        if (policy != null) 'policy': policy!.toJson(),
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseEvmCoverage implements ResponseModel {
+  const CtrScheduleSCurveResponseEvmCoverage({
+    this.contracts,
+    this.covered,
+    this.missing,
+    this.v0Contracts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseEvmCoverage.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseEvmCoverage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseEvmCoverage(
+      contracts: optionalField(map, path, 'contracts', asInt),
+      covered: optionalField(map, path, 'covered', asInt),
+      missing: optionalField(map, path, 'missing', asMap(asInt)),
+      v0Contracts: optionalField(map, path, 'v0_contracts', asInt),
+      extra: unknownFields(map, path, const <String>{'contracts', 'covered', 'missing', 'v0_contracts'}, strict: false),
+    );
+  }
+
+  final int? contracts;
+  final int? covered;
+  final Map<String, int>? missing;
+  final int? v0Contracts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (contracts != null) 'contracts': contracts,
+        if (covered != null) 'covered': covered,
+        if (missing != null) 'missing': missing,
+        if (v0Contracts != null) 'v0_contracts': v0Contracts,
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseEvmFigures implements ResponseModel {
+  const CtrScheduleSCurveResponseEvmFigures({
+    this.bacVnd,
+    this.pvVnd,
+    this.evVnd,
+    this.acVnd,
+    this.svVnd,
+    this.spi,
+    this.cpi,
+    this.ragSpi,
+    this.ragCpi,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseEvmFigures.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseEvmFigures']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseEvmFigures(
+      bacVnd: optionalField(map, path, 'bac_vnd', nullable(asString)),
+      pvVnd: optionalField(map, path, 'pv_vnd', nullable(asString)),
+      evVnd: optionalField(map, path, 'ev_vnd', nullable(asString)),
+      acVnd: optionalField(map, path, 'ac_vnd', nullable(asString)),
+      svVnd: optionalField(map, path, 'sv_vnd', nullable(asString)),
+      spi: optionalField(map, path, 'spi', CtrScheduleSCurveResponseEvmFiguresSpi.fromJson),
+      cpi: optionalField(map, path, 'cpi', CtrScheduleSCurveResponseEvmFiguresCpi.fromJson),
+      ragSpi: optionalField(map, path, 'rag_spi', nullable(asString)),
+      ragCpi: optionalField(map, path, 'rag_cpi', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'bac_vnd', 'pv_vnd', 'ev_vnd', 'ac_vnd', 'sv_vnd', 'spi', 'cpi', 'rag_spi', 'rag_cpi'}, strict: false),
+    );
+  }
+
+  final String? bacVnd;
+  final String? pvVnd;
+  final String? evVnd;
+  final String? acVnd;
+  final String? svVnd;
+  final CtrScheduleSCurveResponseEvmFiguresSpi? spi;
+  final CtrScheduleSCurveResponseEvmFiguresCpi? cpi;
+  final String? ragSpi;
+  final String? ragCpi;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (bacVnd != null) 'bac_vnd': bacVnd,
+        if (pvVnd != null) 'pv_vnd': pvVnd,
+        if (evVnd != null) 'ev_vnd': evVnd,
+        if (acVnd != null) 'ac_vnd': acVnd,
+        if (svVnd != null) 'sv_vnd': svVnd,
+        if (spi != null) 'spi': spi!.toJson(),
+        if (cpi != null) 'cpi': cpi!.toJson(),
+        if (ragSpi != null) 'rag_spi': ragSpi,
+        if (ragCpi != null) 'rag_cpi': ragCpi,
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseEvmFiguresCpi implements ResponseModel {
+  const CtrScheduleSCurveResponseEvmFiguresCpi({
+    this.code,
+    this.value,
+    this.status,
+    this.reason,
+    this.numerator,
+    this.denominator,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseEvmFiguresCpi.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseEvmFiguresCpi']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseEvmFiguresCpi(
+      code: optionalField(map, path, 'code', asString),
+      value: optionalField(map, path, 'value', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      numerator: optionalField(map, path, 'numerator', nullable(asString)),
+      denominator: optionalField(map, path, 'denominator', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'value', 'status', 'reason', 'numerator', 'denominator'}, strict: false),
+    );
+  }
+
+  final String? code;
+  final String? value;
+  final String? status;
+  final String? reason;
+  final String? numerator;
+  final String? denominator;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (code != null) 'code': code,
+        if (value != null) 'value': value,
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+        if (numerator != null) 'numerator': numerator,
+        if (denominator != null) 'denominator': denominator,
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseEvmFiguresSpi implements ResponseModel {
+  const CtrScheduleSCurveResponseEvmFiguresSpi({
+    this.code,
+    this.value,
+    this.status,
+    this.reason,
+    this.numerator,
+    this.denominator,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseEvmFiguresSpi.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseEvmFiguresSpi']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseEvmFiguresSpi(
+      code: optionalField(map, path, 'code', asString),
+      value: optionalField(map, path, 'value', nullable(asString)),
+      status: optionalField(map, path, 'status', asString),
+      reason: optionalField(map, path, 'reason', nullable(asString)),
+      numerator: optionalField(map, path, 'numerator', nullable(asString)),
+      denominator: optionalField(map, path, 'denominator', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'value', 'status', 'reason', 'numerator', 'denominator'}, strict: false),
+    );
+  }
+
+  final String? code;
+  final String? value;
+  final String? status;
+  final String? reason;
+  final String? numerator;
+  final String? denominator;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (code != null) 'code': code,
+        if (value != null) 'value': value,
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+        if (numerator != null) 'numerator': numerator,
+        if (denominator != null) 'denominator': denominator,
+        ...extra,
+      };
+}
+
+final class CtrScheduleSCurveResponseEvmPolicy implements ResponseModel {
+  const CtrScheduleSCurveResponseEvmPolicy({
+    this.version,
+    this.source,
+    this.eacMethod,
+    this.amberBelow,
+    this.redBelow,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrScheduleSCurveResponseEvmPolicy.fromJson(Object? json, [String path = 'CtrScheduleSCurveResponseEvmPolicy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrScheduleSCurveResponseEvmPolicy(
+      version: optionalField(map, path, 'version', asString),
+      source: optionalField(map, path, 'source', asString),
+      eacMethod: optionalField(map, path, 'eac_method', asString),
+      amberBelow: optionalField(map, path, 'amber_below', asNum),
+      redBelow: optionalField(map, path, 'red_below', asNum),
+      extra: unknownFields(map, path, const <String>{'version', 'source', 'eac_method', 'amber_below', 'red_below'}, strict: false),
+    );
+  }
+
+  final String? version;
+  final String? source;
+  final String? eacMethod;
+  final num? amberBelow;
+  final num? redBelow;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (version != null) 'version': version,
+        if (source != null) 'source': source,
+        if (eacMethod != null) 'eac_method': eacMethod,
+        if (amberBelow != null) 'amber_below': amberBelow,
+        if (redBelow != null) 'red_below': redBelow,
         ...extra,
       };
 }

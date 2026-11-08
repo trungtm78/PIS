@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
-import { AuditWriter, BidContractorStore, CtrFactStore, FACT_SORTS, GovernancePolicyPort, TenantDatabase, contractScope, projectScope } from '@machvon/db';
-import type { FactCursor, FactFilters, FactQuery, FactSnapshotRow, ScopeBuilder, TenantTx } from '@machvon/db';
+import { AuditWriter, BidContractorStore, CtrFactStore, CtrMoneyStore, FACT_SORTS, GovernancePolicyPort, MoneyPolicyReader, TenantDatabase, contractScope, projectScope } from '@machvon/db';
+import type { BreakdownContext, CtrEvmRead, FactCursor, FactFilters, FactQuery, FactSnapshotRow, ScopeBuilder, TenantTx } from '@machvon/db';
 import {
   BI_EXPORT_ROW_CAP,
   BREAKDOWN_KEYS,
@@ -15,6 +15,8 @@ import {
   concentrationDefaults,
   concentrationDocumentOf,
   concentrationReport,
+  contractHealthDefaults,
+  contractHealthRagParams,
   contractorLoadOf,
   csvOf,
   hasControlChar,
@@ -26,11 +28,31 @@ import {
   reportFilterText,
   reportRowOf,
   reportScopeDescription,
+  threeWayDefaults,
+  threeWayParams,
   totalsOfSums,
   vietnamDateOf,
   xlsxOf,
 } from '@machvon/kernel';
-import type { ConcentrationParams, ContractFact, CtrReportCode, CtrReportTotals, EffectiveAccess, PaymentClockParams, ReportRow, TenantContext } from '@machvon/kernel';
+import type {
+  ConcentrationParams,
+  ContractFact,
+  ContractHealthRagParams,
+  CtrReportCode,
+  CtrReportTotals,
+  EffectiveAccess,
+  EvmCurve,
+  IndicatorResult,
+  MoneyContext,
+  PaymentClockParams,
+  ReportExtras,
+  ReportRow,
+  ReportTotalExtras,
+  ResolvedGovernanceRule,
+  TenantContext,
+  ThreeWayParams,
+  TierSplit,
+} from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -141,6 +163,25 @@ const snapshotView = (snapshot: FactSnapshotRow): Record<string, unknown> => ({
   built_at: snapshot.builtAt,
 });
 
+const indicatorView = (one: IndicatorResult): Record<string, unknown> => ({ code: one.code, value: one.value, status: one.status, reason: one.reason, numerator: one.numerator, denominator: one.denominator });
+
+/** The rule a figure was judged by, as the screen and the file say it: which rule, which version, where it came from, whether anybody confirmed it, and its numbers. */
+const ruleView = (type: string, rule: Pick<ResolvedGovernanceRule, 'version' | 'source' | 'unverified'> | undefined, params: unknown): Record<string, unknown> => ({
+  type,
+  version: rule?.version ?? 0,
+  source: rule?.source ?? 'DEFAULT',
+  unverified: rule?.unverified ?? true,
+  params,
+});
+
+interface ReportRules {
+  ragParams: ContractHealthRagParams;
+  threeWay: ThreeWayParams;
+  advanceToleranceVnd: bigint;
+  clock: PaymentClockParams;
+  views: Array<Record<string, unknown>>;
+}
+
 const rowView = (row: ReportRow): Record<string, unknown> => ({
   contract_id: row.id,
   cells: row.cells,
@@ -180,6 +221,8 @@ interface Prepared {
 @Controller('contracts/analytics')
 export class ContractAnalyticsController {
   private readonly facts = new CtrFactStore();
+  private readonly money = new CtrMoneyStore();
+  private readonly moneyRules = new MoneyPolicyReader();
   private readonly contractors = new BidContractorStore();
   private readonly policy = new GovernancePolicyPort();
   private readonly audit: AuditWriter;
@@ -209,6 +252,10 @@ export class ContractAnalyticsController {
     return { request, query, snapshot, latest, today, province: scope(1).sql === 'true', projects: projectScope(access, permission, now) };
   }
 
+  private contextBody(prepared: Prepared): Record<string, unknown> {
+    return { code: 'schedule-delay', as_of: new Date().toISOString(), context: this.contextOf(prepared, null) };
+  }
+
   private contextOf(prepared: Prepared, totals: CtrReportTotals | null): Record<string, unknown> {
     const { snapshot, latest, query } = prepared;
     return {
@@ -227,9 +274,97 @@ export class ContractAnalyticsController {
     };
   }
 
-  private async clockOf(tx: TenantTx, today: string): Promise<PaymentClockParams> {
-    const rule = await this.policy.get(tx, 'CONTRACT_PAYMENT_CLOCK', 'DEFAULT', today);
-    return rule === undefined ? paymentClockDefaults() : paymentClockParams(rule.params);
+  /**
+   * The rules a report judges by, read through the governance port on the as-of day of the reading and judged again by the parser of their own lane (a rule that cannot be understood is refused, never half applied): the colour of a
+   * contract (portfolio), the three-way match and the payment clock (payment report), the tolerance of the advance recovery (advance report). Only the rules the report uses are read, and each is named in the answer.
+   */
+  private async rulesOf(tx: TenantTx, code: Exclude<CtrReportCode, 'contractor-concentration'>, day: string): Promise<ReportRules> {
+    const views: Array<Record<string, unknown>> = [];
+    let ragParams = contractHealthDefaults();
+    let threeWay = threeWayDefaults();
+    let advanceToleranceVnd = 0n;
+    let clock = paymentClockDefaults();
+    if (code === 'portfolio-status') {
+      const rule = await this.policy.get(tx, 'CONTRACT_HEALTH_RAG', 'DEFAULT', day);
+      ragParams = rule === undefined ? contractHealthDefaults() : contractHealthRagParams(rule.params);
+      views.push(ruleView('CONTRACT_HEALTH_RAG', rule, ragParams));
+    }
+    if (code === 'payment-three-way') {
+      const rule = await this.policy.get(tx, 'CONTRACT_THREE_WAY_MATCH', 'DEFAULT', day);
+      threeWay = rule === undefined ? threeWayDefaults() : threeWayParams(rule.params);
+      views.push(ruleView('CONTRACT_THREE_WAY_MATCH', rule, threeWay));
+      const clockRule = await this.policy.get(tx, 'CONTRACT_PAYMENT_CLOCK', 'DEFAULT', day);
+      clock = clockRule === undefined ? paymentClockDefaults() : paymentClockParams(clockRule.params);
+      views.push(ruleView('CONTRACT_PAYMENT_CLOCK', clockRule, clock));
+    }
+    if (code === 'advance-ageing') {
+      const reading = await this.moneyRules.get(tx, 'ADVANCE_RECOVERY', day);
+      advanceToleranceVnd = BigInt(reading.params.toleranceVnd);
+      views.push({ type: 'ADVANCE_RECOVERY', version: reading.version ?? 0, source: reading.source, unverified: reading.source === 'DEFAULT', params: { tolerance_vnd: reading.params.toleranceVnd } });
+    }
+    return { ragParams, threeWay, advanceToleranceVnd, clock, views };
+  }
+
+  /**
+   * What the rows and the totals of a money report read beyond the fact, read for the selection of the query (CA-2): the earned value of the contracts that carry a package (R3), the payment requests inside their clock (R4), the
+   * changes by tier (R7), the retention and guarantee that fall due (R6). A frozen snapshot holds none of them: its rows say so (NOT_IN_SNAPSHOT) and nothing is read. `ids` are the contracts the rows are of.
+   */
+  private async extrasOf(
+    tx: TenantTx,
+    prepared: Prepared,
+    code: Exclude<CtrReportCode, 'contractor-concentration'>,
+    rules: ReportRules,
+    ids: readonly string[],
+  ): Promise<{ money: MoneyContext; total: ReportTotalExtras | null; body: Record<string, unknown> }> {
+    const base = { threeWay: rules.threeWay, advanceToleranceVnd: rules.advanceToleranceVnd };
+    const { query } = prepared;
+    const none = { evm: null, timing: null, tiers: null, exposure: null } as const;
+    const maps: ReportExtras = { evm: new Map(), timing: new Map(), tiers: new Map(), exposure: new Map() };
+    if (prepared.snapshot !== undefined) {
+      const reason = { status: 'UNAVAILABLE', reason: 'NOT_IN_SNAPSHOT' };
+      const body: Record<string, unknown> = code === 'schedule-delay' ? { evm: reason } : code === 'change-growth' ? { tier_split: reason } : code === 'retention-guarantee' ? { ladders: reason } : {};
+      return { money: { ...base, extras: null }, total: null, body };
+    }
+    switch (code) {
+      case 'schedule-delay': {
+        const read = await this.money.evm(tx, query);
+        return { money: { ...base, extras: { ...maps, evm: read.reading.rows } }, total: { ...none, evm: read.reading.selection }, body: { evm: evmView(read) } };
+      }
+      case 'payment-three-way': {
+        const timing = await this.money.timing(tx, query, rules.clock, ids);
+        return { money: { ...base, extras: { ...maps, timing: timing.perContract } }, total: { ...none, timing: timing.total }, body: {} };
+      }
+      case 'change-growth': {
+        const tiers = await this.money.tiers(tx, query, ids);
+        return { money: { ...base, extras: { ...maps, tiers: tiers.perContract } }, total: { ...none, tiers: tiers.total }, body: { tier_split: tierSplitView(tiers.split) } };
+      }
+      case 'retention-guarantee': {
+        const exposure = await this.money.exposure(tx, query, ids);
+        return { money: { ...base, extras: { ...maps, exposure: exposure.perContract } }, total: { ...none, exposure: exposure.totals }, body: { ladders: { retention: exposure.ladders.retention.map(ladderView), guarantee: exposure.ladders.guarantee.map(ladderView), near_days: 30, far_days: 90 } } };
+      }
+      default:
+        return { money: { ...base, extras: maps }, total: null, body: {} };
+    }
+  }
+
+  /** What the sums of a breakdown may depend on besides the row: the rules of the report. */
+  private breakdownContext = (rules: ReportRules): BreakdownContext => ({ threeWay: rules.threeWay, advanceToleranceVnd: rules.advanceToleranceVnd });
+
+  /**
+   * The S-curve of the selection of a filter (CA-2, R3): the planned value by the baseline in force and by version 0, the earned value and the cost up to the as-of day, with how many of the contracts have figures and why the
+   * others have none. The curve and the schedule report read the same figures; it is read live only (a frozen period holds no earned value).
+   */
+  @Get('reports/schedule-delay/s-curve')
+  @OperationId('getContractScheduleSCurve')
+  async scheduleCurve(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() raw: Raw): Promise<Record<string, unknown>> {
+    const now = new Date();
+    const request = analyticsRequestOf({ ...raw, sort: undefined, dir: undefined, limit: undefined, cursor: undefined }, vietnamDateOf(now));
+    if (request.snapshotId !== undefined || request.period !== undefined) throw bad(request.snapshotId !== undefined ? 'snapshot_id' : 'period');
+    return this.database.withTenant(tenant, async (tx) => {
+      const prepared = await this.prepare(tx, tenant, access, request, ANALYTICS_PERMISSION, now);
+      const found = await this.money.curve(tx, prepared.query);
+      return { ...this.contextBody(prepared), evm: evmView(found.read), curve: curveView(found.curve) };
+    });
   }
 
   /** The portfolio (CTR-01 and CTR-28): one page of the contracts and the totals of all of them that match, both made on the server. */
@@ -309,13 +444,14 @@ export class ContractAnalyticsController {
         document = concentrationDocumentOf(found.report, header, names);
         rowCount = document.rows.length;
       } else {
-        const clock = await this.clockOf(tx, prepared.today);
+        const rules = await this.rulesOf(tx, code, prepared.today);
         const page = await this.facts.page(tx, prepared.query, { sort: request.sort, direction: request.direction, limit: cap + 1 });
         // Over the cap the file is refused, never cut: the BI export of the series over DS-CTR (BiExportRunner) is the road for what is larger.
         if (page.facts.length > cap) throw new DomainError('EXPORT_ROW_CAP_EXCEEDED', 422, 'rows', { extensions: { cap, format: chosen } });
-        const rows = page.facts.map((fact) => reportRowOf(code, fact, { asOf: prepared.query.asOf, clock }));
-        const sums = await this.facts.reportSums(tx, prepared.query, code);
-        const totals = totalsOfSums(code, sums.total);
+        const extras = await this.extrasOf(tx, prepared, code, rules, page.facts.map((fact) => fact.id));
+        const rows = page.facts.map((fact) => reportRowOf(code, fact, { asOf: prepared.query.asOf, clock: rules.clock, ragParams: rules.ragParams, money: extras.money }));
+        const sums = await this.facts.reportSums(tx, prepared.query, code, undefined, this.breakdownContext(rules));
+        const totals = totalsOfSums(code, sums.total, { extras: extras.total, frozen: prepared.snapshot !== undefined });
         document = reportDocumentOf({ ...header, code, columns: REPORT_COLUMNS[code], rows, totals });
         rowCount = rows.length;
       }
@@ -347,29 +483,39 @@ export class ContractAnalyticsController {
 
   private async reportBody(tx: TenantTx, prepared: Prepared, code: Exclude<CtrReportCode, 'contractor-concentration'>, now: Date): Promise<Record<string, unknown>> {
     const { request, query } = prepared;
-    const clock = code === 'payment-three-way' ? await this.clockOf(tx, prepared.today) : paymentClockDefaults();
+    const rules = await this.rulesOf(tx, code, prepared.today);
     const page = await this.facts.page(tx, query, { sort: request.sort, direction: request.direction, limit: request.limit + 1, after: request.cursor });
     const shown = page.facts.slice(0, request.limit);
     const catalogue = REPORT_CATALOGUE[code];
-    const sums = await this.facts.reportSums(tx, query, code, catalogue.breakdown ?? undefined);
-    const totals = totalsOfSums(code, sums.total);
+    const frozen = prepared.snapshot !== undefined;
+    const extras = await this.extrasOf(tx, prepared, code, rules, shown.map((fact) => fact.id));
+    const context = this.breakdownContext(rules);
+    const sums = await this.facts.reportSums(tx, query, code, catalogue.breakdown ?? undefined, context);
+    const totals = totalsOfSums(code, sums.total, { extras: extras.total, frozen });
     const last = page.cursors[shown.length - 1];
-    const order = catalogue.breakdown === null ? [] : (BREAKDOWN_KEYS[catalogue.breakdown] ?? []);
-    const groups = sums.groups.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+    // Every breakdown of the report: the first is also given as `breakdown` (the shape of CA-1), all of them as `breakdowns`.
+    const breakdowns: Array<Record<string, unknown>> = [];
+    for (const dimension of catalogue.breakdowns) {
+      const found = dimension === catalogue.breakdown ? sums : await this.facts.reportSums(tx, query, code, dimension, context);
+      const order = BREAKDOWN_KEYS[dimension] ?? [];
+      const groups = [...found.groups].sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+      breakdowns.push({ dimension, groups: groups.map((group) => ({ key: group.key, totals: totalsView(totalsOfSums(code, group.sums, { frozen })) })) });
+    }
     return {
       code,
       ref: catalogue.ref,
       as_of: now.toISOString(),
       context: this.contextOf(prepared, totals),
       columns: REPORT_COLUMNS[code].map((column) => ({ key: column.key, kind: column.kind, ledger: column.ledger, indicator: column.indicator, total: column.total })),
-      items: shown.map((fact: ContractFact) => rowView(reportRowOf(code, fact, { asOf: query.asOf, clock }))),
+      items: shown.map((fact: ContractFact) => rowView(reportRowOf(code, fact, { asOf: query.asOf, clock: rules.clock, ragParams: rules.ragParams, money: extras.money }))),
       totals: totalsView(totals),
-      breakdown: catalogue.breakdown === null ? null : { dimension: catalogue.breakdown, groups: groups.map((group) => ({ key: group.key, totals: totalsView(totalsOfSums(code, group.sums)) })) },
+      breakdown: breakdowns[0] ?? null,
+      breakdowns,
+      rules: rules.views,
       definitions: catalogue.indicators.map((indicator) => definitionView(indicator)),
       next_cursor: page.facts.length > request.limit && last !== undefined ? encodeFactCursor({ sort: request.sort, direction: request.direction, value: last.value, id: last.id }) : null,
-      // The earned value and the S-curve of lane B1 are not read into this report yet: the slot is typed so that wiring them is an addition, not a change of shape.
-      ...(code === 'schedule-delay' ? { evm: { status: 'UNAVAILABLE', reason: 'NOT_WIRED' } } : {}),
-      ...(code === 'payment-three-way' ? { payment_clock: { acceptance_to_request_days: clock.acceptance_to_request_days, request_to_treasury_days: clock.request_to_treasury_days } } : {}),
+      ...extras.body,
+      ...(code === 'payment-three-way' ? { payment_clock: { acceptance_to_request_days: rules.clock.acceptance_to_request_days, request_to_treasury_days: rules.clock.request_to_treasury_days } } : {}),
     };
   }
 
@@ -413,6 +559,50 @@ export class ContractAnalyticsController {
       next_cursor: null,
     };
   }
+}
+
+/** The earned value of a selection as the screen reads it: how many contracts it holds and how many have figures, why the others have none, the sums and the two indices (each with its numerator and denominator), and the policy that coloured them. */
+function evmView(read: CtrEvmRead): Record<string, unknown> {
+  const selection = read.reading.selection;
+  return {
+    status: selection.covered > 0 ? 'OK' : 'UNAVAILABLE',
+    reason: selection.covered > 0 ? null : (selection.spi.reason ?? 'NO_CONTRACT_LINK'),
+    as_of: read.setup.asOf,
+    coverage: { contracts: selection.contracts, covered: selection.covered, missing: selection.missing, v0_contracts: selection.v0Contracts },
+    figures: {
+      bac_vnd: selection.bacVnd,
+      pv_vnd: selection.pvVnd,
+      ev_vnd: selection.evVnd,
+      ac_vnd: selection.acVnd,
+      sv_vnd: selection.svVnd,
+      spi: indicatorView(selection.spi),
+      cpi: indicatorView(selection.cpi),
+      rag_spi: selection.ragSpi,
+      rag_cpi: selection.ragCpi,
+    },
+    policy: { version: read.policy.version, source: read.policy.source, eac_method: read.policy.eacMethod, amber_below: read.policy.amberBelow, red_below: read.policy.redBelow },
+  };
+}
+
+function curveView(curve: EvmCurve): Record<string, unknown> {
+  return {
+    as_of: curve.asOf,
+    contracts: curve.contracts,
+    v0_contracts: curve.v0Contracts,
+    v0_complete: curve.v0Complete,
+    points: curve.points.map((point) => ({ day: point.day, pv_v0_vnd: point.pvV0Vnd, pv_current_vnd: point.pvCurrentVnd, ev_vnd: point.evVnd, ac_vnd: point.acVnd })),
+  };
+}
+
+const ladderView = (group: { key: string; count: number; amountVnd: string }): Record<string, unknown> => ({ key: group.key, count: group.count, amount_vnd: group.amountVnd });
+
+function tierSplitView(split: TierSplit): Record<string, unknown> {
+  return {
+    original_value_vnd: split.originalValueVnd,
+    total_delta_vnd: split.totalDeltaVnd,
+    total_count: split.totalCount,
+    groups: split.groups.map((group) => ({ key: group.key, count: group.count, delta_vnd: group.deltaVnd, growth: indicatorView(group.growth), share_of_growth_pct: group.shareOfGrowthPct, max_cumulative_variation_pct: group.maxCumulativePct })),
+  };
 }
 
 const NIL_ID = '00000000-0000-4000-8000-000000000000';

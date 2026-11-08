@@ -18106,6 +18106,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contracts/analytics/reports/schedule-delay/s-curve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Đường S của các hợp đồng được lọc: kế hoạch theo đường cơ sở và phiên bản 0, giá trị thu được và chi phí đến ngày xem (báo cáo R3) */
+        get: operations["getContractScheduleSCurve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -29174,7 +29191,7 @@ export interface components {
             };
             indicators: Record<string, never>[];
         };
-        /** @description Danh mục hợp đồng hoặc một báo cáo R1 đến R7: các dòng một trang, dòng tổng, nhóm theo chiều của báo cáo, định nghĩa các chỉ số; trang sau theo next_cursor. */
+        /** @description Danh mục hợp đồng hoặc một báo cáo R1 đến R7: các dòng một trang, dòng tổng, nhóm theo chiều của báo cáo, định nghĩa các chỉ số, các quy tắc quản trị đã dùng; trang sau theo next_cursor. */
         CtrContractReport: {
             code: string;
             ref: string;
@@ -29211,15 +29228,114 @@ export interface components {
             } | null;
             definitions: components["schemas"]["CtrIndicatorDefinition"][];
             next_cursor: string | null;
-            /** @description Chỗ dành cho giá trị thu được và đường S của làn B1 (báo cáo R3); chưa nối thì UNAVAILABLE. */
+            /** @description Giá trị thu được của các hợp đồng thuộc tập lọc (báo cáo R3): có bao nhiêu hợp đồng có số và vì sao các hợp đồng khác không có, các tổng, SPI và CPI là tỷ số của các tổng; bản chốt theo kỳ không có số này (NOT_IN_SNAPSHOT). */
             evm?: {
-                status?: string;
-                reason?: string;
+                /** @enum {string} */
+                status: "OK" | "UNAVAILABLE";
+                reason?: string | null;
+                /** Format: date */
+                as_of?: string;
+                coverage?: {
+                    contracts?: number;
+                    covered?: number;
+                    missing?: {
+                        [key: string]: number;
+                    };
+                    v0_contracts?: number;
+                };
+                figures?: {
+                    bac_vnd?: string | null;
+                    pv_vnd?: string | null;
+                    ev_vnd?: string | null;
+                    ac_vnd?: string | null;
+                    sv_vnd?: string | null;
+                    spi?: {
+                        code?: string;
+                        value?: string | null;
+                        status?: string;
+                        reason?: string | null;
+                        numerator?: string | null;
+                        denominator?: string | null;
+                    };
+                    cpi?: {
+                        code?: string;
+                        value?: string | null;
+                        status?: string;
+                        reason?: string | null;
+                        numerator?: string | null;
+                        denominator?: string | null;
+                    };
+                    rag_spi?: string | null;
+                    rag_cpi?: string | null;
+                };
+                policy?: {
+                    version?: string;
+                    source?: string;
+                    eac_method?: string;
+                    amber_below?: number;
+                    red_below?: number;
+                };
             };
             /** @description Ngưỡng đồng hồ thanh toán đã dùng (quy tắc CONTRACT_PAYMENT_CLOCK). */
             payment_clock?: {
                 acceptance_to_request_days?: number;
                 request_to_treasury_days?: number;
+            };
+            /** @description Mọi chiều phân nhóm của báo cáo (breakdown là chiều đầu tiên). */
+            breakdowns?: {
+                dimension?: string;
+                groups?: {
+                    key: string;
+                    totals: components["schemas"]["CtrReportTotals"];
+                }[];
+            }[];
+            /** @description Các quy tắc quản trị mà báo cáo đã dùng: loại, phiên bản, nguồn, đã xác nhận hay chưa, và các ngưỡng. */
+            rules?: {
+                type?: string;
+                version?: number;
+                source?: string;
+                unverified?: boolean;
+                params?: Record<string, never>;
+            }[];
+            /** @description Tăng trưởng do thay đổi cắt theo bậc của từng thay đổi (báo cáo R7): mẫu số là giá trị gốc của cả tập lọc nên các bậc cộng lại bằng tăng trưởng chung. */
+            tier_split?: {
+                status?: string;
+                reason?: string;
+                original_value_vnd?: string;
+                total_delta_vnd?: string;
+                total_count?: number;
+                groups?: {
+                    key?: string;
+                    count?: number;
+                    delta_vnd?: string | null;
+                    growth?: {
+                        code?: string;
+                        value?: string | null;
+                        status?: string;
+                        reason?: string | null;
+                        numerator?: string | null;
+                        denominator?: string | null;
+                    };
+                    share_of_growth_pct?: string | null;
+                    max_cumulative_variation_pct?: string | null;
+                }[];
+            };
+            /** @description Thang thời hạn của giữ lại (theo ngày được hoàn trả) và của bảo lãnh (theo ngày hết hạn), toàn tập lọc (báo cáo R6). */
+            ladders?: {
+                status?: string;
+                reason?: string;
+                retention?: {
+                    key?: string;
+                    count?: number;
+                    amount_vnd?: string;
+                }[];
+                guarantee?: {
+                    key?: string;
+                    count?: number;
+                    amount_vnd?: string;
+                }[];
+                near_days?: number;
+                far_days?: number;
             };
         };
         /** @description Báo cáo R14: tập trung (top N, HHI) theo chủ đầu tư, đơn vị, nguồn vốn, nhà thầu; tỷ lệ gói một nhà thầu; tải của từng nhà thầu gồm giá trị đang thực hiện và giá trị đã trúng chưa ký hợp đồng. Ngưỡng theo quy tắc CONTRACT_CONCENTRATION. */
@@ -29595,6 +29711,76 @@ export interface components {
                 decide_mapping: boolean;
             };
             as_of: string;
+        };
+        /** @description Đường S của tập hợp đồng được lọc (báo cáo R3): kế hoạch theo đường cơ sở hiện hành và theo phiên bản 0, giá trị thu được và chi phí đến ngày xem; không có số thì không có điểm, không vẽ đường phẳng bằng không. */
+        CtrScheduleSCurve: {
+            code: string;
+            /** Format: date-time */
+            as_of: string;
+            context: components["schemas"]["CtrAnalyticsContext"];
+            /** @description Giá trị thu được của các hợp đồng thuộc tập lọc (báo cáo R3): có bao nhiêu hợp đồng có số và vì sao các hợp đồng khác không có, các tổng, SPI và CPI là tỷ số của các tổng; bản chốt theo kỳ không có số này (NOT_IN_SNAPSHOT). */
+            evm: {
+                /** @enum {string} */
+                status: "OK" | "UNAVAILABLE";
+                reason?: string | null;
+                /** Format: date */
+                as_of?: string;
+                coverage?: {
+                    contracts?: number;
+                    covered?: number;
+                    missing?: {
+                        [key: string]: number;
+                    };
+                    v0_contracts?: number;
+                };
+                figures?: {
+                    bac_vnd?: string | null;
+                    pv_vnd?: string | null;
+                    ev_vnd?: string | null;
+                    ac_vnd?: string | null;
+                    sv_vnd?: string | null;
+                    spi?: {
+                        code?: string;
+                        value?: string | null;
+                        status?: string;
+                        reason?: string | null;
+                        numerator?: string | null;
+                        denominator?: string | null;
+                    };
+                    cpi?: {
+                        code?: string;
+                        value?: string | null;
+                        status?: string;
+                        reason?: string | null;
+                        numerator?: string | null;
+                        denominator?: string | null;
+                    };
+                    rag_spi?: string | null;
+                    rag_cpi?: string | null;
+                };
+                policy?: {
+                    version?: string;
+                    source?: string;
+                    eac_method?: string;
+                    amber_below?: number;
+                    red_below?: number;
+                };
+            };
+            curve: {
+                /** Format: date */
+                as_of?: string;
+                contracts?: number;
+                v0_contracts?: number;
+                v0_complete?: boolean;
+                points: {
+                    /** Format: date */
+                    day: string;
+                    pv_v0_vnd?: string | null;
+                    pv_current_vnd: string;
+                    ev_vnd?: string | null;
+                    ac_vnd?: string | null;
+                }[];
+            };
         };
     };
     responses: never;
@@ -139822,6 +140008,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getContractScheduleSCurve: {
+        parameters: {
+            query?: {
+                unit?: string;
+                project?: string;
+                contractor?: string;
+                status?: string;
+                type?: string;
+                fund?: string;
+                q?: string;
+                as_of?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrScheduleSCurve"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
