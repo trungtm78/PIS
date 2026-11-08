@@ -1807,3 +1807,5 @@ export { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE } from './ana-de
 export type { DecisionFilter, DecisionPolicyReading, DecisionRow, NewDecision, OutcomeRow } from './ana-decision-store.ts';
 export { AnaTrustStore } from './ana-trust-store.ts';
 export type { DatasetTrust, ModuleScore, TrustPolicyInfo, UnitScore } from './ana-trust-store.ts';
+export { ANNOTATION_RESOURCE, AnaRankingStore, COMPLAINT_RESOURCE } from './ana-ranking-store.ts';
+export type { AnnotationRow as RankingAnnotationRow, ComplaintRow as RankingComplaintRow, RankingModelReading } from './ana-ranking-store.ts';

@@ -6915,6 +6915,22 @@
       "module": "HOME",
       "statusBasis": "spec",
       "source": "spec:HOME"
+    },
+    "RANKING_ANNOTATION_STATE": {
+      "status": 409,
+      "title": "Ranking note cannot move",
+      "meaning": "Ghi chú xếp hạng không chuyển được sang trạng thái này",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "RANKING_COMPLAINT_STATE": {
+      "status": 409,
+      "title": "Ranking complaint cannot move",
+      "meaning": "Khiếu nại số liệu xếp hạng không chuyển được sang trạng thái này",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
     }
   }
 }

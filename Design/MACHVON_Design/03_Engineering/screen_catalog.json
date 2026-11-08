@@ -12634,5 +12634,55 @@
     "platform": "web",
     "req": "FR-BI-24",
     "source": "Lộ trình quản trị 10/10 (G3-11); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-25",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Xếp hạng nhiều chỉ số",
+    "kind": "rank",
+    "fields": [
+      "Hạng trong nhóm quy mô",
+      "Đơn vị",
+      "Điểm tổng hợp",
+      "Tỷ lệ giải ngân",
+      "Tiến độ vật lý",
+      "Đủ số Kho bạc",
+      "Giải trình quá hạn",
+      "Cảnh báo nghiêm trọng",
+      "Cặp giải ngân và tiến độ vật lý",
+      "Ghi chú vướng ngoài kiểm soát",
+      "Số liệu đang khiếu nại"
+    ],
+    "role": "Lãnh đạo, chuyên viên kế hoạch vốn, lãnh đạo đơn vị",
+    "rule": "Chỉ số chuẩn hóa 0-100 trong nhóm quy mô cùng kế hoạch; đủ số chỉ số tối thiểu mới có điểm tổng hợp; thiếu chỉ số là N/A kèm lý do; ghi chú vướng ngoài kiểm soát do người khác duyệt và không sửa số liệu gốc; số liệu đang khiếu nại được đánh dấu; tỷ lệ giải ngân luôn đi cùng tiến độ vật lý; tham số là quy tắc quản trị chưa xác nhận",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-25",
+    "source": "Lộ trình quản trị 10/10 (G3-8); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-26",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Ghi chú và khiếu nại xếp hạng",
+    "kind": "approval",
+    "fields": [
+      "Đơn vị",
+      "Nguyên nhân và bằng chứng",
+      "Chỉ số bị ảnh hưởng",
+      "Hiệu lực",
+      "Trạng thái",
+      "Người đề xuất và người duyệt",
+      "Khiếu nại số liệu",
+      "Hạn trả lời",
+      "Câu trả lời"
+    ],
+    "role": "Lãnh đạo đơn vị, người duyệt xếp hạng, chuyên viên kế hoạch vốn",
+    "rule": "Người đề xuất ghi chú không tự duyệt; người trả lời khiếu nại không phải người khiếu nại; mọi quyết định có lời giải thích; hạn trả lời theo quy tắc; mọi bước có nhật ký và sự kiện",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-26",
+    "source": "Lộ trình quản trị 10/10 (G3-8); thiết kế làn GOV-11b"
   }
 ]
