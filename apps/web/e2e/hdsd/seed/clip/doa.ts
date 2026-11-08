@@ -9,11 +9,11 @@ const DOCUMENT_TYPES = ['QD', 'CV', 'BC', 'GM', 'KH', 'TB', 'TTR', 'HD', 'BB', '
 
 export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
   const versions = await ctx.list<Obj>('owner', '/resources/doa_matrix_version');
-  // A matrix that is neither a draft, in review nor turned down is the one in force (or was): the skip.
-  if (versions.some((row) => !['DRAFT', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN'].includes(String(row.status)))) return;
+  // The persisted statuses are Draft, PendingApproval, Rejected, Published and Superseded: a published matrix is the one in force, the skip.
+  if (versions.some((row) => String(row.status).toUpperCase() === 'PUBLISHED')) return;
   const role = await ctx.find('owner', '/resources/role_definition', (row) => row.code === 'LANH_DAO_SO');
   if (role === undefined) throw new Error('the leader role LANH_DAO_SO does not exist on this stack');
-  let draft = versions.find((row) => row.status === 'DRAFT' || row.status === 'IN_REVIEW');
+  let draft = versions.find((row) => ['DRAFT', 'PENDINGAPPROVAL'].includes(String(row.status).toUpperCase()));
   let id: string;
   let version: number;
   if (draft === undefined) {
@@ -29,7 +29,7 @@ export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
     id = String(draft.id);
     version = Number(draft.version);
   }
-  if (draft.status === 'DRAFT') {
+  if (String(draft.status).toUpperCase() === 'DRAFT') {
     const sent = await ctx.command('projectManager', `/doa-matrices/${id}/submit`, { reason: 'Submitted for the decision of the leader' }, { version });
     version = sent.resource_version;
   }

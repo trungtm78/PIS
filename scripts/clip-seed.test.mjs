@@ -241,9 +241,12 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
   const plan = buildPlan(enterpriseDataset());
   const empty = { async list() { return []; }, async get() { return { ok: true, json: {} }; } };
   assert.equal(judgeAll(await verifyChecks(plan, empty)).ok, false);
-  const projects = plan.projects.map((project) => ({ code: project.code }));
-  const batches = plan.projects.flatMap(() => [{ class_code: 'EQUITY', status: 'ACCEPTED' }, { class_code: 'LOAN', status: 'ACCEPTED' }]);
+  const projects = plan.projects.map((project, index) => ({ code: project.code, id: `p${index}` }));
+  const batches = projects.flatMap((project) => [{ project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'EQUITY', status: 'ACCEPTED' }, { project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'LOAN', status: 'ACCEPTED' }]);
   const directives = Array.from({ length: plan.expect.directives }, (_, index) => ({ id: index }));
   const rows = { '/resources/project': projects, '/funding-figures/batches': batches, '/directives': directives, '/ebs/differences': [{ id: 1 }] };
   assert.equal(judgeAll(await verifyChecks(plan, { async list(_person, path) { return rows[path]; } })).ok, true);
+  // Two batches of one project do not stand in for the missing batches of the others.
+  const doubled = { ...rows, '/funding-figures/batches': batches.filter((batch) => batch.project_id === 'p0').concat(batches.filter((batch) => batch.project_id === 'p0')) };
+  assert.equal(judgeAll(await verifyChecks(plan, { async list(_person, path) { return doubled[path]; } })).ok, false);
 });

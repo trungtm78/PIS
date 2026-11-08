@@ -43,11 +43,13 @@ export async function enterpriseChecks(plan, reader) {
   const batches = await safe(() => reader.list('projectManager', '/funding-figures/batches', { plan_year: plan.planYear }));
   const directives = await safe(() => reader.list('projectManager', '/directives'));
   const differences = await safe(() => reader.list('projectManager', '/ebs/differences'));
-  const accepted = batches?.filter((row) => row.status === 'ACCEPTED' || row.status === 'SUPERSEDED') ?? [];
+  // One accepted year plan per planned project and class: a batch of another project, kind or state cannot stand in for a missing one.
+  const ids = new Map((projects ?? []).filter((row) => codes.has(row.code)).map((row) => [row.id, row.code]));
+  const covered = (classCode) => new Set((batches ?? []).filter((row) => row.class_code === classCode && row.figure_kind === 'PLAN_YEAR' && ids.has(row.project_id) && (row.status === 'ACCEPTED' || row.status === 'SUPERSEDED')).map((row) => row.project_id)).size;
   return [
     { name: 'enterprise projects', value: projects === undefined ? undefined : projects.filter((row) => codes.has(row.code)).length, min: plan.expect.projectsTotal },
-    { name: 'equity batches accepted', value: batches === undefined ? undefined : accepted.filter((row) => row.class_code === 'EQUITY').length, min: plan.projects.length },
-    { name: 'loan batches accepted', value: batches === undefined ? undefined : accepted.filter((row) => row.class_code === 'LOAN').length, min: plan.projects.length },
+    { name: 'equity batches accepted', value: batches === undefined ? undefined : covered('EQUITY'), min: plan.projects.length },
+    { name: 'loan batches accepted', value: batches === undefined ? undefined : covered('LOAN'), min: plan.projects.length },
     { name: 'directives of the meetings', value: directives?.length, min: plan.expect.directives },
     { name: 'accounting differences opened', value: differences?.length, min: 1 },
   ];
