@@ -222,7 +222,7 @@ export async function enterpriseBiChecks(plan, reader) {
   const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
   return [
     { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },
-    { name: 'dashboards made', value: dashboards === undefined ? undefined : dashboards.filter((row) => wanted.has(row.code)).length, min: wanted.size },
+    { name: 'dashboards published', value: dashboards === undefined ? undefined : dashboards.filter((row) => wanted.has(row.code) && row.status === 'PUBLISHED').length, min: wanted.size },
   ];
 }
 

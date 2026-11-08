@@ -55,7 +55,7 @@ async function setUpBiBoard(ctx: SeedContext): Promise<void> {
 /** BI: the metrics of the platform and the dashboards of the leader (the bundle of the repository, the dashboards of the plan). */
 export async function seedClipEnterpriseBi(ctx: SeedContext): Promise<void> {
   if (!enterprisePlanOnly(ctx)) return;
-  // Granting roles asks for a second factor (MFA_REQUIRED) that no seed has: the board keeps the permissions of the unit roles, and the dashboards stay drafts when publication is refused.
-  void setUpBiBoard;
+  // Granting a role asks for a second factor: the development token of the seed carries a fresh aal2 claim (context.ts).
+  await ctx.step('IAM', 'roles of the BI board', () => setUpBiBoard(ctx));
   await seedClipBi(ctx);
 }

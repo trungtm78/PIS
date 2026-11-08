@@ -253,7 +253,7 @@ export class SeedContext {
 
   /** The development session token of a person, valid for five minutes (the same format and key the web session signs with). */
   token(person: string): string {
-    const payload = Buffer.from(JSON.stringify({ tenantId: this.info.tenants.A, membershipId: this.person(person).membershipId, scopeVersion: 1, exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ tenantId: this.info.tenants.A, membershipId: this.person(person).membershipId, scopeVersion: 1, aal: 'aal2', aal2At: new Date().toISOString(), exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
     return `${payload}.${createHmac('sha256', this.sessionKey).update(payload).digest('base64url')}`;
   }
 
