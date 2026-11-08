@@ -3,6 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { t as tr } from '../../i18n';
 import DossiersScreen from './DossiersScreen';
+import { vietnamToday } from './archive/DossierManage';
 import IncomingHandlingScreen from './incoming/IncomingHandlingScreen';
 import { harness, mountInSession, routeOf } from './test-support';
 
@@ -53,6 +54,30 @@ function server(config: Server, command: (operation: string, input: unknown) => 
 }
 const mountScreen = (h: ReturnType<typeof server>, permissions: readonly string[] = MANAGE) => mountInSession(<DossiersScreen route={routeOf('DOC-17', 'FR-DOC-17')} />, h, { permissions });
 const type = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
+
+describe('the day of Vietnam, not of the browser', () => {
+  it('is the next calendar day from 17:00 UTC, as the server counts it', () => {
+    expect(vietnamToday(Date.UTC(2026, 10, 8, 16, 59))).toBe('2026-11-08');
+    expect(vietnamToday(Date.UTC(2026, 10, 8, 17, 30))).toBe('2026-11-09');
+    expect(vietnamToday(Date.UTC(2026, 10, 8, 23, 59))).toBe('2026-11-09');
+  });
+
+  it('accepts a settlement day of tomorrow in the browser clock when it is already today in Vietnam, and the preview uses that day', async () => {
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.UTC(2026, 10, 8, 18, 0) });
+    try {
+      const h = server({ rules: [rule({ effective_from: '2026-11-09' })] });
+      mountScreen(h);
+      fireEvent.click(await screen.findByTestId('open-00000000-0000-4000-8000-0000000000a1'));
+      const form = await screen.findByTestId('close-dossier-form');
+      await waitFor(() => expect(within(form).getByTestId('close-rule').textContent).toContain('Circular 74'));
+      fireEvent.change(within(form).getByLabelText(tr('doc.dossier.close.settlement')), { target: { value: '2026-11-09' } });
+      fireEvent.submit(form);
+      await waitFor(() => expect(h.command).toHaveBeenCalledWith('closeDossier', expect.objectContaining({ body: { settlement_closed_on: '2026-11-09' } })));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
 
 describe('creating a dossier (createDossier)', () => {
   it('offers the action only to a person who may manage dossiers, and not to a frozen session', async () => {

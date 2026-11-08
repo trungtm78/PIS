@@ -12,8 +12,9 @@ import type { Dossier } from './types';
 
 export const MANAGE_DOSSIER_PERMISSION = 'doc.dossier.manage';
 
-/** The day of the browser as `YYYY-MM-DD`. */
-const today = (): string => new Date().toLocaleDateString('sv');
+/** The Vietnam calendar day (UTC+7) as `YYYY-MM-DD`: the day the server closes a dossier on, whatever the time zone of the browser. */
+export const vietnamToday = (now: number = Date.now()): string => new Date(now + 7 * 3_600_000).toISOString().slice(0, 10);
+const today = (): string => vietnamToday();
 
 function Refusal({ error }: { error: unknown }) {
   const { t } = useTranslation();

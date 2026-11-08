@@ -48,6 +48,18 @@ describe('placing a legal hold (placeLegalHold)', () => {
     await waitFor(() => expect(screen.queryByTestId('place-hold-form')).toBeNull());
   });
 
+  it('clears the ids typed for another scope when the scope becomes the whole tenant, so the form is not stuck', async () => {
+    const h = open();
+    fireEvent.click(screen.getByTestId('place-hold'));
+    type(tr('adm.retention.hold.form.ids'), PROJECT);
+    fireEvent.change(screen.getByLabelText(tr('adm.retention.hold.form.scope')), { target: { value: 'TENANT' } });
+    expect((screen.getByLabelText(tr('adm.retention.hold.form.ids')) as HTMLTextAreaElement).value).toBe('');
+    type(tr('adm.retention.hold.form.authority'), 'Decision 77/QD-TTCP');
+    type(tr('adm.retention.hold.form.reason'), 'The inspection of the province');
+    fireEvent.submit(screen.getByTestId('place-hold-form'));
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('placeLegalHold', expect.objectContaining({ body: expect.objectContaining({ resource_scope: { kind: 'TENANT' } }) })));
+  });
+
   it('takes no ids for the whole tenant, and keeps the form with a refusal in words', async () => {
     const h = open({ command: () => problem(403, 'SCOPE_DENIED') });
     fireEvent.click(screen.getByTestId('place-hold'));

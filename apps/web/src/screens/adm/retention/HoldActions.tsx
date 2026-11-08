@@ -88,7 +88,11 @@ export function PlaceHoldForm({ onClose }: { onClose: () => void }) {
       </div>
       <div className="field">
         <label htmlFor="hold-scope">{t('adm.retention.hold.form.scope')}</label>
-        <select id="hold-scope" value={form.scopeKind} onChange={(event) => set({ scopeKind: event.target.value as HoldForm['scopeKind'] })}>
+        <select id="hold-scope" value={form.scopeKind} onChange={(event) => {
+            const scopeKind = event.target.value as HoldForm['scopeKind'];
+            // The whole tenant takes no ids: what was typed for another scope is cleared, so the disabled field cannot hold a value that blocks the form.
+            set(scopeKind === 'TENANT' ? { scopeKind, ids: '' } : { scopeKind });
+          }}>
           {HOLD_SCOPE_CHOICES.map((kind) => (
             <option key={kind} value={kind}>
               {holdScopeLabel(t, kind)}
