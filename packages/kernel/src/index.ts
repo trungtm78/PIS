@@ -2953,7 +2953,7 @@ export {
   MILESTONE_COVERAGES,
   MILESTONE_RULE_CODE,
   MILESTONE_RULE_TYPE,
-  MILESTONE_STATUSES,
+  MILESTONE_STATUSES as DIS_MILESTONE_STATUSES,
   accuracyDefaults,
   accuracyPolicyOf,
   cutoffMonthOf,
@@ -2977,11 +2977,11 @@ export type {
   AccuracyRow,
   MilestoneCoverage,
   MilestoneDef,
-  MilestoneInput,
+  MilestoneInput as DisMilestoneInput,
   MilestonePolicy,
   MilestoneReading,
   MilestoneRow,
-  MilestoneStatus,
+  MilestoneStatus as DisMilestoneStatus,
   MilestoneSummary,
   MonthFigure,
 } from './dis-milestone-forecast.ts';
@@ -3009,3 +3009,5 @@ export {
   workingMinutesPerDay,
 } from './pay-clock.ts';
 export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
+=======
+export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams as PayClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
