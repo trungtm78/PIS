@@ -1234,6 +1234,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getDisbursementMilestones({Map<String, Object?>? query}) =>
       execute('getDisbursementMilestones', query: query);
 
+  Future<Object?> getDisbursementOutlook({Map<String, Object?>? query}) =>
+      execute('getDisbursementOutlook', query: query);
+
   Future<Object?> getDisbursementRankings({Map<String, Object?>? query}) =>
       execute('getDisbursementRankings', query: query);
 

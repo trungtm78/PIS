@@ -410,6 +410,7 @@ export const OPERATIONS = {
   "getDisbursementForecast": { method: "get", path: "/disbursement-forecasts", versioned: false, stepUp: null, permission: "disbursement.read" },
   "getDisbursementForecastAccuracy": { method: "get", path: "/disbursement-forecast-accuracy", versioned: false, stepUp: null, permission: "disbursement.read" },
   "getDisbursementMilestones": { method: "get", path: "/disbursement-milestones", versioned: false, stepUp: null, permission: "disbursement.read" },
+  "getDisbursementOutlook": { method: "get", path: "/home/outlook", versioned: false, stepUp: null, permission: "home.read" },
   "getDisbursementRankings": { method: "get", path: "/home/rankings", versioned: false, stepUp: null, permission: "home.read" },
   "getDisbursementRates": { method: "get", path: "/disbursement-rates", versioned: false, stepUp: null, permission: "disbursement.read" },
   "getDocumentLayoutProfile": { method: "get", path: "/document-layout-profiles/{id}", versioned: false, stepUp: null, permission: "doc.template.read" },

@@ -597,6 +597,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getDisbursementForecast': DisForecastResponse.fromJson,
   'getDisbursementForecastAccuracy': DisForecastAccuracyResponse.fromJson,
   'getDisbursementMilestones': DisMilestoneBoardResponse.fromJson,
+  'getDisbursementOutlook': asObject,
   'getDisbursementRankings': asObject,
   'getDisbursementRates': DisRatesResponse.fromJson,
   'getDocumentLayoutProfile': asObject,
