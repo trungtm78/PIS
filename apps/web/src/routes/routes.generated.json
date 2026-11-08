@@ -450,6 +450,7 @@
     {"id":"DIR-03","path":"/dir/dir-03","title":"Bảng theo dõi chỉ đạo","kind":"board","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"workspace","parent":null,"req":"FR-DIR-03"},
     {"id":"DIR-04","path":"/dir/dir-04","title":"Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng","kind":"timeline","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"detail","parent":"DIR-03","req":"FR-DIR-04"},
     {"id":"DIR-05","path":"/dir/dir-05","title":"Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau","kind":"table","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"workspace","parent":null,"req":"FR-DIR-05"},
+<<<<<<< HEAD
     {"id":"RPT-01","path":"/rpt/rpt-01","title":"Danh mục biểu mẫu báo cáo và lập báo cáo","kind":"table","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-01"},
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
@@ -472,5 +473,13 @@
     {"id":"NOT-19","path":"/not/not-19","title":"Leo thang cảnh báo","kind":"list","area":"engagement","module":"NOT","group":"Theo dõi vận hành","role":"workspace","parent":null,"req":"FR-NOT-19"},
     {"id":"ADM-25","path":"/adm/adm-25","title":"Vắng mặt, người thay và độ phủ người nhận cảnh báo","kind":"list","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-25"},
     {"id":"HOME-13","path":"/home/home-13","title":"Sức khỏe hệ thống cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-13"}
+=======
+    {"id":"AUD-14","path":"/aud/aud-14","title":"Tín hiệu rủi ro mua sắm (red flag)","kind":"table","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-14"},
+    {"id":"AUD-15","path":"/aud/aud-15","title":"Chi tiết tín hiệu rủi ro mua sắm","kind":"detail","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-15"},
+    {"id":"AUD-16","path":"/aud/aud-16","title":"Sổ chỉ báo red flag","kind":"table","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-16"},
+    {"id":"NOT-30","path":"/not/not-30","title":"Thang kênh và biên nhận cảnh báo","kind":"policy","area":"engagement","module":"NOT","group":"Kênh & kiểm soát","role":"workspace","parent":null,"req":"FR-NOT-20"},
+    {"id":"HOME-30","path":"/home/home-30","title":"Phản hồi cảnh báo không đúng","kind":"review","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-14"},
+    {"id":"HOME-31","path":"/home/home-31","title":"Cảnh báo đã đóng, mở lại và lũ cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-15"}
+>>>>>>> dac426ec (chore(web): route table after the navigation rows of GOV-10)
   ]
 }
