@@ -13,6 +13,8 @@ Screens complete: 63 of 529 (11.9 percent); screens with no test of the design: 
 Requirement rows complete: 63 of 529 (529 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 464, SKIPPED 0, FAIL 1, GAP 0.
 Screens complete: 63 of 528 (11.9 percent); screens with no test of the design: 0.
 Requirement rows complete: 63 of 528 (528 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 463, SKIPPED 0, FAIL 1, GAP 0.
+Screens complete: 63 of 526 (12.0 percent); screens with no test of the design: 0.
+Requirement rows complete: 63 of 526 (526 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 461, SKIPPED 0, FAIL 1, GAP 0.
 A row is PASS only when every test it names has a recorded PASS with its evidence (when it ran, the build, the schema version, the hash of the dataset, the request ids and a link to the evidence). FAIL, SKIPPED and NOT_RUN never count as PASS; a PASS without its evidence is UNPROVEN; a row without any known test is a GAP; WAIVED needs an approved waiver with an owner, a reason and an expiry that has not passed.
 
 ## Critical tests (money, isolation, restore)
@@ -614,6 +616,9 @@ Every screen names at least one test.
 | INT-03 | INT | NOT_RUN |
 | INT-04 | INT | NOT_RUN |
 | INT-05 | INT | NOT_RUN |
+| ADM-25 | ADM | NOT_RUN |
+| ADM-26 | ADM | NOT_RUN |
+| ADM-27 | ADM | NOT_RUN |
 
 ## Requirements
 
@@ -1171,3 +1176,6 @@ Every screen names at least one test.
 | FR-INT-03 | INT-03 | UI-INT-03 NOT_RUN | NOT_RUN |
 | FR-INT-04 | INT-04 | UI-INT-04 NOT_RUN | NOT_RUN |
 | FR-INT-05 | INT-05 | UI-INT-05 NOT_RUN | NOT_RUN |
+| FR-ADM-25 | ADM-25 | UI-ADM-25 NOT_RUN<br>UAT-IAM2-01 NOT_RUN | NOT_RUN |
+| FR-ADM-26 | ADM-26 | UI-ADM-26 NOT_RUN<br>UAT-IAM2-02 NOT_RUN | NOT_RUN |
+| FR-ADM-27 | ADM-27 | UI-ADM-27 NOT_RUN<br>UAT-IAM2-03 NOT_RUN | NOT_RUN |
