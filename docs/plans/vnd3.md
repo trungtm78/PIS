@@ -25,3 +25,7 @@ Branch `lane/vnd3`, worktree `D:\PIS-vnd3`, migration block 2440-2459. Items of 
 ## Risks
 - Parallel lane VND-2 edits the same shared files (governance rules, home-work lists, vi.json, contract files): edits are small and appended.
 - The shared suites (isolation, reachability, command-conformance, outbox consumers, dis report, negative authz matrix, workers and jobs lists) are not run here: the entries and counts are added, the lead runs them once on the merged tree.
+
+## Portal access hook (BE-2)
+- A contractor reaches the portal only as a `GUEST_CONTRACTOR` membership bound to its contractor (`membership.contractor_id`, ADM-17). Guests are invited through contracts (BR-IAM-08: the validity of a guest is bounded by the latest planned completion of the contracts of its grants, and the grants are scoped to contracts), so a contractor with no contract has no way to obtain portal access yet. Follow-up for IAM: allow a guest grant scoped to the contractor itself (or an invitation without a contract for annual re-confirmation); until then `createVendorPortalRequest` answers 422 `CONTRACTOR_PORTAL_NOT_BOUND` for a contractor with no active guest account, and the staff list of re-confirmations still shows it.
+- The five portal rights (`vnd.portal.read`, `.respond`, `.certificate`, `.reconfirm`, `.remediation`) are added to the system role GUEST_CONTRACTOR by migration V2447 (existing tenants) and must be added to `SYSTEM_ROLES` in `packages/db/src/system-roles.ts` for tenants provisioned later (not done in this lane: IAM file).
