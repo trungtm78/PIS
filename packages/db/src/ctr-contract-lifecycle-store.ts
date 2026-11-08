@@ -27,6 +27,7 @@ import { CtrGuaranteeStore } from './ctr-guarantee-store.ts';
 import type { GuaranteeMove } from './ctr-guarantee-store.ts';
 import { PmtGateStore } from './pmt-gate-store.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { VendorGate } from './vendor-gate.ts';
 
 /** The gate of the permits that a contract of works waits for before it begins (BR-CTR-14). */
 export const ACTIVATION_GATE = 'CONTRACT_ACTIVATION';
@@ -258,6 +259,7 @@ export class CtrContractLifecycleStore {
   private readonly conflicts: BidConflictStore;
   private readonly guarantees: CtrGuaranteeStore;
   private readonly gates: PmtGateStore;
+  private readonly vendorGate = new VendorGate();
 
   constructor(options: { source?: CtrContractSource; gates?: PmtGateStore; conflicts?: BidConflictStore } = {}) {
     this.source = options.source ?? new CtrContractSource();
@@ -356,6 +358,8 @@ export class CtrContractLifecycleStore {
     const evidenceIds = [...new Set(input.evidenceIds.map((evidence) => evidence.toLowerCase()))].sort();
     await this.assertDocuments(tx, evidenceIds);
     if (contract.projectStatus !== ACTIVATION_PROJECT_STATUS) throw new DomainError('PROJECT_STAGE_INVALID', 422, 'project_id', { extensions: { project_status: contract.projectStatus } });
+    // VND-1: no restriction on the contractor, a member of its joint venture or a party of the contract; the certificates the package asks for hold on the day of activation.
+    await this.vendorGate.assertAllowed(tx, 'CONTRACT_ACTIVATION', { contractId: id, now: new Date(`${today}T12:00:00+07:00`) });
 
     if (requiresPerformanceGuarantee(contract.advanceCategory) && !(await this.guarantees.holdsActive(tx, id, 'PERFORMANCE', new Date(`${effectiveFrom}T00:00:00+07:00`)))) {
       throw new DomainError('PERFORMANCE_GUARANTEE_MISSING', 422, 'guarantee');

@@ -7,6 +7,7 @@ import { DocumentStore, SEALED_SUBJECT_MODULE } from './document-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { VendorGate } from './vendor-gate.ts';
 
 /** The document type the files of a proposal are kept under. */
 export const PROPOSAL_FILE_DOC_TYPE = 'BID-PROPOSAL-FILE';
@@ -68,6 +69,7 @@ const PRICE = /^[0-9]{1,24}$/;
  */
 export class BidProposalStore {
   private readonly contractors = new BidContractorStore();
+  private readonly vendorGate = new VendorGate();
   private readonly documents = new DocumentStore();
 
   /**
@@ -93,6 +95,8 @@ export class BidProposalStore {
     const restricted = (await this.contractors.restrictionsInForce(tx, [contractor.id])).get(contractor.id);
     if (restricted !== undefined) throw new DomainError('CONTRACTOR_RESTRICTED', 422, 'contractor_id', { extensions: { restriction_kind: restricted.kind } });
     if (contractor.verificationStatus !== 'VERIFIED') throw new DomainError('CONTRACTOR_NOT_VERIFIED', 422, 'contractor_id', { extensions: { verification_status: contractor.verificationStatus } });
+    // VND-1: a restriction on a member of a joint venture the contractor leads also stops the bid, and the profile is asked for before a bid (a warning until the tenant makes it a block).
+    await this.vendorGate.assertAllowed(tx, 'BID_SUBMISSION', { contractorId: contractor.id, packageId: pack.id, now });
 
     // A stored file is the file of one proposal: the key of a file that stands for a document already would carry one bidder's file into another bidder's bid.
     const taken = await tx.query('select 1 from machvon.document_version where object_key = any($1::text[]) limit 1', [input.files.map((file) => file.objectKey)]);

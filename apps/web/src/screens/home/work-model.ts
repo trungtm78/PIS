@@ -47,6 +47,11 @@ export const WORK_KINDS = [
   // The duties of posting to the national procurement network: one near its deadline, one past it (lane EGP-2).
   'EGP_POSTING_DUE',
   'EGP_POSTING_OVERDUE',
+  'VENDOR_RESTRICTED_EXPOSURE',
+  'VENDOR_REPUTATION_POST',
+  'VENDOR_DEBARMENT_DECISION',
+  'VENDOR_PAYEE_ACCOUNT',
+  'VENDOR_QUALIFICATION_EXPIRY',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;

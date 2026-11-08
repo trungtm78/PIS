@@ -18,6 +18,7 @@ import type { ContractScopes } from './ctr-contract-store.ts';
 import { PAY_LEDGER_LOCK_WAIT_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
 import { PayAdvanceRecoveryReads } from './pay-advance-recovery-reads.ts';
 import { PayDisbursementCheck } from './pay-disbursement-check.ts';
+import { VendorGate } from './vendor-gate.ts';
 import { PayPaymentStore } from './pay-payment-store.ts';
 import type { PaymentResult } from './pay-payment-store.ts';
 import { lockLedgerRows } from './ledger-lock.ts';
@@ -110,6 +111,7 @@ export class PayClaimStore {
   private readonly payments = new PayPaymentStore();
   private readonly advanceRecovery = new PayAdvanceRecoveryReads();
   private readonly disbursement = new PayDisbursementCheck();
+  private readonly vendorGate = new VendorGate();
   private readonly ledger: PayLedgerStore;
   private readonly metrics: MetricsSink;
   private readonly applicationChecks: boolean;
@@ -336,6 +338,8 @@ export class PayClaimStore {
     }
     // G1-2: a request is sent only for a project that is still on the list and still holds an approved amount on the system (the stage or the plan may have changed since the draft).
     await this.disbursement.assertAllowed(tx, contract.project_id, today);
+    // VND-1: asked again when the request is sent, as the payee may have changed since the draft.
+    await this.vendorGate.assertAllowed(tx, 'PAYMENT', { contractId: held.contract_id, now: new Date(`${today}T12:00:00+07:00`) });
     if (held.allocation_line_id === null) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'NOT_FOUND' } });
     await this.payments.assertAllocation(tx, held.allocation_line_id, contract.project_id, acceptance === undefined ? null : Number(acceptance.accepted_on.slice(0, 4)), today);
 

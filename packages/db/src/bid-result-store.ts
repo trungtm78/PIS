@@ -19,6 +19,7 @@ import { PACKAGE_STATUS_OPEN_FOR_BIDS } from './bid-proposal-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { VendorGate } from './vendor-gate.ts';
 
 const PRICE = /^[0-9]{1,24}$/;
 const UNIQUE_VIOLATION = '23505';
@@ -159,6 +160,7 @@ const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`;
  */
 export class BidResultStore {
   private readonly contractors = new BidContractorStore();
+  private readonly vendorGate = new VendorGate();
 
   /**
    * Refusals in order: the shape (422 `VALIDATION_FAILED`), the package (404 outside the scope, 409 `PLAN_NOT_APPROVED` unless its plan is in force), a result that is still
@@ -306,6 +308,8 @@ export class BidResultStore {
     const contractor = await this.contractors.find(tx, contractorId);
     if (contractor === undefined) throw invalid('winner_contractor_id');
     await this.contractors.assertMayTakePart(tx, contractorId, vietnamDateOf(now));
+    // VND-1: a restriction on a member of the venture the winner leads stops the result as well.
+    await this.vendorGate.assertAllowed(tx, 'RESULT', { contractorId, now });
   }
 
   /** The evaluation minutes are a document of the tenant that is in force, issued through DOC; one that is still being drafted or was recalled is 409 `REPORT_NOT_ISSUED`. */

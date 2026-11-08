@@ -242,13 +242,13 @@ export class BidContractorStore {
     return found;
   }
 
-  /** The restrictions in force on a date (the Vietnam date of today by default): the last day of a restriction is a day on which it still applies. */
+  /** The restrictions in force on a date (the Vietnam date of today by default): the last day of a restriction is a day on which it still applies, and one that was lifted on an appeal (VND-1) never applies. */
   async restrictionsInForce(tx: TenantTx, contractorIds: readonly string[], on: string = vietnamDateOf(new Date())): Promise<Map<string, RestrictionRow>> {
     const found = new Map<string, RestrictionRow>();
     if (contractorIds.length === 0) return found;
     const rows = await tx.query<RestrictionSql>(
       `${RESTRICTION_SELECT}
-        where r.contractor_id = any($1::uuid[]) and r.effective_from <= $2::date and (r.effective_until is null or r.effective_until >= $2::date)
+        where r.contractor_id = any($1::uuid[]) and r.lifted_at is null and r.effective_from <= $2::date and (r.effective_until is null or r.effective_until >= $2::date)
         order by r.effective_from desc, r.created_at desc, r.id desc`,
       [[...contractorIds], on],
     );

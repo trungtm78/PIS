@@ -5,7 +5,7 @@ export type WorkSeverity = 'URGENT' | 'ACTION' | 'WATCH';
 export const WORK_SEVERITIES: readonly WorkSeverity[] = ['URGENT', 'ACTION', 'WATCH'];
 
 /** The module source an item comes from (the `source` of `WorkActionTarget`). */
-export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING'] as const;
+export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR'] as const;
 export type WorkSource = (typeof WORK_SOURCES)[number];
 
 /** Read is not handled: a new item, one somebody took up, one that is being worked on (given to someone, or in the hands of its module), and one that is done. */
@@ -57,6 +57,11 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   CONNECTOR_STALE: 'CONNECTOR',
   EGP_POSTING_DUE: 'EGP_POSTING',
   EGP_POSTING_OVERDUE: 'EGP_POSTING',
+  VENDOR_RESTRICTED_EXPOSURE: 'VENDOR',
+  VENDOR_REPUTATION_POST: 'VENDOR',
+  VENDOR_DEBARMENT_DECISION: 'VENDOR',
+  VENDOR_PAYEE_ACCOUNT: 'VENDOR',
+  VENDOR_QUALIFICATION_EXPIRY: 'VENDOR',
 };
 
 /**
@@ -103,6 +108,8 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   CONNECTOR: { STALE_URGENT: 'URGENT', STALE_ACTION: 'ACTION', STALE_WATCH: 'WATCH' },
   // EGP-2: a posting to the national procurement network by the time that is left (rule EGP_POSTING_SEVERITY): urgent when little time is left and once past the deadline, else to be acted on.
   EGP_POSTING: { DUE_SOON: 'ACTION', DUE_SOON_URGENT: 'URGENT', OVERDUE: 'URGENT' },
+  // VND-1: the facet of an alert of the contractor register (the table of the kernel, VENDOR_FACET_SEVERITY); a tenant changes it on the alert type.
+  VENDOR: { EXPOSED: 'URGENT', DUE_SOON: 'ACTION', OVERDUE: 'URGENT', FIRST: 'WATCH', SECOND: 'ACTION', EXPIRED: 'URGENT', CHANGE_STALLED: 'ACTION', SHARED_ACCOUNT: 'URGENT' },
   // The work that was there before the alert centre has no severity of its own: what is late or due within the week is to be acted on, the rest is to be watched.
   APPROVAL: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
   EXPLANATION: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
@@ -166,5 +173,10 @@ const CONSEQUENCE_KEYS = [
   'CONNECTOR_STALE',
   'EGP_POSTING_DUE',
   'EGP_POSTING_OVERDUE',
+  'VENDOR_RESTRICTED_EXPOSURE',
+  'VENDOR_REPUTATION_POST',
+  'VENDOR_DEBARMENT_DECISION',
+  'VENDOR_PAYEE_ACCOUNT',
+  'VENDOR_QUALIFICATION_EXPIRY',
 ] as const;
 export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

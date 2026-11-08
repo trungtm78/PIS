@@ -18,6 +18,7 @@ import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP } from '
 import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
 import { MasterRules } from './master-rules.ts';
 import { PayDisbursementCheck } from './pay-disbursement-check.ts';
+import { VendorGate } from './vendor-gate.ts';
 import { nationalCodeReading } from './prj-stage-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -363,6 +364,7 @@ export class PayPaymentStore {
   private readonly contracts = new CtrContractStore();
   private readonly rules = new MasterRules();
   private readonly disbursement = new PayDisbursementCheck();
+  private readonly vendorGate = new VendorGate();
 
   /** Draws up a request from an approved acceptance (or from a planned advance), priced by the server. */
   async create(tx: TenantTx, input: CreatePaymentInput, actor: string, scopes: ContractScopes, today: string): Promise<PaymentResult> {
@@ -719,6 +721,8 @@ export class PayPaymentStore {
     const warnings: PaymentWarning[] = [];
     // G1-2: the project must be on the list and hold an approved amount in the capital plan before anything else is looked at; the number on the system wins over paper.
     for (const warning of await this.disbursement.assertAllowed(tx, input.contract.project_id, input.today)) warnings.push({ code: warning, detail: { project_id: input.contract.project_id } });
+    // VND-1: no money to a contractor under a restriction, and none to an account that is not valid (a change still in its waiting period, an account that was closed).
+    await this.vendorGate.assertAllowed(tx, 'PAYMENT', { contractId: input.contract.id, now: new Date(`${input.today}T12:00:00+07:00`) });
     const acceptance = input.acceptanceId === null ? undefined : await this.acceptanceOf(tx, input.acceptanceId, input.contract.id);
     assertContractAllows({ status: input.contract.status, suspendedFrom: input.contract.suspended_from, terminatedOn: input.contract.terminated_on }, input.kind, acceptance?.approved_on ?? null);
     if (input.settlementId !== null) await this.assertSettlement(tx, input.settlementId, input.contract.id);

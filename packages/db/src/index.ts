@@ -1675,3 +1675,15 @@ export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter
 // FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
 export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore } from './fnd-figure-store.ts';
 export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
+=======
+export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
+// VND-1: the management of contractors and suppliers (docs/vendor-management.md).
+export * from './vendor-policy.ts';
+export * from './vendor-profile-store.ts';
+export * from './vendor-payee-store.ts';
+export * from './vendor-qualification-store.ts';
+export * from './vendor-restriction-store.ts';
+export * from './vendor-venture-store.ts';
+export * from './vendor-reputation-store.ts';
+export * from './vendor-gate.ts';
+export { HomeVendorSources, VENDOR_AUDIENCE_PERMISSIONS } from './home-vendor-sources.ts';
