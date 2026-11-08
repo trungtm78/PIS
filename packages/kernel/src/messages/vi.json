@@ -1549,5 +1549,14 @@
   "ana.rules.scorecard_unit.formula": "Điểm của một đơn vị là trung bình có trọng số của các chiều có điểm (tỷ lệ dự án có số Kho bạc, độ bao phủ dữ liệu của điểm cảnh báo sớm, trừ điểm cho mỗi giải trình quá hạn); thiếu chiều thì chiều đó không tính",
   "ana.rules.ranking.formula": "Xếp hạng nhiều chỉ số: mỗi chỉ số của đơn vị được chuẩn hóa 0 đến 100 so với các đơn vị cùng nhóm quy mô (min-max, đảo chiều khi thấp hơn là tốt hơn), điểm tổng hợp là trung bình có trọng số của các chỉ số có số liệu; dưới số chỉ số tối thiểu thì không xếp hạng; ghi chú vướng ngoài kiểm soát phải được người khác duyệt",
   "ana.rules.bottleneck.formula": "Điểm nghẽn = khoản đang bị giữ (đề nghị thanh toán chờ thẩm tra hoặc chờ Kho bạc, bồi thường đến hạn chưa chi, vấn đề chưa giải quyết) với số tiền bị giữ, nguyên nhân chuẩn, tuổi nợ theo ngày và người giữ; xếp theo số tiền nhân số ngày; một khoản do hai nguồn cùng mô tả chỉ tính một lần; khoản không có số tiền ghi rõ là không có số tiền",
-  "ana.rules.insight.formula": "Bản đồ nhiệt: tỷ lệ giải ngân của ô so với nhịp độ của năm hoặc tỷ lệ đã trả trên khối lượng đã nghiệm thu, tô màu theo ngưỡng, ô có quá ít dự án hoặc hợp đồng không hiển thị; kiểm thử ngược ngưỡng cảnh báo sớm = phát lại các tuần đã lưu so với việc xảy ra trong số tuần kế tiếp; xếp hạng xu hướng = thay đổi điểm cảnh báo sớm sau số tuần quy định"
+  "ana.rules.insight.formula": "Bản đồ nhiệt: tỷ lệ giải ngân của ô so với nhịp độ của năm hoặc tỷ lệ đã trả trên khối lượng đã nghiệm thu, tô màu theo ngưỡng, ô có quá ít dự án hoặc hợp đồng không hiển thị; kiểm thử ngược ngưỡng cảnh báo sớm = phát lại các tuần đã lưu so với việc xảy ra trong số tuần kế tiếp; xếp hạng xu hướng = thay đổi điểm cảnh báo sớm sau số tuần quy định",
+  "home.consequence.feed_stale": "Số liệu toàn tỉnh từ Sở Tài chính cũ hơn mức cho phép: bảng điều hành tiến độ đầu tư công phải ghi rõ là chưa cập nhật.",
+  "home.consequence.feed_unit_late": "Số liệu của đơn vị thiếu nên tỷ lệ giải ngân toàn tỉnh bị thấp giả và không đủ cơ sở xếp hạng đơn vị.",
+  "home.consequence.feed_discrepancy_large": "Số của Sở Tài chính và số của ta mâu thuẫn nhau: báo cáo gửi lãnh đạo có thể sai và không bảo vệ được số liệu.",
+  "home.source.feed.stale.title": "Số liệu từ Sở Tài chính đã cũ",
+  "home.source.feed.stale.detail": "Lần nhận gần nhất cách đây {hours} giờ, quá {max} giờ",
+  "home.source.feed.unit_late.title": "Đơn vị {unit} chưa báo cáo giải ngân tháng {month}/{year}",
+  "home.source.feed.unit_late.detail": "Quá hạn nộp từ ngày {due}, {projects} dự án chưa có số liệu của tháng",
+  "home.source.feed.discrepancy.title": "Sai lệch lớn của dự án {code}, năm {year}",
+  "home.source.feed.discrepancy.detail": "Số của Sở Tài chính {feed}, số của ta {ours}, chênh {pct}%"
 }

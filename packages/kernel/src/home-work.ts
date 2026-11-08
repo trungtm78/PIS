@@ -86,6 +86,10 @@ export const WORK_KINDS = [
   // The Integration Hub (lane HUB-1): a connector whose last runs all failed, and many connectors stale at once.
   'CONNECTOR_FAILING',
   'CONNECTOR_HUB_STALE',
+  // The feed of the Finance Department (lane FEED-1): it is stale, a unit is late with its monthly report, a large difference with our own figures is open.
+  'FEED_STALE',
+  'FEED_UNIT_LATE',
+  'FEED_DISCREPANCY_LARGE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -161,6 +165,9 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   ALERT_FEEDBACK_REVIEW: 55,
   CONNECTOR_FAILING: 56,
   CONNECTOR_HUB_STALE: 57,
+  FEED_STALE: 58,
+  FEED_UNIT_LATE: 59,
+  FEED_DISCREPANCY_LARGE: 60,
 };
 
 export interface WorkItem {
