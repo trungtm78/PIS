@@ -96,9 +96,6 @@
     {"id":"DIS-22","path":"/dis/dis-22","title":"Mở lại kỳ có lý do","kind":"approval","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":"DIS-21","req":"FR-DIS-22"},
     {"id":"DIS-25","path":"/dis/dis-25","title":"Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden","kind":"policy","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-25"},
     {"id":"DIS-26","path":"/dis/dis-26","title":"Kiểm tổng chéo số giải ngân theo đơn vị, nguồn vốn, dự án","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-26"},
-    {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
-    {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
-    {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
     {"id":"PAY-01","path":"/pay/pay-01","title":"Danh sách hồ sơ thanh toán","kind":"list","area":"investment","module":"PAY","group":"Hồ sơ thanh toán","role":"workspace","parent":null,"req":"FR-PAY-01"},
     {"id":"PAY-02","path":"/pay/pay-02","title":"Tạo đề nghị thanh toán","kind":"form","area":"investment","module":"PAY","group":"Hồ sơ thanh toán","role":"detail","parent":"PAY-01","req":"FR-PAY-02"},
     {"id":"PAY-03","path":"/pay/pay-03","title":"Chi tiết và chứng từ","kind":"documents","area":"investment","module":"PAY","group":"Hồ sơ thanh toán","role":"detail","parent":"PAY-01","req":"FR-PAY-03"},
@@ -456,6 +453,9 @@
     {"id":"RPT-01","path":"/rpt/rpt-01","title":"Danh mục biểu mẫu báo cáo và lập báo cáo","kind":"table","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-01"},
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
-    {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"}
+    {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
+    {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
+    {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
+    {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"}
   ]
 }
