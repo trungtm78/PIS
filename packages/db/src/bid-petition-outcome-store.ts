@@ -199,8 +199,12 @@ export class BidPetitionOutcomeStore {
     nextOutcomeStatus(line.status, 'CONFIRM');
     assertChecker(line.recordedBy, actor);
     await this.assertNotConflicted(tx, actor, line.contractor.id, line.package.id);
+    // The petition may have moved since the outcome was recorded (answered, passed up): the decision is judged again against the status it has NOW, with the row locked.
+    const current = (await tx.query<{ status: string }>('select status from machvon.procurement_petition where id = $1::uuid for update', [line.petitionId]))[0];
+    if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    assertDecisionAllowed(line.outcome, current.status);
     await tx.query(`update machvon.procurement_petition_outcome set status = 'CONFIRMED', checked_by = $2::uuid, checked_at = $3::timestamptz, version = version + 1 where id = $1::uuid`, [id, actor, now.toISOString()]);
-    if (line.outcome === 'WITHDRAWN' && (line.petitionStatus === 'RECEIVED' || line.petitionStatus === 'PROCESSING')) {
+    if (line.outcome === 'WITHDRAWN' && (current.status === 'RECEIVED' || current.status === 'PROCESSING')) {
       await tx.query(`update machvon.procurement_petition set status = 'WITHDRAWN', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid`, [line.petitionId, actor]);
     }
     return (await this.find(tx, id, scope)) as PetitionOutcomeLine;

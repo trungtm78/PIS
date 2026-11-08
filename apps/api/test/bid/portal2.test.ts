@@ -80,10 +80,10 @@ describe('portal access through the registry, petition outcomes and portal uploa
     return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
 
-  async function upload(member: number | string, bytes: Uint8Array, type: string, query = 'purpose=CERTIFICATE&title=Certificate'): Promise<Reply> {
+  async function upload(member: number | string, bytes: Uint8Array, type: string, query = 'purpose=CERTIFICATE&title=Certificate', key = `key-${randomUUID()}`): Promise<Reply> {
     const form = new FormData();
     form.append('file', new Blob([bytes], { type }), 'file.bin');
-    const response = await fetch(`${app.baseUrl}/portal/attachments?${query}`, { method: 'POST', headers: { [TENANT_HEADER]: tokenOf(member), 'idempotency-key': `key-${randomUUID()}` }, body: form });
+    const response = await fetch(`${app.baseUrl}/portal/attachments?${query}`, { method: 'POST', headers: { [TENANT_HEADER]: tokenOf(member), 'idempotency-key': key }, body: form });
     const text = await response.text();
     return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
@@ -312,6 +312,19 @@ describe('portal access through the registry, petition outcomes and portal uploa
       const listed = await call('GET', '/portal/attachments', { member: GUEST_A });
       expect(listed).toMatchObject({ status: 200, json: { limits: { max_bytes: 10 * 1024 * 1024, mimes: ['application/pdf', 'image/png', 'image/jpeg'] } } });
       expect((listed.json.items as Array<{ id: string }>).map((item) => item.id)).toContain(done.json.id);
+    });
+  });
+
+  describe('UAT-PORTAL2-03: the idempotency of an upload covers its purpose and its title', () => {
+    it('replays the same upload and refuses the same key for another purpose or title', async () => {
+      const bytes = await pdfBytes();
+      const key = `upload-${randomUUID()}`;
+      const first = await upload(GUEST_A, bytes, 'application/pdf', 'purpose=OTHER&title=First%20title', key);
+      expect(first.status).toBe(200);
+      const replay = await upload(GUEST_A, bytes, 'application/pdf', 'purpose=OTHER&title=First%20title', key);
+      expect(replay.json).toEqual(first.json);
+      expect(await upload(GUEST_A, bytes, 'application/pdf', 'purpose=OTHER&title=Another%20title', key)).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
+      expect(await upload(GUEST_A, bytes, 'application/pdf', 'purpose=CERTIFICATE&title=First%20title', key)).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
     });
   });
 

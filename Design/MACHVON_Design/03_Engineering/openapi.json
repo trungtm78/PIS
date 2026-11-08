@@ -228535,7 +228535,10 @@
           "PAYLOAD_TOO_LARGE",
           "FILE_TYPE_NOT_ALLOWED"
         ],
-        "x-idempotency": "required"
+        "x-idempotency": "required",
+        "x-domain-events": [
+          "vnd.portal.attachment.uploaded.v1"
+        ]
       }
     }
   },

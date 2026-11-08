@@ -138,6 +138,17 @@ describe('portal access through the registry, petition outcomes and portal attac
       expect(await refusal(as((tx) => invitations.propose(tx, proposal(b, 'lienhe@congty-b.vn'), memberId(STAFF), NOW)))).toMatchObject({ code: 'CONTRACTOR_NOT_INVITABLE', status: 422 });
     });
 
+    it('counts the accounts one after the other when two proposals arrive together, so the limit holds', async () => {
+      const e = await contractor('Cty Hai De Xuat Cung Luc', { email: 'e0@congty-e.vn' });
+      for (const email of ['e1@congty-e.vn', 'e2@congty-e.vn']) await as((tx) => invitations.propose(tx, proposal(e, email, { contactBasis: 'OTHER_EVIDENCE', basisReference: 'Certificate 70/2026' }), memberId(STAFF), NOW));
+      const results = await Promise.allSettled(
+        ['e3@congty-e.vn', 'e4@congty-e.vn'].map((email) => as((tx) => invitations.propose(tx, proposal(e, email, { contactBasis: 'OTHER_EVIDENCE', basisReference: 'Certificate 71/2026' }), memberId(STAFF), NOW))),
+      );
+      expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+      const failed = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+      expect(failed?.reason).toMatchObject({ code: 'PORTAL_ACCESS_LIMIT', status: 422 });
+    });
+
     it('stops at the number of accounts the rule allows for one contractor', async () => {
       await as((tx) => invitations.propose(tx, proposal(a, 'ke.toan@congty-a.vn', { contactBasis: 'OTHER_EVIDENCE', basisReference: 'Certificate 55/2026' }), memberId(STAFF), NOW));
       expect(await refusal(as((tx) => invitations.propose(tx, proposal(a, 'thu.ky@congty-a.vn', { contactBasis: 'OTHER_EVIDENCE', basisReference: 'Certificate 56/2026' }), memberId(STAFF), NOW)))).toMatchObject({ code: 'PORTAL_ACCESS_LIMIT', status: 422 });
@@ -353,6 +364,14 @@ describe('portal access through the registry, petition outcomes and portal attac
       const again = await as((tx) => outcomes.record(tx, answered, { outcome: 'REJECTED', decisionRef: 'QD 15/QD-UBND', decisionOn: '2026-10-12' }, memberId(STAFF), everything));
       expect(again.status).toBe('PROPOSED');
       expect((await as((tx) => outcomes.list(tx, everything, { petitionId: answered }))).map((line) => line.status).sort()).toEqual(['PROPOSED', 'RETURNED']);
+    });
+
+    it('judges the decision again when it is confirmed: a withdrawal proposed while the petition waited is refused once the petition was answered', async () => {
+      const waiting = await petition('RECEIVED');
+      const line = await as((tx) => outcomes.record(tx, waiting, { outcome: 'WITHDRAWN', decisionRef: 'Letter of withdrawal 04', decisionOn: '2026-10-11' }, memberId(STAFF), everything));
+      await owner("update machvon.procurement_petition set status = 'RESOLVED', resolution_document_id = $2::uuid, handled_by = $3::uuid, resolved_at = now() where id = $1::uuid", [waiting, await document(), memberId(STAFF)]);
+      expect(await refusal(as((tx) => outcomes.confirm(tx, line.id, 1, memberId(STAFF2), everything, NOW), STAFF2))).toMatchObject({ code: 'PETITION_OUTCOME_NOT_ALLOWED', status: 422 });
+      expect((await owner<{ status: string }>('select status from machvon.procurement_petition_outcome where id = $1::uuid', [line.id]))[0]?.status).toBe('PROPOSED');
     });
 
     it('moves a waiting petition to WITHDRAWN when the withdrawal is confirmed', async () => {

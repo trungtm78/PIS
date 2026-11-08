@@ -149,8 +149,9 @@ export class VendorPortalInvitationStore {
     return row?.n ?? 0;
   }
 
+  /** Locks the contractor row first: two proposals or approvals for one contractor are counted one after the other, so the limit of accounts holds under concurrency. */
   private async checkContractor(tx: TenantTx, contractorId: string, now: Date): Promise<{ taxIdentifier: string; email: string | null }> {
-    const contractor = await this.contractors.find(tx, contractorId);
+    const contractor = await this.contractors.find(tx, contractorId, true);
     if (contractor === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const restricted = (await this.contractors.restrictionsInForce(tx, [contractorId], vietnamDateOf(now))).get(contractorId) !== undefined;
     assertInvitable({ verificationStatus: contractor.verificationStatus, restricted });

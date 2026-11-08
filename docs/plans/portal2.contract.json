@@ -39,6 +39,7 @@
     { "command": "add-operation", "path": "/portal/attachments", "method": "get", "build": { "operationId": "listPortalAttachments", "summary": "Cổng nhà thầu: các tệp đã tải lên của chính nhà thầu và giới hạn tải (VND-24)", "tags": ["VND"], "permission": "vnd.portal.read", "responseRef": "PortalAttachmentPage", "query": [{ "name": "purpose" }] } },
     {
       "command": "add-operation",
+      "replace": true,
       "path": "/portal/attachments",
       "method": "post",
       "operation": {
@@ -63,7 +64,8 @@
           "429": { "description": "Rate limit", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } } } }
         },
         "x-error-codes": ["VALIDATION_FAILED", "FILE_NOT_CLEAN", "SCAN_PENDING", "PAYLOAD_TOO_LARGE", "FILE_TYPE_NOT_ALLOWED"],
-        "x-idempotency": "required"
+        "x-idempotency": "required",
+        "x-domain-events": ["vnd.portal.attachment.uploaded.v1"]
       }
     },
 

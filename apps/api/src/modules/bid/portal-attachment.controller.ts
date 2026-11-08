@@ -1,4 +1,5 @@
-import { Controller, Get, HttpCode, Inject, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject, Injectable, Post, Query, UseGuards } from '@nestjs/common';
+import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { TenantDatabase, VendorPortalAttachmentStore, VendorPortalPolicyReader, VendorPortalStore } from '@machvon/db';
 import type { PortalAttachmentRow } from '@machvon/db';
@@ -21,6 +22,20 @@ import { todayOf } from './vendor-view';
 
 /** The purpose under which the shared upload pipeline keeps the files of documents. */
 const DOCUMENT_PURPOSE = 'document';
+
+/**
+ * The guard of the shared upload reads the file and replaces the body by its description, which is what the idempotency of a command hashes; the purpose and the title are query parameters, so they are added to that description:
+ * the same key with the same file but another purpose or title is an idempotency conflict, not a replay of the first attachment.
+ */
+@Injectable()
+class PortalUploadGuard extends (ImportFileUploadGuard as new () => CanActivate) {
+  override async canActivate(context: ExecutionContext): Promise<boolean> {
+    const allowed = await super.canActivate(context);
+    const request = context.switchToHttp().getRequest<{ body?: Record<string, unknown>; query?: Record<string, unknown> }>();
+    request.body = { ...(request.body ?? {}), purpose: request.query?.purpose ?? null, title: request.query?.title ?? null };
+    return allowed;
+  }
+}
 
 const attachmentDto = (row: PortalAttachmentRow): Record<string, unknown> => ({
   id: row.id,
@@ -55,7 +70,7 @@ export class PortalAttachmentController {
 
   @Post('portal/attachments')
   @HttpCode(200)
-  @UseGuards(ImportFileUploadGuard)
+  @UseGuards(PortalUploadGuard)
   @OperationId('uploadPortalAttachment')
   @Command({ operation: 'uploadPortalAttachment' })
   async upload(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @UploadedBytes() file: UploadedFile, @Query('purpose') purposeValue?: unknown, @Query('title') titleValue?: unknown): Promise<Record<string, unknown>> {
