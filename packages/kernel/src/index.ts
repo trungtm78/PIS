@@ -3089,3 +3089,12 @@ export { BOTTLENECK_RULE_CODE, BOTTLENECK_RULE_TYPE, BOTTLENECK_SOURCES, HALT_CL
 export type { AnalysedItem, Analysis, BottleneckItem, BottleneckModel, BottleneckSource, CauseRule, CloseDraft, HaltCloseOutcome, HaltDraft, HaltStatus, Holder, IssueSeverity, PlanDecision, PlanState, PlanStepFacts, StepDraft, StepStatus, Total } from './ana-bottleneck.ts';
 export { HEAT_VIEWS, INSIGHT_RULE_CODE, INSIGHT_RULE_TYPE, backtestThresholds, buildHeatmap, heatBand, insightParamsOf, trendRanking } from './ana-insight.ts';
 export type { Backtest, BacktestCandidate, BacktestNullReason, HeatBand, HeatCell, HeatInputCell, HeatNullReason, HeatTotals, HeatView, Heatmap, InsightParams, TrendNullReason, TrendRow, WeekScore } from './ana-insight.ts';
+// FEED-1: the feed of the Finance Department (docs/finance-feed.md).
+export * from './finance-feed-model.ts';
+export * from './finance-feed.ts';
+export * from './finance-feed-generator.ts';
+export * from './finance-feed-facts.ts';
+export * from './finance-feed-management.ts';
+export { FINANCE_FEED_CONNECTION } from './finance-feed-connection.ts';
+export { FEED_TEXT } from './messages/finance-feed-texts.ts';
+export { registerFinanceFeedRules } from './governance-rules.ts';

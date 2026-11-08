@@ -13,6 +13,7 @@ import { COMMITTEE_KPI_DEFAULTS, COMMITTEE_POLICY_DEFAULTS, COMMITTEE_POLICY_RUL
 import { B1_DEFAULTS, EAC_METHODS } from './gov-b1-policy.ts';
 import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_SOURCE, WORKFLOW_METHODS, WORKFLOW_RULE_TYPE, defaultWorkflowParams, parseWorkflowDefinition } from './bid-workflow.ts';
 import { MILESTONE_KINDS } from './procurement-file.ts';
+import { FEED_TEXT } from './messages/finance-feed-texts.ts';
 import { APPROVAL_WORKFLOW_RULE_TYPE, REPORT_STEP_ASSIGNEE_TYPES, REPORT_STEP_KINDS, REPORT_WORKFLOW_RULE_CODE, WORKFLOW_MODES, defaultReportWorkflowParams, reportWorkflowDefect } from './dis-report-workflow.ts';
 import { DATA_ENTRY_EXTRA_DEFAULTS, DATA_ENTRY_RULE_FIELDS, INDICATOR_IMPORT_FIELDS, INDICATOR_IMPORT_RULE_TYPE, INDICATOR_KPI_FIELDS, INDICATOR_SEEDS, indicatorSeedParams, refineDataEntryRule, refineImportMapping, sampleMappingParams } from './ind-definitions.ts';
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
@@ -2117,6 +2118,46 @@ export const registerExecAnalyticsRules = (): void =>
     }
   });
 
+const FEED_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'FEED_STALE', source: 'CONNECTOR', owner: 'INTEGRATION_ADMINISTRATOR', action: FEED_TEXT.alert_stale_action, consequence: FEED_TEXT.alert_stale_consequence, hours: 24, severity: 'ACTION', why: FEED_TEXT.alert_stale_why },
+  { code: 'FEED_UNIT_LATE', source: 'CONNECTOR', owner: 'INTEGRATION_ADMINISTRATOR', action: FEED_TEXT.alert_late_action, consequence: FEED_TEXT.alert_late_consequence, hours: 72, severity: 'WATCH', why: FEED_TEXT.alert_late_why },
+  { code: 'FEED_DISCREPANCY_LARGE', source: 'CONNECTOR', owner: 'CAPITAL_PLANNER', action: FEED_TEXT.alert_discrepancy_action, consequence: FEED_TEXT.alert_discrepancy_consequence, hours: 72, severity: 'ACTION', why: FEED_TEXT.alert_discrepancy_why },
+];
+
+const feedKpi = (name: string, formula: string, numerator: string, denominator: string): DefaultInput => ({
+  params: { name, formula, numerator, denominator, exclusions: [], source: FEED_TEXT.kpi_source, unit: 'PERCENT', period: 'MONTH', owner: 'INTEGRATION_ADMINISTRATOR', decimals: 2, refresh_hours: 24, allowed_lag_days: 5 },
+  legalStatus: 'UNVERIFIED',
+  formula,
+  source: FEED_TEXT.kpi_source,
+  asOf: AS_OF,
+});
+
+/** The feed of the Finance Department (lane FEED-1, docs/finance-feed.md): its policy, its freshness line, the three data-quality indicators and the three alert types. */
+export const registerFinanceFeedRules = (): void =>
+  once('finance-feed', () => {
+    registerCoreRules();
+    registerIntegrationRules();
+    registerRuleType({
+      type: 'FINANCE_FEED_POLICY',
+      ownerModule: 'INT',
+      modules: ['INT', 'HOME', 'BI'],
+      formula: FEED_TEXT.policy_formula,
+      source: FEED_TEXT.policy_source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { tolerance_pct: num(0, 100), large_discrepancy_pct: num(0, 1000), report_due_days: int(0, 60), difference_due_days: int(1, 90) },
+      refine: (params) => ((params.tolerance_pct as number) > (params.large_discrepancy_pct as number) ? 'tolerance_pct' : undefined),
+      defaults: { DEFAULT: rule({ tolerance_pct: 0.5, large_discrepancy_pct: 5, report_due_days: 5, difference_due_days: 7 }) },
+    });
+    registerRuleDefaults('CONNECTOR_FRESHNESS', { FIN_FEED: rule({ max_age_hours: 48, warn_after_hours: 24, stale_severity: 'ACTION', figures_blocked_when_stale: false }, undefined, { formula: FEED_TEXT.freshness_formula }) });
+    registerRuleDefaults('KPI_DEFINITION', {
+      FEED_COMPLETENESS: feedKpi(FEED_TEXT.kpi_completeness_name, FEED_TEXT.kpi_completeness_formula, FEED_TEXT.kpi_completeness_numerator, FEED_TEXT.kpi_completeness_denominator),
+      FEED_TIMELINESS: feedKpi(FEED_TEXT.kpi_timeliness_name, FEED_TEXT.kpi_timeliness_formula, FEED_TEXT.kpi_timeliness_numerator, FEED_TEXT.kpi_timeliness_denominator),
+      FEED_DISCREPANCY_RATE: feedKpi(FEED_TEXT.kpi_discrepancy_name, FEED_TEXT.kpi_discrepancy_formula, FEED_TEXT.kpi_discrepancy_numerator, FEED_TEXT.kpi_discrepancy_denominator),
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(FEED_ALERT_SEEDS, { source: FEED_TEXT.policy_source }));
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -2145,6 +2186,7 @@ export function registerAllGovernanceRules(): void {
   registerSettlementClockRules();
   registerLookAheadRules();
   registerExecAnalyticsRules();
+  registerFinanceFeedRules();
 }
 
 registerAllGovernanceRules();
