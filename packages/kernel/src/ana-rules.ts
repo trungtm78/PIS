@@ -1,5 +1,6 @@
 import { DECISION_DEFAULTS, DECISION_RULE_CODE, DECISION_RULE_TYPE, decisionPolicyOf } from './ana-decision.ts';
 import type { ForecastParams } from './ana-forecast.ts';
+import { RANKING_DEFAULTS, RANKING_RULE_CODE, RANKING_RULE_TYPE, rankingModelOf } from './ana-ranking.ts';
 import { FRESHNESS_DEFAULTS, FRESHNESS_RULE_TYPE, SCORECARD_MODULE_DEFAULTS, SCORECARD_MODULE_RULE_TYPE, SCORECARD_RULE_CODE, SCORECARD_UNIT_DEFAULTS, SCORECARD_UNIT_RULE_TYPE, moduleScorecardPolicyOf, unitScorecardPolicyOf } from './ana-trust.ts';
 import { DomainError } from './errors.ts';
 import type { FieldSpec, RuleParams } from './governance-rules.ts';
@@ -146,5 +147,32 @@ const SCORECARD_UNIT: ExecRuleType = {
   defaults: { [SCORECARD_RULE_CODE]: SCORECARD_UNIT_DEFAULTS as RuleParams },
 };
 
+const RANKING: ExecRuleType = {
+  type: RANKING_RULE_TYPE,
+  ownerModule: 'DIS',
+  modules: ['DIS', 'HOME'],
+  formula: message('ana.rules.ranking.formula'),
+  source: message('ana.rules.source'),
+  schema: {
+    metrics: {
+      kind: 'list',
+      of: { kind: 'object', fields: { code: { kind: 'enum', values: ['RATE', 'COMPLETENESS', 'EXPLANATIONS', 'WARNINGS', 'PHYSICAL'] }, direction: oneOf('HIGHER_IS_BETTER', 'LOWER_IS_BETTER'), weight: int(0, 100) } },
+      min: 1,
+      max: 5,
+    },
+    min_metrics: int(1, 5),
+    scale_bands: { kind: 'list', of: { kind: 'object', fields: { code: { kind: 'text', max: 20, pattern: '^[A-Z][A-Z0-9_]{1,19}$' }, min_plan_vnd: { kind: 'text', max: 18, pattern: '^[0-9]{1,18}$' } } }, min: 1, max: 6 },
+    min_units_per_band: int(1, 50),
+    annotation_effect: oneOf('SHOW_ONLY', 'EXCLUDE_METRIC'),
+    annotation_reasons: { kind: 'list', of: { kind: 'text', max: 40, pattern: '^[A-Z][A-Z0-9_]{1,39}$' }, min: 1, max: 20 },
+    annotation_max_days: int(1, 365),
+    complaint_response_days: int(1, 60),
+    pair_gap_pct: int(0, 100),
+    pair_high_pct: int(0, 100),
+  },
+  refine: refineWith(rankingModelOf),
+  defaults: { [RANKING_RULE_CODE]: RANKING_DEFAULTS as RuleParams },
+};
+
 /** Every rule type of the lane, in the order they are registered. */
-export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT];
+export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT, RANKING];
