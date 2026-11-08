@@ -7,6 +7,8 @@ import { OidcError } from './client';
 import { useSignInAttempt } from './useSignInAttempt';
 
 const CHOOSER = 'IAM-04';
+/** The one address that may be reached before a tenant is chosen: the accept page of an invitation, whose invitee may have no membership yet. Exactly this shape of same-origin relative path, nothing else. */
+const INVITATION_RETURN = /^\/invitations\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/accept(\?[A-Za-z0-9_=&%.~-]*)?$/i;
 
 /**
  * The address the identity provider sends the browser back to: it finishes the sign-in with the query of the address
@@ -34,7 +36,9 @@ export function OidcCallback() {
         const chooser = routeById(CHOOSER)?.path ?? '/';
         // A second-factor sign-in that started at the chooser returns to it as it was, with its own `next`.
         const atChooser = returnTo === chooser || returnTo.startsWith(`${chooser}?`);
-        navigate(atChooser ? returnTo : `${chooser}?next=${encodeURIComponent(returnTo)}`, { replace: true });
+        // An invitee may hold no membership, and the chooser only goes on after a membership is selected: the accept page is reached directly.
+        if (INVITATION_RETURN.test(returnTo)) navigate(returnTo, { replace: true });
+        else navigate(atChooser ? returnTo : `${chooser}?next=${encodeURIComponent(returnTo)}`, { replace: true });
       },
       (error: unknown) => setFailure(error instanceof OidcError ? error : new OidcError('callback_invalid')),
     );

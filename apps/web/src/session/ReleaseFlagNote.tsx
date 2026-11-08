@@ -2,13 +2,13 @@ import { useTranslation } from '../i18n';
 import { useFeatureFlags } from './useFeatureFlags';
 
 export interface ReleaseFlagNoteProps {
-  /** The release flag the screen's actions need (the server refuses them while it is off). */
+  /** The release flag the screen belongs to. */
   flagKey: string;
 }
 
 /**
- * Tells the person, above a screen whose actions rest on a release flag, that the flag is not on for the tenant, so the refusal of the server is no surprise. Nothing is shown while the flags load or when the flag is on;
- * a failed read says so with a way to read again, because a flag that could not be read is not a flag that is off.
+ * Tells the person, above a screen that belongs to a release flag, what state the flag is in for the tenant of the session: information about the release, not a gate (the server decides what it allows). Nothing is shown
+ * while the flags load or when the flag is on; a failed read says so with a way to read again, because a flag that could not be read is not a flag that is off.
  */
 export function ReleaseFlagNote({ flagKey }: ReleaseFlagNoteProps) {
   const { t } = useTranslation();

@@ -56,6 +56,23 @@ describe('OidcCallback', () => {
     await waitFor(() => expect(screen.getByTestId('where').textContent).toBe(`/iam/iam-04?next=${encodeURIComponent(lookalike)}`));
   });
 
+  it('goes straight to the accept page of an invitation, before any tenant is chosen (the invitee may hold no membership)', async () => {
+    const accept = '/invitations/00000000-0000-4000-8000-0000000000c1/accept?token=abc123_-';
+    mountCallback(session({ completeSignIn: () => Promise.resolve({ returnTo: accept }), loadCandidates: () => Promise.resolve([]) }));
+    await waitFor(() => expect(screen.getByTestId('where').textContent).toBe(accept));
+  });
+
+  it.each([
+    '/invitations/not-an-id/accept?token=x',
+    '/invitations/00000000-0000-4000-8000-0000000000c1/accept/../../adm',
+    '/invitations/00000000-0000-4000-8000-0000000000c1/accept?token=x#frag',
+    '//evil.example/invitations/00000000-0000-4000-8000-0000000000c1/accept',
+    'https://evil.example/invitations/00000000-0000-4000-8000-0000000000c1/accept',
+  ])('does not take %s as an invitation return path', async (returnTo) => {
+    mountCallback(session({ completeSignIn: () => Promise.resolve({ returnTo }) }));
+    await waitFor(() => expect(screen.getByTestId('where').textContent).toBe(`/iam/iam-04?next=${encodeURIComponent(returnTo)}`));
+  });
+
   it('shows the callback error and offers a new sign-in when the provider answer is refused, without saying why', async () => {
     const signIn = vi.fn(() => Promise.resolve());
     mountCallback(session({ completeSignIn: () => Promise.reject(new OidcError('state_mismatch')), signIn }));
