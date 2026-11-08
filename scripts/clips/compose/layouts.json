@@ -26,27 +26,28 @@
     },
     "web+callouts": {
       "window": {
-        "x": 650,
-        "y": 120,
+        "x": 536,
+        "y": 92,
         "hole": {
-          "width": 1216,
-          "height": 684
+          "width": 1344,
+          "height": 756
         }
       },
       "headline": {
-        "x": 64,
-        "y": 214,
-        "width": 540
+        "x": 44,
+        "y": 220,
+        "width": 460,
+        "size": 50
       },
       "chips": true
     },
     "phone-right": {
       "phone": {
         "x": 1300,
-        "y": 48,
+        "y": 52,
         "screen": {
-          "width": 380,
-          "height": 820
+          "width": 400,
+          "height": 866
         }
       },
       "headline": {
@@ -67,10 +68,10 @@
       },
       "phone": {
         "x": 1300,
-        "y": 48,
+        "y": 52,
         "screen": {
-          "width": 380,
-          "height": 820
+          "width": 400,
+          "height": 866
         }
       },
       "headline": {
