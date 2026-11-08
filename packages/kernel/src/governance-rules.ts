@@ -26,6 +26,7 @@ import { ACCURACY_RULE_CODE, ACCURACY_RULE_TYPE, MILESTONE_RULE_CODE, MILESTONE_
 import { BASELINE_IMPACT_RULE_CODE, BASELINE_IMPACT_RULE_TYPE, baselineImpactDefaults, baselineImpactOf } from './ctr-adjustment.ts';
 import { CONTRACT_SETTLEMENT_RULE_TYPE, SETTLEMENT_CLOCK_STARTS, settlementDeadlineDefaults, settlementDeadlineParams } from './ctr-settlement-clock.ts';
 import { LESSONS_RULE_TYPE, LOOK_AHEAD_RULE_TYPE, POLICY_RULE_CODE, lessonsDefaults, lessonsPolicyOf, lookAheadDefaults, lookAheadPolicyOf } from './prj-look-ahead.ts';
+import { EXEC_RULE_TYPES } from './ana-rules.ts';
 import { message } from './messages.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
@@ -2094,6 +2095,26 @@ export const registerLookAheadRules = (): void =>
       defaults: { [POLICY_RULE_CODE]: rule(lessonsDefaults()) },
     });
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(LOOK_AHEAD_ALERT_SEEDS, { source: message('gov.rules.register_look_ahead_rules.source_2') }));
+  });
+
+/** The rule types of the executive analytics (GOV-11b: G3-5 to G3-11), described as data in ana-rules.ts; every default is unverified. */
+export const registerExecAnalyticsRules = (): void =>
+  once('analytics_exec', () => {
+    registerCoreRules();
+    for (const one of EXEC_RULE_TYPES) {
+      registerRuleType({
+        type: one.type,
+        ownerModule: one.ownerModule,
+        modules: one.modules,
+        formula: one.formula,
+        source: one.source,
+        asOf: AS_OF,
+        legalStatus: 'UNVERIFIED',
+        schema: one.schema,
+        ...(one.refine === undefined ? {} : { refine: one.refine }),
+        defaults: Object.fromEntries(Object.entries(one.defaults).map(([code, params]) => [code, rule(plain(params), 'UNVERIFIED')])),
+      });
+    }
   });
 
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */

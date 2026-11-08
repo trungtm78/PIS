@@ -3074,3 +3074,8 @@ export {
   windowEnd as lookAheadWindowEnd,
 } from './prj-look-ahead.ts';
 export type { ItemDraft as LookAheadItemDraft, ItemFacts as LookAheadItemFacts, ItemState as LookAheadItemState, LessonDraft, LessonsGateFacts, LessonsGateReading, LessonsGateReason, LessonsPolicy, LookAheadPolicy, Ppc } from './prj-look-ahead.ts';
+
+export { cumulativeAt, neededOf, outlookOf, sameDayLastYear } from './ana-forecast.ts';
+export type { Band, BandRatios, ForecastNullReason, ForecastParams, MultipleNullReason, NeededPerWeek, NeededStatus, Outlook, OutlookInput, SeasonalNullReason, SeriesPoint, SkippedWindowReason, WindowProjection } from './ana-forecast.ts';
+export { EXEC_RULE_TYPES, FORECAST_RULE_CODE, FORECAST_RULE_TYPE, forecastParamsOf } from './ana-rules.ts';
+export type { ExecRuleType } from './ana-rules.ts';

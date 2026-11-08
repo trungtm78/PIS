@@ -1540,5 +1540,7 @@
   "home.source.lessons.missing.title": "Dự án {project} chưa có bài học kinh nghiệm được duyệt",
   "home.source.lessons.missing.detail": "Cần {required} bài học đã duyệt, hiện có {approved}",
   "prj.lessons.refusal.required": "Dự án chưa có đủ bài học kinh nghiệm được duyệt hoặc miễn trừ được duyệt nên chưa thể đóng.",
-  "prj.look_ahead.refusal.window": "Kế hoạch nhìn trước phải phủ từ {min} đến {max} tuần."
+  "prj.look_ahead.refusal.window": "Kế hoạch nhìn trước phải phủ từ {min} đến {max} tuần.",
+  "ana.rules.source": "Phân tích điều hành (G3-5 đến G3-11 của lộ trình quản trị): giá trị khởi điểm của nghiên cứu, cần xác nhận với khách hàng và kiểm toán",
+  "ana.rules.forecast.formula": "Tốc độ giải ngân mỗi tuần đo trên các cửa sổ từ 4 đến 8 tuần; dự báo cuối năm = lũy kế hiện tại + tốc độ × số ngày còn lại / 7; dải từ cửa sổ chậm nhất đến nhanh nhất; mùa vụ nhân phần còn lại của năm trước với tỷ lệ nhịp độ"
 }
