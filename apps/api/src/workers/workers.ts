@@ -74,6 +74,7 @@ import {
   PayReconciliationOverdueJob,
   TreasuryDailyReconJob,
   EarlyWarningScoreJob,
+  RiskRescoreJob,
   PayAdvanceOverdueJob,
   PaySettlementDeadlineJob,
   CtrSettlementClockStore,
@@ -228,6 +229,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const settlementClocks = new CtrSettlementClockStore();
   const advanceOverdue = new PayAdvanceOverdueJob(audit);
   const earlyWarningScore = new EarlyWarningScoreJob(audit);
+  const riskRescore = new RiskRescoreJob(audit, deps.metrics);
   const diaryCoverage = new QmsDiaryCoverageJob(deps.metrics);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox =
@@ -348,6 +350,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     alertLadder: { run: (ctx, now) => runAlertLadders(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     redFlagScan: { run: (ctx, now) => runRedFlagScan(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     earlyWarningScore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => earlyWarningScore.run(tx, ctx.membershipId, now)) },
+    riskRescore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => riskRescore.run(tx, ctx.membershipId, now)) },
     diaryCoverage: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => diaryCoverage.run(tx, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },
     capitalReservationExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => fundReservationExpiry.run(tx, ctx.membershipId, now)) },

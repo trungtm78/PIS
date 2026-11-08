@@ -1817,3 +1817,12 @@ export { FEED_DIFFERENCE_CODES, FeedImportAdapter } from './finance-feed-import.
 export type { FeedImportContext, FeedRowOutcome } from './finance-feed-import.ts';
 export { ProvinceFactsReader } from './finance-feed-reader.ts';
 export type { ProvinceFactsFilter } from './finance-feed-reader.ts';
+// MR-1: the risk register scored from live signals (MR.02) and the post-investment effectiveness (MR.03).
+export { RISK_ALERT_METRIC, RISK_ALERT_RAISED_EVENT, RISK_ALERT_RESOLVED_EVENT, RISK_RESCORE_METRIC, RISK_SIGNAL_SCORED_EVENT, RiskRescoreJob } from './risk-rescore-job.ts';
+export type { RiskRescoreResult } from './risk-rescore-job.ts';
+export { RiskSignalReader } from './risk-signal-reader.ts';
+export type { ProjectReading, ProjectToScore } from './risk-signal-reader.ts';
+export { RISK_ALERT_RESOURCE, RISK_SIGNAL_RESOURCE, RiskSignalStore } from './risk-signal-store.ts';
+export type { AlertView as RiskAlertView, Board as RiskBoard, BoardFilter as RiskBoardFilter, BoardItem as RiskBoardItem, HistoryRow as RiskHistoryRow, SignalLine as RiskSignalLine } from './risk-signal-store.ts';
+export { EFFECT_ASSESSMENT_RESOURCE, EFFECT_CALENDAR_RESOURCE, EFFECT_MEASUREMENT_RESOURCE, EFFECT_TARGET_RESOURCE, EffectStore } from './effect-store.ts';
+export type { AssessmentChange as EffectAssessmentChange, AssessmentRow as EffectAssessmentRow, CalendarChange as EffectCalendarChange, CalendarRow as EffectCalendarRow, EffectivenessView, IndicatorLine as EffectIndicatorLine, MeasurementChange as EffectMeasurementChange, MeasurementRow as EffectMeasurementRow, PolicyView as EffectPolicyView, SetChange as EffectSetChange, TargetSetView as EffectTargetSetView } from './effect-store.ts';
