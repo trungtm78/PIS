@@ -20,6 +20,7 @@ const TENANT_PLANE_PREFIXES: readonly string[] = [
   'contractor', 'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract',
   'delivery_attempt', 'device_registration', 'diary', 'directive', 'disbursement', 'doc', 'document_version', 'drill_context', 'evaluation', 'explanation',
   'funding', 'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'inspection', 'int', 'integration', 'integration_cursor', 'internal', 'invitation', 'hub',
+  'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'ind', 'inspection', 'integration', 'integration_cursor', 'internal', 'invitation',
   'invoice_line', 'issue', 'land', 'ledger', 'legal_hold', 'license_revision', 'llm', 'llm_attempt', 'lnd', 'master', 'master_record_version',
   'material', 'maturity_assessment', 'maturity_evidence', 'measurement', 'membership', 'metric_definition', 'mne', 'model_profile_version',
   'ncr', 'notification', 'notification_instance', 'notification_template_version', 'omni', 'open', 'organization_unit', 'outbox_event', 'payment',
