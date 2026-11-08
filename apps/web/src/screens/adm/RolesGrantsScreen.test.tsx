@@ -1,16 +1,39 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import type { ApiClient } from '@machvon/api-client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, configure, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientProvider } from '../../api/ApiClientContext';
 import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { SessionContext } from '../../session/SessionContext';
 import type { SessionMode, SessionTenant, SessionValue } from '../../session/SessionContext';
 import RolesGrantsScreen from './RolesGrantsScreen';
 import { routeOf } from './members/test-support';
+import type * as PermissionGroups from './roles/permission-groups';
 import type { GrantView, RoleView } from './roles/types';
+
+// The real catalog has several hundred permissions, and every one of them is a checkbox with a label: on a busy machine, under
+// coverage, each query for a label then scans thousands of nodes and one editor test takes tens of seconds. These tests exercise
+// the form, so the editor draws the slice of the catalog they use (the iam and role_grant permissions); the one test that is about
+// the whole catalog asks for all of it, and permission-groups.test.ts covers the grouping of the real catalog.
+// These tests mount the matrix of the role editor, which is slow under coverage instrumentation on a busy machine.
+const HEAVY_DOM_TIMEOUT_MS = 90_000;
+
+configure({ asyncUtilTimeout: 10_000 });
+
+const catalog = vi.hoisted(() => ({ whole: false }));
+vi.mock('./roles/permission-groups', async (importOriginal) => {
+  const original = await importOriginal<typeof PermissionGroups>();
+  return {
+    ...original,
+    assignablePermissions: () => original.assignablePermissions().filter((name) => catalog.whole || /^(iam|role_grant)[.*]/.test(name)),
+  };
+});
+
+afterEach(() => {
+  catalog.whole = false;
+});
 
 const UUID_A = '00000000-0000-4000-8000-0000000000a1';
 const UUID_B = '00000000-0000-4000-8000-0000000000b1';
@@ -193,7 +216,7 @@ describe('ADM-03 states (AC-ST-ADM-005-7)', () => {
     expect(screen.queryByRole('button', { name: 'Lưu cấu hình' })).not.toBeInTheDocument();
   });
 
-  it('is read-only without iam.role.grant and iam.role.manage: no commands, disabled matrix', async () => {
+  it('is read-only without iam.role.grant and iam.role.manage: no commands, disabled matrix', { timeout: HEAVY_DOM_TIMEOUT_MS }, async () => {
     renderScreen({ permissions: ['role_grant.read'] });
     await screen.findByRole('table');
     expect(screen.queryByRole('button', { name: 'Cấp vai trò' })).not.toBeInTheDocument();
@@ -207,11 +230,9 @@ describe('ADM-03 states (AC-ST-ADM-005-7)', () => {
   });
 });
 
-// These tests mount the matrix of several hundred checkboxes, which is slow under coverage instrumentation.
-const HEAVY_DOM_TIMEOUT_MS = 90_000;
-
 describe('the role editor', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
   it('shows a system role read-only with its note and never lists system permissions', async () => {
+    catalog.whole = true;
     renderScreen();
     const user = userEvent.setup({ delay: null });
     await user.selectOptions(await screen.findByLabelText('Vai trò'), 'r-owner');

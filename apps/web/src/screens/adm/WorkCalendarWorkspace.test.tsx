@@ -1,5 +1,5 @@
 import { ApiError } from '@machvon/api-client';
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, configure, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import en_ from '../../i18n/en.json';
@@ -11,8 +11,9 @@ import { WorkCalendarWorkspace } from './WorkCalendarWorkspace';
 import { toCalendar } from './calendar/model';
 import type { CalendarView } from './calendar/model';
 
-// Twelve month grids are drawn on every render and the machine is shared: a test may take longer than the default five seconds.
-vi.setConfig({ testTimeout: 30_000 });
+// Two sets of twelve month grids (the version in view and the editor) are drawn, and the machine is shared and busy under coverage: a test may take tens of seconds, and what it waits for may take longer than the default three.
+vi.setConfig({ testTimeout: 90_000 });
+configure({ asyncUtilTimeout: 10_000 });
 
 const ROUTE = routeOf('ADM-07', 'FR-ADM-07');
 const MANAGER = ['adm.calendar.manage'];
@@ -95,7 +96,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('shows another version when asked, and starts the next revision from it', async () => {
     mount();
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.click(within(rowOf('c3')).getByRole('button', { name: vi_['adm.calendar.view.action'] }));
     expect(screen.getByTestId('version-in-view').getAttribute('data-calendar-id')).toBe('c3');
     expect(rowOf('c3').getAttribute('aria-current')).toBe('true');
@@ -109,7 +110,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('writes a draft by marking days on the grid, and sends it once with the marks in date order', async () => {
     const { h } = mount([], { permissions: MANAGER }, harness(() => new Error('no read'), () => ({ status: 'DRAFTED', resource_version: 1, resource_id: 'c9' })));
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.type(screen.getByLabelText(vi_['adm.calendar.code.label']), 'VN-STD');
     const year = screen.getByLabelText(vi_['adm.calendar.year.label']);
     await user.clear(year);
@@ -150,7 +151,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('clears a mark with a second click, and counts the working days as the marks change', async () => {
     mount([]);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const year = screen.getByLabelText(vi_['adm.calendar.year.label']);
     await user.clear(year);
     await user.type(year, '2026');
@@ -167,7 +168,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('follows the working weekdays: unticking Friday makes Fridays days off', async () => {
     mount([]);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const year = screen.getByLabelText(vi_['adm.calendar.year.label']);
     await user.clear(year);
     await user.type(year, '2026');
@@ -178,7 +179,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('drops the marks of the old year when the year changes, and shows no grid for a year outside 2020 to 2100', async () => {
     mount([]);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const year = screen.getByLabelText(vi_['adm.calendar.year.label']);
     await user.clear(year);
     await user.type(year, '2026');
@@ -198,7 +199,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('refuses what the form can see is wrong before anything is sent', async () => {
     const { h } = mount([]);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.click(save());
     expect(screen.getAllByText(vi_['adm.calendar.field.required']).length).toBeGreaterThanOrEqual(2);
     await user.type(screen.getByLabelText(vi_['adm.calendar.code.label']), 'VN STD');
@@ -218,7 +219,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('asks for the name of every holiday before it saves', async () => {
     const { h } = mount([]);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const year = screen.getByLabelText(vi_['adm.calendar.year.label']);
     await user.clear(year);
     await user.type(year, '2026');
@@ -244,7 +245,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
       { field: 'x', code: 'SOMETHING_NEW' },
     ];
     const { h } = mount([], { permissions: MANAGER }, harness(() => new Error('no read'), () => new ApiError({ status: 422, code: 'CALENDAR_INVALID', correlationId: 'c', detail: 'holidays[1]', extensions: { errors } })));
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const year = screen.getByLabelText(vi_['adm.calendar.year.label']);
     await user.clear(year);
     await user.type(year, '2027');
@@ -279,7 +280,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
     ['VALIDATION_FAILED', 422, 'adm.calendar.problem.invalid'],
   ] as const)('shows what the server refused for a publication: %s', async (code, status, key) => {
     const { h } = mount(VERSIONS, { permissions: MANAGER }, harness(() => new Error('no read'), () => new ApiError({ status, code, correlationId: 'c' })));
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.click(within(rowOf('c2')).getByRole('button', { name: vi_['adm.calendar.publish.action'] }));
     await user.type(screen.getByLabelText(vi_['adm.calendar.publish.reason.label']), 'The notice is signed');
     await user.click(screen.getByRole('button', { name: vi_['adm.calendar.publish.confirm.action'] }));
@@ -289,7 +290,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('publishes a draft with a reason and the version of the row, after showing what it marks', async () => {
     const { h } = mount(VERSIONS, { permissions: MANAGER }, harness(() => new Error('no read'), () => ({ status: 'PUBLISHED', resource_version: 2, resource_id: 'c2' })));
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     expect(within(rowOf('c1')).queryByRole('button', { name: vi_['adm.calendar.publish.action'] })).toBeNull();
     await user.click(within(rowOf('c2')).getByRole('button', { name: vi_['adm.calendar.publish.action'] }));
     const preview = screen.getByTestId('publish-preview');
@@ -309,7 +310,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
 
   it('closes the publication form without sending anything', async () => {
     const { h } = mount();
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.click(within(rowOf('c2')).getByRole('button', { name: vi_['adm.calendar.publish.action'] }));
     await user.click(screen.getByRole('button', { name: vi_['adm.calendar.publish.cancel.action'] }));
     expect(screen.queryByTestId('publish-preview')).toBeNull();
@@ -343,7 +344,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
   it('starts over when the person switches tenant: a draft typed for one tenant is never saved into another', async () => {
     const h = harness(() => new Error('no read'));
     const { view } = mount(VERSIONS, { permissions: MANAGER }, h);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.type(screen.getByLabelText(vi_['adm.calendar.code.label']), 'VN-STD');
     await user.click(within(rowOf('c2')).getByRole('button', { name: vi_['adm.calendar.publish.action'] }));
     await user.type(screen.getByLabelText(vi_['adm.calendar.publish.reason.label']), 'The notice is signed');
@@ -356,7 +357,7 @@ describe('WorkCalendarWorkspace (ADM-07)', () => {
   it('stops a publication that was opened before the tenant was suspended', async () => {
     const h = harness(() => new Error('no read'), () => ({ status: 'PUBLISHED', resource_version: 2, resource_id: 'c2' }));
     const { view } = mount(VERSIONS, { permissions: MANAGER }, h);
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     await user.click(within(rowOf('c2')).getByRole('button', { name: vi_['adm.calendar.publish.action'] }));
     await user.type(screen.getByLabelText(vi_['adm.calendar.publish.reason.label']), 'The notice is signed');
     view.rerenderWith({ permissions: MANAGER, mode: 'READ_ONLY' });

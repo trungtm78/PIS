@@ -28,10 +28,15 @@ export function writeReport(report: EvalReport): void {
   writeFileSync(REPORT_MARKDOWN, report.markdown);
 }
 
+/** A checkout on Windows turns the line ends of the files into CRLF; the report is written with LF, so it is read back as LF. */
+function readLf(path: string): string {
+  return readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
+}
+
 /** The files as committed, or undefined when they are not there. */
 export function readCommitted(): { json: string; markdown: string } | undefined {
   try {
-    return { json: readFileSync(REPORT_JSON, 'utf8'), markdown: readFileSync(REPORT_MARKDOWN, 'utf8') };
+    return { json: readLf(REPORT_JSON), markdown: readLf(REPORT_MARKDOWN) };
   } catch {
     return undefined;
   }
