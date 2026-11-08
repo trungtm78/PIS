@@ -1765,3 +1765,11 @@ export type { AlertReconciliation, AppointInput, AttentionDecisionKind, Attentio
 export { CommitteePolicyReader } from './committee-policy-reader.ts';
 export { CoreProvinceFactsReader, MemoryProvinceFactsReader, emptyProvinceFacts } from './province-facts.ts';
 export type { ProvinceFactsReader } from './province-facts.ts';
+export { DocumentRepositoryStore, refuseWrite } from './doc-repository-store.ts';
+export type { DocumentFilter, DocumentHeader, ExtractionRecord, FileFacts, VersionHeader } from './doc-repository-store.ts';
+export { DocumentTextStore } from './doc-text-store.ts';
+export type { UnitFilter, UnitRow } from './doc-text-store.ts';
+export { DocumentCommentStore } from './doc-comment-store.ts';
+export type { CommentRow } from './doc-comment-store.ts';
+export { DocumentReviewStore } from './doc-review-store.ts';
+export type { Conclusion, ReviewEventRow, ReviewListFilter, ReviewListRow, ReviewRow } from './doc-review-store.ts';
