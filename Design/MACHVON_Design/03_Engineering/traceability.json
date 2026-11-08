@@ -9924,6 +9924,25 @@
     ]
   },
   {
+    "requirement": "FR-CTR-37",
+    "screen": "CTR-32",
+    "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Kế hoạch đợt 3 mục 2 CA-3; nghiên cứu nhà thầu V4; docs/ctr-analytics-registers.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-32",
+    "test_ids": [
+      "UI-CTR-32",
+      "UAT-PLAN-119",
+      "UAT-PLAN-120"
+    ]
+  },
+  {
     "requirement": "FR-BID-22",
     "screen": "BID-22",
     "title": "Kết nối hệ thống mạng đấu thầu quốc gia",

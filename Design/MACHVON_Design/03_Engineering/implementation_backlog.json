@@ -17707,6 +17707,41 @@
     ]
   },
   {
+    "id": "BL-CTR-32",
+    "requirement": "FR-CTR-37",
+    "screen": "CTR-32",
+    "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP",
+    "fields": [
+      "Điểm từng tiêu chí",
+      "Điểm tổng hợp",
+      "Xếp hạng đề xuất",
+      "Hạn phản hồi của nhà thầu",
+      "Phản hồi",
+      "Đánh giá chính thức"
+    ],
+    "rule": "Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (chưa kiểm chứng); tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; thông báo mở nghĩa vụ đăng tải phản hồi của nhà thầu (CA-3, V4)",
+    "test_ids": [
+      "UI-CTR-32",
+      "UAT-PLAN-119",
+      "UAT-PLAN-120"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-CTR-020"
+    ]
+  },
+  {
     "id": "BL-BID-22",
     "requirement": "FR-BID-22",
     "screen": "BID-22",
