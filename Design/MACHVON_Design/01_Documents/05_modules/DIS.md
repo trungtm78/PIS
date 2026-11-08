@@ -231,6 +231,15 @@ Jobs (Temporal): `dis.period-autoclose` (soft-close sau deadline, lock theo poli
 **R3:** kênh dữ liệu Kho bạc theo hợp đồng (D05).
 **Giờ review người:** đường tiền/công thức (BR-DIS-01..06, 11) 8 h + phiên ký D03 với Chủ nghiệp vụ vốn 4 h; quyền/maker-checker/mở kỳ 3 h; migration `report_revision`/enum 3 h; sync rules mobile 2 h. Tổng ≈ 20 h.
 
+### 12.1 WF-1: duyệt báo cáo tuần trên bộ máy quy trình ADM
+
+- **Quy tắc:** các bước duyệt là dữ liệu trong sổ quy tắc quản trị (loại `APPROVAL_WORKFLOW_DEFINITION`, mã `REPORT_ACCEPT`), có phiên bản, người đề xuất khác người duyệt. Mặc định là một quyết định của người duyệt đơn vị, đúng như hiện nay (chế độ `SINGLE_DECISION`, bộ máy không chạy).
+- **Chế độ `STAGED`:** khi đơn vị phê duyệt, mỗi báo cáo gửi lên sinh một phiên chạy `report.accept` với các bước người duyệt đơn vị, Ban KHĐT rà soát, chốt kỳ, đẩy số; mỗi bước có hạn tính theo giờ làm việc trên lịch làm việc, nhắc ở 80% thời gian và nhắc mỗi ngày làm việc khi quá hạn. Báo cáo chỉ thành `ACCEPTED` ở bước cuối, bằng đúng bước mà lệnh `post_reports_id_decision` làm khi một quyết định.
+- **Giữ nguyên (R4):** duyệt, trả lại có lý do, yêu cầu điều chỉnh, kỳ khóa, bản đã gửi không sửa, mã lỗi của mỗi trường hợp. Trả lại ở bất kỳ bước nào gửi báo cáo về người lập như quyết định đơn; rút báo cáo kết thúc phiên chạy; báo cáo gửi trước khi chế độ `STAGED` được duyệt vẫn được quyết định như cũ.
+- **Điểm khác duy nhất:** các bước thêm; câu trả lời của `post_reports_id_decision` ở bước chưa cuối là `STEP_APPROVED` (báo cáo còn `SUBMITTED`), và `getReportWorkflow` cho biết từng bước, hạn, người được giao.
+- **Lệnh cuối bắt buộc (R14):** `report.accept` có lệnh cuối thật; bản không phải bản test không có đối tượng giả, loại nghiệp vụ được bật mà thiếu lệnh cuối thật thì tiến trình không khởi động.
+- **Kênh Microsoft Teams:** nhắc việc đi qua cổng kênh thông báo; bộ điều hợp chỉ ghi thẻ vào thư mục hộp đi (`MACHVON_TEAMS_OUTBOX_DIR`) cho bộ chuyển của đơn vị vận hành, không gọi mạng; ở nơi chạy dữ liệu thật trạng thái là PROPOSED cho tới khi có hợp đồng bộ chuyển.
+
 ## 13. Rủi ro, câu hỏi mở, phụ thuộc bên thứ ba
 
 | Mục | Owner | Điều kiện giải quyết |

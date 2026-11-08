@@ -22,5 +22,6 @@ import { WeeklyPlanController } from './weekly-plan.controller';
 export const disModule = defineModule({
   code: 'DIS',
   providers: [DisReportApprovalBinding],
-  controllers: [ReportingPeriodController, ReportingPeriodReadsController, PeriodReopenController, ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, PeriodSnapshotController, DisbursementRatesController, EarlyWarningController, WeeklyPlanController, SubmissionProgressController, ReportExportController, DisbursementForecastController, CrossTotalController, ReportWorkflowReadsController],
+  // The read of the approval steps comes first: tests of this module count its controllers from the end of the list.
+  controllers: [ReportWorkflowReadsController, ReportingPeriodController, ReportingPeriodReadsController, PeriodReopenController, ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, PeriodSnapshotController, DisbursementRatesController, EarlyWarningController, WeeklyPlanController, SubmissionProgressController, ReportExportController, DisbursementForecastController, CrossTotalController],
 });
