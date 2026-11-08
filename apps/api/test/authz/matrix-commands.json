@@ -720,7 +720,17 @@
     "retireSourceSystem",
     "proposeProjectCode",
     "decideProjectCode",
-    "retireProjectCode"
+    "retireProjectCode",
+    "createAiAssistRun",
+    "decideAiAssistRun",
+    "createAiReviewChecklist",
+    "publishAiReviewChecklist",
+    "createAiEvalCriteriaSet",
+    "publishAiEvalCriteriaSet",
+    "attestAiProvider",
+    "requestAiExternalException",
+    "decideAiExternalException",
+    "revokeAiExternalException"
   ],
   "controlCommands": [
     "decideTenantRestore",
