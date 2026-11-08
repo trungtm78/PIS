@@ -16,9 +16,16 @@ const DEFAULT_BASE_REF = 'origin/main';
 const DEFAULT_ALLOW_FILE = 'compat-allow.json';
 const GIT_BUFFER_BYTES = 256 * 1024 * 1024;
 
+// The variables with which git names the repository, a work tree or an index: a git hook (the pre-push gate) runs with them set, and they would point every command below at the repository of the hook instead of the one found from `cwd`.
+const REPOSITORY_VARIABLES = new Set(['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_PREFIX', 'GIT_COMMON_DIR', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES']);
+
+export function gitEnvironment(source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  return Object.fromEntries(Object.entries(source).filter(([name]) => !REPOSITORY_VARIABLES.has(name)));
+}
+
 function git(cwd: string, args: string[]): string | undefined {
   try {
-    return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: GIT_BUFFER_BYTES });
+    return execFileSync('git', args, { cwd, env: gitEnvironment(), encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: GIT_BUFFER_BYTES });
   } catch {
     return undefined;
   }

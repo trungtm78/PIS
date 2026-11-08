@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { main } from '../src/compat-cli';
+import { gitEnvironment, main } from '../src/compat-cli';
 import { REPO_ROOT, documentWith, jsonResponse } from './fixtures';
 
 const SPEC_PATH = 'api/openapi.json';
@@ -14,7 +14,7 @@ function spec(permission: string): string {
 }
 
 function git(directory: string, ...args: string[]): void {
-  execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false', ...args], { cwd: directory, stdio: 'ignore' });
+  execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false', ...args], { cwd: directory, env: gitEnvironment(), stdio: 'ignore' });
 }
 
 function repository(): string {
@@ -26,6 +26,13 @@ function repository(): string {
   git(directory, 'commit', '-q', '-m', 'base');
   return directory;
 }
+
+describe('git environment', () => {
+  it('drops the variables that name a repository, as a git hook sets them, and keeps the others', () => {
+    const cleaned = gitEnvironment({ GIT_DIR: '/hook/.git', GIT_INDEX_FILE: 'index.lock', GIT_WORK_TREE: '/hook', PATH: '/bin', GIT_AUTHOR_NAME: 'a' });
+    expect(cleaned).toEqual({ PATH: '/bin', GIT_AUTHOR_NAME: 'a' });
+  });
+});
 
 describe('contracts:compat command line', () => {
   it('compares the working tree with the committed contract and fails on a breaking change', () => {
