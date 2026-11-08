@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 594,
-    "webCatalog": 594,
+    "webRoutes": 566,
+    "webCatalog": 566,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -279,6 +279,23 @@
             19,
             20,
             22
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Minh bạch & giám sát",
+          "description": "Giám sát cộng đồng, quản trị và cổng công khai đầu tư",
+          "ids": [
+            31,
+            32,
+            33,
+            34
+          ],
+          "primary": [
+            31,
+            32,
+            33,
+            34
           ],
           "parents": {}
         }
@@ -1650,14 +1667,16 @@
             5,
             6,
             7,
-            8
+            8,
+            12
           ],
           "primary": [
             4,
             5,
             6,
             7,
-            8
+            8,
+            12
           ],
           "parents": {}
         }
@@ -1908,6 +1927,19 @@
             "25": 24,
             "27": 25
           }
+        },
+        {
+          "title": "Kiểm soát tài liệu",
+          "description": "Tài liệu dự án theo trạng thái và transmittal có hạn rà soát",
+          "ids": [
+            28,
+            29
+          ],
+          "primary": [
+            28,
+            29
+          ],
+          "parents": {}
         }
       ]
     },
@@ -1944,7 +1976,10 @@
             13,
             14,
             15,
-            16
+            16,
+            17,
+            18,
+            19
           ],
           "primary": [
             5,
@@ -1955,7 +1990,10 @@
             13,
             14,
             15,
-            16
+            16,
+            17,
+            18,
+            19
           ],
           "parents": {}
         },
@@ -2037,6 +2075,19 @@
           "primary": [
             3,
             4
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Báo cáo kỳ",
+          "description": "Biểu mẫu báo cáo kỳ, khóa kỳ và chữ ký số",
+          "ids": [
+            5,
+            6
+          ],
+          "primary": [
+            5,
+            6
           ],
           "parents": {}
         }
@@ -8627,7 +8678,7 @@
       "kind": "review",
       "area": "investment",
       "module": "QMS",
-      "group": "Chất lượng thi công",
+      "group": "Chất lượng & nghiệm thu",
       "role": "workspace",
       "parent": null
     },

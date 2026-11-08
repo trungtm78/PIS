@@ -55536,120 +55536,6 @@
       ]
     },
     {
-      "id": "ST-CTR-020",
-      "epic": "EP-CTR",
-      "feature": "FT-CTR-09",
-      "module": "CTR",
-      "title": "Contract reports: award-to-contract price variance and contractor concentration with Excel, CSV and PDF export",
-      "narrative": "As a leader I read the price variance between award and signed contract and the concentration of contract value by contractor or investor, and export the report with its formula and source.",
-      "release": "R2",
-      "screens": [
-        "CTR-30",
-        "CTR-31"
-      ],
-      "operations": [
-        "getContractReport",
-        "exportContractReport",
-        "getContractScheduleSCurve"
-      ],
-      "tables": [],
-      "nfr": [
-        "NFR-TENANCY-01",
-        "NFR-PERFORMANCE-01"
-      ],
-      "cxn": [],
-      "spikes": [],
-      "acceptance": [
-        {
-          "id": "AC-ST-CTR-020-1",
-          "given": "Contracts with award 1,000 and signed 1,050 million VND, award 2,000 and signed 1,900, and one contract with no award price",
-          "when": "The bid-variance report is read",
-          "then": "Each variance is (signed minus award) over award, the total is the ratio of the sums over contracts that have an award price, and the contract without an award price shows no number and the reason",
-          "test_id": "UAT-PLAN-119"
-        },
-        {
-          "id": "AC-ST-CTR-020-2",
-          "given": "Contract value of 100 split between contractor A 60, B 25 and C 15 and a unit with fewer contracts than the minimum",
-          "when": "Concentration is read and the report is exported in three formats and above the row cap",
-          "then": "Top-N and HHI of 4,450 are shown against the rule threshold, the small unit shows \"not enough data\", each export carries the formula, source and hash, and an export above the cap returns 422 EXPORT_ROW_CAP_EXCEEDED",
-          "test_id": "UAT-PLAN-120"
-        },
-        {
-          "id": "AC-ST-CTR-020-3",
-          "given": "CTR-30 opened at 1440 px and 390 px by a reader with the read permission and one without",
-          "when": "each of the seven standard states is forced in turn",
-          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-CTR-30"
-        },
-        {
-          "id": "AC-ST-CTR-020-4",
-          "given": "CTR-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
-          "when": "each of the seven standard states is forced in turn",
-          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-CTR-31"
-        }
-      ],
-      "dependencies": [
-        "ST-CTR-019"
-      ],
-      "review": {
-        "required": [
-          "authorization"
-        ],
-        "hours": {
-          "min": 1,
-          "max": 2
-        }
-      },
-      "effort": {
-        "agent_hours": {
-          "min": 24,
-          "max": 56
-        },
-        "confidence": "medium",
-        "assumption": "Concentration thresholds are the CONTRACT_CONCENTRATION rule with unverified defaults; a joint venture splits value by contribution share."
-      },
-      "mobile": "none",
-      "tasks": [
-        {
-          "id": "TK-CTR-020-1",
-          "kind": "backend",
-          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getContractReport, exportContractReport, getContractScheduleSCurve",
-          "test_ids": []
-        },
-        {
-          "id": "TK-CTR-020-2",
-          "kind": "web",
-          "title": "CTR-30, CTR-31 screens built with the kit, the seven standard states and ContextBar on every number",
-          "test_ids": []
-        },
-        {
-          "id": "TK-CTR-020-3",
-          "kind": "i18n",
-          "title": "Message keys in vi and en for CTR-30, CTR-31; no hard-coded display strings",
-          "test_ids": []
-        },
-        {
-          "id": "TK-CTR-020-4",
-          "kind": "qa",
-          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
-          "test_ids": [
-            "UAT-PLAN-119",
-            "UAT-PLAN-120"
-          ]
-        },
-        {
-          "id": "TK-CTR-020-5",
-          "kind": "qa",
-          "title": "Screen-contract tests for the seven standard UI states and accessibility",
-          "test_ids": [
-            "UI-CTR-30",
-            "UI-CTR-31"
-          ]
-        }
-      ]
-    },
-    {
       "id": "ST-RPT-121",
       "epic": "EP-RPT",
       "feature": "FT-RPT-01",
@@ -56397,25 +56283,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-VND-005-1",
+          "id": "TK-VND-006-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-06",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-2",
+          "id": "TK-VND-006-2",
           "kind": "web",
           "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-3",
+          "id": "TK-VND-006-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-4",
+          "id": "TK-VND-006-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -56423,7 +56309,7 @@
           ]
         },
         {
-          "id": "TK-VND-005-5",
+          "id": "TK-VND-006-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -56510,25 +56396,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-VND-005-1",
+          "id": "TK-VND-007-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-06",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-2",
+          "id": "TK-VND-007-2",
           "kind": "web",
           "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-3",
+          "id": "TK-VND-007-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-4",
+          "id": "TK-VND-007-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -56536,7 +56422,7 @@
           ]
         },
         {
-          "id": "TK-VND-005-5",
+          "id": "TK-VND-007-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -56628,25 +56514,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-VND-005-1",
+          "id": "TK-VND-008-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-06",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-2",
+          "id": "TK-VND-008-2",
           "kind": "web",
           "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-3",
+          "id": "TK-VND-008-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-4",
+          "id": "TK-VND-008-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -56654,7 +56540,7 @@
           ]
         },
         {
-          "id": "TK-VND-005-5",
+          "id": "TK-VND-008-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -56744,25 +56630,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-VND-005-1",
+          "id": "TK-VND-009-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-06",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-2",
+          "id": "TK-VND-009-2",
           "kind": "web",
           "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-3",
+          "id": "TK-VND-009-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-4",
+          "id": "TK-VND-009-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -56770,7 +56656,7 @@
           ]
         },
         {
-          "id": "TK-VND-005-5",
+          "id": "TK-VND-009-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -56858,25 +56744,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-VND-005-1",
+          "id": "TK-VND-010-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-06",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-2",
+          "id": "TK-VND-010-2",
           "kind": "web",
           "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-3",
+          "id": "TK-VND-010-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-4",
+          "id": "TK-VND-010-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -56884,7 +56770,7 @@
           ]
         },
         {
-          "id": "TK-VND-005-5",
+          "id": "TK-VND-010-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -56970,25 +56856,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-VND-005-1",
+          "id": "TK-VND-011-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-06",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-2",
+          "id": "TK-VND-011-2",
           "kind": "web",
           "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-3",
+          "id": "TK-VND-011-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-VND-005-4",
+          "id": "TK-VND-011-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -56996,7 +56882,7 @@
           ]
         },
         {
-          "id": "TK-VND-005-5",
+          "id": "TK-VND-011-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -57006,7 +56892,7 @@
       ]
     },
     {
-      "id": "ST-VND-006",
+      "id": "ST-VND-012",
       "epic": "EP-VND",
       "feature": "FT-VND-03",
       "module": "VND",
@@ -57040,42 +56926,42 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-VND-006-1",
+          "id": "AC-ST-VND-012-1",
           "given": "Four contractors where two share an account and a representative and a third shares only the address, and one officer who drafted the package",
           "when": "The scan runs and the leads are read by an auditor, by that officer and by a contractor guest",
           "then": "One lead LINK_CLUSTER of strength 93 for the pair, the address alone gives no link, the officer gets 404 and the guest 403",
           "test_id": "UAT-VND3-01"
         },
         {
-          "id": "AC-ST-VND-006-2",
+          "id": "AC-ST-VND-012-2",
           "given": "A lead in review proposed for dismissal by the auditor who took it",
           "when": "The same auditor confirms and then another auditor does",
           "then": "403 SELF_APPROVAL_DENIED then DISMISSED, the next scan keeps it dismissed and a new kind of evidence reopens it with reopened_count 1",
           "test_id": "UAT-VND3-01"
         },
         {
-          "id": "AC-ST-VND-006-3",
+          "id": "AC-ST-VND-012-3",
           "given": "Packages with a cover bid, identical prices and five wins in turn",
           "when": "The scan runs with the rule VENDOR_BID_RIGGING in force",
           "then": "Leads COVER_BID score 75, PRICE_PATTERN and ROTATING_WINNERS score 80, each with its numbers and is_conclusion false",
           "test_id": "UAT-VND3-02"
         },
         {
-          "id": "AC-ST-VND-006-4",
+          "id": "AC-ST-VND-012-4",
           "given": "Two proposals of one package with the same origin key inside the window",
           "when": "The trace is recorded once and again",
           "then": "409 SUBMISSION_TRACE_EXISTS the second time and only keys are stored; leads SHARED_ORIGIN and FILE_METADATA appear after the scan",
           "test_id": "UAT-VND3-03"
         },
         {
-          "id": "AC-ST-VND-006-5",
+          "id": "AC-ST-VND-012-5",
           "given": "VND-13 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
           "test_id": "UI-VND-13"
         },
         {
-          "id": "AC-ST-VND-006-6",
+          "id": "AC-ST-VND-012-6",
           "given": "VND-14 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
@@ -57110,25 +56996,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-ST-VND-006-1",
+          "id": "TK-VND-012-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-13, VND-14",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-006-2",
+          "id": "TK-VND-012-2",
           "kind": "web",
           "title": "VND-13, VND-14 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-006-3",
+          "id": "TK-VND-012-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-13, VND-14; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-006-4",
+          "id": "TK-VND-012-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -57139,7 +57025,7 @@
           ]
         },
         {
-          "id": "TK-ST-VND-006-5",
+          "id": "TK-VND-012-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -57150,7 +57036,7 @@
       ]
     },
     {
-      "id": "ST-VND-007",
+      "id": "ST-VND-013",
       "epic": "EP-VND",
       "feature": "FT-VND-03",
       "module": "VND",
@@ -57177,28 +57063,28 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-VND-007-1",
+          "id": "AC-ST-VND-013-1",
           "given": "A contractor whose tax code is in an egp_record of kind RESTRICTION in force and another whose name only is alike",
           "when": "The screening runs and the gate is asked for a bid, a payment and a contract activation",
           "then": "Hit of score 100 with hold and 422 CONTRACTOR_SCREENING_HOLD at each step; the name-only hit has score 60 and no hold",
           "test_id": "UAT-VND3-04"
         },
         {
-          "id": "AC-ST-VND-007-2",
+          "id": "AC-ST-VND-013-2",
           "given": "A pending hit with a hold",
           "when": "It is dismissed with 5 characters, then with 20 characters, then the entry changes",
           "then": "422 VALIDATION_FAILED, then DISMISSED and the gate opens at once, then PENDING again with reopened_count 1",
           "test_id": "UAT-VND3-04"
         },
         {
-          "id": "AC-ST-VND-007-3",
+          "id": "AC-ST-VND-013-3",
           "given": "A pending hit on a national record",
           "when": "A person confirms it with the violation groups",
           "then": "The case of VND-1 is opened with trigger EGP_IMPORT and no row of contractor_restriction is written",
           "test_id": "UAT-VND3-04"
         },
         {
-          "id": "AC-ST-VND-007-4",
+          "id": "AC-ST-VND-013-4",
           "given": "VND-15 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
@@ -57232,25 +57118,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-ST-VND-007-1",
+          "id": "TK-VND-013-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-15",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-007-2",
+          "id": "TK-VND-013-2",
           "kind": "web",
           "title": "VND-15 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-007-3",
+          "id": "TK-VND-013-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-15; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-007-4",
+          "id": "TK-VND-013-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -57259,7 +57145,7 @@
           ]
         },
         {
-          "id": "TK-ST-VND-007-5",
+          "id": "TK-VND-013-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -57269,7 +57155,7 @@
       ]
     },
     {
-      "id": "ST-VND-008",
+      "id": "ST-VND-014",
       "epic": "EP-VND",
       "feature": "FT-VND-04",
       "module": "VND",
@@ -57303,49 +57189,49 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-VND-008-1",
+          "id": "AC-ST-VND-014-1",
           "given": "Contractors A and B each with a guest account, a request, a certificate, a red flag and a lead",
           "when": "Guest A reads every portal screen and asks for the request and the profile of B and for the leads and red flags",
           "then": "Only the rows of A; 404 for B; 403 for the leads and red flags; the database path with the portal setting of A returns no row of B and no row of the investigation tables",
           "test_id": "UAT-VND3-05"
         },
         {
-          "id": "AC-ST-VND-008-2",
+          "id": "AC-ST-VND-014-2",
           "given": "A request of kind EVALUATION_RESPONSE with 20 calendar days",
           "when": "The guest answers after the due day",
           "then": "The answer is kept and marked response_late true and is never refused",
           "test_id": "UAT-VND3-06"
         },
         {
-          "id": "AC-ST-VND-008-3",
+          "id": "AC-ST-VND-014-3",
           "given": "A certificate submitted by the guest and the gate asked for a package that requires it",
           "when": "Another person verifies it and the guest confirms the profile with a stale and then the current declaration",
           "then": "The gap NOT_VERIFIED closes after the verification; 409 RECONFIRMATION_DECLARATION_STALE then the next due day is the confirmation day plus 12 months",
           "test_id": "UAT-VND3-07"
         },
         {
-          "id": "AC-ST-VND-008-4",
+          "id": "AC-ST-VND-014-4",
           "given": "VND-16 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
           "test_id": "UI-VND-16"
         },
         {
-          "id": "AC-ST-VND-008-5",
+          "id": "AC-ST-VND-014-5",
           "given": "VND-17 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
           "test_id": "UI-VND-17"
         },
         {
-          "id": "AC-ST-VND-008-6",
+          "id": "AC-ST-VND-014-6",
           "given": "VND-18 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
           "test_id": "UI-VND-18"
         },
         {
-          "id": "AC-ST-VND-008-7",
+          "id": "AC-ST-VND-014-7",
           "given": "VND-19 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
@@ -57380,25 +57266,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-ST-VND-008-1",
+          "id": "TK-VND-014-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-16, VND-17, VND-18, VND-19",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-008-2",
+          "id": "TK-VND-014-2",
           "kind": "web",
           "title": "VND-16, VND-17, VND-18, VND-19 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-008-3",
+          "id": "TK-VND-014-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-16, VND-17, VND-18, VND-19; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-008-4",
+          "id": "TK-VND-014-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -57409,7 +57295,7 @@
           ]
         },
         {
-          "id": "TK-ST-VND-008-5",
+          "id": "TK-VND-014-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -57422,7 +57308,7 @@
       ]
     },
     {
-      "id": "ST-VND-009",
+      "id": "ST-VND-015",
       "epic": "EP-VND",
       "feature": "FT-VND-04",
       "module": "VND",
@@ -57457,28 +57343,28 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-VND-009-1",
+          "id": "AC-ST-VND-015-1",
           "given": "An answered request",
           "when": "Staff return it with a reason and later another staff member accepts the second answer",
           "then": "The request opens a second round and ends ACCEPTED with the history of every move kept",
           "test_id": "UAT-VND3-06"
         },
         {
-          "id": "AC-ST-VND-009-2",
+          "id": "AC-ST-VND-015-2",
           "given": "A plan with two actions agreed by the contractor",
           "when": "Staff try to complete it with one action only done, then verify both",
           "then": "409 REMEDIATION_STATE_INVALID until both are VERIFIED, then COMPLETED; an action past its day raises the alert VENDOR_REMEDIATION_ACTION",
           "test_id": "UAT-VND3-08"
         },
         {
-          "id": "AC-ST-VND-009-3",
+          "id": "AC-ST-VND-015-3",
           "given": "VND-20 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
           "test_id": "UI-VND-20"
         },
         {
-          "id": "AC-ST-VND-009-4",
+          "id": "AC-ST-VND-015-4",
           "given": "VND-21 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
@@ -57511,25 +57397,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-ST-VND-009-1",
+          "id": "TK-VND-015-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-20, VND-21",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-009-2",
+          "id": "TK-VND-015-2",
           "kind": "web",
           "title": "VND-20, VND-21 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-009-3",
+          "id": "TK-VND-015-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-20, VND-21; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-009-4",
+          "id": "TK-VND-015-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -57539,7 +57425,7 @@
           ]
         },
         {
-          "id": "TK-ST-VND-009-5",
+          "id": "TK-VND-015-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -57550,7 +57436,7 @@
       ]
     },
     {
-      "id": "ST-VND-010",
+      "id": "ST-VND-016",
       "epic": "EP-VND",
       "feature": "FT-VND-04",
       "module": "VND",
@@ -57573,21 +57459,21 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-VND-010-1",
+          "id": "AC-ST-VND-016-1",
           "given": "A contractor with three petitions decided (one upheld, two rejected) and one claim open",
           "when": "The disputes are read for the contractor and for the register",
           "then": "Upheld 33 percent of the decided and the counts add up to the total",
           "test_id": "UAT-VND3-09"
         },
         {
-          "id": "AC-ST-VND-010-2",
+          "id": "AC-ST-VND-016-2",
           "given": "The rule VENDOR_OCDS_EXPORT in its default and in an approved version that includes the owners",
           "when": "The parties are exported twice",
           "then": "The first export has no owners and no contact point; the second has beneficialOwners and names the rule version",
           "test_id": "UAT-VND3-09"
         },
         {
-          "id": "AC-ST-VND-010-3",
+          "id": "AC-ST-VND-016-3",
           "given": "VND-22 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
@@ -57621,25 +57507,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-ST-VND-010-1",
+          "id": "TK-VND-016-1",
           "kind": "backend",
           "title": "Kernel rules, migrations, stores and commands behind VND-22",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-010-2",
+          "id": "TK-VND-016-2",
           "kind": "web",
           "title": "VND-22 built with the kit, the seven standard states and an information mark on every number",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-010-3",
+          "id": "TK-VND-016-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for VND-22; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-ST-VND-010-4",
+          "id": "TK-VND-016-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -57647,7 +57533,7 @@
           ]
         },
         {
-          "id": "TK-ST-VND-010-5",
+          "id": "TK-VND-016-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
