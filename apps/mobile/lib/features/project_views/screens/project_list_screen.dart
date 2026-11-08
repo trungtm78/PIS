@@ -160,7 +160,7 @@ class _LinkRow extends StatelessWidget {
   }
 }
 
-/// The words of the row (each a literal key, so the string registry can see it) and the screen it opens, in the order of the work: reports, money, the site, the paperwork of the end, the analysis.
+/// The words of the row (each a literal key, so the string registry can see it) and the screen it opens, in the order of the work: reports, money, the site, the paperwork of the end, the analysis, the directives, the packages by step (the way in to the progress of each package and to the progress tree).
 final List<MapEntry<String Function(BuildContext), String>> kProjectWorkLinks = <MapEntry<String Function(BuildContext), String>>[
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.report'), 'MOB-13'),
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.payment'), 'MOB-27'),
@@ -172,6 +172,7 @@ final List<MapEntry<String Function(BuildContext), String>> kProjectWorkLinks = 
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.qa'), 'MOB-37'),
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.findings'), 'MOB-38'),
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.directives'), 'DIR-06'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.packages'), 'MOB-69'),
 ];
 
 /// The way in to the screens of the work of the field and of the reports, which have no other entrance: one group, closed until the

@@ -1037,5 +1037,78 @@
       "dịch vụ trả lỗi",
       "cửa sổ bảo trì"
     ]
+  },
+  {
+    "id": "m13-chi-dao-goi-thau-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: chỉ đạo giao ban và tiến độ gói thầu",
+    "audience": "Lãnh đạo, thư ký giao ban, cán bộ phụ trách đấu thầu",
+    "outcome": "Xem các chỉ đạo giao ban với số quá hạn và sắp đến hạn, xem các gói thầu theo công đoạn, cây tiến độ của quy trình đấu thầu và tiến trình của từng gói thầu.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "dir-06",
+        "screens": [
+          "DIR-06"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Chỉ đạo giao ban",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Chỉ đạo giao ban"
+      },
+      {
+        "id": "mob-69",
+        "screens": [
+          "MOB-69"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Gói thầu theo công đoạn",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Gói thầu theo công đoạn"
+      },
+      {
+        "id": "mob-71",
+        "screens": [
+          "MOB-71"
+        ],
+        "ops": [
+          {
+            "tap": "^Xem cây tiến độ"
+          }
+        ],
+        "expect": "^Tiến độ theo quy trình"
+      },
+      {
+        "id": "mob-70",
+        "screens": [
+          "MOB-70"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": ", (Đang thực hiện|Tạm dừng|Hoàn thành|Chưa bắt đầu)$"
+          }
+        ],
+        "expect": "^Tiến trình gói thầu"
+      }
+    ],
+    "needs": [
+      "một cuộc giao ban có chỉ đạo giao cho người xem",
+      "một gói thầu đang thực hiện theo quy trình đấu thầu"
+    ]
   }
 ]

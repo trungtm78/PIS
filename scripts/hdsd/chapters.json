@@ -1142,5 +1142,10 @@
     "id": "m12-su-co-dien-thoai",
     "kind": "mobile",
     "module": "MOB"
+  },
+  {
+    "id": "m13-chi-dao-goi-thau-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
   }
 ]
