@@ -276,8 +276,7 @@ describe('the report export over HTTP (ST-DIS-016)', () => {
     const response = await fetchLink((await download(made.json.resource_id as string)).json.url as string);
     expect(response.headers.get('content-type')).toBe(DOCX_MEDIA_TYPE);
     const bytes = new Uint8Array(await response.arrayBuffer());
-    const text = readDocxParagraphs(bytes).join('
-');
+    const text = readDocxParagraphs(bytes).join(' ');
     expect(text).toContain(w.snapshotId);
     expect(text).toContain(w.projects[0]?.code);
     expect(text).toContain('PROPOSED_PENDING_SIGNOFF');

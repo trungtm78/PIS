@@ -118,7 +118,7 @@ export class ReportDecisionController {
     const head = await this.reports.lock(scope.tx, id, seen, projectScope(access, DECISION_PERMISSION, now), scope.expectedVersion ?? 0);
     const detail = await this.reports.find(scope.tx, id, seen);
     if (detail === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    await assertPeriodReach(scope.tx, this.periods, head.periodId, access, DECISION_PERMISSION, now);
+    await assertPeriodReach(scope.tx, this.reports, this.periods, head.projectId, head.periodId, access, DECISION_PERMISSION, now);
     const effects = decisionEffectsOf(scope);
     // A report with a running instance (the tenant runs the staged approval) is decided through the steps of the instance; one without is decided as it always was.
     const instance = await this.flow.runningFor(scope.tx, id);

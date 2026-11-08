@@ -24,7 +24,7 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
-import { assertPeriodReach } from './period-gate';
+import { periodAccess } from './period-gate';
 import { OperationId } from '../../operation-id.decorator';
 import { Public } from '../../public.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -92,10 +92,10 @@ export class ReportExportController {
     if (snapshot.status !== 'FROZEN') throw new DomainError('SNAPSHOT_NOT_FROZEN', 422, 'snapshot_id');
     const period = await this.periods.find(scope.tx, snapshot.periodId);
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'snapshot_id');
-    await assertPeriodReach(scope.tx, this.periods, period.id, access, EXPORT_PERMISSION, now);
+    const reach = await periodAccess(scope.tx, this.periods, period.id, access, EXPORT_PERMISSION, now);
     // A page of Word weighs like a page of PDF: the same cap.
     const cap = format === 'PDF' || format === 'DOCX' ? PDF_ROW_CAP : EXPORT_ROW_CAP;
-    const read = await this.exports.lines(scope.tx, projectScope(access, EXPORT_PERMISSION, now), snapshot.id, cap);
+    const read = await this.exports.lines(scope.tx, projectScope(reach, EXPORT_PERMISSION, now), snapshot.id, cap);
     if (read.overflow || read.projectIds.length > EXPORT_PROJECT_CAP) throw new DomainError('EXPORT_ROW_CAP_EXCEEDED', 422, 'snapshot_id', { extensions: { row_cap: cap } });
     // Nothing of the snapshot is in the scope of the caller: there is no file to make.
     if (read.lines.length === 0) throw new DomainError('SCOPE_DENIED', 403);

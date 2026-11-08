@@ -3,7 +3,7 @@ import { docxOf } from '../../src/modules/reports/export-docx';
 import { readDocxHeaderFooter, readDocxParagraphs } from '../../src/modules/reports/docx-render';
 import { sha256Hex } from '../../src/modules/reports/digest';
 
-const columns = (count: number) => Array.from({ length: count }, (_, index) => ({ key: `c${index}`, label: `Column ${index}` }));
+const columns = (count: number) => Array.from({ length: count }, (_, index) => ({ key: `c${index}`, label: `Column ${index}`, numeric: false }));
 const document = (overrides: Partial<ExportDocument> = {}): ExportDocument => ({
   title: 'Export of figures',
   header: [

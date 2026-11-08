@@ -18,6 +18,8 @@ import { CurrentTenant } from '../../tenant-context.decorator';
 const TYPE = 'role_grant_period_scope';
 const STATUSES: readonly string[] = ['Active', 'Lifted'];
 const GRANT_PERMISSION = 'iam.role.grant';
+/** The limits read in one go when the caller sees only some of them. */
+const SCAN_BATCH = 100;
 
 /** Whether the caller holds the right to grant roles anywhere: the screen offers the lift to them (the server judges the grant itself). */
 const mayGrantSomewhere = (access: EffectiveAccess): boolean => holdsPermission(effectivePermissions(access, new Date()), GRANT_PERMISSION);
@@ -164,12 +166,19 @@ export class PeriodScopeReadsController {
     if (status !== undefined && !(typeof status === 'string' && STATUSES.includes(status))) throw new DomainError('VALIDATION_FAILED', 422, 'status');
     if (membershipId !== undefined && !(typeof membershipId === 'string' && /^[0-9a-f-]{36}$/i.test(membershipId))) throw new DomainError('VALIDATION_FAILED', 422, 'membership_id');
     const reach = reachOf(access, tenant);
+    const filters = { status: status as string | undefined, membershipId: membershipId === undefined ? undefined : (membershipId as string).toLowerCase() };
     const rows = await this.database.withTenant(tenant, async (tx) => {
-      const found = await this.store.list(tx, { status: status as string | undefined, membershipId: membershipId === undefined ? undefined : (membershipId as string).toLowerCase() }, { limit: request.limit + 1, after: request.after });
-      if (reach === undefined) return found;
+      if (reach === undefined) return this.store.list(tx, filters, { limit: request.limit + 1, after: request.after });
+      // The limits of grants the caller may not see are skipped before the page is cut: batches are read on until a page and one row more are visible, or nothing is left, so that the cursor and the end of the list are true.
       const visible: PeriodScopeRecord[] = [];
-      for (const row of found) if ((await this.roles.getGrant(tx, row.roleGrantId, reach)) !== undefined) visible.push(row);
-      return visible;
+      let after = request.after;
+      for (;;) {
+        const batch = await this.store.list(tx, filters, { limit: SCAN_BATCH, after });
+        for (const row of batch) if ((await this.roles.getGrant(tx, row.roleGrantId, reach)) !== undefined) visible.push(row);
+        const last = batch[batch.length - 1];
+        if (batch.length < SCAN_BATCH || last === undefined || visible.length > request.limit) return visible;
+        after = { code: last.sortKey, id: last.id };
+      }
     });
     const mayLift = mayGrantSomewhere(access);
     return pageOf(rows, request.limit, (row) => view(row, mayLift));

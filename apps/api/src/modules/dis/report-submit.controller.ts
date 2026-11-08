@@ -56,7 +56,7 @@ export class ReportSubmitController {
     const head = await this.reports.lock(scope.tx, id, seen, projectScope(access, SUBMIT_PERMISSION, now), scope.expectedVersion ?? 0);
     // What was handed in is not handed in twice; the answer does not wait for the period.
     this.reports.assertEditable(head);
-    await assertPeriodReach(scope.tx, this.periods, head.periodId, access, SUBMIT_PERMISSION, now);
+    await assertPeriodReach(scope.tx, this.reports, this.periods, head.projectId, head.periodId, access, SUBMIT_PERMISSION, now);
     const judged = await this.periods.judge(scope.tx, head.periodId, head.projectId, now);
     const detail = await this.reports.find(scope.tx, id, seen);
     if (detail === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);

@@ -20,7 +20,7 @@ import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
-import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, grantId, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -257,6 +257,28 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
     expect(disModule.controllers).toContain(ReportDecisionController);
     expect(disModule.controllers).toContain(ReportLifecycleController);
     expect(disModule.controllers).toContain(ReportImportController);
+  });
+
+  describe('IAM-2: the limit of a role grant to report periods', () => {
+    const bump = (member: number): Promise<unknown> => rows('update machvon.membership set scope_version = scope_version + 1 where id = $1', [memberId(member)]);
+
+    it('refuses a decision on a report of another period (403 PERIOD_SCOPE_DENIED), also when another grant of the reviewer reaches elsewhere without a limit, and allows it once the limit is lifted', async () => {
+      const { reportId } = await submitted();
+      await rows("insert into machvon.role_grant_period_scope (tenant_id, id, role_grant_id, period_codes, reason, set_by) values ($1, gen_random_uuid(), $2, '{2026}', 'The reviewer covers 2026 only.', $3)", [TENANT_A, grantId(2), memberId(MAKER)]);
+      // A second grant of the same permission, without a limit, over a unit that does not hold the project: it must not carry the report of the department.
+      await harness.seedGrants(TENANT_A, [{ n: 90, member: REVIEWER, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(ELSEWHERE)] }]);
+      await bump(REVIEWER);
+      try {
+        expect(await approve(reportId, 2)).toMatchObject({ status: 403, json: { code: 'PERIOD_SCOPE_DENIED' } });
+        expect(await state(reportId)).toMatchObject({ status: 'SUBMITTED', accepted_by: null });
+        await rows("update machvon.role_grant_period_scope set status = 'Lifted', lifted_by = $2, lifted_at = now(), lift_reason = 'Lifted for the test of the decision.' where role_grant_id = $1 and status = 'Active'", [grantId(2), memberId(MAKER)]);
+        await bump(REVIEWER);
+        expect(await approve(reportId, 2)).toMatchObject({ status: 200, json: { status: 'ACCEPTED' } });
+      } finally {
+        await rows("update machvon.role_grant set status = 'Revoked', revoked_at = now() where id = $1", [grantId(90)]);
+        await bump(REVIEWER);
+      }
+    });
   });
 
   describe('post_reports_id_decision', () => {

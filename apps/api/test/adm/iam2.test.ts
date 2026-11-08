@@ -386,6 +386,7 @@ describe('IAM-2 over HTTP: the permanent delegation, acting on behalf of a perso
       expect(await requestActing(ADMIN, { permissions: ['approval.decide'] })).toMatchObject({ status: 422, json: { code: 'ACTING_INVALID', detail: 'permissions[0]' } });
       expect(await requestActing(ADMIN, { permissions: ['doc.outgoing.sign'] })).toMatchObject({ status: 422, json: { code: 'ACTING_INVALID' } });
       expect(await requestActing(ADMIN, { permissions: ['iam.role.grant'] })).toMatchObject({ status: 422, json: { code: 'ACTING_INVALID' } });
+      expect(await requestActing(ADMIN, { permissions: ['report.review'] })).toMatchObject({ status: 422, json: { code: 'ACTING_INVALID', detail: 'permissions[0]' } });
       expect(await requestActing(ADMIN, { permissions: ['test.record.delete'] })).toMatchObject({ status: 422, json: { code: 'ACTING_INVALID', detail: 'permissions[0]' } });
       expect(await requestActing(ADMIN, { hours: 9 })).toMatchObject({ status: 422 });
       expect(await requestActing(ADMIN, { reason: 'short' })).toMatchObject({ status: 422 });

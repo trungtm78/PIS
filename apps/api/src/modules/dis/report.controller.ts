@@ -303,7 +303,7 @@ export class ReportController {
       }
     }
     assertReportableStage(project.status);
-    await assertPeriodReach(scope.tx, this.periods, body.period_id, access, CREATE_PERMISSION, now);
+    await assertPeriodReach(scope.tx, this.reports, this.periods, project.id, body.period_id, access, CREATE_PERMISSION, now);
     const judged = await this.periods.judge(scope.tx, body.period_id, project.id, now);
     if (PERIOD_TYPE_OF[entries.reportType] !== judged.period.periodType) throw new DomainError('VALIDATION_FAILED', 422, 'report_type');
     const effective = await this.reports.effectivePlan(scope.tx, project.id, judged.period.fiscalYear, judged.period.endDate);
@@ -371,7 +371,7 @@ export class ReportController {
     // What was handed in is not edited; the answer does not wait for the period.
     this.reports.assertEditable(head);
     this.assertSame(head, body, entries.reportType);
-    await assertPeriodReach(scope.tx, this.periods, head.periodId, access, EDIT_PERMISSION, now);
+    await assertPeriodReach(scope.tx, this.reports, this.periods, head.projectId, head.periodId, access, EDIT_PERMISSION, now);
     const judged = await this.periods.judge(scope.tx, head.periodId, head.projectId, now);
     await this.assertIssues(scope.tx, head.projectId, entries.narrative ?? null);
     const files = entries.attachments === undefined ? undefined : await resolveFiles(this.files, scope.tenant, entries.attachments);
