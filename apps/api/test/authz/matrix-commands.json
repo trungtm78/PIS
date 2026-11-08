@@ -756,7 +756,17 @@
     "enterIndicatorFigures",
     "uploadIndicatorFile",
     "previewIndicatorImport",
-    "importIndicatorFile"
+    "importIndicatorFile",
+    "createLookAheadPlan",
+    "publishLookAheadPlan",
+    "raiseLookAheadConstraint",
+    "clearLookAheadConstraint",
+    "recordLookAheadOutcome",
+    "proposeLesson",
+    "decideLesson",
+    "requestLessonWaiver",
+    "decideLessonWaiver",
+    "reviewContractAdjustment"
   ],
   "controlCommands": [
     "decideTenantRestore",
