@@ -4,6 +4,7 @@ import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import type { WorkKind } from '@machvon/kernel';
 import { base } from './home-work-sources.ts';
 import type { SourceContext, SourceRow } from './home-work-sources.ts';
+import { HomeVendorControlsSources } from './home-vendor-controls-sources.ts';
 import { VendorPayeeStore } from './vendor-payee-store.ts';
 import { VendorPolicyReader } from './vendor-policy.ts';
 import { VendorQualificationStore } from './vendor-qualification-store.ts';
@@ -36,6 +37,7 @@ export class HomeVendorSources {
   private readonly reputation = new VendorReputationStore();
   private readonly payee = new VendorPayeeStore();
   private readonly qualifications = new VendorQualificationStore();
+  private readonly controls = new HomeVendorControlsSources();
 
   async items(context: SourceContext): Promise<SourceRow[]> {
     const now = context.now;
@@ -45,6 +47,7 @@ export class HomeVendorSources {
     rows.push(...(await forAudience(context, 'VENDOR', VENDOR_AUDIENCE_PERMISSIONS.debarment, await this.decisions(context, now), true)));
     rows.push(...(await forAudience(context, 'VENDOR', VENDOR_AUDIENCE_PERMISSIONS.payee, await this.accounts(context), true)));
     rows.push(...(await forAudience(context, 'VENDOR', VENDOR_AUDIENCE_PERMISSIONS.qualification, await this.expiries(context), true)));
+    rows.push(...(await this.controls.items(context)));
     return rows;
   }
 

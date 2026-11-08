@@ -21,17 +21,38 @@ import {
   reputationPolicyOf,
   vendorProfilePolicyOf,
   DEBARMENT_GROUPS,
+  VENDOR_BID_SECURITY_RULE_TYPE,
+  VENDOR_CAPACITY_RULE_TYPE,
+  VENDOR_FINANCE_RULE_TYPE,
+  VENDOR_INDEPENDENCE_RULE_TYPE,
+  VENDOR_PERFORMANCE_RULE_TYPE,
+  VENDOR_RISK_RULE_TYPE,
+  VENDOR_SUBCONTRACT_RULE_TYPE,
+  bidSecurityPolicyOf,
+  capacityPolicyOf,
+  financePolicyOf,
+  independencePolicyOf,
+  performancePolicyOf,
+  riskPolicyOf,
+  subcontractPolicyOf,
 } from '@machvon/kernel';
 import type {
+  BidSecurityPolicy,
+  CapacityPolicy,
   DebarmentPeriod,
   DebarmentPolicy,
   DuplicateWeights,
   EgpPostingRule,
   ExpiryWarningPolicy,
+  FinancePolicy,
   GatePolicy,
+  IndependencePolicy,
   PayeeAccountPolicy,
+  PerformancePolicy,
   ReputationPolicy,
   ResolvedGovernanceRule,
+  RiskPolicy,
+  SubcontractPolicy,
   VendorProfilePolicy,
 } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
@@ -112,6 +133,41 @@ export class VendorPolicyReader {
 
   gate(tx: TenantTx, today: string): Promise<Policy<GatePolicy>> {
     return this.read(tx, VENDOR_GATE_RULE_TYPE, VENDOR_RULE_CODE, today, gatePolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_INDEPENDENCE`, code DEFAULT. */
+  independence(tx: TenantTx, today: string): Promise<Policy<IndependencePolicy>> {
+    return this.read(tx, VENDOR_INDEPENDENCE_RULE_TYPE, VENDOR_RULE_CODE, today, independencePolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_FINANCE`, code DEFAULT. */
+  finance(tx: TenantTx, today: string): Promise<Policy<FinancePolicy>> {
+    return this.read(tx, VENDOR_FINANCE_RULE_TYPE, VENDOR_RULE_CODE, today, financePolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_CAPACITY`, code DEFAULT. */
+  capacity(tx: TenantTx, today: string): Promise<Policy<CapacityPolicy>> {
+    return this.read(tx, VENDOR_CAPACITY_RULE_TYPE, VENDOR_RULE_CODE, today, capacityPolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_BID_SECURITY`, code DEFAULT. */
+  bidSecurity(tx: TenantTx, today: string): Promise<Policy<BidSecurityPolicy>> {
+    return this.read(tx, VENDOR_BID_SECURITY_RULE_TYPE, VENDOR_RULE_CODE, today, bidSecurityPolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_SUBCONTRACT`, code DEFAULT. */
+  subcontract(tx: TenantTx, today: string): Promise<Policy<SubcontractPolicy>> {
+    return this.read(tx, VENDOR_SUBCONTRACT_RULE_TYPE, VENDOR_RULE_CODE, today, subcontractPolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_RISK`, code DEFAULT. */
+  risk(tx: TenantTx, today: string): Promise<Policy<RiskPolicy>> {
+    return this.read(tx, VENDOR_RISK_RULE_TYPE, VENDOR_RULE_CODE, today, riskPolicyOf);
+  }
+
+  /** VND-2: the rule `VENDOR_PERFORMANCE`, code DEFAULT. */
+  performance(tx: TenantTx, today: string): Promise<Policy<PerformancePolicy>> {
+    return this.read(tx, VENDOR_PERFORMANCE_RULE_TYPE, VENDOR_RULE_CODE, today, performancePolicyOf);
   }
 
   /** The deadline of posting an event of bid conduct: the rule of the posting obligations of EGP-2, code REPUTATION_EVENT (7 working days, flagged unverified), so the clock here and the obligation there are one number. */

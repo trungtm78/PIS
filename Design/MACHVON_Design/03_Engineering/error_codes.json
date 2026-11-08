@@ -7227,6 +7227,14 @@
       "module": "QMS",
       "statusBasis": "spec",
       "source": "spec:QMS"
+    },
+    "SUBCONTRACT_LIMIT_EXCEEDED": {
+      "status": 422,
+      "title": "Subcontract limit exceeded",
+      "meaning": "Thầu phụ vượt giới hạn: trùng nhà thầu chính, trùng thầu phụ khác, giá trị không khớp tỷ lệ, nhà thầu chính giữ dưới mức tối thiểu, hoặc vượt phần đã nêu khi quy tắc chặn (VND-2, V11).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

@@ -427,6 +427,11 @@ export const VENDOR_FACET_SEVERITY: Readonly<Record<string, 'URGENT' | 'ACTION' 
   EXPIRED: 'URGENT',
   CHANGE_STALLED: 'ACTION',
   SHARED_ACCOUNT: 'URGENT',
+  FINDING_STRONG: 'URGENT',
+  FINDING_MEDIUM: 'ACTION',
+  SIGNAL: 'WATCH',
+  PENDING: 'ACTION',
+  STREAK: 'WATCH',
 };
 
 /** The facet of an open time limit that raises an alert: DUE_SOON and OVERDUE; one that is on time or done raises none. */
