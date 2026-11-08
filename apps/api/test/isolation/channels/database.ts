@@ -73,7 +73,6 @@ import {
   REPORT_ENGINE_FIXTURES,
   HUB_FIXTURES,
   COMMITTEE_FIXTURES,
-  COMMITTEE_FIXTURES,
   INTEROP_FIXTURES,
   EVALUATION_REPORT_FIXTURES,
   PROJECT_FIXTURES,
@@ -718,8 +717,6 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'getReportIssueFile',
   'deliverReport',
   'answerReportDelivery',
-  'endCommitteeMember',
-  'acknowledgeCommitteeAlert',
   'endCommitteeMember',
   'acknowledgeCommitteeAlert',
   'receiveInteropMessage',
@@ -2081,13 +2078,6 @@ const INSERT_COMMITTEE_MEMBER = `insert into machvon.committee_member (tenant_id
 const INSERT_COMMITTEE_ALERT = `insert into machvon.committee_alert (tenant_id, id, alert_type, dedupe_key, subject_kind, subject_key, subject_label, severity, fiscal_year, opened_on, last_seen_on)
   values ($1, $2, 'COMMITTEE_UNIT_NOT_REPORTING', $3, 'UNIT', $4, $5, 'WATCH', 2026, '2026-01-05', '2026-01-05') on conflict do nothing`;
 
-const INSERT_COMMITTEE = `insert into machvon.committee (tenant_id, id, code, name, created_by) values ($1, $2, 'ISOLATION', $3, $4) on conflict do nothing`;
-
-const INSERT_COMMITTEE_MEMBER = `insert into machvon.committee_member (tenant_id, id, committee_id, membership_id, committee_role, valid_from, appointed_by) values ($1, $2, $3, $4, 'MEMBER', '2026-01-01', $5) on conflict do nothing`;
-
-const INSERT_COMMITTEE_ALERT = `insert into machvon.committee_alert (tenant_id, id, alert_type, dedupe_key, subject_kind, subject_key, subject_label, severity, fiscal_year, opened_on, last_seen_on)
-  values ($1, $2, 'COMMITTEE_UNIT_NOT_REPORTING', $3, 'UNIT', $4, $5, 'WATCH', 2026, '2026-01-05', '2026-01-05') on conflict do nothing`;
-
 const INSERT_CLARIFICATION = `insert into machvon.bid_clarification
   (tenant_id, id, package_id, proposal_id, question, due_at, status, sent_document_id, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, now() + interval '30 days', 'SENT', $6, $7, $7, 1) on conflict do nothing`;
@@ -2701,11 +2691,6 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
       await client.query(INSERT_REPORT_ISSUE, [tenantId, rptFixture.issueId, rptFixture.layoutId, rptFixture.issuedDraftId, rptFixture.sha256, ACTOR_ID, MEMBERSHIP_ID, APPROVER_ID]);
       await client.query(CLOSE_REPORT_DRAFT, [rptFixture.issuedDraftId, rptFixture.issueId]);
     }
-    // The committee of BAN-1: the body, a place on it held by another person than the one who appointed, and an open alert.
-    const committee = COMMITTEE_FIXTURES[tenant];
-    await client.query(INSERT_COMMITTEE, [tenantId, committee.committeeId, committee.committeeName, ACTOR_ID]);
-    await client.query(INSERT_COMMITTEE_MEMBER, [tenantId, committee.memberId, committee.committeeId, MEMBERSHIP_ID, ACTOR_ID]);
-    await client.query(INSERT_COMMITTEE_ALERT, [tenantId, committee.alertId, `COMMITTEE_UNIT_NOT_REPORTING:${committee.alertId}:2026`, committee.alertId, committee.alertLabel]);
     // The committee of BAN-1: the body, a place on it held by another person than the one who appointed, and an open alert.
     const committee = COMMITTEE_FIXTURES[tenant];
     await client.query(INSERT_COMMITTEE, [tenantId, committee.committeeId, committee.committeeName, ACTOR_ID]);
