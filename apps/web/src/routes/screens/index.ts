@@ -462,4 +462,9 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   // The payment integrity checks (lane D, G4-2, G4-5).
   'PAY-21': () => import('../../screens/pay/integrity/ExceptionRegisterScreen'),
   'AUD-12': () => import('../../screens/aud/integrity/IntegrityFindingsScreen'),
+  // The report engine (RPT-1 part 2): catalogue and generation, drafts and the three-person flow, issued copies, delivery log.
+  'RPT-01': () => import('../../screens/rpt/CatalogueScreen'),
+  'RPT-02': () => import('../../screens/rpt/DraftScreen'),
+  'RPT-03': () => import('../../screens/rpt/IssuedScreen'),
+  'RPT-04': () => import('../../screens/rpt/DeliveryLogScreen'),
 };
