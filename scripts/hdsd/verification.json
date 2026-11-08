@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "note": "Pass and fail of the steps of the phone chapters of the guide (mobile-chapters.json). A step is verified when a walk of the application on a device (apps/mobile/qa/device/results) has a passed visit of its screen. The criterion of a step is its expect; the steps that have none have a pattern here (confirmedBy: the pattern was written from the heading that walk recorded and is checked against it; without confirmedBy it comes from the title of the catalogue and is a plan, not a measurement). Score a new walk with: node scripts/hdsd/verification.mjs --walk <walk.json> --list.",
+  "evidence": [
+    {
+      "id": "walk-android15-2026-11-06-deep",
+      "path": "apps/mobile/qa/device/results/guide-android15-debug-2026-11-06-deep/walk.json",
+      "device": "Android 15 emulator (AVD guide), debug build, real API stack"
+    },
+    {
+      "id": "walk-android15-2026-11-06",
+      "path": "apps/mobile/qa/device/results/guide-android15-debug-2026-11-06/walk.json",
+      "device": "Android 15 emulator (AVD guide), debug build, real API stack"
+    }
+  ],
+  "criteria": {
+    "mob-02": { "pattern": "^Đăng nhập", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-01": { "pattern": "MACHVON", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-04": { "pattern": "^Chọn đơn vị và vai trò", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-03": { "pattern": "^Xác thực hai yếu tố", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-07": { "pattern": "^Trang chủ lãnh đạo", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-47": { "pattern": "^Tài khoản", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-43": { "pattern": "^Làm việc ngoại tuyến", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-41": { "pattern": "^Hàng đợi gửi", "confirmedBy": "walk-android15-2026-11-06-deep" },
+    "mob-48": { "pattern": "Đổi tenant|Đổi tổ chức" },
+    "mob-42": { "pattern": "Xử lý xung đột|xung đột" },
+    "mob-45": { "pattern": "không đủ quyền" },
+    "mob-46": { "pattern": "giấy phép|license" },
+    "mob-53": { "pattern": "Lỗi dịch vụ|thử lại" },
+    "mob-54": { "pattern": "Bảo trì|cập nhật bắt buộc" },
+    "mob-44": { "pattern": "Hết phiên|phiên" }
+  },
+  "blockers": {
+    "mob-42": "the data command conflict is not made yet (scripts/hdsd/mobile-data.mjs): it needs the diary of the seed layer to make an offline write that conflicts with the server"
+  }
+}
