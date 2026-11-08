@@ -13,9 +13,17 @@ Branch `lane/ca3`, worktree `D:\PIS-ca3`. Migrations only in the free tail of bl
 
 ## Work list
 
-- [x] indicators (12) and reasons in `ctr-analytics.ts`
-- [ ] kernel: register reports, rating rule and proposal, state machine, tests
-- [ ] db: V1924 proposal table, register reader, rating store, e-GP fact hook, tests
-- [ ] api: reports, rating commands and reads, contract, authz, isolation
-- [ ] web: report codes in the hub, labels, rating panel, i18n parts, tests
-- [ ] docs, design rows, gates, Codex review with dispositions
+- [x] indicators (12) and reasons in - [x] kernel: register reports, rating rule and proposal, state machine, tests (34 new tests)
+- [x] db: V1924 proposal table, register reader, rating store, e-GP fact hook ( in the sweep and in the notify command)
+- [x] api: the six reports on the report endpoint and its export, rating commands and reads, contract, authz, isolation cases
+- [x] web: report codes in the hub, record filters, related links, CTR-32 with the steps, i18n parts, tests
+- [x] docs (), design rows
+- [ ] gates: API agreement test, isolation, command-conformance, outbox, dis-report, lint, typecheck
+- [ ] Codex review with dispositions
+
+## Not done, on purpose
+
+- DS-CTR metric files: the registers are not in the frozen fact (needs a column on  and the builder: follow-up in the tail 1925-1939).
+- The claim register of GOV-8 (not on main): the documented hook maps its table to .
+- An alert type for a response window about to lapse (the e-GP posting alerts cover the posting).
+- The pages of the design pack were not rebuilt ( is not installed in the worktree): run  where it is.
