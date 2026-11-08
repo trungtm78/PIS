@@ -1,3 +1,5 @@
+import { spawnSync } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { createServer } from 'node:net';
@@ -36,6 +38,37 @@ const ADMIN_USER = 'postgres';
 // error 1455 (could not create shared memory segment), so every test server stays small. fsync is off: the data
 // directory is thrown away.
 const DEFAULT_MAX_CONNECTIONS = 40;
+/** How long a server may take to stop before it is killed by its process tree; a stop takes one to two seconds, even on a loaded machine. */
+const STOP_GRACE_MS = 30_000;
+
+/**
+ * Stops the server, never waiting for something that has already happened or will not happen. `EmbeddedPostgres.stop()` registers a handler for the `exit` event of the postmaster and then kills it; a postmaster that
+ * ended before that (it crashed, or it was killed with the tree of a neighbouring run) never emits `exit` again, so the library waits for ever and the test dies of its own timeout five minutes later with nothing to say
+ * why. So: a process that has already exited needs no stop; one that does not stop within the grace period is killed with its tree by pid and the stop goes on. A server that survives even that is a leak and throws; the
+ * directory removal that follows still fails loudly if a file is held, so nothing is hidden.
+ */
+export async function stopServer(server: Pick<EmbeddedPostgres, 'stop'>, graceMs: number = STOP_GRACE_MS): Promise<void> {
+  const child = (server as unknown as { process?: ChildProcess }).process;
+  if (child === undefined || child.exitCode !== null || child.signalCode !== null) return;
+  let timer: NodeJS.Timeout | undefined;
+  const late = new Promise<'late'>((resolve) => {
+    timer = setTimeout(() => resolve('late'), graceMs);
+  });
+  try {
+    const outcome = await Promise.race([server.stop().then(() => 'stopped' as const), late]);
+    if (outcome === 'stopped') return;
+  } finally {
+    clearTimeout(timer);
+  }
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  process.stderr.write(`test database: the server (pid ${child.pid}) did not stop within ${graceMs} ms; killing its process tree\n`);
+  if (child.pid === undefined) throw new Error('the test server has no process id to kill');
+  if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(child.pid), '/f', '/t'], { stdio: 'ignore' });
+  else spawnSync('kill', ['-KILL', String(child.pid)], { stdio: 'ignore' });
+  // The kill reports failure for a process that is not there any more, which is the outcome wanted; what counts is that the process is gone shortly after.
+  for (let waited = 0; waited < 10_000 && child.exitCode === null && child.signalCode === null; waited += 100) await new Promise((resolve) => setTimeout(resolve, 100));
+  if (child.exitCode === null && child.signalCode === null) throw new Error(`the test server (pid ${child.pid}) is still running after it was killed`);
+}
 
 function smallServerFlags(maxConnections: number): string[] {
   return [
@@ -115,7 +148,7 @@ export async function startTestServer(options: TestDatabaseOptions = {}): Promis
     try {
       if (server !== undefined && started) {
         started = false;
-        await server.stop();
+        await stopServer(server);
       }
     } finally {
       // Windows keeps files locked for a short moment after the process tree is killed.
