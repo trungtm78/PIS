@@ -359,7 +359,7 @@ export class CtrContractLifecycleStore {
     await this.assertDocuments(tx, evidenceIds);
     if (contract.projectStatus !== ACTIVATION_PROJECT_STATUS) throw new DomainError('PROJECT_STAGE_INVALID', 422, 'project_id', { extensions: { project_status: contract.projectStatus } });
     // VND-1: no restriction on the contractor, a member of its joint venture or a party of the contract; the certificates the package asks for hold on the day of activation.
-    await this.vendorGate.assertAllowed(tx, 'CONTRACT_ACTIVATION', { contractId: id, now: new Date(`${today}T12:00:00+07:00`) });
+    await this.vendorGate.assertAllowed(tx, 'CONTRACT_ACTIVATION', { contractId: id, now: new Date(), today });
 
     if (requiresPerformanceGuarantee(contract.advanceCategory) && !(await this.guarantees.holdsActive(tx, id, 'PERFORMANCE', new Date(`${effectiveFrom}T00:00:00+07:00`)))) {
       throw new DomainError('PERFORMANCE_GUARANTEE_MISSING', 422, 'guarantee');

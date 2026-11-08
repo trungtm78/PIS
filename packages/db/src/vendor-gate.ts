@@ -20,7 +20,10 @@ export interface GateRequest {
   /** The contract: its parties are asked about too, its package gives the requirements of the certificates, its contractor is the payee. */
   contractId?: string | undefined;
   packageId?: string | undefined;
+  /** The instant of the action: the waiting period of an account is counted against it. */
   now?: Date | undefined;
+  /** The business day the dates of the restrictions and certificates are judged on, when the caller works on a day it was given (a payment names its own day); else the Vietnam day of `now`. */
+  today?: string | undefined;
 }
 
 /**
@@ -45,7 +48,7 @@ export class VendorGate {
 
   async assertAllowed(tx: TenantTx, action: GateAction, request: GateRequest): Promise<GateWarning[]> {
     const now = request.now ?? new Date();
-    const today = vietnamDateOf(now);
+    const today = request.today ?? vietnamDateOf(now);
     const checks = GATE_CHECKS_BY_ACTION[action];
     let contractorId = request.contractorId;
     let packageId = request.packageId;

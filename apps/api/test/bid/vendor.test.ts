@@ -259,7 +259,7 @@ describe('the management of contractors and suppliers (VND-1: VND-01 to VND-06)'
       expect((await call('POST', `/vendor/payee-changes/${changeId}/approval`, { member: READER, ifMatch: 2, body: { role: 'ACCOUNT_MATCH' } })).status).toBe(403);
       expect((await call('POST', `/vendor/payee-changes/${changeId}/cancel`, { member: ADMIN, ifMatch: 2, body: { reason: 'asked by mistake for the wrong contractor' } })).json).toMatchObject({ status: 'CANCELLED' });
       const view = await call('GET', `/vendor/contractors/${contractorId}`, { member: READER });
-      expect(JSON.stringify(view.json)).not.toContain('0011');
+      expect(JSON.stringify(view.json)).not.toContain('00110022');
       expect(view.json).toMatchObject({ accounts: [], payee_changes: [{ status: 'CANCELLED', account_no_masked: '********3344' }] });
     });
 

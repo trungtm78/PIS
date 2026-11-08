@@ -105,7 +105,7 @@ export class VendorController {
   @HttpCode(200)
   @OperationId('declareVendorNoOwnerAboveThreshold')
   @Command({ operation: 'declareVendorNoOwnerAboveThreshold', versioned: true })
-  async declareOwnership(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() _body: Schemas['VendorOwnershipDeclaration']): Promise<CommandResult> {
+  async declareOwnership(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
     this.require(access, PERMISSIONS.declareVendorNoOwnerAboveThreshold);
     const row = await this.profiles.declareNoOwnerAboveThreshold(scope.tx, id, this.version(scope), scope.tenant.membershipId);
     await announce(scope, new Date(), { action: 'vnd.ownership_declared', resourceType: 'contractor', resourceId: id, classification: CLASS.profile, version: row.version, eventType: 'vnd.owner.changed.v1', diff: { contractor_id: id, declaration: 'NO_OWNER_ABOVE_THRESHOLD' } });

@@ -114,7 +114,7 @@ export class HomeVendorSources {
 
   private async accounts(context: SourceContext): Promise<SourceRow[]> {
     const rows: SourceRow[] = [];
-    const open = await this.payee.requests(context.tx, { status: 'REQUESTED', limit: 500 });
+    const open = (await this.payee.requests(context.tx, { status: 'REQUESTED', limit: 500 })).filter((request) => Date.parse(request.expiresAt) >= context.now.getTime());
     for (const request of open) {
       rows.push(
         this.row('VENDOR_PAYEE_ACCOUNT', request.id, 'CHANGE_STALLED', context, {

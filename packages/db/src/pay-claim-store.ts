@@ -339,7 +339,7 @@ export class PayClaimStore {
     // G1-2: a request is sent only for a project that is still on the list and still holds an approved amount on the system (the stage or the plan may have changed since the draft).
     await this.disbursement.assertAllowed(tx, contract.project_id, today);
     // VND-1: asked again when the request is sent, as the payee may have changed since the draft.
-    await this.vendorGate.assertAllowed(tx, 'PAYMENT', { contractId: held.contract_id, now: new Date(`${today}T12:00:00+07:00`) });
+    await this.vendorGate.assertAllowed(tx, 'PAYMENT', { contractId: held.contract_id, now: new Date(), today });
     if (held.allocation_line_id === null) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'NOT_FOUND' } });
     await this.payments.assertAllocation(tx, held.allocation_line_id, contract.project_id, acceptance === undefined ? null : Number(acceptance.accepted_on.slice(0, 4)), today);
 

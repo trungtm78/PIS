@@ -181,7 +181,7 @@ export class BidResultStore {
     const open = await tx.query<{ id: string; status: string }>("select id, status from machvon.procurement_result where package_id = $1::uuid and status in ('DRAFT', 'SUBMITTED')", [pack.id]);
     if (open[0] !== undefined) throw stateInvalid(open[0].status, 'OPEN_RESULT');
     if (price !== undefined) assertPriceWithinBudget(price, pack.budget_vnd);
-    if (winner !== undefined) await this.assertWinner(tx, winner, now);
+    if (winner !== undefined) await this.assertWinner(tx, winner, pack.id, now);
     await this.assertEvaluationIssued(tx, minutes);
 
     const id = randomUUID();
@@ -304,12 +304,12 @@ export class BidResultStore {
   // ---- internals --------------------------------------------------------------------------------------------------------
 
   /** The winner is a contractor of the tenant that no restriction in force stops and that nobody left unverified. */
-  private async assertWinner(tx: TenantTx, contractorId: string, now: Date): Promise<void> {
+  private async assertWinner(tx: TenantTx, contractorId: string, packageId: string, now: Date): Promise<void> {
     const contractor = await this.contractors.find(tx, contractorId);
     if (contractor === undefined) throw invalid('winner_contractor_id');
     await this.contractors.assertMayTakePart(tx, contractorId, vietnamDateOf(now));
     // VND-1: a restriction on a member of the venture the winner leads stops the result as well.
-    await this.vendorGate.assertAllowed(tx, 'RESULT', { contractorId, now });
+    await this.vendorGate.assertAllowed(tx, 'RESULT', { contractorId, packageId, now });
   }
 
   /** The evaluation minutes are a document of the tenant that is in force, issued through DOC; one that is still being drafted or was recalled is 409 `REPORT_NOT_ISSUED`. */
@@ -323,7 +323,7 @@ export class BidResultStore {
   private async assertAwardStillStands(tx: TenantTx, held: LockSql, now: Date): Promise<void> {
     if (held.package_status !== PACKAGE_STATUS_OPEN_FOR_BIDS) throw new DomainError('PLAN_NOT_APPROVED', 409, 'package_id', { extensions: { package_status: held.package_status } });
     if (held.award_price_vnd !== null) assertPriceWithinBudget(held.award_price_vnd, held.budget_vnd);
-    if (held.winner_contractor_id !== null) await this.assertWinner(tx, held.winner_contractor_id, now);
+    if (held.winner_contractor_id !== null) await this.assertWinner(tx, held.winner_contractor_id, held.package_id, now);
   }
 
   private async lockPackage(tx: TenantTx, packageId: string, scope: ScopeBuilder): Promise<{ id: string; code: string; status: string; project_id: string; budget_vnd: string }> {

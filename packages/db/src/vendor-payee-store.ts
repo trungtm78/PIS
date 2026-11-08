@@ -276,6 +276,8 @@ export class VendorPayeeStore {
     const matches = holderMatchesLegalName(holder, contractor.legal_name);
     if (!matches && policy.name_match === 'REQUIRE') throw new DomainError('PAYEE_ACCOUNT_NAME_MISMATCH', 422, 'account_holder');
     if ((await tx.query('select 1 from machvon.document where id = $1::uuid', [input.evidenceDocumentId])).length === 0) throw invalid('evidence_document_id');
+    // A request that ran out is closed here, in the same transaction, so that it never keeps a replacement out (the job `expireDue` does the same for the whole tenant).
+    await this.expireStale(tx, contractorId, now, actor);
     const open = await tx.query<{ id: string }>("select id from machvon.contractor_bank_change_request where contractor_id = $1::uuid and status = 'REQUESTED'", [contractorId]);
     if (open[0] !== undefined) throw new DomainError('BANK_CHANGE_STATE_INVALID', 409, 'status', { extensions: { status: 'REQUESTED', change_request_id: open[0].id } });
     const tenantId = await this.tenantOf(tx);
@@ -368,6 +370,14 @@ export class VendorPayeeStore {
     await tx.query("update machvon.contractor_bank_change_request set status = $2, closed_by = $3::uuid, closed_at = $4::timestamptz, closed_reason = $5, version = version + 1 where id = $1::uuid", [id, effect.facts.state, actor, now.toISOString(), why]);
     await this.event(tx, current.contractorId, id, null, kind === 'REJECT' ? 'REJECTED' : 'CANCELLED', actor, why);
     return (await this.findRequest(tx, id)) as PayeeChangeRow;
+  }
+
+  private async expireStale(tx: TenantTx, contractorId: string, now: Date, actor: string): Promise<void> {
+    const stale = await tx.query<{ id: string }>("select id from machvon.contractor_bank_change_request where contractor_id = $1::uuid and status = 'REQUESTED' and expires_at < $2::timestamptz for update", [contractorId, now.toISOString()]);
+    for (const row of stale) {
+      await tx.query("update machvon.contractor_bank_change_request set status = 'EXPIRED', closed_by = $2::uuid, closed_at = $3::timestamptz, closed_reason = 'The request ran out before it was confirmed', version = version + 1 where id = $1::uuid", [row.id, actor, now.toISOString()]);
+      await this.event(tx, contractorId, row.id, null, 'EXPIRED', actor, null);
+    }
   }
 
   /** The job: requests that ran out are closed as EXPIRED (by the system actor given). Returns how many. */

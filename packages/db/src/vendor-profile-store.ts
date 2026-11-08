@@ -454,15 +454,15 @@ export class VendorProfileStore {
     return this.suggestions(tx, { contractorId, status: 'OPEN' });
   }
 
-  async suggestions(tx: TenantTx, filter: { contractorId?: string | undefined; status?: DuplicateSuggestionState | undefined; limit?: number | undefined }): Promise<SuggestionRow[]> {
+  async suggestions(tx: TenantTx, filter: { contractorId?: string | undefined; status?: DuplicateSuggestionState | undefined; limit?: number | undefined; id?: string | undefined }): Promise<SuggestionRow[]> {
     const rows = await tx.query<{ id: string; a: string; b: string; a_name: string; b_name: string; a_tax: string; b_tax: string; score: number; signals: DuplicateSignal[]; status: DuplicateSuggestionState; decision_reason: string | null; version: string }>(
       `select s.id, s.contractor_a_id as a, s.contractor_b_id as b, ca.legal_name as a_name, cb.legal_name as b_name, ca.tax_identifier as a_tax, cb.tax_identifier as b_tax, s.score, s.signals, s.status, s.decision_reason, s.version::text as version
          from machvon.contractor_duplicate_suggestion s
          join machvon.contractor ca on ca.tenant_id = s.tenant_id and ca.id = s.contractor_a_id
          join machvon.contractor cb on cb.tenant_id = s.tenant_id and cb.id = s.contractor_b_id
-        where ($1::uuid is null or s.contractor_a_id = $1::uuid or s.contractor_b_id = $1::uuid) and ($2::text is null or s.status = $2)
+        where ($1::uuid is null or s.contractor_a_id = $1::uuid or s.contractor_b_id = $1::uuid) and ($2::text is null or s.status = $2) and ($4::uuid is null or s.id = $4::uuid)
         order by s.score desc, s.id limit $3`,
-      [filter.contractorId ?? null, filter.status ?? null, filter.limit ?? 200],
+      [filter.contractorId ?? null, filter.status ?? null, filter.limit ?? 200, filter.id ?? null],
     );
     return rows.map((row) => ({ id: row.id, contractorAId: row.a, contractorBId: row.b, contractorAName: row.a_name, contractorBName: row.b_name, contractorATax: row.a_tax, contractorBTax: row.b_tax, score: row.score, signals: row.signals, status: row.status, decisionReason: row.decision_reason, version: Number(row.version) }));
   }
@@ -478,9 +478,6 @@ export class VendorProfileStore {
       `update machvon.contractor_duplicate_suggestion set status = $2, decided_by = $3::uuid, decided_at = now(), decision_reason = $4, dismissed_score = case when $2 = 'DISMISSED' then score else null end, version = version + 1 where id = $1::uuid`,
       [suggestionId, decision, actor, why],
     );
-    const decided = (await this.suggestions(tx, {})).find((row) => row.id === suggestionId);
-    if (decided !== undefined) return decided;
-    const [row] = await tx.query<{ contractor_a_id: string }>('select contractor_a_id from machvon.contractor_duplicate_suggestion where id = $1::uuid', [suggestionId]);
-    return (await this.suggestions(tx, { contractorId: row?.contractor_a_id }))[0] as SuggestionRow;
+    return (await this.suggestions(tx, { id: suggestionId, limit: 1 }))[0] as SuggestionRow;
   }
 }

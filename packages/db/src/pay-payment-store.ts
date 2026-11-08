@@ -722,7 +722,7 @@ export class PayPaymentStore {
     // G1-2: the project must be on the list and hold an approved amount in the capital plan before anything else is looked at; the number on the system wins over paper.
     for (const warning of await this.disbursement.assertAllowed(tx, input.contract.project_id, input.today)) warnings.push({ code: warning, detail: { project_id: input.contract.project_id } });
     // VND-1: no money to a contractor under a restriction, and none to an account that is not valid (a change still in its waiting period, an account that was closed).
-    await this.vendorGate.assertAllowed(tx, 'PAYMENT', { contractId: input.contract.id, now: new Date(`${input.today}T12:00:00+07:00`) });
+    await this.vendorGate.assertAllowed(tx, 'PAYMENT', { contractId: input.contract.id, now: new Date(), today: input.today });
     const acceptance = input.acceptanceId === null ? undefined : await this.acceptanceOf(tx, input.acceptanceId, input.contract.id);
     assertContractAllows({ status: input.contract.status, suspendedFrom: input.contract.suspended_from, terminatedOn: input.contract.terminated_on }, input.kind, acceptance?.approved_on ?? null);
     if (input.settlementId !== null) await this.assertSettlement(tx, input.settlementId, input.contract.id);

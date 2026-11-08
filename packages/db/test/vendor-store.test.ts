@@ -452,6 +452,59 @@ describe('the management of contractors (VND-1)', () => {
     });
   });
 
+  describe('regressions found in review', () => {
+    it('counts the waiting period of an account against the instant of the payment, not against the day it names', async () => {
+      const id = await contractor('Cty Review Waiting');
+      await owner("update machvon.contractor set phone = '0912000111', phone_key = $2, phone_set_at = now() - interval '30 days' where id = $1", [id, matchKeyOf('0912000111')]);
+      const evidence = await document(false);
+      const opened = await as((tx) => payee.request(tx, id, { bankName: 'Vietcombank', accountHolder: 'CTY REVIEW WAITING', accountNumber: '4400 5500', reason: 'the contractor moved to another bank', evidenceDocumentId: evidence }, memberId(M1), NOW));
+      await as((tx) => payee.approve(tx, opened.id, 1, 'CONTRACT_MATCH', undefined, memberId(M2), NOW), M2);
+      await as((tx) => payee.approve(tx, opened.id, 2, 'ACCOUNT_MATCH', undefined, memberId(M3), NOW), M3);
+      await as((tx) => payee.callback(tx, opened.id, 3, { outcome: 'CONFIRMED', calledNumber: '0912000111', usedNumberOnFile: true }, memberId(M4), NOW), M4);
+      const at = (hours: number): Date => new Date(NOW.getTime() + hours * 3_600_000);
+      expect((await refusal(as((tx) => gate.assertAllowed(tx, 'PAYMENT', { contractorId: id, now: at(71) })))).code).toBe('PAYEE_ACCOUNT_NOT_VALID');
+      // A later day given by the caller does not shorten the wait: the instant decides.
+      expect((await refusal(as((tx) => gate.assertAllowed(tx, 'PAYMENT', { contractorId: id, now: at(1), today: '2027-06-01' })))).code).toBe('PAYEE_ACCOUNT_NOT_VALID');
+      expect(await as((tx) => gate.assertAllowed(tx, 'PAYMENT', { contractorId: id, now: at(73) }))).toEqual([]);
+    });
+
+    it('asks about the members of a venture only for the package the venture was made for', async () => {
+      const lead = await contractor('Cty Review Lead');
+      const member = await contractor('Cty Review Member');
+      const packageA = randomUUID();
+      const ventureId = randomUUID();
+      await owner('insert into machvon.joint_venture (tenant_id, id, name, lead_contractor_id, package_id, created_by, updated_by) values ($1, $2, $3, $4, $5, $6, $6)', [TENANT_A, ventureId, 'JV for package A', lead, packageA, memberId(M1)]);
+      await owner('insert into machvon.joint_venture_member (tenant_id, id, joint_venture_id, contractor_id, share_pct, is_lead) values ($1, gen_random_uuid(), $2, $3, 60, true), ($1, gen_random_uuid(), $2, $4, 40, false)', [TENANT_A, ventureId, lead, member]);
+      const decision = await document(true);
+      await owner("insert into machvon.contractor_restriction (tenant_id, id, contractor_id, kind, source, effective_from, effective_until, decision_document_id, created_by, updated_by) values ($1, gen_random_uuid(), $2, 'DEBARMENT', 'DECISION', date '2026-11-01', date '2027-11-01', $3, $4, $4)", [TENANT_A, member, decision, memberId(M1)]);
+      expect((await refusal(as((tx) => gate.assertAllowed(tx, 'PAYMENT', { contractorId: lead, packageId: packageA, now: NOW })))).extensions).toMatchObject({ via: 'JOINT_VENTURE_MEMBER', restricted_contractor_id: member });
+      await as((tx) => gate.assertAllowed(tx, 'PAYMENT', { contractorId: lead, packageId: randomUUID(), now: NOW }));
+    });
+
+    it('closes a request that ran out when a replacement is asked for, so that it never keeps the replacement out', async () => {
+      const id = await contractor('Cty Review Expiry');
+      await owner("update machvon.contractor set phone = '0912000111', phone_key = $2, phone_set_at = now() - interval '30 days' where id = $1", [id, matchKeyOf('0912000111')]);
+      const evidence = await document(false);
+      const first = await as((tx) => payee.request(tx, id, { bankName: 'ACB', accountHolder: 'CTY REVIEW EXPIRY', accountNumber: '6600 7700', reason: 'the contractor moved to another bank', evidenceDocumentId: evidence }, memberId(M1), NOW));
+      const second = await as((tx) => payee.request(tx, id, { bankName: 'ACB', accountHolder: 'CTY REVIEW EXPIRY', accountNumber: '6600 8800', reason: 'the first request ran out unanswered', evidenceDocumentId: evidence }, memberId(M1), day(31)));
+      expect((await as((tx) => payee.findRequest(tx, first.id)))?.status).toBe('EXPIRED');
+      expect(second.status).toBe('REQUESTED');
+    });
+
+    it('returns the suggestion that was decided, whatever else the contractor has', async () => {
+      const a = await contractor('Cty Review Dup A', { taxId: '0410000001' });
+      const b = await contractor('Cty Review Dup B', { taxId: '0410000001-001' });
+      const c = await contractor('Cty Review Dup C', { taxId: '0410000001-002' });
+      const weights = (await as((tx) => policies.duplicateWeights(tx, '2026-11-09'))).value;
+      const found = await as((tx) => profiles.scan(tx, a, weights));
+      const wanted = found.find((row) => [row.contractorAId, row.contractorBId].includes(c)) as { id: string; version: number };
+      const decided = await as((tx) => profiles.decideSuggestion(tx, wanted.id, wanted.version, 'DISMISSED', 'one firm, already merged elsewhere', memberId(M2)));
+      expect(decided.id).toBe(wanted.id);
+      expect([decided.contractorAId, decided.contractorBId]).toContain(c);
+      expect([decided.contractorAId, decided.contractorBId]).not.toContain(b);
+    });
+  });
+
   describe('the gates', () => {
     it('asks the profile and the account as the rules say and passes a payment to a contractor that never had an account with a warning', async () => {
       const id = await contractor('Cty Gate A');
