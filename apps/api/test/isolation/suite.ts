@@ -630,6 +630,32 @@ export const CONTRACT_FIXTURES: Readonly<Record<TenantName, { id: string; revisi
   },
 };
 
+
+/** A claim, the term it is bound to, an early warning with a mitigation action, each of the draft contract of each tenant (the words are distinctive; tenant contract data). */
+export const CLAIM_FIXTURES: Readonly<Record<TenantName, { termId: string; claimId: string; claimCode: string; claimTitle: string; warningId: string; warningCode: string; warningTitle: string; actionId: string; actionText: string }>> = {
+  'TNT-A': {
+    termId: '00000000-0000-4000-a0da-000000000001',
+    claimId: '00000000-0000-4000-a0da-000000000002',
+    claimCode: 'CLM-001',
+    claimTitle: 'ALPHA-CLAIM-TITLE-0001',
+    warningId: '00000000-0000-4000-a0da-000000000003',
+    warningCode: 'EW-001',
+    warningTitle: 'ALPHA-WARNING-TITLE-0001',
+    actionId: '00000000-0000-4000-a0da-000000000004',
+    actionText: 'ALPHA-WARNING-ACTION-TEXT-0001',
+  },
+  'TNT-B': {
+    termId: '00000000-0000-4000-b0da-000000000001',
+    claimId: '00000000-0000-4000-b0da-000000000002',
+    claimCode: 'CLM-001',
+    claimTitle: 'BETA-CLAIM-TITLE-0001',
+    warningId: '00000000-0000-4000-b0da-000000000003',
+    warningCode: 'EW-001',
+    warningTitle: 'BETA-WARNING-TITLE-0001',
+    actionId: '00000000-0000-4000-b0da-000000000004',
+    actionText: 'BETA-WARNING-ACTION-TEXT-0001',
+  },
+};
 /** The tiers of the chain of changes of the project of each tenant and a change event of its draft contract (the reason is distinctive; tenant financial data). */
 export const CHANGE_FIXTURES: Readonly<Record<TenantName, { configId: string; id: string; reason: string }>> = {
   'TNT-A': { configId: '00000000-0000-4000-a0c8-000000000001', id: '00000000-0000-4000-a0c8-000000000002', reason: 'ALPHA-CHANGE-REASON-0001' },
@@ -1772,6 +1798,13 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contract revision id', value: CONTRACT_FIXTURES[tenant].revisionId },
     { kind: 'contract code', value: CONTRACT_FIXTURES[tenant].code },
     { kind: 'contract title', value: CONTRACT_FIXTURES[tenant].title },
+    { kind: 'claim term id', value: CLAIM_FIXTURES[tenant].termId },
+    { kind: 'claim id', value: CLAIM_FIXTURES[tenant].claimId },
+    { kind: 'claim title', value: CLAIM_FIXTURES[tenant].claimTitle },
+    { kind: 'early warning id', value: CLAIM_FIXTURES[tenant].warningId },
+    { kind: 'early warning title', value: CLAIM_FIXTURES[tenant].warningTitle },
+    { kind: 'early warning action id', value: CLAIM_FIXTURES[tenant].actionId },
+    { kind: 'early warning action text', value: CLAIM_FIXTURES[tenant].actionText },
     { kind: 'change chain config id', value: CHANGE_FIXTURES[tenant].configId },
     { kind: 'change request id', value: CHANGE_FIXTURES[tenant].id },
     { kind: 'change request reason', value: CHANGE_FIXTURES[tenant].reason },

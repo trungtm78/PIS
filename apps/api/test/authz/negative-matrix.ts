@@ -4191,6 +4191,21 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/me/consents/${t.consentId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  // GOV-8: the claim register and the early-warning register of a contract; a caller who is refused changes nothing.
+  proposeClaimTerm: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/claim-terms', body: { claimant_side: 'CONTRACTOR', notice_days: 28, clause_reference: 'Clause 20.1' } }) },
+  decideClaimTerm: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/claim-terms/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'APPROVE' } }) },
+  registerClaim: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/claims', body: { claimant_side: 'CONTRACTOR', kind: 'EXTENSION_OF_TIME', title: 'Matrix claim', event_description: REASON, event_on: '2026-01-02', awareness_on: '2026-01-03' } }) },
+  recordClaimStep: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/claims/00000000-0000-4000-8000-0000000000f1/steps', ifMatch: '"1"', body: { kind: 'NOTICE', occurred_on: '2026-01-04', note: REASON } }) },
+  decideClaimSettlement: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/claims/00000000-0000-4000-8000-0000000000f1/settlement-decision', ifMatch: '"1"', body: { decision: 'APPROVE', note: REASON } }) },
+  declareClaimBar: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/claims/00000000-0000-4000-8000-0000000000f1/bar', ifMatch: '"1"', body: { reason: REASON } }) },
+  linkClaim: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/claims/00000000-0000-4000-8000-0000000000f1/links', ifMatch: '"1"', body: { change_request_id: '00000000-0000-4000-8000-0000000000f1' } }) },
+  raiseContractEarlyWarning: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/early-warnings', body: { title: 'Matrix warning', description: REASON, category: 'TIME', raised_by_party: 'CONTRACTOR', raised_on: '2026-01-02' } }) },
+  assessContractEarlyWarning: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-early-warnings/00000000-0000-4000-8000-0000000000f1/assessment', ifMatch: '"1"', body: { owner_membership_id: '00000000-0000-4000-8000-0000000000f1', likelihood: 'LOW', expected_time_days: 1 } }) },
+  addContractEarlyWarningAction: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-early-warnings/00000000-0000-4000-8000-0000000000f1/actions', body: { description: REASON, owner_membership_id: '00000000-0000-4000-8000-0000000000f1', due_on: '2030-01-02' } }) },
+  completeContractEarlyWarningAction: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-early-warning-actions/00000000-0000-4000-8000-0000000000f1/completion', ifMatch: '"1"', body: { outcome: 'DONE', note: REASON } }) },
+  closeContractEarlyWarning: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-early-warnings/00000000-0000-4000-8000-0000000000f1/closure', ifMatch: '"1"', body: { outcome: 'WITHDRAWN', reason: REASON } }) },
+  recordContractEarlyWarningMeeting: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/early-warning-meetings', body: { held_on: '2026-01-02', attendees: REASON, reviews: [] } }) },
+  issueContractEarlyWarningRegister: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/early-warning-issues', body: {} }) },
 };
 
 export type MatrixCaseKind = 'role' | 'wrong-tenant' | 'control-plane';

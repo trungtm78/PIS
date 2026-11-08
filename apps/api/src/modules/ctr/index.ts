@@ -1,4 +1,6 @@
 import { defineModule } from '../module-descriptor';
+import { ClaimController, ClaimReadsController, ClaimTermController } from './claim.controller';
+import { EarlyWarningController, EarlyWarningReadsController } from './early-warning.controller';
 import { ContractAnalyticsController } from './analytics.controller';
 import { AcceptanceController, AcceptanceReadsController } from './acceptance.controller';
 import { BoqController, BoqLineReadsController } from './boq.controller';
@@ -49,5 +51,10 @@ export const ctrModule = defineModule({
     ContractorExportController,
     ContractorExportReadsController,
     ContractAnalyticsController,
+    ClaimTermController,
+    ClaimController,
+    ClaimReadsController,
+    EarlyWarningController,
+    EarlyWarningReadsController,
   ],
 });

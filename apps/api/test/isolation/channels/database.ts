@@ -89,6 +89,7 @@ import {
   BOQ_FIXTURES,
   CHANGE_FIXTURES,
   CONTRACT_FIXTURES,
+  CLAIM_FIXTURES,
   GUARANTEE_FIXTURES,
   HANDOVER_FIXTURES,
   INSPECTION_FIXTURES,
@@ -1877,6 +1878,26 @@ const INSERT_GUARANTEE = `insert into machvon.guarantee
           case $6::text when 'ACTIVE' then $9::uuid end, case $6::text when 'ACTIVE' then now() end, case $6::text when 'ACTIVE' then 'Isolation fixture check' end,
           case $6::text when 'ACTIVE' then $7::uuid end, $8, $8) on conflict do nothing`;
 
+const INSERT_CLAIM_TERM = `insert into machvon.contract_claim_term
+  (tenant_id, id, contract_id, claimant_side, notice_days, particulars_days, bar_effect, clause_reference, status, proposed_by, decided_by, decided_at)
+  values ($1, $2, $3, 'CONTRACTOR', 28, 42, 'BARS_CLAIM', 'Isolation clause 20.1', 'APPROVED', $4, $5, now()) on conflict do nothing`;
+
+const INSERT_CLAIM = `insert into machvon.contract_claim
+  (tenant_id, id, contract_id, code, claimant_side, kind, title, event_description, event_on, awareness_on, status, term_id, claimed_amount_vnd, claimed_days, responsible_membership_id, registered_by, last_step_on)
+  values ($1, $2, $3, $4, 'CONTRACTOR', 'EXTENSION_OF_TIME', $5, 'Isolation fixture claim event', date '2026-01-02', date '2026-01-03', 'EVENT_RECORDED', $6, 1000, 5, $7, $7, date '2026-01-03') on conflict do nothing`;
+
+const INSERT_CLAIM_STEP = `insert into machvon.contract_claim_step
+  (tenant_id, id, claim_id, ordinal, kind, occurred_on, note, actor_id, claim_version_after)
+  values ($1, gen_random_uuid(), $2, 1, 'EVENT', date '2026-01-03', 'Isolation fixture claim event', $3, 1) on conflict do nothing`;
+
+const INSERT_EARLY_WARNING = `insert into machvon.contract_early_warning
+  (tenant_id, id, contract_id, code, title, description, category, raised_by_party, raised_by, raised_on, status, likelihood, owner_membership_id, expected_time_days, assessed_by, assessed_at)
+  values ($1, $2, $3, $4, $5, 'Isolation fixture warning description', 'TIME', 'CONTRACTOR', $6, date '2026-01-03', 'MITIGATING', 'HIGH', $6, 7, $6, now()) on conflict do nothing`;
+
+const INSERT_EARLY_WARNING_ACTION = `insert into machvon.contract_early_warning_action
+  (tenant_id, id, warning_id, description, owner_membership_id, due_on, created_by)
+  values ($1, $2, $3, $4, $5, date '2026-12-31', $5) on conflict do nothing`;
+
 const INSERT_PROJECT = `insert into machvon.project
   (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, created_by, updated_by)
   values ($1, $2, $3, $4, $5, $6, 'INTERNAL', 1000, 'CONCEPT', 1, $7, $7) on conflict do nothing`;
@@ -2607,6 +2628,12 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const guarantee = GUARANTEE_FIXTURES[tenant];
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.id, draft.id, guarantee.issuer, guarantee.guaranteeNo, 'PENDING_VERIFICATION', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.activeId, draft.id, guarantee.issuer, guarantee.activeGuaranteeNo, 'ACTIVE', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
+    const claim = CLAIM_FIXTURES[tenant];
+    await client.query(INSERT_CLAIM_TERM, [tenantId, claim.termId, draft.id, MEMBERSHIP_ID, APPROVER_ID]);
+    await client.query(INSERT_CLAIM, [tenantId, claim.claimId, draft.id, claim.claimCode, claim.claimTitle, claim.termId, MEMBERSHIP_ID]);
+    await client.query(INSERT_CLAIM_STEP, [tenantId, claim.claimId, MEMBERSHIP_ID]);
+    await client.query(INSERT_EARLY_WARNING, [tenantId, claim.warningId, draft.id, claim.warningCode, claim.warningTitle, MEMBERSHIP_ID]);
+    await client.query(INSERT_EARLY_WARNING_ACTION, [tenantId, claim.actionId, claim.warningId, claim.actionText, MEMBERSHIP_ID]);
     await client.query(INSERT_LAYOUT_PROFILE, [
       tenantId,
       documents.layoutProfileId,

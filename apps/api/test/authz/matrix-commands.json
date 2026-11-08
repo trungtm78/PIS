@@ -667,7 +667,21 @@
     "postVendorReputationEvent",
     "retractVendorReputationEvent",
     "createVendorJointVenture",
-    "endVendorJointVenture"
+    "endVendorJointVenture",
+    "proposeClaimTerm",
+    "decideClaimTerm",
+    "registerClaim",
+    "recordClaimStep",
+    "decideClaimSettlement",
+    "declareClaimBar",
+    "linkClaim",
+    "raiseContractEarlyWarning",
+    "assessContractEarlyWarning",
+    "addContractEarlyWarningAction",
+    "completeContractEarlyWarningAction",
+    "closeContractEarlyWarning",
+    "recordContractEarlyWarningMeeting",
+    "issueContractEarlyWarningRegister"
   ],
   "controlCommands": [
     "decideTenantRestore",

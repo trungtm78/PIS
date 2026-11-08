@@ -1694,7 +1694,7 @@ export type { ClaimTermTemplate, PolicyBasis, PolicyReading } from './ctr-regist
 export { CtrClaimTermStore } from './ctr-claim-term-store.ts';
 export type { ClaimTermMove, ClaimTermProposal, ClaimTermRow } from './ctr-claim-term-store.ts';
 export { CLAIM_REGISTER_LIMIT, CtrClaimStore, claimViewOf, factsOf as claimFactsOf } from './ctr-claim-store.ts';
-export type { ClaimDetail, ClaimFilter, ClaimMove, ClaimRegisterPage, ClaimRow, ClaimStepRow, ClaimView } from './ctr-claim-store.ts';
+export type { ClaimDetail, ClaimFilter, ClaimListItem, ClaimMove, ClaimRegisterPage, ClaimRow, ClaimStepRow, ClaimView } from './ctr-claim-store.ts';
 export { CtrEarlyWarningStore, WARNING_REGISTER_LIMIT, warningFactsOf } from './ctr-early-warning-store.ts';
-export type { EarlyWarningActionMove, EarlyWarningActionRow, EarlyWarningIssueMove, EarlyWarningIssueRow, EarlyWarningMeetingMove, EarlyWarningMeetingRow, EarlyWarningRegisterView, EarlyWarningWarningDetail, EarlyWarningWarningFilter, EarlyWarningWarningMove, EarlyWarningWarningPage, EarlyWarningWarningRow } from './ctr-early-warning-store.ts';
+export type { EarlyWarningActionMove, EarlyWarningActionRow, EarlyWarningIssueMove, EarlyWarningIssueRow, EarlyWarningMeetingMove, EarlyWarningMeetingRow, EarlyWarningRegisterView, EarlyWarningDetail, EarlyWarningFilter, EarlyWarningMove, EarlyWarningPage, EarlyWarningRow } from './ctr-early-warning-store.ts';
 export { HomeContractRegisterSources, topClaimAlert } from './home-contract-register-sources.ts';

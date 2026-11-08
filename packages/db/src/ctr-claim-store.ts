@@ -297,8 +297,13 @@ export interface ClaimFilter {
   responsibleMembershipId?: string | undefined;
 }
 
+/** A claim of the register: what the kernel read of it (deadlines, limitation) beside the row it was read from. */
+export interface ClaimListItem extends ClaimReportRow {
+  claim: ClaimRow;
+}
+
 export interface ClaimRegisterPage {
-  rows: ClaimReportRow[];
+  rows: ClaimListItem[];
   nextCursor: string | null;
   /** Added up over every claim that matches the filter, whatever page was read. */
   totals: ClaimReportTotals;
@@ -553,11 +558,12 @@ export class CtrClaimStore {
     const policy = await this.policy.claim(tx, now);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
     const today = vietnamDateOf(now);
-    const { inputs, truncated } = await this.reportInputs(tx, filter, read);
+    const { inputs, rows: claimRows, truncated } = await this.reportInputs(tx, filter, read);
     const report = claimRegisterReport(inputs, today, policy.params, calendars);
     const matching = filter.limitation === undefined ? report.rows : report.rows.filter((row) => row.limitation.status === filter.limitation);
     const start = page.after === undefined ? 0 : matching.findIndex((row) => row.id === page.after) + 1;
-    const rows = matching.slice(start, start + page.limit);
+    const byId = new Map(claimRows.map((claim) => [claim.id, claim]));
+    const rows = matching.slice(start, start + page.limit).map((item): ClaimListItem => ({ ...item, claim: byId.get(item.id) as ClaimRow }));
     const last = rows[rows.length - 1];
     const nextCursor = last !== undefined && start + page.limit < matching.length ? last.id : null;
     return { rows, nextCursor, totals: report.totals, truncated, policy: policy.basis, calendarPublished: calendars !== undefined, asOf: today };

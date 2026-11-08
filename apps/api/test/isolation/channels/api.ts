@@ -88,6 +88,7 @@ import {
   MEASUREMENT_FIXTURES,
   SCORECARD_FIXTURES,
   EGP_FIXTURES,
+  CLAIM_FIXTURES,
   NONCONFORMANCE_FIXTURES,
   PAYMENT_FIXTURES,
   PROCUREMENT_PLAN_FIXTURES,
@@ -1642,6 +1643,25 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'postVendorReputationEvent', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].eventId, versioned: true, body: { receipt: 'ISO-FOREIGN' } },
   { operation: 'retractVendorReputationEvent', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].eventId, versioned: true, body: { reason: 'Isolation foreign attempt to retract an event' } },
   { operation: 'endVendorJointVenture', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].ventureId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  // GOV-8: the claim register and the early-warning register of a contract.
+  { operation: 'proposeClaimTerm', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { claimant_side: 'OWNER', notice_days: 10, clause_reference: 'Isolation foreign clause' } },
+  { operation: 'decideClaimTerm', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].termId, versioned: true, body: { decision: 'REJECT', note: 'Isolation foreign decision attempt' } },
+  { operation: 'listClaimTerms', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
+  { operation: 'registerClaim', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { claimant_side: 'CONTRACTOR', kind: 'EXTENSION_OF_TIME', title: 'Isolation foreign claim', event_description: 'Isolation foreign claim event', event_on: '2026-01-02', awareness_on: '2026-01-03' } },
+  { operation: 'getClaim', method: 'GET', id: CLAIM_FIXTURES['TNT-B'].claimId },
+  { operation: 'recordClaimStep', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].claimId, versioned: true, body: { kind: 'NOTICE', occurred_on: '2026-01-04', note: 'Isolation foreign notice attempt' } },
+  { operation: 'decideClaimSettlement', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].claimId, versioned: true, body: { decision: 'REJECT', note: 'Isolation foreign settlement attempt' } },
+  { operation: 'declareClaimBar', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].claimId, versioned: true, body: { reason: 'Isolation foreign bar attempt' } },
+  { operation: 'linkClaim', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].claimId, versioned: true, body: { change_request_id: CHANGE_FIXTURES['TNT-B'].id } },
+  { operation: 'raiseContractEarlyWarning', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { title: 'Isolation foreign warning', description: 'Isolation foreign warning text', category: 'TIME', raised_by_party: 'CONTRACTOR', raised_on: '2026-01-02' } },
+  { operation: 'getContractEarlyWarning', method: 'GET', id: CLAIM_FIXTURES['TNT-B'].warningId },
+  { operation: 'assessContractEarlyWarning', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].warningId, versioned: true, body: { owner_membership_id: '00000000-0000-4000-8000-0000000000f1', likelihood: 'LOW', expected_time_days: 1 } },
+  { operation: 'addContractEarlyWarningAction', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].warningId, body: { description: 'Isolation foreign action text', owner_membership_id: '00000000-0000-4000-8000-0000000000f1', due_on: '2030-01-02' } },
+  { operation: 'completeContractEarlyWarningAction', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].actionId, versioned: true, body: { outcome: 'CANCELLED', note: 'Isolation foreign completion attempt' } },
+  { operation: 'closeContractEarlyWarning', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].warningId, versioned: true, body: { outcome: 'WITHDRAWN', reason: 'Isolation foreign closure attempt' } },
+  { operation: 'recordContractEarlyWarningMeeting', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { held_on: '2026-01-02', attendees: 'Isolation foreign attendees', reviews: [] } },
+  { operation: 'issueContractEarlyWarningRegister', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: {} },
+  { operation: 'getContractEarlyWarningRegister', method: 'GET', id: CONTRACT_FIXTURES['TNT-B'].id },
 ];
 
 /** Operations that this channel exercises with a foreign id (the registered foreign-id cases). */

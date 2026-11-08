@@ -577,7 +577,7 @@ export interface ClaimReportTotals {
 }
 
 const zeroCounts = <K extends string>(keys: readonly K[]): Record<K, number> => Object.fromEntries(keys.map((key) => [key, 0])) as Record<K, number>;
-const LIMITATION_STATUSES: readonly LimitationStatus[] = ['NO_TERM', 'NOT_DEFINED', 'CALENDAR_UNAVAILABLE', 'RUNNING', 'APPROACHING', 'MISSED', 'MET', 'MET_LATE', 'BARRED', 'CLOSED'];
+export const LIMITATION_STATUSES: readonly LimitationStatus[] = ['NO_TERM', 'NOT_DEFINED', 'CALENDAR_UNAVAILABLE', 'RUNNING', 'APPROACHING', 'MISSED', 'MET', 'MET_LATE', 'BARRED', 'CLOSED'];
 
 /** Reads each claim against its term on `today` (the deadlines and the limitation), and adds the register up: counts by state, side and limitation, and the money and days asked and granted. */
 export function claimRegisterReport(inputs: readonly ClaimReportInput[], today: string, policy: Pick<ClaimPolicy, 'approachDays'>, calendars: WorkCalendarSource | undefined): { rows: ClaimReportRow[]; totals: ClaimReportTotals } {

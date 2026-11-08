@@ -53,7 +53,7 @@ const NO_REGISTER_STATES: readonly string[] = ['DRAFT', 'IN_REVIEW', 'CANCELLED'
 export const WARNING_REGISTER_LIMIT = 2000;
 const ACTION_LIMIT = 5000;
 
-export interface EarlyWarningWarningRow {
+export interface EarlyWarningRow {
   id: string;
   contractId: string;
   contractCode: string;
@@ -130,7 +130,7 @@ const columns = (today: string): string => `w.id, w.contract_id, c.code as contr
 
 export const WARNING_FROM = `machvon.contract_early_warning w join ${SCOPE_FROM} on c.tenant_id = w.tenant_id and c.id = w.contract_id`;
 
-const warningOf = (row: WarningSql): EarlyWarningWarningRow => ({
+const warningOf = (row: WarningSql): EarlyWarningRow => ({
   id: row.id,
   contractId: row.contract_id,
   contractCode: row.contract_code,
@@ -162,7 +162,7 @@ const warningOf = (row: WarningSql): EarlyWarningWarningRow => ({
   reach: reachOfRow(row.contract_id, row),
 });
 
-export const warningFactsOf = (row: EarlyWarningWarningRow): WarningFacts => ({
+export const warningFactsOf = (row: EarlyWarningRow): WarningFacts => ({
   id: row.id,
   code: row.code,
   status: row.status,
@@ -248,7 +248,7 @@ export interface EarlyWarningIssueRow {
   issuedBy: string;
 }
 
-export interface EarlyWarningWarningMove {
+export interface EarlyWarningMove {
   id: string;
   code: string;
   contractId: string;
@@ -263,7 +263,7 @@ export interface EarlyWarningWarningMove {
   reach: ContractPlace;
 }
 
-export interface EarlyWarningActionMove extends EarlyWarningWarningMove {
+export interface EarlyWarningActionMove extends EarlyWarningMove {
   actionId: string;
   actionStatus: EwActionStatus;
   actionVersion: number;
@@ -296,7 +296,7 @@ export interface EarlyWarningIssueMove {
   reach: ContractPlace;
 }
 
-export interface EarlyWarningWarningFilter {
+export interface EarlyWarningFilter {
   contractId?: string | undefined;
   status?: EwStatus | undefined;
   /** Only warnings that are not closed. */
@@ -306,16 +306,16 @@ export interface EarlyWarningWarningFilter {
   ownerMembershipId?: string | undefined;
 }
 
-export interface EarlyWarningWarningPage {
-  rows: EarlyWarningWarningRow[];
+export interface EarlyWarningPage {
+  rows: EarlyWarningRow[];
   nextCursor: string | null;
   summary: WarningSummary;
   truncated: boolean;
   asOf: string;
 }
 
-export interface EarlyWarningWarningDetail {
-  row: EarlyWarningWarningRow;
+export interface EarlyWarningDetail {
+  row: EarlyWarningRow;
   actions: EarlyWarningActionRow[];
   reviews: Array<{ meetingId: string; heldOn: string; outcome: EwReviewOutcome; note: string | null; statusAtMeeting: string }>;
 }
@@ -344,7 +344,7 @@ export class CtrEarlyWarningStore {
 
   // ---- commands on warnings -----------------------------------------------------------------------------------------------
 
-  async raise(tx: TenantTx, contractId: string, input: NewWarningInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningWarningMove> {
+  async raise(tx: TenantTx, contractId: string, input: NewWarningInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningMove> {
     const contract = await lockRegisterContract(tx, contractId, scopes);
     if (NO_REGISTER_STATES.includes(contract.status)) throw new DomainError('CONTRACT_STATE_INVALID', 409);
     const warning = validateNewWarning(input, vietnamDateOf(now));
@@ -360,7 +360,7 @@ export class CtrEarlyWarningStore {
   }
 
   /** Assesses a warning: the person who answers for it, the likelihood and the expected impact on time and cost (a figure or an explicit "no impact"); can be repeated while the warning is open. */
-  async assess(tx: TenantTx, id: string, expectedVersion: number, input: AssessmentInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningWarningMove> {
+  async assess(tx: TenantTx, id: string, expectedVersion: number, input: AssessmentInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningMove> {
     const held = await this.lock(tx, id, scopes, now);
     if (held.version !== expectedVersion) throw versionConflict(held.version);
     const status = statusAfterAssessment(held.status);
@@ -415,7 +415,7 @@ export class CtrEarlyWarningStore {
   }
 
   /** Closes a warning: resolved (no open action, and not by the person who answers for it), come true (naming the change order or claim of the contract it became) or withdrawn. */
-  async close(tx: TenantTx, id: string, expectedVersion: number, input: ClosureInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningWarningMove> {
+  async close(tx: TenantTx, id: string, expectedVersion: number, input: ClosureInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningMove> {
     const held = await this.lock(tx, id, scopes, now);
     if (held.version !== expectedVersion) throw versionConflict(held.version);
     const closure = validateClosure(input, held.status, held.openActions, held.ownerMembershipId, actor);
@@ -502,7 +502,7 @@ export class CtrEarlyWarningStore {
   // ---- reads --------------------------------------------------------------------------------------------------------------
 
   /** The warnings of a filter inside the read scope, newest first, one page and the summary of all (the same summary the reports read). */
-  async list(tx: TenantTx, filter: EarlyWarningWarningFilter, read: ScopeBuilder, page: { limit: number; after?: string | undefined }, now: Date): Promise<EarlyWarningWarningPage> {
+  async list(tx: TenantTx, filter: EarlyWarningFilter, read: ScopeBuilder, page: { limit: number; after?: string | undefined }, now: Date): Promise<EarlyWarningPage> {
     const today = vietnamDateOf(now);
     const values: unknown[] = [today];
     const where: string[] = [];
@@ -529,7 +529,7 @@ export class CtrEarlyWarningStore {
   }
 
   /** One warning with its actions and what the meetings concluded about it (404 for a warning outside the read scope). */
-  async get(tx: TenantTx, id: string, read: ScopeBuilder, now: Date): Promise<EarlyWarningWarningDetail> {
+  async get(tx: TenantTx, id: string, read: ScopeBuilder, now: Date): Promise<EarlyWarningDetail> {
     const today = vietnamDateOf(now);
     const predicate = read(3);
     const found = await tx.query<WarningSql>(`select ${columns('$2')} from ${WARNING_FROM} where w.id = $1::uuid and ${predicate.sql}`, [id, today, ...predicate.params]);
@@ -578,13 +578,13 @@ export class CtrEarlyWarningStore {
 
   // ---- internals ----------------------------------------------------------------------------------------------------------
 
-  private async lock(tx: TenantTx, id: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningWarningRow> {
+  private async lock(tx: TenantTx, id: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningRow> {
     const today = vietnamDateOf(now);
     const held = await lockScopedRow<WarningSql>(tx, { columns: columns(`'${today}'`), from: WARNING_FROM, alias: 'w', id }, scopes);
     return warningOf(held);
   }
 
-  private moveOf(held: EarlyWarningWarningRow, status: EwStatus, version: number): EarlyWarningWarningMove {
+  private moveOf(held: EarlyWarningRow, status: EwStatus, version: number): EarlyWarningMove {
     return { id: held.id, code: held.code, contractId: held.contractId, contractCode: held.contractCode, projectId: held.projectId, status, fromStatus: held.status, version, ownerMembershipId: held.ownerMembershipId, materialisedInto: null, materialisedId: null, reach: held.reach };
   }
 
@@ -599,7 +599,7 @@ export class CtrEarlyWarningStore {
     if (found[0] === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'materialised_id');
   }
 
-  private async warningsOf(tx: TenantTx, contractId: string, today: string): Promise<EarlyWarningWarningRow[]> {
+  private async warningsOf(tx: TenantTx, contractId: string, today: string): Promise<EarlyWarningRow[]> {
     const rows = await tx.query<WarningSql>(`select ${columns('$2')} from ${WARNING_FROM} where w.contract_id = $1::uuid order by w.code`, [contractId, today]);
     return rows.map(warningOf);
   }
