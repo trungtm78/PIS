@@ -33,7 +33,7 @@ export function Comments({ versionId, anchor, onClearAnchor, mayComment, frozen,
   const [replyTo, setReplyTo] = useState<string | undefined>(undefined);
   const [resolving, setResolving] = useState<CommentView | undefined>(undefined);
   const [hint, setHint] = useState<string | undefined>(undefined);
-  const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
+  const state = useScreenState({ isLoading: list.isLoading, error: list.data === undefined ? list.error : undefined, data: list.data, isEmpty: () => false });
   const all = list.data?.items ?? [];
   const shown = all.filter((item) => anchor === null || item.citation_id === anchor.citationId);
   const roots = shown.filter((item) => item.parent_id === null);

@@ -28,10 +28,8 @@ describe('CompareScreen (DOC-27): two versions of a document', () => {
     expect(screen.getByTestId('summary').textContent).toContain('1');
     expect(screen.getByTestId('mode').textContent).toBeTruthy();
     expect(screen.getByTestId('formula').textContent).toContain('longest common subsequence');
-    expect(entries.querySelectorAll('del').length).toBeGreaterThan(0);
-    expect(entries.querySelectorAll('ins').length).toBeGreaterThan(0);
-    expect(Array.from(entries.querySelectorAll('del')).map((node) => node.textContent)).toContain('100');
-    expect(Array.from(entries.querySelectorAll('ins')).map((node) => node.textContent)).toContain('120');
+    expect(Array.from(entries.querySelectorAll('[data-mark="before"]')).map((node) => node.textContent?.trim())).toContain('100');
+    expect(Array.from(entries.querySelectorAll('[data-mark="after"]')).map((node) => node.textContent?.trim())).toContain('120');
   });
 
   it('folds the equal paragraphs and shows them when asked', async () => {

@@ -50,8 +50,8 @@ function DocumentContent({ route }: ScreenProps) {
   const withdraw = useWithdrawReview();
   const rerun = useRerunExtraction();
   const download = useDownloadLink();
-  const state = useScreenState({ isLoading: detail.isLoading, error: detail.error, data: id === undefined ? undefined : data, isEmpty: () => false });
-  const versionState = useScreenState({ isLoading: version.isLoading, error: version.error, data: version.data, isEmpty: () => false });
+  const state = useScreenState({ isLoading: detail.isLoading, error: data === undefined ? detail.error : undefined, data: id === undefined ? undefined : data, isEmpty: () => false });
+  const versionState = useScreenState({ isLoading: version.isLoading, error: version.data === undefined ? version.error : undefined, data: version.data, isEmpty: () => false });
   const refreshFailed = detail.isError && data !== undefined;
   const document = data?.document;
   const picked = data?.versions.find((item) => item.id === chosen);

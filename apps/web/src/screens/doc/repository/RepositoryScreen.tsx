@@ -49,7 +49,7 @@ function RepositoryContent({ route }: ScreenProps) {
   const pages = list.data?.pages ?? [];
   const items = pages.flatMap((page) => page.items);
   const applied = Object.values(filter).filter((value) => value !== undefined && value !== '').length;
-  const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
+  const state = useScreenState({ isLoading: list.isLoading, error: list.data === undefined ? list.error : undefined, data: list.data, isEmpty: () => false });
   const refreshFailed = list.isError && list.data !== undefined;
   const asOf = pages[0]?.as_of;
   const projectName = projects.data?.find((option) => option.id === filter.projectId)?.label ?? t('doc.repo.list.allProjects');

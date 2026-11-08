@@ -80,7 +80,7 @@ function ReviewList() {
   const list = useReviews({ status }, true);
   const pages = list.data?.pages ?? [];
   const items = pages.flatMap((page) => page.items);
-  const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
+  const state = useScreenState({ isLoading: list.isLoading, error: list.data === undefined ? list.error : undefined, data: list.data, isEmpty: () => false });
   const refreshFailed = list.isError && list.data !== undefined;
   const asOf = pages[0]?.as_of;
   return (
@@ -179,7 +179,7 @@ function ReviewBoard({ id, frozen }: { id: string; frozen: boolean }) {
   const [withdrawing, setWithdrawing] = useState(false);
   const [receipt, setReceipt] = useState<string | undefined>(undefined);
   const data = query.data;
-  const state = useScreenState({ isLoading: query.isLoading, error: query.error, data, isEmpty: () => false });
+  const state = useScreenState({ isLoading: query.isLoading, error: data === undefined ? query.error : undefined, data, isEmpty: () => false });
   const refreshFailed = query.isError && data !== undefined;
   const reload = (): void => void query.refetch();
   const close = (): void => {

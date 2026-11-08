@@ -55,9 +55,9 @@ function CompareContent({ route }: ScreenProps) {
   const to = search.get('to') ?? undefined;
   const comparison = useComparison(mayRead ? id : undefined, from, to);
   const [expanded, setExpanded] = useState(false);
-  const detailState = useScreenState({ isLoading: detail.isLoading, error: detail.error, data: id === undefined ? undefined : detail.data, isEmpty: () => false });
+  const detailState = useScreenState({ isLoading: detail.isLoading, error: detail.data === undefined ? detail.error : undefined, data: id === undefined ? undefined : detail.data, isEmpty: () => false });
   const chosen = from !== undefined && to !== undefined && from !== to;
-  const compareState = useScreenState({ isLoading: comparison.isLoading && chosen, error: chosen ? comparison.error : undefined, data: chosen ? comparison.data : [], isEmpty: () => false });
+  const compareState = useScreenState({ isLoading: comparison.isLoading && chosen, error: chosen && comparison.data === undefined ? comparison.error : undefined, data: chosen ? comparison.data : [], isEmpty: () => false });
   const refreshFailed = comparison.isError && comparison.data !== undefined;
   const data = comparison.data;
   const folded = data === undefined ? [] : foldEntries(data.entries, expanded);

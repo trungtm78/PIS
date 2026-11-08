@@ -166,7 +166,6 @@ describe('DocumentScreen (DOC-25): a document, its versions, its text with citat
     fireEvent.change(document.querySelector('#comment-body') as HTMLTextAreaElement, { target: { value: 'Cần ghi rõ giá đã gồm thuế' } });
     fireEvent.click(screen.getByTestId('send-comment'));
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('addDocumentComment', expect.objectContaining({ body: expect.objectContaining({ citation_id: citation(2), body: 'Cần ghi rõ giá đã gồm thuế' }) })));
-    fireEvent.click(document.querySelector(`[data-comments="${citation(2)}"]`) as HTMLElement);
     fireEvent.click(screen.getByTestId('clear-anchor'));
     expect(screen.queryByTestId('anchor')).toBeNull();
   });
@@ -180,7 +179,7 @@ describe('DocumentScreen (DOC-25): a document, its versions, its text with citat
     expect(h.command).not.toHaveBeenCalled();
     fireEvent.click(document.querySelector(`[data-resolve="${comment(1).id}"]`) as HTMLElement);
     const dialog = await screen.findByRole('dialog');
-    fireEvent.click(within(dialog).getAllByRole('button').filter((button) => (button as HTMLButtonElement).type === 'button' || true).find((button) => /xác|confirm|đánh dấu/i.test(button.textContent ?? '')) as HTMLElement);
+    fireEvent.click(confirm(dialog, t('doc.repo.comments.resolve')));
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('resolveDocumentComment', expect.anything()));
     fireEvent.click(document.querySelector(`[data-reopen="${comment(2).id}"]`) as HTMLElement);
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('reopenDocumentComment', expect.objectContaining({ path: { id: comment(2).id } })));
