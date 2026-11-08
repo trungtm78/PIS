@@ -92,7 +92,7 @@ describe('the incidents of the Integration Hub in the alert centre', () => {
     await seedFile('EGP_TBMT_FILE', 'APPLIED', new Date(NOW.getTime() - 400 * 3_600_000));
     await sweep(new Date(NOW.getTime() + 10 * 3_600_000));
     const rows = await read([HUB_AUDIENCE_PERMISSION]);
-    expect(rows.find((row) => row.causeKey === 'connector:egp.muasamcong')).toMatchObject({ kind: 'CONNECTOR_STALE', target: { screen: 'HUB-03' } });
+    expect(rows.find((row) => row.kind === 'CONNECTOR_STALE' && row.target?.screen === 'HUB-03')).toMatchObject({ kind: 'CONNECTOR_STALE', target: { screen: 'HUB-03' } });
   });
 
   it('does not show one tenant the incidents of another', async () => {

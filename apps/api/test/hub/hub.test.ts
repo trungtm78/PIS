@@ -120,10 +120,14 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     const reply = await call('GET', '/integration-hub/connectors', { member: READER });
     expect(reply.status).toBe(200);
     const items = reply.json.items as Array<Record<string, unknown>>;
-    expect(items.map((item) => item.code)).toEqual(['egp.muasamcong', 'treasury.statement', 'procurement.milestones', 'national.project_codes']);
-    for (const item of items) expect(item).toMatchObject({ status: 'PENDING_EXTERNAL', acceptance: 'PENDING_EXTERNAL', alert: null, enabled: true });
+    expect(items.map((item) => item.code)).toEqual(['egp.muasamcong', 'treasury.statement', 'procurement.milestones', 'national.project_codes', 'fin.sotaichinh', 'access.open-api', 'ind.figure-import', 'mdm.catalogue-import']);
+    // The connectors whose layout waits for the other side are PENDING_EXTERNAL; the ones whose layout is the tenant's own mapping (or that have none) are NEVER_RUN and have no outside acceptance to wait for.
+    const waiting = ['egp.muasamcong', 'treasury.statement', 'procurement.milestones', 'national.project_codes', 'fin.sotaichinh'];
+    for (const item of items) {
+      if (waiting.includes(item.code as string)) expect(item).toMatchObject({ status: 'PENDING_EXTERNAL', acceptance: 'PENDING_EXTERNAL', alert: null, enabled: true });
+      else expect(item).toMatchObject({ status: 'NEVER_RUN', acceptance: 'NOT_APPLICABLE', alert: null, enabled: true });
+    }
     expect(items[0]).toMatchObject({ direction: 'BOTH', protocols: ['FILE_DROP'], planned_protocols: ['HTTPS_REST', 'SOAP_XML'], screens: [{ code: 'BID-22', route: '/bid/bid-22' }, { code: 'BID-23', route: '/bid/bid-23' }, { code: 'BID-24', route: '/bid/bid-24' }] });
-    expect(reply.json.summary).toMatchObject({ total: 4, monitored: 0, healthy: 0, healthy_percent: null, hub_alert: null });
     expect(reply.json.summary).toMatchObject({ total: 8, monitored: 0, healthy: 0, healthy_percent: null, hub_alert: null });
     // HUB-2: the registry facts of each descriptor ride with the summary, so the catalogue can show what every connection is declared to be.
     const feed = items.find((item) => item.code === 'fin.sotaichinh');
@@ -251,12 +255,12 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     await seedFile('PROCUREMENT_FILE', 'APPLIED', new Date(NOW.getTime() - 800 * HOURS));
     const first = await call('POST', '/integration-hub/snapshots', { member: ADMIN, body: {} });
     expect(first.status).toBe(200);
-    expect(first.json).toMatchObject({ snapshots_written: 5, incidents_opened: 3, summary: { monitored: 3, hub_alert: { code: 'CONNECTOR_HUB_STALE', severity: 'URGENT' } } });
+    expect(first.json).toMatchObject({ snapshots_written: 9, incidents_opened: 3, summary: { monitored: 3, hub_alert: { code: 'CONNECTOR_HUB_STALE', severity: 'URGENT' } } });
     const second = await call('POST', '/integration-hub/snapshots', { member: ADMIN, body: {} });
     expect(second.json).toMatchObject({ snapshots_written: 0, incidents_opened: 0 });
     const incidents = (await call('GET', '/integration-hub/incidents?state=OPEN', { member: READER })).json.items as Array<Record<string, unknown>>;
     expect(incidents.map((incident) => [incident.connector_code, incident.kind]).sort()).toEqual([[null, 'HUB_STALE'], ['procurement.milestones', 'STALE'], ['treasury.statement', 'STALE']]);
-    expect((await audits(TENANT_A, 'hub.snapshot_captured'))[0]?.safe_diff).toMatchObject({ snapshots_written: 5, incidents_opened: 3 });
+    expect((await audits(TENANT_A, 'hub.snapshot_captured'))[0]?.safe_diff).toMatchObject({ snapshots_written: 9, incidents_opened: 3 });
     const health = await call('GET', '/integration-hub/health', { member: READER });
     expect((health.json.trend as unknown[]).length).toBe(1);
     expect(((health.json.kpis as Array<Record<string, unknown>>)[1] as { value: number }).value).toBeGreaterThan(16);

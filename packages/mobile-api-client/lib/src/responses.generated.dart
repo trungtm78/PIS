@@ -37211,6 +37211,7 @@ final class HubConnectorSummaryResponse implements ResponseModel {
     required this.ownerRole,
     required this.egressPolicy,
     required this.screens,
+    this.registry,
     this.extra = const <String, Object?>{},
   });
 
@@ -37239,7 +37240,8 @@ final class HubConnectorSummaryResponse implements ResponseModel {
       ownerRole: requiredField(map, path, 'owner_role', asString),
       egressPolicy: requiredField(map, path, 'egress_policy', asString),
       screens: requiredField(map, path, 'screens', asList(HubScreenLinkResponse.fromJson)),
-      extra: unknownFields(map, path, const <String>{'code', 'name', 'direction', 'protocols', 'planned_protocols', 'acceptance', 'status', 'freshness', 'age_hours', 'enabled', 'last_success_at', 'last_run_at', 'last_run_outcome', 'alert', 'figures_blocked', 'failed_runs_7d', 'discrepancy_backlog', 'pending_mappings', 'consumers', 'owner_role', 'egress_policy', 'screens'}, strict: true),
+      registry: optionalField(map, path, 'registry', HubRegistryFactsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'direction', 'protocols', 'planned_protocols', 'acceptance', 'status', 'freshness', 'age_hours', 'enabled', 'last_success_at', 'last_run_at', 'last_run_outcome', 'alert', 'figures_blocked', 'failed_runs_7d', 'discrepancy_backlog', 'pending_mappings', 'consumers', 'owner_role', 'egress_policy', 'screens', 'registry'}, strict: true),
     );
   }
 
@@ -37265,6 +37267,7 @@ final class HubConnectorSummaryResponse implements ResponseModel {
   final String ownerRole;
   final String egressPolicy;
   final List<HubScreenLinkResponse> screens;
+  final HubRegistryFactsResponse? registry;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -37293,6 +37296,7 @@ final class HubConnectorSummaryResponse implements ResponseModel {
         'owner_role': ownerRole,
         'egress_policy': egressPolicy,
         'screens': screens.map((e0) => e0.toJson()).toList(),
+        if (registry != null) 'registry': registry!.toJson(),
         ...extra,
       };
 }
@@ -37893,6 +37897,106 @@ final class HubProtocolViewResponse implements ResponseModel {
         'retry': retry,
         'delivery': delivery,
         'formats': formats,
+        ...extra,
+      };
+}
+
+final class HubRegistryFactsResponse implements ResponseModel {
+  const HubRegistryFactsResponse({
+    required this.transports,
+    required this.layouts,
+    required this.freshnessRule,
+    required this.maxAgeHours,
+    required this.warnAfterHours,
+    required this.ruleSource,
+    required this.credentialKind,
+    required this.scopes,
+    required this.alertTypes,
+    required this.stateOwner,
+    required this.history,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubRegistryFactsResponse.fromJson(Object? json, [String path = 'HubRegistryFactsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubRegistryFactsResponse(
+      transports: requiredField(map, path, 'transports', asList(asString)),
+      layouts: requiredField(map, path, 'layouts', asList(HubRegistryLayoutResponse.fromJson)),
+      freshnessRule: requiredField(map, path, 'freshness_rule', nullable(asString)),
+      maxAgeHours: requiredField(map, path, 'max_age_hours', nullable(asInt)),
+      warnAfterHours: requiredField(map, path, 'warn_after_hours', nullable(asInt)),
+      ruleSource: requiredField(map, path, 'rule_source', asString),
+      credentialKind: requiredField(map, path, 'credential_kind', asString),
+      scopes: requiredField(map, path, 'scopes', asList(asString)),
+      alertTypes: requiredField(map, path, 'alert_types', asList(asString)),
+      stateOwner: requiredField(map, path, 'state_owner', asString),
+      history: requiredField(map, path, 'history', asString),
+      extra: unknownFields(map, path, const <String>{'transports', 'layouts', 'freshness_rule', 'max_age_hours', 'warn_after_hours', 'rule_source', 'credential_kind', 'scopes', 'alert_types', 'state_owner', 'history'}, strict: true),
+    );
+  }
+
+  final List<String> transports;
+  final List<HubRegistryLayoutResponse> layouts;
+  final String? freshnessRule;
+  final int? maxAgeHours;
+  final int? warnAfterHours;
+  final String ruleSource;
+  final String credentialKind;
+  final List<String> scopes;
+  final List<String> alertTypes;
+  final String stateOwner;
+  final String history;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'transports': transports,
+        'layouts': layouts.map((e0) => e0.toJson()).toList(),
+        'freshness_rule': freshnessRule,
+        'max_age_hours': maxAgeHours,
+        'warn_after_hours': warnAfterHours,
+        'rule_source': ruleSource,
+        'credential_kind': credentialKind,
+        'scopes': scopes,
+        'alert_types': alertTypes,
+        'state_owner': stateOwner,
+        'history': history,
+        ...extra,
+      };
+}
+
+final class HubRegistryLayoutResponse implements ResponseModel {
+  const HubRegistryLayoutResponse({
+    required this.code,
+    required this.version,
+    required this.acceptance,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubRegistryLayoutResponse.fromJson(Object? json, [String path = 'HubRegistryLayoutResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubRegistryLayoutResponse(
+      code: requiredField(map, path, 'code', asString),
+      version: requiredField(map, path, 'version', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'version', 'acceptance'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String version;
+  final String acceptance;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'version': version,
+        'acceptance': acceptance,
         ...extra,
       };
 }

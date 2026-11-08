@@ -39309,6 +39309,7 @@ export interface components {
             /** @enum {string} */
             egress_policy: "NONE" | "DECLARED";
             screens: components["schemas"]["HubScreenLink"][];
+            registry?: components["schemas"]["HubRegistryFacts"];
         };
         HubSummary: {
             total: number;
@@ -43297,6 +43298,29 @@ export interface components {
              * @description Chứng thư cá nhân đang hiệu lực của người ký.
              */
             certificate_id: string;
+        };
+        HubRegistryLayout: {
+            code: string;
+            version: string;
+            /** @enum {string} */
+            acceptance: "PENDING_EXTERNAL" | "ACCEPTED" | "NOT_APPLICABLE";
+        };
+        HubRegistryFacts: {
+            transports: ("FILE" | "API_PULL" | "API_PUSH" | "GENERATOR")[];
+            layouts: components["schemas"]["HubRegistryLayout"][];
+            freshness_rule: string | null;
+            max_age_hours: number | null;
+            warn_after_hours: number | null;
+            /** @enum {string} */
+            rule_source: "RULE" | "DEFAULT" | "DESCRIPTOR" | "NOT_JUDGED";
+            /** @enum {string} */
+            credential_kind: "NONE" | "VAULT_REFERENCE" | "MACHINE_ACCOUNT";
+            scopes: string[];
+            alert_types: string[];
+            /** @enum {string} */
+            state_owner: "CONNECTOR" | "HUB";
+            /** @enum {string} */
+            history: "FILE_FRAMEWORK" | "HUB_RUNS" | "ADAPTER";
         };
     };
     responses: never;

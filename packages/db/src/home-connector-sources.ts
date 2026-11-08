@@ -3,6 +3,7 @@ import { EgpConnectionStore } from './egp-store.ts';
 import { FeedDifferenceStore } from './finance-feed-mapping-store.ts';
 import { ProvinceFactsReader } from './finance-feed-reader.ts';
 import { FeedConnectionStore } from './finance-feed-store.ts';
+import { HubStore } from './hub-store.ts';
 import { forAudience } from './home-integrity-sources.ts';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import { base } from './home-work-sources.ts';
@@ -13,6 +14,8 @@ export const CONNECTOR_AUDIENCE_PERMISSION = 'bid.egp.admin';
 /** The audience of the alerts of the feed of the Finance Department: the integration administrator for the connection and the late units, whoever may settle a difference for a large difference. */
 export const FEED_AUDIENCE_PERMISSION = 'fin.feed.admin';
 export const FEED_DIFFERENCE_AUDIENCE_PERMISSION = 'fin.feed.resolve';
+/** The audience of the incidents of the Integration Hub: who manages incidents (the integration administrator), on the whole tenant. */
+export const HUB_AUDIENCE_PERMISSION = 'hub.incident.manage';
 
 /**
  * A reader of the connections an edition adds to the alert centre (ENT-2): a connection that is not part of the base product (the push to the reporting platform of the customer, the file import of its ledger) says in its own rows when it is stale or
@@ -45,6 +48,7 @@ export class HomeConnectorSources {
   private readonly feedConnections = new FeedConnectionStore();
   private readonly feedDifferences = new FeedDifferenceStore();
   private readonly feedFacts = new ProvinceFactsReader();
+  private readonly hub = new HubStore();
 
   async items(context: SourceContext): Promise<SourceRow[]> {
     const own = await this.nationalNetwork(context);
@@ -54,7 +58,6 @@ export class HomeConnectorSources {
   }
 
   private async nationalNetwork(context: SourceContext): Promise<SourceRow[]> {
-    return [...(await this.egpItems(context)), ...(await this.feedItems(context))];
     const own = [...(await this.egpItems(context)), ...(await this.feedItems(context))];
     return [...own, ...(await this.hubItems(context, own))];
   }

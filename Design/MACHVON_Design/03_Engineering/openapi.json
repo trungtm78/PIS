@@ -272376,6 +272376,9 @@
             "items": {
               "$ref": "#/components/schemas/HubScreenLink"
             }
+          },
+          "registry": {
+            "$ref": "#/components/schemas/HubRegistryFacts"
           }
         }
       },
@@ -288879,6 +288882,130 @@
             "type": "string",
             "format": "uuid",
             "description": "Chứng thư cá nhân đang hiệu lực của người ký."
+          }
+        }
+      },
+      "HubRegistryLayout": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "version",
+          "acceptance"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "acceptance": {
+            "type": "string",
+            "enum": [
+              "PENDING_EXTERNAL",
+              "ACCEPTED",
+              "NOT_APPLICABLE"
+            ]
+          }
+        }
+      },
+      "HubRegistryFacts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transports",
+          "layouts",
+          "freshness_rule",
+          "max_age_hours",
+          "warn_after_hours",
+          "credential_kind",
+          "scopes",
+          "alert_types",
+          "state_owner",
+          "history",
+          "rule_source"
+        ],
+        "properties": {
+          "transports": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FILE",
+                "API_PULL",
+                "API_PUSH",
+                "GENERATOR"
+              ]
+            }
+          },
+          "layouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubRegistryLayout"
+            }
+          },
+          "freshness_rule": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "max_age_hours": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "warn_after_hours": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "rule_source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT",
+              "DESCRIPTOR",
+              "NOT_JUDGED"
+            ]
+          },
+          "credential_kind": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "VAULT_REFERENCE",
+              "MACHINE_ACCOUNT"
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "alert_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "state_owner": {
+            "type": "string",
+            "enum": [
+              "CONNECTOR",
+              "HUB"
+            ]
+          },
+          "history": {
+            "type": "string",
+            "enum": [
+              "FILE_FRAMEWORK",
+              "HUB_RUNS",
+              "ADAPTER"
+            ]
           }
         }
       }
