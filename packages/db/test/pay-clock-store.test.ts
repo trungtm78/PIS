@@ -112,15 +112,20 @@ describe('the clock of the Treasury control and the standard return reasons (G1-
       await clockOf(running, { started: '2026-07-27T02:00:00Z', due: '2026-07-29T10:00:00Z' });
       await clockOf(breached, { started: '2026-07-20T02:00:00Z', due: '2026-07-22T10:00:00Z' });
       await clockOf(unknown, { started: '2026-07-27T02:00:00Z', due: null });
+      const before = await as((tx) => clocks.board(tx, scope, { from: '2026-07-01' }, NOW));
+      expect(before.rows.find((row) => row.paymentRequestId === unknown.id)).toMatchObject({ basis: 'CALENDAR_UNAVAILABLE', dueAt: null });
+      expect(before.calendarFound).toBe(false);
+      expect(before.calendarUnavailable).toBe(true);
       await owner("insert into machvon.work_calendar_version (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, published_by, published_at) values ($1, gen_random_uuid(), 'WORKDAY_VN', 2026, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, 'Labour Code 2019', 'Published', $2, $2, now())", [TENANT_A, memberId(SENDER)]);
       const board = await as((tx) => clocks.board(tx, scope, { from: '2026-07-01' }, NOW));
       const byRequest = new Map(board.rows.map((row) => [row.paymentRequestId, row]));
       expect(byRequest.get(running.id)).toMatchObject({ state: 'RUNNING', basis: 'WORKING_TIME' });
       expect(byRequest.get(breached.id)).toMatchObject({ state: 'BREACHED' });
-      expect(byRequest.get(unknown.id)).toMatchObject({ basis: 'CALENDAR_UNAVAILABLE', dueAt: null });
+      // once the calendar of the year is published the clock without a due instant is counted on it, from the instant it started
+      expect(byRequest.get(unknown.id)).toMatchObject({ basis: 'WORKING_TIME', dueAt: '2026-07-29T02:00:00.000Z' });
       expect(board.summary.breached).toBeGreaterThanOrEqual(1);
       expect(board.calendarFound).toBe(true);
-      expect(board.calendarUnavailable).toBe(true);
+      expect(board.calendarUnavailable).toBe(false);
     });
 
     it('shows nothing of a contract outside the scope of the caller and reads the catalogue of reasons from the rule', async () => {

@@ -268,7 +268,7 @@ describe('the Treasury forms of a payment request (ST-PAY-005)', () => {
     it('supersedes the forms that were drawn for its old figures, so they are drawn again when it has been corrected and checked', async () => {
       const target = await checked();
       await drawAll(target.id);
-      const returned = await as((tx) => claims.returnRequest(tx, target.id, target.version, { reason: 'The tax adjustment was wrong.', requestId: randomUUID() }, memberId(CHECKER), everything), CHECKER);
+      const returned = await as((tx) => claims.returnRequest(tx, target.id, target.version, { reason: 'The tax adjustment was wrong.', reasonCode: 'MISSING_DOCUMENT', requestId: randomUUID() }, memberId(CHECKER), everything), CHECKER);
       expect(returned.status).toBe('RETURNED');
       expect((await instances(target.id)).map((row) => row.status)).toEqual(['SUPERSEDED', 'SUPERSEDED', 'SUPERSEDED', 'SUPERSEDED']);
       expect((await as((tx) => forms.standing(tx, [target.id]))).size).toBe(0);

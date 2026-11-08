@@ -281,6 +281,8 @@ describe('PaymentDetailScreen (PAY-03): a payment request and its documents', ()
     });
     await screen.findByTestId('request-no');
     fireEvent.click(action('return'));
+    // the standard reasons are read first: the code is asked for once the rule says so
+    await waitFor(() => expect((within(dialog()).getByLabelText(vi_['pay.payment.field.returnReasonCode']) as HTMLSelectElement).disabled).toBe(false));
     press(vi_['pay.payment.return.submit']);
     expect((await within(dialog()).findAllByText(vi_['pay.payment.problem.required'])).length).toBe(2);
     expect(commandsOf(h, 'returnPaymentRequest')).toEqual([]);

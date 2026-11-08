@@ -149,7 +149,10 @@ export class SettlementClockController {
   async versions(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
     const now = new Date();
     const read = await this.database.withTenant(tenant, async (tx) => {
-      const rows = await this.adjustments.ofContract(tx, contractScope(access, PERMISSIONS.listContractAdjustments, now), id.toLowerCase());
+      const scope = contractScope(access, PERMISSIONS.listContractAdjustments, now);
+      const rows = await this.adjustments.ofContract(tx, scope, id.toLowerCase());
+      // A contract without versions answers an empty list; a contract that does not exist, or is out of the scope of the caller, answers 404.
+      if (rows.length === 0 && (await this.linkage.read(tx, scope, id.toLowerCase())) === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
       return { rows, rule: await this.adjustments.policy(tx, now) };
     });
     return {

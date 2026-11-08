@@ -38,7 +38,7 @@ async function refusal(work: Promise<unknown>): Promise<{ code: string; status: 
 
 async function completed(group: string | null, completedOn: string): Promise<string> {
   const contract = await fixtures.seedContract();
-  await adminStatement(fixtures, 'update machvon.project set project_group = $2 where id = $1::uuid', [fixtures.projectId, group]);
+  await adminStatement(fixtures, "update machvon.project set project_group = $2, status = case when $2::text is null then 'CONCEPT' else 'IMPLEMENTATION' end where id = $1::uuid", [fixtures.projectId, group]);
   await adminStatement(
     fixtures,
     `update machvon.contract set status = 'COMPLETED', completed_on = $2::date, completion_quality_acceptance_id = gen_random_uuid(), completed_by = $3::uuid where id = $1::uuid`,
@@ -109,13 +109,13 @@ describe('the settlement clock, the adjustment versions and the linkage of a con
     async function versionOf(amount: string): Promise<{ contractId: string; revisionId: string }> {
       const contract = await fixtures.seedContract();
       const first = (await owner<{ id: string }>('select id from machvon.contract_revision where contract_id = $1::uuid and revision = 1', [contract.contractId]))[0] as { id: string };
-      await adminStatement(fixtures, "update machvon.contract_revision set status = 'EFFECTIVE' where id = $1::uuid", [first.id]);
+      await adminStatement(fixtures, "update machvon.contract_revision set status = 'EFFECTIVE', decided_by = $2::uuid, decided_at = now() where id = $1::uuid", [first.id, memberId(CREATOR)]);
       const revisionId = randomUUID();
       const document = await fixtures.documentVersion();
       await adminStatement(
         fixtures,
-        `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, supersedes_id, version, created_by, updated_by)
-         values ($1, $2, $3, 2, $4::numeric, $5, date '2026-11-10', 'PENDING_EFFECTIVE', 'AMENDMENT', $6, 1, $7, $7)`,
+        `insert into machvon.contract_revision (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, supersedes_id, version, created_by, updated_by, decided_by, decided_at)
+         values ($1, $2, $3, 2, $4::numeric, $5, date '2026-11-10', 'PENDING_EFFECTIVE', 'AMENDMENT', $6, 1, $7, $7, $7, now())`,
         [TENANT_A, revisionId, contract.contractId, amount, document.id, first.id, memberId(CREATOR)],
       );
       await as((tx) => putRevisionInForce(tx, { contractId: contract.contractId, revisionId, validFrom: '2026-11-10', amountVnd: amount, actor: memberId(CREATOR) }));

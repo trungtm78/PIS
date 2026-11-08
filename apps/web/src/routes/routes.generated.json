@@ -458,6 +458,7 @@
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
     {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
+<<<<<<< HEAD
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
@@ -514,5 +515,15 @@
     {"id":"DOC-25","path":"/doc/doc-25","title":"Hồ sơ và trình xem có dẫn nguồn","kind":"detail","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-24","req":"FR-DOC-25"},
     {"id":"DOC-26","path":"/doc/doc-26","title":"Bảng luồng duyệt hồ sơ","kind":"approval","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-26"},
     {"id":"DOC-27","path":"/doc/doc-27","title":"So sánh hai phiên bản hồ sơ","kind":"compare","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-25","req":"FR-DOC-27"}
+=======
+    {"id":"CAP-23","path":"/cap/cap-23","title":"Điều chuyển vốn theo hiệu suất và mô phỏng tác động","kind":"compare","area":"investment","module":"CAP","group":"Kế hoạch vốn","role":"workspace","parent":null,"req":"FR-CAP-23"},
+    {"id":"DIS-27","path":"/dis/dis-27","title":"Dự báo tới các mốc chỉ đạo của giải ngân","kind":"dashboard","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
+    {"id":"DIS-28","path":"/dis/dis-28","title":"Độ chính xác dự báo giải ngân của từng chủ đầu tư","kind":"table","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
+    {"id":"PAY-22","path":"/pay/pay-22","title":"Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày","kind":"table","area":"investment","module":"PAY","group":"Hồ sơ thanh toán","role":"workspace","parent":null,"req":"FR-PAY-22"},
+    {"id":"CTR-32","path":"/ctr/ctr-32","title":"Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng","kind":"table","area":"investment","module":"CTR","group":"Hợp đồng & điều khoản","role":"workspace","parent":null,"req":"FR-CTR-32"},
+    {"id":"CTR-33","path":"/ctr/ctr-33","title":"Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh","kind":"record","area":"investment","module":"CTR","group":"Hợp đồng & điều khoản","role":"workspace","parent":null,"req":"FR-CTR-33"},
+    {"id":"PRJ-28","path":"/prj/prj-28","title":"Kế hoạch nhìn trước 2 đến 6 tuần của công trường","kind":"table","area":"investment","module":"PRJ","group":"Danh mục & theo dõi","role":"workspace","parent":null,"req":"FR-PRJ-28"},
+    {"id":"PRJ-29","path":"/prj/prj-29","title":"Bài học kinh nghiệm và cổng đóng dự án","kind":"record","area":"investment","module":"PRJ","group":"Danh mục & theo dõi","role":"workspace","parent":null,"req":"FR-PRJ-29"}
+>>>>>>> 648121d8 (test: fixtures of the clock and adjustment store tests, 404 for the adjustments of an unknown contract, the route table, the return dialog waits for the reasons)
   ]
 }
