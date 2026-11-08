@@ -492,6 +492,15 @@ export class HpmPushStore {
     };
   }
 
+  /** How many pushes there are in each state, for the screen. */
+  async counts(tx: TenantTx): Promise<{ pushes: number; written: number; accepted: number; failed: number; rejected: number }> {
+    const [row] = await tx.query<{ pushes: string; written: string; accepted: string; failed: string; rejected: string }>(
+      `select count(*)::text as pushes, count(*) filter (where status = 'WRITTEN')::text as written, count(*) filter (where status = 'ACCEPTED')::text as accepted,
+              count(*) filter (where status = 'FAILED')::text as failed, count(*) filter (where status = 'REJECTED')::text as rejected from machvon.hpm_push`,
+    );
+    return { pushes: Number(row?.pushes ?? 0), written: Number(row?.written ?? 0), accepted: Number(row?.accepted ?? 0), failed: Number(row?.failed ?? 0), rejected: Number(row?.rejected ?? 0) };
+  }
+
   /** The newest accepted copy of every series, for the screen: what HPM holds. */
   async acceptedSeries(tx: TenantTx, limit: number): Promise<Array<{ layoutCode: string; period: string; revision: number; acceptedAt: string | null }>> {
     const rows = await tx.query<{ layout_code: string; period: string; revision: number; accepted_at: string | null }>(

@@ -23,6 +23,24 @@
       "why": "Báo cáo giao lần cuối đã quá cũ so với quy tắc đẩy báo cáo; phải thấy ngay chứ không chờ đến kỳ sau"
     }
   },
+  "pendingExternal": {
+    "hpm": [
+      {
+        "code": "HPM_INTERFACE",
+        "what": "Thông tin kỹ thuật của HPM (nền tảng, API, cấu trúc dữ liệu) hiện chưa có: hệ thống ghi gói giao ra tệp bằng bộ ghi tệp thay HPM và không gọi mạng",
+        "owner": "Ban Chuyển đổi số và Công nghệ thông tin",
+        "consequence": "Lần đẩy chỉ ghi được ra tệp; chưa được nghiệm thu cho đến khi có thông tin kỹ thuật chính thức và nơi nhận xác nhận đã nhận gói"
+      }
+    ],
+    "ebs": [
+      {
+        "code": "EBS_EXTRACT",
+        "what": "Quyền đọc và định dạng dữ liệu Oracle EBS hiện chưa có tệp mẫu chính thức: hệ thống đọc theo mẫu giả định WORKING-ASSUMPTION-2026.1",
+        "owner": "Ban Tài chính kế toán, Ban Chuyển đổi số và Công nghệ thông tin",
+        "consequence": "Nhập tệp và đối chiếu chạy được trong thử nghiệm nhưng chưa được nghiệm thu cho đến khi có tệp mẫu chính thức và Ban Tài chính kế toán xác nhận"
+      }
+    ]
+  },
   "rows": {
     "hpmPushFailedTitle": "Đẩy báo cáo lên HPM thất bại",
     "hpmPushFailedDetail": "Có {count} lần đẩy lỗi chưa được thử lại",

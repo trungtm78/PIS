@@ -11,10 +11,10 @@ const WEB_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults)\\.
 const WEB_KERNEL_TEST_READERS = '^apps/web/src/screens/prj/fin/(fixtures\\.ts|model\\.test\\.ts)$';
 const WEB_TEST_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults|fin-analysis)\\.ts|@machvon/kernel/src/(edition|fin-defaults|fin-analysis)\\.ts)$';
 // What belongs to the enterprise edition only (ENT-0, structure B): its package and the enterprise folders of the web and the phone.
-const ENTERPRISE_CODE = '^(packages/edition-enterprise/|apps/web/src/editions/enterprise/|apps/mobile/lib/editions/enterprise/|@machvon/edition-enterprise(/|$))';
+const ENTERPRISE_CODE = '^(packages/edition-enterprise/|apps/web/src/editions/enterprise/|apps/mobile/lib/editions/enterprise/|apps/api/src/editions/enterprise/|@machvon/edition-enterprise(/|$))';
 // The only files that may import it: the enterprise code itself, one loader per process (the composition seams) and the tests named *.enterprise.test.
 // scripts/edition-check.mjs holds the same list for the static scan; its test compares the two.
-const ENTERPRISE_IMPORTERS = '^(packages/edition-enterprise/|apps/web/src/editions/(enterprise/|load\\.ts$)|apps/api/src/editions/load-enterprise\\.ts$)|\\.enterprise\\.test\\.tsx?$';
+const ENTERPRISE_IMPORTERS = '^(packages/edition-enterprise/|apps/web/src/editions/(enterprise/|load\\.ts$)|apps/api/src/editions/(enterprise/|load-enterprise\\.ts$))|\\.enterprise\\.test\\.tsx?$';
 // design-tokens is framework-free and imports no workspace; api-client reaches only the contracts.
 const TOKENS_FORBIDDEN = '^(packages/(kernel|db|contracts|api-client)/|@machvon/(kernel|db|contracts|api-client)(/|$))';
 const CLIENT_FORBIDDEN = '^(packages/(kernel|db|design-tokens)/|@machvon/(kernel|db|design-tokens)(/|$))';

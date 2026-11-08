@@ -19,6 +19,8 @@ interface IntegrationTexts {
   ebsPolicy: { formula: string; source: string };
   ebsFreshness: { formula: string };
   alerts: Record<'hpmPushFailed' | 'hpmPushStale', { action: string; consequence: string; why: string }>;
+  /** What each connection waits for from outside (R18): what, who gives it and what it blocks. */
+  pendingExternal: Record<'hpm' | 'ebs', Array<{ code: string; what: string; owner: string; consequence: string }>>;
 }
 
 export const integrationTexts = (): IntegrationTexts => textsOf<IntegrationTexts>('integration');

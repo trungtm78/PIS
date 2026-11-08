@@ -810,5 +810,20 @@
     "receiveEInvoiceWebhook",
     "receivePaymentWebhook",
     "selectTenantContext"
+  ],
+  "enterpriseCommands": [
+    "setHpmConnectionState",
+    "submitHpmPush",
+    "retryHpmPush",
+    "recordHpmReceipt",
+    "proposeHpmCorrection",
+    "decideHpmCorrection",
+    "setEbsConnectionState",
+    "uploadEbsFile",
+    "previewEbsFile",
+    "importEbsFile",
+    "reconcileEbs",
+    "resolveEbsDifference",
+    "reassignEbsDifference"
   ]
 }

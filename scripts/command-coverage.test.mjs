@@ -212,6 +212,19 @@ test('a command listed under controlCommands counts as matrixed, and a controlCo
   }
 });
 
+test('a command listed under enterpriseCommands counts as matrixed, and an enterpriseCommands that is not a list is refused', () => {
+  const { root, openapi, cleanup } = layout(
+    { 'apps/api/src/things.controller.ts': DECORATED, 'enterprise-matrix.json': JSON.stringify({ commands: [], enterpriseCommands: ['post_things'] }), 'bad-enterprise.json': JSON.stringify({ commands: [], enterpriseCommands: 7 }) },
+    [],
+  );
+  try {
+    assert.deepEqual(commandCoverage(root, openapi, join(root, 'enterprise-matrix.json')).unmatrixed, []);
+    assert.throws(() => commandCoverage(root, openapi, join(root, 'bad-enterprise.json')), /enterpriseCommands/);
+  } finally {
+    cleanup();
+  }
+});
+
 test('the real repository has no write handler without @Command', () => {
   assert.equal(main(['--root', REPO_ROOT], { log: () => undefined }), 0);
 });

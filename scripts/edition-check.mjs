@@ -1,5 +1,5 @@
 // Checks that the public edition holds nothing of the enterprise edition (ENT-0, structure B of the plan): enterprise-only code lives in `packages/edition-enterprise`,
-// `apps/web/src/editions/enterprise` and `apps/mobile/lib/editions/enterprise` only. Static rules, run on the sources:
+// `apps/web/src/editions/enterprise`, `apps/mobile/lib/editions/enterprise` and `apps/api/src/editions/enterprise` (the controllers of the enterprise connections, loaded by `load-enterprise.ts`) only. Static rules, run on the sources:
 //   - no file outside those homes imports them, except one loader per process (the seams below) and the tests named *.enterprise.test.* / *enterprise_test.dart;
 //   - no source outside the homes carries a word that only the enterprise edition says (its product name, its rule packs), read from its own manifest;
 //   - no module of the API registry exists in the enterprise edition only (the registry of the public edition mounts no enterprise controller);
@@ -28,7 +28,7 @@ export const FINDING_CODES = [
 ];
 
 /** The folders that hold the enterprise edition only. */
-export const ENTERPRISE_HOMES = ['packages/edition-enterprise/', 'apps/web/src/editions/enterprise/', 'apps/mobile/lib/editions/enterprise/'];
+export const ENTERPRISE_HOMES = ['packages/edition-enterprise/', 'apps/web/src/editions/enterprise/', 'apps/mobile/lib/editions/enterprise/', 'apps/api/src/editions/enterprise/'];
 /** The files that may import a home besides the homes themselves: one loader per process. */
 export const ENTERPRISE_SEAMS = ['apps/web/src/editions/load.ts', 'apps/api/src/editions/load-enterprise.ts', 'apps/mobile/lib/app/edition_seam.dart'];
 const IMPORTER_TESTS = /\.enterprise\.test\.tsx?$|enterprise_test\.dart$/;

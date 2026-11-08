@@ -97,17 +97,19 @@ function writeOperationIds(openapiPath) {
 
 // The commands that the negative authorization matrices have fixtures for: {"commands": [operationId, ...]} for the
 // tenant plane, an optional "controlCommands": [operationId, ...] for the control plane (matrix on realm roles) and an
-// optional "identityCommands": [operationId, ...] for commands tested with identity tokens (no role matrix applies).
+// optional "identityCommands": [operationId, ...] for commands tested with identity tokens (no role matrix applies) and an optional
+// "enterpriseCommands": [operationId, ...] for the commands that exist in the enterprise edition only (ENT-2): the public application does not implement them, so the matrix of the public
+// application must not list them, and their negative cases run against the enterprise application (apps/api/test/editions/*.enterprise.test.ts).
 // A missing file means the matrices cover nothing.
 function matrixCommands(matrixPath) {
   if (!existsSync(matrixPath)) return new Set();
   const parsed = JSON.parse(readFileSync(matrixPath, 'utf8'));
   const isIdList = (value) => Array.isArray(value) && value.every((id) => typeof id === 'string');
   const optional = (value) => value === undefined || isIdList(value);
-  if (!isIdList(parsed?.commands) || !optional(parsed.controlCommands) || !optional(parsed.identityCommands)) {
-    throw new Error(`${matrixPath} must be {"commands": [operationId, ...], "controlCommands"?: [operationId, ...], "identityCommands"?: [operationId, ...]}`);
+  if (!isIdList(parsed?.commands) || !optional(parsed.controlCommands) || !optional(parsed.identityCommands) || !optional(parsed.enterpriseCommands)) {
+    throw new Error(`${matrixPath} must be {"commands": [operationId, ...], "controlCommands"?: [operationId, ...], "identityCommands"?: [operationId, ...], "enterpriseCommands"?: [operationId, ...]}`);
   }
-  return new Set([...parsed.commands, ...(parsed.controlCommands ?? []), ...(parsed.identityCommands ?? [])]);
+  return new Set([...parsed.commands, ...(parsed.controlCommands ?? []), ...(parsed.identityCommands ?? []), ...(parsed.enterpriseCommands ?? [])]);
 }
 
 /**

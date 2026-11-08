@@ -105,6 +105,7 @@ describe('the repository itself', () => {
       'apps/web/src/main.tsx',
       'apps/api/src/editions/load-enterprise.ts',
       'apps/api/src/editions/load-edition.ts',
+      'apps/api/src/editions/enterprise/hpm.controller.ts',
       'apps/api/src/bootstrap.ts',
       'apps/mobile/lib/editions/enterprise/enterprise_profile.dart',
       'apps/mobile/lib/app/edition_seam.dart',
@@ -362,6 +363,8 @@ describe('the helpers', () => {
     assert.equal(inEnterpriseHome('packages/edition-enterprise/src/index.ts'), true);
     assert.equal(inEnterpriseHome('apps/web/src/editions/enterprise/index.ts'), true);
     assert.equal(inEnterpriseHome('apps/mobile/lib/editions/enterprise/x.dart'), true);
+    assert.equal(inEnterpriseHome('apps/api/src/editions/enterprise/hpm.controller.ts'), true);
+    assert.equal(inEnterpriseHome('apps/api/src/editions/load-enterprise.ts'), false);
     assert.equal(inEnterpriseHome('apps/web/src/editions/load.ts'), false);
     assert.equal(mayImportEnterprise('apps/web/src/editions/load.ts'), true);
     assert.equal(mayImportEnterprise('apps/web/src/editions/edition.ts'), false);

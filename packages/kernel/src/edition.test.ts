@@ -2,6 +2,7 @@ import {
   ALLOW_ALL,
   DEFAULT_EDITION,
   EDITIONS,
+  ENTERPRISE_ONLY_MODULES,
   EditionError,
   PUBLIC_EDITION_MANIFEST,
   allows,
@@ -101,7 +102,8 @@ describe('the public manifest', () => {
     expect(PUBLIC_EDITION_MANIFEST.edition).toBe('public');
     expect(PUBLIC_EDITION_MANIFEST.productName).toEqual({ vi: 'Hệ thống quản lý đầu tư công', en: 'Public Investment Management System' });
     expect(PUBLIC_EDITION_MANIFEST.brand.mark).toEqual({ vi: 'ĐT', en: 'PI' });
-    expect(PUBLIC_EDITION_MANIFEST.modules).toEqual(ALLOW_ALL);
+    expect(PUBLIC_EDITION_MANIFEST.modules).toEqual({ allow: '*', deny: ['EBS', 'HPM'] });
+    expect(ENTERPRISE_ONLY_MODULES).toEqual(['EBS', 'HPM']);
     expect(PUBLIC_EDITION_MANIFEST.screens).toEqual(ALLOW_ALL);
     expect(PUBLIC_EDITION_MANIFEST.menu).toEqual(ALLOW_ALL);
     expect(PUBLIC_EDITION_MANIFEST.terminology).toEqual({ web: [], mobile: [] });

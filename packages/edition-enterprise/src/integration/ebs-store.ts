@@ -24,7 +24,7 @@ const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'`;
 export const EBS_RECONCILE_RULE_TYPE = 'EBS_RECONCILE_POLICY';
 export const EBS_RECONCILE_RULE_CODE = 'DEFAULT';
 export const EBS_FRESHNESS_RULE_CODE = 'EBS_FILE';
-/** The commitments we hold: a contract that was signed and is not over by termination or cancellation; a draft or one in review commits nobody. */
+/** The commitments we hold: the price in force of the contracts that were signed and are not terminated or cancelled (the same statuses as the estimate at completion of CAP); a draft or one in review commits nobody. */
 const COMMITTING_STATUSES = ['SIGNED', 'ACTIVE', 'SUSPENDED', 'COMPLETED', 'CLOSED'];
 
 /** What the apply of a valid row does (the dry run says it): keeps the record; or keeps it for a project code the register does not hold, which the reconciliation reports as a difference with an owner. */
@@ -295,6 +295,18 @@ export class EbsReconciliationStore {
     return { open, resolved, overdue, byResolution, reviewsDue };
   }
 
+  /** The members who may answer for a difference: active members holding the right over the whole tenant (a grant on the whole tenant of a role that lists the permission, or its family, or everything). */
+  async holdersOf(tx: TenantTx, permission: string, now: Date): Promise<string[]> {
+    const family = permission.split('.').slice(0, -1).map((_part, index, parts) => `${parts.slice(0, index + 1).join('.')}.*`);
+    const rows = await tx.query<{ membership_id: string }>(
+      `select distinct g.membership_id from machvon.role_grant g join machvon.role_definition d on d.tenant_id = g.tenant_id and d.id = g.role_id
+        where d.permissions && $2::text[] and d.status = 'Active' and g.scope_kind = 'TENANT' and g.status = 'Active' and g.effective_from <= $1::timestamptz
+          and (g.effective_until is null or g.effective_until > $1::timestamptz) and g.revoked_at is null order by g.membership_id`,
+      [now.toISOString(), [permission, ...family, '*']],
+    );
+    return rows.map((row) => row.membership_id);
+  }
+
   // ---- our side -------------------------------------------------------------------------------------------------------------------------------------
 
   /** Our figures for a project code to the end of a period; a measure we hold nothing for is null (no data is not zero). */
@@ -308,10 +320,7 @@ export class EbsReconciliationStore {
       [project.id, end],
     );
     const [committed] = await tx.query<{ n: string; vnd: string }>(
-      `select count(*)::text as n, coalesce(sum(r.amount_vnd), 0)::text as vnd
-         from machvon.contract c
-         join lateral (select x.amount_vnd from machvon.contract_revision x where x.tenant_id = c.tenant_id and x.contract_id = c.id and x.status = 'EFFECTIVE' order by x.revision desc limit 1) r on true
-        where c.project_id = $1::uuid and c.status = any($2::text[])`,
+      `select count(*)::text as n, coalesce(sum(c.contract_value_vnd), 0)::text as vnd from machvon.contract c where c.project_id = $1::uuid and c.status = any($2::text[])`,
       [project.id, COMMITTING_STATUSES],
     );
     return {

@@ -141,6 +141,14 @@ describe('what a push does (R8, R17)', () => {
     expect(decideHpmPush(base({ existing: entry({ status: 'ACCEPTED', attempts: 1 }), accepted: ref(), intent: 'RETRY' }))).toEqual({ action: 'ALREADY_DELIVERED' });
   });
 
+  it('refuses the repeat of a package a newer revision replaced, accepted or written, before it answers ALREADY_DELIVERED', () => {
+    const newer = ref({ revision: 2, sha256: SHA_B });
+    for (const status of ['ACCEPTED', 'WRITTEN'] as const) {
+      const error = failure(() => decideHpmPush(base({ copy: ref(), head: newer, accepted: newer, existing: entry({ status, attempts: 1 }) })));
+      expect(error).toMatchObject({ code: 'REPORT_OUT_OF_DATE', extensions: { current_revision: 2 } });
+    }
+  });
+
   it('lets a retry re-send a package that was written and waits for a receipt', () => {
     expect(decideHpmPush(base({ intent: 'RETRY', existing: entry({ status: 'WRITTEN', attempts: 1 }) }))).toEqual({ action: 'SEND', attempt: 2, overwrites: false });
   });

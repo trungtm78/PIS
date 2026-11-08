@@ -19,6 +19,7 @@ import { BI_DRILL_SECRET } from './modules/bi/tokens';
 import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
 import type { OrchestrationOptions } from './modules/orchestration';
 import { activeModuleCodes, controllersOf, providersOf } from './modules/registry';
+import type { ModuleDescriptor } from './modules/module-descriptor';
 import { LicenseController, LicenseReadsController, SystemLicenseReadsController } from './modules/sas/license.controller';
 import { LICENSE_KEYS } from './modules/sas/license-signer';
 import type { LicenseKeyStore } from './modules/sas/license-signer';
@@ -71,6 +72,11 @@ export interface AppModuleOptions {
    * for the public edition, which lists them all, so every caller that knows nothing of editions is unchanged.
    */
   edition?: EditionManifest;
+  /**
+   * The modules the edition brings with it (ENT-2): code that lives in the edition's own package and reaches the application only through the loader of the process (`editions/load-edition.ts`), so the registry of the public
+   * product names none of it. They are judged exactly as the modules of the registry are (their own editions, the manifest's module list, `enabled`); omit it for the public edition.
+   */
+  editionModules?: readonly ModuleDescriptor[];
 }
 
 /** The issuer of the session module as a signer of machine tokens, when it is one (the local issuer is; a test double need not be). */

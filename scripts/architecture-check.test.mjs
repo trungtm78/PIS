@@ -186,6 +186,7 @@ test('the enterprise edition is imported only from its homes, the loaders and th
     'apps/web/src/editions/load.ts': "export const load = () => import('./enterprise/index');\n",
     'apps/web/src/editions/overlay.enterprise.test.ts': "import './enterprise/index';\n",
     'apps/api/src/editions/load-enterprise.ts': "import '@machvon/edition-enterprise';\n",
+    'apps/api/src/editions/enterprise/hpm.controller.ts': "import '@machvon/edition-enterprise';\n",
     'apps/web/src/bad.ts': "import './editions/enterprise/index';\n",
     'apps/api/src/bad.ts': "import '@machvon/edition-enterprise';\n",
     'packages/db/src/bad.ts': "import '@machvon/edition-enterprise';\n",

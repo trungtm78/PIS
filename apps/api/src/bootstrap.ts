@@ -22,7 +22,8 @@ import type { AlertSink, EditionManifest, LiteLlmAdminPort, SecretVaultPort, Spa
 import { Pool } from 'pg';
 import { createAlertSink } from './alerts/alert-sinks';
 import { AppModule } from './app.module';
-import { loadEditionManifest } from './editions/load-edition';
+import { loadEditionManifest, loadEditionModules } from './editions/load-edition';
+import type { ModuleDescriptor } from './modules/module-descriptor';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { HttpJwksSource, discoverJwksUri } from './auth/jwks-source';
 import { JwksTokenVerifier } from './auth/jwks-token-verifier';
@@ -97,6 +98,8 @@ export interface BootstrapOverrides {
   workflowRunner?: WorkflowRunner;
   /** Replaces the manifest loaded for `config.edition` (tests); the default loads the public manifest, or the enterprise package for the enterprise edition. */
   edition?: EditionManifest;
+  /** Replaces the modules the edition brings with it (tests); the default loads none for the public edition and the modules of the enterprise package for the enterprise edition. */
+  editionModules?: readonly ModuleDescriptor[];
 }
 
 export interface RunningApi {
@@ -158,6 +161,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
   try {
     // The edition is loaded before anything listens: an enterprise process without its package fails here, naming the edition.
     const edition = overrides.edition ?? (await loadEditionManifest(config.edition));
+    const editionModules = overrides.editionModules ?? (await loadEditionModules(config.edition));
     const tenants = new TenantDatabase(pools.app);
     const control = new ControlDatabase(pools.control);
     const authzCache = new InMemoryAuthzCache();
@@ -201,6 +205,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           // The drill tokens of BI are signed from a configured secret, so that every replica and every restart reads them.
           biDrillSecret: config.outboxSigningKey,
           edition,
+          ...(editionModules.length === 0 ? {} : { editionModules }),
         }),
       ],
       controllers: [HealthController],

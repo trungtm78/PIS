@@ -192,9 +192,9 @@ export type HpmDecision =
 
 /**
  * What a push does (R8, R17). In this order:
- *  1. the key was seen: another content under the same key is `HPM_KEY_REUSED`; a push the receiver accepted or that was written is `ALREADY_DELIVERED` (a retry of a written package re-sends the same key); one the
- *     receiver rejected is `HPM_PUSH_STATE_INVALID` (a correction is a new revision, never the same key again); a failed one is re-sent with the next attempt number, up to the cap (`HPM_RETRY_EXHAUSTED`);
- *  2. the kernel rule of delivery: a copy older than the newest copy of the series, or older than what the receiver accepted, is `REPORT_OUT_OF_DATE` (409, with the current revision); the same bytes as the accepted copy are `ALREADY_DELIVERED`;
+ *  1. the key was seen: another content under the same key is `HPM_KEY_REUSED`; one the receiver rejected is `HPM_PUSH_STATE_INVALID` (a correction is a new revision, never the same key again);
+ *  2. the kernel rule of delivery: a copy older than the newest copy of the series, or older than what the receiver accepted, is `REPORT_OUT_OF_DATE` (409, with the current revision), a package that was replaced included;
+ *     then a push the receiver accepted or that was written is `ALREADY_DELIVERED` (a retry of a written package re-sends the same key), as are the same bytes as the accepted copy; a failed one is re-sent with the next attempt number, up to the cap (`HPM_RETRY_EXHAUSTED`);
  *  3. replacing an accepted period (a newer revision than the accepted one) needs a reopened period and an approved correction, else `HPM_OVERWRITE_NOT_AUTHORISED` naming what is missing.
  */
 export function decideHpmPush(context: HpmPushContext): HpmDecision {
@@ -202,9 +202,10 @@ export function decideHpmPush(context: HpmPushContext): HpmDecision {
   if (existing !== null) {
     if (existing.requestHash !== context.requestHash) throw new DomainError('HPM_KEY_REUSED', 409, 'key');
     if (existing.status === 'REJECTED') throw new DomainError('HPM_PUSH_STATE_INVALID', 409, 'status');
-    if (existing.status === 'ACCEPTED' || (existing.status === 'WRITTEN' && context.intent === 'SUBMIT')) return { action: 'ALREADY_DELIVERED' };
   }
+  // Staleness is judged before a repeat is answered: a package of a revision that a newer one replaced is refused whatever its own state is.
   const verdict = assertDeliverable(context.copy, context.head, context.accepted);
+  if (existing !== null && (existing.status === 'ACCEPTED' || (existing.status === 'WRITTEN' && context.intent === 'SUBMIT'))) return { action: 'ALREADY_DELIVERED' };
   if (verdict === 'ALREADY_DELIVERED') return { action: 'ALREADY_DELIVERED' };
   if (existing !== null && existing.attempts >= context.maxAttempts && existing.status === 'FAILED') throw new DomainError('HPM_RETRY_EXHAUSTED', 409, 'attempts');
   const accepted = context.accepted !== null && countsAsAcceptedCopy(context.accepted) ? context.accepted : null;
