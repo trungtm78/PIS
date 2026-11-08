@@ -44,6 +44,7 @@ import { registerBuiltInRedFlagIndicators } from './red-flags.ts';
 import { TEXT as MR1_TEXT } from './messages/mr1-texts.ts';
 import { RISK_INDICATORS, RISK_SIGNAL_DEFAULTS, RISK_SIGNAL_KINDS, RISK_SIGNAL_RULE_CODE, RISK_SIGNAL_RULE_TYPE, parseRiskSignalPolicy, riskSignalParams } from './risk-signals.ts';
 import { CALENDAR_DEFAULTS, EFFECT_ANCHORS, EFFECT_CALENDAR_RULE_TYPE, EFFECT_EVALUATION_KINDS, EFFECT_POLICY_DEFAULTS, EFFECT_POLICY_RULE_CODE, EFFECT_POLICY_RULE_TYPE, EFFECT_PROJECT_GROUPS, calendarRuleCode, calendarRuleParams, effectPolicyParams, parseCalendarRule, parseEffectPolicy } from './effect-target.ts';
+import { gov12RuleTypes } from './gov12-rule-types.ts';
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -2221,6 +2222,13 @@ export const registerRiskEffectRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(RISK_SIGNAL_ALERT_SEEDS, { source: MR1_TEXT.alert_source }));
   });
 
+/** The kinds of rule of lane GOV-12 (community monitoring, transmittal, public portal, whistle channel, gifts, photo findings, period reports, audit standing); the data is in gov12-rule-types.ts. */
+export const registerGov12Rules = (): void =>
+  once('gov12', () => {
+    registerCoreRules();
+    for (const type of gov12RuleTypes()) registerRuleType(type);
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -2251,6 +2259,7 @@ export function registerAllGovernanceRules(): void {
   registerExecAnalyticsRules();
   registerFinanceFeedRules();
   registerRiskEffectRules();
+  registerGov12Rules();
 }
 
 registerAllGovernanceRules();

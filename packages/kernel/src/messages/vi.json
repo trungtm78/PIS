@@ -1558,5 +1558,15 @@
   "home.source.feed.unit_late.title": "Đơn vị {unit} chưa báo cáo giải ngân tháng {month}/{year}",
   "home.source.feed.unit_late.detail": "Quá hạn nộp từ ngày {due}, {projects} dự án chưa có số liệu của tháng",
   "home.source.feed.discrepancy.title": "Sai lệch lớn của dự án {code}, năm {year}",
-  "home.source.feed.discrepancy.detail": "Số của Sở Tài chính {feed}, số của ta {ours}, chênh {pct}%"
+  "home.source.feed.discrepancy.detail": "Số của Sở Tài chính {feed}, số của ta {ours}, chênh {pct}%",
+  "gov.rules.gov12.source": "Nghiên cứu quản trị cảnh báo và kiểm soát dự án vốn, ngày 08/11/2026; số mặc định chưa được khách hàng và đơn vị pháp chế xác nhận",
+  "gov.rules.gov12.monitoring.source": "Luật Đầu tư công số 58/2024/QH15, Điều 78 và 79 (giám sát của cộng đồng); số ngày là giá trị mặc định chưa được đơn vị pháp chế xác nhận",
+  "gov.rules.gov12.monitoring.formula": "Hạn thông báo = ngày phát sinh nghĩa vụ + notice_days; hạn trả lời một phản hồi = ngày nhận + response_days; sắp đến hạn khi còn không quá reminder_days ngày",
+  "gov.rules.gov12.transmittal.formula": "Hạn xem xét = ngày gửi + review_days (xin ý kiến) hoặc approval_days (xin phê duyệt); sắp đến hạn khi còn không quá reminder_days ngày; gia hạn một lần, tối đa max_extension_days ngày",
+  "gov.rules.gov12.portal.formula": "Cổng công khai chỉ hiển thị các trường trong allowed_fields; mỗi khách chỉ gọi tối đa rate_per_minute lần mỗi phút và nhận tối đa page_size_max bản ghi mỗi trang",
+  "gov.rules.gov12.whistle.formula": "Hạn xác nhận đã nhận = ngày nhận + acknowledge_days; hạn xử lý xong = ngày nhận + resolve_days; mỗi khách gửi tối đa rate_per_hour tố giác mỗi giờ",
+  "gov.rules.gov12.gift.formula": "Hạn kê khai quà = ngày nhận + declare_within_days; quà có giá trị trên review_over_vnd phải có người thứ hai xem xét; quà trên keep_up_to_vnd không được giữ, phải trả lại hoặc nộp cho đơn vị",
+  "gov.rules.gov12.photo.formula": "Hai ảnh của hai dự án khác nhau bị xem là cùng một vị trí khi cách nhau không quá place_metres mét và cùng một thời điểm khi cách nhau không quá moment_minutes phút; cùng tệp (SHA-256) ở hai dự án luôn được nêu",
+  "gov.rules.gov12.period_report.formula": "Bản báo cáo gửi người nhận trong signature_required_receivers phải có chữ ký số khớp mã băm của bản phát hành; kỳ bị khóa khi bản được ký (hoặc được nhận, theo lock_after); mở khóa cần người thứ hai và lý do tối thiểu unlock_reason_min_chars ký tự",
+  "gov.rules.gov12.audit_standing.formula": "Điểm theo dõi = quá hạn x weight_overdue + đang tranh luận x weight_disputed + còn mở x weight_open + (số tiền còn phải thu / money_step_vnd) x weight_money; điểm cao xếp trước, chỉ để ưu tiên theo dõi, không phải kết luận"
 }
