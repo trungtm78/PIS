@@ -1,0 +1,16 @@
+# Plan of lane ENT-2 (enterprise edition only: HPM push and Oracle EBS reconciliation)
+
+Branch `lane/ent2`, worktree `D:\PIS-ent2`, migration block 2240-2259 (V2240 to V2244 used). Sources: plan "Dot 4 item 6 ENT-2", eng-review R8 (push key), R17 (revision lineage), R18 (PENDING-EXTERNAL).
+
+## Decisions (owner rule 2026-11-08: deepest governance, extensibility, no scope cut)
+- Enterprise-only code lives in `packages/edition-enterprise/src/integration` (rules, ports, stores), `apps/api/src/editions/enterprise` (controllers, an enterprise home like the package), `apps/web/src/editions/enterprise/screens`. The public module registry names none of it: `load-enterprise.ts` hands the modules to `AppModule` as `editionModules`; the public manifest denies the modules HPM and EBS by code.
+- HPM: `HpmPort` with a file-writer adapter (never opens a socket; the test watches sockets). Push ledger `hpm_push` unique on the idempotency key (organisation, layout, period, revision); request hash, response, attempts in `hpm_push_attempt`; retry re-sends the same key. Staleness by the kernel rule `assertDeliverable` (REPORT_OUT_OF_DATE, ALREADY_DELIVERED). Overwriting an accepted period needs a reopened period (DIS `period_reopen`, behind `PeriodReopenPort`) and an approved correction (`hpm_correction`, proposer != decider), audited in ADM-11. Acceptance only by a receipt recorded by somebody other than the pusher; a DEMO copy is never accepted (R18).
+- EBS: layout `WORKING-ASSUMPTION-2026.1` (PENDING-EXTERNAL), file import through the framework (dry run, apply once per hash, append-only `ebs_record`), reconciliation by project code (`ebs_reconciliation_item`: owner not a maker, four explanations, due time by rule in working days).
+- Connections `hpm.reports` and `ebs.ledger` in `ent_connection` plus the connector registry; alert types `HPM_PUSH_FAILED`, `HPM_PUSH_STALE` (and base `CONNECTOR_STALE` for EBS) through a reader registry in the alert centre source CONNECTOR. One small descriptor file per connector for the Integration Hub: `hpm-connection.ts`, `ebs-connection.ts`.
+
+## Steps
+1. Kernel-like pure rules and tests (done). 2. Migrations V2240-V2244 (done). 3. Stores, ports, rules registration (done). 4. Contract by `contract-patch` (18 operations, 9 error codes, 4 screens HPM-01, HPM-02, EBS-01, EBS-02) (done). 5. API controllers, authz (`enterpriseCommands` list), tests against the real database. 6. Web screens, i18n part `ent2`, vitest. 7. Design pack: module specs, stories, backlog, traceability. 8. Merge main, use RPT-1c issued copies through the report-source port. 9. Gates, Codex review, report.
+
+## Progress (2026-11-08, after the restarts)
+Done and committed: pure rules, migrations V2240-V2244, stores, port and file writer, contract (18 operations), controllers mounted through `editionModules`, authz list `enterpriseCommands`, RPT-1c issued copies behind `IssuedReportPort` (`issue_id` on the push; delivery log mirrored), web screens with vitest (39 tests), module specs, stories, backlog, traceability, hub descriptors `hpm-connection.ts` and `ebs-connection.ts`. The public edition hides the routes and the menu of HPM and EBS.
+Open: real-database API runs (queued on the db lane), isolation/conformance/outbox/dis-report runs, whole-repo lint once, Codex review and its triage.
