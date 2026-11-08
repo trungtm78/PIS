@@ -116,7 +116,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await call('GET', '/integration-hub/connectors', { member: B_ADMIN, tenantId: TENANT_B })).status).toBe(200);
   });
 
-  it('lists every connector for a tenant that never used one as waiting for the outside, with no percentage, and writes nothing', async () => {
+  it('AC-ST-HUB-001-1 / UAT-HUB-001: lists every connector for a tenant that never used one as waiting for the outside, with no percentage, and writes nothing', async () => {
     const reply = await call('GET', '/integration-hub/connectors', { member: READER });
     expect(reply.status).toBe(200);
     const items = reply.json.items as Array<Record<string, unknown>>;
@@ -151,7 +151,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await call('GET', '/integration-hub/connectors/no.such.connector', { member: READER })).status).toBe(404);
   });
 
-  it('gives the health summary with the five KPI definitions, each with formula, source, as-of and the unverified flag', async () => {
+  it('AC-ST-HUB-001-1 / UAT-HUB-001: gives the health summary with the five KPI definitions, each with formula, source, as-of and the unverified flag', async () => {
     const reply = await call('GET', '/integration-hub/health', { member: READER });
     expect(reply.status).toBe(200);
     const kpis = reply.json.kpis as Array<Record<string, unknown>>;
@@ -162,7 +162,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect(reply.json.policy).toMatchObject({ failing_after_runs: 1, hub_stale_ratio_percent: 50, agent_stale_after_minutes: 15, source: 'DEFAULT', unverified: true });
   });
 
-  it('records a failed run, opens one incident for it with its audit and event, takes a repeat of the same run as already recorded, and closes the incident when a good run follows', async () => {
+  it('AC-ST-HUB-001-3 / UAT-HUB-003: records a failed run, opens one incident for it with its audit and event, takes a repeat of the same run as already recorded, and closes the incident when a good run follows', async () => {
     const failed = { kind: 'IMPORT', outcome: 'FAILED', error_code: 'IMPORT_SCHEMA_INVALID', started_at: new Date(NOW.getTime() - 3 * HOURS).toISOString(), finished_at: new Date(NOW.getTime() - 2 * HOURS).toISOString(), rows_total: 5, source_ref: 'sha:national-1' };
     const first = await call('POST', '/integration-hub/connectors/national.project_codes/runs', { member: ADMIN, body: failed });
     expect(first.status).toBe(200);
@@ -198,7 +198,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await call('POST', '/integration-hub/connectors/no.such.connector/runs', { member: ADMIN, body: { ...base, outcome: 'SUCCEEDED' } })).status).toBe(404);
   });
 
-  it('switches a connector of the hub off and on with a reason and a version, writes the audit and the event, and refuses a stale version, a repeat and a short reason', async () => {
+  it('AC-ST-HUB-001-2 / UAT-HUB-002: switches a connector of the hub off and on with a reason and a version, writes the audit and the event, and refuses a stale version, a repeat and a short reason', async () => {
     const id = connectorResourceId(TENANT_A, 'treasury.statement');
     const stale = await call('POST', '/integration-hub/connectors/treasury.statement/state', { member: ADMIN, ifMatch: 7, body: { enabled: false, reason: REASON } });
     expect(stale.status).toBe(409);
@@ -215,7 +215,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await call('POST', '/integration-hub/connectors/treasury.statement/state', { member: ADMIN, ifMatch: 2, body: { enabled: true, reason: 'The sample file was checked' } })).json).toMatchObject({ status: 'ENABLED', resource_version: 3 });
   });
 
-  it('moves the switch of e-GP through its own command, so its own history and version move', async () => {
+  it('AC-ST-HUB-001-2 / UAT-HUB-002: moves the switch of e-GP through its own command, so its own history and version move', async () => {
     const before = await call('GET', '/integration-hub/connectors/egp.muasamcong', { member: READER });
     expect((before.json.state as Record<string, unknown>).owner).toBe('CONNECTOR');
     const off = await call('POST', '/integration-hub/connectors/egp.muasamcong/state', { member: ADMIN, ifMatch: 1, body: { enabled: false, reason: REASON } });
@@ -242,7 +242,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect(((health.json.kpis as Array<Record<string, unknown>>)[1] as { value: number }).value).toBeGreaterThan(16);
   });
 
-  it('lets a person report, acknowledge and resolve an incident with a reason and a version; a stale version and a wrong step are refused', async () => {
+  it('AC-ST-HUB-001-3 / UAT-HUB-003: lets a person report, acknowledge and resolve an incident with a reason and a version; a stale version and a wrong step are refused', async () => {
     const opened = await call('POST', '/integration-hub/incidents', { member: ADMIN, body: { connector_code: 'treasury.statement', summary: 'The file arrived with another layout', severity: 'WATCH' } });
     expect(opened.status).toBe(200);
     const id = opened.json.resource_id as string;
@@ -260,7 +260,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await call('POST', '/integration-hub/incidents', { member: ADMIN, body: { connector_code: 'no.such', summary: 'The file arrived with another layout' } })).status).toBe(404);
   });
 
-  it('keeps a mapping proposed by one person and decided by another, refuses the proposer, and replaces the version in force', async () => {
+  it('AC-ST-HUB-001-4 / UAT-HUB-004: keeps a mapping proposed by one person and decided by another, refuses the proposer, and replaces the version in force', async () => {
     const fields = [{ source: 'code', target: 'project_code', required: true, transform: { kind: 'UPPER' } }];
     const proposed = await call('POST', '/integration-hub/connectors/national.project_codes/mappings', { member: PROPOSER, body: { pipeline_code: 'PROJECT_CODES', mapping_version: 'M1', fields } });
     expect(proposed.status).toBe(200);
@@ -279,7 +279,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await audits(id, 'hub.mapping_approved'))[0]).toMatchObject({ reason: 'The columns match the register', safe_diff: { mapping_version: 'M1' } });
   });
 
-  it('closes a reject: reprocessing says the pipeline is not wired, discarding needs a reason and works once', async () => {
+  it('AC-ST-HUB-001-4 / UAT-HUB-004: closes a reject: reprocessing says the pipeline is not wired, discarding needs a reason and works once', async () => {
     const run = await call('POST', '/integration-hub/connectors/national.project_codes/runs', { member: ADMIN, body: { kind: 'IMPORT', outcome: 'PARTIAL', started_at: new Date(NOW.getTime() - HOURS).toISOString(), finished_at: new Date(NOW.getTime() - HOURS / 2).toISOString(), rows_total: 2, rows_applied: 1, rows_rejected: 1 } });
     const rejectId = randomUUID();
     await rows(

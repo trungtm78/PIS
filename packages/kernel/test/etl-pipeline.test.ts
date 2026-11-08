@@ -151,7 +151,7 @@ describe('the stage runner', () => {
     expect(run.watermarkAfter).toBe('w2');
   });
 
-  it('leaves the watermark where it was when the load fails, and the retry applies everything once', async () => {
+  it('UAT-HUB-004: leaves the watermark where it was when the load fails, and the retry applies everything once', async () => {
     const target = fake(GOOD);
     target.failLoad.on = true;
     const failed = await runEtl({ spec: SPEC, mapping: MAPPING, ports: target.ports, watermark: 'w0', dryRun: false });

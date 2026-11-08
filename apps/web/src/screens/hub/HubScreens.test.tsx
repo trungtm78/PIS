@@ -36,7 +36,7 @@ describe('HUB-01, the catalogue of connectors and the health of the hub', () => 
     return h;
   };
 
-  it('UI-HUB-01: lists every connector with direction, protocols, status, age and last run, and says what each waits for', async () => {
+  it('AC-ST-HUB-001-5 / UI-HUB-01: lists every connector with direction, protocols, status, age and last run, and says what each waits for', async () => {
     mountCatalogue(answerWith([connector(), waiting(), failing()]));
     expect(await screen.findByTestId('connector-treasury.statement')).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('hub.cat.page.title'));
@@ -133,7 +133,7 @@ describe('HUB-02, one connector', () => {
     return h;
   };
 
-  it('UI-HUB-02: shows the overview with the status, the acceptance, the screens it owns and the alerts it can raise with owner, action and consequence', async () => {
+  it('AC-ST-HUB-001-6 / UI-HUB-02: shows the overview with the status, the acceptance, the screens it owns and the alerts it can raise with owner, action and consequence', async () => {
     mountConnector(readsOf());
     expect(await screen.findByTestId('connector-head')).toBeTruthy();
     expect(screen.getByTestId('status-HEALTHY')).toBeTruthy();
@@ -274,7 +274,7 @@ describe('HUB-03, the incident log', () => {
     return h;
   };
 
-  it('UI-HUB-03: lists the incidents with kind, severity, state, who opened them, and the expected action and consequence of the alert behind each', async () => {
+  it('AC-ST-HUB-001-7 / UI-HUB-03: lists the incidents with kind, severity, state, who opened them, and the expected action and consequence of the alert behind each', async () => {
     mountLog(reads([incident(90), incident(91, { connector_code: null, kind: 'HUB_STALE', severity: 'URGENT' }), incident(92, { connector_code: 'treasury.statement', kind: 'MANUAL', summary: 'The file arrived with another layout', opened_by: uuid(801), alert: null })]));
     expect(await screen.findByTestId(`incident-${uuid(90)}`)).toBeTruthy();
     expect(screen.getAllByText(word('hub.inc.kind.failing')).length).toBeGreaterThan(0);
