@@ -47,6 +47,12 @@ export const WORK_KINDS = [
   'PAYMENT_CLOCK_BREACHED',
   // The projection to a directive milestone is below its target (lane GOV-11a).
   'DIS_MILESTONE_AT_RISK',
+  'CONTRACT_SETTLEMENT_NEAR',
+  'CONTRACT_SETTLEMENT_OVERDUE',
+  'CONTRACT_BASELINE_REVIEW',
+  'LOOK_AHEAD_NOT_READY',
+  'LOOK_AHEAD_MISSING',
+  'LESSONS_LEARNED_MISSING',
   // The connection to the national procurement network is older than its rule allows (lane EGP-1).
   'CONNECTOR_STALE',
   // The duties of posting to the national procurement network: one near its deadline, one past it (lane EGP-2).

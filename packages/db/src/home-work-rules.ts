@@ -5,7 +5,7 @@ export type WorkSeverity = 'URGENT' | 'ACTION' | 'WATCH';
 export const WORK_SEVERITIES: readonly WorkSeverity[] = ['URGENT', 'ACTION', 'WATCH'];
 
 /** The module source an item comes from (the `source` of `WorkActionTarget`). */
-export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE', 'RED_FLAG', 'CONTRACT_CLOCK', 'DOC_REVIEW', 'DATA_FRESHNESS', 'ANOMALY', 'ALERT_FEEDBACK', 'PAYMENT_CLOCK', 'DISBURSEMENT_FORECAST'] as const;
+export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE', 'RED_FLAG', 'CONTRACT_CLOCK', 'DOC_REVIEW', 'DATA_FRESHNESS', 'ANOMALY', 'ALERT_FEEDBACK', 'PAYMENT_CLOCK', 'DISBURSEMENT_FORECAST', 'SETTLEMENT_CLOCK', 'CONTRACT_ADJUSTMENT', 'LOOK_AHEAD', 'LESSONS_LEARNED'] as const;
 export type WorkSource = (typeof WORK_SOURCES)[number];
 
 /** Read is not handled: a new item, one somebody took up, one that is being worked on (given to someone, or in the hands of its module), and one that is done. */
@@ -57,6 +57,12 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   PAYMENT_CLOCK_NEAR: 'PAYMENT_CLOCK',
   PAYMENT_CLOCK_BREACHED: 'PAYMENT_CLOCK',
   DIS_MILESTONE_AT_RISK: 'DISBURSEMENT_FORECAST',
+  CONTRACT_SETTLEMENT_NEAR: 'SETTLEMENT_CLOCK',
+  CONTRACT_SETTLEMENT_OVERDUE: 'SETTLEMENT_CLOCK',
+  CONTRACT_BASELINE_REVIEW: 'CONTRACT_ADJUSTMENT',
+  LOOK_AHEAD_NOT_READY: 'LOOK_AHEAD',
+  LOOK_AHEAD_MISSING: 'LOOK_AHEAD',
+  LESSONS_LEARNED_MISSING: 'LESSONS_LEARNED',
   CONNECTOR_STALE: 'CONNECTOR',
   EGP_POSTING_DUE: 'EGP_POSTING',
   EGP_POSTING_OVERDUE: 'EGP_POSTING',
@@ -129,6 +135,12 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   PAYMENT_CLOCK: { NEAR: 'WATCH', BREACHED: 'ACTION' },
   // G1-16: a directive milestone the projection falls a little short of is to be watched, one it falls far short of is to be acted on.
   DISBURSEMENT_FORECAST: { AT_RISK: 'WATCH', OFF_TRACK: 'ACTION' },
+  // G1-18: a settlement file near its last day is to be watched, one past it is to be acted on; an adjustment version that changes the baseline waits for a review.
+  SETTLEMENT_CLOCK: { NEAR: 'WATCH', OVERDUE: 'ACTION' },
+  CONTRACT_ADJUSTMENT: { PENDING: 'ACTION' },
+  // G1-19: an item that is not ready is to be acted on; a missing plan or missing lessons are to be watched.
+  LOOK_AHEAD: { NOT_READY: 'ACTION', MISSING: 'WATCH' },
+  LESSONS_LEARNED: { MISSING: 'WATCH' },
   // EGP-1: a connection whose data is older than its rule allows (CONNECTOR_FRESHNESS); the severity is the `stale_severity` of that rule, so the facet is STALE_ plus the word (the tenant sets it on the rule, not here).
   // EGP-2: a posting to the national procurement network by the time that is left (rule EGP_POSTING_SEVERITY): urgent when little time is left and once past the deadline, else to be acted on.
   EGP_POSTING: { DUE_SOON: 'ACTION', DUE_SOON_URGENT: 'URGENT', OVERDUE: 'URGENT' },
@@ -218,6 +230,12 @@ const CONSEQUENCE_KEYS = [
   'PAYMENT_CLOCK_NEAR',
   'PAYMENT_CLOCK_BREACHED',
   'DIS_MILESTONE_AT_RISK',
+  'CONTRACT_SETTLEMENT_NEAR',
+  'CONTRACT_SETTLEMENT_OVERDUE',
+  'CONTRACT_BASELINE_REVIEW',
+  'LOOK_AHEAD_NOT_READY',
+  'LOOK_AHEAD_MISSING',
+  'LESSONS_LEARNED_MISSING',
   'CONNECTOR_STALE',
   'EGP_POSTING_DUE',
   'EGP_POSTING_OVERDUE',

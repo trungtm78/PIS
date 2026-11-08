@@ -216,6 +216,10 @@ export class HomeWorkStore {
       ['ALERT_FEEDBACK', () => this.feedback.items(context)],
       ['PAYMENT_CLOCK', () => this.gov11.paymentClockItems(context)],
       ['DISBURSEMENT_FORECAST', () => this.gov11.disMilestones(context)],
+      ['SETTLEMENT_CLOCK', () => this.gov11.settlementClocks(context)],
+      ['CONTRACT_ADJUSTMENT', () => this.gov11.adjustmentReviews(context)],
+      ['LOOK_AHEAD', () => this.gov11.lookAhead(context)],
+      ['LESSONS_LEARNED', () => this.gov11.lessonsMissing(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];

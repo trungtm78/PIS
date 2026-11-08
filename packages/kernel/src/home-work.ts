@@ -46,6 +46,13 @@ export const WORK_KINDS = [
   'PAYMENT_CLOCK_BREACHED',
   // The projection of the cumulative disbursement to a directive milestone is below its target (lane GOV-11a, G1-16).
   'DIS_MILESTONE_AT_RISK',
+  // Settlement clocks, adjustment versions, look-ahead plans and lessons learned (lane GOV-11a, G1-18 and G1-19).
+  'CONTRACT_SETTLEMENT_NEAR',
+  'CONTRACT_SETTLEMENT_OVERDUE',
+  'CONTRACT_BASELINE_REVIEW',
+  'LOOK_AHEAD_NOT_READY',
+  'LOOK_AHEAD_MISSING',
+  'LESSONS_LEARNED_MISSING',
   // The connection to the national procurement network is older than its rule allows (lane EGP-1): the files it fed are shown as not up to date.
   'CONNECTOR_STALE',
   // The duties of posting to the national procurement network (lane EGP-2): a posting near its deadline, and one past it.
@@ -122,6 +129,12 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   PAYMENT_CLOCK_NEAR: 40,
   PAYMENT_CLOCK_BREACHED: 41,
   DIS_MILESTONE_AT_RISK: 42,
+  CONTRACT_SETTLEMENT_NEAR: 43,
+  CONTRACT_SETTLEMENT_OVERDUE: 44,
+  CONTRACT_BASELINE_REVIEW: 45,
+  LOOK_AHEAD_NOT_READY: 46,
+  LOOK_AHEAD_MISSING: 47,
+  LESSONS_LEARNED_MISSING: 48,
   CONNECTOR_STALE: 32,
   EGP_POSTING_DUE: 33,
   EGP_POSTING_OVERDUE: 34,
