@@ -1,0 +1,87 @@
+{
+  "id": "progress-tree",
+  "kind": "progress-tree",
+  "theme": "light",
+  "durationMs": 24000,
+  "fadeMs": 300,
+  "kicker": "Chức năng nổi bật",
+  "title": "Cây tiến độ gói thầu",
+  "context": "Phạm vi: Toàn tỉnh · Kỳ: Quý III/2026 · Số liệu đến 06/11/2026 · ĐVT: tỷ đồng",
+  "lane": "ĐẤU THẦU RỘNG RÃI · 48 gói",
+  "labels": {
+    "packages": "gói",
+    "late": "trễ {n}",
+    "median": "trung vị {n} ngày",
+    "tabs": ["Tổng quan", "Gói thầu", "Biến động"],
+    "columns": ["Gói thầu", "Giá gói", "Ngày", "Hạn bước"],
+    "breadcrumbRoot": "Cây tiến độ",
+    "planned": "chuẩn",
+    "actual": "thực",
+    "strip": ["Ô có chấm: ngày có thay đổi", "Cờ: hạn bước", "Gạch chéo: cuối tuần", "Khung đậm: hôm nay"]
+  },
+  "health": { "ok": "Ổn", "attention": "Cần chú ý", "late": "Trễ", "hold": "Tạm dừng" },
+  "phases": { "tree": 600, "select": 8000, "package": 14500 },
+  "select": "evaluate",
+  "nodes": [
+    { "id": "plan", "label": "Kế hoạch lựa chọn nhà thầu", "count": 48, "value": "1.240,5", "unit": "tỷ đồng", "share": 1, "health": "ok", "medianDays": 4, "col": 0, "row": 0 },
+    { "id": "invite", "label": "Mời thầu", "count": 11, "value": "286,2", "unit": "tỷ đồng", "share": 0.23, "health": "ok", "medianDays": 7, "col": 1, "row": 0 },
+    { "id": "evaluate", "label": "Đánh giá hồ sơ dự thầu", "count": 10, "value": "128,4", "unit": "tỷ đồng", "share": 0.21, "health": "late", "lateCount": 2, "medianDays": 6, "col": 2, "row": 0 },
+    { "id": "approve", "label": "Phê duyệt kết quả", "count": 8, "value": "212,9", "unit": "tỷ đồng", "share": 0.17, "health": "attention", "lateCount": 1, "medianDays": 5, "col": 3, "row": 0 },
+    { "id": "signed", "label": "Đã ký hợp đồng", "count": 14, "value": "451,6", "unit": "tỷ đồng", "share": 0.29, "health": "ok", "medianDays": 3, "terminal": true, "col": 4, "row": 0 },
+    { "id": "hold", "label": "Tạm dừng", "count": 2, "value": "34,8", "unit": "tỷ đồng", "share": 0.04, "health": "hold", "col": 2, "row": 1 },
+    { "id": "dropped", "label": "Hủy hoặc không thành", "count": 3, "value": "41,5", "unit": "tỷ đồng", "share": 0.06, "health": "hold", "terminal": true, "col": 4, "row": 1 }
+  ],
+  "edges": [
+    { "from": "plan", "to": "invite", "count": 30, "kind": "forward" },
+    { "from": "invite", "to": "evaluate", "count": 22, "kind": "forward" },
+    { "from": "evaluate", "to": "approve", "count": 17, "kind": "forward" },
+    { "from": "approve", "to": "signed", "count": 14, "kind": "forward" },
+    { "from": "evaluate", "to": "hold", "count": 2, "kind": "forward" },
+    { "from": "evaluate", "to": "invite", "count": 2, "kind": "return", "label": "trả lại 2" },
+    { "from": "approve", "to": "dropped", "count": 3, "kind": "drop", "label": "hủy 3" }
+  ],
+  "panel": {
+    "stats": [
+      { "value": "6 ngày", "label": "Trung vị ở bước" },
+      { "value": "19 ngày", "label": "Lâu nhất" },
+      { "value": "2", "label": "Trễ hạn" }
+    ],
+    "open": 0,
+    "rows": [
+      { "code": "TB-0412", "name": "Xây dựng cầu Nặm Lìn", "value": "42,6", "days": "17", "due": "Quá hạn 4 ngày", "tone": "danger" },
+      { "code": "TB-0388", "name": "Thiết bị trường THCS Bảo Lạc", "value": "8,2", "days": "12", "due": "Quá hạn 1 ngày", "tone": "danger" },
+      { "code": "TB-0431", "name": "Đường liên xã Hạ Lang", "value": "31,5", "days": "6", "due": "Còn 2 ngày", "tone": "warning" },
+      { "code": "TB-0440", "name": "Nâng cấp hồ chứa Bản Chang", "value": "17,0", "days": "4", "due": "Còn 5 ngày", "tone": "success" },
+      { "code": "TB-0452", "name": "Cải tạo trạm y tế Thông Nông", "value": "6,3", "days": "2", "due": "Còn 9 ngày", "tone": "success" }
+    ]
+  },
+  "package": {
+    "code": "TB-0412",
+    "name": "Xây dựng cầu Nặm Lìn",
+    "value": "42,6 tỷ đồng",
+    "method": "Đấu thầu rộng rãi",
+    "owner": "Người giữ: Nguyễn Văn An",
+    "status": "Đang ở Đánh giá hồ sơ · 17 ngày · trễ 4 ngày so với chuẩn",
+    "blocker": "Đang chặn: thiếu biên bản mở thầu (mục bắt buộc)",
+    "steps": [
+      { "label": "Kế hoạch", "state": "done", "planned": 5, "actual": 4 },
+      { "label": "Hồ sơ mời thầu", "state": "done", "planned": 7, "actual": 6 },
+      { "label": "Mời thầu", "state": "done", "planned": 20, "actual": 20 },
+      { "label": "Mở thầu", "state": "done", "planned": 2, "actual": 2 },
+      { "label": "Đánh giá hồ sơ", "state": "late", "planned": 13, "actual": 17 },
+      { "label": "Phê duyệt kết quả", "state": "todo", "planned": 5 },
+      { "label": "Ký hợp đồng", "state": "todo", "planned": 3 }
+    ],
+    "strip": { "cells": 42, "startWeekday": 5, "changes": [3, 9, 14, 19, 24, 41], "deadlines": [38] },
+    "timeline": [
+      { "type": "day", "label": "Thứ Sáu, 06/11/2026", "count": "2 thay đổi" },
+      { "type": "entry", "time": "08:00", "tone": "danger", "glyph": "⛔", "text": "Quá hạn bước Đánh giá hồ sơ: trễ 4 ngày", "actor": "Hệ thống", "note": "Cảnh báo Khẩn gửi tới trưởng ban" },
+      { "type": "entry", "time": "07:30", "tone": "warning", "glyph": "⚠", "text": "Nhắc việc: còn thiếu biên bản mở thầu", "actor": "Hệ thống", "note": "Nhắc người giữ gói" },
+      { "type": "gap", "text": "16 ngày không có thay đổi · đang chờ biên bản mở thầu" },
+      { "type": "day", "label": "Thứ Ba, 20/10/2026", "count": "3 thay đổi" },
+      { "type": "entry", "time": "14:20", "tone": "success", "glyph": "✓", "lead": "Chuyển từ", "from": "Mở thầu", "to": "Đánh giá hồ sơ", "actor": "Nguyễn Văn An", "note": "sau 1 ngày ở bước trước" },
+      { "type": "entry", "time": "11:00", "tone": "info", "glyph": "•", "text": "Hoàn thành mục: Danh sách nhà thầu dự thầu", "actor": "Trần Thị Hoa", "note": "đính kèm 2 tài liệu" },
+      { "type": "entry", "time": "08:45", "tone": "neutral", "glyph": "•", "text": "Nhập từ muasamcong: thông báo mời thầu", "actor": "Hệ thống", "note": "tệp mẫu giả định, chờ đặc tả chính thức" }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "governance-chain",
+  "kind": "governance-chain",
+  "theme": "light",
+  "durationMs": 18000,
+  "fadeMs": 300,
+  "startMs": 1200,
+  "stepMs": 2800,
+  "kicker": "Quản trị",
+  "title": "Người lập, người kiểm tra, người phê duyệt",
+  "labels": { "refused": "Hệ thống từ chối" },
+  "document": { "title": "Đề nghị thanh toán đợt 3", "code": "TT-2026-0187" },
+  "roles": [
+    { "key": "maker", "icon": "user", "title": "Người lập", "who": "Chuyên viên Ban quản lý dự án", "action": "Soạn hồ sơ, đính kèm chứng từ và gửi đi.", "stamp": "Đã lập" },
+    { "key": "checker", "icon": "check", "title": "Người kiểm tra", "who": "Kế toán trưởng", "action": "Đối chiếu số liệu và chứng từ, trả lại nếu sai.", "stamp": "Đã kiểm" },
+    { "key": "approver", "icon": "shield", "title": "Người phê duyệt", "who": "Lãnh đạo có thẩm quyền", "action": "Quyết định cuối cùng trong hạn mức của mình.", "stamp": "Đã duyệt" }
+  ],
+  "rules": [
+    "Mỗi bước do một người khác nhau thực hiện",
+    "Hạn mức phê duyệt theo từng vai trò",
+    "Trả lại phải có lý do bằng văn bản"
+  ],
+  "refusal": "Người lập không thể tự kiểm tra hay tự phê duyệt hồ sơ của mình.",
+  "audit": "Mọi bước đều ghi vào nhật ký kiểm toán ADM-11, không sửa, không xóa."
+}

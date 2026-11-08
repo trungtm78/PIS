@@ -46,3 +46,9 @@ docs/hdsd/Huong-dan-su-dung-*.html
 apps/mobile/qa/device/results/
 test-results/
 diag-tmp/
+
+# Product clips: renders, frames and recordings are made by scripts/clips (the scenes, data and scripts stay tracked).
+scripts/clips/**/out/
+scripts/clips/**/frames/
+scripts/clips/**/*.mp4
+scripts/clips/**/*.webm

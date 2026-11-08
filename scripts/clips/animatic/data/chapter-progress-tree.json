@@ -1,0 +1,11 @@
+{
+  "id": "chapter-progress-tree",
+  "kind": "chapter",
+  "theme": "dark",
+  "durationMs": 5000,
+  "fadeMs": 300,
+  "number": 4,
+  "title": "Cây tiến độ",
+  "summary": "Mỗi gói thầu đang ở đâu, vì sao chậm, ai đang giữ: thấy ngay trong năm giây.",
+  "items": ["Cây trạng thái có số gói ở từng bước", "Bấm vào một bước để xem các gói đang ở đó", "Mở một gói để xem từng ngày đã diễn ra điều gì"]
+}

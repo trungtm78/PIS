@@ -1,0 +1,58 @@
+{
+  "id": "alert-ladder",
+  "kind": "alert-ladder",
+  "theme": "light",
+  "durationMs": 16000,
+  "fadeMs": 300,
+  "kicker": "Cảnh báo",
+  "title": "Ba mức cảnh báo và vòng đời của một cảnh báo",
+  "labels": {
+    "consequence": "Nếu không xử lý",
+    "lifecycle": "Vòng đời",
+    "clocks": "Hai đồng hồ"
+  },
+  "rungs": [
+    {
+      "severity": "URGENT",
+      "tone": "danger",
+      "label": "Khẩn",
+      "rule": "Không hoãn được; leo thang lên cấp trên khi quá hạn",
+      "example": { "title": "Giấy phép thi công hết hạn", "due": "Quá hạn 2 ngày" },
+      "consequence": "Công trình phải dừng thi công cho đến khi gia hạn."
+    },
+    {
+      "severity": "ACTION",
+      "tone": "warning",
+      "label": "Cần xử lý",
+      "rule": "Có người nhận và hạn xử lý",
+      "example": { "title": "Tạm ứng chưa hoàn ứng", "due": "Còn 2 ngày · 09/11" },
+      "consequence": "Không giải ngân tiếp đợt sau cho hợp đồng này."
+    },
+    {
+      "severity": "WATCH",
+      "tone": "neutral",
+      "label": "Theo dõi",
+      "rule": "Báo trước, chưa cần hành động",
+      "example": { "title": "Bảo lãnh thực hiện hợp đồng còn 28 ngày", "due": "Còn 28 ngày · 06/12" },
+      "consequence": "Chuyển thành Cần xử lý khi còn 14 ngày."
+    }
+  ],
+  "lifecycle": [
+    { "key": "NEW", "label": "Mới", "note": "Chưa ai nhận" },
+    { "key": "CLAIMED", "label": "Đã nhận", "note": "Có người chịu trách nhiệm" },
+    { "key": "IN_PROGRESS", "label": "Đang xử lý", "note": "Có việc đang làm" },
+    { "key": "RESOLVED", "label": "Đã xử lý", "note": "Có biên nhận, đóng cảnh báo" }
+  ],
+  "clocks": [
+    { "label": "Hạn nhận cảnh báo", "value": "còn 3 giờ", "fraction": 0.6 },
+    { "label": "Hạn xử lý xong", "value": "còn 2 ngày", "fraction": 0.35 }
+  ],
+  "escalation": {
+    "title": "Leo thang khi quá hạn",
+    "chain": [
+      { "level": "Cấp 1", "who": "Người được giao" },
+      { "level": "Cấp 2", "who": "Trưởng phòng" },
+      { "level": "Cấp 3", "who": "Lãnh đạo" }
+    ]
+  }
+}

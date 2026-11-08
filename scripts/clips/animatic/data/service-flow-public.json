@@ -1,0 +1,35 @@
+{
+  "id": "service-flow-public",
+  "kind": "service-flow",
+  "theme": "light",
+  "durationMs": 14000,
+  "fadeMs": 300,
+  "kicker": "Luồng dịch vụ",
+  "title": "Một hồ sơ thanh toán đi qua hệ thống như thế nào",
+  "labels": {},
+  "nodes": [
+    { "id": "web", "kind": "client", "icon": "monitor", "label": "Cán bộ lập hồ sơ", "sub": "Ứng dụng web", "x": 80, "y": 300, "w": 340, "h": 150, "at": 200 },
+    { "id": "api", "kind": "service", "icon": "cog", "label": "API", "sub": "Kiểm quyền, chống gửi trùng lệnh", "x": 580, "y": 300, "w": 340, "h": 150, "at": 400 },
+    { "id": "modules", "kind": "service", "icon": "file", "label": "Mô-đun thanh toán", "sub": "Quy tắc và hạn mức", "x": 1080, "y": 300, "w": 340, "h": 150, "at": 600 },
+    { "id": "db", "kind": "store", "icon": "db", "label": "Cơ sở dữ liệu", "sub": "row-level security", "x": 1540, "y": 300, "w": 320, "h": 150, "at": 800 },
+    { "id": "alerts", "kind": "service", "icon": "bell", "label": "Trung tâm cảnh báo", "sub": "Chọn mức, hẹn giờ, leo thang", "x": 1080, "y": 640, "w": 340, "h": 150, "at": 1000 },
+    { "id": "push", "kind": "service", "icon": "cog", "label": "Thông báo đẩy", "sub": "Gửi tới đúng người nhận", "x": 580, "y": 640, "w": 340, "h": 150, "at": 1200 },
+    { "id": "phone", "kind": "client", "icon": "phone", "label": "Lãnh đạo", "sub": "Ứng dụng điện thoại", "x": 80, "y": 640, "w": 340, "h": 150, "at": 1400 }
+  ],
+  "links": [
+    { "from": "web", "to": "api", "label": "lập hồ sơ" },
+    { "from": "api", "to": "modules", "label": "lệnh hợp lệ" },
+    { "from": "modules", "to": "db", "label": "ghi" },
+    { "from": "modules", "to": "alerts", "label": "sự kiện" },
+    { "from": "alerts", "to": "push", "label": "mức Khẩn" },
+    { "from": "push", "to": "phone", "label": "đẩy" }
+  ],
+  "steps": [
+    { "link": "web-api", "at": 2200, "dur": 1200, "packet": "Hồ sơ thanh toán", "caption": "Cán bộ lập hồ sơ thanh toán trên web" },
+    { "link": "api-modules", "at": 4000, "dur": 1200, "packet": "Lệnh đã kiểm quyền", "caption": "API kiểm quyền rồi chuyển cho mô-đun nghiệp vụ" },
+    { "link": "modules-db", "at": 5800, "dur": 1200, "packet": "Ghi vào sổ", "caption": "Mô-đun ghi vào cơ sở dữ liệu, trong phạm vi đơn vị của người lập" },
+    { "link": "modules-alerts", "at": 7600, "dur": 1200, "packet": "Sự kiện", "caption": "Sự kiện được gửi sang trung tâm cảnh báo" },
+    { "link": "alerts-push", "at": 9400, "dur": 1200, "packet": "Cảnh báo Khẩn", "caption": "Trung tâm cảnh báo chọn mức và người nhận" },
+    { "link": "push-phone", "at": 11200, "dur": 1200, "packet": "Thông báo", "caption": "Lãnh đạo nhận thông báo trên điện thoại" }
+  ]
+}

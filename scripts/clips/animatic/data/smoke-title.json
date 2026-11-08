@@ -1,0 +1,11 @@
+{
+  "id": "smoke-title",
+  "kind": "title",
+  "theme": "dark",
+  "durationMs": 3000,
+  "fadeMs": 300,
+  "kicker": "Giới thiệu sản phẩm",
+  "title": "Hệ thống quản lý đầu tư công",
+  "subtitle": "Một nơi để thấy, giao việc và chịu trách nhiệm",
+  "footer": "Public Investment Management System"
+}

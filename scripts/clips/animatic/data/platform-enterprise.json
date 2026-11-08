@@ -1,0 +1,260 @@
+{
+  "id": "platform-enterprise",
+  "kind": "platform",
+  "theme": "light",
+  "durationMs": 15000,
+  "fadeMs": 300,
+  "kicker": "Nền tảng bản doanh nghiệp",
+  "title": "Các phần của hệ thống và cách chúng nối với HPM và ERP",
+  "labels": {
+    "enterpriseBadge": "Bản doanh nghiệp"
+  },
+  "nodes": [
+    {
+      "id": "web",
+      "kind": "client",
+      "icon": "monitor",
+      "label": "Ứng dụng web",
+      "sub": "Ban dự án và Ban KHĐT",
+      "x": 60,
+      "y": 240,
+      "w": 330,
+      "h": 120,
+      "at": 800
+    },
+    {
+      "id": "phone",
+      "kind": "client",
+      "icon": "phone",
+      "label": "Ứng dụng điện thoại",
+      "sub": "Đọc, phê duyệt, báo cáo hiện trường",
+      "x": 60,
+      "y": 410,
+      "w": 330,
+      "h": 120,
+      "at": 1200
+    },
+    {
+      "id": "pwa",
+      "kind": "client",
+      "icon": "globe",
+      "label": "PWA cho lãnh đạo",
+      "sub": "Xem nhanh trước giờ giao ban",
+      "x": 60,
+      "y": 580,
+      "w": 330,
+      "h": 120,
+      "at": 1600
+    },
+    {
+      "id": "api",
+      "kind": "service",
+      "icon": "cog",
+      "label": "API",
+      "sub": "Một cổng, kiểm quyền từng lệnh",
+      "x": 460,
+      "y": 410,
+      "w": 280,
+      "h": 120,
+      "at": 2800
+    },
+    {
+      "id": "modules",
+      "kind": "service",
+      "icon": "file",
+      "label": "Mô-đun nghiệp vụ",
+      "sub": "Dự án, mua sắm, vốn, báo cáo PVN",
+      "x": 810,
+      "y": 240,
+      "w": 340,
+      "h": 120,
+      "at": 4000
+    },
+    {
+      "id": "alerts",
+      "kind": "service",
+      "icon": "bell",
+      "label": "Trung tâm cảnh báo",
+      "sub": "Khẩn, Cần xử lý, Theo dõi",
+      "x": 810,
+      "y": 410,
+      "w": 340,
+      "h": 120,
+      "at": 4500
+    },
+    {
+      "id": "bi",
+      "kind": "service",
+      "icon": "chart",
+      "label": "BI và báo cáo phân tích",
+      "sub": "Chỉ tiêu, dashboard, giao ban",
+      "x": 810,
+      "y": 580,
+      "w": 340,
+      "h": 120,
+      "at": 5000
+    },
+    {
+      "id": "db",
+      "kind": "store",
+      "icon": "db",
+      "label": "Cơ sở dữ liệu",
+      "sub": "Cách ly theo đơn vị bằng row-level security",
+      "x": 1290,
+      "y": 220,
+      "w": 310,
+      "h": 160,
+      "at": 6200
+    },
+    {
+      "id": "hpm",
+      "kind": "adapter",
+      "icon": "link",
+      "edition": "enterprise",
+      "label": "Bộ nối HPM",
+      "sub": "Đẩy dữ liệu bằng tệp chuẩn",
+      "x": 1290,
+      "y": 450,
+      "w": 310,
+      "h": 140,
+      "at": 8200
+    },
+    {
+      "id": "hpm-ext",
+      "kind": "external",
+      "icon": null,
+      "label": "HPM",
+      "sub": "Hệ thống của Tổng công ty",
+      "x": 1670,
+      "y": 450,
+      "w": 200,
+      "h": 130,
+      "at": 9000
+    },
+    {
+      "id": "ebs",
+      "kind": "adapter",
+      "icon": "link",
+      "edition": "enterprise",
+      "label": "Bộ nối Oracle EBS",
+      "sub": "Nhập tệp đối chiếu ERP",
+      "x": 1290,
+      "y": 630,
+      "w": 310,
+      "h": 140,
+      "at": 9600
+    },
+    {
+      "id": "ebs-ext",
+      "kind": "external",
+      "icon": null,
+      "label": "Oracle EBS",
+      "sub": "ERP của doanh nghiệp",
+      "x": 1670,
+      "y": 630,
+      "w": 200,
+      "h": 130,
+      "at": 10400
+    }
+  ],
+  "links": [
+    {
+      "from": "web",
+      "to": "api",
+      "mid": 0.4
+    },
+    {
+      "from": "phone",
+      "to": "api",
+      "mid": 0.4
+    },
+    {
+      "from": "pwa",
+      "to": "api",
+      "mid": 0.4
+    },
+    {
+      "from": "api",
+      "to": "modules",
+      "mid": 0.5
+    },
+    {
+      "from": "api",
+      "to": "alerts",
+      "mid": 0.5
+    },
+    {
+      "from": "api",
+      "to": "bi",
+      "mid": 0.5
+    },
+    {
+      "from": "modules",
+      "to": "db",
+      "mid": 0.5
+    },
+    {
+      "from": "alerts",
+      "to": "db",
+      "mid": 0.8
+    },
+    {
+      "from": "bi",
+      "to": "db",
+      "mid": 0.9
+    },
+    {
+      "from": "modules",
+      "to": "hpm",
+      "mid": 0.2,
+      "at": 8200
+    },
+    {
+      "from": "hpm",
+      "to": "hpm-ext",
+      "dashed": true,
+      "at": 9000
+    },
+    {
+      "from": "modules",
+      "to": "ebs",
+      "mid": 0.45,
+      "at": 9600
+    },
+    {
+      "from": "ebs",
+      "to": "ebs-ext",
+      "dashed": true,
+      "at": 10400
+    }
+  ],
+  "legend": [
+    {
+      "tone": "neutral",
+      "label": "Khung nét đứt: hệ thống bên ngoài, kết nối chỉ bằng tệp"
+    }
+  ],
+  "legendAt": 11200,
+  "captions": [
+    {
+      "from": 800,
+      "to": 3600,
+      "text": "Ba cách vào hệ thống, cùng một cổng API"
+    },
+    {
+      "from": 4000,
+      "to": 7800,
+      "text": "Nghiệp vụ, cảnh báo và báo cáo cùng đọc một cơ sở dữ liệu"
+    },
+    {
+      "from": 8000,
+      "to": 11000,
+      "text": "Báo cáo gửi PVN đi qua bộ nối HPM bằng tệp chuẩn"
+    },
+    {
+      "from": 11200,
+      "to": 14500,
+      "text": "Số liệu ERP được đối chiếu bằng tệp, không đọc trực tiếp cơ sở dữ liệu của EBS"
+    }
+  ]
+}

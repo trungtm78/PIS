@@ -1,0 +1,11 @@
+{
+  "id": "title-public",
+  "kind": "title",
+  "theme": "dark",
+  "durationMs": 6000,
+  "fadeMs": 300,
+  "kicker": "Giới thiệu sản phẩm",
+  "title": "Hệ thống quản lý đầu tư công",
+  "subtitle": "Từ kế hoạch vốn đến giải ngân, hợp đồng và báo cáo: một nguồn số liệu, mọi cấp cùng nhìn thấy",
+  "footer": "Public Investment Management System · Dữ liệu minh họa cấp tỉnh"
+}

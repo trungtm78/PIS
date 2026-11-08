@@ -1,0 +1,43 @@
+{
+  "id": "platform-public",
+  "kind": "platform",
+  "theme": "light",
+  "durationMs": 15000,
+  "fadeMs": 300,
+  "kicker": "Nền tảng",
+  "title": "Các phần của hệ thống và cách chúng nối với nhau",
+  "labels": { "enterpriseBadge": "Bản doanh nghiệp" },
+  "nodes": [
+    { "id": "web", "kind": "client", "icon": "monitor", "label": "Ứng dụng web", "sub": "Cán bộ và lãnh đạo trên máy tính", "x": 60, "y": 240, "w": 330, "h": 120, "at": 800 },
+    { "id": "phone", "kind": "client", "icon": "phone", "label": "Ứng dụng điện thoại", "sub": "Đọc, phê duyệt, báo cáo hiện trường", "x": 60, "y": 410, "w": 330, "h": 120, "at": 1200 },
+    { "id": "pwa", "kind": "client", "icon": "globe", "label": "PWA cho lãnh đạo", "sub": "Mở từ trình duyệt, không cần cài", "x": 60, "y": 580, "w": 330, "h": 120, "at": 1600 },
+    { "id": "api", "kind": "service", "icon": "cog", "label": "API", "sub": "Một cổng, kiểm quyền từng lệnh", "x": 460, "y": 410, "w": 280, "h": 120, "at": 2800 },
+    { "id": "modules", "kind": "service", "icon": "file", "label": "Mô-đun nghiệp vụ", "sub": "Dự án, đấu thầu, hợp đồng, thanh toán", "x": 810, "y": 240, "w": 340, "h": 120, "at": 4000 },
+    { "id": "alerts", "kind": "service", "icon": "bell", "label": "Trung tâm cảnh báo", "sub": "Khẩn, Cần xử lý, Theo dõi", "x": 810, "y": 410, "w": 340, "h": 120, "at": 4500 },
+    { "id": "bi", "kind": "service", "icon": "chart", "label": "BI và báo cáo phân tích", "sub": "Chỉ tiêu có chứng nhận, dashboard", "x": 810, "y": 580, "w": 340, "h": 120, "at": 5000 },
+    { "id": "db", "kind": "store", "icon": "db", "label": "Cơ sở dữ liệu", "sub": "Cách ly từng đơn vị bằng row-level security", "x": 1290, "y": 390, "w": 310, "h": 160, "at": 6200 },
+    { "id": "egp", "kind": "adapter", "icon": "link", "label": "Bộ nối muasamcong", "sub": "Nhập và xuất tệp", "x": 1290, "y": 235, "w": 310, "h": 130, "at": 8200 },
+    { "id": "egp-ext", "kind": "external", "icon": null, "label": "muasamcong", "sub": "Hệ thống đấu thầu quốc gia", "x": 1670, "y": 235, "w": 200, "h": 130, "at": 9000 }
+  ],
+  "links": [
+    { "from": "web", "to": "api", "mid": 0.4 },
+    { "from": "phone", "to": "api", "mid": 0.4 },
+    { "from": "pwa", "to": "api", "mid": 0.4 },
+    { "from": "api", "to": "modules", "mid": 0.5 },
+    { "from": "api", "to": "alerts", "mid": 0.5 },
+    { "from": "api", "to": "bi", "mid": 0.5 },
+    { "from": "modules", "to": "db", "mid": 0.35 },
+    { "from": "alerts", "to": "db", "mid": 0.5 },
+    { "from": "bi", "to": "db", "mid": 0.65 },
+    { "from": "modules", "to": "egp", "at": 8200 },
+    { "from": "egp", "to": "egp-ext", "dashed": true, "at": 9000 }
+  ],
+  "legend": [{ "tone": "neutral", "label": "Khung nét đứt: hệ thống bên ngoài, kết nối chỉ bằng tệp" }],
+  "legendAt": 9800,
+  "captions": [
+    { "from": 800, "to": 3600, "text": "Ba cách vào hệ thống, cùng một cổng API" },
+    { "from": 4000, "to": 7400, "text": "Nghiệp vụ, cảnh báo và báo cáo cùng đọc một cơ sở dữ liệu" },
+    { "from": 7600, "to": 11800, "text": "muasamcong nối qua tệp: hệ thống không quét trang web" },
+    { "from": 12000, "to": 14500, "text": "Mỗi đơn vị chỉ thấy dữ liệu của mình" }
+  ]
+}

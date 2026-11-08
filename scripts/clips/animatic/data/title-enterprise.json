@@ -1,0 +1,11 @@
+{
+  "id": "title-enterprise",
+  "kind": "title",
+  "theme": "dark",
+  "durationMs": 6000,
+  "fadeMs": 300,
+  "kicker": "Bản doanh nghiệp",
+  "title": "Phần mềm quản lý đầu tư xây dựng",
+  "subtitle": "Dự án đầu tư xây dựng và mua sắm trang thiết bị của Đạm Phú Mỹ: vốn, tiến độ, báo cáo gửi PVN và chỉ đạo giao ban",
+  "footer": "Dữ liệu minh họa dựng cho bản doanh nghiệp, không phải số liệu thật của khách hàng"
+}
