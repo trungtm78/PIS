@@ -499,6 +499,12 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'VND-04': () => import('../../screens/vnd/payee/PayeeScreen'),
   'VND-05': () => import('../../screens/vnd/certificates/CertificatesScreen'),
   'VND-06': () => import('../../screens/vnd/reputation/ReputationScreen'),
+  'VND-07': () => import('../../screens/vnd/controls/IndependenceScreen'),
+  'VND-08': () => import('../../screens/vnd/finance/FinanceScreen'),
+  'VND-09': () => import('../../screens/vnd/security/SecurityScreen'),
+  'VND-10': () => import('../../screens/vnd/subcontracts/SubcontractScreen'),
+  'VND-11': () => import('../../screens/vnd/risk/RiskScreen'),
+  'VND-12': () => import('../../screens/vnd/performance/PerformanceScreen'),
   // The claim register and the early-warning register of a contract (lane GOV-8).
   'CTR-32': () => import('../../screens/ctr/claims/ClaimRegisterScreen'),
   'CTR-33': () => import('../../screens/ctr/claims/ClaimRecordScreen'),
