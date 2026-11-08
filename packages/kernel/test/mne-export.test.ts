@@ -10,12 +10,14 @@ describe('the export package of a monitoring report (ST-MNE-004)', () => {
   });
 
   it('accepts the formats this release makes and the form allows, and refuses the others by name', () => {
-    expect(MNE_GENERATED_FORMATS).toEqual(['XLSX', 'PDF', 'CSV']);
+    expect(MNE_GENERATED_FORMATS).toEqual(['XLSX', 'PDF', 'CSV', 'DOCX']);
     expect(checkedFormats(['XLSX', 'PDF'], ['XLSX', 'PDF', 'XML'])).toEqual(['XLSX', 'PDF']);
     expect(() => checkedFormats(['XML'], ['XML'])).toThrow(expect.objectContaining({ code: 'EXPORT_FORMAT_UNSUPPORTED', status: 422, detail: 'formats[0]' }));
     expect(() => checkedFormats(['XLSX', 'CSV'], ['XLSX'])).toThrow(expect.objectContaining({ code: 'EXPORT_FORMAT_UNSUPPORTED', detail: 'formats[1]' }));
     expect(() => checkedFormats(['XLSX', 'XLSX'], ['XLSX'])).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED', detail: 'formats[1]' }));
-    expect(() => checkedFormats(['DOCX'], ['XLSX'])).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED' }));
+    expect(() => checkedFormats(['ODT'], ['XLSX'])).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED' }));
+    expect(() => checkedFormats(['DOCX'], ['XLSX'])).toThrow(expect.objectContaining({ code: 'EXPORT_FORMAT_UNSUPPORTED' }));
+    expect(checkedFormats(['DOCX'], ['XLSX', 'DOCX'])).toEqual(['DOCX']);
   });
 
   it('writes money in million dong without a float, a rate with its sign, and an empty cell as nothing', () => {

@@ -25,8 +25,8 @@ const definition = (overrides: Record<string, unknown> = {}): Record<string, unk
 const codes = (value: unknown, businessType = 'report.accept'): Array<[string, string]> => validateDefinition(value, businessType).map((defect) => [defect.path, defect.code]);
 
 describe('a workflow definition (BR-ADM-05)', () => {
-  it('knows the five business types, each with the three commands an end can call', () => {
-    expect(BUSINESS_TYPES.map((type) => type.code)).toEqual(['report.accept', 'plan.publish', 'payment.approve', 'contract.change', 'period.reopen']);
+  it('knows the six business types, each with the three commands an end can call', () => {
+    expect(BUSINESS_TYPES.map((type) => type.code)).toEqual(['report.accept', 'plan.publish', 'payment.approve', 'contract.change', 'period.reopen', 'document.review']);
     expect(businessTypeOf('payment.approve')?.commands.APPROVED).toBe('approvePaymentRequest');
     expect(businessTypeOf('nothing')).toBeUndefined();
   });

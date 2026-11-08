@@ -22,7 +22,7 @@ const facts = (over: Partial<SubmissionFacts> = {}): SubmissionFacts => ({
 describe('the review is a registered business type of the approval workflow', () => {
   it('registers document.review with the three commands of its ends', () => {
     const spec = BUSINESS_TYPES.find((type) => type.code === DOCUMENT_REVIEW_BUSINESS_TYPE);
-    expect(spec).toEqual({ code: 'document.review', documentType: 'DOCUMENT_REVIEW', commands: { APPROVED: 'approveDocumentReview', RETURNED: 'requestDocumentSupplement', REJECTED: 'rejectDocumentReview' } });
+    expect(spec).toEqual({ code: 'document.review', documentType: 'DOCUMENT_REVIEW', commands: { APPROVED: 'approveDocumentReview', RETURNED: 'requestDocumentSupplement', REJECTED: 'rejectDocumentReview' }, ownerModule: 'DOC', enabledByDefault: false });
   });
 
   it('accepts a two stage definition with parallel reviewers and the registered commands', () => {
