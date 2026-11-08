@@ -1846,7 +1846,6 @@ export type { InvestorStanding, ProfileRecommendation as InvestorProfileRecommen
 export { PeriodReportStore } from './period-report-store.ts';
 export type { IssueFacts as PeriodIssueFacts, LockRow as PeriodLockRow, SessionRow as ReportSignatureSessionRow, SignatureRow as ReportSignatureRow } from './period-report-store.ts';
 export { readPolicy as readGov12Policy } from './gov12-policy.ts';
-=======
 // VND-2 (slice beta): the bid security register and the subcontracts of a contract.
 export * from './vendor-security-store.ts';
 export * from './vendor-subcontract-store.ts';
