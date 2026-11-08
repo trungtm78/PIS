@@ -139,6 +139,10 @@ export interface AlertItem {
   reminders: Reminders | null;
   notices: Notice[];
   existing_clock: ExistingClock | null;
+  /** G2-7: the person whose alert it is, when the reader holds it as their deputy. */
+  on_behalf_of?: Person | null;
+  /** G2-3: the severity the item came from when the escalation raised it one step (an item to be watched that aged untouched). */
+  promoted_from?: Severity | null;
 }
 
 export interface AlertCounts {
@@ -293,6 +297,8 @@ export function toAlertItem(raw: unknown): AlertItem | undefined {
     reminders: toReminders(raw.reminders),
     notices: toNotices(raw.notices),
     existing_clock: toExistingClock(raw.existing_clock),
+    on_behalf_of: isRecord(raw.on_behalf_of) && text(raw.on_behalf_of.id) !== '' ? { id: text(raw.on_behalf_of.id), name: text(raw.on_behalf_of.name) || text(raw.on_behalf_of.id) } : null,
+    promoted_from: oneOf(raw.promoted_from, SEVERITIES) ?? null,
   };
 }
 

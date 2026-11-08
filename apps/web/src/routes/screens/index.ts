@@ -486,4 +486,10 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CTR-34': () => import('../../screens/ctr/claims/ClaimTermsScreen'),
   'CTR-35': () => import('../../screens/ctr/early-warning/EarlyWarningRegisterScreen'),
   'CTR-36': () => import('../../screens/ctr/early-warning/EarlyWarningRecordScreen'),
+=======
+  // The governance of the alert system (lane GOV-9a, G2-3, G2-5, G2-7, G2-10).
+  'HOME-13': () => import('../../screens/alertgov/HealthScreen'),
+  'NOT-18': () => import('../../screens/alertgov/ProfileScreen'),
+  'NOT-19': () => import('../../screens/alertgov/EscalationScreen'),
+  'ADM-25': () => import('../../screens/alertgov/CoverScreen'),
 };

@@ -148,11 +148,6 @@
     {"id":"CTR-29","path":"/ctr/ctr-29","title":"Danh mục và trạng thái hợp đồng (phân tích)","kind":"table","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-29"},
     {"id":"CTR-30","path":"/ctr/ctr-30","title":"Chênh lệch giá trúng thầu và giá hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-30"},
     {"id":"CTR-31","path":"/ctr/ctr-31","title":"Tập trung và tải của nhà thầu","kind":"dashboard","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-31"},
-    {"id":"CTR-32","path":"/ctr/ctr-32","title":"Sổ claim hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"workspace","parent":null,"req":"FR-CTR-32"},
-    {"id":"CTR-33","path":"/ctr/ctr-33","title":"Hồ sơ claim và đồng hồ thời hiệu","kind":"detail","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-33"},
-    {"id":"CTR-34","path":"/ctr/ctr-34","title":"Điều khoản thời hiệu claim của hợp đồng","kind":"form","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-34"},
-    {"id":"CTR-35","path":"/ctr/ctr-35","title":"Sổ cảnh báo sớm hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"workspace","parent":null,"req":"FR-CTR-35"},
-    {"id":"CTR-36","path":"/ctr/ctr-36","title":"Hồ sơ cảnh báo sớm","kind":"detail","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-35","req":"FR-CTR-36"},
     {"id":"ISS-01","path":"/iss/iss-01","title":"Danh sách vướng mắc","kind":"kanban","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"workspace","parent":null,"req":"FR-ISS-01"},
     {"id":"ISS-02","path":"/iss/iss-02","title":"Ghi nhận vướng mắc","kind":"form","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"detail","parent":"ISS-01","req":"FR-ISS-02"},
     {"id":"ISS-03","path":"/iss/iss-03","title":"Không gian xử lý","kind":"detail","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"detail","parent":"ISS-01","req":"FR-ISS-03"},
@@ -467,6 +462,15 @@
     {"id":"VND-03","path":"/vnd/vnd-03","title":"Hồ sơ cấm tham gia đấu thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-03"},
     {"id":"VND-04","path":"/vnd/vnd-04","title":"Tài khoản nhận tiền của nhà thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-04"},
     {"id":"VND-05","path":"/vnd/vnd-05","title":"Chứng chỉ và nhân sự chủ chốt","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-05"},
-    {"id":"VND-06","path":"/vnd/vnd-06","title":"Sự kiện uy tín dự thầu và liên danh","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-06"}
+    {"id":"VND-06","path":"/vnd/vnd-06","title":"Sự kiện uy tín dự thầu và liên danh","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-06"},
+    {"id":"CTR-32","path":"/ctr/ctr-32","title":"Sổ claim hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"workspace","parent":null,"req":"FR-CTR-32"},
+    {"id":"CTR-33","path":"/ctr/ctr-33","title":"Hồ sơ claim và đồng hồ thời hiệu","kind":"detail","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-33"},
+    {"id":"CTR-34","path":"/ctr/ctr-34","title":"Điều khoản thời hiệu claim của hợp đồng","kind":"form","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-32","req":"FR-CTR-34"},
+    {"id":"CTR-35","path":"/ctr/ctr-35","title":"Sổ cảnh báo sớm hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"workspace","parent":null,"req":"FR-CTR-35"},
+    {"id":"CTR-36","path":"/ctr/ctr-36","title":"Hồ sơ cảnh báo sớm","kind":"detail","area":"investment","module":"CTR","group":"Sổ claim và cảnh báo sớm","role":"detail","parent":"CTR-35","req":"FR-CTR-36"},
+    {"id":"NOT-18","path":"/not/not-18","title":"Hồ sơ thông báo cảnh báo của tôi","kind":"form","area":"engagement","module":"NOT","group":"Của tôi","role":"workspace","parent":null,"req":"FR-NOT-18"},
+    {"id":"NOT-19","path":"/not/not-19","title":"Leo thang cảnh báo","kind":"list","area":"engagement","module":"NOT","group":"Theo dõi vận hành","role":"workspace","parent":null,"req":"FR-NOT-19"},
+    {"id":"ADM-25","path":"/adm/adm-25","title":"Vắng mặt, người thay và độ phủ người nhận cảnh báo","kind":"list","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-25"},
+    {"id":"HOME-13","path":"/home/home-13","title":"Sức khỏe hệ thống cảnh báo","kind":"dashboard","area":"overview","module":"HOME","group":"Công việc & cảnh báo","role":"workspace","parent":null,"req":"FR-HOME-13"}
   ]
 }

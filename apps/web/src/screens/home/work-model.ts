@@ -60,6 +60,9 @@ export const WORK_KINDS = [
   'EW_REGISTER_OVERDUE',
   'EW_MEETING_OVERDUE',
   'EW_ACTION_OVERDUE',
+  // The governance of the alert system (lane GOV-9a): an item sent up to the person by the chain of escalation, and a gap in the coverage of the receivers of alerts.
+  'ESCALATED_ITEM',
+  'COVERAGE_GAP',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;

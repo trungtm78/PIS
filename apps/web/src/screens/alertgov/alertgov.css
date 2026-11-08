@@ -1,0 +1,33 @@
+/* The governance of the alert system (HOME-13, NOT-18, NOT-19, ADM-25; lane GOV-9a): layout only, colours are the --mv-color-* tokens. */
+.alertgov-stack { display: grid; gap: var(--mv-space-16); margin-bottom: var(--mv-space-16); }
+.alertgov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--mv-space-16); }
+.alertgov-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mv-space-16); align-items: start; }
+@media (max-width: 1279px) { .alertgov-pair { grid-template-columns: minmax(0, 1fr); } }
+.alertgov-banner { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-12); margin-bottom: var(--mv-space-16); padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); color: var(--mv-color-ink); }
+.alertgov-banner p { margin: 0; }
+.alertgov-banner--warning { border-color: var(--mv-color-warning); background: var(--mv-color-warning-soft); }
+.alertgov-banner--danger { border-color: var(--mv-color-danger); background: var(--mv-color-danger-soft); }
+.alertgov-banner--info { border-color: var(--mv-color-info); background: var(--mv-color-info-soft); }
+.alertgov-rule { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-12); margin: var(--mv-space-8) 0; font-size: 12px; color: var(--mv-color-text-secondary); }
+.alertgov-rule__source { flex: 1 1 320px; }
+.alertgov-figure { display: flex; align-items: baseline; gap: var(--mv-space-8); margin: 0; }
+.alertgov-figure__value { font-size: 28px; font-weight: 700; color: var(--mv-color-ink); }
+.alertgov-figure__unit { color: var(--mv-color-text-secondary); }
+.alertgov-figure__none { font-size: 28px; font-weight: 700; color: var(--mv-color-text-secondary); }
+.alertgov-meta { display: grid; gap: var(--mv-space-4); margin: var(--mv-space-8) 0 0; padding: 0; list-style: none; font-size: 12px; color: var(--mv-color-text-secondary); }
+.alertgov-parts { display: grid; gap: var(--mv-space-4); margin: var(--mv-space-8) 0 0; padding: 0; list-style: none; font-size: 12px; }
+.alertgov-parts li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--mv-space-4) var(--mv-space-8); }
+.alertgov-defects { margin: var(--mv-space-8) 0 0; padding-left: var(--mv-space-20); }
+.alertgov-form { display: grid; gap: var(--mv-space-12); }
+.alertgov-form fieldset { display: grid; gap: var(--mv-space-8); margin: 0; padding: var(--mv-space-12) var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); }
+.alertgov-form legend { padding: 0 var(--mv-space-4); font-weight: 700; color: var(--mv-color-ink); }
+.alertgov-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-16); }
+.alertgov-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.alertgov-error { color: var(--mv-color-danger); font-size: 12px; }
+.alertgov-ok { color: var(--mv-color-success); font-size: 12px; }
+.alertgov-steps { display: grid; gap: var(--mv-space-4); margin: 0; padding-left: var(--mv-space-20); }
+.alertgov-line { display: grid; gap: var(--mv-space-4); padding: var(--mv-space-8) 0; border-bottom: 1px solid var(--mv-color-border); }
+.alertgov-line:last-child { border-bottom: 0; }
+.alertgov-sub { display: block; font-size: 12px; color: var(--mv-color-text-secondary); }
+.alertgov-list { display: grid; gap: var(--mv-space-12); margin: 0; padding: 0; list-style: none; }
+.alertgov-card { display: grid; gap: var(--mv-space-8); padding: var(--mv-space-12) var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); }

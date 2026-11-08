@@ -68,6 +68,16 @@ export function AlertRow({ item, today, actions, note, detailed = false, now }: 
         )}
       </div>
       {item.subtitle === null ? null : <div className="mv-alert-row__subtitle">{item.subtitle}</div>}
+      {(item.on_behalf_of ?? null) === null ? null : (
+        <div className="mv-alert-row__subtitle" data-testid="on-behalf">
+          {t('alerts.item.onBehalf', { name: item.on_behalf_of?.name ?? '' })}
+        </div>
+      )}
+      {(item.promoted_from ?? null) === null ? null : (
+        <div className="mv-alert-row__subtitle" data-testid="promoted">
+          {t('alerts.item.promoted', { from: t(`alerts.severity.${severitySuffix(item.promoted_from ?? 'WATCH')}`) })}
+        </div>
+      )}
       <div className="mv-alert-row__meta">
         {item.clocks === null ? <DeadlineCountdown dueOn={item.due_on} today={today} daysLate={item.days_late} /> : null}
         <span>{ownerText(t, item)}</span>
