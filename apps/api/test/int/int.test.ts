@@ -402,7 +402,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect((await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(1), body: { dataset_code: 'DS-NOPE', enabled: true, product_id: strong, reason: REASON } })).status).toBe(422);
       const on = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(1), body: { dataset_code: 'DS-DISB', enabled: true, product_id: strong, reason: REASON } });
       expect(on.status).toBe(200);
-      expect(on.json).toMatchObject({ status: 'ENABLED', resource_version: 1 });
+      expect(on.json).toMatchObject({ status: 'ENABLED', resource_version: 2 });
       const lines = await open('GET', '/open/v1/disbursement-lines?limit=2', { bearer: accountToken });
       expect(lines.status).toBe(200);
       expect((lines.json.items as unknown[]).length).toBe(2);
@@ -432,9 +432,9 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect(((await open('GET', '/open/v1/datasets', { bearer: accountToken })).json.items as Array<{ open: boolean }>)[0]?.open).toBe(false);
       const fresh = await seedProduct(TENANT_A, 'DP-FRESH');
       const off = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(disb.version), body: { dataset_code: 'DS-DISB', enabled: false, reason: REASON } });
-      expect(off.json).toMatchObject({ status: 'DISABLED', resource_version: 2 });
-      const on = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(2), body: { dataset_code: 'DS-DISB', enabled: true, product_id: fresh, reason: REASON } });
-      expect(on.json).toMatchObject({ status: 'ENABLED', resource_version: 3 });
+      expect(off.json).toMatchObject({ status: 'DISABLED', resource_version: 3 });
+      const on = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(3), body: { dataset_code: 'DS-DISB', enabled: true, product_id: fresh, reason: REASON } });
+      expect(on.json).toMatchObject({ status: 'ENABLED', resource_version: 4 });
       expect((await open('GET', '/open/v1/disbursement-lines', { bearer: accountToken })).status).toBe(200);
     });
   });

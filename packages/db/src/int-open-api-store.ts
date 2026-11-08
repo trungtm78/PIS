@@ -436,7 +436,7 @@ export interface ExportDatasetRow {
   enabled: boolean;
   stateReason: string | null;
   stateChangedAt: string | null;
-  /** 1 while the dataset is not configured: the first command creates the row at version 1. */
+  /** 1 while the dataset is not configured: the first command creates the row at version 2 (so the version of an unconfigured dataset and of a configured one are never the same). */
   version: number;
   gate: { open: true } | { open: false; reason: 'DISABLED' | 'NOT_CERTIFIED' | 'EXPIRED' };
 }
@@ -525,13 +525,14 @@ export class ExportDatasetStore {
     if (change.enabled) assertDatasetOpen({ enabled: true, certification: product.certification_status, expiresOn: product.certification_expires_on, today: vietnamDateOf(now) }, 422);
     if (before.id === null) {
       const made = await tx.query<{ id: string }>(
-        `insert into machvon.int_export_dataset (tenant_id, id, dataset_code, product_id, enabled, state_reason, state_changed_by, state_changed_at, created_by, updated_by)
-         values (${TENANT}, $1::uuid, $2, $3::uuid, $4, $5, $6::uuid, $7::timestamptz, $6::uuid, $6::uuid)
+        `insert into machvon.int_export_dataset (tenant_id, id, dataset_code, product_id, enabled, state_reason, state_changed_by, state_changed_at, created_by, updated_by, version)
+         values (${TENANT}, $1::uuid, $2, $3::uuid, $4, $5, $6::uuid, $7::timestamptz, $6::uuid, $6::uuid, 2)
          on conflict (tenant_id, dataset_code) do nothing returning id`,
         [randomUUID(), datasetCode, productId, change.enabled, change.reason, actor, now.toISOString()],
       );
-      // Another command configured the dataset first: this one was written against a version that no longer is.
-      if (made.length === 0) throw versionConflict(1);
+      // Another command configured the dataset first: this one was written against a version that no longer is. A dataset never configured is at version 1 and its first row is made at version 2, so a stale screen
+      // that saw it unconfigured can never overwrite what was configured since.
+      if (made.length === 0) throw versionConflict(2);
     } else {
       await tx.query(
         `update machvon.int_export_dataset set product_id = $2::uuid, enabled = $3, state_reason = $4, state_changed_by = $5::uuid, state_changed_at = $6::timestamptz, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,

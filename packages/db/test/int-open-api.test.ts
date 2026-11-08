@@ -324,7 +324,7 @@ describe('the open interface: systems, codes, machine accounts, certified datase
       expect((await refusal(as((tx) => datasets.set(tx, 'DS-DISB', 1, { enabled: true, productId: randomUUID(), reason: REASON }, memberId(MAKER), NOW)))).detail).toBe('product_id');
       expect((await refusal(as((tx) => datasets.set(tx, 'DS-DISB', 9, { enabled: true, productId: productA, reason: REASON }, memberId(MAKER), NOW)))).code).toBe('VERSION_CONFLICT');
       const on = await as((tx) => datasets.set(tx, 'DS-DISB', 1, { enabled: true, productId: productA, reason: REASON }, memberId(MAKER), NOW));
-      expect(on.row).toMatchObject({ enabled: true, version: 1, productCode: 'DP-A', certification: 'CERTIFIED', gate: { open: true } });
+      expect(on.row).toMatchObject({ enabled: true, version: 2, productCode: 'DP-A', certification: 'CERTIFIED', gate: { open: true } });
       // The state of the kernel gate and the state of the rows agree, also when the certification is revoked or runs out.
       await owner("update machvon.data_product set certification_status = 'REVOKED', revoke_reason = 'Revoked in the test for the gate' where id = $1", [productA]);
       expect((await as((tx) => datasets.state(tx, NOW))).find((row) => row.datasetCode === 'DS-DISB')?.gate).toEqual({ open: false, reason: 'NOT_CERTIFIED' });
