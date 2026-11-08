@@ -161,6 +161,21 @@ describe('the local reader of the text of a file (DOC-2)', () => {
       expect(result.units.map((unit) => unit.text)).toEqual(['Plain text (with) parentheses']);
     });
 
+    it('reads the text of a Form XObject a page draws, with its own fonts, and not only the content of the page itself', async () => {
+      const source = await PDFDocument.create();
+      const sourceFont = await source.embedFont(StandardFonts.Helvetica);
+      source.addPage([300, 300]).drawText('Body text held by the form', { x: 20, y: 150, size: 12, font: sourceFont });
+      const target = await PDFDocument.create();
+      const targetFont = await target.embedFont(StandardFonts.TimesRoman);
+      const [embedded] = await target.embedPdf(await source.save());
+      const page = target.addPage([600, 800]);
+      page.drawText('Header drawn directly', { x: 50, y: 760, size: 12, font: targetFont });
+      page.drawPage(embedded as NonNullable<typeof embedded>, { x: 0, y: 300 });
+      const result = await reader.extract({ bytes: await target.save(), format: 'PDF', sha256: SHA });
+      expect(result.status).toBe('OK');
+      expect(result.units.map((unit) => unit.text)).toEqual(['Header drawn directly', 'Body text held by the form']);
+    });
+
     it('gives no unit for a page with no text layer, as a scan has none, and does not fail', async () => {
       const pdf = await PDFDocument.create();
       pdf.addPage([300, 300]);

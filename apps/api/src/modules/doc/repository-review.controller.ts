@@ -51,6 +51,7 @@ export class DocumentReviewsController {
       documentActive: document.status === 'ACTIVE',
       version: { id: found.version.id, versionNo: found.version.versionNo, status: found.version.status, extractionStatus: found.version.extractionStatus },
       latest: latest === undefined ? null : { id: latest.id, round: latest.round, status: latest.status, versionNo: latest.versionNo },
+      approvedVersionNo: document.approvedVersion?.versionNo ?? null,
     });
     const opened = await this.reviews.open(scope.tx, plan, { documentId, versionId: found.version.id, note }, scope.tenant.membershipId);
     const instance = await this.approvals.start(scope, {

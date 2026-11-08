@@ -70,6 +70,13 @@ describe('sending a version to review', () => {
     expect(planSubmission(facts({ latest: { id: 'r1', round: 1, status: 'APPROVED', versionNo: 1 } })).round).toBe(2);
   });
 
+  it('refuses a version older than the approved one, as its approval could never be recorded', () => {
+    const refused = refusal(() => planSubmission(facts({ approvedVersionNo: 2, version: { id: 'v1', versionNo: 1, status: 'DRAFT', extractionStatus: 'EXTRACTED' } })));
+    expect([refused.code, refused.status, refused.extensions]).toEqual(['DOC_REVIEW_VERSION_NOT_NEWER', 422, { approved_version: 2, version: 1 }]);
+    expect(planSubmission(facts({ approvedVersionNo: 1 })).round).toBe(1);
+    expect(planSubmission(facts({ approvedVersionNo: null })).round).toBe(1);
+  });
+
   it('refuses an archived document, a version that is not a draft, an open review and a version still being read', () => {
     expect(refusal(() => planSubmission(facts({ documentActive: false }))).code).toBe('DOC_ARCHIVED');
     expect(refusal(() => planSubmission(facts({ version: { id: 'v', versionNo: 1, status: 'APPROVED', extractionStatus: 'EXTRACTED' } }))).code).toBe('DOC_VERSION_STATE_INVALID');

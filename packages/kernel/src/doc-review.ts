@@ -44,6 +44,8 @@ export interface SubmissionFacts {
   version: { id: string; versionNo: number; status: VersionStatus; extractionStatus: string };
   /** The newest review of the document, if any. */
   latest: { id: string; round: number; status: ReviewStatus; versionNo: number } | null;
+  /** The number of the version the document holds as approved, if any: the approved version only moves to a later one. */
+  approvedVersionNo?: number | null;
 }
 
 export interface SubmissionPlan {
@@ -63,6 +65,10 @@ export function planSubmission(facts: SubmissionFacts): SubmissionPlan {
   if (facts.latest?.status === 'IN_REVIEW') throw new DomainError('DOC_REVIEW_ALREADY_OPEN', 409, 'document_id', { extensions: { review_id: facts.latest.id } });
   if (facts.version.extractionStatus === 'PENDING') throw new DomainError('DOC_EXTRACTION_PENDING', 409, 'version_id');
   const latest = facts.latest;
+  // An approval of an older version could never be recorded (the approved version of a document only moves forward), so the round is refused before it starts.
+  if (facts.approvedVersionNo !== undefined && facts.approvedVersionNo !== null && facts.version.versionNo <= facts.approvedVersionNo) {
+    throw new DomainError('DOC_REVIEW_VERSION_NOT_NEWER', 422, 'version_id', { extensions: { approved_version: facts.approvedVersionNo, version: facts.version.versionNo } });
+  }
   if (latest !== null && (latest.status === 'SUPPLEMENT_REQUESTED' || latest.status === 'REJECTED') && facts.version.versionNo <= latest.versionNo) {
     throw new DomainError('DOC_REVIEW_VERSION_NOT_NEWER', 422, 'version_id', { extensions: { reviewed_version: latest.versionNo, version: facts.version.versionNo } });
   }

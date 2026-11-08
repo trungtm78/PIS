@@ -17,3 +17,7 @@ Branch `lane/doc2`, migration block 2160-2179 (V2160 to V2163 used). Requirement
 5. Docs: DOC.md section, `docs/doc-repository.md`.
 6. Gates: lint, typecheck, kernel/db/api/web tests, isolation, conformance counts, outbox consumers, dis/report.
 7. Codex review with the astra model, triage, fixes with regression tests.
+
+## Codex review (model astra, read-only)
+- P2 submission of a version older than the approved one could never be approved (the approved pointer only moves forward): valid; `planSubmission` takes `approvedVersionNo` and refuses with 422 DOC_REVIEW_VERSION_NOT_NEWER; kernel regression test; wired in `submitDocumentForReview`.
+- P2 text held by PDF Form XObjects was dropped while the version read as EXTRACTED: valid; the reader follows `Do` into forms with their own matrix and fonts (depth 4, 500 forms per page); regression test with a form drawn through `embedPdf`.

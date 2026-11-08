@@ -1,6 +1,6 @@
 import { unzipSync } from 'fflate';
 import ExcelJS from 'exceljs';
-import { EncryptedPDFError, PDFArray, PDFDict, PDFDocument, PDFName, PDFRawStream, PDFStream, decodePDFRawStream } from 'pdf-lib';
+import { EncryptedPDFError, PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFRawStream, PDFStream, decodePDFRawStream } from 'pdf-lib';
 import type { PDFContext, PDFObject } from 'pdf-lib';
 import { MAX_UNITS_PER_VERSION } from '@machvon/kernel';
 import type { ExtractedUnit, UnitBox } from '@machvon/kernel';
@@ -382,10 +382,24 @@ interface Run {
 const num = (token: Token | undefined): number => (token?.t === 'num' ? token.v : 0);
 
 /** The text runs of a page, with where each starts and how big it is, in the order the page draws them. */
-function runsOf(content: string, fonts: Map<string, PdfFont>): Run[] {
+/** A Form XObject a page draws with `Do`: its own content, the fonts it sees and the matrix that places it. */
+interface PdfForm {
+  content: string;
+  fonts: Map<string, PdfFont>;
+  matrix: Matrix;
+  forms: FormResolver;
+}
+
+type FormResolver = (name: string) => PdfForm | undefined;
+
+/** How deep forms may draw forms, and how many forms one page may open: a form that draws itself, or a bomb of forms, ends the reading of the page. */
+const MAX_FORM_DEPTH = 4;
+const MAX_FORMS_PER_PAGE = 500;
+
+function runsOf(content: string, fonts: Map<string, PdfFont>, forms: FormResolver, start: Matrix = IDENTITY, depth = 0, budget = { forms: 0 }): Run[] {
   const runs: Run[] = [];
   const operands: Token[] = [];
-  let ctm = IDENTITY;
+  let ctm = start;
   const saved: Matrix[] = [];
   let tm = IDENTITY;
   let tlm = IDENTITY;
@@ -429,6 +443,18 @@ function runsOf(content: string, fonts: Map<string, PdfFont>): Run[] {
       case 'Q':
         ctm = saved.pop() ?? ctm;
         break;
+      case 'Do': {
+        // A form is drawn where it is asked for, with its own matrix on top of the current one; the text it holds is part of the page.
+        const name = at(1);
+        if (name?.t === 'name' && depth < MAX_FORM_DEPTH && budget.forms < MAX_FORMS_PER_PAGE) {
+          const form = forms(name.v);
+          if (form !== undefined) {
+            budget.forms += 1;
+            runs.push(...runsOf(form.content, form.fonts, form.forms, multiply(form.matrix, ctm), depth + 1, budget));
+          }
+        }
+        break;
+      }
       case 'cm':
         ctm = multiply([num(at(6)), num(at(5)), num(at(4)), num(at(3)), num(at(2)), num(at(1))], ctm);
         break;
@@ -552,6 +578,35 @@ export function paragraphsOf(lines: readonly Line[], width: number, height: numb
   });
 }
 
+function fontsOf(context: PDFContext, resources: PDFDict | undefined): Map<string, PdfFont> {
+  const fonts = new Map<string, PdfFont>();
+  const fontDict = resources?.lookupMaybe(PDFName.of('Font'), PDFDict);
+  for (const [name, value] of fontDict?.entries() ?? []) {
+    const dict = context.lookupMaybe(value, PDFDict);
+    if (dict !== undefined) fonts.set(name.asString().slice(1), fontOf(context, dict));
+  }
+  return fonts;
+}
+
+/** The forms of a resource dictionary, opened on demand: a form without resources of its own sees the ones of the page or form that draws it. */
+function formsOf(context: PDFContext, resources: PDFDict | undefined, inherited: Map<string, PdfFont>): FormResolver {
+  const xobjects = resources?.lookupMaybe(PDFName.of('XObject'), PDFDict);
+  return (name) => {
+    const entry = xobjects?.get(PDFName.of(name));
+    const stream = entry === undefined ? undefined : context.lookup(entry);
+    if (!(stream instanceof PDFRawStream)) return undefined;
+    const subtype = stream.dict.lookup(PDFName.of('Subtype'));
+    if (!(subtype instanceof PDFName) || subtype.asString() !== '/Form') return undefined;
+    const decoded = decodePDFRawStream(stream).decode();
+    if (decoded.length > MAX_PAGE_STREAM_BYTES) throw new Error('form too large');
+    const own = stream.dict.lookupMaybe(PDFName.of('Resources'), PDFDict);
+    const fonts = own === undefined ? inherited : new Map([...inherited, ...fontsOf(context, own)]);
+    const numbers = stream.dict.lookupMaybe(PDFName.of('Matrix'), PDFArray)?.asArray().map((item) => (item instanceof PDFNumber ? item.asNumber() : Number.NaN));
+    const matrix: Matrix = numbers !== undefined && numbers.length === 6 && numbers.every(Number.isFinite) ? (numbers as Matrix) : IDENTITY;
+    return { content: Buffer.from(decoded).toString('latin1'), fonts, matrix, forms: formsOf(context, own ?? resources, fonts) };
+  };
+}
+
 function contentOf(context: PDFContext, contents: PDFObject | undefined): string {
   const resolved = contents === undefined ? undefined : context.lookup(contents);
   const parts: PDFObject[] = resolved instanceof PDFArray ? resolved.asArray() : resolved === undefined ? [] : [resolved];
@@ -585,14 +640,10 @@ async function extractPdf(bytes: Uint8Array): Promise<TextExtraction> {
   try {
     for (let index = 0; index < pageCount; index += 1) {
       const page = document.getPage(index);
-      const fonts = new Map<string, PdfFont>();
-      const fontDict = page.node.Resources()?.lookupMaybe(PDFName.of('Font'), PDFDict);
-      for (const [name, value] of fontDict?.entries() ?? []) {
-        const dict = context.lookupMaybe(value, PDFDict);
-        if (dict !== undefined) fonts.set(name.asString().slice(1), fontOf(context, dict));
-      }
+      const resources = page.node.Resources();
+      const fonts = fontsOf(context, resources);
       const { width, height } = page.getSize();
-      const runs = runsOf(contentOf(context, page.node.Contents()), fonts);
+      const runs = runsOf(contentOf(context, page.node.Contents()), fonts, formsOf(context, resources, fonts));
       paragraphsOf(linesOf(runs), width, height).forEach((paragraph, at) => {
         sink.add({ kind: paragraph.kind, locator: { page: index + 1, paragraph: at + 1 }, text: paragraph.text, box: paragraph.box });
       });
