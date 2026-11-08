@@ -10,6 +10,7 @@ import { AppModule } from '../../src/app.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { API_FOREIGN_ID_CASES, GET_UNIT_OPERATION, LIST_UNITS_OPERATION, createApiChannel, tokenFor } from './channels/api';
 import { contextOf, createDatabaseChannel, snapshotTenant } from './channels/database';
+import { createBiReaderChannel } from './channels/bi-reader';
 import { createStandardChannels } from './channels/standard';
 import { enumerateIdBearingOperations, fillPath, operationPath } from './endpoint-enumerator';
 import { LEAKY_POOL, LeakyOrganizationUnitsController, LeakyUpdateRoleController, UncoveredMembershipController } from './leaky.controller';
@@ -1355,7 +1356,17 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       access: new EffectiveAccessStore(tenantDatabase, new InMemoryAuthzCache()),
     });
     try {
-      const channels = [apiChannel(realApp, true), createDatabaseChannel({ ownerUrl, database: tenantDatabase }), ...standard.channels];
+      // INT-1: the database path of the open interface (a BI login per tenant, bound by its own name).
+      const biReader = createBiReaderChannel({
+        adminUrl: database.adminUrl,
+        loginUrl: (login, password) => {
+          const url = new URL(database.urlFor('machvon_app'));
+          url.username = login;
+          url.password = password;
+          return url.toString();
+        },
+      });
+      const channels = [apiChannel(realApp, true), createDatabaseChannel({ ownerUrl, database: tenantDatabase }), ...standard.channels, biReader];
       const report = await runIsolationSuite({ channels, idBearingOperations: idBearingOf(realApp), foreignIdCases: API_FOREIGN_ID_CASES, snapshot });
       expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
     } finally {
