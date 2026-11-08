@@ -10964,5 +10964,50 @@
     "platform": "web",
     "req": "FR-RPT-04",
     "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md"
+  },
+  {
+    "id": "BID-32",
+    "module": "BID",
+    "moduleName": "Nhà thầu và phân tích AI",
+    "title": "Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia",
+    "kind": "table",
+    "fields": [
+      "Loại",
+      "Đối tượng",
+      "Hạn đăng",
+      "Đồng hồ",
+      "Trạng thái",
+      "Người phụ trách",
+      "Biên nhận"
+    ],
+    "role": "Chuyên viên đấu thầu (chuẩn bị), người khác (gửi và ghi biên nhận)",
+    "rule": "Hạn lấy từ quy tắc EGP_POSTING_DEADLINES (chưa kiểm chứng); người gửi khác người chuẩn bị; biên nhận đóng cảnh báo EGP_POSTING_DUE và EGP_POSTING_OVERDUE; tệp xuất hồ sơ nhà thầu của CTR-24 là gói đăng của đánh giá và vi phạm",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-BID-22",
+    "source": "Kế hoạch EGP-2, docs/egp-connector.md mục 7 và 12"
+  },
+  {
+    "id": "BID-33",
+    "module": "BID",
+    "moduleName": "Nhà thầu và phân tích AI",
+    "title": "Đối chiếu từng trường với hệ thống mạng đấu thầu quốc gia",
+    "kind": "table",
+    "fields": [
+      "Đối tượng",
+      "Trường",
+      "Số của đơn vị",
+      "Số trên mạng",
+      "Chênh lệch",
+      "Người xử lý",
+      "Hạn",
+      "Kết quả xử lý"
+    ],
+    "role": "Người xử lý chênh lệch (không phải người lập bản ghi hay người nạp tệp)",
+    "rule": "Mỗi chênh lệch có người xử lý khác người lập và một trong bốn kết quả: chấp nhận số ngoài, sửa số của mình, tranh chấp, miễn; ghi ADM-11; mẫu tệp là giả định (PENDING-EXTERNAL)",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-BID-23",
+    "source": "Kế hoạch EGP-2, docs/egp-connector.md mục 6 và 12"
   }
 ]

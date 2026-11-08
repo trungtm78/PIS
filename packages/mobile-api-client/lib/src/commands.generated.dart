@@ -220,6 +220,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> cancelDirective(DirDirectiveReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelDirective', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> cancelEgpObligation(EgpObligationCancel body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('cancelEgpObligation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> cancelInspection(QmsCancelInspection body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelInspection', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -996,6 +999,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getEgpImport({required String id, Map<String, Object?>? query}) =>
       execute('getEgpImport', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getEgpObligation({required String id, Map<String, Object?>? query}) =>
+      execute('getEgpObligation', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getEvaluationReport({required String id, Map<String, Object?>? query}) =>
       execute('getEvaluationReport', path: <String, Object?>{'id': id}, query: query);
@@ -2056,6 +2062,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listEgpMappings({Map<String, Object?>? query}) =>
       execute('listEgpMappings', query: query);
 
+  Future<Object?> listEgpObligations({Map<String, Object?>? query}) =>
+      execute('listEgpObligations', query: query);
+
+  Future<Object?> listEgpReconciliationItems({Map<String, Object?>? query}) =>
+      execute('listEgpReconciliationItems', query: query);
+
   Future<Object?> listEnforcementCases({Map<String, Object?>? query}) =>
       execute('listEnforcementCases', query: query);
 
@@ -2422,6 +2434,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> openDocumentNumberRegister(DocRegisterOpen body, {CommandAttempt? attempt}) =>
       execute('openDocumentNumberRegister', body: body, attempt: attempt);
 
+  Future<Object?> openEgpObligation(EgpObligationOpen body, {CommandAttempt? attempt}) =>
+      execute('openEgpObligation', body: body, attempt: attempt);
+
   Future<Object?> openSettlement(PayOpenSettlement body, {CommandAttempt? attempt}) =>
       execute('openSettlement', body: body, attempt: attempt);
 
@@ -2542,6 +2557,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> postTenantsIdExport(TenantExportRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('post_tenants_id_export', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> prepareEgpObligation(EgpObligationPrepare body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('prepareEgpObligation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> previewAvcPolicy({required String id, Map<String, Object?>? query}) =>
       execute('previewAvcPolicy', path: <String, Object?>{'id': id}, query: query);
 
@@ -2661,6 +2679,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> recallOutgoingDocument(DocRecall body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('recallOutgoingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> receiptEgpObligation(EgpObligationReceipt body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('receiptEgpObligation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> receiveChannelWebhook(Map<String, Object?> body, {required String provider, CommandAttempt? attempt}) =>
       execute('receiveChannelWebhook', path: <String, Object?>{'provider': provider}, body: body, attempt: attempt);
@@ -2851,6 +2872,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> rejectDisbursementException(PayRejectDisbursementException body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('rejectDisbursementException', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> rejectEgpObligation(EgpObligationReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('rejectEgpObligation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> rejectIncomingDocument(DocIncomingReject body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('rejectIncomingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -2982,6 +3006,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> resolveDocumentReference({required String id, Map<String, Object?>? query}) =>
       execute('resolveDocumentReference', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> resolveEgpReconciliationItem(EgpReconciliationResolve body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('resolveEgpReconciliationItem', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> resolveIncomingDocument(DocIncomingResolve body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('resolveIncomingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -3160,6 +3187,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> runBillingCycle(BillingRunRequest body, {CommandAttempt? attempt}) =>
       execute('runBillingCycle', body: body, attempt: attempt);
 
+  Future<Object?> runEgpReconciliation(EgpReconcileRun body, {CommandAttempt? attempt}) =>
+      execute('runEgpReconciliation', body: body, attempt: attempt);
+
   Future<Object?> runInvestmentAppraisal({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('runInvestmentAppraisal', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3313,6 +3343,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> submitDoaMatrix(ReasonOnly body, {required String matrixId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('submitDoaMatrix', path: <String, Object?>{'matrixId': matrixId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> submitEgpObligation({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('submitEgpObligation', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> submitExplanation(PrjExplanationResponse body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('submitExplanation', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3375,6 +3408,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> suspendTenant(TenantSuspend body, {required String tenantId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('suspendTenant', path: <String, Object?>{'tenantId': tenantId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> sweepEgpObligations(EgpObligationSweep body, {CommandAttempt? attempt}) =>
+      execute('sweepEgpObligations', body: body, attempt: attempt);
 
   Future<Object?> syncMetricRegistry(BiMetricSync body, {CommandAttempt? attempt}) =>
       execute('syncMetricRegistry', body: body, attempt: attempt);

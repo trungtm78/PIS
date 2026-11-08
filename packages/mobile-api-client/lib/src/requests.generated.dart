@@ -5573,6 +5573,146 @@ final class EgpMappingRetire implements RequestModel {
       };
 }
 
+final class EgpObligationCancel implements RequestModel {
+  const EgpObligationCancel({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class EgpObligationOpen implements RequestModel {
+  const EgpObligationOpen({
+    required this.kind,
+    required this.ourCode,
+    required this.triggeredOn,
+    this.ourProjectCode,
+    this.ownerId,
+  });
+
+  final String kind;
+  final String ourCode;
+  final String? ourProjectCode;
+  final String triggeredOn;
+  final String? ownerId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'our_code': ourCode,
+        if (ourProjectCode != null) 'our_project_code': ourProjectCode,
+        'triggered_on': triggeredOn,
+        if (ownerId != null) 'owner_id': ownerId,
+      };
+}
+
+final class EgpObligationPrepare implements RequestModel {
+  const EgpObligationPrepare({
+    this.fields,
+    this.exportBatchId,
+  });
+
+  final Map<String, String>? fields;
+  final String? exportBatchId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (fields != null) 'fields': fields,
+        if (exportBatchId != null) 'export_batch_id': exportBatchId,
+      };
+}
+
+final class EgpObligationReason implements RequestModel {
+  const EgpObligationReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class EgpObligationReceipt implements RequestModel {
+  const EgpObligationReceipt({
+    required this.receiptRef,
+    this.receiptedAt,
+  });
+
+  final String receiptRef;
+  final String? receiptedAt;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'receipt_ref': receiptRef,
+        if (receiptedAt != null) 'receipted_at': receiptedAt,
+      };
+}
+
+final class EgpObligationSweep implements RequestModel {
+  const EgpObligationSweep({
+    this.sinceOn,
+    this.ownerId,
+    this.kinds,
+  });
+
+  final String? sinceOn;
+  final String? ownerId;
+  final List<String>? kinds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (sinceOn != null) 'since_on': sinceOn,
+        if (ownerId != null) 'owner_id': ownerId,
+        if (kinds != null) 'kinds': kinds,
+      };
+}
+
+final class EgpReconcileRun implements RequestModel {
+  const EgpReconcileRun({
+    this.subjectType,
+    this.ownerId,
+  });
+
+  final String? subjectType;
+  final String? ownerId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (subjectType != null) 'subject_type': subjectType,
+        if (ownerId != null) 'owner_id': ownerId,
+      };
+}
+
+final class EgpReconciliationResolve implements RequestModel {
+  const EgpReconciliationResolve({
+    required this.kind,
+    required this.reason,
+    this.evidenceRef,
+    this.reviewOn,
+  });
+
+  final String kind;
+  final String reason;
+  final String? evidenceRef;
+  final String? reviewOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'reason': reason,
+        if (evidenceRef != null) 'evidence_ref': evidenceRef,
+        if (reviewOn != null) 'review_on': reviewOn,
+      };
+}
+
 final class EntitlementOverrideRequest implements RequestModel {
   const EntitlementOverrideRequest({
     required this.featureCode,

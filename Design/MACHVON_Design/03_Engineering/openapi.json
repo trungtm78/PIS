@@ -161005,6 +161005,1758 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/egp/obligations": {
+      "get": {
+        "operationId": "listEgpObligations",
+        "summary": "Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia: theo trạng thái, đồng hồ, hạn và biên nhận (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.read",
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "clock",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "subject_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgpObligationPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "GOVERNANCE_RULE_PARAMS_INVALID",
+          "CALENDAR_NOT_EFFECTIVE"
+        ]
+      },
+      "post": {
+        "operationId": "openEgpObligation",
+        "summary": "Mở tay một nghĩa vụ đăng tải cho một sự kiện mà sổ chưa ghi (thông báo mời thầu, sự kiện uy tín, phản hồi của nhà thầu) (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.prepare",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpObligationOpen"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgpObligation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "CALENDAR_NOT_EFFECTIVE",
+          "GOVERNANCE_RULE_PARAMS_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.opened.v1"
+        ]
+      }
+    },
+    "/egp/obligations/{id}": {
+      "get": {
+        "operationId": "getEgpObligation",
+        "summary": "Một nghĩa vụ đăng tải: hạn và quy tắc của hạn, gói đăng, biên nhận, lịch sử, các trường gợi ý từ sổ (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgpObligationDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SCOPE_DENIED",
+          "RESOURCE_NOT_FOUND"
+        ]
+      }
+    },
+    "/egp/obligations/sweep": {
+      "post": {
+        "operationId": "sweepEgpObligations",
+        "summary": "Mở các nghĩa vụ đăng tải từ những sự kiện đã có trong sổ (kế hoạch được duyệt, kết quả được duyệt, hợp đồng đã ký, đánh giá nhà thầu, vi phạm đã xác nhận) từ ngày chuyển đổi; chạy lại không mở thêm (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.prepare",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpObligationSweep"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgpObligationSweepResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "CALENDAR_NOT_EFFECTIVE",
+          "GOVERNANCE_RULE_PARAMS_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.opened.v1"
+        ]
+      }
+    },
+    "/egp/obligations/{id}/prepare": {
+      "post": {
+        "operationId": "prepareEgpObligation",
+        "summary": "Chuẩn bị gói đăng: các trường theo loại, hoặc tệp xuất hồ sơ nhà thầu của CTR-24 cho đánh giá và vi phạm; băm SHA-256 là bằng chứng nội dung đã đăng (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.prepare",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpObligationPrepare"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "EGP_OBLIGATION_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.prepared.v1"
+        ]
+      }
+    },
+    "/egp/obligations/{id}/submit": {
+      "post": {
+        "operationId": "submitEgpObligation",
+        "summary": "Ghi nhận đã đăng lên hệ thống mạng đấu thầu quốc gia; người gửi khác người chuẩn bị (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.submit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "EGP_OBLIGATION_STATE_INVALID",
+          "SELF_APPROVAL_DENIED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.submitted.v1"
+        ]
+      }
+    },
+    "/egp/obligations/{id}/receipt": {
+      "post": {
+        "operationId": "receiptEgpObligation",
+        "summary": "Ghi biên nhận của hệ thống mạng đấu thầu quốc gia: số tham chiếu và thời điểm; biên nhận đóng nghĩa vụ và cảnh báo (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.submit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpObligationReceipt"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "EGP_OBLIGATION_STATE_INVALID",
+          "EGP_RECEIPT_DUPLICATE",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.receipted.v1"
+        ]
+      }
+    },
+    "/egp/obligations/{id}/reject": {
+      "post": {
+        "operationId": "rejectEgpObligation",
+        "summary": "Ghi nhận hệ thống mạng từ chối bài đăng; đồng hồ chạy tiếp, bài đăng được chuẩn bị lại (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.submit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpObligationReason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "EGP_OBLIGATION_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.rejected.v1"
+        ]
+      }
+    },
+    "/egp/obligations/{id}/cancel": {
+      "post": {
+        "operationId": "cancelEgpObligation",
+        "summary": "Hủy một nghĩa vụ đăng tải không còn gì để đăng (lý do từ 20 ký tự) (BID-32)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.post.prepare",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpObligationCancel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "EGP_OBLIGATION_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.obligation.cancelled.v1"
+        ]
+      }
+    },
+    "/egp/reconciliation/items": {
+      "get": {
+        "operationId": "listEgpReconciliationItems",
+        "summary": "Danh sách chênh lệch từng trường giữa số của đơn vị và số trên hệ thống mạng đấu thầu quốc gia, người xử lý, hạn và kết quả xử lý (BID-33)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.read",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "overdue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgpReconciliationPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "GOVERNANCE_RULE_PARAMS_INVALID"
+        ]
+      }
+    },
+    "/egp/reconciliation/run": {
+      "post": {
+        "operationId": "runEgpReconciliation",
+        "summary": "Đối chiếu từng trường giữa sổ của đơn vị và bản ghi đã nhập từ hệ thống mạng đấu thầu quốc gia, mở một mục cho mỗi chênh lệch; chạy lại không mở thêm (BID-33)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.reconcile",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpReconcileRun"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EgpReconcileResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "CALENDAR_NOT_EFFECTIVE",
+          "GOVERNANCE_RULE_PARAMS_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.reconciliation.opened.v1"
+        ]
+      }
+    },
+    "/egp/reconciliation/items/{id}/resolution": {
+      "post": {
+        "operationId": "resolveEgpReconciliationItem",
+        "summary": "Xử lý một chênh lệch: chấp nhận số ngoài, sửa số của mình, tranh chấp hoặc miễn; người xử lý khác người lập, ghi ADM-11 (BID-33)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.egp.reconcile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgpReconciliationResolve"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "VERSION_CONFLICT",
+          "EGP_RECONCILIATION_STATE_INVALID",
+          "SELF_APPROVAL_DENIED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "bid.egp.reconciliation.resolved.v1"
+        ]
+      }
     }
   },
   "components": {
@@ -205490,6 +207242,1297 @@
             "minimum": 1
           },
           "content_base64": {
+            "type": "string"
+          }
+        }
+      },
+      "EgpObligationOpen": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "our_code",
+          "triggered_on"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PLAN",
+              "NOTICE",
+              "RESULT",
+              "CONTRACT_INFO",
+              "CONTRACTOR_PERFORMANCE",
+              "VIOLATION",
+              "REPUTATION_EVENT",
+              "CONTRACTOR_RESPONSE"
+            ]
+          },
+          "our_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Our code of the subject: project code (plan), package code (notice, result), contract code, or tax code (a contractor)"
+          },
+          "our_project_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "Tells two packages of one code apart"
+          },
+          "triggered_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The day the fact that starts the clock happened (Vietnam), not in the future"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EgpObligationSweep": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "since_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The cutover day: a fact older than this is not a duty of this system; default 90 days before today"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PLAN",
+                "NOTICE",
+                "RESULT",
+                "CONTRACT_INFO",
+                "CONTRACTOR_PERFORMANCE",
+                "VIOLATION",
+                "REPUTATION_EVENT",
+                "CONTRACTOR_RESPONSE"
+              ]
+            },
+            "maxItems": 8
+          }
+        }
+      },
+      "EgpObligationSweepResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "since_on",
+          "opened",
+          "existing",
+          "outcomes",
+          "as_of"
+        ],
+        "properties": {
+          "since_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "opened": {
+            "type": "integer"
+          },
+          "existing": {
+            "type": "integer"
+          },
+          "outcomes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "fact",
+                "kind",
+                "opened",
+                "existing",
+                "truncated"
+              ],
+              "properties": {
+                "fact": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "PLAN",
+                    "NOTICE",
+                    "RESULT",
+                    "CONTRACT_INFO",
+                    "CONTRACTOR_PERFORMANCE",
+                    "VIOLATION",
+                    "REPUTATION_EVENT",
+                    "CONTRACTOR_RESPONSE"
+                  ]
+                },
+                "opened": {
+                  "type": "integer"
+                },
+                "existing": {
+                  "type": "integer"
+                },
+                "truncated": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "EgpObligationPrepare": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "description": "The fields the kind needs (EGP_POSTING_FIELDS), all required, none other"
+          },
+          "export_batch_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "For a contractor evaluation or a violation: the batch of the contractor export (CTR-24) whose file is the packet"
+          }
+        }
+      },
+      "EgpObligationReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "receipt_ref"
+        ],
+        "properties": {
+          "receipt_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "The reference the network gave"
+          },
+          "receipted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Default now; not before the submission, not in the future"
+          }
+        }
+      },
+      "EgpObligationReason": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 1000
+          }
+        }
+      },
+      "EgpObligationCancel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 1000
+          }
+        }
+      },
+      "EgpObligation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "obligation",
+          "subject_type",
+          "subject_id",
+          "subject_code",
+          "trigger_event",
+          "triggered_at",
+          "due_at",
+          "remind_before_days",
+          "rule_code",
+          "rule_version",
+          "rule_source",
+          "legal_status",
+          "state",
+          "clock",
+          "alert",
+          "severity",
+          "owner_id",
+          "owner_name",
+          "prepared_by_name",
+          "prepared_at",
+          "submitted_by_name",
+          "submitted_at",
+          "rejected_at",
+          "rejection_reason",
+          "cancel_reason",
+          "receipt_ref",
+          "receipted_at",
+          "receipt_recorded_by_name",
+          "packet_sha256",
+          "packet",
+          "export_batch_id",
+          "export_batch_status",
+          "version",
+          "created_at",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PLAN",
+              "NOTICE",
+              "RESULT",
+              "CONTRACT_INFO",
+              "CONTRACTOR_PERFORMANCE",
+              "VIOLATION",
+              "REPUTATION_EVENT",
+              "CONTRACTOR_RESPONSE"
+            ]
+          },
+          "obligation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The words of the duty from the rule"
+          },
+          "subject_type": {
+            "type": "string",
+            "enum": [
+              "PROJECT",
+              "PLAN",
+              "PACKAGE",
+              "NOTICE",
+              "RESULT",
+              "CONTRACT",
+              "CONTRACTOR"
+            ]
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject_code": {
+            "type": "string"
+          },
+          "trigger_event": {
+            "type": "string"
+          },
+          "triggered_at": {
+            "type": "string"
+          },
+          "due_at": {
+            "type": "string"
+          },
+          "remind_before_days": {
+            "type": "integer"
+          },
+          "rule_code": {
+            "type": "string"
+          },
+          "rule_version": {
+            "type": "integer"
+          },
+          "rule_source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT"
+            ]
+          },
+          "legal_status": {
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "DUE",
+              "PREPARED",
+              "SUBMITTED",
+              "RECEIPTED",
+              "REJECTED",
+              "CANCELLED"
+            ]
+          },
+          "clock": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "ms_to_due"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ON_TIME",
+                  "DUE_SOON",
+                  "OVERDUE",
+                  "MET",
+                  "MET_LATE",
+                  "CANCELLED"
+                ]
+              },
+              "ms_to_due": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          },
+          "alert": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "EGP_POSTING_DUE",
+              "EGP_POSTING_OVERDUE",
+              null
+            ]
+          },
+          "severity": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "URGENT",
+              "ACTION",
+              null
+            ]
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prepared_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prepared_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "submitted_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "submitted_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rejected_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rejection_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cancel_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "receipt_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "receipted_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "receipt_recorded_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "packet_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "packet": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          },
+          "export_batch_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "export_batch_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "prepare",
+              "submit",
+              "receipt",
+              "reject",
+              "cancel"
+            ],
+            "properties": {
+              "prepare": {
+                "type": "boolean"
+              },
+              "submit": {
+                "type": "boolean"
+              },
+              "receipt": {
+                "type": "boolean"
+              },
+              "reject": {
+                "type": "boolean"
+              },
+              "cancel": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "EgpObligationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "counts",
+          "on_time",
+          "severity_rule",
+          "acceptance",
+          "adapter_status",
+          "actions",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EgpObligation"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "total",
+              "by_state",
+              "overdue",
+              "due_soon",
+              "met",
+              "met_late"
+            ],
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "by_state": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              },
+              "overdue": {
+                "type": "integer"
+              },
+              "due_soon": {
+                "type": "integer"
+              },
+              "met": {
+                "type": "integer"
+              },
+              "met_late": {
+                "type": "integer"
+              }
+            }
+          },
+          "on_time": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "met",
+              "met_late",
+              "overdue",
+              "rate_bp",
+              "formula",
+              "source"
+            ],
+            "properties": {
+              "met": {
+                "type": "integer"
+              },
+              "met_late": {
+                "type": "integer"
+              },
+              "overdue": {
+                "type": "integer"
+              },
+              "rate_bp": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "formula": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          },
+          "severity_rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "urgent_within_hours",
+              "version",
+              "source",
+              "unverified",
+              "legal_status",
+              "formula",
+              "source_text",
+              "as_of"
+            ],
+            "properties": {
+              "urgent_within_hours": {
+                "type": "integer"
+              },
+              "version": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "RULE",
+                  "DEFAULT"
+                ]
+              },
+              "unverified": {
+                "type": "boolean"
+              },
+              "legal_status": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "formula": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source_text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "as_of": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "acceptance": {
+            "type": "string",
+            "enum": [
+              "PENDING_EXTERNAL",
+              "ACCEPTABLE"
+            ]
+          },
+          "adapter_status": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sweep",
+              "open",
+              "prepare",
+              "submit"
+            ],
+            "properties": {
+              "sweep": {
+                "type": "boolean"
+              },
+              "open": {
+                "type": "boolean"
+              },
+              "prepare": {
+                "type": "boolean"
+              },
+              "submit": {
+                "type": "boolean"
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "EgpObligationDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "obligation",
+          "history",
+          "required_fields",
+          "suggested_fields",
+          "deadline_rule",
+          "as_of"
+        ],
+        "properties": {
+          "obligation": {
+            "$ref": "#/components/schemas/EgpObligation"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "action",
+                "actor_name",
+                "reason",
+                "state_after",
+                "version",
+                "occurred_at"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "actor_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "state_after": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer"
+                },
+                "occurred_at": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "suggested_fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "deadline_rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "version",
+              "source",
+              "unverified",
+              "legal_status",
+              "formula",
+              "source_text",
+              "as_of",
+              "params"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "RULE",
+                  "DEFAULT"
+                ]
+              },
+              "unverified": {
+                "type": "boolean"
+              },
+              "legal_status": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "formula": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source_text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "as_of": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "EgpReconcileRun": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "subject_type": {
+            "type": "string",
+            "enum": [
+              "PLAN",
+              "PACKAGE",
+              "NOTICE",
+              "RESULT",
+              "CONTRACTOR"
+            ]
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EgpReconciliationResolve": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "reason"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ACCEPT_EXTERNAL",
+              "CORRECT_OURS",
+              "DISPUTE",
+              "WAIVE"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 1000,
+            "description": "10 characters for ACCEPT_EXTERNAL and CORRECT_OURS, 20 for DISPUTE and WAIVE"
+          },
+          "evidence_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Required for DISPUTE: the letter to the operator"
+          },
+          "review_on": {
+            "type": "string",
+            "format": "date",
+            "description": "Required for WAIVE: after today and within 365 days"
+          }
+        }
+      },
+      "EgpReconciliationItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "subject_type",
+          "subject_id",
+          "subject_code",
+          "external_code",
+          "field",
+          "difference_kind",
+          "ours",
+          "theirs",
+          "delta",
+          "state",
+          "owner_id",
+          "owner_name",
+          "opened_at",
+          "due_at",
+          "overdue",
+          "source_import_id",
+          "resolution",
+          "version",
+          "is_maker",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject_type": {
+            "type": "string",
+            "enum": [
+              "PROJECT",
+              "PLAN",
+              "PACKAGE",
+              "NOTICE",
+              "RESULT",
+              "CONTRACT",
+              "CONTRACTOR"
+            ]
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject_code": {
+            "type": "string"
+          },
+          "external_code": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "difference_kind": {
+            "type": "string",
+            "enum": [
+              "VALUE_MISMATCH",
+              "MISSING_OURS",
+              "MISSING_THEIRS"
+            ]
+          },
+          "ours": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "theirs": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "delta": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "RESOLVED"
+            ]
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "opened_at": {
+            "type": "string"
+          },
+          "due_at": {
+            "type": "string"
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "source_import_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "resolved_by_name",
+                  "resolved_at",
+                  "reason",
+                  "evidence_ref",
+                  "review_on",
+                  "follow_up"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "ACCEPT_EXTERNAL",
+                      "CORRECT_OURS",
+                      "DISPUTE",
+                      "WAIVE"
+                    ]
+                  },
+                  "resolved_by_name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "resolved_at": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "evidence_ref": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "review_on": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "follow_up": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "is_maker": {
+            "type": "boolean"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "resolve"
+            ],
+            "properties": {
+              "resolve": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "EgpReconciliationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "counts",
+          "due_rule",
+          "formula",
+          "source",
+          "acceptance",
+          "actions",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EgpReconciliationItem"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "open",
+              "resolved",
+              "overdue",
+              "by_resolution",
+              "waivers_due"
+            ],
+            "properties": {
+              "open": {
+                "type": "integer"
+              },
+              "resolved": {
+                "type": "integer"
+              },
+              "overdue": {
+                "type": "integer"
+              },
+              "by_resolution": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer"
+                }
+              },
+              "waivers_due": {
+                "type": "integer"
+              }
+            }
+          },
+          "due_rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "days",
+              "version",
+              "source",
+              "unverified",
+              "legal_status",
+              "formula",
+              "source_text",
+              "as_of"
+            ],
+            "properties": {
+              "days": {
+                "type": "integer"
+              },
+              "version": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "RULE",
+                  "DEFAULT"
+                ]
+              },
+              "unverified": {
+                "type": "boolean"
+              },
+              "legal_status": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "formula": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source_text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "as_of": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "formula": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "acceptance": {
+            "type": "string",
+            "enum": [
+              "PENDING_EXTERNAL",
+              "ACCEPTABLE"
+            ]
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "run",
+              "resolve"
+            ],
+            "properties": {
+              "run": {
+                "type": "boolean"
+              },
+              "resolve": {
+                "type": "boolean"
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "EgpReconcileResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "examined",
+          "differences",
+          "opened",
+          "unchanged",
+          "settled_already",
+          "no_owner",
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "examined": {
+            "type": "integer"
+          },
+          "differences": {
+            "type": "integer"
+          },
+          "opened": {
+            "type": "integer"
+          },
+          "unchanged": {
+            "type": "integer"
+          },
+          "settled_already": {
+            "type": "integer"
+          },
+          "no_owner": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EgpReconciliationItem"
+            }
+          },
+          "as_of": {
             "type": "string"
           }
         }

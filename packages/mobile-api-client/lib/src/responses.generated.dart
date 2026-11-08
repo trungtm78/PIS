@@ -75,6 +75,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'cancelCampaign': CommandResultResponse.fromJson,
   'cancelContractDraft': CommandResultResponse.fromJson,
   'cancelDirective': CommandResultResponse.fromJson,
+  'cancelEgpObligation': CommandResultResponse.fromJson,
   'cancelInspection': CommandResultResponse.fromJson,
   'cancelNotification': CommandResultResponse.fromJson,
   'cancelOutgoingDocument': CommandResultResponse.fromJson,
@@ -512,6 +513,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getEffectiveGovernanceRule': asObject,
   'getEgpConnection': EgpConnectionResponse.fromJson,
   'getEgpImport': EgpImportDetailResponse.fromJson,
+  'getEgpObligation': EgpObligationDetailResponse.fromJson,
   'getEvaluationReport': BidReportResponse.fromJson,
   'getGovernanceRule': asObject,
   'getGovernanceRuleCatalog': asObject,
@@ -687,6 +689,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listEgpImports': EgpImportPageResponse.fromJson,
   'listEgpMappings': EgpMappingPageResponse.fromJson,
   'listEgpMappingSuggestions': EgpSuggestionListResponse.fromJson,
+  'listEgpObligations': EgpObligationPageResponse.fromJson,
+  'listEgpReconciliationItems': EgpReconciliationPageResponse.fromJson,
   'listEnforcementCases': asObject,
   'listEvaluationReports': BidReportListResponse.fromJson,
   'listEvaluationTriggers': asObject,
@@ -809,6 +813,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'mergeContacts': CommandResultResponse.fromJson,
   'moveOrganizationUnit': CommandResultResponse.fromJson,
   'openDocumentNumberRegister': CommandResultResponse.fromJson,
+  'openEgpObligation': EgpObligationResponse.fromJson,
   'openSettlement': CommandResultResponse.fromJson,
   'pauseWorkClock': asObject,
   'placeLegalHold': CommandResultResponse.fromJson,
@@ -849,6 +854,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'post_sync_batches': SyncBatchResultResponse.fromJson,
   'post_tenants_id_export': CommandResultResponse.fromJson,
   'postCompensationPlan': CommandResultResponse.fromJson,
+  'prepareEgpObligation': CommandResultResponse.fromJson,
   'previewAvcPolicy': CapAvcPreviewResponse.fromJson,
   'previewCampaignRecipients': CampaignPreviewResponse.fromJson,
   'previewEgpFile': EgpPreviewResultResponse.fromJson,
@@ -889,6 +895,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'reactivateMembership': CommandResultResponse.fromJson,
   'reassignApprovalTask': CommandResultResponse.fromJson,
   'recallOutgoingDocument': CommandResultResponse.fromJson,
+  'receiptEgpObligation': CommandResultResponse.fromJson,
   'receiveChannelWebhook': WebhookAckResponse.fromJson,
   'receiveEInvoiceWebhook': WebhookAckResponse.fromJson,
   'receiveIncomingDocument': CommandResultResponse.fromJson,
@@ -952,6 +959,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'registerSitePhoto': CommandResultResponse.fromJson,
   'reinstateLicense': CommandResultResponse.fromJson,
   'rejectDisbursementException': CommandResultResponse.fromJson,
+  'rejectEgpObligation': CommandResultResponse.fromJson,
   'rejectIncomingDocument': CommandResultResponse.fromJson,
   'rejectSodException': CommandResultResponse.fromJson,
   'releaseAiKillSwitch': CommandResultResponse.fromJson,
@@ -996,6 +1004,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'resolveConversation': CommandResultResponse.fromJson,
   'resolveDiaryConflict': CommandResultResponse.fromJson,
   'resolveDocumentReference': asObject,
+  'resolveEgpReconciliationItem': CommandResultResponse.fromJson,
   'resolveIncomingDocument': CommandResultResponse.fromJson,
   'resolveLandComplaint': CommandResultResponse.fromJson,
   'resolveProcurementPetition': CommandResultResponse.fromJson,
@@ -1055,6 +1064,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'rotateAiVirtualKey': CommandResultResponse.fromJson,
   'runAllocationScenario': CommandResultResponse.fromJson,
   'runBillingCycle': CommandResultResponse.fromJson,
+  'runEgpReconciliation': EgpReconcileResultResponse.fromJson,
   'runInvestmentAppraisal': CommandResultResponse.fromJson,
   'runQualityChecks': CommandResultResponse.fromJson,
   'runReconciliation': CommandResultResponse.fromJson,
@@ -1106,6 +1116,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'submitContractForReview': CommandResultResponse.fromJson,
   'submitCorrectiveEvidence': CommandResultResponse.fromJson,
   'submitDoaMatrix': CommandResultResponse.fromJson,
+  'submitEgpObligation': CommandResultResponse.fromJson,
   'submitExplanation': CommandResultResponse.fromJson,
   'submitGlossaryTerm': CommandResultResponse.fromJson,
   'submitGovernanceRule': CommandResultResponse.fromJson,
@@ -1127,6 +1138,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'suspendMembership': CommandResultResponse.fromJson,
   'suspendProject': CommandResultResponse.fromJson,
   'suspendTenant': TenantLifecycleResultResponse.fromJson,
+  'sweepEgpObligations': EgpObligationSweepResultResponse.fromJson,
   'syncMetricRegistry': CommandResultResponse.fromJson,
   'terminateContract': CommandResultResponse.fromJson,
   'transferAsset': CommandResultResponse.fromJson,
@@ -15350,6 +15362,724 @@ final class EgpMappingResponse implements ResponseModel {
       };
 }
 
+final class EgpObligationDetailResponse implements ResponseModel {
+  const EgpObligationDetailResponse({
+    required this.obligation,
+    required this.history,
+    required this.requiredFields,
+    required this.suggestedFields,
+    required this.deadlineRule,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationDetailResponse.fromJson(Object? json, [String path = 'EgpObligationDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationDetailResponse(
+      obligation: requiredField(map, path, 'obligation', EgpObligationResponse.fromJson),
+      history: requiredField(map, path, 'history', asList(EgpObligationDetailResponseHistoryItem.fromJson)),
+      requiredFields: requiredField(map, path, 'required_fields', asList(asString)),
+      suggestedFields: requiredField(map, path, 'suggested_fields', asMap(asString)),
+      deadlineRule: requiredField(map, path, 'deadline_rule', EgpObligationDetailResponseDeadlineRule.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'obligation', 'history', 'required_fields', 'suggested_fields', 'deadline_rule', 'as_of'}, strict: true),
+    );
+  }
+
+  final EgpObligationResponse obligation;
+  final List<EgpObligationDetailResponseHistoryItem> history;
+  final List<String> requiredFields;
+  final Map<String, String> suggestedFields;
+  final EgpObligationDetailResponseDeadlineRule deadlineRule;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'obligation': obligation.toJson(),
+        'history': history.map((e0) => e0.toJson()).toList(),
+        'required_fields': requiredFields,
+        'suggested_fields': suggestedFields,
+        'deadline_rule': deadlineRule.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EgpObligationDetailResponseDeadlineRule implements ResponseModel {
+  const EgpObligationDetailResponseDeadlineRule({
+    required this.version,
+    required this.source,
+    required this.unverified,
+    required this.legalStatus,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    required this.params,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationDetailResponseDeadlineRule.fromJson(Object? json, [String path = 'EgpObligationDetailResponseDeadlineRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationDetailResponseDeadlineRule(
+      version: requiredField(map, path, 'version', asInt),
+      source: requiredField(map, path, 'source', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      params: requiredField(map, path, 'params', asObject),
+      extra: unknownFields(map, path, const <String>{'version', 'source', 'unverified', 'legal_status', 'formula', 'source_text', 'as_of', 'params'}, strict: true),
+    );
+  }
+
+  final int version;
+  final String source;
+  final bool unverified;
+  final String? legalStatus;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+  final Map<String, Object?> params;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'version': version,
+        'source': source,
+        'unverified': unverified,
+        'legal_status': legalStatus,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
+        'params': params,
+        ...extra,
+      };
+}
+
+final class EgpObligationDetailResponseHistoryItem implements ResponseModel {
+  const EgpObligationDetailResponseHistoryItem({
+    required this.id,
+    required this.action,
+    required this.actorName,
+    required this.reason,
+    required this.stateAfter,
+    required this.version,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationDetailResponseHistoryItem.fromJson(Object? json, [String path = 'EgpObligationDetailResponseHistoryItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationDetailResponseHistoryItem(
+      id: requiredField(map, path, 'id', asString),
+      action: requiredField(map, path, 'action', asString),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      stateAfter: requiredField(map, path, 'state_after', asString),
+      version: requiredField(map, path, 'version', asInt),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'action', 'actor_name', 'reason', 'state_after', 'version', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String action;
+  final String? actorName;
+  final String? reason;
+  final String stateAfter;
+  final int version;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'action': action,
+        'actor_name': actorName,
+        'reason': reason,
+        'state_after': stateAfter,
+        'version': version,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class EgpObligationPageResponse implements ResponseModel {
+  const EgpObligationPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.onTime,
+    required this.severityRule,
+    required this.acceptance,
+    required this.adapterStatus,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationPageResponse.fromJson(Object? json, [String path = 'EgpObligationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationPageResponse(
+      items: requiredField(map, path, 'items', asList(EgpObligationResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', EgpObligationPageResponseCounts.fromJson),
+      onTime: requiredField(map, path, 'on_time', EgpObligationPageResponseOnTime.fromJson),
+      severityRule: requiredField(map, path, 'severity_rule', EgpObligationPageResponseSeverityRule.fromJson),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      adapterStatus: requiredField(map, path, 'adapter_status', asString),
+      actions: requiredField(map, path, 'actions', EgpObligationPageResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'on_time', 'severity_rule', 'acceptance', 'adapter_status', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<EgpObligationResponse> items;
+  final String? nextCursor;
+  final EgpObligationPageResponseCounts counts;
+  final EgpObligationPageResponseOnTime onTime;
+  final EgpObligationPageResponseSeverityRule severityRule;
+  final String acceptance;
+  final String adapterStatus;
+  final EgpObligationPageResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'on_time': onTime.toJson(),
+        'severity_rule': severityRule.toJson(),
+        'acceptance': acceptance,
+        'adapter_status': adapterStatus,
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EgpObligationPageResponseActions implements ResponseModel {
+  const EgpObligationPageResponseActions({
+    required this.sweep,
+    required this.open,
+    required this.prepare,
+    required this.submit,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationPageResponseActions.fromJson(Object? json, [String path = 'EgpObligationPageResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationPageResponseActions(
+      sweep: requiredField(map, path, 'sweep', asBool),
+      open: requiredField(map, path, 'open', asBool),
+      prepare: requiredField(map, path, 'prepare', asBool),
+      submit: requiredField(map, path, 'submit', asBool),
+      extra: unknownFields(map, path, const <String>{'sweep', 'open', 'prepare', 'submit'}, strict: true),
+    );
+  }
+
+  final bool sweep;
+  final bool open;
+  final bool prepare;
+  final bool submit;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'sweep': sweep,
+        'open': open,
+        'prepare': prepare,
+        'submit': submit,
+        ...extra,
+      };
+}
+
+final class EgpObligationPageResponseCounts implements ResponseModel {
+  const EgpObligationPageResponseCounts({
+    required this.total,
+    required this.byState,
+    required this.overdue,
+    required this.dueSoon,
+    required this.met,
+    required this.metLate,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationPageResponseCounts.fromJson(Object? json, [String path = 'EgpObligationPageResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationPageResponseCounts(
+      total: requiredField(map, path, 'total', asInt),
+      byState: requiredField(map, path, 'by_state', asMap(asInt)),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      dueSoon: requiredField(map, path, 'due_soon', asInt),
+      met: requiredField(map, path, 'met', asInt),
+      metLate: requiredField(map, path, 'met_late', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'by_state', 'overdue', 'due_soon', 'met', 'met_late'}, strict: true),
+    );
+  }
+
+  final int total;
+  final Map<String, int> byState;
+  final int overdue;
+  final int dueSoon;
+  final int met;
+  final int metLate;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'by_state': byState,
+        'overdue': overdue,
+        'due_soon': dueSoon,
+        'met': met,
+        'met_late': metLate,
+        ...extra,
+      };
+}
+
+final class EgpObligationPageResponseOnTime implements ResponseModel {
+  const EgpObligationPageResponseOnTime({
+    required this.met,
+    required this.metLate,
+    required this.overdue,
+    required this.rateBp,
+    required this.formula,
+    required this.source,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationPageResponseOnTime.fromJson(Object? json, [String path = 'EgpObligationPageResponseOnTime']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationPageResponseOnTime(
+      met: requiredField(map, path, 'met', asInt),
+      metLate: requiredField(map, path, 'met_late', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      rateBp: requiredField(map, path, 'rate_bp', nullable(asInt)),
+      formula: requiredField(map, path, 'formula', asString),
+      source: requiredField(map, path, 'source', asString),
+      extra: unknownFields(map, path, const <String>{'met', 'met_late', 'overdue', 'rate_bp', 'formula', 'source'}, strict: true),
+    );
+  }
+
+  final int met;
+  final int metLate;
+  final int overdue;
+  final int? rateBp;
+  final String formula;
+  final String source;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'met': met,
+        'met_late': metLate,
+        'overdue': overdue,
+        'rate_bp': rateBp,
+        'formula': formula,
+        'source': source,
+        ...extra,
+      };
+}
+
+final class EgpObligationPageResponseSeverityRule implements ResponseModel {
+  const EgpObligationPageResponseSeverityRule({
+    required this.urgentWithinHours,
+    required this.version,
+    required this.source,
+    required this.unverified,
+    required this.legalStatus,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationPageResponseSeverityRule.fromJson(Object? json, [String path = 'EgpObligationPageResponseSeverityRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationPageResponseSeverityRule(
+      urgentWithinHours: requiredField(map, path, 'urgent_within_hours', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      source: requiredField(map, path, 'source', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'urgent_within_hours', 'version', 'source', 'unverified', 'legal_status', 'formula', 'source_text', 'as_of'}, strict: true),
+    );
+  }
+
+  final int urgentWithinHours;
+  final int version;
+  final String source;
+  final bool unverified;
+  final String? legalStatus;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'urgent_within_hours': urgentWithinHours,
+        'version': version,
+        'source': source,
+        'unverified': unverified,
+        'legal_status': legalStatus,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EgpObligationResponse implements ResponseModel {
+  const EgpObligationResponse({
+    required this.id,
+    required this.kind,
+    required this.obligation,
+    required this.subjectType,
+    required this.subjectId,
+    required this.subjectCode,
+    required this.triggerEvent,
+    required this.triggeredAt,
+    required this.dueAt,
+    required this.remindBeforeDays,
+    required this.ruleCode,
+    required this.ruleVersion,
+    required this.ruleSource,
+    required this.legalStatus,
+    required this.state,
+    required this.clock,
+    required this.alert,
+    required this.severity,
+    required this.ownerId,
+    required this.ownerName,
+    required this.preparedByName,
+    required this.preparedAt,
+    required this.submittedByName,
+    required this.submittedAt,
+    required this.rejectedAt,
+    required this.rejectionReason,
+    required this.cancelReason,
+    required this.receiptRef,
+    required this.receiptedAt,
+    required this.receiptRecordedByName,
+    required this.packetSha256,
+    required this.packet,
+    required this.exportBatchId,
+    required this.exportBatchStatus,
+    required this.version,
+    required this.createdAt,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationResponse.fromJson(Object? json, [String path = 'EgpObligationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationResponse(
+      id: requiredField(map, path, 'id', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      obligation: requiredField(map, path, 'obligation', nullable(asString)),
+      subjectType: requiredField(map, path, 'subject_type', asString),
+      subjectId: requiredField(map, path, 'subject_id', asString),
+      subjectCode: requiredField(map, path, 'subject_code', asString),
+      triggerEvent: requiredField(map, path, 'trigger_event', asString),
+      triggeredAt: requiredField(map, path, 'triggered_at', asString),
+      dueAt: requiredField(map, path, 'due_at', asString),
+      remindBeforeDays: requiredField(map, path, 'remind_before_days', asInt),
+      ruleCode: requiredField(map, path, 'rule_code', asString),
+      ruleVersion: requiredField(map, path, 'rule_version', asInt),
+      ruleSource: requiredField(map, path, 'rule_source', asString),
+      legalStatus: requiredField(map, path, 'legal_status', asString),
+      state: requiredField(map, path, 'state', asString),
+      clock: requiredField(map, path, 'clock', EgpObligationResponseClock.fromJson),
+      alert: requiredField(map, path, 'alert', nullable(asString)),
+      severity: requiredField(map, path, 'severity', nullable(asString)),
+      ownerId: requiredField(map, path, 'owner_id', asString),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      preparedByName: requiredField(map, path, 'prepared_by_name', nullable(asString)),
+      preparedAt: requiredField(map, path, 'prepared_at', nullable(asString)),
+      submittedByName: requiredField(map, path, 'submitted_by_name', nullable(asString)),
+      submittedAt: requiredField(map, path, 'submitted_at', nullable(asString)),
+      rejectedAt: requiredField(map, path, 'rejected_at', nullable(asString)),
+      rejectionReason: requiredField(map, path, 'rejection_reason', nullable(asString)),
+      cancelReason: requiredField(map, path, 'cancel_reason', nullable(asString)),
+      receiptRef: requiredField(map, path, 'receipt_ref', nullable(asString)),
+      receiptedAt: requiredField(map, path, 'receipted_at', nullable(asString)),
+      receiptRecordedByName: requiredField(map, path, 'receipt_recorded_by_name', nullable(asString)),
+      packetSha256: requiredField(map, path, 'packet_sha256', nullable(asString)),
+      packet: requiredField(map, path, 'packet', nullable(asObject)),
+      exportBatchId: requiredField(map, path, 'export_batch_id', nullable(asString)),
+      exportBatchStatus: requiredField(map, path, 'export_batch_status', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      actions: requiredField(map, path, 'actions', EgpObligationResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'obligation', 'subject_type', 'subject_id', 'subject_code', 'trigger_event', 'triggered_at', 'due_at', 'remind_before_days', 'rule_code', 'rule_version', 'rule_source', 'legal_status', 'state', 'clock', 'alert', 'severity', 'owner_id', 'owner_name', 'prepared_by_name', 'prepared_at', 'submitted_by_name', 'submitted_at', 'rejected_at', 'rejection_reason', 'cancel_reason', 'receipt_ref', 'receipted_at', 'receipt_recorded_by_name', 'packet_sha256', 'packet', 'export_batch_id', 'export_batch_status', 'version', 'created_at', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String kind;
+  final String? obligation;
+  final String subjectType;
+  final String subjectId;
+  final String subjectCode;
+  final String triggerEvent;
+  final String triggeredAt;
+  final String dueAt;
+  final int remindBeforeDays;
+  final String ruleCode;
+  final int ruleVersion;
+  final String ruleSource;
+  final String legalStatus;
+  final String state;
+  final EgpObligationResponseClock clock;
+  final String? alert;
+  final String? severity;
+  final String ownerId;
+  final String? ownerName;
+  final String? preparedByName;
+  final String? preparedAt;
+  final String? submittedByName;
+  final String? submittedAt;
+  final String? rejectedAt;
+  final String? rejectionReason;
+  final String? cancelReason;
+  final String? receiptRef;
+  final String? receiptedAt;
+  final String? receiptRecordedByName;
+  final String? packetSha256;
+  final Map<String, Object?>? packet;
+  final String? exportBatchId;
+  final String? exportBatchStatus;
+  final int version;
+  final String createdAt;
+  final EgpObligationResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'kind': kind,
+        'obligation': obligation,
+        'subject_type': subjectType,
+        'subject_id': subjectId,
+        'subject_code': subjectCode,
+        'trigger_event': triggerEvent,
+        'triggered_at': triggeredAt,
+        'due_at': dueAt,
+        'remind_before_days': remindBeforeDays,
+        'rule_code': ruleCode,
+        'rule_version': ruleVersion,
+        'rule_source': ruleSource,
+        'legal_status': legalStatus,
+        'state': state,
+        'clock': clock.toJson(),
+        'alert': alert,
+        'severity': severity,
+        'owner_id': ownerId,
+        'owner_name': ownerName,
+        'prepared_by_name': preparedByName,
+        'prepared_at': preparedAt,
+        'submitted_by_name': submittedByName,
+        'submitted_at': submittedAt,
+        'rejected_at': rejectedAt,
+        'rejection_reason': rejectionReason,
+        'cancel_reason': cancelReason,
+        'receipt_ref': receiptRef,
+        'receipted_at': receiptedAt,
+        'receipt_recorded_by_name': receiptRecordedByName,
+        'packet_sha256': packetSha256,
+        'packet': packet,
+        'export_batch_id': exportBatchId,
+        'export_batch_status': exportBatchStatus,
+        'version': version,
+        'created_at': createdAt,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class EgpObligationResponseActions implements ResponseModel {
+  const EgpObligationResponseActions({
+    required this.prepare,
+    required this.submit,
+    required this.receipt,
+    required this.reject,
+    required this.cancel,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationResponseActions.fromJson(Object? json, [String path = 'EgpObligationResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationResponseActions(
+      prepare: requiredField(map, path, 'prepare', asBool),
+      submit: requiredField(map, path, 'submit', asBool),
+      receipt: requiredField(map, path, 'receipt', asBool),
+      reject: requiredField(map, path, 'reject', asBool),
+      cancel: requiredField(map, path, 'cancel', asBool),
+      extra: unknownFields(map, path, const <String>{'prepare', 'submit', 'receipt', 'reject', 'cancel'}, strict: true),
+    );
+  }
+
+  final bool prepare;
+  final bool submit;
+  final bool receipt;
+  final bool reject;
+  final bool cancel;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'prepare': prepare,
+        'submit': submit,
+        'receipt': receipt,
+        'reject': reject,
+        'cancel': cancel,
+        ...extra,
+      };
+}
+
+final class EgpObligationResponseClock implements ResponseModel {
+  const EgpObligationResponseClock({
+    required this.status,
+    required this.msToDue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationResponseClock.fromJson(Object? json, [String path = 'EgpObligationResponseClock']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationResponseClock(
+      status: requiredField(map, path, 'status', asString),
+      msToDue: requiredField(map, path, 'ms_to_due', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'status', 'ms_to_due'}, strict: true),
+    );
+  }
+
+  final String status;
+  final int? msToDue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'ms_to_due': msToDue,
+        ...extra,
+      };
+}
+
+final class EgpObligationSweepResultResponse implements ResponseModel {
+  const EgpObligationSweepResultResponse({
+    required this.sinceOn,
+    required this.opened,
+    required this.existing,
+    required this.outcomes,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationSweepResultResponse.fromJson(Object? json, [String path = 'EgpObligationSweepResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationSweepResultResponse(
+      sinceOn: requiredField(map, path, 'since_on', asString),
+      opened: requiredField(map, path, 'opened', asInt),
+      existing: requiredField(map, path, 'existing', asInt),
+      outcomes: requiredField(map, path, 'outcomes', asList(EgpObligationSweepResultResponseOutcomesItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'since_on', 'opened', 'existing', 'outcomes', 'as_of'}, strict: true),
+    );
+  }
+
+  final String sinceOn;
+  final int opened;
+  final int existing;
+  final List<EgpObligationSweepResultResponseOutcomesItem> outcomes;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'since_on': sinceOn,
+        'opened': opened,
+        'existing': existing,
+        'outcomes': outcomes.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EgpObligationSweepResultResponseOutcomesItem implements ResponseModel {
+  const EgpObligationSweepResultResponseOutcomesItem({
+    required this.fact,
+    required this.kind,
+    required this.opened,
+    required this.existing,
+    required this.truncated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpObligationSweepResultResponseOutcomesItem.fromJson(Object? json, [String path = 'EgpObligationSweepResultResponseOutcomesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpObligationSweepResultResponseOutcomesItem(
+      fact: requiredField(map, path, 'fact', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      opened: requiredField(map, path, 'opened', asInt),
+      existing: requiredField(map, path, 'existing', asInt),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      extra: unknownFields(map, path, const <String>{'fact', 'kind', 'opened', 'existing', 'truncated'}, strict: true),
+    );
+  }
+
+  final String fact;
+  final String kind;
+  final int opened;
+  final int existing;
+  final bool truncated;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'fact': fact,
+        'kind': kind,
+        'opened': opened,
+        'existing': existing,
+        'truncated': truncated,
+        ...extra,
+      };
+}
+
 final class EgpPreviewResultResponse implements ResponseModel {
   const EgpPreviewResultResponse({
     required this.operationId,
@@ -15512,6 +16242,376 @@ final class EgpPreviewRowResponse implements ResponseModel {
         'field': field,
         'outcome': outcome,
         'preview': preview,
+        ...extra,
+      };
+}
+
+final class EgpReconcileResultResponse implements ResponseModel {
+  const EgpReconcileResultResponse({
+    required this.examined,
+    required this.differences,
+    required this.opened,
+    required this.unchanged,
+    required this.settledAlready,
+    required this.noOwner,
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconcileResultResponse.fromJson(Object? json, [String path = 'EgpReconcileResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconcileResultResponse(
+      examined: requiredField(map, path, 'examined', asInt),
+      differences: requiredField(map, path, 'differences', asInt),
+      opened: requiredField(map, path, 'opened', asInt),
+      unchanged: requiredField(map, path, 'unchanged', asInt),
+      settledAlready: requiredField(map, path, 'settled_already', asInt),
+      noOwner: requiredField(map, path, 'no_owner', asInt),
+      items: requiredField(map, path, 'items', asList(EgpReconciliationItemResponse.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'examined', 'differences', 'opened', 'unchanged', 'settled_already', 'no_owner', 'items', 'as_of'}, strict: true),
+    );
+  }
+
+  final int examined;
+  final int differences;
+  final int opened;
+  final int unchanged;
+  final int settledAlready;
+  final int noOwner;
+  final List<EgpReconciliationItemResponse> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'examined': examined,
+        'differences': differences,
+        'opened': opened,
+        'unchanged': unchanged,
+        'settled_already': settledAlready,
+        'no_owner': noOwner,
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EgpReconciliationItemResponse implements ResponseModel {
+  const EgpReconciliationItemResponse({
+    required this.id,
+    required this.subjectType,
+    required this.subjectId,
+    required this.subjectCode,
+    required this.externalCode,
+    required this.field,
+    required this.differenceKind,
+    required this.ours,
+    required this.theirs,
+    required this.delta,
+    required this.state,
+    required this.ownerId,
+    required this.ownerName,
+    required this.openedAt,
+    required this.dueAt,
+    required this.overdue,
+    required this.sourceImportId,
+    required this.resolution,
+    required this.version,
+    required this.isMaker,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconciliationItemResponse.fromJson(Object? json, [String path = 'EgpReconciliationItemResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconciliationItemResponse(
+      id: requiredField(map, path, 'id', asString),
+      subjectType: requiredField(map, path, 'subject_type', asString),
+      subjectId: requiredField(map, path, 'subject_id', asString),
+      subjectCode: requiredField(map, path, 'subject_code', asString),
+      externalCode: requiredField(map, path, 'external_code', asString),
+      field: requiredField(map, path, 'field', asString),
+      differenceKind: requiredField(map, path, 'difference_kind', asString),
+      ours: requiredField(map, path, 'ours', nullable(asString)),
+      theirs: requiredField(map, path, 'theirs', nullable(asString)),
+      delta: requiredField(map, path, 'delta', nullable(asString)),
+      state: requiredField(map, path, 'state', asString),
+      ownerId: requiredField(map, path, 'owner_id', asString),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      openedAt: requiredField(map, path, 'opened_at', asString),
+      dueAt: requiredField(map, path, 'due_at', asString),
+      overdue: requiredField(map, path, 'overdue', asBool),
+      sourceImportId: requiredField(map, path, 'source_import_id', nullable(asString)),
+      resolution: requiredField(map, path, 'resolution', asAny),
+      version: requiredField(map, path, 'version', asInt),
+      isMaker: requiredField(map, path, 'is_maker', asBool),
+      actions: requiredField(map, path, 'actions', EgpReconciliationItemResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'subject_type', 'subject_id', 'subject_code', 'external_code', 'field', 'difference_kind', 'ours', 'theirs', 'delta', 'state', 'owner_id', 'owner_name', 'opened_at', 'due_at', 'overdue', 'source_import_id', 'resolution', 'version', 'is_maker', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String subjectType;
+  final String subjectId;
+  final String subjectCode;
+  final String externalCode;
+  final String field;
+  final String differenceKind;
+  final String? ours;
+  final String? theirs;
+  final String? delta;
+  final String state;
+  final String ownerId;
+  final String? ownerName;
+  final String openedAt;
+  final String dueAt;
+  final bool overdue;
+  final String? sourceImportId;
+  final Object? resolution;
+  final int version;
+  final bool isMaker;
+  final EgpReconciliationItemResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'subject_type': subjectType,
+        'subject_id': subjectId,
+        'subject_code': subjectCode,
+        'external_code': externalCode,
+        'field': field,
+        'difference_kind': differenceKind,
+        'ours': ours,
+        'theirs': theirs,
+        'delta': delta,
+        'state': state,
+        'owner_id': ownerId,
+        'owner_name': ownerName,
+        'opened_at': openedAt,
+        'due_at': dueAt,
+        'overdue': overdue,
+        'source_import_id': sourceImportId,
+        'resolution': resolution,
+        'version': version,
+        'is_maker': isMaker,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class EgpReconciliationItemResponseActions implements ResponseModel {
+  const EgpReconciliationItemResponseActions({
+    required this.resolve,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconciliationItemResponseActions.fromJson(Object? json, [String path = 'EgpReconciliationItemResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconciliationItemResponseActions(
+      resolve: requiredField(map, path, 'resolve', asBool),
+      extra: unknownFields(map, path, const <String>{'resolve'}, strict: true),
+    );
+  }
+
+  final bool resolve;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'resolve': resolve,
+        ...extra,
+      };
+}
+
+final class EgpReconciliationPageResponse implements ResponseModel {
+  const EgpReconciliationPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.dueRule,
+    required this.formula,
+    required this.source,
+    required this.acceptance,
+    required this.actions,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconciliationPageResponse.fromJson(Object? json, [String path = 'EgpReconciliationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconciliationPageResponse(
+      items: requiredField(map, path, 'items', asList(EgpReconciliationItemResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', EgpReconciliationPageResponseCounts.fromJson),
+      dueRule: requiredField(map, path, 'due_rule', EgpReconciliationPageResponseDueRule.fromJson),
+      formula: requiredField(map, path, 'formula', asString),
+      source: requiredField(map, path, 'source', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      actions: requiredField(map, path, 'actions', EgpReconciliationPageResponseActions.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'due_rule', 'formula', 'source', 'acceptance', 'actions', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<EgpReconciliationItemResponse> items;
+  final String? nextCursor;
+  final EgpReconciliationPageResponseCounts counts;
+  final EgpReconciliationPageResponseDueRule dueRule;
+  final String formula;
+  final String source;
+  final String acceptance;
+  final EgpReconciliationPageResponseActions actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'due_rule': dueRule.toJson(),
+        'formula': formula,
+        'source': source,
+        'acceptance': acceptance,
+        'actions': actions.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EgpReconciliationPageResponseActions implements ResponseModel {
+  const EgpReconciliationPageResponseActions({
+    required this.run,
+    required this.resolve,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconciliationPageResponseActions.fromJson(Object? json, [String path = 'EgpReconciliationPageResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconciliationPageResponseActions(
+      run: requiredField(map, path, 'run', asBool),
+      resolve: requiredField(map, path, 'resolve', asBool),
+      extra: unknownFields(map, path, const <String>{'run', 'resolve'}, strict: true),
+    );
+  }
+
+  final bool run;
+  final bool resolve;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'run': run,
+        'resolve': resolve,
+        ...extra,
+      };
+}
+
+final class EgpReconciliationPageResponseCounts implements ResponseModel {
+  const EgpReconciliationPageResponseCounts({
+    required this.open,
+    required this.resolved,
+    required this.overdue,
+    required this.byResolution,
+    required this.waiversDue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconciliationPageResponseCounts.fromJson(Object? json, [String path = 'EgpReconciliationPageResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconciliationPageResponseCounts(
+      open: requiredField(map, path, 'open', asInt),
+      resolved: requiredField(map, path, 'resolved', asInt),
+      overdue: requiredField(map, path, 'overdue', asInt),
+      byResolution: requiredField(map, path, 'by_resolution', asMap(asInt)),
+      waiversDue: requiredField(map, path, 'waivers_due', asInt),
+      extra: unknownFields(map, path, const <String>{'open', 'resolved', 'overdue', 'by_resolution', 'waivers_due'}, strict: true),
+    );
+  }
+
+  final int open;
+  final int resolved;
+  final int overdue;
+  final Map<String, int> byResolution;
+  final int waiversDue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'open': open,
+        'resolved': resolved,
+        'overdue': overdue,
+        'by_resolution': byResolution,
+        'waivers_due': waiversDue,
+        ...extra,
+      };
+}
+
+final class EgpReconciliationPageResponseDueRule implements ResponseModel {
+  const EgpReconciliationPageResponseDueRule({
+    required this.days,
+    required this.version,
+    required this.source,
+    required this.unverified,
+    required this.legalStatus,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EgpReconciliationPageResponseDueRule.fromJson(Object? json, [String path = 'EgpReconciliationPageResponseDueRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EgpReconciliationPageResponseDueRule(
+      days: requiredField(map, path, 'days', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      source: requiredField(map, path, 'source', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'days', 'version', 'source', 'unverified', 'legal_status', 'formula', 'source_text', 'as_of'}, strict: true),
+    );
+  }
+
+  final int days;
+  final int version;
+  final String source;
+  final bool unverified;
+  final String? legalStatus;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'days': days,
+        'version': version,
+        'source': source,
+        'unverified': unverified,
+        'legal_status': legalStatus,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
         ...extra,
       };
 }

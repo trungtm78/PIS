@@ -5880,6 +5880,14 @@
       "module": "RPT",
       "statusBasis": "convention",
       "source": "story:ST-RPT-001"
+    },
+    "EGP_RECEIPT_DUPLICATE": {
+      "status": 409,
+      "title": "Receipt reference already recorded",
+      "meaning": "Số tham chiếu biên nhận này đã được ghi cho một bài đăng khác trong tổ chức; một số tham chiếu của hệ thống mạng đấu thầu quốc gia chỉ ứng với một bài đăng (gõ trùng là một sơ suất).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

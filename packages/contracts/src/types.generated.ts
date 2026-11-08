@@ -18362,6 +18362,194 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/egp/obligations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia: theo trạng thái, đồng hồ, hạn và biên nhận (BID-32) */
+        get: operations["listEgpObligations"];
+        put?: never;
+        /** Mở tay một nghĩa vụ đăng tải cho một sự kiện mà sổ chưa ghi (thông báo mời thầu, sự kiện uy tín, phản hồi của nhà thầu) (BID-32) */
+        post: operations["openEgpObligation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một nghĩa vụ đăng tải: hạn và quy tắc của hạn, gói đăng, biên nhận, lịch sử, các trường gợi ý từ sổ (BID-32) */
+        get: operations["getEgpObligation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/sweep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mở các nghĩa vụ đăng tải từ những sự kiện đã có trong sổ (kế hoạch được duyệt, kết quả được duyệt, hợp đồng đã ký, đánh giá nhà thầu, vi phạm đã xác nhận) từ ngày chuyển đổi; chạy lại không mở thêm (BID-32) */
+        post: operations["sweepEgpObligations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/{id}/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Chuẩn bị gói đăng: các trường theo loại, hoặc tệp xuất hồ sơ nhà thầu của CTR-24 cho đánh giá và vi phạm; băm SHA-256 là bằng chứng nội dung đã đăng (BID-32) */
+        post: operations["prepareEgpObligation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ghi nhận đã đăng lên hệ thống mạng đấu thầu quốc gia; người gửi khác người chuẩn bị (BID-32) */
+        post: operations["submitEgpObligation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/{id}/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ghi biên nhận của hệ thống mạng đấu thầu quốc gia: số tham chiếu và thời điểm; biên nhận đóng nghĩa vụ và cảnh báo (BID-32) */
+        post: operations["receiptEgpObligation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ghi nhận hệ thống mạng từ chối bài đăng; đồng hồ chạy tiếp, bài đăng được chuẩn bị lại (BID-32) */
+        post: operations["rejectEgpObligation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/obligations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hủy một nghĩa vụ đăng tải không còn gì để đăng (lý do từ 20 ký tự) (BID-32) */
+        post: operations["cancelEgpObligation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/reconciliation/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách chênh lệch từng trường giữa số của đơn vị và số trên hệ thống mạng đấu thầu quốc gia, người xử lý, hạn và kết quả xử lý (BID-33) */
+        get: operations["listEgpReconciliationItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/reconciliation/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đối chiếu từng trường giữa sổ của đơn vị và bản ghi đã nhập từ hệ thống mạng đấu thầu quốc gia, mở một mục cho mỗi chênh lệch; chạy lại không mở thêm (BID-33) */
+        post: operations["runEgpReconciliation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/egp/reconciliation/items/{id}/resolution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Xử lý một chênh lệch: chấp nhận số ngoài, sửa số của mình, tranh chấp hoặc miễn; người xử lý khác người lập, ghi ADM-11 (BID-33) */
+        post: operations["resolveEgpReconciliationItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -30334,6 +30522,312 @@ export interface components {
             name: string;
             size_bytes: number;
             content_base64: string;
+        };
+        EgpObligationOpen: {
+            /** @enum {string} */
+            kind: "PLAN" | "NOTICE" | "RESULT" | "CONTRACT_INFO" | "CONTRACTOR_PERFORMANCE" | "VIOLATION" | "REPUTATION_EVENT" | "CONTRACTOR_RESPONSE";
+            /** @description Our code of the subject: project code (plan), package code (notice, result), contract code, or tax code (a contractor) */
+            our_code: string;
+            /** @description Tells two packages of one code apart */
+            our_project_code?: string;
+            /**
+             * Format: date
+             * @description The day the fact that starts the clock happened (Vietnam), not in the future
+             */
+            triggered_on: string;
+            /** Format: uuid */
+            owner_id?: string;
+        };
+        EgpObligationSweep: {
+            /**
+             * Format: date
+             * @description The cutover day: a fact older than this is not a duty of this system; default 90 days before today
+             */
+            since_on?: string;
+            /** Format: uuid */
+            owner_id?: string;
+            kinds?: ("PLAN" | "NOTICE" | "RESULT" | "CONTRACT_INFO" | "CONTRACTOR_PERFORMANCE" | "VIOLATION" | "REPUTATION_EVENT" | "CONTRACTOR_RESPONSE")[];
+        };
+        EgpObligationSweepResult: {
+            /** Format: date */
+            since_on: string;
+            opened: number;
+            existing: number;
+            outcomes: {
+                fact: string;
+                /** @enum {string} */
+                kind: "PLAN" | "NOTICE" | "RESULT" | "CONTRACT_INFO" | "CONTRACTOR_PERFORMANCE" | "VIOLATION" | "REPUTATION_EVENT" | "CONTRACTOR_RESPONSE";
+                opened: number;
+                existing: number;
+                truncated: boolean;
+            }[];
+            as_of: string;
+        };
+        EgpObligationPrepare: {
+            /** @description The fields the kind needs (EGP_POSTING_FIELDS), all required, none other */
+            fields?: {
+                [key: string]: string;
+            };
+            /**
+             * Format: uuid
+             * @description For a contractor evaluation or a violation: the batch of the contractor export (CTR-24) whose file is the packet
+             */
+            export_batch_id?: string;
+        };
+        EgpObligationReceipt: {
+            /** @description The reference the network gave */
+            receipt_ref: string;
+            /**
+             * Format: date-time
+             * @description Default now; not before the submission, not in the future
+             */
+            receipted_at?: string;
+        };
+        EgpObligationReason: {
+            reason: string;
+        };
+        EgpObligationCancel: {
+            reason: string;
+        };
+        EgpObligation: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "PLAN" | "NOTICE" | "RESULT" | "CONTRACT_INFO" | "CONTRACTOR_PERFORMANCE" | "VIOLATION" | "REPUTATION_EVENT" | "CONTRACTOR_RESPONSE";
+            /** @description The words of the duty from the rule */
+            obligation: string | null;
+            /** @enum {string} */
+            subject_type: "PROJECT" | "PLAN" | "PACKAGE" | "NOTICE" | "RESULT" | "CONTRACT" | "CONTRACTOR";
+            /** Format: uuid */
+            subject_id: string;
+            subject_code: string;
+            trigger_event: string;
+            triggered_at: string;
+            due_at: string;
+            remind_before_days: number;
+            rule_code: string;
+            rule_version: number;
+            /** @enum {string} */
+            rule_source: "RULE" | "DEFAULT";
+            /** @enum {string} */
+            legal_status: "UNVERIFIED" | "VERIFIED";
+            /** @enum {string} */
+            state: "DUE" | "PREPARED" | "SUBMITTED" | "RECEIPTED" | "REJECTED" | "CANCELLED";
+            clock: {
+                /** @enum {string} */
+                status: "ON_TIME" | "DUE_SOON" | "OVERDUE" | "MET" | "MET_LATE" | "CANCELLED";
+                ms_to_due: number | null;
+            };
+            /** @enum {string|null} */
+            alert: "EGP_POSTING_DUE" | "EGP_POSTING_OVERDUE" | null;
+            /** @enum {string|null} */
+            severity: "URGENT" | "ACTION" | null;
+            /** Format: uuid */
+            owner_id: string;
+            owner_name: string | null;
+            prepared_by_name: string | null;
+            prepared_at: string | null;
+            submitted_by_name: string | null;
+            submitted_at: string | null;
+            rejected_at: string | null;
+            rejection_reason: string | null;
+            cancel_reason: string | null;
+            receipt_ref: string | null;
+            receipted_at: string | null;
+            receipt_recorded_by_name: string | null;
+            packet_sha256: string | null;
+            packet: {
+                [key: string]: unknown;
+            } | null;
+            /** Format: uuid */
+            export_batch_id: string | null;
+            export_batch_status: string | null;
+            version: number;
+            created_at: string;
+            actions: {
+                prepare: boolean;
+                submit: boolean;
+                receipt: boolean;
+                reject: boolean;
+                cancel: boolean;
+            };
+        };
+        EgpObligationPage: {
+            items: components["schemas"]["EgpObligation"][];
+            next_cursor: string | null;
+            counts: {
+                total: number;
+                by_state: {
+                    [key: string]: number;
+                };
+                overdue: number;
+                due_soon: number;
+                met: number;
+                met_late: number;
+            };
+            on_time: {
+                met: number;
+                met_late: number;
+                overdue: number;
+                rate_bp: number | null;
+                formula: string;
+                source: string;
+            };
+            severity_rule: {
+                urgent_within_hours: number;
+                version: number;
+                /** @enum {string} */
+                source: "RULE" | "DEFAULT";
+                unverified: boolean;
+                legal_status: string | null;
+                formula: string | null;
+                source_text: string | null;
+                as_of: string | null;
+            };
+            /** @enum {string} */
+            acceptance: "PENDING_EXTERNAL" | "ACCEPTABLE";
+            adapter_status: string;
+            actions: {
+                sweep: boolean;
+                open: boolean;
+                prepare: boolean;
+                submit: boolean;
+            };
+            as_of: string;
+        };
+        EgpObligationDetail: {
+            obligation: components["schemas"]["EgpObligation"];
+            history: {
+                /** Format: uuid */
+                id: string;
+                action: string;
+                actor_name: string | null;
+                reason: string | null;
+                state_after: string;
+                version: number;
+                occurred_at: string;
+            }[];
+            required_fields: string[];
+            suggested_fields: {
+                [key: string]: string;
+            };
+            deadline_rule: {
+                version: number;
+                /** @enum {string} */
+                source: "RULE" | "DEFAULT";
+                unverified: boolean;
+                legal_status: string | null;
+                formula: string | null;
+                source_text: string | null;
+                as_of: string | null;
+                params: {
+                    [key: string]: unknown;
+                };
+            };
+            as_of: string;
+        };
+        EgpReconcileRun: {
+            /** @enum {string} */
+            subject_type?: "PLAN" | "PACKAGE" | "NOTICE" | "RESULT" | "CONTRACTOR";
+            /** Format: uuid */
+            owner_id?: string;
+        };
+        EgpReconciliationResolve: {
+            /** @enum {string} */
+            kind: "ACCEPT_EXTERNAL" | "CORRECT_OURS" | "DISPUTE" | "WAIVE";
+            /** @description 10 characters for ACCEPT_EXTERNAL and CORRECT_OURS, 20 for DISPUTE and WAIVE */
+            reason: string;
+            /** @description Required for DISPUTE: the letter to the operator */
+            evidence_ref?: string;
+            /**
+             * Format: date
+             * @description Required for WAIVE: after today and within 365 days
+             */
+            review_on?: string;
+        };
+        EgpReconciliationItem: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            subject_type: "PROJECT" | "PLAN" | "PACKAGE" | "NOTICE" | "RESULT" | "CONTRACT" | "CONTRACTOR";
+            /** Format: uuid */
+            subject_id: string;
+            subject_code: string;
+            external_code: string;
+            field: string;
+            /** @enum {string} */
+            difference_kind: "VALUE_MISMATCH" | "MISSING_OURS" | "MISSING_THEIRS";
+            ours: string | null;
+            theirs: string | null;
+            delta: string | null;
+            /** @enum {string} */
+            state: "OPEN" | "RESOLVED";
+            /** Format: uuid */
+            owner_id: string;
+            owner_name: string | null;
+            opened_at: string;
+            due_at: string;
+            overdue: boolean;
+            /** Format: uuid */
+            source_import_id: string | null;
+            resolution: null | {
+                /** @enum {string} */
+                kind: "ACCEPT_EXTERNAL" | "CORRECT_OURS" | "DISPUTE" | "WAIVE";
+                resolved_by_name: string | null;
+                resolved_at: string;
+                reason: string;
+                evidence_ref: string | null;
+                review_on: string | null;
+                follow_up: string;
+            };
+            version: number;
+            is_maker: boolean;
+            actions: {
+                resolve: boolean;
+            };
+        };
+        EgpReconciliationPage: {
+            items: components["schemas"]["EgpReconciliationItem"][];
+            next_cursor: string | null;
+            counts: {
+                open: number;
+                resolved: number;
+                overdue: number;
+                by_resolution: {
+                    [key: string]: number;
+                };
+                waivers_due: number;
+            };
+            due_rule: {
+                days: number;
+                version: number;
+                /** @enum {string} */
+                source: "RULE" | "DEFAULT";
+                unverified: boolean;
+                legal_status: string | null;
+                formula: string | null;
+                source_text: string | null;
+                as_of: string | null;
+            };
+            formula: string;
+            source: string;
+            /** @enum {string} */
+            acceptance: "PENDING_EXTERNAL" | "ACCEPTABLE";
+            actions: {
+                run: boolean;
+                resolve: boolean;
+            };
+            as_of: string;
+        };
+        EgpReconcileResult: {
+            examined: number;
+            differences: number;
+            opened: number;
+            unchanged: number;
+            settled_already: number;
+            no_owner: number;
+            items: components["schemas"]["EgpReconciliationItem"][];
+            as_of: string;
         };
     };
     responses: never;
@@ -142108,6 +142602,1201 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RptDeliveryPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listEgpObligations: {
+        parameters: {
+            query?: {
+                group?: string;
+                kind?: string;
+                clock?: string;
+                mine?: boolean;
+                subject_id?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EgpObligationPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    openEgpObligation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpObligationOpen"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EgpObligation"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getEgpObligation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EgpObligationDetail"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    sweepEgpObligations: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpObligationSweep"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EgpObligationSweepResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    prepareEgpObligation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpObligationPrepare"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    submitEgpObligation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    receiptEgpObligation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpObligationReceipt"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    rejectEgpObligation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpObligationReason"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    cancelEgpObligation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpObligationCancel"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listEgpReconciliationItems: {
+        parameters: {
+            query?: {
+                state?: string;
+                subject_type?: string;
+                mine?: boolean;
+                overdue?: boolean;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EgpReconciliationPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    runEgpReconciliation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpReconcileRun"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EgpReconcileResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    resolveEgpReconciliationItem: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgpReconciliationResolve"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
