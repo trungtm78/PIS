@@ -12591,5 +12591,48 @@
     "platform": "web",
     "req": "FR-BI-22",
     "source": "Lộ trình quản trị 10/10 (G3-6); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-23",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Độ tươi và thẻ điểm chất lượng số liệu",
+    "kind": "dashboard",
+    "fields": [
+      "Bộ dữ liệu",
+      "Trạng thái độ tươi (Mới, Sắp quá hạn, Số liệu cũ, Chưa có dữ liệu)",
+      "Tuổi và SLA",
+      "Chất lượng lần dựng gần nhất",
+      "Chứng nhận",
+      "Thẻ điểm theo phân hệ",
+      "Thẻ điểm theo đơn vị"
+    ],
+    "role": "Lãnh đạo, quản trị dữ liệu, chuyên viên BI",
+    "rule": "SLA độ tươi theo từng bộ dữ liệu là quy tắc quản trị (chưa xác nhận); quá SLA thì tự hiện Số liệu cũ; bộ dữ liệu chưa dựng lần nào là chưa có dữ liệu, không phải mới; thẻ điểm là trung bình có trọng số của các chiều có điểm, thiếu chiều thì N/A kèm lý do; đơn vị chỉ trong phạm vi của người đọc",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-23",
+    "source": "Lộ trình quản trị 10/10 (G3-7); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-24",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Truy nguồn số liệu",
+    "kind": "tree",
+    "fields": [
+      "Loại nút (chỉ tiêu, bộ dữ liệu, bảng, phân hệ)",
+      "Nút xuất phát",
+      "Hướng (ngược lên nguồn, xuôi xuống)",
+      "Độ sâu",
+      "Đường truy nguồn",
+      "Chỗ còn thiếu"
+    ],
+    "role": "Lãnh đạo, quản trị dữ liệu, chuyên viên BI, kiểm toán",
+    "rule": "Đường truy nguồn chỉ tiêu, bộ dữ liệu, bảng, phân hệ được dựng từ khai báo (công thức chỉ tiêu, trường bộ dữ liệu phục vụ, bảng nguồn, phân hệ sở hữu bảng) chứ không từ lần chạy; bảng chưa biết phân hệ và chỉ tiêu chưa có bộ dữ liệu được liệt kê, không giấu",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-24",
+    "source": "Lộ trình quản trị 10/10 (G3-11); thiết kế làn GOV-11b"
   }
 ]

@@ -1805,3 +1805,5 @@ export { AnaOutlookStore } from './ana-outlook-store.ts';
 export type { OutlookPlanBasis, OutlookPolicy, OutlookSeries } from './ana-outlook-store.ts';
 export { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE } from './ana-decision-store.ts';
 export type { DecisionFilter, DecisionPolicyReading, DecisionRow, NewDecision, OutcomeRow } from './ana-decision-store.ts';
+export { AnaTrustStore } from './ana-trust-store.ts';
+export type { DatasetTrust, ModuleScore, TrustPolicyInfo, UnitScore } from './ana-trust-store.ts';

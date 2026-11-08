@@ -10,6 +10,7 @@ import { AlertProfileController } from './alert-profile.controller';
 =======
 import { AnaDecisionController } from './ana-decision.controller';
 import { AnaForecastController } from './ana-forecast.controller';
+import { AnaTrustController } from './ana-trust.controller';
 import { CommandCenterController } from './command-center.controller';
 import { ChannelHealthController } from './channel-health.controller';
 import { AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController } from './alert-ops.controller';
@@ -36,6 +37,8 @@ export const homeModule = defineModule({
   controllers: [AnaForecastController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
 =======
   controllers: [AnaDecisionController, AnaForecastController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
+=======
+  controllers: [AnaDecisionController, AnaForecastController, AnaTrustController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,

@@ -44,6 +44,8 @@ const DEFINITIONS: Readonly<Record<string, DatasetDefinition>> = {
   [DISBURSEMENT_DATASET_CODE]: { title: DISBURSEMENT_TITLE, sourceKind: 'PERIOD_SNAPSHOT', grain: 'project', joinPaths: DISBURSEMENT_JOIN_PATHS, producerModule: 'DIS' },
   [CONTRACT_DATASET_CODE]: { title: DATASET_TITLES['contract.title'], sourceKind: 'CONTRACT_FACT', grain: 'contract_party', joinPaths: CONTRACT_JOIN_PATHS, producerModule: 'CTR' },
 };
+/** The module that produces the data of a dataset of the registry (the module its scorecard and its lineage are told under), or undefined for a code that is not in the registry. */
+export const datasetProducerModuleOf = (code: string): string | undefined => DEFINITIONS[code]?.producerModule;
 /** A build that stays BUILDING this long is taken for dead: the next build marks it FAILED and goes on. */
 const STALE_BUILD_MINUTES = 60;
 
