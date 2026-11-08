@@ -79,6 +79,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'bindGlossaryTermToDataset': CommandResultResponse.fromJson,
   'buildBiDatasetVersion': CommandResultResponse.fromJson,
   'buildPeriodSnapshot': CommandResultResponse.fromJson,
+  'cancelActingRequest': CommandResultResponse.fromJson,
   'cancelAdvance': PayAdvanceCommandResultResponse.fromJson,
   'cancelAuditEngagement': CommandResultResponse.fromJson,
   'cancelCampaign': CommandResultResponse.fromJson,
@@ -91,6 +92,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'cancelPackageWorkflow': CommandResultResponse.fromJson,
   'cancelPaymentRequest': PayPaymentCommandResultResponse.fromJson,
   'cancelProject': CommandResultResponse.fromJson,
+  'cancelStandingDelegationRequest': CommandResultResponse.fromJson,
   'cancelSubscription': CommandResultResponse.fromJson,
   'cancelVendorPayeeChange': CommandResultResponse.fromJson,
   'cancelWorkflowInstance': CommandResultResponse.fromJson,
@@ -192,6 +194,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createOrganizationUnit': CommandResultResponse.fromJson,
   'createOutgoingDocument': CommandResultResponse.fromJson,
   'createPaymentRequest': PayPaymentCommandResultResponse.fromJson,
+  'createPeriodScope': CommandResultResponse.fromJson,
   'createPermitDossier': CommandResultResponse.fromJson,
   'createPlanVersion': CommandResultResponse.fromJson,
   'createProcurementPlan': CommandResultResponse.fromJson,
@@ -205,6 +208,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createRetentionPolicyVersion': CommandResultResponse.fromJson,
   'createRoutingPolicyVersion': CommandResultResponse.fromJson,
   'createSecurityPolicyVersion': CommandResultResponse.fromJson,
+  'createStandingDelegationRequest': CommandResultResponse.fromJson,
   'createSteeringMeeting': CommandResultResponse.fromJson,
   'createSubscription': CommandResultResponse.fromJson,
   'createSupportTicket': CommandResultResponse.fromJson,
@@ -216,6 +220,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createWarrantyObligation': CommandResultResponse.fromJson,
   'createWorkCalendarVersion': CommandResultResponse.fromJson,
   'createWorkflowDraft': CommandResultResponse.fromJson,
+  'decideActingRequest': CommandResultResponse.fromJson,
   'decideAlertCover': CommandResultResponse.fromJson,
   'decideAllocationExtension': CommandResultResponse.fromJson,
   'decideAppropriation': CommandResultResponse.fromJson,
@@ -249,6 +254,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideReappraisalRequest': CommandResultResponse.fromJson,
   'decideReserveDrawdown': CommandResultResponse.fromJson,
   'decideSourceMapping': CommandResultResponse.fromJson,
+  'decideStandingDelegationRequest': CommandResultResponse.fromJson,
   'decideTemplateRevision': CommandResultResponse.fromJson,
   'decideTenantRestore': CommandResultResponse.fromJson,
   'decideUnitReorganization': CommandResultResponse.fromJson,
@@ -310,6 +316,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'generateSettlementForms': PayGeneratedSettlementFormsResponse.fromJson,
   'get_resources_acceptance': CtrAcceptancePageResponse.fromJson,
   'get_resources_acceptance_id': CtrAcceptanceLineResponse.fromJson,
+  'get_resources_acting_grant': ActingGrantListResponse.fromJson,
+  'get_resources_acting_grant_id': ActingGrantViewResponse.fromJson,
   'get_resources_advance_ledger_entry': GetResourcesAdvanceLedgerEntryResponse.fromJson,
   'get_resources_advance_ledger_entry_id': GetResourcesAdvanceLedgerEntryIdResponse.fromJson,
   'get_resources_ai_eval_run': GetResourcesAiEvalRunResponse.fromJson,
@@ -416,6 +424,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_outbox_event_id': GetResourcesOutboxEventIdResponse.fromJson,
   'get_resources_payment_request': PayPaymentRequestPageResponse.fromJson,
   'get_resources_payment_request_id': PayPaymentRequestResponse.fromJson,
+  'get_resources_period_scope': PeriodScopeListResponse.fromJson,
+  'get_resources_period_scope_id': PeriodScopeViewResponse.fromJson,
   'get_resources_permit_dossier': GetResourcesPermitDossierResponse.fromJson,
   'get_resources_permit_dossier_id': GetResourcesPermitDossierIdResponse.fromJson,
   'get_resources_permit_gate_rule': GetResourcesPermitGateRuleResponse.fromJson,
@@ -464,6 +474,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_resources_site_diary_id': GetResourcesSiteDiaryIdResponse.fromJson,
   'get_resources_site_photo': GetResourcesSitePhotoResponse.fromJson,
   'get_resources_site_photo_id': GetResourcesSitePhotoIdResponse.fromJson,
+  'get_resources_standing_delegation_request': StandingDelegationRequestListResponse.fromJson,
+  'get_resources_standing_delegation_request_id': StandingDelegationRequestViewResponse.fromJson,
   'get_resources_subscription': GetResourcesSubscriptionResponse.fromJson,
   'get_resources_subscription_id': GetResourcesSubscriptionIdResponse.fromJson,
   'get_resources_support_access_grant': GetResourcesSupportAccessGrantResponse.fromJson,
@@ -658,6 +670,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'issueOutgoingDocument': CommandResultResponse.fromJson,
   'issueReport': CommandResultResponse.fromJson,
   'issueSupportAccessToken': SupportTokenResponse.fromJson,
+  'liftPeriodScope': CommandResultResponse.fromJson,
   'liftVendorRestrictionCase': CommandResultResponse.fromJson,
   'linkAuditRecovery': CommandResultResponse.fromJson,
   'linkClaim': CommandResultResponse.fromJson,
@@ -1050,6 +1063,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'replaceContractParties': CommandResultResponse.fromJson,
   'replayInboxEvent': CommandResultResponse.fromJson,
   'reportLandStageProgress': CommandResultResponse.fromJson,
+  'requestActing': CommandResultResponse.fromJson,
   'requestAdvance': PayAdvanceCommandResultResponse.fromJson,
   'requestAiCompletion': CommandResultResponse.fromJson,
   'requestAllocationExtension': CommandResultResponse.fromJson,
@@ -1109,6 +1123,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'reverseAuditRecovery': CommandResultResponse.fromJson,
   'reversePayment': PayReversalResultResponse.fromJson,
   'reviewAnalysisFinding': BidFindingReviewedResponse.fromJson,
+  'reviewDelegation': CommandResultResponse.fromJson,
   'reviewExplanation': CommandResultResponse.fromJson,
   'reviewMaturityEvidence': CommandResultResponse.fromJson,
   'reviewOcrPage': CommandResultResponse.fromJson,
@@ -1119,6 +1134,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'revisePlan': CommandResultResponse.fromJson,
   'reviseSiteDiaryDraft': CommandResultResponse.fromJson,
   'revokeAcceptance': CommandResultResponse.fromJson,
+  'revokeActing': CommandResultResponse.fromJson,
   'revokeAiVirtualKey': CommandResultResponse.fromJson,
   'revokeAlertCover': CommandResultResponse.fromJson,
   'revokeDashboardShare': CommandResultResponse.fromJson,
@@ -1280,6 +1296,172 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'withdrawMyConsent': CommandResultResponse.fromJson,
   'withdrawReport': CommandResultResponse.fromJson,
 };
+
+final class ActingGrantListResponse implements ResponseModel {
+  const ActingGrantListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ActingGrantListResponse.fromJson(Object? json, [String path = 'ActingGrantListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ActingGrantListResponse(
+      items: requiredField(map, path, 'items', asList(ActingGrantViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<ActingGrantViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ActingGrantViewResponse implements ResponseModel {
+  const ActingGrantViewResponse({
+    required this.id,
+    required this.requester,
+    required this.subject,
+    required this.permissions,
+    required this.hours,
+    required this.reason,
+    required this.status,
+    required this.phase,
+    required this.requestedAt,
+    required this.version,
+    required this.actions,
+    this.periodCodes,
+    this.decidedBy,
+    this.decidedAt,
+    this.decisionReason,
+    this.windowStart,
+    this.windowEnd,
+    this.revokedAt,
+    this.revokeReason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ActingGrantViewResponse.fromJson(Object? json, [String path = 'ActingGrantViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ActingGrantViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      requester: requiredField(map, path, 'requester', IamPartyRefResponse.fromJson),
+      subject: requiredField(map, path, 'subject', IamPartyRefResponse.fromJson),
+      permissions: requiredField(map, path, 'permissions', asList(asString)),
+      periodCodes: optionalField(map, path, 'period_codes', nullable(asList(asString))),
+      hours: requiredField(map, path, 'hours', asInt),
+      reason: requiredField(map, path, 'reason', asString),
+      status: requiredField(map, path, 'status', asString),
+      phase: requiredField(map, path, 'phase', asString),
+      requestedAt: requiredField(map, path, 'requested_at', asString),
+      decidedBy: optionalField(map, path, 'decided_by', asAny),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: optionalField(map, path, 'decision_reason', nullable(asString)),
+      windowStart: optionalField(map, path, 'window_start', nullable(asString)),
+      windowEnd: optionalField(map, path, 'window_end', nullable(asString)),
+      revokedAt: optionalField(map, path, 'revoked_at', nullable(asString)),
+      revokeReason: optionalField(map, path, 'revoke_reason', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      actions: requiredField(map, path, 'actions', ActingGrantViewResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'requester', 'subject', 'permissions', 'period_codes', 'hours', 'reason', 'status', 'phase', 'requested_at', 'decided_by', 'decided_at', 'decision_reason', 'window_start', 'window_end', 'revoked_at', 'revoke_reason', 'version', 'actions'}, strict: false),
+    );
+  }
+
+  final String id;
+  final IamPartyRefResponse requester;
+  final IamPartyRefResponse subject;
+  final List<String> permissions;
+  final List<String>? periodCodes;
+  final int hours;
+  final String reason;
+  final String status;
+  final String phase;
+  final String requestedAt;
+  final Object? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? windowStart;
+  final String? windowEnd;
+  final String? revokedAt;
+  final String? revokeReason;
+  final int version;
+  final ActingGrantViewResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'requester': requester.toJson(),
+        'subject': subject.toJson(),
+        'permissions': permissions,
+        if (periodCodes != null) 'period_codes': periodCodes,
+        'hours': hours,
+        'reason': reason,
+        'status': status,
+        'phase': phase,
+        'requested_at': requestedAt,
+        if (decidedBy != null) 'decided_by': decidedBy,
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (decisionReason != null) 'decision_reason': decisionReason,
+        if (windowStart != null) 'window_start': windowStart,
+        if (windowEnd != null) 'window_end': windowEnd,
+        if (revokedAt != null) 'revoked_at': revokedAt,
+        if (revokeReason != null) 'revoke_reason': revokeReason,
+        'version': version,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class ActingGrantViewResponseActions implements ResponseModel {
+  const ActingGrantViewResponseActions({
+    this.decide,
+    this.cancel,
+    this.revoke,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ActingGrantViewResponseActions.fromJson(Object? json, [String path = 'ActingGrantViewResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ActingGrantViewResponseActions(
+      decide: optionalField(map, path, 'decide', asBool),
+      cancel: optionalField(map, path, 'cancel', asBool),
+      revoke: optionalField(map, path, 'revoke', asBool),
+      extra: unknownFields(map, path, const <String>{'decide', 'cancel', 'revoke'}, strict: false),
+    );
+  }
+
+  final bool? decide;
+  final bool? cancel;
+  final bool? revoke;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (decide != null) 'decide': decide,
+        if (cancel != null) 'cancel': cancel,
+        if (revoke != null) 'revoke': revoke,
+        ...extra,
+      };
+}
 
 final class AlertAbsenceListResponse implements ResponseModel {
   const AlertAbsenceListResponse({
@@ -27657,6 +27839,36 @@ final class HomeMetricTileResponse implements ResponseModel {
       };
 }
 
+final class IamPartyRefResponse implements ResponseModel {
+  const IamPartyRefResponse({
+    required this.id,
+    this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory IamPartyRefResponse.fromJson(Object? json, [String path = 'IamPartyRefResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return IamPartyRefResponse(
+      id: requiredField(map, path, 'id', asString),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        if (name != null) 'name': name,
+        ...extra,
+      };
+}
+
 final class InvoiceLineResponse implements ResponseModel {
   const InvoiceLineResponse({
     required this.id,
@@ -35603,6 +35815,144 @@ final class PayTreasuryTrackingPageResponse implements ResponseModel {
       };
 }
 
+final class PeriodScopeListResponse implements ResponseModel {
+  const PeriodScopeListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PeriodScopeListResponse.fromJson(Object? json, [String path = 'PeriodScopeListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PeriodScopeListResponse(
+      items: requiredField(map, path, 'items', asList(PeriodScopeViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<PeriodScopeViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PeriodScopeViewResponse implements ResponseModel {
+  const PeriodScopeViewResponse({
+    required this.id,
+    required this.roleGrantId,
+    required this.member,
+    required this.roleCode,
+    required this.periodCodes,
+    required this.reason,
+    required this.status,
+    required this.setAt,
+    required this.version,
+    required this.actions,
+    this.setBy,
+    this.liftedBy,
+    this.liftedAt,
+    this.liftReason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PeriodScopeViewResponse.fromJson(Object? json, [String path = 'PeriodScopeViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PeriodScopeViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      roleGrantId: requiredField(map, path, 'role_grant_id', asString),
+      member: requiredField(map, path, 'member', IamPartyRefResponse.fromJson),
+      roleCode: requiredField(map, path, 'role_code', asString),
+      periodCodes: requiredField(map, path, 'period_codes', asList(asString)),
+      reason: requiredField(map, path, 'reason', asString),
+      status: requiredField(map, path, 'status', asString),
+      setBy: optionalField(map, path, 'set_by', asString),
+      setAt: requiredField(map, path, 'set_at', asString),
+      liftedBy: optionalField(map, path, 'lifted_by', nullable(asString)),
+      liftedAt: optionalField(map, path, 'lifted_at', nullable(asString)),
+      liftReason: optionalField(map, path, 'lift_reason', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      actions: requiredField(map, path, 'actions', PeriodScopeViewResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'role_grant_id', 'member', 'role_code', 'period_codes', 'reason', 'status', 'set_by', 'set_at', 'lifted_by', 'lifted_at', 'lift_reason', 'version', 'actions'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String roleGrantId;
+  final IamPartyRefResponse member;
+  final String roleCode;
+  final List<String> periodCodes;
+  final String reason;
+  final String status;
+  final String? setBy;
+  final String setAt;
+  final String? liftedBy;
+  final String? liftedAt;
+  final String? liftReason;
+  final int version;
+  final PeriodScopeViewResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'role_grant_id': roleGrantId,
+        'member': member.toJson(),
+        'role_code': roleCode,
+        'period_codes': periodCodes,
+        'reason': reason,
+        'status': status,
+        if (setBy != null) 'set_by': setBy,
+        'set_at': setAt,
+        if (liftedBy != null) 'lifted_by': liftedBy,
+        if (liftedAt != null) 'lifted_at': liftedAt,
+        if (liftReason != null) 'lift_reason': liftReason,
+        'version': version,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class PeriodScopeViewResponseActions implements ResponseModel {
+  const PeriodScopeViewResponseActions({
+    this.lift,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PeriodScopeViewResponseActions.fromJson(Object? json, [String path = 'PeriodScopeViewResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PeriodScopeViewResponseActions(
+      lift: optionalField(map, path, 'lift', asBool),
+      extra: unknownFields(map, path, const <String>{'lift'}, strict: false),
+    );
+  }
+
+  final bool? lift;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (lift != null) 'lift': lift,
+        ...extra,
+      };
+}
+
 final class PlacementChoiceResponse implements ResponseModel {
   const PlacementChoiceResponse({
     required this.id,
@@ -40515,6 +40865,184 @@ final class SessionContextResponse implements ResponseModel {
         if (tokenType != null) 'token_type': tokenType,
         if (expiresIn != null) 'expires_in': expiresIn,
         if (mode != null) 'mode': mode,
+        ...extra,
+      };
+}
+
+final class StandingDelegationRequestListResponse implements ResponseModel {
+  const StandingDelegationRequestListResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory StandingDelegationRequestListResponse.fromJson(Object? json, [String path = 'StandingDelegationRequestListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return StandingDelegationRequestListResponse(
+      items: requiredField(map, path, 'items', asList(StandingDelegationRequestViewResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<StandingDelegationRequestViewResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class StandingDelegationRequestViewResponse implements ResponseModel {
+  const StandingDelegationRequestViewResponse({
+    required this.id,
+    required this.delegator,
+    required this.delegate,
+    required this.permissions,
+    required this.scopeKind,
+    required this.scopeRefIds,
+    required this.startsAt,
+    required this.reviewDueAt,
+    required this.endConditionKind,
+    required this.endConditionText,
+    required this.reason,
+    required this.status,
+    required this.expiresAt,
+    required this.createdAt,
+    required this.version,
+    required this.actions,
+    this.periodCodes,
+    this.endOn,
+    this.legalBasisRef,
+    this.decidedBy,
+    this.decidedAt,
+    this.decisionReason,
+    this.delegationId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory StandingDelegationRequestViewResponse.fromJson(Object? json, [String path = 'StandingDelegationRequestViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return StandingDelegationRequestViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      delegator: requiredField(map, path, 'delegator', IamPartyRefResponse.fromJson),
+      delegate: requiredField(map, path, 'delegate', IamPartyRefResponse.fromJson),
+      permissions: requiredField(map, path, 'permissions', asList(asString)),
+      scopeKind: requiredField(map, path, 'scope_kind', asString),
+      scopeRefIds: requiredField(map, path, 'scope_ref_ids', asList(asString)),
+      periodCodes: optionalField(map, path, 'period_codes', nullable(asList(asString))),
+      startsAt: requiredField(map, path, 'starts_at', asString),
+      reviewDueAt: requiredField(map, path, 'review_due_at', asString),
+      endConditionKind: requiredField(map, path, 'end_condition_kind', asString),
+      endConditionText: requiredField(map, path, 'end_condition_text', asString),
+      endOn: optionalField(map, path, 'end_on', nullable(asString)),
+      reason: requiredField(map, path, 'reason', asString),
+      legalBasisRef: optionalField(map, path, 'legal_basis_ref', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      expiresAt: requiredField(map, path, 'expires_at', asString),
+      decidedBy: optionalField(map, path, 'decided_by', asAny),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: optionalField(map, path, 'decision_reason', nullable(asString)),
+      delegationId: optionalField(map, path, 'delegation_id', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      actions: requiredField(map, path, 'actions', StandingDelegationRequestViewResponseActions.fromJson),
+      extra: unknownFields(map, path, const <String>{'id', 'delegator', 'delegate', 'permissions', 'scope_kind', 'scope_ref_ids', 'period_codes', 'starts_at', 'review_due_at', 'end_condition_kind', 'end_condition_text', 'end_on', 'reason', 'legal_basis_ref', 'status', 'expires_at', 'decided_by', 'decided_at', 'decision_reason', 'delegation_id', 'created_at', 'version', 'actions'}, strict: false),
+    );
+  }
+
+  final String id;
+  final IamPartyRefResponse delegator;
+  final IamPartyRefResponse delegate;
+  final List<String> permissions;
+  final String scopeKind;
+  final List<String> scopeRefIds;
+  final List<String>? periodCodes;
+  final String startsAt;
+  final String reviewDueAt;
+  final String endConditionKind;
+  final String endConditionText;
+  final String? endOn;
+  final String reason;
+  final String? legalBasisRef;
+  final String status;
+  final String expiresAt;
+  final Object? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? delegationId;
+  final String createdAt;
+  final int version;
+  final StandingDelegationRequestViewResponseActions actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'delegator': delegator.toJson(),
+        'delegate': delegate.toJson(),
+        'permissions': permissions,
+        'scope_kind': scopeKind,
+        'scope_ref_ids': scopeRefIds,
+        if (periodCodes != null) 'period_codes': periodCodes,
+        'starts_at': startsAt,
+        'review_due_at': reviewDueAt,
+        'end_condition_kind': endConditionKind,
+        'end_condition_text': endConditionText,
+        if (endOn != null) 'end_on': endOn,
+        'reason': reason,
+        if (legalBasisRef != null) 'legal_basis_ref': legalBasisRef,
+        'status': status,
+        'expires_at': expiresAt,
+        if (decidedBy != null) 'decided_by': decidedBy,
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (decisionReason != null) 'decision_reason': decisionReason,
+        if (delegationId != null) 'delegation_id': delegationId,
+        'created_at': createdAt,
+        'version': version,
+        'actions': actions.toJson(),
+        ...extra,
+      };
+}
+
+final class StandingDelegationRequestViewResponseActions implements ResponseModel {
+  const StandingDelegationRequestViewResponseActions({
+    this.decide,
+    this.cancel,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory StandingDelegationRequestViewResponseActions.fromJson(Object? json, [String path = 'StandingDelegationRequestViewResponseActions']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return StandingDelegationRequestViewResponseActions(
+      decide: optionalField(map, path, 'decide', asBool),
+      cancel: optionalField(map, path, 'cancel', asBool),
+      extra: unknownFields(map, path, const <String>{'decide', 'cancel'}, strict: false),
+    );
+  }
+
+  final bool? decide;
+  final bool? cancel;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (decide != null) 'decide': decide,
+        if (cancel != null) 'cancel': cancel,
         ...extra,
       };
 }

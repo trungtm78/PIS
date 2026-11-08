@@ -14,6 +14,47 @@ final class AckRequest implements RequestModel {
       };
 }
 
+final class ActingDecision implements RequestModel {
+  const ActingDecision({
+    required this.decision,
+    this.reason,
+  });
+
+  final String decision;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class ActingRequestCreate implements RequestModel {
+  const ActingRequestCreate({
+    required this.subjectMembershipId,
+    required this.permissions,
+    required this.hours,
+    required this.reason,
+    this.periodCodes,
+  });
+
+  final String subjectMembershipId;
+  final List<String> permissions;
+  final List<String>? periodCodes;
+  final int hours;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'subject_membership_id': subjectMembershipId,
+        'permissions': permissions,
+        if (periodCodes != null) 'period_codes': periodCodes,
+        'hours': hours,
+        'reason': reason,
+      };
+}
+
 final class AlertAbsenceEnd implements RequestModel {
   const AlertAbsenceEnd({
     required this.status,
@@ -3836,6 +3877,7 @@ final class DelegationCreate implements RequestModel {
     required this.validUntil,
     required this.reason,
     this.legalBasisRef,
+    this.periodCodes,
   });
 
   final String delegateMembershipId;
@@ -3846,6 +3888,7 @@ final class DelegationCreate implements RequestModel {
   final String validUntil;
   final String reason;
   final String? legalBasisRef;
+  final List<String>? periodCodes;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -3857,6 +3900,23 @@ final class DelegationCreate implements RequestModel {
         'valid_until': validUntil,
         'reason': reason,
         if (legalBasisRef != null) 'legal_basis_ref': legalBasisRef,
+        if (periodCodes != null) 'period_codes': periodCodes,
+      };
+}
+
+final class DelegationReview implements RequestModel {
+  const DelegationReview({
+    required this.reviewDueAt,
+    this.note,
+  });
+
+  final String reviewDueAt;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'review_due_at': reviewDueAt,
+        if (note != null) 'note': note,
       };
 }
 
@@ -9630,6 +9690,25 @@ final class PayVerifyPaymentRequest implements RequestModel {
       };
 }
 
+final class PeriodScopeCreate implements RequestModel {
+  const PeriodScopeCreate({
+    required this.roleGrantId,
+    required this.periodCodes,
+    required this.reason,
+  });
+
+  final String roleGrantId;
+  final List<String> periodCodes;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'role_grant_id': roleGrantId,
+        'period_codes': periodCodes,
+        'reason': reason,
+      };
+}
+
 final class PlacementMigrationStart implements RequestModel {
   const PlacementMigrationStart({
     required this.toPlacementId,
@@ -12203,6 +12282,68 @@ final class SodExceptionRevoke implements RequestModel {
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'reason': reason,
+      };
+}
+
+final class StandingDelegationDecision implements RequestModel {
+  const StandingDelegationDecision({
+    required this.decision,
+    this.reason,
+  });
+
+  final String decision;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class StandingDelegationRequestCreate implements RequestModel {
+  const StandingDelegationRequestCreate({
+    required this.delegateMembershipId,
+    required this.permissions,
+    required this.scopeKind,
+    required this.scopeRefIds,
+    required this.validFrom,
+    required this.reviewDueAt,
+    required this.endConditionKind,
+    required this.endConditionText,
+    required this.reason,
+    this.periodCodes,
+    this.endOn,
+    this.legalBasisRef,
+  });
+
+  final String delegateMembershipId;
+  final List<String> permissions;
+  final String scopeKind;
+  final List<String> scopeRefIds;
+  final List<String>? periodCodes;
+  final String validFrom;
+  final String reviewDueAt;
+  final String endConditionKind;
+  final String endConditionText;
+  final String? endOn;
+  final String reason;
+  final String? legalBasisRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'delegate_membership_id': delegateMembershipId,
+        'permissions': permissions,
+        'scope_kind': scopeKind,
+        'scope_ref_ids': scopeRefIds,
+        if (periodCodes != null) 'period_codes': periodCodes,
+        'valid_from': validFrom,
+        'review_due_at': reviewDueAt,
+        'end_condition_kind': endConditionKind,
+        'end_condition_text': endConditionText,
+        if (endOn != null) 'end_on': endOn,
+        'reason': reason,
+        if (legalBasisRef != null) 'legal_basis_ref': legalBasisRef,
       };
 }
 

@@ -6192,6 +6192,70 @@
       "module": "HOME",
       "statusBasis": "spec",
       "source": "spec:HOME"
+    },
+    "DELEGATION_CYCLE_DENIED": {
+      "status": 403,
+      "title": "Delegation would close a loop",
+      "meaning": "ủy quyền khép thành vòng (A ủy cho B, B ủy lại cho A, trực tiếp hoặc qua người khác; hoặc ủy cho chính mình): quyền đi một vòng là quyền không ai nắm",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "ACTING_INVALID": {
+      "status": 422,
+      "title": "Acting request invalid",
+      "meaning": "đề nghị làm thay không hợp lệ: quyền ngoài phạm vi làm thay (quản trị, quyết định, ký), quá 8 giờ, thiếu lý do hoặc kỳ báo cáo sai",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "ACTING_SELF_DENIED": {
+      "status": 403,
+      "title": "Acting for oneself denied",
+      "meaning": "không làm thay chính mình (tính theo người, không theo tư cách thành viên)",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "ACTING_STATE_INVALID": {
+      "status": 409,
+      "title": "Acting grant state invalid",
+      "meaning": "đề nghị làm thay đã được quyết định, đã quá hạn chờ hoặc đã hết hiệu lực nên không thao tác được",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "ACTING_NOT_LIVE": {
+      "status": 403,
+      "title": "Acting grant not in force",
+      "meaning": "yêu cầu mang mã làm thay nhưng phiên làm thay không còn hiệu lực (hết giờ, bị thu hồi, không phải của người gọi hoặc người được làm thay không còn hoạt động)",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "PERIOD_SCOPE_DENIED": {
+      "status": 403,
+      "title": "Report period outside the scope",
+      "meaning": "quyền hoặc ủy quyền bị giới hạn theo kỳ báo cáo và báo cáo thuộc kỳ khác",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "PERIOD_SCOPE_INVALID": {
+      "status": 422,
+      "title": "Period scope invalid",
+      "meaning": "danh sách kỳ báo cáo không hợp lệ (sai mẫu, trùng, kỳ này nằm trong kỳ kia, quá 24 kỳ hoặc rỗng)",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "PERIOD_SCOPE_STATE_INVALID": {
+      "status": 409,
+      "title": "Period scope state invalid",
+      "meaning": "quyền đã có giới hạn kỳ đang hiệu lực (muốn đổi thì gỡ giới hạn cũ rồi đặt lại) hoặc giới hạn đã được gỡ",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
     }
   }
 }
