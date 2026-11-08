@@ -3011,3 +3011,35 @@ export {
 export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
 =======
 export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams as PayClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
+
+// GOV-11 CTR (G1-18): the settlement clock of a contract, its adjustment versions and the linkage of the contract to its project, package and contractor.
+export {
+  CONTRACT_SETTLEMENT_RULE_TYPE,
+  SETTLEMENT_CLOCK_CONTRACT_STATUSES,
+  SETTLEMENT_CLOCK_GROUPS,
+  SETTLEMENT_CLOCK_STARTS,
+  STORED_CLOCK_STATES,
+  addMonths as addCalendarMonths,
+  metStateOf,
+  settlementClockReading,
+  settlementDeadlineDefaults,
+  settlementDeadlineParams,
+  settlementDueOn as settlementClockDueOn,
+  settlementMonths,
+} from './ctr-settlement-clock.ts';
+export type { SettlementClockGroup, SettlementClockReading, SettlementClockStart, SettlementClockState, SettlementDeadlineParams, StoredClockState } from './ctr-settlement-clock.ts';
+export {
+  ADJUSTMENT_CLASSES,
+  ADJUSTMENT_REVIEW_DECISIONS,
+  BASELINE_IMPACT_RULE_CODE,
+  BASELINE_IMPACT_RULE_TYPE,
+  adjustmentImpact,
+  assertReview as assertAdjustmentReview,
+  baselineImpactDefaults,
+  baselineImpactOf,
+  needsReview as adjustmentNeedsReview,
+  pct2 as percentTwoDecimals,
+} from './ctr-adjustment.ts';
+export type { AdjustmentClass, AdjustmentImpact, AdjustmentInput, AdjustmentReviewDecision, BaselineImpactPolicy } from './ctr-adjustment.ts';
+export { LINKAGE_CODES, judgeLinkage } from './ctr-linkage.ts';
+export type { LinkageCode, LinkageFacts, LinkageFinding, LinkageReading } from './ctr-linkage.ts';

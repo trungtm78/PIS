@@ -174,6 +174,8 @@ export const JOB_INTERVAL_SECONDS = {
   'alert-escalation': 900,
   // Every 15 minutes: the places where an alert has nobody to receive it (an absence nobody covers, an owner who left, a position with nobody present) are opened and closed as gaps, and the items of people who left go up to the leadership of their place; the pass is idempotent (G2-7).
   'alert-coverage': 900,
+  // Hourly: the clock of the settlement file of a completed contract is started and the clock of a contract whose file was handed in is ended (G1-18); the state near or overdue is read from the day, not stored.
+  'contract-settlement-clock': 3600,
   'access-cache-expiry': 60,
 } as const;
 
@@ -378,6 +380,7 @@ export interface StandardJobDeps {
   astClaimOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
+  contractSettlementClock?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Alerts the advances that are owed and not recovered in time, each level once, asks ISS for one issue and escalates it a week later (ST-PAY-011); sets the gauge of the overdue ones. */
   advanceOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
@@ -1326,6 +1329,13 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await alertCoverage.run(workerContext(tenantId), now)));
+  const settlementClocks = deps.contractSettlementClock;
+  if (settlementClocks !== undefined) {
+    handlers.push({
+      name: 'contract-settlement-clock',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await settlementClocks.run(workerContext(tenantId), now)));
       },
     });
   }

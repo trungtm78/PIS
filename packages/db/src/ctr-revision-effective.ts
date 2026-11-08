@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { compareDecimal, valueFloorVnd, vietnamDateOf } from '@machvon/kernel';
 import type { AuditWriter } from './audit-writer.ts';
+import { CONTRACT_ADJUSTMENT_RECORDED_EVENT, CONTRACT_ADJUSTMENT_RESOURCE, CtrAdjustmentStore } from './ctr-adjustment-store.ts';
 import { enqueueOutbox } from './outbox.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -63,6 +64,20 @@ export async function putRevisionInForce(tx: TenantTx, revision: { contractId: s
     'update machvon.contract set contract_value_vnd = $2::numeric, current_revision_id = $3::uuid, updated_at = now(), updated_by = $4::uuid, version = version + 1 where id = $1::uuid returning version::text as version',
     [revision.contractId, revision.amountVnd, revision.revisionId, revision.actor],
   );
+  // G1-18: the version that has just taken effect is an adjustment of the contract; what it did to the value and to the baseline of the project is written once, with the class the rule gives it.
+  const adjustment = await new CtrAdjustmentStore().record(tx, { contractId: revision.contractId, revisionId: revision.revisionId, actor: revision.actor, now: new Date() });
+  if (adjustment !== undefined) {
+    await enqueueOutbox(tx, {
+      aggregateType: CONTRACT_ADJUSTMENT_RESOURCE,
+      aggregateId: adjustment.id,
+      aggregateVersion: 1,
+      type: CONTRACT_ADJUSTMENT_RECORDED_EVENT,
+      schemaVersion: 1,
+      payload: { contract_id: adjustment.contract.id, project_id: adjustment.project.id, revision: adjustment.revision, classification: adjustment.classification, review_status: adjustment.reviewStatus },
+      eventKey: `${CONTRACT_ADJUSTMENT_RESOURCE}:${adjustment.id}:recorded`,
+      correlationId: randomUUID(),
+    });
+  }
   return { supersededId: superseded[0]?.id ?? null, fromValueVnd: before[0]?.contract_value_vnd ?? '0', version: Number(after[0]?.version ?? '0') };
 }
 

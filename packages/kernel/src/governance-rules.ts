@@ -23,6 +23,8 @@ import { HUB_POLICY_PARAMS, hubAlertSeeds, hubAlertSource, hubFreshnessDefaults,
 import { REALLOCATION_POLICY_DEFAULT_CODE, REALLOCATION_POLICY_RULE_TYPE, reallocationPolicyDefaults, reallocationPolicyOf } from './cap-reallocation-impact.ts';
 import { PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, RETURN_REASON_CATEGORIES, RETURN_REASON_DEFAULTS, RETURN_REASON_SIDES, paymentClockDefaults as payClockDefaults, paymentClockParams as payClockParams, returnReasonParams } from './pay-clock.ts';
 import { ACCURACY_RULE_CODE, ACCURACY_RULE_TYPE, MILESTONE_RULE_CODE, MILESTONE_RULE_TYPE, MONTH_DAY_PATTERN, accuracyDefaults, accuracyPolicyOf, milestoneDefaults, milestonePolicyOf } from './dis-milestone-forecast.ts';
+import { BASELINE_IMPACT_RULE_CODE, BASELINE_IMPACT_RULE_TYPE, baselineImpactDefaults, baselineImpactOf } from './ctr-adjustment.ts';
+import { CONTRACT_SETTLEMENT_RULE_TYPE, SETTLEMENT_CLOCK_STARTS, settlementDeadlineDefaults, settlementDeadlineParams } from './ctr-settlement-clock.ts';
 import { message } from './messages.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
@@ -2008,9 +2010,41 @@ export const registerPaymentClockRules = (): void =>
   });
 
 /** The settlement deadlines of a contract and the impact of an adjustment version on the baseline (G1-18). */
+const SETTLEMENT_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'CONTRACT_SETTLEMENT_NEAR', source: 'SETTLEMENT_CLOCK', owner: 'CONTRACT_MANAGER', action: message('gov.rules.settlement_alert_seeds.action.contract_settlement_near'), consequence: message('gov.rules.settlement_alert_seeds.consequence.contract_settlement_near'), hours: 168, severity: 'WATCH', why: message('gov.rules.settlement_alert_seeds.why.contract_settlement_near') },
+  { code: 'CONTRACT_SETTLEMENT_OVERDUE', source: 'SETTLEMENT_CLOCK', owner: 'CONTRACT_MANAGER', action: message('gov.rules.settlement_alert_seeds.action.contract_settlement_overdue'), consequence: message('gov.rules.settlement_alert_seeds.consequence.contract_settlement_overdue'), hours: 48, severity: 'ACTION', why: message('gov.rules.settlement_alert_seeds.why.contract_settlement_overdue') },
+  { code: 'CONTRACT_BASELINE_REVIEW', source: 'CONTRACT_ADJUSTMENT', owner: 'PROJECT_OWNER', action: message('gov.rules.settlement_alert_seeds.action.contract_baseline_review'), consequence: message('gov.rules.settlement_alert_seeds.consequence.contract_baseline_review'), hours: 120, severity: 'ACTION', why: message('gov.rules.settlement_alert_seeds.why.contract_baseline_review') },
+];
+
 export const registerSettlementClockRules = (): void =>
   once('gov11-settlement-clock', () => {
     registerCoreRules();
+    const source = message('gov.rules.register_settlement_clock_rules.source');
+    registerRuleType({
+      type: CONTRACT_SETTLEMENT_RULE_TYPE,
+      ownerModule: 'CTR',
+      modules: ['CTR', 'PAY', 'HOME'],
+      formula: message('gov.rules.register_settlement_clock_rules.formula.contract_settlement_deadline'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { months_by_group: shape({ QTQG: int(1, 60), A: int(1, 60), B: int(1, 60), C: int(1, 60) }), default_months: int(1, 60), starts_on: oneOf(...SETTLEMENT_CLOCK_STARTS), near_days: int(1, 120) },
+      refine: refineWith(settlementDeadlineParams),
+      defaults: { DEFAULT: rule(plain(settlementDeadlineDefaults()) as unknown as RuleParams) },
+    });
+    registerRuleType({
+      type: BASELINE_IMPACT_RULE_TYPE,
+      ownerModule: 'CTR',
+      modules: ['CTR', 'PRJ', 'HOME'],
+      formula: message('gov.rules.register_settlement_clock_rules.formula.contract_baseline_impact'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { review_pct_of_baseline: num(0, 1000), review_pct_of_original: num(0, 1000), note_required: bool },
+      refine: refineWith(baselineImpactOf),
+      defaults: { [BASELINE_IMPACT_RULE_CODE]: rule(baselineImpactDefaults()) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(SETTLEMENT_ALERT_SEEDS, { source: message('gov.rules.register_settlement_clock_rules.source_2') }));
   });
 
 /** The look-ahead window and the lessons learned at the closing gate (G1-19). */

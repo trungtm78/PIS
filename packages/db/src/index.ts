@@ -1784,3 +1784,8 @@ export type { AccuracyUnit, AccuracyView, AlertMilestone, MilestoneBoard, Milest
 // GOV-11 PAY (G1-17): the clock of the Treasury control.
 export { PAYMENT_CLOCK_RESOURCE, PayClockStore } from './pay-clock-store.ts';
 export type { ClockBoard, ClockFilter, ClockRuleReading, PaymentClockRow, ReasonReading } from './pay-clock-store.ts';
+// GOV-11 CTR (G1-18): the settlement clocks and the adjustment versions of contracts.
+export { CtrSettlementClockStore, SETTLEMENT_CLOCK_MET_EVENT, SETTLEMENT_CLOCK_RESOURCE, SETTLEMENT_CLOCK_STARTED_EVENT } from './ctr-settlement-clock-store.ts';
+export type { SettlementClockFilter, SettlementClockRow, SettlementRuleReading, SyncResult as SettlementClockSyncResult } from './ctr-settlement-clock-store.ts';
+export { CONTRACT_ADJUSTMENT_RECORDED_EVENT, CONTRACT_ADJUSTMENT_RESOURCE, CONTRACT_ADJUSTMENT_REVIEWED_EVENT, CtrAdjustmentStore, adjustmentRecord } from './ctr-adjustment-store.ts';
+export type { AdjustmentRow, ReviewResult as AdjustmentReviewResult } from './ctr-adjustment-store.ts';

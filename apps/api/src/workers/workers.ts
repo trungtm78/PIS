@@ -76,6 +76,8 @@ import {
   EarlyWarningScoreJob,
   PayAdvanceOverdueJob,
   PaySettlementDeadlineJob,
+  CtrSettlementClockStore,
+  enqueueOutbox as enqueueSettlementClockEvent,
   PmtPermitExpiry,
   PmtPermitTypeStore,
   PmtWaiverExpiry,
@@ -223,6 +225,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const claimOverdue = new AstClaimOverdueJob(audit, deps.metrics);
   const audRecoveries = new AudRecoveryReconcileJob(audit, deps.metrics);
   const settlementDeadlines = new PaySettlementDeadlineJob(audit, deps.metrics);
+  const settlementClocks = new CtrSettlementClockStore();
   const advanceOverdue = new PayAdvanceOverdueJob(audit);
   const earlyWarningScore = new EarlyWarningScoreJob(audit);
   const diaryCoverage = new QmsDiaryCoverageJob(deps.metrics);
@@ -366,6 +369,12 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     },
     invitationExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => invitationExpiry.run(tx, ctx.membershipId, now)) },
     overrideExpiry: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => overrides.expireDue(tx, now)) },
+    contractSettlementClock: {
+      run: (ctx, now) =>
+        deps.tenants.withTenant(ctx, (tx) =>
+          settlementClocks.sync(tx, ctx.membershipId, audit, async (event) => void (await enqueueSettlementClockEvent(tx, { aggregateType: 'contract_settlement_clock', aggregateVersion: 1, schemaVersion: 1, ...event })), now),
+        ),
+    },
     accessCache: deps.accessCache,
   });
 
