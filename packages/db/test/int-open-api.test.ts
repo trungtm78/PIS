@@ -551,6 +551,42 @@ describe('the open interface: systems, codes, machine accounts, certified datase
         expect(await rowsOf(await connect(readerB), 'select 1 from v_disbursement_lines')).toHaveLength(3);
       });
 
+      it('keeps the two datasets apart: closing DS-DISB leaves DS-CTR open, and the lines of DS-DISB stay closed to a reader of DS-CTR', async () => {
+        const b = await connect(readerB);
+        const disb = (await as((tx) => datasets.state(tx, NOW), MAKER, TENANT_B)).find((row) => row.datasetCode === 'DS-DISB') as { version: number };
+        await as((tx) => datasets.set(tx, 'DS-DISB', disb.version, { enabled: false, productId: null, reason: REASON }, memberId(MAKER), NOW), MAKER, TENANT_B);
+        expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toEqual([]);
+        expect(await rowsOf(b, 'select id from machvon.period_snapshot_line')).toEqual([]);
+        expect(await rowsOf(b, 'select 1 from v_contract_lines')).toHaveLength(1);
+        const catalogue = await rowsOf(b, 'select dataset_code, is_open from v_dataset_catalogue order by dataset_code');
+        expect(catalogue).toEqual([{ dataset_code: 'DS-CTR', is_open: true }, { dataset_code: 'DS-DISB', is_open: false }]);
+        const again = (await as((tx) => datasets.state(tx, NOW), MAKER, TENANT_B)).find((row) => row.datasetCode === 'DS-DISB') as { version: number };
+        await as((tx) => datasets.set(tx, 'DS-DISB', again.version, { enabled: true, productId: productB, reason: REASON }, memberId(MAKER), NOW), MAKER, TENANT_B);
+        expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toHaveLength(3);
+      });
+
+      it('is closed to its logins while the tenant is suspended for a security incident, and open again when it is not', async () => {
+        const b = await connect(readerB);
+        expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toHaveLength(3);
+        const admin = new Client({ connectionString: harness.database.adminUrl });
+        await admin.connect();
+        try {
+          await admin.query("insert into machvon.placement (id, kind, region, db_cluster_ref, kms_key_ref, status) values ($1, 'POOL', 'vn-north', 'cluster-1', 'kms-1', 'Active') on conflict do nothing", ['00000000-0000-4000-8000-0000000000b1']);
+          await admin.query("insert into machvon.tenant (id, code, name, status, placement_id, region) values ($1, 'tenant-b', 'tenant-b', 'Active', $2, 'vn-north') on conflict (id) do nothing", [TENANT_B, '00000000-0000-4000-8000-0000000000b1']);
+          await admin.query("update machvon.tenant set status = 'Suspended', lifecycle_reason = 'SECURITY_INCIDENT' where id = $1", [TENANT_B]);
+          expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toEqual([]);
+          expect(await rowsOf(b, 'select id from machvon.period_snapshot')).toEqual([]);
+          expect((await rowsOf(b, "select machvon_bi.tenant_of(current_user::text) as tenant"))[0]).toEqual({ tenant: null });
+          // A suspension for another reason is a read-only mode, which a reader may still read.
+          await admin.query("update machvon.tenant set lifecycle_reason = 'NON_PAYMENT' where id = $1", [TENANT_B]);
+          expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toHaveLength(3);
+          await admin.query("update machvon.tenant set status = 'Active', lifecycle_reason = null where id = $1", [TENANT_B]);
+          expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toHaveLength(3);
+        } finally {
+          await admin.end();
+        }
+      });
+
       it('shows only FROZEN snapshots: a superseded one is not read', async () => {
         const b = await connect(readerB);
         expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toHaveLength(3);
