@@ -29,6 +29,13 @@ import { CONTRACT_SETTLEMENT_RULE_TYPE, SETTLEMENT_CLOCK_STARTS, settlementDeadl
 import { LESSONS_RULE_TYPE, LOOK_AHEAD_RULE_TYPE, POLICY_RULE_CODE, lessonsDefaults, lessonsPolicyOf, lookAheadDefaults, lookAheadPolicyOf } from './prj-look-ahead.ts';
 import { EXEC_RULE_TYPES } from './ana-rules.ts';
 import { message } from './messages.ts';
+import { VND2_TEXT } from './messages/vnd2-texts.ts';
+import { INDEPENDENCE_POLICY_DEFAULTS, VENDOR_INDEPENDENCE_RULE_TYPE, independencePolicyOf } from './vendor-independence.ts';
+import { CAPACITY_POLICY_DEFAULTS, FINANCE_POLICY_DEFAULTS, VENDOR_CAPACITY_RULE_TYPE, VENDOR_FINANCE_RULE_TYPE, capacityPolicyOf, financePolicyOf } from './vendor-finance.ts';
+import { BID_SECURITY_POLICY_DEFAULTS, VENDOR_BID_SECURITY_RULE_TYPE, bidSecurityPolicyOf } from './vendor-security.ts';
+import { SUBCONTRACT_POLICY_DEFAULTS, VENDOR_SUBCONTRACT_RULE_TYPE, subcontractPolicyOf } from './vendor-subcontract.ts';
+import { RISK_FACTORS, RISK_POLICY_DEFAULTS, RISK_TIERS, VENDOR_RISK_RULE_TYPE, riskParamsOf, riskPolicyOf } from './vendor-risk.ts';
+import { PERFORMANCE_POLICY_DEFAULTS, VENDOR_PERFORMANCE_RULE_TYPE, performancePolicyOf } from './vendor-performance.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
 import { EXPIRY_WARNING_DEFAULTS, expiryPolicyOf } from './vendor-qualification.ts';
@@ -1603,6 +1610,96 @@ export const registerVendorRules = (): void =>
     });
   });
 
+const VND2_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'VENDOR_INDEPENDENCE_FINDING', source: 'VENDOR', owner: 'EVALUATION_PANEL_CHAIR', action: VND2_TEXT.alerts.independence_finding.action, consequence: VND2_TEXT.alerts.independence_finding.consequence, hours: 24, severity: 'URGENT', why: VND2_TEXT.alerts.independence_finding.why },
+  { code: 'VENDOR_SECURITY_EXPIRY', source: 'VENDOR', owner: 'PROCUREMENT_OFFICER', action: VND2_TEXT.alerts.security_expiry.action, consequence: VND2_TEXT.alerts.security_expiry.consequence, hours: 48, severity: 'ACTION', why: VND2_TEXT.alerts.security_expiry.why },
+  { code: 'VENDOR_SUBCONTRACT_BREACH', source: 'VENDOR', owner: 'CONTRACT_MANAGER', action: VND2_TEXT.alerts.subcontract_breach.action, consequence: VND2_TEXT.alerts.subcontract_breach.consequence, hours: 72, severity: 'ACTION', why: VND2_TEXT.alerts.subcontract_breach.why },
+  { code: 'VENDOR_SUB_PAYMENT_CONFIRM', source: 'VENDOR', owner: 'CONTRACT_MANAGER', action: VND2_TEXT.alerts.sub_payment_confirm.action, consequence: VND2_TEXT.alerts.sub_payment_confirm.consequence, hours: 72, severity: 'ACTION', why: VND2_TEXT.alerts.sub_payment_confirm.why },
+  { code: 'VENDOR_PERFORMANCE_PUBLISH', source: 'VENDOR', owner: 'INVESTOR_REPRESENTATIVE', action: VND2_TEXT.alerts.performance_publish.action, consequence: VND2_TEXT.alerts.performance_publish.consequence, hours: 72, severity: 'ACTION', why: VND2_TEXT.alerts.performance_publish.why },
+  { code: 'VENDOR_PERFORMANCE_RESPONSE', source: 'VENDOR', owner: 'INVESTOR_REPRESENTATIVE', action: VND2_TEXT.alerts.performance_response.action, consequence: VND2_TEXT.alerts.performance_response.consequence, hours: 72, severity: 'ACTION', why: VND2_TEXT.alerts.performance_response.why },
+  { code: 'VENDOR_POOR_STREAK', source: 'VENDOR', owner: 'PROJECT_BOARD_HEAD', action: VND2_TEXT.alerts.poor_streak.action, consequence: VND2_TEXT.alerts.poor_streak.consequence, hours: 168, severity: 'WATCH', why: VND2_TEXT.alerts.poor_streak.why },
+  { code: 'VENDOR_CAPACITY_FINANCE', source: 'VENDOR', owner: 'EVALUATION_PANEL_CHAIR', action: VND2_TEXT.alerts.capacity_finance.action, consequence: VND2_TEXT.alerts.capacity_finance.consequence, hours: 168, severity: 'WATCH', why: VND2_TEXT.alerts.capacity_finance.why },
+  { code: 'VENDOR_RISK_REVIEW', source: 'VENDOR', owner: 'PROCUREMENT_MANAGER', action: VND2_TEXT.alerts.risk_review.action, consequence: VND2_TEXT.alerts.risk_review.consequence, hours: 120, severity: 'ACTION', why: VND2_TEXT.alerts.risk_review.why },
+];
+
+const vnd2Kpi = (key: keyof typeof VND2_TEXT.kpi, unit: 'PERCENT' | 'COUNT', owner: string): DefaultInput => {
+  const text = VND2_TEXT.kpi[key as Exclude<keyof typeof VND2_TEXT.kpi, 'source'>];
+  return rule(
+    { name: text.name, formula: text.formula, source: VND2_TEXT.kpi.source, unit, owner, decimals: unit === 'PERCENT' ? 1 : 0, refresh_hours: 24, numerator: text.numerator, denominator: text.denominator, period: 'AS_OF_NOW', allowed_lag_days: 1 },
+    'UNVERIFIED',
+    { formula: text.formula, source: VND2_TEXT.kpi.source },
+  );
+};
+
+/** The controls of contractors and suppliers (lane VND-2; packages/kernel/src/vendor-{independence,finance,security,subcontract,risk,performance}.ts): the independence limits, the finance and load lines, the bid security, the subcontract limits, the risk grade, the performance clocks, their alert types and the indicators of the register. */
+export const registerVendorControlsRules = (): void =>
+  once('vendor-controls', () => {
+    registerVendorRules();
+    const source = VND2_TEXT.source;
+    const modules = ['BID', 'CTR', 'PAY', 'AUD', 'HOME'];
+    const defs = (type: string, formula: string, schema: Record<string, FieldSpec>, refine: (params: Record<string, unknown>) => string | undefined, params: RuleParams, ownerModule = 'BID'): void =>
+      registerRuleType({ type, ownerModule, modules, formula, source, asOf: AS_OF, legalStatus: 'UNVERIFIED', schema, refine, defaults: { DEFAULT: rule(plain(params)) } });
+    defs(
+      VENDOR_INDEPENDENCE_RULE_TYPE,
+      VND2_TEXT.independence_formula,
+      { cross_ownership_investor_pct: int(1, 100), cross_ownership_bidders_pct: int(1, 100), former_official_months: int(0, 120), undecided_strong_blocks_award: bool },
+      refineWith(independencePolicyOf),
+      { ...INDEPENDENCE_POLICY_DEFAULTS },
+    );
+    defs(
+      VENDOR_FINANCE_RULE_TYPE,
+      VND2_TEXT.finance_formula,
+      { min_current_ratio_x100: int(0, 10_000), max_debt_to_assets_pct: int(1, 1000), min_interest_cover_x100: int(0, 100_000), revenue_years: int(1, 10), revenue_multiple_x100: int(0, 10_000), min_verified_years: int(1, 10) },
+      refineWith(financePolicyOf),
+      { ...FINANCE_POLICY_DEFAULTS },
+    );
+    defs(
+      VENDOR_CAPACITY_RULE_TYPE,
+      VND2_TEXT.capacity_formula,
+      { max_load_multiple_x100: int(10, 100_000), max_late_contracts: int(0, 1000), pending_award_weight_pct: int(0, 100) },
+      refineWith(capacityPolicyOf),
+      { ...CAPACITY_POLICY_DEFAULTS },
+    );
+    defs(
+      VENDOR_BID_SECURITY_RULE_TYPE,
+      VND2_TEXT.security_formula,
+      { validity_margin_days: int(0, 365), first_warning_days: int(0, 365), second_warning_days: int(0, 365), amount_below_enforcement: oneOf('BLOCK', 'WARN'), require_confirmation: bool },
+      refineWith(bidSecurityPolicyOf),
+      { ...BID_SECURITY_POLICY_DEFAULTS },
+      'PAY',
+    );
+    defs(
+      VENDOR_SUBCONTRACT_RULE_TYPE,
+      VND2_TEXT.subcontract_formula,
+      { prime_min_share_pct: int(0, 100), over_declared: oneOf('BLOCK', 'EXCEPTION'), undeclared_subcontractor: oneOf('BLOCK', 'EXCEPTION'), confirm_payment_within_days: int(1, 180), remind_before_days: int(0, 30) },
+      refineWith(subcontractPolicyOf),
+      { ...SUBCONTRACT_POLICY_DEFAULTS },
+      'CTR',
+    );
+    const riskSchema: Record<string, FieldSpec> = { medium_from: int(1, 1000), high_from: int(1, 1000), critical_from: int(1, 1000), restriction_floor: oneOf(...RISK_TIERS), dual_check_from: oneOf('HIGH', 'CRITICAL') };
+    for (const factor of RISK_FACTORS) riskSchema[`weight_${factor.toLowerCase()}`] = int(0, 100);
+    for (const tier of RISK_TIERS) riskSchema[`review_months_${tier.toLowerCase()}`] = int(1, 120);
+    defs(VENDOR_RISK_RULE_TYPE, VND2_TEXT.risk_formula, riskSchema, refineWith(riskPolicyOf), riskParamsOf(RISK_POLICY_DEFAULTS));
+    defs(
+      VENDOR_PERFORMANCE_RULE_TYPE,
+      VND2_TEXT.performance_formula,
+      { publish_within_months: int(1, 60), remind_before_days: int(0, 180), review_response_days: int(1, 180), poor_streak_remedy: int(1, 20), poor_streak_restriction: int(1, 20), retrospect_years: int(1, 30), retrospect_years_construction: int(1, 30) },
+      refineWith(performancePolicyOf),
+      { ...PERFORMANCE_POLICY_DEFAULTS },
+      'CTR',
+    );
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(VND2_ALERT_SEEDS, { source }));
+    registerRuleDefaults('KPI_DEFINITION', {
+      VENDOR_INDEPENDENCE_CHECKED: vnd2Kpi('independence_checked', 'PERCENT', 'PROCUREMENT_MANAGER'),
+      VENDOR_RISK_REVIEW_IN_TIME: vnd2Kpi('risk_review_in_time', 'PERCENT', 'PROCUREMENT_MANAGER'),
+      VENDOR_HIGH_RISK_CONTRACTORS: vnd2Kpi('high_risk_contractors', 'COUNT', 'PROCUREMENT_MANAGER'),
+      VENDOR_PERFORMANCE_PUBLISHED_IN_TIME: vnd2Kpi('performance_published_in_time', 'PERCENT', 'INVESTOR_REPRESENTATIVE'),
+      VENDOR_RESPONSE_REVIEWED_IN_TIME: vnd2Kpi('response_reviewed_in_time', 'PERCENT', 'INVESTOR_REPRESENTATIVE'),
+      VENDOR_SECURITY_CONFIRMED: vnd2Kpi('security_confirmed', 'PERCENT', 'PROCUREMENT_OFFICER'),
+      VENDOR_SUB_PAYMENT_CONFIRMED: vnd2Kpi('sub_payment_confirmed', 'PERCENT', 'CONTRACT_MANAGER'),
+    });
+  });
+
 const CLAIM_ALERT_SEEDS: readonly AlertTypeSeed[] = [
   { code: 'CLAIM_LIMITATION_APPROACHING', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_approaching'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_approaching'), hours: 48, severity: 'ACTION', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_approaching') },
   { code: 'CLAIM_LIMITATION_MISSED', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_missed'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_missed'), hours: 24, severity: 'URGENT', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_missed') },
@@ -2245,6 +2342,7 @@ export function registerAllGovernanceRules(): void {
   registerProcurementWorkflowRules();
   registerApprovalWorkflowRules();
   registerVendorRules();
+  registerVendorControlsRules();
   registerClaimRules();
   registerAlertGovernanceRules();
   registerGov10Rules();

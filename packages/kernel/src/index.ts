@@ -2550,6 +2550,13 @@ export * from './vendor-payee.ts';
 export * from './vendor-qualification.ts';
 export * from './vendor-restriction.ts';
 export * from './vendor-defaults.ts';
+// VND-2: independence, finance and load, bid security, subcontracts, risk grade and performance publication (docs/vendor-controls.md).
+export * from './vendor-independence.ts';
+export * from './vendor-finance.ts';
+export * from './vendor-security.ts';
+export * from './vendor-subcontract.ts';
+export * from './vendor-risk.ts';
+export * from './vendor-performance.ts';
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export * from './ctr-claim.ts';
 export * from './ctr-early-warning.ts';
