@@ -2797,6 +2797,7 @@ export {
   evaluateCommitteeAlerts,
   expectedPctOn,
   figuresOf,
+  filterFacts,
   outlookBandOf,
   percentText as committeePercentText,
   pointsBetween,
@@ -2819,6 +2820,7 @@ export type {
   CommitteeWorkspace,
   Dimension,
   DirectiveUnitFigure,
+  FactsFilter,
   OutlookBand,
   OutlookEstimate,
   OutlookInput,
@@ -2830,3 +2832,5 @@ export type {
 export { SEED_UNIT_IDS, seedId, seedProvinceFacts } from './committee-seed.ts';
 export type { SeedOptions } from './committee-seed.ts';
 export { COMMITTEE_PACK_TEXT } from './messages/committee-texts.ts';
+export { COMMITTEE_PACK_CODE, COMMITTEE_PACK_FORM_REF, COMMITTEE_PACK_INDICATORS, COMMITTEE_PACK_LAYOUT, COMMITTEE_PACK_SHEET, COMMITTEE_PACK_VERSION, packDatasetsOf, packFeedLine } from './committee-pack-form.ts';
+export type { PackDirectiveUnit } from './committee-pack-form.ts';

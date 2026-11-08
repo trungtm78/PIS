@@ -527,3 +527,27 @@ export interface ViewAuditFacts {
   recordCount: number | null;
   assurance: AssuranceLevel;
 }
+
+export interface FactsFilter {
+  sectorCode?: string | undefined;
+  districtCode?: string | undefined;
+  investorUnitId?: string | undefined;
+  fundSourceCode?: string | undefined;
+}
+
+/** The facts the filters leave: the projects that match every filter given, their lines (only those of the funding source when one is given) and the units that implement them. No filter gives the facts as they are. */
+export function filterFacts(facts: ProvinceFacts, filter: FactsFilter): ProvinceFacts {
+  if (filter.sectorCode === undefined && filter.districtCode === undefined && filter.investorUnitId === undefined && filter.fundSourceCode === undefined) return facts;
+  const lines = facts.lines.filter((line) => filter.fundSourceCode === undefined || line.fundSourceCode === filter.fundSourceCode);
+  const withLines = new Set(lines.map((line) => line.projectId));
+  const projects = facts.projects.filter(
+    (project) =>
+      (filter.sectorCode === undefined || project.sectorCode === filter.sectorCode) &&
+      (filter.districtCode === undefined || project.districtCode === filter.districtCode) &&
+      (filter.investorUnitId === undefined || project.investorUnitId === filter.investorUnitId) &&
+      (filter.fundSourceCode === undefined || withLines.has(project.projectId)),
+  );
+  const kept = new Set(projects.map((project) => project.projectId));
+  const units = new Set(projects.map((project) => project.investorUnitId));
+  return { ...facts, projects, lines: lines.filter((line) => kept.has(line.projectId)), units: facts.units.filter((unit) => units.has(unit.unitId)) };
+}
