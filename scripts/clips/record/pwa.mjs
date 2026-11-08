@@ -5,11 +5,14 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { freemem } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FFMPEG } from '../../hdsd/tts.mjs';
 import { argument } from '../common.mjs';
 import { withPersona } from './scene.mjs';
+
+/** The Vietnamese words of the recording (headlines of the screens, the text of the loading state) live in pwa-texts.json, not in code. */
+const TEXTS = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'pwa-texts.json'), 'utf8'));
 
 /** The viewport of the phone (CSS pixels) and the size of the film: twice the viewport, portrait. */
 export const VIEWPORT = { width: 360, height: 780 };
@@ -17,10 +20,10 @@ export const FILM = { width: 720, height: 1560 };
 
 /** The screens of the PWA in the order of the story: the start page (install), then the three manager screens. */
 export const PWA_SCREENS = [
-  { key: 'pwa-start', path: '/m', screen: 'PWA-01', headline: 'Cài lên màn hình chính' },
-  { key: 'pwa-approvals', path: '/m/approvals', screen: 'PWA-02', headline: 'Hàng đợi phê duyệt' },
-  { key: 'pwa-dashboard', path: '/m/dashboard', screen: 'PWA-03', headline: 'Dashboard điều hành' },
-  { key: 'pwa-directives', path: '/m/directives', screen: 'PWA-04', headline: 'Theo dõi chỉ đạo' },
+  { key: 'pwa-start', path: '/m', screen: 'PWA-01', headline: TEXTS['headline.pwa-start'] },
+  { key: 'pwa-approvals', path: '/m/approvals', screen: 'PWA-02', headline: TEXTS['headline.pwa-approvals'] },
+  { key: 'pwa-dashboard', path: '/m/dashboard', screen: 'PWA-03', headline: TEXTS['headline.pwa-dashboard'] },
+  { key: 'pwa-directives', path: '/m/directives', screen: 'PWA-04', headline: TEXTS['headline.pwa-directives'] },
 ];
 
 /** Makes the page believe it runs as an installed application: `display-mode: standalone` matches, and `navigator.standalone` is true. */
@@ -72,7 +75,7 @@ export async function recordScreen(browser, { baseUrl, entry, persona, seconds, 
   const started = Date.now();
   await page.goto(`${baseUrl.replace(/\/+$/u, '')}${withPersona(entry.path, persona)}`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('h1, h2', { timeout: 30000 }).catch(() => undefined);
-  await page.waitForFunction(() => !globalThis.document.body.innerText.includes('Đang tải') && globalThis.document.body.innerText.length > 120, null, { timeout: 15000 }).catch(() => undefined);
+  await page.waitForFunction((marker) => !globalThis.document.body.innerText.includes(marker) && globalThis.document.body.innerText.length > 120, TEXTS.loadingMarker, { timeout: 15000 }).catch(() => undefined);
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => undefined);
   const contentAt = Date.now() - started;
   await sleep(1800);
@@ -132,7 +135,7 @@ async function main(argv) {
   const indexFile = join(out, 'index.json');
   const index = readIndex(indexFile);
   for (const item of made) index.scenes[`${item.entry.key}.${edition}`] = { scene: item.entry.key, edition, file: item.file, durationMs: seconds * 1000, persona, headline: item.entry.headline, kind: 'pwa', display: 'standalone', screen: item.entry.screen };
-  index.scenes[`ph-pwa.${edition}`] = { scene: 'ph-pwa', edition, file: joined, durationMs: seconds * 1000 * made.length, persona, headline: 'Ứng dụng web cài trên điện thoại (PWA)', kind: 'pwa', display: 'standalone', parts: made.map((item) => item.entry.key) };
+  index.scenes[`ph-pwa.${edition}`] = { scene: 'ph-pwa', edition, file: joined, durationMs: seconds * 1000 * made.length, persona, headline: TEXTS['headline.scene'], kind: 'pwa', display: 'standalone', parts: made.map((item) => item.entry.key) };
   const temporary = `${indexFile}.${process.pid}.tmp`;
   writeFileSync(temporary, `${JSON.stringify(index, null, 2)}\n`);
   renameSync(temporary, indexFile);

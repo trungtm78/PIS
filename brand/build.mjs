@@ -3,7 +3,7 @@
 //   <out>/logo-*.png          2048 px exports for the film composition and the documents (Playwright, no new dependency)
 //   <out>/brand.json          the index: colours, files, taglines
 // Usage: node --disable-warning=ExperimentalWarning brand/build.mjs [--out D:\PIS-clips-out\brand] [--no-png]
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARK_PALETTES } from '../apps/web/src/brand/palettes.ts';
@@ -20,8 +20,9 @@ const logoDir = join(here, 'logo');
 const fontFile = (weight) => join(root, 'apps', 'mobile', 'assets', 'fonts', `BeVietnamPro-${weight}.ttf`);
 const fonts = { bold: loadFont(fontFile('Bold')), semi: loadFont(fontFile('SemiBold')), medium: loadFont(fontFile('Medium')), regular: loadFont(fontFile('Regular')) };
 
-/** The wordmark is the Vietnamese name of the capital flow behind the internal code name MACHVON. */
-const WORDMARK = 'MẠCH VỐN';
+/** The Vietnamese words of the brand (the wordmark, the names and the taglines of the editions) live in `brand/copy.json`, not in code. The wordmark is the Vietnamese name of the capital flow behind the internal code name MACHVON. */
+const COPY = JSON.parse(readFileSync(join(here, 'copy.json'), 'utf8'));
+const WORDMARK = COPY.wordmark;
 
 /** The colours come from the web source (apps/web/src/brand/palettes.ts), the one place both the product and these files read. */
 const dark = (id) => {
@@ -37,18 +38,18 @@ export const EDITIONS = {
   public: {
     id: 'public',
     wordmark: WORDMARK,
-    productName: 'Hệ thống quản lý đầu tư công',
+    productName: COPY.editions.public.productName,
     productNameEn: 'Public Investment Management System',
-    tagline: 'Mạch vốn thông suốt, đầu tư công minh bạch',
+    tagline: COPY.editions.public.tagline,
     dark: dark('public'),
     light: light('public'),
   },
   enterprise: {
     id: 'enterprise',
     wordmark: WORDMARK,
-    productName: 'Phần mềm quản lý đầu tư xây dựng',
+    productName: COPY.editions.enterprise.productName,
     productNameEn: 'Construction Investment Management Software',
-    tagline: 'Vốn đến đúng công trình, việc đúng tiến độ',
+    tagline: COPY.editions.enterprise.tagline,
     dark: dark('enterprise'),
     light: light('enterprise'),
   },
@@ -157,7 +158,7 @@ function iconOnly(edition) {
 export function build() {
   mkdirSync(logoDir, { recursive: true });
   const jobs = [];
-  const index = { name: 'MẠCH VỐN', codeName: 'MACHVON', version: 1, generatedBy: 'brand/build.mjs', font: 'Be Vietnam Pro (OFL), words drawn as outlines', output: outDir, editions: {} };
+  const index = { name: WORDMARK, codeName: 'MACHVON', version: 1, generatedBy: 'brand/build.mjs', font: 'Be Vietnam Pro (OFL), words drawn as outlines', output: outDir, editions: {} };
   for (const edition of Object.values(EDITIONS)) {
     const id = edition.id;
     const files = {};

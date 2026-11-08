@@ -4,6 +4,7 @@ import { seedDoc } from '../platform-records/doc.ts';
 import { ensureDoaMatrix } from './doa.ts';
 import { seedClipBi } from './public-bi.ts';
 import { clipPlan } from './plan.ts';
+import TEXTS from '../data/enterprise-more.json' with { type: 'json' };
 
 /**
  * The groups of the enterprise dataset that reuse the groups of the guide on the enterprise plan (`applyClipPlan` swaps the tables of the guide for the ones of the plan):
@@ -36,8 +37,8 @@ export async function seedClipEnterpriseDocuments(ctx: SeedContext): Promise<voi
 
 /** The people of the BI board hold their permissions through roles the owner of the tenant makes and grants (IAM commands), as the AI board does in the guide seed. */
 const BI_ROLES = [
-  { person: 'projectManager', code: 'LAP_BI', name: 'Lập bảng điều hành', rank: 45, permissions: ['bi.dashboard.manage', 'bi.publish.request', 'bi.query', 'bi.dataset.build', 'bi.admin.read', 'bi.lineage.read'] },
-  { person: 'capApprover', code: 'DUYET_BI', name: 'Duyệt và công bố bảng điều hành', rank: 65, permissions: ['bi.publish', 'bi.query', 'bi.dashboard.share', 'bi.admin.read', 'bi.lineage.read', 'bi.dashboard.manage'] },
+  { person: 'projectManager', code: 'LAP_BI', name: TEXTS['biRole.lapBi.name'], rank: 45, permissions: ['bi.dashboard.manage', 'bi.publish.request', 'bi.query', 'bi.dataset.build', 'bi.admin.read', 'bi.lineage.read'] },
+  { person: 'capApprover', code: 'DUYET_BI', name: TEXTS['biRole.duyetBi.name'], rank: 65, permissions: ['bi.publish', 'bi.query', 'bi.dashboard.share', 'bi.admin.read', 'bi.lineage.read', 'bi.dashboard.manage'] },
 ];
 
 async function setUpBiBoard(ctx: SeedContext): Promise<void> {
@@ -48,7 +49,7 @@ async function setUpBiBoard(ctx: SeedContext): Promise<void> {
     else roleId = (await ctx.command('owner', '/roles', { code: role.code, name: role.name, permissions: role.permissions, rank: role.rank })).resource_id;
     const membershipId = ctx.person(role.person).membershipId;
     const granted = await ctx.find('owner', '/resources/role_grant', (row: Obj) => row.membership_id === membershipId && row.role_id === roleId && String(row.status).toUpperCase() === 'ACTIVE');
-    if (granted === undefined) await ctx.command('owner', '/role-grants', { membership_id: membershipId, role_id: roleId, scope_kind: 'TENANT', reason: 'Bảng điều hành lãnh đạo của Tổng công ty' });
+    if (granted === undefined) await ctx.command('owner', '/role-grants', { membership_id: membershipId, role_id: roleId, scope_kind: 'TENANT', reason: TEXTS['biRoleGrant.reason'] });
   }
 }
 

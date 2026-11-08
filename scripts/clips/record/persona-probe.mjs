@@ -5,6 +5,9 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/** The Vietnamese phrases that tell a refused or an empty screen live in persona-probe.json, not in code. */
+const PHRASES = JSON.parse(readFileSync(join(resolve(fileURLToPath(new URL('.', import.meta.url))), 'persona-probe.json'), 'utf8'));
+const phrase = (name) => new RegExp(PHRASES[name].source, PHRASES[name].flags);
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '..', '..', '..');
 const flag = (name) => {
   const at = process.argv.indexOf(`--${name}`);
@@ -13,8 +16,8 @@ const flag = (name) => {
 
 /** The verdict of the text of a screen. Pure. */
 export function verdictOf(text) {
-  if (/chưa có quyền truy cập|không có quyền/iu.test(text)) return 'REFUSED';
-  if (text.length < 700 && /chưa có dữ liệu|còn trống|không có .* nào|chưa có .* nào|hãy chọn|chọn một/iu.test(text)) return 'EMPTY';
+  if (phrase('refused').test(text)) return 'REFUSED';
+  if (text.length < 700 && phrase('empty').test(text)) return 'EMPTY';
   return 'DATA';
 }
 

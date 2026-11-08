@@ -1,0 +1,4 @@
+{
+  "refused": { "source": "chưa có quyền truy cập|không có quyền", "flags": "iu" },
+  "empty": { "source": "chưa có dữ liệu|còn trống|không có .* nào|chưa có .* nào|hãy chọn|chọn một", "flags": "iu" }
+}

@@ -3,7 +3,7 @@ import type { IconColors } from "../pwa/icon-art";
 /**
  * The colours of the mark for each edition (`brand/README.md`). The master shape is the same; only the colours differ. `tile` is the flat ground of a small icon (the
  * favicon, the shell, the phone icon); the film and the lockups of `brand/` use the gradient from `top` to `bottom` on the same ground. The public colours are tokens of the
- * design ("Xanh dầu điều hành") plus the gold of `color.fundCarryOver`; `npm run pwa:icons:check` keeps the PWA icons equal to them.
+ * design (the executive oil green) plus the gold of `color.fundCarryOver`; `npm run pwa:icons:check` keeps the PWA icons equal to them.
  */
 export interface MarkPalette {
   /** The ground of the tile, flat. */
