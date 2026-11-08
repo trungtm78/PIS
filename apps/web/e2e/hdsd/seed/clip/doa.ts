@@ -9,7 +9,8 @@ const DOCUMENT_TYPES = ['QD', 'CV', 'BC', 'GM', 'KH', 'TB', 'TTR', 'HD', 'BB', '
 
 export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
   const versions = await ctx.list<Obj>('owner', '/resources/doa_matrix_version');
-  if (versions.some((row) => row.status === 'PUBLISHED' || row.status === 'EFFECTIVE' || row.status === 'APPROVED')) return;
+  // A matrix that is neither a draft, in review nor turned down is the one in force (or was): the skip.
+  if (versions.some((row) => !['DRAFT', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN'].includes(String(row.status)))) return;
   const role = await ctx.find('owner', '/resources/role_definition', (row) => row.code === 'LANH_DAO_SO');
   if (role === undefined) throw new Error('the leader role LANH_DAO_SO does not exist on this stack');
   let draft = versions.find((row) => row.status === 'DRAFT' || row.status === 'IN_REVIEW');

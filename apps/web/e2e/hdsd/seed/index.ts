@@ -27,7 +27,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'field-assurance', seed: seedFieldAssurance },
   { name: 'procurement-finance', seed: seedProcurementFinance },
   { name: 'intelligence', seed: seedIntelligence },
-  { name: 'clip-public-documents', seed: async (ctx) => { await ctx.step('ADM', 'delegation of authority matrix', () => ensureDoaMatrix(ctx)); await seedDoc(ctx); } },
+  { name: 'clip-public-documents', seed: async (ctx) => { await ctx.step('ADM', 'delegation of authority matrix', () => ensureDoaMatrix(ctx)); try { await seedDoc(ctx); } catch (error) { ctx.warn(`the document seed of the guide stopped: ${error instanceof Error ? error.message.slice(0, 300) : String(error)}`); } } },
   { name: 'clip-public-procurement', seed: seedClipProcurement },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
   { name: 'clip-ent-funding', seed: seedClipEnterpriseFunding },

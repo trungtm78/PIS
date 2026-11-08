@@ -23,8 +23,39 @@ export async function portfolioChecks(plan, reader) {
   return checks;
 }
 
+/** Checks of procurement: the plans and packages of the plan, the contractors of the guide, and the workflows that exist. */
+export async function procurementChecks(plan, reader) {
+  const plans = await safe(() => reader.list('projectManager', '/procurement-plans'));
+  const packages = await safe(() => reader.list('projectManager', '/resources/procurement_package'));
+  const contractors = await safe(() => reader.list('projectManager', '/resources/contractor'));
+  const wanted = plan.procurement.plans.length;
+  return [
+    { name: 'procurement plans', value: plans === undefined ? undefined : plans.filter((row) => row.status !== 'CANCELLED').length, min: wanted },
+    { name: 'procurement packages', value: packages?.length, min: plan.expect.packages },
+    { name: 'contractors registered', value: contractors?.length, min: 16 },
+  ];
+}
+
+/** Checks of the enterprise dataset: the projects, the funding batches of the year (equity and loan), the directives and the accounting differences. */
+export async function enterpriseChecks(plan, reader) {
+  const codes = new Set(plan.projects.map((project) => project.code));
+  const projects = await safe(() => reader.list('projectManager', '/resources/project'));
+  const batches = await safe(() => reader.list('projectManager', '/funding-figures/batches', { plan_year: plan.planYear }));
+  const directives = await safe(() => reader.list('projectManager', '/directives'));
+  const differences = await safe(() => reader.list('projectManager', '/ebs/differences'));
+  const accepted = batches?.filter((row) => row.status === 'ACCEPTED' || row.status === 'SUPERSEDED') ?? [];
+  return [
+    { name: 'enterprise projects', value: projects === undefined ? undefined : projects.filter((row) => codes.has(row.code)).length, min: plan.expect.projectsTotal },
+    { name: 'equity batches accepted', value: batches === undefined ? undefined : accepted.filter((row) => row.class_code === 'EQUITY').length, min: plan.projects.length },
+    { name: 'loan batches accepted', value: batches === undefined ? undefined : accepted.filter((row) => row.class_code === 'LOAN').length, min: plan.projects.length },
+    { name: 'directives of the meetings', value: directives?.length, min: plan.expect.directives },
+    { name: 'accounting differences opened', value: differences?.length, min: 1 },
+  ];
+}
+
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
-  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader))];
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader))];
+  if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
   return [];
 }

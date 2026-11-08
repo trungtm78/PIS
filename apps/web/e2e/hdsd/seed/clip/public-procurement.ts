@@ -2,7 +2,7 @@ import { vndMillions } from '../context.ts';
 import type { CommandReply, Obj, SeedContext } from '../context.ts';
 import { asObj } from '../context.ts';
 import { linesOf, packageOf, projectOf } from '../procurement-finance/bid.ts';
-import { CHECKER, LEADER, MAKER, defineDocumentTypes, registerContractors } from '../procurement-finance/shared.ts';
+import { CHECKER, LEADER, MAKER, decisionInForce, defineDocumentTypes, registerContractors } from '../procurement-finance/shared.ts';
 import { clipPlan } from './plan.ts';
 import type { ClipPlan } from './plan.ts';
 
@@ -40,36 +40,54 @@ async function approvedPlanOf(ctx: SeedContext, block: PlanBlock, spec: PlanBloc
   }
   const projectId = String(project.id);
   const existing = (await ctx.list<Obj>(MAKER, '/procurement-plans', { project_id: projectId })).find((row) => row.status !== 'CANCELLED');
-  if (existing !== undefined) {
-    ctx.record({ module: 'BID', screen: 'BID-15', kind: 'procurement-plan', id: String(existing.id), code: spec.project, note: `existing ${String(existing.status)}` });
+  if (existing?.status === 'APPROVED') {
+    ctx.record({ module: 'BID', screen: 'BID-15', kind: 'procurement-plan', id: String(existing.id), code: spec.project, note: 'existing APPROVED' });
     return;
   }
-  const lines = await linesOf(ctx, projectId);
-  const line = lines[0];
-  if (line === undefined) {
-    ctx.warn(`the project ${spec.project} has no line of capital: its plan is left out`);
-    return;
+  // A plan left half way by an earlier run (a draft, or sent and waiting) is taken up where it stopped.
+  let id = existing === undefined ? '' : String(existing.id);
+  let version = existing === undefined ? 0 : Number(existing.version);
+  let status = existing === undefined ? 'NONE' : String(existing.status);
+  if (status === 'NONE') {
+    const line = (await linesOf(ctx, projectId))[0];
+    if (line === undefined) {
+      ctx.warn(`the project ${spec.project} has no line of capital: its plan is left out`);
+      return;
+    }
+    const made = await ctx.command(MAKER, '/procurement-plans', {
+      project_id: projectId,
+      title: spec.title,
+      legal_basis: block.legalBasis,
+      packages: spec.packages.map((item) => ({
+        code: item.code,
+        title: item.title,
+        budget_vnd: vndMillions(item.millions),
+        method: item.method,
+        contract_type: CONTRACT_TYPE_OF[item.category] ?? 'LUMP_SUM',
+        bidding_form: 'ONLINE',
+        allocation_line_id: String(line.id),
+        planned_start_period: item.period,
+        duration_days: item.days,
+      })),
+    });
+    id = made.resource_id;
+    version = made.resource_version;
+    status = 'DRAFT';
   }
-  const made = await ctx.command(MAKER, '/procurement-plans', {
-    project_id: projectId,
-    title: spec.title,
-    legal_basis: block.legalBasis,
-    packages: spec.packages.map((item) => ({
-      code: item.code,
-      title: item.title,
-      budget_vnd: vndMillions(item.millions),
-      method: item.method,
-      contract_type: CONTRACT_TYPE_OF[item.category] ?? 'LUMP_SUM',
-      bidding_form: 'ONLINE',
-      allocation_line_id: String(line.id),
-      planned_start_period: item.period,
-      duration_days: item.days,
-    })),
-  });
-  const sent = await ctx.command(MAKER, `/procurement-plans/${made.resource_id}/submit`, {}, { version: made });
-  const letter = await ctx.letter({ symbol: block.decisionLetter.symbol.replace('{n}', String(300 + index)), title: block.decisionLetter.title, sender: block.decisionLetter.sender, issuedOn: ctx.day(-30), person: MAKER });
-  await ctx.command(LEADER, `/procurement-plans/${made.resource_id}/decision`, { decision: 'APPROVE', decision_document_id: letter.documentId, comment: block.note }, { version: sent });
-  ctx.record({ module: 'BID', screen: 'BID-15', kind: 'procurement-plan', id: made.resource_id, code: spec.project, note: 'APPROVED' });
+  if (status === 'DRAFT') {
+    const sent = await ctx.command(MAKER, `/procurement-plans/${id}/submit`, {}, { version });
+    version = sent.resource_version;
+    status = 'IN_REVIEW';
+  }
+  // The decision must be an ISSUED decision of the office (an incoming letter is not in force): without one the plan waits for the leader.
+  const decision = await decisionInForce(ctx, index);
+  if (decision === undefined) {
+    ctx.warn(`no issued decision is in force: the plan of ${spec.project} waits in review`);
+  } else {
+    await ctx.command(LEADER, `/procurement-plans/${id}/decision`, { decision: 'APPROVE', decision_document_id: decision, comment: block.note }, { version });
+    status = 'APPROVED';
+  }
+  ctx.record({ module: 'BID', screen: 'BID-15', kind: 'procurement-plan', id, code: spec.project, note: status });
 }
 
 // ---- the package workflow ----------------------------------------------------------------------------------------------------------------
@@ -150,8 +168,8 @@ export async function seedClipProcurement(ctx: SeedContext): Promise<void> {
   for (const spec of block.plans) {
     for (const item of spec.packages) {
       const pack = await packageOf(ctx, item.code);
-      if (pack === undefined) {
-        ctx.warn(`the package ${item.code} does not exist`);
+      if (pack === undefined || String(pack.status) === 'DRAFT' || String(pack.status) === 'IN_REVIEW') {
+        ctx.warn(`the package ${item.code} is not approved yet: no workflow`);
         continue;
       }
       await ctx.step('BID', `workflow of ${item.code} to ${item.target}`, () => driveTo(ctx, String(pack.id), item.code, item.target, evidence.documentId, block.note));
