@@ -1098,6 +1098,16 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'listAiDecisionRecords',
   'listAiRequests',
   'getAiRequestRoute',
+  'getAiAssistRun',
+  'decideAiAssistRun',
+  'publishAiReviewChecklist',
+  'getAiReviewChecklist',
+  'publishAiEvalCriteriaSet',
+  'getAiEvalCriteriaSet',
+  'attestAiProvider',
+  'decideAiExternalException',
+  'revokeAiExternalException',
+  'getAiExternalException',
   'get_resources_llm_attempt',
   'get_resources_llm_attempt_id',
   'signAiEvalRun',
@@ -2261,6 +2271,18 @@ const INSERT_LLM_KILL = `insert into machvon.ai_kill_switch
 const INSERT_LLM_DECISION = `insert into machvon.ai_decision_record
   (tenant_id, id, ai_request_id, subject_module, subject_kind, subject_id, ai_output_sha256, action_kind, decision, rationale, decided_by)
   values ($1, $2, $3, 'PAY', 'alert', $2, $4, 'MONEY', 'ACCEPTED', $5, $6) on conflict do nothing`;
+const INSERT_AI_ASSIST_RUN = `insert into machvon.ai_assist_run
+  (tenant_id, id, kind, request_text, source_refs, status, asked_by)
+  values ($1, $2, 'QA', 'A question of this tenant', '[{"kind":"PROJECT","id":"00000000-0000-4000-8000-000000000001"}]'::jsonb, 'COMPLETED', $3) on conflict do nothing`;
+const INSERT_AI_CHECKLIST = `insert into machvon.ai_review_checklist
+  (tenant_id, id, code, revision, title, applies_to, status, created_by)
+  values ($1, $2, 'ISO-CHECKLIST', 1, 'A checklist of this tenant', 'DIS_REPORT', 'DRAFT', $3) on conflict do nothing`;
+const INSERT_AI_CRITERIA = `insert into machvon.ai_eval_criteria_set
+  (tenant_id, id, code, revision, title, scale_max, status, created_by)
+  values ($1, $2, 'ISO-CRITERIA', 1, 'A set of criteria of this tenant', 100, 'DRAFT', $3) on conflict do nothing`;
+const INSERT_AI_EXCEPTION = `insert into machvon.ai_external_exception
+  (tenant_id, id, provider_id, max_classification, reason, requested_by, requested_valid_days)
+  values ($1, $2, $3, 'PUBLIC', 'An exception of this tenant for a provider', $4, 7) on conflict do nothing`;
 const INSERT_LLM_RECONCILIATION = `insert into machvon.ai_invoice_reconciliation
   (tenant_id, id, provider_id, invoice_ref, invoice_amount, currency, period_from, period_to, attempts_total, variance, tolerance_pct, attempt_count, status, owner_id, created_by, updated_by)
   values ($1, $2, $3, $4, 1000, 'VND', '2026-01-01', '2026-01-31', 900, 100, 0.5, 1, 'VARIANCE', $5, $5, $5) on conflict do nothing`;
@@ -2790,6 +2812,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_ATTEMPT, [tenantId, llm.attemptId, llm.modelCode, llm.priceId, llm.requestId, `iso-${llm.attemptId}`]);
     await client.query(INSERT_LLM_KILL, [tenantId, llm.killId, llm.killScope, llm.killReason, ACTOR_ID]);
     await client.query(INSERT_LLM_DECISION, [tenantId, llm.decisionId, llm.requestId, 'd'.repeat(64), llm.decisionRationale, ACTOR_ID]);
+    await client.query(INSERT_AI_ASSIST_RUN, [tenantId, llm.assistRunId, ACTOR_ID]);
+    await client.query(INSERT_AI_CHECKLIST, [tenantId, llm.checklistId, ACTOR_ID]);
+    await client.query(INSERT_AI_CRITERIA, [tenantId, llm.criteriaSetId, ACTOR_ID]);
+    await client.query(INSERT_AI_EXCEPTION, [tenantId, llm.exceptionId, llm.providerId, ACTOR_ID]);
     // What an expert decided about the finding of the analysis: a row of its own that points at the finding and at the record of the decision of a person.
     await client.query(INSERT_ANALYSIS_REVIEW, [tenantId, analysis.reviewId, analysis.findingId, ACTOR_ID, analysis.reviewReason, llm.decisionId]);
     // The minutes of the evaluation of the package, drafted from the run.
