@@ -6,7 +6,6 @@ import { clipPlan } from './plan.ts';
 /**
  * Group `clip-public-bi`: the metrics of the platform and the dashboards of the leaders, through the real commands. The bundle of the metrics is built from the files of the repository
  * (scripts/bi-metrics-bundle.mjs, judged by the validator the server uses) and given INLINE to the sync (`syncMetricRegistry` takes the document itself when no pipeline stores the file);
- * the platform metrics arrive CERTIFIED. A dashboard is created and given a version over certified metrics by the officer, and published through a publication request that the leader approves (maker is not checker).
  * the platform metrics arrive CERTIFIED. A dashboard is created and given a version over certified metrics by the officer, and published by the leader on a document (maker is not checker).
  */
 
@@ -24,6 +23,7 @@ interface BiBlock {
   sourceCommit: string;
   dashboards: DashboardSpec[];
   publishReason: string;
+  evidence: { symbol: string; title: string; sender: string };
 }
 
 type BundleBuilder = (directory: string) => Promise<{ ok: boolean; bytes?: Buffer; problems?: string[]; count?: number }>;
@@ -56,7 +56,6 @@ async function dashboardWithVersion(ctx: SeedContext, spec: DashboardSpec, metri
     version = Number(known.version);
   }
   const saved = await ctx.attempt<CommandReply & { version_id?: string }>(MAKER, 'POST', `/bi/dashboards/${id}/versions`, {
-  const saved = await ctx.attempt<CommandReply>(MAKER, 'POST', `/bi/dashboards/${id}/versions`, {
     layout_json: { widgets: ids.map((metric, index) => ({ id: `w${index + 1}`, kind: 'BAR', metric_version_id: metric, dimension_code: 'unit', grid: { x: 0, y: index * 4, w: 12, h: 4 } })) },
     breakpoints: { sm: 640, md: 1024 },
     metric_versions: ids,
@@ -67,8 +66,8 @@ async function dashboardWithVersion(ctx: SeedContext, spec: DashboardSpec, metri
   // The version is published by the real procedure of BI-06: the maker asks (a publication request over the version), a second person approves.
   const versionId = String(saved.json.version_id ?? '');
   const asked = await ctx.attempt<CommandReply>(MAKER, 'POST', '/bi/publication-requests', { object_kind: 'DASHBOARD', object_id: versionId });
-  if (!asked.ok) return;
-  await ctx.attempt(LEADER, 'POST', `/bi/publication-requests/${asked.json.resource_id}/decision`, { decision: 'APPROVED', comment: block.publishReason }, { version: asked.json.resource_version });
+  // The request may be refused for the leader of this stack (docs/clip-data.md): the direct publication below is then the way.
+  if (asked.ok) await ctx.attempt(LEADER, 'POST', `/bi/publication-requests/${asked.json.resource_id}/decision`, { decision: 'APPROVED', comment: block.publishReason }, { version: asked.json.resource_version });
   const evidence = await ctx.letter({ symbol: block.evidence.symbol, title: block.evidence.title, sender: block.evidence.sender, issuedOn: ctx.day(-5) });
   const dashboard = await ctx.get<Obj>(LEADER, `/bi/dashboards/${id}`);
   await ctx.attempt(LEADER, 'POST', `/dashboards/${id}/publish`, { decision: 'approve', reason: block.publishReason, evidence_ids: [evidence.documentId] }, { version: Number(dashboard.version) });

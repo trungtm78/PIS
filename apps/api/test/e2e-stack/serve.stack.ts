@@ -100,11 +100,13 @@ const DAY_MS = 86_400_000;
 const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
 
 /** The theme defaults of the prototype (SAS-04): what a tenant shows until a System Admin brands it. */
+/** The enterprise clip (MACHVON_EDITION=enterprise with the docs seed) shows the brand of the enterprise, never the province of the public clip. */
+const ENTERPRISE_BRAND = process.env.MACHVON_EDITION === 'enterprise' && process.env.E2E_SEED === 'docs';
 const SEED_THEME: ThemeConfig = {
-  name: 'Cao Bằng',
-  title: 'Hệ Thống Lý Dự Án Đầu Tư Công',
-  subtitle: 'Không gian quản lý đầu tư công',
-  header: 'Cổng quản lý đầu tư công',
+  name: ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng',
+  title: ENTERPRISE_BRAND ? 'Phần mềm quản lý đầu tư xây dựng' : 'Hệ Thống Lý Dự Án Đầu Tư Công',
+  subtitle: ENTERPRISE_BRAND ? 'Không gian quản lý đầu tư xây dựng' : 'Không gian quản lý đầu tư công',
+  header: ENTERPRISE_BRAND ? 'Cổng quản lý đầu tư xây dựng' : 'Cổng quản lý đầu tư công',
   footer: '© 2026 · Thông tin thuộc phạm vi được phân quyền',
   address: 'Địa chỉ cơ quan · cập nhật theo tenant',
   email: 'hotro@donvi.example',
@@ -170,11 +172,11 @@ interface UnitSeed {
 
 const UNITS: Record<TenantName, UnitSeed[]> = {
   A: [
-    { n: 1, code: 'CB-HQ', name: 'Ủy ban nhân dân tỉnh Cao Bằng', chain: [1] },
-    { n: 2, code: 'CB-SKHDT', name: 'Sở Kế hoạch và Đầu tư', parent: 1, chain: [1, 2] },
-    { n: 3, code: 'CB-STC', name: 'Sở Tài chính', parent: 1, chain: [1, 3] },
-    { n: 4, code: 'CB-SKHDT-VP', name: 'Văn phòng Sở Kế hoạch và Đầu tư', parent: 2, chain: [1, 2, 4] },
-    { n: 5, code: 'CB-SKHDT-QLDA', name: 'Ban Quản lý dự án', parent: 2, chain: [1, 2, 5] },
+    { n: 1, code: 'CB-HQ', name: ENTERPRISE_BRAND ? 'Tổng công ty Đạm Phú Mỹ' : 'Ủy ban nhân dân tỉnh Cao Bằng', chain: [1] },
+    { n: 2, code: 'CB-SKHDT', name: ENTERPRISE_BRAND ? 'Ban Kế hoạch và Đầu tư' : 'Sở Kế hoạch và Đầu tư', parent: 1, chain: [1, 2] },
+    { n: 3, code: 'CB-STC', name: ENTERPRISE_BRAND ? 'Ban Tài chính Kế toán' : 'Sở Tài chính', parent: 1, chain: [1, 3] },
+    { n: 4, code: 'CB-SKHDT-VP', name: ENTERPRISE_BRAND ? 'Văn phòng Ban Kế hoạch và Đầu tư' : 'Văn phòng Sở Kế hoạch và Đầu tư', parent: 2, chain: [1, 2, 4] },
+    { n: 5, code: 'CB-SKHDT-QLDA', name: ENTERPRISE_BRAND ? 'Ban Quản lý dự án đầu tư' : 'Ban Quản lý dự án', parent: 2, chain: [1, 2, 5] },
   ],
   B: [
     { n: 1, code: 'LC-HQ', name: 'Ủy ban nhân dân tỉnh Lào Cai', chain: [1] },
@@ -1520,7 +1522,7 @@ const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
 /** The first published theme (version 1) of the three fixture tenants, as the provisioning saga will leave it: the prototype defaults under the name of the tenant. */
 async function seedThemes(control: ControlDatabase): Promise<void> {
   const themes = new ThemeStore();
-  const names: Readonly<Record<TenantName, string>> = { A: 'Cao Bằng', B: 'Lào Cai', C: 'Hà Giang' };
+  const names: Readonly<Record<TenantName, string>> = { A: ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng', B: 'Lào Cai', C: 'Hà Giang' };
   for (const name of Object.keys(names) as TenantName[]) {
     const tenantId = fixtures.tenants[name];
     const config = { ...SEED_THEME, name: names[name] };

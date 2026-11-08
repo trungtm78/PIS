@@ -1,5 +1,5 @@
 import type { Obj, SeedContext } from '../context.ts';
-import { clipText } from './plan.ts';
+import { clipPlan, clipText } from './plan.ts';
 
 /**
  * The delegation of authority matrix the signing of outgoing decisions needs (ADM-04): the leader role signs every kind of document of the
@@ -34,7 +34,7 @@ export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
     const sent = await ctx.command('projectManager', `/doa-matrices/${id}/submit`, { reason: clipText('doa.submit') }, { version });
     version = sent.resource_version;
   }
-  const basis = await ctx.letter({ symbol: '41/QD-UBND', title: clipText('doa.title'), issuedOn: ctx.day(-210) });
+  const basis = await ctx.letter({ symbol: clipPlan()?.dataset === 'enterprise' ? clipText('doa.symbol') : '41/QD-UBND', title: clipText('doa.title'), issuedOn: ctx.day(-210) });
   await ctx.command('capApprover', `/doa-matrices/${id}/decision`, { decision: 'approve', reason: clipText('doa.reason'), evidence_ids: [basis.documentId] }, { version });
   ctx.record({ module: 'ADM', screen: 'ADM-04', kind: 'doa-matrix', id, code: 'DOA', note: 'approved' });
 }

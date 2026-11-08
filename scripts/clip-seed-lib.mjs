@@ -6,10 +6,13 @@ import { createHash } from 'node:crypto';
 
 export const DATASETS = ['public', 'enterprise'];
 
+/** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, BI. */
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-workflow', 'clip-ent-bi'];
+
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
   public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee'],
-  enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports'],
+  enterprise: ENTERPRISE_GROUPS,
 };
 
 /**
@@ -32,7 +35,12 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-public-payments'], env: { CLIP_PAY_STAGE: 'CLOSE' } },
     { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee'] },
   ],
-  enterprise: [{ clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports'] }],
+  enterprise: [
+    { clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts'] },
+    // The package workflows are driven at seven clocks (each package has its own), so the process tree shows late steps beside the ones on time.
+    ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-ent-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
+    { clockDays: 0, groups: ['clip-ent-bi'] },
+  ],
 };
 
 /** The phases cut down to the groups asked for (all when none is asked), dropping the empty ones. */
@@ -311,7 +319,118 @@ export function buildEnterprise(dataset) {
       ebsRows.push({ project: project.code, period, disbursedMillions: disbursed + Math.round((disbursed * rng.int(diffLow, diffHigh)) / 100), committedMillions: Math.round(project.totalBillions * 1000 * 0.4) });
     }
   }
+  // The stages come last: the accounting file is made from the year plans of all the projects.
+  assignStages(dataset, projects);
   return { projects, ebsRows };
+}
+
+/**
+ * The stage each enterprise project is taken to (the dataset gives the stages of the projects of a kind in order): the funded ones get a national code and
+ * the capital of the year they were planned with, the others stay at the stage the list says.
+ */
+export function assignStages(dataset, projects) {
+  const stages = dataset.stagesPerKind ?? [];
+  let national = 7_893_000;
+  const seen = {};
+  for (const project of projects) {
+    const index = seen[project.kind] ?? 0;
+    seen[project.kind] = index + 1;
+    project.target = stages[index] ?? 'CONCEPT';
+    project.leader = index % 3 === 0 ? 'capApprover' : 'projectManager';
+    if (FUNDED.has(project.target)) {
+      national += 1;
+      project.national = String(national);
+    } else {
+      delete project.planBillions;
+    }
+  }
+}
+
+/** The appropriations and lines of capital of the enterprise plan: equity and loan, each wide enough for the lines drawn on it. */
+export function buildEnterpriseCapital(dataset, projects) {
+  const funded = projects.filter((project) => FUNDED.has(project.target) && project.planBillions !== undefined);
+  const lines = [];
+  for (const project of funded) {
+    lines.push({ project: project.code, appropriation: 'VCSH', billions: project.equityBillions });
+    lines.push({ project: project.code, appropriation: 'VAY', billions: project.loanBillions });
+  }
+  const sum = (key) => lines.filter((line) => line.appropriation === key).reduce((total, line) => total + line.billions, 0);
+  const appropriations = dataset.capital.appropriations.map((item) => ({ ...item, billions: sum(item.key) + dataset.capital.margin }));
+  return { lines, appropriations };
+}
+
+/**
+ * The tenders of the enterprise plan (shape of the PLANS of the guide seed): the first projects of each kind carry the packages of the templates, each sized as a
+ * share of the line of capital it draws on; a bidder number is a contractor of the table. Budgets never pass the line (checked by the tests).
+ */
+export function buildEnterpriseTenders(dataset, projects, lines) {
+  const out = [];
+  for (const spec of dataset.tenders) {
+    const picked = projects.filter((project) => project.kind === spec.kind && FUNDED.has(project.target)).slice(0, spec.projects);
+    for (const project of picked) {
+      const own = lines.filter((line) => line.project === project.code).sort((a, b) => b.billions - a.billions);
+      const code = project.code.replace('DA-', '');
+      out.push({
+        project: project.code,
+        title: spec.planTitle.replace('{project}', project.name),
+        fate: 'APPROVED',
+        packages: spec.packages.map((template) => {
+          const room = (own[template.line]?.billions ?? own[0].billions) * 1000;
+          const millions = Math.max(50, Math.floor(room * template.share));
+          return {
+            code: `${code}-${template.suffix}`,
+            title: template.title.replace('{project}', project.name),
+            millions,
+            method: template.method,
+            line: template.line,
+            period: template.period,
+            days: template.days,
+            category: template.category,
+            fate: template.fate,
+            ...(template.bidders === undefined ? {} : { bidders: template.bidders }),
+            ...(template.awardShare === undefined ? {} : { awardMillions: Math.floor(millions * template.awardShare) }),
+            ...(template.contract === undefined ? {} : { contract: template.contract }),
+            ...(template.awardedDaysAgo === undefined ? {} : { awardedDaysAgo: template.awardedDaysAgo }),
+          };
+        }),
+      });
+    }
+  }
+  return out;
+}
+
+/** The enterprise packages that go through the process tree: the funded projects without tenders, with the workflow targets of the dataset spread over them. */
+export function buildEnterpriseWorkflow(dataset, projects, lines, tenderProjects) {
+  const config = dataset.procurement;
+  const rng = createRng(streamSeed(dataset.seed, 'enterprise-procurement'));
+  const targets = rng.shuffle(config.workflowTargets);
+  const clocks = rng.shuffle(config.workflowClockDays);
+  const taken = new Set(tenderProjects);
+  const chosen = projects.filter((project) => FUNDED.has(project.target) && !taken.has(project.code) && project.planBillions !== undefined);
+  let counter = 0;
+  return chosen.map((project) => {
+    const own = lines.filter((line) => line.project === project.code).sort((a, b) => b.billions - a.billions);
+    const room = Math.floor((own[0]?.billions ?? 0) * 1000 * 0.8);
+    return {
+      project: project.code,
+      title: config.planTitle.replace('{project}', project.name),
+      packages: config.packages.map((template) => {
+        const target = targets[counter % targets.length];
+        counter += 1;
+        return {
+          code: `${project.code.replace('DA-', '')}-${template.suffix}`,
+          title: template.title.replace('{project}', project.name),
+          millions: Math.max(50, Math.floor(room * template.share)),
+          method: template.method,
+          category: template.category,
+          period: template.period,
+          days: template.days,
+          target,
+          clockDays: clocks[(counter - 1) % clocks.length],
+        };
+      }),
+    };
+  });
 }
 
 /** The whole plan of a dataset. */
@@ -343,6 +462,9 @@ export function buildPlan(dataset) {
   }
   if (dataset.dataset === 'enterprise') {
     const built = buildEnterprise(dataset);
+    const capital = buildEnterpriseCapital(dataset, built.projects);
+    const tenders = buildEnterpriseTenders(dataset, built.projects, capital.lines);
+    const workflowPlans = buildEnterpriseWorkflow(dataset, built.projects, capital.lines, tenders.map((plan) => plan.project));
     return {
       schema: 'clip-plan/1',
       dataset: dataset.dataset,
@@ -357,7 +479,17 @@ export function buildPlan(dataset) {
       meetings: dataset.meetings,
       reports: dataset.reports,
       ebs: { note: dataset.ebs.layoutNote, rows: built.ebsRows },
+      texts: dataset.texts,
+      capital: { appropriations: capital.appropriations, lines: capital.lines, planTitle: dataset.capital.planTitle, decision: dataset.capital.decision },
+      contractors: dataset.contractors,
+      tenders,
+      procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: workflowPlans },
+      bi: dataset.bi,
       expect: {
+        packages: tenders.reduce((sum, plan) => sum + plan.packages.length, 0) + workflowPlans.reduce((sum, plan) => sum + plan.packages.length, 0),
+        contractors: dataset.contractors.length,
+        dashboards: dataset.bi.dashboards.length,
+        fundedProjects: built.projects.filter((project) => FUNDED.has(project.target)).length,
         projectsTotal: built.projects.length,
         fundingBatches: built.projects.length * 2,
         directives: dataset.meetings.reduce((sum, meeting) => sum + meeting.directives.length, 0),

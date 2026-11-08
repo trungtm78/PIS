@@ -188,5 +188,416 @@
         "push": "NONE"
       }
     ]
+  },
+  "stagesPerKind": [
+    "IMPLEMENTATION",
+    "IMPLEMENTATION",
+    "IMPLEMENTATION",
+    "BUDGETED",
+    "BUDGETED",
+    "PIPELINE"
+  ],
+  "capital": {
+    "margin": 12,
+    "planTitle": "Kế hoạch vốn đầu tư năm 2026 của Tổng công ty",
+    "decision": {
+      "symbol": "95/QĐ-HĐTV",
+      "title": "Quyết định về việc giao kế hoạch vốn đầu tư năm 2026 của Tổng công ty",
+      "sender": "Hội đồng thành viên Tổng công ty"
+    },
+    "appropriations": [
+      {
+        "key": "VCSH",
+        "fund": "NSDP-DTPT",
+        "origin": "LOCAL_ADDED",
+        "level": "LOCAL",
+        "sourceYear": 2026,
+        "authority": "Hội đồng thành viên Tổng công ty",
+        "symbol": "91/QĐ-HĐTV",
+        "title": "Quyết định về việc giao kế hoạch vốn chủ sở hữu đầu tư năm 2026",
+        "issuedOn": "2025-12-20"
+      },
+      {
+        "key": "VAY",
+        "fund": "ODA-ONLEND",
+        "origin": "CENTRAL_SUPPORT",
+        "level": "CENTRAL",
+        "sourceYear": 2026,
+        "authority": "Hội đồng thành viên Tổng công ty",
+        "symbol": "92/QĐ-HĐTV",
+        "title": "Quyết định về việc giao kế hoạch vốn vay thương mại đầu tư năm 2026",
+        "issuedOn": "2025-12-22"
+      }
+    ]
+  },
+  "contractors": [
+    {
+      "n": 1,
+      "name": "Công ty TNHH Xây lắp Công nghiệp Phú Hưng",
+      "form": "TNHH",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 2,
+      "name": "Công ty Cổ phần Cơ khí và Xây lắp Dầu khí Minh Phát",
+      "form": "CP",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 3,
+      "name": "Công ty Cổ phần Xây dựng Công nghiệp Nam Việt",
+      "form": "CP",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 4,
+      "name": "Công ty TNHH Kỹ thuật Công nghiệp Việt Hưng",
+      "form": "TNHH",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 5,
+      "name": "Công ty Cổ phần Tư vấn Thiết kế và Giám sát Công nghiệp Bảo An",
+      "form": "CP",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 6,
+      "name": "Công ty TNHH Thiết bị Đo lường và Tự động hóa Đông Á",
+      "form": "TNHH",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 7,
+      "name": "Công ty Cổ phần Máy nén và Thiết bị Áp lực Tân Phát",
+      "form": "CP",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 8,
+      "name": "Công ty TNHH Cơ khí Chế tạo Bơm Hồng Phúc",
+      "form": "TNHH",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 9,
+      "name": "Công ty TNHH Một thành viên Lắp đặt Đường ống Công nghệ Cái Mép",
+      "form": "TNHH MTV",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 10,
+      "name": "Công ty Cổ phần Kho vận và Bốc xếp Cảng Phú Mỹ",
+      "form": "CP",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 11,
+      "name": "Công ty TNHH Điện và Tự động hóa Hoàng Long",
+      "form": "TNHH",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 12,
+      "name": "Công ty TNHH Vật liệu Chịu lửa Thăng Long",
+      "form": "TNHH",
+      "outcome": "UNVERIFIED"
+    },
+    {
+      "n": 13,
+      "name": "Công ty Cổ phần Cơ điện Lạnh Đại Phong",
+      "form": "CP",
+      "outcome": "UNVERIFIED"
+    },
+    {
+      "n": 14,
+      "name": "Công ty TNHH Thương mại Thiết bị Quang Vinh",
+      "form": "TNHH",
+      "outcome": "REJECTED"
+    },
+    {
+      "n": 15,
+      "name": "Công ty TNHH Tư vấn Kỹ thuật Dầu khí Phương Nam",
+      "form": "TNHH",
+      "outcome": "VERIFIED"
+    },
+    {
+      "n": 16,
+      "name": "Công ty Cổ phần Tư vấn Đầu tư Xây dựng Việt Đông",
+      "form": "CP",
+      "outcome": "VERIFIED"
+    }
+  ],
+  "tenders": [
+    {
+      "kind": "INVESTMENT",
+      "projects": 2,
+      "planTitle": "Kế hoạch lựa chọn nhà thầu của dự án {project}",
+      "packages": [
+        {
+          "suffix": "XL01",
+          "title": "Thi công xây dựng và lắp đặt: {project}",
+          "method": "OPEN_BIDDING",
+          "line": 0,
+          "share": 0.42,
+          "period": "2026-Q3",
+          "days": 540,
+          "category": "CONSTRUCTION",
+          "fate": "AWARDED",
+          "bidders": [
+            3,
+            2,
+            4,
+            8
+          ],
+          "awardShare": 0.985,
+          "contract": "ACTIVE",
+          "awardedDaysAgo": 70
+        },
+        {
+          "suffix": "XL02",
+          "title": "Lắp đặt thiết bị công nghệ: {project}",
+          "method": "OPEN_BIDDING",
+          "line": 0,
+          "share": 0.3,
+          "period": "2026-Q3",
+          "days": 480,
+          "category": "CONSTRUCTION",
+          "fate": "AWARDED",
+          "bidders": [
+            2,
+            9,
+            3
+          ],
+          "awardShare": 0.99,
+          "contract": "ACTIVE",
+          "awardedDaysAgo": 66
+        },
+        {
+          "suffix": "TV01",
+          "title": "Tư vấn giám sát thi công: {project}",
+          "method": "LIMITED_BIDDING",
+          "line": 1,
+          "share": 0.06,
+          "period": "2026-Q3",
+          "days": 570,
+          "category": "CONSULTING",
+          "fate": "AWARDED",
+          "bidders": [
+            5,
+            15,
+            16
+          ],
+          "awardShare": 0.98,
+          "contract": "ACTIVE",
+          "awardedDaysAgo": 64
+        },
+        {
+          "suffix": "TB01",
+          "title": "Mua sắm thiết bị chính: {project}",
+          "method": "OPEN_BIDDING",
+          "line": 1,
+          "share": 0.4,
+          "period": "2026-Q4",
+          "days": 150,
+          "category": "EQUIPMENT",
+          "fate": "RESULT_PENDING",
+          "bidders": [
+            8,
+            4,
+            11
+          ],
+          "awardShare": 0.985
+        },
+        {
+          "suffix": "KS01",
+          "title": "Khảo sát địa chất và đo đạc: {project}",
+          "method": "COMPETITIVE_QUOTATION",
+          "line": 1,
+          "share": 0.04,
+          "period": "2026-Q4",
+          "days": 60,
+          "category": "CONSULTING",
+          "fate": "AWARDED",
+          "bidders": [
+            15,
+            16
+          ],
+          "awardShare": 0.985,
+          "contract": "DRAFT",
+          "awardedDaysAgo": 12
+        }
+      ]
+    },
+    {
+      "kind": "EQUIPMENT",
+      "projects": 2,
+      "planTitle": "Kế hoạch lựa chọn nhà thầu mua sắm: {project}",
+      "packages": [
+        {
+          "suffix": "TB01",
+          "title": "Cung cấp thiết bị chính: {project}",
+          "method": "OPEN_BIDDING",
+          "line": 0,
+          "share": 0.5,
+          "period": "2026-Q3",
+          "days": 240,
+          "category": "EQUIPMENT",
+          "fate": "AWARDED",
+          "bidders": [
+            7,
+            4
+          ],
+          "awardShare": 0.98,
+          "contract": "ACTIVE",
+          "awardedDaysAgo": 48
+        },
+        {
+          "suffix": "TB02",
+          "title": "Cung cấp phụ tùng và dụng cụ: {project}",
+          "method": "COMPETITIVE_QUOTATION",
+          "line": 0,
+          "share": 0.25,
+          "period": "2026-Q4",
+          "days": 120,
+          "category": "EQUIPMENT",
+          "fate": "EVALUATING",
+          "bidders": [
+            11,
+            8,
+            9
+          ]
+        },
+        {
+          "suffix": "TV01",
+          "title": "Tư vấn kỹ thuật và nghiệm thu: {project}",
+          "method": "LIMITED_BIDDING",
+          "line": 1,
+          "share": 0.06,
+          "period": "2026-Q4",
+          "days": 300,
+          "category": "CONSULTING",
+          "fate": "SEALED",
+          "bidders": [
+            5,
+            16
+          ]
+        }
+      ]
+    }
+  ],
+  "procurement": {
+    "legalBasis": "Quy chế đấu thầu và mua sắm của Tổng công ty",
+    "planTitle": "Kế hoạch lựa chọn nhà thầu của dự án {project}",
+    "note": "Bước thực hiện theo quy trình gói thầu của hệ thống; số liệu minh họa",
+    "decisionLetter": {
+      "symbol": "{n}/QĐ-HĐTV",
+      "title": "Quyết định phê duyệt kế hoạch lựa chọn nhà thầu",
+      "sender": "Hội đồng thành viên Tổng công ty"
+    },
+    "packages": [
+      {
+        "suffix": "XL01",
+        "title": "Thi công xây dựng và lắp đặt thiết bị: {project}",
+        "method": "OPEN_BIDDING",
+        "category": "CONSTRUCTION",
+        "share": 0.5,
+        "period": "2026-Q4",
+        "days": 360
+      },
+      {
+        "suffix": "TV01",
+        "title": "Tư vấn giám sát thi công: {project}",
+        "method": "LIMITED_BIDDING",
+        "category": "CONSULTING",
+        "share": 0.2,
+        "period": "2026-Q4",
+        "days": 390
+      },
+      {
+        "suffix": "TB01",
+        "title": "Mua sắm thiết bị: {project}",
+        "method": "COMPETITIVE_QUOTATION",
+        "category": "EQUIPMENT",
+        "share": 0.3,
+        "period": "2027-Q1",
+        "days": 120
+      }
+    ],
+    "workflowTargets": [
+      "CONTRACT_SIGN",
+      "RESULT_APPROVE",
+      "EVALUATE",
+      "BID_CLOSING",
+      "NOTICE_POST",
+      "DOC_APPROVE",
+      "DOC_APPRAISE",
+      "DOC_PREPARE",
+      "PLAN_SELECTION",
+      "HOLD:EVALUATE",
+      "RETURN:DOC_APPROVE",
+      "NOT_STARTED",
+      "EVALUATE",
+      "NOTICE_POST",
+      "BID_OPENING",
+      "RESULT_POST"
+    ],
+    "workflowClockDays": [
+      -70,
+      -45,
+      -25,
+      -12,
+      -6,
+      -3,
+      -1
+    ]
+  },
+  "bi": {
+    "sourceCommit": "clip-metrics-2026-11",
+    "publishReason": "Bảng điều hành đã được kiểm tra số liệu và cho phép công bố",
+    "dashboards": [
+      {
+        "code": "BD-LANH-DAO",
+        "title": "Bảng điều hành lãnh đạo: hợp đồng và mua sắm",
+        "metrics": [
+          "ctr_portfolio_value",
+          "ctr_contract_count",
+          "ctr_accepted_value"
+        ]
+      },
+      {
+        "code": "BD-HOP-DONG",
+        "title": "Hợp đồng, nghiệm thu và thanh toán của Tổng công ty",
+        "metrics": [
+          "ctr_accepted_value",
+          "ctr_paid_value",
+          "ctr_advance_outstanding"
+        ]
+      }
+    ],
+    "evidence": {
+      "symbol": "152/QĐ-HĐTV",
+      "title": "Quyết định về việc công bố bảng điều hành đầu tư của Tổng công ty",
+      "sender": "Hội đồng thành viên Tổng công ty"
+    }
+  },
+  "texts": {
+    "capital.authority": "Hội đồng thành viên Tổng công ty",
+    "doa.symbol": "41/QĐ-HĐTV",
+    "contract.paper": "Hợp đồng {0}",
+    "contract.title": "Hợp đồng gói thầu {0}",
+    "contract.boq": "Khối lượng thực hiện gói thầu {0}",
+    "guarantee.paper": "Bảo lãnh thực hiện hợp đồng {0}",
+    "guarantee.issuer": "Ngân hàng thương mại cổ phần đối tác",
+    "guarantee.method": "Đã xác nhận với ngân hàng phát hành bảo lãnh",
+    "contract.review": "Trình ký hợp đồng",
+    "contract.signedPaper": "Bản hợp đồng đã ký {0}",
+    "contract.activate": "Kích hoạt sau khi ký hợp đồng và có bảo lãnh thực hiện",
+    "claim.title": "Đề nghị gia hạn thời gian do chậm giao thiết bị từ nhà sản xuất",
+    "claim.description": "Nhà sản xuất giao chậm lô thiết bị chính, làm lùi tiến độ lắp đặt mười một ngày",
+    "evaluation.approve": "Phê duyệt sau khi kiểm tra tại hiện trường",
+    "doa.submit": "Trình lãnh đạo quyết định",
+    "doa.title": "Quyết định về việc phân cấp ủy quyền ký văn bản",
+    "doa.reason": "Ma trận ủy quyền của Tổng công ty"
   }
 }

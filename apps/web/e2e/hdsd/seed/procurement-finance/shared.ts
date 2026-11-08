@@ -86,7 +86,7 @@ export async function decisionInForce(ctx: SeedContext, index: number): Promise<
 
 // ---- contractors (BID-01, BID-02, BID-21) -------------------------------------------------------------------------------------------------
 
-interface ContractorSpec {
+export interface ContractorSpec {
   n: number;
   name: string;
   form: string;
@@ -94,7 +94,7 @@ interface ContractorSpec {
   outcome: 'VERIFIED' | 'UNVERIFIED' | 'REJECTED';
 }
 
-const CONTRACTORS: ContractorSpec[] = [
+export const CONTRACTORS: ContractorSpec[] = [
   { n: 1, name: tx('name.007'), form: 'TNHH', outcome: 'VERIFIED' },
   { n: 2, name: tx('name.008'), form: 'CP', outcome: 'VERIFIED' },
   { n: 3, name: tx('name.009'), form: 'CP', outcome: 'VERIFIED' },
