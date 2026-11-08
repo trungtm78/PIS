@@ -6,7 +6,6 @@ import { AccessLogStore, ControlDatabase, ExportDatasetStore, MachineAccountStor
 import type { TenantTx } from '@machvon/db';
 import {
   DomainError,
-  MachineRateLimiter,
   OPEN_API_SCOPE_CODES,
   asUuid,
   hashClientSecret,
@@ -18,7 +17,7 @@ import {
   verifyClientSecret,
   vietnamDateOf,
 } from '@machvon/kernel';
-import type { OpenAccessOutcome, OpenDatasetCode, TenantContext } from '@machvon/kernel';
+import type { MachineRateLimiter, OpenAccessOutcome, OpenDatasetCode, TenantContext } from '@machvon/kernel';
 import { bearerOf } from '../../auth/auth.guard';
 import { MACHINE_AUDIENCE } from '../../auth/claims';
 import { audiencesOf, checkTimes, parseJwt, verifySignature } from '../../auth/jwt';

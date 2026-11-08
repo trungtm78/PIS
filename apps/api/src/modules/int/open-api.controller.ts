@@ -84,7 +84,7 @@ export class OpenApiController {
         { sourceSystem: queryText(query.source_system, 'source_system', 30), externalCode: queryText(query.external_code, 'external_code'), projectCode: queryText(query.project_code, 'project_code') },
         parsePageRequest(query.limit, query.cursor),
       );
-      return { body: { items: page.items.map(({ sort_key: _key, ...rest }) => rest), next_cursor: nextCursor(page), as_of: new Date().toISOString() }, rows: page.items.length };
+      return { body: { items: page.items.map((row) => Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'sort_key'))), next_cursor: nextCursor(page), as_of: new Date().toISOString() }, rows: page.items.length };
     });
   }
 

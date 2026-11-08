@@ -282,7 +282,10 @@ export class MachineRateLimiter {
   private readonly windows = new Map<string, RateWindow>();
   private readonly windowMs: number;
 
-  constructor(private readonly options: { windowSeconds?: number; now?: () => number } = {}) {
+  private readonly options: { windowSeconds?: number; now?: () => number };
+
+  constructor(options: { windowSeconds?: number; now?: () => number } = {}) {
+    this.options = options;
     this.windowMs = (options.windowSeconds ?? 60) * 1000;
     if (!Number.isFinite(this.windowMs) || this.windowMs <= 0) throw new RangeError('the window must be positive');
   }
