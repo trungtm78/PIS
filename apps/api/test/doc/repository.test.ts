@@ -207,7 +207,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
   }, 60_000);
 
   describe('files in: the upload, the checks on what it is, and the text read from it', () => {
-    it('stores a Word file, a workbook and a PDF, tells their format, and reads each into citable units', async () => {
+    it('UAT-PLAN-141: stores a Word file, a workbook and a PDF, tells their format, and reads each into citable units', async () => {
       const word = await upload(await wordFile('100'), DOCX);
       expect(word).toMatchObject({ status: 200, json: { format: 'DOCX', mime: DOCX, page_count: null } });
       const book = await upload(await workbookFile('1250'), XLSX);
@@ -266,7 +266,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
   });
 
   describe('the documents: links, classes, effective dates, versions, the list and the scope', () => {
-    it('links a document to a contract and a package of its project only, and lists and filters by them', async () => {
+    it('UAT-PLAN-141: links a document to a contract and a package of its project only, and lists and filters by them', async () => {
       const staged = await upload(await pdfFile('Contract text'), 'application/pdf');
       const base = { project_id: projectId, doc_class: 'CONTRACT', title: 'Hợp đồng thi công gói số 3', file_object_key: staged.json.file_object_key, file_sha256: staged.json.file_sha256 };
       expect(await call('POST', '/project-documents', { member: AUTHOR, body: { ...base, contract_id: otherContractId } })).toMatchObject({ status: 422, json: { code: 'DOC_LINK_MISMATCH' } });
@@ -363,7 +363,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
   });
 
   describe('the comparison of two versions', () => {
-    it('shows the words that changed in a paragraph, the paragraph that is new, and only the cells that changed in a workbook', async () => {
+    it('UAT-PLAN-143: shows the words that changed in a paragraph, the paragraph that is new, and only the cells that changed in a workbook', async () => {
       const made = await createDocument(await wordFile('100'), DOCX);
       const second = await addVersion(made.documentId, await wordFile('120', true), DOCX);
       const result = await call('GET', `/project-documents/${made.documentId}/compare?from_version_id=${made.versionId}&to_version_id=${second}`, { member: READER });
@@ -403,7 +403,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       expect((await call('GET', `/project-document-versions/${made.versionId}`, { member: AUTHOR })).json).toMatchObject({ version: { status: 'DRAFT' } });
     });
 
-    it('runs two rounds to approval and locks the approved version, and the board shows every step of it', async () => {
+    it('UAT-PLAN-142: runs two rounds to approval and locks the approved version, and the board shows every step of it', async () => {
       const created = await call('POST', '/workflow-definitions', { member: ADMIN, body: { business_type: 'document.review', definition } });
       expect(created.status).toBe(200);
       const published = await call('POST', `/workflow-definitions/${created.json.resource_id}/publish`, { member: PUBLISHER, ifMatch: '"1"', body: { reason: 'Công bố quy trình duyệt hồ sơ dự án.' } });
