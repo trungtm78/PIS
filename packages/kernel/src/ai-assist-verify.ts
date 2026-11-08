@@ -1,3 +1,4 @@
+import { runInNewContext } from 'node:vm';
 import { DomainError } from './errors.ts';
 import { MIN_QUOTE_CHARS, normaliseQuote } from './bid-analysis.ts';
 import { FEASIBILITY_SECTIONS, SOURCE_KINDS, materialKey, restoreQuote } from './ai-assist.ts';
@@ -241,6 +242,7 @@ export type CheckKind = (typeof CHECK_KINDS)[number];
 export const CHECK_SEVERITIES = ['BLOCKER', 'WARNING', 'INFO'] as const;
 export type CheckSeverity = (typeof CHECK_SEVERITIES)[number];
 const ITEM_CODE = /^[A-Z][A-Z0-9_.-]{0,39}$/;
+const PATTERN_TIMEOUT_MS = 100;
 const NESTED_QUANTIFIER = /\([^)]*[+*][^)]*\)[+*{]/;
 export const MAX_CHECKLIST_ITEMS = 50;
 
@@ -330,7 +332,13 @@ export function runComputedCheck(item: ReviewItemDef, text: string): Pick<Review
     return { result: words >= min ? 'PASS' : 'FAIL', detail: words >= min ? null : `WORDS:${words}<${min}` };
   }
   if (item.kind === 'PATTERN') {
-    const found = new RegExp(item.params.pattern as string, 'u').test(text.slice(0, 500_000));
+    // A pattern is the author's, run on the text of a file: it is cut off when it takes too long, and a pattern that cannot be run in time does not pass.
+    let found: boolean;
+    try {
+      found = runInNewContext('expression.test(text)', { expression: new RegExp(item.params.pattern as string, 'u'), text: text.slice(0, 500_000) }, { timeout: PATTERN_TIMEOUT_MS }) as boolean;
+    } catch {
+      return { result: 'FAIL', detail: 'PATTERN_TIMEOUT' };
+    }
     const wanted = item.params.must_match !== false;
     return { result: found === wanted ? 'PASS' : 'FAIL', detail: found === wanted ? null : wanted ? 'PATTERN_ABSENT' : 'PATTERN_PRESENT' };
   }

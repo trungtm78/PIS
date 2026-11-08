@@ -272,6 +272,10 @@ export class AiAssistService {
     const redacted = redactCitations(run.result, index);
     let result = redacted.value as Record<string, unknown>;
     if (typeof result.review === 'object' && result.review !== null) result = { ...result, review: refreshReview(result.review as ReviewResult, again.statements) };
+    // The proposals of an evaluation are judged again on the statements as they stand for this reader: a score that rested on a source they may not read is withheld.
+    const evaluation = typeof result.evaluation === 'object' && result.evaluation !== null ? (result.evaluation as Record<string, unknown>) : undefined;
+    const scored = evaluation === undefined || run.criteriaSetId === null ? undefined : await this.store.findCriteriaSet(tx, run.criteriaSetId);
+    if (evaluation !== undefined && scored !== undefined) result = { ...result, evaluation: { ...evaluation, criteria: proposeScores(scored.criteria, scored.scaleMax, again.statements) } };
     const unreadable = run.sourceRefs.length - readable.length;
     if (unreadable > 0) result = { ...result, sources_unreadable: unreadable };
     const decision = await this.store.findDecision(tx, run.id);

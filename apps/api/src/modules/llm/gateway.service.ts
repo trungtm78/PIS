@@ -178,6 +178,8 @@ export class LlmGatewayService {
     let checkFailure: 'INVALID_JSON' | 'REJECTED_NO_CITATION' | undefined;
     let killed = false;
     let passedOver = false;
+    // An exception that ended (its date, a revocation) while an earlier call was pending: no further call goes out under it.
+    let externalLapsed = false;
     await this.requests.finish(tx, admitted.id, { status: 'DISPATCHED', routeClass: first.route }, actor);
     outer: for (const candidate of plan.attempts) {
       // A switch that was engaged since: the request stops, or only this model is passed over.
@@ -204,6 +206,15 @@ export class LlmGatewayService {
       }
       let kind: 'PRIMARY' | 'RETRY' | 'FALLBACK' = attemptNo === 0 ? 'PRIMARY' : 'FALLBACK';
       for (let tries = 0; tries <= MAX_CHECK_RETRIES; tries += 1) {
+        // The exception is read again before each call, retries included: what was allowed when the route was planned may have been revoked or may have run out since.
+        if (usedException !== undefined) {
+          const moment = new Date();
+          const verdict = externalVerdict(edition, { providerId: candidate.providerId, route: candidate.route, taskType: input.taskType, classification: classified.classification, now: moment }, await this.exceptions.standing(tx, moment));
+          if (!verdict.allowed) {
+            externalLapsed = true;
+            break;
+          }
+        }
         attemptNo += 1;
         const started = Date.now();
         try {
@@ -301,7 +312,7 @@ export class LlmGatewayService {
       finished = await this.requests.finish(tx, admitted.id, { ...common, status: 'PENDING_RECONCILE', rejectCode: 'AI_ROUTE_EXHAUSTED' }, actor);
     } else {
       if (paid.length === 0) await this.finops.release(tx, reservationId, 'NO_ANSWER');
-      finished = await this.requests.finish(tx, admitted.id, { ...common, status: 'FAILED', rejectCode: 'AI_ROUTE_EXHAUSTED', completed: true }, actor);
+      finished = await this.requests.finish(tx, admitted.id, { ...common, status: 'FAILED', rejectCode: externalLapsed ? 'AI_EXTERNAL_EXCEPTION_REQUIRED' : 'AI_ROUTE_EXHAUSTED', completed: true }, actor);
     }
 
     const attempts = await this.requests.attemptsOf(tx, admitted.id);

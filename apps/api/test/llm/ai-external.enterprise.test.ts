@@ -125,6 +125,23 @@ describe('the AI of the enterprise edition: external providers off by default, o
     expect(world.gateway.calls).toHaveLength(0);
   });
 
+  it('reads the exception again before each call: one revoked while the first call is pending is not used for the retry', async () => {
+    const exceptionId = await approved(world.providers.domestic);
+    const invalid = JSON.stringify({ statements: [{ id: 's1', text: 'Recorded.', basis: 'ASSUMPTION', citations: [], action: 'approve' }] });
+    world.gateway.script('dom-model', [
+      async () => {
+        // While the model works, the person with the right revokes the exception.
+        const revoked = await world.call('POST', `/ai/external-exceptions/${exceptionId}/revocation`, { member: EXCEPTION_DECIDER, ifMatch: '"2"', body: { reason: 'The provider changed its terms of use.' } });
+        expect(revoked.status).toBe(200);
+        return { providerRequestId: `mock-${randomUUID()}`, output: invalid, usage: { inputTotal: 10, cachedInput: 0, outputTotal: 5 }, latencyMs: 5 };
+      },
+      { output: invalid },
+    ]);
+    const reply = await ask();
+    expect(reply.json).toMatchObject({ status: 'FAILED' });
+    expect(world.gateway.calls).toHaveLength(1);
+  });
+
   it('asks two people, for a reason, for at most ninety days, and keeps the history', async () => {
     expect(await request(world.providers.domestic, { valid_days: 91 })).toMatchObject({ status: 422 });
     expect(await request(world.providers.domestic, { reason: 'Too short.' })).toMatchObject({ status: 422 });

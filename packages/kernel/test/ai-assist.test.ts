@@ -394,3 +394,13 @@ describe('the assistant decides nothing', () => {
     for (const operation of ASSIST_OPERATIONS) expect(operation).not.toMatch(/pay|approve(?!AiPrompt)|release|sign|disburse|submit/i);
   });
 });
+
+describe('a pattern of a checklist cannot hold up the server', () => {
+  it('cuts off a pattern that backtracks without end and does not pass it', () => {
+    const [item] = parseChecklistItems([{ code: 'LOOP', label: 'A pattern that backtracks', kind: 'PATTERN', severity: 'BLOCKER', params: { pattern: '^(a|aa)+$' } }]);
+    const started = Date.now();
+    expect(runComputedCheck(item as never, `${'a'.repeat(64)}!`)).toEqual({ result: 'FAIL', detail: 'PATTERN_TIMEOUT' });
+    expect(Date.now() - started).toBeLessThan(2000);
+    expect(runComputedCheck(item as never, 'aaaa')).toEqual({ result: 'PASS', detail: null });
+  });
+});

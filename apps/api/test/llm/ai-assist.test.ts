@@ -378,6 +378,16 @@ describe('the AI assistant: answers with verified citations, review of a file, e
       expect(await world.rows("select 1 from machvon.contract where status <> 'DRAFT'")).toHaveLength(0);
     });
 
+    it('withholds the score again when the reader loses the source it rested on, before they decide', async () => {
+      const runId = await evaluated();
+      const before = (await world.call('GET', `/ai/assist/runs/${runId}`, { member: ASKER })).json.result as { evaluation: { criteria: Array<Record<string, unknown>> } };
+      expect(before.evaluation.criteria[0]).toMatchObject({ criterion_code: 'TIME', status: 'PROPOSED', proposed_score: 80 });
+      await seedAs(world.harness, [['update machvon.contract set project_id = gen_random_uuid() where id = $1::uuid', [records.contractId]]]);
+      const later = (await world.call('GET', `/ai/assist/runs/${runId}`, { member: ASKER })).json.result as { evaluation: { criteria: Array<Record<string, unknown>> } };
+      expect(later.evaluation.criteria[0]).toMatchObject({ criterion_code: 'TIME', status: 'NEEDS_EVIDENCE', proposed_score: null });
+      await seedAs(world.harness, [['update machvon.contract set project_id = $2::uuid where id = $1::uuid', [records.contractId, records.projectId]]]);
+    });
+
     it('lets a person reject the proposal and keeps the rejection as a decision with its reason', async () => {
       const runId = await evaluated();
       expect(await decide(runId, { decision: 'REJECTED', rationale: RATIONALE })).toMatchObject({ status: 200, json: { status: 'REJECTED' } });
