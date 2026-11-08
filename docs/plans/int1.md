@@ -11,4 +11,11 @@ Lane INT-1 (branch lane/int1, migration block 2200-2219). Source: plan "Dot 4 it
 - Hub: kernel `integration-access-connection.ts` (connector `access.open-api`) and db `AccessOverviewReads`.
 
 ## Steps (status)
-1. Kernel rules and tests: done. 2. Migrations V2200-V2203 + stores + db tests (incl. mandatory negative test): done. 3. API through contract-patch, authz, command registry, open API controller, published OpenAPI subset: done, API tests written. 4. Web screens INT-01..INT-05 + i18n part int1: code written, tests pending. 5. Docs (INT.md, docs/open-api.md), design rows: done except docs/open-api.md. 6. Isolation suite (API foreign-id cases + DB reader path), authz negative matrix, gate checks, Codex review: pending.
+1. Kernel rules and tests: done.
+2. Migrations V2200-V2203, stores, db tests including the mandatory negative test (a BI login sets app.tenant_id to another tenant and reads nothing): done.
+3. API through contract-patch, authz matrix, command registry, open API controller, published OpenAPI subset (scripts/open-api-publish.mjs, docs/open-api/openapi.json): done; API tests in apps/api/test/int.
+4. Web screens INT-01..INT-05 with the kit, the states matrix, i18n part int1 and tests: done.
+5. Docs: INT.md, docs/open-api.md, design rows (story ST-INT-001, traceability, backlog, navigation, test cases, rebuilt pages): done.
+6. Isolation suite: foreign-id cases for ten operations, fixtures, the database path of the BI logins as a channel (apps/api/test/isolation/channels/bi-reader.ts): done; to be run with the gate tests.
+7. Integration Hub: connector descriptor kept in one small kernel file (integration-access-connection.ts) and the read AccessOverviewReads: done.
+8. Codex review and triage: in progress (results in the final report).
