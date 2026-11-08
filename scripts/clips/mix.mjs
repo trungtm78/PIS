@@ -103,7 +103,7 @@ export function buildMixArgs({ video, narration, music, subtitlesSrt, graphFile,
   return [
     ...args,
     '-map', '[vout]', '-map', '[aout]', '-map', `${subtitleInput}:0`,
-    '-c:v', 'libx264', '-preset', v.preset, '-crf', String(v.crf), '-pix_fmt', v.pixelFormat, '-r', String(v.fps),
+    '-c:v', 'libx264', '-preset', process.env.CLIPS_X264_PRESET ?? v.preset, '-crf', String(v.crf), '-pix_fmt', v.pixelFormat, '-r', String(v.fps),
     '-c:a', 'aac', '-b:a', `${a.bitrateKbps}k`, '-ar', String(a.sampleRate),
     '-c:s', 'mov_text', '-metadata:s:s:0', 'language=vie', '-metadata:s:s:0', 'title=Tieng Viet',
     '-movflags', '+faststart', out,

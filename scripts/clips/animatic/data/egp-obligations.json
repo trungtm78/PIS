@@ -1,0 +1,11 @@
+{
+  "id": "egp-obligations",
+  "kind": "chapter",
+  "theme": "dark",
+  "durationMs": 9000,
+  "fadeMs": 300,
+  "number": 5,
+  "title": "Nghĩa vụ đăng tải lên mạng đấu thầu quốc gia",
+  "summary": "Hệ thống không quét trang web và không mở kết nối ra ngoài: nhập tệp đã tải về, chuẩn bị gói cho người đăng.",
+  "items": ["Kế hoạch, thông báo, kết quả, hợp đồng, đánh giá nhà thầu", "Nhập tệp đã tải về, ánh xạ, đối chiếu", "Quản lý cả vòng đời, có đồng hồ nghĩa vụ"]
+}

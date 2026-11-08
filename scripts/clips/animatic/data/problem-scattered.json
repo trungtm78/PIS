@@ -1,0 +1,11 @@
+{
+  "id": "problem-scattered",
+  "kind": "chapter",
+  "theme": "dark",
+  "durationMs": 9000,
+  "fadeMs": 300,
+  "number": 1,
+  "title": "Mỗi nơi một bảng tính, mỗi bảng một con số",
+  "summary": "Vốn, dự án, giải ngân, hợp đồng, đấu thầu nằm ở những nơi khác nhau. Số liệu lệch nhau và đến muộn.",
+  "items": ["Kế hoạch vốn một nơi, giải ngân một nơi", "Hợp đồng và đấu thầu giữ riêng", "Lãnh đạo hỏi một con số: không biết số nào đúng"]
+}

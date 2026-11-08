@@ -1,0 +1,11 @@
+{
+  "id": "problem-enterprise",
+  "kind": "chapter",
+  "theme": "dark",
+  "durationMs": 9000,
+  "fadeMs": 300,
+  "number": 1,
+  "title": "Báo cáo tháng, quý mất nhiều ngày để ghép",
+  "summary": "Số liệu nằm ở nhiều bảng tính; vốn chủ sở hữu và vốn vay mỗi nơi tính một kiểu.",
+  "items": ["Báo cáo tháng, quý gửi Tập đoàn", "Đẩy số sang HPM", "Đối chiếu với kế toán Oracle EBS"]
+}

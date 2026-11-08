@@ -1,0 +1,4 @@
+{
+  "note": "Phrases of the product that mean a detail screen was opened with no record chosen (the recorder then looks for a link that opens it with a record). Vietnamese lives in data files only.",
+  "patterns": ["Chưa chọn", "Chọn một", "không được chọn", "Không có .* nào được chọn"]
+}

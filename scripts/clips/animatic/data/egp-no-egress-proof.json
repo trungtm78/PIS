@@ -1,0 +1,11 @@
+{
+  "id": "egp-no-egress-proof",
+  "kind": "chapter",
+  "theme": "dark",
+  "durationMs": 9000,
+  "fadeMs": 300,
+  "number": 6,
+  "title": "Cam kết không kết nối ra ngoài, chứng minh bằng kiểm thử",
+  "summary": "Mọi đường ra khỏi máy bị thay bằng bộ đếm; chạy toàn bộ thao tác thì không có lần thử kết nối nào.",
+  "items": ["Nhập, ánh xạ, đối chiếu và đồng hồ chạy hết", "Kết quả: không lần thử kết nối nào", "Mã nguồn cũng bị quét để không có lời gọi mạng"]
+}
