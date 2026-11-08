@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 584,
-    "webCatalog": 584,
+    "webRoutes": 594,
+    "webCatalog": 594,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,

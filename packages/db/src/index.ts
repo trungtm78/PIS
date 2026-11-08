@@ -1854,7 +1854,6 @@ export * from './vendor-risk-signals.ts';
 export * from './vendor-risk-store.ts';
 export * from './vendor-performance-store.ts';
 export { GAMMA_AUDIENCE_PERMISSIONS } from './home-vendor-gamma-sources.ts';
-=======
 // VND-3: the boundary of the contractor portal in the database (V2446).
 export { PORTAL_CONTRACTOR_TABLES, PORTAL_DENIED_TABLES, PORTAL_POLICY, PORTAL_SETTING, enterPortalPath, leavePortalPath } from './portal-boundary.ts';
 // VND-3 (BE-1): the investigation of contractors (links, leads, bid rigging signals, traces of submissions) and the continuous screening against the lists of parties that may not be dealt with.

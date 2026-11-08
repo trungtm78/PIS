@@ -505,8 +505,6 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'VND-10': () => import('../../screens/vnd/subcontracts/SubcontractScreen'),
   'VND-11': () => import('../../screens/vnd/risk/RiskScreen'),
   'VND-12': () => import('../../screens/vnd/performance/PerformanceScreen'),
-=======
-=======
   // The contractor portal and its management (lane VND-3): the home of a contractor, its requests, certificates, evaluations and plans, and the staff screens that manage the portal and the plans of remediation.
   'VND-16': () => import('../../screens/vnd/portal/PortalHomeScreen'),
   'VND-17': () => import('../../screens/vnd/portal/PortalRequestsScreen'),
