@@ -64,7 +64,7 @@ export type ReadInput<K extends ReadOperation> = PathPart<K> & QueryPart<K>;
 export type CommandInput<K extends CommandOperation> = PathPart<K> & BodyPart<K> & VersionPart<K> & { attempt?: CommandAttempt };
 
 /** What an upload takes: the path parameters of the route, the prepared form and, for a retry of the same intention, its attempt. */
-export type UploadInput<K extends UploadOperation> = PathPart<K> & { form: FormData; attempt?: CommandAttempt };
+export type UploadInput<K extends UploadOperation> = PathPart<K> & { query?: [QueryParams<K>] extends [never] ? undefined : QueryParams<K>; form: FormData; attempt?: CommandAttempt };
 
 /** Arguments of `read`: the input is optional when nothing in it is required. */
 export type ReadArguments<K extends ReadOperation> = object extends ReadInput<K> ? [input?: ReadInput<K>] : [input: ReadInput<K>];

@@ -151,6 +151,6 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       })) as ApiClient['command'],
 
     upload: ((operation: UploadOperation, input: RequestParts & { attempt?: { key: string } }) =>
-      execute(operation, { path: input.path, form: input.form, idempotencyKey: (input.attempt ?? newCommandAttempt(newKey)).key })) as ApiClient['upload'],
+      execute(operation, { path: input.path, query: input.query, form: input.form, idempotencyKey: (input.attempt ?? newCommandAttempt(newKey)).key })) as ApiClient['upload'],
   };
 }

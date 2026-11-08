@@ -7,8 +7,9 @@ const DEFAULT_FIELD = 'file';
 const DEFAULT_FILE_NAME = 'upload';
 
 type PathOf<K extends UploadOperation> = UploadInput<K> extends { path: infer P } ? { path: P } : { path?: undefined };
+type QueryOf<K extends UploadOperation> = UploadInput<K> extends { query?: infer Q } ? { query?: Q } : { query?: undefined };
 
-export type UploadFileInput<K extends UploadOperation> = PathOf<K> & {
+export type UploadFileInput<K extends UploadOperation> = PathOf<K> & QueryOf<K> & {
   file: Blob;
   /** The form field; `file` by default. */
   field?: string;
@@ -27,6 +28,6 @@ export function uploadFile<K extends UploadOperation>(client: ApiClient, operati
   const form = new FormData();
   const name = input.filename ?? (input.file instanceof File ? input.file.name : DEFAULT_FILE_NAME);
   form.append(input.field ?? DEFAULT_FIELD, input.file, name);
-  const { path, attempt } = input as { path?: unknown; attempt?: CommandAttempt };
-  return client.upload(operation, { path, form, attempt } as unknown as UploadInput<K>);
+  const { path, query, attempt } = input as { path?: unknown; query?: unknown; attempt?: CommandAttempt };
+  return client.upload(operation, { path, query, form, attempt } as unknown as UploadInput<K>);
 }
