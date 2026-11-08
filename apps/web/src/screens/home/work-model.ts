@@ -42,6 +42,9 @@ export const WORK_KINDS = [
   'PAYMENT_INTEGRITY_SIGNAL',
   'DISBURSEMENT_EXCEPTION_EXPIRING',
   'RESCHEDULE_COUNT',
+  // The Treasury answer to a complete dossier is near its end, or past it (lane GOV-11a).
+  'PAYMENT_CLOCK_NEAR',
+  'PAYMENT_CLOCK_BREACHED',
   // The connection to the national procurement network is older than its rule allows (lane EGP-1).
   'CONNECTOR_STALE',
   // The duties of posting to the national procurement network: one near its deadline, one past it (lane EGP-2).

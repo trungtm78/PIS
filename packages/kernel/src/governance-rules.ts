@@ -20,6 +20,9 @@ import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
 import { ACTUALS_PRECEDENCES, ACTUAL_SOURCES, ENTRY_MODES, FUNDING_TAXONOMY_RULE_TYPE, MEASURES, PERIOD_GRAINS, RATIO_BASES, RATIO_TERMS, enterprisePackParams, publicPackParams, refineFundingPack } from './fnd-taxonomy.ts';
 import { HUB_POLICY_PARAMS, hubAlertSeeds, hubAlertSource, hubFreshnessDefaults, hubKpiDefaults, hubPolicyFormula, hubPolicySource } from './connector-hub-defaults.ts';
+import { REALLOCATION_POLICY_DEFAULT_CODE, REALLOCATION_POLICY_RULE_TYPE, reallocationPolicyDefaults, reallocationPolicyOf } from './cap-reallocation-impact.ts';
+import { PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, RETURN_REASON_CATEGORIES, RETURN_REASON_DEFAULTS, RETURN_REASON_SIDES, paymentClockDefaults, paymentClockParams, returnReasonParams } from './pay-clock.ts';
+import { ACCURACY_RULE_CODE, ACCURACY_RULE_TYPE, MILESTONE_RULE_CODE, MILESTONE_RULE_TYPE, MONTH_DAY_PATTERN, accuracyDefaults, accuracyPolicyOf, milestoneDefaults, milestonePolicyOf } from './dis-milestone-forecast.ts';
 import { message } from './messages.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
@@ -1892,18 +1895,116 @@ export const registerIndicatorRules = (): void =>
 export const registerReallocationRules = (): void =>
   once('gov11-reallocation', () => {
     registerCoreRules();
+    registerRuleType({
+      type: REALLOCATION_POLICY_RULE_TYPE,
+      ownerModule: 'CAP',
+      modules: ['CAP', 'DIS', 'ADM'],
+      formula: message('gov.rules.register_reallocation_rules.formula.reallocation_policy'),
+      source: message('gov.rules.register_reallocation_rules.source.reallocation_policy'),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        donor_max_ratio_pct: num(0, 100),
+        donor_keep_margin_pct: num(0, 100),
+        recipient_min_ratio_pct: num(0, 1000),
+        absorption_pct: num(0, 100),
+        min_move_vnd: int(0, 1_000_000_000_000),
+        max_share_of_donor_plan_pct: num(0, 100),
+        simulation_required: bool,
+        delegation_document_type: codeText(),
+      },
+      refine: refineWith(reallocationPolicyOf),
+      defaults: { [REALLOCATION_POLICY_DEFAULT_CODE]: rule({ ...reallocationPolicyDefaults() }) },
+    });
   });
+
+const FORECAST_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  {
+    code: 'DIS_MILESTONE_AT_RISK',
+    source: 'DISBURSEMENT_FORECAST',
+    owner: 'UNIT_LEADER',
+    action: message('gov.rules.forecast_alert_seeds.action.dis_milestone_at_risk'),
+    consequence: message('gov.rules.forecast_alert_seeds.consequence.dis_milestone_at_risk'),
+    hours: 120,
+    severity: 'ACTION',
+    why: message('gov.rules.forecast_alert_seeds.why.dis_milestone_at_risk'),
+  },
+];
 
 /** Disbursement forecast to 31/12, the milestones of the directives and the accuracy of forecasts (G1-16). */
 export const registerForecastRules = (): void =>
   once('gov11-forecast', () => {
     registerCoreRules();
+    const source = message('gov.rules.register_forecast_rules.source');
+    registerRuleType({
+      type: MILESTONE_RULE_TYPE,
+      ownerModule: 'DIS',
+      modules: ['DIS', 'CAP', 'HOME'],
+      formula: message('gov.rules.register_forecast_rules.formula.disbursement_milestones'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        milestones: list(shape({ code: codeText(), month_day: { kind: 'text', max: 5, pattern: MONTH_DAY_PATTERN }, target_pct: num(0, 100) }), 12, 1),
+        at_risk_margin_pct: num(0, 50),
+        directive_ref: text(200, true),
+      },
+      refine: refineWith(milestonePolicyOf),
+      defaults: { [MILESTONE_RULE_CODE]: rule(milestoneDefaults()) },
+    });
+    registerRuleType({
+      type: ACCURACY_RULE_TYPE,
+      ownerModule: 'DIS',
+      modules: ['DIS', 'CAP', 'BI'],
+      formula: message('gov.rules.register_forecast_rules.formula.disbursement_forecast_accuracy'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { lead_months: int(1, 6), min_months: int(1, 12), good_wape_pct: num(0, 1000), fair_wape_pct: num(0, 1000), min_actual_vnd: int(0, 1_000_000_000_000), bias_flag_pct: num(0, 1000) },
+      refine: refineWith(accuracyPolicyOf),
+      defaults: { [ACCURACY_RULE_CODE]: rule(accuracyDefaults()) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(FORECAST_ALERT_SEEDS, { source: message('gov.rules.register_forecast_rules.source_2') }));
   });
 
 /** The payment clock, the advance clock and the standard reasons to return a request (G1-17). */
+const PAYMENT_CLOCK_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'PAYMENT_CLOCK_NEAR', source: 'PAYMENT_CLOCK', owner: 'PAYMENT_OFFICER', action: message('gov.rules.payment_clock_alert_seeds.action.payment_clock_near'), consequence: message('gov.rules.payment_clock_alert_seeds.consequence.payment_clock_near'), hours: 8, severity: 'WATCH', why: message('gov.rules.payment_clock_alert_seeds.why.payment_clock_near') },
+  { code: 'PAYMENT_CLOCK_BREACHED', source: 'PAYMENT_CLOCK', owner: 'PAYMENT_OFFICER', action: message('gov.rules.payment_clock_alert_seeds.action.payment_clock_breached'), consequence: message('gov.rules.payment_clock_alert_seeds.consequence.payment_clock_breached'), hours: 8, severity: 'ACTION', why: message('gov.rules.payment_clock_alert_seeds.why.payment_clock_breached') },
+];
+
 export const registerPaymentClockRules = (): void =>
   once('gov11-payment-clock', () => {
     registerCoreRules();
+    const source = message('gov.rules.register_payment_clock_rules.source');
+    registerRuleType({
+      type: PAYMENT_CLOCK_RULE_TYPE,
+      ownerModule: 'PAY',
+      modules: ['PAY', 'HOME', 'ADM'],
+      formula: message('gov.rules.register_payment_clock_rules.formula.payment_clock'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { working_days: int(1, 30), near_working_hours: int(1, 240), reason_code_required: bool },
+      refine: refineWith(paymentClockParams),
+      defaults: {
+        PAYMENT: rule({ ...paymentClockDefaults('PAYMENT') }, undefined, { formula: message('gov.rules.payment_clock.payment.formula') }),
+        ADVANCE: rule({ ...paymentClockDefaults('ADVANCE') }, undefined, { formula: message('gov.rules.payment_clock.advance.formula') }),
+      },
+    });
+    registerRuleType({
+      type: PAYMENT_RETURN_REASON_RULE_TYPE,
+      ownerModule: 'PAY',
+      modules: ['PAY', 'HOME'],
+      formula: message('gov.rules.register_payment_clock_rules.formula.payment_return_reason'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { category: oneOf(...RETURN_REASON_CATEGORIES), requires_note: bool, owner_side: oneOf(...RETURN_REASON_SIDES), active: bool },
+      refine: refineWith(returnReasonParams),
+      defaults: Object.fromEntries(Object.entries(RETURN_REASON_DEFAULTS).map(([code, params]) => [code, rule({ ...params })])),
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(PAYMENT_CLOCK_ALERT_SEEDS, { source: message('gov.rules.register_payment_clock_rules.source_2') }));
   });
 
 /** The settlement deadlines of a contract and the impact of an adjustment version on the baseline (G1-18). */
@@ -1940,6 +2041,11 @@ export function registerAllGovernanceRules(): void {
   registerIntegrationHubRules();
   registerCommitteeRules();
   registerIndicatorRules();
+  registerReallocationRules();
+  registerForecastRules();
+  registerPaymentClockRules();
+  registerSettlementClockRules();
+  registerLookAheadRules();
 }
 
 registerAllGovernanceRules();

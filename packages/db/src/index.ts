@@ -1774,3 +1774,5 @@ export { CtrRegisterReader, REGISTER_ROW_CAP, ratingInputsOf } from './ctr-regis
 export type { RegisterReaderContext } from './ctr-register-reader.ts';
 export { CtrRatingStore, RATING_NOTIFY_PERMISSION, RATING_PROPOSE_PERMISSION, RATING_READ_PERMISSION, RATING_RESPOND_PERMISSION } from './ctr-rating-store.ts';
 export type { RatingListFilter, RatingProposalRow, RatingRule } from './ctr-rating-store.ts';
+export { CapReallocationImpactStore, REALLOCATION_IMPACT_RESOURCE, reallocationImpactRecord, wholeScope } from './cap-reallocation-impact-store.ts';
+export type { CandidatesView, ImpactView, PlanLine, ReadPolicy } from './cap-reallocation-impact-store.ts';
