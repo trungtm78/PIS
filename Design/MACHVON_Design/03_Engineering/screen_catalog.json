@@ -11505,5 +11505,132 @@
     "platform": "web",
     "req": "FR-ADM-27",
     "source": "Hồ sơ khách hàng: giới hạn theo kỳ báo cáo; kế hoạch Đợt 4 mục 7 (IAM-2)"
+  },
+  {
+    "id": "LLM-22",
+    "module": "LLM",
+    "moduleName": "Quản trị AI và LLM",
+    "title": "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi",
+    "kind": "ai",
+    "fields": [
+      "Loại yêu cầu",
+      "Câu hỏi",
+      "Nguồn (dự án, hợp đồng, tài liệu)",
+      "Nhận định theo nguồn, giả định, suy luận",
+      "Dẫn nguồn đã kiểm chứng",
+      "Hạng dữ liệu và tuyến xử lý",
+      "Lịch sử lượt hỏi"
+    ],
+    "role": "Người dùng có quyền ai.assist.use",
+    "rule": "Mọi nhận định có dẫn nguồn đọc được bởi người hỏi; nhận định không có nguồn hiện là chưa có căn cứ; đề xuất của AI không tự áp dụng",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-LLM-22",
+    "source": "AI.01, AI.05, AI.07; LLM F9; lane AI-2"
+  },
+  {
+    "id": "LLM-23",
+    "module": "LLM",
+    "moduleName": "Quản trị AI và LLM",
+    "title": "Chi tiết lượt hỏi của trợ lý AI và quyết định của người",
+    "kind": "detail",
+    "fields": [
+      "Nhận định",
+      "Nhãn nguồn/giả định/suy luận",
+      "Dẫn nguồn và trích đoạn",
+      "Dẫn nguồn bị ẩn do không đủ quyền",
+      "Tín hiệu chỉ dẫn trong tài liệu",
+      "Quyết định của người (chấp nhận, sửa, từ chối)"
+    ],
+    "role": "Người đã hỏi; người có quyền ai.assist.decide",
+    "rule": "Dẫn nguồn được kiểm lại theo quyền đọc hiện tại; không thể giữ nhận định thiếu nguồn; một quyết định cho mỗi lượt",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-LLM-23",
+    "source": "AI.01, AI.04; LLM F8, F9; lane AI-2"
+  },
+  {
+    "id": "LLM-24",
+    "module": "LLM",
+    "moduleName": "Quản trị AI và LLM",
+    "title": "Rà soát hồ sơ trước khi trình",
+    "kind": "ai",
+    "fields": [
+      "Hồ sơ cần rà soát",
+      "Danh mục rà soát",
+      "Kết quả từng mục (đạt, không đạt, chưa chứng minh được)",
+      "Mức độ (chặn, cảnh báo, thông tin)",
+      "Kết luận sẵn sàng hay chưa",
+      "Dẫn nguồn của câu trả lời"
+    ],
+    "role": "Người có quyền ai.assist.review",
+    "rule": "Kết luận chỉ là tư vấn và không chặn việc trình; mục do AI trả lời chỉ đạt khi có dẫn nguồn đã kiểm chứng",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-LLM-24",
+    "source": "AI.02; LLM F9; lane AI-2"
+  },
+  {
+    "id": "LLM-25",
+    "module": "LLM",
+    "moduleName": "Quản trị AI và LLM",
+    "title": "Đề xuất đánh giá thực hiện hợp đồng",
+    "kind": "ai",
+    "fields": [
+      "Hợp đồng",
+      "Bộ tiêu chí và trọng số",
+      "Điểm AI đề xuất và dẫn nguồn",
+      "Tiêu chí bị giữ điểm do thiếu bằng chứng",
+      "Điểm người chấp nhận hoặc sửa",
+      "Tổng điểm có trọng số"
+    ],
+    "role": "Người có quyền ai.assist.evaluate và ai.assist.decide",
+    "rule": "Tổng điểm chỉ tính từ điểm người đã chấp nhận; không tự ghi sang module khác",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-LLM-25",
+    "source": "AI.04; LLM F9; lane AI-2"
+  },
+  {
+    "id": "LLM-26",
+    "module": "LLM",
+    "moduleName": "Quản trị AI và LLM",
+    "title": "Danh mục rà soát và bộ tiêu chí đánh giá",
+    "kind": "table",
+    "fields": [
+      "Mã và phiên bản",
+      "Áp dụng cho",
+      "Các mục hoặc tiêu chí",
+      "Trọng số (điểm cơ bản)",
+      "Trạng thái",
+      "Người soạn và người ban hành"
+    ],
+    "role": "Người có quyền ai.config.manage, ai.config.approve, ai.config.read",
+    "rule": "Người soạn khác người ban hành; bản đã ban hành bị khóa; trọng số cộng đủ 10000",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-LLM-26",
+    "source": "AI.02, AI.04; lane AI-2"
+  },
+  {
+    "id": "LLM-27",
+    "module": "LLM",
+    "moduleName": "Quản trị AI và LLM",
+    "title": "Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu",
+    "kind": "table",
+    "fields": [
+      "Nhà cung cấp và tuyến",
+      "Vị trí lưu trữ dữ liệu",
+      "Cam kết không huấn luyện",
+      "Đề nghị ngoại lệ",
+      "Căn cứ phê duyệt và hiệu lực",
+      "Nhật ký sử dụng"
+    ],
+    "role": "Người có quyền llm.exception.request, llm.exception.approve, llm.exception.read, llm.provider.manage",
+    "rule": "Nhà cung cấp ngoài tắt mặc định ở phiên bản doanh nghiệp; mở cần ngoại lệ đã duyệt và mọi lần dùng đều được ghi",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-LLM-27",
+    "source": "AI.07, HT.01; eng-review R5, KT.02; lane AI-2"
   }
 ]

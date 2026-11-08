@@ -76,6 +76,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'attachAuditEvidence': CommandResultResponse.fromJson,
   'attachMeetingMinutes': CommandResultResponse.fromJson,
   'attachPaymentDocument': PayPaymentCommandResultResponse.fromJson,
+  'attestAiProvider': CommandResultResponse.fromJson,
   'bindGlossaryTermToDataset': CommandResultResponse.fromJson,
   'buildBiDatasetVersion': CommandResultResponse.fromJson,
   'buildPeriodSnapshot': CommandResultResponse.fromJson,
@@ -141,11 +142,14 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'correctSiteDiary': CommandResultResponse.fromJson,
   'createAcceptance': CommandResultResponse.fromJson,
   'createAdjustmentInvoice': CommandResultResponse.fromJson,
+  'createAiAssistRun': AiAssistRunResponse.fromJson,
   'createAiBudget': CommandResultResponse.fromJson,
   'createAiClassificationPolicy': CommandResultResponse.fromJson,
+  'createAiEvalCriteriaSet': CommandResultResponse.fromJson,
   'createAiEvalDataset': CommandResultResponse.fromJson,
   'createAiKnowledgeCollection': CommandResultResponse.fromJson,
   'createAiPromptVersion': CommandResultResponse.fromJson,
+  'createAiReviewChecklist': CommandResultResponse.fromJson,
   'createAiVirtualKey': CommandResultResponse.fromJson,
   'createAllocationScenario': CommandResultResponse.fromJson,
   'createAuditEngagement': CommandResultResponse.fromJson,
@@ -221,6 +225,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createWorkCalendarVersion': CommandResultResponse.fromJson,
   'createWorkflowDraft': CommandResultResponse.fromJson,
   'decideActingRequest': CommandResultResponse.fromJson,
+  'decideAiAssistRun': CommandResultResponse.fromJson,
+  'decideAiExternalException': CommandResultResponse.fromJson,
   'decideAlertCover': CommandResultResponse.fromJson,
   'decideAllocationExtension': CommandResultResponse.fromJson,
   'decideAppropriation': CommandResultResponse.fromJson,
@@ -500,8 +506,13 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'get_sync_commands_key': SyncCommandStatusResponse.fromJson,
   'getAdvanceRecoveryPlan': PayAdvanceRecoveryPlanResponse.fromJson,
   'getAdvanceRecoveryTable': PayAdvanceRecoveryTableResponse.fromJson,
+  'getAiAssistRun': AiAssistRunResponse.fromJson,
+  'getAiEditionPolicy': AiEditionPolicyResponse.fromJson,
+  'getAiEvalCriteriaSet': AiEvalCriteriaSetResponse.fromJson,
+  'getAiExternalException': AiExternalExceptionResponse.fromJson,
   'getAiKnowledgeCollection': asObject,
   'getAiRequestRoute': LlmRouteDecisionResponse.fromJson,
+  'getAiReviewChecklist': AiReviewChecklistResponse.fromJson,
   'getAiSpendSummary': asObject,
   'getAlertCoverageReport': AlertCoverageReportResponse.fromJson,
   'getAlertHealth': AlertHealthResponse.fromJson,
@@ -681,10 +692,13 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAdvancePolicy': PayAdvancePolicyResponse.fromJson,
   'listAdvances': PayAdvancePageResponse.fromJson,
   'listAffectedHouseholds': asObject,
+  'listAiAssistRuns': AiAssistRunPageResponse.fromJson,
   'listAiBudgets': asObject,
   'listAiClassificationPolicies': asObject,
   'listAiDecisionRecords': asObject,
+  'listAiEvalCriteriaSets': AiEvalCriteriaSetPageResponse.fromJson,
   'listAiEvalDatasets': asObject,
+  'listAiExternalExceptions': AiExternalExceptionPageResponse.fromJson,
   'listAiInvoiceReconciliations': asObject,
   'listAiKillSwitches': asObject,
   'listAiKnowledgeCollections': asObject,
@@ -693,6 +707,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAiPrompts': asObject,
   'listAiProviders': asObject,
   'listAiRequests': asObject,
+  'listAiReviewChecklists': AiReviewChecklistPageResponse.fromJson,
   'listAiVirtualKeys': asObject,
   'listAlertAbsences': AlertAbsenceListResponse.fromJson,
   'listAlertEscalations': AlertEscalationListResponse.fromJson,
@@ -945,6 +960,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'proposeSourceMapping': CommandResultResponse.fromJson,
   'proposeUnitReorganization': CommandResultResponse.fromJson,
   'publishAiClassificationPolicy': CommandResultResponse.fromJson,
+  'publishAiEvalCriteriaSet': CommandResultResponse.fromJson,
+  'publishAiReviewChecklist': CommandResultResponse.fromJson,
   'publishAvcPolicy': CommandResultResponse.fromJson,
   'publishDatasetContract': CommandResultResponse.fromJson,
   'publishDocumentLayoutProfile': CommandResultResponse.fromJson,
@@ -1066,6 +1083,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'requestActing': CommandResultResponse.fromJson,
   'requestAdvance': PayAdvanceCommandResultResponse.fromJson,
   'requestAiCompletion': CommandResultResponse.fromJson,
+  'requestAiExternalException': CommandResultResponse.fromJson,
   'requestAllocationExtension': CommandResultResponse.fromJson,
   'requestAuditFollowUpReport': CommandResultResponse.fromJson,
   'requestBiExport': CommandResultResponse.fromJson,
@@ -1135,6 +1153,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'reviseSiteDiaryDraft': CommandResultResponse.fromJson,
   'revokeAcceptance': CommandResultResponse.fromJson,
   'revokeActing': CommandResultResponse.fromJson,
+  'revokeAiExternalException': CommandResultResponse.fromJson,
   'revokeAiVirtualKey': CommandResultResponse.fromJson,
   'revokeAlertCover': CommandResultResponse.fromJson,
   'revokeDashboardShare': CommandResultResponse.fromJson,
@@ -1459,6 +1478,932 @@ final class ActingGrantViewResponseActions implements ResponseModel {
         if (decide != null) 'decide': decide,
         if (cancel != null) 'cancel': cancel,
         if (revoke != null) 'revoke': revoke,
+        ...extra,
+      };
+}
+
+final class AiAssistCitationResponse implements ResponseModel {
+  const AiAssistCitationResponse({
+    required this.kind,
+    required this.id,
+    required this.locator,
+    required this.quote,
+    required this.excerpt,
+    required this.title,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistCitationResponse.fromJson(Object? json, [String path = 'AiAssistCitationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistCitationResponse(
+      kind: requiredField(map, path, 'kind', asString),
+      id: requiredField(map, path, 'id', asString),
+      locator: requiredField(map, path, 'locator', asString),
+      quote: requiredField(map, path, 'quote', nullable(asString)),
+      excerpt: requiredField(map, path, 'excerpt', asString),
+      title: requiredField(map, path, 'title', asString),
+      extra: unknownFields(map, path, const <String>{'kind', 'id', 'locator', 'quote', 'excerpt', 'title'}, strict: false),
+    );
+  }
+
+  final String kind;
+  final String id;
+  final String locator;
+  final String? quote;
+  final String excerpt;
+  final String title;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'id': id,
+        'locator': locator,
+        'quote': quote,
+        'excerpt': excerpt,
+        'title': title,
+        ...extra,
+      };
+}
+
+final class AiAssistDecisionViewResponse implements ResponseModel {
+  const AiAssistDecisionViewResponse({
+    required this.id,
+    required this.decision,
+    required this.rationale,
+    required this.acceptedResult,
+    required this.decidedBy,
+    required this.decidedAt,
+    this.items,
+    this.aiDecisionRecordId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistDecisionViewResponse.fromJson(Object? json, [String path = 'AiAssistDecisionViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistDecisionViewResponse(
+      id: requiredField(map, path, 'id', asString),
+      decision: requiredField(map, path, 'decision', asString),
+      rationale: requiredField(map, path, 'rationale', asString),
+      items: optionalField(map, path, 'items', asList(asObject)),
+      acceptedResult: requiredField(map, path, 'accepted_result', asObject),
+      aiDecisionRecordId: optionalField(map, path, 'ai_decision_record_id', asString),
+      decidedBy: requiredField(map, path, 'decided_by', asString),
+      decidedAt: requiredField(map, path, 'decided_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'decision', 'rationale', 'items', 'accepted_result', 'ai_decision_record_id', 'decided_by', 'decided_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String decision;
+  final String rationale;
+  final List<Map<String, Object?>>? items;
+  final Map<String, Object?> acceptedResult;
+  final String? aiDecisionRecordId;
+  final String decidedBy;
+  final String decidedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'decision': decision,
+        'rationale': rationale,
+        if (items != null) 'items': items,
+        'accepted_result': acceptedResult,
+        if (aiDecisionRecordId != null) 'ai_decision_record_id': aiDecisionRecordId,
+        'decided_by': decidedBy,
+        'decided_at': decidedAt,
+        ...extra,
+      };
+}
+
+final class AiAssistRunPageResponse implements ResponseModel {
+  const AiAssistRunPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistRunPageResponse.fromJson(Object? json, [String path = 'AiAssistRunPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistRunPageResponse(
+      items: requiredField(map, path, 'items', asList(AiAssistRunResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<AiAssistRunResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AiAssistRunResponse implements ResponseModel {
+  const AiAssistRunResponse({
+    required this.id,
+    required this.kind,
+    required this.status,
+    required this.advisory,
+    required this.requestText,
+    required this.sources,
+    required this.statements,
+    required this.result,
+    required this.counts,
+    required this.completeness,
+    required this.createdAt,
+    this.refusalCode,
+    this.subjectId,
+    this.checklistId,
+    this.criteriaSetId,
+    this.aiRequestId,
+    this.dataClassification,
+    this.routeClass,
+    this.decision,
+    this.decisionStatus,
+    this.askedBy,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistRunResponse.fromJson(Object? json, [String path = 'AiAssistRunResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistRunResponse(
+      id: requiredField(map, path, 'id', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      status: requiredField(map, path, 'status', asString),
+      refusalCode: optionalField(map, path, 'refusal_code', nullable(asString)),
+      advisory: requiredField(map, path, 'advisory', asBool),
+      requestText: requiredField(map, path, 'request_text', asString),
+      subjectId: optionalField(map, path, 'subject_id', nullable(asString)),
+      checklistId: optionalField(map, path, 'checklist_id', nullable(asString)),
+      criteriaSetId: optionalField(map, path, 'criteria_set_id', nullable(asString)),
+      aiRequestId: optionalField(map, path, 'ai_request_id', nullable(asString)),
+      dataClassification: optionalField(map, path, 'data_classification', nullable(asString)),
+      routeClass: optionalField(map, path, 'route_class', nullable(asString)),
+      sources: requiredField(map, path, 'sources', asList(AiAssistRunResponseSourcesItem.fromJson)),
+      statements: requiredField(map, path, 'statements', asList(AiAssistStatementResponse.fromJson)),
+      result: requiredField(map, path, 'result', asObject),
+      counts: requiredField(map, path, 'counts', AiAssistRunResponseCounts.fromJson),
+      completeness: requiredField(map, path, 'completeness', asString),
+      decision: optionalField(map, path, 'decision', AiAssistDecisionViewResponse.fromJson),
+      decisionStatus: optionalField(map, path, 'decision_status', nullable(asString)),
+      askedBy: optionalField(map, path, 'asked_by', asString),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'status', 'refusal_code', 'advisory', 'request_text', 'subject_id', 'checklist_id', 'criteria_set_id', 'ai_request_id', 'data_classification', 'route_class', 'sources', 'statements', 'result', 'counts', 'completeness', 'decision', 'decision_status', 'asked_by', 'created_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String kind;
+  final String status;
+  final String? refusalCode;
+  final bool advisory;
+  final String requestText;
+  final String? subjectId;
+  final String? checklistId;
+  final String? criteriaSetId;
+  final String? aiRequestId;
+  final String? dataClassification;
+  final String? routeClass;
+  final List<AiAssistRunResponseSourcesItem> sources;
+  final List<AiAssistStatementResponse> statements;
+  final Map<String, Object?> result;
+  final AiAssistRunResponseCounts counts;
+  final String completeness;
+  final AiAssistDecisionViewResponse? decision;
+  final String? decisionStatus;
+  final String? askedBy;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'kind': kind,
+        'status': status,
+        if (refusalCode != null) 'refusal_code': refusalCode,
+        'advisory': advisory,
+        'request_text': requestText,
+        if (subjectId != null) 'subject_id': subjectId,
+        if (checklistId != null) 'checklist_id': checklistId,
+        if (criteriaSetId != null) 'criteria_set_id': criteriaSetId,
+        if (aiRequestId != null) 'ai_request_id': aiRequestId,
+        if (dataClassification != null) 'data_classification': dataClassification,
+        if (routeClass != null) 'route_class': routeClass,
+        'sources': sources.map((e0) => e0.toJson()).toList(),
+        'statements': statements.map((e0) => e0.toJson()).toList(),
+        'result': result,
+        'counts': counts.toJson(),
+        'completeness': completeness,
+        if (decision != null) 'decision': decision!.toJson(),
+        if (decisionStatus != null) 'decision_status': decisionStatus,
+        if (askedBy != null) 'asked_by': askedBy,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class AiAssistRunResponseCounts implements ResponseModel {
+  const AiAssistRunResponseCounts({
+    required this.statements,
+    required this.verified,
+    required this.unsupported,
+    required this.assumptions,
+    required this.withheldCitations,
+    required this.injectionSignals,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistRunResponseCounts.fromJson(Object? json, [String path = 'AiAssistRunResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistRunResponseCounts(
+      statements: requiredField(map, path, 'statements', asInt),
+      verified: requiredField(map, path, 'verified', asInt),
+      unsupported: requiredField(map, path, 'unsupported', asInt),
+      assumptions: requiredField(map, path, 'assumptions', asInt),
+      withheldCitations: requiredField(map, path, 'withheld_citations', asInt),
+      injectionSignals: requiredField(map, path, 'injection_signals', asInt),
+      extra: unknownFields(map, path, const <String>{'statements', 'verified', 'unsupported', 'assumptions', 'withheld_citations', 'injection_signals'}, strict: false),
+    );
+  }
+
+  final int statements;
+  final int verified;
+  final int unsupported;
+  final int assumptions;
+  final int withheldCitations;
+  final int injectionSignals;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'statements': statements,
+        'verified': verified,
+        'unsupported': unsupported,
+        'assumptions': assumptions,
+        'withheld_citations': withheldCitations,
+        'injection_signals': injectionSignals,
+        ...extra,
+      };
+}
+
+final class AiAssistRunResponseSourcesItem implements ResponseModel {
+  const AiAssistRunResponseSourcesItem({
+    required this.kind,
+    required this.id,
+    required this.title,
+    required this.classification,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistRunResponseSourcesItem.fromJson(Object? json, [String path = 'AiAssistRunResponseSourcesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistRunResponseSourcesItem(
+      kind: requiredField(map, path, 'kind', asString),
+      id: requiredField(map, path, 'id', asString),
+      title: requiredField(map, path, 'title', asString),
+      classification: requiredField(map, path, 'classification', asString),
+      extra: unknownFields(map, path, const <String>{'kind', 'id', 'title', 'classification'}, strict: false),
+    );
+  }
+
+  final String kind;
+  final String id;
+  final String title;
+  final String classification;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'id': id,
+        'title': title,
+        'classification': classification,
+        ...extra,
+      };
+}
+
+final class AiAssistStatementResponse implements ResponseModel {
+  const AiAssistStatementResponse({
+    required this.id,
+    required this.text,
+    required this.claimedBasis,
+    required this.presentedAs,
+    required this.verification,
+    required this.citations,
+    required this.dependsOn,
+    required this.problems,
+    this.section,
+    this.itemCode,
+    this.criterionCode,
+    this.result,
+    this.score,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiAssistStatementResponse.fromJson(Object? json, [String path = 'AiAssistStatementResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiAssistStatementResponse(
+      id: requiredField(map, path, 'id', asString),
+      text: requiredField(map, path, 'text', asString),
+      claimedBasis: requiredField(map, path, 'claimed_basis', asString),
+      presentedAs: requiredField(map, path, 'presented_as', asString),
+      verification: requiredField(map, path, 'verification', asString),
+      citations: requiredField(map, path, 'citations', asList(AiAssistCitationResponse.fromJson)),
+      dependsOn: requiredField(map, path, 'depends_on', asList(asString)),
+      problems: requiredField(map, path, 'problems', asList(asString)),
+      section: optionalField(map, path, 'section', nullable(asString)),
+      itemCode: optionalField(map, path, 'item_code', nullable(asString)),
+      criterionCode: optionalField(map, path, 'criterion_code', nullable(asString)),
+      result: optionalField(map, path, 'result', nullable(asString)),
+      score: optionalField(map, path, 'score', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'id', 'text', 'claimed_basis', 'presented_as', 'verification', 'citations', 'depends_on', 'problems', 'section', 'item_code', 'criterion_code', 'result', 'score'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String text;
+  final String claimedBasis;
+  final String presentedAs;
+  final String verification;
+  final List<AiAssistCitationResponse> citations;
+  final List<String> dependsOn;
+  final List<String> problems;
+  final String? section;
+  final String? itemCode;
+  final String? criterionCode;
+  final String? result;
+  final int? score;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'text': text,
+        'claimed_basis': claimedBasis,
+        'presented_as': presentedAs,
+        'verification': verification,
+        'citations': citations.map((e0) => e0.toJson()).toList(),
+        'depends_on': dependsOn,
+        'problems': problems,
+        if (section != null) 'section': section,
+        if (itemCode != null) 'item_code': itemCode,
+        if (criterionCode != null) 'criterion_code': criterionCode,
+        if (result != null) 'result': result,
+        if (score != null) 'score': score,
+        ...extra,
+      };
+}
+
+final class AiChecklistItemResponse implements ResponseModel {
+  const AiChecklistItemResponse({
+    required this.code,
+    required this.label,
+    required this.kind,
+    required this.severity,
+    this.params,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiChecklistItemResponse.fromJson(Object? json, [String path = 'AiChecklistItemResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiChecklistItemResponse(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      params: optionalField(map, path, 'params', asObject),
+      extra: unknownFields(map, path, const <String>{'code', 'label', 'kind', 'severity', 'params'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String label;
+  final String kind;
+  final String severity;
+  final Map<String, Object?>? params;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        'kind': kind,
+        'severity': severity,
+        if (params != null) 'params': params,
+        ...extra,
+      };
+}
+
+final class AiEditionPolicyResponse implements ResponseModel {
+  const AiEditionPolicyResponse({
+    required this.name,
+    required this.externalRouting,
+    required this.attestationRequired,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiEditionPolicyResponse.fromJson(Object? json, [String path = 'AiEditionPolicyResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiEditionPolicyResponse(
+      name: requiredField(map, path, 'name', asString),
+      externalRouting: requiredField(map, path, 'external_routing', asString),
+      attestationRequired: requiredField(map, path, 'attestation_required', asBool),
+      extra: unknownFields(map, path, const <String>{'name', 'external_routing', 'attestation_required'}, strict: false),
+    );
+  }
+
+  final String name;
+  final String externalRouting;
+  final bool attestationRequired;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        'external_routing': externalRouting,
+        'attestation_required': attestationRequired,
+        ...extra,
+      };
+}
+
+final class AiEvalCriteriaSetPageResponse implements ResponseModel {
+  const AiEvalCriteriaSetPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiEvalCriteriaSetPageResponse.fromJson(Object? json, [String path = 'AiEvalCriteriaSetPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiEvalCriteriaSetPageResponse(
+      items: requiredField(map, path, 'items', asList(AiEvalCriteriaSetResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<AiEvalCriteriaSetResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AiEvalCriteriaSetResponse implements ResponseModel {
+  const AiEvalCriteriaSetResponse({
+    required this.id,
+    required this.code,
+    required this.revision,
+    required this.title,
+    required this.scaleMax,
+    required this.status,
+    required this.criteria,
+    required this.weightsTotalBp,
+    required this.createdBy,
+    required this.createdAt,
+    required this.version,
+    this.publishedBy,
+    this.publishedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiEvalCriteriaSetResponse.fromJson(Object? json, [String path = 'AiEvalCriteriaSetResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiEvalCriteriaSetResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      title: requiredField(map, path, 'title', asString),
+      scaleMax: requiredField(map, path, 'scale_max', asInt),
+      status: requiredField(map, path, 'status', asString),
+      criteria: requiredField(map, path, 'criteria', asList(AiEvalCriterionResponse.fromJson)),
+      weightsTotalBp: requiredField(map, path, 'weights_total_bp', asInt),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      publishedBy: optionalField(map, path, 'published_by', nullable(asString)),
+      publishedAt: optionalField(map, path, 'published_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'revision', 'title', 'scale_max', 'status', 'criteria', 'weights_total_bp', 'created_by', 'created_at', 'published_by', 'published_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final int revision;
+  final String title;
+  final int scaleMax;
+  final String status;
+  final List<AiEvalCriterionResponse> criteria;
+  final int weightsTotalBp;
+  final String createdBy;
+  final String createdAt;
+  final String? publishedBy;
+  final String? publishedAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'revision': revision,
+        'title': title,
+        'scale_max': scaleMax,
+        'status': status,
+        'criteria': criteria.map((e0) => e0.toJson()).toList(),
+        'weights_total_bp': weightsTotalBp,
+        'created_by': createdBy,
+        'created_at': createdAt,
+        if (publishedBy != null) 'published_by': publishedBy,
+        if (publishedAt != null) 'published_at': publishedAt,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class AiEvalCriterionResponse implements ResponseModel {
+  const AiEvalCriterionResponse({
+    required this.code,
+    required this.label,
+    required this.weightBp,
+    this.guidance,
+    this.evidenceRequired,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiEvalCriterionResponse.fromJson(Object? json, [String path = 'AiEvalCriterionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiEvalCriterionResponse(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      guidance: optionalField(map, path, 'guidance', asString),
+      weightBp: requiredField(map, path, 'weight_bp', asInt),
+      evidenceRequired: optionalField(map, path, 'evidence_required', asBool),
+      extra: unknownFields(map, path, const <String>{'code', 'label', 'guidance', 'weight_bp', 'evidence_required'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String label;
+  final String? guidance;
+  final int weightBp;
+  final bool? evidenceRequired;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        if (guidance != null) 'guidance': guidance,
+        'weight_bp': weightBp,
+        if (evidenceRequired != null) 'evidence_required': evidenceRequired,
+        ...extra,
+      };
+}
+
+final class AiExternalExceptionPageResponse implements ResponseModel {
+  const AiExternalExceptionPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiExternalExceptionPageResponse.fromJson(Object? json, [String path = 'AiExternalExceptionPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiExternalExceptionPageResponse(
+      items: requiredField(map, path, 'items', asList(AiExternalExceptionResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<AiExternalExceptionResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AiExternalExceptionResponse implements ResponseModel {
+  const AiExternalExceptionResponse({
+    required this.id,
+    required this.providerId,
+    required this.providerCode,
+    required this.routeClass,
+    required this.maxClassification,
+    required this.reason,
+    required this.requestedBy,
+    required this.requestedAt,
+    required this.requestedValidDays,
+    required this.status,
+    required this.useCount,
+    required this.version,
+    this.taskType,
+    this.inForce,
+    this.decidedBy,
+    this.decidedAt,
+    this.decisionNote,
+    this.approvalRef,
+    this.validFrom,
+    this.validUntil,
+    this.revokedBy,
+    this.revokedAt,
+    this.revokeReason,
+    this.uses,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiExternalExceptionResponse.fromJson(Object? json, [String path = 'AiExternalExceptionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiExternalExceptionResponse(
+      id: requiredField(map, path, 'id', asString),
+      providerId: requiredField(map, path, 'provider_id', asString),
+      providerCode: requiredField(map, path, 'provider_code', asString),
+      routeClass: requiredField(map, path, 'route_class', asString),
+      taskType: optionalField(map, path, 'task_type', nullable(asString)),
+      maxClassification: requiredField(map, path, 'max_classification', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      requestedBy: requiredField(map, path, 'requested_by', asString),
+      requestedAt: requiredField(map, path, 'requested_at', asString),
+      requestedValidDays: requiredField(map, path, 'requested_valid_days', asInt),
+      status: requiredField(map, path, 'status', asString),
+      inForce: optionalField(map, path, 'in_force', asBool),
+      decidedBy: optionalField(map, path, 'decided_by', nullable(asString)),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      decisionNote: optionalField(map, path, 'decision_note', nullable(asString)),
+      approvalRef: optionalField(map, path, 'approval_ref', nullable(asString)),
+      validFrom: optionalField(map, path, 'valid_from', nullable(asString)),
+      validUntil: optionalField(map, path, 'valid_until', nullable(asString)),
+      revokedBy: optionalField(map, path, 'revoked_by', nullable(asString)),
+      revokedAt: optionalField(map, path, 'revoked_at', nullable(asString)),
+      revokeReason: optionalField(map, path, 'revoke_reason', nullable(asString)),
+      useCount: requiredField(map, path, 'use_count', asInt),
+      uses: optionalField(map, path, 'uses', asList(AiExternalExceptionUseResponse.fromJson)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'provider_id', 'provider_code', 'route_class', 'task_type', 'max_classification', 'reason', 'requested_by', 'requested_at', 'requested_valid_days', 'status', 'in_force', 'decided_by', 'decided_at', 'decision_note', 'approval_ref', 'valid_from', 'valid_until', 'revoked_by', 'revoked_at', 'revoke_reason', 'use_count', 'uses', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String providerId;
+  final String providerCode;
+  final String routeClass;
+  final String? taskType;
+  final String maxClassification;
+  final String reason;
+  final String requestedBy;
+  final String requestedAt;
+  final int requestedValidDays;
+  final String status;
+  final bool? inForce;
+  final String? decidedBy;
+  final String? decidedAt;
+  final String? decisionNote;
+  final String? approvalRef;
+  final String? validFrom;
+  final String? validUntil;
+  final String? revokedBy;
+  final String? revokedAt;
+  final String? revokeReason;
+  final int useCount;
+  final List<AiExternalExceptionUseResponse>? uses;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'provider_id': providerId,
+        'provider_code': providerCode,
+        'route_class': routeClass,
+        if (taskType != null) 'task_type': taskType,
+        'max_classification': maxClassification,
+        'reason': reason,
+        'requested_by': requestedBy,
+        'requested_at': requestedAt,
+        'requested_valid_days': requestedValidDays,
+        'status': status,
+        if (inForce != null) 'in_force': inForce,
+        if (decidedBy != null) 'decided_by': decidedBy,
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (decisionNote != null) 'decision_note': decisionNote,
+        if (approvalRef != null) 'approval_ref': approvalRef,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+        if (revokedBy != null) 'revoked_by': revokedBy,
+        if (revokedAt != null) 'revoked_at': revokedAt,
+        if (revokeReason != null) 'revoke_reason': revokeReason,
+        'use_count': useCount,
+        if (uses != null) 'uses': uses!.map((e0) => e0.toJson()).toList(),
+        'version': version,
+        ...extra,
+      };
+}
+
+final class AiExternalExceptionUseResponse implements ResponseModel {
+  const AiExternalExceptionUseResponse({
+    required this.id,
+    required this.aiRequestId,
+    required this.taskType,
+    required this.dataClassification,
+    required this.routeClass,
+    required this.usedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiExternalExceptionUseResponse.fromJson(Object? json, [String path = 'AiExternalExceptionUseResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiExternalExceptionUseResponse(
+      id: requiredField(map, path, 'id', asString),
+      aiRequestId: requiredField(map, path, 'ai_request_id', asString),
+      taskType: requiredField(map, path, 'task_type', asString),
+      dataClassification: requiredField(map, path, 'data_classification', asString),
+      routeClass: requiredField(map, path, 'route_class', asString),
+      usedAt: requiredField(map, path, 'used_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'ai_request_id', 'task_type', 'data_classification', 'route_class', 'used_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String aiRequestId;
+  final String taskType;
+  final String dataClassification;
+  final String routeClass;
+  final String usedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'ai_request_id': aiRequestId,
+        'task_type': taskType,
+        'data_classification': dataClassification,
+        'route_class': routeClass,
+        'used_at': usedAt,
+        ...extra,
+      };
+}
+
+final class AiReviewChecklistPageResponse implements ResponseModel {
+  const AiReviewChecklistPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiReviewChecklistPageResponse.fromJson(Object? json, [String path = 'AiReviewChecklistPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiReviewChecklistPageResponse(
+      items: requiredField(map, path, 'items', asList(AiReviewChecklistResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<AiReviewChecklistResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class AiReviewChecklistResponse implements ResponseModel {
+  const AiReviewChecklistResponse({
+    required this.id,
+    required this.code,
+    required this.revision,
+    required this.title,
+    required this.appliesTo,
+    required this.status,
+    required this.items,
+    required this.createdBy,
+    required this.createdAt,
+    required this.version,
+    this.publishedBy,
+    this.publishedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory AiReviewChecklistResponse.fromJson(Object? json, [String path = 'AiReviewChecklistResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return AiReviewChecklistResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      title: requiredField(map, path, 'title', asString),
+      appliesTo: requiredField(map, path, 'applies_to', asString),
+      status: requiredField(map, path, 'status', asString),
+      items: requiredField(map, path, 'items', asList(AiChecklistItemResponse.fromJson)),
+      createdBy: requiredField(map, path, 'created_by', asString),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      publishedBy: optionalField(map, path, 'published_by', nullable(asString)),
+      publishedAt: optionalField(map, path, 'published_at', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'revision', 'title', 'applies_to', 'status', 'items', 'created_by', 'created_at', 'published_by', 'published_at', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final int revision;
+  final String title;
+  final String appliesTo;
+  final String status;
+  final List<AiChecklistItemResponse> items;
+  final String createdBy;
+  final String createdAt;
+  final String? publishedBy;
+  final String? publishedAt;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'revision': revision,
+        'title': title,
+        'applies_to': appliesTo,
+        'status': status,
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'created_by': createdBy,
+        'created_at': createdAt,
+        if (publishedBy != null) 'published_by': publishedBy,
+        if (publishedAt != null) 'published_at': publishedAt,
+        'version': version,
         ...extra,
       };
 }

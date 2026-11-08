@@ -9,8 +9,10 @@ import { REPORT_FORMS } from '../modules/reports/form-registry';
 export async function loadEnterpriseManifest(): Promise<EditionManifest> {
   const { ENTERPRISE_EDITION } = await import('@machvon/edition-enterprise');
   // The server entry of the package (RPT-1): adds the enterprise indicator pack and the rule type REPORT_FORM_MODE to the rule registry of this process. The web build never reads it.
-  const { enterpriseReportBundles, registerEnterpriseReportRules } = await import('@machvon/edition-enterprise/src/server.ts');
+  const { enterpriseReportBundles, registerEnterpriseAiPolicy, registerEnterpriseReportRules } = await import('@machvon/edition-enterprise/src/server.ts');
   registerEnterpriseReportRules();
+  // Where the AI of the process runs (R5): on the servers of the customer, an outside provider only under an approved exception; the gateway reads the policy at every request.
+  registerEnterpriseAiPolicy();
   // The six demo forms join the catalogue of this process (RPT-1 part 2); a public process never reaches this line.
   for (const bundle of enterpriseReportBundles()) REPORT_FORMS.register(bundle);
   return ENTERPRISE_EDITION.manifest;

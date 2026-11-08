@@ -1,8 +1,8 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { LlmEmergencyStore, LlmEvalStore, LlmFinopsStore, LlmGatewayStore, LlmRegistryStore, TenantDatabase } from '@machvon/db';
+import { LlmEmergencyStore, LlmEvalStore, LlmExternalExceptionStore, LlmFinopsStore, LlmGatewayStore, LlmRegistryStore, TenantDatabase } from '@machvon/db';
 import type { AiRequestRow } from '@machvon/db';
-import { CLASSIFICATIONS, DomainError, GatewayFailure, MAX_CHECK_RETRIES, NOOP_METRICS, asUuid, classifySources, estimateVnd, killedBy, planRoute, postCheck, unsupportedSchemaKeyword, vietnamDateOf } from '@machvon/kernel';
-import type { AiGatewayPort, BudgetScope, MetricsSink, Price, RouteCandidate } from '@machvon/kernel';
+import { CLASSIFICATIONS, DomainError, GatewayFailure, MAX_CHECK_RETRIES, NOOP_METRICS, aiEditionPolicy, asUuid, classifySources, estimateVnd, externalVerdict, killedBy, planRoute, postCheck, unsupportedSchemaKeyword, vietnamDateOf } from '@machvon/kernel';
+import type { AiGatewayPort, BudgetScope, Classification, MetricsSink, Price, RouteCandidate } from '@machvon/kernel';
 import type { CommandScope } from '../../command-scope';
 import { LLM_GATEWAY, LLM_METRICS } from './tokens';
 
@@ -23,6 +23,11 @@ export interface GatewayInput {
   profileVersionId?: string;
   /** The project the request is made for, when the subject is not the project itself: its budget is held and charged as a project's is. */
   projectId?: string;
+  /**
+   * Sources that are records (a project, a contract) and not document versions: the caller read them in the scope of its user and gives their class (a record with no label is CONFIDENTIAL). They count in the class of
+   * the request like a document does, and are kept with it in the classification basis.
+   */
+  recordSources?: ReadonlyArray<{ kind: string; id: string; classification: Classification }>;
 }
 
 export interface GatewayOutcome {
@@ -43,6 +48,7 @@ export class LlmGatewayService {
   private readonly registry = new LlmRegistryStore();
   private readonly finops = new LlmFinopsStore();
   private readonly emergency = new LlmEmergencyStore();
+  private readonly exceptions = new LlmExternalExceptionStore();
   private readonly metrics: MetricsSink;
 
   constructor(
@@ -75,7 +81,8 @@ export class LlmGatewayService {
       return id;
     });
     const sources = await this.requests.sources(tx, [...new Set(ids)]);
-    const classified = classifySources(sources);
+    const records = (input.recordSources ?? []).map((record) => ({ documentVersionId: record.id, classification: record.classification, kind: record.kind }));
+    const classified = classifySources([...sources, ...records]);
     const policy = await this.registry.published(tx);
     const admitted = await this.requests.admit(tx, {
       taskType: input.taskType,
@@ -97,6 +104,11 @@ export class LlmGatewayService {
     if (stopped !== undefined) return this.reject(scope, admitted, new DomainError('AI_KILL_SWITCH_ENGAGED', 503, stopped.scopeKind), 'AI_KILL_SWITCH_ENGAGED');
     // The models that a switch of their provider or of themselves takes out: kept apart, to tell whether the switches are what left the request with nothing.
     const stoppedPool: RouteCandidate[] = [];
+    // Where the edition keeps processing on the servers of the customer, a provider outside them is used only under an approved exception that stands (R5, KT.02): the models it takes out are kept apart too, to tell the caller why.
+    const edition = aiEditionPolicy();
+    const standing = edition.externalRouting === 'EXCEPTION_REQUIRED' ? await this.exceptions.standing(tx, now) : [];
+    const withheldPool: RouteCandidate[] = [];
+    const exceptionOf = new Map<string, string>();
 
     // The models the profile may use that can be called now: approved, on an active provider, with a price whose figures are all known.
     const prices = new Map<string, { id: string; price: Price }>();
@@ -111,6 +123,12 @@ export class LlmGatewayService {
         stoppedPool.push({ modelRefId: model.id, modelId: model.modelId, providerId: model.providerId, providerCode: model.providerCode, route: model.route, pricingVersionId: row.id });
         continue;
       }
+      const verdict = externalVerdict(edition, { providerId: model.providerId, route: model.route, taskType: input.taskType, classification: classified.classification, now }, standing);
+      if (!verdict.allowed) {
+        withheldPool.push({ modelRefId: model.id, modelId: model.modelId, providerId: model.providerId, providerCode: model.providerCode, route: model.route, pricingVersionId: row.id });
+        continue;
+      }
+      if (verdict.exceptionId !== null) exceptionOf.set(model.id, verdict.exceptionId);
       prices.set(model.id, { id: row.id, price: { inputPerMillion: row.inputPerMillion, cachedPerMillion: row.cachedPerMillion, outputPerMillion: row.outputPerMillion, cachedSemantics: row.cachedSemantics, fxRateToVnd: row.fxRateToVnd } });
       candidates.push({ modelRefId: model.id, modelId: model.modelId, providerId: model.providerId, providerCode: model.providerCode, route: model.route, pricingVersionId: row.id });
     }
@@ -126,6 +144,8 @@ export class LlmGatewayService {
     const plan = planFor(candidates);
     // Nothing is left to serve the request, and a switch is the reason (the request could have been served without the switches): that is what the caller is told.
     if (!plan.ok && stoppedPool.length > 0 && planFor([...candidates, ...stoppedPool]).ok) return this.reject(scope, admitted, new DomainError('AI_KILL_SWITCH_ENGAGED', 503, 'provider'), 'AI_KILL_SWITCH_ENGAGED');
+    // Nothing is left to serve the request, and the edition keeps it off the providers it would have gone to: that is what the caller is told, with the way out (an exception).
+    if (!plan.ok && withheldPool.length > 0 && planFor([...candidates, ...withheldPool]).ok) return this.reject(scope, admitted, new DomainError('AI_EXTERNAL_EXCEPTION_REQUIRED', 422, 'provider'), 'AI_EXTERNAL_EXCEPTION_REQUIRED');
     if (!plan.ok) return this.reject(scope, admitted, new DomainError(plan.code, 422, plan.detail), plan.code);
 
     // The budget is held before a model is called, at the dearest of the models the request may fall back to, for every answer that may be paid for: the first and the ones asked again after a failed check.
@@ -176,6 +196,12 @@ export class LlmGatewayService {
         continue;
       }
       last = candidate;
+      // A call that goes out under an exception is logged before it is made: who allowed it, and which request used it.
+      const usedException = exceptionOf.get(candidate.modelRefId);
+      if (usedException !== undefined) {
+        await this.exceptions.logUse(tx, { exceptionId: usedException, aiRequestId: admitted.id, providerId: candidate.providerId, taskType: input.taskType, classification: classified.classification, route: candidate.route });
+        await scope.audit({ action: 'llm.external_exception_used', resourceType: 'ai_external_exception', resourceId: usedException, diff: { ai_request_id: admitted.id, provider_id: candidate.providerId, route_class: candidate.route, data_classification: classified.classification, task_type: input.taskType } });
+      }
       let kind: 'PRIMARY' | 'RETRY' | 'FALLBACK' = attemptNo === 0 ? 'PRIMARY' : 'FALLBACK';
       for (let tries = 0; tries <= MAX_CHECK_RETRIES; tries += 1) {
         attemptNo += 1;

@@ -4,3 +4,4 @@
  * `registerEnterpriseReportRules()` once: that adds the enterprise indicator pack under `KPI_DEFINITION` and the rule type `REPORT_FORM_MODE` to the registry of the process.
  */
 export * from './report-forms/exports.ts';
+export { ENTERPRISE_AI_POLICY, clearEnterpriseAiPolicy, registerEnterpriseAiPolicy } from './ai-policy.ts';

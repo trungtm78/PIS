@@ -223,6 +223,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> attachPaymentDocument(PayAttachPaymentDocument body, {required String id, CommandAttempt? attempt}) =>
       execute('attachPaymentDocument', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> attestAiProvider(LlmProviderAttest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('attestAiProvider', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> bindGlossaryTermToDataset(DgvGlossaryBind body, {required String id, CommandAttempt? attempt}) =>
       execute('bindGlossaryTermToDataset', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
@@ -418,11 +421,17 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> createAdjustmentInvoice(InvoiceCorrection body, {required String invoiceId, CommandAttempt? attempt}) =>
       execute('createAdjustmentInvoice', path: <String, Object?>{'invoiceId': invoiceId}, body: body, attempt: attempt);
 
+  Future<Object?> createAiAssistRun(AiAssistRunCreate body, {CommandAttempt? attempt}) =>
+      execute('createAiAssistRun', body: body, attempt: attempt);
+
   Future<Object?> createAiBudget(LlmBudgetCreate body, {CommandAttempt? attempt}) =>
       execute('createAiBudget', body: body, attempt: attempt);
 
   Future<Object?> createAiClassificationPolicy(LlmPolicyDraft body, {CommandAttempt? attempt}) =>
       execute('createAiClassificationPolicy', body: body, attempt: attempt);
+
+  Future<Object?> createAiEvalCriteriaSet(AiEvalCriteriaSetCreate body, {CommandAttempt? attempt}) =>
+      execute('createAiEvalCriteriaSet', body: body, attempt: attempt);
 
   Future<Object?> createAiEvalDataset(LlmEvalDatasetDraft body, {CommandAttempt? attempt}) =>
       execute('createAiEvalDataset', body: body, attempt: attempt);
@@ -432,6 +441,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> createAiPromptVersion(LlmPromptDraft body, {CommandAttempt? attempt}) =>
       execute('createAiPromptVersion', body: body, attempt: attempt);
+
+  Future<Object?> createAiReviewChecklist(AiReviewChecklistCreate body, {CommandAttempt? attempt}) =>
+      execute('createAiReviewChecklist', body: body, attempt: attempt);
 
   Future<Object?> createAiVirtualKey(LlmVirtualKeyCreate body, {CommandAttempt? attempt}) =>
       execute('createAiVirtualKey', body: body, attempt: attempt);
@@ -657,6 +669,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> decideActingRequest(ActingDecision body, {required String actingId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideActingRequest', path: <String, Object?>{'actingId': actingId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> decideAiAssistRun(AiAssistDecisionRequest body, {required String id, CommandAttempt? attempt}) =>
+      execute('decideAiAssistRun', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> decideAiExternalException(AiExternalExceptionDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideAiExternalException', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> decideAlertCover(AlertCoverDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideAlertCover', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -943,11 +961,26 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getAdvanceRecoveryTable({required String id, Map<String, Object?>? query}) =>
       execute('getAdvanceRecoveryTable', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getAiAssistRun({required String id, Map<String, Object?>? query}) =>
+      execute('getAiAssistRun', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getAiEditionPolicy({Map<String, Object?>? query}) =>
+      execute('getAiEditionPolicy', query: query);
+
+  Future<Object?> getAiEvalCriteriaSet({required String id, Map<String, Object?>? query}) =>
+      execute('getAiEvalCriteriaSet', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getAiExternalException({required String id, Map<String, Object?>? query}) =>
+      execute('getAiExternalException', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getAiKnowledgeCollection({required String id, Map<String, Object?>? query}) =>
       execute('getAiKnowledgeCollection', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getAiRequestRoute({required String id, Map<String, Object?>? query}) =>
       execute('getAiRequestRoute', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getAiReviewChecklist({required String id, Map<String, Object?>? query}) =>
+      execute('getAiReviewChecklist', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getAiSpendSummary({required String id, Map<String, Object?>? query}) =>
       execute('getAiSpendSummary', path: <String, Object?>{'id': id}, query: query);
@@ -2038,6 +2071,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAffectedHouseholds({Map<String, Object?>? query}) =>
       execute('listAffectedHouseholds', query: query);
 
+  Future<Object?> listAiAssistRuns({Map<String, Object?>? query}) =>
+      execute('listAiAssistRuns', query: query);
+
   Future<Object?> listAiBudgets({Map<String, Object?>? query}) =>
       execute('listAiBudgets', query: query);
 
@@ -2047,8 +2083,14 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAiDecisionRecords({Map<String, Object?>? query}) =>
       execute('listAiDecisionRecords', query: query);
 
+  Future<Object?> listAiEvalCriteriaSets({Map<String, Object?>? query}) =>
+      execute('listAiEvalCriteriaSets', query: query);
+
   Future<Object?> listAiEvalDatasets({Map<String, Object?>? query}) =>
       execute('listAiEvalDatasets', query: query);
+
+  Future<Object?> listAiExternalExceptions({Map<String, Object?>? query}) =>
+      execute('listAiExternalExceptions', query: query);
 
   Future<Object?> listAiInvoiceReconciliations({Map<String, Object?>? query}) =>
       execute('listAiInvoiceReconciliations', query: query);
@@ -2073,6 +2115,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listAiRequests({Map<String, Object?>? query}) =>
       execute('listAiRequests', query: query);
+
+  Future<Object?> listAiReviewChecklists({Map<String, Object?>? query}) =>
+      execute('listAiReviewChecklists', query: query);
 
   Future<Object?> listAiVirtualKeys({Map<String, Object?>? query}) =>
       execute('listAiVirtualKeys', query: query);
@@ -2830,6 +2875,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> publishAiClassificationPolicy({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('publishAiClassificationPolicy', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> publishAiEvalCriteriaSet({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('publishAiEvalCriteriaSet', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> publishAiReviewChecklist({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('publishAiReviewChecklist', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> publishAvcPolicy({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('publishAvcPolicy', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3193,6 +3244,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> requestAiCompletion(LlmCompletionRequest body, {CommandAttempt? attempt}) =>
       execute('requestAiCompletion', body: body, attempt: attempt);
 
+  Future<Object?> requestAiExternalException(AiExternalExceptionRequest body, {CommandAttempt? attempt}) =>
+      execute('requestAiExternalException', body: body, attempt: attempt);
+
   Future<Object?> requestAllocationExtension(CapExtensionRequest body, {required String id, CommandAttempt? attempt}) =>
       execute('requestAllocationExtension', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
@@ -3399,6 +3453,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> revokeActing(ReasonOnly body, {required String actingId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('revokeActing', path: <String, Object?>{'actingId': actingId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> revokeAiExternalException(AiExternalExceptionRevoke body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('revokeAiExternalException', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> revokeAiVirtualKey(LlmKeyRevoke body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('revokeAiVirtualKey', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

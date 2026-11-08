@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { PERMISSIONS } from '@machvon/contracts';
 import { LlmRegistryStore, TenantDatabase } from '@machvon/db';
 import type { ModelRow, PolicyVersionRow, ProviderRow } from '@machvon/db';
-import { BASELINE_MATRIX, DomainError, asUuid } from '@machvon/kernel';
+import { BASELINE_MATRIX, DomainError, aiEditionPolicy, asUuid, assertAttestedForActivation, parseAttestation } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -34,6 +34,13 @@ export function providerView(row: ProviderRow): Record<string, unknown> {
     created_by: row.createdBy,
     created_at: row.createdAt,
     version: row.version,
+    data_location_country: row.dataLocationCountry,
+    data_location_detail: row.dataLocationDetail,
+    no_training_attested: row.noTrainingAttested,
+    attestation_ref: row.attestationRef,
+    attestation_document_id: row.attestationDocumentId,
+    attested_by: row.attestedBy,
+    attested_at: row.attestedAt,
   };
 }
 
@@ -130,6 +137,9 @@ export class LlmRegistryController {
   ): Promise<CommandResult> {
     this.whole(access, PERMISSIONS.activateAiProvider);
     const d07 = body?.d07_approval_ref?.trim();
+    // Where the edition keeps processing on the servers of the customer, a provider outside them is not activated before its data location and its no-training attestation are on record (R5).
+    const named = await this.registry.findProvider(scope.tx, id);
+    if (named !== undefined) assertAttestedForActivation(aiEditionPolicy(), { routeClass: named.routeClass, dataLocationCountry: named.dataLocationCountry, noTrainingAttested: named.noTrainingAttested });
     const activated = await this.registry.activateProvider(scope.tx, id, { d07ApprovalRef: d07 === undefined || d07 === '' ? null : d07, actor: scope.tenant.membershipId, expectedVersion: scope.expectedVersion ?? 0 });
     await scope.audit({ action: 'llm.provider_activated', resourceType: PROVIDER, resourceId: id, diff: { provider_code: activated.providerCode, route_class: activated.routeClass, d07_approval_ref: activated.d07ApprovalRef } });
     await scope.emit({
@@ -142,6 +152,47 @@ export class LlmRegistryController {
       eventKey: `${PROVIDER}:${id}:${activated.version}`,
     });
     return commandResult(scope, 'ACTIVE', activated.version, id);
+  }
+
+  /** Where the provider keeps the data it is sent and whether it trains on it (R5): a registry field a person stakes their name on, with the paper that says so. */
+  @Post('ai-providers/:id/attestation')
+  @HttpCode(200)
+  @OperationId('attestAiProvider')
+  @Command({ operation: 'attestAiProvider', versioned: true })
+  async attestProvider(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['LlmProviderAttest']): Promise<CommandResult> {
+    this.whole(access, PERMISSIONS.attestAiProvider);
+    const attestation = parseAttestation({
+      dataLocationCountry: body.data_location_country,
+      dataLocationDetail: body.data_location_detail,
+      noTrainingAttested: body.no_training_attested,
+      attestationRef: body.attestation_ref,
+      attestationDocumentId: body.attestation_document_id,
+    });
+    const done = await this.registry.attestProvider(scope.tx, id, { ...attestation, actor: scope.tenant.membershipId, expectedVersion: scope.expectedVersion ?? 0 });
+    await scope.audit({
+      action: 'llm.provider_attested',
+      resourceType: PROVIDER,
+      resourceId: id,
+      diff: {
+        provider_code: done.row.providerCode,
+        route_class: done.row.routeClass,
+        from_data_location_country: done.before.dataLocationCountry,
+        to_data_location_country: done.row.dataLocationCountry,
+        from_no_training_attested: done.before.noTrainingAttested,
+        to_no_training_attested: done.row.noTrainingAttested,
+        attestation_ref: done.row.attestationRef,
+      },
+    });
+    await scope.emit({
+      aggregateType: PROVIDER,
+      aggregateId: id,
+      aggregateVersion: done.row.version,
+      type: 'llm.provider.attested.v1',
+      schemaVersion: 1,
+      payload: { provider_id: id, provider_code: done.row.providerCode, data_location_country: done.row.dataLocationCountry, no_training_attested: done.row.noTrainingAttested },
+      eventKey: `${PROVIDER}:${id}:${done.row.version}`,
+    });
+    return commandResult(scope, done.row.noTrainingAttested ? 'ATTESTED' : 'LOCATION_RECORDED', done.row.version, id);
   }
 
   @Get('ai-providers')

@@ -6256,6 +6256,110 @@
       "module": "ADM",
       "statusBasis": "spec",
       "source": "spec:ADM"
+    },
+    "AI_ASSIST_SOURCE_NOT_READABLE": {
+      "status": 422,
+      "title": "A source of the request cannot be read by the asker",
+      "meaning": "Một nguồn của yêu cầu không tồn tại hoặc người hỏi không có quyền đọc; trợ lý AI không bao giờ đọc hay dẫn nguồn mà người hỏi không đọc được.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_ASSIST_ALREADY_DECIDED": {
+      "status": 409,
+      "title": "The run has already been decided",
+      "meaning": "Lượt của trợ lý AI đã có quyết định của người; mỗi lượt chỉ được quyết định một lần.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_DECISION_NOT_ALLOWED": {
+      "status": 403,
+      "title": "The AI assistant may not do this",
+      "meaning": "Trợ lý AI chỉ đề xuất và chú thích; không duyệt, thanh toán, ký, trình, ban hành hay ghi điểm của module khác.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_STATEMENT_UNSUPPORTED": {
+      "status": 422,
+      "title": "An unsupported statement cannot be kept",
+      "meaning": "Nhận định không có dẫn nguồn đã kiểm chứng không thể được giữ lại khi chấp nhận đề xuất.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_EVALUATION_INCOMPLETE": {
+      "status": 422,
+      "title": "The evaluation has a criterion without a score",
+      "meaning": "Đề xuất đánh giá còn tiêu chí chưa có điểm (thiếu bằng chứng hoặc ngoài thang); người quyết định phải chấm hoặc chấp nhận có sửa.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "CRITERIA_WEIGHTS_INVALID": {
+      "status": 422,
+      "title": "The weights of the criteria do not add up to 10000",
+      "meaning": "Trọng số các tiêu chí phải cộng đúng 10000 điểm cơ bản mới được ban hành.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "CHECKLIST_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "The checklist is not published",
+      "meaning": "Danh mục rà soát chưa ban hành hoặc không tồn tại; chỉ rà soát theo bản đã ban hành.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "CRITERIA_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "The set of criteria is not published",
+      "meaning": "Bộ tiêu chí chưa ban hành hoặc không tồn tại; chỉ đánh giá theo bản đã ban hành.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "CHECKLIST_DRAFT_EXISTS": {
+      "status": 409,
+      "title": "A draft of the checklist already exists",
+      "meaning": "Danh mục cùng mã đang có bản nháp; ban hành hoặc xóa bản nháp trước khi soạn bản mới.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "CRITERIA_DRAFT_EXISTS": {
+      "status": 409,
+      "title": "A draft of the set of criteria already exists",
+      "meaning": "Bộ tiêu chí cùng mã đang có bản nháp; ban hành hoặc xóa bản nháp trước khi soạn bản mới.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_EXTERNAL_EXCEPTION_REQUIRED": {
+      "status": 422,
+      "title": "An approved exception is required to use a provider outside the customer servers",
+      "meaning": "Phiên bản này giữ xử lý AI trên máy chủ của khách hàng; yêu cầu sẽ đi tới nhà cung cấp bên ngoài chỉ khi có ngoại lệ đã duyệt còn hiệu lực cho nhà cung cấp đó.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "PROVIDER_ATTESTATION_REQUIRED": {
+      "status": 409,
+      "title": "The provider has no attestation of data location and no-training",
+      "meaning": "Nhà cung cấp bên ngoài máy chủ khách hàng phải có vị trí lưu trữ dữ liệu và cam kết không huấn luyện được ghi nhận trước khi kích hoạt.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "EXCEPTION_REQUEST_OPEN": {
+      "status": 409,
+      "title": "An open request for this provider and task already exists",
+      "meaning": "Đã có đề nghị ngoại lệ đang chờ duyệt cho nhà cung cấp và tác vụ này.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
     }
   }
 }

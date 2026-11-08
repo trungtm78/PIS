@@ -1,8 +1,12 @@
 import { AuditWriter, TenantDatabase } from '@machvon/db';
 import { FileService } from '../files';
 import { defineModule } from '../module-descriptor';
+import { AiAssistConfigController } from './assist-config.controller';
+import { AiAssistController } from './assist.controller';
+import { AiAssistService } from './assist.service';
 import { LlmEmergencyController } from './emergency.controller';
 import { LlmEvalController } from './eval.controller';
+import { LlmExternalExceptionController } from './external-exception.controller';
 import { LlmFinopsController } from './finops.controller';
 import { LlmGatewayController } from './gateway.controller';
 import { LlmGatewayService } from './gateway.service';
@@ -34,6 +38,9 @@ export const llmModule = defineModule({
     LlmKnowledgeController,
     LlmKnowledgeReadsController,
     LlmReconcileController,
+    AiAssistController,
+    AiAssistConfigController,
+    LlmExternalExceptionController,
   ],
   providers: [
     { provide: LLM_ADMIN, useClass: MockLiteLlm },
@@ -41,6 +48,7 @@ export const llmModule = defineModule({
     { provide: LLM_EVAL_RUNNER, useClass: MockEvalRunner },
     { provide: LLM_GATEWAY, useClass: MockAiGateway },
     LlmGatewayService,
+    AiAssistService,
     // The embeddings come from a stand-in until the gateway goes through LiteLLM; the text of a document is the text the OCR of the document module recorded (ST-LLM-007).
     { provide: LLM_EMBEDDING, useClass: MockEmbeddingPort },
     { provide: LLM_DOCUMENT_TEXT, useFactory: (files: FileService): DocumentTextPort => new OcrDocumentTextPort(files), inject: [FileService] },

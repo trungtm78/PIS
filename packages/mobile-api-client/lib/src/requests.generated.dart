@@ -55,6 +55,245 @@ final class ActingRequestCreate implements RequestModel {
       };
 }
 
+final class AiAssistDecisionRequest implements RequestModel {
+  const AiAssistDecisionRequest({
+    required this.decision,
+    required this.rationale,
+    this.items,
+  });
+
+  final String decision;
+  final String rationale;
+  final List<AiAssistDecisionRequestItemsItem>? items;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'rationale': rationale,
+        if (items != null) 'items': items,
+      };
+}
+
+final class AiAssistDecisionRequestItemsItem implements RequestModel {
+  const AiAssistDecisionRequestItemsItem({
+    required this.itemKey,
+    required this.action,
+    this.score,
+  });
+
+  final String itemKey;
+  final String action;
+  final int? score;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'item_key': itemKey,
+        'action': action,
+        if (score != null) 'score': score,
+      };
+}
+
+final class AiAssistRunCreate implements RequestModel {
+  const AiAssistRunCreate({
+    required this.kind,
+    this.requestText,
+    this.sources,
+    this.subject,
+    this.checklistId,
+    this.criteriaSetId,
+    this.profileVersionId,
+    this.maxCostVnd,
+  });
+
+  final String kind;
+  final String? requestText;
+  final List<AiSourceRef>? sources;
+  final AiSourceRef? subject;
+  final String? checklistId;
+  final String? criteriaSetId;
+  final String? profileVersionId;
+  final String? maxCostVnd;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        if (requestText != null) 'request_text': requestText,
+        if (sources != null) 'sources': sources,
+        if (subject != null) 'subject': subject,
+        if (checklistId != null) 'checklist_id': checklistId,
+        if (criteriaSetId != null) 'criteria_set_id': criteriaSetId,
+        if (profileVersionId != null) 'profile_version_id': profileVersionId,
+        if (maxCostVnd != null) 'max_cost_vnd': maxCostVnd,
+      };
+}
+
+final class AiChecklistItem implements RequestModel {
+  const AiChecklistItem({
+    required this.code,
+    required this.label,
+    required this.kind,
+    required this.severity,
+    this.params,
+  });
+
+  final String code;
+  final String label;
+  final String kind;
+  final String severity;
+  final Map<String, Object?>? params;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        'kind': kind,
+        'severity': severity,
+        if (params != null) 'params': params,
+      };
+}
+
+final class AiEvalCriteriaSetCreate implements RequestModel {
+  const AiEvalCriteriaSetCreate({
+    required this.code,
+    required this.title,
+    required this.criteria,
+    this.scaleMax,
+  });
+
+  final String code;
+  final String title;
+  final int? scaleMax;
+  final List<AiEvalCriterion> criteria;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'title': title,
+        if (scaleMax != null) 'scale_max': scaleMax,
+        'criteria': criteria,
+      };
+}
+
+final class AiEvalCriterion implements RequestModel {
+  const AiEvalCriterion({
+    required this.code,
+    required this.label,
+    required this.weightBp,
+    this.guidance,
+    this.evidenceRequired,
+  });
+
+  final String code;
+  final String label;
+  final String? guidance;
+  final int weightBp;
+  final bool? evidenceRequired;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        if (guidance != null) 'guidance': guidance,
+        'weight_bp': weightBp,
+        if (evidenceRequired != null) 'evidence_required': evidenceRequired,
+      };
+}
+
+final class AiExternalExceptionDecision implements RequestModel {
+  const AiExternalExceptionDecision({
+    required this.decision,
+    this.note,
+    this.approvalRef,
+  });
+
+  final String decision;
+  final String? note;
+  final String? approvalRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (note != null) 'note': note,
+        if (approvalRef != null) 'approval_ref': approvalRef,
+      };
+}
+
+final class AiExternalExceptionRequest implements RequestModel {
+  const AiExternalExceptionRequest({
+    required this.providerId,
+    required this.maxClassification,
+    required this.reason,
+    required this.validDays,
+    this.taskType,
+  });
+
+  final String providerId;
+  final String? taskType;
+  final String maxClassification;
+  final String reason;
+  final int validDays;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'provider_id': providerId,
+        if (taskType != null) 'task_type': taskType,
+        'max_classification': maxClassification,
+        'reason': reason,
+        'valid_days': validDays,
+      };
+}
+
+final class AiExternalExceptionRevoke implements RequestModel {
+  const AiExternalExceptionRevoke({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class AiReviewChecklistCreate implements RequestModel {
+  const AiReviewChecklistCreate({
+    required this.code,
+    required this.title,
+    required this.appliesTo,
+    required this.items,
+  });
+
+  final String code;
+  final String title;
+  final String appliesTo;
+  final List<AiChecklistItem> items;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'title': title,
+        'applies_to': appliesTo,
+        'items': items,
+      };
+}
+
+final class AiSourceRef implements RequestModel {
+  const AiSourceRef({
+    required this.kind,
+    required this.id,
+  });
+
+  final String kind;
+  final String id;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'id': id,
+      };
+}
+
 final class AlertAbsenceEnd implements RequestModel {
   const AlertAbsenceEnd({
     required this.status,
@@ -7406,6 +7645,31 @@ final class LlmProviderActivate implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         if (d07ApprovalRef != null) 'd07_approval_ref': d07ApprovalRef,
         if (comment != null) 'comment': comment,
+      };
+}
+
+final class LlmProviderAttest implements RequestModel {
+  const LlmProviderAttest({
+    required this.dataLocationCountry,
+    required this.noTrainingAttested,
+    required this.attestationRef,
+    this.dataLocationDetail,
+    this.attestationDocumentId,
+  });
+
+  final String dataLocationCountry;
+  final String? dataLocationDetail;
+  final bool noTrainingAttested;
+  final String attestationRef;
+  final String? attestationDocumentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'data_location_country': dataLocationCountry,
+        if (dataLocationDetail != null) 'data_location_detail': dataLocationDetail,
+        'no_training_attested': noTrainingAttested,
+        'attestation_ref': attestationRef,
+        if (attestationDocumentId != null) 'attestation_document_id': attestationDocumentId,
       };
 }
 
