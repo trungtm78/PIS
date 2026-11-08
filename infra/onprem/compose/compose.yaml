@@ -1,0 +1,381 @@
+# MACHVON on-prem deployment (docker compose v2.24 or newer, one host; two hosts when the database moves to its own, see docs/runbooks/infra/onprem-install.md).
+#
+# Rules this file keeps (checked by `npm run infra:check`):
+#   - every image has a pinned tag: third-party images carry tag and digest, the images of the product carry ${MACHVON_VERSION} (required, no default, never "latest");
+#   - every secret is a file under ${MACHVON_SECRETS_DIR} mounted at /run/secrets (compose `secrets`), read through NAME_FILE variables; no secret value is written here;
+#   - every long-running service has a health check, resource limits, no-new-privileges and dropped capabilities;
+#   - only the web edge publishes ports (80 and 443); the data network has no route to the outside.
+# Multi-arch: all images are built and exported for linux/amd64 and linux/arm64 (infra/onprem/images.json); docker pulls the platform of the host from the loaded index.
+name: machvon
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 20m
+      max-file: "5"
+
+x-api-environment: &api-environment
+  NODE_ENV: production
+  PORT: "3000"
+  OIDC_ISSUER: https://${PUBLIC_HOST}/auth/realms/${OIDC_REALM}
+  OIDC_JWKS_URI: http://keycloak:8080/auth/realms/${OIDC_REALM}/protocol/openid-connect/certs
+  OIDC_IDENTITY_AUDIENCE: machvon-api
+  OIDC_CONTROL_AUDIENCE: machvon-control
+  TENANT_TOKEN_ISSUER: https://${PUBLIC_HOST}/api
+  TENANT_TOKEN_KEY_ID: ${TENANT_TOKEN_KEY_ID}
+  TENANT_TOKEN_SIGNING_KEY_PEM_PATH: /run/secrets/tenant_token_signing_key
+  WEB_BASE_URL: https://${PUBLIC_HOST}
+  MACHVON_EDITION: ${MACHVON_EDITION}
+  DATABASE_URL_APP_FILE: /run/secrets/database_url_app
+  DATABASE_URL_CONTROL_FILE: /run/secrets/database_url_control
+  DATABASE_URL_OUTBOX_RELAY_FILE: /run/secrets/database_url_outbox_relay
+  OUTBOX_SIGNING_KEY_FILE: /run/secrets/outbox_signing_key
+  FIELD_ENCRYPTION_KEYS_FILE: /run/secrets/field_encryption_keys
+  LICENSE_SIGNING_KEY_ID: ${LICENSE_SIGNING_KEY_ID}
+  LICENSE_SIGNING_KEY_PEM_PATH: /run/secrets/license_signing_key
+
+x-backup-environment: &backup-environment
+  PGBACKREST_REPO1_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT}
+  PGBACKREST_REPO1_S3_BUCKET: ${BACKUP_S3_BUCKET}
+  PGBACKREST_REPO1_S3_REGION: ${BACKUP_S3_REGION}
+  PGBACKREST_REPO1_CIPHER_PASS_FILE: /run/secrets/pgbackrest_cipher_pass
+  PGBACKREST_REPO1_S3_KEY_FILE: /run/secrets/backup_s3_access_key
+  PGBACKREST_REPO1_S3_KEY_SECRET_FILE: /run/secrets/backup_s3_secret_key
+
+x-api-secrets: &api-secrets
+  - database_url_app
+  - database_url_control
+  - database_url_outbox_relay
+  - outbox_signing_key
+  - tenant_token_signing_key
+  - field_encryption_keys
+  - license_signing_key
+
+services:
+  db:
+    image: machvon/db:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *hardening
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    networks: [data]
+    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]
+    environment:
+      <<: *backup-environment
+      POSTGRES_USER: machvon_owner
+      POSTGRES_DB: machvon
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_owner_password
+    # The settings of infra/postgres/postgresql.conf.tpl: logical WAL, forced WAL switch every 60 s (RPO), continuous archive to the second site through pgBackRest.
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_timeout=60s
+      - -c
+      - archive_command=pgbackrest --stanza=machvon archive-push %p
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - shared_buffers=${DB_SHARED_BUFFERS}
+      - -c
+      - max_connections=${DB_MAX_CONNECTIONS}
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - pgsocket:/var/run/postgresql
+      - ../config/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
+      - ../config/db-init:/docker-entrypoint-initdb.d:ro
+    secrets:
+      - db_owner_password
+      - keycloak_db_password
+      - pgbackrest_cipher_pass
+      - backup_s3_access_key
+      - backup_s3_secret_key
+    healthcheck:
+      test: ["CMD", "pg_isready", "--quiet", "--host", "/var/run/postgresql", "--username", "machvon_owner", "--dbname", "machvon"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "${DB_CPUS}"
+          memory: ${DB_MEMORY}
+        reservations:
+          memory: 2g
+    pids_limit: 512
+    stop_grace_period: 60s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.2@sha256:fb31a59deb46f746f2aaa25adc5da39ceccac4fd22d36a519562b0bf02e8df20
+    <<: *hardening
+    networks: [app, data]
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/opt/machvon/secret-env.sh", "/opt/keycloak/bin/kc.sh"]
+    command: ["start", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD_FILE: /run/secrets/keycloak_db_password
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/keycloak_admin_password
+      KC_HOSTNAME: https://${PUBLIC_HOST}/auth
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      REALM_NAME: ${OIDC_REALM}
+      TENANT_HOST: ${PUBLIC_HOST}
+      CONTROL_HOST: ${CONTROL_HOST}
+      LDAP_URL: ${LDAP_URL}
+      LDAP_BIND_DN: ${LDAP_BIND_DN}
+      LDAP_BIND_CREDENTIAL_FILE: /run/secrets/ldap_bind_credential
+      LDAP_USERS_DN: ${LDAP_USERS_DN}
+      LDAP_GROUPS_DN: ${LDAP_GROUPS_DN}
+    volumes:
+      - ../docker/secret-env.sh:/opt/machvon/secret-env.sh:ro
+      - ../../keycloak/onprem/machvon-realm.json:/opt/keycloak/data/import/machvon-realm.json:ro
+    secrets:
+      - keycloak_db_password
+      - keycloak_admin_password
+      - ldap_bind_credential
+    healthcheck:
+      # The realm answers its discovery document: the server is up and the imported realm exists.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /auth/realms/${OIDC_REALM}/.well-known/openid-configuration HTTP/1.0\\r\\n\\r\\n' >&3 && head -n1 <&3 | grep -q ' 200 '"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          cpus: "${KEYCLOAK_CPUS}"
+          memory: ${KEYCLOAK_MEMORY}
+        reservations:
+          memory: 1g
+    pids_limit: 512
+
+  api:
+    image: machvon/api:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *hardening
+    networks: [app, data]
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    environment:
+      <<: *api-environment
+      WORKERS_ENABLED: "false"
+      MAX_BODY_BYTES: ${API_MAX_BODY_BYTES}
+    secrets: *api-secrets
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health/ready').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: "${API_CPUS}"
+          memory: ${API_MEMORY}
+        reservations:
+          memory: 512m
+    pids_limit: 512
+
+  workers:
+    image: machvon/workers:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *hardening
+    networks: [app, data]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    environment:
+      <<: *api-environment
+      WORKERS_ENABLED: "true"
+    secrets: *api-secrets
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health/live').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: "${WORKERS_CPUS}"
+          memory: ${WORKERS_MEMORY}
+        reservations:
+          memory: 512m
+    pids_limit: 512
+
+  web:
+    image: machvon/web:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *hardening
+    cap_add:
+      - NET_BIND_SERVICE
+    networks: [edge, app]
+    depends_on:
+      api:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+      - /var/cache/nginx:size=64m,mode=1777
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST}
+      API_UPSTREAM: api:3000
+      KEYCLOAK_UPSTREAM: keycloak:8080
+    ports:
+      - "${WEB_HTTP_PORT}:8080"
+      - "${WEB_HTTPS_PORT}:8443"
+    secrets:
+      - tls_cert
+      - tls_key
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "${WEB_CPUS}"
+          memory: ${WEB_MEMORY}
+        reservations:
+          memory: 64m
+    pids_limit: 256
+
+  # One-shot jobs, started by hand or by the host timers (profile "tools"): they are not part of `docker compose up`.
+  migrate:
+    image: machvon/api:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    profiles: [tools]
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: "no"
+    networks: [data]
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    working_dir: /app
+    command: ["node", "--disable-warning=ExperimentalWarning", "--disable-warning=MODULE_TYPELESS_PACKAGE_JSON", "packages/db/src/cli.ts", "migrate", "--root", "/app"]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url_owner
+      MACHVON_DB_PROFILE: production
+    secrets:
+      - database_url_owner
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1g
+
+  backup:
+    image: machvon/db:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    profiles: [tools]
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: "no"
+    user: postgres
+    networks: [data]
+    depends_on:
+      db:
+        condition: service_healthy
+    # `docker compose run --rm backup backup --type=full|diff|incr`, `check`, `info`, `verify`: pgBackRest with the same configuration as the archive command.
+    entrypoint: ["/usr/local/bin/secret-env", "pgbackrest", "--stanza=machvon"]
+    command: ["info"]
+    environment:
+      <<: *backup-environment
+    volumes:
+      - pgdata:/var/lib/postgresql:ro
+      - pgsocket:/var/run/postgresql
+      - ../config/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
+    secrets:
+      - pgbackrest_cipher_pass
+      - backup_s3_access_key
+      - backup_s3_secret_key
+    deploy:
+      resources:
+        limits:
+          cpus: "${BACKUP_CPUS}"
+          memory: ${BACKUP_MEMORY}
+
+networks:
+  edge: {}
+  app:
+    internal: true
+  data:
+    internal: true
+
+volumes:
+  pgdata: {}
+  pgsocket: {}
+
+secrets:
+  db_owner_password:
+    file: ${MACHVON_SECRETS_DIR}/db_owner_password
+  database_url_app:
+    file: ${MACHVON_SECRETS_DIR}/database_url_app
+  database_url_control:
+    file: ${MACHVON_SECRETS_DIR}/database_url_control
+  database_url_outbox_relay:
+    file: ${MACHVON_SECRETS_DIR}/database_url_outbox_relay
+  database_url_owner:
+    file: ${MACHVON_SECRETS_DIR}/database_url_owner
+  outbox_signing_key:
+    file: ${MACHVON_SECRETS_DIR}/outbox_signing_key
+  tenant_token_signing_key:
+    file: ${MACHVON_SECRETS_DIR}/tenant_token_signing_key
+  field_encryption_keys:
+    file: ${MACHVON_SECRETS_DIR}/field_encryption_keys
+  license_signing_key:
+    file: ${MACHVON_SECRETS_DIR}/license_signing_key
+  keycloak_db_password:
+    file: ${MACHVON_SECRETS_DIR}/keycloak_db_password
+  keycloak_admin_password:
+    file: ${MACHVON_SECRETS_DIR}/keycloak_admin_password
+  ldap_bind_credential:
+    file: ${MACHVON_SECRETS_DIR}/ldap_bind_credential
+  tls_cert:
+    file: ${MACHVON_SECRETS_DIR}/tls_cert
+  tls_key:
+    file: ${MACHVON_SECRETS_DIR}/tls_key
+  pgbackrest_cipher_pass:
+    file: ${MACHVON_SECRETS_DIR}/pgbackrest_cipher_pass
+  backup_s3_access_key:
+    file: ${MACHVON_SECRETS_DIR}/backup_s3_access_key
+  backup_s3_secret_key:
+    file: ${MACHVON_SECRETS_DIR}/backup_s3_secret_key

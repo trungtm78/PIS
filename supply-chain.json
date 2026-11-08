@@ -1,4 +1,8 @@
 {
   "rangePolicy": "lockfile",
-  "auditLevel": "high"
+  "auditLevel": "high",
+  "imageScan": {
+    "tool": "trivy",
+    "failOn": "HIGH"
+  }
 }

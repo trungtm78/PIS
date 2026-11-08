@@ -1,0 +1,19 @@
+# Build context of the on-prem images (infra/onprem/docker): sources and manifests only.
+**/node_modules
+**/dist
+**/coverage
+**/test-results
+**/.dart_tool
+.git
+.github
+.claude
+.test-locks
+apps/mobile
+packages/mobile-*
+docs
+test-results
+dist
+*.log
+.env
+.env.*
+!.env.example

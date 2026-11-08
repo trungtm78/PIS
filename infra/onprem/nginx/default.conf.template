@@ -1,0 +1,76 @@
+# Edge of the on-prem deployment: nginx-unprivileged, rendered by the image entrypoint (envsubst): PUBLIC_HOST, API_UPSTREAM, KEYCLOAK_UPSTREAM.
+# Port 8080 only redirects to HTTPS (published as 80); 8443 terminates TLS (published as 443).
+server_tokens off;
+limit_req_zone $binary_remote_addr zone=machvon_auth:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=machvon_api:10m rate=50r/s;
+
+server {
+    listen 8080;
+    server_name ${PUBLIC_HOST};
+    # The container health check; nothing else is served in clear text.
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+    location / {
+        return 301 https://${PUBLIC_HOST}$request_uri;
+    }
+}
+
+server {
+    listen 8443 ssl;
+    http2 on;
+    server_name ${PUBLIC_HOST};
+    include /etc/nginx/snippets/tls.conf;
+    client_max_body_size 26m;
+    client_body_timeout 30s;
+    client_header_timeout 15s;
+    keepalive_timeout 30s;
+
+    root /usr/share/nginx/html;
+
+    # The single-page application: the shell and the service worker are never cached stale; hashed assets are immutable.
+    location = /index.html {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+    }
+    location = /sw.js {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+    }
+    location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+    location / {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+        try_files $uri /index.html;
+    }
+
+    # The API on the same origin: the prefix is removed, as the development proxy does. The API adds its own headers; the edge adds the transport ones.
+    location /api/ {
+        limit_req zone=machvon_api burst=100 nodelay;
+        include /etc/nginx/snippets/proxy.conf;
+        include /etc/nginx/snippets/security-headers-passthrough.conf;
+        proxy_pass http://${API_UPSTREAM}/;
+    }
+
+    # Keycloak under /auth (KC_HTTP_RELATIVE_PATH=/auth): sign-in, MFA and the token endpoints. Brute-force limits are Keycloak's (5 failures, 15 minutes), this only slows floods.
+    location /auth/ {
+        limit_req zone=machvon_auth burst=30 nodelay;
+        include /etc/nginx/snippets/proxy.conf;
+        include /etc/nginx/snippets/security-headers-passthrough.conf;
+        proxy_buffer_size 16k;
+        proxy_buffers 8 16k;
+        proxy_pass http://${KEYCLOAK_UPSTREAM};
+    }
+
+    # The administration console and the metrics of Keycloak are not offered on the public edge.
+    location ~ ^/auth/(admin|metrics|health) {
+        include /etc/nginx/snippets/security-headers-passthrough.conf;
+        return 404;
+    }
+}
