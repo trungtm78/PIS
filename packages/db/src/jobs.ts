@@ -146,6 +146,12 @@ export const JOB_INTERVAL_SECONDS = {
   'advance-overdue': 3600,
   // Every 15 minutes: an item of the alert centre whose reminder is due by the cadence of its severity (in working hours) is reminded, once for each reminder of its series, and one that was taken up and went silent is noticed to the next level, once for each claim; every reminder is recorded and carried by an event (G2-4, G2-2); the pass is idempotent.
   'work-reminder': 900,
+  // Every 15 minutes: every list of the alert centre is read, every item that is seen is recorded, one whose source condition cleared (and whose source answered everywhere) is closed by the system, one that came back is reopened, and the storm of each person is started or ended (G2-8, G2-11); the pass is idempotent by its half-hour slot.
+  'alert-observe': 900,
+  // Every 5 minutes: the channel ladder of each new urgent item is started, the receipts of the rungs are read back from the delivery engine and each ladder whose time has come moves one rung, waits, hands the alert to the escalation or ends (G2-6); a rung is one row and one event key, so the pass is idempotent.
+  'alert-ladder': 300,
+  // Every 6 hours: the twelve indicators of the OCP catalogue judge every approved package and every contract with no package, and the findings that have a score are written for the auditors (G4-3); the scan of a six-hour slot is recorded once.
+  'red-flag-scan': 21_600,
   // Hourly: the latest frozen snapshot is read, and if the week it belongs to has no early-warning score yet, every unit is judged by the rules in force and one row with the breakdown is written for it, once for the week (G3-2); the pass is idempotent.
   'early-warning-score': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the working days of the month without a main diary are counted for each contract in execution once a morning wherever the process started; nothing is changed by it (ST-QMS-008).
@@ -377,6 +383,12 @@ export interface StandardJobDeps {
   advanceOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
   /** The reminders of the alert centre (G2-4): records each reminder that is due and each notice to the next level, with its event, for the people of the tenant who may read the alert centre. */
   workReminder?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ reminders: number; reclaimNotices: number; failed: number }> };
+  /** The observation of the alert centre (G2-8, G2-11): records what is seen, closes what cleared, reopens what came back, starts and ends the storms. */
+  alertObserve?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ closed: number; reopened: number; incomplete: boolean }> };
+  /** The channel ladders of the alerts (G2-6): starts, sends the next rung, reads the receipts, hands over to the escalation. */
+  alertLadder?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ sent: number; escalated: number; failed: number }> };
+  /** The red flags of procurement (G4-3): evaluates the twelve indicators and writes the findings for the auditors. */
+  redFlagScan?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ flagged: number }> };
   /** Scores every unit for the week of the latest frozen snapshot, once for the week, with the breakdown of the factors and the versions of the rules (G3-2); sets the gauge of the units scored. */
   earlyWarningScore?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ written: number }> };
   diaryCoverage?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -1163,6 +1175,36 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await workReminder.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const alertObserve = deps.alertObserve;
+  if (alertObserve !== undefined) {
+    handlers.push({
+      name: 'alert-observe',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await alertObserve.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const alertLadder = deps.alertLadder;
+  if (alertLadder !== undefined) {
+    handlers.push({
+      name: 'alert-ladder',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await alertLadder.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const redFlagScan = deps.redFlagScan;
+  if (redFlagScan !== undefined) {
+    handlers.push({
+      name: 'red-flag-scan',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await redFlagScan.run(workerContext(tenantId), now)));
       },
     });
   }

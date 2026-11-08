@@ -1710,3 +1710,20 @@ export type { EscalationCloseReason, AlertEscalationInput, EscalationRecord, Ale
 export { AlertProfileStore } from './alert-profile-store.ts';
 export type { NoticeEntry, StoredAlertProfile } from './alert-profile-store.ts';
 export { COVERAGE_SCREEN, COVER_MANAGER_PERMISSION, HomeAlertSources, applyPromotions, overlayEscalation } from './home-alert-sources.ts';
+// GOV-10: red flags, the channel ladder, the closing, the feedback and the flood of alerts, and the new alert sources.
+export { RedFlagStore } from './red-flag-store.ts';
+export type { FindingFilter, FindingRow, RedFlagRules, ReviewRow, ScanReading, ScanResult, Subject as RedFlagSubject } from './red-flag-store.ts';
+export { HomeRedFlagSources, RED_FLAG_READ_PERMISSION } from './home-red-flag-sources.ts';
+export { AlertLadderStore } from './alert-ladder-store.ts';
+export type { LadderKpi, LadderPolicyReading, RunRow as LadderRunRow, RunState as LadderRunState, RungRow as LadderRungRow } from './alert-ladder-store.ts';
+export { PermissiveAlertProfile } from './alert-profile-port.ts';
+export type { AlertProfilePort, ProfileDecision, ProfileQuestion } from './alert-profile-port.ts';
+export { AlertObservationStore } from './alert-observation-store.ts';
+export type { ApplyResult as ObservationApplyResult, ClosureFilter, ClosureRow, ClosureSummary, ObservedMeta } from './alert-observation-store.ts';
+export { AlertFeedbackStore } from './alert-feedback-store.ts';
+export type { FeedbackDecision, FeedbackQueueFilter, FeedbackRow, FeedbackSubmit, TypeFeedbackStat } from './alert-feedback-store.ts';
+export { AlertFloodStore } from './alert-flood-store.ts';
+export type { FloodEventRow, FloodPolicyReading } from './alert-flood-store.ts';
+export { ALERT_FEEDBACK_REVIEW_PERMISSION, HomeAlertFeedbackSources } from './home-alert-feedback-sources.ts';
+export { DATA_STEWARD_PERMISSION, HomeGov10Sources } from './home-gov10-sources.ts';
+export { alertTypeCodeOf } from './home-work-alert-types.ts';

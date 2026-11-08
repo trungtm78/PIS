@@ -13,6 +13,9 @@ import { HomeEgpPostingSources } from './home-egp-posting-sources.ts';
 import { HomeVendorSources } from './home-vendor-sources.ts';
 import { HomeContractRegisterSources } from './home-contract-register-sources.ts';
 import { HomeDirectiveSources } from './home-directive-sources.ts';
+import { HomeAlertFeedbackSources } from './home-alert-feedback-sources.ts';
+import { HomeGov10Sources } from './home-gov10-sources.ts';
+import { HomeRedFlagSources } from './home-red-flag-sources.ts';
 import { HomeIntegritySources } from './home-integrity-sources.ts';
 import { HomePrcSources } from './home-prc-sources.ts';
 import { HomeMoneySources } from './home-money-sources.ts';
@@ -148,6 +151,9 @@ export class HomeWorkStore {
   private readonly egpPostings = new HomeEgpPostingSources();
   private readonly vendors = new HomeVendorSources();
   private readonly contractRegisters = new HomeContractRegisterSources();
+  private readonly gov10 = new HomeGov10Sources();
+  private readonly redFlags = new HomeRedFlagSources();
+  private readonly feedback = new HomeAlertFeedbackSources();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -200,6 +206,12 @@ export class HomeWorkStore {
       ['CONTRACT_EARLY_WARNING', () => this.contractRegisters.earlyWarnings(context)],
       ['ESCALATION', () => this.alerts.escalated(context)],
       ['COVERAGE', () => this.alerts.coverageGaps(context)],
+      ['CONTRACT_CLOCK', () => this.gov10.contractClock(context)],
+      ['DOC_REVIEW', () => this.gov10.docReview(context)],
+      ['DATA_FRESHNESS', () => this.gov10.dataFreshness(context)],
+      ['ANOMALY', () => this.gov10.anomalies(context)],
+      ['RED_FLAG', () => this.redFlags.items(context)],
+      ['ALERT_FEEDBACK', () => this.feedback.items(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];
