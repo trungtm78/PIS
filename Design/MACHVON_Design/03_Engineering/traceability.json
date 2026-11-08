@@ -10353,5 +10353,59 @@
       "UI-BID-33",
       "UAT-PLAN-142"
     ]
+  },
+  {
+    "requirement": "FR-DIS-27",
+    "screen": "DIS-27",
+    "title": "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "docs/fnd-funding-model.md (FND-1); lộ trình quản trị sâu 08/11/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md; docs/fnd-funding-model.md; 2 test",
+    "backlog_id": "BL-DIS-27",
+    "test_ids": [
+      "UI-DIS-27",
+      "UAT-PLAN-93"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-28",
+    "screen": "DIS-28",
+    "title": "Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "docs/fnd-funding-model.md (FND-1); lộ trình quản trị sâu 08/11/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md; docs/fnd-funding-model.md; 2 test",
+    "backlog_id": "BL-DIS-28",
+    "test_ids": [
+      "UI-DIS-28",
+      "UAT-PLAN-93"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-29",
+    "screen": "DIS-29",
+    "title": "Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "docs/fnd-funding-model.md (FND-1); lộ trình quản trị sâu 08/11/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md; docs/fnd-funding-model.md; 2 test",
+    "backlog_id": "BL-DIS-29",
+    "test_ids": [
+      "UI-DIS-29",
+      "UAT-PLAN-93"
+    ]
   }
 ]

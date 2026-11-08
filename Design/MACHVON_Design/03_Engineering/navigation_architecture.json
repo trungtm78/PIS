@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 451,
-    "webCatalog": 451,
+    "webRoutes": 454,
+    "webCatalog": 454,
     "webModules": 26,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -2505,7 +2505,10 @@
         "ADM-24",
         "AUD-12",
         "AUD-13",
-        "HOME-12"
+        "HOME-12",
+        "DIS-27",
+        "DIS-28",
+        "DIS-29"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -7071,6 +7074,36 @@
       "area": "insights",
       "module": "RPT",
       "group": "Đã phát hành và giao",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-27",
+      "title": "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-28",
+      "title": "Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn",
+      "kind": "form",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-29",
+      "title": "Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế",
+      "kind": "detail",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
       "role": "workspace",
       "parent": null
     }

@@ -1,8 +1,8 @@
-# FND-1: the generalised funding and period model (semantics spec, step 1 of 5)
+# FND-1: the generalised funding and period model (semantics spec and what is implemented)
 
-Status: **PROPOSED, for approval** (eng-review R15). This is a specification only: no code, no migration, no contract change comes with it. RPT-1, IND-1 and ENT-1 may not consume the model before this text is approved, and every number or rule here that comes from the law or from the customer is marked **[ASSUMPTION A-n]** and listed in section 11. Module documents it reads and extends: `Design/MACHVON_Design/01_Documents/05_modules/DIS.md` (F1, F6, BR-DIS-01 to BR-DIS-13, DIS-19, DIS-21, DIS-24), `CAP.md` (F1, F6, BR-CAP-04, BR-CAP-10, BR-CAP-11, `appropriation`, `allocation_line`, `disbursement_schedule_line`), `MNE.md` (F3, BR-MNE-02, BR-MNE-05, `mne_report_form.schema_json`), `HOME.md` (HOME-01, HOME-03, BR-HOME-03). Code read: `packages/kernel/src/dis-report.ts`, `dis-snapshot.ts`, `dis-rates.ts`, `dis-progress.ts`, `analytics-rule-defaults.ts`, `governance-rules.ts`; `db/migrations/V002__schema.sql` (the bucket CHECKs), `V1362`.
+Status: **APPROVED** by the owner rule of 2026-11-08 (decide by the deepest governance, never cut scope; eng-review R15 asks for the approval before RPT-1, IND-1 and ENT-1 consume the model). **Steps 2, 3 and 4 are implemented** (section 13 lists what is built, what changed against this text and the kernel API that the later lanes consume); step 5 (the contract migration) waits for a later release by design. Every number or rule here that comes from the law or from the customer is marked **[ASSUMPTION A-n]** and listed in section 11. Module documents it reads and extends: `Design/MACHVON_Design/01_Documents/05_modules/DIS.md` (F1, F6, BR-DIS-01 to BR-DIS-13, DIS-19, DIS-21, DIS-24), `CAP.md` (F1, F6, BR-CAP-04, BR-CAP-10, BR-CAP-11, `appropriation`, `allocation_line`, `disbursement_schedule_line`), `MNE.md` (F3, BR-MNE-02, BR-MNE-05, `mne_report_form.schema_json`), `HOME.md` (HOME-01, HOME-03, BR-HOME-03). Code read: `packages/kernel/src/dis-report.ts`, `dis-snapshot.ts`, `dis-rates.ts`, `dis-progress.ts`, `analytics-rule-defaults.ts`, `governance-rules.ts`; `db/migrations/V002__schema.sql` (the bucket CHECKs), `V1362`.
 
-The five steps of FND-1: (1) this spec; (2) kernel: `FUNDING_TAXONOMY` rule type, figure engine, golden test; (3) migrations (expand); (4) stores, controllers, screens for the enterprise pack; (5) contract migration (narrow). Step 2 starts only after approval; block `V2060` to `V2079` (`fnd1`) is registered then, not now.
+The five steps of FND-1: (1) this spec (approved); (2) kernel: `FUNDING_TAXONOMY` rule type, figure engine, golden test (done); (3) migrations V2060 to V2064 (expand, done); (4) stores, controllers, screens (done: the figure store, ten operations, three screens DIS-27 to DIS-29); (5) contract migration V2065 (narrow: drop the defaults, make the pack part of the keys): not written, it belongs to the release after the one that ships steps 2 to 4.
 
 ## 1. The rule that governs the rest
 
@@ -287,3 +287,53 @@ Kernel (pure, unit and property): rule-type schema and `refine` of both packs; I
 - **IND-1:** the identities of section 8 (I4) as `DATA_ENTRY_RULE` codes calling the same kernel functions; the indicator list of 5.3 as `KPI_DEFINITION` seeds that the customer's dictionary replaces.
 - **ENT-1:** the `ENTERPRISE` pack as the seed of the enterprise edition (labels and terminology come from the edition overlay, not from this rule); the monthly and quarterly period calendars (5.1).
 - **ENT-2:** the reconciliation semantics of section 6 (item states, resolutions, tolerance, year-close block) and the delivery rule of 6.3 step 5.
+
+## 13. Implementation status, changes against this text, and the kernel API
+
+### 13.1 What is built
+
+| Part | Where | Proof |
+|---|---|---|
+| Rule type `FUNDING_TAXONOMY` with the schema and the `refine` of 4.1 and the two built-in packs of 4.2 (PUBLIC flagged verified for its shape, ENTERPRISE flagged unverified, A-3) | `packages/kernel/src/fnd-taxonomy.ts`, registered in `governance-rules.ts` (`registerEnterpriseRules`) | `test/fnd-taxonomy.test.ts`, `governance:check` |
+| Periods: grains, containment by dates, the lifecycle gate (`FIGURE_PERIOD_LOCKED`) | `fnd-period.ts` | `test/fnd-taxonomy.test.ts` |
+| The figure engine: every figure kind of 5.2, every indicator of 5.3, as-of reads from append-only revisions, the two views of 5.4, the official actual of 6.3, the variance of 6.4, the transition history of 7.3 | `fnd-figures.ts`, `fnd-indicators.ts`, `fnd-actuals.ts`, `fnd-checks.ts` | `test/fnd-figures.test.ts`, `test/fnd-checks.test.ts` (unit and seeded property tests) |
+| The public pack as data: `buildPackLines`, `publicRateSums`, `publicRateFigures`, `publicIndicatorsOf`; the snapshot hash under `hash_schema` 1 and 2 and the figure rows of a snapshot | `fnd-public.ts`, `fnd-snapshot.ts` | **the golden test** `test/fnd-public-golden.test.ts` (section 9, items 1 to 4) |
+| Migrations V2060 to V2064: pack columns, open class CHECKs by pack, `plan_figure_revision` with its guard, `funding_line_tag`, `period_snapshot_figure` with its guard, kind `RESTATED`, the view `v_snapshot_figure` | `db/migrations/V2060` to `V2064` (block 2060 to 2079, slice `FND-1`) | `packages/db/test/fnd-figure-store.test.ts`, `rls-catalog` |
+| The figure store: propose, submit, accept (with the conversion), send back, withdraw, the books for the engine (CAP year plans read as the first plan and its adjustments), the history | `packages/db/src/fnd-figure-store.ts` | `packages/db/test/fnd-figure-store.test.ts` |
+| API: `getFundingTaxonomy`, `getFundingFigureBoard`, `listFundingFigureBatches`, `getFundingFigureBatch`, `getFundingFigureHistory`, `proposeFundingFigures`, `submitFundingFigures`, `acceptFundingFigures`, `returnFundingFigures`, `withdrawFundingFigures`; permissions `funding.read`, `funding.figure.prepare`, `funding.figure.accept`; module `FND` | `apps/api/src/modules/fnd/` | `apps/api/test/fnd/figure.test.ts`, the authz and isolation suites |
+| Screens DIS-27 (figures and indicators with the `i` of formula, source and as-of), DIS-28 (prepare and approve batches), DIS-29 (history of a period) | `apps/web/src/screens/dis/funding/` | vitest of the screens |
+
+### 13.2 Changes against the text above (decisions of the lane)
+
+1. **The golden does not edit the public code.** The engine in `fnd-public.ts` is an independent implementation; `dis-snapshot.ts`, `dis-rates.ts`, `home.ts` stay byte-identical to commit `71e23a06`, and the test proves engine equals recorded fixture equals live code (field by field, tile by tile, hash by hash). The fixture was recorded by `packages/kernel/test/fixtures/fnd-public-golden.record.mjs` before any engine code existed; it was re-recorded twice afterwards only to give each fixed case its own project id and to add the two definitions of HOME-01/03 and the cases G-2a/G-2b (the recorded numbers of the cases did not change).
+2. **7.3, `period_grain = YEAR`**: the text allowed it only for opening balances, which would forbid the year plan of a measure other than DISBURSED and the estimate of a year that 5.2 defines. The CHECK allows `YEAR` for `PLAN_YEAR`, `PLAN_ADJUSTED`, `ESTIMATE` and for `ACTUAL` with basis `OPENING_BALANCE` only; `plan_figure_kind_grain_chk` and `plan_figure_kind_basis_chk` pair every kind with its grain and basis.
+3. **7.3, columns added**: `batch_id` (figures that are submitted and accepted together: the four quarters of a phasing), `flash` (an ERP figure taken before the books closed), `adjusts_plan_year` and `adjusts_ordinal` (the month a late adjustment corrects, next to `adjusts_period_id`), `taxonomy_rule_id` and `taxonomy_version` (the rule version the row was written under). The unique current key includes `adjusts_*` so that one booking period can carry the corrections of several earlier periods.
+4. **7.3, the conversion is written at the acceptance**, not inserted accepted: the actual is prepared and submitted like any figure; accepting it (by another person) writes `converted_from_id`, `estimate_amount_vnd` and `conversion_reason` on it and supersedes the estimate in the same transaction; the guard lets the link be written once, at that move. A correction of an actual that already has one is `CORRECTION_IN_OPEN_PERIOD`. A rollback after the acceptance leaves both rows as they were (tested).
+5. **7.1 and 7.2**: `appropriation` gets `taxonomy_pack` too (its inline `budget_level` and `origin` lists were closed as well); the schedule keeps granularity `WEEK` and `MONTH` (enterprise plans and estimates live in `plan_figure_revision`, so a `QUARTER` or `YEAR` schedule row would have no reader); the pre-check count of V2061 is not needed because the old CHECKs already hold for every row and the new one is added validated before the old ones are dropped.
+6. **I2 (locked is locked)** gates estimates and actuals. A plan revision (a phasing) is allowed while a month of the year is locked: it carries its knowledge date and rewrites no history (every read is as of a day). The enterprise pack requires the whole set (4 quarters or 12 months) in one batch so that the sum rule can be judged.
+7. **6.3 step 1**: with no accepted reported figure the engine takes the latest ERP figure whether or not it is flash (the figure says `flash` and the screens label it), instead of null for a closed-books figure that nobody reported.
+8. **Entry mode.** The figure store writes the period figure (`PERIOD_ENTRY`). A pack headed by the Treasury (`TREASURY_HEADLINE`, the public pack) refuses actuals through this store (422 on `figure_kind`): its actuals are the Treasury and the reports of DIS, unchanged. `deriveActuals` implements both entry modes for the readers.
+9. **Not built in this lane (hooks, section 13.4)**: the builder and the freeze of an enterprise snapshot (the tables, guards, hash schema 2 and the figure rows are built and tested; the command that reads the books into a BUILDING snapshot is RPT-1c), the reconciliation items and the ERP import (ENT-2; the kernel has the variance, the precedence and the year-close block), `funding_line_tag` writes, `V2065`.
+
+### 13.3 The kernel API the later lanes consume (`@machvon/kernel`)
+
+```
+packs         builtInPack(code) | parseFundingPack(code, params) | refineFundingPack | FUNDING_TAXONOMY_RULE_TYPE | fundingPackCodeOfEdition(edition)
+book          FigureBook { pack, figures: StoredFigure[], tmdt, yearsClosed }   (the store builds it: FndFigureStore.loadBooks)
+figures       cellFigures(book, class, tier, query) | figuresOfProject(book, projectId, query)   query = { period, asOf, measure, view }
+indicators    indicatorsOf(pack, projects, query)        ratios of the pack, sum over sum, numerator and denominator kept
+              moneyIndicatorsOf(pack, projects, query, classCode?)   additive figures (REMAINING_YEAR, CONVERSION_DELTA, ...)
+public        buildPackLines | publicRateSums | addPublicSums | publicRateFigures | publicIndicatorsOf
+actuals       officialActual | varianceOf | varianceExplanation | periodHistory | assertYearMayClose | assertResolverIsNotPreparer
+identities    assertCumulativeIdentity | assertPhasing | assertGrainSum | assertEstimateAllowed | assertSubsetWithinParent | deriveActuals | cumulativeOf
+snapshots     snapshotHashFor(1|2, header, lines, extras?) | figureRowsOf(project, figures, query)
+```
+
+Every function is pure, exact (whole dong as text, `bigint` inside, four decimals half up) and never returns zero for a missing figure. RPT-1c reads `figureRowsOf` and the view `v_snapshot_figure`; IND-1 turns the identities into `DATA_ENTRY_RULE` codes that call the same functions and the ratios of the pack into `KPI_DEFINITION` seeds (`indicatorFormula(code)` has the sentence of each); ENT-1 takes `builtInPack('ENTERPRISE')` as its seed and the calendar code `ENTERPRISE` for months, quarters and the year (`FIGURE_CALENDAR`); ENT-2 uses `officialActual`, `varianceOf` and `assertYearMayClose`.
+
+### 13.4 Hooks left for other lanes
+
+- RPT-1c: a command that builds a `period_snapshot` of the enterprise pack (BUILDING with `taxonomy_pack`, `taxonomy_rule_id`, `taxonomy_version`, `hash_schema` 2), writes `figureRowsOf` rows, and freezes it with `snapshotHashFor(2, ...)`; the `FUNDING_FIGURE` source kind of the form pack.
+- ENT-2: write `ERP` and `ADJUSTMENT` figures through `FndFigureStore.propose` with `basis: ERP`, `flash`, `erpBatchId`; the reconciliation table; the alert type `ERP_VARIANCE_OPEN`.
+- The text of `edition-enterprise` `kpi-pack.vi.json` still names the class `DEBT`; the class of this pack is `LOAN` (spec 4.2).
+- `V2065` (the contract phase) once a release has run with the defaults.

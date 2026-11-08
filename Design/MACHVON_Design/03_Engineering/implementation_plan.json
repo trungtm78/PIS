@@ -934,6 +934,11 @@
       "id": "FT-RPT-01",
       "epic": "EP-RPT",
       "title": "Generate, check, approve, issue and deliver reports"
+    },
+    {
+      "id": "FT-DIS-09",
+      "epic": "EP-DIS",
+      "title": "Generalised funding and period model: estimate, actual and the funding pack"
     }
   ],
   "stories": [
@@ -50433,6 +50438,122 @@
             "UI-BID-22",
             "UI-BID-23",
             "UI-BID-24"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DIS-026",
+      "epic": "EP-DIS",
+      "feature": "FT-DIS-09",
+      "module": "DIS",
+      "title": "Funding model: the funding pack in force, the phased plan, estimates and actuals with their lineage, and the indicators with their formulas",
+      "narrative": "As a capital planner I can prepare the phasing of the plan, an estimate or an actual for a period, have another person accept it, and read the figures and the ratios of the funding pack with their formula, source and date.",
+      "release": "R2",
+      "screens": [
+        "DIS-27",
+        "DIS-28",
+        "DIS-29"
+      ],
+      "operations": [
+        "getFundingTaxonomy",
+        "getFundingFigureBoard",
+        "listFundingFigureBatches",
+        "getFundingFigureBatch",
+        "getFundingFigureHistory",
+        "proposeFundingFigures",
+        "submitFundingFigures",
+        "acceptFundingFigures",
+        "returnFundingFigures",
+        "withdrawFundingFigures"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-DIS-026-1",
+          "given": "The public pack with its fixtures (a plan of 1,000 million given and 250 million added, 600 million paid) and the same fixtures through the funding engine",
+          "when": "The lines of the snapshot, the two ratios of the command centre and the hash are computed by the old code and by the engine",
+          "then": "Every line, tile and hash is identical field by field (60.0000 and 48.0000, 14.0000 for the group of 50/100 and 90/900 million), and a hash schema 2 of the same lines is different",
+          "test_id": "UAT-PLAN-93"
+        },
+        {
+          "id": "AC-ST-DIS-026-2",
+          "given": "An estimate of March accepted twice (100 and 120 million) and an actual of 125 million prepared by one person",
+          "when": "The preparer tries to accept it, then a second person accepts it, and an estimate is prepared after the actual",
+          "then": "403 SELF_APPROVAL_DENIED for the preparer, the estimate is superseded and linked to the actual in one transaction with the history kept (100, 120, then 125 with a difference of 5 million), and the late estimate is 422 ESTIMATE_AFTER_ACTUAL",
+          "test_id": "UAT-PLAN-93"
+        },
+        {
+          "id": "AC-ST-DIS-026-3",
+          "given": "DIS-27, DIS-28 and DIS-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty, validation error, service error with retry, permission denied and stale marker all render, every number has its \"i\" with formula, source and date, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DIS-27"
+        }
+      ],
+      "dependencies": [
+        "ST-DIS-009"
+      ],
+      "review": {
+        "required": [
+          "money",
+          "authorization"
+        ],
+        "hours": {
+          "min": 3,
+          "max": 6
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "medium",
+        "assumption": "The enterprise pack is an assumption (A-3 of docs/fnd-funding-model.md) until the customer indicator dictionary arrives; the public pack keeps its meaning unchanged."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DIS-026-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: the figure batches, their acceptance with the conversion, the board and the history",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-026-2",
+          "kind": "web",
+          "title": "DIS-27 to DIS-29 built with the kit, the seven standard states and the i on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-026-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DIS-27 to DIS-29; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-026-4",
+          "kind": "qa",
+          "title": "Golden test of the public pack, identity and property tests of the engine, domain, API, authorization and negative tests",
+          "test_ids": [
+            "UAT-PLAN-93"
+          ]
+        },
+        {
+          "id": "TK-DIS-026-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-DIS-27",
+            "UI-DIS-28",
+            "UI-DIS-29"
           ]
         }
       ]

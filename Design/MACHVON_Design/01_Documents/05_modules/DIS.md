@@ -251,3 +251,13 @@ Jobs (Temporal): `dis.period-autoclose` (soft-close sau deadline, lock theo poli
 | test_fixtures.json chưa có FX-DIS/FX-CAP/FX-PRJ/FX-MDM | QA owner | Bổ sung fixtures theo ID ở §5 |
 | MOB-13..22 cần cập nhật field hai tỷ lệ/CTMTQG OTHER và `client_operation_id` | MOB owner | Cập nhật screen MOB |
 | Ngưỡng cảnh báo, ngưỡng loại khỏi xếp hạng [GIẢ ĐỊNH] | Sở Tài chính | Rule dữ liệu được duyệt |
+
+## FND-1: mô hình vốn tổng quát (DIS-27 đến DIS-29, story ST-DIS-026)
+
+Đặc tả đầy đủ và phần đã làm nằm ở `docs/fnd-funding-model.md` (mục 13). Tóm tắt phần DIS đọc và viết:
+
+- **Gói phân loại vốn** là quy tắc `FUNDING_TAXONOMY` (một mã cho một gói): gói công giữ nguyên sáu ô của biểu mẫu (nguồn vốn năm, vốn kéo dài, nguồn khác, mỗi ô theo trung ương và địa phương) và hai tỷ lệ giải ngân hiện có; gói doanh nghiệp là vốn chủ sở hữu, vốn vay, khác. Bằng chứng gói công không đổi: test golden `packages/kernel/test/fnd-public-golden.test.ts`.
+- **DIS-27** đọc số liệu theo kỳ (tháng, quý, năm): kế hoạch năm gốc và điều chỉnh, kế hoạch quý và tháng, số ước, số thực, lũy kế từ đầu năm và từ khi bắt đầu dự án, cùng các tỷ lệ của gói; mỗi số có công thức, nguồn và ngày (nút i), số thiếu là gạch, tỷ lệ của nhóm là tổng tử chia tổng mẫu. Quyền `funding.read`, thao tác `getFundingTaxonomy`, `getFundingFigureBoard`.
+- **DIS-28** lập và duyệt lô số liệu: người lập (`funding.figure.prepare`) lưu nháp, gửi hoặc rút; người khác (`funding.figure.accept`) chấp nhận hoặc trả lại kèm lý do; người lập không tự duyệt. Kỳ đã khóa không nhận số ước hay số thực (`FIGURE_PERIOD_LOCKED`), bốn quý phải bằng kế hoạch năm (`PHASING_SUM_MISMATCH`), ba tháng bằng quý (`GRAIN_SUM_MISMATCH`), không nhận số ước sau số thực (`ESTIMATE_AFTER_ACTUAL`). Thao tác `proposeFundingFigures`, `submitFundingFigures`, `acceptFundingFigures`, `returnFundingFigures`, `withdrawFundingFigures`, `listFundingFigureBatches`, `getFundingFigureBatch`.
+- **DIS-29** là lịch sử chuyển đổi của một kỳ: các lần ước theo ngày hiệu lực rồi số thực thay thế (một giao dịch, giữ liên kết và số ước bị thay); lịch sử chỉ thêm, không sửa, không xóa. Thao tác `getFundingFigureHistory`.
+- Các con số của gói doanh nghiệp là giả định A-3 đến A-10 trong `docs/fnd-funding-model.md` mục 11 và mang nhãn chưa kiểm chứng cho đến khi nhận bộ chỉ tiêu của khách hàng; công thức của gói công vẫn ở trạng thái chờ ký D03.

@@ -21589,5 +21589,59 @@
     "covers": [
       "FR-BID-33"
     ]
+  },
+  {
+    "id": "UI-DIS-27",
+    "source": "FR-DIS-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ; user có quyền và user chỉ đọc; route DIS-27",
+    "steps": [
+      "Mở DIS-27 từ menu và deep link; kiểm nhãn trường: Dự án, Nhóm vốn, Kế hoạch năm gốc, Kế hoạch điều chỉnh, Kế hoạch đang hiệu lực, Kế hoạch kỳ, Số ước, Số thực, Lũy kế từ đầu năm, Lũy kế từ khi bắt đầu, Tỷ lệ kèm tử số và mẫu số",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi số có công thức, nguồn và ngày (nút i); số thiếu là gạch, không phải 0; tỷ lệ của nhóm là tổng tử chia tổng mẫu (FND-1 4, 5)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-27"
+    ],
+    "expected": "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ: hiển thị đúng 11 trường, áp quy tắc \"Mỗi số có công thức, nguồn và ngày (nút i); số thiếu là gạch, không phải 0; tỷ lệ của nhóm là tổng tử chia tổng mẫu (FND-1 4, 5)\", đủ 7 trạng thái, không lỗi console, không tràn ngang ở 1440 px",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-27"
+    ]
+  },
+  {
+    "id": "UI-DIS-28",
+    "source": "FR-DIS-28",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn; user có quyền và user chỉ đọc; route DIS-28",
+    "steps": [
+      "Mở DIS-28 từ menu và deep link; kiểm nhãn trường: Dự án, Nhóm vốn, Cấp ngân sách, Thước đo, Loại số liệu, Kỳ, Ngày hiệu lực, Các dòng theo tháng hoặc quý, Giải trình, Người lập, Người duyệt",
+      "Thực hiện thao tác chính theo quy tắc: Bốn quý bằng kế hoạch năm, ba tháng bằng quý; kỳ đã khóa không nhận số ước hay số thực; người lập không tự duyệt (FND-1 5.2, 7.3, 8)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-28"
+    ],
+    "expected": "Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn: hiển thị đúng 11 trường, áp quy tắc \"Bốn quý bằng kế hoạch năm, ba tháng bằng quý; kỳ đã khóa không nhận số ước hay số thực; người lập không tự duyệt (FND-1 5.2, 7.3, 8)\", đủ 7 trạng thái, không lỗi console, không tràn ngang ở 1440 px",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-28"
+    ]
+  },
+  {
+    "id": "UI-DIS-29",
+    "source": "FR-DIS-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế; user có quyền và user chỉ đọc; route DIS-29",
+    "steps": [
+      "Mở DIS-29 từ menu và deep link; kiểm nhãn trường: Kỳ, Nhóm vốn, Các lần ước theo ngày hiệu lực, Thay đổi giữa các lần, Số thực, Chênh lệch số thực so với số ước, Lô đang chờ",
+      "Thực hiện thao tác chính theo quy tắc: Lịch sử chỉ thêm, không sửa, không xóa; số ước đã báo cáo cố định tại ngày cuối kỳ (FND-1 7.3)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-29"
+    ],
+    "expected": "Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế: hiển thị đúng 7 trường, áp quy tắc \"Lịch sử chỉ thêm, không sửa, không xóa; số ước đã báo cáo cố định tại ngày cuối kỳ (FND-1 7.3)\", đủ 7 trạng thái, không lỗi console, không tràn ngang ở 1440 px",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-29"
+    ]
   }
 ]

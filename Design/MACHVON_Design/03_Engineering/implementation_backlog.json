@@ -18528,5 +18528,118 @@
     "stories": [
       "ST-BID-032"
     ]
+  },
+  {
+    "id": "BL-DIS-27",
+    "requirement": "FR-DIS-27",
+    "screen": "DIS-27",
+    "title": "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CAP,DIS",
+    "fields": [
+      "Dự án",
+      "Nhóm vốn",
+      "Kế hoạch năm gốc",
+      "Kế hoạch điều chỉnh",
+      "Kế hoạch đang hiệu lực",
+      "Kế hoạch kỳ",
+      "Số ước",
+      "Số thực",
+      "Lũy kế từ đầu năm",
+      "Lũy kế từ khi bắt đầu",
+      "Tỷ lệ kèm tử số và mẫu số"
+    ],
+    "rule": "Mỗi số có công thức, nguồn và ngày (nút i); số thiếu là gạch, không phải 0; tỷ lệ của nhóm là tổng tử chia tổng mẫu (FND-1 4, 5)",
+    "test_ids": [
+      "UI-DIS-27",
+      "UAT-PLAN-93"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DIS.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIS-026"
+    ]
+  },
+  {
+    "id": "BL-DIS-28",
+    "requirement": "FR-DIS-28",
+    "screen": "DIS-28",
+    "title": "Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CAP,DIS",
+    "fields": [
+      "Dự án",
+      "Nhóm vốn",
+      "Cấp ngân sách",
+      "Thước đo",
+      "Loại số liệu",
+      "Kỳ",
+      "Ngày hiệu lực",
+      "Các dòng theo tháng hoặc quý",
+      "Giải trình",
+      "Người lập",
+      "Người duyệt"
+    ],
+    "rule": "Bốn quý bằng kế hoạch năm, ba tháng bằng quý; kỳ đã khóa không nhận số ước hay số thực; người lập không tự duyệt (FND-1 5.2, 7.3, 8)",
+    "test_ids": [
+      "UI-DIS-28",
+      "UAT-PLAN-93"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DIS.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIS-026"
+    ]
+  },
+  {
+    "id": "BL-DIS-29",
+    "requirement": "FR-DIS-29",
+    "screen": "DIS-29",
+    "title": "Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CAP,DIS",
+    "fields": [
+      "Kỳ",
+      "Nhóm vốn",
+      "Các lần ước theo ngày hiệu lực",
+      "Thay đổi giữa các lần",
+      "Số thực",
+      "Chênh lệch số thực so với số ước",
+      "Lô đang chờ"
+    ],
+    "rule": "Lịch sử chỉ thêm, không sửa, không xóa; số ước đã báo cáo cố định tại ngày cuối kỳ (FND-1 7.3)",
+    "test_ids": [
+      "UI-DIS-29",
+      "UAT-PLAN-93"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DIS.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIS-026"
+    ]
   }
 ]
