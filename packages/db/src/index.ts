@@ -1811,3 +1811,5 @@ export { ANNOTATION_RESOURCE, AnaRankingStore, COMPLAINT_RESOURCE } from './ana-
 export type { AnnotationRow as RankingAnnotationRow, ComplaintRow as RankingComplaintRow, RankingModelReading } from './ana-ranking-store.ts';
 export { AnaBottleneckStore, HALT_RESOURCE } from './ana-bottleneck-store.ts';
 export type { BottleneckPolicyReading, DossierRow as HaltDossierRow, SourceRead as BottleneckSourceRead, StepRow as HaltStepRow, UndocumentedHalt } from './ana-bottleneck-store.ts';
+export { AnaInsightStore, NO_FUND_KEY } from './ana-insight-store.ts';
+export type { HeatLabel, HeatSource, InsightPolicyReading } from './ana-insight-store.ts';

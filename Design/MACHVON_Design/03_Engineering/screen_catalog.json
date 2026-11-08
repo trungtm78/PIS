@@ -12729,5 +12729,46 @@
     "platform": "web",
     "req": "FR-BI-28",
     "source": "Lộ trình quản trị 10/10 (G3-9); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-29",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Bản đồ nhiệt giải ngân",
+    "kind": "dashboard",
+    "fields": [
+      "Góc nhìn (đơn vị theo nguồn vốn, nhà thầu theo đơn vị, nhà thầu theo nguồn vốn)",
+      "Tỷ lệ của ô bằng số, chữ và dấu hiệu",
+      "Số dự án hoặc hợp đồng của ô",
+      "Ô quá nhỏ không hiển thị",
+      "Tổng hàng và tổng cột"
+    ],
+    "role": "Lãnh đạo, chuyên viên kế hoạch vốn, kiểm toán",
+    "rule": "Ô có quá ít dự án hoặc hợp đồng không hiển thị và tổng không tính ô đó; màu theo ngưỡng của quy tắc quản trị chưa xác nhận và luôn đi kèm chữ; thiếu số liệu là N/A kèm lý do; nhà thầu chỉ trong phạm vi dự án của người đọc",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-29",
+    "source": "Lộ trình quản trị 10/10 (G3-10); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-30",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Kiểm thử ngưỡng cảnh báo và xu hướng",
+    "kind": "compare",
+    "fields": [
+      "Ngưỡng ứng viên",
+      "Báo đúng, báo sai, bỏ sót",
+      "Độ chính xác và độ phủ",
+      "Thời gian báo trước trung bình",
+      "Biểu đồ theo ngưỡng",
+      "Xếp hạng xu hướng cải thiện và xấu đi"
+    ],
+    "role": "Quản trị quy tắc, lãnh đạo, chuyên viên BI",
+    "rule": "Kiểm thử ngược là phát lại các tuần đã lưu, không phải lời hứa và không đổi ngưỡng đang áp dụng; đổi ngưỡng đi qua kho quy tắc quản trị; thiếu mẫu là N/A kèm lý do; xếp hạng xu hướng là thay đổi điểm chứ không phải mức điểm",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-30",
+    "source": "Lộ trình quản trị 10/10 (G3-11); thiết kế làn GOV-11b"
   }
 ]
