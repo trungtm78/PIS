@@ -16,16 +16,16 @@ Branch `lane/gov11b`, migration block `GOVANA-1` = 2580 to 2599 (migration names
 ## Steps (tick when done)
 
 - [x] 0. Register block, plan file, shared helpers (mutex script), brief for the slices
-- [ ] 1. FORECAST: kernel `ana-forecast` (golden numbers), reader, API, screen with FlowChart band and "needed per week", 'i' formula/source/as-of, states matrix, i18n, tests
-- [ ] 2. INSIGHT: kernel heat-map, backtest and trend ranking, reader, API, screens, tests
-- [ ] 3. DECISION: kernel, migration (RLS, audit, outbox, tenant-leading indexes), store, API, screens, tests
-- [ ] 4. TRUST: kernel freshness and lineage graph from the metric files and registries (no new tables where possible), API, screens, tests
-- [ ] 5. RANKING: kernel, migration, store, API, screens, tests
-- [ ] 6. BOTTLENECK: kernel, migration, store, API, screens, tests
-- [ ] 7. Thresholds through the governance rules registry flagged unverified (`npm run governance:check`)
-- [ ] 8. BI metric files for new indicators (`npm run bi:metrics:check`)
-- [ ] 9. Integration: contracts regenerated, story and traceability rows, design pages, route table counts, UAT docs, isolation suite lists (foreign-id case per id-bearing operation; new GET without id in the implemented list and `LISTS_WITHOUT_ROWS`), command-conformance counts, outbox consumers, dis/report
-- [ ] 10. Gate: lint chain, typecheck, tests of what changed, self-scan, design check and baseline
+- [x] 1. FORECAST: kernel `ana-forecast` (golden numbers), reader, API, screen with FlowChart band and "needed per week", 'i' formula/source/as-of, states matrix, i18n, tests
+- [x] 2. INSIGHT: kernel heat-map, backtest and trend ranking, reader, API, screens, tests
+- [x] 3. DECISION: kernel, migration (RLS, audit, outbox, tenant-leading indexes), store, API, screens, tests
+- [x] 4. TRUST: kernel freshness and lineage graph from the metric files and registries (no new tables where possible), API, screens, tests
+- [x] 5. RANKING: kernel, migration, store, API, screens, tests
+- [x] 6. BOTTLENECK: kernel, migration, store, API, screens, tests
+- [x] 7. Thresholds through the governance rules registry flagged unverified (`npm run governance:check`)
+- [x] 8. BI metric files: no new BI metric indicator (the screens read the stored snapshot and the governance rules); `npm run bi:metrics:check` is green
+- [x] 9. Integration: contracts regenerated, story and traceability rows, design pages, route table counts, UAT docs, isolation suite lists (foreign-id case per id-bearing operation; new GET without id in the implemented list and `LISTS_WITHOUT_ROWS`), command-conformance counts, outbox consumers, dis/report
+- [x] 10. Gate: lint chain, typecheck, tests of what changed, self-scan, design check and baseline
 - [ ] 11. Codex review (`codex review --base main`), triage of every finding, fixes with regression tests
 
 ## Tests per step
