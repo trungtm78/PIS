@@ -1659,4 +1659,6 @@ export { PayIntegrityAlertSource } from './gov-d-integrity-alerts.ts';
 export type { IntegrityAlertItem, IntegrityAlertType } from './gov-d-integrity-alerts.ts';
 // CA-1, part 2: the contract fact, its frozen snapshots and the reader of the portfolio and the reports.
 export { CONTRACT_STATUS_VALUES, CONTRACT_TYPE_VALUES, CtrFactStore, FACT_SORTS, linesOfContract } from './ctr-fact-store.ts';
-export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
+export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
+export { CtrMoneyStore, EVM_SELECTION_CAP } from './ctr-money-store.ts';
+export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from './ctr-money-store.ts';

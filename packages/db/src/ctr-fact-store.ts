@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { DomainError, REPORT_SUMS, SUM_KEYS, hasControlChar, spreadByWeight } from '@machvon/kernel';
-import type { ConcentrationInput, ContractFact, CtrReportCode, SumKey, Sums } from '@machvon/kernel';
+import { DomainError, REPORT_SUMS, SUM_KEYS, hasControlChar, spreadByWeight, threeWaySqlArguments } from '@machvon/kernel';
+import type { ConcentrationInput, ContractFact, CtrReportCode, SumKey, Sums, ThreeWayParams } from '@machvon/kernel';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -175,7 +175,7 @@ export const CONTRACT_STATUS_VALUES = ['DRAFT', 'IN_REVIEW', 'SIGNED', 'ACTIVE',
 export const CONTRACT_TYPE_VALUES = ['LUMP_SUM', 'UNIT_PRICE', 'ADJUSTABLE_PRICE', 'TIME_BASED', 'COST_PLUS_FEE', 'EPC', 'ESTIMATE_BASED'] as const;
 const escapeLike = (value: string): string => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
-interface Assembled {
+export interface Assembled {
   from: string;
   where: string[];
   params: unknown[];
@@ -185,7 +185,7 @@ interface Assembled {
 }
 
 /** The FROM and WHERE of a query over the fact: the source, the scope of the reader, the filters; and the predicate of the ledger. Parameters are numbered in the order they are added. */
-function assemble(query: FactQuery, withLedger = true): Assembled {
+export function assemble(query: FactQuery, withLedger = true): Assembled {
   const params: unknown[] = [];
   const next = (value: unknown): string => {
     params.push(value);
@@ -228,13 +228,44 @@ function assemble(query: FactQuery, withLedger = true): Assembled {
   return { from: joinsOf(source), where, params, ledger: ledger.sql, asOf: query.asOf };
 }
 
-async function pinDay(tx: TenantTx, asOf: string): Promise<void> {
+export async function pinDay(tx: TenantTx, asOf: string): Promise<void> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw invalid('as_of');
   await tx.query("select set_config('app.contract_fact_as_of', $1, true)", [asOf]);
 }
 
-/** The group a contract falls in for a breakdown (what the totals of the groups are cut by); the keys are those of `BREAKDOWN_KEYS`. */
-const BREAKDOWN_SQL: Readonly<Record<string, string>> = {
+/** What a group of a breakdown may depend on besides the row: the rule of the three-way match and the tolerance of the advance recovery (both come from governance rules, never from the code). */
+export interface BreakdownContext {
+  threeWay: ThreeWayParams;
+  advanceToleranceVnd: bigint;
+}
+
+const DEFAULT_BREAKDOWN_CONTEXT: BreakdownContext = { threeWay: { tolerance_pct: 2, tolerance_vnd: 1_000_000 }, advanceToleranceVnd: 0n };
+
+/** Whether a gap between two figures is beyond the tolerance, in the same exact arithmetic as `matchStatusOf` of the kernel: the gap in ten-thousandths of a dong against the larger of the sum and the share of the larger figure. */
+const beyond = (larger: string, smaller: string, sum: string, share: string): string => `(${larger} > ${smaller} and (${larger} - ${smaller}) * 10000 > greatest(${sum}::numeric * 10000, ${larger} * ${share}::numeric))`;
+
+const EXPECTED_RECOVERY = 'round(c.advance_paid_vnd * least(c.accepted_vnd, c.contract_value_vnd) / c.contract_value_vnd)';
+
+/** The group a contract falls in for a breakdown (what the totals of the groups are cut by); the keys are those of `BREAKDOWN_KEYS`. A function is a group that depends on a rule or on the ledger right. */
+const BREAKDOWN_SQL: Readonly<Record<string, string | ((context: BreakdownContext, ledger: string) => string)>> = {
+  match_status: (context, ledger) => {
+    const { toleranceVnd, toleranceHundredths } = threeWaySqlArguments(context.threeWay);
+    const gap = (larger: string, smaller: string): string => beyond(larger, smaller, toleranceVnd, toleranceHundredths);
+    return `case when not (${ledger}) then null
+         when c.measured_vnd = 0 and c.requested_vnd = 0 and c.accepted_vnd = 0 and c.paid_vnd = 0 then 'NO_ACTIVITY'
+         when ${gap('c.paid_vnd', 'c.accepted_vnd')} then 'OVER_PAID'
+         when ${gap('c.accepted_vnd', 'c.measured_vnd')} then 'ACCEPTED_WITHOUT_MEASUREMENT'
+         when ${gap('c.requested_vnd', 'c.accepted_vnd')} then 'REQUEST_NOT_ACCEPTED'
+         when ${gap('c.measured_vnd', 'c.accepted_vnd')} then 'MEASURED_NOT_ACCEPTED'
+         else 'MATCHED' end`;
+  },
+  recovery_status: (context, ledger) => {
+    const tolerance = context.advanceToleranceVnd.toString();
+    return `case when not (${ledger}) or c.advance_paid_vnd <= 0 or c.contract_value_vnd <= 0 then null
+         when c.advance_paid_vnd - c.advance_recovered_vnd <= ${tolerance} then 'RECOVERED'
+         when ${EXPECTED_RECOVERY} - c.advance_recovered_vnd > ${tolerance} then 'BEHIND'
+         else 'ON_TRACK' end`;
+  },
   bidder_band: "case when c.bidder_count is null then 'UNKNOWN' when c.bidder_count = 1 then 'ONE' when c.bidder_count <= 3 then 'TWO_THREE' else 'FOUR_PLUS' end",
   contract_status: 'c.contract_status',
   delay_band: "case when c.days_late is null then 'NOT_APPLICABLE' when c.days_late = 0 then 'NOT_LATE' when c.days_late <= 30 then 'LATE_1_30' when c.days_late <= 90 then 'LATE_31_90' else 'LATE_OVER_90' end",
@@ -276,6 +307,9 @@ const SUM_SQL: Readonly<Record<SumKey, (l: string) => string>> = {
   max_request_to_treasury: () => 'max(c.request_to_treasury_days_max)',
   max_tier: () => 'max(c.max_change_tier)',
   max_cumulative_variation: () => 'max(c.max_cumulative_variation_pct)',
+  advance_expected: (l) => `coalesce(sum(${EXPECTED_RECOVERY}) filter (where ${l} and c.advance_paid_vnd > 0 and c.contract_value_vnd > 0), 0)`,
+  advance_shortfall: (l) => `coalesce(sum(greatest(0, ${EXPECTED_RECOVERY} - c.advance_recovered_vnd)) filter (where ${l} and c.advance_paid_vnd > 0 and c.contract_value_vnd > 0), 0)`,
+  advance_recovery_rows: (l) => `count(*) filter (where ${l} and c.advance_paid_vnd > 0 and c.contract_value_vnd > 0)`,
 };
 
 export interface FactSnapshotRow {
@@ -490,12 +524,13 @@ export class CtrFactStore {
   }
 
   /** The sums of the contracts of the query (the ones a report reads), and, when a breakdown is named, of each group. A group that has no contract is not there. */
-  async sums(tx: TenantTx, query: FactQuery, keys: readonly SumKey[], breakdown?: string): Promise<{ total: Sums; groups: FactGroupSums[] }> {
+  async sums(tx: TenantTx, query: FactQuery, keys: readonly SumKey[], breakdown?: string, context: BreakdownContext = DEFAULT_BREAKDOWN_CONTEXT): Promise<{ total: Sums; groups: FactGroupSums[] }> {
     await pinDay(tx, query.asOf);
     const built = assemble(query);
-    const group = breakdown === undefined ? undefined : BREAKDOWN_SQL[breakdown];
-    if (breakdown !== undefined && group === undefined) throw invalid('breakdown');
     const ledger = `(${built.ledger})`;
+    const chosen = breakdown === undefined ? undefined : BREAKDOWN_SQL[breakdown];
+    if (breakdown !== undefined && chosen === undefined) throw invalid('breakdown');
+    const group = typeof chosen === 'function' ? chosen(context, ledger) : chosen;
     const columns = keys.map((key) => `${SUM_SQL[key](ledger)}::text as s_${key}`).join(',\n         ');
     const common = `count(*)::int as rows, (count(*) filter (where ${ledger}))::int as ledger_rows${columns === '' ? '' : `,\n         ${columns}`}`;
     const toSums = (row: Row): Sums => {
@@ -511,8 +546,8 @@ export class CtrFactStore {
   }
 
   /** The sums a report needs, by the catalogue. */
-  reportSums(tx: TenantTx, query: FactQuery, code: Exclude<CtrReportCode, 'contractor-concentration'>, breakdown?: string): Promise<{ total: Sums; groups: FactGroupSums[] }> {
-    return this.sums(tx, query, REPORT_SUMS[code], breakdown);
+  reportSums(tx: TenantTx, query: FactQuery, code: Exclude<CtrReportCode, 'contractor-concentration'>, breakdown?: string, context?: BreakdownContext): Promise<{ total: Sums; groups: FactGroupSums[] }> {
+    return this.sums(tx, query, REPORT_SUMS[code], breakdown, context);
   }
 
   /** The ACTIVE contracts the concentration reads (a draft is not exposure and a closed contract no longer is), each with its active parties; two queries, so that no row carries a document of its own. */
