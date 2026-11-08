@@ -19310,5 +19310,181 @@
       "Các đợt lũ"
     ],
     "rule": "Hệ thống chỉ đóng cảnh báo khi nguồn của nó đã trả lời ở mọi danh sách; nguồn lỗi không bao giờ đóng gì; cảnh báo quay lại thì mở lại; lũ gom cảnh báo mới dưới mức Khẩn thành thẻ, Khẩn không bao giờ bị gộp."
+  },
+  {
+    "id": "BL-INT-01",
+    "requirement": "FR-INT-01",
+    "screen": "INT-01",
+    "title": "Tài khoản máy",
+    "module": "INT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DGV,DIS,CTR",
+    "fields": [
+      "Tên",
+      "Trạng thái",
+      "Phạm vi",
+      "Giới hạn mỗi phút",
+      "Hết hạn",
+      "Thông tin xác thực",
+      "Lần dùng gần nhất"
+    ],
+    "rule": "Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán",
+    "test_ids": [
+      "UI-INT-01"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-INT-001"
+    ]
+  },
+  {
+    "id": "BL-INT-02",
+    "requirement": "FR-INT-02",
+    "screen": "INT-02",
+    "title": "Phạm vi và khóa",
+    "module": "INT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DGV,DIS,CTR",
+    "fields": [
+      "Mã phạm vi",
+      "Tập dữ liệu đứng sau",
+      "Tài khoản giữ phạm vi",
+      "Mã khách",
+      "Gợi ý bí mật",
+      "Trạng thái khóa",
+      "Hạn chuyển tiếp"
+    ],
+    "rule": "Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật",
+    "test_ids": [
+      "UI-INT-02"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-INT-001"
+    ]
+  },
+  {
+    "id": "BL-INT-03",
+    "requirement": "FR-INT-03",
+    "screen": "INT-03",
+    "title": "Ánh xạ mã dự án đa hệ thống",
+    "module": "INT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DGV,DIS,CTR",
+    "fields": [
+      "Hệ thống",
+      "Mã dự án của ta",
+      "Mã trong hệ thống",
+      "Hiệu lực từ-đến",
+      "Trạng thái",
+      "Người đề xuất",
+      "Người duyệt",
+      "Khuôn dạng mã"
+    ],
+    "rule": "Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới",
+    "test_ids": [
+      "UI-INT-03"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-INT-001"
+    ]
+  },
+  {
+    "id": "BL-INT-04",
+    "requirement": "FR-INT-04",
+    "screen": "INT-04",
+    "title": "Tài khoản BI và tập dữ liệu chứng nhận",
+    "module": "INT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DGV,DIS,CTR",
+    "fields": [
+      "Tên",
+      "Công cụ",
+      "Tên đăng nhập CSDL",
+      "Trạng thái",
+      "Số kết nối tối đa",
+      "Lần đổi mật khẩu gần nhất",
+      "Tập dữ liệu",
+      "Chứng nhận",
+      "Hết hạn chứng nhận"
+    ],
+    "rule": "Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL",
+    "test_ids": [
+      "UI-INT-04"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-INT-001"
+    ]
+  },
+  {
+    "id": "BL-INT-05",
+    "requirement": "FR-INT-05",
+    "screen": "INT-05",
+    "title": "Nhật ký truy cập API mở",
+    "module": "INT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DGV,DIS,CTR",
+    "fields": [
+      "Thời điểm",
+      "Tài khoản máy",
+      "Thao tác",
+      "Phạm vi",
+      "Đường dẫn",
+      "Tên tham số",
+      "Kết quả",
+      "Mã trạng thái",
+      "Số dòng",
+      "Mã tương quan"
+    ],
+    "rule": "Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây",
+    "test_ids": [
+      "UI-INT-05"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-INT-001"
+    ]
   }
 ]

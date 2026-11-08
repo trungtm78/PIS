@@ -10792,5 +10792,90 @@
       "UI-HOME-31",
       "UAT-PLAN-143"
     ]
+  },
+  {
+    "requirement": "FR-INT-01",
+    "screen": "INT-01",
+    "title": "Tài khoản máy",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch INT-1 (API mở, tài khoản máy), rà soát kỹ thuật R6; docs/open-api.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/INT.md; docs/open-api.md",
+    "backlog_id": "BL-INT-01",
+    "test_ids": [
+      "UI-INT-01"
+    ]
+  },
+  {
+    "requirement": "FR-INT-02",
+    "screen": "INT-02",
+    "title": "Phạm vi và khóa",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch INT-1; docs/open-api.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/INT.md; docs/open-api.md",
+    "backlog_id": "BL-INT-02",
+    "test_ids": [
+      "UI-INT-02"
+    ]
+  },
+  {
+    "requirement": "FR-INT-03",
+    "screen": "INT-03",
+    "title": "Ánh xạ mã dự án đa hệ thống",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch INT-1, ENT-2 dùng chung; docs/egp-connector.md mục 5",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/INT.md; docs/open-api.md",
+    "backlog_id": "BL-INT-03",
+    "test_ids": [
+      "UI-INT-03"
+    ]
+  },
+  {
+    "requirement": "FR-INT-04",
+    "screen": "INT-04",
+    "title": "Tài khoản BI và tập dữ liệu chứng nhận",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch INT-1 (R6, R13); docs/open-api.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/INT.md; docs/open-api.md",
+    "backlog_id": "BL-INT-04",
+    "test_ids": [
+      "UI-INT-04"
+    ]
+  },
+  {
+    "requirement": "FR-INT-05",
+    "screen": "INT-05",
+    "title": "Nhật ký truy cập API mở",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch INT-1 (kiểm toán mọi lần đọc); docs/open-api.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/INT.md; docs/open-api.md",
+    "backlog_id": "BL-INT-05",
+    "test_ids": [
+      "UI-INT-05"
+    ]
   }
 ]

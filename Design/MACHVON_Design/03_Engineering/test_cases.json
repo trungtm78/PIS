@@ -22399,5 +22399,152 @@
       "FR-HOME-14",
       "FR-HOME-15"
     ]
+  },
+  {
+    "id": "UI-INT-01",
+    "source": "Screen INT-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tài khoản máy; user có quyền và user chỉ đọc; route INT-01",
+    "steps": [
+      "Mở INT-01 từ menu và deep link; kiểm nhãn trường: Tên, Trạng thái, Phạm vi, Giới hạn mỗi phút, Hết hạn, Thông tin xác thực, Lần dùng gần nhất",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-01"
+    ],
+    "expected": "Tài khoản máy: hiển thị đúng 7 trường, áp quy tắc \"Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01"
+    ]
+  },
+  {
+    "id": "UI-INT-02",
+    "source": "Screen INT-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Phạm vi và khóa; user có quyền và user chỉ đọc; route INT-02",
+    "steps": [
+      "Mở INT-02 từ menu và deep link; kiểm nhãn trường: Mã phạm vi, Tập dữ liệu đứng sau, Tài khoản giữ phạm vi, Mã khách, Gợi ý bí mật, Trạng thái khóa, Hạn chuyển tiếp",
+      "Thực hiện thao tác chính theo quy tắc: Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-02"
+    ],
+    "expected": "Phạm vi và khóa: hiển thị đúng 7 trường, áp quy tắc \"Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UI-INT-03",
+    "source": "Screen INT-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ánh xạ mã dự án đa hệ thống; user có quyền và user chỉ đọc; route INT-03",
+    "steps": [
+      "Mở INT-03 từ menu và deep link; kiểm nhãn trường: Hệ thống, Mã dự án của ta, Mã trong hệ thống, Hiệu lực từ-đến, Trạng thái, Người đề xuất, Người duyệt, Khuôn dạng mã",
+      "Thực hiện thao tác chính theo quy tắc: Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-03"
+    ],
+    "expected": "Ánh xạ mã dự án đa hệ thống: hiển thị đúng 8 trường, áp quy tắc \"Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UI-INT-04",
+    "source": "Screen INT-04",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tài khoản BI và tập dữ liệu chứng nhận; user có quyền và user chỉ đọc; route INT-04",
+    "steps": [
+      "Mở INT-04 từ menu và deep link; kiểm nhãn trường: Tên, Công cụ, Tên đăng nhập CSDL, Trạng thái, Số kết nối tối đa, Lần đổi mật khẩu gần nhất, Tập dữ liệu, Chứng nhận, Hết hạn chứng nhận",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-04"
+    ],
+    "expected": "Tài khoản BI và tập dữ liệu chứng nhận: hiển thị đúng 9 trường, áp quy tắc \"Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UI-INT-05",
+    "source": "Screen INT-05",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Nhật ký truy cập API mở; user có quyền và user chỉ đọc; route INT-05",
+    "steps": [
+      "Mở INT-05 từ menu và deep link; kiểm nhãn trường: Thời điểm, Tài khoản máy, Thao tác, Phạm vi, Đường dẫn, Tên tham số, Kết quả, Mã trạng thái, Số dòng, Mã tương quan",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-05"
+    ],
+    "expected": "Nhật ký truy cập API mở: hiển thị đúng 10 trường, áp quy tắc \"Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-001",
+    "source": "INT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Two tenants; a machine account of tenant A with scope open.projects.read, a token it was issued and a second account with a rate limit of 2 per minute.",
+    "steps": [
+      "Read projects, then the contracts dataset without its scope",
+      "Suspend the account while it holds the token and read again",
+      "Rotate the secret, then look for the secret in the audit rows, the events and the stored answers",
+      "Call the third time within a minute on the account limited to 2"
+    ],
+    "expected": "Step 1: only tenant A projects, then 403 OPEN_SCOPE_DENIED; step 2: 401 OPEN_CLIENT_INVALID at once; step 3: the secret was shown once and is in none of them; step 4: 429 with Retry-After; every call has a row of the access log with parameter names and no values.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01",
+      "FR-INT-02",
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-002",
+    "source": "INT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Two tenants each with a BI login and a certified dataset switched on.",
+    "steps": [
+      "Read the certified views with each login",
+      "With the login of tenant A set app.tenant_id to tenant B and read again, from the views and from the tables",
+      "Revoke the certification of the product behind the dataset and read again"
+    ],
+    "expected": "Step 1: each login reads its own tenant only; step 2: no row from the views and none from the tables; step 3: the dataset is closed at once with the reason NOT_CERTIFIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-003",
+    "source": "INT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A system registered with a code format and a project of ours without a code in it.",
+    "steps": [
+      "Propose a code and approve it as the same person",
+      "Approve it as another person",
+      "Propose the same code for another project and a second code for the same project"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: ACTIVE on master_crosswalk; step 3: 409 CROSSWALK_DUPLICATE both times, and a code outside the format is refused with 422.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
   }
 ]

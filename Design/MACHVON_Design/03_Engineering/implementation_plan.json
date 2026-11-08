@@ -173,6 +173,12 @@
       "module": "VND",
       "title": "Contractor and supplier management",
       "goal": "Know each contractor fully (profile, owners, accounts, certificates), run the debarment of a contractor as a case with its time limits, record the events of bid conduct, and block a restricted contractor or an invalid account at every step where the contractor meets the law and the money."
+    },
+    {
+      "id": "EP-INT",
+      "module": "INT",
+      "title": "Open interface and integrations",
+      "goal": "Let other systems read what the organization has certified, without a way around its tenant boundary: machine accounts with scopes, rate limits and an access log, certified datasets behind both an API and read-only database logins bound to one tenant, and the codes of our projects in the other systems of the organization."
     }
   ],
   "features": [
@@ -960,6 +966,11 @@
       "id": "FT-CTR-10",
       "epic": "EP-CTR",
       "title": "Claim register with limitation per contract and the early-warning register"
+    },
+    {
+      "id": "FT-INT-01",
+      "epic": "EP-INT",
+      "title": "Open API, machine accounts, BI logins and multi-system project codes"
     }
   ],
   "stories": [
@@ -52160,6 +52171,182 @@
           "test_ids": [
             "UI-HOME-30",
             "UI-HOME-31"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-INT-001",
+      "epic": "EP-INT",
+      "feature": "FT-INT-01",
+      "module": "INT",
+      "title": "Open API for machines, certified datasets for BI logins bound to one tenant, and project codes across systems",
+      "narrative": "As an integration administrator I can open machine accounts with scopes and rate limits, give BI tools a read-only login bound to my organization, switch certified datasets on for them, and map the codes of our projects in the other systems, and every read leaves a row in the access log.",
+      "release": "R2",
+      "screens": [
+        "INT-01",
+        "INT-02",
+        "INT-03",
+        "INT-04",
+        "INT-05"
+      ],
+      "operations": [
+        "listMachineAccounts",
+        "createMachineAccount",
+        "getMachineAccount",
+        "updateMachineAccount",
+        "decideMachineAccount",
+        "rotateMachineCredential",
+        "listOpenAccessLog",
+        "listExportDatasets",
+        "setExportDataset",
+        "listBiReaders",
+        "createBiReader",
+        "getBiReader",
+        "rotateBiReaderPassword",
+        "decideBiReader",
+        "listSourceSystems",
+        "registerSourceSystem",
+        "retireSourceSystem",
+        "listProjectCodes",
+        "proposeProjectCode",
+        "decideProjectCode",
+        "retireProjectCode",
+        "issueOpenApiToken",
+        "getOpenApiDocument",
+        "listOpenProjects",
+        "listOpenProjectCodes",
+        "listOpenDatasets",
+        "listOpenDisbursementLines",
+        "listOpenContractLines"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-INT-001-1",
+          "given": "A machine account with one scope, a token it was issued, and a second account of another tenant",
+          "when": "The account reads inside and outside its scope, is suspended while holding the token, and its secret is rotated",
+          "then": "It reads only its own tenant and only its scope (403 OPEN_SCOPE_DENIED otherwise), a suspension refuses the next call at once, the secret was shown once and is stored only as a hash (no audit row, event or stored answer holds it), every call has a row in the access log, and the rate limit of the account answers 429 with Retry-After",
+          "test_id": "UAT-INT-001"
+        },
+        {
+          "id": "AC-ST-INT-001-2",
+          "given": "Two tenants each with a read-only BI login, a certified dataset switched on, and a login that sets app.tenant_id to the other tenant",
+          "when": "Each login reads the certified views, the login of one tenant sets the session setting of the other tenant, and the certification is revoked",
+          "then": "Each login reads only its own tenant, the login that changed the setting reads nothing from the views and nothing from the tables, no other table is readable, and a revoked or expired certification closes the dataset at once",
+          "test_id": "UAT-INT-002"
+        },
+        {
+          "id": "AC-ST-INT-001-3",
+          "given": "A system registered with a code format, a code proposed by one person and the same code proposed for another project",
+          "when": "The maker tries to approve, another person approves, and a second code for the same project and system is proposed",
+          "then": "403 SELF_APPROVAL_DENIED for the maker, the code becomes ACTIVE on another person, 409 CROSSWALK_DUPLICATE for a code held by another project or a project that holds another code, a code outside the format is 422, and the rows are on master_crosswalk with no table of external identities",
+          "test_id": "UAT-INT-003"
+        },
+        {
+          "id": "AC-ST-INT-001-4",
+          "given": "INT-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-INT-01"
+        },
+        {
+          "id": "AC-ST-INT-001-5",
+          "given": "INT-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-INT-02"
+        },
+        {
+          "id": "AC-ST-INT-001-6",
+          "given": "INT-03 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-INT-03"
+        },
+        {
+          "id": "AC-ST-INT-001-7",
+          "given": "INT-04 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-INT-04"
+        },
+        {
+          "id": "AC-ST-INT-001-8",
+          "given": "INT-05 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-INT-05"
+        }
+      ],
+      "dependencies": [
+        "ST-BID-016",
+        "ST-DGV-009"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 4,
+          "max": 8
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "medium",
+        "assumption": "The datasets are the frozen close snapshots of disbursement and of the contract fact; the BI logins need a database that lets the privileged migration make logins (otherwise 503 BI_PROVISIONING_UNAVAILABLE)."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-INT-001-1",
+          "kind": "backend",
+          "title": "Kernel rules, database objects, stores and the commands and reads behind INT-01 to INT-05",
+          "test_ids": []
+        },
+        {
+          "id": "TK-INT-001-2",
+          "kind": "web",
+          "title": "INT-01 to INT-05 screens built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-INT-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for INT-01 to INT-05; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-INT-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization, isolation and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-INT-001",
+            "UAT-INT-002",
+            "UAT-INT-003"
+          ]
+        },
+        {
+          "id": "TK-INT-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-INT-01",
+            "UI-INT-02",
+            "UI-INT-03",
+            "UI-INT-04",
+            "UI-INT-05"
           ]
         }
       ]

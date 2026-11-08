@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 469,
-    "webCatalog": 469,
+    "webRoutes": 474,
+    "webCatalog": 474,
     "webModules": 26,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -89,6 +89,28 @@
         "MNE",
         "AUD",
         "VND"
+      ]
+    },
+    {
+      "id": "insights",
+      "name": "Phân tích",
+      "icon": "insights",
+      "modules": [
+        "BID",
+        "BI",
+        "MNE",
+        "AUD"
+      ]
+    },
+    {
+      "id": "admin",
+      "name": "Quản trị",
+      "icon": "admin",
+      "modules": [
+        "ADM",
+        "LLM",
+        "SAS",
+        "INT"
       ]
     }
   ],
@@ -1951,6 +1973,40 @@
           "parents": {}
         }
       ]
+    },
+    "INT": {
+      "name": "Tích hợp và API mở",
+      "groups": [
+        {
+          "title": "Tài khoản máy và API mở",
+          "description": "Tài khoản máy, phạm vi, khóa và nhật ký truy cập",
+          "ids": [
+            1,
+            2,
+            5
+          ],
+          "primary": [
+            1,
+            5
+          ],
+          "parents": {
+            "2": 1
+          }
+        },
+        {
+          "title": "Dữ liệu cho hệ thống khác",
+          "description": "Mã dự án đa hệ thống, tài khoản BI và tập dữ liệu chứng nhận",
+          "ids": [
+            3,
+            4
+          ],
+          "primary": [
+            3,
+            4
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2455,7 +2511,8 @@
     "MNE": "Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia.",
     "DIR": "Cuộc giao ban đầu tư, chỉ đạo của lãnh đạo, đơn vị thực hiện, hạn và bằng chứng hoàn thành.",
     "RPT": "Lập báo cáo đúng biểu mẫu, ký ba người, phát hành bản bất biến và ghi việc giao.",
-    "VND": "Sổ nhà thầu và nhà cung cấp, hồ sơ chủ, hồ sơ cấm tham gia đấu thầu, tài khoản nhận tiền, chứng chỉ, sự kiện uy tín dự thầu và liên danh."
+    "VND": "Sổ nhà thầu và nhà cung cấp, hồ sơ chủ, hồ sơ cấm tham gia đấu thầu, tài khoản nhận tiền, chứng chỉ, sự kiện uy tín dự thầu và liên danh.",
+    "INT": "Mở dữ liệu đã chứng nhận cho máy và công cụ BI mà không có đường vòng qua ranh giới tổ chức."
   },
   "adminLibraryModules": [
     "IAM",
@@ -2463,7 +2520,8 @@
     "DGV",
     "ADM",
     "LLM",
-    "SAS"
+    "SAS",
+    "INT"
   ],
   "fallback": {
     "rule": "Module without a hand-written entry: workspaceSeeds[module] if present, otherwise three task groups by screen kind (Tổng quan & theo dõi / Lập & xử lý / Kiểm soát & phê duyệt). Screen number not in any group: joins the group of the nearest lower (else higher) placed screen of the same module. Modules not listed in an area go to area \"Phân hệ mở rộng\". Ids without a catalog screen are dropped and reported.",
@@ -7406,6 +7464,66 @@
       "group": "Công việc & cảnh báo",
       "role": "workspace",
       "parent": null
+    },
+    {
+      "id": "INT-01",
+      "path": "/int/int-01",
+      "title": "Tài khoản máy",
+      "kind": "table",
+      "area": "admin",
+      "module": "INT",
+      "group": "Tài khoản máy và API mở",
+      "role": "workspace",
+      "parent": null,
+      "req": "FR-INT-01"
+    },
+    {
+      "id": "INT-02",
+      "path": "/int/int-02",
+      "title": "Phạm vi và khóa",
+      "kind": "detail",
+      "area": "admin",
+      "module": "INT",
+      "group": "Tài khoản máy và API mở",
+      "role": "detail",
+      "parent": "INT-01",
+      "req": "FR-INT-02"
+    },
+    {
+      "id": "INT-03",
+      "path": "/int/int-03",
+      "title": "Ánh xạ mã dự án đa hệ thống",
+      "kind": "table",
+      "area": "admin",
+      "module": "INT",
+      "group": "Dữ liệu cho hệ thống khác",
+      "role": "workspace",
+      "parent": null,
+      "req": "FR-INT-03"
+    },
+    {
+      "id": "INT-04",
+      "path": "/int/int-04",
+      "title": "Tài khoản BI và tập dữ liệu chứng nhận",
+      "kind": "table",
+      "area": "admin",
+      "module": "INT",
+      "group": "Dữ liệu cho hệ thống khác",
+      "role": "workspace",
+      "parent": null,
+      "req": "FR-INT-04"
+    },
+    {
+      "id": "INT-05",
+      "path": "/int/int-05",
+      "title": "Nhật ký truy cập API mở",
+      "kind": "table",
+      "area": "admin",
+      "module": "INT",
+      "group": "Tài khoản máy và API mở",
+      "role": "workspace",
+      "parent": null,
+      "req": "FR-INT-05"
     }
   ],
   "mobileRoutes": [
