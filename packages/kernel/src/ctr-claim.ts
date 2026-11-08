@@ -342,7 +342,7 @@ export function claimAlerts(status: ContractClaimStatus, deadlines: Record<Deadl
 
 // -- The state machine of a claim -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-/** What a step may be recorded from, and where it leads. A step that is not on the table is 409 `CLAIM_STATE_INVALID`. */
+/** What a step may be recorded from, and where it leads. A step that is not on the table is 409 `CTR_CLAIM_STATE_INVALID`. */
 const MOVES: Readonly<Record<ContractClaimStatus, Readonly<Partial<Record<ClaimStepKind, ContractClaimStatus>>>>> = {
   EVENT_RECORDED: { NOTICE: 'NOTICE_SERVED', WITHDRAWAL: 'WITHDRAWN', BAR_DECLARED: 'TIME_BARRED' },
   NOTICE_SERVED: { PARTICULARS: 'PARTICULARS_SUBMITTED', RESPONSE: 'RESPONDED', WITHDRAWAL: 'WITHDRAWN', BAR_DECLARED: 'TIME_BARRED' },
@@ -361,11 +361,11 @@ const MOVES: Readonly<Record<ContractClaimStatus, Readonly<Partial<Record<ClaimS
  */
 export function claimNextStatus(status: ContractClaimStatus, step: ClaimStepKind, lastDecision: ResponseDecision | null): ContractClaimStatus {
   const next = MOVES[status][step];
-  if (next === undefined) throw new DomainError('CLAIM_STATE_INVALID', 409, step);
+  if (next === undefined) throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, step);
   if (status === 'RESPONDED') {
-    if (step === 'PARTICULARS' && lastDecision !== 'MORE_INFORMATION_REQUESTED') throw new DomainError('CLAIM_STATE_INVALID', 409, step);
-    if (step === 'SETTLEMENT_PROPOSAL' && lastDecision !== 'ACCEPTED' && lastDecision !== 'PARTLY_ACCEPTED') throw new DomainError('CLAIM_STATE_INVALID', 409, step);
-    if (step === 'REFERRAL' && lastDecision !== 'REJECTED' && lastDecision !== 'PARTLY_ACCEPTED') throw new DomainError('CLAIM_STATE_INVALID', 409, step);
+    if (step === 'PARTICULARS' && lastDecision !== 'MORE_INFORMATION_REQUESTED') throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, step);
+    if (step === 'SETTLEMENT_PROPOSAL' && lastDecision !== 'ACCEPTED' && lastDecision !== 'PARTLY_ACCEPTED') throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, step);
+    if (step === 'REFERRAL' && lastDecision !== 'REJECTED' && lastDecision !== 'PARTLY_ACCEPTED') throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, step);
   }
   return next;
 }

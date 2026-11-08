@@ -260,7 +260,7 @@ describe('the claim register of a contract (G1-9: limitation per contract, no de
       expect(final?.settled_on).not.toBeNull();
       expect((await timeline(claim.id)).map((entry) => entry.kind)).toEqual(['EVENT', 'NOTICE', 'PARTICULARS', 'RESPONSE', 'SETTLEMENT_PROPOSAL', 'SETTLEMENT_APPROVED']);
       // Nothing moves a claim that ended, and the database keeps a settlement from being rewritten.
-      expect(await refusal(step(claim.id, 6, { kind: 'WITHDRAWAL', occurredOn: '2026-06-19', note: 'Too late to withdraw.' }))).toMatchObject({ code: 'CLAIM_STATE_INVALID', status: 409 });
+      expect(await refusal(step(claim.id, 6, { kind: 'WITHDRAWAL', occurredOn: '2026-06-19', note: 'Too late to withdraw.' }))).toMatchObject({ code: 'CTR_CLAIM_STATE_INVALID', status: 409 });
       expect(await databaseRefusal(owner('update machvon.contract_claim set settled_amount_vnd = 1 where id = $1::uuid', [claim.id]))).toBe('23514');
       expect(await databaseRefusal(owner('update machvon.contract_claim_step set note = $2 where claim_id = $1::uuid', [claim.id, 'rewritten history']))).toBe('23514');
     });
@@ -284,7 +284,7 @@ describe('the claim register of a contract (G1-9: limitation per contract, no de
       const contract = await activeContract();
       const claim = await register(contract);
       expect(await refusal(step(claim.id, 9, { kind: 'NOTICE', occurredOn: '2026-06-08', note: 'Notice served by registered letter.' }))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
-      expect(await refusal(step(claim.id, 1, { kind: 'PARTICULARS', occurredOn: '2026-06-08', note: 'Particulars before the notice.' }))).toMatchObject({ code: 'CLAIM_STATE_INVALID', status: 409 });
+      expect(await refusal(step(claim.id, 1, { kind: 'PARTICULARS', occurredOn: '2026-06-08', note: 'Particulars before the notice.' }))).toMatchObject({ code: 'CTR_CLAIM_STATE_INVALID', status: 409 });
       expect(await refusal(step(claim.id, 1, { kind: 'NOTICE', occurredOn: '2026-06-04', note: 'Notice dated before the awareness.' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'occurred_on' });
       expect(await refusal(step(claim.id, 1, { kind: 'NOTICE', occurredOn: '2026-06-30', note: 'Notice dated in the future.' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'occurred_on' });
       await step(claim.id, 1, { kind: 'NOTICE', occurredOn: '2026-06-10', note: 'Notice served by registered letter.' });
@@ -293,7 +293,7 @@ describe('the claim register of a contract (G1-9: limitation per contract, no de
       expect(await refusal(step(claim.id, 3, { kind: 'SETTLEMENT_PROPOSAL', occurredOn: '2026-06-13', note: 'More than was ever asked for.', settledAmountVnd: '500000001', grantedDays: 1 }))).toEqual({ code: 'CLAIM_SETTLEMENT_EXCEEDS_CLAIM', status: 422, detail: 'settled_amount_vnd' });
       expect(await refusal(step(claim.id, 3, { kind: 'SETTLEMENT_PROPOSAL', occurredOn: '2026-06-13', note: 'More days than were asked for.', settledAmountVnd: '1', grantedDays: 21 }))).toEqual({ code: 'CLAIM_SETTLEMENT_EXCEEDS_CLAIM', status: 422, detail: 'granted_days' });
       expect(await row(claim.id)).toMatchObject({ status: 'RESPONDED', version: '3' });
-      expect(await refusal(settle(claim.id, 3, 'APPROVE'))).toMatchObject({ code: 'CLAIM_STATE_INVALID', status: 409 });
+      expect(await refusal(settle(claim.id, 3, 'APPROVE'))).toMatchObject({ code: 'CTR_CLAIM_STATE_INVALID', status: 409 });
     });
 
     it('declares a claim barred only when a limitation day passed, the term says that bars it, and by somebody other than the registrant', async () => {

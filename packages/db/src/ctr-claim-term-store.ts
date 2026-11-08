@@ -136,12 +136,12 @@ export class CtrClaimTermStore {
 
   /**
    * Decides a proposal: APPROVE (the proposal becomes the term in force, the one before it is superseded, and the open claims of the side that had no term are bound to it) or REJECT (with words). Never by the
-   * person who proposed it. A stale version is 409 `VERSION_CONFLICT`; a term that is not waiting for a decision is 409 `CLAIM_STATE_INVALID`.
+   * person who proposed it. A stale version is 409 `VERSION_CONFLICT`; a term that is not waiting for a decision is 409 `CTR_CLAIM_STATE_INVALID`.
    */
   async decide(tx: TenantTx, id: string, expectedVersion: number, decision: unknown, note: unknown, actor: string, scopes: ContractScopes, now: Date): Promise<ClaimTermMove> {
     const held = await lockScopedRow<TermSql & { contract_code: string }>(tx, { columns: `${COLUMNS}, c.code as contract_code`, from: FROM, alias: 't', id }, scopes);
     if (Number(held.version) !== expectedVersion) throw versionConflict(Number(held.version));
-    if (held.status !== 'PROPOSED') throw new DomainError('CLAIM_STATE_INVALID', 409, 'status');
+    if (held.status !== 'PROPOSED') throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, 'status');
     if (decision !== 'APPROVE' && decision !== 'REJECT') throw new DomainError('VALIDATION_FAILED', 422, 'decision');
     assertFourEyes(held.proposed_by, actor);
     const text = note === undefined || note === null ? null : claimTextOf(note, 'note');

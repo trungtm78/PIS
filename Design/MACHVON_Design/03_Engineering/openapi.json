@@ -170047,6 +170047,2878 @@
           "vnd.qualification.changed.v1"
         ]
       }
+    },
+    "/contracts/{id}/claim-terms": {
+      "post": {
+        "operationId": "proposeClaimTerm",
+        "summary": "Đề xuất điều khoản thời hiệu claim của một bên theo hợp đồng đã ký, chờ người khác duyệt (CTR-34)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.term.propose",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimTermPropose"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID",
+          "CLAIM_TERM_PENDING"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim_term.proposed.v1"
+        ]
+      },
+      "get": {
+        "operationId": "listClaimTerms",
+        "summary": "Điều khoản thời hiệu claim của hợp đồng và các mẫu tham khảo chưa kiểm chứng (CTR-34)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrClaimTermList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/claim-terms/{id}/decision": {
+      "post": {
+        "operationId": "decideClaimTerm",
+        "summary": "Duyệt hoặc từ chối đề xuất điều khoản thời hiệu claim; người đề xuất không tự duyệt (CTR-34)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.term.approve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimTermDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "CTR_CLAIM_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim_term.decided.v1"
+        ]
+      }
+    },
+    "/contracts/{id}/claims": {
+      "post": {
+        "operationId": "registerClaim",
+        "summary": "Ghi nhận một claim của một bên trong hợp đồng với ngày biết sự việc (CTR-32)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimRegister"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim.registered.v1"
+        ]
+      }
+    },
+    "/claims": {
+      "get": {
+        "operationId": "listClaims",
+        "summary": "Sổ claim theo hợp đồng, bên, trạng thái, thời hiệu, kèm dòng tổng; mốc thời hiệu do máy chủ tính (CTR-32)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "claimant_side",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "open",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "limitation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrClaimPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/claims/{id}": {
+      "get": {
+        "operationId": "getClaim",
+        "summary": "Hồ sơ một claim: điều khoản, bốn mốc, thời hiệu, dòng thời gian, liên kết thay đổi và thanh toán (CTR-33)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrClaim"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/claims/{id}/steps": {
+      "post": {
+        "operationId": "recordClaimStep",
+        "summary": "Ghi một bước của claim (thông báo, hồ sơ chi tiết, phản hồi, đề xuất quyết toán, rút, chuyển tranh chấp) theo ngày xảy ra (CTR-33)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimStepRecord"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "CTR_CLAIM_STATE_INVALID",
+          "CLAIM_SETTLEMENT_EXCEEDS_CLAIM"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim.updated.v1"
+        ]
+      }
+    },
+    "/claims/{id}/settlement-decision": {
+      "post": {
+        "operationId": "decideClaimSettlement",
+        "summary": "Duyệt hoặc từ chối quyết toán claim; người đề xuất không tự duyệt (CTR-33)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.settle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimSettlementDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "CTR_CLAIM_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim.updated.v1"
+        ]
+      }
+    },
+    "/claims/{id}/bar": {
+      "post": {
+        "operationId": "declareClaimBar",
+        "summary": "Tuyên bố claim hết thời hiệu khi đã qua mốc và điều khoản nêu hậu quả mất quyền; người ghi sổ không tự tuyên bố (CTR-33)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.bar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimBarDeclare"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "CTR_CLAIM_STATE_INVALID",
+          "CLAIM_BAR_NOT_DUE"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim.updated.v1"
+        ]
+      }
+    },
+    "/claims/{id}/links": {
+      "post": {
+        "operationId": "linkClaim",
+        "summary": "Liên kết claim với thay đổi hợp đồng và đề nghị thanh toán của cùng hợp đồng (CTR-33)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "claim.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrClaimLinks"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.claim.updated.v1"
+        ]
+      }
+    },
+    "/contracts/{id}/early-warnings": {
+      "post": {
+        "operationId": "raiseContractEarlyWarning",
+        "summary": "Nêu một cảnh báo sớm của hợp đồng, bởi bất kỳ bên nào (CTR-35)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.raise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningRaise"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning.raised.v1"
+        ]
+      }
+    },
+    "/contract-early-warnings": {
+      "get": {
+        "operationId": "listContractEarlyWarnings",
+        "summary": "Sổ cảnh báo sớm hợp đồng theo hợp đồng, trạng thái, nhóm, bên nêu và người phụ trách, kèm tổng hợp (CTR-35)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "open",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "raised_by_party",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrEarlyWarningPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/contract-early-warnings/{id}": {
+      "get": {
+        "operationId": "getContractEarlyWarning",
+        "summary": "Hồ sơ một cảnh báo sớm: đánh giá, biện pháp giảm thiểu, các cuộc họp đã soát xét (CTR-36)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrEarlyWarning"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/contract-early-warnings/{id}/assessment": {
+      "post": {
+        "operationId": "assessContractEarlyWarning",
+        "summary": "Đánh giá cảnh báo sớm: người phụ trách, khả năng xảy ra, tác động dự kiến về thời gian và chi phí (CTR-36)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningAssess"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "EARLY_WARNING_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning.updated.v1"
+        ]
+      }
+    },
+    "/contract-early-warnings/{id}/actions": {
+      "post": {
+        "operationId": "addContractEarlyWarningAction",
+        "summary": "Thỏa thuận một biện pháp giảm thiểu có người chịu trách nhiệm và hạn (CTR-36)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningActionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "EARLY_WARNING_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning.updated.v1"
+        ]
+      }
+    },
+    "/contract-early-warning-actions/{id}/completion": {
+      "post": {
+        "operationId": "completeContractEarlyWarningAction",
+        "summary": "Kết thúc một biện pháp giảm thiểu: đã xong hoặc hủy, kèm lý do (CTR-36)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningActionComplete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "EARLY_WARNING_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning.updated.v1"
+        ]
+      }
+    },
+    "/contract-early-warnings/{id}/closure": {
+      "post": {
+        "operationId": "closeContractEarlyWarning",
+        "summary": "Đóng cảnh báo sớm: đã xử lý (không do người phụ trách tự đóng), đã xảy ra thành thay đổi hoặc claim, hoặc rút (CTR-36)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.close",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningClose"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "EARLY_WARNING_STATE_INVALID",
+          "EARLY_WARNING_ACTIONS_OPEN"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning.closed.v1"
+        ]
+      }
+    },
+    "/contracts/{id}/early-warning-meetings": {
+      "post": {
+        "operationId": "recordContractEarlyWarningMeeting",
+        "summary": "Ghi cuộc họp soát xét sổ cảnh báo sớm: mọi cảnh báo đang mở đều có kết luận (CTR-35)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningMeetingRecord"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning_register.meeting_recorded.v1"
+        ]
+      }
+    },
+    "/contracts/{id}/early-warning-issues": {
+      "post": {
+        "operationId": "issueContractEarlyWarningRegister",
+        "summary": "Phát hành sổ cảnh báo sớm (lần đầu, sau cuộc họp hoặc định kỳ) kèm ảnh chụp và mã băm (CTR-35)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrEarlyWarningIssueRecord"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID",
+          "EARLY_WARNING_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.early_warning_register.issued.v1"
+        ]
+      }
+    },
+    "/contracts/{id}/early-warning-register": {
+      "get": {
+        "operationId": "getContractEarlyWarningRegister",
+        "summary": "Sổ cảnh báo sớm của một hợp đồng: ba đồng hồ nhịp (phát hành lần đầu, họp, phát hành lại), các cuộc họp, các lần phát hành (CTR-35)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "early_warning.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrEarlyWarningRegister"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -219710,6 +222582,2858 @@
           },
           "policy": {
             "$ref": "#/components/schemas/VendorPolicyInfo"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrRuleBasis": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "version",
+          "unverified",
+          "formula",
+          "source_text",
+          "as_of",
+          "legal_status"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "unverified": {
+            "type": "boolean"
+          },
+          "formula": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "legal_status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "CtrContractRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrClaimTermPropose": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claimant_side",
+          "clause_reference"
+        ],
+        "properties": {
+          "claimant_side": {
+            "type": "string",
+            "enum": [
+              "CONTRACTOR",
+              "OWNER"
+            ]
+          },
+          "notice_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          },
+          "particulars_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          },
+          "response_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          },
+          "settlement_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3650
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "CALENDAR_DAYS",
+              "WORKING_DAYS"
+            ]
+          },
+          "particulars_from": {
+            "type": "string",
+            "enum": [
+              "AWARENESS",
+              "NOTICE"
+            ]
+          },
+          "bar_effect": {
+            "type": "string",
+            "enum": [
+              "BARS_CLAIM",
+              "REDUCES_RELIEF",
+              "NONE",
+              "NOT_STATED"
+            ]
+          },
+          "clause_reference": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          },
+          "basis_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "template_code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+            "description": "The template of the rule CLAIM_TERM_TEMPLATE the numbers were copied from (an example, never applied by itself)"
+          }
+        }
+      },
+      "CtrClaimTermDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          }
+        }
+      },
+      "CtrClaimTerm": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "contract_id",
+          "claimant_side",
+          "notice_days",
+          "particulars_days",
+          "response_days",
+          "settlement_days",
+          "basis",
+          "particulars_from",
+          "bar_effect",
+          "clause_reference",
+          "basis_document_version_id",
+          "template_code",
+          "status",
+          "decision_note",
+          "proposed_by_name",
+          "proposed_at",
+          "decided_by_name",
+          "decided_at",
+          "superseded_by_id",
+          "can_decide",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claimant_side": {
+            "type": "string",
+            "enum": [
+              "CONTRACTOR",
+              "OWNER"
+            ]
+          },
+          "notice_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "particulars_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "response_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "settlement_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "CALENDAR_DAYS",
+              "WORKING_DAYS"
+            ]
+          },
+          "particulars_from": {
+            "type": "string",
+            "enum": [
+              "AWARENESS",
+              "NOTICE"
+            ]
+          },
+          "bar_effect": {
+            "type": "string",
+            "enum": [
+              "BARS_CLAIM",
+              "REDUCES_RELIEF",
+              "NONE",
+              "NOT_STATED"
+            ]
+          },
+          "clause_reference": {
+            "type": "string"
+          },
+          "basis_document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "template_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PROPOSED",
+              "APPROVED",
+              "REJECTED",
+              "SUPERSEDED"
+            ]
+          },
+          "decision_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "proposed_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "proposed_at": {
+            "type": "string"
+          },
+          "decided_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "superseded_by_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "can_decide": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrClaimTermTemplate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "notice_days",
+          "particulars_days",
+          "response_days",
+          "settlement_days",
+          "basis",
+          "particulars_from",
+          "bar_effect",
+          "rule"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "notice_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "particulars_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "response_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "settlement_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "CALENDAR_DAYS",
+              "WORKING_DAYS"
+            ]
+          },
+          "particulars_from": {
+            "type": "string",
+            "enum": [
+              "AWARENESS",
+              "NOTICE"
+            ]
+          },
+          "bar_effect": {
+            "type": "string",
+            "enum": [
+              "BARS_CLAIM",
+              "REDUCES_RELIEF",
+              "NONE",
+              "NOT_STATED"
+            ]
+          },
+          "rule": {
+            "$ref": "#/components/schemas/CtrRuleBasis"
+          }
+        }
+      },
+      "CtrClaimTermList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "templates",
+          "contract",
+          "can_propose",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrClaimTerm"
+            }
+          },
+          "templates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrClaimTermTemplate"
+            }
+          },
+          "contract": {
+            "$ref": "#/components/schemas/CtrContractRef"
+          },
+          "can_propose": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrClaimRegister": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claimant_side",
+          "kind",
+          "title",
+          "event_description",
+          "event_on",
+          "awareness_on"
+        ],
+        "properties": {
+          "claimant_side": {
+            "type": "string",
+            "enum": [
+              "CONTRACTOR",
+              "OWNER"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "EXTENSION_OF_TIME",
+              "ADDITIONAL_PAYMENT",
+              "TIME_AND_COST",
+              "DELAY_DAMAGES",
+              "DEFECT_COST",
+              "SET_OFF",
+              "OTHER"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "event_description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "event_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "awareness_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The day the claimant became aware of the event: the notice limit counts from it"
+          },
+          "claimed_amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "claimed_days": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3650
+          },
+          "responsible_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evidence_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrClaimStepRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "occurred_on",
+          "note"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "PARTICULARS",
+              "RESPONSE",
+              "SETTLEMENT_PROPOSAL",
+              "WITHDRAWAL",
+              "REFERRAL"
+            ]
+          },
+          "occurred_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The day the step happened in the contract world (the day the notice was served), not the day it is recorded"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ACCEPTED",
+              "PARTLY_ACCEPTED",
+              "REJECTED",
+              "MORE_INFORMATION_REQUESTED"
+            ]
+          },
+          "claimed_amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "claimed_days": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3650
+          },
+          "settled_amount_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "granted_days": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3650
+          },
+          "evidence_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrClaimSettlementDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "note"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          }
+        }
+      },
+      "CtrClaimBarDeclare": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "evidence_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrClaimLinks": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "change_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "payment_request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrClaimDeadline": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "state",
+          "started_on",
+          "due_on",
+          "done_on",
+          "days_left",
+          "period_days",
+          "basis",
+          "owed_by",
+          "owed_by_owner"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "NOTICE",
+              "PARTICULARS",
+              "RESPONSE",
+              "SETTLEMENT"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "NOT_DEFINED",
+              "NOT_STARTED",
+              "NOT_APPLICABLE",
+              "CALENDAR_UNAVAILABLE",
+              "RUNNING",
+              "APPROACHING",
+              "MET",
+              "MET_LATE",
+              "MISSED"
+            ]
+          },
+          "started_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "due_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "done_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "days_left": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "period_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "CALENDAR_DAYS",
+              "WORKING_DAYS",
+              null
+            ]
+          },
+          "owed_by": {
+            "type": "string",
+            "enum": [
+              "CLAIMANT",
+              "RECEIVER",
+              "BOTH"
+            ]
+          },
+          "owed_by_owner": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CtrClaimLimitation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "due_on",
+          "code",
+          "days_left",
+          "bar_effect",
+          "missed"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NO_TERM",
+              "NOT_DEFINED",
+              "CALENDAR_UNAVAILABLE",
+              "RUNNING",
+              "APPROACHING",
+              "MISSED",
+              "MET",
+              "MET_LATE",
+              "BARRED",
+              "CLOSED"
+            ]
+          },
+          "due_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "NOTICE",
+              "PARTICULARS",
+              "RESPONSE",
+              "SETTLEMENT",
+              null
+            ]
+          },
+          "days_left": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "bar_effect": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "BARS_CLAIM",
+              "REDUCES_RELIEF",
+              "NONE",
+              "NOT_STATED",
+              null
+            ]
+          },
+          "missed": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NOTICE",
+                "PARTICULARS",
+                "RESPONSE",
+                "SETTLEMENT"
+              ]
+            }
+          }
+        }
+      },
+      "CtrClaimLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "contract",
+          "project_code",
+          "claimant_side",
+          "kind",
+          "title",
+          "status",
+          "awareness_on",
+          "claimed_amount_vnd",
+          "claimed_days",
+          "settled_amount_vnd",
+          "granted_days",
+          "has_term",
+          "limitation",
+          "open",
+          "responsible_name",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/CtrContractRef"
+          },
+          "project_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "claimant_side": {
+            "type": "string",
+            "enum": [
+              "CONTRACTOR",
+              "OWNER"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "EXTENSION_OF_TIME",
+              "ADDITIONAL_PAYMENT",
+              "TIME_AND_COST",
+              "DELAY_DAMAGES",
+              "DEFECT_COST",
+              "SET_OFF",
+              "OTHER"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "EVENT_RECORDED",
+              "NOTICE_SERVED",
+              "PARTICULARS_SUBMITTED",
+              "RESPONDED",
+              "SETTLEMENT_PROPOSED",
+              "SETTLED",
+              "WITHDRAWN",
+              "REFERRED",
+              "TIME_BARRED"
+            ]
+          },
+          "awareness_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "claimed_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "claimed_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "settled_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "granted_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "has_term": {
+            "type": "boolean"
+          },
+          "limitation": {
+            "$ref": "#/components/schemas/CtrClaimLimitation"
+          },
+          "open": {
+            "type": "boolean"
+          },
+          "responsible_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrClaimTotals": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "count",
+          "open",
+          "by_status",
+          "by_side",
+          "by_limitation",
+          "claimed_vnd",
+          "settled_vnd",
+          "open_claimed_vnd",
+          "claimed_days",
+          "granted_days",
+          "without_term"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "open": {
+            "type": "integer"
+          },
+          "by_status": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "EVENT_RECORDED",
+              "NOTICE_SERVED",
+              "PARTICULARS_SUBMITTED",
+              "RESPONDED",
+              "SETTLEMENT_PROPOSED",
+              "SETTLED",
+              "WITHDRAWN",
+              "REFERRED",
+              "TIME_BARRED"
+            ],
+            "properties": {
+              "EVENT_RECORDED": {
+                "type": "integer"
+              },
+              "NOTICE_SERVED": {
+                "type": "integer"
+              },
+              "PARTICULARS_SUBMITTED": {
+                "type": "integer"
+              },
+              "RESPONDED": {
+                "type": "integer"
+              },
+              "SETTLEMENT_PROPOSED": {
+                "type": "integer"
+              },
+              "SETTLED": {
+                "type": "integer"
+              },
+              "WITHDRAWN": {
+                "type": "integer"
+              },
+              "REFERRED": {
+                "type": "integer"
+              },
+              "TIME_BARRED": {
+                "type": "integer"
+              }
+            }
+          },
+          "by_side": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "CONTRACTOR",
+              "OWNER"
+            ],
+            "properties": {
+              "CONTRACTOR": {
+                "type": "integer"
+              },
+              "OWNER": {
+                "type": "integer"
+              }
+            }
+          },
+          "by_limitation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "NO_TERM",
+              "NOT_DEFINED",
+              "CALENDAR_UNAVAILABLE",
+              "RUNNING",
+              "APPROACHING",
+              "MISSED",
+              "MET",
+              "MET_LATE",
+              "BARRED",
+              "CLOSED"
+            ],
+            "properties": {
+              "NO_TERM": {
+                "type": "integer"
+              },
+              "NOT_DEFINED": {
+                "type": "integer"
+              },
+              "CALENDAR_UNAVAILABLE": {
+                "type": "integer"
+              },
+              "RUNNING": {
+                "type": "integer"
+              },
+              "APPROACHING": {
+                "type": "integer"
+              },
+              "MISSED": {
+                "type": "integer"
+              },
+              "MET": {
+                "type": "integer"
+              },
+              "MET_LATE": {
+                "type": "integer"
+              },
+              "BARRED": {
+                "type": "integer"
+              },
+              "CLOSED": {
+                "type": "integer"
+              }
+            }
+          },
+          "claimed_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "settled_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "open_claimed_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "claimed_days": {
+            "type": "integer"
+          },
+          "granted_days": {
+            "type": "integer"
+          },
+          "without_term": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrClaimPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "totals",
+          "truncated",
+          "calendar_published",
+          "policy",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrClaimLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "totals": {
+            "$ref": "#/components/schemas/CtrClaimTotals"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "calendar_published": {
+            "type": "boolean"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/CtrRuleBasis"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrClaimStep": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "ordinal",
+          "kind",
+          "occurred_on",
+          "note",
+          "decision",
+          "claimed_amount_vnd",
+          "claimed_days",
+          "settled_amount_vnd",
+          "granted_days",
+          "evidence_document_version_id",
+          "actor_name",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ordinal": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "EVENT",
+              "NOTICE",
+              "PARTICULARS",
+              "RESPONSE",
+              "SETTLEMENT_PROPOSAL",
+              "SETTLEMENT_APPROVED",
+              "SETTLEMENT_REJECTED",
+              "WITHDRAWAL",
+              "REFERRAL",
+              "BAR_DECLARED",
+              "TERM_BOUND"
+            ]
+          },
+          "occurred_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "note": {
+            "type": "string"
+          },
+          "decision": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "ACCEPTED",
+              "PARTLY_ACCEPTED",
+              "REJECTED",
+              "MORE_INFORMATION_REQUESTED",
+              null
+            ]
+          },
+          "claimed_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "claimed_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "settled_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "granted_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "evidence_document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "actor_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrClaimAllowed": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "steps",
+          "decide_settlement",
+          "declare_bar",
+          "link"
+        ],
+        "properties": {
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NOTICE",
+                "PARTICULARS",
+                "RESPONSE",
+                "SETTLEMENT_PROPOSAL",
+                "WITHDRAWAL",
+                "REFERRAL"
+              ]
+            }
+          },
+          "decide_settlement": {
+            "type": "boolean"
+          },
+          "declare_bar": {
+            "type": "boolean"
+          },
+          "link": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CtrClaim": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "contract",
+          "project_code",
+          "claimant_side",
+          "kind",
+          "title",
+          "event_description",
+          "event_on",
+          "awareness_on",
+          "status",
+          "claimed_amount_vnd",
+          "claimed_days",
+          "settled_amount_vnd",
+          "granted_days",
+          "notice_on",
+          "particulars_on",
+          "response_on",
+          "response_decision",
+          "settled_on",
+          "closed_on",
+          "responsible_name",
+          "registered_by_name",
+          "settlement_proposed_by_name",
+          "settlement_approved_by_name",
+          "term",
+          "deadlines",
+          "limitation",
+          "change_request",
+          "payment_request",
+          "steps",
+          "allowed",
+          "calendar_published",
+          "policy",
+          "as_of",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/CtrContractRef"
+          },
+          "project_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "claimant_side": {
+            "type": "string",
+            "enum": [
+              "CONTRACTOR",
+              "OWNER"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "EXTENSION_OF_TIME",
+              "ADDITIONAL_PAYMENT",
+              "TIME_AND_COST",
+              "DELAY_DAMAGES",
+              "DEFECT_COST",
+              "SET_OFF",
+              "OTHER"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "event_description": {
+            "type": "string"
+          },
+          "event_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "awareness_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "EVENT_RECORDED",
+              "NOTICE_SERVED",
+              "PARTICULARS_SUBMITTED",
+              "RESPONDED",
+              "SETTLEMENT_PROPOSED",
+              "SETTLED",
+              "WITHDRAWN",
+              "REFERRED",
+              "TIME_BARRED"
+            ]
+          },
+          "claimed_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "claimed_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "settled_amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "granted_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "notice_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "particulars_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "response_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "response_decision": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "ACCEPTED",
+              "PARTLY_ACCEPTED",
+              "REJECTED",
+              "MORE_INFORMATION_REQUESTED",
+              null
+            ]
+          },
+          "settled_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "closed_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "responsible_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "registered_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "settlement_proposed_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "settlement_approved_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "term": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CtrClaimTerm"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deadlines": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "NOTICE",
+              "PARTICULARS",
+              "RESPONSE",
+              "SETTLEMENT"
+            ],
+            "properties": {
+              "NOTICE": {
+                "$ref": "#/components/schemas/CtrClaimDeadline"
+              },
+              "PARTICULARS": {
+                "$ref": "#/components/schemas/CtrClaimDeadline"
+              },
+              "RESPONSE": {
+                "$ref": "#/components/schemas/CtrClaimDeadline"
+              },
+              "SETTLEMENT": {
+                "$ref": "#/components/schemas/CtrClaimDeadline"
+              }
+            }
+          },
+          "limitation": {
+            "$ref": "#/components/schemas/CtrClaimLimitation"
+          },
+          "change_request": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "code"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "code": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payment_request": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "status",
+                  "gross_vnd",
+                  "net_vnd"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "gross_vnd": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$",
+                    "description": "Whole VND as a decimal string"
+                  },
+                  "net_vnd": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$",
+                    "description": "Whole VND as a decimal string"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrClaimStep"
+            }
+          },
+          "allowed": {
+            "$ref": "#/components/schemas/CtrClaimAllowed"
+          },
+          "calendar_published": {
+            "type": "boolean"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/CtrRuleBasis"
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrEarlyWarningRaise": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "description",
+          "category",
+          "raised_by_party",
+          "raised_on"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "TIME",
+              "COST",
+              "QUALITY",
+              "SAFETY",
+              "SCOPE",
+              "LEGAL",
+              "ENVIRONMENT",
+              "OTHER"
+            ]
+          },
+          "raised_by_party": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "CONTRACTOR",
+              "SUPERVISOR",
+              "DESIGNER",
+              "OTHER"
+            ]
+          },
+          "raised_on": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "CtrEarlyWarningAssess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owner_membership_id",
+          "likelihood"
+        ],
+        "properties": {
+          "owner_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "likelihood": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          "expected_time_days": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3650
+          },
+          "expected_cost_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "no_impact_expected": {
+            "type": "boolean",
+            "description": "The warning expects no impact on time or cost (a statement, not a blank)"
+          }
+        }
+      },
+      "CtrEarlyWarningActionCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "description",
+          "owner_membership_id",
+          "due_on"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "owner_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "due_on": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "CtrEarlyWarningActionComplete": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "note"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "DONE",
+              "CANCELLED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          }
+        }
+      },
+      "CtrEarlyWarningClose": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "reason"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "RESOLVED",
+              "MATERIALISED",
+              "WITHDRAWN"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          },
+          "materialised_into": {
+            "type": "string",
+            "enum": [
+              "CHANGE_REQUEST",
+              "CLAIM"
+            ]
+          },
+          "materialised_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrEarlyWarningMeetingRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "held_on",
+          "attendees",
+          "reviews"
+        ],
+        "properties": {
+          "held_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "attendees": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 2000
+          },
+          "minutes_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "warning_id",
+                "outcome"
+              ],
+              "properties": {
+                "warning_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "NO_CHANGE",
+                    "UPDATED",
+                    "ACTION_AGREED",
+                    "CLOSURE_PROPOSED",
+                    "ESCALATED"
+                  ]
+                },
+                "note": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 2000
+                }
+              }
+            }
+          }
+        }
+      },
+      "CtrEarlyWarningIssueRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "issued_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "meeting_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrEarlyWarningLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "contract",
+          "title",
+          "category",
+          "raised_by_party",
+          "raised_on",
+          "status",
+          "likelihood",
+          "owner_name",
+          "expected_time_days",
+          "expected_cost_vnd",
+          "no_impact_expected",
+          "open_actions",
+          "overdue_actions",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/CtrContractRef"
+          },
+          "title": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "TIME",
+              "COST",
+              "QUALITY",
+              "SAFETY",
+              "SCOPE",
+              "LEGAL",
+              "ENVIRONMENT",
+              "OTHER"
+            ]
+          },
+          "raised_by_party": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "CONTRACTOR",
+              "SUPERVISOR",
+              "DESIGNER",
+              "OTHER"
+            ]
+          },
+          "raised_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RAISED",
+              "ASSESSED",
+              "MITIGATING",
+              "CLOSED_RESOLVED",
+              "CLOSED_MATERIALISED",
+              "CLOSED_WITHDRAWN"
+            ]
+          },
+          "likelihood": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              null
+            ]
+          },
+          "owner_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expected_time_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "expected_cost_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "no_impact_expected": {
+            "type": "boolean"
+          },
+          "open_actions": {
+            "type": "integer"
+          },
+          "overdue_actions": {
+            "type": "integer"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrEarlyWarningSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "total",
+          "open",
+          "by_status",
+          "by_category",
+          "by_party",
+          "without_owner",
+          "unassessed",
+          "exposure_cost_vnd",
+          "exposure_time_days",
+          "impact_unknown",
+          "overdue_actions"
+        ],
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "open": {
+            "type": "integer"
+          },
+          "by_status": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "RAISED",
+              "ASSESSED",
+              "MITIGATING",
+              "CLOSED_RESOLVED",
+              "CLOSED_MATERIALISED",
+              "CLOSED_WITHDRAWN"
+            ],
+            "properties": {
+              "RAISED": {
+                "type": "integer"
+              },
+              "ASSESSED": {
+                "type": "integer"
+              },
+              "MITIGATING": {
+                "type": "integer"
+              },
+              "CLOSED_RESOLVED": {
+                "type": "integer"
+              },
+              "CLOSED_MATERIALISED": {
+                "type": "integer"
+              },
+              "CLOSED_WITHDRAWN": {
+                "type": "integer"
+              }
+            }
+          },
+          "by_category": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "TIME",
+              "COST",
+              "QUALITY",
+              "SAFETY",
+              "SCOPE",
+              "LEGAL",
+              "ENVIRONMENT",
+              "OTHER"
+            ],
+            "properties": {
+              "TIME": {
+                "type": "integer"
+              },
+              "COST": {
+                "type": "integer"
+              },
+              "QUALITY": {
+                "type": "integer"
+              },
+              "SAFETY": {
+                "type": "integer"
+              },
+              "SCOPE": {
+                "type": "integer"
+              },
+              "LEGAL": {
+                "type": "integer"
+              },
+              "ENVIRONMENT": {
+                "type": "integer"
+              },
+              "OTHER": {
+                "type": "integer"
+              }
+            }
+          },
+          "by_party": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "OWNER",
+              "CONTRACTOR",
+              "SUPERVISOR",
+              "DESIGNER",
+              "OTHER"
+            ],
+            "properties": {
+              "OWNER": {
+                "type": "integer"
+              },
+              "CONTRACTOR": {
+                "type": "integer"
+              },
+              "SUPERVISOR": {
+                "type": "integer"
+              },
+              "DESIGNER": {
+                "type": "integer"
+              },
+              "OTHER": {
+                "type": "integer"
+              }
+            }
+          },
+          "without_owner": {
+            "type": "integer"
+          },
+          "unassessed": {
+            "type": "integer"
+          },
+          "exposure_cost_vnd": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "exposure_time_days": {
+            "type": "integer"
+          },
+          "impact_unknown": {
+            "type": "integer"
+          },
+          "overdue_actions": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrEarlyWarningPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "summary",
+          "truncated",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrEarlyWarningLine"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CtrEarlyWarningSummary"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrEarlyWarningAction": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description",
+          "owner_name",
+          "owner_membership_id",
+          "due_on",
+          "status",
+          "done_on",
+          "done_by_name",
+          "done_note",
+          "overdue",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "owner_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "due_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "DONE",
+              "CANCELLED"
+            ]
+          },
+          "done_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "done_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "done_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrEarlyWarningReview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "meeting_id",
+          "held_on",
+          "outcome",
+          "note",
+          "status_at_meeting"
+        ],
+        "properties": {
+          "meeting_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "held_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "NO_CHANGE",
+              "UPDATED",
+              "ACTION_AGREED",
+              "CLOSURE_PROPOSED",
+              "ESCALATED"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status_at_meeting": {
+            "type": "string"
+          }
+        }
+      },
+      "CtrEarlyWarning": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "contract",
+          "title",
+          "description",
+          "category",
+          "raised_by_party",
+          "raised_by_name",
+          "raised_on",
+          "status",
+          "likelihood",
+          "owner_name",
+          "owner_membership_id",
+          "expected_time_days",
+          "expected_cost_vnd",
+          "no_impact_expected",
+          "assessed_by_name",
+          "assessed_at",
+          "closed_by_name",
+          "closed_at",
+          "closed_reason",
+          "change_request_id",
+          "claim_id",
+          "actions",
+          "reviews",
+          "allowed",
+          "as_of",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/CtrContractRef"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "TIME",
+              "COST",
+              "QUALITY",
+              "SAFETY",
+              "SCOPE",
+              "LEGAL",
+              "ENVIRONMENT",
+              "OTHER"
+            ]
+          },
+          "raised_by_party": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "CONTRACTOR",
+              "SUPERVISOR",
+              "DESIGNER",
+              "OTHER"
+            ]
+          },
+          "raised_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "raised_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RAISED",
+              "ASSESSED",
+              "MITIGATING",
+              "CLOSED_RESOLVED",
+              "CLOSED_MATERIALISED",
+              "CLOSED_WITHDRAWN"
+            ]
+          },
+          "likelihood": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              null
+            ]
+          },
+          "owner_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner_membership_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "expected_time_days": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "expected_cost_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$",
+            "description": "Whole VND as a decimal string"
+          },
+          "no_impact_expected": {
+            "type": "boolean"
+          },
+          "assessed_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "assessed_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closed_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closed_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closed_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "change_request_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "claim_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrEarlyWarningAction"
+            }
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrEarlyWarningReview"
+            }
+          },
+          "allowed": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assess",
+              "add_action",
+              "close"
+            ],
+            "properties": {
+              "assess": {
+                "type": "boolean"
+              },
+              "add_action": {
+                "type": "boolean"
+              },
+              "close": {
+                "type": "boolean"
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "CtrRegisterClock": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "state",
+          "started_on",
+          "due_on",
+          "done_on",
+          "days_left",
+          "period_days",
+          "basis",
+          "meeting_id"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INITIAL_ISSUE",
+              "MEETING",
+              "REISSUE"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "NOT_DEFINED",
+              "NOT_STARTED",
+              "NOT_APPLICABLE",
+              "CALENDAR_UNAVAILABLE",
+              "RUNNING",
+              "APPROACHING",
+              "MET",
+              "MET_LATE",
+              "MISSED"
+            ]
+          },
+          "started_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "due_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "done_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "days_left": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "period_days": {
+            "type": "integer"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "CALENDAR_DAYS",
+              "WORKING_DAYS"
+            ]
+          },
+          "meeting_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "CtrEarlyWarningMeeting": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "ordinal",
+          "held_on",
+          "attendees",
+          "notes",
+          "minutes_document_version_id",
+          "recorded_by_name",
+          "reissued_on",
+          "reviews"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ordinal": {
+            "type": "integer"
+          },
+          "held_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "attendees": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "minutes_document_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "recorded_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reissued_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "warning_id",
+                "warning_code",
+                "outcome",
+                "note",
+                "status_at_meeting"
+              ],
+              "properties": {
+                "warning_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "warning_code": {
+                  "type": "string"
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "NO_CHANGE",
+                    "UPDATED",
+                    "ACTION_AGREED",
+                    "CLOSURE_PROPOSED",
+                    "ESCALATED"
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status_at_meeting": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CtrEarlyWarningIssue": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "ordinal",
+          "kind",
+          "issued_on",
+          "meeting_id",
+          "warning_count",
+          "open_count",
+          "content_hash",
+          "issued_by_name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ordinal": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "INITIAL",
+              "AFTER_MEETING",
+              "PERIODIC"
+            ]
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "meeting_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "warning_count": {
+            "type": "integer"
+          },
+          "open_count": {
+            "type": "integer"
+          },
+          "content_hash": {
+            "type": "string"
+          },
+          "issued_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "CtrEarlyWarningRegister": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "clocks",
+          "meetings",
+          "issues",
+          "summary",
+          "policy",
+          "calendar_published",
+          "allowed",
+          "as_of"
+        ],
+        "properties": {
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "status",
+              "effective_from"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "effective_from": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              }
+            }
+          },
+          "clocks": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "initial",
+              "meeting",
+              "reissue"
+            ],
+            "properties": {
+              "initial": {
+                "$ref": "#/components/schemas/CtrRegisterClock"
+              },
+              "meeting": {
+                "$ref": "#/components/schemas/CtrRegisterClock"
+              },
+              "reissue": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/CtrRegisterClock"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "meetings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrEarlyWarningMeeting"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrEarlyWarningIssue"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CtrEarlyWarningSummary"
+          },
+          "policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule",
+              "initial_issue_within_days",
+              "meeting_every_days",
+              "reissue_within_days_after_meeting",
+              "approach_days",
+              "basis"
+            ],
+            "properties": {
+              "rule": {
+                "$ref": "#/components/schemas/CtrRuleBasis"
+              },
+              "initial_issue_within_days": {
+                "type": "integer"
+              },
+              "meeting_every_days": {
+                "type": "integer"
+              },
+              "reissue_within_days_after_meeting": {
+                "type": "integer"
+              },
+              "approach_days": {
+                "type": "integer"
+              },
+              "basis": {
+                "type": "string",
+                "enum": [
+                  "CALENDAR_DAYS",
+                  "WORKING_DAYS"
+                ]
+              }
+            }
+          },
+          "calendar_published": {
+            "type": "boolean"
+          },
+          "allowed": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "raise",
+              "record_meeting",
+              "issue_register"
+            ],
+            "properties": {
+              "raise": {
+                "type": "boolean"
+              },
+              "record_meeting": {
+                "type": "boolean"
+              },
+              "issue_register": {
+                "type": "boolean"
+              }
+            }
           },
           "as_of": {
             "type": "string"

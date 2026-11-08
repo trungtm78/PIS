@@ -19354,6 +19354,330 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contracts/{id}/claim-terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Điều khoản thời hiệu claim của hợp đồng và các mẫu tham khảo chưa kiểm chứng (CTR-34) */
+        get: operations["listClaimTerms"];
+        put?: never;
+        /** Đề xuất điều khoản thời hiệu claim của một bên theo hợp đồng đã ký, chờ người khác duyệt (CTR-34) */
+        post: operations["proposeClaimTerm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claim-terms/{id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duyệt hoặc từ chối đề xuất điều khoản thời hiệu claim; người đề xuất không tự duyệt (CTR-34) */
+        post: operations["decideClaimTerm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contracts/{id}/claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ghi nhận một claim của một bên trong hợp đồng với ngày biết sự việc (CTR-32) */
+        post: operations["registerClaim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sổ claim theo hợp đồng, bên, trạng thái, thời hiệu, kèm dòng tổng; mốc thời hiệu do máy chủ tính (CTR-32) */
+        get: operations["listClaims"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claims/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hồ sơ một claim: điều khoản, bốn mốc, thời hiệu, dòng thời gian, liên kết thay đổi và thanh toán (CTR-33) */
+        get: operations["getClaim"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claims/{id}/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ghi một bước của claim (thông báo, hồ sơ chi tiết, phản hồi, đề xuất quyết toán, rút, chuyển tranh chấp) theo ngày xảy ra (CTR-33) */
+        post: operations["recordClaimStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claims/{id}/settlement-decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duyệt hoặc từ chối quyết toán claim; người đề xuất không tự duyệt (CTR-33) */
+        post: operations["decideClaimSettlement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claims/{id}/bar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tuyên bố claim hết thời hiệu khi đã qua mốc và điều khoản nêu hậu quả mất quyền; người ghi sổ không tự tuyên bố (CTR-33) */
+        post: operations["declareClaimBar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/claims/{id}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Liên kết claim với thay đổi hợp đồng và đề nghị thanh toán của cùng hợp đồng (CTR-33) */
+        post: operations["linkClaim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contracts/{id}/early-warnings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Nêu một cảnh báo sớm của hợp đồng, bởi bất kỳ bên nào (CTR-35) */
+        post: operations["raiseContractEarlyWarning"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contract-early-warnings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sổ cảnh báo sớm hợp đồng theo hợp đồng, trạng thái, nhóm, bên nêu và người phụ trách, kèm tổng hợp (CTR-35) */
+        get: operations["listContractEarlyWarnings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contract-early-warnings/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hồ sơ một cảnh báo sớm: đánh giá, biện pháp giảm thiểu, các cuộc họp đã soát xét (CTR-36) */
+        get: operations["getContractEarlyWarning"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contract-early-warnings/{id}/assessment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đánh giá cảnh báo sớm: người phụ trách, khả năng xảy ra, tác động dự kiến về thời gian và chi phí (CTR-36) */
+        post: operations["assessContractEarlyWarning"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contract-early-warnings/{id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Thỏa thuận một biện pháp giảm thiểu có người chịu trách nhiệm và hạn (CTR-36) */
+        post: operations["addContractEarlyWarningAction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contract-early-warning-actions/{id}/completion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Kết thúc một biện pháp giảm thiểu: đã xong hoặc hủy, kèm lý do (CTR-36) */
+        post: operations["completeContractEarlyWarningAction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contract-early-warnings/{id}/closure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đóng cảnh báo sớm: đã xử lý (không do người phụ trách tự đóng), đã xảy ra thành thay đổi hoặc claim, hoặc rút (CTR-36) */
+        post: operations["closeContractEarlyWarning"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contracts/{id}/early-warning-meetings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ghi cuộc họp soát xét sổ cảnh báo sớm: mọi cảnh báo đang mở đều có kết luận (CTR-35) */
+        post: operations["recordContractEarlyWarningMeeting"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contracts/{id}/early-warning-issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Phát hành sổ cảnh báo sớm (lần đầu, sau cuộc họp hoặc định kỳ) kèm ảnh chụp và mã băm (CTR-35) */
+        post: operations["issueContractEarlyWarningRegister"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/contracts/{id}/early-warning-register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sổ cảnh báo sớm của một hợp đồng: ba đồng hồ nhịp (phát hành lần đầu, họp, phát hành lại), các cuộc họp, các lần phát hành (CTR-35) */
+        get: operations["getContractEarlyWarningRegister"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -32532,6 +32856,654 @@ export interface components {
         VendorPayeeChangeList: {
             items: components["schemas"]["VendorPayeeChange"][];
             policy: components["schemas"]["VendorPolicyInfo"];
+            as_of: string;
+        };
+        CtrRuleBasis: {
+            /** @enum {string} */
+            source: "RULE" | "DEFAULT";
+            version: number;
+            unverified: boolean;
+            formula: string | null;
+            source_text: string | null;
+            as_of: string | null;
+            legal_status: string | null;
+        };
+        CtrContractRef: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+        };
+        CtrClaimTermPropose: {
+            /** @enum {string} */
+            claimant_side: "CONTRACTOR" | "OWNER";
+            notice_days?: number;
+            particulars_days?: number;
+            response_days?: number;
+            settlement_days?: number;
+            /** @enum {string} */
+            basis?: "CALENDAR_DAYS" | "WORKING_DAYS";
+            /** @enum {string} */
+            particulars_from?: "AWARENESS" | "NOTICE";
+            /** @enum {string} */
+            bar_effect?: "BARS_CLAIM" | "REDUCES_RELIEF" | "NONE" | "NOT_STATED";
+            clause_reference: string;
+            /** Format: uuid */
+            basis_document_version_id?: string;
+            /** @description The template of the rule CLAIM_TERM_TEMPLATE the numbers were copied from (an example, never applied by itself) */
+            template_code?: string;
+        };
+        CtrClaimTermDecision: {
+            /** @enum {string} */
+            decision: "APPROVE" | "REJECT";
+            note?: string;
+        };
+        CtrClaimTerm: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            contract_id: string;
+            /** @enum {string} */
+            claimant_side: "CONTRACTOR" | "OWNER";
+            notice_days: number | null;
+            particulars_days: number | null;
+            response_days: number | null;
+            settlement_days: number | null;
+            /** @enum {string} */
+            basis: "CALENDAR_DAYS" | "WORKING_DAYS";
+            /** @enum {string} */
+            particulars_from: "AWARENESS" | "NOTICE";
+            /** @enum {string} */
+            bar_effect: "BARS_CLAIM" | "REDUCES_RELIEF" | "NONE" | "NOT_STATED";
+            clause_reference: string;
+            /** Format: uuid */
+            basis_document_version_id: string | null;
+            template_code: string | null;
+            /** @enum {string} */
+            status: "PROPOSED" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+            decision_note: string | null;
+            proposed_by_name: string | null;
+            proposed_at: string;
+            decided_by_name: string | null;
+            decided_at: string | null;
+            /** Format: uuid */
+            superseded_by_id: string | null;
+            can_decide: boolean;
+            version: number;
+        };
+        CtrClaimTermTemplate: {
+            code: string;
+            notice_days: number | null;
+            particulars_days: number | null;
+            response_days: number | null;
+            settlement_days: number | null;
+            /** @enum {string} */
+            basis: "CALENDAR_DAYS" | "WORKING_DAYS";
+            /** @enum {string} */
+            particulars_from: "AWARENESS" | "NOTICE";
+            /** @enum {string} */
+            bar_effect: "BARS_CLAIM" | "REDUCES_RELIEF" | "NONE" | "NOT_STATED";
+            rule: components["schemas"]["CtrRuleBasis"];
+        };
+        CtrClaimTermList: {
+            items: components["schemas"]["CtrClaimTerm"][];
+            templates: components["schemas"]["CtrClaimTermTemplate"][];
+            contract: components["schemas"]["CtrContractRef"];
+            can_propose: boolean;
+            as_of: string;
+        };
+        CtrClaimRegister: {
+            /** @enum {string} */
+            claimant_side: "CONTRACTOR" | "OWNER";
+            /** @enum {string} */
+            kind: "EXTENSION_OF_TIME" | "ADDITIONAL_PAYMENT" | "TIME_AND_COST" | "DELAY_DAMAGES" | "DEFECT_COST" | "SET_OFF" | "OTHER";
+            title: string;
+            event_description: string;
+            /** Format: date */
+            event_on: string;
+            /**
+             * Format: date
+             * @description The day the claimant became aware of the event: the notice limit counts from it
+             */
+            awareness_on: string;
+            /** @description Whole VND as a decimal string */
+            claimed_amount_vnd?: string;
+            claimed_days?: number;
+            /** Format: uuid */
+            responsible_membership_id?: string;
+            /** Format: uuid */
+            evidence_document_version_id?: string;
+        };
+        CtrClaimStepRecord: {
+            /** @enum {string} */
+            kind: "NOTICE" | "PARTICULARS" | "RESPONSE" | "SETTLEMENT_PROPOSAL" | "WITHDRAWAL" | "REFERRAL";
+            /**
+             * Format: date
+             * @description The day the step happened in the contract world (the day the notice was served), not the day it is recorded
+             */
+            occurred_on: string;
+            note: string;
+            /** @enum {string} */
+            decision?: "ACCEPTED" | "PARTLY_ACCEPTED" | "REJECTED" | "MORE_INFORMATION_REQUESTED";
+            /** @description Whole VND as a decimal string */
+            claimed_amount_vnd?: string;
+            claimed_days?: number;
+            /** @description Whole VND as a decimal string */
+            settled_amount_vnd?: string;
+            granted_days?: number;
+            /** Format: uuid */
+            evidence_document_version_id?: string;
+        };
+        CtrClaimSettlementDecision: {
+            /** @enum {string} */
+            decision: "APPROVE" | "REJECT";
+            note: string;
+        };
+        CtrClaimBarDeclare: {
+            reason: string;
+            /** Format: uuid */
+            evidence_document_version_id?: string;
+        };
+        CtrClaimLinks: {
+            /** Format: uuid */
+            change_request_id?: string;
+            /** Format: uuid */
+            payment_request_id?: string;
+        };
+        CtrClaimDeadline: {
+            /** @enum {string} */
+            code: "NOTICE" | "PARTICULARS" | "RESPONSE" | "SETTLEMENT";
+            /** @enum {string} */
+            state: "NOT_DEFINED" | "NOT_STARTED" | "NOT_APPLICABLE" | "CALENDAR_UNAVAILABLE" | "RUNNING" | "APPROACHING" | "MET" | "MET_LATE" | "MISSED";
+            /** Format: date */
+            started_on: string | null;
+            /** Format: date */
+            due_on: string | null;
+            /** Format: date */
+            done_on: string | null;
+            days_left: number | null;
+            period_days: number | null;
+            /** @enum {string|null} */
+            basis: "CALENDAR_DAYS" | "WORKING_DAYS" | null;
+            /** @enum {string} */
+            owed_by: "CLAIMANT" | "RECEIVER" | "BOTH";
+            owed_by_owner: boolean;
+        };
+        CtrClaimLimitation: {
+            /** @enum {string} */
+            status: "NO_TERM" | "NOT_DEFINED" | "CALENDAR_UNAVAILABLE" | "RUNNING" | "APPROACHING" | "MISSED" | "MET" | "MET_LATE" | "BARRED" | "CLOSED";
+            /** Format: date */
+            due_on: string | null;
+            /** @enum {string|null} */
+            code: "NOTICE" | "PARTICULARS" | "RESPONSE" | "SETTLEMENT" | null;
+            days_left: number | null;
+            /** @enum {string|null} */
+            bar_effect: "BARS_CLAIM" | "REDUCES_RELIEF" | "NONE" | "NOT_STATED" | null;
+            missed: ("NOTICE" | "PARTICULARS" | "RESPONSE" | "SETTLEMENT")[];
+        };
+        CtrClaimLine: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            contract: components["schemas"]["CtrContractRef"];
+            project_code: string | null;
+            /** @enum {string} */
+            claimant_side: "CONTRACTOR" | "OWNER";
+            /** @enum {string} */
+            kind: "EXTENSION_OF_TIME" | "ADDITIONAL_PAYMENT" | "TIME_AND_COST" | "DELAY_DAMAGES" | "DEFECT_COST" | "SET_OFF" | "OTHER";
+            title: string;
+            /** @enum {string} */
+            status: "EVENT_RECORDED" | "NOTICE_SERVED" | "PARTICULARS_SUBMITTED" | "RESPONDED" | "SETTLEMENT_PROPOSED" | "SETTLED" | "WITHDRAWN" | "REFERRED" | "TIME_BARRED";
+            /** Format: date */
+            awareness_on: string;
+            /** @description Whole VND as a decimal string */
+            claimed_amount_vnd: string | null;
+            claimed_days: number | null;
+            /** @description Whole VND as a decimal string */
+            settled_amount_vnd: string | null;
+            granted_days: number | null;
+            has_term: boolean;
+            limitation: components["schemas"]["CtrClaimLimitation"];
+            open: boolean;
+            responsible_name: string | null;
+            version: number;
+        };
+        CtrClaimTotals: {
+            count: number;
+            open: number;
+            by_status: {
+                EVENT_RECORDED: number;
+                NOTICE_SERVED: number;
+                PARTICULARS_SUBMITTED: number;
+                RESPONDED: number;
+                SETTLEMENT_PROPOSED: number;
+                SETTLED: number;
+                WITHDRAWN: number;
+                REFERRED: number;
+                TIME_BARRED: number;
+            };
+            by_side: {
+                CONTRACTOR: number;
+                OWNER: number;
+            };
+            by_limitation: {
+                NO_TERM: number;
+                NOT_DEFINED: number;
+                CALENDAR_UNAVAILABLE: number;
+                RUNNING: number;
+                APPROACHING: number;
+                MISSED: number;
+                MET: number;
+                MET_LATE: number;
+                BARRED: number;
+                CLOSED: number;
+            };
+            /** @description Whole VND as a decimal string */
+            claimed_vnd: string;
+            /** @description Whole VND as a decimal string */
+            settled_vnd: string;
+            /** @description Whole VND as a decimal string */
+            open_claimed_vnd: string;
+            claimed_days: number;
+            granted_days: number;
+            without_term: number;
+        };
+        CtrClaimPage: {
+            items: components["schemas"]["CtrClaimLine"][];
+            next_cursor: string | null;
+            totals: components["schemas"]["CtrClaimTotals"];
+            truncated: boolean;
+            calendar_published: boolean;
+            policy: components["schemas"]["CtrRuleBasis"];
+            as_of: string;
+        };
+        CtrClaimStep: {
+            /** Format: uuid */
+            id: string;
+            ordinal: number;
+            /** @enum {string} */
+            kind: "EVENT" | "NOTICE" | "PARTICULARS" | "RESPONSE" | "SETTLEMENT_PROPOSAL" | "SETTLEMENT_APPROVED" | "SETTLEMENT_REJECTED" | "WITHDRAWAL" | "REFERRAL" | "BAR_DECLARED" | "TERM_BOUND";
+            /** Format: date */
+            occurred_on: string;
+            note: string;
+            /** @enum {string|null} */
+            decision: "ACCEPTED" | "PARTLY_ACCEPTED" | "REJECTED" | "MORE_INFORMATION_REQUESTED" | null;
+            /** @description Whole VND as a decimal string */
+            claimed_amount_vnd: string | null;
+            claimed_days: number | null;
+            /** @description Whole VND as a decimal string */
+            settled_amount_vnd: string | null;
+            granted_days: number | null;
+            /** Format: uuid */
+            evidence_document_version_id: string | null;
+            actor_name: string | null;
+            created_at: string;
+        };
+        CtrClaimAllowed: {
+            steps: ("NOTICE" | "PARTICULARS" | "RESPONSE" | "SETTLEMENT_PROPOSAL" | "WITHDRAWAL" | "REFERRAL")[];
+            decide_settlement: boolean;
+            declare_bar: boolean;
+            link: boolean;
+        };
+        CtrClaim: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            contract: components["schemas"]["CtrContractRef"];
+            project_code: string | null;
+            /** @enum {string} */
+            claimant_side: "CONTRACTOR" | "OWNER";
+            /** @enum {string} */
+            kind: "EXTENSION_OF_TIME" | "ADDITIONAL_PAYMENT" | "TIME_AND_COST" | "DELAY_DAMAGES" | "DEFECT_COST" | "SET_OFF" | "OTHER";
+            title: string;
+            event_description: string;
+            /** Format: date */
+            event_on: string;
+            /** Format: date */
+            awareness_on: string;
+            /** @enum {string} */
+            status: "EVENT_RECORDED" | "NOTICE_SERVED" | "PARTICULARS_SUBMITTED" | "RESPONDED" | "SETTLEMENT_PROPOSED" | "SETTLED" | "WITHDRAWN" | "REFERRED" | "TIME_BARRED";
+            /** @description Whole VND as a decimal string */
+            claimed_amount_vnd: string | null;
+            claimed_days: number | null;
+            /** @description Whole VND as a decimal string */
+            settled_amount_vnd: string | null;
+            granted_days: number | null;
+            /** Format: date */
+            notice_on: string | null;
+            /** Format: date */
+            particulars_on: string | null;
+            /** Format: date */
+            response_on: string | null;
+            /** @enum {string|null} */
+            response_decision: "ACCEPTED" | "PARTLY_ACCEPTED" | "REJECTED" | "MORE_INFORMATION_REQUESTED" | null;
+            /** Format: date */
+            settled_on: string | null;
+            /** Format: date */
+            closed_on: string | null;
+            responsible_name: string | null;
+            registered_by_name: string | null;
+            settlement_proposed_by_name: string | null;
+            settlement_approved_by_name: string | null;
+            term: components["schemas"]["CtrClaimTerm"] | null;
+            deadlines: {
+                NOTICE: components["schemas"]["CtrClaimDeadline"];
+                PARTICULARS: components["schemas"]["CtrClaimDeadline"];
+                RESPONSE: components["schemas"]["CtrClaimDeadline"];
+                SETTLEMENT: components["schemas"]["CtrClaimDeadline"];
+            };
+            limitation: components["schemas"]["CtrClaimLimitation"];
+            change_request: {
+                /** Format: uuid */
+                id: string;
+                code: string | null;
+            } | null;
+            payment_request: {
+                /** Format: uuid */
+                id: string;
+                status: string;
+                /** @description Whole VND as a decimal string */
+                gross_vnd: string;
+                /** @description Whole VND as a decimal string */
+                net_vnd: string;
+            } | null;
+            steps: components["schemas"]["CtrClaimStep"][];
+            allowed: components["schemas"]["CtrClaimAllowed"];
+            calendar_published: boolean;
+            policy: components["schemas"]["CtrRuleBasis"];
+            as_of: string;
+            version: number;
+        };
+        CtrEarlyWarningRaise: {
+            title: string;
+            description: string;
+            /** @enum {string} */
+            category: "TIME" | "COST" | "QUALITY" | "SAFETY" | "SCOPE" | "LEGAL" | "ENVIRONMENT" | "OTHER";
+            /** @enum {string} */
+            raised_by_party: "OWNER" | "CONTRACTOR" | "SUPERVISOR" | "DESIGNER" | "OTHER";
+            /** Format: date */
+            raised_on: string;
+        };
+        CtrEarlyWarningAssess: {
+            /** Format: uuid */
+            owner_membership_id: string;
+            /** @enum {string} */
+            likelihood: "LOW" | "MEDIUM" | "HIGH";
+            expected_time_days?: number;
+            /** @description Whole VND as a decimal string */
+            expected_cost_vnd?: string;
+            /** @description The warning expects no impact on time or cost (a statement, not a blank) */
+            no_impact_expected?: boolean;
+        };
+        CtrEarlyWarningActionCreate: {
+            description: string;
+            /** Format: uuid */
+            owner_membership_id: string;
+            /** Format: date */
+            due_on: string;
+        };
+        CtrEarlyWarningActionComplete: {
+            /** @enum {string} */
+            outcome: "DONE" | "CANCELLED";
+            note: string;
+        };
+        CtrEarlyWarningClose: {
+            /** @enum {string} */
+            outcome: "RESOLVED" | "MATERIALISED" | "WITHDRAWN";
+            reason: string;
+            /** @enum {string} */
+            materialised_into?: "CHANGE_REQUEST" | "CLAIM";
+            /** Format: uuid */
+            materialised_id?: string;
+        };
+        CtrEarlyWarningMeetingRecord: {
+            /** Format: date */
+            held_on: string;
+            attendees: string;
+            notes?: string;
+            /** Format: uuid */
+            minutes_document_version_id?: string;
+            reviews: {
+                /** Format: uuid */
+                warning_id: string;
+                /** @enum {string} */
+                outcome: "NO_CHANGE" | "UPDATED" | "ACTION_AGREED" | "CLOSURE_PROPOSED" | "ESCALATED";
+                note?: string;
+            }[];
+        };
+        CtrEarlyWarningIssueRecord: {
+            /** Format: date */
+            issued_on?: string;
+            /** Format: uuid */
+            meeting_id?: string;
+        };
+        CtrEarlyWarningLine: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            contract: components["schemas"]["CtrContractRef"];
+            title: string;
+            /** @enum {string} */
+            category: "TIME" | "COST" | "QUALITY" | "SAFETY" | "SCOPE" | "LEGAL" | "ENVIRONMENT" | "OTHER";
+            /** @enum {string} */
+            raised_by_party: "OWNER" | "CONTRACTOR" | "SUPERVISOR" | "DESIGNER" | "OTHER";
+            /** Format: date */
+            raised_on: string;
+            /** @enum {string} */
+            status: "RAISED" | "ASSESSED" | "MITIGATING" | "CLOSED_RESOLVED" | "CLOSED_MATERIALISED" | "CLOSED_WITHDRAWN";
+            /** @enum {string|null} */
+            likelihood: "LOW" | "MEDIUM" | "HIGH" | null;
+            owner_name: string | null;
+            expected_time_days: number | null;
+            /** @description Whole VND as a decimal string */
+            expected_cost_vnd: string | null;
+            no_impact_expected: boolean;
+            open_actions: number;
+            overdue_actions: number;
+            version: number;
+        };
+        CtrEarlyWarningSummary: {
+            total: number;
+            open: number;
+            by_status: {
+                RAISED: number;
+                ASSESSED: number;
+                MITIGATING: number;
+                CLOSED_RESOLVED: number;
+                CLOSED_MATERIALISED: number;
+                CLOSED_WITHDRAWN: number;
+            };
+            by_category: {
+                TIME: number;
+                COST: number;
+                QUALITY: number;
+                SAFETY: number;
+                SCOPE: number;
+                LEGAL: number;
+                ENVIRONMENT: number;
+                OTHER: number;
+            };
+            by_party: {
+                OWNER: number;
+                CONTRACTOR: number;
+                SUPERVISOR: number;
+                DESIGNER: number;
+                OTHER: number;
+            };
+            without_owner: number;
+            unassessed: number;
+            /** @description Whole VND as a decimal string */
+            exposure_cost_vnd: string;
+            exposure_time_days: number;
+            impact_unknown: number;
+            overdue_actions: number;
+        };
+        CtrEarlyWarningPage: {
+            items: components["schemas"]["CtrEarlyWarningLine"][];
+            next_cursor: string | null;
+            summary: components["schemas"]["CtrEarlyWarningSummary"];
+            truncated: boolean;
+            as_of: string;
+        };
+        CtrEarlyWarningAction: {
+            /** Format: uuid */
+            id: string;
+            description: string;
+            owner_name: string | null;
+            /** Format: uuid */
+            owner_membership_id: string;
+            /** Format: date */
+            due_on: string;
+            /** @enum {string} */
+            status: "OPEN" | "DONE" | "CANCELLED";
+            /** Format: date */
+            done_on: string | null;
+            done_by_name: string | null;
+            done_note: string | null;
+            overdue: boolean;
+            version: number;
+        };
+        CtrEarlyWarningReview: {
+            /** Format: uuid */
+            meeting_id: string;
+            /** Format: date */
+            held_on: string;
+            /** @enum {string} */
+            outcome: "NO_CHANGE" | "UPDATED" | "ACTION_AGREED" | "CLOSURE_PROPOSED" | "ESCALATED";
+            note: string | null;
+            status_at_meeting: string;
+        };
+        CtrEarlyWarning: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            contract: components["schemas"]["CtrContractRef"];
+            title: string;
+            description: string;
+            /** @enum {string} */
+            category: "TIME" | "COST" | "QUALITY" | "SAFETY" | "SCOPE" | "LEGAL" | "ENVIRONMENT" | "OTHER";
+            /** @enum {string} */
+            raised_by_party: "OWNER" | "CONTRACTOR" | "SUPERVISOR" | "DESIGNER" | "OTHER";
+            raised_by_name: string | null;
+            /** Format: date */
+            raised_on: string;
+            /** @enum {string} */
+            status: "RAISED" | "ASSESSED" | "MITIGATING" | "CLOSED_RESOLVED" | "CLOSED_MATERIALISED" | "CLOSED_WITHDRAWN";
+            /** @enum {string|null} */
+            likelihood: "LOW" | "MEDIUM" | "HIGH" | null;
+            owner_name: string | null;
+            /** Format: uuid */
+            owner_membership_id: string | null;
+            expected_time_days: number | null;
+            /** @description Whole VND as a decimal string */
+            expected_cost_vnd: string | null;
+            no_impact_expected: boolean;
+            assessed_by_name: string | null;
+            assessed_at: string | null;
+            closed_by_name: string | null;
+            closed_at: string | null;
+            closed_reason: string | null;
+            /** Format: uuid */
+            change_request_id: string | null;
+            /** Format: uuid */
+            claim_id: string | null;
+            actions: components["schemas"]["CtrEarlyWarningAction"][];
+            reviews: components["schemas"]["CtrEarlyWarningReview"][];
+            allowed: {
+                assess: boolean;
+                add_action: boolean;
+                close: boolean;
+            };
+            as_of: string;
+            version: number;
+        };
+        CtrRegisterClock: {
+            /** @enum {string} */
+            code: "INITIAL_ISSUE" | "MEETING" | "REISSUE";
+            /** @enum {string} */
+            state: "NOT_DEFINED" | "NOT_STARTED" | "NOT_APPLICABLE" | "CALENDAR_UNAVAILABLE" | "RUNNING" | "APPROACHING" | "MET" | "MET_LATE" | "MISSED";
+            /** Format: date */
+            started_on: string | null;
+            /** Format: date */
+            due_on: string | null;
+            /** Format: date */
+            done_on: string | null;
+            days_left: number | null;
+            period_days: number;
+            /** @enum {string} */
+            basis: "CALENDAR_DAYS" | "WORKING_DAYS";
+            /** Format: uuid */
+            meeting_id: string | null;
+        };
+        CtrEarlyWarningMeeting: {
+            /** Format: uuid */
+            id: string;
+            ordinal: number;
+            /** Format: date */
+            held_on: string;
+            attendees: string;
+            notes: string | null;
+            /** Format: uuid */
+            minutes_document_version_id: string | null;
+            recorded_by_name: string | null;
+            /** Format: date */
+            reissued_on: string | null;
+            reviews: {
+                /** Format: uuid */
+                warning_id: string;
+                warning_code: string;
+                /** @enum {string} */
+                outcome: "NO_CHANGE" | "UPDATED" | "ACTION_AGREED" | "CLOSURE_PROPOSED" | "ESCALATED";
+                note: string | null;
+                status_at_meeting: string;
+            }[];
+        };
+        CtrEarlyWarningIssue: {
+            /** Format: uuid */
+            id: string;
+            ordinal: number;
+            /** @enum {string} */
+            kind: "INITIAL" | "AFTER_MEETING" | "PERIODIC";
+            /** Format: date */
+            issued_on: string;
+            /** Format: uuid */
+            meeting_id: string | null;
+            warning_count: number;
+            open_count: number;
+            content_hash: string;
+            issued_by_name: string | null;
+        };
+        CtrEarlyWarningRegister: {
+            contract: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                status: string;
+                /** Format: date */
+                effective_from: string | null;
+            };
+            clocks: {
+                initial: components["schemas"]["CtrRegisterClock"];
+                meeting: components["schemas"]["CtrRegisterClock"];
+                reissue: components["schemas"]["CtrRegisterClock"] | null;
+            };
+            meetings: components["schemas"]["CtrEarlyWarningMeeting"][];
+            issues: components["schemas"]["CtrEarlyWarningIssue"][];
+            summary: components["schemas"]["CtrEarlyWarningSummary"];
+            policy: {
+                rule: components["schemas"]["CtrRuleBasis"];
+                initial_issue_within_days: number;
+                meeting_every_days: number;
+                reissue_within_days_after_meeting: number;
+                approach_days: number;
+                /** @enum {string} */
+                basis: "CALENDAR_DAYS" | "WORKING_DAYS";
+            };
+            calendar_published: boolean;
+            allowed: {
+                raise: boolean;
+                record_meeting: boolean;
+                issue_register: boolean;
+            };
             as_of: string;
         };
     };
@@ -150637,6 +151609,2000 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listClaimTerms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrClaimTermList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    proposeClaimTerm: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimTermPropose"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideClaimTerm: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimTermDecision"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    registerClaim: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimRegister"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listClaims: {
+        parameters: {
+            query?: {
+                contract_id?: string;
+                status?: string;
+                claimant_side?: string;
+                open?: boolean;
+                limitation?: string;
+                mine?: boolean;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrClaimPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getClaim: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrClaim"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    recordClaimStep: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimStepRecord"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideClaimSettlement: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimSettlementDecision"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    declareClaimBar: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimBarDeclare"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    linkClaim: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrClaimLinks"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    raiseContractEarlyWarning: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningRaise"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listContractEarlyWarnings: {
+        parameters: {
+            query?: {
+                contract_id?: string;
+                status?: string;
+                open?: boolean;
+                category?: string;
+                raised_by_party?: string;
+                mine?: boolean;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrEarlyWarningPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getContractEarlyWarning: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrEarlyWarning"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    assessContractEarlyWarning: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningAssess"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    addContractEarlyWarningAction: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningActionCreate"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    completeContractEarlyWarningAction: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningActionComplete"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    closeContractEarlyWarning: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningClose"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    recordContractEarlyWarningMeeting: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningMeetingRecord"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    issueContractEarlyWarningRegister: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CtrEarlyWarningIssueRecord"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getContractEarlyWarningRegister: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CtrEarlyWarningRegister"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

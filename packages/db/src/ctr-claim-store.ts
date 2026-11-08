@@ -375,7 +375,7 @@ export class CtrClaimStore {
   async recordStep(tx: TenantTx, id: string, expectedVersion: number, input: ClaimStepInput & { evidenceDocumentVersionId?: string | undefined }, actor: string, scopes: ContractScopes, now: Date): Promise<ClaimMove> {
     const held = await this.lock(tx, id, scopes);
     if (held.version !== expectedVersion) throw versionConflict(held.version);
-    if (!isClaimOpen(held.status)) throw new DomainError('CLAIM_STATE_INVALID', 409, 'status');
+    if (!isClaimOpen(held.status)) throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, 'status');
     const today = vietnamDateOf(now);
     const step = validateRecordedStep(input, { awarenessOn: held.awarenessOn, lastStepOn: held.lastStepOn, claimedAmountVnd: held.claimedAmountVnd, claimedDays: held.claimedDays }, today);
     const next = claimNextStatus(held.status, step.kind, held.responseDecision);
@@ -397,7 +397,7 @@ export class CtrClaimStore {
     if (decision !== 'APPROVE' && decision !== 'REJECT') throw new DomainError('VALIDATION_FAILED', 422, 'decision');
     const kind: ClaimStepKind = decision === 'APPROVE' ? 'SETTLEMENT_APPROVED' : 'SETTLEMENT_REJECTED';
     const next = claimNextStatus(held.status, kind, held.responseDecision);
-    if (held.settlementProposedBy === null) throw new DomainError('CLAIM_STATE_INVALID', 409, 'status');
+    if (held.settlementProposedBy === null) throw new DomainError('CTR_CLAIM_STATE_INVALID', 409, 'status');
     assertSettlementDecider(held.settlementProposedBy, actor);
     const text = claimTextOf(note, 'note');
     const today = vietnamDateOf(now);

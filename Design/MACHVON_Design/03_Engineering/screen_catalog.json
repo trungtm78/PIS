@@ -11212,5 +11212,122 @@
     "platform": "web",
     "req": "FR-VND-06",
     "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md"
+  },
+  {
+    "id": "CTR-32",
+    "module": "CTR",
+    "moduleName": "Hợp đồng và thực hiện",
+    "title": "Sổ claim hợp đồng",
+    "kind": "table",
+    "fields": [
+      "Mã claim",
+      "Hợp đồng",
+      "Bên claim",
+      "Loại",
+      "Trạng thái",
+      "Ngày biết sự việc",
+      "Mốc thời hiệu gần nhất",
+      "Số tiền claim",
+      "Số ngày claim",
+      "Đã quyết toán"
+    ],
+    "role": "Chuyên viên hợp đồng, Ban QLDA, pháp chế, kiểm toán nội bộ trong phạm vi được cấp",
+    "rule": "Mốc thời hiệu do máy chủ tính từ điều khoản của chính hợp đồng đã được duyệt; hợp đồng chưa có điều khoản thì ghi chưa có thời hiệu, không gán số của mẫu quốc tế; số mặc định ghi chưa kiểm chứng; tổng do máy chủ cộng",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CTR-32",
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8)"
+  },
+  {
+    "id": "CTR-33",
+    "module": "CTR",
+    "moduleName": "Hợp đồng và thực hiện",
+    "title": "Hồ sơ claim và đồng hồ thời hiệu",
+    "kind": "detail",
+    "fields": [
+      "Thông tin claim",
+      "Điều khoản áp dụng",
+      "Bốn mốc: thông báo, hồ sơ chi tiết, phản hồi, quyết toán",
+      "Dòng thời gian",
+      "Liên kết thay đổi và thanh toán",
+      "Quyết toán"
+    ],
+    "role": "Chuyên viên hợp đồng, Ban QLDA, pháp chế, kiểm toán nội bộ trong phạm vi được cấp",
+    "rule": "Mỗi bước ghi theo ngày xảy ra; quyết toán do người khác người đề xuất duyệt; tuyên bố hết thời hiệu chỉ khi đã qua mốc, điều khoản nêu mất quyền và do người khác người ghi sổ xác nhận; nhật ký chỉ thêm",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CTR-33",
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8)"
+  },
+  {
+    "id": "CTR-34",
+    "module": "CTR",
+    "moduleName": "Hợp đồng và thực hiện",
+    "title": "Điều khoản thời hiệu claim của hợp đồng",
+    "kind": "form",
+    "fields": [
+      "Bên claim",
+      "Số ngày thông báo",
+      "Số ngày hồ sơ chi tiết",
+      "Số ngày phản hồi",
+      "Số ngày quyết toán",
+      "Cách tính ngày",
+      "Hậu quả khi bỏ lỡ",
+      "Điều khoản hợp đồng",
+      "Văn bản căn cứ",
+      "Mẫu tham khảo"
+    ],
+    "role": "Chuyên viên hợp đồng, Ban QLDA, pháp chế, kiểm toán nội bộ trong phạm vi được cấp",
+    "rule": "Điều khoản nhập từ hợp đồng đã ký, một người đề xuất và người khác duyệt; mẫu FIDIC và NEC chỉ là ví dụ chưa kiểm chứng, không tự áp cho hợp đồng nào",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CTR-34",
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8)"
+  },
+  {
+    "id": "CTR-35",
+    "module": "CTR",
+    "moduleName": "Hợp đồng và thực hiện",
+    "title": "Sổ cảnh báo sớm hợp đồng",
+    "kind": "table",
+    "fields": [
+      "Mã cảnh báo",
+      "Hợp đồng",
+      "Tiêu đề",
+      "Nhóm",
+      "Bên nêu",
+      "Khả năng xảy ra",
+      "Tác động thời gian",
+      "Tác động chi phí",
+      "Người phụ trách",
+      "Trạng thái",
+      "Nhịp phát hành và họp"
+    ],
+    "role": "Chuyên viên hợp đồng, Ban QLDA, pháp chế, kiểm toán nội bộ trong phạm vi được cấp",
+    "rule": "Nhịp phát hành lần đầu, họp và phát hành lại lấy từ quy tắc EARLY_WARNING_POLICY (chưa kiểm chứng); tách khỏi cảnh báo giải ngân của DIS; cuộc họp phải kết luận mọi cảnh báo đang mở",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CTR-35",
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8)"
+  },
+  {
+    "id": "CTR-36",
+    "module": "CTR",
+    "moduleName": "Hợp đồng và thực hiện",
+    "title": "Hồ sơ cảnh báo sớm",
+    "kind": "detail",
+    "fields": [
+      "Nội dung cảnh báo",
+      "Đánh giá",
+      "Biện pháp giảm thiểu và hạn",
+      "Các cuộc họp đã soát xét",
+      "Đóng cảnh báo"
+    ],
+    "role": "Chuyên viên hợp đồng, Ban QLDA, pháp chế, kiểm toán nội bộ trong phạm vi được cấp",
+    "rule": "Cảnh báo chỉ đánh giá khi nêu rõ tác động hoặc không có tác động; đóng là đã xử lý khi hết biện pháp mở và không do người phụ trách tự đóng; đã xảy ra thì nêu thay đổi hoặc claim đã phát sinh",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CTR-36",
+    "source": "Thiết kế M1 05_modules/CTR.md; lộ trình quản trị sâu mục G1-9 và G1-15 (làn GOV-8)"
   }
 ]

@@ -6088,6 +6088,54 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "CTR_CLAIM_STATE_INVALID": {
+      "status": 409,
+      "title": "Claim or term in the wrong state",
+      "meaning": "Bước này không được ghi ở trạng thái hiện tại của claim, hoặc điều khoản không còn chờ quyết định.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CLAIM_TERM_PENDING": {
+      "status": 409,
+      "title": "A term is already waiting for a decision",
+      "meaning": "Hợp đồng đã có một đề xuất điều khoản thời hiệu của bên này đang chờ duyệt.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CLAIM_BAR_NOT_DUE": {
+      "status": 409,
+      "title": "No ground to declare the claim barred",
+      "meaning": "Chưa có mốc thời hiệu nào bị bỏ lỡ, hoặc điều khoản không nói rằng bỏ lỡ thì mất quyền claim.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CLAIM_SETTLEMENT_EXCEEDS_CLAIM": {
+      "status": 422,
+      "title": "Settlement exceeds the claim",
+      "meaning": "Mức quyết toán (tiền hoặc ngày) lớn hơn mức claim đã nêu.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "EARLY_WARNING_STATE_INVALID": {
+      "status": 409,
+      "title": "Early warning in the wrong state",
+      "meaning": "Cảnh báo sớm, biện pháp hoặc cuộc họp không ở trạng thái cho phép thao tác này.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "EARLY_WARNING_ACTIONS_OPEN": {
+      "status": 409,
+      "title": "Mitigation actions are still open",
+      "meaning": "Còn biện pháp giảm thiểu chưa xong nên chưa thể đóng cảnh báo là đã xử lý.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
     }
   }
 }

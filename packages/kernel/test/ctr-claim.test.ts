@@ -219,20 +219,20 @@ describe('the state machine of a claim', () => {
 
   it('lets a response that asked for more information be answered with new particulars, and only that response', () => {
     expect(claimNextStatus('RESPONDED', 'PARTICULARS', 'MORE_INFORMATION_REQUESTED')).toBe('PARTICULARS_SUBMITTED');
-    expect(refusal(() => claimNextStatus('RESPONDED', 'PARTICULARS', 'REJECTED')).code).toBe('CLAIM_STATE_INVALID');
-    expect(refusal(() => claimNextStatus('RESPONDED', 'SETTLEMENT_PROPOSAL', 'REJECTED')).code).toBe('CLAIM_STATE_INVALID');
-    expect(refusal(() => claimNextStatus('RESPONDED', 'SETTLEMENT_PROPOSAL', 'MORE_INFORMATION_REQUESTED')).code).toBe('CLAIM_STATE_INVALID');
+    expect(refusal(() => claimNextStatus('RESPONDED', 'PARTICULARS', 'REJECTED')).code).toBe('CTR_CLAIM_STATE_INVALID');
+    expect(refusal(() => claimNextStatus('RESPONDED', 'SETTLEMENT_PROPOSAL', 'REJECTED')).code).toBe('CTR_CLAIM_STATE_INVALID');
+    expect(refusal(() => claimNextStatus('RESPONDED', 'SETTLEMENT_PROPOSAL', 'MORE_INFORMATION_REQUESTED')).code).toBe('CTR_CLAIM_STATE_INVALID');
     expect(claimNextStatus('RESPONDED', 'REFERRAL', 'REJECTED')).toBe('REFERRED');
-    expect(refusal(() => claimNextStatus('RESPONDED', 'REFERRAL', 'ACCEPTED')).code).toBe('CLAIM_STATE_INVALID');
+    expect(refusal(() => claimNextStatus('RESPONDED', 'REFERRAL', 'ACCEPTED')).code).toBe('CTR_CLAIM_STATE_INVALID');
   });
 
   it('refuses every step on a claim that ended and a step out of order', () => {
     for (const status of ['SETTLED', 'WITHDRAWN', 'REFERRED', 'TIME_BARRED'] as const) {
       expect(isClaimOpen(status)).toBe(false);
-      expect(refusal(() => claimNextStatus(status, 'WITHDRAWAL', null)).code).toBe('CLAIM_STATE_INVALID');
+      expect(refusal(() => claimNextStatus(status, 'WITHDRAWAL', null)).code).toBe('CTR_CLAIM_STATE_INVALID');
     }
-    expect(refusal(() => claimNextStatus('EVENT_RECORDED', 'PARTICULARS', null)).code).toBe('CLAIM_STATE_INVALID');
-    expect(refusal(() => claimNextStatus('EVENT_RECORDED', 'SETTLEMENT_APPROVED', null)).code).toBe('CLAIM_STATE_INVALID');
+    expect(refusal(() => claimNextStatus('EVENT_RECORDED', 'PARTICULARS', null)).code).toBe('CTR_CLAIM_STATE_INVALID');
+    expect(refusal(() => claimNextStatus('EVENT_RECORDED', 'SETTLEMENT_APPROVED', null)).code).toBe('CTR_CLAIM_STATE_INVALID');
   });
 
   it('offers a screen only the steps that would be accepted', () => {

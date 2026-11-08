@@ -16,6 +16,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'activateAiProvider': CommandResultResponse.fromJson,
   'addCompensationPlanItems': CommandResultResponse.fromJson,
   'addContactIdentity': CommandResultResponse.fromJson,
+  'addContractEarlyWarningAction': CommandResultResponse.fromJson,
   'addDirective': CommandResultResponse.fromJson,
   'addDocumentToDossier': CommandResultResponse.fromJson,
   'addPermit': CommandResultResponse.fromJson,
@@ -53,6 +54,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'approveSodException': CommandResultResponse.fromJson,
   'approveVendorPayeeChange': CommandResultResponse.fromJson,
   'archiveTenant': TenantLifecycleResultResponse.fromJson,
+  'assessContractEarlyWarning': CommandResultResponse.fromJson,
   'assignAuditRecommendation': CommandResultResponse.fromJson,
   'assignConversation': CommandResultResponse.fromJson,
   'assignCorrectiveAction': CommandResultResponse.fromJson,
@@ -102,6 +104,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'clearChangeAdjustmentCheck': CommandResultResponse.fromJson,
   'closeAuditEngagement': CommandResultResponse.fromJson,
   'closeContract': CommandResultResponse.fromJson,
+  'closeContractEarlyWarning': CommandResultResponse.fromJson,
   'closeDirective': CommandResultResponse.fromJson,
   'closeDocumentNumberRegister': CommandResultResponse.fromJson,
   'closeDossier': CommandResultResponse.fromJson,
@@ -116,6 +119,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'commentIssue': CommandResultResponse.fromJson,
   'compareProposals': BidComparisonResponse.fromJson,
   'completeContract': CommandResultResponse.fromJson,
+  'completeContractEarlyWarningAction': CommandResultResponse.fromJson,
   'completePackageChecklistItem': CommandResultResponse.fromJson,
   'completeProject': CommandResultResponse.fromJson,
   'completeRemediationAction': CommandResultResponse.fromJson,
@@ -217,6 +221,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideBiPublication': CommandResultResponse.fromJson,
   'decideCampaign': CommandResultResponse.fromJson,
   'decideCapitalPlan': CommandResultResponse.fromJson,
+  'decideClaimSettlement': CommandResultResponse.fromJson,
+  'decideClaimTerm': CommandResultResponse.fromJson,
   'decideConflictOfInterest': CommandResultResponse.fromJson,
   'decideDirectiveExtension': CommandResultResponse.fromJson,
   'decideDoaMatrix': CommandResultResponse.fromJson,
@@ -246,6 +252,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideUnitReorganization': CommandResultResponse.fromJson,
   'decideVendorDuplicate': CommandResultResponse.fromJson,
   'decideVendorRestrictionCase': CommandResultResponse.fromJson,
+  'declareClaimBar': CommandResultResponse.fromJson,
   'declareConflictOfInterest': CommandResultResponse.fromJson,
   'declarePermitExemption': CommandResultResponse.fromJson,
   'declareVendorNoOwnerAboveThreshold': CommandResultResponse.fromJson,
@@ -494,10 +501,13 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getCapitalPlanAsOf': CapPlanAsOfResponse.fromJson,
   'getChangeChain': CtrChangeChainViewResponse.fromJson,
   'getChangeTier': CtrChangeTierResponse.fromJson,
+  'getClaim': CtrClaimResponse.fromJson,
   'getCommandCenter': HomeCommandCenterResponse.fromJson,
   'getCompensationPlanTimers': asObject,
   'getContractAdvancePosition': PayContractAdvancePositionResponse.fromJson,
   'getContractAvailability': CapContractAvailabilityResponse.fromJson,
+  'getContractEarlyWarning': CtrEarlyWarningResponse.fromJson,
+  'getContractEarlyWarningRegister': CtrEarlyWarningRegisterResponse.fromJson,
   'getContractorExportDownload': ContractorExportDownloadResponse.fromJson,
   'getContractorHistory': ContractorHistoryResponse.fromJson,
   'getContractorScorecard': ContractorScorecardResponse.fromJson,
@@ -635,12 +645,14 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'indexAiKnowledgeItem': CommandResultResponse.fromJson,
   'inviteGuestContractor': CommandResultResponse.fromJson,
   'inviteMember': CommandResultResponse.fromJson,
+  'issueContractEarlyWarningRegister': CommandResultResponse.fromJson,
   'issueEInvoice': CommandResultResponse.fromJson,
   'issueOutgoingDocument': CommandResultResponse.fromJson,
   'issueReport': CommandResultResponse.fromJson,
   'issueSupportAccessToken': SupportTokenResponse.fromJson,
   'liftVendorRestrictionCase': CommandResultResponse.fromJson,
   'linkAuditRecovery': CommandResultResponse.fromJson,
+  'linkClaim': CommandResultResponse.fromJson,
   'linkContractComponent': CommandResultResponse.fromJson,
   'linkConversationResource': CommandResultResponse.fromJson,
   'linkHouseholdParcel': CommandResultResponse.fromJson,
@@ -688,11 +700,14 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listCannedReplies': CannedReplyListResponse.fromJson,
   'listCapitalLedger': CapLedgerPageResponse.fromJson,
   'listCapitalPlanLines': asObject,
+  'listClaims': CtrClaimPageResponse.fromJson,
+  'listClaimTerms': CtrClaimTermListResponse.fromJson,
   'listCompensationPayments': asObject,
   'listCompensationPlanItems': asObject,
   'listCompensationPlans': asObject,
   'listConflictDeclarations': BidConflictDeclarationListResponse.fromJson,
   'listConsumerApprovals': asObject,
+  'listContractEarlyWarnings': CtrEarlyWarningPageResponse.fromJson,
   'listContractFactSnapshots': CtrFactSnapshotListResponse.fromJson,
   'listContractorExports': ContractorExportPageResponse.fromJson,
   'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
@@ -896,6 +911,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'previewPlanChange': PlanChangePreviewResponse.fromJson,
   'promoteAllocationScenario': CommandResultResponse.fromJson,
   'promoteChangeRequest': CommandResultResponse.fromJson,
+  'proposeClaimTerm': CommandResultResponse.fromJson,
   'proposeDossierDisposal': CommandResultResponse.fromJson,
   'proposeEgpMapping': EgpMappingResponse.fromJson,
   'proposeFundingFigures': CommandResultResponse.fromJson,
@@ -928,6 +944,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'publishWorkflowVersion': CommandResultResponse.fromJson,
   'putSystemTenantThemeDraft': TenantThemeDraftResponse.fromJson,
   'putVendorRestrictionIntoEffect': CommandResultResponse.fromJson,
+  'raiseContractEarlyWarning': CommandResultResponse.fromJson,
   'raiseNonconformance': CommandResultResponse.fromJson,
   'reactivateMembership': CommandResultResponse.fromJson,
   'reassignApprovalTask': CommandResultResponse.fromJson,
@@ -947,9 +964,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'recordAuditConclusion': CommandResultResponse.fromJson,
   'recordAuditDisputeDecision': CommandResultResponse.fromJson,
   'recordAuditFinding': CommandResultResponse.fromJson,
+  'recordClaimStep': CommandResultResponse.fromJson,
   'recordClarificationAnswer': CommandResultResponse.fromJson,
   'recordConsumerApproval': CommandResultResponse.fromJson,
   'recordContactConsent': CommandResultResponse.fromJson,
+  'recordContractEarlyWarningMeeting': CommandResultResponse.fromJson,
   'recordContractorRestriction': CommandResultResponse.fromJson,
   'recordContractorViolation': CommandResultResponse.fromJson,
   'recordContractSigning': CommandResultResponse.fromJson,
@@ -983,6 +1002,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'registerAiProvider': CommandResultResponse.fromJson,
   'registerAppropriation': CommandResultResponse.fromJson,
   'registerAsset': CommandResultResponse.fromJson,
+  'registerClaim': CommandResultResponse.fromJson,
   'registerContractor': CommandResultResponse.fromJson,
   'registerDataset': CommandResultResponse.fromJson,
   'registerDevice': CommandResultResponse.fromJson,
@@ -9356,6 +9376,1030 @@ final class CtrChangeTierResponse implements ResponseModel {
       };
 }
 
+final class CtrClaimAllowedResponse implements ResponseModel {
+  const CtrClaimAllowedResponse({
+    required this.steps,
+    required this.decideSettlement,
+    required this.declareBar,
+    required this.link,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimAllowedResponse.fromJson(Object? json, [String path = 'CtrClaimAllowedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimAllowedResponse(
+      steps: requiredField(map, path, 'steps', asList(asString)),
+      decideSettlement: requiredField(map, path, 'decide_settlement', asBool),
+      declareBar: requiredField(map, path, 'declare_bar', asBool),
+      link: requiredField(map, path, 'link', asBool),
+      extra: unknownFields(map, path, const <String>{'steps', 'decide_settlement', 'declare_bar', 'link'}, strict: true),
+    );
+  }
+
+  final List<String> steps;
+  final bool decideSettlement;
+  final bool declareBar;
+  final bool link;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'steps': steps,
+        'decide_settlement': decideSettlement,
+        'declare_bar': declareBar,
+        'link': link,
+        ...extra,
+      };
+}
+
+final class CtrClaimDeadlineResponse implements ResponseModel {
+  const CtrClaimDeadlineResponse({
+    required this.code,
+    required this.state,
+    required this.startedOn,
+    required this.dueOn,
+    required this.doneOn,
+    required this.daysLeft,
+    required this.periodDays,
+    required this.basis,
+    required this.owedBy,
+    required this.owedByOwner,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimDeadlineResponse.fromJson(Object? json, [String path = 'CtrClaimDeadlineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimDeadlineResponse(
+      code: requiredField(map, path, 'code', asString),
+      state: requiredField(map, path, 'state', asString),
+      startedOn: requiredField(map, path, 'started_on', nullable(asString)),
+      dueOn: requiredField(map, path, 'due_on', nullable(asString)),
+      doneOn: requiredField(map, path, 'done_on', nullable(asString)),
+      daysLeft: requiredField(map, path, 'days_left', nullable(asInt)),
+      periodDays: requiredField(map, path, 'period_days', nullable(asInt)),
+      basis: requiredField(map, path, 'basis', nullable(asString)),
+      owedBy: requiredField(map, path, 'owed_by', asString),
+      owedByOwner: requiredField(map, path, 'owed_by_owner', asBool),
+      extra: unknownFields(map, path, const <String>{'code', 'state', 'started_on', 'due_on', 'done_on', 'days_left', 'period_days', 'basis', 'owed_by', 'owed_by_owner'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String state;
+  final String? startedOn;
+  final String? dueOn;
+  final String? doneOn;
+  final int? daysLeft;
+  final int? periodDays;
+  final String? basis;
+  final String owedBy;
+  final bool owedByOwner;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'state': state,
+        'started_on': startedOn,
+        'due_on': dueOn,
+        'done_on': doneOn,
+        'days_left': daysLeft,
+        'period_days': periodDays,
+        'basis': basis,
+        'owed_by': owedBy,
+        'owed_by_owner': owedByOwner,
+        ...extra,
+      };
+}
+
+final class CtrClaimLimitationResponse implements ResponseModel {
+  const CtrClaimLimitationResponse({
+    required this.status,
+    required this.dueOn,
+    required this.code,
+    required this.daysLeft,
+    required this.barEffect,
+    required this.missed,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimLimitationResponse.fromJson(Object? json, [String path = 'CtrClaimLimitationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimLimitationResponse(
+      status: requiredField(map, path, 'status', asString),
+      dueOn: requiredField(map, path, 'due_on', nullable(asString)),
+      code: requiredField(map, path, 'code', nullable(asString)),
+      daysLeft: requiredField(map, path, 'days_left', nullable(asInt)),
+      barEffect: requiredField(map, path, 'bar_effect', nullable(asString)),
+      missed: requiredField(map, path, 'missed', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'status', 'due_on', 'code', 'days_left', 'bar_effect', 'missed'}, strict: true),
+    );
+  }
+
+  final String status;
+  final String? dueOn;
+  final String? code;
+  final int? daysLeft;
+  final String? barEffect;
+  final List<String> missed;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'due_on': dueOn,
+        'code': code,
+        'days_left': daysLeft,
+        'bar_effect': barEffect,
+        'missed': missed,
+        ...extra,
+      };
+}
+
+final class CtrClaimLineResponse implements ResponseModel {
+  const CtrClaimLineResponse({
+    required this.id,
+    required this.code,
+    required this.contract,
+    required this.projectCode,
+    required this.claimantSide,
+    required this.kind,
+    required this.title,
+    required this.status,
+    required this.awarenessOn,
+    required this.claimedAmountVnd,
+    required this.claimedDays,
+    required this.settledAmountVnd,
+    required this.grantedDays,
+    required this.hasTerm,
+    required this.limitation,
+    required this.open,
+    required this.responsibleName,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimLineResponse.fromJson(Object? json, [String path = 'CtrClaimLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      contract: requiredField(map, path, 'contract', CtrContractRefResponse.fromJson),
+      projectCode: requiredField(map, path, 'project_code', nullable(asString)),
+      claimantSide: requiredField(map, path, 'claimant_side', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      title: requiredField(map, path, 'title', asString),
+      status: requiredField(map, path, 'status', asString),
+      awarenessOn: requiredField(map, path, 'awareness_on', asString),
+      claimedAmountVnd: requiredField(map, path, 'claimed_amount_vnd', nullable(asString)),
+      claimedDays: requiredField(map, path, 'claimed_days', nullable(asInt)),
+      settledAmountVnd: requiredField(map, path, 'settled_amount_vnd', nullable(asString)),
+      grantedDays: requiredField(map, path, 'granted_days', nullable(asInt)),
+      hasTerm: requiredField(map, path, 'has_term', asBool),
+      limitation: requiredField(map, path, 'limitation', CtrClaimLimitationResponse.fromJson),
+      open: requiredField(map, path, 'open', asBool),
+      responsibleName: requiredField(map, path, 'responsible_name', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'contract', 'project_code', 'claimant_side', 'kind', 'title', 'status', 'awareness_on', 'claimed_amount_vnd', 'claimed_days', 'settled_amount_vnd', 'granted_days', 'has_term', 'limitation', 'open', 'responsible_name', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final CtrContractRefResponse contract;
+  final String? projectCode;
+  final String claimantSide;
+  final String kind;
+  final String title;
+  final String status;
+  final String awarenessOn;
+  final String? claimedAmountVnd;
+  final int? claimedDays;
+  final String? settledAmountVnd;
+  final int? grantedDays;
+  final bool hasTerm;
+  final CtrClaimLimitationResponse limitation;
+  final bool open;
+  final String? responsibleName;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'contract': contract.toJson(),
+        'project_code': projectCode,
+        'claimant_side': claimantSide,
+        'kind': kind,
+        'title': title,
+        'status': status,
+        'awareness_on': awarenessOn,
+        'claimed_amount_vnd': claimedAmountVnd,
+        'claimed_days': claimedDays,
+        'settled_amount_vnd': settledAmountVnd,
+        'granted_days': grantedDays,
+        'has_term': hasTerm,
+        'limitation': limitation.toJson(),
+        'open': open,
+        'responsible_name': responsibleName,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CtrClaimPageResponse implements ResponseModel {
+  const CtrClaimPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.totals,
+    required this.truncated,
+    required this.calendarPublished,
+    required this.policy,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimPageResponse.fromJson(Object? json, [String path = 'CtrClaimPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimPageResponse(
+      items: requiredField(map, path, 'items', asList(CtrClaimLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      totals: requiredField(map, path, 'totals', CtrClaimTotalsResponse.fromJson),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      calendarPublished: requiredField(map, path, 'calendar_published', asBool),
+      policy: requiredField(map, path, 'policy', CtrRuleBasisResponse.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'totals', 'truncated', 'calendar_published', 'policy', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<CtrClaimLineResponse> items;
+  final String? nextCursor;
+  final CtrClaimTotalsResponse totals;
+  final bool truncated;
+  final bool calendarPublished;
+  final CtrRuleBasisResponse policy;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'totals': totals.toJson(),
+        'truncated': truncated,
+        'calendar_published': calendarPublished,
+        'policy': policy.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CtrClaimResponse implements ResponseModel {
+  const CtrClaimResponse({
+    required this.id,
+    required this.code,
+    required this.contract,
+    required this.projectCode,
+    required this.claimantSide,
+    required this.kind,
+    required this.title,
+    required this.eventDescription,
+    required this.eventOn,
+    required this.awarenessOn,
+    required this.status,
+    required this.claimedAmountVnd,
+    required this.claimedDays,
+    required this.settledAmountVnd,
+    required this.grantedDays,
+    required this.noticeOn,
+    required this.particularsOn,
+    required this.responseOn,
+    required this.responseDecision,
+    required this.settledOn,
+    required this.closedOn,
+    required this.responsibleName,
+    required this.registeredByName,
+    required this.settlementProposedByName,
+    required this.settlementApprovedByName,
+    required this.term,
+    required this.deadlines,
+    required this.limitation,
+    required this.changeRequest,
+    required this.paymentRequest,
+    required this.steps,
+    required this.allowed,
+    required this.calendarPublished,
+    required this.policy,
+    required this.asOf,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimResponse.fromJson(Object? json, [String path = 'CtrClaimResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      contract: requiredField(map, path, 'contract', CtrContractRefResponse.fromJson),
+      projectCode: requiredField(map, path, 'project_code', nullable(asString)),
+      claimantSide: requiredField(map, path, 'claimant_side', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      title: requiredField(map, path, 'title', asString),
+      eventDescription: requiredField(map, path, 'event_description', asString),
+      eventOn: requiredField(map, path, 'event_on', asString),
+      awarenessOn: requiredField(map, path, 'awareness_on', asString),
+      status: requiredField(map, path, 'status', asString),
+      claimedAmountVnd: requiredField(map, path, 'claimed_amount_vnd', nullable(asString)),
+      claimedDays: requiredField(map, path, 'claimed_days', nullable(asInt)),
+      settledAmountVnd: requiredField(map, path, 'settled_amount_vnd', nullable(asString)),
+      grantedDays: requiredField(map, path, 'granted_days', nullable(asInt)),
+      noticeOn: requiredField(map, path, 'notice_on', nullable(asString)),
+      particularsOn: requiredField(map, path, 'particulars_on', nullable(asString)),
+      responseOn: requiredField(map, path, 'response_on', nullable(asString)),
+      responseDecision: requiredField(map, path, 'response_decision', nullable(asString)),
+      settledOn: requiredField(map, path, 'settled_on', nullable(asString)),
+      closedOn: requiredField(map, path, 'closed_on', nullable(asString)),
+      responsibleName: requiredField(map, path, 'responsible_name', nullable(asString)),
+      registeredByName: requiredField(map, path, 'registered_by_name', nullable(asString)),
+      settlementProposedByName: requiredField(map, path, 'settlement_proposed_by_name', nullable(asString)),
+      settlementApprovedByName: requiredField(map, path, 'settlement_approved_by_name', nullable(asString)),
+      term: requiredField(map, path, 'term', asAny),
+      deadlines: requiredField(map, path, 'deadlines', CtrClaimResponseDeadlines.fromJson),
+      limitation: requiredField(map, path, 'limitation', CtrClaimLimitationResponse.fromJson),
+      changeRequest: requiredField(map, path, 'change_request', asAny),
+      paymentRequest: requiredField(map, path, 'payment_request', asAny),
+      steps: requiredField(map, path, 'steps', asList(CtrClaimStepResponse.fromJson)),
+      allowed: requiredField(map, path, 'allowed', CtrClaimAllowedResponse.fromJson),
+      calendarPublished: requiredField(map, path, 'calendar_published', asBool),
+      policy: requiredField(map, path, 'policy', CtrRuleBasisResponse.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'contract', 'project_code', 'claimant_side', 'kind', 'title', 'event_description', 'event_on', 'awareness_on', 'status', 'claimed_amount_vnd', 'claimed_days', 'settled_amount_vnd', 'granted_days', 'notice_on', 'particulars_on', 'response_on', 'response_decision', 'settled_on', 'closed_on', 'responsible_name', 'registered_by_name', 'settlement_proposed_by_name', 'settlement_approved_by_name', 'term', 'deadlines', 'limitation', 'change_request', 'payment_request', 'steps', 'allowed', 'calendar_published', 'policy', 'as_of', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final CtrContractRefResponse contract;
+  final String? projectCode;
+  final String claimantSide;
+  final String kind;
+  final String title;
+  final String eventDescription;
+  final String eventOn;
+  final String awarenessOn;
+  final String status;
+  final String? claimedAmountVnd;
+  final int? claimedDays;
+  final String? settledAmountVnd;
+  final int? grantedDays;
+  final String? noticeOn;
+  final String? particularsOn;
+  final String? responseOn;
+  final String? responseDecision;
+  final String? settledOn;
+  final String? closedOn;
+  final String? responsibleName;
+  final String? registeredByName;
+  final String? settlementProposedByName;
+  final String? settlementApprovedByName;
+  final Object? term;
+  final CtrClaimResponseDeadlines deadlines;
+  final CtrClaimLimitationResponse limitation;
+  final Object? changeRequest;
+  final Object? paymentRequest;
+  final List<CtrClaimStepResponse> steps;
+  final CtrClaimAllowedResponse allowed;
+  final bool calendarPublished;
+  final CtrRuleBasisResponse policy;
+  final String asOf;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'contract': contract.toJson(),
+        'project_code': projectCode,
+        'claimant_side': claimantSide,
+        'kind': kind,
+        'title': title,
+        'event_description': eventDescription,
+        'event_on': eventOn,
+        'awareness_on': awarenessOn,
+        'status': status,
+        'claimed_amount_vnd': claimedAmountVnd,
+        'claimed_days': claimedDays,
+        'settled_amount_vnd': settledAmountVnd,
+        'granted_days': grantedDays,
+        'notice_on': noticeOn,
+        'particulars_on': particularsOn,
+        'response_on': responseOn,
+        'response_decision': responseDecision,
+        'settled_on': settledOn,
+        'closed_on': closedOn,
+        'responsible_name': responsibleName,
+        'registered_by_name': registeredByName,
+        'settlement_proposed_by_name': settlementProposedByName,
+        'settlement_approved_by_name': settlementApprovedByName,
+        'term': term,
+        'deadlines': deadlines.toJson(),
+        'limitation': limitation.toJson(),
+        'change_request': changeRequest,
+        'payment_request': paymentRequest,
+        'steps': steps.map((e0) => e0.toJson()).toList(),
+        'allowed': allowed.toJson(),
+        'calendar_published': calendarPublished,
+        'policy': policy.toJson(),
+        'as_of': asOf,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CtrClaimResponseDeadlines implements ResponseModel {
+  const CtrClaimResponseDeadlines({
+    required this.nOTICE,
+    required this.pARTICULARS,
+    required this.rESPONSE,
+    required this.sETTLEMENT,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimResponseDeadlines.fromJson(Object? json, [String path = 'CtrClaimResponseDeadlines']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimResponseDeadlines(
+      nOTICE: requiredField(map, path, 'NOTICE', CtrClaimDeadlineResponse.fromJson),
+      pARTICULARS: requiredField(map, path, 'PARTICULARS', CtrClaimDeadlineResponse.fromJson),
+      rESPONSE: requiredField(map, path, 'RESPONSE', CtrClaimDeadlineResponse.fromJson),
+      sETTLEMENT: requiredField(map, path, 'SETTLEMENT', CtrClaimDeadlineResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'NOTICE', 'PARTICULARS', 'RESPONSE', 'SETTLEMENT'}, strict: true),
+    );
+  }
+
+  final CtrClaimDeadlineResponse nOTICE;
+  final CtrClaimDeadlineResponse pARTICULARS;
+  final CtrClaimDeadlineResponse rESPONSE;
+  final CtrClaimDeadlineResponse sETTLEMENT;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'NOTICE': nOTICE.toJson(),
+        'PARTICULARS': pARTICULARS.toJson(),
+        'RESPONSE': rESPONSE.toJson(),
+        'SETTLEMENT': sETTLEMENT.toJson(),
+        ...extra,
+      };
+}
+
+final class CtrClaimStepResponse implements ResponseModel {
+  const CtrClaimStepResponse({
+    required this.id,
+    required this.ordinal,
+    required this.kind,
+    required this.occurredOn,
+    required this.note,
+    required this.decision,
+    required this.claimedAmountVnd,
+    required this.claimedDays,
+    required this.settledAmountVnd,
+    required this.grantedDays,
+    required this.evidenceDocumentVersionId,
+    required this.actorName,
+    required this.createdAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimStepResponse.fromJson(Object? json, [String path = 'CtrClaimStepResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimStepResponse(
+      id: requiredField(map, path, 'id', asString),
+      ordinal: requiredField(map, path, 'ordinal', asInt),
+      kind: requiredField(map, path, 'kind', asString),
+      occurredOn: requiredField(map, path, 'occurred_on', asString),
+      note: requiredField(map, path, 'note', asString),
+      decision: requiredField(map, path, 'decision', nullable(asString)),
+      claimedAmountVnd: requiredField(map, path, 'claimed_amount_vnd', nullable(asString)),
+      claimedDays: requiredField(map, path, 'claimed_days', nullable(asInt)),
+      settledAmountVnd: requiredField(map, path, 'settled_amount_vnd', nullable(asString)),
+      grantedDays: requiredField(map, path, 'granted_days', nullable(asInt)),
+      evidenceDocumentVersionId: requiredField(map, path, 'evidence_document_version_id', nullable(asString)),
+      actorName: requiredField(map, path, 'actor_name', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'ordinal', 'kind', 'occurred_on', 'note', 'decision', 'claimed_amount_vnd', 'claimed_days', 'settled_amount_vnd', 'granted_days', 'evidence_document_version_id', 'actor_name', 'created_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int ordinal;
+  final String kind;
+  final String occurredOn;
+  final String note;
+  final String? decision;
+  final String? claimedAmountVnd;
+  final int? claimedDays;
+  final String? settledAmountVnd;
+  final int? grantedDays;
+  final String? evidenceDocumentVersionId;
+  final String? actorName;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'ordinal': ordinal,
+        'kind': kind,
+        'occurred_on': occurredOn,
+        'note': note,
+        'decision': decision,
+        'claimed_amount_vnd': claimedAmountVnd,
+        'claimed_days': claimedDays,
+        'settled_amount_vnd': settledAmountVnd,
+        'granted_days': grantedDays,
+        'evidence_document_version_id': evidenceDocumentVersionId,
+        'actor_name': actorName,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class CtrClaimTermListResponse implements ResponseModel {
+  const CtrClaimTermListResponse({
+    required this.items,
+    required this.templates,
+    required this.contract,
+    required this.canPropose,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTermListResponse.fromJson(Object? json, [String path = 'CtrClaimTermListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTermListResponse(
+      items: requiredField(map, path, 'items', asList(CtrClaimTermResponse.fromJson)),
+      templates: requiredField(map, path, 'templates', asList(CtrClaimTermTemplateResponse.fromJson)),
+      contract: requiredField(map, path, 'contract', CtrContractRefResponse.fromJson),
+      canPropose: requiredField(map, path, 'can_propose', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'templates', 'contract', 'can_propose', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<CtrClaimTermResponse> items;
+  final List<CtrClaimTermTemplateResponse> templates;
+  final CtrContractRefResponse contract;
+  final bool canPropose;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'templates': templates.map((e0) => e0.toJson()).toList(),
+        'contract': contract.toJson(),
+        'can_propose': canPropose,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CtrClaimTermResponse implements ResponseModel {
+  const CtrClaimTermResponse({
+    required this.id,
+    required this.contractId,
+    required this.claimantSide,
+    required this.noticeDays,
+    required this.particularsDays,
+    required this.responseDays,
+    required this.settlementDays,
+    required this.basis,
+    required this.particularsFrom,
+    required this.barEffect,
+    required this.clauseReference,
+    required this.basisDocumentVersionId,
+    required this.templateCode,
+    required this.status,
+    required this.decisionNote,
+    required this.proposedByName,
+    required this.proposedAt,
+    required this.decidedByName,
+    required this.decidedAt,
+    required this.supersededById,
+    required this.canDecide,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTermResponse.fromJson(Object? json, [String path = 'CtrClaimTermResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTermResponse(
+      id: requiredField(map, path, 'id', asString),
+      contractId: requiredField(map, path, 'contract_id', asString),
+      claimantSide: requiredField(map, path, 'claimant_side', asString),
+      noticeDays: requiredField(map, path, 'notice_days', nullable(asInt)),
+      particularsDays: requiredField(map, path, 'particulars_days', nullable(asInt)),
+      responseDays: requiredField(map, path, 'response_days', nullable(asInt)),
+      settlementDays: requiredField(map, path, 'settlement_days', nullable(asInt)),
+      basis: requiredField(map, path, 'basis', asString),
+      particularsFrom: requiredField(map, path, 'particulars_from', asString),
+      barEffect: requiredField(map, path, 'bar_effect', asString),
+      clauseReference: requiredField(map, path, 'clause_reference', asString),
+      basisDocumentVersionId: requiredField(map, path, 'basis_document_version_id', nullable(asString)),
+      templateCode: requiredField(map, path, 'template_code', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      decisionNote: requiredField(map, path, 'decision_note', nullable(asString)),
+      proposedByName: requiredField(map, path, 'proposed_by_name', nullable(asString)),
+      proposedAt: requiredField(map, path, 'proposed_at', asString),
+      decidedByName: requiredField(map, path, 'decided_by_name', nullable(asString)),
+      decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
+      supersededById: requiredField(map, path, 'superseded_by_id', nullable(asString)),
+      canDecide: requiredField(map, path, 'can_decide', asBool),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'contract_id', 'claimant_side', 'notice_days', 'particulars_days', 'response_days', 'settlement_days', 'basis', 'particulars_from', 'bar_effect', 'clause_reference', 'basis_document_version_id', 'template_code', 'status', 'decision_note', 'proposed_by_name', 'proposed_at', 'decided_by_name', 'decided_at', 'superseded_by_id', 'can_decide', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String contractId;
+  final String claimantSide;
+  final int? noticeDays;
+  final int? particularsDays;
+  final int? responseDays;
+  final int? settlementDays;
+  final String basis;
+  final String particularsFrom;
+  final String barEffect;
+  final String clauseReference;
+  final String? basisDocumentVersionId;
+  final String? templateCode;
+  final String status;
+  final String? decisionNote;
+  final String? proposedByName;
+  final String proposedAt;
+  final String? decidedByName;
+  final String? decidedAt;
+  final String? supersededById;
+  final bool canDecide;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'contract_id': contractId,
+        'claimant_side': claimantSide,
+        'notice_days': noticeDays,
+        'particulars_days': particularsDays,
+        'response_days': responseDays,
+        'settlement_days': settlementDays,
+        'basis': basis,
+        'particulars_from': particularsFrom,
+        'bar_effect': barEffect,
+        'clause_reference': clauseReference,
+        'basis_document_version_id': basisDocumentVersionId,
+        'template_code': templateCode,
+        'status': status,
+        'decision_note': decisionNote,
+        'proposed_by_name': proposedByName,
+        'proposed_at': proposedAt,
+        'decided_by_name': decidedByName,
+        'decided_at': decidedAt,
+        'superseded_by_id': supersededById,
+        'can_decide': canDecide,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CtrClaimTermTemplateResponse implements ResponseModel {
+  const CtrClaimTermTemplateResponse({
+    required this.code,
+    required this.noticeDays,
+    required this.particularsDays,
+    required this.responseDays,
+    required this.settlementDays,
+    required this.basis,
+    required this.particularsFrom,
+    required this.barEffect,
+    required this.rule,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTermTemplateResponse.fromJson(Object? json, [String path = 'CtrClaimTermTemplateResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTermTemplateResponse(
+      code: requiredField(map, path, 'code', asString),
+      noticeDays: requiredField(map, path, 'notice_days', nullable(asInt)),
+      particularsDays: requiredField(map, path, 'particulars_days', nullable(asInt)),
+      responseDays: requiredField(map, path, 'response_days', nullable(asInt)),
+      settlementDays: requiredField(map, path, 'settlement_days', nullable(asInt)),
+      basis: requiredField(map, path, 'basis', asString),
+      particularsFrom: requiredField(map, path, 'particulars_from', asString),
+      barEffect: requiredField(map, path, 'bar_effect', asString),
+      rule: requiredField(map, path, 'rule', CtrRuleBasisResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'code', 'notice_days', 'particulars_days', 'response_days', 'settlement_days', 'basis', 'particulars_from', 'bar_effect', 'rule'}, strict: true),
+    );
+  }
+
+  final String code;
+  final int? noticeDays;
+  final int? particularsDays;
+  final int? responseDays;
+  final int? settlementDays;
+  final String basis;
+  final String particularsFrom;
+  final String barEffect;
+  final CtrRuleBasisResponse rule;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'notice_days': noticeDays,
+        'particulars_days': particularsDays,
+        'response_days': responseDays,
+        'settlement_days': settlementDays,
+        'basis': basis,
+        'particulars_from': particularsFrom,
+        'bar_effect': barEffect,
+        'rule': rule.toJson(),
+        ...extra,
+      };
+}
+
+final class CtrClaimTotalsResponse implements ResponseModel {
+  const CtrClaimTotalsResponse({
+    required this.count,
+    required this.open,
+    required this.byStatus,
+    required this.bySide,
+    required this.byLimitation,
+    required this.claimedVnd,
+    required this.settledVnd,
+    required this.openClaimedVnd,
+    required this.claimedDays,
+    required this.grantedDays,
+    required this.withoutTerm,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTotalsResponse.fromJson(Object? json, [String path = 'CtrClaimTotalsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTotalsResponse(
+      count: requiredField(map, path, 'count', asInt),
+      open: requiredField(map, path, 'open', asInt),
+      byStatus: requiredField(map, path, 'by_status', CtrClaimTotalsResponseByStatus.fromJson),
+      bySide: requiredField(map, path, 'by_side', CtrClaimTotalsResponseBySide.fromJson),
+      byLimitation: requiredField(map, path, 'by_limitation', CtrClaimTotalsResponseByLimitation.fromJson),
+      claimedVnd: requiredField(map, path, 'claimed_vnd', asString),
+      settledVnd: requiredField(map, path, 'settled_vnd', asString),
+      openClaimedVnd: requiredField(map, path, 'open_claimed_vnd', asString),
+      claimedDays: requiredField(map, path, 'claimed_days', asInt),
+      grantedDays: requiredField(map, path, 'granted_days', asInt),
+      withoutTerm: requiredField(map, path, 'without_term', asInt),
+      extra: unknownFields(map, path, const <String>{'count', 'open', 'by_status', 'by_side', 'by_limitation', 'claimed_vnd', 'settled_vnd', 'open_claimed_vnd', 'claimed_days', 'granted_days', 'without_term'}, strict: true),
+    );
+  }
+
+  final int count;
+  final int open;
+  final CtrClaimTotalsResponseByStatus byStatus;
+  final CtrClaimTotalsResponseBySide bySide;
+  final CtrClaimTotalsResponseByLimitation byLimitation;
+  final String claimedVnd;
+  final String settledVnd;
+  final String openClaimedVnd;
+  final int claimedDays;
+  final int grantedDays;
+  final int withoutTerm;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'count': count,
+        'open': open,
+        'by_status': byStatus.toJson(),
+        'by_side': bySide.toJson(),
+        'by_limitation': byLimitation.toJson(),
+        'claimed_vnd': claimedVnd,
+        'settled_vnd': settledVnd,
+        'open_claimed_vnd': openClaimedVnd,
+        'claimed_days': claimedDays,
+        'granted_days': grantedDays,
+        'without_term': withoutTerm,
+        ...extra,
+      };
+}
+
+final class CtrClaimTotalsResponseByLimitation implements ResponseModel {
+  const CtrClaimTotalsResponseByLimitation({
+    required this.nOTERM,
+    required this.nOTDEFINED,
+    required this.cALENDARUNAVAILABLE,
+    required this.rUNNING,
+    required this.aPPROACHING,
+    required this.mISSED,
+    required this.mET,
+    required this.mETLATE,
+    required this.bARRED,
+    required this.cLOSED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTotalsResponseByLimitation.fromJson(Object? json, [String path = 'CtrClaimTotalsResponseByLimitation']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTotalsResponseByLimitation(
+      nOTERM: requiredField(map, path, 'NO_TERM', asInt),
+      nOTDEFINED: requiredField(map, path, 'NOT_DEFINED', asInt),
+      cALENDARUNAVAILABLE: requiredField(map, path, 'CALENDAR_UNAVAILABLE', asInt),
+      rUNNING: requiredField(map, path, 'RUNNING', asInt),
+      aPPROACHING: requiredField(map, path, 'APPROACHING', asInt),
+      mISSED: requiredField(map, path, 'MISSED', asInt),
+      mET: requiredField(map, path, 'MET', asInt),
+      mETLATE: requiredField(map, path, 'MET_LATE', asInt),
+      bARRED: requiredField(map, path, 'BARRED', asInt),
+      cLOSED: requiredField(map, path, 'CLOSED', asInt),
+      extra: unknownFields(map, path, const <String>{'NO_TERM', 'NOT_DEFINED', 'CALENDAR_UNAVAILABLE', 'RUNNING', 'APPROACHING', 'MISSED', 'MET', 'MET_LATE', 'BARRED', 'CLOSED'}, strict: true),
+    );
+  }
+
+  final int nOTERM;
+  final int nOTDEFINED;
+  final int cALENDARUNAVAILABLE;
+  final int rUNNING;
+  final int aPPROACHING;
+  final int mISSED;
+  final int mET;
+  final int mETLATE;
+  final int bARRED;
+  final int cLOSED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'NO_TERM': nOTERM,
+        'NOT_DEFINED': nOTDEFINED,
+        'CALENDAR_UNAVAILABLE': cALENDARUNAVAILABLE,
+        'RUNNING': rUNNING,
+        'APPROACHING': aPPROACHING,
+        'MISSED': mISSED,
+        'MET': mET,
+        'MET_LATE': mETLATE,
+        'BARRED': bARRED,
+        'CLOSED': cLOSED,
+        ...extra,
+      };
+}
+
+final class CtrClaimTotalsResponseBySide implements ResponseModel {
+  const CtrClaimTotalsResponseBySide({
+    required this.cONTRACTOR,
+    required this.oWNER,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTotalsResponseBySide.fromJson(Object? json, [String path = 'CtrClaimTotalsResponseBySide']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTotalsResponseBySide(
+      cONTRACTOR: requiredField(map, path, 'CONTRACTOR', asInt),
+      oWNER: requiredField(map, path, 'OWNER', asInt),
+      extra: unknownFields(map, path, const <String>{'CONTRACTOR', 'OWNER'}, strict: true),
+    );
+  }
+
+  final int cONTRACTOR;
+  final int oWNER;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'CONTRACTOR': cONTRACTOR,
+        'OWNER': oWNER,
+        ...extra,
+      };
+}
+
+final class CtrClaimTotalsResponseByStatus implements ResponseModel {
+  const CtrClaimTotalsResponseByStatus({
+    required this.eVENTRECORDED,
+    required this.nOTICESERVED,
+    required this.pARTICULARSSUBMITTED,
+    required this.rESPONDED,
+    required this.sETTLEMENTPROPOSED,
+    required this.sETTLED,
+    required this.wITHDRAWN,
+    required this.rEFERRED,
+    required this.tIMEBARRED,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrClaimTotalsResponseByStatus.fromJson(Object? json, [String path = 'CtrClaimTotalsResponseByStatus']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrClaimTotalsResponseByStatus(
+      eVENTRECORDED: requiredField(map, path, 'EVENT_RECORDED', asInt),
+      nOTICESERVED: requiredField(map, path, 'NOTICE_SERVED', asInt),
+      pARTICULARSSUBMITTED: requiredField(map, path, 'PARTICULARS_SUBMITTED', asInt),
+      rESPONDED: requiredField(map, path, 'RESPONDED', asInt),
+      sETTLEMENTPROPOSED: requiredField(map, path, 'SETTLEMENT_PROPOSED', asInt),
+      sETTLED: requiredField(map, path, 'SETTLED', asInt),
+      wITHDRAWN: requiredField(map, path, 'WITHDRAWN', asInt),
+      rEFERRED: requiredField(map, path, 'REFERRED', asInt),
+      tIMEBARRED: requiredField(map, path, 'TIME_BARRED', asInt),
+      extra: unknownFields(map, path, const <String>{'EVENT_RECORDED', 'NOTICE_SERVED', 'PARTICULARS_SUBMITTED', 'RESPONDED', 'SETTLEMENT_PROPOSED', 'SETTLED', 'WITHDRAWN', 'REFERRED', 'TIME_BARRED'}, strict: true),
+    );
+  }
+
+  final int eVENTRECORDED;
+  final int nOTICESERVED;
+  final int pARTICULARSSUBMITTED;
+  final int rESPONDED;
+  final int sETTLEMENTPROPOSED;
+  final int sETTLED;
+  final int wITHDRAWN;
+  final int rEFERRED;
+  final int tIMEBARRED;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'EVENT_RECORDED': eVENTRECORDED,
+        'NOTICE_SERVED': nOTICESERVED,
+        'PARTICULARS_SUBMITTED': pARTICULARSSUBMITTED,
+        'RESPONDED': rESPONDED,
+        'SETTLEMENT_PROPOSED': sETTLEMENTPROPOSED,
+        'SETTLED': sETTLED,
+        'WITHDRAWN': wITHDRAWN,
+        'REFERRED': rEFERRED,
+        'TIME_BARRED': tIMEBARRED,
+        ...extra,
+      };
+}
+
+final class CtrContractRefResponse implements ResponseModel {
+  const CtrContractRefResponse({
+    required this.id,
+    required this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrContractRefResponse.fromJson(Object? json, [String path = 'CtrContractRefResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrContractRefResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        ...extra,
+      };
+}
+
 final class CtrContractReportResponse implements ResponseModel {
   const CtrContractReportResponse({
     required this.code,
@@ -10242,6 +11286,986 @@ final class CtrContractReportResponseTierSplitGroupsItemGrowth implements Respon
       };
 }
 
+final class CtrEarlyWarningActionResponse implements ResponseModel {
+  const CtrEarlyWarningActionResponse({
+    required this.id,
+    required this.description,
+    required this.ownerName,
+    required this.ownerMembershipId,
+    required this.dueOn,
+    required this.status,
+    required this.doneOn,
+    required this.doneByName,
+    required this.doneNote,
+    required this.overdue,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningActionResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningActionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningActionResponse(
+      id: requiredField(map, path, 'id', asString),
+      description: requiredField(map, path, 'description', asString),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      ownerMembershipId: requiredField(map, path, 'owner_membership_id', asString),
+      dueOn: requiredField(map, path, 'due_on', asString),
+      status: requiredField(map, path, 'status', asString),
+      doneOn: requiredField(map, path, 'done_on', nullable(asString)),
+      doneByName: requiredField(map, path, 'done_by_name', nullable(asString)),
+      doneNote: requiredField(map, path, 'done_note', nullable(asString)),
+      overdue: requiredField(map, path, 'overdue', asBool),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'description', 'owner_name', 'owner_membership_id', 'due_on', 'status', 'done_on', 'done_by_name', 'done_note', 'overdue', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String description;
+  final String? ownerName;
+  final String ownerMembershipId;
+  final String dueOn;
+  final String status;
+  final String? doneOn;
+  final String? doneByName;
+  final String? doneNote;
+  final bool overdue;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'description': description,
+        'owner_name': ownerName,
+        'owner_membership_id': ownerMembershipId,
+        'due_on': dueOn,
+        'status': status,
+        'done_on': doneOn,
+        'done_by_name': doneByName,
+        'done_note': doneNote,
+        'overdue': overdue,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningIssueResponse implements ResponseModel {
+  const CtrEarlyWarningIssueResponse({
+    required this.id,
+    required this.ordinal,
+    required this.kind,
+    required this.issuedOn,
+    required this.meetingId,
+    required this.warningCount,
+    required this.openCount,
+    required this.contentHash,
+    required this.issuedByName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningIssueResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningIssueResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningIssueResponse(
+      id: requiredField(map, path, 'id', asString),
+      ordinal: requiredField(map, path, 'ordinal', asInt),
+      kind: requiredField(map, path, 'kind', asString),
+      issuedOn: requiredField(map, path, 'issued_on', asString),
+      meetingId: requiredField(map, path, 'meeting_id', nullable(asString)),
+      warningCount: requiredField(map, path, 'warning_count', asInt),
+      openCount: requiredField(map, path, 'open_count', asInt),
+      contentHash: requiredField(map, path, 'content_hash', asString),
+      issuedByName: requiredField(map, path, 'issued_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'ordinal', 'kind', 'issued_on', 'meeting_id', 'warning_count', 'open_count', 'content_hash', 'issued_by_name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int ordinal;
+  final String kind;
+  final String issuedOn;
+  final String? meetingId;
+  final int warningCount;
+  final int openCount;
+  final String contentHash;
+  final String? issuedByName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'ordinal': ordinal,
+        'kind': kind,
+        'issued_on': issuedOn,
+        'meeting_id': meetingId,
+        'warning_count': warningCount,
+        'open_count': openCount,
+        'content_hash': contentHash,
+        'issued_by_name': issuedByName,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningLineResponse implements ResponseModel {
+  const CtrEarlyWarningLineResponse({
+    required this.id,
+    required this.code,
+    required this.contract,
+    required this.title,
+    required this.category,
+    required this.raisedByParty,
+    required this.raisedOn,
+    required this.status,
+    required this.likelihood,
+    required this.ownerName,
+    required this.expectedTimeDays,
+    required this.expectedCostVnd,
+    required this.noImpactExpected,
+    required this.openActions,
+    required this.overdueActions,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningLineResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningLineResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningLineResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      contract: requiredField(map, path, 'contract', CtrContractRefResponse.fromJson),
+      title: requiredField(map, path, 'title', asString),
+      category: requiredField(map, path, 'category', asString),
+      raisedByParty: requiredField(map, path, 'raised_by_party', asString),
+      raisedOn: requiredField(map, path, 'raised_on', asString),
+      status: requiredField(map, path, 'status', asString),
+      likelihood: requiredField(map, path, 'likelihood', nullable(asString)),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      expectedTimeDays: requiredField(map, path, 'expected_time_days', nullable(asInt)),
+      expectedCostVnd: requiredField(map, path, 'expected_cost_vnd', nullable(asString)),
+      noImpactExpected: requiredField(map, path, 'no_impact_expected', asBool),
+      openActions: requiredField(map, path, 'open_actions', asInt),
+      overdueActions: requiredField(map, path, 'overdue_actions', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'contract', 'title', 'category', 'raised_by_party', 'raised_on', 'status', 'likelihood', 'owner_name', 'expected_time_days', 'expected_cost_vnd', 'no_impact_expected', 'open_actions', 'overdue_actions', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final CtrContractRefResponse contract;
+  final String title;
+  final String category;
+  final String raisedByParty;
+  final String raisedOn;
+  final String status;
+  final String? likelihood;
+  final String? ownerName;
+  final int? expectedTimeDays;
+  final String? expectedCostVnd;
+  final bool noImpactExpected;
+  final int openActions;
+  final int overdueActions;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'contract': contract.toJson(),
+        'title': title,
+        'category': category,
+        'raised_by_party': raisedByParty,
+        'raised_on': raisedOn,
+        'status': status,
+        'likelihood': likelihood,
+        'owner_name': ownerName,
+        'expected_time_days': expectedTimeDays,
+        'expected_cost_vnd': expectedCostVnd,
+        'no_impact_expected': noImpactExpected,
+        'open_actions': openActions,
+        'overdue_actions': overdueActions,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningMeetingResponse implements ResponseModel {
+  const CtrEarlyWarningMeetingResponse({
+    required this.id,
+    required this.ordinal,
+    required this.heldOn,
+    required this.attendees,
+    required this.notes,
+    required this.minutesDocumentVersionId,
+    required this.recordedByName,
+    required this.reissuedOn,
+    required this.reviews,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningMeetingResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningMeetingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningMeetingResponse(
+      id: requiredField(map, path, 'id', asString),
+      ordinal: requiredField(map, path, 'ordinal', asInt),
+      heldOn: requiredField(map, path, 'held_on', asString),
+      attendees: requiredField(map, path, 'attendees', asString),
+      notes: requiredField(map, path, 'notes', nullable(asString)),
+      minutesDocumentVersionId: requiredField(map, path, 'minutes_document_version_id', nullable(asString)),
+      recordedByName: requiredField(map, path, 'recorded_by_name', nullable(asString)),
+      reissuedOn: requiredField(map, path, 'reissued_on', nullable(asString)),
+      reviews: requiredField(map, path, 'reviews', asList(CtrEarlyWarningMeetingResponseReviewsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'ordinal', 'held_on', 'attendees', 'notes', 'minutes_document_version_id', 'recorded_by_name', 'reissued_on', 'reviews'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int ordinal;
+  final String heldOn;
+  final String attendees;
+  final String? notes;
+  final String? minutesDocumentVersionId;
+  final String? recordedByName;
+  final String? reissuedOn;
+  final List<CtrEarlyWarningMeetingResponseReviewsItem> reviews;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'ordinal': ordinal,
+        'held_on': heldOn,
+        'attendees': attendees,
+        'notes': notes,
+        'minutes_document_version_id': minutesDocumentVersionId,
+        'recorded_by_name': recordedByName,
+        'reissued_on': reissuedOn,
+        'reviews': reviews.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningMeetingResponseReviewsItem implements ResponseModel {
+  const CtrEarlyWarningMeetingResponseReviewsItem({
+    required this.warningId,
+    required this.warningCode,
+    required this.outcome,
+    required this.note,
+    required this.statusAtMeeting,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningMeetingResponseReviewsItem.fromJson(Object? json, [String path = 'CtrEarlyWarningMeetingResponseReviewsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningMeetingResponseReviewsItem(
+      warningId: requiredField(map, path, 'warning_id', asString),
+      warningCode: requiredField(map, path, 'warning_code', asString),
+      outcome: requiredField(map, path, 'outcome', asString),
+      note: requiredField(map, path, 'note', nullable(asString)),
+      statusAtMeeting: requiredField(map, path, 'status_at_meeting', asString),
+      extra: unknownFields(map, path, const <String>{'warning_id', 'warning_code', 'outcome', 'note', 'status_at_meeting'}, strict: true),
+    );
+  }
+
+  final String warningId;
+  final String warningCode;
+  final String outcome;
+  final String? note;
+  final String statusAtMeeting;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'warning_id': warningId,
+        'warning_code': warningCode,
+        'outcome': outcome,
+        'note': note,
+        'status_at_meeting': statusAtMeeting,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningPageResponse implements ResponseModel {
+  const CtrEarlyWarningPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.summary,
+    required this.truncated,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningPageResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningPageResponse(
+      items: requiredField(map, path, 'items', asList(CtrEarlyWarningLineResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      summary: requiredField(map, path, 'summary', CtrEarlyWarningSummaryResponse.fromJson),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'summary', 'truncated', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<CtrEarlyWarningLineResponse> items;
+  final String? nextCursor;
+  final CtrEarlyWarningSummaryResponse summary;
+  final bool truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'summary': summary.toJson(),
+        'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningRegisterResponse implements ResponseModel {
+  const CtrEarlyWarningRegisterResponse({
+    required this.contract,
+    required this.clocks,
+    required this.meetings,
+    required this.issues,
+    required this.summary,
+    required this.policy,
+    required this.calendarPublished,
+    required this.allowed,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningRegisterResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningRegisterResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningRegisterResponse(
+      contract: requiredField(map, path, 'contract', CtrEarlyWarningRegisterResponseContract.fromJson),
+      clocks: requiredField(map, path, 'clocks', CtrEarlyWarningRegisterResponseClocks.fromJson),
+      meetings: requiredField(map, path, 'meetings', asList(CtrEarlyWarningMeetingResponse.fromJson)),
+      issues: requiredField(map, path, 'issues', asList(CtrEarlyWarningIssueResponse.fromJson)),
+      summary: requiredField(map, path, 'summary', CtrEarlyWarningSummaryResponse.fromJson),
+      policy: requiredField(map, path, 'policy', CtrEarlyWarningRegisterResponsePolicy.fromJson),
+      calendarPublished: requiredField(map, path, 'calendar_published', asBool),
+      allowed: requiredField(map, path, 'allowed', CtrEarlyWarningRegisterResponseAllowed.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'contract', 'clocks', 'meetings', 'issues', 'summary', 'policy', 'calendar_published', 'allowed', 'as_of'}, strict: true),
+    );
+  }
+
+  final CtrEarlyWarningRegisterResponseContract contract;
+  final CtrEarlyWarningRegisterResponseClocks clocks;
+  final List<CtrEarlyWarningMeetingResponse> meetings;
+  final List<CtrEarlyWarningIssueResponse> issues;
+  final CtrEarlyWarningSummaryResponse summary;
+  final CtrEarlyWarningRegisterResponsePolicy policy;
+  final bool calendarPublished;
+  final CtrEarlyWarningRegisterResponseAllowed allowed;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'contract': contract.toJson(),
+        'clocks': clocks.toJson(),
+        'meetings': meetings.map((e0) => e0.toJson()).toList(),
+        'issues': issues.map((e0) => e0.toJson()).toList(),
+        'summary': summary.toJson(),
+        'policy': policy.toJson(),
+        'calendar_published': calendarPublished,
+        'allowed': allowed.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningRegisterResponseAllowed implements ResponseModel {
+  const CtrEarlyWarningRegisterResponseAllowed({
+    required this.raise,
+    required this.recordMeeting,
+    required this.issueRegister,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningRegisterResponseAllowed.fromJson(Object? json, [String path = 'CtrEarlyWarningRegisterResponseAllowed']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningRegisterResponseAllowed(
+      raise: requiredField(map, path, 'raise', asBool),
+      recordMeeting: requiredField(map, path, 'record_meeting', asBool),
+      issueRegister: requiredField(map, path, 'issue_register', asBool),
+      extra: unknownFields(map, path, const <String>{'raise', 'record_meeting', 'issue_register'}, strict: true),
+    );
+  }
+
+  final bool raise;
+  final bool recordMeeting;
+  final bool issueRegister;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'raise': raise,
+        'record_meeting': recordMeeting,
+        'issue_register': issueRegister,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningRegisterResponseClocks implements ResponseModel {
+  const CtrEarlyWarningRegisterResponseClocks({
+    required this.initial,
+    required this.meeting,
+    required this.reissue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningRegisterResponseClocks.fromJson(Object? json, [String path = 'CtrEarlyWarningRegisterResponseClocks']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningRegisterResponseClocks(
+      initial: requiredField(map, path, 'initial', CtrRegisterClockResponse.fromJson),
+      meeting: requiredField(map, path, 'meeting', CtrRegisterClockResponse.fromJson),
+      reissue: requiredField(map, path, 'reissue', asAny),
+      extra: unknownFields(map, path, const <String>{'initial', 'meeting', 'reissue'}, strict: true),
+    );
+  }
+
+  final CtrRegisterClockResponse initial;
+  final CtrRegisterClockResponse meeting;
+  final Object? reissue;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'initial': initial.toJson(),
+        'meeting': meeting.toJson(),
+        'reissue': reissue,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningRegisterResponseContract implements ResponseModel {
+  const CtrEarlyWarningRegisterResponseContract({
+    required this.id,
+    required this.code,
+    required this.status,
+    required this.effectiveFrom,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningRegisterResponseContract.fromJson(Object? json, [String path = 'CtrEarlyWarningRegisterResponseContract']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningRegisterResponseContract(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      status: requiredField(map, path, 'status', asString),
+      effectiveFrom: requiredField(map, path, 'effective_from', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'status', 'effective_from'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String status;
+  final String? effectiveFrom;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'status': status,
+        'effective_from': effectiveFrom,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningRegisterResponsePolicy implements ResponseModel {
+  const CtrEarlyWarningRegisterResponsePolicy({
+    required this.rule,
+    required this.initialIssueWithinDays,
+    required this.meetingEveryDays,
+    required this.reissueWithinDaysAfterMeeting,
+    required this.approachDays,
+    required this.basis,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningRegisterResponsePolicy.fromJson(Object? json, [String path = 'CtrEarlyWarningRegisterResponsePolicy']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningRegisterResponsePolicy(
+      rule: requiredField(map, path, 'rule', CtrRuleBasisResponse.fromJson),
+      initialIssueWithinDays: requiredField(map, path, 'initial_issue_within_days', asInt),
+      meetingEveryDays: requiredField(map, path, 'meeting_every_days', asInt),
+      reissueWithinDaysAfterMeeting: requiredField(map, path, 'reissue_within_days_after_meeting', asInt),
+      approachDays: requiredField(map, path, 'approach_days', asInt),
+      basis: requiredField(map, path, 'basis', asString),
+      extra: unknownFields(map, path, const <String>{'rule', 'initial_issue_within_days', 'meeting_every_days', 'reissue_within_days_after_meeting', 'approach_days', 'basis'}, strict: true),
+    );
+  }
+
+  final CtrRuleBasisResponse rule;
+  final int initialIssueWithinDays;
+  final int meetingEveryDays;
+  final int reissueWithinDaysAfterMeeting;
+  final int approachDays;
+  final String basis;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rule': rule.toJson(),
+        'initial_issue_within_days': initialIssueWithinDays,
+        'meeting_every_days': meetingEveryDays,
+        'reissue_within_days_after_meeting': reissueWithinDaysAfterMeeting,
+        'approach_days': approachDays,
+        'basis': basis,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningResponse implements ResponseModel {
+  const CtrEarlyWarningResponse({
+    required this.id,
+    required this.code,
+    required this.contract,
+    required this.title,
+    required this.description,
+    required this.category,
+    required this.raisedByParty,
+    required this.raisedByName,
+    required this.raisedOn,
+    required this.status,
+    required this.likelihood,
+    required this.ownerName,
+    required this.ownerMembershipId,
+    required this.expectedTimeDays,
+    required this.expectedCostVnd,
+    required this.noImpactExpected,
+    required this.assessedByName,
+    required this.assessedAt,
+    required this.closedByName,
+    required this.closedAt,
+    required this.closedReason,
+    required this.changeRequestId,
+    required this.claimId,
+    required this.actions,
+    required this.reviews,
+    required this.allowed,
+    required this.asOf,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningResponse(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      contract: requiredField(map, path, 'contract', CtrContractRefResponse.fromJson),
+      title: requiredField(map, path, 'title', asString),
+      description: requiredField(map, path, 'description', asString),
+      category: requiredField(map, path, 'category', asString),
+      raisedByParty: requiredField(map, path, 'raised_by_party', asString),
+      raisedByName: requiredField(map, path, 'raised_by_name', nullable(asString)),
+      raisedOn: requiredField(map, path, 'raised_on', asString),
+      status: requiredField(map, path, 'status', asString),
+      likelihood: requiredField(map, path, 'likelihood', nullable(asString)),
+      ownerName: requiredField(map, path, 'owner_name', nullable(asString)),
+      ownerMembershipId: requiredField(map, path, 'owner_membership_id', nullable(asString)),
+      expectedTimeDays: requiredField(map, path, 'expected_time_days', nullable(asInt)),
+      expectedCostVnd: requiredField(map, path, 'expected_cost_vnd', nullable(asString)),
+      noImpactExpected: requiredField(map, path, 'no_impact_expected', asBool),
+      assessedByName: requiredField(map, path, 'assessed_by_name', nullable(asString)),
+      assessedAt: requiredField(map, path, 'assessed_at', nullable(asString)),
+      closedByName: requiredField(map, path, 'closed_by_name', nullable(asString)),
+      closedAt: requiredField(map, path, 'closed_at', nullable(asString)),
+      closedReason: requiredField(map, path, 'closed_reason', nullable(asString)),
+      changeRequestId: requiredField(map, path, 'change_request_id', nullable(asString)),
+      claimId: requiredField(map, path, 'claim_id', nullable(asString)),
+      actions: requiredField(map, path, 'actions', asList(CtrEarlyWarningActionResponse.fromJson)),
+      reviews: requiredField(map, path, 'reviews', asList(CtrEarlyWarningReviewResponse.fromJson)),
+      allowed: requiredField(map, path, 'allowed', CtrEarlyWarningResponseAllowed.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'contract', 'title', 'description', 'category', 'raised_by_party', 'raised_by_name', 'raised_on', 'status', 'likelihood', 'owner_name', 'owner_membership_id', 'expected_time_days', 'expected_cost_vnd', 'no_impact_expected', 'assessed_by_name', 'assessed_at', 'closed_by_name', 'closed_at', 'closed_reason', 'change_request_id', 'claim_id', 'actions', 'reviews', 'allowed', 'as_of', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final CtrContractRefResponse contract;
+  final String title;
+  final String description;
+  final String category;
+  final String raisedByParty;
+  final String? raisedByName;
+  final String raisedOn;
+  final String status;
+  final String? likelihood;
+  final String? ownerName;
+  final String? ownerMembershipId;
+  final int? expectedTimeDays;
+  final String? expectedCostVnd;
+  final bool noImpactExpected;
+  final String? assessedByName;
+  final String? assessedAt;
+  final String? closedByName;
+  final String? closedAt;
+  final String? closedReason;
+  final String? changeRequestId;
+  final String? claimId;
+  final List<CtrEarlyWarningActionResponse> actions;
+  final List<CtrEarlyWarningReviewResponse> reviews;
+  final CtrEarlyWarningResponseAllowed allowed;
+  final String asOf;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'contract': contract.toJson(),
+        'title': title,
+        'description': description,
+        'category': category,
+        'raised_by_party': raisedByParty,
+        'raised_by_name': raisedByName,
+        'raised_on': raisedOn,
+        'status': status,
+        'likelihood': likelihood,
+        'owner_name': ownerName,
+        'owner_membership_id': ownerMembershipId,
+        'expected_time_days': expectedTimeDays,
+        'expected_cost_vnd': expectedCostVnd,
+        'no_impact_expected': noImpactExpected,
+        'assessed_by_name': assessedByName,
+        'assessed_at': assessedAt,
+        'closed_by_name': closedByName,
+        'closed_at': closedAt,
+        'closed_reason': closedReason,
+        'change_request_id': changeRequestId,
+        'claim_id': claimId,
+        'actions': actions.map((e0) => e0.toJson()).toList(),
+        'reviews': reviews.map((e0) => e0.toJson()).toList(),
+        'allowed': allowed.toJson(),
+        'as_of': asOf,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningResponseAllowed implements ResponseModel {
+  const CtrEarlyWarningResponseAllowed({
+    required this.assess,
+    required this.addAction,
+    required this.close,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningResponseAllowed.fromJson(Object? json, [String path = 'CtrEarlyWarningResponseAllowed']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningResponseAllowed(
+      assess: requiredField(map, path, 'assess', asBool),
+      addAction: requiredField(map, path, 'add_action', asBool),
+      close: requiredField(map, path, 'close', asBool),
+      extra: unknownFields(map, path, const <String>{'assess', 'add_action', 'close'}, strict: true),
+    );
+  }
+
+  final bool assess;
+  final bool addAction;
+  final bool close;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'assess': assess,
+        'add_action': addAction,
+        'close': close,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningReviewResponse implements ResponseModel {
+  const CtrEarlyWarningReviewResponse({
+    required this.meetingId,
+    required this.heldOn,
+    required this.outcome,
+    required this.note,
+    required this.statusAtMeeting,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningReviewResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningReviewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningReviewResponse(
+      meetingId: requiredField(map, path, 'meeting_id', asString),
+      heldOn: requiredField(map, path, 'held_on', asString),
+      outcome: requiredField(map, path, 'outcome', asString),
+      note: requiredField(map, path, 'note', nullable(asString)),
+      statusAtMeeting: requiredField(map, path, 'status_at_meeting', asString),
+      extra: unknownFields(map, path, const <String>{'meeting_id', 'held_on', 'outcome', 'note', 'status_at_meeting'}, strict: true),
+    );
+  }
+
+  final String meetingId;
+  final String heldOn;
+  final String outcome;
+  final String? note;
+  final String statusAtMeeting;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'meeting_id': meetingId,
+        'held_on': heldOn,
+        'outcome': outcome,
+        'note': note,
+        'status_at_meeting': statusAtMeeting,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningSummaryResponse implements ResponseModel {
+  const CtrEarlyWarningSummaryResponse({
+    required this.total,
+    required this.open,
+    required this.byStatus,
+    required this.byCategory,
+    required this.byParty,
+    required this.withoutOwner,
+    required this.unassessed,
+    required this.exposureCostVnd,
+    required this.exposureTimeDays,
+    required this.impactUnknown,
+    required this.overdueActions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningSummaryResponse.fromJson(Object? json, [String path = 'CtrEarlyWarningSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningSummaryResponse(
+      total: requiredField(map, path, 'total', asInt),
+      open: requiredField(map, path, 'open', asInt),
+      byStatus: requiredField(map, path, 'by_status', CtrEarlyWarningSummaryResponseByStatus.fromJson),
+      byCategory: requiredField(map, path, 'by_category', CtrEarlyWarningSummaryResponseByCategory.fromJson),
+      byParty: requiredField(map, path, 'by_party', CtrEarlyWarningSummaryResponseByParty.fromJson),
+      withoutOwner: requiredField(map, path, 'without_owner', asInt),
+      unassessed: requiredField(map, path, 'unassessed', asInt),
+      exposureCostVnd: requiredField(map, path, 'exposure_cost_vnd', asString),
+      exposureTimeDays: requiredField(map, path, 'exposure_time_days', asInt),
+      impactUnknown: requiredField(map, path, 'impact_unknown', asInt),
+      overdueActions: requiredField(map, path, 'overdue_actions', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'open', 'by_status', 'by_category', 'by_party', 'without_owner', 'unassessed', 'exposure_cost_vnd', 'exposure_time_days', 'impact_unknown', 'overdue_actions'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int open;
+  final CtrEarlyWarningSummaryResponseByStatus byStatus;
+  final CtrEarlyWarningSummaryResponseByCategory byCategory;
+  final CtrEarlyWarningSummaryResponseByParty byParty;
+  final int withoutOwner;
+  final int unassessed;
+  final String exposureCostVnd;
+  final int exposureTimeDays;
+  final int impactUnknown;
+  final int overdueActions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'open': open,
+        'by_status': byStatus.toJson(),
+        'by_category': byCategory.toJson(),
+        'by_party': byParty.toJson(),
+        'without_owner': withoutOwner,
+        'unassessed': unassessed,
+        'exposure_cost_vnd': exposureCostVnd,
+        'exposure_time_days': exposureTimeDays,
+        'impact_unknown': impactUnknown,
+        'overdue_actions': overdueActions,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningSummaryResponseByCategory implements ResponseModel {
+  const CtrEarlyWarningSummaryResponseByCategory({
+    required this.tIME,
+    required this.cOST,
+    required this.qUALITY,
+    required this.sAFETY,
+    required this.sCOPE,
+    required this.lEGAL,
+    required this.eNVIRONMENT,
+    required this.oTHER,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningSummaryResponseByCategory.fromJson(Object? json, [String path = 'CtrEarlyWarningSummaryResponseByCategory']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningSummaryResponseByCategory(
+      tIME: requiredField(map, path, 'TIME', asInt),
+      cOST: requiredField(map, path, 'COST', asInt),
+      qUALITY: requiredField(map, path, 'QUALITY', asInt),
+      sAFETY: requiredField(map, path, 'SAFETY', asInt),
+      sCOPE: requiredField(map, path, 'SCOPE', asInt),
+      lEGAL: requiredField(map, path, 'LEGAL', asInt),
+      eNVIRONMENT: requiredField(map, path, 'ENVIRONMENT', asInt),
+      oTHER: requiredField(map, path, 'OTHER', asInt),
+      extra: unknownFields(map, path, const <String>{'TIME', 'COST', 'QUALITY', 'SAFETY', 'SCOPE', 'LEGAL', 'ENVIRONMENT', 'OTHER'}, strict: true),
+    );
+  }
+
+  final int tIME;
+  final int cOST;
+  final int qUALITY;
+  final int sAFETY;
+  final int sCOPE;
+  final int lEGAL;
+  final int eNVIRONMENT;
+  final int oTHER;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'TIME': tIME,
+        'COST': cOST,
+        'QUALITY': qUALITY,
+        'SAFETY': sAFETY,
+        'SCOPE': sCOPE,
+        'LEGAL': lEGAL,
+        'ENVIRONMENT': eNVIRONMENT,
+        'OTHER': oTHER,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningSummaryResponseByParty implements ResponseModel {
+  const CtrEarlyWarningSummaryResponseByParty({
+    required this.oWNER,
+    required this.cONTRACTOR,
+    required this.sUPERVISOR,
+    required this.dESIGNER,
+    required this.oTHER,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningSummaryResponseByParty.fromJson(Object? json, [String path = 'CtrEarlyWarningSummaryResponseByParty']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningSummaryResponseByParty(
+      oWNER: requiredField(map, path, 'OWNER', asInt),
+      cONTRACTOR: requiredField(map, path, 'CONTRACTOR', asInt),
+      sUPERVISOR: requiredField(map, path, 'SUPERVISOR', asInt),
+      dESIGNER: requiredField(map, path, 'DESIGNER', asInt),
+      oTHER: requiredField(map, path, 'OTHER', asInt),
+      extra: unknownFields(map, path, const <String>{'OWNER', 'CONTRACTOR', 'SUPERVISOR', 'DESIGNER', 'OTHER'}, strict: true),
+    );
+  }
+
+  final int oWNER;
+  final int cONTRACTOR;
+  final int sUPERVISOR;
+  final int dESIGNER;
+  final int oTHER;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'OWNER': oWNER,
+        'CONTRACTOR': cONTRACTOR,
+        'SUPERVISOR': sUPERVISOR,
+        'DESIGNER': dESIGNER,
+        'OTHER': oTHER,
+        ...extra,
+      };
+}
+
+final class CtrEarlyWarningSummaryResponseByStatus implements ResponseModel {
+  const CtrEarlyWarningSummaryResponseByStatus({
+    required this.rAISED,
+    required this.aSSESSED,
+    required this.mITIGATING,
+    required this.cLOSEDRESOLVED,
+    required this.cLOSEDMATERIALISED,
+    required this.cLOSEDWITHDRAWN,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrEarlyWarningSummaryResponseByStatus.fromJson(Object? json, [String path = 'CtrEarlyWarningSummaryResponseByStatus']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrEarlyWarningSummaryResponseByStatus(
+      rAISED: requiredField(map, path, 'RAISED', asInt),
+      aSSESSED: requiredField(map, path, 'ASSESSED', asInt),
+      mITIGATING: requiredField(map, path, 'MITIGATING', asInt),
+      cLOSEDRESOLVED: requiredField(map, path, 'CLOSED_RESOLVED', asInt),
+      cLOSEDMATERIALISED: requiredField(map, path, 'CLOSED_MATERIALISED', asInt),
+      cLOSEDWITHDRAWN: requiredField(map, path, 'CLOSED_WITHDRAWN', asInt),
+      extra: unknownFields(map, path, const <String>{'RAISED', 'ASSESSED', 'MITIGATING', 'CLOSED_RESOLVED', 'CLOSED_MATERIALISED', 'CLOSED_WITHDRAWN'}, strict: true),
+    );
+  }
+
+  final int rAISED;
+  final int aSSESSED;
+  final int mITIGATING;
+  final int cLOSEDRESOLVED;
+  final int cLOSEDMATERIALISED;
+  final int cLOSEDWITHDRAWN;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'RAISED': rAISED,
+        'ASSESSED': aSSESSED,
+        'MITIGATING': mITIGATING,
+        'CLOSED_RESOLVED': cLOSEDRESOLVED,
+        'CLOSED_MATERIALISED': cLOSEDMATERIALISED,
+        'CLOSED_WITHDRAWN': cLOSEDWITHDRAWN,
+        ...extra,
+      };
+}
+
 final class CtrFactSnapshotListResponse implements ResponseModel {
   const CtrFactSnapshotListResponse({
     required this.items,
@@ -10734,6 +12758,64 @@ final class CtrMeasurementPageResponse implements ResponseModel {
       };
 }
 
+final class CtrRegisterClockResponse implements ResponseModel {
+  const CtrRegisterClockResponse({
+    required this.code,
+    required this.state,
+    required this.startedOn,
+    required this.dueOn,
+    required this.doneOn,
+    required this.daysLeft,
+    required this.periodDays,
+    required this.basis,
+    required this.meetingId,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrRegisterClockResponse.fromJson(Object? json, [String path = 'CtrRegisterClockResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrRegisterClockResponse(
+      code: requiredField(map, path, 'code', asString),
+      state: requiredField(map, path, 'state', asString),
+      startedOn: requiredField(map, path, 'started_on', nullable(asString)),
+      dueOn: requiredField(map, path, 'due_on', nullable(asString)),
+      doneOn: requiredField(map, path, 'done_on', nullable(asString)),
+      daysLeft: requiredField(map, path, 'days_left', nullable(asInt)),
+      periodDays: requiredField(map, path, 'period_days', asInt),
+      basis: requiredField(map, path, 'basis', asString),
+      meetingId: requiredField(map, path, 'meeting_id', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'state', 'started_on', 'due_on', 'done_on', 'days_left', 'period_days', 'basis', 'meeting_id'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String state;
+  final String? startedOn;
+  final String? dueOn;
+  final String? doneOn;
+  final int? daysLeft;
+  final int periodDays;
+  final String basis;
+  final String? meetingId;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'state': state,
+        'started_on': startedOn,
+        'due_on': dueOn,
+        'done_on': doneOn,
+        'days_left': daysLeft,
+        'period_days': periodDays,
+        'basis': basis,
+        'meeting_id': meetingId,
+        ...extra,
+      };
+}
+
 final class CtrReportFileResponse implements ResponseModel {
   const CtrReportFileResponse({
     required this.report,
@@ -10834,6 +12916,56 @@ final class CtrReportTotalsResponse implements ResponseModel {
         'cells': cells,
         'na': na,
         'indicators': indicators,
+        ...extra,
+      };
+}
+
+final class CtrRuleBasisResponse implements ResponseModel {
+  const CtrRuleBasisResponse({
+    required this.source,
+    required this.version,
+    required this.unverified,
+    required this.formula,
+    required this.sourceText,
+    required this.asOf,
+    required this.legalStatus,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory CtrRuleBasisResponse.fromJson(Object? json, [String path = 'CtrRuleBasisResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return CtrRuleBasisResponse(
+      source: requiredField(map, path, 'source', asString),
+      version: requiredField(map, path, 'version', asInt),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      formula: requiredField(map, path, 'formula', nullable(asString)),
+      sourceText: requiredField(map, path, 'source_text', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', nullable(asString)),
+      legalStatus: requiredField(map, path, 'legal_status', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'source', 'version', 'unverified', 'formula', 'source_text', 'as_of', 'legal_status'}, strict: true),
+    );
+  }
+
+  final String source;
+  final int version;
+  final bool unverified;
+  final String? formula;
+  final String? sourceText;
+  final String? asOf;
+  final String? legalStatus;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'version': version,
+        'unverified': unverified,
+        'formula': formula,
+        'source_text': sourceText,
+        'as_of': asOf,
+        'legal_status': legalStatus,
         ...extra,
       };
 }

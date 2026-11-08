@@ -2567,6 +2567,190 @@ final class CtrCancelContractDraft implements RequestModel {
       };
 }
 
+final class CtrClaimBarDeclare implements RequestModel {
+  const CtrClaimBarDeclare({
+    required this.reason,
+    this.evidenceDocumentVersionId,
+  });
+
+  final String reason;
+  final String? evidenceDocumentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+        if (evidenceDocumentVersionId != null) 'evidence_document_version_id': evidenceDocumentVersionId,
+      };
+}
+
+final class CtrClaimLinks implements RequestModel {
+  const CtrClaimLinks({
+    this.changeRequestId,
+    this.paymentRequestId,
+  });
+
+  final String? changeRequestId;
+  final String? paymentRequestId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (changeRequestId != null) 'change_request_id': changeRequestId,
+        if (paymentRequestId != null) 'payment_request_id': paymentRequestId,
+      };
+}
+
+final class CtrClaimRegister implements RequestModel {
+  const CtrClaimRegister({
+    required this.claimantSide,
+    required this.kind,
+    required this.title,
+    required this.eventDescription,
+    required this.eventOn,
+    required this.awarenessOn,
+    this.claimedAmountVnd,
+    this.claimedDays,
+    this.responsibleMembershipId,
+    this.evidenceDocumentVersionId,
+  });
+
+  final String claimantSide;
+  final String kind;
+  final String title;
+  final String eventDescription;
+  final String eventOn;
+  final String awarenessOn;
+  final String? claimedAmountVnd;
+  final int? claimedDays;
+  final String? responsibleMembershipId;
+  final String? evidenceDocumentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'claimant_side': claimantSide,
+        'kind': kind,
+        'title': title,
+        'event_description': eventDescription,
+        'event_on': eventOn,
+        'awareness_on': awarenessOn,
+        if (claimedAmountVnd != null) 'claimed_amount_vnd': claimedAmountVnd,
+        if (claimedDays != null) 'claimed_days': claimedDays,
+        if (responsibleMembershipId != null) 'responsible_membership_id': responsibleMembershipId,
+        if (evidenceDocumentVersionId != null) 'evidence_document_version_id': evidenceDocumentVersionId,
+      };
+}
+
+final class CtrClaimSettlementDecision implements RequestModel {
+  const CtrClaimSettlementDecision({
+    required this.decision,
+    required this.note,
+  });
+
+  final String decision;
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'note': note,
+      };
+}
+
+final class CtrClaimStepRecord implements RequestModel {
+  const CtrClaimStepRecord({
+    required this.kind,
+    required this.occurredOn,
+    required this.note,
+    this.decision,
+    this.claimedAmountVnd,
+    this.claimedDays,
+    this.settledAmountVnd,
+    this.grantedDays,
+    this.evidenceDocumentVersionId,
+  });
+
+  final String kind;
+  final String occurredOn;
+  final String note;
+  final String? decision;
+  final String? claimedAmountVnd;
+  final int? claimedDays;
+  final String? settledAmountVnd;
+  final int? grantedDays;
+  final String? evidenceDocumentVersionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'occurred_on': occurredOn,
+        'note': note,
+        if (decision != null) 'decision': decision,
+        if (claimedAmountVnd != null) 'claimed_amount_vnd': claimedAmountVnd,
+        if (claimedDays != null) 'claimed_days': claimedDays,
+        if (settledAmountVnd != null) 'settled_amount_vnd': settledAmountVnd,
+        if (grantedDays != null) 'granted_days': grantedDays,
+        if (evidenceDocumentVersionId != null) 'evidence_document_version_id': evidenceDocumentVersionId,
+      };
+}
+
+final class CtrClaimTermDecision implements RequestModel {
+  const CtrClaimTermDecision({
+    required this.decision,
+    this.note,
+  });
+
+  final String decision;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (note != null) 'note': note,
+      };
+}
+
+final class CtrClaimTermPropose implements RequestModel {
+  const CtrClaimTermPropose({
+    required this.claimantSide,
+    required this.clauseReference,
+    this.noticeDays,
+    this.particularsDays,
+    this.responseDays,
+    this.settlementDays,
+    this.basis,
+    this.particularsFrom,
+    this.barEffect,
+    this.basisDocumentVersionId,
+    this.templateCode,
+  });
+
+  final String claimantSide;
+  final int? noticeDays;
+  final int? particularsDays;
+  final int? responseDays;
+  final int? settlementDays;
+  final String? basis;
+  final String? particularsFrom;
+  final String? barEffect;
+  final String clauseReference;
+  final String? basisDocumentVersionId;
+  final String? templateCode;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'claimant_side': claimantSide,
+        if (noticeDays != null) 'notice_days': noticeDays,
+        if (particularsDays != null) 'particulars_days': particularsDays,
+        if (responseDays != null) 'response_days': responseDays,
+        if (settlementDays != null) 'settlement_days': settlementDays,
+        if (basis != null) 'basis': basis,
+        if (particularsFrom != null) 'particulars_from': particularsFrom,
+        if (barEffect != null) 'bar_effect': barEffect,
+        'clause_reference': clauseReference,
+        if (basisDocumentVersionId != null) 'basis_document_version_id': basisDocumentVersionId,
+        if (templateCode != null) 'template_code': templateCode,
+      };
+}
+
 final class CtrClearAdjustmentCheck implements RequestModel {
   const CtrClearAdjustmentCheck({
     required this.basis,
@@ -2793,6 +2977,173 @@ final class CtrCreateContract implements RequestModel {
         if (estimateCeilingVnd != null) 'estimate_ceiling_vnd': estimateCeilingVnd,
         if (completionDue != null) 'completion_due': completionDue,
         'document_version_id': documentVersionId,
+      };
+}
+
+final class CtrEarlyWarningActionComplete implements RequestModel {
+  const CtrEarlyWarningActionComplete({
+    required this.outcome,
+    required this.note,
+  });
+
+  final String outcome;
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'note': note,
+      };
+}
+
+final class CtrEarlyWarningActionCreate implements RequestModel {
+  const CtrEarlyWarningActionCreate({
+    required this.description,
+    required this.ownerMembershipId,
+    required this.dueOn,
+  });
+
+  final String description;
+  final String ownerMembershipId;
+  final String dueOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'description': description,
+        'owner_membership_id': ownerMembershipId,
+        'due_on': dueOn,
+      };
+}
+
+final class CtrEarlyWarningAssess implements RequestModel {
+  const CtrEarlyWarningAssess({
+    required this.ownerMembershipId,
+    required this.likelihood,
+    this.expectedTimeDays,
+    this.expectedCostVnd,
+    this.noImpactExpected,
+  });
+
+  final String ownerMembershipId;
+  final String likelihood;
+  final int? expectedTimeDays;
+  final String? expectedCostVnd;
+  final bool? noImpactExpected;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'owner_membership_id': ownerMembershipId,
+        'likelihood': likelihood,
+        if (expectedTimeDays != null) 'expected_time_days': expectedTimeDays,
+        if (expectedCostVnd != null) 'expected_cost_vnd': expectedCostVnd,
+        if (noImpactExpected != null) 'no_impact_expected': noImpactExpected,
+      };
+}
+
+final class CtrEarlyWarningClose implements RequestModel {
+  const CtrEarlyWarningClose({
+    required this.outcome,
+    required this.reason,
+    this.materialisedInto,
+    this.materialisedId,
+  });
+
+  final String outcome;
+  final String reason;
+  final String? materialisedInto;
+  final String? materialisedId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'reason': reason,
+        if (materialisedInto != null) 'materialised_into': materialisedInto,
+        if (materialisedId != null) 'materialised_id': materialisedId,
+      };
+}
+
+final class CtrEarlyWarningIssueRecord implements RequestModel {
+  const CtrEarlyWarningIssueRecord({
+    this.issuedOn,
+    this.meetingId,
+  });
+
+  final String? issuedOn;
+  final String? meetingId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (issuedOn != null) 'issued_on': issuedOn,
+        if (meetingId != null) 'meeting_id': meetingId,
+      };
+}
+
+final class CtrEarlyWarningMeetingRecord implements RequestModel {
+  const CtrEarlyWarningMeetingRecord({
+    required this.heldOn,
+    required this.attendees,
+    required this.reviews,
+    this.notes,
+    this.minutesDocumentVersionId,
+  });
+
+  final String heldOn;
+  final String attendees;
+  final String? notes;
+  final String? minutesDocumentVersionId;
+  final List<CtrEarlyWarningMeetingRecordReviewsItem> reviews;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'held_on': heldOn,
+        'attendees': attendees,
+        if (notes != null) 'notes': notes,
+        if (minutesDocumentVersionId != null) 'minutes_document_version_id': minutesDocumentVersionId,
+        'reviews': reviews,
+      };
+}
+
+final class CtrEarlyWarningMeetingRecordReviewsItem implements RequestModel {
+  const CtrEarlyWarningMeetingRecordReviewsItem({
+    required this.warningId,
+    required this.outcome,
+    this.note,
+  });
+
+  final String warningId;
+  final String outcome;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'warning_id': warningId,
+        'outcome': outcome,
+        if (note != null) 'note': note,
+      };
+}
+
+final class CtrEarlyWarningRaise implements RequestModel {
+  const CtrEarlyWarningRaise({
+    required this.title,
+    required this.description,
+    required this.category,
+    required this.raisedByParty,
+    required this.raisedOn,
+  });
+
+  final String title;
+  final String description;
+  final String category;
+  final String raisedByParty;
+  final String raisedOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'title': title,
+        'description': description,
+        'category': category,
+        'raised_by_party': raisedByParty,
+        'raised_on': raisedOn,
       };
 }
 
