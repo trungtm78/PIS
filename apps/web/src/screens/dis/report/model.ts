@@ -439,6 +439,10 @@ export type ReportProblem =
   | 'subsetExceeds'
   | 'immutable'
   | 'selfApproval'
+  | 'notYourStep'
+  | 'workflowNotConfigured'
+  | 'noApprover'
+  | 'noDoaRule'
   | 'pendingExists'
   | 'reasonRequired'
   | 'versionConflict'
@@ -461,6 +465,10 @@ const PROBLEM_BY_CODE: Readonly<Record<string, ReportProblem>> = {
   SUBSET_EXCEEDS_PARENT: 'subsetExceeds',
   REVISION_IMMUTABLE: 'immutable',
   SELF_APPROVAL_DENIED: 'selfApproval',
+  APPROVER_NOT_AUTHORIZED: 'notYourStep',
+  WORKFLOW_NOT_CONFIGURED: 'workflowNotConfigured',
+  NO_ELIGIBLE_APPROVER: 'noApprover',
+  DOA_RULE_NOT_FOUND: 'noDoaRule',
   REVISION_PENDING_EXISTS: 'pendingExists',
   CORRECTION_REASON_REQUIRED: 'reasonRequired',
   VERSION_CONFLICT: 'versionConflict',

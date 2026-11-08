@@ -25299,5 +25299,19 @@
   "ca1.indicator.changeTierGrowth.formula": "sum of the approved changes of the tier / original value of all the contracts selected x 100; the tiers add up to the growth through changes",
   "ca1.indicator.changeTierGrowth.numerator": "Signed sum of the approved changes of the tier asked",
   "ca1.indicator.changeTierGrowth.denominator": "Original value of all the contracts selected",
-  "ca1.indicator.changeTierGrowth.nullPolicy": "No figure when the denominator is zero; a tier with no approved change has none, which is not a growth of zero"
+  "ca1.indicator.changeTierGrowth.nullPolicy": "No figure when the denominator is zero; a tier with no approved change has none, which is not a growth of zero",
+  "dis.workflow.title": "Approval steps",
+  "dis.workflow.list.label": "Approval steps of the report",
+  "dis.workflow.rule.text": "By version {version} of the workflow rule",
+  "dis.workflow.due.text": "Due {at}",
+  "dis.workflow.noname.text": "An approver",
+  "dis.workflow.assignees.text": "Given to: {names}",
+  "dis.workflow.decided.text": "{name} approved at {at}",
+  "dis.workflow.reminders.text": "Reminded {count} times after the deadline.",
+  "dis.workflow.escalated.text": "Also given to a superior at {at}.",
+  "dis.reportDecision.stepApproved.text": "Your approval is recorded. The report moves to the next step.",
+  "dis.reportProblem.notYourStep": "The report is not at your step, or the step was not given to you.",
+  "dis.reportProblem.workflowNotConfigured": "The approval workflow of the unit is not fully configured, so the report cannot be sent yet.",
+  "dis.reportProblem.noApprover": "The first approval step has no suitable approver, so the report cannot be sent yet.",
+  "dis.reportProblem.noDoaRule": "There is no delegation rule for this report, so it cannot be sent yet."
 }

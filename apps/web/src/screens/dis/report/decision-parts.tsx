@@ -80,6 +80,9 @@ export function DecisionHistory({ decisions }: { decisions: readonly DecisionEnt
   );
 }
 
+/** An approval that was one step of several: the report stays where it is and moves to the next step (the answer says STEP_APPROVED). */
+const stepApproved = (answer: unknown): boolean => typeof answer === 'object' && answer !== null && (answer as { status?: unknown }).status === 'STEP_APPROVED';
+
 /**
  * The decision of a reviewer (DIS-07): accept or return a report that was handed in, or ask the amendment of an accepted one. The reason is required; a return names what is to be fixed and the day
  * it is due. The server judges the same again, and says why when it refuses (the person who handed the report in never decides on it).
@@ -117,6 +120,11 @@ export function DecisionPanel({ detail, kinds }: { detail: ReportDetail; kinds: 
           {reportProblemMessage(t, refusal.problem)}
         </p>
       )}
+      {decide.isSuccess && stepApproved(decide.data) ? (
+        <p className="callout" role="status" data-testid="decision-step-approved">
+          {t('dis.reportDecision.stepApproved.text')}
+        </p>
+      ) : null}
       <Field id="decision-kind" label={t('dis.reportDecision.kind.label')} error={undefined}>
         <select id="decision-kind" value={form.kind} onChange={(event: ChangeEvent<HTMLSelectElement>) => setForm({ ...emptyDecision(event.target.value as DecisionKindChoice), reason: form.reason })}>
           {kinds.map((kind) => (

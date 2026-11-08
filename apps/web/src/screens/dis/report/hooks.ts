@@ -12,6 +12,8 @@ import type { CorrectionBody, DecisionBody } from './decision-model';
 import { importRequest, toImportBatch, toStoredWorkbook } from './import-model';
 import type { ImportBatch, StoredWorkbook } from './import-model';
 import { reasonBody } from './lifecycle-model';
+import { toWorkflow } from './workflow-model';
+import type { ReportWorkflow } from './workflow-model';
 import { createBody, queryOf, saveBody, toReportDetail, toReportLine, toReportPage } from './model';
 import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, ReportLine, ReportPage } from './model';
 
@@ -51,6 +53,18 @@ export function useReport(id: string | undefined) {
   return useQuery<ReportDetail | undefined>({
     queryKey: [...root(tenant?.id), 'one', id ?? ''],
     queryFn: async () => toReportDetail(await client.read('getReportRevision', { path: { id: id ?? '' } })),
+    enabled: tenant !== undefined && id !== undefined,
+    retry: false,
+  });
+}
+
+/** The steps of the approval of a report: the rule in force, the instance, each step with its deadline and who it was given to (WF-1). A failure is no steps: the report is read without them. */
+export function useReportWorkflow(id: string | undefined) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<ReportWorkflow | undefined>({
+    queryKey: [...root(tenant?.id), 'workflow', id ?? ''],
+    queryFn: async () => toWorkflow(await client.read('getReportWorkflow', { path: { id: id ?? '' } })),
     enabled: tenant !== undefined && id !== undefined,
     retry: false,
   });

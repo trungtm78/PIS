@@ -90,6 +90,14 @@ export function reportProblemMessage(t: T, problem: ReportProblem): string {
       return t('dis.reportProblem.immutable');
     case 'selfApproval':
       return t('dis.reportProblem.selfApproval');
+    case 'notYourStep':
+      return t('dis.reportProblem.notYourStep');
+    case 'workflowNotConfigured':
+      return t('dis.reportProblem.workflowNotConfigured');
+    case 'noApprover':
+      return t('dis.reportProblem.noApprover');
+    case 'noDoaRule':
+      return t('dis.reportProblem.noDoaRule');
     case 'pendingExists':
       return t('dis.reportProblem.pendingExists');
     case 'reasonRequired':

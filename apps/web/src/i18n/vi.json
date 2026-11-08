@@ -25299,5 +25299,19 @@
   "ca1.indicator.changeTierGrowth.formula": "tổng giá trị các thay đổi đã duyệt của bậc / giá trị gốc của tất cả hợp đồng đã lọc × 100; các bậc cộng lại bằng tăng trưởng do thay đổi",
   "ca1.indicator.changeTierGrowth.numerator": "Tổng giá trị (có dấu) của các thay đổi đã duyệt thuộc bậc đang xét",
   "ca1.indicator.changeTierGrowth.denominator": "Tổng giá trị gốc của tất cả hợp đồng đã lọc",
-  "ca1.indicator.changeTierGrowth.nullPolicy": "Không có số khi mẫu số bằng không; bậc chưa có thay đổi đã duyệt không có số, không phải tăng trưởng bằng không"
+  "ca1.indicator.changeTierGrowth.nullPolicy": "Không có số khi mẫu số bằng không; bậc chưa có thay đổi đã duyệt không có số, không phải tăng trưởng bằng không",
+  "dis.workflow.title": "Các bước duyệt",
+  "dis.workflow.list.label": "Các bước duyệt của báo cáo",
+  "dis.workflow.rule.text": "Theo quy tắc quy trình phiên bản {version}",
+  "dis.workflow.due.text": "Hạn {at}",
+  "dis.workflow.noname.text": "Người duyệt",
+  "dis.workflow.assignees.text": "Người được giao: {names}",
+  "dis.workflow.decided.text": "{name} đã duyệt lúc {at}",
+  "dis.workflow.reminders.text": "Đã nhắc quá hạn {count} lần.",
+  "dis.workflow.escalated.text": "Đã chuyển thêm cho người cấp trên lúc {at}.",
+  "dis.reportDecision.stepApproved.text": "Đã ghi nhận bước duyệt của bạn. Báo cáo chuyển sang bước tiếp theo.",
+  "dis.reportProblem.notYourStep": "Báo cáo chưa ở bước của bạn, hoặc bước này không được giao cho bạn.",
+  "dis.reportProblem.workflowNotConfigured": "Quy trình duyệt của đơn vị chưa được cấu hình đầy đủ nên chưa gửi được báo cáo.",
+  "dis.reportProblem.noApprover": "Bước duyệt đầu tiên chưa có người duyệt phù hợp nên chưa gửi được báo cáo.",
+  "dis.reportProblem.noDoaRule": "Chưa có quy tắc ủy quyền cho báo cáo này nên chưa gửi được báo cáo."
 }

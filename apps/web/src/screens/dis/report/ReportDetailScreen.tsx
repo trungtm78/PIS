@@ -12,6 +12,7 @@ import { CELLS } from './model';
 import type { ReportDetail } from './model';
 import { formatVnd } from './money';
 import { StepFrame } from './StepFrame';
+import { WorkflowSteps } from './workflow-parts';
 
 /**
  * DIS-07: the report as it was handed in and what was decided on it (ST-DIS-006, DIS 3 F2): the six cells, the revision it corrects and why, the decisions of the reviewers with what a return asked
@@ -70,6 +71,7 @@ function Detail({ detail }: { detail: ReportDetail }) {
       ) : null}
       <Cells detail={detail} />
       <Content detail={detail} />
+      <WorkflowSteps reportId={detail.id} />
       <DecisionHistory decisions={detail.decisions} />
       {canDecide(permissions, mode, detail.status) ? <DecisionPanel detail={detail} kinds={['approve', 'return']} /> : null}
       {canAskAmendment(permissions, mode, detail) ? <DecisionPanel detail={detail} kinds={['request_amendment']} /> : null}
