@@ -5,7 +5,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../read_support/moment.dart';
 import '../alerts.dart';
 
-/// The word of a level (`Khẩn`, `Cần xử lý`, `Theo dõi`).
+/// The word of a level (`Urgent`, `Needs action`, `Watch`).
 String severityLabel(BuildContext context, AlertSeverity severity) {
   switch (severity) {
     case AlertSeverity.urgent:
@@ -29,7 +29,7 @@ String severityLabel(BuildContext context, AlertSeverity severity) {
 }
 
 /// A level as an icon and a word on a soft ground: the meaning never rests on the colour alone. With [count] it is a tally
-/// (`Khẩn 2`).
+/// (`Urgent 2`).
 class SeverityChip extends StatelessWidget {
   const SeverityChip({required this.severity, this.count, super.key});
 
@@ -158,7 +158,7 @@ String _lifecycleLabel(BuildContext context, AlertLifecycle lifecycle) {
   }
 }
 
-/// The countdown in words: the time left and the absolute day (`Còn 2 ngày · 09/11`), or how late (`Quá hạn 3 ngày`). No seconds.
+/// The countdown in words: the time left and the absolute day (`2 days left · 09/11`), or how late (`Overdue 3 days`). No seconds.
 String dueLine(BuildContext context, AlertDue due) {
   final Map<String, Object> values = <String, Object>{'amount': due.amount, 'day': due.day ?? '', 'time': due.time ?? ''};
   switch (due.kind) {
@@ -336,7 +336,7 @@ class AlertCard extends StatelessWidget {
     return context.t('mob.alert.owner.none.line');
   }
 
-  /// "Hoãn lần 1/2 · Chờ thêm thông tin · đến 03/11/2026 17:00": the snooze the alert is under, with its place in the run.
+  /// "Snoozed 1/2 · Waiting for more information · until 03/11/2026 17:00": the snooze the alert is under, with its place in the run.
   String? _snoozeLine(BuildContext context) {
     final AlertSnooze? snooze = item.snooze;
     if (snooze == null) return null;

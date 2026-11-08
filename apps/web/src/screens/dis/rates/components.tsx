@@ -78,7 +78,7 @@ export function CoveragePill({ coverage }: { coverage: Coverage }) {
   return <StatusPill tone={coverage === 'COMPLETE' ? 'success' : coverage === 'PARTIAL' ? 'warning' : 'neutral'}>{coverageLabel(t, coverage)}</StatusPill>;
 }
 
-/** The value of a rate tile: the percent, "Không áp dụng" when the denominator is zero, or the reason there is none (a rate that cannot be given is never 0%). */
+/** The value of a rate tile: the percent, "Not applicable" when the denominator is zero, or the reason there is none (a rate that cannot be given is never 0%). */
 function tileValue(t: T, rate: string | null, reason: NullReason | null): string {
   if (rate !== null) return percent(t, rate);
   return reason === 'ZERO_DENOMINATOR' ? t('w2dis.rates.tile.na') : reasonLabel(t, reason);

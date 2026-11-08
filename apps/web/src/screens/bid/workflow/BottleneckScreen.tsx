@@ -14,7 +14,7 @@ import type { Filters, StatisticsDto } from './model';
 import './workflow.css';
 
 /**
- * BID-30, "Phân tích nút nghẽn và báo cáo" (PRC-1): for the steps that packages left in the period, the median days and the share that finished within the standard; the packages that have been in their step longest; and
+ * BID-30, "Bottleneck analysis and report" (PRC-1): for the steps that packages left in the period, the median days and the share that finished within the standard; the packages that have been in their step longest; and
  * the report of the period as a file. Days are working days where the calendar is published, and the table says when they are calendar days.
  */
 export default function BottleneckScreen({ route }: ScreenProps) {

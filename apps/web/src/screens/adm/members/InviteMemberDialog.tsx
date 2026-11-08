@@ -14,7 +14,7 @@ import type { FieldProblem } from './rules';
 import { MAX_NAME_LENGTH } from './types';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 const INITIAL_SCOPES: readonly ScopeKind[] = ['UNIT_ONLY', 'UNIT_SUBTREE'];
 
 export interface InviteMemberDialogProps {

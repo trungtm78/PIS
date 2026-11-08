@@ -10,7 +10,7 @@ export interface SectionCardProps {
   children: ReactNode;
 }
 
-/** A card with an uppercase section title, the unit chip "ĐVT: …", a status and actions in the head. */
+/** A card with an uppercase section title, the unit chip "Unit: …", a status and actions in the head. */
 export function SectionCard({ title, unit, status, actions, children }: SectionCardProps) {
   const titleId = useId();
   return (

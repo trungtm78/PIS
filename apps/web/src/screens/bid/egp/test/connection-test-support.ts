@@ -1,7 +1,7 @@
-import { harness } from '../../sas/test-support';
-import type { Harness } from '../../sas/test-support';
+import { harness } from '../../../sas/test-support';
+import type { Harness } from '../../../sas/test-support';
 
-export { mount } from '../test-support';
+export { mount } from '../../test-support';
 export type { Harness };
 
 export const ADMIN = ['bid.read', 'bid.egp.admin'];

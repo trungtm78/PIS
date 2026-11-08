@@ -2,8 +2,8 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { t } from '../../../i18n';
 import MappingScreen from './MappingScreen';
-import { ME, MAPPER, READER, client, mapping, mappingId, mount, packageId, problem, proposed, route, suggestions, world } from './mapping-test-support';
-import type { World } from './mapping-test-support';
+import { ME, MAPPER, READER, client, mapping, mappingId, mount, packageId, problem, proposed, route, suggestions, world } from './test/mapping-test-support';
+import type { World } from './test/mapping-test-support';
 
 afterEach(() => {
   cleanup();

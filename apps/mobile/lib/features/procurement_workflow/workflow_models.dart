@@ -1,7 +1,7 @@
 import '../read_support/moment.dart';
 import '../read_support/wire.dart';
 
-/// What the phone reads of the workflow of procurement packages (PRC-1, BID-27..30 on the web): the process tree ("Cây tiến độ"), the
+/// What the phone reads of the workflow of procurement packages (PRC-1, BID-27..30 on the web): the process tree ("Progress tree"), the
 /// packages of a node, and one package with its stepper, checklist and day-by-day timeline. The shapes are the DTOs of
 /// `apps/api/src/modules/bid/workflow-view.ts`; an answer that lacks what makes a figure citable is refused as a whole (null).
 

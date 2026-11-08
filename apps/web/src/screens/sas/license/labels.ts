@@ -152,7 +152,7 @@ export function actionLabel(t: Translate, action: LicenseAction): string {
   }
 }
 
-/** What the tenant experiences once the action took effect (SAS-15 "Phương án dữ liệu": nothing is deleted). */
+/** What the tenant experiences once the action took effect (SAS-15 "Data option": nothing is deleted). */
 export function consequenceLabel(t: Translate, action: LicenseAction): string {
   switch (action) {
     case 'suspend':

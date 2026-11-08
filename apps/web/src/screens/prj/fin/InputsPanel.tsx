@@ -22,7 +22,7 @@ export function assumptionName(t: (key: string, params?: Record<string, string |
 }
 
 /**
- * The inputs of an appraisal, all of them typed by people: the parameters, the cash flow per period (exact decimals, ĐVT stated), who answers for each input and where it comes from, the scenarios as deltas
+ * The inputs of an appraisal, all of them typed by people: the parameters, the cash flow per period (exact decimals, unit stated), who answers for each input and where it comes from, the scenarios as deltas
  * and the scores of the criteria. The grid has no cell for a result: NPV, IRR, payback, B/C and TCO are computed by the server from these inputs and nowhere else. A draft is the only thing that may be edited.
  */
 export function InputsPanel({ appraisal, draft, editable, me, problems, onChange, onAddDefaults }: InputsPanelProps) {

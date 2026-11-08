@@ -14,7 +14,7 @@ function BellIcon() {
 }
 
 /**
- * The button of the top bar, "Cần xử lý": the count of what waits for the person (their own view), by level. It reads only the counts, once a minute, when the window gets focus and when a notification arrives;
+ * The button of the top bar, "Needs action": the count of what waits for the person (their own view), by level. It reads only the counts, once a minute, when the window gets focus and when a notification arrives;
  * it never says 0 before the first answer. A click opens the drawer (`AlertCenter`) and Escape brings the focus back here.
  */
 export function AlertBell() {

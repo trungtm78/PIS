@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { connection, health, neverHealth, rule, staleHealth, unusedConnection } from './connection-test-support';
+import { connection, health, neverHealth, rule, staleHealth, unusedConnection } from './test/connection-test-support';
 import { dayText, failureCode, failureDetail, isFirstUse, isUnverified, numberText, orderedPositions, recordRows, recordTotal, reasonProblem, sampleKind, severityOf, switchBlock, toConnection, vietnamStamp } from './connection-model';
 import type { Connection } from './connection-model';
 

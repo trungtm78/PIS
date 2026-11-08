@@ -243,13 +243,13 @@ function DrillContent({ route }: ScreenProps) {
   );
 }
 
-/** What a part of the whole ratio pulls it by, in percentage points ("-10,00 điểm %"); null when the figure is not a ratio. */
+/** What a part of the whole ratio pulls it by, in percentage points ("-10.00 points %"); null when the figure is not a ratio. */
 function dragText(t: T, locale: string, points: string | null): string {
   const value = points === null ? null : percentOf(points, locale);
   return value === null ? NONE : t('govc.home.drill.drag', { value });
 }
 
-/** "Chỉ tiêu → Đơn vị → Dự án/hồ sơ": where the reader is in the three steps of the drill. The step is the server's, and it is said in words as well as by the mark. */
+/** "Indicator → Unit → Project/record": where the reader is in the three steps of the drill. The step is the server's, and it is said in words as well as by the mark. */
 function StepTrail({ step, total }: { step: number; total: number }) {
   const { t } = useTranslation();
   const names = [t('govc.home.drill.step.metric'), t('govc.home.drill.step.unit'), t('govc.home.drill.step.record')];

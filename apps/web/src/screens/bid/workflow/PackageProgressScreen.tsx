@@ -21,7 +21,7 @@ import './workflow.css';
 type Tab = 'progress' | 'checklist' | 'documents' | 'related';
 
 /**
- * BID-29, "Tiến trình gói thầu" (PRC-1): ONE package — which step it is at, since when and how far past the standard, who holds it, what blocks it, the checklist of the step with its evidence, every change of state day by day,
+ * BID-29, "Package progress" (PRC-1): ONE package — which step it is at, since when and how far past the standard, who holds it, what blocks it, the checklist of the step with its evidence, every change of state day by day,
  * and the shortcuts to the records that belong to it. The commands (advance, return, hold, assign, ask for an exception, cancel) are offered only when the server says the caller may.
  */
 export default function PackageProgressScreen({ route }: ScreenProps) {
@@ -82,8 +82,8 @@ function PackageProgressContent({ route }: ScreenProps) {
   const actions = data?.actions ?? {};
 
   const stepNames = useMemo(() => new Map((workflow?.steps ?? []).map((step) => [step.code, step.name])), [workflow]);
-  const names: Names = { step: (code) => (code === null ? undefined : stepNames.get(code)) };
-  const groups = useMemo(() => (timeline.data === undefined ? [] : toTimelineGroups(t, timeline.data, names)), [timeline.data, t, stepNames]); // eslint-disable-line react-hooks/exhaustive-deps
+  const names: Names = useMemo(() => ({ step: (code) => (code === null ? undefined : stepNames.get(code)) }), [stepNames]);
+  const groups = useMemo(() => (timeline.data === undefined ? [] : toTimelineGroups(t, timeline.data, names)), [timeline.data, t, names]);
   const allEntries: EntryDto[] = useMemo(() => (workflow?.timeline.days ?? []).flatMap((day) => day.entries), [workflow]);
   const actors = useMemo(() => {
     const seen = new Map<string, string>();

@@ -87,7 +87,7 @@ function QueueContent() {
   const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
   const [now, setNow] = useState(() => Date.now());
 
-  // The age of the list is judged against a clock that ticks, so "Số liệu cũ" appears without a click.
+  // The age of the list is judged against a clock that ticks, so "Stale figures" appears without a click.
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(timer);

@@ -3,12 +3,12 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '../i18n';
 
 export interface UnitChipProps {
-  /** The unit, e.g. "Triệu đồng"; the chip writes "ĐVT: …". */
+  /** The unit, e.g. "Million dong"; the chip writes "Unit: …". */
   unit?: string;
   children?: ReactNode;
 }
 
-/** The unit chip "ĐVT: …" of every money block. */
+/** The unit chip "Unit: …" of every money block. */
 export function UnitChip({ unit, children }: UnitChipProps) {
   const { t } = useTranslation();
   return <span className="ui-unit-chip">{unit === undefined ? children : t('ui.unitChip.label', { unit })}</span>;

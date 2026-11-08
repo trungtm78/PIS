@@ -5,14 +5,14 @@ import { createContext, useContext } from 'react';
  * and nothing in it is invented data. Until the entity exists the default source says so (`notBuilt`), which the screen shows as its own empty state and
  * never as "no directive": a source that cannot be read is named, never shown as no work (design.md).
  *
- * TODO(DIR-1): replace `notBuiltSource` by a hook over the list operation of the directive module and provide it where `DirectivesSourceContext` is
+ * Next step (DIR-1): replace `notBuiltSource` by a hook over the list operation of the directive module and provide it where `DirectivesSourceContext` is
  * provided (or make it the default of the context). The shape the screen needs is below and in docs/pwa.md ("Directives contract"):
  *
  *   GET /directives?status={OPEN|IN_PROGRESS|DONE|OVERDUE|CANCELLED}&unit_id={uuid}   (read permission of the directive module; scope: the units of the reader)
  *   200 { items: Directive[], next_cursor: string | null, as_of: ISO time, unavailable_sources: string[] }
  *   Directive { id: uuid, title: string, issued_by: { id, name }, issued_on: 'YYYY-MM-DD', due_on: 'YYYY-MM-DD' | null, status,
  *               assignee_unit: { id, name } | null, progress_percent: 0..100 | null, last_update_at: ISO time | null, overdue_days: number }
- *   `progress_percent` is null when no progress was reported: the screen says "chưa báo cáo", never 0%.
+ *   `progress_percent` is null when no progress was reported: the screen says "not reported", never 0%.
  */
 
 export const DIRECTIVE_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'OVERDUE', 'CANCELLED'] as const;

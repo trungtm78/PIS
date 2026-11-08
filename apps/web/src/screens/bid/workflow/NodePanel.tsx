@@ -37,7 +37,7 @@ export function NodePanel({ node, tree, filters, onClose, today }: NodePanelProp
   const feed = useNodeFeed(tab === 'changes' ? node.id : undefined, filters, range);
   const dto = tree.nodes.find((one) => one.id === node.id);
   const stepNames = useMemo(() => new Map(tree.nodes.filter((one) => one.kind === 'STEP' && one.step_code !== null).map((one) => [one.step_code as string, one.label ?? one.step_code as string])), [tree]);
-  const names = { step: (code: string | null) => (code === null ? undefined : stepNames.get(code)) };
+  const names = useMemo(() => ({ step: (code: string | null) => (code === null ? undefined : stepNames.get(code)) }), [stepNames]);
 
   useEffect(() => {
     heading.current?.focus();
@@ -61,8 +61,7 @@ export function NodePanel({ node, tree, filters, onClose, today }: NodePanelProp
       byDay.set(item.entry.day, [...(byDay.get(item.entry.day) ?? []), { ...entry, title }]);
     }
     return [...byDay.entries()].map(([date, entries]) => ({ date, entries }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [feed.data, t]);
+  }, [feed.data, t, names]);
 
   const tabs: Array<{ id: Tab; label: string }> = [
     { id: 'overview', label: t('prc1.panel.overview.name') },

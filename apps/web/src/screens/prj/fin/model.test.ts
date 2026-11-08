@@ -3,7 +3,7 @@ import { buildReport } from '@machvon/kernel/src/fin-analysis.ts';
 import { describe, expect, it } from 'vitest';
 import { blankAssumption, decimalText, draftOf, draftProblems, idFrom, inputsBody, sameDraft, startScenarios, toAppraisal, toList } from './model';
 import type { Draft } from './model';
-import { OWNER, raw } from './fixtures';
+import { OWNER, raw } from './test/fixtures';
 
 describe('the figures are read digit for digit, never as floats', () => {
   it('groups and points the way the reader of the locale writes, and leaves what is not a decimal as it came', () => {

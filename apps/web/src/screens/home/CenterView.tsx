@@ -159,7 +159,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
   );
 }
 
-/** "Cần xử lý ngay": the same source as the bell, the whole scope for a leader (the person's own work when the server refuses the scope). It is read on its own, so a failure of the figures never hides the work. */
+/** "Needs action now": the same source as the bell, the whole scope for a leader (the person's own work when the server refuses the scope). It is read on its own, so a failure of the figures never hides the work. */
 function NeedsActionBand() {
   const source = useAlertSource('scope');
   return (

@@ -17,7 +17,7 @@ import './governance.css';
 
 /**
  * ADM-23: the registry of alert types (G0-3). Each type of alert says who owns it, what is expected, what happens if it is not done, how fast it must be answered, why it exists and when it is next reviewed. A type
- * with no expected action can only be Theo dõi (watch) and says so; a type past its review day is marked and counted. The list is what governs today: the rule the tenant approved, or the type that ships with the
+ * with no expected action can only be Watch (watch) and says so; a type past its review day is marked and counted. The list is what governs today: the rule the tenant approved, or the type that ships with the
  * platform (with its version and whether the numbers were confirmed). Filter by source or owner; open a type to see its versions.
  */
 export default function AlertTypeRegistryScreen({ route }: ScreenProps) {

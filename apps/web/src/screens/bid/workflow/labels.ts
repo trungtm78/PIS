@@ -182,7 +182,7 @@ const person = (entry: EntryDto): { name: string; initials: string } | null =>
     ? null
     : { name: entry.actor.name ?? '', initials: initialsOf(entry.actor.name) };
 
-/** The first letter of the first and of the last word of a name ("Nguyễn Văn An" is NA). */
+/** The first letter of the first and of the last word of a name ("Nguyen Van An" is NA). */
 function initialsOf(name: string | null): string {
   const words = (name ?? '').split(/\s+/).filter(Boolean);
   const first = words[0]?.charAt(0).toUpperCase() ?? '?';
@@ -241,7 +241,7 @@ export function whereLine(t: T, input: { stepName: string | null; days: number |
   return parts.join(' · ');
 }
 
-/** The countdown of a step: "Còn 2 ngày · 09/11", "Hôm nay là hạn", "Quá hạn 3 ngày". */
+/** The countdown of a step: "2 days left · 09/11", "Due today", "Overdue 3 days". */
 export function countdownText(t: T, countdown: { days_left: number; due_on: string } | null, row?: Pick<WfRow, 'late_days'>): string {
   if (countdown === null) return t('prc1.countdown.none.text');
   const day = `${countdown.due_on.slice(8, 10)}/${countdown.due_on.slice(5, 7)}`;

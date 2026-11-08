@@ -86,7 +86,7 @@ export function isStale(shown: number | undefined, latest: number | undefined): 
   return shown !== undefined && latest !== undefined && latest !== shown;
 }
 
-/** A unit as one line, root first: `Tập đoàn › Ban A › Phòng B`. */
+/** A unit as one line, root first: `Group › Board A › Department B`. */
 export function breadcrumbText(unit: { breadcrumb: ReadonlyArray<{ name: string; code: string }>; name: string; code: string }): string {
   const crumbs = unit.breadcrumb.length > 0 ? unit.breadcrumb : [unit];
   return crumbs.map((crumb) => (crumb.name === '' ? crumb.code : crumb.name)).join(' › ');

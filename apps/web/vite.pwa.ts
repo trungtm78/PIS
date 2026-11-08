@@ -95,7 +95,9 @@ function readShellBrand(): string {
     const part = JSON.parse(readFileSync(join(partsDir, name), 'utf8')) as Record<string, string>;
     if (part[SHELL_BRAND_KEY] !== undefined && catalogue[SHELL_BRAND_KEY] === undefined) catalogue[SHELL_BRAND_KEY] = part[SHELL_BRAND_KEY];
   }
-  return catalogue[SHELL_BRAND_KEY] ?? 'Hệ thống quản lý đầu tư công';
+  const brand = catalogue[SHELL_BRAND_KEY];
+  if (brand === undefined) throw new Error(`the catalogue has no text for ${SHELL_BRAND_KEY}`);
+  return brand;
 }
 
 /** Bundles a TypeScript module of the repository and loads it in this process (the build is the only place that needs it). */

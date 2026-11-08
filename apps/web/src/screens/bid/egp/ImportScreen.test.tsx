@@ -2,8 +2,8 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { camelOf, ROW_CODES } from './import-model';
-import { APPLIED, KEY, PLANNER, PREVIEW, READER, SHA, UPLOADED, byOperation, client, connection, detail, mountScreen, previewRow, problem, routeOf, run, runId, rowError, word, world } from './import-test-support';
-import type { MountOptions, World } from './import-test-support';
+import { APPLIED, KEY, PLANNER, PREVIEW, READER, SHA, UPLOADED, byOperation, client, connection, detail, mountScreen, previewRow, problem, routeOf, run, runId, rowError, word, world } from './test/import-test-support';
+import type { MountOptions, World } from './test/import-test-support';
 import ImportScreen from './ImportScreen';
 
 const ROUTE = routeOf('BID-24', 'FR-BID-24');

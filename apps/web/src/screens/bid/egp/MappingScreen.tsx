@@ -26,7 +26,7 @@ const NEVER_EMPTY = (): boolean => false;
 const BID_IMPORT_PATH = '/bid/bid-24';
 
 /**
- * BID-23, "Ánh xạ mã hệ thống mạng đấu thầu quốc gia" (EGP-1): the codes of the national bidding network and the records of ours they stand for, on `master_crosswalk`. A code stands for one record at a time;
+ * BID-23, "Mapping of the codes of the national bidding network" (EGP-1): the codes of the national bidding network and the records of ours they stand for, on `master_crosswalk`. A code stands for one record at a time;
  * a mapping is proposed by one person and approved by another; a suggestion by name and price is a hint a person confirms, never a link; a record that holds another code is not relinked silently.
  * The layout of the files the codes come from is a working assumption (PENDING-EXTERNAL).
  */

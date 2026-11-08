@@ -34,7 +34,7 @@ function searchAddress(path: string, keyword: string): string {
 }
 
 /**
- * The bar above every screen: drawer button, breadcrumb, quick search ("Tìm nhanh hồ sơ", Ctrl K), reporting period,
+ * The bar above every screen: drawer button, breadcrumb, quick search ("Quick record search", Ctrl K), reporting period,
  * pin, help and the avatar of the account. The title of the page and its context line belong to the screen below it.
  */
 export function TopBar(props: TopBarProps) {

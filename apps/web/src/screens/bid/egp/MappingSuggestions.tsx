@@ -13,7 +13,7 @@ export interface MappingSuggestionsProps {
 }
 
 /**
- * "Gợi ý chờ xác nhận": the packages of the network that no mapping names yet, with the packages of ours whose budget equals the imported price to the unit and whose names are alike. It is a hint
+ * "Suggestions awaiting confirmation": the packages of the network that no mapping names yet, with the packages of ours whose budget equals the imported price to the unit and whose names are alike. It is a hint
  * a person confirms: nothing is linked here, the button only opens the proposal with the fields filled.
  */
 export function MappingSuggestions({ canPropose, onPropose }: MappingSuggestionsProps) {

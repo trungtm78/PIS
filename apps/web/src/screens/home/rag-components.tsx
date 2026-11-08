@@ -33,7 +33,7 @@ export function factorName(t: T, code: string): string {
 
 const withUnit = (code: string, text: string): string => (code === 'EWS_NO_DATA_SHARE' ? `${text}%` : text);
 
-/** The value of a factor against its line, in words: "đạt 0,55 (xanh từ 0,9, vàng từ 0,6)". A factor with no value says so. */
+/** The value of a factor against its line, in words: "reaches 0.55 (green from 0.9, amber from 0.6)". A factor with no value says so. */
 export function factorLine(t: T, locale: string, factor: RagFactor): string {
   if (factor.value === null) return t('govc.home.rag.factor.noValue');
   const params = { value: withUnit(factor.code, numberText(factor.value, locale)), green: withUnit(factor.code, numberText(factor.green, locale)), amber: withUnit(factor.code, numberText(factor.amber, locale)) };

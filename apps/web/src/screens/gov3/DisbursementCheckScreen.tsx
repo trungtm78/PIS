@@ -21,7 +21,7 @@ const causeText = (t: Translate, check: DisbursementCheck, amount: string): stri
       : t('govb1.pay.cause.unknown');
 
 /**
- * PAY-19: the precondition of a disbursement (governance deepening G1-2; NĐ 85/2025 Điều 53). A payment is built and sent only for a project that is on the list of the investment projects and that holds an
+ * PAY-19: the precondition of a disbursement (governance deepening G1-2; Decree 85/2025 Article 53). A payment is built and sent only for a project that is on the list of the investment projects and that holds an
  * approved amount in the capital plan on the system. This screen tells a person before a request is filled: the verdict, the cause (the stage of the project, or the approved amount the system holds), the
  * way to fix it with the screen to fix it on, and the warning that a request to appraise the project again is open (the payment is not stopped by it). The number on the system wins over paper.
  */

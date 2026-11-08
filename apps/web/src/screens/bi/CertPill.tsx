@@ -4,7 +4,7 @@ import { certStatusLabel } from './certification-labels';
 import { statusTone } from './certification-model';
 import type { CertStatus } from './certification-model';
 
-/** A certification state as text on a pill (Nháp, Đã xác nhận, Đã chứng nhận, Lỗi thời): never colour alone. */
+/** A certification state as text on a pill (Draft, Confirmed, Certified, Outdated): never colour alone. */
 export function CertPill({ status }: { status: CertStatus }) {
   const { t } = useTranslation();
   return (

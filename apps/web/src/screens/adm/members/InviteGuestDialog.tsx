@@ -13,7 +13,7 @@ import { GUEST_CONTRACT_STATUSES } from './types';
 import type { ContractOption } from './types';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface InviteGuestDialogProps {
   onClose(): void;

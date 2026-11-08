@@ -13,8 +13,8 @@ import { GOVERNANCE_APPROVE, GOVERNANCE_MANAGE, METHODS } from './model';
 import './workflow.css';
 
 /**
- * BID-31, "Định nghĩa quy trình" (PRC-1): the steps of the workflow of each selection method, with their checklists, durations and evidence, as the governance rule `PROCUREMENT_WORKFLOW` keeps them. A new version is a
- * draft that another person submits and a third approves; a package that already started keeps the version it started under. The built-in default is shown with its source and "chưa kiểm chứng": it is configuration, not law.
+ * BID-31, "Workflow definition" (PRC-1): the steps of the workflow of each selection method, with their checklists, durations and evidence, as the governance rule `PROCUREMENT_WORKFLOW` keeps them. A new version is a
+ * draft that another person submits and a third approves; a package that already started keeps the version it started under. The built-in default is shown with its source and "unverified": it is configuration, not law.
  */
 export default function DefinitionScreen({ route }: ScreenProps) {
   const { tenant } = useSession();

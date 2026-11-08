@@ -29,7 +29,7 @@ interface Receipt {
 }
 
 /**
- * BI-19: the certification of the figures leaders read (G3-1). KPIs and datasets are Nháp, Đã xác nhận, Đã chứng nhận or Lỗi thời; one person confirms and another certifies (the person who confirmed does not get "Chứng nhận"); sending back
+ * BI-19: the certification of the figures leaders read (G3-1). KPIs and datasets are Draft, Confirmed, Certified or Outdated; one person confirms and another certifies (the person who confirmed does not get "Certify"); sending back
  * and making obsolete need words; the version must be the one in force. The built-in KPIs of the platform are certified by the review of the repository and are not moved here. Metrics keep the certification they already have
  * in their registry (a publication request decided by someone else, BI-11): they are read here, never certified a second time. The leader's dashboard and the command center use only certified figures.
  */

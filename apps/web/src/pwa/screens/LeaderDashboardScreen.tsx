@@ -30,7 +30,7 @@ const hasOwnCard = (error: unknown): boolean => error instanceof ApiError && OWN
 
 /**
  * The leader dashboard on the phone (PWA-03, YCK.01): the HOME command center of the latest frozen snapshot, trimmed to what a leader reads standing up: the
- * context of every figure first, the amount disbursed with its ring, the two rates side by side, the plan and what waits, and "Cần xử lý ngay". It is the
+ * context of every figure first, the amount disbursed with its ring, the two rates side by side, the plan and what waits, and "Needs action now". It is the
  * same reading, the same model and the same kit as HOME-09 (`getCommandCenter`), so the figures can never differ from the ones of the full screen. A figure that
  * cannot be given is said so, never shown as 0; the figures belong to the snapshot on the screen, and a newer snapshot is offered, not applied.
  */
@@ -120,7 +120,7 @@ function Context({ center, updatedAt }: { center: CommandCenter | undefined; upd
   );
 }
 
-/** "Cần xử lý ngay": the same source as the bell, the whole scope for a leader. It is read on its own, so a failure of the figures never hides the work. */
+/** "Needs action now": the same source as the bell, the whole scope for a leader. It is read on its own, so a failure of the figures never hides the work. */
 function NeedsAction() {
   const source = useAlertSource('scope');
   return (

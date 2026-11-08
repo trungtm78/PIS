@@ -20,7 +20,7 @@ final NotifierProvider<TenantThemeNotifier, Map<String, String>?> tenantThemePro
 /// Tabular figures: the digits of a number have one width, so columns of amounts line up and a changing value does not jitter.
 const List<FontFeature> kTabularFigures = <FontFeature>[FontFeature.tabularFigures()];
 
-/// The theme of the application "Xanh dầu điều hành": the Material theme generated from the design tokens, completed with the
+/// The theme of the application "Executive oil green": the Material theme generated from the design tokens, completed with the
 /// themes of every shared control (design.md), with the tenant overlay applied when it is accepted whole by the same contrast
 /// rules as the web (a rejected overlay is ignored, never half applied).
 ///

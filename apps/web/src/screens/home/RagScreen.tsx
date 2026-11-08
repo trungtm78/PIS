@@ -24,8 +24,8 @@ type Pending = { kind: 'override'; unit: RagUnit; band: OverrideBand; until: str
 type DialogError = 'reason' | 'gone' | 'failed';
 
 /**
- * HOME-11: "Màu xanh vàng đỏ có giải thích" (G3-2). The colour of a unit is judged by rules; each unit says why (the one to three factors that moved it, each value against its line), how much of the data was there, the week
- * before and the trend of the weeks. A unit with too little data is "chưa đủ dữ liệu", never green and never 0. A person who may can put a colour over the rules' own for at most 90 days, with a reason; the rules' colour stays
+ * HOME-11: "Explained green amber red" (G3-2). The colour of a unit is judged by rules; each unit says why (the one to three factors that moved it, each value against its line), how much of the data was there, the week
+ * before and the trend of the weeks. A unit with too little data is "not enough data", never green and never 0. A person who may can put a colour over the rules' own for at most 90 days, with a reason; the rules' colour stays
  * beside it. Red comes first.
  */
 export default function RagScreen({ route }: ScreenProps) {

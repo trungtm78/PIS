@@ -12,7 +12,7 @@ import './governance.css';
 
 // ---- Small pieces ------------------------------------------------------------------------------------------------------------------------------------------------
 
-/** "Chưa kiểm chứng": the numbers were not confirmed with the law or the customer. Text and glyph, never colour alone. */
+/** "Unverified": the numbers were not confirmed with the law or the customer. Text and glyph, never colour alone. */
 export function LegalChip({ status }: { status: LegalStatus }) {
   const { t } = useTranslation();
   return (
@@ -38,7 +38,7 @@ export function periodText(t: Translate, from: string, to: string | null): strin
   return to === null ? t('gova1.period.open', { from: dayText(from) }) : t('gova1.period.closed', { from: dayText(from), to: dayText(to) });
 }
 
-/** The person as the page can name them: "Bạn" for the person who is signed in, else the start of the membership id (the audit log, ADM-11, names the person). */
+/** The person as the page can name them: "You" for the person who is signed in, else the start of the membership id (the audit log, ADM-11, names the person). */
 export function personText(t: Translate, id: string | null, me: string | undefined): string {
   if (id === null || id === '') return t('gova1.common.none');
   return id === me ? t('gova1.common.you') : shortId(id);
@@ -54,7 +54,7 @@ export function valueText(t: Translate, locale: string, value: unknown, present 
   return JSON.stringify(value);
 }
 
-/** The number with its unit when the field name says one ("ĐVT: giờ"); a plain value otherwise. */
+/** The number with its unit when the field name says one ("Unit: hours"); a plain value otherwise. */
 export function FieldValue({ path, value, present = true }: { path: string; value: unknown; present?: boolean }) {
   const { t, locale } = useTranslation();
   const unit = typeof value === 'number' ? unitOfField(path) : null;
@@ -76,7 +76,7 @@ export interface SideBySideProps {
   right: Record<string, unknown> | undefined;
 }
 
-/** Each param on its own row with both values; a row that differs is marked with a glyph and the words "khác mặc định" (not colour alone). */
+/** Each param on its own row with both values; a row that differs is marked with a glyph and the words "differs from the default" (not colour alone). */
 export function SideBySide({ caption, leftLabel, rightLabel, left, right }: SideBySideProps) {
   const { t } = useTranslation();
   const rows = sideBySide(left, right);

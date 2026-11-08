@@ -29,7 +29,7 @@ class ScreenFrame extends StatelessWidget {
 
 /// A titled block of a screen. The title is a heading for a screen reader, so the blocks can be walked through by heading.
 ///
-/// With [uppercase] the title is the 12 px section label of the design (uppercase, spaced); with [unit] an "ĐVT: ..." chip sits
+/// With [uppercase] the title is the 12 px section label of the design (uppercase, spaced); with [unit] an "Unit: ..." chip sits
 /// at the end of the title line, for the blocks that hold money. The title line wraps at a large text scale.
 class SectionCard extends StatelessWidget {
   const SectionCard({required this.title, required this.children, this.semanticLabel, this.unit, this.uppercase = false, super.key});
@@ -40,7 +40,7 @@ class SectionCard extends StatelessWidget {
   /// Read instead of the visible texts when the block is one fact to a screen reader.
   final String? semanticLabel;
 
-  /// The unit of the figures in the block ("tỷ đồng"); shown as the chip "ĐVT: tỷ đồng".
+  /// The unit of the figures in the block ("billion dong"); shown as the chip "Unit: billion dong".
   final String? unit;
 
   /// Draws the title as the uppercase section label instead of a sentence-case heading.
@@ -134,7 +134,7 @@ class KpiGroup extends StatelessWidget {
   }
 }
 
-/// The chip "ĐVT: tỷ đồng" that names the unit of the figures beside it.
+/// The chip "Unit: billion dong" that names the unit of the figures beside it.
 class UnitChip extends StatelessWidget {
   const UnitChip({required this.unit, super.key});
 

@@ -38,7 +38,7 @@ export function PartError({ source, onRetry, testId }: { source: string; onRetry
   );
 }
 
-// ---- "Thay đổi từ tuần trước" ---------------------------------------------------------------------------------------------------------------------
+// ---- "Changes since last week" ---------------------------------------------------------------------------------------------------------------------
 
 /** One line as a sentence from the templates of the screen: its numbers are the ones of the server, the direction picks the words. */
 export function changeSentence(t: T, line: ChangeLine): string {
@@ -79,7 +79,7 @@ function changeLinkLabel(t: T, link: ChangeLine['link']): string {
 }
 
 /**
- * "Thay đổi từ tuần trước" (G3-4): at most five sentences the server made by rules, each with its numbers and ONE link to where it can be checked. A failed reading is an error to retry, never "no change"; a week with no week
+ * "Changes since last week" (G3-4): at most five sentences the server made by rules, each with its numbers and ONE link to where it can be checked. A failed reading is an error to retry, never "no change"; a week with no week
  * before says so; a week where nothing moved says so.
  */
 export function ChangesCard({ snapshotId, unitId }: { snapshotId: string; unitId: string }) {
@@ -176,7 +176,7 @@ export function bandLabel(t: T, band: RagBand): string {
   }
 }
 
-/** A colour as text and a shape (and the tint): never the colour alone. A unit without enough data is "chưa đủ dữ liệu", not green. */
+/** A colour as text and a shape (and the tint): never the colour alone. A unit without enough data is "not enough data", not green. */
 export function RagBandBadge({ band }: { band: RagBand }) {
   const { t } = useTranslation();
   return (
@@ -244,7 +244,7 @@ export function RagSummaryCard({ snapshotId, unitId }: { snapshotId: string; uni
 
 // ---- the file of the figures -----------------------------------------------------------------------------------------------------------------------
 
-/** "Xuất Excel/CSV": the same figures, with the same text as the screen, as a file the page hands to the browser (a Blob; nothing is kept on a server). */
+/** "Export Excel/CSV": the same figures, with the same text as the screen, as a file the page hands to the browser (a Blob; nothing is kept on a server). */
 export function ExportActions({ snapshotId, unitId }: { snapshotId: string; unitId: string }) {
   const { t } = useTranslation();
   const exporter = useExportFigures();

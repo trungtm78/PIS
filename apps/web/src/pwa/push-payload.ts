@@ -13,8 +13,8 @@ export const DEFAULT_LINK = '/m';
 /** The longest title the worker shows: a lock screen shows a short, finished phrase. */
 export const TITLE_MAX = 60;
 
-/** The words that tell an amount, in the languages of the product. A title that holds one is not generic. */
-const MONEY_WORDS = /(?:vnd|vnđ|usd|đồng|dong|tỷ|ty\s|triệu|trieu|nghìn|billion|million|thousand|₫|\$)/i;
+/** The words that tell an amount, in the languages of the product (the Vietnamese ones are written with escapes: the source stays ASCII). A title that holds one is not generic. */
+const MONEY_WORDS = /(?:vnd|vn\u0111|usd|\u0111\u1ed3ng|dong|t\u1ef7|ty\s|tri\u1ec7u|trieu|ngh\u00ecn|billion|million|thousand|\u20ab|\$)/i;
 /** A mail address, a long number or a code of a record (`BC-2027-001`) tells which record it is. */
 const IDENTIFYING = /(?:@|\d|[A-Z]{2,}-[A-Z0-9]+)/;
 

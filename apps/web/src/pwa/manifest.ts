@@ -56,7 +56,7 @@ export interface WebManifest {
 
 export const SHORT_NAME_MAX = 12;
 
-/** `Đầu tư công` is cut to a word boundary under the limit when the name is longer. */
+/** `Public investment` is cut to a word boundary under the limit when the name is longer. */
 export function shortNameOf(shortName: string): string {
   const trimmed = shortName.trim();
   if (trimmed.length <= SHORT_NAME_MAX) return trimmed;

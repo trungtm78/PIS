@@ -12,7 +12,7 @@ import { themeIssues } from './rules';
 import type { ThemeConfig, ThemeVersion } from './types';
 
 /** The multiplication sign on the close button. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 const MIN_REASON_LENGTH = 10;
 
 /** What the review is of: the saved draft, or an old version to restore. */

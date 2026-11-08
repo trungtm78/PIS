@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { translator } from '../../../i18n';
 import base from '../../../i18n/vi.json';
 import ConnectionScreen from './ConnectionScreen';
-import { ADMIN, LAYOUT, READER, client, connection, health, mount, neverHealth, pendingItems, route, rule, staleHealth, unusedConnection } from './connection-test-support';
-import type { World } from './connection-test-support';
+import { ADMIN, LAYOUT, READER, client, connection, health, mount, neverHealth, pendingItems, route, rule, staleHealth, unusedConnection } from './test/connection-test-support';
+import type { World } from './test/connection-test-support';
 import en from '../../../i18n/en.json';
 
 // The words are read from the catalogues: the translator adds the keys of a part that is not folded yet to the catalogue objects, and a folded catalogue holds them, so the test reads the same either way.

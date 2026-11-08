@@ -3,7 +3,7 @@ import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 /** The words the control owns, already translated by the caller (the kit's rule: strings come from the screen). */
 export interface InfoFormulaLabels {
-  /** The accessible name of the "i" button; the caller puts the name of the figure in it ("Công thức và nguồn của …"). */
+  /** The accessible name of the "i" button; the caller puts the name of the figure in it ("Formula and source of …"). */
   open: string;
   close: string;
   formula: string;
@@ -29,7 +29,7 @@ export interface InfoFormulaProps {
   /** The day the figure is counted up to, as the caller writes it. */
   asOf: string;
   owner: string;
-  /** The version of the definition, as the caller writes it ("Phiên bản 0 (mặc định)"). */
+  /** The version of the definition, as the caller writes it ("Version 0 (default)"). */
   version: string;
   unverified?: boolean | undefined;
   labels: InfoFormulaLabels;

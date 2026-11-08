@@ -30,7 +30,7 @@ import {
   vietnamDateTime,
 } from './import-model';
 import type { ApplyGateInput, Preview } from './import-model';
-import { APPLIED, AS_OF, PREVIEW, UPLOADED, connection, detail, problem, run, runId } from './import-test-support';
+import { APPLIED, AS_OF, PREVIEW, UPLOADED, connection, detail, problem, run, runId } from './test/import-test-support';
 
 const preview = (over: Record<string, unknown> = {}): Preview => toPreview({ ...PREVIEW, ...over }, AS_OF) as Preview;
 const gate = (over: Partial<ApplyGateInput> = {}) => applyGate({ preview: preview(), previewIsCurrent: true, canApply: true, connectionBlocked: false, applied: false, working: false, ...over });

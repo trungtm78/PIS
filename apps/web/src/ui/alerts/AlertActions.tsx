@@ -23,7 +23,7 @@ export interface AlertActionsProps {
 export const isPaused = (item: AlertItem): boolean => item.pause !== null || item.clocks?.paused != null;
 
 /**
- * Nhận xử lý (Nhận lại when it went silent) · Giao cho · Nhắc lại (a dialog) · Tạm dừng đồng hồ / Chạy lại đồng hồ.
+ * Take it (Take back when it went silent) · Assign to · Remind (a dialog) · Pause the clock / Resume the clock.
  * An urgent item cannot be snoozed, so it has no such button.
  */
 export function AlertActions({ item, can, onClaim, onAssign, onSnooze, onPause, onResume, busy = false }: AlertActionsProps) {

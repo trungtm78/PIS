@@ -14,7 +14,7 @@ export interface TablePagerProps {
 const SIZES = [10, 20, 50, 100];
 const WINDOW = 2;
 
-/** The footer of a table: "Hiển thị a đến b của n", the page size and the page buttons. */
+/** The footer of a table: "Showing a to b of n", the page size and the page buttons. */
 export function TablePager({ from, to, total, size, index, onPage, onSize }: TablePagerProps) {
   const { t } = useTranslation();
   const pages = Math.max(1, Math.ceil(total / Math.max(1, size)));

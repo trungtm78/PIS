@@ -26,7 +26,7 @@ class KpiTile extends StatelessWidget {
   final String? value;
   final String? unit;
 
-  /// How the figure compares ("+4,2% so với kế hoạch"); shown as a [StatusPill].
+  /// How the figure compares ("+4.2% against plan"); shown as a [StatusPill].
   final String? note;
   final MachvonTone noteTone;
   final VoidCallback? onTap;

@@ -229,7 +229,7 @@ function toRagUnit(raw: unknown): RagUnit | undefined {
     ruleBand: band(raw.rule_band) ?? shown,
     overridden: raw.overridden === true,
     override: toOverride(raw.override),
-    // No data means no score: a score that arrives with it is not believed (never a 0 beside "chưa đủ dữ liệu").
+    // No data means no score: a score that arrives with it is not believed (never a 0 beside "not enough data").
     score: shown === 'NO_DATA' ? null : score,
     coveragePct: numberOf(raw.coverage_pct),
     noDataReason: nullableText(raw.no_data_reason),

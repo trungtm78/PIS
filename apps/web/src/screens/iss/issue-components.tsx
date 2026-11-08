@@ -66,7 +66,7 @@ export function DueBadge({ line, now }: { line: Pick<IssueLine, 'status' | 'dueA
   );
 }
 
-/** The time left to the deadline in the wording of the alert centre ("Còn 2 ngày · 09/11", "Quá hạn 3 ngày"); an issue that is closed has no time left to count. */
+/** The time left to the deadline in the wording of the alert centre ("2 days left · 09/11", "Overdue 3 days"); an issue that is closed has no time left to count. */
 export function DeadlineLine({ line, now }: { line: Pick<IssueLine, 'status' | 'dueAt' | 'overdueDays'>; now: Date }) {
   if (line.status === 'CLOSED') return null;
   const dueOn = businessDay(line.dueAt);

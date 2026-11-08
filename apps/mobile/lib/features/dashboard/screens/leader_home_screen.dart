@@ -19,7 +19,7 @@ import '../home_data.dart';
 import '../widgets/alert_list.dart';
 
 /// MOB-07: the home of a leader, work before figures. From the top: one line of context (scope, closing day, freshness); the
-/// alerts "Cần xử lý ngay" (the three most important of the scope, each with one primary action; the alerts of the person when the
+/// alerts "Needs action now" (the three most important of the scope, each with one primary action; the alerts of the person when the
 /// scope is refused); a compact command block (the amount, a small ring, the two rates with their denominators); the shortcuts of
 /// the role; and the summary of the figures. All figures are of one frozen snapshot and of the projects in the scope of the reader
 /// (the server decides the scope; nothing here adds a project). A rate that cannot be given says why and is never shown as zero.
@@ -39,7 +39,7 @@ class _LeaderHomeScreenState extends ConsumerState<LeaderHomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Starts the count of the Thông báo tab (it reads again on resume, on a push and after an act); nothing here depends on it.
+    // Starts the count of the Notifications tab (it reads again on resume, on a push and after an act); nothing here depends on it.
     ref.read(alertBadgeProvider);
   }
 

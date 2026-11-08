@@ -15,7 +15,7 @@ import type { Filters, TreeWords } from './model';
 import './workflow.css';
 
 /**
- * BID-27, "Tiến độ theo quy trình" (PRC-1, docs/process-tree-design.md): the packages of the procurement as one tree of states with how many are in each, what is late, and how many moved between them in the period. A click opens the
+ * BID-27, "Progress by workflow" (PRC-1, docs/process-tree-design.md): the packages of the procurement as one tree of states with how many are in each, what is late, and how many moved between them in the period. A click opens the
  * node: its numbers, its packages and what changed in it; a click on a package opens its page with the timeline. The same filters carry over to the board by step and to the list.
  */
 export default function ProcessTreeScreen({ route }: ScreenProps) {
@@ -34,19 +34,22 @@ function ProcessTreeContent({ route }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null);
   const restore = useRef<string | undefined>(undefined);
 
-  const words: TreeWords = {
-    root: t('prc1.tree.root.name'),
-    unit: t('prc1.unit.billion.name'),
-    notStarted: t('prc1.status.notStarted.name'),
-    completed: t('prc1.status.completed.name'),
-    cancelled: t('prc1.status.cancelled.name'),
-    onHold: t('prc1.substate.onHold.name'),
-    late: t('prc1.substate.late.name'),
-    returned: t('prc1.substate.returned.name'),
-    onTrack: t('prc1.substate.onTrack.name'),
-    hold: t('prc1.edge.hold.text'),
-  };
-  const view = useMemo(() => (tree.data === undefined ? { nodes: [], edges: [] } : treeToView(tree.data, words, locale)), [tree.data, locale]); // eslint-disable-line react-hooks/exhaustive-deps
+  const words: TreeWords = useMemo(
+    () => ({
+      root: t('prc1.tree.root.name'),
+      unit: t('prc1.unit.billion.name'),
+      notStarted: t('prc1.status.notStarted.name'),
+      completed: t('prc1.status.completed.name'),
+      cancelled: t('prc1.status.cancelled.name'),
+      onHold: t('prc1.substate.onHold.name'),
+      late: t('prc1.substate.late.name'),
+      returned: t('prc1.substate.returned.name'),
+      onTrack: t('prc1.substate.onTrack.name'),
+      hold: t('prc1.edge.hold.text'),
+    }),
+    [t],
+  );
+  const view = useMemo(() => (tree.data === undefined ? { nodes: [], edges: [] } : treeToView(tree.data, words, locale)), [tree.data, words, locale]);
   const state = useScreenState({ isLoading: tree.isLoading, error: tree.data === undefined ? tree.error : undefined, data: tree.data, isEmpty: (data) => treeIsEmpty(data as NonNullable<typeof tree.data>) });
   const selected = view.nodes.find((node) => node.id === nodeId);
 

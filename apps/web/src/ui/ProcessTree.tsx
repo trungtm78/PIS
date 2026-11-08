@@ -131,7 +131,7 @@ function writeExpanded(key: string | undefined, value: ReadonlySet<string>): voi
 }
 
 /**
- * "Cây tiến độ": the states of a process as one connected picture (docs/process-tree-design.md). The flow view lays the nodes out left to right in columns, one lane per branch, with the edges between them as an
+ * "Progress tree": the states of a process as one connected picture (docs/process-tree-design.md). The flow view lays the nodes out left to right in columns, one lane per branch, with the edges between them as an
  * aria-hidden SVG whose width tells how many moved; the outline view is the same tree as an indented `role="tree"` list, which is also what assistive technology reads. Every count is text, health is an icon and a word,
  * and the same figures can be read as a table. Arrow keys move between nodes (roving tabindex), Enter or Space selects, Escape in the outline closes the open branch and returns to its node.
  */

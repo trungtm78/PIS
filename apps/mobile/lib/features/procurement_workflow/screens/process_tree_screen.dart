@@ -15,7 +15,7 @@ import '../navigation.dart';
 import '../widgets.dart';
 import '../workflow_models.dart';
 
-/// MOB-71: "Cây tiến độ" as an outline (docs/process-tree-design.md section 8): one expandable row for each state of the process, with the
+/// MOB-71: "Progress tree" as an outline (docs/process-tree-design.md section 8): one expandable row for each state of the process, with the
 /// number of packages, their health (icon and word), their share and how long they have been there; a tap on a state opens its packages.
 /// The flow drawing of the web is not rendered on a phone; what it says (the counts and the moves of the period) is written as text.
 Widget buildProcessTreeScreen(BuildContext context, ScreenContext screen) => const ProcessTreeScreen();

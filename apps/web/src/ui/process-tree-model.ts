@@ -37,7 +37,7 @@ export interface ProcessTreeEdge {
   to: string;
   count: number;
   kind: ProcessTreeEdgeKind;
-  /** Replaces the default label of the edge ("trả lại 2"). */
+  /** Replaces the default label of the edge ("returned 2"). */
   label?: string;
 }
 

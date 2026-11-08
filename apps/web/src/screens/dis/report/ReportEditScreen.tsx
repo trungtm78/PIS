@@ -323,7 +323,7 @@ function Editor({ detail, sending, onAskSend }: { detail: ReportDetail; sending:
 
 const BUCKET_ORDER: readonly Bucket[] = ['CURRENT_YEAR', 'CARRYOVER', 'OTHER'];
 
-/** The bar at the foot of the form: "Gửi báo cáo" stays whatever the width; "Quay lại" and "Lưu nháp" go to the menu on a phone. */
+/** The bar at the foot of the form: "Submit report" stays whatever the width; "Back" and "Save draft" go to the menu on a phone. */
 function FormActions({ editable, sendable, busy, saving, onSend }: { editable: boolean; sendable: boolean; busy: boolean; saving: boolean; onSend: () => void }) {
   const { t } = useTranslation();
   const back = (

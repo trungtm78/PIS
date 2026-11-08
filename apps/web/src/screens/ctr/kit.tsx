@@ -27,11 +27,11 @@ export function sumAmounts(values: readonly string[]): string {
 export interface ScopeBarProps {
   /** The conditions of the page after the scope (a contract, a period, a closing date), already translated. */
   extra?: { label: string; value: string }[];
-  /** When the figures were read (milliseconds); the bar says "Cập nhật …". */
+  /** When the figures were read (milliseconds); the bar says "Updated …". */
   updatedAt?: number;
   /** The last read failed and the figures are the ones kept from the read before. */
   stale?: boolean;
-  /** The page shows money: the chip "ĐVT: Đồng" is shown. */
+  /** The page shows money: the chip "Unit: Dong" is shown. */
   money?: boolean;
 }
 

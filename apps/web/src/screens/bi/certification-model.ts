@@ -157,8 +157,8 @@ export const MOVE_TARGET: Readonly<Record<Move, CertStatus>> = { CONFIRM: 'CONFI
 export const MOVE_NEEDS_NOTE: Readonly<Record<Move, boolean>> = { CONFIRM: false, CERTIFY: false, RETURN: true, OBSOLETE: true };
 
 /**
- * The moves the row may be offered, by the rules the server keeps: Nháp is confirmed; an Đã xác nhận is certified by someone other than who confirmed it, or sent back to Nháp; an Đã chứng nhận becomes Lỗi thời;
- * nothing leaves Lỗi thời; the built-in default of the platform is not moved. The server judges again (a refusal is shown in words).
+ * The moves the row may be offered, by the rules the server keeps: Draft is confirmed; an Confirmed is certified by someone other than who confirmed it, or sent back to Draft; an Certified becomes Outdated;
+ * nothing leaves Outdated; the built-in default of the platform is not moved. The server judges again (a refusal is shown in words).
  */
 export function legalMoves(row: Certifiable, me: string | undefined): Move[] {
   if (row.subject === 'KPI' && row.builtIn) return [];

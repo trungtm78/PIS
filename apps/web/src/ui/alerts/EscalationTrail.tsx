@@ -13,7 +13,7 @@ export interface EscalationTrailProps {
   nextAt: string | null;
 }
 
-/** Where an item that was not handled stands on its way up: "Leo thang cấp 2/3", the chain, and when the next level is reached. */
+/** Where an item that was not handled stands on its way up: "Escalated to level 2/3", the chain, and when the next level is reached. */
 export function EscalationTrail({ level, of, chain, nextAt }: EscalationTrailProps) {
   const { t } = useTranslation();
   const total = Math.max(of, level, 1);

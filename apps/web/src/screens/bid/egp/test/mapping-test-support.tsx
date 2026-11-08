@@ -1,10 +1,10 @@
 import { ApiError } from '@machvon/api-client';
 import type { ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
-import { harness as baseHarness } from '../../sas/test-support';
-import type { Harness } from '../../sas/test-support';
-import { TENANT, mount as bidMount, routeOf } from '../test-support';
-import type { SessionOptions } from '../test-support';
+import { harness as baseHarness } from '../../../sas/test-support';
+import type { Harness } from '../../../sas/test-support';
+import { TENANT, mount as bidMount, routeOf } from '../../test-support';
+import type { SessionOptions } from '../../test-support';
 
 export type { Harness };
 

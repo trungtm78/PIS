@@ -14,7 +14,7 @@ import type { BoardDto, Filters, WfRow } from './model';
 import './workflow.css';
 
 /**
- * BID-28, "Bảng gói thầu theo bước" (PRC-1): the packages of one selection method as columns by step (a card for each package with its project, value, days in the step, holder and late flag) or as a list that
+ * BID-28, "Packages by step" (PRC-1): the packages of one selection method as columns by step (a card for each package with its project, value, days in the step, holder and late flag) or as a list that
  * can be cut by step, on hold and without an owner. Looking at one step says which packages are in it; the filters are those of the tree.
  */
 export default function StepBoardScreen({ route }: ScreenProps) {

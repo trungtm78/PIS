@@ -11,7 +11,7 @@ import { reasonProblem } from './rules';
 import type { Lifecycle, Member } from './types';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface LifecycleDialogProps {
   action: Lifecycle;

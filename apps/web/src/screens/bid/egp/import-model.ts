@@ -402,7 +402,7 @@ export interface ApplyGateInput {
   working: boolean;
 }
 
-/** "Áp dụng" is open only after a dry run of that same file with a valid row, a file not loaded before, an enabled connection and the right to apply; otherwise the reason. */
+/** "Apply" is open only after a dry run of that same file with a valid row, a file not loaded before, an enabled connection and the right to apply; otherwise the reason. */
 export function applyGate(input: ApplyGateInput): ApplyBlock | null {
   if (input.applied) return 'done';
   if (input.working) return 'working';

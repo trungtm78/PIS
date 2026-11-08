@@ -19,7 +19,7 @@ const STATE_TONE: Readonly<Record<ClockState, 'neutral' | 'info' | 'success' | '
   BREACHED: 'danger',
 };
 
-/** "2 ngày 3 giờ", "5 giờ 20 phút", "40 phút": wall time between two moments, no seconds. */
+/** "2 days 3 hours", "5 hours 20 minutes", "40 minutes": wall time between two moments, no seconds. */
 export function durationText(t: T, milliseconds: number): string {
   const total = Math.max(0, milliseconds);
   const days = Math.floor(total / DAY_MS);
@@ -98,7 +98,7 @@ export function hasClockLines(item: AlertItem, detailed: boolean): boolean {
 }
 
 /**
- * The clocks of an item in words: "Nhận việc" and "Xử lý" each with its state, due moment and time left or overdue; the pause with its reason and who allowed it; the chips of what happened to it (needs reclaim, snoozed n of m,
+ * The clocks of an item in words: "Take up" and "Handle" each with its state, due moment and time left or overdue; the pause with its reason and who allowed it; the chips of what happened to it (needs reclaim, snoozed n of m,
  * reminded k times, reported to the superior); the clock the module already keeps. A working calendar that is not published is said, never shown as "no deadline". No seconds, no live region.
  */
 export function ClockLines({ item, now, detailed = false }: ClockLinesProps) {

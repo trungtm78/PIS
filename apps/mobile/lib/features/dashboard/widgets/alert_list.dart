@@ -44,14 +44,14 @@ class AlertListSkeleton extends StatelessWidget {
   }
 }
 
-/// The block "Cần xử lý ngay": the alerts of the person (or of the scope), the most important [limit] of them, each with one
+/// The block "Needs action now": the alerts of the person (or of the scope), the most important [limit] of them, each with one
 /// primary action and a menu for taking it, giving it and reminding later. It draws every state of the data it is given:
 ///
 ///  * no feed and no error: the skeleton;
 ///  * [errorCode] and no feed: the failing source is named, with the stable code and a retry in place;
 ///  * a feed that names unavailable sources: they are listed, and "nothing to do" is never said while one is missing;
-///  * a feed with no alerts: "Không còn việc khẩn" with the time of the check;
-///  * [stale] says "Số liệu cũ"; [readOnly] (a copy kept on the device) offers no act and says when it was last synced.
+///  * a feed with no alerts: "No urgent work left" with the time of the check;
+///  * [stale] says "Stale figures"; [readOnly] (a copy kept on the device) offers no act and says when it was last synced.
 class AlertsPanel extends ConsumerStatefulWidget {
   const AlertsPanel({
     required this.feed,
@@ -81,7 +81,7 @@ class AlertsPanel extends ConsumerStatefulWidget {
   final bool allowAssign;
   final bool showSeeAll;
 
-  /// The heading of the block; "Cần xử lý ngay" when the screen gives none.
+  /// The heading of the block; "Needs action now" when the screen gives none.
   final String? title;
 
   @override

@@ -38,7 +38,7 @@ export function meetingTypeLabel(t: T, type: MeetingType): string {
   }
 }
 
-/** Where a directive stands on its clock, in a few words: "Còn 2 ngày", "Đến hạn hôm nay", "Quá hạn 3 ngày", "Quá hạn 8 ngày · đã báo lãnh đạo đơn vị"; nothing for an ended one. */
+/** Where a directive stands on its clock, in a few words: "2 days left", "Due today", "Overdue 3 days", "Overdue 8 days · unit head informed"; nothing for an ended one. */
 export function clockText(t: T, line: Pick<DirectiveLine, 'phase' | 'daysToDue' | 'overdueDays'>): string {
   switch (line.phase) {
     case 'DUE_LATER':

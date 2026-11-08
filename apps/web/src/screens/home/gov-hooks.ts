@@ -10,7 +10,7 @@ import { homeRoot } from './hooks';
 const ragRoot = (tenantId: string | undefined, membershipId: string | undefined) => [...homeRoot(tenantId), 'rag', membershipId] as const;
 
 /**
- * "Thay đổi từ tuần trước": at most five lines the server made by rules from this week's snapshot and the week before. It is keyed by the snapshot on the screen and the unit, so a newer snapshot or another
+ * "Changes since last week": at most five lines the server made by rules from this week's snapshot and the week before. It is keyed by the snapshot on the screen and the unit, so a newer snapshot or another
  * unit asks again and never shows the lines of the other.
  */
 export function useHomeChanges(snapshotId: string, unitId: string, enabled = true) {

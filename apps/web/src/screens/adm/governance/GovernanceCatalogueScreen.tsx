@@ -16,7 +16,7 @@ import './governance.css';
 /**
  * ADM-19: the catalogue of governance rules (G0-1). Each kind of rule the platform knows (thresholds, definitions, policies, the alert types) with the module that answers for it, the number of codes under it, how many
  * codes already use a rule the tenant approved and how many still use the default that ships with the platform, and whether the numbers were confirmed: a type or a default that was not confirmed with the law or the
- * customer says "chưa kiểm chứng" here and on every screen that shows the number. A rule type is opened to see its codes, the rule in force beside the default, and the versions.
+ * customer says "unverified" here and on every screen that shows the number. A rule type is opened to see its codes, the rule in force beside the default, and the versions.
  */
 export default function GovernanceCatalogueScreen({ route }: ScreenProps) {
   const { tenant } = useSession();

@@ -3,7 +3,7 @@ import type { Translator } from '../../../i18n';
 type Translate = Translator['t'];
 
 /**
- * What is undone for a step when provisioning is cancelled (SAS 3.1, "Bù trừ khi hủy"): the infrastructure is removed, the pilot
+ * What is undone for a step when provisioning is cancelled (SAS 3.1, "Compensation on cancel"): the infrastructure is removed, the pilot
  * license and the pending owner invitation are revoked, and the data steps leave their rows to the tenant that is archived as a whole.
  * Each key is written out so the i18n check can see it is in use.
  */

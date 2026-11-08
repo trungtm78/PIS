@@ -44,7 +44,7 @@ DateTime? latestSnooze({required AlertItem item, required SnoozePolicyView polic
   return latest;
 }
 
-/// "Nhắc lại sau": the reason (from the policy), a note when the reason needs one, and an hour, tomorrow morning or a day, none
+/// "Remind me later": the reason (from the policy), a note when the reason needs one, and an hour, tomorrow morning or a day, none
 /// longer than the policy allows for the level of the alert. The sheet sends the snooze itself through [send] and stays open on a
 /// refusal, saying why; it closes with the choice once the server recorded it, and returns null when it was closed without one.
 /// Reminding later does not change the due day of the business and does not stop the escalation.

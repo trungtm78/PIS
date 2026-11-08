@@ -19,7 +19,7 @@ import '../widgets/alert_list.dart';
 /// The page size of the work list; the screen follows the pages to the end (or to the limit of pages).
 const int workPageSize = 50;
 
-/// MOB-08: the home of a reporting officer. What is due comes first: the alerts of the person ("Việc đến hạn", the same source as
+/// MOB-08: the home of a reporting officer. What is due comes first: the alerts of the person ("Due work", the same source as
 /// the home of a leader, view `mine`), each with one primary action. Under them what is asked of the person in every module, in one
 /// place: the report deadlines and the reports that came back, the drafts past their period, and the work given to them. Late first.
 /// Each task is done in the screen of its module; only an approval task opens here (MOB-24).

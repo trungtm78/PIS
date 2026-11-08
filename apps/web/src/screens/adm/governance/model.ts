@@ -339,7 +339,7 @@ export function toAlertTypes(raw: unknown): AlertTypeList | undefined {
   return { asOf: text(raw.as_of) ?? '', items };
 }
 
-/** A type with no expected action can only be watched: its default level is Theo dõi and nothing else (G0-3). */
+/** A type with no expected action can only be watched: its default level is Watch and nothing else (G0-3). */
 export const hasNoExpectedAction = (row: Pick<AlertTypeRow, 'expectedAction'>): boolean => row.expectedAction === null;
 
 /** The days from `today` to the review day (negative: past); null when there is no review day. */

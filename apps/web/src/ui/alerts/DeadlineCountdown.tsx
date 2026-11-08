@@ -11,7 +11,7 @@ export interface DeadlineCountdownProps {
   daysLate?: number;
 }
 
-/** "Còn 2 ngày · 09/11", "Hôm nay", "Quá hạn 3 ngày". No seconds and no live region: a screen reader reads it where it is and is never re-announced. */
+/** "2 days left · 09/11", "Today", "Overdue 3 days". No seconds and no live region: a screen reader reads it where it is and is never re-announced. */
 export function DeadlineCountdown({ dueOn, today, daysLate }: DeadlineCountdownProps) {
   const { t } = useTranslation();
   if (dueOn === null) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { problem, mapping, suggestions } from './mapping-test-support';
+import { problem, mapping, suggestions } from './test/mapping-test-support';
 import {
   EMPTY_FORM,
   appliedCount,

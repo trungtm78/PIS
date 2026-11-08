@@ -12,7 +12,7 @@ import '../notification_inbox/notification_commands.dart';
 import '../notification_inbox/push_registration.dart';
 import 'alerts.dart';
 
-/// The counts of the alerts of the person (`getMyWorkCounts`), and the number on the Thông báo tab that follows them. Null until the
+/// The counts of the alerts of the person (`getMyWorkCounts`), and the number on the Notifications tab that follows them. Null until the
 /// server has answered: the tab then shows no number (never a 0 that was not read). It reads again when the application opens, when it
 /// comes back to the foreground, when a push arrives and when an alert was claimed, given or snoozed here. A failed read keeps the last
 /// number; a sign-out clears it.

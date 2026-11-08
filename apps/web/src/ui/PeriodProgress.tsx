@@ -15,7 +15,7 @@ export interface PeriodProgressProps {
 
 const clamp = (value: number): number => Math.min(100, Math.max(0, value));
 
-/** The progress of a reporting period: a bar, "đã gửi a/b" and the due date. */
+/** The progress of a reporting period: a bar, "sent a/b" and the due date. */
 export function PeriodProgress({ title, percent, sent, total, dueLabel, tone, state = 'ready', onRetry }: PeriodProgressProps) {
   const { t } = useTranslation();
   const root = `ui-kpi ui-period ${toneClass(tone)}`;

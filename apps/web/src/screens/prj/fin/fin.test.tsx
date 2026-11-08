@@ -7,7 +7,7 @@ import type { WebRoute } from '../../../routes/types';
 import { harness, mount } from '../../sas/test-support';
 import AppraisalListScreen from './AppraisalListScreen';
 import AppraisalWorkbenchScreen from './AppraisalWorkbenchScreen';
-import { OWNER, raw } from './fixtures';
+import { OWNER, raw } from './test/fixtures';
 
 const catalogue = { ...(vi_ as Record<string, string>), ...(part as Record<string, string>) };
 const text = (key: string, params: Record<string, string | number> = {}): string => Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), catalogue[key] ?? key);

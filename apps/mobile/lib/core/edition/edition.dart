@@ -1,4 +1,5 @@
 import '../l10n/string_table.dart';
+import 'edition_strings.dart';
 
 /// The product edition of this build (ENT-0, R20): the public investment system or the enterprise construction investment software.
 /// The same code line builds both; `--dart-define=MACHVON_EDITION=enterprise` selects the second, nothing set means public.
@@ -39,5 +40,5 @@ final class EditionProfile {
 /// The public edition: the name the application has always had, and no overlay.
 const EditionProfile kPublicEditionProfile = EditionProfile(
   edition: Edition.public,
-  appTitle: 'Hệ thống quản lý đầu tư công',
+  appTitle: kPublicProductNameVi,
 );

@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 
-/** BID-23, "Ánh xạ": the pure part. The answer of the API is read defensively, the filters live in the address, and the rules of a proposal are checked here before the server checks them again. */
+/** BID-23, "Mapping": the pure part. The answer of the API is read defensively, the filters live in the address, and the rules of a proposal are checked here before the server checks them again. */
 
 export const SUBJECT_TYPES = ['PROJECT', 'PLAN', 'PACKAGE', 'NOTICE', 'RESULT', 'CONTRACT', 'CONTRACTOR'] as const;
 export type SubjectType = (typeof SUBJECT_TYPES)[number];
@@ -259,8 +259,8 @@ export type ProposeField = 'ourCode' | 'projectCode' | 'externalCode' | 'validFr
 export type FieldProblem = 'required' | 'tooLong' | 'control' | 'day' | 'range' | 'confidence' | 'contractor';
 export type FormErrors = Partial<Record<ProposeField, FieldProblem>>;
 
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
+/** A control character (C0 range or DEL): checked by code point, so the pattern needs no control escapes. */
+const hasControl = (value: string): boolean => [...value].some((ch) => ch.charCodeAt(0) <= 0x1f || ch.charCodeAt(0) === 0x7f);
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const isDay = (value: string): boolean => DAY.test(value) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
 
@@ -268,7 +268,7 @@ function codeProblem(value: string): FieldProblem | undefined {
   const trimmed = value.trim();
   if (trimmed === '') return 'required';
   if (trimmed.length > MAX_CODE) return 'tooLong';
-  if (CONTROL.test(trimmed)) return 'control';
+  if (hasControl(trimmed)) return 'control';
   return undefined;
 }
 

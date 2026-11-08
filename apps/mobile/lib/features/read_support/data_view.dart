@@ -83,7 +83,7 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// empty state, so a screen that publishes a figure from the data, such as a tab badge, does it here). It runs outside the build.
   final void Function(Loaded<T> data)? onLoaded;
 
-  /// The scope the figures describe ("Toàn công ty · Năm 2026") and their closing date, shown in the context bar above the content.
+  /// The scope the figures describe ("Whole company · Year 2026") and their closing date, shown in the context bar above the content.
   final String? scopeLabel;
   final String? closingLabel;
   final Widget Function(BuildContext context, Loaded<T> data) builder;
@@ -275,7 +275,7 @@ class _RefreshingBar extends StatelessWidget {
 
 /// The context bar of a screen that reads (design.md "ContextBar"): the scope the figures describe, their closing date, where
 /// the data came from and the moment it describes. A copy kept on the device says so, says the amounts are reference data that
-/// cannot be edited, and says when it is out of date ("Số liệu cũ"). Never says the data is the newest.
+/// cannot be edited, and says when it is out of date ("Stale figures"). Never says the data is the newest.
 class FreshnessBar extends StatelessWidget {
   const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, super.key});
 

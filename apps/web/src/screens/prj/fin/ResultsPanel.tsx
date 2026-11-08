@@ -16,7 +16,7 @@ export const reasonText = (t: T, reason: string | null): string => (reason === n
 export const parameterText = (t: T, parameter: string): string => t(`fin1.param.${parameter}`);
 export const periodUnitText = (t: T, unit: string): string => t(`fin1.unit.${camel(unit)}`);
 
-/** A change of a parameter as a person reads it: "+10%", "-1 điểm", "1 kỳ". */
+/** A change of a parameter as a person reads it: "+10%", "-1 point", "1 period". */
 export function deltaText(t: T, parameter: string, delta: string): string {
   if (parameter === 'benefitDelayPeriods') return t('fin1.delta.periods', { value: delta });
   if (parameter === 'discountRatePp') return t('fin1.delta.points', { value: delta.startsWith('-') ? delta : `+${delta}` });

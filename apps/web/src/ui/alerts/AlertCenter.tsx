@@ -168,17 +168,17 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
   const counts = useAlertCounts(active, { enabled: open });
   const items = useAlertItems(active, { enabled: open });
   const { claim, assign, snooze, pause, resume, me } = useAlertAction();
+  const claimMutate = claim.mutate;
 
   const sendClaim = useCallback(
     (item: AlertItem): void => {
-      claim.mutate(item, {
+      claimMutate(item, {
         onSuccess: () => setReceipt({ tone: 'success', text: t('alerts.receipt.claimed', { name: me.name, time: clock(claimedAt.current.get(item.id) ?? new Date()) }) }),
         onError: () => setReceipt({ tone: 'danger', text: t('alerts.receipt.failed') }),
       });
     },
     // `claim.mutate` is stable; the other values only feed the receipt text.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [claim.mutate, me.name, t],
+    [claimMutate, me.name, t],
   );
   const sendClaimRef = useRef(sendClaim);
   sendClaimRef.current = sendClaim;

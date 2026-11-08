@@ -6,7 +6,7 @@ import '../theme/machvon_semantic.dart';
 import 'status_pill.dart';
 
 /// The line that goes with every number (design.md "ContextBar"): the scope it describes, the closing date, and how fresh it is,
-/// separated by dots, and "Số liệu cũ" in a pill when the figures are stale. [notes] are full sentences under the line (a copy kept
+/// separated by dots, and "Stale figures" in a pill when the figures are stale. [notes] are full sentences under the line (a copy kept
 /// on the device says so). The line wraps at a large text scale; [onRefresh] is a 48 dp button.
 class ContextBar extends StatelessWidget {
   const ContextBar({
@@ -21,16 +21,16 @@ class ContextBar extends StatelessWidget {
     super.key,
   });
 
-  /// "Toàn công ty · Năm 2026".
+  /// "Whole company · Year 2026".
   final String? scope;
 
-  /// The closing date of the figures, already formatted ("30/10/2026"); worded by this widget as "Chốt số liệu 30/10/2026".
+  /// The closing date of the figures, already formatted ("30/10/2026"); worded by this widget as "Figures closed 30/10/2026".
   final String? closing;
 
-  /// "Số liệu tại 07/11/2026 08:00" or "Đã tải lúc 08:00".
+  /// "Figures as of 07/11/2026 08:00" or "Loaded at 08:00".
   final String? freshness;
 
-  /// Whether to show the "Số liệu cũ" pill.
+  /// Whether to show the "Stale figures" pill.
   final bool stale;
   final List<String> notes;
   final VoidCallback? onRefresh;

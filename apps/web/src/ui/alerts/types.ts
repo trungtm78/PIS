@@ -120,7 +120,7 @@ export interface AlertItem {
   policy_version: string | null;
   /** The native clocks of the item; null when it has none (the day-based deadline `due_on` is then what is shown). */
   clocks: WorkClocks | null;
-  /** Taken up, then silent past the threshold: the claim button reads "Nhận lại". */
+  /** Taken up, then silent past the threshold: the claim button reads "Take back". */
   needs_reclaim: boolean;
   snooze: SnoozeInfo | null;
   snooze_count: number;

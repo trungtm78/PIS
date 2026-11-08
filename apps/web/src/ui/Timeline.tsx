@@ -13,17 +13,17 @@ export interface TimelineEntry {
   /** The instant, ISO 8601. */
   at: string;
   kind: TimelineKind;
-  /** What happened, already translated ("Hoàn thành mục: Biên bản mở thầu"); a transition without a title reads "Chuyển từ [from] → [to]". */
+  /** What happened, already translated ("Completed item: Bid opening minutes"); a transition without a title reads "Moved from [from] → [to]". */
   title?: string | undefined;
   from?: string | undefined;
   to?: string | undefined;
   actor?: { name: string; initials: string } | null | undefined;
-  /** How long the thing had spent in the state it left ("sau 6 ngày 2 giờ ở bước trước"), already translated. */
+  /** How long the thing had spent in the state it left ("after 6 days 2 hours in the previous step"), already translated. */
   after?: string | undefined;
   note?: string | undefined;
   evidence?: ReadonlyArray<{ label: string; href: string }> | undefined;
   tone?: Tone | undefined;
-  /** The word of the severity badge of a clock event ("Quá hạn"), with the consequence in `note`. */
+  /** The word of the severity badge of a clock event ("Overdue"), with the consequence in `note`. */
   badge?: string | undefined;
   /** An entry that was sent and is not confirmed yet. */
   pending?: boolean | undefined;
@@ -44,7 +44,7 @@ export interface TimelineProps {
   groups: readonly TimelineGroup[];
   /** Collapse the days with no change between two days into one muted row. */
   gaps?: boolean | undefined;
-  /** What the thing is waiting for in a gap row ("đang chờ Đánh giá hồ sơ"), already translated. */
+  /** What the thing is waiting for in a gap row ("waiting for Bid evaluation"), already translated. */
   waitingLabel?: string | undefined;
   order?: 'desc' | 'asc' | undefined;
   onOrder?: ((order: 'desc' | 'asc') => void) | undefined;
@@ -53,7 +53,7 @@ export interface TimelineProps {
   onRetry?: (() => void) | undefined;
   emptyKind?: 'none' | 'filtered' | undefined;
   notices?: readonly TimelineNotice[] | undefined;
-  /** Today in Vietnam, `YYYY-MM-DD`, for the relative dates ("Hôm nay", "3 ngày trước"). */
+  /** Today in Vietnam, `YYYY-MM-DD`, for the relative dates ("Today", "3 days ago"). */
   today?: string | undefined;
   caption: string;
 }

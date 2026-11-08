@@ -2,12 +2,12 @@ import { ApiError } from '@machvon/api-client';
 import type { QueryClient } from '@tanstack/react-query';
 import type { RenderResult } from '@testing-library/react';
 import { vi } from 'vitest';
-import catalogue from '../../../i18n/vi.json';
-import { harness as baseHarness } from '../../sas/test-support';
-import type { Harness } from '../../sas/test-support';
-import { mount as baseMount } from '../test-support';
+import catalogue from '../../../../i18n/vi.json';
+import { harness as baseHarness } from '../../../sas/test-support';
+import type { Harness } from '../../../sas/test-support';
+import { mount as baseMount } from '../../test-support';
 
-export { routeOf } from '../test-support';
+export { routeOf } from '../../test-support';
 export type { Harness };
 
 /** A text of the Vietnamese catalogue (the strings of the part files are in it once the translator has read them), with its {placeholders} filled. */

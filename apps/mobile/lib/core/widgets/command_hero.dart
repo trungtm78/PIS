@@ -25,13 +25,13 @@ class CommandHero extends StatelessWidget {
     super.key,
   });
 
-  /// The small uppercase line above the number ("Nhịp đầu tư / tháng 10.2026").
+  /// The small uppercase line above the number ("Investment pulse / October 2026").
   final String eyebrow;
 
   /// The number already formatted, or null while it loads.
   final String? value;
 
-  /// The unit written after the number ("tỷ đồng").
+  /// The unit written after the number ("billion dong").
   final String? unit;
 
   /// One or two sentences under the number.
