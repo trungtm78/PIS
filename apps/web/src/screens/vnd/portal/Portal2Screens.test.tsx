@@ -457,6 +457,36 @@ describe('the attachment picker keeps the command honest (review findings)', () 
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('respondPortalRequest', { path: { id: REQUEST }, ifMatchVersion: 3, body: { text: 'Tra loi kem tep', document_id: uuid('0051', 7) }, ...sent() }));
   });
 
+  it('cannot be reopened by changing the choice, or by starting a second upload, while a file is on the way', async () => {
+    const { h, box } = await openAnswer([portalAttachment(1, { document_id: DOCUMENT })]);
+    let finish: (value: unknown) => void = () => undefined;
+    const upload = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    (h.client as unknown as { upload: unknown }).upload = upload;
+    type(box, word('vnp.answer.field.text.label'), 'Tra loi kem tep');
+    const confirm = within(box).getByRole('button', { name: word('vnp.answer.confirm.action') }) as HTMLButtonElement;
+    pickPdf(box);
+    fireEvent.click(within(box).getByTestId('upload-send'));
+    await waitFor(() => expect(confirm.disabled).toBe(true));
+    const select = within(box).getByLabelText(labelOf(word('vnp.answer.field.document.label'))) as HTMLSelectElement;
+    expect(select.disabled).toBe(true);
+    fireEvent.change(select, { target: { value: DOCUMENT } });
+    fireEvent.change(select, { target: { value: '' } });
+    expect(confirm.disabled).toBe(true);
+    expect((within(box).getByTestId('upload-file') as HTMLInputElement).disabled).toBe(true);
+    expect((within(box).getByTestId('upload-title') as HTMLInputElement).disabled).toBe(true);
+    expect((within(box).getByTestId('upload-send') as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(within(box).getByTestId('upload-send'));
+    expect(upload).toHaveBeenCalledTimes(1);
+    finish(portalAttachment(7, { document_id: uuid('0051', 7), title: 'moi' }));
+    await waitFor(() => expect(confirm.disabled).toBe(false));
+    expect(select.disabled).toBe(false);
+  });
+
   it('opens the answer again, with the choice it had, when the upload fails', async () => {
     const { h, box } = await openAnswer([portalAttachment(1, { document_id: DOCUMENT })]);
     (h.client as unknown as { upload: unknown }).upload = vi.fn(() => Promise.reject(problem(409, 'SCAN_PENDING')));

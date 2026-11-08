@@ -78,11 +78,11 @@ export function UploadControl({ purpose, onUploaded, onStart, onFailed, limits }
     <div className="portal-upload" data-testid="upload-control">
       <label>
         {t('po2.upload.file.label')}
-        <input ref={input} type="file" accept={limits.mimes.join(',')} data-testid="upload-file" onChange={(event) => choose(event.target.files?.[0])} />
+        <input ref={input} type="file" disabled={upload.isPending} accept={limits.mimes.join(',')} data-testid="upload-file" onChange={(event) => choose(event.target.files?.[0])} />
       </label>
       <label>
         {t('po2.upload.title.label')}
-        <input type="text" value={title} maxLength={200} data-testid="upload-title" onChange={(event) => {
+        <input type="text" value={title} maxLength={200} disabled={upload.isPending} data-testid="upload-title" onChange={(event) => {
             setTitle(event.target.value);
             setRequestError(undefined);
           }} />
@@ -110,7 +110,7 @@ export function AttachmentPicker({ value, set, id, purpose, target }: { value: s
   const limits = files.data?.limits ?? { max_bytes: 0, mimes: [] as string[] };
   return (
     <div className="vnd-stack" data-testid="attachment-picker">
-      <select id={id} aria-labelledby={`${id}-label`} value={value} onChange={(event) => set(event.target.value)}>
+      <select id={id} aria-labelledby={`${id}-label`} value={value} disabled={isUploading(value)} onChange={(event) => (isUploading(value) ? undefined : set(event.target.value))}>
         <option value="">{t('po2.picker.none.text')}</option>
         {items.map((item) => (
           <option key={item.id} value={item.document_id}>
