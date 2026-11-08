@@ -74,8 +74,8 @@ export function feedFactsToProvinceFacts(input: FeedToFactsInput): ProvinceFacts
         fundSourceCode: fund,
         fundSourceName: FEED_FUND_NAMES[fund] ?? fund,
         planVnd: wholeDong(fact.planByFund[fund] ?? 0n),
-        // A month stated means a figure; no month stated means the feed said nothing, which is not zero.
-        disbursedVnd: fact.latestMonth > 0 ? wholeDong(fact.disbursedByFund[fund] ?? 0n) : null,
+        // A figure stated for THIS fund is a figure; a fund the feed stated nothing about stays unknown, even when another fund of the project reported (never a measured zero).
+        disbursedVnd: fact.disbursedByFund[fund] === undefined ? null : wholeDong(fact.disbursedByFund[fund]),
         lastYearSamePeriodVnd: null,
         lastYearFullYearVnd: null,
       });

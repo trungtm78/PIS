@@ -47,6 +47,11 @@ describe('the facts of the feed as the facts of the committee workspace', () => 
     expect(out.projects[0]?.lastReportedOn).toBeNull();
   });
 
+  it('keeps a fund the feed said nothing about unknown even when another fund of the same project reported', () => {
+    const out = feedFactsToProvinceFacts(input([fact({ planByFund: { NSTW: 100_00n, NSDP: 200_00n }, disbursedByFund: { NSTW: 40_00n } })]));
+    expect(out.lines.map((line) => [line.fundSourceCode, line.disbursedVnd])).toEqual([['NSDP', null], ['NSTW', '40']]);
+  });
+
   it('leaves out a code the project list of the feed does not know', () => {
     const out = feedFactsToProvinceFacts(input([fact(), fact({ feedProjectCode: 'F-999', known: false })]));
     expect(out.projects.map((project) => project.code)).toEqual(['F-100']);

@@ -563,11 +563,6 @@
   "bi": {
     "sourceCommit": "clip-metrics-2026-11",
     "publishReason": "Bảng điều hành đã được kiểm tra số liệu và cho phép công bố",
-    "evidence": {
-      "symbol": "152/QĐ-UBND",
-      "title": "Quyết định về việc công bố bảng điều hành đầu tư công của tỉnh",
-      "sender": "Ủy ban nhân dân tỉnh Cao Bằng"
-    },
     "dashboards": [
       {
         "code": "BD-LANH-DAO",
