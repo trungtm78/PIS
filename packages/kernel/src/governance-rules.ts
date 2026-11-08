@@ -1886,6 +1886,38 @@ export const registerIndicatorRules = (): void =>
     });
   });
 
+// GOV-11 (lane GOV-11a): one function per item, filled by that item and by nobody else. Each is idempotent.
+
+/** Capital reallocation by performance (G1-12): the policy that picks donors and recipients and the assumptions of the simulation. */
+export const registerReallocationRules = (): void =>
+  once('gov11-reallocation', () => {
+    registerCoreRules();
+  });
+
+/** Disbursement forecast to 31/12, the milestones of the directives and the accuracy of forecasts (G1-16). */
+export const registerForecastRules = (): void =>
+  once('gov11-forecast', () => {
+    registerCoreRules();
+  });
+
+/** The payment clock, the advance clock and the standard reasons to return a request (G1-17). */
+export const registerPaymentClockRules = (): void =>
+  once('gov11-payment-clock', () => {
+    registerCoreRules();
+  });
+
+/** The settlement deadlines of a contract and the impact of an adjustment version on the baseline (G1-18). */
+export const registerSettlementClockRules = (): void =>
+  once('gov11-settlement-clock', () => {
+    registerCoreRules();
+  });
+
+/** The look-ahead window and the lessons learned at the closing gate (G1-19). */
+export const registerLookAheadRules = (): void =>
+  once('gov11-look-ahead', () => {
+    registerCoreRules();
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
