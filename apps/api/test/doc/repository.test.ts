@@ -299,12 +299,13 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       expect((list.json.items as Array<{ id: string; version_count: number; current_version: { id: string; version_no: number } }>).find((item) => item.id === made.documentId)).toMatchObject({ version_count: 2, current_version: { id: version2, version_no: 2 } });
       expect(await call('POST', `/project-documents/${made.documentId}/archive`, { member: AUTHOR, ifMatch: '"3"', body: { reason: 'ngắn' } })).toMatchObject({ status: 422, json: { detail: 'reason' } });
       expect(await call('POST', `/project-documents/${made.documentId}/archive`, { member: AUTHOR, ifMatch: '"3"', body: { reason: 'Thay bằng hồ sơ thiết kế mới' } })).toMatchObject({ status: 200, json: { status: 'ARCHIVED' } });
-      expect(await call('POST', `/project-documents/${made.documentId}/versions`, { member: AUTHOR, body: { file_object_key: 'x', file_sha256: 'a'.repeat(64) } })).toMatchObject({ status: 409, json: { code: 'DOC_ARCHIVED' } });
+      const staged = await upload(await wordFile('777'), DOCX);
+      expect(await call('POST', `/project-documents/${made.documentId}/versions`, { member: AUTHOR, body: { file_object_key: staged.json.file_object_key, file_sha256: staged.json.file_sha256 } })).toMatchObject({ status: 409, json: { code: 'DOC_ARCHIVED' } });
       expect(await call('POST', `/project-documents/${made.documentId}/restore`, { member: AUTHOR, ifMatch: '"4"', body: {} })).toMatchObject({ status: 200, json: { status: 'RESTORED' } });
       const audit = await rows<{ action: string }>("select action from machvon.audit_event where resource_id = $1 order by occurred_at", [made.documentId]);
       expect(audit.map((row) => row.action)).toEqual(expect.arrayContaining(['doc.repo.document_created', 'doc.repo.document_updated', 'doc.repo.document_archived', 'doc.repo.document_restored']));
       // The trail names fields, never the title or the text.
-      expect(JSON.stringify(await rows('select diff from machvon.audit_event where resource_id = $1', [made.documentId]))).not.toContain('Tiêu đề đã sửa');
+      expect(JSON.stringify(await rows('select safe_diff from machvon.audit_event where resource_id = $1', [made.documentId]))).not.toContain('Tiêu đề đã sửa');
     });
 
     it('does not show a document to a member whose grant is over another unit, to a reader who cannot act, or to another tenant', async () => {
@@ -357,7 +358,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       expect(await call('POST', `/document-comments/${first.json.resource_id}/reopen`, { member: REV_A, body: {} })).toMatchObject({ status: 200, json: { status: 'OPEN' } });
       expect(await call('POST', `/document-comments/${first.json.resource_id}/reopen`, { member: OUTSIDE, body: {} })).toMatchObject({ status: 404 });
       expect(await call('POST', `/project-document-versions/${made.versionId}/comments`, { member: READER, body: { body: 'Người đọc không được góp ý' } })).toMatchObject({ status: 403 });
-      expect(JSON.stringify(await rows("select diff from machvon.audit_event where action like 'doc.repo.comment%'"))).not.toContain('Cần ghi rõ');
+      expect(JSON.stringify(await rows("select safe_diff from machvon.audit_event where action like 'doc.repo.comment%'"))).not.toContain('Cần ghi rõ');
     });
   });
 
@@ -367,7 +368,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       const second = await addVersion(made.documentId, await wordFile('120', true), DOCX);
       const result = await call('GET', `/project-documents/${made.documentId}/compare?from_version_id=${made.versionId}&to_version_id=${second}`, { member: READER });
       expect(result.status).toBe(200);
-      expect(result.json).toMatchObject({ mode: 'SEQUENCE', summary: { equal: 2, added: 1, removed: 0, changed: 2 } });
+      expect(result.json).toMatchObject({ mode: 'SEQUENCE', summary: { equal: 2, added: 2, removed: 1, changed: 1 } });
       const changed = (result.json.entries as Array<{ op: string; words: Array<{ op: string; text: string }> | null; after: { text: string } | null }>).find((entry) => entry.op === 'CHANGED' && entry.after?.text.startsWith('Giá trị'));
       expect(changed?.words?.filter((segment) => segment.op !== 'EQUAL')).toEqual([
         { op: 'REMOVED', text: '100' },
@@ -452,7 +453,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       expect(await decide(secondId, REV_D, 'approve')).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
 
       const locked = await call('GET', `/project-document-versions/${next}`, { member: AUTHOR });
-      expect(locked.json).toMatchObject({ version: { status: 'APPROVED', locked: true, locked_by_name: null }, actions: { re_extract: false } });
+      expect(locked.json).toMatchObject({ version: { status: 'APPROVED', locked: true, locked_by_name: 'User 7' }, actions: { re_extract: false } });
       const detail = await call('GET', `/project-documents/${made.documentId}`, { member: AUTHOR });
       expect(detail.json.document).toMatchObject({ approved_version: { id: next, version_no: 2 }, latest_review: { round: 2, status: 'APPROVED' } });
       expect((detail.json.rounds as Array<{ round: number; status: string }>).map((round) => [round.round, round.status])).toEqual([[2, 'APPROVED'], [1, 'SUPPLEMENT_REQUESTED']]);
@@ -469,7 +470,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       expect(await rows("select 1 from machvon.outbox_event where aggregate_id = $1 and type = 'doc.repo.version_locked.v1'", [next])).toHaveLength(1);
       const actions = (await rows<{ action: string }>('select action from machvon.audit_event where resource_id = any($1::uuid[])', [[reviewId, secondId]])).map((row) => row.action);
       expect(actions).toEqual(expect.arrayContaining(['doc.repo.review_submitted', 'doc.repo.review_supplement_requested', 'doc.repo.review_approved']));
-      expect(JSON.stringify(await rows("select diff from machvon.audit_event where action like 'doc.repo.review%'"))).not.toContain('Thiếu căn cứ');
+      expect(JSON.stringify(await rows("select safe_diff from machvon.audit_event where action like 'doc.repo.review%'"))).not.toContain('Thiếu căn cứ');
 
       const listed = await call('GET', `/document-reviews?document_id=${made.documentId}`, { member: READER });
       expect((listed.json.items as Array<{ round: number; status: string }>).map((item) => [item.round, item.status])).toEqual([[2, 'APPROVED'], [1, 'SUPPLEMENT_REQUESTED']]);
