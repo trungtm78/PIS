@@ -29,8 +29,7 @@ export const STANDALONE_SCRIPT = `
   const real = window.matchMedia.bind(window);
   window.matchMedia = (query) => {
     if (/display-mode\\s*:\\s*standalone/.test(query)) {
-      const list = real('all');
-      return Object.assign(Object.create(Object.getPrototypeOf(list)), { matches: true, media: query, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent() { return false; } });
+      return { matches: true, media: query, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent() { return false; } };
     }
     return real(query);
   };
@@ -66,13 +65,14 @@ export async function recordScreen(browser, { baseUrl, entry, persona, seconds, 
     hasTouch: true,
     locale: 'vi-VN',
     timezoneId: 'Asia/Ho_Chi_Minh',
-    recordVideo: { dir, size: FILM },
+    recordVideo: { dir, size: VIEWPORT },
   });
   await context.addInitScript(STANDALONE_SCRIPT);
   const page = await context.newPage();
   const started = Date.now();
   await page.goto(`${baseUrl.replace(/\/+$/u, '')}${withPersona(entry.path, persona)}`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('[data-screen-id], main, h1', { timeout: 30000 }).catch(() => undefined);
+  await page.waitForSelector('h1, h2', { timeout: 30000 }).catch(() => undefined);
+  await page.waitForFunction(() => !document.body.innerText.includes('Đang tải') && document.body.innerText.length > 120, null, { timeout: 15000 }).catch(() => undefined);
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => undefined);
   const contentAt = Date.now() - started;
   await sleep(1800);
@@ -86,7 +86,7 @@ export async function recordScreen(browser, { baseUrl, entry, persona, seconds, 
 
 /** Cuts the film to start when the screen is drawn and last `seconds`. */
 function cut({ input, startSec, seconds, out }) {
-  ffmpeg(['-ss', (startSec / 1000).toFixed(3), '-i', input, '-t', String(seconds), '-vf', `fps=30,scale=${FILM.width}:${FILM.height}:flags=bicubic,format=yuv420p`, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-movflags', '+faststart', '-an', out]);
+  ffmpeg(['-ss', (startSec / 1000).toFixed(3), '-i', input, '-t', String(seconds), '-vf', `fps=30,scale=${FILM.width}:${FILM.height}:flags=lanczos,format=yuv420p`, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-movflags', '+faststart', '-an', out]);
 }
 
 export function readIndex(file) {
