@@ -51440,6 +51440,427 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-HOME-011",
+      "epic": "EP-HOME",
+      "feature": "FT-HOME-04",
+      "module": "HOME",
+      "title": "Health of the alert system: fourteen indicators from the trace of the items, with targets as unverified rules",
+      "narrative": "As a leader or an administrator of alerts I can see how the alert system itself performs (time to take up, time to resolve, on time, escalated, load per person, notices out of hours, stale, orphaned, delivery, coverage), each figure with its formula, source and as-of time, so that the system of alerts is managed and not only used.",
+      "release": "R2",
+      "screens": [
+        "HOME-13"
+      ],
+      "operations": [
+        "getAlertHealth",
+        "getAlertCoverageReport"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-HOME-011-1",
+          "given": "Items of the alert centre taken up, escalated, put off and closed by several people in two units, and a reader of one unit",
+          "when": "The health is read for 28 days, then for a unit outside the reader scope",
+          "then": "Fourteen indicators with formula, source and status computed from the trace in working hours, the reader sees only their units, the other unit is refused with 403 SCOPE_DENIED, and a figure with no records is NO_DATA or NO_SOURCE with its reason and never 0",
+          "test_id": "UAT-PLAN-141"
+        },
+        {
+          "id": "AC-ST-HOME-011-2",
+          "given": "The recording job last ran more than two passes ago, and the rule ALERT_HEALTH_TARGETS left at its built-in default",
+          "when": "The health is read",
+          "then": "The page says the figures are old and every target is labelled as an unverified default with its version and source",
+          "test_id": "UAT-PLAN-142"
+        },
+        {
+          "id": "AC-ST-HOME-011-3",
+          "given": "HOME-13 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-HOME-13"
+        }
+      ],
+      "dependencies": [
+        "ST-HOME-008"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 40,
+          "max": 90
+        },
+        "confidence": "medium",
+        "assumption": "Built on the trace written by the job alert-escalation every 15 minutes; delivery receipts of alert notices do not exist yet (G2-6), so that indicator says it has no source; every target is a starting value to calibrate after 4 to 6 weeks of data."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HOME-011-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getAlertHealth, getAlertCoverageReport",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HOME-011-2",
+          "kind": "web",
+          "title": "HOME-13 built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HOME-011-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for HOME-13; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HOME-011-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-141",
+            "UAT-PLAN-142"
+          ]
+        },
+        {
+          "id": "TK-HOME-011-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-HOME-13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-NOT-012",
+      "epic": "EP-NOT",
+      "feature": "FT-NOT-03",
+      "module": "NOT",
+      "title": "Escalation of alerts nobody acts on: functional and hierarchical levels with clocks of working time",
+      "narrative": "As a leader I receive what my people did not act on, as an item of my alert centre with where it came from, and I can acknowledge it; as an administrator I can see every level that was sent up, by which kind of level and why.",
+      "release": "R2",
+      "screens": [
+        "NOT-19"
+      ],
+      "operations": [
+        "listAlertEscalations",
+        "acknowledgeAlertEscalation"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-NOT-012-1",
+          "given": "An urgent item not taken up past its claim time, a functional level that names a function nobody holds, and an item only to be watched that aged untouched",
+          "when": "The job alert-escalation runs twice",
+          "then": "The first level goes to the nearest leadership tier above the owner, the second after its working hours to the holders of the function (a vacant function falls to the leadership and opens a gap), each row is recorded once with its event, the item to be watched is raised one step with the reason WATCH_AGED, and no event carries a word of the item",
+          "test_id": "UAT-PLAN-143"
+        },
+        {
+          "id": "AC-ST-NOT-012-2",
+          "given": "A level received by a leader, who acknowledges it once, and another person who tries",
+          "when": "Both acknowledge, and the item is then resolved in its module",
+          "then": "The recipient acknowledges once and the later levels are held for the hours of the policy, another person is answered 404, a second acknowledgement is 409 ALERT_ESCALATION_STATE_INVALID, and the levels close with the item as SOURCE_CLEARED",
+          "test_id": "UAT-PLAN-144"
+        },
+        {
+          "id": "AC-ST-NOT-012-3",
+          "given": "NOT-19 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-NOT-19"
+        }
+      ],
+      "dependencies": [
+        "ST-HOME-008"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 40,
+          "max": 90
+        },
+        "confidence": "medium",
+        "assumption": "The levels, their waiting hours and the hold after an acknowledgement are the rule ESCALATION_POLICY with unverified starting values; the leadership of an owner is found from the ranks of the grants and the units, and an approval keeps the rank of the matrix of authority."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-NOT-012-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: listAlertEscalations, acknowledgeAlertEscalation",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-012-2",
+          "kind": "web",
+          "title": "NOT-19 built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-012-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for NOT-19; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-012-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-143",
+            "UAT-PLAN-144"
+          ]
+        },
+        {
+          "id": "TK-NOT-012-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-NOT-19"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-NOT-013",
+      "epic": "EP-NOT",
+      "feature": "FT-NOT-03",
+      "module": "NOT",
+      "title": "Notification profile for alerts: channels by severity, quiet hours, daily cap, morning digest, no amounts or names in a push",
+      "narrative": "As a person who receives alerts I choose how I am reached by severity, my quiet hours, the lowest severity pushed, the cap of a day and the morning digest, while the bell of the application always tells the truth and a push never carries an amount or a name.",
+      "release": "R2",
+      "screens": [
+        "NOT-18"
+      ],
+      "operations": [
+        "getMyAlertProfile",
+        "updateMyAlertProfile",
+        "getMyAlertDigest"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-NOT-013-1",
+          "given": "A person with no saved profile, and one who saves a profile that takes the bell out, pushes an item to be watched or raises the cap above the policy",
+          "when": "Both read and save",
+          "then": "The first reads the policy values labelled as defaults and saves under version 0, the second is refused with 422 ALERT_PROFILE_INVALID naming the field and every defect, a stale version is 409 VERSION_CONFLICT, and the bell is always on",
+          "test_id": "UAT-PLAN-145"
+        },
+        {
+          "id": "AC-ST-NOT-013-2",
+          "given": "An action item at ten in the morning, the same at half past ten at night on a Friday, an urgent item nobody took up in an alert type that may break the quiet hours, and the sixth notice of a day",
+          "when": "The job decides how each person is told",
+          "then": "A push goes in the day, is held until the quiet hours end otherwise (and sent once then), an urgent item of that type breaks them only when its claim time is past, the sixth goes to the digest (an urgent one is grouped), an item to be watched is only digested, and the push holds a fixed sentence, a count and a path with no amount or name",
+          "test_id": "UAT-PLAN-146"
+        },
+        {
+          "id": "AC-ST-NOT-013-3",
+          "given": "NOT-18 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-NOT-18"
+        }
+      ],
+      "dependencies": [
+        "ST-NOT-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 40,
+          "max": 90
+        },
+        "confidence": "medium",
+        "assumption": "The quiet hours, the cap of 5 and the digest hour are the rule ALERT_NOTIFY_POLICY with unverified starting values from the research; SMS and Zalo need the consent of NOT-17 and their delivery belongs to G2-6."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-NOT-013-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getMyAlertProfile, updateMyAlertProfile, getMyAlertDigest",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-013-2",
+          "kind": "web",
+          "title": "NOT-18 built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-013-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for NOT-18; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-013-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145",
+            "UAT-PLAN-146"
+          ]
+        },
+        {
+          "id": "TK-NOT-013-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-NOT-18"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ADM-026",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-06",
+      "module": "ADM",
+      "title": "Absence, deputy and coverage of the receivers of alerts: declare, cover by a third-person approval, gaps and orphaned alerts",
+      "narrative": "As a person who will be away, or as the leader of one, I declare the absence and a deputy takes over the alerts for a period, allowed by a third person; as an administrator I see where an alert has nobody to receive it and the positions with a single holder or none.",
+      "release": "R2",
+      "screens": [
+        "ADM-25"
+      ],
+      "operations": [
+        "listAlertAbsences",
+        "declareAlertAbsence",
+        "endAlertAbsence",
+        "proposeAlertCover",
+        "decideAlertCover",
+        "revokeAlertCover"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-026-1",
+          "given": "An absent officer, a peer, the leader of their unit, and a proposal of cover by the officer or by the leader",
+          "when": "The cover is proposed, allowed by the proposer or the absent person or the deputy, then by a third person, and the job runs",
+          "then": "A cover waits until a third person allows it (403 SELF_APPROVAL_DENIED otherwise), a loop, a deputy of lower rank, a window outside the absence or a chain too deep is 422 ALERT_COVER_INVALID naming the field, and once in force the alerts of the absent person go to the deputy, who sees them as taken over and may take them up",
+          "test_id": "UAT-PLAN-147"
+        },
+        {
+          "id": "AC-ST-ADM-026-2",
+          "given": "A person away for more than the working-hours allowance with no cover for all sources, and an owner who left with open items",
+          "when": "The job alert-coverage runs",
+          "then": "A gap is opened once for each, their open items climb at once to the leadership of their place, the managers see the gap as an alert, the health page counts the items as orphaned, and the gap closes with its reason when a cover is allowed or the items are reassigned",
+          "test_id": "UAT-PLAN-148"
+        },
+        {
+          "id": "AC-ST-ADM-026-3",
+          "given": "ADM-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-25"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-014"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 40,
+          "max": 90
+        },
+        "confidence": "medium",
+        "assumption": "A cover routes attention only: what a deputy may decide in a module stays what the module grants them (an approval needs a delegation of ADM-14); the limits of days, depth and rank are the rule ABSENCE_POLICY with unverified starting values."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-026-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: listAlertAbsences, declareAlertAbsence, endAlertAbsence, proposeAlertCover, decideAlertCover, revokeAlertCover",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-2",
+          "kind": "web",
+          "title": "ADM-25 built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-25; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-147",
+            "UAT-PLAN-148"
+          ]
+        },
+        {
+          "id": "TK-ADM-026-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-ADM-25"
+          ]
+        }
+      ]
     }
   ]
 }

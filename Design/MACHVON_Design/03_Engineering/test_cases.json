@@ -22036,5 +22036,205 @@
     "covers": [
       "FR-CTR-35"
     ]
+  },
+  {
+    "id": "UAT-PLAN-141",
+    "source": "HOME.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Items of the alert centre taken up, escalated, put off and closed by several people in two units, and a reader of one unit",
+    "steps": [
+      "The health is read for 28 days, then for a unit outside the reader scope"
+    ],
+    "expected": "Fourteen indicators with formula, source and status computed from the trace in working hours, the reader sees only their units, the other unit is refused with 403 SCOPE_DENIED, and a figure with no records is NO_DATA or NO_SOURCE with its reason and never 0",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-13"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-142",
+    "source": "HOME.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "The recording job last ran more than two passes ago, and the rule ALERT_HEALTH_TARGETS left at its built-in default",
+    "steps": [
+      "The health is read"
+    ],
+    "expected": "The page says the figures are old and every target is labelled as an unverified default with its version and source",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-13"
+    ]
+  },
+  {
+    "id": "UI-HOME-13",
+    "source": "FR-HOME-13",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Sức khỏe hệ thống cảnh báo; a user with the permission and a read-only user; route HOME-13",
+    "steps": [
+      "Open HOME-13 from the menu and by deep link; check the field labels: Thời gian nhận xử lý (MTTA), Thời gian xử lý (MTTR), Tỷ lệ đúng hạn, Tỷ lệ leo thang, Tỷ lệ leo tới cấp cuối, Cảnh báo mỗi người mỗi ngày, Thông báo đẩy mỗi người mỗi ngày, Thông báo ngoài giờ yên tĩnh, Cảnh báo tồn cũ, Tỷ trọng mười loại nhiều nhất, Tỷ lệ hoãn theo loại, Cảnh báo mồ côi, Tỷ lệ giao nhận Khẩn, Độ phủ người thay",
+      "Do the main action by the rule: Mười bốn chỉ số của chính hệ thống cảnh báo, mỗi chỉ số một công thức và một nguồn, có nút i mở công thức, nguồn, thời điểm cập nhật; mục tiêu đọc từ ALERT_HEALTH_TARGETS, là giá trị khởi điểm chưa kiểm chứng để hiệu chỉnh sau 4 đến 6 tuần dữ liệu thật; số không tính được hiện là không có dữ liệu hoặc chưa có nguồn kèm lý do, không bao giờ hiện 0; job ghi số liệu cũ quá hai lượt chạy thì trang ghi số liệu cũ (G2-10)",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and the actions hidden without the permission on HOME-13"
+    ],
+    "expected": "Sức khỏe hệ thống cảnh báo: shows exactly 14 fields, applies the rule; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-13"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-143",
+    "source": "NOT.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "An urgent item not taken up past its claim time, a functional level that names a function nobody holds, and an item only to be watched that aged untouched",
+    "steps": [
+      "The job alert-escalation runs twice"
+    ],
+    "expected": "The first level goes to the nearest leadership tier above the owner, the second after its working hours to the holders of the function (a vacant function falls to the leadership and opens a gap), each row is recorded once with its event, the item to be watched is raised one step with the reason WATCH_AGED, and no event carries a word of the item",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-144",
+    "source": "NOT.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "A level received by a leader, who acknowledges it once, and another person who tries",
+    "steps": [
+      "Both acknowledge, and the item is then resolved in its module"
+    ],
+    "expected": "The recipient acknowledges once and the later levels are held for the hours of the policy, another person is answered 404, a second acknowledgement is 409 ALERT_ESCALATION_STATE_INVALID, and the levels close with the item as SOURCE_CLEARED",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-19"
+    ]
+  },
+  {
+    "id": "UI-NOT-19",
+    "source": "FR-NOT-19",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Leo thang cảnh báo; a user with the permission and a read-only user; route NOT-19",
+    "steps": [
+      "Open NOT-19 from the menu and by deep link; check the field labels: Việc (nguồn, tiêu đề), Cấp leo, Loại cấp (chức năng hoặc thứ bậc), Điều kiện kích hoạt, Người nhận, Người nhận thay (người thay), Thời điểm đến cấp, Trạng thái (mở, đã nhận, đã đóng), Chuỗi leo của chính sách và cấp kế tiếp",
+      "Do the main action by the rule: Việc không ai nhận, nhận rồi im lặng hoặc quá hạn leo theo chuỗi ESCALATION_POLICY với đồng hồ giờ làm việc của bộ máy đồng hồ; mỗi cấp được đánh dấu chức năng hoặc thứ bậc; chức năng không ai giữ thì rơi về lãnh đạo và ghi khoảng trống; người nhận xác nhận thì giữ các cấp sau theo chính sách; việc Theo dõi không leo tới người mà được nâng một bậc kèm lý do WATCH_AGED sau số ngày làm việc không ai động tới (G2-3)",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and the actions hidden without the permission on NOT-19"
+    ],
+    "expected": "Leo thang cảnh báo: shows exactly 9 fields, applies the rule; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-145",
+    "source": "NOT.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "A person with no saved profile, and one who saves a profile that takes the bell out, pushes an item to be watched or raises the cap above the policy",
+    "steps": [
+      "Both read and save"
+    ],
+    "expected": "The first reads the policy values labelled as defaults and saves under version 0, the second is refused with 422 ALERT_PROFILE_INVALID naming the field and every defect, a stale version is 409 VERSION_CONFLICT, and the bell is always on",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-18"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-146",
+    "source": "NOT.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "An action item at ten in the morning, the same at half past ten at night on a Friday, an urgent item nobody took up in an alert type that may break the quiet hours, and the sixth notice of a day",
+    "steps": [
+      "The job decides how each person is told"
+    ],
+    "expected": "A push goes in the day, is held until the quiet hours end otherwise (and sent once then), an urgent item of that type breaks them only when its claim time is past, the sixth goes to the digest (an urgent one is grouped), an item to be watched is only digested, and the push holds a fixed sentence, a count and a path with no amount or name",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-18"
+    ]
+  },
+  {
+    "id": "UI-NOT-18",
+    "source": "FR-NOT-18",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Hồ sơ thông báo cảnh báo của tôi; a user with the permission and a read-only user; route NOT-18",
+    "steps": [
+      "Open NOT-18 from the menu and by deep link; check the field labels: Kênh theo mức (Khẩn, Cần xử lý, Theo dõi), Giờ yên tĩnh và cuối tuần, Bản tin buổi sáng (giờ gửi), Mức thấp nhất được đẩy, Trần đẩy mỗi ngày, Gộp cảnh báo cùng gốc, Xem trước bản tin, Giá trị của chính sách và nguồn",
+      "Do the main action by the rule: Chuông trong ứng dụng luôn nói thật: không thể tắt và không bị giờ yên tĩnh hay trần che; kênh gián đoạn chỉ cho Khẩn và Cần xử lý, giữ giờ yên tĩnh trừ Khẩn đã quá hạn nhận của loại cảnh báo được phép xuyên; việc Theo dõi chỉ vào bản tin; người dùng chỉ hạ được trần đẩy chứ không nâng quá chính sách; thông báo đẩy không có số tiền hay tên, chỉ có liên kết (R7); mọi giá trị mặc định ghi rõ chưa kiểm chứng (G2-5)",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and the actions hidden without the permission on NOT-18"
+    ],
+    "expected": "Hồ sơ thông báo cảnh báo của tôi: shows exactly 8 fields, applies the rule; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-18"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-147",
+    "source": "ADM.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "An absent officer, a peer, the leader of their unit, and a proposal of cover by the officer or by the leader",
+    "steps": [
+      "The cover is proposed, allowed by the proposer or the absent person or the deputy, then by a third person, and the job runs"
+    ],
+    "expected": "A cover waits until a third person allows it (403 SELF_APPROVAL_DENIED otherwise), a loop, a deputy of lower rank, a window outside the absence or a chain too deep is 422 ALERT_COVER_INVALID naming the field, and once in force the alerts of the absent person go to the deputy, who sees them as taken over and may take them up",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-25"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-148",
+    "source": "ADM.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "A person away for more than the working-hours allowance with no cover for all sources, and an owner who left with open items",
+    "steps": [
+      "The job alert-coverage runs"
+    ],
+    "expected": "A gap is opened once for each, their open items climb at once to the leadership of their place, the managers see the gap as an alert, the health page counts the items as orphaned, and the gap closes with its reason when a cover is allowed or the items are reassigned",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-25"
+    ]
+  },
+  {
+    "id": "UI-ADM-25",
+    "source": "FR-ADM-25",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Vắng mặt, người thay và độ phủ người nhận cảnh báo; a user with the permission and a read-only user; route ADM-25",
+    "steps": [
+      "Open ADM-25 from the menu and by deep link; check the field labels: Người vắng mặt, Loại và khoảng ngày vắng, Người thay, Phạm vi thay (mọi nguồn hoặc theo nguồn), Trạng thái đề nghị thay, Người cho phép, Tình trạng độ phủ (đủ, một phần, chưa có), Chức danh chỉ có một người hoặc không ai, Khoảng trống đang mở",
+      "Do the main action by the rule: Người thay có thời hạn không quá max_cover_days của ABSENCE_POLICY, không vòng, không sâu quá max_chain_depth, hạng không thấp hơn người vắng; người cho phép là người thứ ba (không phải người đề nghị, người vắng hay người thay); người thay chỉ nhận cảnh báo, không nhận thẩm quyền (quyền duyệt đi qua ủy quyền ADM); người vắng không có người thay quá số giờ làm việc thì thành khoảng trống, cảnh báo của họ rơi lên lãnh đạo trực tiếp và vào chỉ số cảnh báo mồ côi; mọi thay đổi ghi nhật ký ADM-11 (G2-7)",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and the actions hidden without the permission on ADM-25"
+    ],
+    "expected": "Vắng mặt, người thay và độ phủ người nhận cảnh báo: shows exactly 9 fields, applies the rule; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-25"
+    ]
   }
 ]

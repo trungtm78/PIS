@@ -10608,5 +10608,81 @@
       "UI-CTR-36",
       "UAT-PLAN-144"
     ]
+  },
+  {
+    "requirement": "FR-HOME-13",
+    "screen": "HOME-13",
+    "title": "Sức khỏe hệ thống cảnh báo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Lộ trình quản trị sâu 08/11/2026 (làn GOV-9a, G2-10); nghiên cứu cảnh báo mục A2 và bảng KPI của hệ thống cảnh báo; docs/alert-governance.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HOME.md; 3 test",
+    "backlog_id": "BL-HOME-13",
+    "test_ids": [
+      "UI-HOME-13",
+      "UAT-PLAN-141",
+      "UAT-PLAN-142"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-19",
+    "screen": "NOT-19",
+    "title": "Leo thang cảnh báo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Lộ trình quản trị sâu 08/11/2026 (làn GOV-9a, G2-3); nghiên cứu cảnh báo mục A4; docs/alert-governance.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/NOT.md; 3 test",
+    "backlog_id": "BL-NOT-19",
+    "test_ids": [
+      "UI-NOT-19",
+      "UAT-PLAN-143",
+      "UAT-PLAN-144"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-18",
+    "screen": "NOT-18",
+    "title": "Hồ sơ thông báo cảnh báo của tôi",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Lộ trình quản trị sâu 08/11/2026 (làn GOV-9a, G2-5); nghiên cứu cảnh báo mục A6; docs/alert-governance.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/NOT.md; 3 test",
+    "backlog_id": "BL-NOT-18",
+    "test_ids": [
+      "UI-NOT-18",
+      "UAT-PLAN-145",
+      "UAT-PLAN-146"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-25",
+    "screen": "ADM-25",
+    "title": "Vắng mặt, người thay và độ phủ người nhận cảnh báo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Lộ trình quản trị sâu 08/11/2026 (làn GOV-9a, G2-7); nghiên cứu cảnh báo mục A8; docs/alert-governance.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md; 3 test",
+    "backlog_id": "BL-ADM-25",
+    "test_ids": [
+      "UI-ADM-25",
+      "UAT-PLAN-147",
+      "UAT-PLAN-148"
+    ]
   }
 ]

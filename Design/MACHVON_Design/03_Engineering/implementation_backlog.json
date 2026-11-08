@@ -19033,5 +19033,161 @@
     "stories": [
       "ST-CTR-022"
     ]
+  },
+  {
+    "id": "BL-HOME-13",
+    "requirement": "FR-HOME-13",
+    "screen": "HOME-13",
+    "title": "Sức khỏe hệ thống cảnh báo",
+    "module": "HOME",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "HOME,NOT,ADM",
+    "fields": [
+      "Thời gian nhận xử lý (MTTA)",
+      "Thời gian xử lý (MTTR)",
+      "Tỷ lệ đúng hạn",
+      "Tỷ lệ leo thang",
+      "Tỷ lệ leo tới cấp cuối",
+      "Cảnh báo mỗi người mỗi ngày",
+      "Thông báo đẩy mỗi người mỗi ngày",
+      "Thông báo ngoài giờ yên tĩnh",
+      "Cảnh báo tồn cũ",
+      "Tỷ trọng mười loại nhiều nhất",
+      "Tỷ lệ hoãn theo loại",
+      "Cảnh báo mồ côi",
+      "Tỷ lệ giao nhận Khẩn",
+      "Độ phủ người thay"
+    ],
+    "rule": "Mười bốn chỉ số của chính hệ thống cảnh báo, mỗi chỉ số một công thức và một nguồn, có nút i mở công thức, nguồn, thời điểm cập nhật; mục tiêu đọc từ ALERT_HEALTH_TARGETS, là giá trị khởi điểm chưa kiểm chứng để hiệu chỉnh sau 4 đến 6 tuần dữ liệu thật; số không tính được hiện là không có dữ liệu hoặc chưa có nguồn kèm lý do, không bao giờ hiện 0; job ghi số liệu cũ quá hai lượt chạy thì trang ghi số liệu cũ (G2-10)",
+    "test_ids": [
+      "UI-HOME-13",
+      "UAT-PLAN-141",
+      "UAT-PLAN-142"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-HOME-011"
+    ]
+  },
+  {
+    "id": "BL-NOT-19",
+    "requirement": "FR-NOT-19",
+    "screen": "NOT-19",
+    "title": "Leo thang cảnh báo",
+    "module": "NOT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "HOME,NOT,ADM",
+    "fields": [
+      "Việc (nguồn, tiêu đề)",
+      "Cấp leo",
+      "Loại cấp (chức năng hoặc thứ bậc)",
+      "Điều kiện kích hoạt",
+      "Người nhận",
+      "Người nhận thay (người thay)",
+      "Thời điểm đến cấp",
+      "Trạng thái (mở, đã nhận, đã đóng)",
+      "Chuỗi leo của chính sách và cấp kế tiếp"
+    ],
+    "rule": "Việc không ai nhận, nhận rồi im lặng hoặc quá hạn leo theo chuỗi ESCALATION_POLICY với đồng hồ giờ làm việc của bộ máy đồng hồ; mỗi cấp được đánh dấu chức năng hoặc thứ bậc; chức năng không ai giữ thì rơi về lãnh đạo và ghi khoảng trống; người nhận xác nhận thì giữ các cấp sau theo chính sách; việc Theo dõi không leo tới người mà được nâng một bậc kèm lý do WATCH_AGED sau số ngày làm việc không ai động tới (G2-3)",
+    "test_ids": [
+      "UI-NOT-19",
+      "UAT-PLAN-143",
+      "UAT-PLAN-144"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-NOT-012"
+    ]
+  },
+  {
+    "id": "BL-NOT-18",
+    "requirement": "FR-NOT-18",
+    "screen": "NOT-18",
+    "title": "Hồ sơ thông báo cảnh báo của tôi",
+    "module": "NOT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "HOME,NOT,ADM",
+    "fields": [
+      "Kênh theo mức (Khẩn, Cần xử lý, Theo dõi)",
+      "Giờ yên tĩnh và cuối tuần",
+      "Bản tin buổi sáng (giờ gửi)",
+      "Mức thấp nhất được đẩy",
+      "Trần đẩy mỗi ngày",
+      "Gộp cảnh báo cùng gốc",
+      "Xem trước bản tin",
+      "Giá trị của chính sách và nguồn"
+    ],
+    "rule": "Chuông trong ứng dụng luôn nói thật: không thể tắt và không bị giờ yên tĩnh hay trần che; kênh gián đoạn chỉ cho Khẩn và Cần xử lý, giữ giờ yên tĩnh trừ Khẩn đã quá hạn nhận của loại cảnh báo được phép xuyên; việc Theo dõi chỉ vào bản tin; người dùng chỉ hạ được trần đẩy chứ không nâng quá chính sách; thông báo đẩy không có số tiền hay tên, chỉ có liên kết (R7); mọi giá trị mặc định ghi rõ chưa kiểm chứng (G2-5)",
+    "test_ids": [
+      "UI-NOT-18",
+      "UAT-PLAN-145",
+      "UAT-PLAN-146"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-NOT-013"
+    ]
+  },
+  {
+    "id": "BL-ADM-25",
+    "requirement": "FR-ADM-25",
+    "screen": "ADM-25",
+    "title": "Vắng mặt, người thay và độ phủ người nhận cảnh báo",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "HOME,NOT,ADM",
+    "fields": [
+      "Người vắng mặt",
+      "Loại và khoảng ngày vắng",
+      "Người thay",
+      "Phạm vi thay (mọi nguồn hoặc theo nguồn)",
+      "Trạng thái đề nghị thay",
+      "Người cho phép",
+      "Tình trạng độ phủ (đủ, một phần, chưa có)",
+      "Chức danh chỉ có một người hoặc không ai",
+      "Khoảng trống đang mở"
+    ],
+    "rule": "Người thay có thời hạn không quá max_cover_days của ABSENCE_POLICY, không vòng, không sâu quá max_chain_depth, hạng không thấp hơn người vắng; người cho phép là người thứ ba (không phải người đề nghị, người vắng hay người thay); người thay chỉ nhận cảnh báo, không nhận thẩm quyền (quyền duyệt đi qua ủy quyền ADM); người vắng không có người thay quá số giờ làm việc thì thành khoảng trống, cảnh báo của họ rơi lên lãnh đạo trực tiếp và vào chỉ số cảnh báo mồ côi; mọi thay đổi ghi nhật ký ADM-11 (G2-7)",
+    "test_ids": [
+      "UI-ADM-25",
+      "UAT-PLAN-147",
+      "UAT-PLAN-148"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-ADM-026"
+    ]
   }
 ]

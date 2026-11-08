@@ -204,3 +204,13 @@ Consumer: `snapshot.frozen.v1` → làm mới cache `t:{tenant}:home:cc:{snapsho
 | BI owner: `drill_context` (BI) và HOME token phải dùng chung chuẩn ký/kiểm scope | BI owner | Thống nhất thư viện DrillContext |
 | MOB-07 cần hai tỷ lệ + as_of | MOB owner | Cập nhật screen MOB-07 |
 | [CXN-03], [CXN-33] như DIS/PRJ | Chủ nghiệp vụ vốn | Xem DIS.md, PRJ.md |
+
+## 14. Quản trị hệ thống cảnh báo: sức khỏe, leo thang, độ phủ (làn GOV-9a, G2-3, G2-5, G2-7, G2-10)
+
+Nguồn: `docs/governance-roadmap-10of10.md` G2-3, G2-5, G2-7, G2-10; nghiên cứu cảnh báo mục A2, A4, A6, A8; quy trình và quy tắc chi tiết ở `docs/alert-governance.md`. Mọi con số là giá trị khởi điểm của nghiên cứu, **chưa kiểm chứng**, đọc qua `GovernancePolicyPort` (loại quy tắc `ESCALATION_POLICY`, `ABSENCE_POLICY`, `ALERT_NOTIFY_POLICY`, `ALERT_HEALTH_TARGETS`, mã `DEFAULT`), có nguồn, công thức, ngày áp dụng; màn hình ghi nhãn "mặc định, chưa xác nhận".
+
+**HOME-13 Sức khỏe hệ thống cảnh báo** (`getAlertHealth`, `getAlertCoverageReport`): mười bốn chỉ số của chính hệ thống cảnh báo tính từ `alert_item_trace` (job `alert-escalation` ghi mỗi 15 phút), `alert_notification_log`, `alert_routing_gap` và độ phủ chức danh. Mỗi chỉ số một công thức, một nguồn, một ngưỡng, một trạng thái (OK, WATCH trong vòng một phần năm ngoài ngưỡng, BREACH, NO_DATA, NO_SOURCE); số không tính được hiện là không có dữ liệu hoặc chưa có nguồn kèm lý do, không bao giờ hiện 0; thời gian nhận và xử lý tính bằng giờ làm việc trên lịch đã công bố, trừ thời gian dừng đồng hồ. Bảng: MTTA, MTTR, đúng hạn, leo thang, leo tới cấp cuối, cảnh báo mỗi người mỗi ngày (phân vị 90), đẩy mỗi người mỗi ngày, ngoài giờ yên tĩnh không có ngoại lệ, tồn cũ (7 và 30 ngày), tỷ trọng mười loại nhiều nhất, tỷ lệ hoãn theo loại, cảnh báo mồ côi và thời gian chuyển người, giao nhận Khẩn (chưa có biên nhận, chờ G2-6), độ phủ người thay. Người xem chỉ thấy các đơn vị trong phạm vi quyền `home.alert.health.read`; job ghi quá hai lượt chạy thì trang ghi "Số liệu cũ".
+
+**Trung tâm cảnh báo** có thêm hai nguồn: `ESCALATION` (việc được chuyển lên người xem, loại cảnh báo `ESCALATED_ITEM`) và `COVERAGE` (khoảng trống người nhận cho người quản lý ủy quyền, loại `COVERAGE_GAP`); thẻ việc có `escalation` lấy từ chuỗi leo thang (người nhận việc, rồi từng cấp ghi chức năng hay thứ bậc), `on_behalf_of` khi người xem nhận thay, `promoted_from` khi việc Theo dõi được nâng một bậc (lý do `WATCH_AGED`).
+
+Lỗi: `ALERT_ESCALATION_STATE_INVALID` (409). Job: `alert-escalation` và `alert-coverage` (15 phút, idempotent, có khóa chuỗi cho từng dòng).
