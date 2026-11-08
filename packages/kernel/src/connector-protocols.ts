@@ -286,10 +286,13 @@ export function egressVerdict(input: { connectorCode: string; protocol: string; 
  * once one does). It holds no client and imports nothing that opens a connection.
  */
 export class RefusingProtocolAdapter implements InboundProtocolPort, OutboundProtocolPort {
-  constructor(
-    readonly protocol: string,
-    private readonly reason: 'EGRESS_EXCEPTION_REQUIRED' | 'ADAPTER_NOT_IMPLEMENTED',
-  ) {}
+  readonly protocol: string;
+  private readonly reason: 'EGRESS_EXCEPTION_REQUIRED' | 'ADAPTER_NOT_IMPLEMENTED';
+
+  constructor(protocol: string, reason: 'EGRESS_EXCEPTION_REQUIRED' | 'ADAPTER_NOT_IMPLEMENTED') {
+    this.protocol = protocol;
+    this.reason = reason;
+  }
 
   private failure(): DomainError {
     return new DomainError('HUB_PROTOCOL_UNAVAILABLE', 503, 'protocol', { extensions: { protocol: this.protocol, reason: this.reason } });
@@ -455,11 +458,15 @@ export class FileDropAdapter implements InboundProtocolPort {
   private arrival: ArrivalState = { seen: new Map() };
   readonly rejected: Array<{ name: string; reason: 'CHECKSUM_MISMATCH' | 'NOT_IN_MANIFEST' | 'LAYOUT_INVALID' }> = [];
 
-  constructor(
-    private readonly folder: DropFolder,
-    private readonly layout: FileLayout,
-    private readonly options: { stablePolls?: number; manifestName?: string; requireManifest?: boolean } = {},
-  ) {}
+  private readonly folder: DropFolder;
+  private readonly layout: FileLayout;
+  private readonly options: { stablePolls?: number; manifestName?: string; requireManifest?: boolean };
+
+  constructor(folder: DropFolder, layout: FileLayout, options: { stablePolls?: number; manifestName?: string; requireManifest?: boolean } = {}) {
+    this.folder = folder;
+    this.layout = layout;
+    this.options = options;
+  }
 
   async extract(request: ExtractRequest): Promise<ExtractBatch> {
     const manifestName = this.options.manifestName ?? 'MANIFEST.sha256';
@@ -547,7 +554,11 @@ export class WebhookInboundAdapter implements InboundProtocolPort {
   private readonly seen = new Set<string>();
   private queue: Array<{ key: string; fields: Record<string, SourceValue> }> = [];
 
-  constructor(private readonly options: { secret: string; toleranceSeconds: number; now: () => Date }) {}
+  private readonly options: { secret: string; toleranceSeconds: number; now: () => Date };
+
+  constructor(options: { secret: string; toleranceSeconds: number; now: () => Date }) {
+    this.options = options;
+  }
 
   receive(delivery: WebhookDelivery): WebhookVerdict {
     const verdict = verifyWebhook(delivery, { secret: this.options.secret, now: this.options.now(), toleranceSeconds: this.options.toleranceSeconds, seenKeys: this.seen });
@@ -586,7 +597,11 @@ export class WebhookInboundAdapter implements InboundProtocolPort {
 export class GeneratorAdapter {
   readonly protocol = 'GENERATOR';
 
-  constructor(private readonly produce: (input: Readonly<Record<string, unknown>>) => Uint8Array) {}
+  private readonly produce: (input: Readonly<Record<string, unknown>>) => Uint8Array;
+
+  constructor(produce: (input: Readonly<Record<string, unknown>>) => Uint8Array) {
+    this.produce = produce;
+  }
 
   generate(input: Readonly<Record<string, unknown>>): { bytes: Uint8Array; sha256: string } {
     const bytes = this.produce(input);
@@ -600,12 +615,15 @@ export class GeneratorAdapter {
 
 /** A scripted source for HTTPS_REST, SOAP_XML, SFTP, DB_READ, MESSAGE_QUEUE and EMAIL_INBOX: records in order, each with a position; `extract` gives the ones after the watermark (all of them for a full snapshot). */
 export class InMemorySourceFake implements InboundProtocolPort {
-  constructor(
-    readonly protocol: string,
-    private readonly rows: readonly SourceRecord[],
-    private readonly pageSize = 100,
-  ) {
+  readonly protocol: string;
+  private readonly rows: readonly SourceRecord[];
+  private readonly pageSize: number;
+
+  constructor(protocol: string, rows: readonly SourceRecord[], pageSize = 100) {
     if (!REGISTRY.has(protocol)) throw new Error(`unknown protocol ${protocol}`);
+    this.protocol = protocol;
+    this.rows = rows;
+    this.pageSize = pageSize;
   }
 
   async extract(request: ExtractRequest): Promise<ExtractBatch> {
@@ -620,7 +638,11 @@ export class InMemorySinkFake implements OutboundProtocolPort {
   readonly sent: OutboundMessage[] = [];
   private readonly receipts = new Map<string, string>();
 
-  constructor(readonly protocol: string) {}
+  readonly protocol: string;
+
+  constructor(protocol: string) {
+    this.protocol = protocol;
+  }
 
   async send(message: OutboundMessage): Promise<{ receipt: string }> {
     const known = this.receipts.get(message.idempotencyKey);
