@@ -2834,3 +2834,65 @@ export type { SeedOptions } from './committee-seed.ts';
 export { COMMITTEE_PACK_TEXT } from './messages/committee-texts.ts';
 export { COMMITTEE_PACK_CODE, COMMITTEE_PACK_FORM_REF, COMMITTEE_PACK_INDICATORS, COMMITTEE_PACK_LAYOUT, COMMITTEE_PACK_SHEET, COMMITTEE_PACK_VERSION, packDatasetsOf, packFeedLine } from './committee-pack-form.ts';
 export type { PackDirectiveUnit } from './committee-pack-form.ts';
+export {
+  CITATION_ID,
+  DOCUMENT_CLASSES,
+  FORMAT_MIME,
+  MAX_COMMENT_LENGTH,
+  MAX_UNITS_PER_VERSION,
+  REPOSITORY_FORMATS,
+  SECURITY_CLASSES,
+  UNIT_KINDS,
+  VERSION_STATUSES as DOCUMENT_VERSION_STATUSES,
+  assertSubmittable,
+  assertVersionMove,
+  assertVersionNotLocked,
+  calendarDateOf,
+  citationIdOf,
+  citationRefOf,
+  commentInputOf,
+  documentClassOf,
+  effectivePeriodOf,
+  effectiveStateOn,
+  extractionStatusOf,
+  isVersionLocked,
+  locatorKeyOf,
+  locatorLabelOf,
+  nextVersionStatuses,
+  normaliseExtraction,
+  parseCitationRef,
+  projectDocumentChangeOf,
+  projectDocumentInputOf,
+  repositoryFormatOf,
+} from './doc-repository.ts';
+export type {
+  CommentInput,
+  DocumentClass,
+  EffectiveState,
+  ExtractedUnit,
+  ExtractionStatus,
+  ProjectDocumentChange,
+  ProjectDocumentInput,
+  RepositoryFormat,
+  SecurityClass,
+  TextUnit,
+  UnitBox,
+  UnitKind,
+  UnitLocator,
+  VersionStatus as DocumentVersionStatus,
+} from './doc-repository.ts';
+export { MAX_COMPARE_CELLS, PAIRING_SIMILARITY, compareUnits, wordDiff, wordSimilarity } from './doc-compare.ts';
+export type { CompareEntry, CompareOp, CompareResult, CompareSummary, CompareUnit, WordSegment } from './doc-compare.ts';
+export {
+  DOCUMENT_REVIEW_BUSINESS_TYPE,
+  DOCUMENT_REVIEW_RESOURCE,
+  MAX_REVIEW_NOTE,
+  REVIEW_EVENT_KINDS,
+  REVIEW_STATUSES as DOCUMENT_REVIEW_STATUSES,
+  assertWithdrawable,
+  planSubmission,
+  reviewBoardOf,
+  reviewEndOf,
+  reviewNoteOf,
+} from './doc-review.ts';
+export type { BoardInstance, BoardStage, BoardStep, BoardTask, ReviewEnd, ReviewEventKind, ReviewStatus as DocumentReviewStatus, ReviewerState, StageState, SubmissionFacts, SubmissionPlan, WorkflowEnd } from './doc-review.ts';

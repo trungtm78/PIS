@@ -23,6 +23,7 @@ export const BUSINESS_TYPES: readonly BusinessTypeSpec[] = [
   { code: 'payment.approve', documentType: 'PAYMENT_APPROVE', commands: { APPROVED: 'approvePaymentRequest', RETURNED: 'returnPaymentRequest', REJECTED: 'rejectPaymentRequest' }, ownerModule: 'PAY', enabledByDefault: false },
   { code: 'contract.change', documentType: 'CONTRACT_CHANGE', commands: { APPROVED: 'approveContractChange', RETURNED: 'returnContractChange', REJECTED: 'rejectContractChange' }, ownerModule: 'CTR', enabledByDefault: false },
   { code: 'period.reopen', documentType: 'PERIOD_REOPEN', commands: { APPROVED: 'reopenPeriod', RETURNED: 'returnPeriodReopen', REJECTED: 'rejectPeriodReopen' }, ownerModule: 'DIS', enabledByDefault: false },
+  { code: 'document.review', documentType: 'DOCUMENT_REVIEW', commands: { APPROVED: 'approveDocumentReview', RETURNED: 'requestDocumentSupplement', REJECTED: 'rejectDocumentReview' }, ownerModule: 'DOC', enabledByDefault: false },
 ];
 
 export const businessTypeOf = (code: string): BusinessTypeSpec | undefined => BUSINESS_TYPES.find((type) => type.code === code);
