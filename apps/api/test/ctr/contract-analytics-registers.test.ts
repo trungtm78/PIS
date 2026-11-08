@@ -95,7 +95,7 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
     ];
     if (patch.guarantee !== undefined) {
       statements.push([
-        `insert into machvon.guarantee (tenant_id, id, contract_id, kind, issuer, amount_vnd, expires_at, verification_status, status, guarantee_no, valid_from, created_by, updated_by, verified_by, verified_at, verification_method, evidence_document_version_id)
+        `insert into machvon.guarantee (tenant_id, id, contract_id, kind, issuer, amount_vnd, expires_at, verification_status, status, guarantee_no, valid_from, created_by, updated_by, verified_by, verified_at, verification_method, verification_evidence_id)
          values ($1, $2, $3, 'PERFORMANCE', 'Bank', $4, (now() + make_interval(days => 300)), 'VERIFIED', 'ACTIVE', $5, date '2026-01-02', $6, $6, $7, now(), 'ISSUER_CONFIRMATION', $8)`,
         [TENANT_A, randomUUID(), contractId, patch.guarantee, `BL-${code}`, memberId(ADMIN), memberId(NO_LEDGER), decision],
       ]);
