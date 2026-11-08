@@ -1803,3 +1803,5 @@ export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore
 export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
 export { AnaOutlookStore } from './ana-outlook-store.ts';
 export type { OutlookPlanBasis, OutlookPolicy, OutlookSeries } from './ana-outlook-store.ts';
+export { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE } from './ana-decision-store.ts';
+export type { DecisionFilter, DecisionPolicyReading, DecisionRow, NewDecision, OutcomeRow } from './ana-decision-store.ts';

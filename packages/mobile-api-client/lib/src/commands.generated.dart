@@ -1096,6 +1096,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getAnalyticsCertificationLog({required String subject, required String key, Map<String, Object?>? query}) =>
       execute('getAnalyticsCertificationLog', path: <String, Object?>{'subject': subject, 'key': key}, query: query);
 
+  Future<Object?> getAnalyticsDecision({required String id, Map<String, Object?>? query}) =>
+      execute('getAnalyticsDecision', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getAuditEngagement({required String id, Map<String, Object?>? query}) =>
       execute('getAuditEngagement', path: <String, Object?>{'id': id}, query: query);
 
@@ -2344,6 +2347,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAnalyticsCertifications({Map<String, Object?>? query}) =>
       execute('listAnalyticsCertifications', query: query);
 
+  Future<Object?> listAnalyticsDecisions({Map<String, Object?>? query}) =>
+      execute('listAnalyticsDecisions', query: query);
+
   Future<Object?> listAppropriations({Map<String, Object?>? query}) =>
       execute('listAppropriations', query: query);
 
@@ -3372,6 +3378,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> recordAiDecision(LlmDecisionRecord body, {CommandAttempt? attempt}) =>
       execute('recordAiDecision', body: body, attempt: attempt);
+
+  Future<Object?> recordAnalyticsDecision(RecordAnalyticsDecision body, {CommandAttempt? attempt}) =>
+      execute('recordAnalyticsDecision', body: body, attempt: attempt);
+
+  Future<Object?> recordAnalyticsDecisionOutcome(RecordAnalyticsDecisionOutcome body, {required String id, CommandAttempt? attempt}) =>
+      execute('recordAnalyticsDecisionOutcome', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
   Future<Object?> recordAttentionDecision(CommitteeAttentionDecide body, {CommandAttempt? attempt}) =>
       execute('recordAttentionDecision', body: body, attempt: attempt);

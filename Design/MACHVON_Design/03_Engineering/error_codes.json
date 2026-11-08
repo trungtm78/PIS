@@ -6907,6 +6907,14 @@
       "module": "PRJ",
       "statusBasis": "spec",
       "source": "spec:PRJ"
+    },
+    "ANALYTICS_DECISION_SUPERSEDED": {
+      "status": 409,
+      "title": "Decision superseded",
+      "meaning": "Quyết định đã được thay thế bằng quyết định khác nên không ghi thêm kết quả",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
     }
   }
 }

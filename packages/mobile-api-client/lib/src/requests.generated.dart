@@ -13374,6 +13374,91 @@ final class ReasonOnly implements RequestModel {
       };
 }
 
+final class RecordAnalyticsDecision implements RequestModel {
+  const RecordAnalyticsDecision({
+    required this.subject,
+    required this.kind,
+    required this.reason,
+    this.followUp,
+  });
+
+  final RecordAnalyticsDecisionSubject subject;
+  final String kind;
+  final String reason;
+  final RecordAnalyticsDecisionFollowUp? followUp;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'subject': subject,
+        'kind': kind,
+        'reason': reason,
+        if (followUp != null) 'follow_up': followUp,
+      };
+}
+
+final class RecordAnalyticsDecisionFollowUp implements RequestModel {
+  const RecordAnalyticsDecisionFollowUp({
+    required this.dueOn,
+    this.ownerId,
+  });
+
+  final String dueOn;
+  final String? ownerId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'due_on': dueOn,
+        if (ownerId != null) 'owner_id': ownerId,
+      };
+}
+
+final class RecordAnalyticsDecisionOutcome implements RequestModel {
+  const RecordAnalyticsDecisionOutcome({
+    required this.outcome,
+    required this.note,
+    this.supersededBy,
+  });
+
+  final String outcome;
+  final String note;
+  final String? supersededBy;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'note': note,
+        if (supersededBy != null) 'superseded_by': supersededBy,
+      };
+}
+
+final class RecordAnalyticsDecisionSubject implements RequestModel {
+  const RecordAnalyticsDecisionSubject({
+    required this.kind,
+    this.metricCode,
+    this.unitId,
+    this.source,
+    this.sourceId,
+    this.title,
+  });
+
+  final String kind;
+  final String? metricCode;
+  final String? unitId;
+  final String? source;
+  final String? sourceId;
+  final String? title;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        if (metricCode != null) 'metric_code': metricCode,
+        if (unitId != null) 'unit_id': unitId,
+        if (source != null) 'source': source,
+        if (sourceId != null) 'source_id': sourceId,
+        if (title != null) 'title': title,
+      };
+}
+
 final class RedFlagReason implements RequestModel {
   const RedFlagReason({
     required this.reason,
