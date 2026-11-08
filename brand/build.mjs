@@ -6,6 +6,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MARK_PALETTES } from '../apps/web/src/brand/palettes.ts';
 import { MARK, markElements } from '../apps/web/src/pwa/icon-art.ts';
 import { loadFont, textPath } from './font-paths.mjs';
 
@@ -22,6 +23,16 @@ const fonts = { bold: loadFont(fontFile('Bold')), semi: loadFont(fontFile('SemiB
 /** The wordmark is the Vietnamese name of the capital flow behind the internal code name MACHVON. */
 const WORDMARK = 'MẠCH VỐN';
 
+/** The colours come from the web source (apps/web/src/brand/palettes.ts), the one place both the product and these files read. */
+const dark = (id) => {
+  const p = MARK_PALETTES[id];
+  return { top: p.top, bottom: p.bottom, ...p.mark, background: p.tile, text: p.text.onDark, textSoft: p.text.onDarkSoft };
+};
+const light = (id) => {
+  const p = MARK_PALETTES[id];
+  return { ...p.onLight, text: p.text.onLight, textSoft: p.text.onLightSoft };
+};
+
 export const EDITIONS = {
   public: {
     id: 'public',
@@ -29,10 +40,8 @@ export const EDITIONS = {
     productName: 'Hệ thống quản lý đầu tư công',
     productNameEn: 'Public Investment Management System',
     tagline: 'Mạch vốn thông suốt, đầu tư công minh bạch',
-    // Colours on a dark ground (the tile, the sidebar, the film).
-    dark: { top: '#1B4A5B', bottom: '#0A2029', background: '#102E3B', barLow: '#C4D5DC', barMid: '#2FB5A8', barHigh: '#FFFFFF', accent: '#E0AA52', text: '#FFFFFF', textSoft: '#C4D5DC' },
-    // Colours of the bare mark on a light ground.
-    light: { background: '#FFFFFF', barLow: '#7EA2B1', barMid: '#007D77', barHigh: '#102E3B', accent: '#C98F2E', text: '#102E3B', textSoft: '#4C6571' },
+    dark: dark('public'),
+    light: light('public'),
   },
   enterprise: {
     id: 'enterprise',
@@ -40,8 +49,8 @@ export const EDITIONS = {
     productName: 'Phần mềm quản lý đầu tư xây dựng',
     productNameEn: 'Construction Investment Management Software',
     tagline: 'Vốn đến đúng công trình, việc đúng tiến độ',
-    dark: { top: '#16507A', bottom: '#061826', background: '#0F3B57', barLow: '#B9CFE0', barMid: '#27B7CF', barHigh: '#FFFFFF', accent: '#F28C3A', text: '#FFFFFF', textSoft: '#B9CFE0' },
-    light: { background: '#FFFFFF', barLow: '#6E93B0', barMid: '#0E8FA6', barHigh: '#0B2A44', accent: '#D9701C', text: '#0B2A44', textSoft: '#44607A' },
+    dark: dark('enterprise'),
+    light: light('enterprise'),
   },
 };
 
