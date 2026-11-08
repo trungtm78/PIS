@@ -9,6 +9,8 @@ import { routeById, routeByPath } from '../routes/registry';
 import { WEB_ROUTES } from '../routes/web-routes';
 import { useUnreadBadge } from '../screens/not/inbox/badge';
 import { useSession } from '../session/SessionContext';
+import { PortalFrame } from '../screens/vnd/portal/portal-frame';
+import { isPortalCaller } from '../screens/vnd/portal/portal-model';
 import { useAlertCounts } from '../ui/alerts';
 import { AppLibrary } from './AppLibrary';
 import type { LibraryScope } from './AppLibrary';
@@ -41,7 +43,16 @@ type Overlay = { kind: 'library'; scope: LibraryScope } | { kind: 'directory'; m
  * pin, and the content area where the routed screen renders. The markup follows the prototype's workspace shell so
  * its stylesheets apply unchanged.
  */
+/**
+ * The frame of the session: a contractor account (it holds the right to read the portal and none of the staff reading rights of the register) gets the reduced frame of the portal (VND-3), every other session the
+ * business frame. The two are separate components so that the hooks of the business frame are never called for a contractor.
+ */
 export function Shell() {
+  const { permissions } = useSession();
+  return isPortalCaller(permissions) ? <PortalFrame /> : <StaffShell />;
+}
+
+function StaffShell() {
   useFocusFirstInvalid();
   const { t } = useTranslation();
   const session = useSession();

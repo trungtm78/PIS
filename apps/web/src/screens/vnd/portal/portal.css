@@ -1,0 +1,42 @@
+/*
+ * VND-16 to VND-21, the contractor portal and its management. Tokens only; the kit and vnd.css draw the cards, tables, pills and dialogs.
+ * PORTAL LAYOUT RULES (design.md has none, so they are set here and held by the screen tests):
+ *   1. A contractor sees a reduced frame: its own legal name and tax code as the header ("Cong thong tin nha thau"), one navigation of the four portal destinations, nothing of the staff shell (no sidebar, no module menu, no alert bell, no search of other records).
+ *   2. Every screen says in the same place that only the data of the contractor's own company is shown (.portal-scope).
+ *   3. Plain language that addresses the contractor; never the words red flag, risk grade, lead, screening or another contractor; screens render from named fields only.
+ *   4. A refusal for the area is the denied state saying the area is for contractor accounts.
+ *   5. A state is said in words as well as by colour; a late answer is allowed and labelled as late; a command ends in a receipt with the time.
+ * Responsive: 360 to 1440 px, the page never scrolls sideways (tables scroll inside their card), targets at least 24 px, focus rings from the kit.
+ */
+
+.portal-frame { min-height: 100vh; background: var(--mv-color-background); color: var(--mv-color-ink); }
+.portal-frame__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--mv-space-8); padding: var(--mv-space-12) var(--mv-space-16); background: var(--mv-color-sidebar); color: var(--mv-color-menu-text); }
+.portal-frame__tenant { color: var(--mv-color-menu-muted); font-size: 14px; }
+.portal-frame__body { max-width: 1280px; margin: 0 auto; padding: var(--mv-space-16); }
+
+.portal-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--mv-space-8) var(--mv-space-12); margin-bottom: var(--mv-space-8); }
+.portal-identity__label { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.portal-identity strong { font-size: 18px; overflow-wrap: anywhere; }
+.portal-identity__tax { color: var(--mv-color-text-secondary); font-variant-numeric: tabular-nums; }
+
+.portal-nav { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin-bottom: var(--mv-space-8); }
+.portal-nav a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-pill); color: var(--mv-color-ink); text-decoration: none; background: var(--mv-color-surface); }
+.portal-nav a[aria-current='page'] { background: var(--mv-color-primary-soft); border-color: var(--mv-color-primary); font-weight: 600; }
+.portal-nav a:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+
+.portal-scope { margin: 0 0 var(--mv-space-12); color: var(--mv-color-text-secondary); font-size: 14px; }
+
+.portal-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: var(--mv-space-12); }
+.portal-links a { display: grid; gap: var(--mv-space-4); padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); color: var(--mv-color-ink); text-decoration: none; }
+.portal-links a:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.portal-links__count { font-size: 26px; font-variant-numeric: tabular-nums; }
+
+.portal-declaration { padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface2); white-space: pre-wrap; overflow-wrap: anywhere; }
+.portal-request { display: grid; gap: var(--mv-space-8); padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); }
+.portal-request + .portal-request { margin-top: var(--mv-space-12); }
+.portal-request__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--mv-space-8); }
+.portal-request__body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.portal-answer { padding: var(--mv-space-8) var(--mv-space-12); border-left: 3px solid var(--mv-color-primary); background: var(--mv-color-surface2); }
+.portal-late { color: var(--mv-color-warning); font-weight: 600; }
+.portal-plan + .portal-plan { margin-top: var(--mv-space-16); }
+.portal-timeline { margin: 0; padding-left: var(--mv-space-16); display: grid; gap: var(--mv-space-4); }

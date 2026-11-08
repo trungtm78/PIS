@@ -261,6 +261,8 @@ export interface CommandDialogProps {
   blocked?: (values: Values) => boolean;
   /** A dialog with a table or a list of rows in it takes more room. */
   wide?: boolean;
+  /** The words of a refusal when the module has codes of its own (the portal); the common words of the register otherwise. */
+  describeError?: (t: T, error: unknown) => string;
 }
 
 const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
@@ -269,7 +271,7 @@ const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), input:not([
  * The dialog of a command: names the record and the effect, asks the fields the request schema asks, keeps the button off until every field is acceptable, sends once, and says a refusal inside the dialog (an alert that is not
  * behind the backdrop). Escape cancels, Tab stays inside, and focus returns to where it was. A changed version offers to read the record again.
  */
-export function CommandDialog({ title, context, confirmLabel, fields, run, onClose, onDone, note, extra, danger = false, blocked, wide = false }: CommandDialogProps) {
+export function CommandDialog({ title, context, confirmLabel, fields, run, onClose, onDone, note, extra, danger = false, blocked, wide = false, describeError = errorText }: CommandDialogProps) {
   const { t } = useTranslation();
   const titleId = useId();
   const dialog = useRef<HTMLDivElement>(null);
@@ -381,7 +383,7 @@ export function CommandDialog({ title, context, confirmLabel, fields, run, onClo
           {extra?.(values)}
           {failure !== undefined && (
             <p className="ui-dialog__error" role="alert" data-testid="dialog-error" data-code={failureCode(failure) ?? ''}>
-              {errorText(t, failure)}
+              {describeError(t, failure)}
             </p>
           )}
           {failureCode(failure) === 'VERSION_CONFLICT' && (
