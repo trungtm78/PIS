@@ -146,7 +146,7 @@ test('an unknown lane is refused', async () => {
   const { root, cleanup } = scratch();
   try {
     await assert.rejects(runInLane('gpu', async () => 0, { root, ...FAST }), /unknown lane/);
-    assert.deepEqual([...LANES].sort(), ['browser', 'db', 'verify']);
+    assert.deepEqual([...LANES].sort(), ['browser', 'db', 'heavy1', 'heavy2', 'verify']);
   } finally {
     cleanup();
   }

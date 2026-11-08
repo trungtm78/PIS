@@ -17,9 +17,9 @@ export const HELD_ENV = 'MACHVON_LANE_HELD';
 
 /**
  * Lanes serialise the heavy test runs of this machine: `db` for suites that start PostgreSQL, `browser` for
- * Playwright, `verify` for the full gate set before a push. Light unit tests do not use a lane.
+ * Playwright, `verify` for the full gate set before a push, `heavy1` and `heavy2` for memory-hungry single runs (tsc, eslint of the repo, vitest, flutter) so that many agents do not exhaust the memory of the machine. Light unit tests do not use a lane.
  */
-export const LANES = new Set(['db', 'browser', 'verify']);
+export const LANES = new Set(['db', 'browser', 'verify', 'heavy1', 'heavy2']);
 
 function loadMessages(locale) {
   return JSON.parse(readFileSync(join(SCRIPT_DIR, 'messages', `${locale}.json`), 'utf8'));
