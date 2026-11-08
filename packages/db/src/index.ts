@@ -1791,3 +1791,8 @@ export { CONTRACT_ADJUSTMENT_RECORDED_EVENT, CONTRACT_ADJUSTMENT_RESOURCE, CONTR
 export type { AdjustmentRow, ReviewResult as AdjustmentReviewResult } from './ctr-adjustment-store.ts';
 export { CtrLinkageReads } from './ctr-linkage-reads.ts';
 export type { LinkageView as CtrLinkageView } from './ctr-linkage-reads.ts';
+// GOV-11 PRJ (G1-19): the look-ahead plans, the lessons learned and the waiver of them.
+export { LOOK_AHEAD_CONSTRAINT_RESOURCE, LOOK_AHEAD_ITEM_RESOURCE, LOOK_AHEAD_RESOURCE, PrjLookAheadStore, lookAheadRecord } from './prj-look-ahead-store.ts';
+export type { ConstraintView as LookAheadConstraintView, ItemView as LookAheadItemView, LookAheadPolicyReading, LookAheadView, PlanView as LookAheadPlanView } from './prj-look-ahead-store.ts';
+export { LESSON_RESOURCE, LESSON_WAIVER_RESOURCE, PrjLessonsStore } from './prj-lessons-store.ts';
+export type { LessonRow, LessonsPolicyReading, LessonsView, WaiverRow as LessonWaiverRow } from './prj-lessons-store.ts';
