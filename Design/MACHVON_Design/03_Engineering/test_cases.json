@@ -24624,5 +24624,360 @@
     "covers": [
       "FR-MNE-11"
     ]
+  },
+  {
+    "id": "UI-RPT-05",
+    "source": "FR-RPT-05",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Biểu mẫu báo cáo gửi Bộ Tài chính; người dùng có quyền và người dùng không có quyền; route RPT-05",
+    "steps": [
+      "Mở RPT-05 từ menu và deep link; kiểm nhãn trường: Mẫu (tuần, tháng, quý, năm), Trạng thái mẫu, Người nhận, Kỳ báo cáo, Bản phát hành mới nhất, Chữ ký số, Khóa kỳ",
+      "Thực hiện thao tác chính theo quy tắc: Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu mẫu chính thức: soạn và xem được nhưng không phát hành được; bản gửi người nhận cần chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-05"
+    ],
+    "expected": "Biểu mẫu báo cáo gửi Bộ Tài chính: hiển thị đúng các trường, áp quy tắc \"Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu mẫu chính thức: soạn và xem được nhưng không phát hành được; bản gửi người nhận cần chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-05"
+    ]
+  },
+  {
+    "id": "UI-RPT-06",
+    "source": "FR-RPT-06",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Khóa kỳ và chữ ký số báo cáo; người dùng có quyền và người dùng không có quyền; route RPT-06",
+    "steps": [
+      "Mở RPT-06 từ menu và deep link; kiểm nhãn trường: Mẫu và kỳ, Bản phát hành, Mã băm, Người ký và nhà cung cấp, Người khóa, Người mở khóa, Lý do mở khóa",
+      "Thực hiện thao tác chính theo quy tắc: Người duyệt ký số mã băm của bản phát hành qua cổng ký của DOC; kỳ bị khóa khi bản được ký (hoặc được nhận); kỳ khóa không nhận bản mới; mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-06"
+    ],
+    "expected": "Khóa kỳ và chữ ký số báo cáo: hiển thị đúng các trường, áp quy tắc \"Người duyệt ký số mã băm của bản phát hành qua cổng ký của DOC; kỳ bị khóa khi bản được ký (hoặc được nhận); kỳ khóa không nhận bản mới; mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UI-PRJ-30",
+    "source": "FR-PRJ-30",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ giám sát cộng đồng; người dùng có quyền và người dùng không có quyền; route PRJ-30",
+    "steps": [
+      "Mở PRJ-30 từ menu và deep link; kiểm nhãn trường: Dự án, Ngày phát sinh nghĩa vụ, Hạn thông báo, Trạng thái thông báo, Phản hồi đang mở, Phản hồi quá hạn, Trạng thái hồ sơ",
+      "Thực hiện thao tác chính theo quy tắc: Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-30"
+    ],
+    "expected": "Hồ sơ giám sát cộng đồng: hiển thị đúng các trường, áp quy tắc \"Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-30"
+    ]
+  },
+  {
+    "id": "UI-PRJ-31",
+    "source": "FR-PRJ-31",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết hồ sơ giám sát cộng đồng; người dùng có quyền và người dùng không có quyền; route PRJ-31",
+    "steps": [
+      "Mở PRJ-31 từ menu và deep link; kiểm nhãn trường: Gói hồ sơ thông báo, Tài liệu thiếu, Gửi thông báo, Phản hồi của cộng đồng, Hạn trả lời, Câu trả lời, Lịch sử xử lý",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-31"
+    ],
+    "expected": "Chi tiết hồ sơ giám sát cộng đồng: hiển thị đúng các trường, áp quy tắc \"Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-31"
+    ]
+  },
+  {
+    "id": "UI-PRJ-32",
+    "source": "FR-PRJ-32",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Quản trị cổng công khai; người dùng có quyền và người dùng không có quyền; route PRJ-32",
+    "steps": [
+      "Mở PRJ-32 từ menu và deep link; kiểm nhãn trường: Địa chỉ cổng, Đơn vị công bố, Bộ trường được phép, Giới hạn tần suất, Dự án đã công bố, Rút khỏi cổng, Xuất OC4IDS và lỗi theo trường bắt buộc",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-32"
+    ],
+    "expected": "Quản trị cổng công khai: hiển thị đúng các trường, áp quy tắc \"Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-32"
+    ]
+  },
+  {
+    "id": "UI-PRJ-33",
+    "source": "FR-PRJ-33",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng công khai đầu tư; người dùng có quyền và người dùng không có quyền; route PRJ-33",
+    "steps": [
+      "Mở PRJ-33 từ menu và deep link; kiểm nhãn trường: Đơn vị công bố và giấy phép, Danh sách dự án đã công bố, Chi tiết các trường được phép, Tải OC4IDS, Gửi tố giác ẩn danh, Xem trả lời bằng mã truy cập",
+      "Thực hiện thao tác chính theo quy tắc: Trang chỉ đọc, không có mã nội bộ, người dùng hay số liệu ngoài bộ trường được phép; có giới hạn tần suất theo khách mà không lưu địa chỉ; tố giác ẩn danh không lưu danh tính và trả mã truy cập một lần.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-33"
+    ],
+    "expected": "Cổng công khai đầu tư: hiển thị đúng các trường, áp quy tắc \"Trang chỉ đọc, không có mã nội bộ, người dùng hay số liệu ngoài bộ trường được phép; có giới hạn tần suất theo khách mà không lưu địa chỉ; tố giác ẩn danh không lưu danh tính và trả mã truy cập một lần.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-33"
+    ]
+  },
+  {
+    "id": "UI-AUD-17",
+    "source": "FR-AUD-17",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Thứ tự theo dõi kiến nghị kiểm toán của chủ đầu tư; người dùng có quyền và người dùng không có quyền; route AUD-17",
+    "steps": [
+      "Mở AUD-17 từ menu và deep link; kiểm nhãn trường: Chủ đầu tư, Thứ tự theo dõi, Quá hạn, Đang tranh luận, Còn mở, Số tiền còn phải thu, Vị trí trong xếp hạng giải ngân",
+      "Thực hiện thao tác chính theo quy tắc: Điểm = quá hạn, tranh luận, còn mở và số tiền còn phải thu nhân trọng số của quy tắc (chưa kiểm chứng); chỉ để ưu tiên theo dõi, không phải kết luận; không đổi thứ tự xếp hạng giải ngân và không chứa tín hiệu rủi ro mua sắm.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-17"
+    ],
+    "expected": "Thứ tự theo dõi kiến nghị kiểm toán của chủ đầu tư: hiển thị đúng các trường, áp quy tắc \"Điểm = quá hạn, tranh luận, còn mở và số tiền còn phải thu nhân trọng số của quy tắc (chưa kiểm chứng); chỉ để ưu tiên theo dõi, không phải kết luận; không đổi thứ tự xếp hạng giải ngân và không chứa tín hiệu rủi ro mua sắm.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-17"
+    ]
+  },
+  {
+    "id": "UI-AUD-18",
+    "source": "FR-AUD-18",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tố giác ẩn danh; người dùng có quyền và người dùng không có quyền; route AUD-18",
+    "steps": [
+      "Mở AUD-18 từ menu và deep link; kiểm nhãn trường: Loại tố giác, Trạng thái, Hạn xác nhận đã nhận, Hạn xử lý, Đơn vị được nêu, Luồng trao đổi với người tố giác, Kết luận gửi người tố giác",
+      "Thực hiện thao tác chính theo quy tắc: Báo cáo không có cột nào cho địa chỉ, thiết bị hay danh tính; người tố giác chỉ biết qua mã truy cập cấp một lần; người thuộc đơn vị được nêu không thấy báo cáo; giải quyết hoặc bác cần lời giải thích mà người tố giác đọc được.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-18"
+    ],
+    "expected": "Tố giác ẩn danh: hiển thị đúng các trường, áp quy tắc \"Báo cáo không có cột nào cho địa chỉ, thiết bị hay danh tính; người tố giác chỉ biết qua mã truy cập cấp một lần; người thuộc đơn vị được nêu không thấy báo cáo; giải quyết hoặc bác cần lời giải thích mà người tố giác đọc được.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-18"
+    ]
+  },
+  {
+    "id": "UI-AUD-19",
+    "source": "FR-AUD-19",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ quà tặng; người dùng có quyền và người dùng không có quyền; route AUD-19",
+    "steps": [
+      "Mở AUD-19 từ menu và deep link; kiểm nhãn trường: Người nhận, Người tặng, Giá trị ước tính, Ngày nhận và ngày kê khai, Trễ hạn kê khai, Cần xem xét, Kết quả (giữ, trả lại, nộp đơn vị)",
+      "Thực hiện thao tác chính theo quy tắc: Cờ trễ hạn, cần xem xét và được giữ tính theo quy tắc của ngày kê khai (chưa kiểm chứng); người xem xét khác người nhận; quà vượt mức giữ chỉ được trả lại hoặc nộp đơn vị; mọi kết quả có lời giải thích.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-19"
+    ],
+    "expected": "Sổ quà tặng: hiển thị đúng các trường, áp quy tắc \"Cờ trễ hạn, cần xem xét và được giữ tính theo quy tắc của ngày kê khai (chưa kiểm chứng); người xem xét khác người nhận; quà vượt mức giữ chỉ được trả lại hoặc nộp đơn vị; mọi kết quả có lời giải thích.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-19"
+    ]
+  },
+  {
+    "id": "UI-DOC-28",
+    "source": "FR-DOC-28",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tài liệu dự án theo trạng thái và transmittal; người dùng có quyền và người dùng không có quyền; route DOC-28",
+    "steps": [
+      "Mở DOC-28 từ menu và deep link; kiểm nhãn trường: Tài liệu và bản, Trạng thái (WIP, Shared, Published, Archive), Tác giả, Transmittal gần nhất, Người phải trả lời, Hạn xem xét, Quá hạn",
+      "Thực hiện thao tác chính theo quy tắc: Tài liệu chỉ được chia sẻ khi đã gửi transmittal xin ý kiến; chỉ công bố khi mọi người phải trả lời đã chấp thuận và người công bố không phải tác giả; Published và Archive không quay về WIP.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-28"
+    ],
+    "expected": "Tài liệu dự án theo trạng thái và transmittal: hiển thị đúng các trường, áp quy tắc \"Tài liệu chỉ được chia sẻ khi đã gửi transmittal xin ý kiến; chỉ công bố khi mọi người phải trả lời đã chấp thuận và người công bố không phải tác giả; Published và Archive không quay về WIP.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-28"
+    ]
+  },
+  {
+    "id": "UI-DOC-29",
+    "source": "FR-DOC-29",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết transmittal tài liệu; người dùng có quyền và người dùng không có quyền; route DOC-29",
+    "steps": [
+      "Mở DOC-29 từ menu và deep link; kiểm nhãn trường: Số hiệu và mục đích, Tài liệu kèm mã băm, Người nhận và hạn, Câu trả lời, Gia hạn một lần, Transmittal thay thế",
+      "Thực hiện thao tác chính theo quy tắc: Transmittal đã gửi không sửa; mã băm là bản người nhận đã xem; mỗi người nhận trả lời một lần; hạn dời một lần, về sau, có lý do; sửa sai bằng transmittal mới thay thế; hạn tính theo quy tắc của ngày gửi, chưa kiểm chứng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-29"
+    ],
+    "expected": "Chi tiết transmittal tài liệu: hiển thị đúng các trường, áp quy tắc \"Transmittal đã gửi không sửa; mã băm là bản người nhận đã xem; mỗi người nhận trả lời một lần; hạn dời một lần, về sau, có lý do; sửa sai bằng transmittal mới thay thế; hạn tính theo quy tắc của ngày gửi, chưa kiểm chứng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-29"
+    ]
+  },
+  {
+    "id": "UI-QMS-12",
+    "source": "FR-QMS-12",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ảnh hiện trường cần giải trình giữa các dự án; người dùng có quyền và người dùng không có quyền; route QMS-12",
+    "steps": [
+      "Mở QMS-12 từ menu và deep link; kiểm nhãn trường: Loại phát hiện, Hai ảnh và hai dự án, Khoảng cách và chênh lệch thời gian, Trạng thái xem xét, Lý do giải trình, Lịch sử",
+      "Thực hiện thao tác chính theo quy tắc: Cùng tệp hoặc cùng nơi cùng lúc ở hai dự án là tín hiệu để người giải trình, không kết luận ảnh giả; người chụp ảnh không tự giải trình; ngưỡng mét và phút đọc từ quy tắc, chưa kiểm chứng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-12"
+    ],
+    "expected": "Ảnh hiện trường cần giải trình giữa các dự án: hiển thị đúng các trường, áp quy tắc \"Cùng tệp hoặc cùng nơi cùng lúc ở hai dự án là tín hiệu để người giải trình, không kết luận ảnh giả; người chụp ảnh không tự giải trình; ngưỡng mét và phút đọc từ quy tắc, chưa kiểm chứng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-QMS-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3001",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An issued copy of a monthly report for the Ministry, approved by user C; a second user D; the signing port of the MOCK provider.",
+    "steps": [
+      "C starts the signature and completes it",
+      "Deliver the copy to the receiver MOF",
+      "Make a new copy of the same period",
+      "D unlocks the period with a short reason, then with a reason of enough length"
+    ],
+    "expected": "A MOCK signature is kept as a test signature: delivery to the Ministry is refused with REPORT_SIGNATURE_REQUIRED; with a real signature the period is locked, a new copy is refused PERIOD_LOCKED, the unlock by the locker is refused as self approval and by D with a reason it opens the period.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-05",
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3002",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A project with a monitoring file whose duty began on 2027-01-01; the rule of 45 days; officers O and R.",
+    "steps": [
+      "Read the file on day 46 without a notice",
+      "Send the notice without the schedule in the pack, then with the pack complete",
+      "Log a feedback, O answers it, O tries to close it, R closes it"
+    ],
+    "expected": "The notice is overdue from the day after 2027-02-15; the notice is refused until the pack holds the notice text, the project information and the schedule; a notice sent after the due day is late; O is refused as self approval and R closes the answer.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-30",
+      "FR-PRJ-31"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3003",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A tenant with a public project and a confidential project; the allowed fields without the budget; a visitor with no session.",
+    "steps": [
+      "Publish both projects",
+      "Read the public list and the OC4IDS export as the visitor",
+      "Allow the budget and publish again",
+      "Withdraw the record",
+      "Read as the visitor until the rate limit answers"
+    ],
+    "expected": "The confidential project is refused; the public answer holds only the allowed fields and no internal id; the export lists the required field that was not allowed instead of inventing it; the withdrawn record is gone at once; the limit answers 429 with Retry-After.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-32",
+      "FR-PRJ-33"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3004",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Two investor units with recommendations, one with an overdue one and money owed; a frozen disbursement ranking.",
+    "steps": [
+      "Read the standings",
+      "Read the profile of the first unit",
+      "Read the disbursement ranking"
+    ],
+    "expected": "The unit with more overdue, disputed and open recommendations and money owed comes first; its place in the disbursement ranking is shown beside it and the ranking is unchanged; no red flag appears.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-17"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3005",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A portal with the anonymous channel on; auditors A and B, B in the unit the report is about; a member M who received a gift of 3,000,000 dong.",
+    "steps": [
+      "A visitor submits a report and keeps the code",
+      "A acknowledges it, names the unit, replies",
+      "B opens the queue",
+      "The visitor reads the answer with the code",
+      "M declares the gift, A takes the review, A closes it as kept, then as returned"
+    ],
+    "expected": "No identity is stored; B does not see the report; the visitor reads the answer; the gift over the line is refused as kept and closed as returned by the reviewer who is not M.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-18",
+      "FR-AUD-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3006",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A project with two documents of DOC; an author U, a reviewer V and a publisher W.",
+    "steps": [
+      "U registers the documents and tries to share without a transmittal",
+      "U sends a transmittal for review to V",
+      "V answers with comments",
+      "U tries to publish, then W publishes",
+      "U extends a due day twice"
+    ],
+    "expected": "Sharing is refused until the transmittal is sent; the answer is given once; the author is refused as self approval and W publishes; the due day moves once.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-28",
+      "FR-DOC-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3007",
+    "source": "GOV-12",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The same photo file registered in two projects and two photos of one place within ten minutes in two projects; an uploader U and an auditor A.",
+    "steps": [
+      "A scans",
+      "A scans again",
+      "U tries to explain the pair",
+      "A takes the pair and explains it with a reason"
+    ],
+    "expected": "Each pair is written once; the second scan adds nothing; U is refused as self approval; the explanation is kept with its reason and the pair stays a signal, not a conclusion.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-QMS-12"
+    ]
   }
 ]

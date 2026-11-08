@@ -7043,6 +7043,190 @@
       "module": "MNE",
       "statusBasis": "spec",
       "source": "spec:MNE"
+    },
+    "MONITORING_NOTICE_NOT_STARTED": {
+      "status": 409,
+      "title": "Monitoring notice not started",
+      "meaning": "Hồ sơ giám sát cộng đồng chưa có ngày phát sinh nghĩa vụ thông báo nên chưa thể gửi thông báo",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_NOTICE_ALREADY_SENT": {
+      "status": 409,
+      "title": "Monitoring notice already sent",
+      "meaning": "Thông báo giám sát cộng đồng đã được gửi; không đổi thông báo hoặc gói hồ sơ của ngày gửi",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_PACK_INCOMPLETE": {
+      "status": 422,
+      "title": "Monitoring pack incomplete",
+      "meaning": "Gói hồ sơ chưa đủ các tài liệu bắt buộc (văn bản thông báo, thông tin dự án, tiến độ) nên chưa gửi được thông báo",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_FEEDBACK_STATE_INVALID": {
+      "status": 409,
+      "title": "Monitoring feedback state invalid",
+      "meaning": "Phản hồi của cộng đồng không đi được bước này từ trạng thái hiện tại",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_FILE_CLOSED": {
+      "status": 409,
+      "title": "Monitoring file closed",
+      "meaning": "Hồ sơ giám sát cộng đồng đã đóng; không nhận thêm thay đổi",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_TRIGGER_SET": {
+      "status": 409,
+      "title": "Monitoring trigger already set",
+      "meaning": "Ngày phát sinh nghĩa vụ thông báo đã đặt và không đổi tại chỗ",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_PACK_DUPLICATE": {
+      "status": 409,
+      "title": "Monitoring pack item duplicate",
+      "meaning": "Tài liệu đã có trong gói hồ sơ giám sát, hoặc mục đã được rút",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MONITORING_FEEDBACK_OPEN": {
+      "status": 409,
+      "title": "Monitoring feedback still open",
+      "meaning": "Còn phản hồi của cộng đồng chưa được trả lời nên chưa đóng hồ sơ",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "TRANSMITTAL_STATE_INVALID": {
+      "status": 409,
+      "title": "Transmittal state invalid",
+      "meaning": "Tài liệu hoặc transmittal không đi được bước này từ trạng thái hiện tại",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "TRANSMITTAL_REQUIRED": {
+      "status": 422,
+      "title": "Transmittal required",
+      "meaning": "Tài liệu chỉ được chia sẻ khi đã có transmittal xin ý kiến gửi đi",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "TRANSMITTAL_NOT_APPROVED": {
+      "status": 422,
+      "title": "Transmittal not approved",
+      "meaning": "Tài liệu chưa được mọi người phải trả lời chấp thuận nên chưa công bố",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "TRANSMITTAL_DOCUMENT_CHANGED": {
+      "status": 409,
+      "title": "Transmittal document changed",
+      "meaning": "Tài liệu đã đổi nội dung kể từ khi đăng ký; đăng ký lại thành bản mới trước khi gửi",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "PORTAL_NOT_PUBLISHABLE": {
+      "status": 422,
+      "title": "Project not publishable",
+      "meaning": "Dự án không được đưa lên cổng công khai (không ở mức công khai hoặc còn ở giai đoạn ý tưởng, bị từ chối, bị hủy)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PORTAL_NOT_CONFIGURED": {
+      "status": 409,
+      "title": "Portal not configured",
+      "meaning": "Cổng công khai chưa được thiết lập địa chỉ và thông tin đơn vị công bố",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PORTAL_SLUG_TAKEN": {
+      "status": 409,
+      "title": "Portal address taken",
+      "meaning": "Địa chỉ cổng công khai đã thuộc về đơn vị khác",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PORTAL_RECORD_WITHDRAWN": {
+      "status": 409,
+      "title": "Portal record withdrawn",
+      "meaning": "Bản ghi công khai đã được rút khỏi cổng",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "REPORT_SIGNATURE_REQUIRED": {
+      "status": 422,
+      "title": "Report signature required",
+      "meaning": "Bản báo cáo gửi người nhận này phải có chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính",
+      "module": "RPT",
+      "statusBasis": "spec",
+      "source": "spec:RPT"
+    },
+    "PERIOD_LOCK_NOT_FOUND": {
+      "status": 404,
+      "title": "Period lock not found",
+      "meaning": "Kỳ báo cáo không có khóa đang hiệu lực để mở",
+      "module": "RPT",
+      "statusBasis": "spec",
+      "source": "spec:RPT"
+    },
+    "WHISTLE_STATE_INVALID": {
+      "status": 409,
+      "title": "Whistle report state invalid",
+      "meaning": "Tố giác không đi được bước này từ trạng thái hiện tại",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "WHISTLE_HANDLER_INVOLVED": {
+      "status": 403,
+      "title": "Whistle handler involved",
+      "meaning": "Người xử lý thuộc đơn vị mà tố giác nói tới nên không được xử lý",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "GIFT_OUTCOME_REFUSED": {
+      "status": 422,
+      "title": "Gift outcome refused",
+      "meaning": "Món quà vượt mức được giữ nên chỉ được trả lại hoặc nộp cho đơn vị",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "GIFT_STATE_INVALID": {
+      "status": 409,
+      "title": "Gift state invalid",
+      "meaning": "Món quà không đi được bước này từ trạng thái hiện tại",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "PHOTO_FINDING_STATE_INVALID": {
+      "status": 409,
+      "title": "Photo finding state invalid",
+      "meaning": "Phát hiện về ảnh hiện trường không đi được bước này từ trạng thái hiện tại",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
     }
   }
 }

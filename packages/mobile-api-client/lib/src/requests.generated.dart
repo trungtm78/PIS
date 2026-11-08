@@ -55,6 +55,25 @@ final class ActingRequestCreate implements RequestModel {
       };
 }
 
+final class AddMonitoringPackItem implements RequestModel {
+  const AddMonitoringPackItem({
+    required this.item,
+    required this.documentId,
+    required this.documentKind,
+  });
+
+  final String item;
+  final String documentId;
+  final String documentKind;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'item': item,
+        'document_id': documentId,
+        'document_kind': documentKind,
+      };
+}
+
 final class AiAssistDecisionRequest implements RequestModel {
   const AiAssistDecisionRequest({
     required this.decision,
@@ -527,6 +546,22 @@ final class AnalyticsCertificationTransition implements RequestModel {
       };
 }
 
+final class AnswerDocTransmittal implements RequestModel {
+  const AnswerDocTransmittal({
+    required this.answer,
+    this.comment,
+  });
+
+  final String answer;
+  final String? comment;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'answer': answer,
+        if (comment != null) 'comment': comment,
+      };
+}
+
 final class ApprovalDecision implements RequestModel {
   const ApprovalDecision({
     required this.decision,
@@ -549,6 +584,19 @@ final class ApprovalDecision implements RequestModel {
         if (evidenceIds != null) 'evidence_ids': evidenceIds,
         if (signatureRef != null) 'signature_ref': signatureRef,
         if (returnToStep != null) 'return_to_step': returnToStep,
+      };
+}
+
+final class AssignWhistleSubject implements RequestModel {
+  const AssignWhistleSubject({
+    required this.unitId,
+  });
+
+  final Object unitId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_id': unitId,
       };
 }
 
@@ -2763,6 +2811,22 @@ final class ChannelLimits implements RequestModel {
       };
 }
 
+final class CloseGift implements RequestModel {
+  const CloseGift({
+    required this.outcome,
+    required this.note,
+  });
+
+  final String outcome;
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'note': note,
+      };
+}
+
 final class CloseProjectHalt implements RequestModel {
   const CloseProjectHalt({
     required this.outcome,
@@ -4490,6 +4554,37 @@ final class Decision implements RequestModel {
         'decision': decision,
         'reason': reason,
         'evidence_ids': evidenceIds,
+      };
+}
+
+final class DeclareGift implements RequestModel {
+  const DeclareGift({
+    required this.recipientId,
+    required this.giverName,
+    required this.giverKind,
+    required this.description,
+    required this.valueVnd,
+    required this.receivedOn,
+    this.projectId,
+  });
+
+  final String recipientId;
+  final String giverName;
+  final String giverKind;
+  final String? projectId;
+  final String description;
+  final String valueVnd;
+  final String receivedOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'recipient_id': recipientId,
+        'giver_name': giverName,
+        'giver_kind': giverKind,
+        if (projectId != null) 'project_id': projectId,
+        'description': description,
+        'value_vnd': valueVnd,
+        'received_on': receivedOn,
       };
 }
 
@@ -7073,6 +7168,25 @@ final class ExportDatasetSet implements RequestModel {
       };
 }
 
+final class ExtendDocTransmittal implements RequestModel {
+  const ExtendDocTransmittal({
+    required this.recipientId,
+    required this.dueOn,
+    required this.reason,
+  });
+
+  final String recipientId;
+  final String dueOn;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'recipient_id': recipientId,
+        'due_on': dueOn,
+        'reason': reason,
+      };
+}
+
 final class FeatureFlagUpdate implements RequestModel {
   const FeatureFlagUpdate({
     required this.status,
@@ -7440,6 +7554,19 @@ final class FundingLine implements RequestModel {
         if (nextMonthVnd != null) 'next_month_vnd': nextMonthVnd,
         if (nextMonthCtmtqgSubsetVnd != null) 'next_month_ctmtqg_subset_vnd': nextMonthCtmtqgSubsetVnd,
         if (sourceYear != null) 'source_year': sourceYear,
+      };
+}
+
+final class Gov12Reason implements RequestModel {
+  const Gov12Reason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
       };
 }
 
@@ -9614,6 +9741,34 @@ final class LndStartEnforcement implements RequestModel {
       };
 }
 
+final class LogMonitoringFeedback implements RequestModel {
+  const LogMonitoringFeedback({
+    required this.reference,
+    required this.receivedOn,
+    required this.channel,
+    required this.topic,
+    required this.summary,
+    this.fromLabel,
+  });
+
+  final String reference;
+  final String receivedOn;
+  final String channel;
+  final String topic;
+  final String? fromLabel;
+  final String summary;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reference': reference,
+        'received_on': receivedOn,
+        'channel': channel,
+        'topic': topic,
+        if (fromLabel != null) 'from_label': fromLabel,
+        'summary': summary,
+      };
+}
+
 final class MachineAccountCreate implements RequestModel {
   const MachineAccountCreate({
     required this.name,
@@ -10430,6 +10585,70 @@ final class MneReportEdit implements RequestModel {
       };
 }
 
+final class MoveDocContainer implements RequestModel {
+  const MoveDocContainer({
+    required this.to,
+    this.reason,
+  });
+
+  final String to;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'to': to,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class MoveMonitoringFeedback implements RequestModel {
+  const MoveMonitoringFeedback({
+    required this.move,
+    this.text,
+  });
+
+  final String move;
+  final String? text;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'move': move,
+        if (text != null) 'text': text,
+      };
+}
+
+final class MovePhotoFinding implements RequestModel {
+  const MovePhotoFinding({
+    required this.move,
+    this.reason,
+  });
+
+  final String move;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'move': move,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class MoveWhistleReport implements RequestModel {
+  const MoveWhistleReport({
+    required this.move,
+    this.note,
+  });
+
+  final String move;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'move': move,
+        if (note != null) 'note': note,
+      };
+}
+
 final class NotificationTestRecipients implements RequestModel {
   const NotificationTestRecipients({
     required this.membershipIds,
@@ -10459,6 +10678,19 @@ final class NotificationWorkflowDraft implements RequestModel {
         'event_type': eventType,
         if (businessType != null) 'business_type': businessType,
         'definition': definition,
+      };
+}
+
+final class OpenMonitoringFile implements RequestModel {
+  const OpenMonitoringFile({
+    required this.projectId,
+  });
+
+  final String projectId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
       };
 }
 
@@ -13200,6 +13432,31 @@ final class ProposeRankingAnnotation implements RequestModel {
       };
 }
 
+final class PublishPortalRecord implements RequestModel {
+  const PublishPortalRecord({
+    required this.projectId,
+    required this.summary,
+    required this.sector,
+    required this.projectType,
+    required this.purpose,
+  });
+
+  final String projectId;
+  final String summary;
+  final String sector;
+  final String projectType;
+  final String purpose;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'summary': summary,
+        'sector': sector,
+        'project_type': projectType,
+        'purpose': purpose,
+      };
+}
+
 final class QmsAddSupervisorRemark implements RequestModel {
   const QmsAddSupervisorRemark({
     required this.remark,
@@ -13966,6 +14223,57 @@ final class RedFlagScanRequest implements RequestModel {
       };
 }
 
+final class RegisterDocContainer implements RequestModel {
+  const RegisterDocContainer({
+    required this.projectId,
+    required this.documentId,
+    required this.documentKind,
+    required this.revisionLabel,
+  });
+
+  final String projectId;
+  final String documentId;
+  final String documentKind;
+  final String revisionLabel;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'document_id': documentId,
+        'document_kind': documentKind,
+        'revision_label': revisionLabel,
+      };
+}
+
+final class ReplyAsReporter implements RequestModel {
+  const ReplyAsReporter({
+    required this.accessCode,
+    required this.body,
+  });
+
+  final String accessCode;
+  final String body;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'access_code': accessCode,
+        'body': body,
+      };
+}
+
+final class ReplyToReporter implements RequestModel {
+  const ReplyToReporter({
+    required this.body,
+  });
+
+  final String body;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'body': body,
+      };
+}
+
 final class ReportAttachmentRef implements RequestModel {
   const ReportAttachmentRef({
     required this.fileObjectId,
@@ -14357,6 +14665,43 @@ final class RptPeriod implements RequestModel {
       };
 }
 
+final class SavePortalSettings implements RequestModel {
+  const SavePortalSettings({
+    required this.expectedVersion,
+    required this.slug,
+    required this.enabled,
+    required this.whistleEnabled,
+    required this.title,
+    required this.publisherName,
+    required this.idPrefix,
+    required this.licenseUri,
+    required this.policyUri,
+  });
+
+  final int expectedVersion;
+  final String slug;
+  final bool enabled;
+  final bool whistleEnabled;
+  final String title;
+  final String publisherName;
+  final String idPrefix;
+  final String licenseUri;
+  final String policyUri;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'expected_version': expectedVersion,
+        'slug': slug,
+        'enabled': enabled,
+        'whistle_enabled': whistleEnabled,
+        'title': title,
+        'publisher_name': publisherName,
+        'id_prefix': idPrefix,
+        'license_uri': licenseUri,
+        'policy_uri': policyUri,
+      };
+}
+
 final class SaveRestartPlan implements RequestModel {
   const SaveRestartPlan({
     required this.steps,
@@ -14420,6 +14765,91 @@ final class SecurityPolicyDraft implements RequestModel {
         if (ipAllowlist != null) 'ip_allowlist': ipAllowlist,
         if (downloadTtlMinutes != null) 'download_ttl_minutes': downloadTtlMinutes,
         if (exportWatermark != null) 'export_watermark': exportWatermark,
+      };
+}
+
+final class SendDocTransmittal implements RequestModel {
+  const SendDocTransmittal({
+    required this.projectId,
+    required this.number,
+    required this.purpose,
+    required this.subject,
+    required this.containerIds,
+    required this.recipients,
+    this.message,
+    this.supersedesId,
+  });
+
+  final String projectId;
+  final String number;
+  final String purpose;
+  final String subject;
+  final String? message;
+  final List<String> containerIds;
+  final List<SendDocTransmittalRecipientsItem> recipients;
+  final String? supersedesId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'number': number,
+        'purpose': purpose,
+        'subject': subject,
+        if (message != null) 'message': message,
+        'container_ids': containerIds,
+        'recipients': recipients,
+        if (supersedesId != null) 'supersedes_id': supersedesId,
+      };
+}
+
+final class SendDocTransmittalRecipientsItem implements RequestModel {
+  const SendDocTransmittalRecipientsItem({
+    required this.membershipId,
+    required this.required_,
+  });
+
+  final String membershipId;
+  final bool required_;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'required': required_,
+      };
+}
+
+final class SendMonitoringNotice implements RequestModel {
+  const SendMonitoringNotice({
+    required this.sentOn,
+    this.note,
+  });
+
+  final String sentOn;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'sent_on': sentOn,
+        if (note != null) 'note': note,
+      };
+}
+
+final class SetMonitoringTrigger implements RequestModel {
+  const SetMonitoringTrigger({
+    required this.kind,
+    required this.on_,
+    this.reason,
+  });
+
+  final String kind;
+  final String on_;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'on': on_,
+        if (reason != null) 'reason': reason,
       };
 }
 
@@ -14615,6 +15045,35 @@ final class StandingDelegationRequestCreate implements RequestModel {
         if (endOn != null) 'end_on': endOn,
         'reason': reason,
         if (legalBasisRef != null) 'legal_basis_ref': legalBasisRef,
+      };
+}
+
+final class StartReportSignature implements RequestModel {
+  const StartReportSignature({
+    required this.certificateId,
+  });
+
+  final String certificateId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'certificate_id': certificateId,
+      };
+}
+
+final class SubmitWhistleReport implements RequestModel {
+  const SubmitWhistleReport({
+    required this.category,
+    required this.text,
+  });
+
+  final String category;
+  final String text;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'category': category,
+        'text': text,
       };
 }
 
@@ -15803,6 +16262,19 @@ final class VendorVentureNewMembersItem implements RequestModel {
         'contractor_id': contractorId,
         'share_pct': sharePct,
         'lead': lead,
+      };
+}
+
+final class WhistleAccess implements RequestModel {
+  const WhistleAccess({
+    required this.accessCode,
+  });
+
+  final String accessCode;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'access_code': accessCode,
       };
 }
 

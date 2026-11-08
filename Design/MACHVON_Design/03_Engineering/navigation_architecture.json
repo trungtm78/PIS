@@ -2983,7 +2983,18 @@
         "CTR-35",
         "CTR-36",
         "CTR-38",
-        "CTR-39"
+        "CTR-39",
+        "RPT-05",
+        "RPT-06",
+        "PRJ-31",
+        "PRJ-32",
+        "PRJ-33",
+        "AUD-17",
+        "AUD-18",
+        "AUD-19",
+        "DOC-28",
+        "DOC-29",
+        "QMS-12"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -8409,6 +8420,126 @@
       "area": "insights",
       "module": "MNE",
       "group": "Theo dõi & lịch sử",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-05",
+      "title": "Biểu mẫu báo cáo gửi Bộ Tài chính",
+      "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Báo cáo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-06",
+      "title": "Khóa kỳ và chữ ký số báo cáo",
+      "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Báo cáo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-30",
+      "title": "Hồ sơ giám sát cộng đồng",
+      "kind": "table",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Minh bạch & giám sát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-31",
+      "title": "Chi tiết hồ sơ giám sát cộng đồng",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Minh bạch & giám sát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-32",
+      "title": "Quản trị cổng công khai",
+      "kind": "form",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Minh bạch & giám sát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-33",
+      "title": "Cổng công khai đầu tư",
+      "kind": "dashboard",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Minh bạch & giám sát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "AUD-17",
+      "title": "Thứ tự theo dõi kiến nghị kiểm toán của chủ đầu tư",
+      "kind": "table",
+      "area": "insights",
+      "module": "AUD",
+      "group": "Phát hiện & kiến nghị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "AUD-18",
+      "title": "Tố giác ẩn danh",
+      "kind": "review",
+      "area": "insights",
+      "module": "AUD",
+      "group": "Phát hiện & kiến nghị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "AUD-19",
+      "title": "Sổ quà tặng",
+      "kind": "table",
+      "area": "insights",
+      "module": "AUD",
+      "group": "Phát hiện & kiến nghị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DOC-28",
+      "title": "Tài liệu dự án theo trạng thái và transmittal",
+      "kind": "table",
+      "area": "overview",
+      "module": "DOC",
+      "group": "Kiểm soát tài liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DOC-29",
+      "title": "Chi tiết transmittal tài liệu",
+      "kind": "detail",
+      "area": "overview",
+      "module": "DOC",
+      "group": "Kiểm soát tài liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "QMS-12",
+      "title": "Ảnh hiện trường cần giải trình giữa các dự án",
+      "kind": "review",
+      "area": "investment",
+      "module": "QMS",
+      "group": "Chất lượng thi công",
       "role": "workspace",
       "parent": null
     }

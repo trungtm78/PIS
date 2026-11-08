@@ -11877,5 +11877,221 @@
       "UAT-PLAN-1211",
       "UAT-PLAN-1212"
     ]
+  },
+  {
+    "requirement": "FR-RPT-05",
+    "screen": "RPT-05",
+    "title": "Biểu mẫu báo cáo gửi Bộ Tài chính",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/rpt-05.test.tsx",
+    "backlog_id": "BL-RPT-05",
+    "test_ids": [
+      "UI-RPT-05",
+      "UAT-PLAN-3001"
+    ]
+  },
+  {
+    "requirement": "FR-RPT-06",
+    "screen": "RPT-06",
+    "title": "Khóa kỳ và chữ ký số báo cáo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/rpt-06.test.tsx",
+    "backlog_id": "BL-RPT-06",
+    "test_ids": [
+      "UI-RPT-06",
+      "UAT-PLAN-3001"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-30",
+    "screen": "PRJ-30",
+    "title": "Hồ sơ giám sát cộng đồng",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/prj-30.test.tsx",
+    "backlog_id": "BL-PRJ-30",
+    "test_ids": [
+      "UI-PRJ-30",
+      "UAT-PLAN-3002"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-31",
+    "screen": "PRJ-31",
+    "title": "Chi tiết hồ sơ giám sát cộng đồng",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/prj-31.test.tsx",
+    "backlog_id": "BL-PRJ-31",
+    "test_ids": [
+      "UI-PRJ-31",
+      "UAT-PLAN-3002"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-32",
+    "screen": "PRJ-32",
+    "title": "Quản trị cổng công khai",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/prj-32.test.tsx",
+    "backlog_id": "BL-PRJ-32",
+    "test_ids": [
+      "UI-PRJ-32",
+      "UAT-PLAN-3003"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-33",
+    "screen": "PRJ-33",
+    "title": "Cổng công khai đầu tư",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/prj-33.test.tsx",
+    "backlog_id": "BL-PRJ-33",
+    "test_ids": [
+      "UI-PRJ-33",
+      "UAT-PLAN-3003"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-17",
+    "screen": "AUD-17",
+    "title": "Thứ tự theo dõi kiến nghị kiểm toán của chủ đầu tư",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/aud-17.test.tsx",
+    "backlog_id": "BL-AUD-17",
+    "test_ids": [
+      "UI-AUD-17",
+      "UAT-PLAN-3004"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-18",
+    "screen": "AUD-18",
+    "title": "Tố giác ẩn danh",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/aud-18.test.tsx",
+    "backlog_id": "BL-AUD-18",
+    "test_ids": [
+      "UI-AUD-18",
+      "UAT-PLAN-3005"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-19",
+    "screen": "AUD-19",
+    "title": "Sổ quà tặng",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/aud-19.test.tsx",
+    "backlog_id": "BL-AUD-19",
+    "test_ids": [
+      "UI-AUD-19",
+      "UAT-PLAN-3005"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-28",
+    "screen": "DOC-28",
+    "title": "Tài liệu dự án theo trạng thái và transmittal",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/doc-28.test.tsx",
+    "backlog_id": "BL-DOC-28",
+    "test_ids": [
+      "UI-DOC-28",
+      "UAT-PLAN-3006"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-29",
+    "screen": "DOC-29",
+    "title": "Chi tiết transmittal tài liệu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/doc-29.test.tsx",
+    "backlog_id": "BL-DOC-29",
+    "test_ids": [
+      "UI-DOC-29",
+      "UAT-PLAN-3006"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-12",
+    "screen": "QMS-12",
+    "title": "Ảnh hiện trường cần giải trình giữa các dự án",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/qms-12.test.tsx",
+    "backlog_id": "BL-QMS-12",
+    "test_ids": [
+      "UI-QMS-12",
+      "UAT-PLAN-3007"
+    ]
   }
 ]

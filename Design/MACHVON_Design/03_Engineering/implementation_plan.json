@@ -55524,6 +55524,786 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-CTR-020",
+      "epic": "EP-CTR",
+      "feature": "FT-CTR-09",
+      "module": "CTR",
+      "title": "Contract reports: award-to-contract price variance and contractor concentration with Excel, CSV and PDF export",
+      "narrative": "As a leader I read the price variance between award and signed contract and the concentration of contract value by contractor or investor, and export the report with its formula and source.",
+      "release": "R2",
+      "screens": [
+        "CTR-30",
+        "CTR-31"
+      ],
+      "operations": [
+        "getContractReport",
+        "exportContractReport",
+        "getContractScheduleSCurve"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PERFORMANCE-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-CTR-020-1",
+          "given": "Contracts with award 1,000 and signed 1,050 million VND, award 2,000 and signed 1,900, and one contract with no award price",
+          "when": "The bid-variance report is read",
+          "then": "Each variance is (signed minus award) over award, the total is the ratio of the sums over contracts that have an award price, and the contract without an award price shows no number and the reason",
+          "test_id": "UAT-PLAN-119"
+        },
+        {
+          "id": "AC-ST-CTR-020-2",
+          "given": "Contract value of 100 split between contractor A 60, B 25 and C 15 and a unit with fewer contracts than the minimum",
+          "when": "Concentration is read and the report is exported in three formats and above the row cap",
+          "then": "Top-N and HHI of 4,450 are shown against the rule threshold, the small unit shows \"not enough data\", each export carries the formula, source and hash, and an export above the cap returns 422 EXPORT_ROW_CAP_EXCEEDED",
+          "test_id": "UAT-PLAN-120"
+        },
+        {
+          "id": "AC-ST-CTR-020-3",
+          "given": "CTR-30 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-30"
+        },
+        {
+          "id": "AC-ST-CTR-020-4",
+          "given": "CTR-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-31"
+        }
+      ],
+      "dependencies": [
+        "ST-CTR-019"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "Concentration thresholds are the CONTRACT_CONCENTRATION rule with unverified defaults; a joint venture splits value by contribution share."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-CTR-020-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getContractReport, exportContractReport, getContractScheduleSCurve",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-020-2",
+          "kind": "web",
+          "title": "CTR-30, CTR-31 screens built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-020-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for CTR-30, CTR-31; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-020-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-119",
+            "UAT-PLAN-120"
+          ]
+        },
+        {
+          "id": "TK-CTR-020-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-CTR-30",
+            "UI-CTR-31"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-RPT-121",
+      "epic": "EP-RPT",
+      "feature": "FT-RPT-01",
+      "module": "RPT",
+      "title": "Period reports for the Ministry of Finance: signed copies and locked periods",
+      "narrative": "As the approver of a period report I sign the package digest of the issued copy, and the period is locked so that no other copy is made without two people and a reason.",
+      "release": "R2",
+      "screens": [
+        "RPT-05",
+        "RPT-06"
+      ],
+      "operations": [
+        "listReportPeriodLocks",
+        "unlockReportPeriod",
+        "startReportSignature",
+        "completeReportSignature",
+        "getReportSignature"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-RPT-121-1",
+          "given": "An issued copy of a monthly report for the Ministry, approved by user C; a second user D; the signing port of the MOCK provider.",
+          "when": "C starts the signature and completes it; Deliver the copy to the receiver MOF; Make a new copy of the same period; D unlocks the period with a short reason, then with a reason of enough length",
+          "then": "A MOCK signature is kept as a test signature: delivery to the Ministry is refused with REPORT_SIGNATURE_REQUIRED; with a real signature the period is locked, a new copy is refused PERIOD_LOCKED, the unlock by the locker is refused as self approval and by D with a reason it opens the period.",
+          "test_id": "UAT-PLAN-3001"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The official Ministry templates are not supplied: the four forms stay PENDING_EXTERNAL and cannot be issued until a READY version of each is registered."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-RPT-121-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind RPT-05, RPT-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-121-2",
+          "kind": "web",
+          "title": "RPT-05, RPT-06 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-121-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for RPT-05, RPT-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-121-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3001"
+          ]
+        },
+        {
+          "id": "TK-RPT-121-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-RPT-05",
+            "UI-RPT-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PRJ-121",
+      "epic": "EP-PRJ",
+      "feature": "FT-PRJ-07",
+      "module": "PRJ",
+      "title": "Community monitoring file: notice deadline, pack of documents, feedback and answers",
+      "narrative": "As the investor I keep the community monitoring file of a project: the notice has a deadline from the day the duty began, the pack of documents is linked from DOC, and every feedback has its own clock and an answer closed by a second person.",
+      "release": "R2",
+      "screens": [
+        "PRJ-30",
+        "PRJ-31"
+      ],
+      "operations": [
+        "listMonitoringFiles",
+        "getMonitoringFile",
+        "openMonitoringFile",
+        "setMonitoringTrigger",
+        "addMonitoringPackItem",
+        "withdrawMonitoringPackItem",
+        "sendMonitoringNotice",
+        "closeMonitoringFile",
+        "logMonitoringFeedback",
+        "moveMonitoringFeedback",
+        "getMonitoringFeedback"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-PRJ-121-1",
+          "given": "A project with a monitoring file whose duty began on 2027-01-01; the rule of 45 days; officers O and R.",
+          "when": "Read the file on day 46 without a notice; Send the notice without the schedule in the pack, then with the pack complete; Log a feedback, O answers it, O tries to close it, R closes it",
+          "then": "The notice is overdue from the day after 2027-02-15; the notice is refused until the pack holds the notice text, the project information and the schedule; a notice sent after the due day is late; O is refused as self approval and R closes the answer.",
+          "test_id": "UAT-PLAN-3002"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The 45 days of the notice and the days to answer are starting values of a governance rule, flagged as not confirmed until the legal unit confirms them."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PRJ-121-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind PRJ-30, PRJ-31",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-121-2",
+          "kind": "web",
+          "title": "PRJ-30, PRJ-31 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-121-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PRJ-30, PRJ-31; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-121-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3002"
+          ]
+        },
+        {
+          "id": "TK-PRJ-121-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PRJ-30",
+            "UI-PRJ-31"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PRJ-122",
+      "epic": "EP-PRJ",
+      "feature": "FT-PRJ-07",
+      "module": "PRJ",
+      "title": "Read-only public portal with an allowed field set and OC4IDS export",
+      "narrative": "As the publisher I put public projects on a read-only portal that shows only the allowed fields, and I export them in OC4IDS with the required fields of the standard checked.",
+      "release": "R2",
+      "screens": [
+        "PRJ-32",
+        "PRJ-33"
+      ],
+      "operations": [
+        "getPortalSettings",
+        "savePortalSettings",
+        "publishPortalRecord",
+        "withdrawPortalRecord",
+        "listPortalRecords",
+        "exportPortalOc4ids",
+        "getPublicPortal",
+        "listPublicPortalProjects",
+        "getPublicPortalOc4ids"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-PRJ-122-1",
+          "given": "A tenant with a public project and a confidential project; the allowed fields without the budget; a visitor with no session.",
+          "when": "Publish both projects; Read the public list and the OC4IDS export as the visitor; Allow the budget and publish again; Withdraw the record; Read as the visitor until the rate limit answers",
+          "then": "The confidential project is refused; the public answer holds only the allowed fields and no internal id; the export lists the required field that was not allowed instead of inventing it; the withdrawn record is gone at once; the limit answers 429 with Retry-After.",
+          "test_id": "UAT-PLAN-3003"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The required fields and the codelists of OC4IDS are written from the standard as known offline and flagged as not diffed with the schema file."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PRJ-122-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind PRJ-32, PRJ-33",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-122-2",
+          "kind": "web",
+          "title": "PRJ-32, PRJ-33 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-122-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PRJ-32, PRJ-33; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-122-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3003"
+          ]
+        },
+        {
+          "id": "TK-PRJ-122-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PRJ-32",
+            "UI-PRJ-33"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-AUD-121",
+      "epic": "EP-AUD",
+      "feature": "FT-AUD-05",
+      "module": "AUD",
+      "title": "Audit recommendations in the ranking and in the profile of the investor",
+      "narrative": "As an auditor I see which investors to follow up first by the state of their recommendations, beside their place in the disbursement ranking.",
+      "release": "R2",
+      "screens": [
+        "AUD-17"
+      ],
+      "operations": [
+        "listInvestorStandings",
+        "getInvestorProfile"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-AUD-121-1",
+          "given": "Two investor units with recommendations, one with an overdue one and money owed; a frozen disbursement ranking.",
+          "when": "Read the standings; Read the profile of the first unit; Read the disbursement ranking",
+          "then": "The unit with more overdue, disputed and open recommendations and money owed comes first; its place in the disbursement ranking is shown beside it and the ranking is unchanged; no red flag appears.",
+          "test_id": "UAT-PLAN-3004"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The weights of the score are starting values of a governance rule; the standing never changes the disbursement ranking."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-AUD-121-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind AUD-17",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-121-2",
+          "kind": "web",
+          "title": "AUD-17 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-121-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for AUD-17; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-121-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3004"
+          ]
+        },
+        {
+          "id": "TK-AUD-121-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-AUD-17"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-AUD-122",
+      "epic": "EP-AUD",
+      "feature": "FT-AUD-05",
+      "module": "AUD",
+      "title": "Anonymous report channel and gifts register",
+      "narrative": "As a person who sees wrongdoing I report it without leaving an identity and follow the answer with a code; as a member of staff I declare a gift and a second person closes it.",
+      "release": "R2",
+      "screens": [
+        "AUD-18",
+        "AUD-19"
+      ],
+      "operations": [
+        "submitWhistleReport",
+        "getWhistleReportStatus",
+        "replyWhistleReportAsReporter",
+        "listWhistleReports",
+        "getWhistleSummary",
+        "getWhistleReport",
+        "moveWhistleReport",
+        "assignWhistleSubject",
+        "replyToWhistleReporter",
+        "listGifts",
+        "declareGift",
+        "takeGiftReview",
+        "closeGift"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-AUD-122-1",
+          "given": "A portal with the anonymous channel on; auditors A and B, B in the unit the report is about; a member M who received a gift of 3,000,000 dong.",
+          "when": "A visitor submits a report and keeps the code; A acknowledges it, names the unit, replies; B opens the queue; The visitor reads the answer with the code; M declares the gift, A takes the review, A closes it as kept, then as returned",
+          "then": "No identity is stored; B does not see the report; the visitor reads the answer; the gift over the line is refused as kept and closed as returned by the reviewer who is not M.",
+          "test_id": "UAT-PLAN-3005"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The days of the channel and the value lines of the gifts are starting values of governance rules, flagged as not confirmed."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-AUD-122-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind AUD-18, AUD-19",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-122-2",
+          "kind": "web",
+          "title": "AUD-18, AUD-19 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-122-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for AUD-18, AUD-19; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-122-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3005"
+          ]
+        },
+        {
+          "id": "TK-AUD-122-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-AUD-18",
+            "UI-AUD-19"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DOC-121",
+      "epic": "EP-DOC",
+      "feature": "FT-DOC-08",
+      "module": "DOC",
+      "title": "Document transmittal with review deadlines and the states WIP, Shared, Published, Archive",
+      "narrative": "As a document controller I send documents of the project to people for information, review or approval with a deadline, and a document is published only when every required answer approves it.",
+      "release": "R2",
+      "screens": [
+        "DOC-28",
+        "DOC-29"
+      ],
+      "operations": [
+        "listDocContainers",
+        "getDocContainer",
+        "registerDocContainer",
+        "moveDocContainer",
+        "listDocTransmittals",
+        "getDocTransmittalInbox",
+        "getDocTransmittal",
+        "sendDocTransmittal",
+        "answerDocTransmittal",
+        "extendDocTransmittal"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-DOC-121-1",
+          "given": "A project with two documents of DOC; an author U, a reviewer V and a publisher W.",
+          "when": "U registers the documents and tries to share without a transmittal; U sends a transmittal for review to V; V answers with comments; U tries to publish, then W publishes; U extends a due day twice",
+          "then": "Sharing is refused until the transmittal is sent; the answer is given once; the author is refused as self approval and W publishes; the due day moves once.",
+          "test_id": "UAT-PLAN-3006"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The days of review are starting values of a governance rule; documents are linked to DOC by id."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DOC-121-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind DOC-28, DOC-29",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DOC-121-2",
+          "kind": "web",
+          "title": "DOC-28, DOC-29 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DOC-121-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DOC-28, DOC-29; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DOC-121-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3006"
+          ]
+        },
+        {
+          "id": "TK-DOC-121-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-DOC-28",
+            "UI-DOC-29"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-QMS-121",
+      "epic": "EP-QMS",
+      "feature": "FT-QMS-03",
+      "module": "QMS",
+      "title": "Site photo findings across projects",
+      "narrative": "As an auditor I see the photos that are the same file or the same place at the same moment in two projects and ask a person to explain them.",
+      "release": "R2",
+      "screens": [
+        "QMS-12"
+      ],
+      "operations": [
+        "scanPhotoFindings",
+        "listPhotoFindings",
+        "getPhotoFinding",
+        "movePhotoFinding"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-QMS-121-1",
+          "given": "The same photo file registered in two projects and two photos of one place within ten minutes in two projects; an uploader U and an auditor A.",
+          "when": "A scans; A scans again; U tries to explain the pair; A takes the pair and explains it with a reason",
+          "then": "Each pair is written once; the second scan adds nothing; U is refused as self approval; the explanation is kept with its reason and the pair stays a signal, not a conclusion.",
+          "test_id": "UAT-PLAN-3007"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The distance and time of the pairing are starting values of a governance rule; a finding is a signal and never a conclusion."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-QMS-121-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind QMS-12",
+          "test_ids": []
+        },
+        {
+          "id": "TK-QMS-121-2",
+          "kind": "web",
+          "title": "QMS-12 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-QMS-121-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for QMS-12; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-QMS-121-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3007"
+          ]
+        },
+        {
+          "id": "TK-QMS-121-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-QMS-12"
+          ]
+        }
+      ]
     }
   ]
 }
