@@ -244,5 +244,6 @@
       "match": "form|field|reason|input|preview|sheet",
       "kind": "form"
     }
-  ]
+  ],
+  "loadingText": "đang tải|loading"
 }

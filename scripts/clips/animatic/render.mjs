@@ -169,11 +169,11 @@ async function main() {
   }
   const [id] = positional;
   if (id === undefined) {
-    console.error('usage: node scripts/clips/animatic/render.mjs <scene id | json file> [--out file.mp4] [--fps 30] [--no-fade] [--max-seconds n] [--still ms] | --list | --check');
+    console.error('usage: node scripts/clips/animatic/render.mjs <scene id | json file> [--out file.mp4] [--fps 30] [--no-fade] [--no-captions] [--max-seconds n] [--still ms] | --list | --check');
     process.exitCode = 1;
     return;
   }
-  const scene = loadScene(id, flags['no-fade'] === true ? { fadeMs: 0 } : {});
+  const scene = loadScene(id, { ...(flags['no-fade'] === true ? { fadeMs: 0 } : {}), ...(flags['no-captions'] === true ? { hideCaptions: true } : {}) });
   const name = scene.id ?? id;
   if (typeof flags.still === 'string') {
     const out = typeof flags.out === 'string' ? flags.out : join(OUT_ROOT, 'animatic', `${name}-${flags.still}.png`);

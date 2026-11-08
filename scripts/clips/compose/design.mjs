@@ -178,7 +178,7 @@ const FRAME_CSS = `
 .phone .status{position:absolute;top:14px;left:34px;right:34px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:#fff;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .head{position:absolute;color:#fff}
 .head small{display:block;font-size:22px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${PALETTE.tealLight};margin-bottom:18px}
-.head h1{font-size:56px;line-height:1.16;font-weight:700;text-wrap:balance}
+.head h1{font-size:var(--h,56px);line-height:1.16;font-weight:700;text-wrap:balance}
 .head hr{width:120px;height:6px;border:0;border-radius:3px;background:${PALETTE.gold};margin-top:28px}
 .brand{position:absolute;left:56px;bottom:26px;display:flex;align-items:center;gap:12px;font-size:20px;font-weight:600;color:${PALETTE.muted}}
 .brand .logo{height:36px}.brand .logo.wide{height:40px}.mark{width:36px;height:36px;border-radius:10px;background:${PALETTE.primary};display:flex;align-items:center;justify-content:center;font-weight:700}
@@ -198,7 +198,7 @@ export function overlayHtml({ layout, headline, kicker, ticker, brand, spec = la
   }
   if (geometry.headline !== null) {
     const place = geometry.headline;
-    body += `<div class="head" style="left:${place.x}px;top:${place.y}px;width:${place.width}px">${kicker ? `<small>${escapeHtml(kicker)}</small>` : ''}<h1>${escapeHtml(headline)}</h1><hr></div>`;
+    body += `<div class="head" style="left:${place.x}px;top:${place.y}px;width:${place.width}px;--h:${place.size ?? 56}px">${kicker ? `<small>${escapeHtml(kicker)}</small>` : ''}<h1>${escapeHtml(headline)}</h1><hr></div>`;
   }
   body += brand.logoWide ? `<div class="brand"><img class="logo wide" src="file:///${String(brand.logoWide).replace(/\\/gu, '/')}"></div>` : `<div class="brand">${logoMark(brand)}<span>${escapeHtml(brand.name)}</span></div>`;
   return page(FRAME_CSS, body, fonts);
@@ -206,7 +206,7 @@ export function overlayHtml({ layout, headline, kicker, ticker, brand, spec = la
 
 /** A title, chapter or outro card on the animated background: logo, name, gold underline, tagline. */
 export function cardHtml({ kicker, title, subtitle, footer, brand, fonts = '' }) {
-  const css = `${FRAME_CSS}.card{position:absolute;left:150px;top:230px;width:1100px}.card .logo{height:120px;margin-bottom:34px}.card .mark{width:120px;height:120px;border-radius:30px;font-size:64px;margin-bottom:34px}
+  const css = `${FRAME_CSS}.card{position:absolute;left:150px;top:120px;width:1100px}.card .logo{height:120px;margin-bottom:34px}.card .mark{width:120px;height:120px;border-radius:30px;font-size:64px;margin-bottom:34px}
 .card small{display:block;font-size:26px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:${PALETTE.tealLight};margin-bottom:22px}.card h1{font-size:84px;line-height:1.1;font-weight:700;text-wrap:balance}
 .card hr{width:180px;height:8px;border:0;border-radius:4px;background:${PALETTE.gold};margin:36px 0}.card p{font-size:34px;line-height:1.4;color:${PALETTE.muted};font-weight:400}.card footer{margin-top:40px;font-size:22px;color:${PALETTE.tealLight}}`;
   const body = `<div class="card">${logoMark(brand)}${kicker ? `<small>${escapeHtml(kicker)}</small>` : ''}<h1>${escapeHtml(title)}</h1><hr>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}${brand.tagline ? `<p>${escapeHtml(brand.tagline)}</p>` : ''}${footer ? `<footer>${escapeHtml(footer)}</footer>` : ''}</div>`;
