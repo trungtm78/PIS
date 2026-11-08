@@ -90,6 +90,14 @@ export const WORK_KINDS = [
   'FEED_STALE',
   'FEED_UNIT_LATE',
   'FEED_DISCREPANCY_LARGE',
+  // The risk register scored from live signals (lane MR-1): a score crossed the critical line, or jumped by the points of the rule.
+  'RISK_SCORE_CRITICAL',
+  'RISK_SCORE_JUMP',
+  // The committee workspace (lane BAN-1): the province or a sector is behind the expected curve, a unit does not report, directives of a unit are overdue.
+  'COMMITTEE_PROVINCE_BEHIND',
+  'COMMITTEE_SECTOR_BEHIND',
+  'COMMITTEE_UNIT_NOT_REPORTING',
+  'COMMITTEE_DIRECTIVE_OVERDUE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -168,6 +176,12 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   FEED_STALE: 58,
   FEED_UNIT_LATE: 59,
   FEED_DISCREPANCY_LARGE: 60,
+  RISK_SCORE_CRITICAL: 61,
+  RISK_SCORE_JUMP: 62,
+  COMMITTEE_PROVINCE_BEHIND: 63,
+  COMMITTEE_SECTOR_BEHIND: 64,
+  COMMITTEE_UNIT_NOT_REPORTING: 65,
+  COMMITTEE_DIRECTIVE_OVERDUE: 66,
 };
 
 export interface WorkItem {
