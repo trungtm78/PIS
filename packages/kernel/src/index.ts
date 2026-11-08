@@ -2896,3 +2896,12 @@ export {
   reviewNoteOf,
 } from './doc-review.ts';
 export type { BoardInstance, BoardStage, BoardStep, BoardTask, ReviewEnd, ReviewEventKind, ReviewStatus as DocumentReviewStatus, ReviewerState, StageState, SubmissionFacts, SubmissionPlan, WorkflowEnd } from './doc-review.ts';
+export { DATA_ENTRY_CHECKS, DATA_ENTRY_RULE_TYPE, DATA_ENTRY_SEVERITIES, ENTRY_SURFACES, IMPORT_LAYOUTS, IMPORT_SCALES, INDICATOR_CATEGORIES, INDICATOR_IMPORT_RULE_TYPE, INDICATOR_SEEDS, INDICATOR_VALUE_KINDS, MANDATORY_FIELDS_TOKEN, NUMBER_FORMATS, PERIOD_STATES, SCALE_FACTORS, VAT_BASES, isEntrySurface, isIndicatorCategory } from './ind-definitions.ts';
+export type { DataEntryCheck, DataEntrySeverity, EntrySurface, ImportLayout, ImportScale, IndicatorCategory, IndicatorSeed, IndicatorValueKind, NumberFormat, PeriodState, VatBasis } from './ind-definitions.ts';
+export { INDICATOR_RULE_TYPE, dictionaryFindings, filterDictionary, indicatorOf, isEnterable, mandatoryFieldsOf, normalizeLabel } from './ind-dictionary.ts';
+export type { DictionaryFilter, DictionaryFinding, IndicatorEntry } from './ind-dictionary.ts';
+export { assertEntryAllowed, entryRefusal, entryRuleOf, evaluateEntryRules, verdictTrail } from './ind-entry.ts';
+export type { EntryFacts, EntryRule, EntrySkip, EntryVerdict, EntryViolation } from './ind-entry.ts';
+export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
+export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, ScaleOutcome } from './ind-import-mapping.ts';
+export { registerIndicatorRules } from './governance-rules.ts';

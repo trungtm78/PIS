@@ -12,6 +12,7 @@ import { B1_DEFAULTS, EAC_METHODS } from './gov-b1-policy.ts';
 import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_SOURCE, WORKFLOW_METHODS, WORKFLOW_RULE_TYPE, defaultWorkflowParams, parseWorkflowDefinition } from './bid-workflow.ts';
 import { MILESTONE_KINDS } from './procurement-file.ts';
 import { APPROVAL_WORKFLOW_RULE_TYPE, REPORT_STEP_ASSIGNEE_TYPES, REPORT_STEP_KINDS, REPORT_WORKFLOW_RULE_CODE, WORKFLOW_MODES, defaultReportWorkflowParams, reportWorkflowDefect } from './dis-report-workflow.ts';
+import { DATA_ENTRY_EXTRA_DEFAULTS, DATA_ENTRY_RULE_FIELDS, INDICATOR_IMPORT_FIELDS, INDICATOR_IMPORT_RULE_TYPE, INDICATOR_KPI_FIELDS, INDICATOR_SEEDS, indicatorSeedParams, refineDataEntryRule, refineImportMapping, sampleMappingParams } from './ind-definitions.ts';
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
 import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
@@ -522,6 +523,8 @@ export const registerCoreRules = (): void =>
         period: { kind: 'enum', values: ['YEAR_TO_DATE', 'AS_OF_NOW', 'WEEK', 'MONTH', 'QUARTER'], optional: true },
         allowed_lag_days: int(0, 90, true),
         rag_code: word(true),
+        // IND-1: the members that make the register a dictionary (category, how the figure is obtained, its name in the entry rules, the names it carries in the customer's forms).
+        ...INDICATOR_KPI_FIELDS,
       },
       defaults: {
         DISBURSEMENT_RATE: rule({ name: message('gov.rules.kpi_definition.disbursement_rate.name'), formula: message('gov.rules.kpi_definition.disbursement_rate.formula'), source: message('gov.rules.kpi_definition.disbursement_rate.source'), unit: 'PERCENT', owner: 'CAPITAL_PLANNER', decimals: 1, refresh_hours: 24 }, undefined, {
@@ -1237,15 +1240,10 @@ export const registerEnterpriseRules = (): void =>
       source: message('gov.rules.register_enterprise_rules.source.data_entry_rule'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
-      schema: {
-        check: oneOf('CUMULATIVE_NOT_ABOVE_TOTAL', 'PARTS_EQUAL_TOTAL', 'PERIOD_LOCKED_AFTER_CLOSE', 'FIELD_REQUIRED'),
-        severity: oneOf('BLOCK', 'WARN'),
-        fields: list(word(), 12, 1),
-        total_field: word(true),
-        tolerance: num(0, 1_000_000, true),
-        message: text(300),
-      },
+      schema: DATA_ENTRY_RULE_FIELDS,
+      refine: refineDataEntryRule,
       defaults: {
+        ...Object.fromEntries(Object.entries(DATA_ENTRY_EXTRA_DEFAULTS).map(([code, params]) => [code, rule(plain(params))])),
         CUMULATIVE_NOT_ABOVE_TOTAL: rule({ check: 'CUMULATIVE_NOT_ABOVE_TOTAL', severity: 'BLOCK', fields: ['CUMULATIVE'], total_field: 'TOTAL_INVESTMENT', message: message('gov.rules.data_entry_rule.cumulative_not_above_total.message') }),
         EQUITY_PLUS_DEBT_EQUALS_TOTAL: rule({ check: 'PARTS_EQUAL_TOTAL', severity: 'BLOCK', fields: ['EQUITY', 'DEBT'], total_field: 'TOTAL', tolerance: 0, message: message('gov.rules.data_entry_rule.equity_plus_debt_equals_total.message') }),
         CLOSED_PERIOD_LOCKED: rule({ check: 'PERIOD_LOCKED_AFTER_CLOSE', severity: 'BLOCK', fields: ['REPORTING_PERIOD'], message: message('gov.rules.data_entry_rule.closed_period_locked.message') }),
@@ -1805,6 +1803,38 @@ export const registerIntegrationHubRules = (): void =>
     );
   });
 
+/**
+ * The indicator dictionary and the Excel import mappings (lane IND-1): the starting indicators are added under `KPI_DEFINITION` (a code another lane already defined is left as that lane wrote it), and the type of
+ * the mappings from a form of the customer to the codes of the dictionary is registered with two sample forms.
+ */
+export const registerIndicatorRules = (): void =>
+  once('indicator', () => {
+    registerCoreRules();
+    registerEnterpriseRules();
+    const SEED_AS_OF = '2026-11-08';
+    registerRuleDefaults(
+      'KPI_DEFINITION',
+      Object.fromEntries(
+        INDICATOR_SEEDS.filter((seed) => builtInDefault('KPI_DEFINITION', seed.code) === undefined).map((seed) => [
+          seed.code,
+          rule(indicatorSeedParams(seed), 'UNVERIFIED', { formula: message(`ind.seed.${seed.key}.formula`), source: message('ind.seed.source'), asOf: SEED_AS_OF }),
+        ]),
+      ),
+    );
+    registerRuleType({
+      type: INDICATOR_IMPORT_RULE_TYPE,
+      ownerModule: 'IND',
+      modules: ['IND', 'DIS', 'ADM'],
+      formula: message('ind.mapping.formula'),
+      source: message('ind.mapping.source'),
+      asOf: SEED_AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: INDICATOR_IMPORT_FIELDS,
+      refine: refineImportMapping,
+      defaults: { SAMPLE_COLUMNS_FORM: rule(sampleMappingParams('COLUMNS')), SAMPLE_ROWS_FORM: rule(sampleMappingParams('ROWS')) },
+    });
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -1826,6 +1856,7 @@ export function registerAllGovernanceRules(): void {
   registerGov10Rules();
   registerIntegrationHubRules();
   registerCommitteeRules();
+  registerIndicatorRules();
 }
 
 registerAllGovernanceRules();
