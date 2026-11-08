@@ -52350,6 +52350,345 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-ADM-026",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-03",
+      "module": "ADM",
+      "title": "Permanent delegation of approval authority with an end condition, a review date and a second approver",
+      "narrative": "As a leader I can hand over approval authority without an end date of its own, saying when it ends and reviewing it before its review date, so that standing arrangements are neither forgotten nor open-ended.",
+      "release": "R2",
+      "screens": [
+        "ADM-25"
+      ],
+      "operations": [
+        "createStandingDelegationRequest",
+        "decideStandingDelegationRequest",
+        "cancelStandingDelegationRequest",
+        "reviewDelegation",
+        "get_resources_standing_delegation_request",
+        "get_resources_standing_delegation_request_id"
+      ],
+      "tables": [
+        "delegation_grant"
+      ],
+      "nfr": [
+        "NFR-SECURITY-01",
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-026-1",
+          "given": "A request for a permanent delegation with an end condition and a review date 180 days ahead, and a second person who is neither the delegator nor the delegate",
+          "when": "The delegator and the delegate try to approve it, the second person approves, the delegate decides a task, the review date passes without a review, and a delegation that would close a loop is requested",
+          "then": "403 SELF_APPROVAL_DENIED for both parties; after the approval the delegate decides with on_behalf_of recorded in the audit row; at the review date the delegation stops at once (Ended REVIEW_LAPSED) and the next decision is refused; 403 DELEGATION_CYCLE_DENIED for the loop",
+          "test_id": "UAT-IAM2-01"
+        },
+        {
+          "id": "AC-ST-ADM-026-2",
+          "given": "ADM-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry and permission denied all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-25"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-014"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "medium",
+        "assumption": "A permanent delegation is a delegation_grant of kind PERMANENT whose valid_until is its review date, so the approval engine, the door of the decision and the signing authority honour it unchanged; the review interval (365 days) and the warning window (14 days) are configuration marked unverified."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-026-1",
+          "kind": "db",
+          "title": "Migration for delegation_grant kind, review and end-condition columns and the standing_delegation_request table with RLS, tenant-leading indexes and guards",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-2",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: createStandingDelegationRequest, decideStandingDelegationRequest, cancelStandingDelegationRequest, reviewDelegation, get_resources_standing_delegation_request, get_resources_standing_delegation_request_id",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-3",
+          "kind": "web",
+          "title": "ADM-25 screens built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-25; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-5",
+          "kind": "security",
+          "title": "Negative matrix for the four commands and a loop-detection test over both kinds of delegation",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-026-6",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-IAM2-01"
+          ]
+        },
+        {
+          "id": "TK-ADM-026-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-ADM-25"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ADM-027",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-03",
+      "module": "ADM",
+      "title": "Administrator acting on behalf of a person under a recorded reason with a second approver",
+      "narrative": "As an administrator I can act on behalf of a person who cannot act, for a few hours and for data entry only, so that work continues while every audit row says that it was done as them.",
+      "release": "R2",
+      "screens": [
+        "ADM-26"
+      ],
+      "operations": [
+        "requestActing",
+        "decideActingRequest",
+        "cancelActingRequest",
+        "revokeActing",
+        "get_resources_acting_grant",
+        "get_resources_acting_grant_id"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01",
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-027-1",
+          "given": "An acting request with a reason for data entry of 4 hours, and a second person who is neither the administrator nor the person",
+          "when": "The administrator sends the grant in X-Acting-As before and after the approval, after a revocation and after the window, and tries to ask for a decision permission or to act for themselves",
+          "then": "ACTING_NOT_LIVE until the approval and again after the revocation or the window; every audit row of the session names the administrator as the actor and the person as on_behalf_of_id with the grant in the diff; 422 ACTING_INVALID for a decision, a signature or an administrative permission; 403 ACTING_SELF_DENIED",
+          "test_id": "UAT-IAM2-02"
+        },
+        {
+          "id": "AC-ST-ADM-027-2",
+          "given": "ADM-26 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry and permission denied all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-26"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-014"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "medium",
+        "assumption": "The grant is read on every request by the door of the API, so its end takes effect at once; the request is judged on the access of the person narrowed to the permissions listed and never adds to the access of the administrator; the 8 hour limit is configuration marked unverified."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-027-1",
+          "kind": "db",
+          "title": "Migration for acting_grant with RLS, tenant-leading indexes and guards that keep decisions and administration out of the permissions",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-027-2",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: requestActing, decideActingRequest, cancelActingRequest, revokeActing, get_resources_acting_grant, get_resources_acting_grant_id",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-027-3",
+          "kind": "web",
+          "title": "ADM-26 screens built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-027-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-26; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-027-5",
+          "kind": "security",
+          "title": "Negative matrix for the four commands and a test that every audit row of an acting request names both identities",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-027-6",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-IAM2-02"
+          ]
+        },
+        {
+          "id": "TK-ADM-027-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-ADM-26"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ADM-028",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-02",
+      "module": "ADM",
+      "title": "Scope of roles and delegations by reporting period",
+      "narrative": "As an administrator I can limit a role grant or a delegation to given report periods, so that a person acts only on the reports of the periods they are responsible for.",
+      "release": "R2",
+      "screens": [
+        "ADM-27"
+      ],
+      "operations": [
+        "createPeriodScope",
+        "liftPeriodScope",
+        "get_resources_period_scope",
+        "get_resources_period_scope_id"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01",
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-028-1",
+          "given": "A reviewer whose role grant is limited to the third quarter of 2026 and a delegation limited to the same period",
+          "when": "The reviewer decides a weekly report of the fourth quarter and then one of the third, the delegate decides a task of a resource without a period, and the limit is lifted by the holder and by someone else",
+          "then": "403 PERIOD_SCOPE_DENIED outside the period and success inside it; the delegate is refused for a resource that has no period; 403 SELF_GRANT_DENIED when the holder lifts their own limit; lifting raises the scope version of the holder and widens nothing until it is done",
+          "test_id": "UAT-IAM2-03"
+        },
+        {
+          "id": "AC-ST-ADM-028-2",
+          "given": "ADM-27 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry and permission denied all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-27"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-014"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "medium",
+        "assumption": "A role grant without a limit behaves as before; periods are written as the report layout writes them and a period covers every period inside it; the commands of the weekly report ask the kernel before they write."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-028-1",
+          "kind": "db",
+          "title": "Migration for role_grant_period_scope and the period_codes column of delegation_grant with RLS, tenant-leading indexes and guards",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-028-2",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: createPeriodScope, liftPeriodScope, get_resources_period_scope, get_resources_period_scope_id",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-028-3",
+          "kind": "web",
+          "title": "ADM-27 screens built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-028-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-27; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-028-5",
+          "kind": "security",
+          "title": "Negative matrix for the two commands and a test that every command of the weekly report asks the period gate",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-028-6",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-IAM2-03"
+          ]
+        },
+        {
+          "id": "TK-ADM-028-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-ADM-27"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -10877,5 +10877,59 @@
     "test_ids": [
       "UI-INT-05"
     ]
+  },
+  {
+    "requirement": "FR-ADM-25",
+    "screen": "ADM-25",
+    "title": "Ủy quyền vĩnh viễn",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Hồ sơ khách hàng: ủy quyền vĩnh viễn; kế hoạch Đợt 4 mục 7 (IAM-2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md; 2 test",
+    "backlog_id": "BL-ADM-25",
+    "test_ids": [
+      "UI-ADM-25",
+      "UAT-IAM2-01"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-26",
+    "screen": "ADM-26",
+    "title": "Làm thay có người duyệt",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Hồ sơ khách hàng: quản trị làm thay có lý do; kế hoạch Đợt 4 mục 7 (IAM-2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md; 2 test",
+    "backlog_id": "BL-ADM-26",
+    "test_ids": [
+      "UI-ADM-26",
+      "UAT-IAM2-02"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-27",
+    "screen": "ADM-27",
+    "title": "Phạm vi theo kỳ báo cáo",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Hồ sơ khách hàng: giới hạn theo kỳ báo cáo; kế hoạch Đợt 4 mục 7 (IAM-2)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md; 2 test",
+    "backlog_id": "BL-ADM-27",
+    "test_ids": [
+      "UI-ADM-27",
+      "UAT-IAM2-03"
+    ]
   }
 ]

@@ -5516,6 +5516,36 @@
       "parent": null
     },
     {
+      "id": "ADM-25",
+      "title": "Ủy quyền vĩnh viễn",
+      "kind": "form",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-26",
+      "title": "Làm thay có người duyệt",
+      "kind": "form",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-27",
+      "title": "Phạm vi theo kỳ báo cáo",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
       "id": "SAS-01",
       "title": "Danh sách tenant",
       "kind": "list",

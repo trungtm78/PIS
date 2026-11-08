@@ -22546,5 +22546,118 @@
     "covers": [
       "FR-INT-03"
     ]
+  },
+  {
+    "id": "UI-ADM-25",
+    "source": "FR-ADM-25",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ủy quyền vĩnh viễn; user có quyền và user chỉ đọc; route ADM-25",
+    "steps": [
+      "Mở ADM-25 từ menu và deep link; kiểm nhãn trường: Người giao, Người nhận, Quyền ủy, Phạm vi đơn vị, Kỳ báo cáo giới hạn, Từ ngày, Ngày rà soát, Điều kiện kết thúc, Ngày kết thúc, Lý do, Căn cứ, Người duyệt, Trạng thái",
+      "Thực hiện thao tác chính theo quy tắc: createStandingDelegationRequest/decideStandingDelegationRequest/reviewDelegation; ủy quyền không có ngày hết hạn riêng nhưng có điều kiện kết thúc bằng lời và ngày rà soát ≤365 ngày: quá ngày rà soát mà chưa rà soát thì ngừng hiệu lực ngay; người duyệt khác người giao và người nhận; không khép vòng ủy quyền; mọi lần dùng ghi cả hai danh tính",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-25"
+    ],
+    "expected": "Ủy quyền vĩnh viễn: hiển thị đúng 13 trường, áp quy tắc \"createStandingDelegationRequest/decideStandingDelegationRequest/reviewDelegation; ủy quyền không có ngày hết hạn riêng nhưng có điều kiện kết thúc bằng lời và ngày rà soát ≤365 ngày: quá ngày rà soát mà chưa rà soát thì ngừng hiệu lực ngay; người duyệt khác người giao và người nhận; không khép vòng ủy quyền; mọi lần dùng ghi cả hai danh tính\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-25"
+    ]
+  },
+  {
+    "id": "UI-ADM-26",
+    "source": "FR-ADM-26",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Làm thay có người duyệt; user có quyền và user chỉ đọc; route ADM-26",
+    "steps": [
+      "Mở ADM-26 từ menu và deep link; kiểm nhãn trường: Người được làm thay, Người đề nghị, Quyền cần dùng, Kỳ báo cáo giới hạn, Số giờ, Lý do, Người duyệt, Cửa sổ hiệu lực, Trạng thái, Thu hồi",
+      "Thực hiện thao tác chính theo quy tắc: requestActing/decideActingRequest/revokeActing; chỉ nhập liệu: không làm thay việc quyết định, ký, duyệt hay quản trị truy cập; tối đa 8 giờ kể từ lúc duyệt; mọi dòng nhật ký trong phiên ghi người làm thay là tác nhân và người được làm thay trong on_behalf_of_id; hết giờ hoặc thu hồi là dừng ngay",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-26"
+    ],
+    "expected": "Làm thay có người duyệt: hiển thị đúng 10 trường, áp quy tắc \"requestActing/decideActingRequest/revokeActing; chỉ nhập liệu: không làm thay việc quyết định, ký, duyệt hay quản trị truy cập; tối đa 8 giờ kể từ lúc duyệt; mọi dòng nhật ký trong phiên ghi người làm thay là tác nhân và người được làm thay trong on_behalf_of_id; hết giờ hoặc thu hồi là dừng ngay\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-26"
+    ]
+  },
+  {
+    "id": "UI-ADM-27",
+    "source": "FR-ADM-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Phạm vi theo kỳ báo cáo; user có quyền và user chỉ đọc; route ADM-27",
+    "steps": [
+      "Mở ADM-27 từ menu và deep link; kiểm nhãn trường: Người được giao, Vai trò, Kỳ báo cáo được phép, Lý do, Người đặt, Ngày đặt, Trạng thái, Gỡ giới hạn",
+      "Thực hiện thao tác chính theo quy tắc: createPeriodScope/liftPeriodScope; vai trò có giới hạn chỉ dùng cho báo cáo thuộc các kỳ đã liệt kê (tháng, quý, nửa năm, năm); vai trò không có giới hạn giữ nguyên hành vi trước đây; thay đổi nâng version quyền nên có hiệu lực ngay ở yêu cầu kế tiếp",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-27"
+    ],
+    "expected": "Phạm vi theo kỳ báo cáo: hiển thị đúng 8 trường, áp quy tắc \"createPeriodScope/liftPeriodScope; vai trò có giới hạn chỉ dùng cho báo cáo thuộc các kỳ đã liệt kê (tháng, quý, nửa năm, năm); vai trò không có giới hạn giữ nguyên hành vi trước đây; thay đổi nâng version quyền nên có hiệu lực ngay ở yêu cầu kế tiếp\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-27"
+    ]
+  },
+  {
+    "id": "UAT-IAM2-01",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Leader A holds approval.decide on the root unit; B is a delegate; P holds iam.delegation.approve and is a third person; a task is assigned to A.",
+    "steps": [
+      "A requests a permanent delegation to B with an end condition and a review date 180 days ahead",
+      "A and B try to approve it",
+      "P approves; B decides the task of A",
+      "The review date passes without a review; B decides another task of A",
+      "B requests a delegation back to A"
+    ],
+    "expected": "Step 2: 403 SELF_APPROVAL_DENIED each; step 3: the task is decided and the audit row names B as actor and A as on_behalf_of_id; step 4: 403 and the delegation is Ended with REVIEW_LAPSED; step 5: 403 DELEGATION_CYCLE_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-25"
+    ]
+  },
+  {
+    "id": "UAT-IAM2-02",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Administrator X holds iam.acting.request; person S holds test data-entry permissions; approver P holds iam.acting.approve and is a third person.",
+    "steps": [
+      "X asks to act for S for 4 hours with a reason",
+      "X sends X-Acting-As before the approval",
+      "P approves; X writes a record with the header",
+      "P revokes; X writes again",
+      "X asks for a decision permission and to act for X"
+    ],
+    "expected": "Step 2: 403 ACTING_NOT_LIVE; step 3: success and every audit row has actor X, on_behalf_of_id S and the grant in the diff; step 4: 403 ACTING_NOT_LIVE; step 5: 422 ACTING_INVALID and 403 ACTING_SELF_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-26"
+    ]
+  },
+  {
+    "id": "UAT-IAM2-03",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Reviewer R holds report.review on the tenant; the role grant is limited to 2026-Q3; a weekly report of week 30 of 2026 and one of week 5 of 2027 are submitted.",
+    "steps": [
+      "R decides the report of week 30 of 2026",
+      "R decides the report of week 5 of 2027",
+      "An administrator lifts the limit with a reason",
+      "R decides the report of week 5 of 2027 again"
+    ],
+    "expected": "Step 1: success; step 2: 403 PERIOD_SCOPE_DENIED; step 3: the scope version of R is raised; step 4: success.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-27"
+    ]
   }
 ]

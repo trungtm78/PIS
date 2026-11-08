@@ -19486,5 +19486,120 @@
     "stories": [
       "ST-INT-001"
     ]
+  },
+  {
+    "id": "BL-ADM-25",
+    "requirement": "FR-ADM-25",
+    "screen": "ADM-25",
+    "title": "Ủy quyền vĩnh viễn",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Người giao",
+      "Người nhận",
+      "Quyền ủy",
+      "Phạm vi đơn vị",
+      "Kỳ báo cáo giới hạn",
+      "Từ ngày",
+      "Ngày rà soát",
+      "Điều kiện kết thúc",
+      "Ngày kết thúc",
+      "Lý do",
+      "Căn cứ",
+      "Người duyệt",
+      "Trạng thái"
+    ],
+    "rule": "createStandingDelegationRequest/decideStandingDelegationRequest/reviewDelegation; ủy quyền không có ngày hết hạn riêng nhưng có điều kiện kết thúc bằng lời và ngày rà soát ≤365 ngày: quá ngày rà soát mà chưa rà soát thì ngừng hiệu lực ngay; người duyệt khác người giao và người nhận; không khép vòng ủy quyền; mọi lần dùng ghi cả hai danh tính",
+    "test_ids": [
+      "UI-ADM-25",
+      "UAT-IAM2-01"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-ADM-025"
+    ]
+  },
+  {
+    "id": "BL-ADM-26",
+    "requirement": "FR-ADM-26",
+    "screen": "ADM-26",
+    "title": "Làm thay có người duyệt",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Người được làm thay",
+      "Người đề nghị",
+      "Quyền cần dùng",
+      "Kỳ báo cáo giới hạn",
+      "Số giờ",
+      "Lý do",
+      "Người duyệt",
+      "Cửa sổ hiệu lực",
+      "Trạng thái",
+      "Thu hồi"
+    ],
+    "rule": "requestActing/decideActingRequest/revokeActing; chỉ nhập liệu: không làm thay việc quyết định, ký, duyệt hay quản trị truy cập; tối đa 8 giờ kể từ lúc duyệt; mọi dòng nhật ký trong phiên ghi người làm thay là tác nhân và người được làm thay trong on_behalf_of_id; hết giờ hoặc thu hồi là dừng ngay",
+    "test_ids": [
+      "UI-ADM-26",
+      "UAT-IAM2-02"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-ADM-025"
+    ]
+  },
+  {
+    "id": "BL-ADM-27",
+    "requirement": "FR-ADM-27",
+    "screen": "ADM-27",
+    "title": "Phạm vi theo kỳ báo cáo",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Người được giao",
+      "Vai trò",
+      "Kỳ báo cáo được phép",
+      "Lý do",
+      "Người đặt",
+      "Ngày đặt",
+      "Trạng thái",
+      "Gỡ giới hạn"
+    ],
+    "rule": "createPeriodScope/liftPeriodScope; vai trò có giới hạn chỉ dùng cho báo cáo thuộc các kỳ đã liệt kê (tháng, quý, nửa năm, năm); vai trò không có giới hạn giữ nguyên hành vi trước đây; thay đổi nâng version quyền nên có hiệu lực ngay ở yêu cầu kế tiếp",
+    "test_ids": [
+      "UI-ADM-27",
+      "UAT-IAM2-03"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-ADM-025"
+    ]
   }
 ]
