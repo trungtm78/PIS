@@ -75,7 +75,7 @@ void main() {
 
     test('every entrance names a screen of the Projects tab that the catalogue knows', () {
       final Map<String, MobileRoute> byId = <String, MobileRoute>{for (final MobileRoute route in kMobileRoutes) route.id: route};
-      for (final MapEntry<String, String> link in kProjectWorkLinks) {
+      for (final MapEntry<String Function(BuildContext), String> link in kProjectWorkLinks) {
         expect(byId[link.value]?.tab, AppTab.projects, reason: link.value);
         expect(entrances.values, contains('/projects/${link.value.toLowerCase()}'));
       }

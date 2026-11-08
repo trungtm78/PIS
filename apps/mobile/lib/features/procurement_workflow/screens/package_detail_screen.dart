@@ -149,7 +149,7 @@ class _StatusCard extends StatelessWidget {
       parts.add(context.t('mob.prc.detail.status.line', <String, Object>{'step': workflow.stepName ?? workflow.stepCode ?? ''}));
       final int? days = workflow.daysInStep;
       if (days != null) {
-        parts.add(workflow.daysWorking != null ? context.t('mob.prc.detail.status.days.working', <String, Object>{'n': days}) : context.t('mob.prc.detail.status.days.calendar', <String, Object>{'n': days}));
+        parts.add(workflow.daysWorking != null ? context.t('mob.prc.detail.days.working', <String, Object>{'n': days}) : context.t('mob.prc.detail.days.calendar', <String, Object>{'n': days}));
       }
       final PrcStepSummary? spent = workflow.summaryOf(workflow.stepCode);
       if (spent != null && spent.daysOver > 0) parts.add(context.t('mob.prc.detail.status.over', <String, Object>{'n': spent.daysOver}));

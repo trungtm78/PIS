@@ -160,18 +160,18 @@ class _LinkRow extends StatelessWidget {
   }
 }
 
-/// The words of the row and the screen it opens, in the order of the work: reports, money, the site, the paperwork of the end, the analysis.
-const List<MapEntry<String, String>> kProjectWorkLinks = <MapEntry<String, String>>[
-  MapEntry<String, String>('mob.prj.list.work.report', 'MOB-13'),
-  MapEntry<String, String>('mob.prj.list.work.payment', 'MOB-27'),
-  MapEntry<String, String>('mob.prj.list.work.treasury', 'MOB-60'),
-  MapEntry<String, String>('mob.prj.list.work.contracts', 'MOB-61'),
-  MapEntry<String, String>('mob.prj.list.work.issue', 'MOB-28'),
-  MapEntry<String, String>('mob.prj.list.work.clearance', 'MOB-68'),
-  MapEntry<String, String>('mob.prj.list.work.handover', 'MOB-66'),
-  MapEntry<String, String>('mob.prj.list.work.qa', 'MOB-37'),
-  MapEntry<String, String>('mob.prj.list.work.findings', 'MOB-38'),
-  MapEntry<String, String>('mob.prj.list.work.directives', 'DIR-06'),
+/// The words of the row (each a literal key, so the string registry can see it) and the screen it opens, in the order of the work: reports, money, the site, the paperwork of the end, the analysis.
+final List<MapEntry<String Function(BuildContext), String>> kProjectWorkLinks = <MapEntry<String Function(BuildContext), String>>[
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.report'), 'MOB-13'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.payment'), 'MOB-27'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.treasury'), 'MOB-60'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.contracts'), 'MOB-61'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.issue'), 'MOB-28'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.clearance'), 'MOB-68'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.handover'), 'MOB-66'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.qa'), 'MOB-37'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.findings'), 'MOB-38'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.directives'), 'DIR-06'),
 ];
 
 /// The way in to the screens of the work of the field and of the reports, which have no other entrance: one group, closed until the
@@ -187,7 +187,7 @@ class _WorkLinks extends StatelessWidget {
         tilePadding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
         childrenPadding: EdgeInsets.zero,
         title: Text(context.t('mob.prj.list.work.title')),
-        children: <Widget>[for (final MapEntry<String, String> link in kProjectWorkLinks) _LinkRow(label: context.t(link.key), screenId: link.value)],
+        children: <Widget>[for (final MapEntry<String Function(BuildContext), String> link in kProjectWorkLinks) _LinkRow(label: link.key(context), screenId: link.value)],
       ),
     );
   }
