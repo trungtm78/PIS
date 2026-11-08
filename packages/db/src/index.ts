@@ -1807,3 +1807,13 @@ export { AnaBottleneckStore, HALT_RESOURCE } from './ana-bottleneck-store.ts';
 export type { BottleneckPolicyReading, DossierRow as HaltDossierRow, SourceRead as BottleneckSourceRead, StepRow as HaltStepRow, UndocumentedHalt } from './ana-bottleneck-store.ts';
 export { AnaInsightStore, NO_FUND_KEY } from './ana-insight-store.ts';
 export type { HeatLabel, HeatSource, InsightPolicyReading } from './ana-insight-store.ts';
+
+// FEED-1: the feed of the Finance Department (docs/finance-feed.md).
+export { FeedConnectionStore, FeedRecordStore, feedColumnsOf, feedRowHashOf, feedStateOf, storedGeneratorParams } from './finance-feed-store.ts';
+export type { FeedConnectionRow, FeedHealthReading, FeedPositionRow, FeedRunRow, NewFeedRun } from './finance-feed-store.ts';
+export { FeedDifferenceStore, FeedMappingStore, feedItemOf, ownFigures } from './finance-feed-mapping-store.ts';
+export type { FeedDifferenceCounts, FeedDifferenceRow, FeedMappingCounts, FeedMappingOutcome, FeedMappingRow, FeedReconciliationResult, FeedUnmapped } from './finance-feed-mapping-store.ts';
+export { FEED_DIFFERENCE_CODES, FeedImportAdapter } from './finance-feed-import.ts';
+export type { FeedImportContext, FeedRowOutcome } from './finance-feed-import.ts';
+export { ProvinceFactsReader } from './finance-feed-reader.ts';
+export type { ProvinceFactsFilter } from './finance-feed-reader.ts';

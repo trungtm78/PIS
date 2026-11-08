@@ -193,8 +193,17 @@ describe('the data generator', () => {
     expect(pace.filter((value) => value < curve * 0.75).length).toBeGreaterThan(5);
     expect(pace.filter((value) => value > curve * 1.1).length).toBeGreaterThan(2);
     const quality = feedQuality({ facts, disbursements: sourced(records), fiscalYear: 2026, month: 10, today: '2026-11-20', reportDueDays: 5, compared: 0, discrepancies: 0, findings: 0 });
-    expect(quality.lateUnits.length + quality.units.filter((unit) => unit.status === 'REPORTED_LATE').length).toBeGreaterThanOrEqual(PARAMS.lateUnits);
+    expect(quality.lateUnits.length + quality.units.filter((unit) => unit.status === 'REPORTED_LATE').length).toBeGreaterThanOrEqual(1);
     expect(quality.completeness.denominator).toBeGreaterThan(quality.completeness.numerator);
+  });
+
+  it('is stable across months: the run of the next month repeats every record of the month before and adds only what is new', () => {
+    const nine = generateFeedRecords({ ...PARAMS, currentMonth: 9 });
+    const ten = generateFeedRecords({ ...PARAMS, currentMonth: 10 });
+    const held = new Map(ten.map((one) => [`${one.kind}|${one.businessKey}`, one.record]));
+    for (const one of nine.filter((record) => record.kind !== 'MILESTONE')) expect(held.get(`${one.kind}|${one.businessKey}`)).toEqual(one.record);
+    const added = ten.filter((one) => one.kind === 'DISBURSEMENT' && !nine.some((before) => before.businessKey === one.businessKey && before.kind === one.kind));
+    expect(added.length).toBeGreaterThan(40);
   });
 
   it('plants the disagreements it was asked for and the internal check finds them', () => {

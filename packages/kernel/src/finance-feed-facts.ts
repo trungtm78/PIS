@@ -76,7 +76,7 @@ const later = (a: string | undefined, b: string): boolean => a === undefined || 
  */
 export function foldFeedFacts(records: readonly SourcedFeedRecord[], filter: FeedFoldFilter): FeedProjectFact[] {
   const keyOf = (channel: FeedChannel, code: string): string => `${channel}|${code}`;
-  const projects = new Map<string, { asOf: string; record: FeedProjectRecord }>();
+  const projects = new Map<string, { asOf: string; record: FeedProjectRecord; channel: FeedChannel }>();
   const plans = new Map<string, { asOf: string; record: FeedPlanRecord }>();
   const rows = new Map<string, { asOf: string; record: FeedDisbursementRecord; channel: FeedChannel }>();
   const seen = new Map<string, SourcedFeedRecord>();
@@ -86,7 +86,7 @@ export function foldFeedFacts(records: readonly SourcedFeedRecord[], filter: Fee
       const record = one.record as FeedProjectRecord;
       const key = keyOf(one.channel, record.feedProjectCode);
       const held = projects.get(key);
-      if (held === undefined || later(held.asOf, one.asOf)) projects.set(key, { asOf: one.asOf, record });
+      if (held === undefined || later(held.asOf, one.asOf)) projects.set(key, { asOf: one.asOf, record, channel: one.channel });
     } else if (one.kind === 'PLAN') {
       const record = one.record as FeedPlanRecord;
       if (record.fiscalYear !== filter.fiscalYear) continue;
@@ -133,7 +133,7 @@ export function foldFeedFacts(records: readonly SourcedFeedRecord[], filter: Fee
   const touch = (fact: FeedProjectFact, asOf: string): void => {
     if (fact.asOf === null || asOf > fact.asOf) fact.asOf = asOf;
   };
-  for (const [, master] of projects) factOf(sourceOfProject(records, master.record.feedProjectCode, master.asOf), master.record.feedProjectCode);
+  for (const [, master] of projects) factOf(master.channel, master.record.feedProjectCode);
   for (const [key, plan] of plans) {
     const channel = key.split('|')[0] as FeedChannel;
     if (filter.fund !== undefined && plan.record.fundCode !== filter.fund) continue;
@@ -161,12 +161,6 @@ export function foldFeedFacts(records: readonly SourcedFeedRecord[], filter: Fee
     .filter((fact) => (filter.fund === undefined && fact.known) || Object.keys(fact.planByFund).length > 0 || Object.keys(fact.disbursedByFund).length > 0)
     .filter((fact) => (filter.sector === undefined || fact.sectorCode === filter.sector) && (filter.district === undefined || fact.districtCode === filter.district) && (filter.investor === undefined || fact.investorCode === filter.investor))
     .sort((a, b) => (a.feedProjectCode < b.feedProjectCode ? -1 : a.feedProjectCode > b.feedProjectCode ? 1 : a.channel < b.channel ? -1 : 1));
-}
-
-/** The channel of a project record: the records carry it; a project is read back to the first record that names it. */
-function sourceOfProject(records: readonly SourcedFeedRecord[], code: string, asOf: string): FeedChannel {
-  const found = records.find((one) => one.kind === 'PROJECT' && one.asOf === asOf && (one.record as FeedProjectRecord).feedProjectCode === code);
-  return found?.channel ?? 'FILE';
 }
 
 export const sumRecord = (record: Record<string, bigint>): bigint => Object.values(record).reduce((sum, value) => sum + value, 0n);
@@ -360,17 +354,34 @@ export function feedInternalFindings(records: readonly SourcedFeedRecord[], fisc
     funds.set(fundKey, byMonth);
   }
   for (const [fundKey, byMonth] of funds) {
-    const [channel, code, fund] = fundKey.split('|') as [FeedChannel, string, string];
+    const [source, code, fund] = fundKey.split('|') as [FeedChannel, string, string];
     const months = [...byMonth.keys()].sort((a, b) => a - b);
     const lastMonth = months[months.length - 1] as number;
-    const latest = (byMonth.get(lastMonth) as { record: FeedDisbursementRecord }).record;
-    const complete = months.length === lastMonth;
-    if (complete) {
-      const sum = months.reduce((total, month) => total + cents((byMonth.get(month) as { record: FeedDisbursementRecord }).record.disbursedMonth), 0n);
-      if (sum !== cents(latest.disbursedCumulative)) found.push({ code: 'CUMULATIVE_MISMATCH', channel, feedProjectCode: code, fiscalYear, fundCode: fund, month: lastMonth, expected: feedAmountText(sum), actual: latest.disbursedCumulative, message: FEED_TEXT.finding_cumulative_mismatch });
+    const plan = planned.get(`${source}|${code}|${fund}`);
+    let running = 0n;
+    let complete = true;
+    let mismatched = false;
+    let overPlan = false;
+    for (let month = 1; month <= lastMonth; month += 1) {
+      const entry = byMonth.get(month);
+      if (entry === undefined) {
+        complete = false;
+        continue;
+      }
+      const record = entry.record;
+      if (complete) {
+        running += cents(record.disbursedMonth);
+        // Only the first month whose cumulative is not the sum of the months before it is reported: every later one repeats the same fault.
+        if (!mismatched && running !== cents(record.disbursedCumulative)) {
+          mismatched = true;
+          found.push({ code: 'CUMULATIVE_MISMATCH', channel: source, feedProjectCode: code, fiscalYear, fundCode: fund, month, expected: feedAmountText(running), actual: record.disbursedCumulative, message: FEED_TEXT.finding_cumulative_mismatch });
+        }
+      }
+      if (!overPlan && plan !== undefined && cents(record.disbursedCumulative) > plan) {
+        overPlan = true;
+        found.push({ code: 'OVER_PLAN', channel: source, feedProjectCode: code, fiscalYear, fundCode: fund, month, expected: feedAmountText(plan), actual: record.disbursedCumulative, message: FEED_TEXT.finding_over_plan });
+      }
     }
-    const plan = planned.get(`${channel}|${code}|${fund}`);
-    if (plan !== undefined && cents(latest.disbursedCumulative) > plan) found.push({ code: 'OVER_PLAN', channel, feedProjectCode: code, fiscalYear, fundCode: fund, month: lastMonth, expected: feedAmountText(plan), actual: latest.disbursedCumulative, message: FEED_TEXT.finding_over_plan });
   }
   return found.sort((a, b) => (a.feedProjectCode < b.feedProjectCode ? -1 : a.feedProjectCode > b.feedProjectCode ? 1 : a.code < b.code ? -1 : 1));
 }
