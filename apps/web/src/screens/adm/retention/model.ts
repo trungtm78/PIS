@@ -131,6 +131,8 @@ export interface HoldView {
   authorityReference: string;
   reason: string;
   effectiveAt: string;
+  /** The version the release is made under (`If-Match`), when the register row carries one. */
+  version?: number;
 }
 
 export function toHold(raw: unknown): HoldView | undefined {
@@ -155,6 +157,7 @@ export function toHold(raw: unknown): HoldView | undefined {
     authorityReference,
     reason,
     effectiveAt,
+    ...(typeof raw.version === 'number' ? { version: raw.version } : {}),
   };
 }
 

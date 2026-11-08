@@ -60,6 +60,8 @@ export interface Dossier {
   mayHandover: boolean;
   mayProposeDisposal: boolean;
   mayDecideDisposal: boolean;
+  mayAddDocument: boolean;
+  mayClose: boolean;
 }
 
 export interface Member {
@@ -140,6 +142,8 @@ export function toDossier(raw: unknown): Dossier {
     mayHandover: actions.handover === true,
     mayProposeDisposal: actions.proposeDisposal === true,
     mayDecideDisposal: actions.decideDisposal === true,
+    mayAddDocument: actions.addDocument === true,
+    mayClose: actions.close === true,
   };
 }
 

@@ -188,6 +188,12 @@ export type ArchiveProblem =
   | 'legalBasis'
   | 'selfApproval'
   | 'conflict'
+  | 'notOpen'
+  | 'empty'
+  | 'duplicateCode'
+  | 'notFileable'
+  | 'alreadyIn'
+  | 'letterState'
   | 'invalid'
   | 'scope'
   | 'notFound'
@@ -206,6 +212,12 @@ const PROBLEM_BY_CODE: Readonly<Record<string, ArchiveProblem>> = {
   LEGAL_BASIS_REQUIRED: 'legalBasis',
   SELF_APPROVAL_DENIED: 'selfApproval',
   VERSION_CONFLICT: 'conflict',
+  DOSSIER_NOT_OPEN: 'notOpen',
+  DOSSIER_EMPTY: 'empty',
+  DOSSIER_CODE_DUPLICATE: 'duplicateCode',
+  DOCUMENT_NOT_FILEABLE: 'notFileable',
+  DOCUMENT_ALREADY_IN_DOSSIER: 'alreadyIn',
+  DOCUMENT_STATE_INVALID: 'letterState',
   VALIDATION_FAILED: 'invalid',
   INVALID_REQUEST: 'invalid',
   SCOPE_DENIED: 'scope',

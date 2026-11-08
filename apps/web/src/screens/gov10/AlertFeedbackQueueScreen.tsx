@@ -12,6 +12,7 @@ import { sourceLabel } from '../../ui/alerts/AlertRow';
 import { useFeedbackQueue, useFeedbackStats, useReviewFeedback } from './hooks';
 import { FEEDBACK_STATUSES } from './model';
 import type { Feedback, FeedbackStatus, TypeStat } from './model';
+import { MyFeedbackSection } from './MyFeedbackSection';
 import { Provenance, feedbackReasonLabel, feedbackStatusLabel, when } from './parts';
 
 const REVIEW = 'alert.feedback.review';
@@ -180,6 +181,7 @@ function QueueContent({ route }: ScreenProps) {
             <DataTable caption={t('gov10.feedback.stats.title')} columns={statColumns} rows={stats.data.items} rowKey={(row) => row.alertType} />
           )}
         </SectionCard>
+        <MyFeedbackSection />
         {pending === null ? null : (
           <ConfirmDialog
             open

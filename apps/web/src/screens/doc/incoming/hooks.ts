@@ -116,3 +116,9 @@ export function useRejectLetter() {
   const client = useApiClient();
   return useCommand<VersionedInput<{ rejection_reason: string; duplicate_of_id?: string }>>((input, attempt) => client.command('rejectIncomingDocument', { path: { id: input.id }, body: input.body as { rejection_reason: string; duplicate_of_id?: string }, ifMatchVersion: input.version, attempt }));
 }
+
+/** Files a resolved letter into an open dossier (RESOLVED to FILED), under the version of the letter that was read. */
+export function useFileLetter() {
+  const client = useApiClient();
+  return useCommand<VersionedInput<{ dossier_id: string; ordinal?: number }>>((input, attempt) => client.command('fileIncomingDocument', { path: { id: input.id }, body: input.body as { dossier_id: string; ordinal?: number }, ifMatchVersion: input.version, attempt }));
+}

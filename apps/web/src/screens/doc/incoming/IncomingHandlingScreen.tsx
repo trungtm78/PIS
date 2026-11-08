@@ -9,6 +9,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../../ctr/components';
 import { CommandFrame } from '../../qms/CommandFrame';
 import { useUnitOptions } from '../registers/hooks';
+import { FILE_PERMISSION, FileDialog } from './FileDialog';
 import { useAssignLetter, useIncoming, useRegisterLetter, useRejectLetter, useResolveLetter, useStartLetter } from './hooks';
 import { channelLabel, formProblemMessage, problemMessage, statusLabel, urgencyLabel } from './labels';
 import { assignBody, canAct, describeProblem, emptyAssign, handlingLink, ledgerLink, openRegistersOf, validateAssign, validateWords, vietnamToday } from './model';
@@ -26,7 +27,7 @@ export default function IncomingHandlingScreen({ route }: ScreenProps) {
   return <HandlingContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${search.get('id') ?? ''}`} route={route} />;
 }
 
-type Dialog = 'register' | 'assign' | 'resolve' | 'reject';
+type Dialog = 'register' | 'assign' | 'resolve' | 'reject' | 'file';
 
 interface DialogProps {
   line: IncomingLine;
@@ -40,7 +41,8 @@ const settle = (onClose: () => void, onConflict: () => void) => ({ onSuccess: on
 
 function HandlingContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
+  const mayFile = permissions === undefined || permissions.includes(FILE_PERMISSION);
   const [search] = useSearchParams();
   const wanted = search.get('id') ?? undefined;
   const letter = useIncoming(wanted);
@@ -127,6 +129,11 @@ function HandlingContent({ route }: ScreenProps) {
                       {t('doc.incoming.resolve.action')}
                     </button>
                   ) : null}
+                  {line.status === 'RESOLVED' && mayFile ? (
+                    <button type="button" className="primary" data-action="file" onClick={() => openDialog('file')}>
+                      {t('doc.dossier.file.action')}
+                    </button>
+                  ) : null}
                   {line.actions.reject ? (
                     <button type="button" data-action="reject" onClick={() => openDialog('reject')}>
                       {t('doc.incoming.reject.action')}
@@ -159,6 +166,7 @@ function HandlingContent({ route }: ScreenProps) {
       {dialog === 'register' && line !== undefined ? <RegisterDialog line={line} onClose={() => setDialog(undefined)} onConflict={conflict} /> : null}
       {dialog === 'assign' && line !== undefined ? <AssignDialog line={line} onClose={() => setDialog(undefined)} onConflict={conflict} /> : null}
       {dialog === 'resolve' && line !== undefined ? <ResolveDialog line={line} onClose={() => setDialog(undefined)} onConflict={conflict} /> : null}
+      {dialog === 'file' && line !== undefined ? <FileDialog line={line} onClose={() => setDialog(undefined)} onConflict={conflict} /> : null}
       {dialog === 'reject' && line !== undefined ? <RejectDialog line={line} onClose={() => setDialog(undefined)} onConflict={conflict} /> : null}
       <p className="prototype-note">{t('doc.incoming.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

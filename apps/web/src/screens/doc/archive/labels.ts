@@ -124,6 +124,18 @@ export function problemMessage(t: T, problem: ArchiveProblem): string {
       return t('doc.archive.problem.selfApproval');
     case 'conflict':
       return t('doc.archive.problem.conflict');
+    case 'notOpen':
+      return t('doc.archive.problem.notOpen');
+    case 'empty':
+      return t('doc.archive.problem.empty');
+    case 'duplicateCode':
+      return t('doc.archive.problem.duplicateCode');
+    case 'notFileable':
+      return t('doc.archive.problem.notFileable');
+    case 'alreadyIn':
+      return t('doc.archive.problem.alreadyIn');
+    case 'letterState':
+      return t('doc.archive.problem.letterState');
     case 'invalid':
       return t('doc.archive.problem.invalid');
     case 'scope':

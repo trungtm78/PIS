@@ -88,3 +88,44 @@ export function useRetentionHolds(enabled = true) {
     retry: false,
   });
 }
+
+/** Places a legal hold on the paper of an authority; one idempotency attempt per intention. */
+export function usePlaceHold() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => client.command('placeLegalHold', { body: body as never, attempt: attempts.current.forPayload(body) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: retentionKey(tenant?.id) });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
+}
+
+export interface ReleaseHoldInput {
+  id: string;
+  version: number;
+  reason: string;
+}
+
+/** Releases a hold, by somebody other than the person who placed it (versioned: a stale version is a 409). */
+export function useReleaseHold() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+  const { tenant } = useSession();
+  const attempts = useRef(new AttemptRegistry());
+  return useMutation({
+    mutationFn: (input: ReleaseHoldInput) => client.command('releaseLegalHold', { path: { holdId: input.id }, body: { reason: input.reason }, ifMatchVersion: input.version, attempt: attempts.current.forPayload(input) }),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: retentionKey(tenant?.id) });
+    },
+    onError: async (error) => {
+      attempts.current.ended(error);
+      await queryClient.invalidateQueries({ queryKey: retentionKey(tenant?.id) });
+    },
+  });
+}

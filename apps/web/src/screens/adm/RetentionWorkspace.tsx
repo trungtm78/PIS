@@ -27,6 +27,7 @@ import type { DraftErrors, DraftField, DraftValues, HoldView, PolicyView, Review
 import { instantText } from './audit/SealBanner';
 import { SectionCard, StatusPill } from '../../ui';
 import { KitTable } from './KitTable';
+import { MANAGE_HOLD_PERMISSION, PlaceHoldForm, ReleaseHoldForm } from './retention/HoldActions';
 import './adm-kit.css';
 import './retention/retention.css';
 
@@ -91,6 +92,9 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
   const create = useCreateRetentionDraft();
   const publish = usePublishRetention();
   const register = useMemo(() => inRegisterOrder(policies), [policies]);
+  const canHold = (permissions === undefined || permissions.includes(MANAGE_HOLD_PERMISSION)) && !frozen;
+  const [placing, setPlacing] = useState(false);
+  const [releasing, setReleasing] = useState<string | undefined>(undefined);
   const activeHolds = useMemo(() => holds.filter((hold) => hold.status === 'Active'), [holds]);
   const [values, setValues] = useState<DraftValues>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<DraftErrors>({});
@@ -242,6 +246,12 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
           <SectionCard title={t('adm.retention.hold.title')}>
             <div data-testid="holds">
             <p className="sub">{t('adm.retention.hold.hint')}</p>
+            {canHold && !placing ? (
+              <button type="button" className="primary" data-testid="place-hold" onClick={() => setPlacing(true)}>
+                {t('adm.retention.hold.place.open')}
+              </button>
+            ) : null}
+            {placing ? <PlaceHoldForm onClose={() => setPlacing(false)} /> : null}
             {activeHolds.length === 0 ? <p className="muted">{t('adm.retention.hold.empty')}</p> : null}
             {activeHolds.length === 0 ? null : (
               <KitTable caption={t('w2adm.retention.table.holds')}>
@@ -252,6 +262,11 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                       <th>{t('adm.retention.hold.col.since')}</th>
                       <th>{t('adm.retention.hold.col.authority')}</th>
                       <th>{t('adm.retention.hold.col.reason')}</th>
+                      {canHold ? (
+                        <th>
+                          <span className="sr-only">{t('adm.retention.hold.col.actions')}</span>
+                        </th>
+                      ) : null}
                     </tr>
                   </thead>
                   <tbody>
@@ -265,11 +280,19 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                         <td>{instantText(locale, hold.effectiveAt)}</td>
                         <td>{hold.authorityReference}</td>
                         <td>{hold.reason}</td>
+                        {canHold ? (
+                          <td>
+                            <button type="button" data-testid={`release-${hold.id}`} onClick={() => setReleasing(hold.id)}>
+                              {t('adm.retention.hold.release.open')}
+                            </button>
+                          </td>
+                        ) : null}
                       </tr>
                     ))}
                   </tbody>
                 </KitTable>
             )}
+            {releasing === undefined ? null : activeHolds.filter((hold) => hold.id === releasing).map((hold) => <ReleaseHoldForm key={hold.id} hold={hold} onClose={() => setReleasing(undefined)} />)}
             </div>
           </SectionCard>
 

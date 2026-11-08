@@ -123,3 +123,13 @@ export interface ReportInput {
 }
 export const useReportAlertWrong = () =>
   useGovCommand<ReportInput>(AO, (input, attempt, client) => callCommand(client, 'reportAlertWrong', { body: { source: input.source, source_id: input.sourceId, reason: input.reason, ...(input.note === undefined ? {} : { note: input.note }) }, attempt }));
+
+export const useMyFeedback = () => useGovRead(AO, 'feedback-mine', 'listMyAlertFeedback', { query: { limit: 50 } }, toFeedbackPage);
+export interface WithdrawInput {
+  id: string;
+  version: number;
+}
+export const useWithdrawFeedback = () => useGovCommand<WithdrawInput>(AO, (input, attempt, client) => callCommand(client, 'withdrawAlertFeedback', { path: { id: input.id }, ifMatchVersion: input.version, attempt, body: {} }));
+
+/** The ladders of one alert item (`getAlertLadderForItem`): read only when the person asked for an item. */
+export const useLadderItem = (source: string, sourceId: string, enabled: boolean) => useGovRead(LD, 'item', 'getAlertLadderForItem', { query: { source, source_id: sourceId } }, toLadderRuns, enabled);

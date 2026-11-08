@@ -7,7 +7,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
 import type { DataTableColumn } from '../../ui';
-import { LADDER_PAGE, useLadderKpi, useLadderPolicies, useLadderRuns } from './hooks';
+import { LADDER_PAGE, useLadderItem, useLadderKpi, useLadderPolicies, useLadderRuns } from './hooks';
 import type { LadderPolicyView, LadderRunView } from './model';
 import { Pager, Provenance, RungPill, channelLabel, when } from './parts';
 
@@ -240,10 +240,82 @@ function LadderContent({ route }: ScreenProps) {
                   </>
                 )}
               </SectionCard>
+              <ItemLookup />
             </>
           )}
         </StateBoundary>
       </div>
     </section>
+  );
+}
+
+const SOURCE_CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
+
+/** The ladders and receipts of one alert item, found by its source and its identifier (the two values the alert centre shows on the item). Nothing is read until the person asks, and a lookup that finds nothing says so. */
+function ItemLookup() {
+  const { t } = useTranslation();
+  const [source, setSource] = useState('');
+  const [sourceId, setSourceId] = useState('');
+  const [asked, setAsked] = useState<{ source: string; sourceId: string } | undefined>(undefined);
+  const [tried, setTried] = useState(false);
+  const found = useLadderItem(asked?.source ?? '', asked?.sourceId ?? '', asked !== undefined);
+  const sourceProblem = !SOURCE_CODE.test(source.trim());
+  const idProblem = sourceId.trim() === '' || sourceId.trim().length > 200;
+  return (
+    <SectionCard title={t('gov10.ladder.item.title')}>
+      <form
+        className="gov10-filters"
+        noValidate
+        data-testid="item-lookup"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setTried(true);
+          if (sourceProblem || idProblem) return;
+          setAsked({ source: source.trim(), sourceId: sourceId.trim() });
+        }}
+      >
+        <label>
+          <span>{t('gov10.ladder.item.source')}</span>
+          <input value={source} aria-invalid={tried && sourceProblem} onChange={(event) => setSource(event.target.value.toUpperCase())} />
+        </label>
+        <label>
+          <span>{t('gov10.ladder.item.id')}</span>
+          <input value={sourceId} aria-invalid={tried && idProblem} onChange={(event) => setSourceId(event.target.value)} />
+        </label>
+        <button type="submit" className="mv-alert-button">
+          {t('gov10.ladder.item.find')}
+        </button>
+      </form>
+      {tried && (sourceProblem || idProblem) ? (
+        <p role="alert" data-testid="item-invalid">
+          {t('gov10.ladder.item.invalid')}
+        </p>
+      ) : null}
+      {asked === undefined ? null : found.isLoading ? (
+        <div className="skeleton" role="status" aria-busy="true" aria-label={t('states.loading.label')} />
+      ) : found.data === undefined ? (
+        <p role="alert" data-testid="item-error">
+          {t('gov10.ladder.item.failed')}{' '}
+          <button type="button" className="mv-alert-link" onClick={() => void found.refetch()}>
+            {t('gov10.state.retry.label')}
+          </button>
+        </p>
+      ) : found.data.items.length === 0 ? (
+        <p className="gov10-notice" role="status" data-testid="item-empty">
+          {t('gov10.ladder.item.empty')}
+        </p>
+      ) : (
+        <ul data-testid="item-runs">
+          {found.data.items.map((run) => (
+            <li key={run.id} data-testid={`item-run-${run.id}`}>
+              <strong>{run.alertType ?? run.source}</strong> · {severityLabel(t, run.severity)} · {runStateLabel(t, run.state)}{' '}
+              {run.doneBy === null ? null : <span className="dis-code">{doneByLabel(t, run.doneBy)}</span>}
+              <time dateTime={run.startedAt}> {when(run.startedAt)}</time>{' '}
+              {run.rungs.length === 0 ? t('gov10.ladder.noRungs') : run.rungs.map((rung) => <RungPill key={rung.index} channel={rung.channel} state={rung.state} reason={rung.reason} />)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </SectionCard>
   );
 }

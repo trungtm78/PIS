@@ -6,6 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { DecideAction, HandoverAction, ProposeAction } from './archive/DossierActions';
+import { CreateDossierAction, DossierDetailPanel, MANAGE_DOSSIER_PERMISSION } from './archive/DossierManage';
 import { useDossiers } from './archive/hooks';
 import { blockerMessage, classLabel, dossierStatusLabel } from './archive/labels';
 import { retentionIsOver } from './archive/rules';
@@ -40,6 +41,8 @@ function DossiersContent({ route }: ScreenProps) {
   const list = useDossiers(mayRead);
   const [status, setStatus] = useState<DossierStatus | ''>('');
   const [pending, setPending] = useState<Pending>(undefined);
+  const [panel, setPanel] = useState<{ kind: 'create' } | { kind: 'detail'; id: string } | undefined>(undefined);
+  const mayManage = permissions === undefined || permissions.includes(MANAGE_DOSSIER_PERMISSION);
   const dossiers = (list.data ?? []).filter((dossier) => status === '' || dossier.status === status);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data });
   const chosen = pending === undefined ? undefined : (list.data ?? []).find((dossier) => dossier.id === pending.id);
@@ -93,6 +96,11 @@ function DossiersContent({ route }: ScreenProps) {
               ))}
             </select>
           </div>
+          {mayManage && !frozen ? (
+            <button type="button" className="primary" data-testid="new-dossier" onClick={() => setPanel({ kind: 'create' })}>
+              {t('doc.dossier.create.open')}
+            </button>
+          ) : null}
           <StateBoundary state={state} onRetry={() => void list.refetch()}>
             <div className="tablewrap">
               <table aria-label={t('doc.archive.dossiers.aria')} data-testid="dossiers">
@@ -148,13 +156,23 @@ function DossiersContent({ route }: ScreenProps) {
                         )}
                       </td>
                       <td>{dossier.archiveRef === null ? NONE : t('doc.archive.archive.ref', { ref: dossier.archiveRef })}</td>
-                      <td>{actions(dossier)}</td>
+                      <td>
+                        <button type="button" data-testid={`open-${dossier.id}`} onClick={() => setPanel({ kind: 'detail', id: dossier.id })}>
+                          {t('doc.dossier.detail.open')}
+                        </button>
+                        {actions(dossier)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </StateBoundary>
+          {panel === undefined ? null : panel.kind === 'create' ? (
+            <CreateDossierAction onClose={() => setPanel(undefined)} />
+          ) : (
+            (list.data ?? []).filter((dossier) => dossier.id === panel.id).map((dossier) => <DossierDetailPanel key={dossier.id} dossier={dossier} frozen={frozen} onClose={() => setPanel(undefined)} />)
+          )}
           {chosen === undefined || pending === undefined ? null : pending.kind === 'handover' ? (
             <HandoverAction key={chosen.id} dossier={chosen} onClose={close} />
           ) : pending.kind === 'propose' ? (

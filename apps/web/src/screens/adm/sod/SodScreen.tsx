@@ -11,6 +11,7 @@ import { actionLabel, scopeLabel, severityLabel, severityTone, statusLabel, stat
 import { APPROVE_PERMISSION, READ_PERMISSION, REQUEST_PERMISSION, REVOKE_PERMISSION, STATUSES, daysLeft, pairKeyOf, todayOf } from './model';
 import type { ExceptionView, Status } from './model';
 import { ApproveDialog, RejectDialog, RequestDialog, RevokeDialog } from './SodDialogs';
+import { SodDetail } from './SodDetail';
 import '../adm-kit.css';
 import './sod.css';
 
@@ -36,6 +37,7 @@ function SodContent({ route }: ScreenProps) {
   const [approving, setApproving] = useState<ExceptionView | undefined>(undefined);
   const [rejecting, setRejecting] = useState<ExceptionView | undefined>(undefined);
   const [revoking, setRevoking] = useState<ExceptionView | undefined>(undefined);
+  const [detail, setDetail] = useState<ExceptionView | undefined>(undefined);
   const has = (permission: string): boolean => permissions === undefined || permissions.includes(permission);
   const writable = mode !== 'READ_ONLY';
   const mayRead = has(READ_PERMISSION);
@@ -218,6 +220,9 @@ function SodContent({ route }: ScreenProps) {
                       </td>
                       <td data-testid="uses">{row.uses}</td>
                       <td className="adm-sod-actions">
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" data-open="detail" onClick={() => setDetail(row)}>
+                          {t('govd.sod.detail.open')}
+                        </button>
                         {row.status === 'REQUESTED' && mayDecide && !party ? (
                           <>
                             <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="approve" onClick={() => setApproving(row)}>
@@ -242,6 +247,7 @@ function SodContent({ route }: ScreenProps) {
           </SectionCard>
         </StateBoundary>
       )}
+      {detail === undefined ? null : <SodDetail row={detail} onClose={() => setDetail(undefined)} />}
       {requesting === undefined || data === undefined ? null : <RequestDialog matrix={data} today={today} {...(requesting.preset === undefined ? {} : { preset: requesting.preset })} onClose={() => setRequesting(undefined)} />}
       {approving === undefined ? null : <ApproveDialog row={approving} onClose={() => setApproving(undefined)} />}
       {rejecting === undefined ? null : <RejectDialog row={rejecting} onClose={() => setRejecting(undefined)} />}
