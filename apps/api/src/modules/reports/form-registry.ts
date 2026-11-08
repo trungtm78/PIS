@@ -2,6 +2,7 @@ import { DIS_WEEKLY_LAYOUT, DomainError, validateLayout } from '@machvon/kernel'
 import type { ReportFormBundle } from '@machvon/kernel';
 import { buildBlankTemplate } from './blank-template';
 import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import type { ReportFigureProvider } from './figure-provider';
 import { registerCommitteeReportForm } from '../committee/pack-provider';
 
@@ -13,6 +14,7 @@ import { registerCommitteeReportForm } from '../committee/pack-provider';
 export class ReportFormRegistry {
   private readonly forms = new Map<string, ReportFormBundle>();
   private readonly providers = new Map<string, ReportFigureProvider>();
+  private readonly guards = new Map<string, string>();
 
   /** Adds a form. A code is registered once with one layout version; a DEMO form must be illustrative, a form with live figures names a provider the process has. */
   register(bundle: ReportFormBundle): void {
@@ -34,6 +36,15 @@ export class ReportFormRegistry {
     if (!this.providers.has(provider.id)) this.providers.set(provider.id, provider);
   }
 
+  /** A form whose figures are confidential to a body (the meeting pack of the committee) names the permission over the whole tenant that its drafts, copies and files need besides the permissions of the engine. */
+  guard(layoutCode: string, permission: string): void {
+    this.guards.set(layoutCode, permission);
+  }
+
+  guardOf(layoutCode: string): string | undefined {
+    return this.guards.get(layoutCode);
+  }
+
   get(code: string): ReportFormBundle | undefined {
     return this.forms.get(code);
   }
@@ -51,11 +62,22 @@ export class ReportFormRegistry {
   clear(): void {
     this.forms.clear();
     this.providers.clear();
+    this.guards.clear();
   }
 }
 
 /** The registry of the process. */
 export const REPORT_FORMS = new ReportFormRegistry();
+
+/** Whether the caller may see drafts and copies of the form: the guard of the form, when it has one, is a permission over the whole tenant. */
+export const layoutReadable = (access: EffectiveAccess, layoutCode: string): boolean => {
+  const permission = REPORT_FORMS.guardOf(layoutCode);
+  return permission === undefined || holdsOnWholeTenant(access, permission);
+};
+
+export function assertLayoutAccess(access: EffectiveAccess, layoutCode: string): void {
+  if (!layoutReadable(access, layoutCode)) throw new DomainError('SCOPE_DENIED', 403);
+}
 
 /** The generic forms of the public edition: the weekly disbursement report, read from the command center through its provider. Calling it again changes nothing. */
 export function registerPublicReportForms(registry: ReportFormRegistry = REPORT_FORMS): void {

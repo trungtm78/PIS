@@ -1,8 +1,10 @@
+import { PERMISSIONS } from '@machvon/contracts';
 import { ReportStore } from '@machvon/db';
 import type { ProvinceFactsReader } from '@machvon/db';
-import { COMMITTEE_PACK_LAYOUT, defaultBasisOf, packDatasetsOf, packFeedLine } from '@machvon/kernel';
+import { COMMITTEE_PACK_CODE, COMMITTEE_PACK_LAYOUT, DomainError, defaultBasisOf, packDatasetsOf, packFeedLine } from '@machvon/kernel';
 import type { KpiDefinition, ReportFigure, ReportFillData, ReportIndicatorDefinition, SnapshotRevisionRef } from '@machvon/kernel';
 import type { ProviderContext, ProviderResult, ReportFigureProvider } from '../reports/figure-provider';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { ReportFormRegistry } from '../reports/form-registry';
 import { buildBlankTemplate } from '../reports/blank-template';
 import { CommitteeWorkspaceService } from './committee-service';
@@ -36,6 +38,8 @@ export class CommitteePackProvider implements ReportFigureProvider {
   }
 
   async load(context: ProviderContext): Promise<ProviderResult> {
+    // The figures are province-wide and confidential: the permissions of the report engine alone do not open them.
+    if (!holdsOnWholeTenant(context.access, PERMISSIONS.getCommitteeWorkspace)) throw new DomainError('SCOPE_DENIED', 403);
     const day = context.period.day ?? context.today;
     const around = await context.database.withTenant(context.tenant, async (tx) => {
       const read = await this.service.read(tx, { asOf: day > context.today ? context.today : day });
@@ -70,6 +74,7 @@ export class CommitteePackProvider implements ReportFigureProvider {
 /** Registers the meeting pack and its provider in the registry of the report engine. Calling it again changes nothing. */
 export function registerCommitteeReportForm(registry: ReportFormRegistry, reader?: ProvinceFactsReader): void {
   registry.registerProvider(new CommitteePackProvider(reader));
+  registry.guard(COMMITTEE_PACK_CODE, PERMISSIONS.getCommitteeWorkspace);
   registry.register({
     edition: 'public',
     layout: COMMITTEE_PACK_LAYOUT,

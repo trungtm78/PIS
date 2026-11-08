@@ -341,3 +341,14 @@ describe('the meeting pack form', () => {
     expect(unknown.province?.[0]?.rate).toBeNull();
   });
 });
+
+describe('the day the age of reports is judged on', () => {
+  it('is the day asked for, not the day of an older financial snapshot (a unit that stopped reporting after the cut-off is stale)', () => {
+    const units = [{ unitId: 'u1', unitName: 'A', expected: 4, received: 4, lastReportedOn: '2026-09-10' }];
+    const atCutOff = facts({ asOf: '2026-09-20', units });
+    expect(evaluateCommitteeAlerts(atCutOff, POLICY, []).some((alert) => alert.alertType === 'COMMITTEE_UNIT_NOT_REPORTING')).toBe(false);
+    const later = facts({ asOf: '2026-09-20', evaluatedOn: '2026-10-15', units });
+    expect(evaluateCommitteeAlerts(later, POLICY, []).filter((alert) => alert.alertType === 'COMMITTEE_UNIT_NOT_REPORTING')).toHaveLength(1);
+    expect(buildWorkspace(later, null, POLICY).units[0]?.daysSinceReport).toBe(35);
+  });
+});

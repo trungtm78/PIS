@@ -245,7 +245,7 @@ function PackContent() {
   const query = usePack(asOf);
   const data = query.data;
   const state = useScreenState({ isLoading: query.isLoading, error: data === undefined ? query.error : undefined, data, isEmpty: () => false });
-  const day = data?.as_of ?? (asOf === '' ? vietnamDay() : asOf);
+  const day = data?.generation.period.day ?? (asOf === '' ? vietnamDay() : asOf);
   return (
     <>
       <ContextBar

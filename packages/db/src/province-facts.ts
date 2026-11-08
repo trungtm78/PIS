@@ -131,8 +131,8 @@ export class CoreProvinceFactsReader implements ProvinceFactsReader {
         planVnd: row.plan,
         disbursedVnd: row.disbursed,
         // A snapshot of the year before that exists but holds no line of this project is a project that had no plan then: zero. No snapshot is unknown.
-        lastYearSamePeriodVnd: samePeriod === null ? null : (samePeriod.get(key) ?? ZERO),
-        lastYearFullYearVnd: whole === null ? null : (whole.get(key) ?? ZERO),
+        lastYearSamePeriodVnd: samePeriod === null ? null : samePeriod.has(key) ? (samePeriod.get(key) ?? null) : ZERO,
+        lastYearFullYearVnd: whole === null ? null : whole.has(key) ? (whole.get(key) ?? null) : ZERO,
       };
     });
     const projectIds = [...new Set(lines.map((row) => row.project_id))];
@@ -194,6 +194,7 @@ export class CoreProvinceFactsReader implements ProvinceFactsReader {
       owed.set(row.unit_id, unit);
     }
     const units: ProvinceUnitReport[] = [...owed.entries()].map(([unitId, one]) => ({ unitId, unitName: one.name, expected: one.expected, received: one.received, lastReportedOn: one.last }));
-    return { asOf, fiscalYear: year, projects, lines: fundLines, units, feed: { basis: 'DIS_SNAPSHOT', reference: snapshot.id, lastDeliveredAt: null } };
+    // The financial cut-off is the day of the snapshot; the age of reports is judged on the day that was asked for.
+    return { asOf, evaluatedOn: request.asOf, fiscalYear: year, projects, lines: fundLines, units, feed: { basis: 'DIS_SNAPSHOT', reference: snapshot.id, lastDeliveredAt: null } };
   }
 }

@@ -272,6 +272,7 @@ interface ViewSql {
   assurance_level: AssuranceLevel;
   mfa_required: boolean;
   viewed_at: string;
+  cursor_at: string;
 }
 
 export class CommitteeViewAuditStore {
@@ -291,7 +292,7 @@ export class CommitteeViewAuditStore {
   async list(tx: TenantTx, query: { screen?: CommitteeScreen | undefined; membershipId?: string | undefined; from?: string | undefined; to?: string | undefined; before?: string | undefined; limit: number }): Promise<{ rows: ViewAuditRow[]; next: string | null }> {
     const limit = Math.min(Math.max(query.limit, 1), 200);
     const rows = await tx.query<ViewSql>(
-      `select a.id, a.membership_id, ${NAME_OF('a', 'a.membership_id')} as display_name, a.committee_role, a.screen, a.filters, a.as_of::text as as_of, a.record_count, a.feed_basis, a.assurance_level, a.mfa_required, ${ISO('a.viewed_at')} as viewed_at
+      `select a.id, a.membership_id, ${NAME_OF('a', 'a.membership_id')} as display_name, a.committee_role, a.screen, a.filters, a.as_of::text as as_of, a.record_count, a.feed_basis, a.assurance_level, a.mfa_required, ${ISO('a.viewed_at')} as viewed_at, to_char(a.viewed_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as cursor_at
          from machvon.committee_view_audit a
         where ($1::text is null or a.screen = $1) and ($2::uuid is null or a.membership_id = $2::uuid)
           and ($3::date is null or a.viewed_at >= $3::date) and ($4::date is null or a.viewed_at < $4::date + 1)
@@ -303,7 +304,7 @@ export class CommitteeViewAuditStore {
     const last = page[page.length - 1];
     return {
       rows: page.map((row) => ({ id: row.id, membershipId: row.membership_id, displayName: row.display_name, committeeRole: row.committee_role, screen: row.screen, filters: row.filters, asOf: row.as_of, recordCount: row.record_count, feedBasis: row.feed_basis, assuranceLevel: row.assurance_level, mfaRequired: row.mfa_required, viewedAt: row.viewed_at })),
-      next: rows.length > limit && last !== undefined ? `${last.viewed_at}|${last.id}` : null,
+      next: rows.length > limit && last !== undefined ? `${last.cursor_at}|${last.id}` : null,
     };
   }
 }

@@ -368,7 +368,7 @@ export function attentionSignalsOf(project: ProvinceProjectFact, lines: readonly
 
 /** The projects that need the head, ranked by impact (the highest score first; ties by the money at stake, then by code), at most `attentionTopN` unless `all` is asked for. */
 export function rankAttention(facts: ProvinceFacts, policy: CommitteePolicy, options: { all?: boolean } = {}): { items: AttentionItem[]; total: number } {
-  const reporting = new Map(unitReportingOf(facts.units, facts.asOf, policy).map((row) => [row.unitId, row]));
+  const reporting = new Map(unitReportingOf(facts.units, facts.evaluatedOn ?? facts.asOf, policy).map((row) => [row.unitId, row]));
   const weightTotal = Object.values(policy.weights).reduce((sum, weight) => sum + weight, 0);
   const expected = expectedPctOn(policy, facts.asOf);
   const byProject = new Map<string, ProvinceFundLine[]>();
@@ -460,7 +460,7 @@ export function evaluateCommitteeAlerts(facts: ProvinceFacts, policy: CommitteeP
       }
     }
   }
-  for (const unit of unitReportingOf(facts.units, facts.asOf, policy)) {
+  for (const unit of unitReportingOf(facts.units, facts.evaluatedOn ?? facts.asOf, policy)) {
     if (!unit.notReporting) continue;
     alerts.push({ alertType: 'COMMITTEE_UNIT_NOT_REPORTING', severity: unit.reason === 'NEVER_REPORTED' ? 'URGENT' : 'WATCH', subjectKind: 'UNIT', subjectKey: unit.unitId, subjectLabel: unit.unitName, value: unit.daysSinceReport === null ? null : String(unit.daysSinceReport), threshold: String(policy.unitNotReportingDays), dedupeKey: `COMMITTEE_UNIT_NOT_REPORTING:${unit.unitId}:${year}`, detail: { reason: unit.reason, expected: unit.expected, received: unit.received, last_reported_on: unit.lastReportedOn } });
   }
@@ -513,7 +513,7 @@ export function buildWorkspace(facts: ProvinceFacts, previous: ProvinceFacts | n
     byFundSource: aggregateBy(facts, 'FUND_SOURCE', policy, attentionIds),
     attentionTotal: ranked.total,
     attention: ranked.items.slice(0, policy.attentionTopN),
-    units: unitReportingOf(facts.units, facts.asOf, policy),
+    units: unitReportingOf(facts.units, facts.evaluatedOn ?? facts.asOf, policy),
     alerts: evaluateCommitteeAlerts(facts, policy, directives),
     changes: weeklyChanges(weekOf(facts, policy), previous === null ? null : weekOf(previous, policy)),
   };

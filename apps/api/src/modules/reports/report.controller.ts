@@ -23,7 +23,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { reportFileName } from './file-name';
-import { REPORT_FORMS } from './form-registry';
+import { REPORT_FORMS, assertLayoutAccess } from './form-registry';
 import { renderReport } from './render';
 import { deliveryDtos, demoModeOf, reportStore } from './report-view';
 import { REPORT_CLOCK } from './tokens';
@@ -173,6 +173,7 @@ export class ReportController {
   async check(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
     this.assertWhole(access, PERMISSIONS.checkReport);
     const done = await reportStore.step(scope.tx, id, scope.expectedVersion ?? 0, 'CHECK', scope.tenant.membershipId);
+    assertLayoutAccess(access, done.row.layoutCode);
     await this.announceDraft(scope, done.row, 'rpt.report_checked', 'rpt.report.checked.v1');
     return commandResult(scope, done.row.state, done.row.version, id);
   }
@@ -184,6 +185,7 @@ export class ReportController {
   async approve(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
     this.assertWhole(access, PERMISSIONS.approveReport);
     const done = await reportStore.step(scope.tx, id, scope.expectedVersion ?? 0, 'APPROVE', scope.tenant.membershipId);
+    assertLayoutAccess(access, done.row.layoutCode);
     await this.announceDraft(scope, done.row, 'rpt.report_approved', 'rpt.report.approved.v1');
     return commandResult(scope, done.row.state, done.row.version, id);
   }
@@ -197,6 +199,7 @@ export class ReportController {
     const { tx } = scope;
     const draft = await reportStore.findDraft(tx, id);
     if (draft === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    assertLayoutAccess(access, draft.layoutCode);
     const layout = await reportStore.getLayout(tx, draft.layoutId);
     if (layout === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout');
     // Demo mode is judged again at the moment of issue: a form switched off since the draft was made is not issued (R18).
@@ -299,6 +302,7 @@ export class ReportController {
     if (body.channel === RESERVED_CHANNEL) throw new DomainError('VALIDATION_FAILED', 422, 'channel');
     const copy = await reportStore.findIssue(scope.tx, id);
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    assertLayoutAccess(access, copy.layoutCode);
     const row = await reportStore.deliver(scope.tx, copy, { receiver: body.receiver, channel: body.channel, reference: body.reference ?? null, note: body.note ?? null, by: scope.tenant.membershipId });
     await this.announceDelivery(scope, copy, row, 'rpt.report_delivered', 'rpt.report.delivered.v1');
     return (await deliveryDtos(scope, [row]))[0] as Schemas['RptDelivery'];
@@ -314,6 +318,7 @@ export class ReportController {
     if (body.outcome === 'REJECTED' && (body.note === undefined || body.note.trim().length < 10)) throw new DomainError('VALIDATION_FAILED', 422, 'note');
     const copy = await reportStore.findIssue(scope.tx, id);
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    assertLayoutAccess(access, copy.layoutCode);
     const row = await reportStore.answer(scope.tx, copy, body.outcome, { receiver: body.receiver, channel: 'MANUAL', reference: body.reference ?? null, note: body.note ?? null, by: scope.tenant.membershipId });
     await this.announceDelivery(scope, copy, row, 'rpt.report_answered', 'rpt.report.answered.v1');
     return (await deliveryDtos(scope, [row]))[0] as Schemas['RptDelivery'];

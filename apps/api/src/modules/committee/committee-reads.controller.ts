@@ -229,7 +229,7 @@ export class CommitteeReadsController {
         attention: read.attention.slice(0, read.policy.params.attentionTopN).map(attentionDto),
         directives: trackerDto(read.tracker, read.today, read.escalateAfterDays, read.figures),
         generation: {
-          period: { kind: 'AS_OF', year: w.fiscalYear, day: w.asOf },
+          period: { kind: 'AS_OF', year: Number(day.slice(0, 4)), day },
           recent_drafts: drafts.map((row) => ({ id: row.id, status: row.state, revision: row.baseRevision + 1, created_at: row.createdAt })),
           recent_issues: issues.map((row) => ({ id: row.id, revision: row.revision, sha256: row.sha256, issued_at: row.issuedAt })),
         },

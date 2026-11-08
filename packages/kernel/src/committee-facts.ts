@@ -60,7 +60,10 @@ export interface FeedNote {
 }
 
 export interface ProvinceFacts {
+  /** The financial cut-off: the day of the snapshot the amounts stand on. */
   asOf: string;
+  /** The day the operational facts (the age of reports) are judged on, when it is later than the cut-off; the cut-off itself when absent. */
+  evaluatedOn?: string | undefined;
   fiscalYear: number;
   projects: readonly ProvinceProjectFact[];
   lines: readonly ProvinceFundLine[];

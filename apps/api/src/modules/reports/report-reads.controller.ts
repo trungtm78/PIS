@@ -11,7 +11,7 @@ import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { sha256Hex } from './digest';
 import { reportFileName } from './file-name';
-import { REPORT_FORMS } from './form-registry';
+import { REPORT_FORMS, assertLayoutAccess, layoutReadable } from './form-registry';
 import { catalogueEntryDto, deliveryDtos, demoModeOf, draftDtos, issueDtos, reportStore } from './report-view';
 
 const DEFAULT_LIMIT = 50;
@@ -82,7 +82,7 @@ export class ReportReadsController {
     if (state !== undefined && !(ISSUE_STATES as readonly string[]).includes(state)) throw new DomainError('VALIDATION_FAILED', 422, 'state');
     const limit = limitOf(query.limit);
     return this.database.withTenant(tenant, async (tx) => {
-      const rows = await reportStore.listDrafts(tx, { layoutCode: text(query.layout_code, 'layout_code', 40), state: state as IssueState | undefined, limit: limit + 1 });
+      const rows = (await reportStore.listDrafts(tx, { layoutCode: text(query.layout_code, 'layout_code', 40), state: state as IssueState | undefined, limit: limit + 1 })).filter((row) => layoutReadable(access, row.layoutCode));
       const items = await draftDtos({ tx, access, membershipId: tenant.membershipId, now, today: vietnamDateOf(now) }, rows.slice(0, limit), false);
       return { items, truncated: rows.length > limit, as_of: now.toISOString() };
     });
@@ -96,6 +96,7 @@ export class ReportReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const row = await reportStore.findDraft(tx, id);
       if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      assertLayoutAccess(access, row.layoutCode);
       const [dto] = await draftDtos({ tx, access, membershipId: tenant.membershipId, now, today: vietnamDateOf(now) }, [row], true);
       return dto as Schemas['RptDraft'];
     });
@@ -113,6 +114,7 @@ export class ReportReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const draft = await reportStore.findDraft(tx, id);
       if (draft === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      assertLayoutAccess(access, draft.layoutCode);
       const format = formatOf(formatText);
       const sha = format === 'XLSX' ? draft.xlsxSha256 : draft.docxSha256;
       if (sha === null) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'format');
@@ -138,7 +140,7 @@ export class ReportReadsController {
       limit: limit + 1,
     };
     return this.database.withTenant(tenant, async (tx) => {
-      const rows = await reportStore.listIssues(tx, filter);
+      const rows = (await reportStore.listIssues(tx, filter)).filter((row) => layoutReadable(access, row.layoutCode));
       const items = await issueDtos({ tx, access, membershipId: tenant.membershipId, now, today: vietnamDateOf(now) }, rows.slice(0, limit), false);
       return { items, truncated: rows.length > limit, as_of: now.toISOString() };
     });
@@ -152,6 +154,7 @@ export class ReportReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const row = await reportStore.findIssue(tx, id);
       if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      assertLayoutAccess(access, row.layoutCode);
       const [dto] = await issueDtos({ tx, access, membershipId: tenant.membershipId, now, today: vietnamDateOf(now) }, [row], true);
       return dto as Schemas['RptIssue'];
     });
@@ -169,6 +172,7 @@ export class ReportReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const copy = await reportStore.findIssue(tx, id);
       if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      assertLayoutAccess(access, copy.layoutCode);
       const format = formatOf(formatText);
       const sha = format === 'XLSX' ? copy.xlsxSha256 : copy.docxSha256;
       const name = format === 'XLSX' ? copy.xlsxName : copy.docxName;

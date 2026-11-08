@@ -31,6 +31,7 @@ const NOBODY = 5;
 const UNIT_SCOPED = 6; // every committee right, over one unit tree only
 const CANDIDATE = 7; // a person who may be appointed
 const SECURITY = 8;
+const RPT_ONLY = 9; // every right of the report engine, none of the committee
 const B_HEAD = 1;
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -174,7 +175,7 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
         { n: DEPARTMENT, path: `/${unitId(ROOT)}/${unitId(DEPARTMENT)}/`, parent: ROOT },
       ]);
     }
-    for (const n of [HEAD, MEMBER, SECRETARIAT, AUDITOR, NOBODY, UNIT_SCOPED, CANDIDATE, SECURITY]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [HEAD, MEMBER, SECRETARIAT, AUDITOR, NOBODY, UNIT_SCOPED, CANDIDATE, SECURITY, RPT_ONLY]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_HEAD, ROOT);
     // The roles are the real system roles of the platform, so the test proves what they are worth.
     const head = roleOf('COMMITTEE_HEAD');
@@ -188,6 +189,7 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     await harness.seedRole(TENANT_A, 4, 'AUDITOR', auditor.permissions, auditor.rank);
     await harness.seedRole(TENANT_A, 5, 'SECURITY_ADMIN', security.permissions.filter((permission) => permission.startsWith('committee.')), security.rank);
     await harness.seedRole(TENANT_A, 6, 'COMMITTEE_UNIT_SCOPED', [...head.permissions, ...secretariat.permissions], 50);
+    await harness.seedRole(TENANT_A, 7, 'RPT_ONLY', ['rpt.read', 'rpt.generate', 'rpt.check', 'rpt.approve', 'rpt.issue', 'rpt.deliver'], 40);
     await harness.seedRole(TENANT_B, 1, 'COMMITTEE_HEAD', head.permissions, head.rank);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: HEAD, role: 1, kind: 'TENANT' },
@@ -196,6 +198,7 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
       { n: 4, member: AUDITOR, role: 4, kind: 'TENANT' },
       { n: 5, member: SECURITY, role: 5, kind: 'TENANT' },
       { n: 6, member: UNIT_SCOPED, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
+      { n: 7, member: RPT_ONLY, role: 7, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_HEAD, role: 1, kind: 'TENANT' }]);
     await seedProvince();
@@ -472,6 +475,59 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     const issued = await call('POST', `/report-engine/drafts/${draftId}/issue`, { member: SECRETARIAT, ifMatch: v1 + 2 });
     expect(issued.status).toBe(200);
     expect(issued.json).toMatchObject({ outcome: 'NEW' });
+  });
+
+  it('does not hand the meeting pack to a holder of the report permissions alone: not to generate, not to list, not to read, not to step', async () => {
+    const attempt = await call('POST', '/report-engine/drafts', { member: RPT_ONLY, body: { layout_code: COMMITTEE_PACK_CODE, period: { kind: 'AS_OF', year: 2027, day: TODAY } } });
+    expect(attempt.status).toBe(403);
+    const made = (await rows<{ id: string }>('select id from machvon.report_draft where layout_code = $1 order by created_at', [COMMITTEE_PACK_CODE]))[0]?.id as string;
+    const issued = (await rows<{ id: string }>('select id from machvon.report_issue where layout_code = $1', [COMMITTEE_PACK_CODE]))[0]?.id as string;
+    expect(made).toEqual(expect.any(String));
+    expect((await call('GET', `/report-engine/drafts/${made}`, { member: RPT_ONLY })).status).toBe(403);
+    expect((await call('GET', `/report-engine/drafts/${made}/files/XLSX`, { member: RPT_ONLY })).status).toBe(403);
+    expect((await call('GET', `/report-engine/issues/${issued}`, { member: RPT_ONLY })).status).toBe(403);
+    expect((await call('GET', `/report-engine/issues/${issued}/files/XLSX`, { member: RPT_ONLY })).status).toBe(403);
+    expect((await call('POST', `/report-engine/issues/${issued}/deliveries`, { member: RPT_ONLY, body: { receiver: 'MOF', channel: 'MANUAL' } })).status).toBe(403);
+    expect(((await call('GET', '/report-engine/drafts', { member: RPT_ONLY })).json.items as unknown[]).filter((item) => (item as { layout_code: string }).layout_code === COMMITTEE_PACK_CODE)).toHaveLength(0);
+    expect(((await call('GET', '/report-engine/issues', { member: RPT_ONLY })).json.items as unknown[]).filter((item) => (item as { layout_code: string }).layout_code === COMMITTEE_PACK_CODE)).toHaveLength(0);
+    // The committee sees its own pack through the same endpoints.
+    expect(((await call('GET', '/report-engine/issues', { member: MEMBER })).json.items as unknown[]).length).toBeGreaterThan(0);
+  });
+
+  it('prepares the pack for the day that was asked for, and keeps an unknown amount of last year unknown', async () => {
+    const later = await call('GET', '/committee/meeting-pack?as_of=2027-10-14', { member: HEAD });
+    expect(later.status).toBe(200);
+    expect(later.json.as_of).toBe(SNAPSHOT_DAY);
+    expect((later.json.generation as Record<string, any>).period).toMatchObject({ kind: 'AS_OF', year: 2027, day: '2027-10-14' });
+    // A line of last year that exists with no amount is unknown, not zero: the figure is withheld and the coverage is named.
+    await seedReplica([
+      [
+        `insert into machvon.period_snapshot_line (tenant_id, id, snapshot_id, project_id, unit_id, fund_source_version_id, bucket, budget_level, plan_pm_assigned_vnd, plan_local_added_vnd, plan_total_vnd, disbursed_treasury_vnd, treasury_coverage)
+          values ($1, gen_random_uuid(), $2, $3, $4, $5, 'CURRENT_YEAR', 'CENTRAL', 500000000000, 0, 500000000000, null, 'NONE')`,
+        [TENANT_A, id(FAMILY, 311), ids.p3, unitId(DEPARTMENT), id(FAMILY, 105)],
+      ],
+    ]);
+    const workspace = (await call('GET', '/committee/workspace', { member: HEAD })).json as Record<string, any>;
+    expect(workspace.province.last_year_vnd).toBeNull();
+    expect(workspace.province.last_year_coverage).toEqual({ known: 2, total: 3 });
+  });
+
+  it('pages the audit of views without skipping rows that share a millisecond', async () => {
+    await rows(
+      `insert into machvon.committee_view_audit (tenant_id, membership_id, screen, classification, viewed_at)
+        select nullif(current_setting('app.tenant_id', true), '')::uuid, $1, 'ALERTS', 'CONFIDENTIAL', timestamptz '2999-01-01 00:00:00.000000+00' + (n || ' microseconds')::interval from generate_series(100, 400, 100) n`,
+      [memberId(HEAD)],
+    );
+    const seen: string[] = [];
+    let cursor: string | null = null;
+    for (let page = 0; page < 40; page += 1) {
+      const reply = await call('GET', `/committee/view-audit?screen=ALERTS&limit=1${cursor === null ? '' : `&before=${encodeURIComponent(cursor)}`}`, { member: AUDITOR });
+      for (const row of reply.json.rows as Array<{ id: string; viewed_at: string }>) seen.push(row.id);
+      cursor = reply.json.next as string | null;
+      if (cursor === null) break;
+    }
+    const stored = await rows<{ id: string }>(`select id from machvon.committee_view_audit where screen = 'ALERTS' order by viewed_at desc, id desc`);
+    expect(seen).toEqual(stored.map((row) => row.id));
   });
 
   it('never lets one tenant see or change the committee of another', async () => {
