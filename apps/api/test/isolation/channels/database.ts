@@ -43,6 +43,7 @@ import {
   TENANT_IDS,
   UNIT_FIXTURES,
 } from '../suite';
+import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -143,6 +144,11 @@ const APPROVER_ID = '00000000-0000-4000-8000-0000000000f2';
 /** The operations whose permissions the TNT-A test role holds: every id-bearing operation the isolation suite aims at TNT-B. */
 const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'get_resources_membership_id',
+  'acknowledgeAlertEscalation',
+  'endAlertAbsence',
+  'proposeAlertCover',
+  'decideAlertCover',
+  'revokeAlertCover',
   'get_resources_organization_unit',
   'get_resources_organization_unit_id',
   'createOrganizationUnit',
@@ -1690,6 +1696,17 @@ const INSERT_DELEGATION = `insert into machvon.delegation_grant
   (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status)
   values ($1, $2, $3, $4, '{approval.decide}', '{"kind":"UNIT_SUBTREE","ref_ids":[]}'::jsonb, now() - interval '1 hour', now() + interval '30 days', $5, 'Active') on conflict do nothing`;
 
+// The governance of the alert system (lane GOV-9a): a level of escalation received by the fixture membership, an absence of it and a cover of that absence by the second member.
+const INSERT_ALERT_ESCALATION = `insert into machvon.alert_escalation
+  (tenant_id, id, source, source_id, level, kind, trigger, recipient_membership_id, owner_membership_id, routed_via, severity, item_title, target_screen, target_id, reached_at, policy_version, series_key)
+  values ($1, $2, 'ISSUE', 'isolation-probe', 1, 'HIERARCHICAL', 'NOT_CLAIMED', $3, $4, 'PRIMARY', 'ACTION', $5, 'ISS-09', 'isolation-probe', now(), 'builtin', $6) on conflict do nothing`;
+
+const INSERT_ALERT_ABSENCE = `insert into machvon.alert_absence (tenant_id, id, membership_id, kind, valid_from, valid_until, declared_by)
+  values ($1, $2, $3, 'LEAVE', now() + interval '10 days', now() + interval '20 days', $3) on conflict do nothing`;
+
+const INSERT_ALERT_COVER = `insert into machvon.alert_absence_cover (tenant_id, id, absence_id, absent_membership_id, deputy_membership_id, valid_from, valid_until, scope_kind, requested_by)
+  values ($1, $2, $3, $4, $5, now() + interval '10 days', now() + interval '15 days', 'ALL', $4) on conflict do nothing`;
+
 const INSERT_APPROVAL_TASK = `insert into machvon.approval_task
   (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
   values ($1, $2, $3, $4, now() + interval '1 day', 'review', 0, 'Pending') on conflict do nothing`;
@@ -2463,6 +2480,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_APPROVAL_TASK, [tenantId, flow.taskId, flow.instanceId, MEMBERSHIP_ID]);
     const delegation = DELEGATION_FIXTURES[tenant];
     await client.query(INSERT_DELEGATION, [tenantId, delegation.id, MEMBERSHIP_ID, member.id, delegation.reason]);
+    const alerts = ALERT_GOVERNANCE_FIXTURES[tenant];
+    await client.query(INSERT_ALERT_ESCALATION, [tenantId, alerts.escalationId, MEMBERSHIP_ID, member.id, alerts.itemTitle, `ESCALATION:isolation:${tenant}`]);
+    await client.query(INSERT_ALERT_ABSENCE, [tenantId, alerts.absenceId, MEMBERSHIP_ID]);
+    await client.query(INSERT_ALERT_COVER, [tenantId, alerts.coverId, alerts.absenceId, MEMBERSHIP_ID, member.id]);
     const reorganization = REORGANIZATION_FIXTURES[tenant];
     await client.query(INSERT_REORGANIZATION, [tenantId, reorganization.id, reorganization.legalBasis, member.id]);
     const term = GLOSSARY_FIXTURES[tenant];

@@ -2613,6 +2613,34 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: () => ({ method: 'POST', path: '/home/work-actions/resume', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe' } }),
   },
+  acknowledgeAlertEscalation: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/alert-escalations/00000000-0000-4000-8000-0000000000e7/acknowledge', body: {} }),
+  },
+  updateMyAlertProfile: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'PUT', path: '/me/alert-profile', ifMatch: '"0"', body: { digest_enabled: true, push_cap_per_day: 1 } }),
+  },
+  declareAlertAbsence: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/home/alert-absences', body: { kind: 'LEAVE', valid_from: '2999-01-01T00:00:00.000Z', valid_until: '2999-01-05T00:00:00.000Z' } }),
+  },
+  endAlertAbsence: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/alert-absences/00000000-0000-4000-8000-0000000000e7/end', ifMatch: '"1"', body: { status: 'CANCELLED', reason: 'Negative matrix probe' } }),
+  },
+  proposeAlertCover: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/alert-absences/00000000-0000-4000-8000-0000000000e7/covers', body: { deputy_id: '00000000-0000-4000-8000-0000000000e7', valid_from: '2999-01-01T00:00:00.000Z', valid_until: '2999-01-03T00:00:00.000Z', scope_kind: 'ALL' } }),
+  },
+  decideAlertCover: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/alert-covers/00000000-0000-4000-8000-0000000000e7/decision', ifMatch: '"1"', body: { decision: 'APPROVE', note: 'Negative matrix probe' } }),
+  },
+  revokeAlertCover: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/alert-covers/00000000-0000-4000-8000-0000000000e7/revoke', ifMatch: '"1"', body: { reason: 'Negative matrix probe' } }),
+  },
   transitionAnalyticsCertification: {
     // The subject is a built-in metric of every tenant, not an id of tenant A: a caller of another tenant meets the state of its own certification (409), and tenant A must stay untouched.
     referencesTenantIds: false,

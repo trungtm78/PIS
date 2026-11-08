@@ -19,6 +19,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> acknowledgeAdvanceAlert(PayAcknowledgeAdvanceAlert body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeAdvanceAlert', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> acknowledgeAlertEscalation({required String id, CommandAttempt? attempt}) =>
+      execute('acknowledgeAlertEscalation', path: <String, Object?>{'id': id}, attempt: attempt);
+
   Future<Object?> acknowledgeEarlyWarning(DisWarningAction body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeEarlyWarning', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -640,6 +643,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> createWorkflowDraft(WorkflowDraft body, {CommandAttempt? attempt}) =>
       execute('createWorkflowDraft', body: body, attempt: attempt);
 
+  Future<Object?> decideAlertCover(AlertCoverDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideAlertCover', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> decideAllocationExtension(CapExtensionDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideAllocationExtension', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -751,6 +757,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> decideVendorRestrictionCase(VendorCaseDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideVendorRestrictionCase', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> declareAlertAbsence(AlertAbsenceInput body, {CommandAttempt? attempt}) =>
+      execute('declareAlertAbsence', body: body, attempt: attempt);
+
   Future<Object?> declareClaimBar(CtrClaimBarDeclare body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('declareClaimBar', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -807,6 +816,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> editMneReport(MneReportEdit body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('editMneReport', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> endAlertAbsence(AlertAbsenceEnd body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('endAlertAbsence', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> endAuditFieldwork(AudStatusNote body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('endAuditFieldwork', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -921,6 +933,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getAiSpendSummary({required String id, Map<String, Object?>? query}) =>
       execute('getAiSpendSummary', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getAlertCoverageReport({Map<String, Object?>? query}) =>
+      execute('getAlertCoverageReport', query: query);
+
+  Future<Object?> getAlertHealth({Map<String, Object?>? query}) =>
+      execute('getAlertHealth', query: query);
 
   Future<Object?> getAlertType({required String code, Map<String, Object?>? query}) =>
       execute('getAlertType', path: <String, Object?>{'code': code}, query: query);
@@ -1158,6 +1176,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getMneReport({required String id, Map<String, Object?>? query}) =>
       execute('getMneReport', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getMyAlertDigest({Map<String, Object?>? query}) =>
+      execute('getMyAlertDigest', query: query);
+
+  Future<Object?> getMyAlertProfile({Map<String, Object?>? query}) =>
+      execute('getMyAlertProfile', query: query);
 
   Future<Object?> getMyEffectiveAccess({Map<String, Object?>? query}) =>
       execute('getMyEffectiveAccess', query: query);
@@ -2014,6 +2038,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAiVirtualKeys({Map<String, Object?>? query}) =>
       execute('listAiVirtualKeys', query: query);
 
+  Future<Object?> listAlertAbsences({Map<String, Object?>? query}) =>
+      execute('listAlertAbsences', query: query);
+
+  Future<Object?> listAlertEscalations({Map<String, Object?>? query}) =>
+      execute('listAlertEscalations', query: query);
+
   Future<Object?> listAlertTypes({Map<String, Object?>? query}) =>
       execute('listAlertTypes', query: query);
 
@@ -2728,6 +2758,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> promoteChangeRequest(CtrPromoteChangeRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('promoteChangeRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> proposeAlertCover(AlertCoverInput body, {required String id, CommandAttempt? attempt}) =>
+      execute('proposeAlertCover', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> proposeClaimTerm(CtrClaimTermPropose body, {required String id, CommandAttempt? attempt}) =>
       execute('proposeClaimTerm', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
@@ -3322,6 +3355,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> revokeAiVirtualKey(LlmKeyRevoke body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('revokeAiVirtualKey', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> revokeAlertCover(AlertCoverRevoke body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('revokeAlertCover', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> revokeDashboardShare({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('revokeDashboardShare', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3657,6 +3693,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> updateInvestmentAppraisalInputs(PrjFinAppraisalInputs body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('updateInvestmentAppraisalInputs', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> updateMyAlertProfile(AlertProfileInput body, {required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('updateMyAlertProfile', body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> updateMyNotificationPreferences(PreferenceSet body, {required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('updateMyNotificationPreferences', body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

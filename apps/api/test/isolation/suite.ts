@@ -912,6 +912,12 @@ export const DELEGATION_FIXTURES: Readonly<Record<TenantName, { id: string; reas
   'TNT-B': { id: '00000000-0000-4000-b0d7-000000000001', reason: 'BETA-DELEGATION-REASON-0001' },
 };
 
+/** An escalation row, an absence and a cover of each tenant (the item title is distinctive; tenant data): the governance of the alert system (lane GOV-9a). */
+export const ALERT_GOVERNANCE_FIXTURES: Readonly<Record<TenantName, { escalationId: string; absenceId: string; coverId: string; itemTitle: string }>> = {
+  'TNT-A': { escalationId: '00000000-0000-4000-a9a9-000000000001', absenceId: '00000000-0000-4000-a9a9-000000000002', coverId: '00000000-0000-4000-a9a9-000000000003', itemTitle: 'ALPHA-ALERT-ESCALATION-TITLE-0001' },
+  'TNT-B': { escalationId: '00000000-0000-4000-b9a9-000000000001', absenceId: '00000000-0000-4000-b9a9-000000000002', coverId: '00000000-0000-4000-b9a9-000000000003', itemTitle: 'BETA-ALERT-ESCALATION-TITLE-0001' },
+};
+
 /** A reorganisation of units that waits for approval in each tenant (its legal basis is distinctive; tenant data). */
 export const REORGANIZATION_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d8-000000000001', legalBasis: 'ALPHA-REORGANIZATION-BASIS-0001' },
@@ -1946,6 +1952,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'reorganization id', value: REORGANIZATION_FIXTURES[tenant].id },
     { kind: 'reorganization legal basis', value: REORGANIZATION_FIXTURES[tenant].legalBasis },
     { kind: 'delegation reason', value: DELEGATION_FIXTURES[tenant].reason },
+    { kind: 'alert escalation id', value: ALERT_GOVERNANCE_FIXTURES[tenant].escalationId },
+    { kind: 'alert absence id', value: ALERT_GOVERNANCE_FIXTURES[tenant].absenceId },
+    { kind: 'alert cover id', value: ALERT_GOVERNANCE_FIXTURES[tenant].coverId },
+    { kind: 'alert escalation item title', value: ALERT_GOVERNANCE_FIXTURES[tenant].itemTitle },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

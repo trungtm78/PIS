@@ -8,6 +8,8 @@ import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.p
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
+import { runAlertCoverage } from '../modules/home/alert-coverage.job';
+import { runAlertEscalation } from '../modules/home/alert-escalation.job';
 import { runWorkReminders } from '../modules/home/work-reminder.job';
 import { AdmMigrationJob } from '../modules/adm/migration.job';
 import { MockEmbeddingPort, OcrDocumentTextPort } from '../modules/llm/knowledge-ports';
@@ -334,6 +336,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     settlementDeadline: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => settlementDeadlines.run(tx, ctx.membershipId, now)) },
     advanceOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => advanceOverdue.run(tx, ctx.membershipId, now)) },
     workReminder: { run: (ctx, now) => runWorkReminders(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    alertEscalation: { run: (ctx, now) => runAlertEscalation(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    alertCoverage: { run: (ctx, now) => runAlertCoverage(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     earlyWarningScore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => earlyWarningScore.run(tx, ctx.membershipId, now)) },
     diaryCoverage: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => diaryCoverage.run(tx, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },

@@ -1,11 +1,13 @@
 import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
-import { HomeWorkStore, SEVERITY_RANK, TenantDatabase, WORK_SEVERITIES } from '@machvon/db';
+import { AlertCoverStore, HomeWorkStore, SEVERITY_RANK, TenantDatabase, WORK_SEVERITIES } from '@machvon/db';
 import type { WorkCollection, WorkRow, WorkSeverity, WorkView } from '@machvon/db';
 import { DomainError, WORK_KINDS, compareWork, vietnamDateOf, workBucket } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext, WorkItem, WorkKind } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { coveredWork } from './alert-cover-view';
+import type { CoveredRow } from './alert-cover-view';
 import { HOME_CLOCK } from './tokens';
 import { clockFields } from './work-action-view';
 import { canReadScope, workScopes } from './work-scope';
@@ -76,6 +78,7 @@ const SEVERITY_KEY: Readonly<Record<WorkSeverity, 'urgent' | 'action' | 'watch'>
 @Controller()
 export class MyWorkController {
   private readonly work = new HomeWorkStore();
+  private readonly covers = new AlertCoverStore();
   private readonly clock: () => Date;
 
   constructor(
@@ -89,7 +92,15 @@ export class MyWorkController {
   private async read(tenant: TenantContext, access: EffectiveAccess, view: WorkView, now: Date, mode: 'rows' | 'count'): Promise<WorkCollection> {
     if (view === 'scope' && !canReadScope(access, now)) throw new DomainError('SCOPE_DENIED', 403);
     const today = vietnamDateOf(now);
-    return this.database.withTenant(tenant, (tx) => this.work.collect(tx, { membershipId: tenant.membershipId, now, today, view, mode, ...workScopes(access, now) }));
+    return this.database.withTenant(tenant, async (tx) => {
+      const scopes = workScopes(access, now);
+      const collected = await this.work.collect(tx, { membershipId: tenant.membershipId, now, today, view, mode, ...scopes });
+      if (view !== 'mine') return collected;
+      // G2-7: what the person stands in for while somebody is away is on their list too, read in their own scope, and says whose it is.
+      const covered = await coveredWork(tx, this.work, { deputyId: tenant.membershipId, now, today, edges: await this.covers.liveEdges(tx, now), spans: await this.covers.absenceSpans(tx, now), unitScope: scopes.unitScope, projectScope: scopes.projectScope, holds: scopes.holds, mode });
+      if (covered.rows.length === 0 && covered.unavailableSources.length === 0) return collected;
+      return { ...collected, rows: [...collected.rows, ...covered.rows], unavailableSources: [...new Set([...collected.unavailableSources, ...(covered.unavailableSources as WorkCollection['unavailableSources'])])] };
+    });
   }
 
   @Get('home/my-work')
@@ -149,6 +160,9 @@ export class MyWorkController {
             ? null
             : { code: row.alertType.code, owner: row.alertType.owner, expected_action: row.alertType.expectedAction, response_hours: row.alertType.responseHours, version: row.alertType.version, source: row.alertType.source, review_overdue: row.alertType.reviewOverdue },
         snoozed_until: row.snoozedUntil,
+        // G2-7: the person whose alert it is, when the reader holds it as a deputy; G2-3: the severity it came from when it was raised.
+        on_behalf_of: (row as Partial<CoveredRow>).onBehalfOf ?? null,
+        promoted_from: row.promotedFrom ?? null,
         ...clockFields(row, policies),
       };
     };

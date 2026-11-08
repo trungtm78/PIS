@@ -2,6 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { defineModule } from '../module-descriptor';
 import { ORCHESTRATION_OPTIONS } from '../orchestration';
 import type { OrchestrationOptions } from '../orchestration';
+import { AlertCoverController } from './alert-cover.controller';
+import { AlertEscalationController } from './alert-escalation.controller';
+import { AlertHealthController } from './alert-health.controller';
+import { AlertProfileController } from './alert-profile.controller';
 import { CommandCenterController } from './command-center.controller';
 import { ChannelHealthController } from './channel-health.controller';
 import { HomeChangesController } from './changes.controller';
@@ -21,7 +25,7 @@ import { HOME_CONTEXT_KEY } from './tokens';
  */
 export const homeModule = defineModule({
   code: 'HOME',
-  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
+  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController, AlertHealthController, AlertEscalationController, AlertProfileController, AlertCoverController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,

@@ -6136,6 +6136,62 @@
       "module": "CTR",
       "statusBasis": "spec",
       "source": "spec:CTR"
+    },
+    "ALERT_ABSENCE_INVALID": {
+      "status": 422,
+      "title": "Absence invalid",
+      "meaning": "Khoảng vắng mặt không hợp lệ (loại, ngày bắt đầu và kết thúc, độ dài tối đa theo chính sách ABSENCE_POLICY); nêu trường đầu tiên sai và mọi lỗi trong danh sách defects.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_ABSENCE_OVERLAP": {
+      "status": 409,
+      "title": "Absence overlaps",
+      "meaning": "Người này đã khai một khoảng vắng mặt chồng lên khoảng ngày này.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_ABSENCE_STATE_INVALID": {
+      "status": 409,
+      "title": "Absence state invalid",
+      "meaning": "Khoảng vắng mặt đã kết thúc hoặc đã hủy nên không đổi được nữa.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_COVER_INVALID": {
+      "status": 422,
+      "title": "Cover invalid",
+      "meaning": "Đề nghị người thay không hợp lệ: người thay là chính mình hoặc đã nghỉ, hạng thấp hơn người vắng, ngoài khoảng vắng, vòng, chuỗi quá sâu, trùng hoặc phạm vi sai; nêu trường đầu tiên sai và mọi lỗi trong danh sách defects.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_COVER_STATE_INVALID": {
+      "status": 409,
+      "title": "Cover state invalid",
+      "meaning": "Đề nghị người thay không ở trạng thái mà thao tác này bắt đầu (đã duyệt, từ chối hoặc thu hồi rồi).",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_PROFILE_INVALID": {
+      "status": 422,
+      "title": "Alert profile invalid",
+      "meaning": "Hồ sơ thông báo cảnh báo không hợp lệ: bỏ chuông trong ứng dụng, đẩy việc Theo dõi, nâng trần quá chính sách, giờ yên tĩnh hoặc kênh sai; nêu trường đầu tiên sai và mọi lỗi trong danh sách defects.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "ALERT_ESCALATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Escalation state invalid",
+      "meaning": "Việc được chuyển lên đã được xác nhận hoặc đã đóng nên không xác nhận lại được.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
     }
   }
 }

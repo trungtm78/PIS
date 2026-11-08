@@ -95,6 +95,7 @@ import {
   WORK_ACCEPTANCE_FIXTURES,
 } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
+import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
@@ -680,6 +681,11 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     body: { decision: 'approve', reason: 'Isolation probe of the decision', evidence_ids: [] },
   },
   { operation: 'revokeDelegation', method: 'POST', id: DELEGATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
+  { operation: 'acknowledgeAlertEscalation', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].escalationId, body: {} },
+  { operation: 'endAlertAbsence', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].absenceId, versioned: true, body: { status: 'CANCELLED', reason: 'Isolation probe of the end' } },
+  { operation: 'proposeAlertCover', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].absenceId, body: { deputy_id: MEMBERSHIP_FIXTURES['TNT-B'].id, valid_from: '2999-01-01T00:00:00.000Z', valid_until: '2999-01-03T00:00:00.000Z', scope_kind: 'ALL' } },
+  { operation: 'decideAlertCover', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].coverId, versioned: true, body: { decision: 'APPROVE', note: 'Isolation probe of the decision' } },
+  { operation: 'revokeAlertCover', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].coverId, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
   { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },
   { operation: 'decideApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { decision: 'approve' } },

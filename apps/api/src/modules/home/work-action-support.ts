@@ -1,4 +1,4 @@
-import { HomeWorkActionStore, HomeWorkReminderStore, HomeWorkStore, WorkPolicyReader, actionKey, policyVersionOf } from '@machvon/db';
+import { AlertCoverStore, HomeWorkActionStore, HomeWorkReminderStore, HomeWorkStore, WorkPolicyReader, actionKey, policyVersionOf } from '@machvon/db';
 import type { ReminderRecord, WorkActionKind, WorkActionState, WorkPolicies, WorkRow, WorkSource } from '@machvon/db';
 import { DomainError, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, ReminderKind } from '@machvon/kernel';
@@ -6,6 +6,7 @@ import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
+import { coveredWork } from './alert-cover-view';
 import { canReadScope, workScopes } from './work-scope';
 
 export const WORK_RESOURCE_TYPE = 'work_item';
@@ -48,6 +49,12 @@ export class WorkActionSupport {
       if (row !== undefined) return row;
       for (const name of collected.unavailableSources) unavailable.add(name);
     }
+    // G2-7: an item of a person the reader stands in for is theirs to take up, put off or hand over while the cover is in force.
+    const scopes = workScopes(access, now);
+    const covers = new AlertCoverStore();
+    const covered = await coveredWork(scope.tx, this.work, { deputyId: scope.tenant.membershipId, now, today, edges: await covers.liveEdges(scope.tx, now), spans: await covers.absenceSpans(scope.tx, now), unitScope: scopes.unitScope, projectScope: scopes.projectScope, holds: scopes.holds, mode: 'count' });
+    const standing = covered.rows.find((candidate) => candidate.source === source && candidate.id === target.source_id);
+    if (standing !== undefined) return standing;
     // A source that could not be read does not say the item is gone.
     if (unavailable.has(source)) throw new DomainError('PROVIDER_UNAVAILABLE', 503, source);
     throw new DomainError('WORK_ITEM_GONE', 404, 'source_id');

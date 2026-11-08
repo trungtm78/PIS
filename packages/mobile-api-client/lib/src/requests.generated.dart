@@ -14,6 +14,132 @@ final class AckRequest implements RequestModel {
       };
 }
 
+final class AlertAbsenceEnd implements RequestModel {
+  const AlertAbsenceEnd({
+    required this.status,
+    required this.reason,
+  });
+
+  final String status;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'reason': reason,
+      };
+}
+
+final class AlertAbsenceInput implements RequestModel {
+  const AlertAbsenceInput({
+    required this.kind,
+    required this.validFrom,
+    required this.validUntil,
+    this.membershipId,
+    this.reason,
+  });
+
+  final String? membershipId;
+  final String kind;
+  final String validFrom;
+  final String validUntil;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (membershipId != null) 'membership_id': membershipId,
+        'kind': kind,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class AlertCoverDecision implements RequestModel {
+  const AlertCoverDecision({
+    required this.decision,
+    this.note,
+  });
+
+  final String decision;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (note != null) 'note': note,
+      };
+}
+
+final class AlertCoverInput implements RequestModel {
+  const AlertCoverInput({
+    required this.deputyId,
+    required this.validFrom,
+    required this.validUntil,
+    required this.scopeKind,
+    this.sources,
+  });
+
+  final String deputyId;
+  final String validFrom;
+  final String validUntil;
+  final String scopeKind;
+  final List<String>? sources;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'deputy_id': deputyId,
+        'valid_from': validFrom,
+        'valid_until': validUntil,
+        'scope_kind': scopeKind,
+        if (sources != null) 'sources': sources,
+      };
+}
+
+final class AlertCoverRevoke implements RequestModel {
+  const AlertCoverRevoke({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class AlertProfileInput implements RequestModel {
+  const AlertProfileInput({
+    required this.digestEnabled,
+    this.channels,
+    this.quiet,
+    this.digestAt,
+    this.pushMinSeverity,
+    this.pushCapPerDay,
+    this.groupSameRoot,
+  });
+
+  final Object? channels;
+  final Object? quiet;
+  final bool digestEnabled;
+  final Object? digestAt;
+  final Object? pushMinSeverity;
+  final Object? pushCapPerDay;
+  final Object? groupSameRoot;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (channels != null) 'channels': channels,
+        if (quiet != null) 'quiet': quiet,
+        'digest_enabled': digestEnabled,
+        if (digestAt != null) 'digest_at': digestAt,
+        if (pushMinSeverity != null) 'push_min_severity': pushMinSeverity,
+        if (pushCapPerDay != null) 'push_cap_per_day': pushCapPerDay,
+        if (groupSameRoot != null) 'group_same_root': groupSameRoot,
+      };
+}
+
 final class AnalysisCancel implements RequestModel {
   const AnalysisCancel({
     required this.reason,
