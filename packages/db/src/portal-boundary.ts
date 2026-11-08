@@ -22,6 +22,7 @@ export const PORTAL_CONTRACTOR_TABLES: Readonly<Record<string, string>> = {
   contractor_remediation_plan: 'contractor_id',
   contractor_remediation_action: 'contractor_id',
   contractor_remediation_event: 'contractor_id',
+  portal_attachment: 'contractor_id',
 };
 
 /** Tables the portal path never reads and never writes. */
@@ -53,6 +54,9 @@ export const PORTAL_DENIED_TABLES: readonly string[] = [
   'contractor_bank_event',
   'egp_record',
   'bid_conflict_declaration',
+  'contractor_portal_invitation',
+  'document',
+  'document_version',
 ];
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

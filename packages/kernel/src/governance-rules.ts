@@ -57,6 +57,8 @@ import { INVESTIGATION_POLICY_DEFAULTS, investigationPolicyOf } from './vnd-inve
 import { LINK_KINDS, LINK_PARAM_DEFAULTS, linkPolicyOf } from './vnd-link-graph.ts';
 import { RIGGING_PARAM_DEFAULTS, RIGGING_SIGNAL_CODES, riggingPolicyOf } from './vnd-bid-rigging.ts';
 import { SCREENING_PARAM_DEFAULTS, screeningPolicyOf } from './vnd-screening.ts';
+import { PORTAL_ACCESS_DEFAULTS, portalAccessPolicyOf } from './vnd-portal-access.ts';
+import { PORTAL2_TEXT } from './messages/portal2-texts.ts';
 import { OCDS_EXPORT_DEFAULTS, PORTAL_CLOCK_DEFAULTS, PORTAL_REQUEST_KINDS, REMEDIATION_POLICY_DEFAULTS, ocdsExportPolicyOf, portalClockPolicyOf, reconfirmationPolicyOf, remediationPolicyOf } from './vnd-portal.ts';
 
 /**
@@ -1862,6 +1864,25 @@ export const registerVendor3Rules = (): void =>
     });
   });
 
+/** PORTAL-2: the access of a contractor to the portal through the registry (no contract needed) and the limit of a portal upload. */
+export const registerPortal2Rules = (): void =>
+  once('portal2', () => {
+    registerCoreRules();
+    registerVendor3Rules();
+    registerRuleType({
+      type: 'VENDOR_PORTAL_ACCESS',
+      ownerModule: 'BID',
+      modules: ['BID', 'HOME'],
+      formula: PORTAL2_TEXT.formula.portal_access,
+      source: PORTAL2_TEXT.rules_source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { proposal_days: int(1, 60), access_days: int(30, 730), max_live_accounts: int(1, 20), max_upload_bytes: int(100 * 1024, 25 * 1024 * 1024) },
+      refine: refineWith(portalAccessPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...PORTAL_ACCESS_DEFAULTS })) },
+    });
+  });
+
 const CLAIM_ALERT_SEEDS: readonly AlertTypeSeed[] = [
   { code: 'CLAIM_LIMITATION_APPROACHING', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_approaching'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_approaching'), hours: 48, severity: 'ACTION', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_approaching') },
   { code: 'CLAIM_LIMITATION_MISSED', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_missed'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_missed'), hours: 24, severity: 'URGENT', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_missed') },
@@ -2506,6 +2527,7 @@ export function registerAllGovernanceRules(): void {
   registerVendorRules();
   registerVendorControlsRules();
   registerVendor3Rules();
+  registerPortal2Rules();
   registerClaimRules();
   registerAlertGovernanceRules();
   registerGov10Rules();

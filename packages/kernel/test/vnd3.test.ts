@@ -409,8 +409,8 @@ describe('disputes and export (V16, V18)', () => {
       { kind: 'CLAIM', outcome: 'OPEN', openedOn: '2026-04-01', closedOn: null },
       { kind: 'PETITION', outcome: 'WITHDRAWN', openedOn: '2026-05-01', closedOn: '2026-05-03' },
     ]);
-    expect(stats).toEqual({ total: 5, open: 1, upheld: 1, rejected: 2, withdrawn: 1, upheldPct: 33, meanDaysToClose: 4.5 });
-    expect(disputeStats([])).toEqual({ total: 0, open: 0, upheld: 0, rejected: 0, withdrawn: 0, upheldPct: null, meanDaysToClose: null });
+    expect(stats).toEqual({ total: 5, open: 1, upheld: 1, rejected: 2, withdrawn: 1, awaitingOutcome: 0, upheldPct: 33, meanDaysToClose: 4.5 });
+    expect(disputeStats([])).toEqual({ total: 0, open: 0, upheld: 0, rejected: 0, withdrawn: 0, awaitingOutcome: 0, upheldPct: null, meanDaysToClose: null });
   });
 
   it('builds an OCDS party with the tax code as identifier and owners and contact only when asked', () => {

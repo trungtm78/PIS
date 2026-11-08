@@ -61,7 +61,9 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read', 'committee.audit.read', 'vnd.read', 'vnd.lead.read', 'vnd.lead.review', 'vnd.lead.confirm', 'vnd.lead.scan', 'vnd.screening.read'], guestAllowed: false },
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
   // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
-  { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read', 'vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation'], guestAllowed: true },
+  { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read', 'vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation', 'vnd.portal.upload'], guestAllowed: true },
+  // PORTAL-2: the guest bound to a contractor of the registry without a contract. Only the portal rights: no contract.read, which on a wide scope would show contracts.
+  { code: 'PORTAL_CONTRACTOR', name: key('PORTAL_CONTRACTOR'), rank: 10, permissions: ['vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation', 'vnd.portal.upload'], guestAllowed: true },
   // PENDING SIGN-OFF: the table names the notification box and the personal profile; the help of IAM-08 is asked for by every member (ST-IAM-007), so they raise and read their own support tickets.
   { code: 'MEMBER', name: key('MEMBER'), rank: 5, permissions: ['notification.self', 'profile.self', 'session.self', 'support.ticket.create', 'support.ticket.read', 'tenant.theme.read', 'sync.submit', 'sync.upload'], guestAllowed: true },
 ];

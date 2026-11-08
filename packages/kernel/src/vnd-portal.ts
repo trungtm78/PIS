@@ -186,6 +186,8 @@ export interface DisputeFacts {
   outcome: 'OPEN' | 'UPHELD' | 'REJECTED' | 'WITHDRAWN';
   openedOn: string;
   closedOn: string | null;
+  /** True for a petition that was answered or passed up but whose decision is not confirmed yet (PORTAL-2): it stays open in the figures and is counted apart. */
+  awaitingOutcome?: boolean;
 }
 
 export interface DisputeStats {
@@ -194,6 +196,8 @@ export interface DisputeStats {
   upheld: number;
   rejected: number;
   withdrawn: number;
+  /** Open disputes that were answered but wait for a confirmed decision: the share upheld is over decisions only, so this says how many are not in it yet. */
+  awaitingOutcome: number;
   /** Whole percent of the decided disputes (upheld or rejected) that were upheld; none while none was decided. */
   upheldPct: number | null;
   /** The mean days from opening to closing over the closed ones, one decimal; none while none was closed. */
@@ -212,6 +216,7 @@ export function disputeStats(disputes: readonly DisputeFacts[]): DisputeStats {
     upheld,
     rejected,
     withdrawn: count('WITHDRAWN'),
+    awaitingOutcome: disputes.filter((dispute) => dispute.outcome === 'OPEN' && dispute.awaitingOutcome === true).length,
     upheldPct: upheld + rejected === 0 ? null : Math.round((upheld * 100) / (upheld + rejected)),
     meanDaysToClose: closed.length === 0 ? null : Math.round((closed.reduce((sum, dispute) => sum + (dayNumber(dispute.closedOn as string) - dayNumber(dispute.openedOn)), 0) * 10) / closed.length) / 10,
   };

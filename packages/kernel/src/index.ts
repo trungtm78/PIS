@@ -2568,6 +2568,10 @@ export * from './vnd-screening.ts';
 export * from './vnd-portal.ts';
 export * from './vnd3-alerts.ts';
 export { VND3_TEXT, vnd3Fill } from './messages/vnd3-texts.ts';
+// PORTAL-2: access of a contractor to the portal through the registry, the limits of a portal upload and the recorded outcome of a petition.
+export * from './vnd-portal-access.ts';
+export * from './bid-petition-outcome.ts';
+export { PORTAL2_TEXT } from './messages/portal2-texts.ts';
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export * from './ctr-claim.ts';
 export * from './ctr-early-warning.ts';
