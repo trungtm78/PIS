@@ -89,7 +89,7 @@ export function setPersona(key, file = infoFile()) {
 }
 
 /** A call to the API as a person of the stack, with the development token (the same one the web session signs). */
-async function apiCall(key, method, path, body) {
+async function apiCall(key, method, path, body, version) {
   const info = JSON.parse(readFileSync(infoFile(), 'utf8'));
   const user = fixtures().users.find((candidate) => candidate.key === key);
   const secret = process.env.E2E_SESSION_KEY;
@@ -98,6 +98,7 @@ async function apiCall(key, method, path, body) {
   const token = `${payload}.${createHmac('sha256', Buffer.from(secret, 'base64')).update(payload).digest('base64url')}`;
   const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
   if (method !== 'GET') headers['idempotency-key'] = `hdsd-${randomUUID()}`;
+  if (version !== undefined) headers['if-match'] = `"${version}"`;
   const response = await fetch(`http://127.0.0.1:${info.apiPort}${path}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(body ?? {}) });
   const text = await response.text();
   return { status: response.status, json: text === '' ? {} : JSON.parse(text) };
@@ -113,6 +114,35 @@ export async function revokeSessions(key) {
     if (done.status < 300) revoked += 1;
   }
   return { listed: listed.status, sessions: sessions.length, revoked };
+}
+
+/**
+ * A diary that conflicts with the server (MOB-42): the way the product itself makes one. A site diary of a contract and a day is saved, then revised (version 2);
+ * a second save of the same day from "a device" that last saw version 1 is answered 409 DIARY_SYNC_CONFLICT and the server keeps the second copy as a conflict diary,
+ * which the person then resolves (keep the main copy, adopt the other, or merge). Everything goes through the commands of the product as the officer; the contract is the
+ * first active one (the seed layer makes the contracts), the day is a working day in the past with no diary yet. `call(person, method, path, body)` answers `{ status, json }`.
+ */
+export async function makeDiaryConflict({ call, today = new Date(), operationId = randomUUID, person = 'projectManager' }) {
+  const contracts = (await call(person, 'GET', '/resources/contract?limit=200')).json;
+  const active = (contracts.items ?? []).find((row) => row.status === 'ACTIVE');
+  if (active === undefined) throw new Error('conflict: there is no active contract; run the seed layer (group clip-public-contracts) first');
+  const taken = new Set(((await call(person, 'GET', `/resources/site_diary?contract_id=${active.id}&limit=200`)).json.items ?? []).map((row) => String(row.record_date).slice(0, 10)));
+  let day;
+  for (let ago = 2; ago < 60 && day === undefined; ago += 1) {
+    const candidate = new Date(today.getTime() - ago * 86_400_000);
+    const weekday = candidate.getUTCDay();
+    const text = candidate.toISOString().slice(0, 10);
+    if (weekday !== 0 && weekday !== 6 && !taken.has(text)) day = text;
+  }
+  if (day === undefined) throw new Error('conflict: no free working day in the last sixty days');
+  const first = await call(person, 'POST', '/site-diaries', { contract_id: active.id, record_date: day, client_operation_id: operationId(), content: { weather_code: 'SUNNY', workforce_count: 40, work_done: 'Concrete of the foundation, first lift', issues: 'None' } });
+  if (first.status >= 300) throw new Error(`conflict: the diary was refused (${first.status})`);
+  const id = first.json.resource_id;
+  const revised = await call(person, 'POST', `/site-diaries/${id}/draft`, { content: { weather_code: 'RAIN', workforce_count: 32, work_done: 'Concrete of the foundation, second lift', issues: 'Rain in the afternoon' }, client_operation_id: operationId() }, first.json.resource_version);
+  if (revised.status >= 300) throw new Error(`conflict: the revision was refused (${revised.status})`);
+  const other = await call(person, 'POST', '/site-diaries', { contract_id: active.id, record_date: day, client_operation_id: operationId(), base_server_version: first.json.resource_version, content: { weather_code: 'SUNNY', workforce_count: 45, work_done: 'Formwork of the columns', issues: 'None' } });
+  if (other.status !== 409 || other.json.code !== 'DIARY_SYNC_CONFLICT') throw new Error(`conflict: the server did not answer a conflict (${other.status} ${other.json.code ?? ''})`);
+  return { contract: active.id, day, diary: id, conflictOf: other.json.diary_id ?? null };
 }
 
 const COMMANDS = {
@@ -131,7 +161,8 @@ const COMMANDS = {
     return 'the next sign-in is nobody';
   },
   conflict: async () => {
-    throw new Error('conflict: not made yet (it needs the diary of the seed layer; see the report)');
+    const made = await makeDiaryConflict({ call: (person, method, path, body, version) => apiCall(person, method, path, body, version) });
+    return `a diary of ${made.day} conflicts with the server copy (contract ${made.contract}, diary ${made.diary})`;
   },
   proxy: async (argument) => {
     const [listen, target] = (argument ?? `${process.env.E2E_PROXY_PORT ?? 4999} ${process.env.E2E_API_PORT ?? 3999}`).split(/\s+/u).map(Number);

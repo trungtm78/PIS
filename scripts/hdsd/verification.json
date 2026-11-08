@@ -30,7 +30,5 @@
     "mob-54": { "pattern": "Bảo trì|cập nhật bắt buộc" },
     "mob-44": { "pattern": "Hết phiên|phiên" }
   },
-  "blockers": {
-    "mob-42": "the data command conflict is not made yet (scripts/hdsd/mobile-data.mjs): it needs the diary of the seed layer to make an offline write that conflicts with the server"
-  }
+  "blockers": {}
 }

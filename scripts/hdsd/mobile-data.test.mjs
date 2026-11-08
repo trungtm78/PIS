@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { answerFor, commandNames, readMode, setPersona, startProxy, writeMode } from './mobile-data.mjs';
+import { answerFor, commandNames, makeDiaryConflict, readMode, setPersona, startProxy, writeMode } from './mobile-data.mjs';
 
 test('in a mode the proxy answers what the service would answer, and passes on everything else; the paths of the stack are never answered', () => {
   assert.equal(answerFor('ok', 'GET', '/resources/project'), undefined);
@@ -66,4 +66,45 @@ test('the proxy passes a call to the API and answers instead of it in a mode', a
 
 test('the commands that the chapters call exist', () => {
   for (const name of ['persona', 'denied', 'revoke-session', 'service-down', 'licence-expired', 'licence-ok', 'maintenance', 'ok', 'conflict', 'proxy']) assert.ok(commandNames.includes(name), name);
+});
+
+/** A fake of the API for the diary conflict: it records the calls and answers like the product does (a stale base version of the same day is a 409 conflict). */
+function fakeDiaryApi({ contracts = [{ id: 'c-1', status: 'ACTIVE' }], diaries = [] } = {}) {
+  const calls = [];
+  const call = async (person, method, path, body, version) => {
+    calls.push({ person, method, path, body, version });
+    if (method === 'GET' && path.startsWith('/resources/contract')) return { status: 200, json: { items: contracts } };
+    if (method === 'GET' && path.startsWith('/resources/site_diary')) return { status: 200, json: { items: diaries } };
+    if (method === 'POST' && path === '/site-diaries' && body.base_server_version === undefined) return { status: 200, json: { resource_id: 'd-1', resource_version: 1 } };
+    if (method === 'POST' && path === '/site-diaries') return { status: 409, json: { code: 'DIARY_SYNC_CONFLICT', diary_id: 'd-1' } };
+    if (method === 'POST' && path === '/site-diaries/d-1/draft') return { status: 200, json: { resource_id: 'd-1', resource_version: 2 } };
+    return { status: 404, json: {} };
+  };
+  return { calls, call };
+}
+
+test('the diary conflict is made the way the product makes one: save, revise, then a save that last saw version 1', async () => {
+  const api = fakeDiaryApi();
+  const ids = ['op-1', 'op-2', 'op-3'];
+  const made = await makeDiaryConflict({ call: api.call, today: new Date('2026-11-09T03:00:00Z'), operationId: () => ids.shift() });
+  assert.deepEqual(made, { contract: 'c-1', day: '2026-11-06', diary: 'd-1', conflictOf: 'd-1' });
+  const writes = api.calls.filter((entry) => entry.method === 'POST');
+  assert.deepEqual(writes.map((entry) => entry.path), ['/site-diaries', '/site-diaries/d-1/draft', '/site-diaries']);
+  assert.equal(writes[1].version, 1);
+  assert.equal(writes[2].body.base_server_version, 1);
+  assert.equal(new Set(writes.map((entry) => entry.body.client_operation_id)).size, 3);
+  assert.ok(writes.every((entry) => entry.person === 'projectManager'));
+});
+
+test('the diary conflict takes a working day that has no diary yet, and stops without an active contract', async () => {
+  const taken = fakeDiaryApi({ diaries: [{ record_date: '2026-11-06' }] });
+  const made = await makeDiaryConflict({ call: taken.call, today: new Date('2026-11-09T03:00:00Z') });
+  assert.equal(made.day, '2026-11-05');
+  await assert.rejects(() => makeDiaryConflict({ call: fakeDiaryApi({ contracts: [{ id: 'c-2', status: 'DRAFT' }] }).call }), /no active contract/u);
+});
+
+test('the diary conflict fails loudly when the server does not answer a conflict', async () => {
+  const api = fakeDiaryApi();
+  const quiet = async (person, method, path, body, version) => (method === 'POST' && path === '/site-diaries' && body.base_server_version !== undefined ? { status: 200, json: {} } : api.call(person, method, path, body, version));
+  await assert.rejects(() => makeDiaryConflict({ call: quiet }), /did not answer a conflict/u);
 });
