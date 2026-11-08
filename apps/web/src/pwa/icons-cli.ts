@@ -24,7 +24,7 @@ export function colorsFromTokens(tokensJson: string): IconColors {
     if (value === undefined) throw new Error(`design_tokens.json has no color.${key}`);
     return value;
   };
-  return { background: pick('sidebar'), barLow: pick('menuMuted'), barMid: pick('selectedBar'), barHigh: pick('menuText') };
+  return { background: pick('sidebar'), barLow: pick('menuMuted'), barMid: pick('selectedBar'), barHigh: pick('menuText'), accent: pick('fundCarryOver') };
 }
 
 function png(rgba: Uint8Array, size: number): Buffer {
