@@ -177,7 +177,7 @@ describe('GOV-10 over HTTP', () => {
     });
 
     it('lets the reporter withdraw only their own report', async () => {
-      expect((await call('POST', `/home/alert-feedback/${reportId}/withdraw`, { member: SECOND, ifMatch: '"1"' })).status).toBe(404);
+      expect((await call('POST', `/home/alert-feedback/${reportId}/withdraw`, { member: SECOND, ifMatch: '"1"' })).status).toBe(403);
       const withdrawn = await call('POST', `/home/alert-feedback/${reportId}/withdraw`, { member: AUDITOR, ifMatch: '"1"' });
       expect(withdrawn.json.status).toBe('WITHDRAWN');
     });
