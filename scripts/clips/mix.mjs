@@ -64,6 +64,7 @@ export function parseLoudnorm(log) {
  * `video` false makes an audio-only graph (the first pass that measures the loudness).
  */
 export function buildFilterGraph({ narration, totalMs, music, spec = loadSpec(), measured, subtitlesFile, fontsDir, barInput, barY = 944 }) {
+export function buildFilterGraph({ narration, totalMs, music, spec = loadSpec(), measured, subtitlesFile, fontsDir, barInput, barY = 890, musicGainDb }) {
   const sr = spec.audio.sampleRate;
   const lines = [];
   narration.forEach((item, index) => lines.push(`[${index + 1}:a]aformat=sample_rates=${sr}:channel_layouts=stereo,adelay=${Math.round(item.startMs)}:all=1[v${index}]`));

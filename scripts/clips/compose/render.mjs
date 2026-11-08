@@ -100,8 +100,8 @@ export class Painter {
   async subtitleBar(cues, totalMs, out, accent) {
     const dir = join(this.dir, 'bar');
     mkdirSync(dir, { recursive: true });
-    const strip = { x: 0, y: 0, width: 1920, height: 124 };
-    await this.page.setViewportSize({ width: 1920, height: 124 });
+    const strip = { x: 0, y: 0, width: 1920, height: 190 };
+    await this.page.setViewportSize({ width: 1920, height: 190 });
     const blank = await this.still(barHtml('', { fonts: this.fonts, accent }).replace(/<div class="bar">.*?<\/div>/u, ''), join(dir, 'blank.png'), strip);
     const lines = [];
     let at = 0;
