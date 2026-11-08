@@ -194,6 +194,21 @@ describe('ProcessTree: the outline', () => {
     expect(screen.getByRole('treeitem', { name: /Đấu thầu rộng rãi, 14/ })).toHaveFocus();
   });
 
+  it('selects with a real button that a keyboard reaches by Enter and by Space', async () => {
+    const onSelect = vi.fn();
+    render(<ProcessTree nodes={NODES} edges={EDGES} view="outline" caption="c" onSelect={onSelect} />);
+    const buttons = document.querySelectorAll('button.ui-process-tree__outline-main');
+    expect(buttons.length).toBeGreaterThan(0);
+    const first = buttons[0] as HTMLButtonElement;
+    expect(first.getAttribute('type')).toBe('button');
+    first.focus();
+    await userEvent.keyboard('{Enter}');
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard(' ');
+    expect(onSelect).toHaveBeenCalledTimes(2);
+    expect(document.querySelector('div.ui-process-tree__outline-main')).toBeNull();
+  });
+
   it('remembers the open rows for the session and nothing else', async () => {
     const first = open('prc');
     await userEvent.click(screen.getByRole('button', { name: 'Mở rộng Lập hồ sơ mời thầu' }));

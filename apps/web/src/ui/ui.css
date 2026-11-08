@@ -362,7 +362,8 @@
 .ui-process-tree__row:hover { border-color: var(--mv-color-primary); }
 .ui-process-tree__chevron { flex: none; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--mv-color-ink); cursor: pointer; }
 .ui-process-tree__chevron--none { cursor: default; }
-.ui-process-tree__outline-main { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: var(--mv-space-12); min-height: 44px; cursor: pointer; }
+.ui-process-tree__outline-main { flex: 1; appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; text-align: start; display: flex; align-items: center; justify-content: space-between; gap: var(--mv-space-12); min-height: 44px; cursor: pointer; }
+.ui-process-tree__outline-main:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
 .ui-process-tree__outline-count { font-weight: 700; font-variant-numeric: tabular-nums; }
 .ui-process-tree__bar--outline { display: block; width: 120px; max-width: 50%; margin-bottom: var(--mv-space-4); }
 .ui-process-tree__item.is-empty > .ui-process-tree__row { color: var(--mv-color-text-secondary); }

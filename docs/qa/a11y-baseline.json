@@ -14,9 +14,5 @@
     "RSP-VIEWPORT-WIDTH": "nothing is sized with 100vw (it ignores the scrollbar and overflows)",
     "RSP-VIEWPORT-META": "the page has a device-width viewport that allows zoom, and a language"
   },
-  "violations": {
-    "A11Y-STATIC-CLICK": {
-      "apps/web/src/ui/ProcessTree.tsx": 1
-    }
-  }
+  "violations": {}
 }

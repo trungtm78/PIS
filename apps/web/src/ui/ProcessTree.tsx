@@ -397,10 +397,10 @@ export function ProcessTree({
             ) : (
               <span className="ui-process-tree__chevron ui-process-tree__chevron--none" aria-hidden="true" />
             )}
-            <div className="ui-process-tree__outline-main" onClick={() => select(node)}>
+            <button type="button" className="ui-process-tree__outline-main" tabIndex={-1} onClick={() => select(node)}>
               <span className="ui-process-tree__title">{node.label}</span>
               <span className="ui-process-tree__outline-count">{node.count === null ? t('ui.processTree.node.unknown') : node.count}</span>
-            </div>
+            </button>
             <Health node={node} />
           </div>
           {percent !== null && (
