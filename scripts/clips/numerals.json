@@ -1,0 +1,24 @@
+{
+  "schema": "clip-numerals/1",
+  "note": "Vietnamese number words used only for the text sent to TTS. Subtitles keep digits.",
+  "digits": ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"],
+  "ten": "mười",
+  "tens": "mươi",
+  "one_after_tens": "mốt",
+  "four_after_tens": "tư",
+  "five_after_ten": "lăm",
+  "hundred": "trăm",
+  "zero_tens": "linh",
+  "zero_hundred": "không trăm",
+  "groups": ["", "nghìn", "triệu", "tỷ"],
+  "decimal_point": "phẩy",
+  "negative": "âm",
+  "percent": "phần trăm",
+  "units": {
+    "percent": { "display": "%", "speech": "phần trăm" },
+    "money-billion": { "display": " tỷ đồng", "speech": "tỷ đồng" },
+    "days": { "display": " ngày", "speech": "ngày" },
+    "count": { "display": "", "speech": "" },
+    "text": { "display": "", "speech": "" }
+  }
+}

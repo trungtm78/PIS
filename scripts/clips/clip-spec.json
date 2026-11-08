@@ -1,0 +1,98 @@
+{
+  "schema": "clip-spec/1",
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "videoCodec": "h264",
+    "pixelFormat": "yuv420p",
+    "crf": 18,
+    "preset": "slow"
+  },
+  "mainVideo": {
+    "minSec": 480,
+    "maxSec": 720
+  },
+  "chapterCut": {
+    "minSec": 45,
+    "maxSec": 720
+  },
+  "narration": {
+    "syllablesPerSecondAtSpeed1": 3,
+    "sentencePauseMs": 350,
+    "leadInMs": 400,
+    "tailMs": 700,
+    "minSceneSec": 5,
+    "estimateToleranceSec": 1.5
+  },
+  "subtitles": {
+    "maxCharsPerLine": 42,
+    "maxLines": 2,
+    "minCueMs": 1000,
+    "maxCueMs": 6500,
+    "maxCharsPerSecond": 17,
+    "gapMs": 80,
+    "fontName": "Be Vietnam Pro",
+    "fontDir": "apps/mobile/assets/fonts",
+    "fontSize": 11,
+    "marginBottom": 36,
+    "backgroundToken": "workspaceCard",
+    "backgroundAlpha": 0.78,
+    "textColour": "#FFFFFF"
+  },
+  "audio": {
+    "integratedLufs": -16,
+    "toleranceLu": 1.5,
+    "truePeakMaxDb": -1,
+    "sampleRate": 48000,
+    "musicGainDb": -20,
+    "duck": {
+      "threshold": 0.04,
+      "ratio": 10,
+      "attackMs": 15,
+      "releaseMs": 450
+    },
+    "musicFadeInSec": 2,
+    "musicFadeOutSec": 4,
+    "bitrateKbps": 192
+  },
+  "stamps": {
+    "demo-form": {
+      "caption": "MẪU DEMO — chờ mẫu chính thức",
+      "narrationContains": "mẫu demo"
+    },
+    "egp-assumption": {
+      "caption": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+      "narrationContains": "giả định"
+    },
+    "unverified-legal": {
+      "caption": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+      "narrationContains": "chưa kiểm chứng"
+    },
+    "illustrative-data": {
+      "caption": "Dữ liệu minh họa",
+      "narrationContains": "minh họa"
+    },
+    "external-assumption": {
+      "caption": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
+      "narrationContains": "giả định"
+    }
+  },
+  "forbiddenInNarration": [
+    "MACHVON"
+  ],
+  "personas": [
+    "owner",
+    "capApprover",
+    "projectManager",
+    "unitAdmin",
+    "treasuryMaker",
+    "ctrOfficer",
+    "bidManager",
+    "auditor",
+    "paymentApprover",
+    "dgvSteward",
+    "mneAdmin",
+    "sysAdmin"
+  ]
+}
