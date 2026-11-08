@@ -59,7 +59,7 @@ export class RatingController {
 
   private async ruleOf(scope: CommandScope, now: Date): Promise<RatingRule> {
     const rule = await this.policy.get(scope.tx, 'CONTRACT_PERFORMANCE_RATING', 'DEFAULT', vietnamDateOf(now));
-    return { params: rule === undefined ? ratingDefaults() : ratingParams(rule.params), version: rule?.version ?? 0, source: rule === undefined ? 'DEFAULT' : 'RULE' };
+    return { params: rule === undefined ? ratingDefaults() : ratingParams(rule.params), version: rule?.version ?? 0, source: rule?.source === 'RULE' ? 'RULE' : 'DEFAULT' };
   }
 
   @Post('contracts/:id/rating-proposals')
