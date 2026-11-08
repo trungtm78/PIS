@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { BidWorkflowReads, FeedConnectionStore, FeedDifferenceStore, FeedMappingStore, FileImportStore, ProvinceFactsReader, TenantDatabase } from '@machvon/db';
+import { BidWorkflowReads, FeedConnectionStore, FeedDifferenceStore, FeedMappingStore, FileImportStore, FinanceFeedFactsReader as ProvinceFactsReader, TenantDatabase } from '@machvon/db';
 import type { ProvinceFactsFilter } from '@machvon/db';
 import {
   DomainError,

@@ -550,14 +550,12 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CTR-33': () => import('../../screens/gov11/LinkageScreen'),
   'PRJ-28': () => import('../../screens/gov11/LookAheadScreen'),
   'PRJ-29': () => import('../../screens/gov11/LessonsScreen'),
-=======
   // The feed of the Finance Department (FEED-1): connection, runs and imports, code mapping, differences, data generator.
   'FEED-01': () => import('../../screens/feed/ConnectionScreen'),
   'FEED-02': () => import('../../screens/feed/RunsScreen'),
   'FEED-03': () => import('../../screens/feed/MappingScreen'),
   'FEED-04': () => import('../../screens/feed/DifferencesScreen'),
   'FEED-05': () => import('../../screens/feed/GeneratorScreen'),
-=======
   // The risk board scored from signals and the effectiveness after the investment (lane MR-1).
   'PRJ-28': () => import('../../screens/prj/risk-signals/RiskSignalBoardScreen'),
   'MNE-11': () => import('../../screens/mne/effect/EffectivenessScreen'),

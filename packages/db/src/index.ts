@@ -1815,7 +1815,7 @@ export { FeedDifferenceStore, FeedMappingStore, feedItemOf, ownFigures } from '.
 export type { FeedDifferenceCounts, FeedDifferenceRow, FeedMappingCounts, FeedMappingOutcome, FeedMappingRow, FeedReconciliationResult, FeedUnmapped } from './finance-feed-mapping-store.ts';
 export { FEED_DIFFERENCE_CODES, FeedImportAdapter } from './finance-feed-import.ts';
 export type { FeedImportContext, FeedRowOutcome } from './finance-feed-import.ts';
-export { ProvinceFactsReader } from './finance-feed-reader.ts';
+export { ProvinceFactsReader as FinanceFeedFactsReader } from './finance-feed-reader.ts';
 export type { ProvinceFactsFilter } from './finance-feed-reader.ts';
 // MR-1: the risk register scored from live signals (MR.02) and the post-investment effectiveness (MR.03).
 export { RISK_ALERT_METRIC, RISK_ALERT_RAISED_EVENT, RISK_ALERT_RESOLVED_EVENT, RISK_RESCORE_METRIC, RISK_SIGNAL_SCORED_EVENT, RiskRescoreJob } from './risk-rescore-job.ts';

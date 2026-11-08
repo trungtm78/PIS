@@ -24,7 +24,6 @@ export const GOVERNANCE_SPECS: readonly ForeignAttemptSpec[] = [
   ...RATING_SPECS,
   ...GOV11A_SPECS,
   ...ANALYTICS_SPECS,
-=======
   ...MR1_SPECS,
 ];
 
@@ -40,7 +39,6 @@ export const GOVERNANCE_OPERATIONS: readonly string[] = [
   ...GOV11A_OPERATIONS,
   ...HOME_OPERATIONS,
   ...ANALYTICS_OPERATIONS,
-=======
   ...MR1_OPERATIONS,
 ];
 
@@ -57,7 +55,6 @@ export const GOVERNANCE_SNAPSHOT_TABLES: readonly string[] = [
     ...GOV11A_SNAPSHOT_TABLES,
     ...HOME_SNAPSHOT_TABLES,
     ...ANALYTICS_SNAPSHOT_TABLES,
-=======
     ...MR1_SNAPSHOT_TABLES,
   ]),
 ];
@@ -74,6 +71,5 @@ export async function seedGovernance(client: Client, context: SeedContext): Prom
   await seedGov11a(client, context);
   await seedHome(client, context);
   await seedAnalytics(client, context);
-=======
   await seedMr1(client, context);
 }
