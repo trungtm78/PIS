@@ -46,6 +46,12 @@ export const WORK_KINDS = [
   // The duties of posting to the national procurement network (lane EGP-2): a posting near its deadline, and one past it.
   'EGP_POSTING_DUE',
   'EGP_POSTING_OVERDUE',
+  // The management of contractors (lane VND-1): the alerts of the debarment register, the ledger of bid conduct, the accounts and the certificates.
+  'VENDOR_RESTRICTED_EXPOSURE',
+  'VENDOR_REPUTATION_POST',
+  'VENDOR_DEBARMENT_DECISION',
+  'VENDOR_PAYEE_ACCOUNT',
+  'VENDOR_QUALIFICATION_EXPIRY',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -89,6 +95,11 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   CONNECTOR_STALE: 32,
   EGP_POSTING_DUE: 33,
   EGP_POSTING_OVERDUE: 34,
+  VENDOR_RESTRICTED_EXPOSURE: 35,
+  VENDOR_REPUTATION_POST: 36,
+  VENDOR_DEBARMENT_DECISION: 37,
+  VENDOR_PAYEE_ACCOUNT: 38,
+  VENDOR_QUALIFICATION_EXPIRY: 39,
 };
 
 export interface WorkItem {

@@ -14,6 +14,11 @@ import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
 import { ACTUALS_PRECEDENCES, ACTUAL_SOURCES, ENTRY_MODES, FUNDING_TAXONOMY_RULE_TYPE, MEASURES, PERIOD_GRAINS, RATIO_BASES, RATIO_TERMS, enterprisePackParams, publicPackParams, refineFundingPack } from './fnd-taxonomy.ts';
 import { message } from './messages.ts';
+import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
+import { PROFILE_FIELDS } from './vendor-profile.ts';
+import { EXPIRY_WARNING_DEFAULTS, expiryPolicyOf } from './vendor-qualification.ts';
+import { DEBARMENT_POLICY_DEFAULTS, GATE_POLICY_DEFAULTS, REPUTATION_POLICY_DEFAULTS, debarmentPeriodOf, debarmentPolicyOf, gatePolicyOf, reputationPolicyOf } from './vendor-restriction.ts';
+import { DEBARMENT_PERIOD_DEFAULTS, DUPLICATE_PARAM_DEFAULTS, VENDOR_PROFILE_DEFAULTS, duplicateWeightsOf, vendorProfilePolicyOf } from './vendor-defaults.ts';
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -1314,6 +1319,168 @@ export const registerApprovalWorkflowRules = (): void =>
     });
   });
 
+const VENDOR_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'VENDOR_RESTRICTED_EXPOSURE', source: 'VENDOR', owner: 'PROCUREMENT_OFFICER', action: message('gov.rules.vendor_alert_seeds.action.vendor_restricted_exposure'), consequence: message('gov.rules.vendor_alert_seeds.consequence.vendor_restricted_exposure'), hours: 24, severity: 'URGENT', why: message('gov.rules.vendor_alert_seeds.why.vendor_restricted_exposure') },
+  { code: 'VENDOR_REPUTATION_POST', source: 'VENDOR', owner: 'INVESTOR_REPRESENTATIVE', action: message('gov.rules.vendor_alert_seeds.action.vendor_reputation_post'), consequence: message('gov.rules.vendor_alert_seeds.consequence.vendor_reputation_post'), hours: 48, severity: 'ACTION', why: message('gov.rules.vendor_alert_seeds.why.vendor_reputation_post') },
+  { code: 'VENDOR_DEBARMENT_DECISION', source: 'VENDOR', owner: 'DEBARMENT_AUTHORITY', action: message('gov.rules.vendor_alert_seeds.action.vendor_debarment_decision'), consequence: message('gov.rules.vendor_alert_seeds.consequence.vendor_debarment_decision'), hours: 48, severity: 'ACTION', why: message('gov.rules.vendor_alert_seeds.why.vendor_debarment_decision') },
+  { code: 'VENDOR_PAYEE_ACCOUNT', source: 'VENDOR', owner: 'PAYMENT_ACCOUNTANT', action: message('gov.rules.vendor_alert_seeds.action.vendor_payee_account'), consequence: message('gov.rules.vendor_alert_seeds.consequence.vendor_payee_account'), hours: 24, severity: 'URGENT', why: message('gov.rules.vendor_alert_seeds.why.vendor_payee_account') },
+  { code: 'VENDOR_QUALIFICATION_EXPIRY', source: 'VENDOR', owner: 'CONTRACT_MANAGER', action: message('gov.rules.vendor_alert_seeds.action.vendor_qualification_expiry'), consequence: message('gov.rules.vendor_alert_seeds.consequence.vendor_qualification_expiry'), hours: 168, severity: 'ACTION', why: message('gov.rules.vendor_alert_seeds.why.vendor_qualification_expiry') },
+];
+
+const vendorKpi = (key: string, unit: 'PERCENT' | 'COUNT', owner: string, ragCode?: string): DefaultInput =>
+  rule(
+    {
+      name: message(`gov.rules.vendor_kpi.${key}.name`),
+      formula: message(`gov.rules.vendor_kpi.${key}.formula`),
+      source: message('gov.rules.vendor_kpi.source'),
+      unit,
+      owner,
+      decimals: unit === 'PERCENT' ? 1 : 0,
+      refresh_hours: 24,
+      numerator: message(`gov.rules.vendor_kpi.${key}.numerator`),
+      denominator: message(`gov.rules.vendor_kpi.${key}.denominator`),
+      period: 'AS_OF_NOW',
+      allowed_lag_days: 1,
+      ...(ragCode === undefined ? {} : { rag_code: ragCode }),
+    },
+    'UNVERIFIED',
+    { formula: message(`gov.rules.vendor_kpi.${key}.formula`), source: message('gov.rules.vendor_kpi.source') },
+  );
+
+/** The management of contractors and suppliers (lane VND-1; packages/kernel/src/vendor-*.ts): the profile, the duplicate signals, the accounts, the certificates, the debarment register, the reputation ledger, the gates, their alert types and the indicators of the register. */
+export const registerVendorRules = (): void =>
+  once('vendor', () => {
+    registerCoreRules();
+    registerIntegrationRules();
+    const source = message('gov.rules.register_vendor_rules.source');
+    const modules = ['BID', 'CTR', 'PAY', 'AUD', 'HOME'];
+    registerRuleType({
+      type: 'VENDOR_PROFILE',
+      ownerModule: 'BID',
+      modules,
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_profile'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { required_before_bid: list(oneOf(...PROFILE_FIELDS), PROFILE_FIELDS.length), review_months: int(1, 120), beneficial_owner_pct: int(1, 100) },
+      refine: refineWith(vendorProfilePolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...VENDOR_PROFILE_DEFAULTS })) },
+    });
+    const weight = (): FieldSpec => int(0, 100);
+    registerRuleType({
+      type: 'VENDOR_DUPLICATE_SIGNALS',
+      ownerModule: 'BID',
+      modules: ['BID', 'AUD'],
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_duplicate_signals'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        weight_tax_head: weight(),
+        weight_address: weight(),
+        weight_phone: weight(),
+        weight_email: weight(),
+        weight_legal_representative: weight(),
+        weight_owner: weight(),
+        weight_bank_account: weight(),
+        weight_name: weight(),
+        suggest_from: int(1, 1000),
+        name_similarity_from_pct: int(1, 100),
+      },
+      refine: refineWith(duplicateWeightsOf),
+      defaults: { DEFAULT: rule(plain({ ...DUPLICATE_PARAM_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_PAYEE_ACCOUNT',
+      ownerModule: 'PAY',
+      modules: ['PAY', 'BID', 'AUD', 'HOME'],
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_payee_account'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { waiting_hours: int(0, 720), request_valid_days: int(1, 365), name_match: oneOf('REQUIRE', 'WARN'), require_registered_account: bool, old_account_pays_during_wait: bool, callback_number_min_age_days: int(0, 365) },
+      refine: refineWith(payeeAccountPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...PAYEE_ACCOUNT_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_EXPIRY_WARNING',
+      ownerModule: 'BID',
+      modules: ['BID', 'CTR', 'HOME'],
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_expiry_warning'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { first_warning_days: int(0, 365), second_warning_days: int(0, 365) },
+      refine: refineWith(expiryPolicyOf),
+      defaults: { QUALIFICATION: rule(plain({ ...EXPIRY_WARNING_DEFAULTS })), KEY_STAFF: rule(plain({ ...EXPIRY_WARNING_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_DEBARMENT',
+      ownerModule: 'BID',
+      modules,
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_debarment'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        decide_within_days: int(1, 365),
+        decide_day_unit: oneOf('CALENDAR_DAYS', 'WORKING_DAYS'),
+        response_days: int(1, 90),
+        remind_before_days: int(0, 30),
+        province_threshold: int(1, 100),
+        national_threshold: int(1, 100),
+        cumulative_max_months: int(1, 600),
+        limitation_years: int(1, 50),
+        jv_exception_groups: list(codeText(), 10),
+      },
+      refine: refineWith(debarmentPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...DEBARMENT_POLICY_DEFAULTS, jv_exception_groups: [...DEBARMENT_POLICY_DEFAULTS.jv_exception_groups] })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_DEBARMENT_PERIOD',
+      ownerModule: 'BID',
+      modules,
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_debarment_period'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { min_months: int(1, 600), max_months: int(1, 600), behaviours: text(500) },
+      refine: refineWith(debarmentPeriodOf),
+      defaults: Object.fromEntries(Object.entries(DEBARMENT_PERIOD_DEFAULTS()).map(([code, period]) => [code, rule(plain({ ...period }))])),
+    });
+    registerRuleType({
+      type: 'VENDOR_REPUTATION',
+      ownerModule: 'BID',
+      modules,
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_reputation'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { bid_security_multiplier: int(1, 20), multiplier_years: int(1, 20), award_confirmation_working_days: int(1, 30) },
+      refine: refineWith(reputationPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...REPUTATION_POLICY_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_GATE',
+      ownerModule: 'BID',
+      modules,
+      formula: message('gov.rules.register_vendor_rules.formula.vendor_gate'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { profile_enforcement: oneOf('BLOCK', 'WARN'), qualification_enforcement: oneOf('BLOCK', 'WARN') },
+      refine: refineWith(gatePolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...GATE_POLICY_DEFAULTS })) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(VENDOR_ALERT_SEEDS, { source }));
+    registerRuleDefaults('KPI_DEFINITION', {
+      VENDOR_PROFILE_COVERAGE: vendorKpi('vendor_profile_coverage', 'PERCENT', 'PROCUREMENT_MANAGER'),
+      VENDOR_DEBARMENT_IN_TIME: vendorKpi('vendor_debarment_in_time', 'PERCENT', 'DEBARMENT_AUTHORITY'),
+      VENDOR_REPUTATION_POSTED_IN_TIME: vendorKpi('vendor_reputation_posted_in_time', 'PERCENT', 'INVESTOR_REPRESENTATIVE'),
+      VENDOR_ACCOUNT_CHANGES: vendorKpi('vendor_account_changes', 'COUNT', 'PAYMENT_ACCOUNTANT'),
+    });
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -1329,6 +1496,7 @@ export function registerAllGovernanceRules(): void {
   registerFinanceRules();
   registerProcurementWorkflowRules();
   registerApprovalWorkflowRules();
+  registerVendorRules();
 }
 
 registerAllGovernanceRules();

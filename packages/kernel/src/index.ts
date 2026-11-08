@@ -2526,3 +2526,10 @@ export { addPublicSums, buildPackLines, publicIndicatorsOf, publicRateFigures, p
 export type { PublicCoverage, PublicIndicator, PublicLine, PublicPlanCell, PublicProject, PublicRateFigures, PublicRateReason, PublicRateSums, PublicRates, PublicReportedCell, PublicTreasuryEntry } from './fnd-public.ts';
 export { HASH_SCHEMAS, figureRowsOf, snapshotHashFor } from './fnd-snapshot.ts';
 export type { HashSchema, HashSchema2Extras, HashedFigureLine, SnapshotFigure, SnapshotHashHeader } from './fnd-snapshot.ts';
+=======
+// VND-1: the contractor profile, the accounts, the certificates, the debarment register and the reputation ledger (docs/vendor-management.md).
+export * from './vendor-profile.ts';
+export * from './vendor-payee.ts';
+export * from './vendor-qualification.ts';
+export * from './vendor-restriction.ts';
+export * from './vendor-defaults.ts';
