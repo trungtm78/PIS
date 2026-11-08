@@ -3,6 +3,7 @@ import type { Obj, SeedContext } from '../context.ts';
 import { asObj } from '../context.ts';
 import { masterRecord, publishArea } from '../base.ts';
 import { projectByCode, registerPortfolioProject } from '../capital-projects.ts';
+import { ensureWorkCalendar } from '../field-assurance/shared.ts';
 import type { ProjectSpec } from '../capital-projects.ts';
 import { clipPlan } from './plan.ts';
 
@@ -157,19 +158,23 @@ export function ebsCsv(plan: EnterprisePlan, extractDate: string): string {
 export async function seedClipEnterpriseEbs(ctx: SeedContext): Promise<void> {
   const plan = enterprisePlan(ctx);
   if (plan === undefined) return;
+  // The permission to upload and preview a file ends in "preview" and so sits with the leader in the roles of the docs stack; the import and the reconciliation are the officer's.
   const person = 'projectManager';
+  const previewer = 'capApprover';
   const buffer = Buffer.from(ebsCsv(plan, ctx.day(-3)), 'utf8');
-  const file = await ctx.upload<{ file_object_key: string; file_sha256: string }>(person, '/ebs/imports/files', { filename: 'ebs-extract.csv', mime: 'text/csv', buffer });
+  const file = await ctx.upload<{ file_object_key: string; file_sha256: string }>(previewer, '/ebs/imports/files', { filename: 'ebs-extract.csv', mime: 'text/csv', buffer });
   if (!file.ok) {
     ctx.warn(`the accounting file was refused (HTTP ${file.status}): is the stack serving the enterprise edition?`);
     return;
   }
   const body = { file_object_key: file.json.file_object_key, file_sha256: file.json.file_sha256 };
-  const preview = await ctx.must<Obj>(person, 'POST', '/ebs/imports/preview', body);
+  const preview = await ctx.must<Obj>(previewer, 'POST', '/ebs/imports/preview', body);
   ctx.log(`  [ebs] preview counts ${JSON.stringify(asObj(preview.counts))}`);
   const applied = await ctx.attempt<Obj>(person, 'POST', '/ebs/imports', body);
   if (applied.ok) ctx.log(`  [ebs] import counts ${JSON.stringify(asObj(applied.json.counts))}`);
-  const reconciled = await ctx.attempt<Obj>(person, 'POST', '/ebs/reconciliations', {});
+  // The clocks of the differences run on the working calendar; the owner of the tenant is the second person (not a maker of the file).
+  await ensureWorkCalendar(ctx);
+  const reconciled = await ctx.attempt<Obj>(person, 'POST', '/ebs/reconciliations', { owner_id: ctx.person('owner').membershipId });
   if (reconciled.ok) ctx.log(`  [ebs] reconciliation examined ${String(reconciled.json.examined)} differences ${String(reconciled.json.differences)}`);
   ctx.record({ module: 'EBS', kind: 'ebs-import', id: String(applied.json.resource_id ?? ''), code: 'EBS', note: plan.ebs.note });
 }
