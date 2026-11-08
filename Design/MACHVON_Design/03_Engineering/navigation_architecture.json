@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 454,
-    "webCatalog": 454,
+    "webRoutes": 460,
+    "webCatalog": 460,
     "webModules": 26,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -77,6 +77,18 @@
         "ADM",
         "LLM",
         "SAS"
+      ]
+    },
+    {
+      "id": "insights",
+      "name": "Phân tích",
+      "icon": "insights",
+      "modules": [
+        "BID",
+        "BI",
+        "MNE",
+        "AUD",
+        "VND"
       ]
     }
   ],
@@ -1886,6 +1898,51 @@
           "parents": {}
         }
       ]
+    },
+    "VND": {
+      "name": "Quản lý nhà thầu",
+      "groups": [
+        {
+          "title": "Sổ và hồ sơ nhà thầu",
+          "description": "Sổ nhà thầu, hồ sơ chủ, chủ sở hữu, kiểm mã số thuế và gợi ý trùng",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1
+          }
+        },
+        {
+          "title": "Hồ sơ cấm và tài khoản",
+          "description": "Hồ sơ cấm tham gia đấu thầu và tài khoản nhận tiền của nhà thầu",
+          "ids": [
+            3,
+            4
+          ],
+          "primary": [
+            3,
+            4
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Chứng chỉ và uy tín",
+          "description": "Chứng chỉ, nhân sự chủ chốt, sự kiện uy tín dự thầu và liên danh",
+          "ids": [
+            5,
+            6
+          ],
+          "primary": [
+            5,
+            6
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2347,6 +2404,20 @@
         5,
         "Chỉ đạo của kỳ"
       ]
+    ],
+    "VND": [
+      [
+        1,
+        "Sổ nhà thầu"
+      ],
+      [
+        3,
+        "Hồ sơ cấm"
+      ],
+      [
+        4,
+        "Tài khoản nhận tiền"
+      ]
     ]
   },
   "moduleDescriptions": {
@@ -2375,7 +2446,8 @@
     "AST": "Tài sản hình thành từ đầu tư, bàn giao và hạch toán.",
     "MNE": "Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia.",
     "DIR": "Cuộc giao ban đầu tư, chỉ đạo của lãnh đạo, đơn vị thực hiện, hạn và bằng chứng hoàn thành.",
-    "RPT": "Lập báo cáo đúng biểu mẫu, ký ba người, phát hành bản bất biến và ghi việc giao."
+    "RPT": "Lập báo cáo đúng biểu mẫu, ký ba người, phát hành bản bất biến và ghi việc giao.",
+    "VND": "Sổ nhà thầu và nhà cung cấp, hồ sơ chủ, hồ sơ cấm tham gia đấu thầu, tài khoản nhận tiền, chứng chỉ, sự kiện uy tín dự thầu và liên danh."
   },
   "adminLibraryModules": [
     "IAM",
@@ -7104,6 +7176,66 @@
       "area": "investment",
       "module": "DIS",
       "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-01",
+      "title": "Sổ nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Sổ và hồ sơ nhà thầu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-02",
+      "title": "Hồ sơ nhà thầu chủ",
+      "kind": "detail",
+      "area": "insights",
+      "module": "VND",
+      "group": "Sổ và hồ sơ nhà thầu",
+      "role": "detail",
+      "parent": "VND-01"
+    },
+    {
+      "id": "VND-03",
+      "title": "Hồ sơ cấm tham gia đấu thầu",
+      "kind": "workflow",
+      "area": "insights",
+      "module": "VND",
+      "group": "Hồ sơ cấm và tài khoản",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-04",
+      "title": "Tài khoản nhận tiền của nhà thầu",
+      "kind": "workflow",
+      "area": "insights",
+      "module": "VND",
+      "group": "Hồ sơ cấm và tài khoản",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-05",
+      "title": "Chứng chỉ và nhân sự chủ chốt",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Chứng chỉ và uy tín",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-06",
+      "title": "Sự kiện uy tín dự thầu và liên danh",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Chứng chỉ và uy tín",
       "role": "workspace",
       "parent": null
     }

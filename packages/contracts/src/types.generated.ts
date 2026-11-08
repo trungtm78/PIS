@@ -28978,7 +28978,7 @@ export interface components {
              * @description The kind of source the item comes from.
              * @enum {string}
              */
-            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING";
+            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR";
             source_id: string;
             /**
              * Format: uuid
@@ -29381,7 +29381,7 @@ export interface components {
              * @description The kind of source the item comes from.
              * @enum {string}
              */
-            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING";
+            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR";
             source_id: string;
             /** @description Why the clocks stop, a code of the pause reasons of the CLOCK_POLICY rule in force. */
             reason_code: string;
@@ -29403,7 +29403,7 @@ export interface components {
              * @description The kind of source the item comes from.
              * @enum {string}
              */
-            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING";
+            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR";
             source_id: string;
             /** @description Why the clocks run again before the end of the pause, if the person wants to say. */
             reason?: string;

@@ -205746,7 +205746,8 @@
               "DISBURSEMENT_EXCEPTION",
               "PROJECT_GOVERNANCE",
               "CONNECTOR",
-              "EGP_POSTING"
+              "EGP_POSTING",
+              "VENDOR"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -207098,7 +207099,8 @@
               "DISBURSEMENT_EXCEPTION",
               "PROJECT_GOVERNANCE",
               "CONNECTOR",
-              "EGP_POSTING"
+              "EGP_POSTING",
+              "VENDOR"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -207163,7 +207165,8 @@
               "DISBURSEMENT_EXCEPTION",
               "PROJECT_GOVERNANCE",
               "CONNECTOR",
-              "EGP_POSTING"
+              "EGP_POSTING",
+              "VENDOR"
             ],
             "description": "The kind of source the item comes from."
           },

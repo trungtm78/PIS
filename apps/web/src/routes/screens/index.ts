@@ -472,4 +472,11 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'RPT-02': () => import('../../screens/rpt/DraftScreen'),
   'RPT-03': () => import('../../screens/rpt/IssuedScreen'),
   'RPT-04': () => import('../../screens/rpt/DeliveryLogScreen'),
+=======
+  'VND-01': () => import('../../screens/vnd/register/RegisterScreen'),
+  'VND-02': () => import('../../screens/vnd/profile/ProfileScreen'),
+  'VND-03': () => import('../../screens/vnd/cases/CasesScreen'),
+  'VND-04': () => import('../../screens/vnd/payee/PayeeScreen'),
+  'VND-05': () => import('../../screens/vnd/certificates/CertificatesScreen'),
+  'VND-06': () => import('../../screens/vnd/reputation/ReputationScreen'),
 };

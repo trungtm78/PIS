@@ -456,6 +456,12 @@
     {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
-    {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"}
+    {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
+    {"id":"VND-01","path":"/vnd/vnd-01","title":"Sổ nhà thầu","kind":"table","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"workspace","parent":null,"req":"FR-VND-01"},
+    {"id":"VND-02","path":"/vnd/vnd-02","title":"Hồ sơ nhà thầu chủ","kind":"detail","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"detail","parent":"VND-01","req":"FR-VND-02"},
+    {"id":"VND-03","path":"/vnd/vnd-03","title":"Hồ sơ cấm tham gia đấu thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-03"},
+    {"id":"VND-04","path":"/vnd/vnd-04","title":"Tài khoản nhận tiền của nhà thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-04"},
+    {"id":"VND-05","path":"/vnd/vnd-05","title":"Chứng chỉ và nhân sự chủ chốt","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-05"},
+    {"id":"VND-06","path":"/vnd/vnd-06","title":"Sự kiện uy tín dự thầu và liên danh","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-06"}
   ]
 }

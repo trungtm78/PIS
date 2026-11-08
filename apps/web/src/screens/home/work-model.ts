@@ -129,6 +129,15 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
     // The alert of the baseline (lane B1): the item names the project.
     case 'PRJ-26':
       return `/prj/prj-26?project=${item.target.id}`;
+    // The management of contractors (lane VND-1): the item names the contractor (profile, accounts, certificates), the debarment case or the event of bid conduct.
+    case 'VND-02':
+    case 'VND-04':
+    case 'VND-05':
+      return `/vnd/${item.target.screen.toLowerCase()}?contractor=${item.target.id}`;
+    case 'VND-03':
+      return `/vnd/vnd-03?case=${item.target.id}`;
+    case 'VND-06':
+      return `/vnd/vnd-06?event=${item.target.id}`;
     default:
       return undefined;
   }
