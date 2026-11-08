@@ -16,7 +16,7 @@ export const ACTING_REQUEST_TTL_HOURS = 24;
 export const ACTING_REASON_MIN = 20;
 export const ACTING_REASON_MAX = 1000;
 /** The last word of a permission that is a decision: these are never done on behalf of someone (BR-ADM-02, the decision is personal). */
-export const ACTING_DECISION_VERBS = ['approve', 'decide', 'sign', 'certify', 'accept', 'reject', 'return', 'issue'] as const;
+export const ACTING_DECISION_VERBS = ['approve', 'decide', 'sign', 'certify', 'accept', 'reject', 'return', 'issue', 'review', 'verify', 'confirm', 'lock', 'publish', 'finalize'] as const;
 const ADMINISTRATIVE_PREFIXES = ['iam.', 'adm.', 'system.'] as const;
 const HOUR_MS = 3_600_000;
 const PERMISSION = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/;

@@ -307,6 +307,7 @@ describe('IAM-2: the permanent delegation, acting on behalf and the period scope
       await expect(row({ permissions: '{iam.role.grant}' })).rejects.toThrow(/acting_permissions_chk/);
       await expect(row({ permissions: '{approval.decide}' })).rejects.toThrow(/acting_permissions_chk/);
       await expect(row({ permissions: '{doc.outgoing.sign}' })).rejects.toThrow(/acting_permissions_chk/);
+      await expect(row({ permissions: '{report.review}' })).rejects.toThrow(/acting_permissions_chk/);
       await expect(row({ permissions: '{dis.*}' })).rejects.toThrow(/acting_permissions_chk/);
       await expect(row({ hours: 9 })).rejects.toThrow(/acting_hours_chk/);
       await expect(row({ reason: 'too short' })).rejects.toThrow(/acting_reason_chk/);

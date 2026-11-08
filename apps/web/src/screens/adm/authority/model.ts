@@ -28,7 +28,7 @@ export const END_KINDS = ['SOURCE_HOLDS', 'UNTIL_EVENT', 'UNTIL_DATE'] as const;
 export type EndKind = (typeof END_KINDS)[number];
 export const SUGGESTED_DELEGABLE = ['approval.decide', 'doc.outgoing.sign'] as const;
 /** The last word of a permission that decides: never done on behalf of someone (the server says so too). */
-const DECISION_VERBS = ['approve', 'decide', 'sign', 'certify', 'accept', 'reject', 'return', 'issue'];
+const DECISION_VERBS = ['approve', 'decide', 'sign', 'certify', 'accept', 'reject', 'return', 'issue', 'review', 'verify', 'confirm', 'lock', 'publish', 'finalize'];
 const PERMISSION = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/;
 const PERIOD_CODE = /^[0-9]{4}(-(M(0[1-9]|1[0-2])|Q[1-4]|H[12]))?$/;
 

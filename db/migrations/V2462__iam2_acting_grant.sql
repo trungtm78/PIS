@@ -9,7 +9,7 @@ AS $fn$
     SELECT 1 FROM unnest(permissions) AS p
      WHERE p !~ '^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
         OR p ~ '^(iam|adm|system)\.'
-        OR split_part(p, '.', array_length(string_to_array(p, '.'), 1)) IN ('approve', 'decide', 'sign', 'certify', 'accept', 'reject', 'return', 'issue')), false)
+        OR split_part(p, '.', array_length(string_to_array(p, '.'), 1)) IN ('approve', 'decide', 'sign', 'certify', 'accept', 'reject', 'return', 'issue', 'review', 'verify', 'confirm', 'lock', 'publish', 'finalize')), false)
 $fn$;
 
 CREATE TABLE machvon.acting_grant (

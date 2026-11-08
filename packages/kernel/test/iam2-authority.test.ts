@@ -12,7 +12,7 @@ import {
   restrictAccessForActing,
   validateActingRequest,
 } from '../src/iam-acting';
-import { assertPeriodAllowed, assertPeriodAllowedForDays, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from '../src/iam-period-scope';
+import { accessForPeriod, assertPeriodAllowed, assertPeriodAllowedForDays, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from '../src/iam-period-scope';
 import {
   STANDING_END_MAX_DAYS,
   STANDING_REVIEW_MAX_DAYS,
@@ -242,6 +242,19 @@ describe('periodAllowed (a role limited to report periods)', () => {
   });
 });
 
+describe('accessForPeriod (one grant for the project and the period)', () => {
+  it('takes out the grants whose period limit does not cover the period, and only for the permission asked', () => {
+    const limited = grant({ roleCode: 'LIMITED', permissions: ['dis.report.edit', 'bi.dashboard.read'], periodCodes: ['2026-Q1'] });
+    const free = grant({ roleCode: 'FREE', permissions: ['dis.report.edit'], scope: { kind: 'PROJECT', refIds: ['p2'] } });
+    const access = accessOf(limited, free);
+    expect(accessForPeriod(access, NOW, 'dis.report.edit', '2026-05-04', '2026-05-10').grants.map((entry) => entry.roleCode)).toEqual(['FREE']);
+    expect(accessForPeriod(access, NOW, 'dis.report.edit', '2026-02-02', '2026-02-08').grants.map((entry) => entry.roleCode)).toEqual(['LIMITED', 'FREE']);
+    // Another permission of the same grant is not touched.
+    expect(accessForPeriod(access, NOW, 'bi.dashboard.read', '2026-05-04', '2026-05-10').grants.map((entry) => entry.roleCode)).toEqual(['FREE']);
+    expect(accessForPeriod(accessOf(limited), NOW, 'other.thing.read', '2026-05-04', '2026-05-10').grants).toHaveLength(1);
+  });
+});
+
 describe('validateActingRequest (an administrator acting on behalf of a person)', () => {
   const request = { permissions: ['dis.report.submit'], hours: 4, reason: 'The reporter is in hospital and the weekly report is due today.' };
   const fields = (value: Parameters<typeof validateActingRequest>[0]): string[] => validateActingRequest(value).map((defect) => `${defect.field}:${defect.code}`);
@@ -262,6 +275,8 @@ describe('validateActingRequest (an administrator acting on behalf of a person)'
     expect(fields({ ...request, permissions: ['dis.*'] })).toEqual(['permissions[0]:WILDCARD']);
     expect(fields({ ...request, permissions: ['approval.decide'] })).toEqual(['permissions[0]:DECISION']);
     expect(fields({ ...request, permissions: ['doc.outgoing.sign'] })).toEqual(['permissions[0]:DECISION']);
+    // The permission that reviews a report is a decision too (it authorises the decision on the report).
+    for (const permission of ['report.review', 'dis.report.verify', 'x.y.confirm', 'x.y.lock', 'x.y.publish', 'x.y.finalize']) expect(fields({ ...request, permissions: [permission] })).toEqual(['permissions[0]:DECISION']);
     expect(fields({ ...request, permissions: ['dis.report.submit', 'dis.report.submit'] })).toEqual(['permissions[1]:DUPLICATE']);
     expect(fields({ ...request, permissions: [] })).toEqual(['permissions:REQUIRED']);
     expect(actingAllowsPermission('Bad Permission')).toBe('MALFORMED');

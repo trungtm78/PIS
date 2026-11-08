@@ -119,6 +119,16 @@ export function periodAllowedForDays(access: EffectiveAccess, now: Date, permiss
   return holding.some((grant) => grant.periodCodes === undefined || grant.periodCodes === null || periodCoveredByDays(grant.periodCodes, startsOn, endsOn));
 }
 
+/**
+ * The access with the grants taken out that hold the permission under a period limit that does not cover the period (given by its first and last day). A check of the project scope made on this access can only be passed by a grant
+ * that reaches the project and also allows the period: the two judgements are of one grant, never of two different ones.
+ */
+export function accessForPeriod(access: EffectiveAccess, now: Date, permission: string, startsOn: string, endsOn: string): EffectiveAccess {
+  const active = new Set(activeGrants(access, now));
+  const grants = access.grants.filter((grant) => !active.has(grant) || !grant.permissions.some((held) => permissionMatches(held, permission)) || grant.periodCodes === undefined || grant.periodCodes === null || periodCoveredByDays(grant.periodCodes, startsOn, endsOn));
+  return { ...access, grants };
+}
+
 /** 403 `PERIOD_SCOPE_DENIED` when the access is limited to other periods than the one of the report (given by its first and last day). */
 export function assertPeriodAllowedForDays(access: EffectiveAccess, now: Date, permission: string, startsOn: string, endsOn: string): void {
   if (!periodAllowedForDays(access, now, permission, startsOn, endsOn)) throw new DomainError('PERIOD_SCOPE_DENIED', 403, 'period');

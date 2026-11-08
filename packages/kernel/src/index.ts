@@ -2653,3 +2653,6 @@ export { ACTING_DECISION_VERBS, ACTING_MAX_HOURS, ACTING_REASON_MAX, ACTING_REAS
 export type { ActingDefect, ActingParties, ActingPhase, ActingRequest, ActingStatus } from './iam-acting.ts';
 export { MAX_PERIOD_SCOPE_CODES, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
 export type { PeriodScopeDefect } from './iam-period-scope.ts';
+=======
+export { MAX_PERIOD_SCOPE_CODES, accessForPeriod, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
+export type { PeriodScopeDefect } from './iam-period-scope.ts';
