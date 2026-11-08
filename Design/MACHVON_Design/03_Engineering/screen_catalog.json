@@ -12684,5 +12684,50 @@
     "platform": "web",
     "req": "FR-BI-26",
     "source": "Lộ trình quản trị 10/10 (G3-8); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-27",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Điểm nghẽn",
+    "kind": "dashboard",
+    "fields": [
+      "Số tiền bị giữ",
+      "Nguyên nhân chuẩn và phân hệ chịu trách nhiệm",
+      "Tuổi nợ theo nhóm ngày",
+      "Người giữ",
+      "Danh sách khoản giữ theo số tiền nhân số ngày",
+      "Khoản không có số tiền",
+      "Liên kết tới bản ghi nguồn"
+    ],
+    "role": "Lãnh đạo, chuyên viên kế hoạch vốn, lãnh đạo đơn vị",
+    "rule": "Nguồn đề nghị thanh toán, bồi thường đến hạn chưa chi, vướng mắc chưa giải quyết và hồ sơ dừng; khoản do hai nguồn cùng mô tả chỉ tính một lần; khoản không có số tiền ghi N/A kèm lý do và tổng là cận dưới; nguyên nhân chuẩn và nhóm tuổi là quy tắc quản trị chưa xác nhận",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-27",
+    "source": "Lộ trình quản trị 10/10 (G3-9); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-28",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Dự án dừng và kế hoạch khởi động lại",
+    "kind": "workflow",
+    "fields": [
+      "Dự án",
+      "Nguyên nhân chuẩn",
+      "Lý do bằng lời",
+      "Dừng từ ngày",
+      "Quyết định dừng",
+      "Kế hoạch khởi động lại và các bước",
+      "Người lập và người duyệt kế hoạch",
+      "Dự án tạm dừng chưa có hồ sơ"
+    ],
+    "role": "Lãnh đạo, chuyên viên kế hoạch vốn, chủ đầu tư",
+    "rule": "Dự án dừng có hồ sơ lý do và kế hoạch khởi động lại; người lập kế hoạch không tự duyệt; chỉ ghi khởi động lại khi mọi bước đã làm hoặc bỏ có lời giải thích; dự án tạm dừng chưa có hồ sơ được liệt kê; mọi bước có nhật ký và sự kiện",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-28",
+    "source": "Lộ trình quản trị 10/10 (G3-9); thiết kế làn GOV-11b"
   }
 ]

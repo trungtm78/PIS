@@ -1809,3 +1809,5 @@ export { AnaTrustStore } from './ana-trust-store.ts';
 export type { DatasetTrust, ModuleScore, TrustPolicyInfo, UnitScore } from './ana-trust-store.ts';
 export { ANNOTATION_RESOURCE, AnaRankingStore, COMPLAINT_RESOURCE } from './ana-ranking-store.ts';
 export type { AnnotationRow as RankingAnnotationRow, ComplaintRow as RankingComplaintRow, RankingModelReading } from './ana-ranking-store.ts';
+export { AnaBottleneckStore, HALT_RESOURCE } from './ana-bottleneck-store.ts';
+export type { BottleneckPolicyReading, DossierRow as HaltDossierRow, SourceRead as BottleneckSourceRead, StepRow as HaltStepRow, UndocumentedHalt } from './ana-bottleneck-store.ts';

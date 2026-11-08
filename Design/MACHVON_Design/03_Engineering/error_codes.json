@@ -6931,6 +6931,30 @@
       "module": "HOME",
       "statusBasis": "spec",
       "source": "spec:HOME"
+    },
+    "PROJECT_HALT_STATE": {
+      "status": 409,
+      "title": "Halt dossier cannot move",
+      "meaning": "Hồ sơ dừng dự án không thực hiện được thao tác này ở trạng thái hiện tại",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "PROJECT_HALT_STEPS_OPEN": {
+      "status": 409,
+      "title": "Restart steps still open",
+      "meaning": "Kế hoạch khởi động lại còn bước chưa hoàn thành hoặc chưa bỏ",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "PROJECT_HALT_OPEN_EXISTS": {
+      "status": 409,
+      "title": "Project already has an open halt dossier",
+      "meaning": "Dự án đã có hồ sơ dừng đang mở",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
     }
   }
 }
