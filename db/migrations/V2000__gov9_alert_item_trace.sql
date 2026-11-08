@@ -12,6 +12,12 @@ CREATE TABLE machvon.alert_item_trace (
   kind text NOT NULL CHECK (kind ~ '^[A-Z][A-Z0-9_]{1,63}$'),
   -- The alert type of the registry (`ALERT_TYPE`) when the item has one, else the kind.
   type_code text NOT NULL CHECK (type_code ~ '^[A-Z][A-Z0-9_]{1,63}$'),
+  -- How the item was shown to its owner and where it is opened: what a level of escalation (or a notice to the leadership of an owner who left) needs to show it to somebody else.
+  title text NOT NULL CHECK (title = btrim(title) AND char_length(title) BETWEEN 1 AND 300),
+  subtitle text CHECK (subtitle IS NULL OR char_length(subtitle) <= 300),
+  due_on date,
+  target_screen text NOT NULL CHECK (target_screen ~ '^[A-Z]{2,4}-[0-9]{2}$'),
+  target_id text NOT NULL CHECK (target_id = btrim(target_id) AND char_length(target_id) BETWEEN 1 AND 64),
   severity text NOT NULL CHECK (severity IN ('URGENT', 'ACTION', 'WATCH')),
   severity_first text NOT NULL CHECK (severity_first IN ('URGENT', 'ACTION', 'WATCH')),
   lifecycle text NOT NULL CHECK (lifecycle IN ('NEW', 'CLAIMED', 'IN_PROGRESS')),
@@ -46,6 +52,7 @@ CREATE INDEX alert_item_trace_state_idx ON machvon.alert_item_trace (tenant_id, 
 CREATE INDEX alert_item_trace_owner_idx ON machvon.alert_item_trace (tenant_id, owner_membership_id, state) WHERE owner_membership_id IS NOT NULL;
 CREATE INDEX alert_item_trace_unit_idx ON machvon.alert_item_trace (tenant_id, owner_unit_id, state) WHERE owner_unit_id IS NOT NULL;
 CREATE INDEX alert_item_trace_seen_idx ON machvon.alert_item_trace (tenant_id, first_seen_at);
+CREATE INDEX alert_item_trace_source_idx ON machvon.alert_item_trace (tenant_id, source_id);
 CREATE INDEX alert_item_trace_closed_idx ON machvon.alert_item_trace (tenant_id, closed_at) WHERE closed_at IS NOT NULL;
 
 ALTER TABLE machvon.alert_item_trace ENABLE ROW LEVEL SECURITY;

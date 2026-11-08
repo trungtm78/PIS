@@ -1,5 +1,6 @@
 import { DomainError, emptyAlertProfile, versionConflict } from '@machvon/kernel';
 import type { AlertProfile, HealthNotice, NotifyChannel, NotifyDecision, NotifySeverity } from '@machvon/kernel';
+import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
@@ -145,11 +146,40 @@ export class AlertProfileStore {
     return at === null || at === undefined ? null : new Date(at);
   }
 
+  /** The reminders of the alert centre that were made lately and that nobody has planned a notice for yet (a reminder is made by the job `work-reminder`; telling the person is planned here). */
+  async unplannedReminders(tx: TenantTx, since: Date): Promise<Array<{ id: string; recipientId: string; severity: NotifySeverity; source: string; sourceId: string }>> {
+    const rows = await tx.query<{ id: string; recipient: string; severity: NotifySeverity; source: string; source_id: string }>(
+      `select r.id, r.recipient_membership_id as recipient, r.severity, r.source, r.source_id from machvon.work_reminder r
+        where r.kind = 'REMINDER' and r.recipient_membership_id is not null and r.created_at > $1::timestamptz
+          and not exists (select 1 from machvon.alert_notification_log l where l.series_key like 'NOTICE:REMINDER:' || r.id::text || ':%')
+        order by r.created_at, r.id limit 500`,
+      [since.toISOString()],
+    );
+    return rows.map((row) => ({ id: row.id, recipientId: row.recipient, severity: row.severity, source: row.source, sourceId: row.source_id }));
+  }
+
+  /** The notices that were held for the quiet hours and are due to go now, and whose item is still open: each is released once. */
+  async heldDue(tx: TenantTx, now: Date): Promise<Array<{ id: string; recipientId: string; occasion: NoticeEntry['occasion']; severity: NotifySeverity; source: string | null; sourceId: string | null; channel: NoticeEntry['channel']; localDay: string }>> {
+    const rows = await tx.query<{ id: string; recipient: string; occasion: NoticeEntry['occasion']; severity: NotifySeverity; source: string | null; source_id: string | null; channel: NoticeEntry['channel']; local_day: string }>(
+      `select l.id, l.recipient_membership_id as recipient, l.occasion, l.severity, l.source, l.source_id, l.channel, l.local_day::text as local_day
+         from machvon.alert_notification_log l
+        where l.decision = 'HOLD_QUIET' and l.hold_until <= $1::timestamptz and l.created_at > $1::timestamptz - interval '3 days' and l.channel in ('PUSH', 'SMS', 'ZALO')
+          and not exists (select 1 from machvon.alert_notification_log r where r.tenant_id = l.tenant_id and r.series_key = 'RELEASE:' || l.id::text)
+          and (l.source_id is null or exists (select 1 from machvon.alert_item_trace t where t.source = l.source and t.source_id = l.source_id and t.state = 'OPEN'))
+        order by l.hold_until, l.id limit 500`,
+      [now.toISOString()],
+    );
+    return rows.map((row) => ({ id: row.id, recipientId: row.recipient, occasion: row.occasion, severity: row.severity, source: row.source, sourceId: row.source_id, channel: row.channel, localDay: row.local_day }));
+  }
+
   /** What the health page counts: the decisions of a window. */
-  async forHealth(tx: TenantTx, from: Date, to: Date): Promise<HealthNotice[]> {
+  async forHealth(tx: TenantTx, from: Date, to: Date, unitScope: ScopeBuilder = () => ({ sql: 'true', params: [] })): Promise<HealthNotice[]> {
+    const scope = unitScope(3);
     const rows = await tx.query<{ recipient_membership_id: string; local_day: string; channel: string; decision: NotifyDecision; severity: NotifySeverity; in_quiet: boolean; bypass: string | null }>(
-      `select recipient_membership_id, local_day::text as local_day, channel, decision, severity, in_quiet, bypass from machvon.alert_notification_log where created_at >= $1::timestamptz and created_at < $2::timestamptz order by created_at, id`,
-      [from.toISOString(), to.toISOString()],
+      `select l.recipient_membership_id, l.local_day::text as local_day, l.channel, l.decision, l.severity, l.in_quiet, l.bypass
+         from machvon.alert_notification_log l join machvon.membership m on m.tenant_id = l.tenant_id and m.id = l.recipient_membership_id join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id
+        where l.created_at >= $1::timestamptz and l.created_at < $2::timestamptz and ${scope.sql} order by l.created_at, l.id`,
+      [from.toISOString(), to.toISOString(), ...scope.params],
     );
     return rows.map((row) => ({ memberId: row.recipient_membership_id, day: row.local_day, channel: row.channel, decision: row.decision, severity: row.severity, inQuiet: row.in_quiet, bypass: row.bypass }));
   }

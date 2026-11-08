@@ -27,6 +27,17 @@ export interface AlertGovernancePolicies {
   unverified: { escalation: boolean; absence: boolean; notify: boolean; health: boolean };
 }
 
+/** The rule in force for a type, as a screen shows it: the version, whether it is a starting value nobody confirmed, where its numbers come from and the numbers themselves. */
+export interface AlertRuleReading {
+  code: string;
+  version: string;
+  unverified: boolean;
+  formula: string;
+  source: string;
+  asOf: string;
+  params: Record<string, unknown>;
+}
+
 /** Reads the thresholds of the escalation, the absence cover, the notification profile and the health page through the governance port (G0-1): no number of them is written in a job, a controller or a screen. */
 export class AlertGovernancePolicyReader {
   private readonly port: GovernancePolicyPort;
@@ -48,6 +59,20 @@ export class AlertGovernancePolicyReader {
       health: healthTargetsOf(health.params),
       versions: { escalation: policyVersionOf(escalation), absence: policyVersionOf(absence), notify: policyVersionOf(notify), health: policyVersionOf(health) },
       unverified: { escalation: escalation.unverified, absence: absence.unverified, notify: notify.unverified, health: health.unverified },
+    };
+  }
+
+  /** The rule of the code DEFAULT of a type in force on a day, with its provenance (what the screen says under the numbers). */
+  async info(tx: TenantTx, type: string, asOf: string | Date): Promise<AlertRuleReading> {
+    const resolved = await this.port.require(tx, type, 'DEFAULT', asOf);
+    return {
+      code: resolved.code,
+      version: policyVersionOf(resolved),
+      unverified: resolved.unverified,
+      formula: resolved.provenance?.formula ?? '',
+      source: resolved.provenance?.source ?? '',
+      asOf: resolved.provenance?.asOf ?? '',
+      params: resolved.params,
     };
   }
 }

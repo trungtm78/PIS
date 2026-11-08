@@ -313,17 +313,19 @@ export class AlertCoverStore {
    * Who holds a role of line leadership in which unit, and whether they are present (in force and not away) or away with a cover for all sources in force: what the coverage of positions is computed from. Roles of rank from `minRank` up to but
    * not including `maxRankExclusive` (the administrative roles are not positions of leadership).
    */
-  async positionHolders(tx: TenantTx, now: Date, minRank: number, maxRankExclusive: number): Promise<PositionHolder[]> {
+  async positionHolders(tx: TenantTx, now: Date, minRank: number, maxRankExclusive: number, unitScope: ScopeBuilder = () => ({ sql: 'true', params: [] })): Promise<PositionHolder[]> {
+    const scope = unitScope(4);
     const rows = await tx.query<{ role_code: string; rank: number; unit_id: string; membership_id: string; active: boolean }>(
       `select distinct r.code as role_code, r.rank, m.organization_id as unit_id, g.membership_id,
               (m.status = 'Active' and m.valid_from <= $1::timestamptz and (m.valid_until is null or m.valid_until > $1::timestamptz)) as active
          from machvon.role_grant g
          join machvon.role_definition r on r.tenant_id = g.tenant_id and r.id = g.role_id
          join machvon.membership m on m.tenant_id = g.tenant_id and m.id = g.membership_id
+         join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id
         where g.status = 'Active' and g.effective_from <= $1::timestamptz and (g.effective_until is null or g.effective_until > $1::timestamptz)
-          and r.status = 'Active' and r.rank >= $2::int and r.rank < $3::int
+          and r.status = 'Active' and r.rank >= $2::int and r.rank < $3::int and ${scope.sql}
         order by r.code, m.organization_id, g.membership_id`,
-      [now.toISOString(), minRank, maxRankExclusive],
+      [now.toISOString(), minRank, maxRankExclusive, ...scope.params],
     );
     const spans = await this.absenceSpans(tx, now);
     const edges = await this.liveEdges(tx, now);

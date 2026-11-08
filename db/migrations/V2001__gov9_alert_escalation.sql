@@ -53,6 +53,7 @@ CREATE INDEX alert_escalation_recipient_idx ON machvon.alert_escalation (tenant_
 CREATE INDEX alert_escalation_owner_idx ON machvon.alert_escalation (tenant_id, owner_membership_id) WHERE owner_membership_id IS NOT NULL;
 CREATE INDEX alert_escalation_cover_idx ON machvon.alert_escalation (tenant_id, cover_id) WHERE cover_id IS NOT NULL;
 CREATE INDEX alert_escalation_status_idx ON machvon.alert_escalation (tenant_id, status, created_at DESC);
+CREATE INDEX alert_escalation_target_idx ON machvon.alert_escalation (tenant_id, target_id);
 
 ALTER TABLE machvon.alert_escalation ENABLE ROW LEVEL SECURITY;
 ALTER TABLE machvon.alert_escalation FORCE ROW LEVEL SECURITY;

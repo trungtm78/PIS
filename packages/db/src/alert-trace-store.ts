@@ -1,5 +1,9 @@
 import type { HealthGap, HealthItem, NotifySeverity, TraceState } from '@machvon/kernel';
+import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+
+/** No limit on the units: the reader of a job, or of a test. */
+const EVERY_UNIT: ScopeBuilder = () => ({ sql: 'true', params: [] });
 
 const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
 
@@ -9,6 +13,10 @@ export interface TraceObservation {
   sourceId: string;
   kind: string;
   typeCode: string;
+  title: string;
+  subtitle: string | null;
+  dueOn: string | null;
+  target: { screen: string; id: string };
   severity: NotifySeverity;
   lifecycle: 'NEW' | 'CLAIMED' | 'IN_PROGRESS';
   /** The module's own start, else the moment of this pass. */
@@ -29,10 +37,15 @@ export interface TraceRow {
   state: TraceState;
   severity: NotifySeverity;
   ownerId: string | null;
+  unitId: string | null;
   firstSeenAt: string;
   startedAt: string;
   maxEscalationLevel: number;
   promoted: boolean;
+  title: string;
+  subtitle: string | null;
+  dueOn: string | null;
+  target: { screen: string; id: string };
 }
 
 export type GapKind = 'ABSENT_NO_COVER' | 'ABSENCE_STARTING_UNCOVERED' | 'OWNER_INACTIVE' | 'NO_LEADER' | 'FUNCTION_VACANT' | 'POSITION_UNCOVERED';
@@ -57,6 +70,44 @@ export interface GapRecord extends GapDesired {
 
 export type GapCloseReason = 'COVERED' | 'BACK' | 'RESOLVED' | 'ABSENCE_ENDED';
 
+interface TraceSql {
+  source: string;
+  source_id: string;
+  state: TraceState;
+  severity: NotifySeverity;
+  owner_id: string | null;
+  unit_id: string | null;
+  first_seen_at: string;
+  started_at: string;
+  max_escalation_level: number;
+  promoted: boolean;
+  title: string;
+  subtitle: string | null;
+  due_on: string | null;
+  target_screen: string;
+  target_id: string;
+}
+
+const TRACE_SELECT = `select t.source, t.source_id, t.state, t.severity, t.owner_membership_id as owner_id, t.owner_unit_id as unit_id, ${ISO('t.first_seen_at')} as first_seen_at, ${ISO('t.started_at')} as started_at, t.max_escalation_level, t.promoted,
+  t.title, t.subtitle, t.due_on::text as due_on, t.target_screen, t.target_id`;
+
+const toTraceRow = (row: TraceSql): TraceRow => ({
+  source: row.source,
+  sourceId: row.source_id,
+  state: row.state,
+  severity: row.severity,
+  ownerId: row.owner_id,
+  unitId: row.unit_id,
+  firstSeenAt: row.first_seen_at,
+  startedAt: row.started_at,
+  maxEscalationLevel: row.max_escalation_level,
+  promoted: row.promoted,
+  title: row.title,
+  subtitle: row.subtitle,
+  dueOn: row.due_on,
+  target: { screen: row.target_screen, id: row.target_id },
+});
+
 /**
  * What the alert centre recorded of the life of each item (G2-10): written only by the job, read by the health page and by the escalation. The items are the same ones the lists show, seen every quarter of an hour; an item that no
  * longer appears while its source could be read is CLEARED (its condition is gone), one that says it is done is RESOLVED. An item that comes back after it was closed is opened again and counted.
@@ -67,15 +118,20 @@ export class AlertTraceStore {
     if (items.length === 0) return 0;
     const column = <T>(pick: (item: TraceObservation) => T): T[] => items.map(pick);
     await tx.query(
-      `insert into machvon.alert_item_trace (tenant_id, source, source_id, kind, type_code, severity, severity_first, lifecycle, owner_membership_id, owner_unit_id, started_at, first_seen_at, last_seen_at, first_claim_at, due_at, claim_due_at,
+      `insert into machvon.alert_item_trace (tenant_id, source, source_id, kind, type_code, title, subtitle, due_on, target_screen, target_id, severity, severity_first, lifecycle, owner_membership_id, owner_unit_id, started_at, first_seen_at, last_seen_at, first_claim_at, due_at, claim_due_at,
                                              last_change_at, state, closed_at, levels_configured, snooze_count, pauses)
-       select nullif(current_setting('app.tenant_id', true), '')::uuid, i.source, i.source_id, i.kind, i.type_code, i.severity, i.severity, i.lifecycle, $1::uuid, $2::uuid, i.started_at, $3::timestamptz, $3::timestamptz, i.first_claim_at, i.due_at, i.claim_due_at,
+       select nullif(current_setting('app.tenant_id', true), '')::uuid, i.source, i.source_id, i.kind, i.type_code, i.title, i.subtitle, i.due_on, i.target_screen, i.target_id, i.severity, i.severity, i.lifecycle, $1::uuid, $2::uuid, i.started_at, $3::timestamptz, $3::timestamptz, i.first_claim_at, i.due_at, i.claim_due_at,
               $3::timestamptz, case when i.resolved then 'RESOLVED' else 'OPEN' end, case when i.resolved then $3::timestamptz else null end, i.levels_configured, i.snooze_count, i.pauses::jsonb
-         from unnest($4::text[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::timestamptz[], $11::timestamptz[], $12::timestamptz[], $13::timestamptz[], $14::int[], $15::int[], $16::text[], $17::boolean[])
-              as i (source, source_id, kind, type_code, severity, lifecycle, started_at, first_claim_at, due_at, claim_due_at, snooze_count, levels_configured, pauses, resolved)
+         from unnest($4::text[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::timestamptz[], $11::timestamptz[], $12::timestamptz[], $13::timestamptz[], $14::int[], $15::int[], $16::text[], $17::boolean[], $18::text[], $19::text[], $20::date[], $21::text[], $22::text[])
+              as i (source, source_id, kind, type_code, severity, lifecycle, started_at, first_claim_at, due_at, claim_due_at, snooze_count, levels_configured, pauses, resolved, title, subtitle, due_on, target_screen, target_id)
        on conflict (tenant_id, source, source_id) do update set
          kind = excluded.kind,
          type_code = excluded.type_code,
+         title = excluded.title,
+         subtitle = excluded.subtitle,
+         due_on = excluded.due_on,
+         target_screen = excluded.target_screen,
+         target_id = excluded.target_id,
          last_seen_at = excluded.last_seen_at,
          owner_membership_id = excluded.owner_membership_id,
          owner_unit_id = excluded.owner_unit_id,
@@ -111,6 +167,11 @@ export class AlertTraceStore {
         column((item) => item.levelsConfigured),
         column((item) => JSON.stringify(item.pauses)),
         column((item) => item.resolved),
+        column((item) => item.title.slice(0, 300)),
+        column((item) => (item.subtitle === null ? null : item.subtitle.slice(0, 300))),
+        column((item) => item.dueOn),
+        column((item) => item.target.screen),
+        column((item) => item.target.id),
       ],
     );
     return items.length;
@@ -134,25 +195,39 @@ export class AlertTraceStore {
   }
 
   /** The open items whose owner is not in force any more (they left): nobody's list shows them. */
-  async openOfInactiveOwners(tx: TenantTx, now: Date): Promise<Array<{ ownerId: string; unitId: string | null; count: number }>> {
-    const rows = await tx.query<{ owner_id: string; unit_id: string | null; count: string }>(
-      `select t.owner_membership_id as owner_id, m.organization_id as unit_id, count(*)::text as count
-         from machvon.alert_item_trace t join machvon.membership m on m.tenant_id = t.tenant_id and m.id = t.owner_membership_id
+  async openOfInactiveOwners(tx: TenantTx, now: Date): Promise<TraceRow[]> {
+    const rows = await tx.query<TraceSql>(
+      `${TRACE_SELECT} from machvon.alert_item_trace t join machvon.membership m on m.tenant_id = t.tenant_id and m.id = t.owner_membership_id
         where t.state = 'OPEN' and not (m.status = 'Active' and m.valid_from <= $1::timestamptz and (m.valid_until is null or m.valid_until > $1::timestamptz))
-        group by t.owner_membership_id, m.organization_id order by t.owner_membership_id`,
+        order by t.owner_membership_id, t.first_seen_at, t.id limit 5000`,
       [now.toISOString()],
     );
-    return rows.map((row) => ({ ownerId: row.owner_id, unitId: row.unit_id, count: Number(row.count) }));
+    return rows.map(toTraceRow);
   }
 
   /** The open items of a person (what a gap about them leaves without a recipient). */
   async openOf(tx: TenantTx, ownerId: string): Promise<TraceRow[]> {
-    const rows = await tx.query<{ source: string; source_id: string; state: TraceState; severity: NotifySeverity; owner_id: string | null; first_seen_at: string; started_at: string; max_escalation_level: number; promoted: boolean }>(
-      `select source, source_id, state, severity, owner_membership_id as owner_id, ${ISO('first_seen_at')} as first_seen_at, ${ISO('started_at')} as started_at, max_escalation_level, promoted
-         from machvon.alert_item_trace where owner_membership_id = $1::uuid and state = 'OPEN' order by first_seen_at, id`,
+    const rows = await tx.query<TraceSql>(`${TRACE_SELECT} from machvon.alert_item_trace t where t.owner_membership_id = $1::uuid and t.state = 'OPEN' order by t.first_seen_at, t.id`, [ownerId.toLowerCase()]);
+    return rows.map(toTraceRow);
+  }
+
+  /** The items among these that the trace already knows (before a pass writes them): what a pass reads to tell a new item from one it saw. */
+  async knownKeys(tx: TenantTx, items: ReadonlyArray<{ source: string; sourceId: string }>): Promise<Set<string>> {
+    if (items.length === 0) return new Set();
+    const rows = await tx.query<{ source: string; source_id: string }>(
+      'select t.source, t.source_id from machvon.alert_item_trace t join unnest($1::text[], $2::text[]) as k (source, source_id) on k.source = t.source and k.source_id = t.source_id',
+      [items.map((item) => item.source), items.map((item) => item.sourceId)],
+    );
+    return new Set(rows.map((row) => `${row.source}:${row.source_id}`));
+  }
+
+  /** When the alert centre first saw each open item of a person (the digest says what is new since the last one). */
+  async firstSeenOf(tx: TenantTx, ownerId: string): Promise<Map<string, string>> {
+    const rows = await tx.query<{ source: string; source_id: string; first_seen_at: string }>(
+      `select source, source_id, ${ISO('first_seen_at')} as first_seen_at from machvon.alert_item_trace where owner_membership_id = $1::uuid and state = 'OPEN'`,
       [ownerId.toLowerCase()],
     );
-    return rows.map((row) => ({ source: row.source, sourceId: row.source_id, state: row.state, severity: row.severity, ownerId: row.owner_id, firstSeenAt: row.first_seen_at, startedAt: row.started_at, maxEscalationLevel: row.max_escalation_level, promoted: row.promoted }));
+    return new Map(rows.map((row) => [`${row.source}:${row.source_id}`, row.first_seen_at]));
   }
 
   /** Raises the highest level an item went up to, and marks it promoted when asked. */
@@ -171,7 +246,8 @@ export class AlertTraceStore {
   }
 
   /** The items the health of a window is computed from: those that began, were taken up or closed in it, and every open one. */
-  async forHealth(tx: TenantTx, from: Date, to: Date, unitId: string | null): Promise<HealthItem[]> {
+  async forHealth(tx: TenantTx, from: Date, to: Date, unitId: string | null, unitScope: ScopeBuilder = EVERY_UNIT): Promise<HealthItem[]> {
+    const scope = unitScope(4);
     const rows = await tx.query<{
       source: string;
       type_code: string;
@@ -190,13 +266,13 @@ export class AlertTraceStore {
       snooze_count: number;
       pauses: Array<{ from: string; until: string }>;
     }>(
-      `select source, type_code, severity, owner_membership_id as owner_id, owner_unit_id as unit_id, ${ISO('started_at')} as started_at, ${ISO('first_seen_at')} as first_seen_at, ${ISO('first_claim_at')} as first_claim_at, state,
-              ${ISO('closed_at')} as closed_at, ${ISO('due_at')} as due_at, ${ISO('last_change_at')} as last_change_at, max_escalation_level, levels_configured, snooze_count, pauses
-         from machvon.alert_item_trace
-        where ($3::uuid is null or owner_unit_id = $3::uuid)
-          and (state = 'OPEN' or (first_seen_at >= $1::timestamptz and first_seen_at < $2::timestamptz) or (first_claim_at >= $1::timestamptz and first_claim_at < $2::timestamptz) or (closed_at >= $1::timestamptz and closed_at < $2::timestamptz))
-        order by first_seen_at, id`,
-      [from.toISOString(), to.toISOString(), unitId],
+      `select t.source, t.type_code, t.severity, t.owner_membership_id as owner_id, t.owner_unit_id as unit_id, ${ISO('t.started_at')} as started_at, ${ISO('t.first_seen_at')} as first_seen_at, ${ISO('t.first_claim_at')} as first_claim_at, t.state,
+              ${ISO('t.closed_at')} as closed_at, ${ISO('t.due_at')} as due_at, ${ISO('t.last_change_at')} as last_change_at, t.max_escalation_level, t.levels_configured, t.snooze_count, t.pauses
+         from machvon.alert_item_trace t join machvon.organization_unit u on u.tenant_id = t.tenant_id and u.id = t.owner_unit_id
+        where ($3::uuid is null or t.owner_unit_id = $3::uuid) and ${scope.sql}
+          and (t.state = 'OPEN' or (t.first_seen_at >= $1::timestamptz and t.first_seen_at < $2::timestamptz) or (t.first_claim_at >= $1::timestamptz and t.first_claim_at < $2::timestamptz) or (t.closed_at >= $1::timestamptz and t.closed_at < $2::timestamptz))
+        order by t.first_seen_at, t.id`,
+      [from.toISOString(), to.toISOString(), unitId, ...scope.params],
     );
     return rows.map((row) => ({
       source: row.source,
@@ -254,7 +330,8 @@ export class AlertGapStore {
     return { opened, closed };
   }
 
-  async list(tx: TenantTx, query: { kinds?: readonly GapKind[]; open?: boolean; from?: Date; to?: Date }): Promise<GapRecord[]> {
+  async list(tx: TenantTx, query: { kinds?: readonly GapKind[]; open?: boolean; from?: Date; to?: Date; unitScope?: ScopeBuilder }): Promise<GapRecord[]> {
+    const scope = (query.unitScope ?? EVERY_UNIT)(5);
     const rows = await tx.query<{
       id: string;
       kind: GapKind;
@@ -267,14 +344,14 @@ export class AlertGapStore {
       closed_at: string | null;
       close_reason: string | null;
     }>(
-      `select id, kind, subject_key, membership_id, unit_id, absence_id, item_count, ${ISO('opened_at')} as opened_at, ${ISO('closed_at')} as closed_at, close_reason
-         from machvon.alert_routing_gap
-        where ($1::text[] is null or kind = any($1::text[]))
-          and ($2::boolean is null or ((closed_at is null) = $2::boolean))
-          and ($3::timestamptz is null or closed_at is null or closed_at >= $3::timestamptz)
-          and ($4::timestamptz is null or opened_at < $4::timestamptz)
-        order by opened_at desc, id limit 1000`,
-      [query.kinds === undefined ? null : [...query.kinds], query.open ?? null, query.from?.toISOString() ?? null, query.to?.toISOString() ?? null],
+      `select g.id, g.kind, g.subject_key, g.membership_id, g.unit_id, g.absence_id, g.item_count, ${ISO('g.opened_at')} as opened_at, ${ISO('g.closed_at')} as closed_at, g.close_reason
+         from machvon.alert_routing_gap g left join machvon.organization_unit u on u.tenant_id = g.tenant_id and u.id = g.unit_id
+        where ($1::text[] is null or g.kind = any($1::text[]))
+          and ($2::boolean is null or ((g.closed_at is null) = $2::boolean))
+          and ($3::timestamptz is null or g.closed_at is null or g.closed_at >= $3::timestamptz)
+          and ($4::timestamptz is null or g.opened_at < $4::timestamptz) and ${scope.sql}
+        order by g.opened_at desc, g.id limit 1000`,
+      [query.kinds === undefined ? null : [...query.kinds], query.open ?? null, query.from?.toISOString() ?? null, query.to?.toISOString() ?? null, ...scope.params],
     );
     return rows.map((row) => ({
       id: row.id,
@@ -291,8 +368,8 @@ export class AlertGapStore {
   }
 
   /** The gaps the health page counts, as the rules read them: those that leave an alert with nobody, open now or closed in the window. */
-  async forHealth(tx: TenantTx, from: Date, to: Date): Promise<HealthGap[]> {
-    const rows = await this.list(tx, { kinds: ORPHAN_GAP_KINDS, from, to });
+  async forHealth(tx: TenantTx, from: Date, to: Date, unitScope: ScopeBuilder = EVERY_UNIT): Promise<HealthGap[]> {
+    const rows = await this.list(tx, { kinds: ORPHAN_GAP_KINDS, from, to, unitScope });
     return rows.map((row) => ({ kind: row.kind, itemCount: row.itemCount, openedAt: new Date(row.openedAt), closedAt: row.closedAt === null ? null : new Date(row.closedAt) }));
   }
 }

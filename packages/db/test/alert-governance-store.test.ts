@@ -7,6 +7,7 @@ import { AlertProfileStore } from '../src/alert-profile-store';
 import { AlertGapStore, AlertTraceStore } from '../src/alert-trace-store';
 import type { TraceObservation } from '../src/alert-trace-store';
 import { HomeAlertSources, applyPromotions, overlayEscalation } from '../src/home-alert-sources';
+import { DEFAULT_SEVERITY_RULES } from '../src/home-work-rules';
 import { HomeWorkStore } from '../src/home-work-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import { ACTOR, AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, roleId, unitId } from './support/authz-fixtures';
@@ -54,6 +55,10 @@ const observation = (over: Partial<TraceObservation> = {}): TraceObservation => 
   sourceId: randomUUID(),
   kind: 'ISSUE_SLA_BREACH',
   typeCode: 'ISSUE_SLA_BREACH',
+  title: 'Late issue',
+  subtitle: 'Project',
+  dueOn: '2027-10-14',
+  target: { screen: 'ISS-09', id: 'item-1' },
   severity: 'ACTION',
   lifecycle: 'NEW',
   startedAt: new Date('2027-10-14T01:00:00Z'),
@@ -166,7 +171,7 @@ describe('the stores of the governance of the alert system', () => {
       const orphan = observation({ source: 'EXPLANATION', kind: 'EXPLANATION', typeCode: 'EXPLANATION' });
       await as((tx) => trace.observe(tx, memberId(GONE), unitId(NORTH), [orphan], T0));
       const left = await as((tx) => trace.openOfInactiveOwners(tx, T2));
-      expect(left).toEqual([{ ownerId: memberId(GONE), unitId: unitId(NORTH), count: 1 }]);
+      expect(left.map((row) => [row.ownerId, row.unitId, row.title])).toEqual([[memberId(GONE), unitId(NORTH), 'Late issue']]);
       const items = await as((tx) => trace.forHealth(tx, new Date('2027-10-15T00:00:00Z'), new Date('2027-10-16T00:00:00Z'), null));
       expect(items.length).toBeGreaterThanOrEqual(5);
       expect(items.every((item) => item.pauses.length === 0)).toBe(true);
@@ -270,7 +275,7 @@ describe('the stores of the governance of the alert system', () => {
       const row = base({ sourceId: randomUUID(), recipientId: memberId(NORTH_LEADER), severity: 'URGENT', itemTitle: 'Guarantee ends', target: { screen: 'CTR-05', id: 'g-1' } });
       const { id } = await as((tx) => escalations.record(tx, row));
       const context = (member: number, view: 'mine' | 'scope') => ({ tx: undefined as never, membershipId: memberId(member), now: T0, today: '2027-10-15', view, unitScope: EVERYTHING, projectScope: EVERYTHING, rules: undefined as never, counting: false });
-      const rules = (await import('../src/home-work-rules')).DEFAULT_SEVERITY_RULES;
+      const rules = DEFAULT_SEVERITY_RULES;
       const mine = await as(async (tx) => sources.escalated({ ...context(NORTH_LEADER, 'mine'), tx, rules }), TENANT_A, NORTH_LEADER);
       const found = mine.find((item) => item.id === id);
       expect(found).toMatchObject({ kind: 'ESCALATED_ITEM', source: 'ESCALATION', severity: 'URGENT', lifecycle: 'NEW', target: { screen: 'CTR-05', id: 'g-1' } });
@@ -487,7 +492,7 @@ describe('the stores of the governance of the alert system', () => {
 
     it('shows a gap to the people whose unit scope reaches the person and who hold the permission to manage covers, and to nobody else', async () => {
       await as((tx) => gaps.sync(tx, ['ABSENT_NO_COVER'], [gap('GAP:D', { absenceId: null })], T0, () => 'COVERED'));
-      const rules = (await import('../src/home-work-rules')).DEFAULT_SEVERITY_RULES;
+      const rules = DEFAULT_SEVERITY_RULES;
       const context = (holds: boolean, scope: ScopeBuilder) => ({ membershipId: memberId(LEADER), now: T2, today: '2027-10-15', view: 'mine' as const, unitScope: scope, projectScope: EVERYTHING, rules, counting: false, holds: () => holds });
       const seen = await as(async (tx) => sources.coverageGaps({ ...context(true, EVERYTHING), tx }));
       const item = seen.find((row) => row.status === 'ABSENT_NO_COVER');

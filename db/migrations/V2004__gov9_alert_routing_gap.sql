@@ -12,8 +12,8 @@ CREATE TABLE machvon.alert_routing_gap (
   membership_id uuid,
   unit_id uuid,
   absence_id uuid,
-  -- How many open alerts the gap leaves without a valid recipient (at least one).
-  item_count integer NOT NULL DEFAULT 1 CHECK (item_count >= 1),
+  -- How many open alerts the gap leaves without a valid recipient (none when it is a gap that has no alert at stake yet).
+  item_count integer NOT NULL DEFAULT 0 CHECK (item_count >= 0),
   opened_at timestamptz NOT NULL,
   closed_at timestamptz,
   close_reason text CHECK (close_reason IS NULL OR close_reason IN ('COVERED', 'BACK', 'RESOLVED', 'ABSENCE_ENDED')),

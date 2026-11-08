@@ -164,6 +164,10 @@ export const JOB_INTERVAL_SECONDS = {
   'llm-key-sweep': 300,
   // Every 5 minutes: a reservation held for a request that never came back, past its end, waits for the reconciliation instead of being released, and the age of the oldest open one is reported (ST-LLM-003); the pass is idempotent.
   'llm-reservation-expiry': 300,
+  // Every 15 minutes: each person's list of the alert centre is written to the trace of the items, an item nobody acts on goes up its chain (functional or hierarchical levels in working hours, to the deputy when the receiver is away), an item to be watched that aged untouched is raised one step, and each person is told by their own profile (quiet hours, cap, threshold, digest); the pass is idempotent (G2-3, G2-5, G2-10).
+  'alert-escalation': 900,
+  // Every 15 minutes: the places where an alert has nobody to receive it (an absence nobody covers, an owner who left, a position with nobody present) are opened and closed as gaps, and the items of people who left go up to the leadership of their place; the pass is idempotent (G2-7).
+  'alert-coverage': 900,
   'access-cache-expiry': 60,
 } as const;
 
@@ -380,6 +384,10 @@ export interface StandardJobDeps {
   llmKeySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the budget reservations of a tenant (ST-LLM-003): an open reservation past its end becomes PENDING_RECONCILE and keeps its hold. */
   llmReservationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The escalation and the notices of the alert centre (G2-3, G2-5): records the trace, the levels, the promotions and the decisions to tell a person, with their events. */
+  alertEscalation?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ escalations: number; failed: number }> };
+  /** The gaps in the coverage of the receivers of alerts (G2-7): opens and closes them and sends up the items of people who left. */
+  alertCoverage?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ gaps: number }> };
   /** The clock of the jobs that depend on the time of day; default: the system clock. */
   clock?: () => Date;
   /** Receives `mdm_change_pending_gauge`, the number of master data change requests that wait for a reviewer in all tenants. */
@@ -1256,6 +1264,26 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await reservationExpiry.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const alertEscalation = deps.alertEscalation;
+  if (alertEscalation !== undefined) {
+    handlers.push({
+      name: 'alert-escalation',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await alertEscalation.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const alertCoverage = deps.alertCoverage;
+  if (alertCoverage !== undefined) {
+    handlers.push({
+      name: 'alert-coverage',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await alertCoverage.run(workerContext(tenantId), now)));
       },
     });
   }

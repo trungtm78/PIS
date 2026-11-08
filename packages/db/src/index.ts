@@ -1700,7 +1700,7 @@ export type { EarlyWarningActionMove, EarlyWarningActionRow, EarlyWarningIssueMo
 export { HomeContractRegisterSources, topClaimAlert } from './home-contract-register-sources.ts';
 
 export { AlertGovernancePolicyReader } from './alert-governance-policy.ts';
-export type { AlertGovernancePolicies } from './alert-governance-policy.ts';
+export type { AlertGovernancePolicies, AlertRuleReading } from './alert-governance-policy.ts';
 export { AlertCoverStore, edgeOf } from './alert-cover-store.ts';
 export type { AbsenceListQuery, AbsenceRecord, AbsenceStatus, CoverRecord } from './alert-cover-store.ts';
 export { AlertGapStore, AlertTraceStore, ORPHAN_GAP_KINDS } from './alert-trace-store.ts';

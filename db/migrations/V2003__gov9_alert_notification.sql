@@ -53,6 +53,7 @@ CREATE TABLE machvon.alert_notification_log (
 
 CREATE INDEX alert_notification_log_day_idx ON machvon.alert_notification_log (tenant_id, recipient_membership_id, local_day, decision);
 CREATE INDEX alert_notification_log_created_idx ON machvon.alert_notification_log (tenant_id, created_at DESC);
+CREATE INDEX alert_notification_log_source_idx ON machvon.alert_notification_log (tenant_id, source_id) WHERE source_id IS NOT NULL;
 
 DO $gov9$
 DECLARE
