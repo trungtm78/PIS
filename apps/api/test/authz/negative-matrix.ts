@@ -2909,6 +2909,12 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   proposeEgpMapping: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/mappings', body: { subject_type: 'PACKAGE', our_code: 'GT-0001', external_code: 'PK-0001', reason: REASON } }) },
   decideEgpMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/mappings/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'APPROVE', reason: REASON } }) },
+  // CA-3: the proposals of a rating of the contractor; a caller who is refused changes nothing.
+  proposeContractRating: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/rating-proposals', body: { period_label: 'MATRIX-2026' } }) },
+  notifyContractRating: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-rating-proposals/00000000-0000-4000-8000-0000000000f1/notify', ifMatch: '"1"', body: { note: 'Matrix notification of a refused call.' } }) },
+  recordContractRatingResponse: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-rating-proposals/00000000-0000-4000-8000-0000000000f1/response', ifMatch: '"1"', body: { response_kind: 'ACCEPT', received_on: '2026-01-02' } }) },
+  adoptContractRating: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-rating-proposals/00000000-0000-4000-8000-0000000000f1/adopt', ifMatch: '"1"', body: { note: 'Matrix adoption of a refused call.' } }) },
+  withdrawContractRating: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-rating-proposals/00000000-0000-4000-8000-0000000000f1/withdraw', ifMatch: '"1"', body: { reason: 'Matrix withdrawal of a refused call.' } }) },
   retireEgpMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/mappings/00000000-0000-4000-8000-0000000000f1/retire', ifMatch: '"1"', body: { reason: REASON } }) },
   // AI-2: the assistant, its checklists and criteria, and the exceptions to where an edition processes; a caller who is refused changes nothing and reads nothing.
   // A source that is not readable is the same refusal (422) whether it is foreign, out of scope or missing: nothing says which, so the case does not look for a 403 or a 404.
