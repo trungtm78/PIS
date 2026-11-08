@@ -1280,7 +1280,6 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'acceptFundingFigures',
         'returnFundingFigures',
         'withdrawFundingFigures',
-=======
         // VND-1: the management of contractors.
         'listVendorRegister',
         'getVendorContractor',
@@ -1324,7 +1323,6 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'verifyVendorKeyStaff',
         'revokeVendorQualification',
         'revokeVendorKeyStaff',
-=======
         'proposeClaimTerm',
         'decideClaimTerm',
         'listClaimTerms',

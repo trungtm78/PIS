@@ -2369,7 +2369,6 @@ export type {
   TierGroup,
   TierSplit,
 } from './ctr-money-reports.ts';
-=======
 export {
   BI_CONNECTION_LIMIT_DEFAULT,
   BI_CONNECTION_LIMIT_MAX,
@@ -2610,19 +2609,16 @@ export { addPublicSums, buildPackLines, publicIndicatorsOf, publicRateFigures, p
 export type { PublicCoverage, PublicIndicator, PublicLine, PublicPlanCell, PublicProject, PublicRateFigures, PublicRateReason, PublicRateSums, PublicRates, PublicReportedCell, PublicTreasuryEntry } from './fnd-public.ts';
 export { HASH_SCHEMAS, figureRowsOf, snapshotHashFor } from './fnd-snapshot.ts';
 export type { HashSchema, HashSchema2Extras, HashedFigureLine, SnapshotFigure, SnapshotHashHeader } from './fnd-snapshot.ts';
-=======
 // VND-1: the contractor profile, the accounts, the certificates, the debarment register and the reputation ledger (docs/vendor-management.md).
 export * from './vendor-profile.ts';
 export * from './vendor-payee.ts';
 export * from './vendor-qualification.ts';
 export * from './vendor-restriction.ts';
 export * from './vendor-defaults.ts';
-=======
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export * from './ctr-claim.ts';
 export * from './ctr-early-warning.ts';
 export { registerClaimRules } from './governance-rules.ts';
-=======
 export { ESCALATION_DEFAULT_CODE, ESCALATION_KINDS, ESCALATION_RULE_TYPE, ESCALATION_TRIGGERS, PROMOTION_REASON, escalationChainLabels, escalationPolicyDefaults, escalationPolicyOf, escalationSeriesKey, evaluateEscalation, evaluatePromotion, levelsToRecord, promotionSeriesKey, resolveEscalationRecipients } from './alert-escalation.ts';
 export type { AcknowledgedLevel, EscalationCandidate, EscalationEvaluation, EscalationGap, EscalationInput, EscalationKind, EscalationLevelPlan, EscalationOwner, EscalationPolicy, EscalationStep, EscalationTarget, EscalationTrigger, EscalationVia, PromotionInput, PromotionVerdict, TargetOptions } from './alert-escalation.ts';
 export { ABSENCE_DEFAULT_CODE, ABSENCE_KINDS, ABSENCE_RULE_TYPE, COVER_SCOPE_KINDS, absencePhaseAt, absencePolicyDefaults, absencePolicyOf, assertValidAbsence, assertValidCover, coverInForce, detectCoverageGaps, gapKey, nextCoverStatus, positionCoverage, routeAlert, validateAbsence, validateCover } from './alert-coverage.ts';
@@ -2654,7 +2650,6 @@ export { ACTING_DECISION_VERBS, ACTING_MAX_HOURS, ACTING_REASON_MAX, ACTING_REAS
 export type { ActingDefect, ActingParties, ActingPhase, ActingRequest, ActingStatus } from './iam-acting.ts';
 export { MAX_PERIOD_SCOPE_CODES, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
 export type { PeriodScopeDefect } from './iam-period-scope.ts';
-=======
 export { MAX_PERIOD_SCOPE_CODES, accessForPeriod, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
 export type { PeriodScopeDefect } from './iam-period-scope.ts';
 
@@ -2905,7 +2900,6 @@ export type { EntryFacts, EntryRule, EntrySkip, EntryVerdict, EntryViolation } f
 export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
 export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, ScaleOutcome } from './ind-import-mapping.ts';
 export { registerIndicatorRules } from './governance-rules.ts';
-=======
 export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, mappingProblems, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
 export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, MappingProblem, ScaleOutcome } from './ind-import-mapping.ts';
 export { registerIndicatorRules } from './governance-rules.ts';
