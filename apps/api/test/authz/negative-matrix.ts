@@ -3012,6 +3012,21 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   recordAttentionDecision: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/committee/attention/decisions', body: { project_id: '00000000-0000-4000-8000-0000000000f1', decision: 'ACKNOWLEDGED', note: REASON } }) },
   evaluateCommitteeAlerts: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/committee/alerts/evaluate', body: {} }) },
   acknowledgeCommitteeAlert: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/committee/alerts/00000000-0000-4000-8000-0000000000f1/acknowledgement', ifMatch: '"1"', body: { note: REASON } }) },
+  // IND-1: the entry rules, the figures of the dictionary and the import of the customer's forms; a caller who is refused changes nothing and reads no file.
+  evaluateIndicatorEntry: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/indicator-entry-rules/evaluate', body: { surface: 'DIS_REPORT', values: { CUMULATIVE: '1' } } }) },
+  enterIndicatorFigures: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/indicator-figures', body: { project_id: '00000000-0000-4000-8000-0000000000f1', period_id: '00000000-0000-4000-8000-0000000000f2', figures: [{ indicator_code: 'PLAN_YEAR', value: '1' }] } }),
+  },
+  uploadIndicatorFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/indicator-imports/files', body: {} }) },
+  previewIndicatorImport: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/indicator-imports/preview', body: { mapping_code: 'MONTHLY_FORM', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/import/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) } }),
+  },
+  importIndicatorFile: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/indicator-imports', body: { mapping_code: 'MONTHLY_FORM', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/import/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) } }),
+  },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),

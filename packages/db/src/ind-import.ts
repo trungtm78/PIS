@@ -53,6 +53,8 @@ export interface IndImportWritten {
 export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
   readonly connectorCode: string;
   readonly formatVersion: string;
+  /** The version of the mapping that reads the file, for the answer and the audit row of the command. */
+  readonly mappingVersion: number;
   readonly written: IndImportWritten = { figures: 0, unchanged: 0, differences: 0 };
 
   private readonly deps: IndImportDeps;
@@ -68,6 +70,7 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
     this.format = indicatorImportFormat(deps.mapping, deps.context);
     this.connectorCode = this.format.connectorCode;
     this.formatVersion = this.format.formatVersion;
+    this.mappingVersion = deps.mapping.version;
     this.byCode = new Map(deps.indicators.map((indicator) => [indicator.code, indicator]));
   }
 
@@ -171,7 +174,7 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
     if (mapping.ruleId === null) throw new DomainError('IND_MAPPING_NOT_APPROVED', 409, 'mapping_code');
     for (const figure of entry.record.figures) {
       const indicator = this.byCode.get(figure.indicator);
-      if (indicator === undefined) throw new DomainError('INDICATOR_UNKNOWN', 422, figure.indicator);
+      if (indicator === undefined) throw new Error(`the indicator ${figure.indicator} left the dictionary between the judgement and the apply`);
       const held = resolved.current.get(figure.indicator);
       if (held !== undefined) {
         if (sameNumber(held.value, figure.value)) this.written.unchanged += 1;

@@ -746,7 +746,12 @@
     "endCommitteeMember",
     "recordAttentionDecision",
     "evaluateCommitteeAlerts",
-    "acknowledgeCommitteeAlert"
+    "acknowledgeCommitteeAlert",
+    "evaluateIndicatorEntry",
+    "enterIndicatorFigures",
+    "uploadIndicatorFile",
+    "previewIndicatorImport",
+    "importIndicatorFile"
   ],
   "controlCommands": [
     "decideTenantRestore",

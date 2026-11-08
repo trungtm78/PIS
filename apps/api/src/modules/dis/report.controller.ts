@@ -25,6 +25,7 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { assertPeriodReach } from './period-gate';
+import { enforceReportEntry } from '../../ind-entry-guard';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -312,6 +313,8 @@ export class ReportController {
       throw new DomainError('PLAN_VERSION_NOT_EFFECTIVE', 422, 'plan_version_id', { extensions: effective === undefined ? {} : { effective_plan_version_id: effective.id } });
     }
     await this.assertIssues(scope.tx, project.id, entries.narrative ?? null);
+    // IND-1: the approved data entry rules of the tenant hold the figures to the identities of the data (none approved: nothing changes).
+    await enforceReportEntry(scope, { projectId: project.id, totals: fundingTotals(entries.cells), progress: entries.progress, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, now });
     const files = await resolveFiles(this.files, scope.tenant, entries.attachments ?? []);
     const hash = hashFor(effective.id);
     const made = await this.reports.createDraft(
@@ -374,6 +377,7 @@ export class ReportController {
     await assertPeriodReach(scope.tx, this.reports, this.periods, head.projectId, head.periodId, access, EDIT_PERMISSION, now);
     const judged = await this.periods.judge(scope.tx, head.periodId, head.projectId, now);
     await this.assertIssues(scope.tx, head.projectId, entries.narrative ?? null);
+    await enforceReportEntry(scope, { projectId: head.projectId, totals: fundingTotals(entries.cells), progress: entries.progress, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, now });
     const files = entries.attachments === undefined ? undefined : await resolveFiles(this.files, scope.tenant, entries.attachments);
     const saved = await this.reports.saveDraft(
       scope.tx,

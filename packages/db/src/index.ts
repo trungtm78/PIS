@@ -1783,7 +1783,7 @@ export type { SourceContext as WorkSourceContext, SourceRow as WorkSourceRow } f
 export { isActiveMember, normalizeUuid } from './file-import-item-store.ts';
 export { timestampKey } from './keyset.ts';
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
-export { IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryRuleStore, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
-export type { EntryCheckInput, EntryRuleView, FigureFilter, FigureOutcome, FigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
+export { IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryRuleStore, IndImportReads, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
+export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter, FigureOutcome, FigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
 export type { IndImportDeps, IndImportWritten, IndRowOutcome } from './ind-import.ts';

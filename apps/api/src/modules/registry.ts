@@ -38,7 +38,11 @@ import { sasModule } from './sas';
 import { searchModule } from './search';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
+<<<<<<< HEAD
 export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, banModule, bidModule, biModule, capModule, ctrModule, dgvModule, dirModule, disModule, docModule, filesModule, fndModule, homeModule, hubModule, iamModule, intModule, issModule, llmModule, lndModule, mdmModule, mneModule, mobModule, notificationsModule, omniModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, rptModule, sasModule, searchModule];
+=======
+export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, biModule, bidModule, capModule, ctrModule, dgvModule, dirModule, disModule, docModule, filesModule, homeModule, iamModule, indModule, issModule, llmModule, lndModule, mdmModule, mneModule, mobModule, notificationsModule, omniModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, sasModule, searchModule];
+>>>>>>> 006faf0a (feat(api): indicator dictionary, entry rules, figures and form import endpoints, entry guard in the DIS report and project commands)
 
 function activeModules(options: AppModuleOptions, registered: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   // The modules of the edition (a package of its own, loaded by the process) come after the registry, so the order of the registry is what it was.

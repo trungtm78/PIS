@@ -1286,7 +1286,7 @@
   "ind.seed.disbursed_period.alias_2": "Giải ngân",
   "ind.seed.physical_progress_reported.name": "Tiến độ vật lý do chủ đầu tư báo cáo",
   "ind.seed.physical_progress_reported.formula": "Tỷ lệ phần trăm khối lượng đã hoàn thành do chủ đầu tư báo cáo, từ 0 đến 100",
-  "ind.seed.physical_progress_reported.alias_1": "Tiến độ vật lý",
+  "ind.seed.physical_progress_reported.alias_1": "Tiến độ vật lý báo cáo",
   "ind.seed.physical_progress_reported.alias_2": "Khối lượng hoàn thành (%)",
   "ind.seed.rate_year_in_force.name": "Tỷ lệ thực hiện so với kế hoạch năm hiện hành",
   "ind.seed.rate_year_in_force.formula": "Lũy kế từ đầu năm chia kế hoạch vốn năm đang hiệu lực, nhân 100",

@@ -1,5 +1,6 @@
 import {
   DATA_ENTRY_RULE_TYPE,
+  INDICATOR_IMPORT_CONNECTOR,
   DomainError,
   INDICATOR_IMPORT_RULE_TYPE,
   INDICATOR_RULE_TYPE,
@@ -16,6 +17,8 @@ import {
   vietnamDateOf,
 } from '@machvon/kernel';
 import type { DictionaryFilter, EntryFacts, EntryRule, EntrySurface, EntryVerdict, GovernanceRuleVersion, ImportMapping, IndicatorEntry, ResolvedGovernanceRule } from '@machvon/kernel';
+import { FileImportStore } from './file-import-store.ts';
+import type { FileImportRecord } from './file-import-store.ts';
 import { RULE_COLUMNS, toRuleVersion } from './governance-policy-port.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -182,6 +185,8 @@ export interface EntryCheckInput {
   surface: EntrySurface;
   facts: Omit<EntryFacts, 'surface' | 'mandatory'>;
   asOf: string | Date;
+  /** Hold the entry also to the starting rules the tenant has not approved: a preview of what adopting them would do. */
+  includeTemplates?: boolean | undefined;
 }
 
 /**
@@ -221,7 +226,10 @@ export class IndEntryRuleStore {
    * a rule asks for them.
    */
   async check(tx: TenantTx, input: EntryCheckInput): Promise<EntryVerdict> {
-    const rules = await this.inForce(tx, input.asOf, input.surface);
+    const rules =
+      input.includeTemplates === true
+        ? (await this.catalogue(tx, input.asOf)).map((view) => view.rule).filter((rule) => rule.surfaces === null || rule.surfaces.includes(input.surface))
+        : await this.inForce(tx, input.asOf, input.surface);
     if (rules.length === 0) return { violations: [], blocking: [], warnings: [], evaluated: [], skipped: [] };
     const asksMandatory = rules.some((rule) => rule.check === 'FIELD_REQUIRED' && rule.fields.includes('MANDATORY_FIELDS'));
     const mandatory = asksMandatory ? mandatoryFieldsOf(await new IndDictionaryStore().list(tx, input.asOf), input.surface) : [];
@@ -495,6 +503,12 @@ export class IndFigureStore {
     return new Map(rows.map((row) => [row.code, { id: row.id, code: row.code, status: row.status, totalInvestmentVnd: row.total }]));
   }
 
+  /** The code of a period of the register by id. */
+  async periodCode(tx: TenantTx, periodId: string): Promise<string | undefined> {
+    const [row] = await tx.query<{ code: string }>('select code from machvon.reporting_period where id = $1::uuid', [periodId]);
+    return row?.code;
+  }
+
   /** The periods of the register by code: more than one means the code is ambiguous (it is unique per calendar, not per tenant). */
   async periodsByCode(tx: TenantTx, code: string): Promise<Array<{ id: string; code: string; status: string }>> {
     return tx.query<{ id: string; code: string; status: string }>('select id, code, status from machvon.reporting_period where code = $1 order by start_date desc limit 3', [code]);
@@ -510,4 +524,54 @@ export function figureFacts(current: ReadonlyMap<string, FigureRow>, indicators:
     if (held !== undefined) facts[indicator.entryField] = held.value;
   }
   return facts;
+}
+
+// ---- the history of the imports --------------------------------------------------------------------------------------------------------------------------------
+
+export interface IndRunRow extends FileImportRecord {
+  openDifferences: number;
+}
+
+export interface IndDifferenceRow {
+  id: string;
+  line: number;
+  businessKey: string;
+  code: string;
+  expected: string | null;
+  actual: string | null;
+  detail: string | null;
+  status: 'OPEN' | 'RESOLVED';
+  ownerId: string;
+  dueAt: string;
+}
+
+/** The imports of figures: the runs of the framework for the connector of this lane, with the differences each left open. */
+export class IndImportReads {
+  private readonly imports = new FileImportStore();
+
+  async runs(tx: TenantTx, request: { limit: number; after: { key: string; id: string } | undefined }): Promise<IndRunRow[]> {
+    const rows = await this.imports.list(tx, { connectorCode: INDICATOR_IMPORT_CONNECTOR, limit: request.limit, after: request.after });
+    if (rows.length === 0) return [];
+    const open = await tx.query<{ import_id: string; n: string }>(
+      "select import_id, count(*)::text as n from machvon.file_import_reconciliation_item where connector_code = $1 and status = 'OPEN' and import_id = any($2::uuid[]) group by import_id",
+      [INDICATOR_IMPORT_CONNECTOR, rows.map((row) => row.id)],
+    );
+    const counts = new Map(open.map((row) => [row.import_id, Number(row.n)]));
+    return rows.map((row) => ({ ...row, openDifferences: counts.get(row.id) ?? 0 }));
+  }
+
+  /** One run of this connector (a run of another connector is not found here). */
+  async run(tx: TenantTx, id: string): Promise<FileImportRecord | undefined> {
+    const found = await this.imports.find(tx, id);
+    return found !== undefined && found.connectorCode === INDICATOR_IMPORT_CONNECTOR ? found : undefined;
+  }
+
+  async differences(tx: TenantTx, importId: string, limit: number): Promise<IndDifferenceRow[]> {
+    const rows = await tx.query<{ id: string; line: number; business_key: string; code: string; expected_value: string | null; actual_value: string | null; detail: string | null; status: 'OPEN' | 'RESOLVED'; owner_membership_id: string; due_at: string }>(
+      `select id, line, business_key, code, expected_value, actual_value, detail, status, owner_membership_id, ${iso('due_at')} as due_at
+         from machvon.file_import_reconciliation_item where import_id = $1::uuid and connector_code = $2 order by line, code limit $3`,
+      [importId, INDICATOR_IMPORT_CONNECTOR, limit],
+    );
+    return rows.map((row) => ({ id: row.id, line: row.line, businessKey: row.business_key, code: row.code, expected: row.expected_value, actual: row.actual_value, detail: row.detail, status: row.status, ownerId: row.owner_membership_id, dueAt: row.due_at }));
+  }
 }

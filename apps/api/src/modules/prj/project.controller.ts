@@ -10,6 +10,7 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { enforceProjectEntry } from '../../ind-entry-guard';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -71,6 +72,8 @@ export class ProjectController {
     // A unit of another tenant is indistinguishable from one that does not exist.
     if (unit === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (!reaches(access, CREATE_PERMISSION, unit, now)) throw new DomainError('SCOPE_DENIED', 403);
+    // IND-1: the approved data entry rules of the tenant hold the figures of the project (none approved: nothing changes).
+    await enforceProjectEntry(scope, { totalInvestmentVnd: body.total_investment_vnd, now });
     const created = await this.projects.create(
       scope.tx,
       {
