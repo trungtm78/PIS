@@ -21,7 +21,7 @@ import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPol
 import { ACTUALS_PRECEDENCES, ACTUAL_SOURCES, ENTRY_MODES, FUNDING_TAXONOMY_RULE_TYPE, MEASURES, PERIOD_GRAINS, RATIO_BASES, RATIO_TERMS, enterprisePackParams, publicPackParams, refineFundingPack } from './fnd-taxonomy.ts';
 import { HUB_POLICY_PARAMS, hubAlertSeeds, hubAlertSource, hubFreshnessDefaults, hubKpiDefaults, hubPolicyFormula, hubPolicySource } from './connector-hub-defaults.ts';
 import { REALLOCATION_POLICY_DEFAULT_CODE, REALLOCATION_POLICY_RULE_TYPE, reallocationPolicyDefaults, reallocationPolicyOf } from './cap-reallocation-impact.ts';
-import { PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, RETURN_REASON_CATEGORIES, RETURN_REASON_DEFAULTS, RETURN_REASON_SIDES, paymentClockDefaults, paymentClockParams, returnReasonParams } from './pay-clock.ts';
+import { PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, RETURN_REASON_CATEGORIES, RETURN_REASON_DEFAULTS, RETURN_REASON_SIDES, paymentClockDefaults as payClockDefaults, paymentClockParams as payClockParams, returnReasonParams } from './pay-clock.ts';
 import { ACCURACY_RULE_CODE, ACCURACY_RULE_TYPE, MILESTONE_RULE_CODE, MILESTONE_RULE_TYPE, MONTH_DAY_PATTERN, accuracyDefaults, accuracyPolicyOf, milestoneDefaults, milestonePolicyOf } from './dis-milestone-forecast.ts';
 import { message } from './messages.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
@@ -1986,10 +1986,10 @@ export const registerPaymentClockRules = (): void =>
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { working_days: int(1, 30), near_working_hours: int(1, 240), reason_code_required: bool },
-      refine: refineWith(paymentClockParams),
+      refine: refineWith(payClockParams),
       defaults: {
-        PAYMENT: rule({ ...paymentClockDefaults('PAYMENT') }, undefined, { formula: message('gov.rules.payment_clock.payment.formula') }),
-        ADVANCE: rule({ ...paymentClockDefaults('ADVANCE') }, undefined, { formula: message('gov.rules.payment_clock.advance.formula') }),
+        PAYMENT: rule({ ...payClockDefaults('PAYMENT') }, undefined, { formula: message('gov.rules.payment_clock.payment.formula') }),
+        ADVANCE: rule({ ...payClockDefaults('ADVANCE') }, undefined, { formula: message('gov.rules.payment_clock.advance.formula') }),
       },
     });
     registerRuleType({

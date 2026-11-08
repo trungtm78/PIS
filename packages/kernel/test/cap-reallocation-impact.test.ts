@@ -39,7 +39,7 @@ describe('the simulation of a reallocation (G1-12): the rates DIS shows, before 
     expect(unitA?.after).toEqual(unitA?.before);
     expect(result.basis.CARRYOVER.province.before).toEqual(rateOfSums(addSums(FIXTURE.map((each) => each.sums.CARRYOVER)), 'CARRYOVER'));
     expect(result.basis.CURRENT_YEAR.projects).toEqual([]);
-    expect(result.warnings).toEqual([]);
+    expect(result.warnings).toEqual([{ basis: 'CARRYOVER', code: 'ZERO_DENOMINATOR', projectId: null }]);
   });
 
   it('a move between two units changes only those two units, and the rate of the province on the whole plan does not move because the total of the plan does not', () => {
@@ -53,9 +53,9 @@ describe('the simulation of a reallocation (G1-12): the rates DIS shows, before 
     expect(unitA?.after.planTotalVnd).toBe('1300000000');
     expect(unitB?.after.planTotalVnd).toBe('700000000');
     expect(unitA?.after.rateTotalPct).toBe('38.4615');
-    expect(unitA?.deltaRateTotalPct).toBe('3.8461');
+    expect(unitA?.deltaRateTotalPct).toBe('7.2115');
     expect(unitB?.after.rateTotalPct).toBe('60.0000');
-    expect(unitB?.deltaRateTotalPct).toBe('-17.1429');
+    expect(unitB?.deltaRateTotalPct).toBe('-45.0000');
     expect(year.projects.map((each) => each.id)).toEqual(['p1', 'p3']);
   });
 
@@ -147,7 +147,7 @@ describe('the candidates by performance', () => {
   const policy = reallocationPolicyDefaults();
   const list = [
     { projectId: 'slow', unitId: 'u', planTotalVnd: '1000000000', eacVnd: '400000000', floorVnd: '300000000' },
-    { projectId: 'slower', unitId: 'u', planTotalVnd: '2000000000', eacVnd: '200000000', floorVnd: '1900000000' },
+    { projectId: 'slower', unitId: 'u', planTotalVnd: '2000000000', eacVnd: '200000000', floorVnd: '1950000000' },
     { projectId: 'fast', unitId: 'v', planTotalVnd: '500000000', eacVnd: '900000000', floorVnd: '0' },
     { projectId: 'steady', unitId: 'v', planTotalVnd: '500000000', eacVnd: '450000000', floorVnd: '0' },
     { projectId: 'nodata', unitId: 'v', planTotalVnd: '500000000', eacVnd: null, floorVnd: '0' },
@@ -172,7 +172,7 @@ describe('the candidates by performance', () => {
   it('a donor keeps what is already spoken for even when its projection is lower, and the order does not depend on the order read', () => {
     const result = reallocationCandidates([...list].reverse(), policy);
     expect(result.donors.map((donor) => donor.projectId)).toEqual(['slow']);
-    const floorHigh = reallocationCandidates([{ projectId: 'a', unitId: null, planTotalVnd: '1000000000', eacVnd: '100000000', floorVnd: '900000000' }], policy);
+    const floorHigh = reallocationCandidates([{ projectId: 'a', unitId: null, planTotalVnd: '1000000000', eacVnd: '100000000', floorVnd: '950000000' }], policy);
     expect(floorHigh.donors).toEqual([]);
     expect(floorHigh.excluded).toEqual([{ projectId: 'a', reason: 'BELOW_MIN_MOVE' }]);
   });

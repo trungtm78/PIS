@@ -2985,3 +2985,27 @@ export type {
   MilestoneSummary,
   MonthFigure,
 } from './dis-milestone-forecast.ts';
+
+// GOV-11 PAY (G1-17): the payment clock, the advance clock and the standard reasons to return a request.
+export {
+  MIN_NOTE_LENGTH,
+  PAYMENT_CLOCK_KINDS,
+  PAYMENT_CLOCK_RULE_TYPE,
+  PAYMENT_CLOCK_STATES,
+  PAYMENT_RETURN_REASON_RULE_TYPE,
+  RETURN_REASON_CATEGORIES,
+  RETURN_REASON_CODE,
+  RETURN_REASON_DEFAULTS,
+  RETURN_REASON_SIDES,
+  clockDueAt,
+  clockKindOf,
+  isOpenClockState,
+  judgePaymentClock,
+  judgeReturnReason,
+  paymentClockDefaults as payClockDefaults,
+  paymentClockParams as payClockParams,
+  returnReasonParams,
+  summariseClocks,
+  workingMinutesPerDay,
+} from './pay-clock.ts';
+export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
