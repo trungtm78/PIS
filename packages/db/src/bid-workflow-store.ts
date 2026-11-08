@@ -559,6 +559,21 @@ export class BidWorkflowStore {
     return rows.map((row) => row.item_code);
   }
 
+  /**
+   * The hook for another module that records a milestone of a package without a person's scope behind it (the consumer of the dates imported from the national procurement network, EGP-2): locks the workflow of the
+   * package, if it has one that is running, and completes the items its milestones carry. Returns the codes of the items it completed (none when the package has no running workflow).
+   */
+  async syncMilestonesOfPackage(tx: TenantTx, packageId: string, actor: string, now: Date): Promise<string[]> {
+    const rows = await tx.query<LockSql>(
+      `select w.id, w.package_id, k.code as package_code, k.project_id, w.method, w.status, w.current_step_code, w.current_visit, w.owner_membership_id, w.hold_reason,
+              ((w.held_at at time zone 'Asia/Ho_Chi_Minh')::date)::text as held_on, w.definition, w.definition_rule_version, w.row_version
+         from machvon.package_workflow w join machvon.procurement_package k on k.tenant_id = w.tenant_id and k.id = w.package_id
+        where w.package_id = $1::uuid and w.status in ('IN_PROGRESS', 'ON_HOLD') for update of w`,
+      [packageId],
+    );
+    return rows[0] === undefined ? [] : this.syncMilestones(tx, toLocked(rows[0]), actor, now);
+  }
+
   // ---- internals ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   private result(wf: LockedWorkflow, from: WorkflowStatus | null, to: WorkflowStatus, fromStep: string | null, toStep: string | null, visit: number | null, version: number, facts: Record<string, unknown>): WorkflowResult {

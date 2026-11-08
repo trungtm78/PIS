@@ -2385,3 +2385,23 @@ export {
 export type { ReportStepKind, ReportWorkflow, ReportWorkflowStep, WorkflowMode } from './dis-report-workflow.ts';
 export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } from './teams-channel.ts';
 export type { TeamsCard } from './teams-channel.ts';
+=======
+  EGP_EXPORT_KINDS,
+  EGP_OBLIGATION_FACTS,
+  EGP_OPEN_STATES,
+  EGP_POSTING_RECEIPT_EVIDENCE,
+  EGP_RECONCILE_RULE_CODE,
+  EGP_RECONCILE_RULE_TYPE,
+  EGP_RECONCILE_SUBJECTS,
+  EGP_SEVERITY_RULE_CODE,
+  EGP_SEVERITY_RULE_TYPE,
+  egpDifferenceFingerprint,
+  egpNoticeMilestones,
+  egpOnTime,
+  egpPostingFacet,
+  egpReconcileParamsOf,
+  egpResultMilestones,
+  egpSeverityParamsOf,
+  egpTriggerInstant,
+} from './egp-posting.ts';
+export type { EgpMilestoneDate, EgpMilestoneOutcome, EgpOnTime, EgpPostingFacet, EgpSeverityParams } from './egp-posting.ts';

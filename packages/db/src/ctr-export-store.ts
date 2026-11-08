@@ -247,5 +247,21 @@ export class CtrExportStore {
     if (batch === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return batch;
   }
+
+  /**
+   * The receipt of a posting obligation of EGP-2 whose packet is this batch is the receipt of the batch (EGP-2 owns the posting and its receipt; CTR-24 keeps its screen and its own command): a batch that was generated
+   * becomes SUBMITTED_EXTERNALLY with the reference the network gave and the day of the receipt; one that a person already marked (on CTR-24) is left as it is. The right to read the batch was judged when the obligation
+   * was linked to it. Returns whether the batch moved.
+   */
+  async submitFromObligation(tx: TenantTx, id: string, submission: Submission, actor: string): Promise<boolean> {
+    const [row] = await tx.query<{ status: BatchStatus }>('select status from machvon.contractor_export_batch where id = $1::uuid for update', [id]);
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (row.status !== 'GENERATED') return false;
+    await tx.query(
+      `update machvon.contractor_export_batch set status = 'SUBMITTED_EXTERNALLY', submitted_ref = $2, submitted_on = $3::date, submitted_by = $4::uuid, submitted_at = now(), version = version + 1 where id = $1::uuid`,
+      [id, submission.ref, submission.on, actor],
+    );
+    return true;
+  }
 }
 

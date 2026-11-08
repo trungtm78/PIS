@@ -1074,6 +1074,28 @@ export const registerIntegrationRules = (): void =>
         CONTRACTOR_RESPONSE: rule({ obligation: message('gov.rules.egp_posting_deadlines.contractor_response.obligation'), due_in: 20, due_unit: 'CALENDAR_DAYS', starts_on: 'CONTRACTOR_NOTIFIED', remind_before_days: 5, legal_basis: message('gov.rules.egp_posting_deadlines.contractor_response.legal_basis') }),
       },
     });
+    registerRuleType({
+      type: 'EGP_POSTING_SEVERITY',
+      ownerModule: 'BID',
+      modules: ['BID', 'HOME'],
+      formula: message('gov.rules.register_integration_rules.formula.egp_posting_severity'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { urgent_within_hours: int(0, 720) },
+      defaults: { DEFAULT: rule({ urgent_within_hours: 24 }) },
+    });
+    registerRuleType({
+      type: 'EGP_RECONCILIATION_POLICY',
+      ownerModule: 'BID',
+      modules: ['BID', 'HOME'],
+      formula: message('gov.rules.register_integration_rules.formula.egp_reconciliation_policy'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { due_in_working_days: int(1, 365) },
+      defaults: { DEFAULT: rule({ due_in_working_days: 10 }) },
+    });
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(INTEGRATION_ALERT_SEEDS, { source: message('gov.rules.register_integration_rules.source_2') }));
   });
 
