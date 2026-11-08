@@ -459,6 +459,7 @@
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
     {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
 <<<<<<< HEAD
+<<<<<<< HEAD
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
@@ -538,5 +539,12 @@
     {"id":"BI-29","path":"/bi/bi-29","title":"Bản đồ nhiệt giải ngân","kind":"dashboard","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-29"},
     {"id":"BI-30","path":"/bi/bi-30","title":"Kiểm thử ngưỡng cảnh báo và xu hướng","kind":"compare","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-30"}
 >>>>>>> 74e53f55 (chore(web): navigation, route table and counts include BI-21 to BI-30)
+=======
+    {"id":"FEED-01","path":"/feed/feed-01","title":"Kết nối số liệu từ ứng dụng của Sở Tài chính","kind":"detail","area":"data","module":"FEED","group":"Kết nối và nhận số liệu","role":"workspace","parent":null,"req":"FR-FEED-01"},
+    {"id":"FEED-02","path":"/feed/feed-02","title":"Các lần nhận số liệu và chạy thử tệp","kind":"table","area":"data","module":"FEED","group":"Kết nối và nhận số liệu","role":"workspace","parent":null,"req":"FR-FEED-02"},
+    {"id":"FEED-03","path":"/feed/feed-03","title":"Ánh xạ mã dự án của Sở Tài chính","kind":"table","area":"data","module":"FEED","group":"Ánh xạ và đối chiếu","role":"workspace","parent":null,"req":"FR-FEED-03"},
+    {"id":"FEED-04","path":"/feed/feed-04","title":"Sai lệch giữa số của Sở Tài chính và số của ta","kind":"table","area":"data","module":"FEED","group":"Ánh xạ và đối chiếu","role":"workspace","parent":null,"req":"FR-FEED-04"},
+    {"id":"FEED-05","path":"/feed/feed-05","title":"Điều khiển bộ sinh dữ liệu","kind":"detail","area":"data","module":"FEED","group":"Bộ sinh dữ liệu","role":"workspace","parent":null,"req":"FR-FEED-05"}
+>>>>>>> a2a14645 (docs(feed): module spec FEED, story ST-FEED-001, screens FEED-01 to FEED-05 in navigation, tests and traceability)
   ]
 }

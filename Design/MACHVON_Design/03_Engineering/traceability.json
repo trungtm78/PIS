@@ -11749,5 +11749,95 @@
       "UI-BI-30",
       "UAT-PLAN-2593"
     ]
+  },
+  {
+    "requirement": "FR-FEED-01",
+    "screen": "FEED-01",
+    "title": "Kết nối số liệu từ ứng dụng của Sở Tài chính",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch FEED-1 và docs/finance-feed.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/FEED.md §10–§11; 2 test",
+    "backlog_id": "BL-FEED-01",
+    "test_ids": [
+      "UI-FEED-01",
+      "UAT-FEED-003"
+    ]
+  },
+  {
+    "requirement": "FR-FEED-02",
+    "screen": "FEED-02",
+    "title": "Các lần nhận số liệu và chạy thử tệp",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch FEED-1 và docs/finance-feed.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/FEED.md §10–§11; 2 test",
+    "backlog_id": "BL-FEED-02",
+    "test_ids": [
+      "UI-FEED-02",
+      "UAT-FEED-001"
+    ]
+  },
+  {
+    "requirement": "FR-FEED-03",
+    "screen": "FEED-03",
+    "title": "Ánh xạ mã dự án của Sở Tài chính",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch FEED-1 và docs/finance-feed.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/FEED.md §10–§11; 2 test",
+    "backlog_id": "BL-FEED-03",
+    "test_ids": [
+      "UI-FEED-03",
+      "UAT-FEED-002"
+    ]
+  },
+  {
+    "requirement": "FR-FEED-04",
+    "screen": "FEED-04",
+    "title": "Sai lệch giữa số của Sở Tài chính và số của ta",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch FEED-1 và docs/finance-feed.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/FEED.md §10–§11; 2 test",
+    "backlog_id": "BL-FEED-04",
+    "test_ids": [
+      "UI-FEED-04",
+      "UAT-FEED-002"
+    ]
+  },
+  {
+    "requirement": "FR-FEED-05",
+    "screen": "FEED-05",
+    "title": "Điều khiển bộ sinh dữ liệu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch FEED-1 và docs/finance-feed.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/FEED.md §10–§11; 2 test",
+    "backlog_id": "BL-FEED-05",
+    "test_ids": [
+      "UI-FEED-05",
+      "UAT-FEED-003"
+    ]
   }
 ]

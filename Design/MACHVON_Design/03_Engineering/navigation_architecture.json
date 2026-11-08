@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 531,
-    "webCatalog": 531,
-    "webModules": 33,
+    "webRoutes": 536,
+    "webCatalog": 536,
+    "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
-    "modulesTotal": 34
+    "modulesTotal": 35
   },
   "libraryGroups": [
     {
@@ -84,6 +84,49 @@
         "LLM",
         "SAS",
         "INT"
+      ]
+    },
+    {
+      "id": "overview",
+      "name": "Điều hành",
+      "icon": "overview",
+      "modules": [
+        "HOME",
+        "DIR",
+        "IAM",
+        "DOC"
+      ]
+    },
+    {
+      "id": "insights",
+      "name": "Phân tích",
+      "icon": "insights",
+      "modules": [
+        "BID",
+        "BI",
+        "MNE",
+        "AUD",
+        "RPT"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Dữ liệu",
+      "icon": "data",
+      "modules": [
+        "MDM",
+        "DGV",
+        "FEED"
+      ]
+    },
+    {
+      "id": "admin",
+      "name": "Quản trị",
+      "icon": "admin",
+      "modules": [
+        "ADM",
+        "LLM",
+        "SAS"
       ]
     }
   ],
@@ -2162,6 +2205,48 @@
           "parents": {}
         }
       ]
+    },
+    "FEED": {
+      "name": "Số liệu từ Sở Tài chính",
+      "groups": [
+        {
+          "title": "Kết nối và nhận số liệu",
+          "description": "Trạng thái kết nối, các lần nhận và nhập tệp",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Ánh xạ và đối chiếu",
+          "description": "Mã dự án của Sở, chênh lệch cần xử lý",
+          "ids": [
+            3,
+            4
+          ],
+          "primary": [
+            3,
+            4
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Bộ sinh dữ liệu",
+          "description": "Điều khiển bộ sinh dữ liệu",
+          "ids": [
+            5
+          ],
+          "primary": [
+            5
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2672,7 +2757,8 @@
     "BAN": "Tiến độ đầu tư công toàn tỉnh cho Trưởng ban, dự án cần quan tâm, hồ sơ họp, theo dõi chỉ đạo, cảnh báo và nhật ký xem.",
     "IND": "Từ điển chỉ tiêu của doanh nghiệp, quy tắc kiểm số liệu ngay khi nhập và bảng ánh xạ nhập tệp Excel có phiên bản và người duyệt.",
     "HPM": "Đẩy báo cáo đã phát hành lên HPM theo khóa chống trùng, biên nhận và đính chính kỳ đã được nhận.",
-    "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch."
+    "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch.",
+    "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu."
   },
   "adminLibraryModules": [
     "IAM",
@@ -8185,6 +8271,56 @@
       "area": "insights",
       "module": "BI",
       "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "FEED-01",
+      "title": "Kết nối số liệu từ ứng dụng của Sở Tài chính",
+      "kind": "detail",
+      "area": "data",
+      "module": "FEED",
+      "group": "Kết nối và nhận số liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "FEED-02",
+      "title": "Các lần nhận số liệu và chạy thử tệp",
+      "kind": "table",
+      "area": "data",
+      "module": "FEED",
+      "group": "Kết nối và nhận số liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "FEED-03",
+      "title": "Ánh xạ mã dự án của Sở Tài chính",
+      "kind": "table",
+      "area": "data",
+      "module": "FEED",
+      "group": "Ánh xạ và đối chiếu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "FEED-04",
+      "title": "Sai lệch giữa số của Sở Tài chính và số của ta",
+      "kind": "table",
+      "area": "data",
+      "module": "FEED",
+      "group": "Ánh xạ và đối chiếu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "FEED-05",
+      "title": "Điều khiển bộ sinh dữ liệu",
+      "kind": "detail",
+      "area": "data",
+      "module": "FEED",
+      "group": "Bộ sinh dữ liệu",
       "role": "workspace",
       "parent": null
     }

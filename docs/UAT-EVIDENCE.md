@@ -9,6 +9,8 @@ Screens complete: 63 of 535 (11.8 percent); screens with no test of the design: 
 Requirement rows complete: 63 of 535 (535 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 470, SKIPPED 0, FAIL 1, GAP 0.
 Screens complete: 63 of 542 (11.6 percent); screens with no test of the design: 0.
 Requirement rows complete: 63 of 542 (542 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 477, SKIPPED 0, FAIL 1, GAP 0.
+Screens complete: 63 of 532 (11.8 percent); screens with no test of the design: 0.
+Requirement rows complete: 63 of 532 (532 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 467, SKIPPED 0, FAIL 1, GAP 0.
 A row is PASS only when every test it names has a recorded PASS with its evidence (when it ran, the build, the schema version, the hash of the dataset, the request ids and a link to the evidence). FAIL, SKIPPED and NOT_RUN never count as PASS; a PASS without its evidence is UNPROVEN; a row without any known test is a GAP; WAIVED needs an approved waiver with an owner, a reason and an expiry that has not passed.
 
 ## Critical tests (money, isolation, restore)
@@ -665,6 +667,11 @@ Every screen names at least one test.
 | BI-28 | BI | NOT_RUN |
 | BI-29 | BI | NOT_RUN |
 | BI-30 | BI | NOT_RUN |
+| FEED-01 | FEED | NOT_RUN |
+| FEED-02 | FEED | NOT_RUN |
+| FEED-03 | FEED | NOT_RUN |
+| FEED-04 | FEED | NOT_RUN |
+| FEED-05 | FEED | NOT_RUN |
 
 ## Requirements
 
@@ -1277,3 +1284,8 @@ Every screen names at least one test.
 | FR-BI-28 | BI-28 | UI-BI-28 NOT_RUN<br>UAT-PLAN-2590 NOT_RUN<br>UAT-PLAN-2591 NOT_RUN | NOT_RUN |
 | FR-BI-29 | BI-29 | UI-BI-29 NOT_RUN<br>UAT-PLAN-2592 NOT_RUN | NOT_RUN |
 | FR-BI-30 | BI-30 | UI-BI-30 NOT_RUN<br>UAT-PLAN-2593 NOT_RUN | NOT_RUN |
+| FR-FEED-01 | FEED-01 | UI-FEED-01 NOT_RUN<br>UAT-FEED-003 NOT_RUN | NOT_RUN |
+| FR-FEED-02 | FEED-02 | UI-FEED-02 NOT_RUN<br>UAT-FEED-001 NOT_RUN | NOT_RUN |
+| FR-FEED-03 | FEED-03 | UI-FEED-03 NOT_RUN<br>UAT-FEED-002 NOT_RUN | NOT_RUN |
+| FR-FEED-04 | FEED-04 | UI-FEED-04 NOT_RUN<br>UAT-FEED-002 NOT_RUN | NOT_RUN |
+| FR-FEED-05 | FEED-05 | UI-FEED-05 NOT_RUN<br>UAT-FEED-003 NOT_RUN | NOT_RUN |

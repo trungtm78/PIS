@@ -209,6 +209,12 @@
       "module": "IND",
       "title": "Indicator dictionary and data entry rules",
       "goal": "Give every indicator of the customer one definition (code, name, unit, formula, owner, version, approver) in a dictionary that extends the KPI register, hold every number to the identities of the data at the moment it is typed or loaded (cumulative not above the total investment, equity plus loans equal to the total, a closed period is not edited, required fields, plausible ranges) through rules a tenant approves, and load the customer's Excel forms through mappings that have versions and an approver, with a dry run before the apply."
+    },
+    {
+      "id": "EP-FEED",
+      "module": "FEED",
+      "title": "Data feed of the Finance Department into the public investment system",
+      "goal": "Take the records of the Finance Department application in by file, by push and from a data generator through one judgement, map its project codes to ours with a maker and a checker, compare it with our own figures and give every difference an owner, show how fresh and how good the data is, and keep every figure behind an \"i\" with formula, source and day."
     }
   ],
   "features": [
@@ -1061,6 +1067,11 @@
       "id": "FT-BI-08",
       "epic": "EP-BI",
       "title": "Executive analytics: forecast, decision log, data trust, ranking, bottlenecks and insight"
+    },
+    {
+      "id": "FT-FEED-01",
+      "epic": "EP-FEED",
+      "title": "Connect, import, map, compare and control the data generator"
     }
   ],
   "stories": [
@@ -55229,6 +55240,174 @@
           "test_ids": [
             "UI-BI-29",
             "UI-BI-30"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-FEED-001",
+      "epic": "EP-FEED",
+      "feature": "FT-FEED-01",
+      "module": "FEED",
+      "title": "Take in the data of the Finance Department, map its codes, settle the differences and control the generator",
+      "narrative": "As a planning officer I can connect the data of the Finance Department, import a file after a dry run, map its project codes with a second person, run the comparison for a fiscal year and settle each difference, and as an integration administrator I can switch the connection and control the data generator, so that the steering committee sees one set of figures for the province.",
+      "release": "R2",
+      "screens": [
+        "FEED-01",
+        "FEED-02",
+        "FEED-03",
+        "FEED-04",
+        "FEED-05"
+      ],
+      "operations": [
+        "getFinanceFeedConnection",
+        "setFinanceFeedConnectionState",
+        "controlFinanceFeedGenerator",
+        "listFinanceFeedRuns",
+        "getFinanceFeedRun",
+        "uploadFinanceFeedFile",
+        "previewFinanceFeedFile",
+        "importFinanceFeedFile",
+        "pushFinanceFeedBatch",
+        "listFinanceFeedMappings",
+        "listFinanceFeedUnmapped",
+        "proposeFinanceFeedMapping",
+        "decideFinanceFeedMapping",
+        "retireFinanceFeedMapping",
+        "listFinanceFeedDifferences",
+        "runFinanceFeedReconciliation",
+        "resolveFinanceFeedDifference",
+        "getFinanceFeedQuality",
+        "getFinanceFeedFacts",
+        "listFinanceFeedProjects"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-FEED-001-1",
+          "given": "A valid file of disbursement rows and a connection that is on",
+          "when": "The file is uploaded, dry run and applied, then applied again",
+          "then": "The dry run writes nothing; the apply writes exactly the valid rows; the second apply is 409 IMPORT_FILE_ALREADY_APPLIED and nothing changes; a file none of whose rows can be taken is 422 IMPORT_HAS_ERRORS with the line of each fault",
+          "test_id": "UAT-FEED-001"
+        },
+        {
+          "id": "AC-ST-FEED-001-2",
+          "given": "A mapping proposed by one person and a difference opened against figures that a person made",
+          "when": "The proposer approves the mapping and the maker of the figures settles the difference",
+          "then": "Both are 403 SELF_APPROVAL_DENIED and nothing changes; another person approves and settles them; a dispute without evidence_ref and a waiver without review_on inside one year are 422",
+          "test_id": "UAT-FEED-002"
+        },
+        {
+          "id": "AC-ST-FEED-001-3",
+          "given": "The connection off, then on, and the data generator stopped",
+          "when": "The generator is started, ticked, stopped and reseeded, each with a reason",
+          "then": "Start with the connection off is 409 FEED_GENERATOR_STATE_INVALID; the state and the epoch change as the moves say, each move has a history row, and the records of every channel are listed alike",
+          "test_id": "UAT-FEED-003"
+        },
+        {
+          "id": "AC-ST-FEED-001-4",
+          "given": "FEED-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, every number has its \"i\", 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-FEED-01"
+        },
+        {
+          "id": "AC-ST-FEED-001-5",
+          "given": "FEED-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, every number has its \"i\", 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-FEED-02"
+        },
+        {
+          "id": "AC-ST-FEED-001-6",
+          "given": "FEED-03 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, every number has its \"i\", 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-FEED-03"
+        },
+        {
+          "id": "AC-ST-FEED-001-7",
+          "given": "FEED-04 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, every number has its \"i\", 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-FEED-04"
+        },
+        {
+          "id": "AC-ST-FEED-001-8",
+          "given": "FEED-05 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, every number has its \"i\", 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-FEED-05"
+        }
+      ],
+      "dependencies": [
+        "ST-BID-005",
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 40,
+          "max": 90
+        },
+        "confidence": "low",
+        "assumption": "The file layout is a working assumption (WORKING-ASSUMPTION-FIN-2026.1), so everything built on it is marked PENDING-EXTERNAL; the push channel refuses until the machine account exists and no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-FEED-001-1",
+          "kind": "backend",
+          "title": "Server-side read models and commands behind FEED-01 to FEED-05",
+          "test_ids": []
+        },
+        {
+          "id": "TK-FEED-001-2",
+          "kind": "web",
+          "title": "FEED-01 to FEED-05 screens built with the kit, the seven standard states and an \"i\" on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-FEED-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for FEED-01 to FEED-05; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-FEED-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-FEED-001",
+            "UAT-FEED-002",
+            "UAT-FEED-003"
+          ]
+        },
+        {
+          "id": "TK-FEED-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-FEED-01",
+            "UI-FEED-02",
+            "UI-FEED-03",
+            "UI-FEED-04",
+            "UI-FEED-05"
           ]
         }
       ]

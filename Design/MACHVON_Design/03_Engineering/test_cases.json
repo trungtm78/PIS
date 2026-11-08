@@ -24359,5 +24359,157 @@
     "covers": [
       "FR-BI-30"
     ]
+  },
+  {
+    "id": "UI-FEED-01",
+    "source": "FR-FEED-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kết nối số liệu từ ứng dụng của Sở Tài chính; user có quyền và user chỉ đọc; route FEED-01",
+    "steps": [
+      "Mở FEED-01 từ menu và deep link; kiểm nhãn trường: Mã kết nối (fin.sotaichinh), Bật/tắt và lý do, Kênh nhận (tệp, đẩy, bộ sinh dữ liệu), Phiên bản mẫu tệp (PENDING-EXTERNAL), Lần nhận gần nhất, Độ tuổi dữ liệu, Độ đầy đủ, Độ kịp thời, Tỷ lệ sai lệch, Đơn vị báo cáo trễ",
+      "Thực hiện thao tác chính theo quy tắc: Mẫu tệp là giả định (WORKING-ASSUMPTION-FIN-2026.1) nên mọi thứ dựng trên đó ghi PENDING-EXTERNAL; cổng đẩy từ chối (FEED_API_UNAVAILABLE) cho đến khi có tài khoản máy; không có lời gọi nào ra ngoài máy; số liệu quá cũ hiện là cũ (FEED_STALE), không hiện là không có dữ liệu; mỗi chỉ số có công thức, nguồn và ngày số liệu",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên FEED-01"
+    ],
+    "expected": "Kết nối số liệu từ ứng dụng của Sở Tài chính: hiển thị đúng 10 trường, áp quy tắc \"Mẫu tệp là giả định (WORKING-ASSUMPTION-FIN-2026.1) nên mọi thứ dựng trên đó ghi PENDING-EXTERNAL; cổng đẩy từ chối (FEED_API_UNAVAILABLE) cho đến khi có tài khoản máy; không có lời gọi nào ra ngoài máy; số liệu quá cũ hiện là cũ (FEED_STALE), không hiện là không có dữ liệu; mỗi chỉ số có công thức, nguồn và ngày số liệu\"; mỗi con số có \"i\" (công thức, nguồn, ngày số liệu); không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-01"
+    ]
+  },
+  {
+    "id": "UI-FEED-02",
+    "source": "FR-FEED-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Các lần nhận số liệu và chạy thử tệp; user có quyền và user chỉ đọc; route FEED-02",
+    "steps": [
+      "Mở FEED-02 từ menu và deep link; kiểm nhãn trường: Kênh, Loại, Phiên bản mẫu, Mã băm tệp, Số bản ghi mới, Số dòng bị từ chối, Người nhận, Thời điểm, Chạy thử từng dòng",
+      "Thực hiện thao tác chính theo quy tắc: Chạy thử không ghi gì; áp dụng một lần cho mỗi tệp (cùng tệp nói đã nạp); tệp không có dòng nào nhận được bị từ chối cả tệp kèm số dòng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên FEED-02"
+    ],
+    "expected": "Các lần nhận số liệu và chạy thử tệp: hiển thị đúng 9 trường, áp quy tắc \"Chạy thử không ghi gì; áp dụng một lần cho mỗi tệp (cùng tệp nói đã nạp); tệp không có dòng nào nhận được bị từ chối cả tệp kèm số dòng\"; mỗi con số có \"i\" (công thức, nguồn, ngày số liệu); không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-02"
+    ]
+  },
+  {
+    "id": "UI-FEED-03",
+    "source": "FR-FEED-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ánh xạ mã dự án của Sở Tài chính; user có quyền và user chỉ đọc; route FEED-03",
+    "steps": [
+      "Mở FEED-03 từ menu và deep link; kiểm nhãn trường: Mã của Sở, Mã của ta, Phương thức, Hiệu lực từ, Hiệu lực đến, Trạng thái, Người đề xuất, Người duyệt, Mã chưa ánh xạ",
+      "Thực hiện thao tác chính theo quy tắc: Một người đề xuất, người khác duyệt (người đề xuất không tự duyệt); một mã của Sở chỉ ứng với một dự án tại một thời điểm; ánh xạ sai được thu hồi và thay bằng đề xuất mới",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên FEED-03"
+    ],
+    "expected": "Ánh xạ mã dự án của Sở Tài chính: hiển thị đúng 9 trường, áp quy tắc \"Một người đề xuất, người khác duyệt (người đề xuất không tự duyệt); một mã của Sở chỉ ứng với một dự án tại một thời điểm; ánh xạ sai được thu hồi và thay bằng đề xuất mới\"; mỗi con số có \"i\" (công thức, nguồn, ngày số liệu); không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-03"
+    ]
+  },
+  {
+    "id": "UI-FEED-04",
+    "source": "FR-FEED-04",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sai lệch giữa số của Sở Tài chính và số của ta; user có quyền và user chỉ đọc; route FEED-04",
+    "steps": [
+      "Mở FEED-04 từ menu và deep link; kiểm nhãn trường: Dự án, Năm, Chỉ tiêu, Số của Sở, Số của ta, Chênh lệch, Tỷ lệ chênh, Chủ sở hữu, Hạn xử lý, Cách xử lý",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi sai lệch có chủ sở hữu và một cách xử lý có lý do; chủ sở hữu và người xử lý không phải người đã lập số hay nạp tệp (ADM-11); sai lệch lớn phát cảnh báo FEED_DISCREPANCY_LARGE",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên FEED-04"
+    ],
+    "expected": "Sai lệch giữa số của Sở Tài chính và số của ta: hiển thị đúng 10 trường, áp quy tắc \"Mỗi sai lệch có chủ sở hữu và một cách xử lý có lý do; chủ sở hữu và người xử lý không phải người đã lập số hay nạp tệp (ADM-11); sai lệch lớn phát cảnh báo FEED_DISCREPANCY_LARGE\"; mỗi con số có \"i\" (công thức, nguồn, ngày số liệu); không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-04"
+    ]
+  },
+  {
+    "id": "UI-FEED-05",
+    "source": "FR-FEED-05",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Điều khiển bộ sinh dữ liệu; user có quyền và user chỉ đọc; route FEED-05",
+    "steps": [
+      "Mở FEED-05 từ menu và deep link; kiểm nhãn trường: Trạng thái, Hạt giống, Năm tài chính, Tháng đã tới, Số dự án, Số đơn vị trễ, Tỷ lệ dự án chậm, Tỷ lệ dự án vượt tiến độ, Số sai lệch gài sẵn, Lịch sử thao tác",
+      "Thực hiện thao tác chính theo quy tắc: Bộ sinh dữ liệu tạo ra bản ghi như một tệp thật và đi qua cùng kiểm tra; mọi thao tác bắt đầu, dừng, tạo lại hạt giống, tiến thêm một tháng đều có lý do và được ghi lịch sử",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên FEED-05"
+    ],
+    "expected": "Điều khiển bộ sinh dữ liệu: hiển thị đúng 10 trường, áp quy tắc \"Bộ sinh dữ liệu tạo ra bản ghi như một tệp thật và đi qua cùng kiểm tra; mọi thao tác bắt đầu, dừng, tạo lại hạt giống, tiến thêm một tháng đều có lý do và được ghi lịch sử\"; mỗi con số có \"i\" (công thức, nguồn, ngày số liệu); không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-05"
+    ]
+  },
+  {
+    "id": "UAT-FEED-001",
+    "source": "FEED.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A planning officer with the rights to preview and apply; the connection on; a CSV file of disbursement rows with one bad row.",
+    "steps": [
+      "Upload the file and read the kinds it fits",
+      "Dry run it and read every row",
+      "Apply it",
+      "Apply the same file again",
+      "Upload a file none of whose rows is valid and apply it"
+    ],
+    "expected": "Step 2 writes nothing; step 3 writes exactly the valid rows and refuses the bad one with its line; step 4: 409 IMPORT_FILE_ALREADY_APPLIED; step 5: 422 IMPORT_HAS_ERRORS with the line of each fault.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-02"
+    ]
+  },
+  {
+    "id": "UAT-FEED-002",
+    "source": "FEED.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A proposer, a checker, the maker of our figures and a connection with records of the Finance Department for a fiscal year.",
+    "steps": [
+      "The proposer proposes a mapping and tries to approve it",
+      "The checker approves it",
+      "Run the comparison for the year with an owner who is a maker",
+      "Settle a difference as its maker",
+      "Settle it as another person: DISPUTE without a reference, WAIVE without a day, then both with them"
+    ],
+    "expected": "Steps 1 and 4: 403 SELF_APPROVAL_DENIED; step 2 makes the mapping ACTIVE; step 3 skips the projects whose owner made the figures; step 5: 422 then success.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-03",
+      "FR-FEED-04"
+    ]
+  },
+  {
+    "id": "UAT-FEED-003",
+    "source": "FEED.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An integration administrator; the connection switched off, then on; a stopped data generator.",
+    "steps": [
+      "Start the generator with the connection off",
+      "Switch the connection on and start it with a reason",
+      "Tick one month, stop it, reseed it",
+      "Read the runs and the history",
+      "Read the connection health and the three quality indicators"
+    ],
+    "expected": "Step 1: 409 FEED_GENERATOR_STATE_INVALID; steps 2 and 3 change the state and the epoch and write one history row each; step 4 lists the records of every channel alike with the channel as a provenance column; step 5 shows each indicator with numerator, denominator and day.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-FEED-01",
+      "FR-FEED-05"
+    ]
   }
 ]
