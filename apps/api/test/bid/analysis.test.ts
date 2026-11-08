@@ -154,7 +154,7 @@ describe('the AI analysis of a proposal with verified citations and classificati
   /** Takes away what a test made, so that the next one starts from a tenant with no registry and no analysis. */
   async function reset(): Promise<void> {
     await harness.owner(TENANT_A, [
-      ['truncate machvon.analysis_finding_review, machvon.ai_decision_record'],
+      ['truncate machvon.analysis_finding_review, machvon.ai_assist_decision, machvon.ai_decision_record'],
       ['delete from machvon.analysis_evidence'],
       ['delete from machvon.analysis_finding'],
       ['delete from machvon.analysis_run'],

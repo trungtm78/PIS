@@ -233,7 +233,9 @@ describe('the project document repository over HTTP (DOC-2)', () => {
       expect(await call('GET', `/project-document-versions/${made.versionId}/units/cit_${'0'.repeat(20)}`, { member: AUTHOR })).toMatchObject({ status: 404 });
       expect(await call('GET', `/project-document-versions/${made.versionId}/units/not-a-citation`, { member: AUTHOR })).toMatchObject({ status: 422 });
 
-      const sheet = await createDocument(await workbookFile('1250'), XLSX, { doc_class: 'COST_ESTIMATE' });
+      // One file, read twice: a workbook written twice carries the time of each writing, so the bytes (and the citations that come from them) would differ.
+      const sameBytes = await workbookFile('1250');
+      const sheet = await createDocument(sameBytes, XLSX, { doc_class: 'COST_ESTIMATE' });
       const cells = await call('GET', `/project-document-versions/${sheet.versionId}/units`, { member: AUTHOR });
       expect((cells.json.items as Array<{ locator: string; sheet: string; cell: string }>).map((item) => [item.locator, item.sheet, item.cell])).toEqual([
         ['Dự toán!A1', 'Dự toán', 'A1'],
@@ -242,7 +244,7 @@ describe('the project document repository over HTTP (DOC-2)', () => {
         ['Dự toán!B2', 'Dự toán', 'B2'],
       ]);
       // Reading the same bytes again gives the same citation: it comes from the file and the place.
-      const again = await createDocument(await workbookFile('1250'), XLSX, { doc_class: 'COST_ESTIMATE' });
+      const again = await createDocument(sameBytes, XLSX, { doc_class: 'COST_ESTIMATE' });
       const second = await call('GET', `/project-document-versions/${again.versionId}/units`, { member: AUTHOR });
       expect((second.json.items as Array<{ citation_id: string }>).map((item) => item.citation_id)).toEqual((cells.json.items as Array<{ citation_id: string }>).map((item) => item.citation_id));
     });

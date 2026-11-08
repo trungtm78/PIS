@@ -510,7 +510,7 @@ describe('the analytics of the contract portfolio over HTTP (CA-1, part 2: R12, 
       const pdf = await exported('contractor-concentration', 'pdf');
       expect(pdf.status).toBe(200);
       expect(Buffer.from(pdf.json.content_base64, 'base64').subarray(0, 4).toString('latin1')).toBe('%PDF');
-      expect((await exported('bid-variance', 'docx')).status).toBe(422);
+      expect((await exported('bid-variance', 'odt')).status).toBe(422);
       const logged = await rows<{ n: string }>(`select count(*)::text as n from machvon.audit_event where action = 'contract.report_exported' and actor_id = $1`, [memberId(ADMIN)]);
       expect(Number(logged[0]?.n)).toBe(3);
       expect((await exported('bid-variance', 'csv', '', GUEST)).status).toBe(403);

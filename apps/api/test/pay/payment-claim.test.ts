@@ -92,7 +92,7 @@ describe('sending, checking and returning a payment request over HTTP (ST-PAY-00
   const submit = async (member: number, id: string, version: number | string, extra: Record<string, unknown> = {}, key?: string) =>
     call('POST', `/payment-requests/${id}/submit`, { member, ifMatch: `"${await versionOf(id, version)}"`, ...(key === undefined ? {} : { key }), body: { expected_gross_vnd: '3000000000', expected_net_vnd: '2100000000', ...extra } });
   const verify = async (member: number, id: string, version: number | string, note?: string) => call('POST', `/payment-requests/${id}/verify`, { member, ifMatch: `"${await versionOf(id, version)}"`, body: note === undefined ? {} : { note } });
-  const giveBack = async (member: number, id: string, version: number | string, body: Record<string, unknown> = { reason: 'The invoice does not match the acceptance.' }) => call('POST', `/payment-requests/${id}/return`, { member, ifMatch: `"${await versionOf(id, version)}"`, body });
+  const giveBack = async (member: number, id: string, version: number | string, body: Record<string, unknown> = { reason: 'The invoice does not match the acceptance.', reason_code: 'MISSING_DOCUMENT' }) => call('POST', `/payment-requests/${id}/return`, { member, ifMatch: `"${await versionOf(id, version)}"`, body });
   const statusOf = async (id: string) => (await rows<{ status: string; claims_acceptance: boolean }>('select status, claims_acceptance from machvon.payment_request where id = $1::uuid', [id]))[0];
 
   beforeAll(async () => {
@@ -229,7 +229,7 @@ describe('sending, checking and returning a payment request over HTTP (ST-PAY-00
     expect((await verify(CHECKER, id, 'current')).status).toBe(200);
     await fixtures.sendToTreasury(id);
     expect(await giveBack(CHECKER, id, 'current')).toMatchObject({ status: 409, json: { code: 'PAYMENT_STATE_INVALID' } });
-    expect(await giveBack(CHECKER, id, 'current', { reason: 'Rejected by the Treasury.', returned_by_treasury: true })).toMatchObject({ status: 200, json: { status: 'RETURNED' } });
+    expect(await giveBack(CHECKER, id, 'current', { reason: 'Rejected by the Treasury.', reason_code: 'MISSING_DOCUMENT', returned_by_treasury: true })).toMatchObject({ status: 200, json: { status: 'RETURNED' } });
     expect(await ledger(target.contract.contractId)).toMatchObject({ requested: '0' });
   });
 

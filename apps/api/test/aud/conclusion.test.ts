@@ -223,7 +223,7 @@ describe('conclusions, findings and recommendations over HTTP (ST-AUD-002, AUD-0
   }, 60_000);
 
   it('serves the conclusion controllers in the module of AUD', () => {
-    expect(audModule.controllers.slice(0, 4)).toEqual([AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController]);
+    expect(audModule.controllers.slice(2, 6)).toEqual([AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController]);
   });
 
   describe('recordAuditConclusion', () => {

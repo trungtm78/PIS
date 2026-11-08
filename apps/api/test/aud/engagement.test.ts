@@ -177,7 +177,7 @@ describe('audit and inspection engagements over HTTP (ST-AUD-001, AUD-02, AUD-03
 
   it('is registered once in the module registry with the controllers of the engagements', () => {
     expect(MODULES.filter((module) => module.code === 'AUD')).toHaveLength(1);
-    expect(audModule.controllers.slice(0, 2)).toEqual([AuditEngagementController, AuditEngagementReadsController]);
+    expect(audModule.controllers.slice(2, 4)).toEqual([AuditEngagementController, AuditEngagementReadsController]);
   });
 
   describe('createAuditEngagement and startAuditEngagement', () => {
