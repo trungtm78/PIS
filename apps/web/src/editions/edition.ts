@@ -56,11 +56,12 @@ export function routeInEdition(route: Pick<WebRoute, 'id' | 'module'>, manifest:
 
 /** The routes of the table that exist in the edition, in their own order; the same array for the public edition. */
 export function editionRoutes(routes: readonly WebRoute[], manifest: EditionManifest = active.manifest): readonly WebRoute[] {
-  return manifest === PUBLIC_EDITION_MANIFEST ? routes : routes.filter((route) => routeInEdition(route, manifest));
+  // The same array when the edition drops nothing; the public edition drops the routes of the modules that exist in the enterprise edition only.
+  const kept = routes.filter((route) => routeInEdition(route, manifest));
+  return kept.length === routes.length ? routes : kept;
 }
 
 /** The access of the session narrowed by the menu of the edition: a module is visible when the session may open it and the edition offers it. */
 export function editionAccess(access: NavigationAccess, manifest: EditionManifest = active.manifest): NavigationAccess {
-  if (manifest === PUBLIC_EDITION_MANIFEST) return access;
   return { isModuleVisible: (module) => moduleInMenu(manifest, module) && access.isModuleVisible(module) };
 }

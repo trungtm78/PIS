@@ -1,4 +1,4 @@
-import { ALLOW_ALL, EditionError, PUBLIC_EDITION_MANIFEST, defineEditionManifest } from '@machvon/kernel/src/edition.ts';
+import { ALLOW_ALL, ENTERPRISE_ONLY_MODULES, EditionError, PUBLIC_EDITION_MANIFEST, defineEditionManifest } from '@machvon/kernel/src/edition.ts';
 import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
 import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -51,14 +51,22 @@ describe('the public edition as the default', () => {
     expect(getEdition()).toBe(PUBLIC_BUNDLE);
     expect(getEdition().manifest).toBe(PUBLIC_EDITION_MANIFEST);
     expect(getEdition().overlay).toBeUndefined();
-    expect(editionRoutes(WEB_ROUTES)).toBe(WEB_ROUTES);
-    expect(editionAccess(ALL_MODULES_VISIBLE)).toBe(ALL_MODULES_VISIBLE);
-    expect(WEB_ROUTES.every((route) => routeInEdition(route))).toBe(true);
+    // Every route and every module of the public product; the modules of the enterprise edition only (HPM, EBS) are not part of it.
+    const publicRoutes = WEB_ROUTES.filter((route) => !ENTERPRISE_ONLY_MODULES.includes(route.module));
+    expect(editionRoutes(WEB_ROUTES)).toEqual(publicRoutes);
+    expect(WEB_ROUTES.length - publicRoutes.length).toBe(4);
+    expect(WEB_ROUTES.every((route) => routeInEdition(route) === !ENTERPRISE_ONLY_MODULES.includes(route.module))).toBe(true);
+    expect(editionAccess(ALL_MODULES_VISIBLE).isModuleVisible('HPM')).toBe(false);
+    expect(editionAccess(ALL_MODULES_VISIBLE).isModuleVisible('PRJ')).toBe(true);
     expect(translator.t('shell.brand.name.text')).toBe(viCatalogue['shell.brand.name.text']);
   });
 
   it('builds the same navigation as before', () => {
-    const before = buildNavigation(ARCHITECTURE, WEB_ROUTES, ALL_MODULES_VISIBLE);
+    const before = buildNavigation(
+      ARCHITECTURE,
+      WEB_ROUTES.filter((route) => !ENTERPRISE_ONLY_MODULES.includes(route.module)),
+      { isModuleVisible: (module) => !ENTERPRISE_ONLY_MODULES.includes(module) },
+    );
     const now = buildNavigation(ARCHITECTURE, editionRoutes(WEB_ROUTES), editionAccess(ALL_MODULES_VISIBLE));
     expect(now.quick).toEqual(before.quick);
     expect(now.library).toEqual(before.library);
