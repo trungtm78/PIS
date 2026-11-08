@@ -84,10 +84,10 @@ test('the web scene is put together in the order: background, footage in its hol
   const graph = args[args.indexOf('-filter_complex') + 1];
   const hole = frames('web+callouts', spec).web.hole;
   assert.match(graph, new RegExp(`overlay=x=${hole.x}:y=${hole.y}`, 'u'));
-  assert.match(graph, /scale=w='trunc\(1216\*\(1\+0\.035\*t\/10\.000\)\/2\)\*2'.*eval=frame/u, 'slow zoom on the footage');
+  assert.match(graph, /scale=w='trunc\(1344\*\(1\+0\.035\*t\/10\.000\)\/2\)\*2'.*eval=frame/u, 'slow zoom on the footage');
   assert.match(graph, /tpad=stop_mode=clone/u, 'short footage is held on its last picture');
-  assert.match(graph, /fade=t=in:st=0:d=0\.4:alpha=1/u);
-  assert.match(graph, /fade=t=out:st=9\.600/u);
+  assert.match(graph, /format=yuv420p,fade=t=in:st=0:d=0\.4,fade=t=out:st=9\.600:d=0\.4\[web\]/u, 'the footage fades through black inside its frame, never through alpha');
+  assert.match(graph, /\[2:v\]format=rgba\[frame\]/u, 'the frame is opaque from the first frame to the last');
   assert.match(graph, /\[3:v\]format=rgba,fade=t=in:st=2\.000/u, 'the chip appears at its time');
   assert.ok(graph.endsWith("[c0]subtitles=filename='a.ass',format=yuv420p[vout]"));
   assert.ok(graph.indexOf('[web]') < graph.indexOf('[frame]'), 'the frame layer is above the footage');
@@ -96,7 +96,7 @@ test('the web scene is put together in the order: background, footage in its hol
 test('the split layout takes the film of the phone into its screen without a slow zoom', () => {
   const args = segmentArgs({ layout: 'split', bg: { file: 'bg.mp4', offsetSec: 0 }, web: { file: 'w.mp4', startSec: 0 }, phone: { file: 'p.mp4', startSec: 1 }, overlay: 'o.png', seconds: 8, out: 'o.mp4', spec });
   const graph = args[args.indexOf('-filter_complex') + 1];
-  assert.match(graph, /\[2:v\]fps=30,tpad=stop_mode=clone:stop_duration=8,scale=380:820:force_original_aspect_ratio=increase/u);
+  assert.match(graph, /\[2:v\]fps=30,tpad=stop_mode=clone:stop_duration=8,scale=400:866:force_original_aspect_ratio=increase/u);
   assert.doesNotMatch(graph.split('[phone]')[0].split(';').at(-1), /eval=frame/u);
   const inputs = args.filter((word, index) => args[index - 1] === '-i');
   assert.deepEqual(inputs, ['bg.mp4', 'w.mp4', 'p.mp4', 'o.png']);
@@ -104,7 +104,8 @@ test('the split layout takes the film of the phone into its screen without a slo
 
 test('a card is the background with the card layer fading in; chips follow the spots, never outside the scene', () => {
   const args = cardArgs({ bg: { file: 'bg.mp4', offsetSec: 1 }, overlay: 'card.png', seconds: 6, out: 'c.mp4' });
-  assert.match(args[args.indexOf('-filter_complex') + 1], /fade=t=in:st=0\.2:d=0\.7/u);
+  assert.match(args[args.indexOf('-filter_complex') + 1], /fade=t=out:st=5\.500/u);
+  assert.doesNotMatch(args[args.indexOf('-filter_complex') + 1], /fade=t=in/u, 'a card starts at full opacity');
   const chips = chipsFor({ spots: [{ atSec: 0.1, holdSec: 1, box: { x: 100, y: 50, width: 400, height: 100 } }, { atSec: 9.8, holdSec: 3, box: { x: 0, y: 0, width: 10, height: 10 } }, { atSec: 3, holdSec: 4, box: { x: 10, y: 10, width: 10, height: 10 } }], labels: ['Một', 'Hai'], hole: { x: 600, y: 120 }, seconds: 10 });
   assert.deepEqual(chips.map((chip) => chip.label), ['Một', 'Hai']);
   assert.ok(chips[0].fromSec >= 0.6 && chips[0].toSec - chips[0].fromSec >= 2.2);
@@ -146,5 +147,9 @@ test('the brand.json of the logo lane gives the name, tagline, accent and the lo
   assert.equal(brand.accent, '#F28C3A');
   const { heroArgs } = await import('./compose/plan.mjs');
   const args = heroArgs({ hero: 'h.png', seconds: 5, out: 'o.mp4' });
-  assert.ok(args.includes('-loop') && args[args.indexOf('-vf') + 1].includes('fade=t=in'));
+  const graph = args[args.indexOf('-filter_complex') + 1];
+  assert.ok(args.includes('-loop'));
+  assert.match(graph, /scale=1632:918/u, 'the picture is smaller than the canvas so that its tagline stays above the subtitle bar');
+  assert.match(graph, /boxblur/u);
+  assert.doesNotMatch(graph, /fade=t=in/u, 'the hero starts at full opacity');
 });

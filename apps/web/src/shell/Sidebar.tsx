@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { KeyboardEvent, RefObject } from 'react';
 import { Link } from 'react-router-dom';
+import { BrandMark } from '../brand/BrandMark';
 import { useTranslation } from '../i18n';
 import type { NavLink, NavigationModel } from '../navigation/model';
 import type { WebRoute } from '../routes/types';
@@ -170,9 +171,7 @@ export function Sidebar(props: SidebarProps) {
     >
       <div className="sidebar-brand">
         <Link to={props.homePath} className="sidebar-brand-link" aria-label={t('shell.brand.home.label')}>
-          <span className="sidebar-brand-mark" aria-hidden="true">
-            {t('shell.brand.mark.text')}
-          </span>
+          <BrandMark className="sidebar-brand-logo" size={34} />
           <span className="sidebar-brand-copy">
             <strong>{t('shell.brand.name.text')}</strong>
           </span>

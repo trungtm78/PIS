@@ -147,7 +147,7 @@ function clearFocus(element) {
 }
 
 /** In the page: what is left on the screen that should not be (a spinner that does not end, an error banner, a loading text). */
-function readScreenProblems() {
+function readScreenProblems(loadingPattern) {
   const doc = globalThis.document;
   const shown = (element) => element.getClientRects().length > 0 && globalThis.getComputedStyle(element).visibility !== 'hidden';
   const busy = Array.from(doc.querySelectorAll('[aria-busy="true"], [role="progressbar"], [class*="spinner" i], [class*="loading" i]')).filter(shown).length;
@@ -157,7 +157,7 @@ function readScreenProblems() {
     .filter((text) => text !== '');
   const screen = doc.querySelector('[data-screen-id]');
   const text = screen === null ? '' : (screen.innerText ?? '').trim();
-  const loadingText = text.length < 400 && /đang tải|loading/iu.test(text);
+  const loadingText = text.length < 400 && new RegExp(loadingPattern, 'iu').test(text);
   return { busy, alerts, loadingText, blank: screen !== null && text.length < 20 };
 }
 
@@ -221,7 +221,10 @@ export class ReplayUi extends Ui {
         if (values.length === 0) throw new Error('the list has no option to choose');
         await locator.selectOption(values[0]);
       } else {
-        await locator.selectOption({ label: option });
+        // The label may carry a count after the name ("Name (2 hợp đồng)"): the first option whose text holds the words is the one.
+        const value = await locator.evaluate((element, text) => Array.from(element.options).find((entry) => entry.label === text || (entry.textContent ?? '').includes(text))?.value, option);
+        if (value === undefined) throw new Error('the list has no option named ' + option);
+        await locator.selectOption(value);
       }
       return;
     }
@@ -249,7 +252,7 @@ export class ReplayUi extends Ui {
 
   /** What is on the screen now that should not be: see readScreenProblems. */
   async screenProblems() {
-    return this.page.evaluate(readScreenProblems);
+    return this.page.evaluate(readScreenProblems, bindings().loadingText ?? 'loading');
   }
 
   /** Waits (up to `ms`) until nothing on the screen is loading any more. */

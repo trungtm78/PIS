@@ -253,7 +253,7 @@ export class SeedContext {
 
   /** The development session token of a person, valid for five minutes (the same format and key the web session signs with). */
   token(person: string): string {
-    const payload = Buffer.from(JSON.stringify({ tenantId: this.info.tenants.A, membershipId: this.person(person).membershipId, scopeVersion: 1, exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ tenantId: this.info.tenants.A, membershipId: this.person(person).membershipId, scopeVersion: 1, aal: 'aal2', aal2At: new Date().toISOString(), exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
     return `${payload}.${createHmac('sha256', this.sessionKey).update(payload).digest('base64url')}`;
   }
 
@@ -274,6 +274,17 @@ export class SeedContext {
       }
     } catch (error) {
       this.warn(`the clock of the stack cannot be read: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /** The legal confirmation of a layout profile is an act outside the product; the stack (POST /__e2e/layout-confirmation) stands in for the legal officer. False when the stack has no such route. */
+  async confirmLayout(profileCode: string, reference: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.base}/__e2e/layout-confirmation`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ profile_code: profileCode, legal_confirmation_ref: reference }) });
+      if (!response.ok) return false;
+      return ((await response.json()) as { confirmed?: number }).confirmed !== 0;
+    } catch {
+      return false;
     }
   }
 

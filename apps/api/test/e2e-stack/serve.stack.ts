@@ -100,11 +100,13 @@ const DAY_MS = 86_400_000;
 const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
 
 /** The theme defaults of the prototype (SAS-04): what a tenant shows until a System Admin brands it. */
+/** The enterprise clip (MACHVON_EDITION=enterprise with the docs seed) shows the brand of the enterprise, never the province of the public clip. */
+const ENTERPRISE_BRAND = process.env.MACHVON_EDITION === 'enterprise' && process.env.E2E_SEED === 'docs';
 const SEED_THEME: ThemeConfig = {
-  name: 'Cao Bằng',
-  title: 'Hệ Thống Lý Dự Án Đầu Tư Công',
-  subtitle: 'Không gian quản lý đầu tư công',
-  header: 'Cổng quản lý đầu tư công',
+  name: ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng',
+  title: ENTERPRISE_BRAND ? 'Phần mềm quản lý đầu tư xây dựng' : 'Hệ Thống Lý Dự Án Đầu Tư Công',
+  subtitle: ENTERPRISE_BRAND ? 'Không gian quản lý đầu tư xây dựng' : 'Không gian quản lý đầu tư công',
+  header: ENTERPRISE_BRAND ? 'Cổng quản lý đầu tư xây dựng' : 'Cổng quản lý đầu tư công',
   footer: '© 2026 · Thông tin thuộc phạm vi được phân quyền',
   address: 'Địa chỉ cơ quan · cập nhật theo tenant',
   email: 'hotro@donvi.example',
@@ -170,11 +172,11 @@ interface UnitSeed {
 
 const UNITS: Record<TenantName, UnitSeed[]> = {
   A: [
-    { n: 1, code: 'CB-HQ', name: 'Ủy ban nhân dân tỉnh Cao Bằng', chain: [1] },
-    { n: 2, code: 'CB-SKHDT', name: 'Sở Kế hoạch và Đầu tư', parent: 1, chain: [1, 2] },
-    { n: 3, code: 'CB-STC', name: 'Sở Tài chính', parent: 1, chain: [1, 3] },
-    { n: 4, code: 'CB-SKHDT-VP', name: 'Văn phòng Sở Kế hoạch và Đầu tư', parent: 2, chain: [1, 2, 4] },
-    { n: 5, code: 'CB-SKHDT-QLDA', name: 'Ban Quản lý dự án', parent: 2, chain: [1, 2, 5] },
+    { n: 1, code: 'CB-HQ', name: ENTERPRISE_BRAND ? 'Tổng công ty Đạm Phú Mỹ' : 'Ủy ban nhân dân tỉnh Cao Bằng', chain: [1] },
+    { n: 2, code: 'CB-SKHDT', name: ENTERPRISE_BRAND ? 'Ban Kế hoạch và Đầu tư' : 'Sở Kế hoạch và Đầu tư', parent: 1, chain: [1, 2] },
+    { n: 3, code: 'CB-STC', name: ENTERPRISE_BRAND ? 'Ban Tài chính Kế toán' : 'Sở Tài chính', parent: 1, chain: [1, 3] },
+    { n: 4, code: 'CB-SKHDT-VP', name: ENTERPRISE_BRAND ? 'Văn phòng Ban Kế hoạch và Đầu tư' : 'Văn phòng Sở Kế hoạch và Đầu tư', parent: 2, chain: [1, 2, 4] },
+    { n: 5, code: 'CB-SKHDT-QLDA', name: ENTERPRISE_BRAND ? 'Ban Quản lý dự án đầu tư' : 'Ban Quản lý dự án', parent: 2, chain: [1, 2, 5] },
   ],
   B: [
     { n: 1, code: 'LC-HQ', name: 'Ủy ban nhân dân tỉnh Lào Cai', chain: [1] },
@@ -1520,7 +1522,7 @@ const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
 /** The first published theme (version 1) of the three fixture tenants, as the provisioning saga will leave it: the prototype defaults under the name of the tenant. */
 async function seedThemes(control: ControlDatabase): Promise<void> {
   const themes = new ThemeStore();
-  const names: Readonly<Record<TenantName, string>> = { A: 'Cao Bằng', B: 'Lào Cai', C: 'Hà Giang' };
+  const names: Readonly<Record<TenantName, string>> = { A: ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng', B: 'Lào Cai', C: 'Hà Giang' };
   for (const name of Object.keys(names) as TenantName[]) {
     const tenantId = fixtures.tenants[name];
     const config = { ...SEED_THEME, name: names[name] };
@@ -1538,7 +1540,7 @@ async function seedPlacement(database: TestDatabase): Promise<void> {
     );
     // Tenant A is already a registered, Active tenant of the control plane, so the registry and the entitlement view have a row to show.
     await client.query(
-      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', 'Cao Bằng', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
+      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', '" + (ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng') + "', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
       [fixtures.tenants.A, PLACEMENT_NORTH],
     );
     // The tenant chooser lists the registered tenants a person belongs to: B is Active, C is suspended for non-payment (a read-only session).
@@ -1724,6 +1726,22 @@ class ClockController {
   }
 }
 
+/**
+ * The legal confirmation of a layout profile (CXN-DOC-01) is an act of the legal officer outside the product: no command gives it. For the DEMO forms of the clips the
+ * stack stands in for that officer: POST /__e2e/layout-confirmation {profile_code, legal_confirmation_ref} confirms the layout profile of that code in every tenant.
+ */
+let confirmLayoutProfile: ((profileCode: string, reference: string) => Promise<number>) | undefined;
+
+@Controller('__e2e')
+class LayoutConfirmationController {
+  @Post('layout-confirmation')
+  @Public()
+  async confirm(@Body() body: { profile_code?: string; legal_confirmation_ref?: string }): Promise<{ confirmed: number }> {
+    if (confirmLayoutProfile === undefined || typeof body.profile_code !== 'string' || typeof body.legal_confirmation_ref !== 'string') return { confirmed: 0 };
+    return { confirmed: await confirmLayoutProfile(body.profile_code, body.legal_confirmation_ref) };
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -1784,6 +1802,21 @@ describe('e2e API stack', () => {
     relayPool.on('error', () => undefined);
     const lockPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 6 });
     lockPool.on('error', () => undefined);
+    confirmLayoutProfile = async (profileCode, reference): Promise<number> => {
+      const client = new Client({ connectionString: database.adminUrl });
+      await client.connect();
+      try {
+        // The guard of the layout profile fixes the content of a revision; the legal confirmation is an act made outside the product, so the stack lifts the guard for this one statement.
+        await client.query('begin');
+        await client.query('alter table machvon.document_layout_profile disable trigger user');
+        const done = await client.query("update machvon.document_layout_profile set confirmation_status = 'CONFIRMED', legal_confirmation_ref = $2 where profile_code = $1 and status = 'PUBLISHED'", [profileCode, reference]);
+        await client.query('alter table machvon.document_layout_profile enable trigger user');
+        await client.query('commit');
+        return done.rowCount ?? 0;
+      } finally {
+        await client.end();
+      }
+    };
     let workers: RunningWorkers | undefined;
     let objectRoot: string | undefined;
     let app: INestApplication | undefined;
@@ -1897,7 +1930,7 @@ describe('e2e API stack', () => {
                 // MACHVON_EDITION names the edition the stack serves (the clip dataset of the second edition needs its modules); unset or public leaves the stack as it always was.
                 ...(process.env.MACHVON_EDITION === 'enterprise' ? { edition: await loadEditionManifest('enterprise'), editionModules: await loadEditionModules('enterprise') } : {}),
               })],
-            controllers: [HealthController, ClockController, DevMailboxController, E2eProviderController],
+            controllers: [HealthController, ClockController, LayoutConfirmationController, DevMailboxController, E2eProviderController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },
@@ -1987,6 +2020,8 @@ describe('e2e API stack', () => {
             'issue-sla': 2,
             'outbox-relay': 1,
             'dis-period-autoclose': 86_400,
+            // The sweep that raises the alert levels of the advances over their recovery deadline (the clip data makes one) runs within seconds here.
+            'advance-overdue': 20,
             'dgv-quality-run': 2,
             // The sends that are due go out within seconds, and a send whose result was lost is asked about at its provider soon after (the application does both every 5 seconds and 5 minutes).
             'notification-dispatch': 2,

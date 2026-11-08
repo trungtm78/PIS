@@ -4,6 +4,10 @@ import type { AppropriationSpec, LineSpec } from '../capital-plan.ts';
 import { LINES } from '../capital-plan.ts';
 import { MORE_AREAS, PROJECTS } from '../capital-projects.ts';
 import type { ProjectSpec } from '../capital-projects.ts';
+import { PLANS } from '../procurement-finance/bid.ts';
+import type { PlanSpec } from '../procurement-finance/bid.ts';
+import { CONTRACTORS } from '../procurement-finance/shared.ts';
+import type { ContractorSpec } from '../procurement-finance/shared.ts';
 
 /**
  * The plan of a clip dataset (scripts/clip-seed-lib.mjs, written by `node scripts/clip-seed.mjs apply`): the seed layer reads it from the file named by
@@ -43,11 +47,46 @@ export function clipText(key: string, ...args: readonly unknown[]): string {
   return template.replace(/\{(\d+)\}/gu, (_match, index: string) => String(args[Number(index)]));
 }
 
+/**
+ * The enterprise dataset REPLACES the tables of the guide (the province's projects, assignments, lines of capital, tenders and contractors): the same groups then
+ * run unchanged on the projects and contractors of the enterprise, and nothing of the province is written into the product.
+ */
+function applyEnterprisePlan(plan: ClipPlan): void {
+  const capital = plan.capital as { appropriations: Array<ClipPlan['extraAppropriations'][number]>; lines: Array<{ project: string; appropriation: string; billions: number }> };
+  MORE_AREAS.length = 0;
+  PROJECTS.length = 0;
+  PROJECTS.push(...plan.projects);
+  APPROPRIATIONS.length = 0;
+  for (const extra of capital.appropriations) {
+    APPROPRIATIONS.push({
+      key: extra.key,
+      fund: extra.fund,
+      origin: extra.origin,
+      level: extra.level,
+      billions: extra.billions,
+      authority: extra.authority,
+      sourceYear: extra.sourceYear,
+      letter: { symbol: extra.symbol, title: extra.title, issuedOn: extra.issuedOn, sender: extra.authority },
+      decide: 'approve',
+    });
+  }
+  LINES.length = 0;
+  for (const line of capital.lines) LINES.push({ project: line.project, appropriation: line.appropriation, billions: line.billions } satisfies LineSpec);
+  PLANS.length = 0;
+  PLANS.push(...(plan.tenders as PlanSpec[]));
+  CONTRACTORS.length = 0;
+  CONTRACTORS.push(...(plan.contractors as ContractorSpec[]));
+}
+
 /** Grows the tables of the capital groups with the plan (once per process). */
 export function applyClipPlan(): ClipPlan | undefined {
   const plan = clipPlan();
   if (plan === undefined || applied) return plan;
   applied = true;
+  if (plan.dataset === 'enterprise') {
+    applyEnterprisePlan(plan);
+    return plan;
+  }
   if (plan.dataset !== 'public') return plan;
   MORE_AREAS.push(...plan.areas.filter((area) => !MORE_AREAS.some((known) => known.key === area.key)));
   for (const [key, billions] of Object.entries(plan.appropriationOverrides)) {

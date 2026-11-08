@@ -85,11 +85,11 @@ export function sceneFile(idOrPath, dataDir = DATA_DIR) {
   return join(dataDir, `${idOrPath}.json`);
 }
 
-export function loadScene(idOrPath, { dataDir = DATA_DIR, fadeMs } = {}) {
+export function loadScene(idOrPath, { dataDir = DATA_DIR, fadeMs, hideCaptions } = {}) {
   const file = sceneFile(idOrPath, dataDir);
   if (!existsSync(file)) throw new Error(`no scene file ${file}`);
   const data = JSON.parse(readFileSync(file, 'utf8'));
-  return fadeMs === undefined ? data : { ...data, fadeMs };
+  return { ...data, ...(fadeMs === undefined ? {} : { fadeMs }), ...(hideCaptions === true ? { hideCaptions: true } : {}) };
 }
 
 export const listScenes = (dataDir = DATA_DIR) => readdirSync(dataDir).filter((name) => name.endsWith('.json')).map((name) => name.slice(0, -5)).sort();

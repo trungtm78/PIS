@@ -43,6 +43,13 @@
       "css:[data-screen-id='PWA-04'] ul",
       "css:[data-screen-id='PWA-04'] section",
       "css:[data-screen-id='PWA-04']"
+    ],
+    "ctr.scorecard.contractor": [
+      "css:[data-screen-id] select[id*='pick-contractor']",
+      "css:[data-screen-id] select"
+    ],
+    "ctr.scorecard.view": [
+      "role:button:Xem bảng điểm"
     ]
   },
   "tails": {
@@ -262,5 +269,6 @@
       "match": "form|field|reason|input|preview|sheet",
       "kind": "form"
     }
-  ]
+  ],
+  "loadingText": "đang tải|loading"
 }

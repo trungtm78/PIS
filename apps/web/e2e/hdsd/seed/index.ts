@@ -11,9 +11,11 @@ import { seedClipBi } from './clip/public-bi.ts';
 import { seedClipPayments } from './clip/public-payments.ts';
 import { seedClipContracts } from './clip/public-contracts.ts';
 import { seedClipAlerts } from './clip/public-alerts.ts';
+import { seedClipEnterpriseBi, seedClipEnterpriseCapital, seedClipEnterpriseDocuments } from './clip/enterprise-more.ts';
 import { seedClipEnterpriseDirectives, seedMeetings, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
 import { seedClipDisbursement } from './clip/public-dis.ts';
 import { seedClipCommittee } from './clip/public-committee.ts';
+import { seedClipExtras } from './clip/public-extras.ts';
 import { seedClipEgp } from './clip/public-egp.ts';
 import { seedClipProcurement, seedClipWorkflow } from './clip/public-procurement.ts';
 import { seedDoc } from './platform-records/doc.ts';
@@ -48,11 +50,19 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-bi', seed: seedClipBi },
   { name: 'clip-public-directives', seed: seedMeetings },
   { name: 'clip-public-committee', seed: seedClipCommittee },
+  { name: 'clip-public-extras', seed: seedClipExtras },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
+  { name: 'clip-ent-capital', seed: seedClipEnterpriseCapital },
   { name: 'clip-ent-funding', seed: seedClipEnterpriseFunding },
   { name: 'clip-ent-directives', seed: seedClipEnterpriseDirectives },
   { name: 'clip-ent-ebs', seed: seedClipEnterpriseEbs },
   { name: 'clip-ent-reports', seed: seedClipEnterpriseReports },
+  { name: 'clip-ent-documents', seed: seedClipEnterpriseDocuments },
+  { name: 'clip-ent-procurement', seed: seedClipProcurement },
+  { name: 'clip-ent-contracts', seed: seedClipContracts },
+  { name: 'clip-ent-workflow', seed: seedClipWorkflow },
+  { name: 'clip-ent-disbursement', seed: seedClipDisbursement },
+  { name: 'clip-ent-bi', seed: seedClipEnterpriseBi },
 ];
 
 export interface SeedSummary {

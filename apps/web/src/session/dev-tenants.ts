@@ -10,9 +10,13 @@ export const DEV_SESSION_MARKER = 'mv-dev-session-provider-7f3a';
 const FIXTURE_MEMBERSHIP = '00000000-0000-4000-8000-0000000000f1';
 
 /** Two fixture tenants (TNT-A and TNT-B of test_fixtures.json) with different published themes; the names are data in dev-session.json. */
+/** The recording of the enterprise clip names the first tenant after the enterprise (VITE_DEV_TENANT_NAME), never after the province of the fixture. */
+const TENANT_NAME = (import.meta.env.VITE_DEV_TENANT_NAME as string | undefined) ?? '';
+
 export const DEV_TENANTS: readonly SessionTenant[] = [
   {
     ...data.tenants[0]!,
+    ...(TENANT_NAME === '' ? {} : { name: TENANT_NAME, monogram: TENANT_NAME.split(' ').map((word) => word.charAt(0)).join('').slice(0, 2).toUpperCase() }),
     membershipId: FIXTURE_MEMBERSHIP,
     theme: { themeId: 'theme-cao-bang', version: 2, overlay: { primary: '#007D77', primaryText: '#FFFFFF' } },
   },

@@ -3,9 +3,9 @@ import type { Obj , SeedContext} from './context.ts';
 import { PROJECTS, projectByCode } from './capital-projects.ts';
 import { asObj } from './context.ts';
 import TEXTS from './data/capital-plan.json' with { type: 'json' };
-import { textsOf } from '../../support/texts.ts';
+import { textsWithOverlay } from './overlay.ts';
 
-const tx = textsOf(TEXTS);
+const tx = textsWithOverlay('capital-plan', TEXTS);
 
 /**
  * The capital of the year 2026 of the province: the decisions that assign it (appropriations of the central and the local budget, the carry-over of

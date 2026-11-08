@@ -390,10 +390,6 @@
       "screen": "CTR-28",
       "what": "report hub / export xlsx (ctr)"
     },
-    "ctr.scorecard.new-evaluation": {
-      "screen": "CTR-23",
-      "what": "scorecard / new evaluation (ctr)"
-    },
     "dir.board.first-overdue": {
       "screen": "DIR-01",
       "what": "board / first overdue (dir)"
@@ -666,10 +662,6 @@
       "screen": "PWA-03",
       "what": "dashboard / cards (pwa)"
     },
-    "pwa.directives.list": {
-      "screen": "PWA-04",
-      "what": "directives / list (pwa)"
-    },
     "pwa.install.button": {
       "screen": "PWA-01",
       "what": "install / button of the install card (pwa)"
@@ -725,6 +717,14 @@
     "wf.period.step-deadlines": {
       "screen": "ADM-18",
       "what": "period / step deadlines (wf)"
+    },
+    "ctr.scorecard.contractor": {
+      "screen": "CTR-23",
+      "what": "scorecard / contractor list (ctr)"
+    },
+    "ctr.scorecard.view": {
+      "screen": "CTR-23",
+      "what": "scorecard / show (ctr)"
     }
   }
 }

@@ -156,28 +156,30 @@ describe('the terminology overlay', () => {
 });
 
 describe('the brand', () => {
-  it('draws the favicon like index.html does, with the mark and the colour of the edition', () => {
-    const href = decodeURIComponent(faviconHref('XD', '#0F3B57'));
-    expect(href).toContain("fill='#0F3B57'");
-    expect(href).toContain('>XD</text>');
+  it('draws the favicon from the master mark, on the colour of the edition, in the palette of the edition', () => {
+    const href = decodeURIComponent(faviconHref('enterprise', '#0F3B57'));
+    expect(href).toContain('fill="#0F3B57"');
+    expect(href).toContain('<polygon');
+    expect(href).toContain('#F28C3A');
     expect(href.startsWith('data:image/svg+xml,')).toBe(true);
+    expect(decodeURIComponent(faviconHref('public', '#102E3B'))).toContain('#E0AA52');
   });
 
   it('touches nothing in the head for the public edition', () => {
     const before = document.head.innerHTML;
-    applyBrand(document, PUBLIC_EDITION_MANIFEST, 'vi');
+    applyBrand(document, PUBLIC_EDITION_MANIFEST);
     expect(document.head.innerHTML).toBe(before);
   });
 
   it('sets the colour of the browser chrome and the icon for another edition, in the language asked, creating or reusing the elements', () => {
     const manifest = manifestOf();
-    applyBrand(document, manifest, 'vi');
+    applyBrand(document, manifest);
     expect(document.head.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#0F3B57');
-    expect(decodeURIComponent(document.head.querySelector('link[rel="icon"]')?.getAttribute('href') ?? '')).toContain('>TH</text>');
-    applyBrand(document, manifest, 'en');
+    expect(decodeURIComponent(document.head.querySelector('link[rel="icon"]')?.getAttribute('href') ?? '')).toContain('<polygon');
+    applyBrand(document, manifest);
     expect(document.head.querySelectorAll('meta[name="theme-color"]')).toHaveLength(1);
     expect(document.head.querySelectorAll('link[rel="icon"]')).toHaveLength(1);
-    expect(decodeURIComponent(document.head.querySelector('link[rel="icon"]')?.getAttribute('href') ?? '')).toContain('>TP</text>');
+    expect(document.head.querySelector('link[rel="icon"]')?.getAttribute('href')).toContain('data:image/svg+xml');
     document.head.querySelector('link[rel="icon"]')?.remove();
   });
 });
@@ -236,7 +238,7 @@ describe('the application under another edition', () => {
     renderApp('/home/home-01');
     const sidebar = screen.getByRole('navigation', { name: viCatalogue['shell.nav.main.label'] });
     expect(screen.getByText('Sản phẩm thử')).toBeInTheDocument();
-    expect(screen.getByText('TH')).toBeInTheDocument();
+    expect(document.querySelector('.sidebar-brand-logo')).toHaveAttribute('data-edition', 'enterprise');
     expect(screen.queryByText(viCatalogue['shell.brand.name.text'])).toBeNull();
     expect(within(sidebar).queryByRole('link', { name: 'Kế hoạch vốn' })).toBeNull();
     expect(within(sidebar).queryByRole('link', { name: 'Thanh toán' })).toBeNull();

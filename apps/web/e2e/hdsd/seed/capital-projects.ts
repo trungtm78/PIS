@@ -2,9 +2,9 @@ import { vnd } from './context.ts';
 import type { Obj , SeedContext} from './context.ts';
 import { AREAS, BASE_PROJECTS, DECISION, masterRecord, publishArea } from './base.ts';
 import TEXTS from './data/capital-projects.json' with { type: 'json' };
-import { textsOf } from '../../support/texts.ts';
+import { textsWithOverlay } from './overlay.ts';
 
-const tx = textsOf(TEXTS);
+const tx = textsWithOverlay('capital-projects', TEXTS);
 
 /**
  * The portfolio of projects of the Department of Planning and Investment of Cao Bang, in every stage of the PIMA life cycle, made through the

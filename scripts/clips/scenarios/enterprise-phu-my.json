@@ -818,7 +818,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "capApprover"
         },
         {
           "do": "open",
@@ -1268,6 +1268,10 @@
       },
       "steps": [
         {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
           "do": "open",
           "screen": "LLM-22"
         },
@@ -1278,6 +1282,14 @@
         {
           "do": "spot",
           "ref": "ai.assistant.citations"
+        },
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-19"
         }
       ],
       "captions": [],
@@ -1295,6 +1307,10 @@
         ]
       },
       "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
         {
           "do": "open",
           "screen": "LLM-22"

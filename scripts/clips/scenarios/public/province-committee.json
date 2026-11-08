@@ -50,7 +50,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "docHead"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -84,7 +84,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "docHead"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -125,6 +125,10 @@
       },
       "steps": [
         {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
           "do": "open",
           "screen": "BAN-02"
         },
@@ -154,6 +158,10 @@
       },
       "steps": [
         {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
           "do": "open",
           "screen": "BAN-04"
         },
@@ -181,6 +189,10 @@
         ]
       },
       "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
         {
           "do": "open",
           "screen": "BAN-05"
@@ -211,7 +223,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -318,7 +330,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "auditor"
+          "persona": "owner"
         },
         {
           "do": "open",
