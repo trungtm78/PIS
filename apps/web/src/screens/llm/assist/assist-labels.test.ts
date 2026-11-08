@@ -125,13 +125,13 @@ describe('the two parts of the catalogue', () => {
     expect(Object.keys(vi).sort()).toEqual(Object.keys(en).sort());
     for (const [key, text] of Object.entries(vi)) {
       expect(text.trim(), key).not.toBe('');
-      expect(en[key as keyof typeof en].trim(), key).not.toBe('');
+      expect((en[key] ?? '').trim(), key).not.toBe('');
     }
   });
 
   it('use the same placeholders in both languages', () => {
     const holes = (text: string): string[] => [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1] ?? '').sort();
-    for (const [key, text] of Object.entries(vi)) expect(holes(text), key).toEqual(holes(en[key as keyof typeof en]));
+    for (const [key, text] of Object.entries(vi)) expect(holes(text), key).toEqual(holes(en[key] ?? ''));
   });
 
   it('keep the keys in the shape of the catalogue: three to five lower camel case segments', () => {

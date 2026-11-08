@@ -1666,6 +1666,14 @@ export { PayIntegrityAlertSource } from './gov-d-integrity-alerts.ts';
 export type { IntegrityAlertItem, IntegrityAlertType } from './gov-d-integrity-alerts.ts';
 // CA-1, part 2: the contract fact, its frozen snapshots and the reader of the portfolio and the reports.
 export { CONTRACT_STATUS_VALUES, CONTRACT_TYPE_VALUES, CtrFactStore, FACT_SORTS, linesOfContract } from './ctr-fact-store.ts';
+=======
+// AI-2: the AI assistant (runs, decisions, checklists, criteria), the readers of its sources and the exceptions to the routing of an edition.
+export { AiAssistStore } from './ai-assist-store.ts';
+export type { AssistDecisionRow, AssistRunRow, ChecklistRow, CriteriaSetRow, NewAssistRun, Page as AssistPage, RunFilter as AssistRunFilter } from './ai-assist-store.ts';
+export { AiAssistSourceStore } from './ai-assist-source-store.ts';
+export type { AssistReadScopes, ReadableSource } from './ai-assist-source-store.ts';
+export { LlmExternalExceptionStore } from './llm-external-exception-store.ts';
+export type { AiExceptionFilter, ExceptionRow, ExceptionUseRow } from './llm-external-exception-store.ts';
 export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
 export { CtrMoneyStore, EVM_SELECTION_CAP } from './ctr-money-store.ts';
 export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from './ctr-money-store.ts';
