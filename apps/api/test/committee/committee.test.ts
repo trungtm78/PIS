@@ -141,7 +141,7 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
       snapshot(sPriorEnd, periodPriorEnd, '2026-12-20', '2026-12-20T05:00:00Z'),
       line(sCurrent, ids.p1, 1000n, 900n, null),
       line(sCurrent, ids.p2, 1000n, 200n, null),
-      line(sCurrent, ids.p3, 500n, 450n, 600n),
+      line(sCurrent, ids.p3, 500n, 450n, 1200n),
       line(sPrior, ids.p1, 1000n, 800n, null),
       line(sPriorEnd, ids.p1, 1000n, 900n, null),
       // The second project is behind its baseline by 75 days; the third has a procurement workflow idle for 56 days.
@@ -389,13 +389,16 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     expect((await call('POST', `/committee/alerts/${province.id}/acknowledgement`, { member: HEAD, ifMatch: version, body: { note: 'Again' } })).status).toBe(409);
     expect((await audits(province.id as string, 'committee.alert_acknowledged'))[0]?.safe_diff).toMatchObject({ alert_type: 'COMMITTEE_PROVINCE_BEHIND' });
     // The province catches up: the condition stops and the evaluation closes the alerts that no longer hold.
-    await seedReplica([[`update machvon.period_snapshot_line set disbursed_treasury_vnd = plan_total_vnd where snapshot_id = $1`, [snapshotId]]]);
-    const healed = await call('POST', '/committee/alerts/evaluate', { member: SECRETARIAT });
-    expect(healed.json).toMatchObject({ opened: 0, resolved: 3 });
-    expect((healed.json.alerts as Loose[]).map((alert) => alert.alert_type).sort()).toEqual(['COMMITTEE_DIRECTIVE_OVERDUE', 'COMMITTEE_UNIT_NOT_REPORTING'].sort());
-    expect((await events(province.id as string, 'committee.alert_resolved.v1'))).toHaveLength(1);
-    await expect(rows(`update machvon.committee_alert set severity = 'WATCH' where id = $1`, [province.id])).rejects.toThrow(/final/);
-    await seedReplica([[`update machvon.period_snapshot_line set disbursed_treasury_vnd = case project_id when $2 then 900000000000 when $3 then 200000000000 else 450000000000 end where snapshot_id = $1`, [snapshotId, ids.p1, ids.p2]]]);
+    try {
+      await seedReplica([[`update machvon.period_snapshot_line set disbursed_treasury_vnd = plan_total_vnd where snapshot_id = $1`, [snapshotId]]]);
+      const healed = await call('POST', '/committee/alerts/evaluate', { member: SECRETARIAT });
+      expect(healed.json).toMatchObject({ opened: 0, resolved: 2 });
+      expect((healed.json.alerts as Loose[]).map((alert) => alert.alert_type).sort()).toEqual(['COMMITTEE_DIRECTIVE_OVERDUE', 'COMMITTEE_UNIT_NOT_REPORTING'].sort());
+      expect((await events(province.id as string, 'committee.alert_resolved.v1'))).toHaveLength(1);
+      await expect(rows(`update machvon.committee_alert set severity = 'WATCH' where id = $1`, [province.id])).rejects.toThrow(/final/);
+    } finally {
+      await seedReplica([[`update machvon.period_snapshot_line set disbursed_treasury_vnd = case project_id when $2 then 900000000000 when $3 then 200000000000 else 450000000000 end where snapshot_id = $1`, [snapshotId, ids.p1, ids.p2]]]);
+    }
   });
 
   it('keeps the roster: one head, nobody appoints themselves, an ended place is final, and the audit holds who did what', async () => {
