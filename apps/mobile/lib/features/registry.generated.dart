@@ -33,6 +33,7 @@ import 'site_clearance/site_clearance_feature.dart' as f_site_clearance;
 import 'site_diary/site_diary_feature.dart' as f_site_diary;
 import 'site_photo/site_photo_feature.dart' as f_site_photo;
 import 'tenant_discovery/tenant_discovery_feature.dart' as f_tenant_discovery;
+import 'vendor_controls/vendor_controls_feature.dart' as f_vendor_controls;
 
 /// Every feature of the application; the router, the string tables and the registry tests read this list.
 final List<MobileFeature> kAllFeatures = <MobileFeature>[
@@ -69,4 +70,5 @@ final List<MobileFeature> kAllFeatures = <MobileFeature>[
   f_site_diary.feature,
   f_site_photo.feature,
   f_tenant_discovery.feature,
+  f_vendor_controls.feature,
 ];

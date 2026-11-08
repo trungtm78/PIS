@@ -173,6 +173,7 @@ final List<MapEntry<String Function(BuildContext), String>> kProjectWorkLinks = 
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.findings'), 'MOB-38'),
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.directives'), 'DIR-06'),
   MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.packages'), 'MOB-69'),
+  MapEntry<String Function(BuildContext), String>((BuildContext context) => context.t('mob.prj.list.work.vendors'), 'MOB-73'),
 ];
 
 /// The way in to the screens of the work of the field and of the reports, which have no other entrance: one group, closed until the
