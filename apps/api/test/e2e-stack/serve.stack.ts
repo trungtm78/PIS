@@ -1724,6 +1724,22 @@ class ClockController {
   }
 }
 
+/**
+ * The legal confirmation of a layout profile (CXN-DOC-01) is an act of the legal officer outside the product: no command gives it. For the DEMO forms of the clips the
+ * stack stands in for that officer: POST /__e2e/layout-confirmation {profile_code, legal_confirmation_ref} confirms the layout profile of that code in every tenant.
+ */
+let confirmLayoutProfile: ((profileCode: string, reference: string) => Promise<number>) | undefined;
+
+@Controller('__e2e')
+class LayoutConfirmationController {
+  @Post('layout-confirmation')
+  @Public()
+  async confirm(@Body() body: { profile_code?: string; legal_confirmation_ref?: string }): Promise<{ confirmed: number }> {
+    if (confirmLayoutProfile === undefined || typeof body.profile_code !== 'string' || typeof body.legal_confirmation_ref !== 'string') return { confirmed: 0 };
+    return { confirmed: await confirmLayoutProfile(body.profile_code, body.legal_confirmation_ref) };
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -1784,6 +1800,18 @@ describe('e2e API stack', () => {
     relayPool.on('error', () => undefined);
     const lockPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 6 });
     lockPool.on('error', () => undefined);
+    confirmLayoutProfile = async (profileCode, reference): Promise<number> => {
+      const client = new Client({ connectionString: database.adminUrl });
+      await client.connect();
+      try {
+        // The layout guard lets the owner role of the schema through (the legal confirmation is made outside the product, as the tests of the payment forms do).
+        await client.query('set role machvon_owner');
+        const done = await client.query("update machvon.document_layout_profile set confirmation_status = 'CONFIRMED', legal_confirmation_ref = $2 where profile_code = $1 and status = 'PUBLISHED'", [profileCode, reference]);
+        return done.rowCount ?? 0;
+      } finally {
+        await client.end();
+      }
+    };
     let workers: RunningWorkers | undefined;
     let objectRoot: string | undefined;
     let app: INestApplication | undefined;
@@ -1897,7 +1925,7 @@ describe('e2e API stack', () => {
                 // MACHVON_EDITION names the edition the stack serves (the clip dataset of the second edition needs its modules); unset or public leaves the stack as it always was.
                 ...(process.env.MACHVON_EDITION === 'enterprise' ? { edition: await loadEditionManifest('enterprise'), editionModules: await loadEditionModules('enterprise') } : {}),
               })],
-            controllers: [HealthController, ClockController, DevMailboxController, E2eProviderController],
+            controllers: [HealthController, ClockController, LayoutConfirmationController, DevMailboxController, E2eProviderController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },

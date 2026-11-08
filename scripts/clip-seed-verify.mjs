@@ -112,7 +112,7 @@ export async function paymentChecks(plan, reader) {
 /** Checks of BI: the metrics of the platform (certified, synced from the bundle of the repository) and the dashboards the leader published. */
 export async function biChecks(plan, reader) {
   const metrics = await safe(() => reader.list('capApprover', '/resources/metric_definition'));
-  const dashboards = await safe(() => reader.list('capApprover', '/bi/dashboards'));
+  const dashboards = await safe(() => reader.list('projectManager', '/bi/dashboards'));
   const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
   return [
     { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },
@@ -198,7 +198,6 @@ export async function enterpriseReportChecks(plan, reader) {
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
   if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await biChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
-  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
   if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
   return [];
 }

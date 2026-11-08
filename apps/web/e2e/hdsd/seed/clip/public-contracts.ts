@@ -17,8 +17,9 @@ import { clipText } from './plan.ts';
  */
 
 const CONTRACT_TYPE = 'UNIT_PRICE';
-/** The contract that takes an advance is a joint venture of one lead (an advance is paid to a party of the contract). */
+/** Only a joint venture has parties (the lead and at least one member), and a payment is made to a party: so the contracts that are paid (and take the advance) are joint ventures. */
 export const ADVANCE_PACKAGE = 'DT205-XL02';
+export const JOINT_VENTURE_PACKAGES: readonly string[] = ['DT205-XL01', ADVANCE_PACKAGE, 'NN031-XL01'];
 const ADVANCE_CATEGORY: Record<PackageSpec['category'], string> = { CONSTRUCTION: 'CONSTRUCTION', EQUIPMENT: 'EQUIPMENT', CONSULTING: 'CONSULTING', OTHER: 'OTHER' };
 
 async function contractOf(ctx: SeedContext, code: string): Promise<Obj | undefined> {
@@ -54,7 +55,7 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
       completion_due: ctx.day(spec.days ?? 300),
       document_version_id: document.versionId,
       requires_quality_acceptance: false,
-      is_joint_venture: spec.code === ADVANCE_PACKAGE,
+      is_joint_venture: JOINT_VENTURE_PACKAGES.includes(spec.code),
     });
     id = made.resource_id;
     version = made.resource_version;
@@ -62,7 +63,7 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
     id = String(existing.id);
     version = Number(existing.version);
   }
-  if (spec.code === ADVANCE_PACKAGE) {
+  if (JOINT_VENTURE_PACKAGES.includes(spec.code)) {
     // A joint venture has a lead and at least one more member: the runner-up of the tender is the partner (70 and 30 per cent of the work).
     const partner = contractors.get(spec.bidders?.[1] ?? -1);
     const leadValue = String(Math.round(Number(valueVnd) * 0.7));
@@ -79,8 +80,8 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
   // The bill of quantities: one line that adds up to the value of the contract.
   const revision = (await ctx.list<Obj>(MAKER, '/resources/contract_revision')).find((row) => String(row.contract_id) === id);
   if (revision !== undefined) {
-    const boq = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contract-revisions/${String(revision.id)}/boq-lines`, { mode: 'REPLACE', lines: [{ business_key: 'B01', description: clipText('contract.boq', spec.code), unit_code: 'M3', quantity: '1000', unit_price: String(Number(valueVnd) / 1000) }] }, { version });
-    if (boq.ok) version = boq.json.resource_version;
+    const boq = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contract-revisions/${String(revision.id)}/boq-lines`, { mode: 'REPLACE', lines: [{ business_key: 'B01', description: clipText('contract.boq', spec.code), unit_code: 'M3', quantity: '1000', unit_price: String(Number(valueVnd) / 1000) }] }, { version: Number(revision.version) });
+    if (!boq.ok) ctx.warn(`the bill of quantities of ${spec.code} was not saved`);
   }
   if (spec.category !== 'CONSULTING') {
     const evidence = await paper(ctx, { symbol: `BL-${spec.code}/2026`, title: clipText('guarantee.paper', spec.code), docType: 'BL', sender: clipText('guarantee.issuer'), issuedOn: ctx.day(-58) });
@@ -97,6 +98,7 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
     const current = await ctx.get<Obj>(MAKER, `/resources/contract/${id}`);
     version = Number(current.version);
   }
+  version = Number((await ctx.get<Obj>(MAKER, `/resources/contract/${id}`)).version);
   const reviewed = await ctx.attempt<CommandReply>(LEADER, 'POST', `/contracts/${id}/submit-review`, { note: clipText('contract.review') }, { version });
   if (!reviewed.ok) return undefined;
   const signedCopy = await paper(ctx, { symbol: `HD-KY-${spec.code}/2026`, title: clipText('contract.signedPaper', spec.code), docType: 'HD', sender: String(winner.legal_name), issuedOn: ctx.day(-55) });
