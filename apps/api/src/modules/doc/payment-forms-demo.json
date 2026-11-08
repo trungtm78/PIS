@@ -1,0 +1,150 @@
+{
+  "pack_code": "PAYMENT_FORMS_DEMO",
+  "pack_version": "2026.11.1-demo",
+  "templates": [
+    {
+      "template_code": "DEMO-PAY-03A",
+      "group_code": "TREASURY_FORM",
+      "doc_type_code": "QD",
+      "form_code": "03.a/TT",
+      "title": "Giấy đề nghị thanh toán vốn đầu tư (mẫu 03.a/TT, bản demo)",
+      "source_module": "PAY",
+      "layout_profile_code": "ND30_A4_STANDARD",
+      "body_blocks": [
+        {
+          "kind": "heading",
+          "text": "Giấy đề nghị thanh toán vốn đầu tư (mẫu 03.a/TT, bản demo)"
+        },
+        {
+          "kind": "paragraph",
+          "text": "Cơ quan: {{agency}}. Hợp đồng {{contract_code}} — {{contract_title}}, nhà thầu {{contractor_name}}, dự án {{project_code}}."
+        },
+        {
+          "kind": "paragraph",
+          "text": "Số đề nghị {{request_no}} ({{request_kind}}): giá trị thực hiện {{gross_text}} đồng, thu hồi tạm ứng {{advance_recovery_text}} đồng, giữ lại {{retention_text}} đồng, đề nghị thanh toán {{net_text}} đồng."
+        },
+        {
+          "kind": "paragraph",
+          "text": "{{place}}. Mẫu demo của hệ thống, không phải mẫu chính thức của Kho bạc Nhà nước."
+        }
+      ],
+      "placeholder_schema": {
+        "required": [
+          "contract_code",
+          "net_text"
+        ]
+      },
+      "legal_basis": "Nghị định 254/2025/NĐ-CP, phụ lục [CXN-08]: bố cục dựng lại để chạy thử, chờ mẫu chính thức",
+      "watermark_text": "MẪU DEMO — chờ mẫu chính thức [CXN-08]. CHƯA XÁC NHẬN PHÁP LÝ",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "template_code": "DEMO-PAY-04A",
+      "group_code": "TREASURY_FORM",
+      "doc_type_code": "QD",
+      "form_code": "04.a/TT",
+      "title": "Giấy đề nghị thu hồi vốn tạm ứng (mẫu 04.a/TT, bản demo)",
+      "source_module": "PAY",
+      "layout_profile_code": "ND30_A4_STANDARD",
+      "body_blocks": [
+        {
+          "kind": "heading",
+          "text": "Giấy đề nghị thu hồi vốn tạm ứng (mẫu 04.a/TT, bản demo)"
+        },
+        {
+          "kind": "paragraph",
+          "text": "Cơ quan: {{agency}}. Hợp đồng {{contract_code}} — {{contract_title}}, nhà thầu {{contractor_name}}, dự án {{project_code}}."
+        },
+        {
+          "kind": "paragraph",
+          "text": "Số đề nghị {{request_no}} ({{request_kind}}): giá trị thực hiện {{gross_text}} đồng, thu hồi tạm ứng {{advance_recovery_text}} đồng, giữ lại {{retention_text}} đồng, đề nghị thanh toán {{net_text}} đồng."
+        },
+        {
+          "kind": "paragraph",
+          "text": "{{place}}. Mẫu demo của hệ thống, không phải mẫu chính thức của Kho bạc Nhà nước."
+        }
+      ],
+      "placeholder_schema": {
+        "required": [
+          "contract_code",
+          "net_text"
+        ]
+      },
+      "legal_basis": "Nghị định 254/2025/NĐ-CP, phụ lục [CXN-08]: bố cục dựng lại để chạy thử, chờ mẫu chính thức",
+      "watermark_text": "MẪU DEMO — chờ mẫu chính thức [CXN-08]. CHƯA XÁC NHẬN PHÁP LÝ",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "template_code": "DEMO-PAY-04B",
+      "group_code": "TREASURY_FORM",
+      "doc_type_code": "QD",
+      "form_code": "04.b/TT",
+      "title": "Giấy đề nghị thanh toán tạm ứng (mẫu 04.b/TT, bản demo)",
+      "source_module": "PAY",
+      "layout_profile_code": "ND30_A4_STANDARD",
+      "body_blocks": [
+        {
+          "kind": "heading",
+          "text": "Giấy đề nghị thanh toán tạm ứng (mẫu 04.b/TT, bản demo)"
+        },
+        {
+          "kind": "paragraph",
+          "text": "Cơ quan: {{agency}}. Hợp đồng {{contract_code}} — {{contract_title}}, nhà thầu {{contractor_name}}, dự án {{project_code}}."
+        },
+        {
+          "kind": "paragraph",
+          "text": "Số đề nghị {{request_no}} ({{request_kind}}): giá trị thực hiện {{gross_text}} đồng, thu hồi tạm ứng {{advance_recovery_text}} đồng, giữ lại {{retention_text}} đồng, đề nghị thanh toán {{net_text}} đồng."
+        },
+        {
+          "kind": "paragraph",
+          "text": "{{place}}. Mẫu demo của hệ thống, không phải mẫu chính thức của Kho bạc Nhà nước."
+        }
+      ],
+      "placeholder_schema": {
+        "required": [
+          "contract_code",
+          "net_text"
+        ]
+      },
+      "legal_basis": "Nghị định 254/2025/NĐ-CP, phụ lục [CXN-08]: bố cục dựng lại để chạy thử, chờ mẫu chính thức",
+      "watermark_text": "MẪU DEMO — chờ mẫu chính thức [CXN-08]. CHƯA XÁC NHẬN PHÁP LÝ",
+      "effective_from": "2026-01-01"
+    },
+    {
+      "template_code": "DEMO-PAY-05A",
+      "group_code": "TREASURY_FORM",
+      "doc_type_code": "QD",
+      "form_code": "05.a/TT",
+      "title": "Bảng xác định giá trị khối lượng hoàn thành (mẫu 05.a/TT, bản demo)",
+      "source_module": "PAY",
+      "layout_profile_code": "ND30_A4_STANDARD",
+      "body_blocks": [
+        {
+          "kind": "heading",
+          "text": "Bảng xác định giá trị khối lượng hoàn thành (mẫu 05.a/TT, bản demo)"
+        },
+        {
+          "kind": "paragraph",
+          "text": "Cơ quan: {{agency}}. Hợp đồng {{contract_code}} — {{contract_title}}, nhà thầu {{contractor_name}}, dự án {{project_code}}."
+        },
+        {
+          "kind": "paragraph",
+          "text": "Số đề nghị {{request_no}} ({{request_kind}}): giá trị thực hiện {{gross_text}} đồng, thu hồi tạm ứng {{advance_recovery_text}} đồng, giữ lại {{retention_text}} đồng, đề nghị thanh toán {{net_text}} đồng."
+        },
+        {
+          "kind": "paragraph",
+          "text": "{{place}}. Mẫu demo của hệ thống, không phải mẫu chính thức của Kho bạc Nhà nước."
+        }
+      ],
+      "placeholder_schema": {
+        "required": [
+          "contract_code",
+          "net_text"
+        ]
+      },
+      "legal_basis": "Nghị định 254/2025/NĐ-CP, phụ lục [CXN-08]: bố cục dựng lại để chạy thử, chờ mẫu chính thức",
+      "watermark_text": "MẪU DEMO — chờ mẫu chính thức [CXN-08]. CHƯA XÁC NHẬN PHÁP LÝ",
+      "effective_from": "2026-01-01"
+    }
+  ]
+}

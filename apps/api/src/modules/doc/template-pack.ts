@@ -5,6 +5,8 @@ import type { PackLoadResult, PackTemplate, TemplatePack, TenantTx } from '@mach
 import { resourceDirectory } from './pdf-renderer';
 
 const PACK_FILE = 'template-pack.json';
+/** The demo forms of the payment (Treasury forms 03.a, 04.a, 04.b, 05.a): stamped as demo, added to the pack only where the demo forms are on (DEMO_FORMS=true, like the demo forms of the report engine). */
+const PAYMENT_FORMS_DEMO_FILE = 'payment-forms-demo.json';
 const GROUPS: readonly string[] = ['DECISION', 'OFFICIAL_LETTER', 'REPORT_DISBURSEMENT', 'REPORT_MONITORING', 'TREASURY_FORM', 'SETTLEMENT_FORM', 'AUDIT_FOLLOWUP', 'OTHER'];
 
 type Raw = Record<string, unknown>;
@@ -54,9 +56,34 @@ export function parseTemplatePack(raw: unknown): TemplatePack {
   return { packVersion: text(raw, 'pack_version', 'the pack'), templates };
 }
 
-/** The platform pack of decision, letter and monitoring-report templates (data: its legal text lives in template-pack.json). */
-export function loadTemplatePack(directory: string = resourceDirectory()): TemplatePack {
-  return parseTemplatePack(JSON.parse(readFileSync(join(directory, PACK_FILE), 'utf8')));
+/**
+ * The platform pack of decision, letter and monitoring-report templates (data: its legal text lives in template-pack.json). With `demoForms` (default: the environment variable
+ * DEMO_FORMS is `true`) the demo templates of the payment forms are added: they are published like the others, wait for the legal confirmation of a person, and every file drawn from
+ * them carries the demo stamp, so a demo form is never taken for an official one.
+ */
+export function loadTemplatePack(directory: string = resourceDirectory(), options: { demoForms?: boolean } = {}): TemplatePack {
+  const pack = parseTemplatePack(JSON.parse(readFileSync(join(directory, PACK_FILE), 'utf8')));
+  if (!(options.demoForms ?? process.env.DEMO_FORMS === 'true')) return pack;
+  const demo = parseTemplatePack(JSON.parse(readFileSync(join(directory, PAYMENT_FORMS_DEMO_FILE), 'utf8')));
+  return parseTemplatePack({ pack_version: pack.packVersion, templates: [...pack.templates, ...demo.templates].map(toRaw) });
+}
+
+function toRaw(template: PackTemplate): Raw {
+  return {
+    template_code: template.templateCode,
+    group_code: template.groupCode,
+    doc_type_code: template.docTypeCode,
+    form_code: template.formCode ?? null,
+    title: template.title,
+    source_module: template.sourceModule,
+    layout_profile_code: template.layoutProfileCode,
+    body_blocks: template.bodyBlocks,
+    placeholder_schema: template.placeholderSchema,
+    legal_basis: template.legalBasis,
+    watermark_text: template.watermarkText,
+    effective_from: template.effectiveFrom,
+    effective_until: template.effectiveUntil,
+  };
 }
 
 /**

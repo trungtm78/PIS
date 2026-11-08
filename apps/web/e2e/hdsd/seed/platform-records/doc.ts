@@ -33,6 +33,9 @@ const PARENT_AGENCY = tx('PARENT_AGENCY.002');
 const PLACE = tx('PLACE.003');
 const OVERRIDE = tx('OVERRIDE.004');
 const GUIDE_LEGAL_REF = 'CXN-DOC-01';
+/** The demo forms of the payment (payment-forms-demo.json): confirmed with a reference that says demo, never as an official form. */
+const DEMO_LEGAL_REF = 'DEMO-PAY-FORMS';
+const DEMO_FORM_CODES = ['DEMO-PAY-03A', 'DEMO-PAY-04A', 'DEMO-PAY-04B', 'DEMO-PAY-05A'];
 
 const CHECKLIST = { national_title: true, motto: true, agency_name: true, number_symbol: true, summary: true, body: true, signer_title: true, recipients: true };
 
@@ -96,8 +99,11 @@ interface Pack {
 
 function readPack(): Pack {
   // The platform pack is data of the API (template-pack.json); the seed reads the same file the platform would load.
-  const file = join(process.cwd(), '..', 'api', 'src', 'modules', 'doc', 'template-pack.json');
-  return JSON.parse(readFileSync(file, 'utf8')) as Pack;
+  const directory = join(process.cwd(), '..', 'api', 'src', 'modules', 'doc');
+  const pack = JSON.parse(readFileSync(join(directory, 'template-pack.json'), 'utf8')) as Pack;
+  // The demo forms of the payment are part of the clip data: the Treasury forms of a payment request need templates in force.
+  const demo = JSON.parse(readFileSync(join(directory, 'payment-forms-demo.json'), 'utf8')) as Pack;
+  return { ...pack, templates: [...pack.templates, ...demo.templates] };
 }
 
 // ---- the recipients ------------------------------------------------------------------------------------------------------------------
@@ -521,10 +527,10 @@ async function templates(ctx: SeedContext, layoutId: string, evidenceDocument: s
         const published = await ctx.command(LEADER, `/document-templates/${id}/publish`, {}, { version });
         version = published.resource_version;
       }
-      if (CONFIRMED_TEMPLATES.has(template.template_code)) {
-        await ctx.command(OWNER, `/document-templates/${id}/legal-confirmation`, { legal_confirmation_ref: GUIDE_LEGAL_REF, evidence_document_id: evidenceDocument, note: tx('note.097') }, { version });
+      if (CONFIRMED_TEMPLATES.has(template.template_code) || DEMO_FORM_CODES.includes(template.template_code)) {
+        await ctx.command(OWNER, `/document-templates/${id}/legal-confirmation`, { legal_confirmation_ref: DEMO_FORM_CODES.includes(template.template_code) ? DEMO_LEGAL_REF : GUIDE_LEGAL_REF, evidence_document_id: evidenceDocument, note: tx('note.097') }, { version });
       }
-      made(ctx, 'DOC', 'template', template.template_code, CONFIRMED_TEMPLATES.has(template.template_code) ? 'published and legally confirmed' : 'published, waiting for confirmation', { id, screen: 'DOC-14' });
+      made(ctx, 'DOC', 'template', template.template_code, CONFIRMED_TEMPLATES.has(template.template_code) || DEMO_FORM_CODES.includes(template.template_code) ? 'published and legally confirmed' : 'published, waiting for confirmation', { id, screen: 'DOC-14' });
       return { id };
     });
   }

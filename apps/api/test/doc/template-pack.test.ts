@@ -1,4 +1,5 @@
 import { validateTemplateContent } from '@machvon/db';
+import { formPayload } from '@machvon/kernel';
 import { loadTemplatePack, parseTemplatePack } from '../../src/modules/doc/template-pack';
 
 const entry = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
@@ -24,6 +25,7 @@ describe('the platform template pack (ST-DOC-006, TK-DOC-006-3)', () => {
   it('is data with a version: every template has its legal basis, a watermark that says it waits for confirmation, a start date and a body the renderer can fill', () => {
     expect(loaded.packVersion).toBe('2026.10.1');
     expect(loaded.templates).toHaveLength(25);
+    expect(loadTemplatePack(undefined, { demoForms: false }).templates).toHaveLength(25);
     for (const template of loaded.templates) {
       expect(template.legalBasis.length).toBeGreaterThan(5);
       expect(template.watermarkText).toContain('CHƯA XÁC NHẬN PHÁP LÝ');
@@ -50,6 +52,27 @@ describe('the platform template pack (ST-DOC-006, TK-DOC-006-3)', () => {
     }
     expect(loaded.templates.filter((template) => template.groupCode === 'DECISION')).toHaveLength(9);
     expect(loaded.templates.filter((template) => template.groupCode === 'OFFICIAL_LETTER')).toHaveLength(4);
+  });
+
+  it('adds the demo forms of the payment only where the demo forms are on: four Treasury forms, stamped as demo, drawn from fields the payment form really fills', () => {
+    const demo = loadTemplatePack(undefined, { demoForms: true });
+    expect(demo.templates).toHaveLength(29);
+    expect(demo.packVersion).toBe(loaded.packVersion);
+    const forms = demo.templates.filter((template) => template.groupCode === 'TREASURY_FORM');
+    expect(forms.map((template) => template.formCode)).toEqual(['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']);
+    const facts = { agency: 'a', place: 'p', requestNo: 'n', requestKind: 'INTERIM', contractCode: 'c', contractTitle: 't', contractorName: 'k', projectCode: 'j', projectName: 'm', planYear: 2026, grossVnd: '10', advanceRecoveryVnd: '1', retentionVnd: '1', taxAdjustmentVnd: '0', netVnd: '8' };
+    const fields = new Set(Object.keys(formPayload(facts, '03.a/TT')));
+    for (const form of forms) {
+      expect(form.watermarkText).toContain('MẪU DEMO');
+      expect(form.watermarkText).toContain('CHƯA XÁC NHẬN PHÁP LÝ');
+      expect(form.title).toContain('demo');
+      expect(() => validateTemplateContent(form.bodyBlocks, form.placeholderSchema)).not.toThrow();
+      const used = JSON.stringify(form.bodyBlocks).match(/\{\{(\w+)\}\}/g)?.map((placeholder) => placeholder.slice(2, -2)) ?? [];
+      expect(used.length).toBeGreaterThan(0);
+      for (const field of used) expect(fields.has(field)).toBe(true);
+    }
+    const codes = demo.templates.map((template) => template.templateCode);
+    expect(new Set(codes).size).toBe(codes.length);
   });
 
   it('reads a null form code as none and keeps optional fields optional', () => {
