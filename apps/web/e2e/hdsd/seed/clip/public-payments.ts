@@ -72,12 +72,12 @@ async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: st
   const decided = await ctx.attempt(CHECKER, 'POST', `/acceptances/${acceptance.json.resource_id}/decision`, { decision: 'approve', reason: clipText('pay.acceptanceReason'), evidence_ids: [] }, { version: submitted.json.resource_version });
   const approved = await ctx.attempt(LEADER, 'POST', `/measurements/${id}/decision`, { decision: 'approve', reason: 'The quantity matches the site record', evidence_ids: [] }, { version: sent.json.resource_version });
   if (!approved.ok) return undefined;
-  const document = await paper(ctx, { symbol: `BBNT-${tag}/2026`, title: `Acceptance record ${tag}`, docType: 'BB', sender: 'Supervisor', issuedOn: ctx.day(-2) });
+  const document = await paper(ctx, { symbol: `BBNT-${tag}/2026`, title: clipText('pay.acceptancePaper', tag), docType: 'BB', sender: clipText('pay.supervisor'), issuedOn: ctx.day(-2) });
   const acceptance = await ctx.attempt<CommandReply>(LEADER, 'POST', `/contracts/${contractId}/acceptances`, { measurement_ids: [id], period_id: periodId, document_version_id: document.versionId });
   if (!acceptance.ok) return undefined;
-  const submitted = await ctx.attempt<CommandReply>(LEADER, 'POST', `/acceptances/${acceptance.json.resource_id}/submit`, { signer_refs: [{ name: 'Investor representative', role: 'INVESTOR' }] }, { version: acceptance.json.resource_version });
+  const submitted = await ctx.attempt<CommandReply>(LEADER, 'POST', `/acceptances/${acceptance.json.resource_id}/submit`, { signer_refs: [{ name: clipText('pay.investorRep'), role: 'INVESTOR' }] }, { version: acceptance.json.resource_version });
   if (!submitted.ok) return undefined;
-  const decided = await ctx.attempt(CHECKER, 'POST', `/acceptances/${acceptance.json.resource_id}/decision`, { decision: 'approve', reason: 'Accepted on the record of the measurement', evidence_ids: [] }, { version: submitted.json.resource_version });
+  const decided = await ctx.attempt(CHECKER, 'POST', `/acceptances/${acceptance.json.resource_id}/decision`, { decision: 'approve', reason: clipText('pay.acceptanceReason'), evidence_ids: [] }, { version: submitted.json.resource_version });
   return decided.ok ? acceptance.json.resource_id : undefined;
 }
 
