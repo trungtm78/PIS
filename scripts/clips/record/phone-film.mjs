@@ -11,7 +11,7 @@
 // The sign-in of a person goes through the test identity provider of the stack: `mobile-data.mjs persona <key>` names who signs in next
 // (E2E_STACK_INFO must point at the info file of the stack). Screens the application hides from recordings are not filmed (`pause` / `resume`).
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FFMPEG, probeMs } from '../../hdsd/tts.mjs';
