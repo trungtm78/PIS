@@ -19,7 +19,7 @@ Branch `lane/feed1`, worktree `D:\PIS-feed1`, migration block FEED-1 2500-2519. 
 | 4 | Alerts into the alert centre (`CONNECTOR` source): FEED_STALE, FEED_UNIT_LATE, FEED_DISCREPANCY_LARGE | open |
 | 5 | Contract (contract-patch: operations, schemas, error codes, screens FEED-01..FEED-05), generated clients | open |
 | 6 | API: controllers, authz matrix, command registry, isolation cases, API tests, no-egress test | open |
-| 7 | Web: five screens, kit, states matrix, i18n parts, vitest | open |
+| 7 | Web: five screens, kit, states matrix, i18n parts, vitest | done |
 | 8 | Design JSON (story, traceability, backlog), `docs/finance-feed.md` | open |
 | 9 | Gates: lint, typecheck, migrations:check, commands:check, contracts:check, error codes lint, isolation, conformance, outbox consumers, dis/report, Codex review and triage | open |
 
