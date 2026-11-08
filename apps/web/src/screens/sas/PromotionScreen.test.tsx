@@ -179,14 +179,15 @@ describe('SAS-23 the promotion of a tenant to a silo (UI-SAS-23)', () => {
   it('counts the freeze down from the instant until which writes are refused, and draws it again as time passes', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'], now: new Date('2026-11-03T03:10:00Z') });
     open(ADMIN, { detail: { migration: migrationRow({ status: 'CutoverFrozen', cutover_approved_by: ME, write_freeze_started_at: '2026-11-03T03:10:00Z', write_frozen_until: '2026-11-03T03:40:00Z' }), reconciliation: reconciliation(GOOD) } });
-    await vi.waitFor(() => expect(document.querySelector('[data-countdown]')).not.toBeNull());
+    // `vi.waitFor` would move the faked clock at each poll and stops after one second whatever the machine does; the timer is awaited without touching the clock.
+    await screen.findByRole('timer', undefined, { timeout: 15_000 });
     const seconds = (): number => {
       const [minutes, rest] = (document.querySelector('[data-countdown]')?.textContent?.match(/(\d\d):(\d\d)/)?.slice(1) ?? ['99', '99']).map(Number);
       return (minutes as number) * 60 + (rest as number);
     };
     const before = seconds();
-    expect(before).toBeGreaterThan(29 * 60);
-    expect(before).toBeLessThanOrEqual(30 * 60);
+    // The clock is fixed at the instant the freeze started, so thirty minutes are left to the second.
+    expect(before).toBe(30 * 60);
     await act(async () => {
       await vi.advanceTimersByTimeAsync(5_000);
     });
