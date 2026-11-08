@@ -101,18 +101,28 @@ export function microText(micro: bigint): string {
   return negative && absolute !== 0n ? `-${body}` : body;
 }
 
-/** `numerator / denominator x 100` as a decimal text with two places, rounded half away from zero; null when the denominator is zero. */
-function percentOf(numerator: bigint, denominator: bigint): string | null {
+/** `numerator / denominator x 100` in hundredths of a percent (a whole number), rounded half away from zero; null when the denominator is zero. No limit of size applies: the ratio of two valid values may be far above 100 percent. */
+function percentHundredths(numerator: bigint, denominator: bigint): bigint | null {
   if (denominator === 0n) return null;
   const negative = numerator < 0n !== denominator < 0n && numerator !== 0n;
   const top = (numerator < 0n ? -numerator : numerator) * 10_000n;
   const bottom = denominator < 0n ? -denominator : denominator;
   const quotient = top / bottom;
   const rounded = (top % bottom) * 2n >= bottom ? quotient + 1n : quotient;
-  const whole = rounded / 100n;
-  const fraction = (rounded % 100n).toString().padStart(2, '0');
-  return `${negative && rounded !== 0n ? '-' : ''}${whole}.${fraction}`;
+  return negative ? -rounded : rounded;
 }
+
+/** Hundredths of a percent as a decimal text with two places (`8000` is `80.00`). */
+function hundredthsText(hundredths: bigint): string {
+  const negative = hundredths < 0n;
+  const absolute = negative ? -hundredths : hundredths;
+  return `${negative ? '-' : ''}${absolute / 100n}.${(absolute % 100n).toString().padStart(2, '0')}`;
+}
+
+const percentOf = (numerator: bigint, denominator: bigint): string | null => {
+  const found = percentHundredths(numerator, denominator);
+  return found === null ? null : hundredthsText(found);
+};
 
 // ---- the variance of an indicator -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -148,23 +158,23 @@ export function computeVariance(input: VarianceInput, policy: Pick<EffectPolicy,
   const higher = input.direction === 'HIGHER_IS_BETTER';
   const varianceValue = microText(actual - target);
   const variancePct = percentOf(actual - target, target < 0n ? -target : target);
-  let achievement: string | null = null;
+  let achievementH: bigint | null = null;
   let basis: Variance['basis'] = 'DIRECTION_ONLY';
   if (baseline !== null && baseline !== target) {
-    achievement = percentOf(actual - baseline, target - baseline);
+    achievementH = percentHundredths(actual - baseline, target - baseline);
     basis = 'BASELINE_TO_TARGET';
   } else if (baseline === null) {
-    if (higher) achievement = percentOf(actual, target);
-    else achievement = actual <= 0n ? (target >= 0n ? '100.00' : null) : percentOf(target, actual);
-    basis = achievement === null ? 'DIRECTION_ONLY' : 'RATIO';
+    if (higher) achievementH = percentHundredths(actual, target);
+    else achievementH = actual <= 0n ? (target >= 0n ? 10_000n : null) : percentHundredths(target, actual);
+    basis = achievementH === null ? 'DIRECTION_ONLY' : 'RATIO';
   }
+  const achievement = achievementH === null ? null : hundredthsText(achievementH);
   const reaches = higher ? actual >= target : actual <= target;
   let band: EffectBand;
-  if (achievement === null) {
+  if (achievementH === null) {
     band = reaches ? 'MET' : 'MISSED';
   } else {
-    const points = toMicro(achievement, 'achievement');
-    band = points >= BigInt(Math.round(policy.metAtPct * 1_000_000)) ? 'MET' : points >= BigInt(Math.round(policy.partlyAtPct * 1_000_000)) ? 'PARTIAL' : 'MISSED';
+    band = achievementH >= BigInt(Math.round(policy.metAtPct * 100)) ? 'MET' : achievementH >= BigInt(Math.round(policy.partlyAtPct * 100)) ? 'PARTIAL' : 'MISSED';
   }
   return { varianceValue, variancePct, achievementPct: achievement, basis, band };
 }

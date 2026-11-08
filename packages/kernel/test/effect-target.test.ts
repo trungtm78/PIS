@@ -79,6 +79,11 @@ describe('the variance of an indicator against its target (MR.03)', () => {
     expect(computeVariance({ direction: 'HIGHER_IS_BETTER', baselineValue: '5', targetValue: '5', actualValue: '4' }, POLICY)).toMatchObject({ achievementPct: null, band: 'MISSED' });
   });
 
+  it('does not limit the size of a computed percentage: a tiny target and a huge actual are met, not an error', () => {
+    const huge = computeVariance({ direction: 'HIGHER_IS_BETTER', baselineValue: null, targetValue: '0.000001', actualValue: '10000000000' }, POLICY);
+    expect(huge).toMatchObject({ achievementPct: '1000000000000000000.00', basis: 'RATIO', band: 'MET' });
+  });
+
   it('never makes up a number for what was not measured or cannot be divided', () => {
     expect(computeVariance({ direction: 'HIGHER_IS_BETTER', baselineValue: '1', targetValue: '2', actualValue: null }, POLICY)).toEqual({ varianceValue: null, variancePct: null, achievementPct: null, basis: 'NONE', band: 'NOT_MEASURED' });
     expect(computeVariance({ direction: 'HIGHER_IS_BETTER', baselineValue: null, targetValue: '0', actualValue: '3' }, POLICY)).toMatchObject({ variancePct: null, achievementPct: null, band: 'MET' });
