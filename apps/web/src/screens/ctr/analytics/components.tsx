@@ -446,7 +446,7 @@ export function offerFile(file: ReportFile, decode: (content: string) => Uint8Ar
   return true;
 }
 
-const FORMATS: ReadonlyArray<ExportFormat> = ['xlsx', 'csv', 'pdf'];
+const FORMATS: ReadonlyArray<ExportFormat> = ['xlsx', 'csv', 'pdf', 'docx'];
 
 export function ExportBar({ code, query, decode }: { code: ReportCode; query: AnalyticsQuery; decode: (content: string) => Uint8Array }) {
   const { t } = useTranslation();

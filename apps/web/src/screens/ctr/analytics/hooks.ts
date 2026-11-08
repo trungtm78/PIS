@@ -107,7 +107,7 @@ export function useFactSnapshots(enabled = true) {
   });
 }
 
-export type ExportFormat = 'xlsx' | 'csv' | 'pdf';
+export type ExportFormat = 'xlsx' | 'csv' | 'pdf' | 'docx';
 
 /** The file of a report in the format asked, as the server made it (the header of the file says the scope, the period, the cut-off day and the freshness). */
 export function useExportReport(code: ReportCode) {

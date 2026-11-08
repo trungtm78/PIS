@@ -28481,5 +28481,12 @@
   "adm.authority.standing.table.delegations": "Permanent delegations: delegator or delegate, permissions, scope, review date, end condition and state",
   "adm.authority.standing.table.requests": "Requests for permanent delegations: delegator, delegate, permissions, scope, review date, end condition and state",
   "adm.authority.standing.tabs": "Requests and delegations",
-  "adm.authority.standing.title": "Permanent delegation"
+  "adm.authority.standing.title": "Permanent delegation",
+  "dis.export.format.docx": "Word (DOCX)",
+  "govc.home.export.docx": "Export Word",
+  "mne.export.format.docx": "Word (DOCX)",
+  "bi.exp.format.docx": "Word (DOCX)",
+  "ca1.export.docx": "Export Word",
+  "fin1.actions.exportDocx": "Export Word",
+  "prc1.analysis.export.docx": "Export Word"
 }

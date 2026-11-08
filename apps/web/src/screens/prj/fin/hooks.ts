@@ -122,5 +122,5 @@ export interface ExportedFile {
 
 export function useExportAppraisal() {
   const client = useApiClient();
-  return useCommand<{ id: string; format: 'CSV' | 'XLSX' }, ExportedFile>((input, attempt) => client.command('exportInvestmentAppraisal' as never, { path: { id: input.id }, body: { format: input.format }, attempt } as never) as Promise<ExportedFile>);
+  return useCommand<{ id: string; format: 'CSV' | 'XLSX' | 'DOCX' }, ExportedFile>((input, attempt) => client.command('exportInvestmentAppraisal' as never, { path: { id: input.id }, body: { format: input.format }, attempt } as never) as Promise<ExportedFile>);
 }

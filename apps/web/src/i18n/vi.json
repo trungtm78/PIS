@@ -28481,5 +28481,12 @@
   "adm.authority.standing.table.delegations": "Các ủy quyền vĩnh viễn: người giao hoặc người nhận, quyền, phạm vi, ngày rà soát, điều kiện kết thúc và trạng thái",
   "adm.authority.standing.table.requests": "Các đề nghị ủy quyền vĩnh viễn: người giao, người nhận, quyền, phạm vi, ngày rà soát, điều kiện kết thúc và trạng thái",
   "adm.authority.standing.tabs": "Đề nghị và ủy quyền",
-  "adm.authority.standing.title": "Ủy quyền vĩnh viễn"
+  "adm.authority.standing.title": "Ủy quyền vĩnh viễn",
+  "dis.export.format.docx": "Word (DOCX)",
+  "govc.home.export.docx": "Xuất Word",
+  "mne.export.format.docx": "Word (DOCX)",
+  "bi.exp.format.docx": "Word (DOCX)",
+  "ca1.export.docx": "Xuất Word",
+  "fin1.actions.exportDocx": "Xuất Word",
+  "prc1.analysis.export.docx": "Xuất Word"
 }

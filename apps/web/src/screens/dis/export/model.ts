@@ -8,7 +8,7 @@ type Raw = Record<string, unknown>;
 const asRecord = (value: unknown): Raw | undefined => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Raw) : undefined);
 const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
 
-export const FORMATS = ['XLSX', 'CSV', 'PDF'] as const;
+export const FORMATS = ['XLSX', 'CSV', 'PDF', 'DOCX'] as const;
 export type Format = (typeof FORMATS)[number];
 export const SCALES = ['VND', 'MILLION_VND'] as const;
 export type Scale = (typeof SCALES)[number];

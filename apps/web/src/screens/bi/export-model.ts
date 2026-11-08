@@ -5,9 +5,9 @@ export const SCHEDULES_PATH = '/bi/bi-12';
 export const EXPORT_PERMISSION = 'bi.export';
 export const SCHEDULE_PERMISSION = 'bi.export.schedule';
 
-export const EXPORT_FORMATS = ['CSV', 'XLSX', 'PDF'] as const;
+export const EXPORT_FORMATS = ['CSV', 'XLSX', 'PDF', 'DOCX'] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
-export const SCHEDULE_FORMATS = ['CSV', 'XLSX', 'PDF', 'LINK_ONLY'] as const;
+export const SCHEDULE_FORMATS = ['CSV', 'XLSX', 'PDF', 'DOCX', 'LINK_ONLY'] as const;
 export type ScheduleFormat = (typeof SCHEDULE_FORMATS)[number];
 export const EXPORT_STATUSES = ['QUEUED', 'RUNNING', 'READY', 'DENIED', 'FAILED', 'EXPIRED'] as const;
 export type ExportStatus = (typeof EXPORT_STATUSES)[number];

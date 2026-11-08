@@ -247,7 +247,7 @@ export const EXPORT_REPORT_PERMISSION = 'mne.report.export';
 export const EXPORT_TARGETS = ['NATIONAL_PIM_SYSTEM', 'RECIPIENT_AGENCY', 'LGSP'] as const;
 export type ExportTarget = (typeof EXPORT_TARGETS)[number];
 /** The formats this release makes: the XML of the national system has no specification yet. */
-export const PACKAGE_FORMATS = ['XLSX', 'PDF', 'CSV'] as const;
+export const PACKAGE_FORMATS = ['XLSX', 'PDF', 'CSV', 'DOCX'] as const;
 export type PackageFormat = (typeof PACKAGE_FORMATS)[number];
 export const PACKAGE_STATUSES = ['GENERATED', 'DOWNLOADED', 'SUBMISSION_CONFIRMED', 'REJECTED', 'EXPIRED'] as const;
 export type PackageStatus = (typeof PACKAGE_STATUSES)[number];

@@ -294,6 +294,8 @@ export function formatLabel(t: T, format: PackageFormat): string {
       return t('mne.export.format.pdf');
     case 'CSV':
       return t('mne.export.format.csv');
+    case 'DOCX':
+      return t('mne.export.format.docx');
   }
 }
 

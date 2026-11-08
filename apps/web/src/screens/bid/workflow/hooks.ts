@@ -122,7 +122,7 @@ export function useSummary(filters: Filters, enabled = true) {
 /** The report as a file: the answer carries the bytes in base64, which the screen turns into a download. */
 export function useExportReport() {
   const client = useApiClient();
-  return useMutation<ExportDto, unknown, { filters: Filters; format: 'xlsx' | 'csv' }>({
+  return useMutation<ExportDto, unknown, { filters: Filters; format: 'xlsx' | 'csv' | 'docx' }>({
     mutationFn: async (input) => toExport(await client.read('exportPackageWorkflowReport', { query: q({ ...queryOf(input.filters), format: input.format }) })),
   });
 }

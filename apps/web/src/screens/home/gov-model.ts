@@ -321,7 +321,7 @@ export const withdrawReasonOk = reasonOk;
 export interface FiguresFile {
   fileName: string;
   mediaType: string;
-  format: 'CSV' | 'XLSX';
+  format: 'CSV' | 'XLSX' | 'DOCX';
   rows: number;
   sizeBytes: number;
   sha256: string;
@@ -330,7 +330,7 @@ export interface FiguresFile {
 
 export function toFiguresFile(raw: unknown): FiguresFile | undefined {
   if (!isRecord(raw)) return undefined;
-  const format = oneOf(raw.format, ['CSV', 'XLSX'] as const);
+  const format = oneOf(raw.format, ['CSV', 'XLSX', 'DOCX'] as const);
   if (format === undefined || text(raw.file_name) === '' || text(raw.content_base64) === '') return undefined;
   return { fileName: text(raw.file_name), mediaType: text(raw.media_type) === '' ? 'application/octet-stream' : text(raw.media_type), format, rows: numberOf(raw.rows) ?? 0, sizeBytes: numberOf(raw.size_bytes) ?? 0, sha256: text(raw.sha256), contentBase64: text(raw.content_base64) };
 }

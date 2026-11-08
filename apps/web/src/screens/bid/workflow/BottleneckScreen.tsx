@@ -53,7 +53,7 @@ function BottleneckContent({ route }: ScreenProps) {
     for (const [key, value] of Object.entries(next)) if (value !== undefined) params.set(key, String(value));
     setSearch(params);
   };
-  const run = (format: 'xlsx' | 'csv'): void => {
+  const run = (format: 'xlsx' | 'csv' | 'docx'): void => {
     setReceipt(undefined);
     exporter.mutate({ filters, format }, { onSuccess: (file) => { save(file); setReceipt(t('prc1.analysis.export.done', { name: file.file_name })); } });
   };
@@ -75,6 +75,9 @@ function BottleneckContent({ route }: ScreenProps) {
           </button>
           <button type="button" className="ui-button ui-button--outline" disabled={exporter.isPending} onClick={() => run('csv')}>
             {t('prc1.analysis.export.csv')}
+          </button>
+          <button type="button" className="ui-button ui-button--outline" disabled={exporter.isPending} onClick={() => run('docx')}>
+            {t('prc1.analysis.export.docx')}
           </button>
         </div>
       </div>

@@ -28,6 +28,8 @@ export function formatLabel(t: T, format: ExportFormat | ScheduleFormat): string
       return t('bi.exp.format.xlsx');
     case 'PDF':
       return t('bi.exp.format.pdf');
+    case 'DOCX':
+      return t('bi.exp.format.docx');
     case 'LINK_ONLY':
       return t('bi.exp.format.link');
   }

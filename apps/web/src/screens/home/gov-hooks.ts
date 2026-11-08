@@ -110,7 +110,7 @@ export function useRagCommands() {
 }
 
 export interface ExportRequest {
-  format: 'CSV' | 'XLSX';
+  format: 'CSV' | 'XLSX' | 'DOCX';
   snapshotId: string;
   unitId: string;
 }

@@ -119,7 +119,7 @@ function WorkbenchContent({ route }: ScreenProps) {
       { onSuccess: () => receipt(appraisal, (params) => t('fin1.done.submitted', params)), onError: fail },
     );
   };
-  const download = (appraisal: Appraisal, format: 'CSV' | 'XLSX'): void => {
+  const download = (appraisal: Appraisal, format: 'CSV' | 'XLSX' | 'DOCX'): void => {
     exportFile.mutate(
       { id: appraisal.id, format },
       {
@@ -289,6 +289,9 @@ function WorkbenchContent({ route }: ScreenProps) {
                           </button>,
                           <button key="xlsx" type="button" className="ui-button ui-button--outline" disabled={busy} onClick={() => download(view, 'XLSX')} data-testid="export-xlsx">
                             {t('fin1.actions.exportXlsx')}
+                          </button>,
+                          <button key="docx" type="button" className="ui-button ui-button--outline" disabled={busy} onClick={() => download(view, 'DOCX')} data-testid="export-docx">
+                            {t('fin1.actions.exportDocx')}
                           </button>,
                         ]
                       : []),

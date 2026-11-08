@@ -35,7 +35,7 @@ function problemMessage(t: T, problem: ExportProblem): string {
   }
 }
 
-const formatLabel = (t: T, format: Format): string => (format === 'XLSX' ? t('dis.export.format.xlsx') : format === 'CSV' ? t('dis.export.format.csv') : t('dis.export.format.pdf'));
+const formatLabel = (t: T, format: Format): string => (format === 'XLSX' ? t('dis.export.format.xlsx') : format === 'CSV' ? t('dis.export.format.csv') : format === 'DOCX' ? t('dis.export.format.docx') : t('dis.export.format.pdf'));
 const scaleLabel = (t: T, scale: Scale): string => (scale === 'VND' ? t('dis.export.scale.vnd') : t('dis.export.scale.million'));
 
 function columnLabel(t: T, key: ColumnKey): string {

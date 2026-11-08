@@ -250,7 +250,7 @@ export function ExportActions({ snapshotId, unitId }: { snapshotId: string; unit
   const exporter = useExportFigures();
   const [saved, setSaved] = useState<{ name: string; rows: number } | 'unsupported' | undefined>(undefined);
   const refused = exporter.isError && isRefused(exporter.error);
-  const run = (format: 'CSV' | 'XLSX'): void => {
+  const run = (format: 'CSV' | 'XLSX' | 'DOCX'): void => {
     setSaved(undefined);
     exporter.mutate(
       { format, snapshotId, unitId },
@@ -267,6 +267,9 @@ export function ExportActions({ snapshotId, unitId }: { snapshotId: string; unit
         </button>
         <button type="button" className="ui-button ui-button--outline" disabled={exporter.isPending} onClick={() => run('CSV')}>
           {t('govc.home.export.csv')}
+        </button>
+        <button type="button" className="ui-button ui-button--outline" disabled={exporter.isPending} onClick={() => run('DOCX')}>
+          {t('govc.home.export.docx')}
         </button>
       </div>
       <p className="home-note" role="status" aria-live="polite" data-testid="export-status">
