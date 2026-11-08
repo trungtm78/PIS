@@ -52,7 +52,9 @@ export function main(argv: readonly string[]): number {
       } catch {
         current = undefined;
       }
-      if (current === undefined || !current.equals(Buffer.from(file.data))) {
+      // A text file may be checked out with CRLF line endings (git autocrlf on Windows): the lines count, not the line ending.
+      const same = current !== undefined && (typeof file.data === 'string' ? current.toString('utf8').replace(/\r\n/g, '\n') === file.data : current.equals(file.data));
+      if (!same) {
         stale += 1;
         process.stdout.write(`stale: ${file.path}
 `);

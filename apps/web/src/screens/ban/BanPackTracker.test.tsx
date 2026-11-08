@@ -46,6 +46,8 @@ describe('BAN-03, the pack of the meeting', () => {
 
   it('makes a draft of the form BAN-MEETING-PACK for the day of the figures, and says what was made with the way to it', async () => {
     const h = open({}, HEAD, () => ({ outcome: 'CREATED', draft_id: uuid(990), issue_id: null, revision: 2, package_sha256: 'a'.repeat(64), issue_count: 0 }));
+    // The day of the figures is known only once the pack is read; before that the card offers today.
+    await screen.findByTestId('pack-sections');
     fireEvent.click(await screen.findByTestId('pack-generate'));
     const receipt = await screen.findByTestId('pack-receipt');
     expect(receipt.textContent).toContain(word('ban.pack.receipt.created', { revision: 2 }));
