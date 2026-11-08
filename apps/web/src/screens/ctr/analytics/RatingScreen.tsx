@@ -44,7 +44,7 @@ function RatingContent({ route }: ScreenProps) {
   const canRead = permissions === undefined || permissions.includes(RATING_READ_PERMISSION);
   const canPropose = (permissions === undefined || permissions.includes(RATING_PROPOSE_PERMISSION)) && mode !== 'READ_ONLY';
   const proposals = useRatingProposals(contractId, canRead);
-  const state = useScreenState({ isLoading: proposals.isLoading, error: proposals.error, data: proposals.data, isEmpty: (items) => items.length === 0 && contractId === undefined });
+  const state = useScreenState({ isLoading: proposals.isLoading, error: proposals.error, data: proposals.data, isEmpty: (list: ProposalView[]) => list.length === 0 && contractId === undefined });
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const writable = mode !== 'READ_ONLY';
   const items = proposals.data ?? [];
