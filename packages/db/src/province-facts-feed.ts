@@ -55,10 +55,13 @@ export class FeedProvinceFactsReader implements ProvinceFactsReader {
  * on or before the day. A snapshot with no project at all counts as none.
  */
 export class SnapshotOrFeedFactsReader implements ProvinceFactsReader {
-  constructor(
-    private readonly snapshot: ProvinceFactsReader,
-    private readonly feed: ProvinceFactsReader,
-  ) {}
+  private readonly snapshot: ProvinceFactsReader;
+  private readonly feed: ProvinceFactsReader;
+
+  constructor(snapshot: ProvinceFactsReader, feed: ProvinceFactsReader) {
+    this.snapshot = snapshot;
+    this.feed = feed;
+  }
 
   async read(tx: TenantTx, request: ProvinceFactsRequest): Promise<ProvinceFacts> {
     const official = await this.snapshot.read(tx, request);
