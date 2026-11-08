@@ -8,7 +8,7 @@ import type { ProjectStatus } from '../src/prj-project-store';
 import { PLAN_PUBLISHED_EVENT, STAGE_COMMANDS, STAGE_TRANSITIONS } from '../src/prj-stage-machine';
 import type { StageCommand } from '../src/prj-stage-machine';
 import { PrjStageStore, SqlProjectObligations, stageChangeRecord } from '../src/prj-stage-store';
-import type { OpenObligations, ProjectObligationsPort, StageInput } from '../src/prj-stage-store';
+import type { OpenObligations, ProjectLessonsPort, ProjectObligationsPort, StageInput } from '../src/prj-stage-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
@@ -116,7 +116,9 @@ const history = (projectId: string) =>
   owner<Record<string, unknown>>('select project_version::text as project_version, from_stage, to_stage, operation, actor_kind, actor_id, decision_document_id, reason, effective_date::text as effective_date, source_event_id from machvon.project_stage_change where project_id = $1::uuid order by project_version', [projectId]);
 
 const portOf = (open: Partial<OpenObligations> = {}): ProjectObligationsPort => ({ openObligations: async () => ({ ...NO_OBLIGATIONS, ...open }) });
-const stage = new PrjStageStore(undefined, portOf());
+// The closing gate asks for the lessons learned (G1-19): these cases are about the other guards, so the gate is met here; the gate itself is tested in prj-lessons-store.test.ts.
+const lessonsMet: ProjectLessonsPort = { gate: async () => ({ met: true, reason: 'APPROVED_LESSONS', required: 1, approved: 1 }) };
+const stage = new PrjStageStore(undefined, portOf(), lessonsMet);
 
 async function move(command: StageCommand, target: Seeded, input: Partial<StageInput> = {}, options: { store?: PrjStageStore; version?: number; act?: ScopeBuilder; read?: ScopeBuilder; actor?: number } = {}) {
   return as(
@@ -363,7 +365,7 @@ describe('PrjStageStore (guarded PIMA lifecycle transitions, ST-PRJ-002)', () =>
       expect((await cancelWith({ committedVnd: '0.00' })).outcome).toBe('cancelled');
       const closeWith = async (open: Partial<OpenObligations>) => {
         const target = await project('SETTLED');
-        return refusal(move('closeProject', target, {}, { store: new PrjStageStore(undefined, portOf(open)) })).catch(() => 'closed');
+        return refusal(move('closeProject', target, {}, { store: new PrjStageStore(undefined, portOf(open), lessonsMet) })).catch(() => 'closed');
       };
       expect(await closeWith({ committedVnd: '10' })).toEqual(refused);
       expect(await closeWith({ activeReservations: 2 })).toEqual(refused);
@@ -373,7 +375,7 @@ describe('PrjStageStore (guarded PIMA lifecycle transitions, ST-PRJ-002)', () =>
 
     it('reads the obligations from the allocation balances and the reservations of CAP', async () => {
       const funded = await project('BUDGETED');
-      const real = new PrjStageStore(undefined, new SqlProjectObligations());
+      const real = new PrjStageStore(undefined, new SqlProjectObligations(), lessonsMet);
       expect((await move('cancelProject', funded, await grounds('cancelProject'), { store: real })).to).toBe('CANCELLED');
 
       const holder = await project('BUDGETED');
