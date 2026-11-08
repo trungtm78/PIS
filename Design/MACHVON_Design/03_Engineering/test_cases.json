@@ -25647,5 +25647,149 @@
       "FR-VND-15",
       "FR-VND-20"
     ]
+  },
+  {
+    "id": "UI-VND-23",
+    "source": "FR-VND-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lời mời vào cổng nhà thầu; user có quyền và user chỉ đọc; route VND-23",
+    "steps": [
+      "Mở VND-23 từ menu và deep link; kiểm nhãn trường: Nhà thầu (mã số thuế), Đầu mối (tên, thư điện tử), Căn cứ đầu mối thuộc nhà thầu, Người đề xuất, Người phê duyệt, Hạn đề xuất, Quyền truy cập đến ngày, Trạng thái, Lý do thu hồi",
+      "Thực hiện thao tác chính theo quy tắc: Lời mời gắn với hồ sơ nhà thầu đã xác minh, không gắn với hợp đồng; hai người: người phê duyệt khác người đề xuất; đề xuất và quyền truy cập đều hết hạn theo quy tắc VENDOR_PORTAL_ACCESS; thu hồi có hiệu lực ngay và có lý do; mọi bước vào nhật ký kiểm toán, không ghi thư điện tử vào sự kiện",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-23"
+    ],
+    "expected": "Lời mời vào cổng nhà thầu: hiển thị đúng 9 trường, áp quy tắc \"Lời mời gắn với hồ sơ nhà thầu đã xác minh, không gắn với hợp đồng; hai người: người phê duyệt khác người đề xuất; đề xuất và quyền truy cập đều hết hạn theo quy tắc VENDOR_PORTAL_ACCESS; thu hồi có hiệu lực ngay và có lý do; mọi bước vào nhật ký kiểm toán, không ghi thư điện tử vào sự kiện\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-23"
+    ]
+  },
+  {
+    "id": "UI-VND-24",
+    "source": "FR-VND-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tệp đính kèm trên cổng nhà thầu; user có quyền và user chỉ đọc; route VND-24",
+    "steps": [
+      "Mở VND-24 từ menu và deep link; kiểm nhãn trường: Tên tệp, Mục đích, Loại và dung lượng, Băm SHA-256, Thời điểm tải, Gắn với (yêu cầu, chứng chỉ, hành động khắc phục), Tải tệp mới",
+      "Thực hiện thao tác chính theo quy tắc: Nhà thầu chỉ thấy và chỉ gắn tệp của chính mình; tệp được kiểm tra theo nội dung (PDF, PNG, JPEG), giới hạn dung lượng theo quy tắc, quét mã độc và mặc định từ chối khi chưa quét được (SCAN_PENDING), tệp nhiễm bị từ chối (FILE_NOT_CLEAN)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-24"
+    ],
+    "expected": "Tệp đính kèm trên cổng nhà thầu: hiển thị đúng 7 trường, áp quy tắc \"Nhà thầu chỉ thấy và chỉ gắn tệp của chính mình; tệp được kiểm tra theo nội dung (PDF, PNG, JPEG), giới hạn dung lượng theo quy tắc, quét mã độc và mặc định từ chối khi chưa quét được (SCAN_PENDING), tệp nhiễm bị từ chối (FILE_NOT_CLEAN)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-24"
+    ]
+  },
+  {
+    "id": "UI-BID-34",
+    "source": "FR-BID-34",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kết quả giải quyết kiến nghị của nhà thầu; user có quyền và user chỉ đọc; route BID-34",
+    "steps": [
+      "Mở BID-34 từ menu và deep link; kiểm nhãn trường: Gói thầu, Nhà thầu, Trạng thái kiến nghị, Kết quả (chấp nhận, bác bỏ, rút), Số và ngày quyết định, Tài liệu quyết định, Người ghi, Người xác nhận, Lý do trả lại",
+      "Thực hiện thao tác chính theo quy tắc: Kết quả do một người ghi và người khác xác nhận hoặc trả lại có lý do; kết quả đã xác nhận không đổi; chỉ kết quả đã xác nhận vào tỷ lệ kiến nghị được chấp nhận; xung đột lợi ích chặn cả hai người",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-34"
+    ],
+    "expected": "Kết quả giải quyết kiến nghị của nhà thầu: hiển thị đúng 9 trường, áp quy tắc \"Kết quả do một người ghi và người khác xác nhận hoặc trả lại có lý do; kết quả đã xác nhận không đổi; chỉ kết quả đã xác nhận vào tỷ lệ kiến nghị được chấp nhận; xung đột lợi ích chặn cả hai người\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-34"
+    ]
+  },
+  {
+    "id": "UAT-PORTAL2-01",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Verified contractor with no contract whose registry e-mail is contact@acme.vn; a second verified contractor; an unverified contractor; officers A and B with the rights to propose and to approve; rule VENDOR_PORTAL_ACCESS default.",
+    "steps": [
+      "Propose contact@acme.vn on basis REGISTRY_EMAIL; propose other@acme.vn on the same basis; propose other@acme.vn with basis REPRESENTATIVE_LETTER and a letter number; propose the first address again",
+      "Propose a contact of the unverified contractor",
+      "Officer A approves their own proposal, then officer B approves",
+      "Officer B rejects a second proposal with a reason of 3 characters, then of 20 characters"
+    ],
+    "expected": "Step 1: the first and third are PROPOSED, the second 422 PORTAL_CONTACT_UNPROVEN, the repeat 409 PORTAL_INVITATION_EXISTS; step 2: 422 CONTRACTOR_NOT_INVITABLE; step 3: 403 SCOPE_DENIED then APPROVED with a guest membership bound to the contractor, role PORTAL_CONTRACTOR, the access end proposal day plus access_days, an invitation mail, and no e-mail in the audit row or the event; step 4: 422 VALIDATION_FAILED then REJECTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-23"
+    ]
+  },
+  {
+    "id": "UAT-PORTAL2-02",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An approved account of contractor A (no contract) and contractor B with a request, a file and a remediation plan; a proposal older than proposal_days; an access past its end; contractor A at max_live_accounts.",
+    "steps": [
+      "The guest of A reads the portal home, requests, evaluations and files, then names a request, a file and a plan of B, and reads the invitation table and the register of documents on the portal path with raw SQL",
+      "Run the nightly job; read the invitations; approve one more account for A",
+      "Revoke the account of A with a reason, call the portal as that guest, then revoke again"
+    ],
+    "expected": "Step 1: only the rows of A; each row of B is 404; the invitation table and the register of documents answer no row; step 2: the old proposal and the old access read EXPIRED and the expired membership is ended; the extra approval is 422 PORTAL_ACCESS_LIMIT; step 3: the guest is refused at once, status REVOKED, the second revocation is 409 PORTAL_INVITATION_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-23"
+    ]
+  },
+  {
+    "id": "UAT-PORTAL2-03",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Guest contractors A and B; a clean PDF, an executable renamed to .pdf, a file over max_upload_bytes, an infected test file; the scan hook with the default (fail closed) and with a test adapter that answers CLEAN.",
+    "steps": [
+      "With the default hook upload the clean PDF",
+      "With the test adapter upload the clean PDF, the executable, the large file and the infected file",
+      "Contractor B uses the document id of A to answer a request, and lists its files"
+    ],
+    "expected": "Step 1: 409 SCAN_PENDING and no document is registered; step 2: stored with a document id and SHA-256, 422 FILE_TYPE_NOT_ALLOWED, 413 PAYLOAD_TOO_LARGE, 422 FILE_NOT_CLEAN; step 3: the use is refused on document_id and the list of B is empty of the files of A.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-24"
+    ]
+  },
+  {
+    "id": "UAT-PORTAL2-04",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Three petitions of one contractor (one answered and upheld in fact, two answered), one waiting petition, one passed up; persons A and B with the rights to record and to confirm; a person with a declared conflict.",
+    "steps": [
+      "Record UPHELD for the waiting petition, then for each answered one; record a second live outcome",
+      "Person A confirms their own record, person B confirms, B confirms again; the conflicted person confirms",
+      "Read the disputes of the contractor, then confirm the two other outcomes as REJECTED and read again; return one outcome with a reason of 3 and of 20 characters"
+    ],
+    "expected": "Step 1: the waiting petition is 422 PETITION_OUTCOME_NOT_ALLOWED, the second live outcome 409 PETITION_OUTCOME_STATE_INVALID; step 2: 403 SCOPE_DENIED, CONFIRMED, 409 PETITION_OUTCOME_STATE_INVALID, 409 CONFLICT_OF_INTEREST_BLOCKED; step 3: before, upheld 100 percent of 1 decided and awaiting_outcome 2; after, upheld 33 percent of 3 decided and awaiting_outcome 0; the short reason is 422 VALIDATION_FAILED, then RETURNED and the history keeps both rows.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-34"
+    ]
+  },
+  {
+    "id": "UAT-PORTAL2-05",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contractors A and B with portal accounts, each with files, requests and a certificate; the staff of the investor.",
+    "steps": [
+      "The guest of A lists its files, opens the file list of B by id, and attaches a file of B to a certificate",
+      "Staff read the files of both through the document register"
+    ],
+    "expected": "Step 1: only the files of A; the id of B is not found and the attachment is refused; step 2: staff see the file with its hash, size, type, the contractor and the time of upload.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-24"
+    ]
   }
 ]

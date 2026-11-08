@@ -57655,6 +57655,381 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-VND-017",
+      "epic": "EP-VND",
+      "feature": "FT-VND-04",
+      "module": "VND",
+      "title": "Invite a contact of a registered contractor to the portal without a contract, with two-person approval, expiry and revocation",
+      "narrative": "As a procurement officer I propose a contact of a verified contractor for the portal with the proof that the contact belongs to the contractor, and as a different approver I approve or reject it, so that a contractor with no contract can answer requests and re-confirm its profile, the access ends at a set day, and I can revoke it at once with a reason.",
+      "release": "R3",
+      "screens": [
+        "VND-23"
+      ],
+      "operations": [
+        "listVendorPortalInvitations",
+        "proposeVendorPortalInvitation",
+        "approveVendorPortalInvitation",
+        "rejectVendorPortalInvitation",
+        "revokeVendorPortalInvitation"
+      ],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "mobile": "none",
+      "tables": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-017-1",
+          "given": "A verified contractor with no contract whose registry e-mail is contact@acme.vn",
+          "when": "An officer proposes contact@acme.vn on basis REGISTRY_EMAIL, another address on the same basis, and an address with a letter number",
+          "then": "The first and the third are PROPOSED; the second is 422 PORTAL_CONTACT_UNPROVEN; a second live proposal for the same address is 409 PORTAL_INVITATION_EXISTS; an unverified or restricted contractor is 422 CONTRACTOR_NOT_INVITABLE",
+          "test_id": "UAT-PORTAL2-01"
+        },
+        {
+          "id": "AC-ST-VND-017-2",
+          "given": "A proposal made by officer A",
+          "when": "Officer A tries to approve it and then officer B does",
+          "then": "403 SCOPE_DENIED then APPROVED with a guest account bound to the contractor with the role PORTAL_CONTRACTOR (no contract.read), an access end counted by the rule, an invitation mail, an audit row and an event that carry no e-mail",
+          "test_id": "UAT-PORTAL2-01"
+        },
+        {
+          "id": "AC-ST-VND-017-3",
+          "given": "An approved account of contractor A and a second contractor B with requests and files",
+          "when": "The guest of A reads its portal and then names a request, a file or a plan of B",
+          "then": "It sees only its own rows and every row of B is 404; the invitation table and the register of documents answer nothing on the portal path",
+          "test_id": "UAT-PORTAL2-02"
+        },
+        {
+          "id": "AC-ST-VND-017-4",
+          "given": "A proposal older than proposal_days, an access past its end, and a contractor at max_live_accounts",
+          "when": "The nightly job runs and a new proposal is approved",
+          "then": "The proposal and the access read EXPIRED and the membership of the expired access is ended; the approval over the limit is 422 PORTAL_ACCESS_LIMIT",
+          "test_id": "UAT-PORTAL2-02"
+        },
+        {
+          "id": "AC-ST-VND-017-5",
+          "given": "An approved account in use",
+          "when": "An authorised person revokes it with a reason of at least 5 characters, then again",
+          "then": "The next call of the guest is refused at once and the status is REVOKED; the second revocation is 409 PORTAL_INVITATION_STATE_INVALID",
+          "test_id": "UAT-PORTAL2-02"
+        },
+        {
+          "id": "AC-ST-VND-017-6",
+          "given": "VND-23 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-23"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-001",
+        "ST-VND-012",
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation",
+          "privacy"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every number (proposal days, access days, accounts per contractor, upload size) is a rule of governance flagged unverified until the owner confirms it; the proof of a contact is a reference that the second person reads, not a lookup in an official register."
+      },
+      "tasks": [
+        {
+          "id": "TK-VND-017-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-23",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-017-2",
+          "kind": "web",
+          "title": "VND-23 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-017-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-23; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-017-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PORTAL2-01",
+            "UAT-PORTAL2-02"
+          ]
+        },
+        {
+          "id": "TK-VND-017-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-23"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-VND-018",
+      "epic": "EP-VND",
+      "feature": "FT-VND-04",
+      "module": "VND",
+      "title": "Upload and list the attachments of a contractor on the portal through the shared file pipeline",
+      "narrative": "As a contractor I upload a PDF or an image as the answer to a request, as a certificate or as the evidence of a remediation action, and see my files, so that what I send is kept with a hash in the document register of the investor, was scanned, and can be read by no other contractor.",
+      "release": "R3",
+      "screens": [
+        "VND-24"
+      ],
+      "operations": [
+        "uploadPortalAttachment",
+        "listPortalAttachments"
+      ],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "mobile": "none",
+      "tables": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-018-1",
+          "given": "A guest contractor and a clean PDF of 200 KB, an executable renamed to .pdf, a file over the limit of the rule, and an infected file",
+          "when": "Each is uploaded for the purpose CERTIFICATE",
+          "then": "The PDF is stored and answers a document id with its SHA-256; the executable is 422 FILE_TYPE_NOT_ALLOWED; the large file is 413 PAYLOAD_TOO_LARGE; the infected file is 422 FILE_NOT_CLEAN",
+          "test_id": "UAT-PORTAL2-03"
+        },
+        {
+          "id": "AC-ST-VND-018-2",
+          "given": "A portal upload with the default scan hook that has no scanner",
+          "when": "A clean PDF is uploaded",
+          "then": "409 SCAN_PENDING and nothing is registered: the default fails closed; only an explicit adapter opens it",
+          "test_id": "UAT-PORTAL2-03"
+        },
+        {
+          "id": "AC-ST-VND-018-3",
+          "given": "A file uploaded by contractor A",
+          "when": "Contractor B answers a request, puts a certificate on file or marks an action done with that document id, and lists its files",
+          "then": "The use of the id is refused (VALIDATION_FAILED on document_id), the list of B shows none of the files of A, and staff of the investor read the file of A through the document register",
+          "test_id": "UAT-PORTAL2-03"
+        },
+        {
+          "id": "AC-ST-VND-018-4",
+          "given": "Contractors A and B with portal accounts, each with files",
+          "when": "The guest of A lists its files, opens the id of a file of B, attaches it to a certificate, and staff read the files of both through the document register",
+          "then": "Only the files of A are listed; the id of B is not found and the attachment is refused; staff see the hash, size, type, contractor and time of each",
+          "test_id": "UAT-PORTAL2-05"
+        },
+        {
+          "id": "AC-ST-VND-018-5",
+          "given": "VND-24 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-24"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-012",
+        "ST-VND-017"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation",
+          "privacy",
+          "security"
+        ],
+        "hours": {
+          "min": 3,
+          "max": 6
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every number (proposal days, access days, accounts per contractor, upload size) is a rule of governance flagged unverified until the owner confirms it; the proof of a contact is a reference that the second person reads, not a lookup in an official register."
+      },
+      "tasks": [
+        {
+          "id": "TK-VND-018-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-24",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-018-2",
+          "kind": "web",
+          "title": "VND-24 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-018-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-24; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-018-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PORTAL2-03",
+            "UAT-PORTAL2-05"
+          ]
+        },
+        {
+          "id": "TK-VND-018-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-24"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BID-033",
+      "epic": "EP-BID",
+      "feature": "FT-BID-03",
+      "module": "BID",
+      "title": "Record the outcome of a petition of a contractor (upheld, rejected, withdrawn) with a decision reference, recorded by one person and confirmed by another",
+      "narrative": "As a petition handler I record what the authority decided on a petition with the number and day of the decision, and as a different person with the right to confirm I confirm it or return it with a reason, so that the share of petitions upheld in the contractor figures is measured over confirmed decisions only.",
+      "release": "R3",
+      "screens": [
+        "BID-34"
+      ],
+      "operations": [
+        "listProcurementPetitionOutcomes",
+        "recordProcurementPetitionOutcome",
+        "confirmProcurementPetitionOutcome",
+        "returnProcurementPetitionOutcome"
+      ],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "mobile": "none",
+      "tables": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BID-033-1",
+          "given": "A petition that waits, one that was answered (RESOLVED) and one passed up (ESCALATED)",
+          "when": "UPHELD is recorded for each",
+          "then": "Only the answered and the passed-up petitions accept it; the waiting one is 422 PETITION_OUTCOME_NOT_ALLOWED; WITHDRAWN is possible for the waiting one; a second live outcome for the petition is 409 PETITION_OUTCOME_STATE_INVALID",
+          "test_id": "UAT-PORTAL2-04"
+        },
+        {
+          "id": "AC-ST-BID-033-2",
+          "given": "An outcome recorded by person A",
+          "when": "Person A confirms, then person B confirms, then B confirms again",
+          "then": "403 SCOPE_DENIED, then CONFIRMED, then 409 PETITION_OUTCOME_STATE_INVALID; a person with a conflict of interest with the contractor or the package is 409 CONFLICT_OF_INTEREST_BLOCKED for both steps",
+          "test_id": "UAT-PORTAL2-04"
+        },
+        {
+          "id": "AC-ST-BID-033-3",
+          "given": "Three petitions of one contractor: one confirmed UPHELD, two answered whose outcome is only PROPOSED",
+          "when": "The disputes of the contractor are read before and after the two are confirmed as REJECTED",
+          "then": "Before: upheld 100 percent of 1 decided and awaiting_outcome 2; after: upheld 33 percent of 3 decided and awaiting_outcome 0; the counts add up to the total",
+          "test_id": "UAT-PORTAL2-04"
+        },
+        {
+          "id": "AC-ST-BID-033-4",
+          "given": "An outcome in PROPOSED",
+          "when": "The checker returns it with a reason of 3 characters and then of 20 characters",
+          "then": "422 VALIDATION_FAILED then RETURNED; the recorder may record a new outcome; the history keeps both rows",
+          "test_id": "UAT-PORTAL2-04"
+        },
+        {
+          "id": "AC-ST-BID-033-5",
+          "given": "BID-34 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BID-34"
+        }
+      ],
+      "dependencies": [
+        "ST-BID-007",
+        "ST-VND-016"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every number (proposal days, access days, accounts per contractor, upload size) is a rule of governance flagged unverified until the owner confirms it; the proof of a contact is a reference that the second person reads, not a lookup in an official register."
+      },
+      "tasks": [
+        {
+          "id": "TK-BID-033-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind BID-34",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BID-033-2",
+          "kind": "web",
+          "title": "BID-34 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BID-033-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BID-34; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BID-033-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PORTAL2-04"
+          ]
+        },
+        {
+          "id": "TK-BID-033-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BID-34"
+          ]
+        }
+      ]
     }
   ]
 }

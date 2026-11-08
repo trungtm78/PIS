@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 566,
-    "webCatalog": 566,
+    "webRoutes": 569,
+    "webCatalog": 569,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -766,7 +766,8 @@
             28,
             29,
             30,
-            31
+            31,
+            34
           ],
           "primary": [
             1,
@@ -785,7 +786,8 @@
           "parents": {
             "2": 1,
             "16": 15,
-            "29": 28
+            "29": 28,
+            "34": 20
           }
         },
         {
@@ -2199,7 +2201,8 @@
             16,
             17,
             18,
-            19
+            19,
+            24
           ],
           "primary": [
             16,
@@ -2207,7 +2210,8 @@
           ],
           "parents": {
             "18": 16,
-            "19": 16
+            "19": 16,
+            "24": 16
           }
         },
         {
@@ -2215,7 +2219,8 @@
           "description": "Gửi yêu cầu cho nhà thầu, tái xác nhận hằng năm và kế hoạch khắc phục của nhà thầu",
           "ids": [
             20,
-            21
+            21,
+            23
           ],
           "primary": [
             20,
@@ -8841,6 +8846,36 @@
       "group": "Điều tra và sàng lọc nhà thầu",
       "role": "detail",
       "parent": null
+    },
+    {
+      "id": "VND-23",
+      "title": "Lời mời vào cổng nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Quản lý cổng và khắc phục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-24",
+      "title": "Tệp đính kèm trên cổng nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Cổng nhà thầu",
+      "role": "detail",
+      "parent": "VND-16"
+    },
+    {
+      "id": "BID-34",
+      "title": "Kết quả giải quyết kiến nghị của nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "detail",
+      "parent": "BID-20"
     }
   ],
   "mobileRoutes": [

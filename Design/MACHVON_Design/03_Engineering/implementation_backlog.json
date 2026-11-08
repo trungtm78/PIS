@@ -22356,5 +22356,116 @@
     "stories": [
       "ST-VND-016"
     ]
+  },
+  {
+    "id": "BL-VND-23",
+    "requirement": "FR-VND-23",
+    "screen": "VND-23",
+    "title": "Lời mời vào cổng nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,DOC",
+    "fields": [
+      "Nhà thầu (mã số thuế)",
+      "Đầu mối (tên, thư điện tử)",
+      "Căn cứ đầu mối thuộc nhà thầu",
+      "Người đề xuất",
+      "Người phê duyệt",
+      "Hạn đề xuất",
+      "Quyền truy cập đến ngày",
+      "Trạng thái",
+      "Lý do thu hồi"
+    ],
+    "rule": "Lời mời gắn với hồ sơ nhà thầu đã xác minh, không gắn với hợp đồng; hai người: người phê duyệt khác người đề xuất; đề xuất và quyền truy cập đều hết hạn theo quy tắc VENDOR_PORTAL_ACCESS; thu hồi có hiệu lực ngay và có lý do; mọi bước vào nhật ký kiểm toán, không ghi thư điện tử vào sự kiện",
+    "test_ids": [
+      "UI-VND-23",
+      "UAT-PORTAL2-01",
+      "UAT-PORTAL2-02"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-017"
+    ]
+  },
+  {
+    "id": "BL-VND-24",
+    "requirement": "FR-VND-24",
+    "screen": "VND-24",
+    "title": "Tệp đính kèm trên cổng nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,DOC",
+    "fields": [
+      "Tên tệp",
+      "Mục đích",
+      "Loại và dung lượng",
+      "Băm SHA-256",
+      "Thời điểm tải",
+      "Gắn với (yêu cầu, chứng chỉ, hành động khắc phục)",
+      "Tải tệp mới"
+    ],
+    "rule": "Nhà thầu chỉ thấy và chỉ gắn tệp của chính mình; tệp được kiểm tra theo nội dung (PDF, PNG, JPEG), giới hạn dung lượng theo quy tắc, quét mã độc và mặc định từ chối khi chưa quét được (SCAN_PENDING), tệp nhiễm bị từ chối (FILE_NOT_CLEAN)",
+    "test_ids": [
+      "UI-VND-24",
+      "UAT-PORTAL2-03",
+      "UAT-PORTAL2-05"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-018"
+    ]
+  },
+  {
+    "id": "BL-BID-34",
+    "requirement": "FR-BID-34",
+    "screen": "BID-34",
+    "title": "Kết quả giải quyết kiến nghị của nhà thầu",
+    "module": "BID",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,DOC",
+    "fields": [
+      "Gói thầu",
+      "Nhà thầu",
+      "Trạng thái kiến nghị",
+      "Kết quả (chấp nhận, bác bỏ, rút)",
+      "Số và ngày quyết định",
+      "Tài liệu quyết định",
+      "Người ghi",
+      "Người xác nhận",
+      "Lý do trả lại"
+    ],
+    "rule": "Kết quả do một người ghi và người khác xác nhận hoặc trả lại có lý do; kết quả đã xác nhận không đổi; chỉ kết quả đã xác nhận vào tỷ lệ kiến nghị được chấp nhận; xung đột lợi ích chặn cả hai người",
+    "test_ids": [
+      "UI-BID-34",
+      "UAT-PORTAL2-04"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/BID.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-BID-033"
+    ]
   }
 ]

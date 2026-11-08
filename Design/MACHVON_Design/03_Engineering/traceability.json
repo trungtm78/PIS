@@ -12443,5 +12443,61 @@
       "UI-VND-22",
       "UAT-VND3-09"
     ]
+  },
+  {
+    "requirement": "FR-VND-23",
+    "screen": "VND-23",
+    "title": "Lời mời vào cổng nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PORTAL-2 (phần việc còn lại của VND-3), docs/vendor-investigation.md mục 14",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 3 test",
+    "backlog_id": "BL-VND-23",
+    "test_ids": [
+      "UI-VND-23",
+      "UAT-PORTAL2-01",
+      "UAT-PORTAL2-02"
+    ]
+  },
+  {
+    "requirement": "FR-VND-24",
+    "screen": "VND-24",
+    "title": "Tệp đính kèm trên cổng nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PORTAL-2 (phần việc còn lại của VND-3), docs/vendor-investigation.md mục 14",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 3 test",
+    "backlog_id": "BL-VND-24",
+    "test_ids": [
+      "UI-VND-24",
+      "UAT-PORTAL2-03",
+      "UAT-PORTAL2-05"
+    ]
+  },
+  {
+    "requirement": "FR-BID-34",
+    "screen": "BID-34",
+    "title": "Kết quả giải quyết kiến nghị của nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch PORTAL-2 (phần việc còn lại của VND-3), docs/vendor-investigation.md mục 14",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md; 2 test",
+    "backlog_id": "BL-BID-34",
+    "test_ids": [
+      "UI-BID-34",
+      "UAT-PORTAL2-04"
+    ]
   }
 ]
