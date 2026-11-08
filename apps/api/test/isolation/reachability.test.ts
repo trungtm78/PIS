@@ -130,6 +130,8 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections', 'listAffectedHouseholds', 'listCompensationPlans', 'listUpcomingLandDeadlines', 'listLandComplaints', 'listResettlementAllocations', 'listResettlementCandidates', 'listEnforcementCases']);
   // The list of the records of a household names the household it reads.
   const HOUSEHOLD_LISTS: ReadonlySet<string> = new Set(['listInventoryRecords']);
+  // A read of a project names the project: another tenant gets 404 for a project it cannot see, which is the isolation answer, and an empty 200 is accepted too.
+  const FOREIGN_STATUSES: Readonly<Record<string, number[]>> = { getFundingFigureHistory: [200, 404] };
   const READS_AT_ONCE = 24;
   // The list of the investment appraisals declares a page of at most 100 rows in the contract, not 200.
   const LIST_LIMITS: Readonly<Record<string, number>> = { listInvestmentAppraisals: 100 };
@@ -148,7 +150,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
       const answers: ForeignAttempt[] = [];
       for (let from = 0; from < operations.length; from += READS_AT_ONCE) {
         const batch = operations.slice(from, from + READS_AT_ONCE);
-        answers.push(...(await Promise.all(batch.map(async (operation) => ({ operation, ...(await readAs('TNT-A', operation)), expectedStatuses: [200] })))));
+        answers.push(...(await Promise.all(batch.map(async (operation) => ({ operation, ...(await readAs('TNT-A', operation)), expectedStatuses: FOREIGN_STATUSES[operation] ?? [200] })))));
       }
       return answers;
     };
