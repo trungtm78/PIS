@@ -534,4 +534,8 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DOC-25': () => import('../../screens/doc/repository/DocumentScreen'),
   'DOC-26': () => import('../../screens/doc/repository/ReviewBoardScreen'),
   'DOC-27': () => import('../../screens/doc/repository/CompareScreen'),
+=======
+  'IND-01': () => import('../../screens/ind/DictionaryScreen'),
+  'IND-02': () => import('../../screens/ind/EntryRulesScreen'),
+  'IND-03': () => import('../../screens/ind/MappingsScreen'),
 };
