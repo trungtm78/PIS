@@ -43,6 +43,13 @@
       "css:[data-screen-id='PWA-04'] ul",
       "css:[data-screen-id='PWA-04'] section",
       "css:[data-screen-id='PWA-04']"
+    ],
+    "ctr.scorecard.contractor": [
+      "css:[data-screen-id] select[id*='pick-contractor']",
+      "css:[data-screen-id] select"
+    ],
+    "ctr.scorecard.view": [
+      "role:button:Xem bảng điểm"
     ]
   },
   "tails": {

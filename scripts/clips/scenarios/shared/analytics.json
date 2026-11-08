@@ -214,7 +214,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -247,7 +247,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -280,7 +280,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -313,7 +313,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",

@@ -939,6 +939,10 @@
           "screen": "BID-29"
         },
         {
+          "do": "wait",
+          "ms": 4500
+        },
+        {
           "do": "spot",
           "ref": "bid.package.timeline-import-entry"
         }

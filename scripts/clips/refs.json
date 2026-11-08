@@ -725,6 +725,14 @@
     "wf.period.step-deadlines": {
       "screen": "ADM-18",
       "what": "period / step deadlines (wf)"
+    },
+    "ctr.scorecard.contractor": {
+      "screen": "CTR-23",
+      "what": "scorecard / contractor list (ctr)"
+    },
+    "ctr.scorecard.view": {
+      "screen": "CTR-23",
+      "what": "scorecard / show (ctr)"
     }
   }
 }
