@@ -1098,6 +1098,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getContractAvailability',
         'getContractPortfolio',
         'getContractReport',
+        'getContractScheduleSCurve',
         'getCrossTotalControl',
         'getDirective',
         'getDirectiveSummary',
