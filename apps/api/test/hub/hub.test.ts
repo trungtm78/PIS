@@ -341,7 +341,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
 
   it('shows another tenant nothing of all this', async () => {
     const reply = await call('GET', '/integration-hub/connectors', { member: B_ADMIN, tenantId: TENANT_B });
-    for (const item of reply.json.items as Array<Record<string, unknown>>) expect(item).toMatchObject({ status: 'PENDING_EXTERNAL', last_run_at: null });
+    for (const item of reply.json.items as Array<Record<string, unknown>>) expect(item).toMatchObject({ status: ['access.open-api', 'ind.figure-import', 'mdm.catalogue-import'].includes(item.code as string) ? 'NEVER_RUN' : 'PENDING_EXTERNAL', last_run_at: null });
     expect(((await call('GET', '/integration-hub/incidents', { member: B_ADMIN, tenantId: TENANT_B })).json.items as unknown[]).length).toBe(0);
     expect(((await call('GET', '/integration-hub/agents', { member: B_ADMIN, tenantId: TENANT_B })).json.items as unknown[]).length).toBe(0);
   });

@@ -66,13 +66,13 @@ describe('the incidents of the Integration Hub in the alert centre', () => {
     await sweep(NOW);
     const rows = await read([HUB_AUDIENCE_PERMISSION]);
     const byKind = Object.fromEntries(rows.map((row) => [row.kind, row]));
-    expect(Object.keys(byKind).sort()).toEqual(['CONNECTOR_FAILING', 'CONNECTOR_STALE']);
+    expect(Object.keys(byKind).sort()).toEqual(['CONNECTOR_FAILING', 'CONNECTOR_HUB_STALE', 'CONNECTOR_STALE']);
     expect(byKind.CONNECTOR_FAILING).toMatchObject({ source: 'CONNECTOR', severity: 'ACTION', target: { screen: 'HUB-03' }, causeKey: 'connector:procurement.milestones', status: 'OPEN' });
     expect(byKind.CONNECTOR_STALE).toMatchObject({ source: 'CONNECTOR', severity: 'ACTION', target: { screen: 'HUB-03' }, causeKey: 'connector:treasury.statement' });
     expect(byKind.CONNECTOR_FAILING?.consequence).toBeTruthy();
     // A second sweep opens nothing new, so the list does not grow.
     await sweep(new Date(NOW.getTime() + 60_000));
-    expect(await read([HUB_AUDIENCE_PERMISSION])).toHaveLength(2);
+    expect(await read([HUB_AUDIENCE_PERMISSION])).toHaveLength(3);
     expect(await read([])).toEqual([]);
   });
 
@@ -85,7 +85,7 @@ describe('the incidents of the Integration Hub in the alert centre', () => {
     expect(taken).toMatchObject({ status: 'ACKNOWLEDGED', lifecycle: 'CLAIMED' });
     await seedFile('PROCUREMENT_FILE', 'APPLIED', new Date(NOW.getTime() + 3_600_000));
     await sweep(new Date(NOW.getTime() + 2 * 3_600_000));
-    expect((await read([HUB_AUDIENCE_PERMISSION])).map((row) => row.kind)).toEqual(['CONNECTOR_STALE']);
+    expect((await read([HUB_AUDIENCE_PERMISSION])).map((row) => row.kind).sort()).toEqual(['CONNECTOR_HUB_STALE', 'CONNECTOR_STALE']);
   });
 
   it('keeps the stale incident of e-GP on the list of a reader whom the alert of the connection itself does not reach (the deduplication never hides what the reader may manage)', async () => {
