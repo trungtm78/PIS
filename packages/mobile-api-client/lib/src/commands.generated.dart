@@ -370,8 +370,14 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> closeProject(PrjStageCommand body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('closeProject', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> closeProjectHalt(CloseProjectHalt body, {required String id, CommandAttempt? attempt}) =>
+      execute('closeProjectHalt', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> closeProjectRisk(PrjRiskClosure body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('closeProjectRisk', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> closeRestartStep(CloseRestartStep body, {required String id, required String stepId, CommandAttempt? attempt}) =>
+      execute('closeRestartStep', path: <String, Object?>{'id': id, 'step_id': stepId}, body: body, attempt: attempt);
 
   Future<Object?> closeVendorPayeeAccount(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('closeVendorPayeeAccount', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -832,6 +838,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> decideQualityAcceptance(QmsDecideQualityAcceptance body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideQualityAcceptance', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> decideRankingAnnotation(DecideRankingAnnotation body, {required String id, CommandAttempt? attempt}) =>
+      execute('decideRankingAnnotation', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> decideReallocationProposal(MdmDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideReallocationProposal', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -840,6 +849,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> decideReserveDrawdown(PrjReserveDrawdownDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideReserveDrawdown', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> decideRestartPlan(DecideRestartPlan body, {required String id, CommandAttempt? attempt}) =>
+      execute('decideRestartPlan', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
   Future<Object?> decideSourceMapping(DgvMappingDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideSourceMapping', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -1009,6 +1021,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> fileLandComplaint(LndFileLandComplaint body, {CommandAttempt? attempt}) =>
       execute('fileLandComplaint', body: body, attempt: attempt);
 
+  Future<Object?> fileRankingComplaint(FileRankingComplaint body, {CommandAttempt? attempt}) =>
+      execute('fileRankingComplaint', body: body, attempt: attempt);
+
   Future<Object?> fileWarrantyClaim(AstFileWarrantyClaim body, {required String id, CommandAttempt? attempt}) =>
       execute('fileWarrantyClaim', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
@@ -1093,11 +1108,20 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getAlertType({required String code, Map<String, Object?>? query}) =>
       execute('getAlertType', path: <String, Object?>{'code': code}, query: query);
 
+  Future<Object?> getAnalyticsBacktest({Map<String, Object?>? query}) =>
+      execute('getAnalyticsBacktest', query: query);
+
   Future<Object?> getAnalyticsCertificationLog({required String subject, required String key, Map<String, Object?>? query}) =>
       execute('getAnalyticsCertificationLog', path: <String, Object?>{'subject': subject, 'key': key}, query: query);
 
   Future<Object?> getAnalyticsDecision({required String id, Map<String, Object?>? query}) =>
       execute('getAnalyticsDecision', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getAnalyticsHeatmap({Map<String, Object?>? query}) =>
+      execute('getAnalyticsHeatmap', query: query);
+
+  Future<Object?> getAnalyticsTrendRanking({Map<String, Object?>? query}) =>
+      execute('getAnalyticsTrendRanking', query: query);
 
   Future<Object?> getAuditEngagement({required String id, Map<String, Object?>? query}) =>
       execute('getAuditEngagement', path: <String, Object?>{'id': id}, query: query);
@@ -1122,6 +1146,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getBidClarification({required String id, Map<String, Object?>? query}) =>
       execute('getBidClarification', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getBottleneckAnalysis({Map<String, Object?>? query}) =>
+      execute('getBottleneckAnalysis', query: query);
 
   Future<Object?> getCampaign({required String campaignId, Map<String, Object?>? query}) =>
       execute('getCampaign', path: <String, Object?>{'campaignId': campaignId}, query: query);
@@ -1315,6 +1342,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getGovernanceRuleDiff({required String ruleId, Map<String, Object?>? query}) =>
       execute('getGovernanceRuleDiff', path: <String, Object?>{'ruleId': ruleId}, query: query);
 
+  Future<Object?> getHaltedProject({required String id, Map<String, Object?>? query}) =>
+      execute('getHaltedProject', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getHandoverTrace({required String id, Map<String, Object?>? query}) =>
       execute('getHandoverTrace', path: <String, Object?>{'id': id}, query: query);
 
@@ -1395,6 +1425,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getMneReport({required String id, Map<String, Object?>? query}) =>
       execute('getMneReport', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getMultiMetricRanking({Map<String, Object?>? query}) =>
+      execute('getMultiMetricRanking', query: query);
 
   Future<Object?> getMyAlertDigest({Map<String, Object?>? query}) =>
       execute('getMyAlertDigest', query: query);
@@ -2596,6 +2629,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listGovernanceRules({Map<String, Object?>? query}) =>
       execute('listGovernanceRules', query: query);
 
+  Future<Object?> listHaltedProjects({Map<String, Object?>? query}) =>
+      execute('listHaltedProjects', query: query);
+
   Future<Object?> listHpmCorrections({Map<String, Object?>? query}) =>
       execute('listHpmCorrections', query: query);
 
@@ -2859,6 +2895,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listQualityAcceptances({Map<String, Object?>? query}) =>
       execute('listQualityAcceptances', query: query);
+
+  Future<Object?> listRankingAnnotations({Map<String, Object?>? query}) =>
+      execute('listRankingAnnotations', query: query);
+
+  Future<Object?> listRankingComplaints({Map<String, Object?>? query}) =>
+      execute('listRankingComplaints', query: query);
 
   Future<Object?> listReallocationCandidates({Map<String, Object?>? query}) =>
       execute('listReallocationCandidates', query: query);
@@ -3241,6 +3283,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> proposeProjectRevision(PrjRevisionProposal body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('proposeProjectRevision', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> proposeRankingAnnotation(ProposeRankingAnnotation body, {CommandAttempt? attempt}) =>
+      execute('proposeRankingAnnotation', body: body, attempt: attempt);
+
   Future<Object?> proposeSourceMapping(DgvMappingPropose body, {CommandAttempt? attempt}) =>
       execute('proposeSourceMapping', body: body, attempt: attempt);
 
@@ -3489,6 +3534,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> recordProjectAppraisal(PrjAppraisalScore body, {required String id, CommandAttempt? attempt}) =>
       execute('recordProjectAppraisal', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> recordProjectHalt(RecordProjectHalt body, {CommandAttempt? attempt}) =>
+      execute('recordProjectHalt', body: body, attempt: attempt);
 
   Future<Object?> recordRecoveryNotice(LndRecordRecoveryNotice body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('recordRecoveryNotice', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -3775,6 +3823,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> resolveProcurementPetition(BidPetitionResolve body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('resolveProcurementPetition', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> resolveRankingComplaint(ResolveRankingComplaint body, {required String id, CommandAttempt? attempt}) =>
+      execute('resolveRankingComplaint', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> resolveReconciliationItem(PayResolveReconciliationItem body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('resolveReconciliationItem', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -4008,6 +4059,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> saveDashboardVersion(BiDashboardVersionDraft body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('saveDashboardVersion', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> saveRestartPlan(SaveRestartPlan body, {required String id, CommandAttempt? attempt}) =>
+      execute('saveRestartPlan', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
   Future<Object?> saveSiteDiaryDraft(QmsSaveSiteDiaryDraft body, {CommandAttempt? attempt}) =>
       execute('saveSiteDiaryDraft', body: body, attempt: attempt);

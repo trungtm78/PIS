@@ -2763,6 +2763,41 @@ final class ChannelLimits implements RequestModel {
       };
 }
 
+final class CloseProjectHalt implements RequestModel {
+  const CloseProjectHalt({
+    required this.outcome,
+    required this.note,
+    this.restartedOn,
+  });
+
+  final String outcome;
+  final String note;
+  final String? restartedOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'note': note,
+        if (restartedOn != null) 'restarted_on': restartedOn,
+      };
+}
+
+final class CloseRestartStep implements RequestModel {
+  const CloseRestartStep({
+    required this.status,
+    required this.note,
+  });
+
+  final String status;
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'status': status,
+        'note': note,
+      };
+}
+
 final class CommitteeAlertAcknowledge implements RequestModel {
   const CommitteeAlertAcknowledge({
     required this.note,
@@ -4404,6 +4439,38 @@ final class CtrWithdrawContractRating implements RequestModel {
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'reason': reason,
+      };
+}
+
+final class DecideRankingAnnotation implements RequestModel {
+  const DecideRankingAnnotation({
+    required this.decision,
+    required this.note,
+  });
+
+  final String decision;
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'note': note,
+      };
+}
+
+final class DecideRestartPlan implements RequestModel {
+  const DecideRestartPlan({
+    required this.decision,
+    required this.note,
+  });
+
+  final String decision;
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'note': note,
       };
 }
 
@@ -7041,6 +7108,31 @@ final class FeatureFlagUpdateRollout implements RequestModel {
         if (tenantCohorts != null) 'tenant_cohorts': tenantCohorts,
         if (tenantIds != null) 'tenant_ids': tenantIds,
         if (percentage != null) 'percentage': percentage,
+      };
+}
+
+final class FileRankingComplaint implements RequestModel {
+  const FileRankingComplaint({
+    required this.unitId,
+    required this.metricCode,
+    required this.asOfDate,
+    required this.claim,
+    this.claimedValue,
+  });
+
+  final String unitId;
+  final String metricCode;
+  final String asOfDate;
+  final String claim;
+  final String? claimedValue;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_id': unitId,
+        'metric_code': metricCode,
+        'as_of_date': asOfDate,
+        'claim': claim,
+        if (claimedValue != null) 'claimed_value': claimedValue,
       };
 }
 
@@ -12747,6 +12839,34 @@ final class ProjectDocumentVersionCreate implements RequestModel {
       };
 }
 
+final class ProposeRankingAnnotation implements RequestModel {
+  const ProposeRankingAnnotation({
+    required this.unitId,
+    required this.reasonCode,
+    required this.metricCodes,
+    required this.evidence,
+    required this.validTo,
+    this.validFrom,
+  });
+
+  final String unitId;
+  final String reasonCode;
+  final List<String> metricCodes;
+  final String evidence;
+  final String? validFrom;
+  final String validTo;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_id': unitId,
+        'reason_code': reasonCode,
+        'metric_codes': metricCodes,
+        'evidence': evidence,
+        if (validFrom != null) 'valid_from': validFrom,
+        'valid_to': validTo,
+      };
+}
+
 final class QmsAddSupervisorRemark implements RequestModel {
   const QmsAddSupervisorRemark({
     required this.remark,
@@ -13459,6 +13579,34 @@ final class RecordAnalyticsDecisionSubject implements RequestModel {
       };
 }
 
+final class RecordProjectHalt implements RequestModel {
+  const RecordProjectHalt({
+    required this.projectId,
+    required this.reasonCode,
+    required this.reasonText,
+    required this.haltedOn,
+    this.orderRef,
+    this.expectedRestartOn,
+  });
+
+  final String projectId;
+  final String reasonCode;
+  final String reasonText;
+  final String haltedOn;
+  final String? orderRef;
+  final String? expectedRestartOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'reason_code': reasonCode,
+        'reason_text': reasonText,
+        'halted_on': haltedOn,
+        if (orderRef != null) 'order_ref': orderRef,
+        if (expectedRestartOn != null) 'expected_restart_on': expectedRestartOn,
+      };
+}
+
 final class RedFlagReason implements RequestModel {
   const RedFlagReason({
     required this.reason,
@@ -13581,6 +13729,22 @@ final class ReportNarrative implements RequestModel {
         if (solutions != null) 'solutions': solutions,
         if (proposals != null) 'proposals': proposals,
         if (linkedIssueIds != null) 'linked_issue_ids': linkedIssueIds,
+      };
+}
+
+final class ResolveRankingComplaint implements RequestModel {
+  const ResolveRankingComplaint({
+    required this.action,
+    this.resolution,
+  });
+
+  final String action;
+  final String? resolution;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'action': action,
+        if (resolution != null) 'resolution': resolution,
       };
 }
 
@@ -13857,6 +14021,44 @@ final class RptPeriod implements RequestModel {
         'year': year,
         if (index != null) 'index': index,
         if (day != null) 'day': day,
+      };
+}
+
+final class SaveRestartPlan implements RequestModel {
+  const SaveRestartPlan({
+    required this.steps,
+    this.expectedRestartOn,
+  });
+
+  final List<SaveRestartPlanStepsItem> steps;
+  final String? expectedRestartOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'steps': steps,
+        if (expectedRestartOn != null) 'expected_restart_on': expectedRestartOn,
+      };
+}
+
+final class SaveRestartPlanStepsItem implements RequestModel {
+  const SaveRestartPlanStepsItem({
+    required this.title,
+    required this.dueOn,
+    this.ownerId,
+    this.ownerUnitId,
+  });
+
+  final String title;
+  final String? ownerId;
+  final String? ownerUnitId;
+  final String dueOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'title': title,
+        if (ownerId != null) 'owner_id': ownerId,
+        if (ownerUnitId != null) 'owner_unit_id': ownerUnitId,
+        'due_on': dueOn,
       };
 }
 
