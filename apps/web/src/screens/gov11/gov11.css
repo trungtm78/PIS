@@ -1,0 +1,65 @@
+.gov11-page .gov11-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.gov11-page .gov11-figure {
+  position: relative;
+}
+
+.gov11-page .gov11-figure__info {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.gov11-page .gov11-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gov11-page .gov11-table th,
+.gov11-page .gov11-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--mv-color-border);
+  min-height: 44px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gov11-page .gov11-table th {
+  background: var(--mv-color-tableHead);
+  color: var(--mv-color-menuText);
+}
+
+.gov11-page .gov11-table td.gov11-num,
+.gov11-page .gov11-table th.gov11-num {
+  text-align: right;
+}
+
+.gov11-page .gov11-scroll {
+  overflow-x: auto;
+}
+
+.gov11-page .gov11-unverified {
+  color: var(--mv-color-warning);
+  background: var(--mv-color-warningSoft);
+}
+
+.gov11-page .gov11-form {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.gov11-page .gov11-form label {
+  display: grid;
+  gap: 4px;
+}
+
+.gov11-page .gov11-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
