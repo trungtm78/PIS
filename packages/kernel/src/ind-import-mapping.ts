@@ -113,7 +113,7 @@ function plainOfExponent(text: string): string | undefined {
  * A group sign in the wrong place, two signs, a percent sign, a currency word are all "not a number": the row is refused, never guessed at.
  */
 export function parseNumberCell(cell: string, format: NumberFormat): string | undefined {
-  const text = cell.replace(/[   ]/g, '');
+  const text = cell.replace(/[\u00a0\u202f\u2009 ]/g, '');
   if (text === '') return undefined;
   if (format === 'VN') {
     if (!VN_GROUPED.test(text) && !VN_SIMPLE.test(text)) return undefined;

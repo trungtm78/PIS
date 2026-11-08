@@ -52,7 +52,6 @@ export const DECIMAL_TEXT_PATTERN = '^-?(0|[1-9][0-9]{0,23})(\\.[0-9]{1,6})?$';
 
 const text = (max: number, optional = false, allowEmpty = false): FieldSpec => ({ kind: 'text', max, optional, allowEmpty });
 const word = (optional = false): FieldSpec => ({ kind: 'text', max: 64, optional });
-const codeText = (): FieldSpec => ({ kind: 'text', max: 40, pattern: '^[A-Z][A-Z0-9_]{1,39}$' });
 const oneOf = (values: readonly string[], optional = false): FieldSpec => ({ kind: 'enum', values, optional });
 const list = (of: FieldSpec, max: number, min = 0, optional = false): FieldSpec => ({ kind: 'list', of, max, min, optional });
 const decimalText = (optional = true): FieldSpec => ({ kind: 'text', max: 32, optional, pattern: DECIMAL_TEXT_PATTERN });
