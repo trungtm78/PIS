@@ -60,6 +60,12 @@ async function walk(serial, ops, recorder, log) {
       await sleep(op.hold);
       continue;
     }
+    if ('top' in op) {
+      // The list is brought back to its top (a scene may leave it scrolled).
+      for (let step = 0; step < 5; step += 1) adb(serial, 'shell', 'input', 'swipe', '360', '500', '360', '1250', '350');
+      await sleep(1200);
+      continue;
+    }
     if ('reset' in op) {
       // Back to the root of the tab: the back button of the bar is pressed while the screen shows one.
       for (let step = 0; step < 6; step += 1) {
@@ -70,7 +76,13 @@ async function walk(serial, ops, recorder, log) {
       }
       continue;
     }
-    await operate(serial, op, log, recorder);
+    try {
+      await operate(serial, op, log, recorder);
+    } catch (error) {
+      // An `optional` step (a row that this data set may not have) is skipped; any other failure ends the walk.
+      if (op.optional !== true) throw error;
+      log(`  skipped ${JSON.stringify(op)}: ${error instanceof Error ? error.message : error}`);
+    }
   }
 }
 

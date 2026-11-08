@@ -17,6 +17,9 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
@@ -68,6 +71,9 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
@@ -90,7 +96,8 @@
           "hold": 4500
         },
         {
-          "tap": "^Đăng thông báo mời thầu|^Chỉ đạo quá hạn"
+          "tap": "^Đăng thông báo mời thầu|^Chỉ đạo quá hạn",
+          "optional": true
         },
         {
           "hold": 6000
@@ -116,6 +123,9 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
@@ -126,19 +136,22 @@
           "hold": 5000
         },
         {
-          "tap": "^Duyệt và ký văn bản"
+          "tap": "^Duyệt và ký văn bản",
+          "optional": true
         },
         {
           "hold": 4500
         },
         {
-          "tap": "^Văn bản đến cần xử lý"
+          "tap": "^Văn bản đến cần xử lý",
+          "optional": true
         },
         {
           "hold": 4500
         },
         {
-          "tap": "^Duyệt nghiệm thu"
+          "tap": "^Duyệt nghiệm thu",
+          "optional": true
         },
         {
           "hold": 5000
@@ -164,6 +177,9 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
@@ -192,14 +208,16 @@
           "hold": 4000
         },
         {
-          "back": true
+          "reset": true
         },
         {
           "hold": 2000
         },
         {
           "tap": "^Hợp đồng và nhật ký công trường",
-          "open": "^Báo cáo và công việc hiện trường"
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 7000
@@ -225,30 +243,37 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
         {
           "tap": "^Ghi nhận vướng mắc hiện trường",
-          "open": "^Báo cáo và công việc hiện trường"
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
         },
         {
           "hold": 6000
         },
         {
-          "tap": "^Chụp hoặc chọn ảnh"
+          "tap": "^Chụp hoặc chọn ảnh",
+          "optional": true
         },
         {
           "hold": 6000
         },
         {
-          "tap": "^Chụp ảnh"
+          "tap": "^Chụp ảnh",
+          "optional": true
         },
         {
           "hold": 5000
         },
         {
-          "tap": "^Để sau"
+          "tap": "^Để sau",
+          "optional": true
         },
         {
           "hold": 3000
@@ -257,7 +282,8 @@
           "back": true
         },
         {
-          "tap": "^Vị trí và kiểm tra trước khi gửi"
+          "tap": "^Vị trí và kiểm tra trước khi gửi",
+          "optional": true
         },
         {
           "hold": 6000
@@ -277,18 +303,23 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
         {
           "tap": "^Gói thầu theo công đoạn",
-          "open": "^Báo cáo và công việc hiện trường"
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
         },
         {
           "hold": 6000
         },
         {
-          "tap": "^Xem cây tiến độ"
+          "tap": "^Xem cây tiến độ",
+          "optional": true
         },
         {
           "hold": 8000
@@ -300,13 +331,14 @@
           "hold": 4000
         },
         {
-          "back": true
+          "reset": true
         },
         {
           "hold": 2000
         },
         {
-          "tap": ", (Đang thực hiện|Tạm dừng|Hoàn thành|Chưa bắt đầu)$"
+          "tap": ", (Đang thực hiện|Tạm dừng|Hoàn thành|Chưa bắt đầu)$",
+          "optional": true
         },
         {
           "hold": 8000
@@ -332,18 +364,23 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
         {
-          "see": "^Cần xử lý ngay"
+          "see": "^Cần xử lý ngay",
+          "optional": true
         },
         {
           "hold": 4000
         },
         {
           "tap": "^Mở bảng điều hành đầy đủ",
-          "scroll": true
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 7000
@@ -375,12 +412,17 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
         {
           "tap": "^Rủi ro nhà thầu",
-          "open": "^Báo cáo và công việc hiện trường"
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 7000
@@ -392,7 +434,8 @@
           "hold": 4000
         },
         {
-          "tap": ", (Thấp|Trung bình|Cao|Nghiêm trọng)$"
+          "tap": ", (Thấp|Trung bình|Cao|Nghiêm trọng)$",
+          "optional": true
         },
         {
           "hold": 8000
@@ -418,18 +461,23 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
         {
           "tap": "^Báo cáo tháng",
-          "open": "^Báo cáo và công việc hiện trường"
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
         },
         {
           "hold": 6000
         },
         {
-          "tap": "^Danh sách nháp"
+          "tap": "^Danh sách nháp",
+          "optional": true
         },
         {
           "hold": 5000
@@ -467,12 +515,16 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
         {
           "tap": "^Hỏi đáp có nguồn về hồ sơ",
-          "open": "^Báo cáo và công việc hiện trường"
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
         },
         {
           "hold": 7000
@@ -484,7 +536,8 @@
           "hold": 2000
         },
         {
-          "tap": "^Phân tích nhà thầu"
+          "tap": "^Phân tích nhà thầu",
+          "optional": true
         },
         {
           "hold": 7000
@@ -516,6 +569,9 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
@@ -524,7 +580,8 @@
         },
         {
           "tap": "^Làm việc ngoại tuyến",
-          "scroll": true
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 7000
@@ -537,7 +594,8 @@
         },
         {
           "tap": "^Hàng đợi gửi",
-          "scroll": true
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 7000
@@ -563,6 +621,9 @@
         },
         {
           "reset": true
+        },
+        {
+          "top": true
         }
       ],
       "ops": [
@@ -571,7 +632,8 @@
         },
         {
           "tap": "^Thiết bị và đăng xuất",
-          "scroll": true
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 7000
@@ -584,7 +646,8 @@
         },
         {
           "tap": "^Thông báo đẩy",
-          "scroll": true
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 6000
@@ -597,7 +660,8 @@
         },
         {
           "tap": "^Đổi tổ chức hoặc vai trò",
-          "scroll": true
+          "scroll": true,
+          "optional": true
         },
         {
           "hold": 5000
