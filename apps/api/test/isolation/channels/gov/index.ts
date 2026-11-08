@@ -5,6 +5,7 @@ import { EGP_OPERATIONS, EGP_SNAPSHOT_TABLES, EGP_SPECS, seedEgp } from './egp';
 import { GOVRULE_OPERATIONS, GOVRULE_SNAPSHOT_TABLES, GOVRULE_SPECS, seedGovrule } from './govrule';
 import { HOME_OPERATIONS, HOME_SNAPSHOT_TABLES, seedHome } from './home';
 import { PAYCTL_OPERATIONS, PAYCTL_SNAPSHOT_TABLES, PAYCTL_SPECS, seedPayctl } from './payctl';
+import { RATING_OPERATIONS, RATING_SNAPSHOT_TABLES, RATING_SPECS, seedRating } from './rating';
 import { RESERVE_OPERATIONS, RESERVE_SNAPSHOT_TABLES, RESERVE_SPECS, seedReserve } from './reserve';
 import type { SeedContext } from './support';
 import { WORKFLOW_OPERATIONS, WORKFLOW_SNAPSHOT_TABLES, WORKFLOW_SPECS, seedWorkflow } from './workflow';
@@ -17,6 +18,7 @@ export const GOVERNANCE_SPECS: readonly ForeignAttemptSpec[] = [
   ...PAYCTL_SPECS,
   ...WORKFLOW_SPECS,
   ...EGP_SPECS,
+  ...RATING_SPECS,
 ];
 
 /** Every operation of these controllers: the test role of the suite holds the permission of each. */
@@ -27,6 +29,7 @@ export const GOVERNANCE_OPERATIONS: readonly string[] = [
   ...PAYCTL_OPERATIONS,
   ...WORKFLOW_OPERATIONS,
   ...EGP_OPERATIONS,
+  ...RATING_OPERATIONS,
   ...HOME_OPERATIONS,
 ];
 
@@ -39,6 +42,7 @@ export const GOVERNANCE_SNAPSHOT_TABLES: readonly string[] = [
     ...PAYCTL_SNAPSHOT_TABLES,
     ...WORKFLOW_SNAPSHOT_TABLES,
     ...EGP_SNAPSHOT_TABLES,
+    ...RATING_SNAPSHOT_TABLES,
     ...HOME_SNAPSHOT_TABLES,
   ]),
 ];
@@ -51,5 +55,6 @@ export async function seedGovernance(client: Client, context: SeedContext): Prom
   await seedPayctl(client, context);
   await seedWorkflow(client, context);
   await seedEgp(client, context);
+  await seedRating(client, context);
   await seedHome(client, context);
 }
