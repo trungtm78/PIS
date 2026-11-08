@@ -28,7 +28,7 @@ VND-23 (staff: portal access invitations), BID petition outcomes screen, the upl
 |---|---|---|
 | 1 | [x] Plan, migration block registered | `npm run migrations:check` |
 | 2 | [x] Kernel: pure rules (`vnd-portal-access.ts`: invitation states, contact basis, expiry; `bid-petition-outcome.ts`), rule `VENDOR_PORTAL_ACCESS`, role PORTAL_CONTRACTOR, texts | `packages/kernel/test/portal2*.test.ts` |
-| 3 | [x] Migrations V2640-V2645 (invitation, outcome, attachment/document policy, roles, permissions) | rls-catalog, migrations check |
+| 3 | [x] Migrations V2640-V2644 (invitation, outcome, attachment, portal boundary, role and permission) | rls-catalog, migrations check |
 | 4 | [x] DB stores: invitation, outcome, dispute fold, attachment; portal store uses attachments | `packages/db/test/portal2-*.test.ts` through the db lane |
 | 5 | [x] Contract (contract-patch), controllers, upload guard + scan port, jobs, authz | `apps/api/test/bid/portal2*.test.ts` |
 | 6 | [x] Web: VND-23, petition outcomes, upload control, i18n part, routes, nav | vitest of the screens |
