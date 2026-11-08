@@ -303,7 +303,7 @@ describe('exports and the per-recipient schedules (ST-BI-008, BI 3 F7)', () => {
     expect(await request(world, 'CSV', LEADER, 'x' as never)).toMatchObject({ status: 400 });
     expect(await app.call('POST', '/bi/exports', { member: LEADER, body: { query_spec: spec(), as_of_period: '2099-01', format: 'CSV' } })).toMatchObject({ status: 422, json: { code: 'SNAPSHOT_NOT_FOUND' } });
     expect(await app.call('POST', '/bi/exports', { member: LEADER, body: { query_spec: spec(), as_of_period: '1999-12', snapshot_id: world.version, format: 'CSV' } })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED', detail: 'as_of_period' } });
-    expect(await app.call('POST', '/bi/exports', { member: LEADER, body: { query_spec: spec(), as_of_period: world.period, format: 'DOCX' } })).toMatchObject({ status: 422 });
+    expect(await app.call('POST', '/bi/exports', { member: LEADER, body: { query_spec: spec(), as_of_period: world.period, format: 'ODT' } })).toMatchObject({ status: 422 });
     expect(await request(world, 'CSV', NOBODY)).toMatchObject({ status: 403 });
     // No policy opens the dataset to the role: the refusal is a DENIED job.
     expect(await request(world, 'CSV', ANALYST_NONE)).toMatchObject({ status: 403 });
@@ -356,7 +356,7 @@ describe('exports and the per-recipient schedules (ST-BI-008, BI 3 F7)', () => {
     expect(await createSchedule(LEADER, { ...base, query_spec: { metric_version_id: randomUUID() } })).toMatchObject({ status: 422, json: { detail: 'query_spec.metric_version_id' } });
     expect(await createSchedule(LEADER, { ...base, query_spec: { ...spec(), sql: 'x' } })).toMatchObject({ status: 422, json: { detail: 'query_spec.sql' } });
     expect(await createSchedule(LEADER, { ...base, dashboard_id: randomUUID() })).toMatchObject({ status: 422, json: { detail: 'dashboard_id' } });
-    expect(await createSchedule(LEADER, { ...base, format: 'DOCX' })).toMatchObject({ status: 422 });
+    expect(await createSchedule(LEADER, { ...base, format: 'ODT' })).toMatchObject({ status: 422 });
     expect(await createSchedule(NOBODY, base)).toMatchObject({ status: 403 });
     await owner("update machvon.metric_definition set status = 'DRAFT' where id = $1", [metric]);
     expect(await createSchedule(LEADER, base)).toMatchObject({ status: 422, json: { code: 'METRIC_NOT_CERTIFIED' } });
