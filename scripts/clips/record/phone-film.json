@@ -232,7 +232,7 @@
     },
     "ph-field": {
       "persona": "projectManager",
-      "headline": "Báo cáo hiện trường có ảnh",
+      "headline": "Nhật ký, khối lượng và ảnh hiện trường",
       "minSec": 40,
       "before": [
         {
@@ -250,43 +250,61 @@
       ],
       "ops": [
         {
-          "tap": "^Ghi nhận vướng mắc hiện trường",
+          "tap": "^Hợp đồng và nhật ký công trường",
           "open": "^Báo cáo và công việc hiện trường",
           "scroll": true
         },
         {
-          "hold": 6000
+          "hold": 5000
         },
         {
-          "tap": "^Chụp hoặc chọn ảnh",
-          "optional": true
-        },
-        {
-          "hold": 6000
-        },
-        {
-          "tap": "^Chụp ảnh",
+          "tap": "^Viết nhật ký công trường",
           "optional": true
         },
         {
           "hold": 5000
         },
         {
-          "tap": "^Để sau",
+          "back": true
+        },
+        {
+          "hold": 1500
+        },
+        {
+          "tap": "^Ghi nhận khối lượng",
           "optional": true
         },
         {
-          "hold": 3000
+          "hold": 5000
         },
         {
           "back": true
         },
         {
-          "tap": "^Vị trí và kiểm tra trước khi gửi",
+          "hold": 1500
+        },
+        {
+          "tap": "^Chụp ảnh hiện trường",
           "optional": true
         },
         {
-          "hold": 6000
+          "hold": 5000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 1500
+        },
+        {
+          "tap": "^Kiểm tra chất lượng",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "reset": true
         }
       ]
     },
