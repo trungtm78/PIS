@@ -169,8 +169,8 @@ export const UPLOAD_PURPOSES: Readonly<Record<UploadPurpose, { allowed: readonly
   import: { allowed: [SPREADSHEET, 'text/csv'], maxBytes: 25 * MEBIBYTE },
   // The sealed export of the audit trail (ST-ADM-016): CSV, or JSON lines which travel as plain text.
   audit_export: { allowed: ['text/csv', 'text/plain'], maxBytes: 64 * MEBIBYTE },
-  // The export of a frozen snapshot (ST-DIS-016): CSV, a workbook, or a PDF.
-  report_export: { allowed: ['text/csv', SPREADSHEET, 'application/pdf'], maxBytes: 64 * MEBIBYTE },
+  // The export of a frozen snapshot (ST-DIS-016): CSV, a workbook, a PDF, or a Word document (IAM-2).
+  report_export: { allowed: ['text/csv', SPREADSHEET, 'application/pdf', `${OOXML_PREFIX}wordprocessingml.document`], maxBytes: 64 * MEBIBYTE },
   // A photo of the site (ST-QMS-003): an image and nothing else; the register reads it, and a photo is not an office file.
   site_photo: { allowed: IMAGES, maxBytes: 15 * MEBIBYTE },
   // An attachment a phone uploads in chunks (ST-MOB-009): a photo or a PDF, up to 50 MiB.

@@ -1162,5 +1162,9 @@
   "alert.feedback.reason.already_handled": "Đã xử lý rồi",
   "alert.feedback.reason.not_my_role": "Không thuộc việc của tôi",
   "alert.feedback.reason.too_early": "Báo quá sớm",
-  "alert.feedback.reason.other": "Lý do khác"
+  "alert.feedback.reason.other": "Lý do khác",
+  "export.docx.header.name": "Thông tin",
+  "export.docx.header.value": "Giá trị",
+  "export.docx.footer": "Bản xuất từ hệ thống quản lý đầu tư công",
+  "export.docx.no_rows": "Không có dòng dữ liệu trong phạm vi của người xuất."
 }

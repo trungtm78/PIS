@@ -8,7 +8,7 @@ import { message } from './messages.ts';
  * that says what the numbers are: scope, period, snapshot, unit of account, time of the file and the status of the definitions. While the business owner has not signed the definitions (D03, CXN-03),
  * the file says so in a notice, so that a number taken out of the system is not taken for an executive figure.
  */
-export const EXPORT_FORMATS = ['CSV', 'XLSX', 'PDF'] as const;
+export const EXPORT_FORMATS = ['CSV', 'XLSX', 'PDF', 'DOCX'] as const;
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];
 
 /** An assumption of the first release: a file holds at most this many lines (a longer snapshot is asked for by unit), and a PDF, which is read by a person, far fewer. */

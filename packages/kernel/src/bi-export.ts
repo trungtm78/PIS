@@ -8,9 +8,9 @@ export const BI_EXPORT_ROW_CAP = 100_000;
 export const BI_EXPORT_TTL_DAYS = 7;
 /** The link that is given to download a file lives this long (the files service never gives a longer one). */
 export const BI_EXPORT_LINK_SECONDS = 300;
-export const BI_EXPORT_FORMATS = ['CSV', 'XLSX', 'PDF'] as const;
+export const BI_EXPORT_FORMATS = ['CSV', 'XLSX', 'PDF', 'DOCX'] as const;
 export type BiExportFormat = (typeof BI_EXPORT_FORMATS)[number];
-export const BI_SCHEDULE_FORMATS = ['CSV', 'XLSX', 'PDF', 'LINK_ONLY'] as const;
+export const BI_SCHEDULE_FORMATS = ['CSV', 'XLSX', 'PDF', 'DOCX', 'LINK_ONLY'] as const;
 export type BiScheduleFormat = (typeof BI_SCHEDULE_FORMATS)[number];
 export const BI_SCHEDULE_TIMEZONE = 'Asia/Ho_Chi_Minh';
 export const BI_SCHEDULE_MAX_RECIPIENTS = 500;

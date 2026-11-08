@@ -11,11 +11,11 @@ import type { MneFieldKind, MneReportStatus } from './mne-report.ts';
 export const MNE_EXPORT_TARGETS = ['NATIONAL_PIM_SYSTEM', 'RECIPIENT_AGENCY', 'LGSP'] as const;
 export type MneExportTarget = (typeof MNE_EXPORT_TARGETS)[number];
 
-export const MNE_EXPORT_FORMATS = ['XLSX', 'PDF', 'XML', 'CSV'] as const;
+export const MNE_EXPORT_FORMATS = ['XLSX', 'PDF', 'XML', 'CSV', 'DOCX'] as const;
 export type MneExportFormat = (typeof MNE_EXPORT_FORMATS)[number];
 
 /** The formats this release makes: the XML of the national system has no specification yet (CXN-05), so it is refused, not guessed. */
-export const MNE_GENERATED_FORMATS: readonly MneExportFormat[] = ['XLSX', 'PDF', 'CSV'];
+export const MNE_GENERATED_FORMATS: readonly MneExportFormat[] = ['XLSX', 'PDF', 'CSV', 'DOCX'];
 
 export const MNE_PACKAGE_STATUSES = ['GENERATED', 'DOWNLOADED', 'SUBMISSION_CONFIRMED', 'REJECTED', 'EXPIRED'] as const;
 export type MnePackageStatus = (typeof MNE_PACKAGE_STATUSES)[number];
