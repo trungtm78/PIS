@@ -10,7 +10,7 @@ import { ContractAnalyticsController } from '../../src/modules/ctr/analytics.con
 import { RatingController, RatingReadsController } from '../../src/modules/ctr/rating.controller';
 import { ScorecardController } from '../../src/modules/ctr/scorecard.controller';
 import { CapWorld } from '../../../../packages/db/test/support/cap-fixtures';
-import { TENANT_A, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { TENANT_A, id, memberId } from '../../../../packages/db/test/support/authz-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -160,7 +160,6 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
 
   beforeAll(async () => {
     await world.start();
-    await harness.seedUnits(TENANT_A, [{ n: BQL1, path: `/${unitId(ROOT)}/${unitId(BQL1)}/`, parent: ROOT }]);
     for (const n of MEMBERS) await harness.seedMembership(TENANT_A, n, ROOT);
     const all = ['contract.read', 'contract.analytics.read', 'ledger.read', 'aud.read', 'contractor.performance.read', 'contractor.performance.propose', 'contractor.performance.notify', 'contractor.performance.respond', 'contractor.performance.evaluate'];
     await harness.seedRole(TENANT_A, 91, 'CA3_ALL', all, 50);
