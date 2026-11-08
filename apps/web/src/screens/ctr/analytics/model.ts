@@ -154,6 +154,78 @@ export interface BreakdownGroup {
   totals: TotalsView;
 }
 
+export interface Breakdown {
+  dimension: string;
+  groups: BreakdownGroup[];
+}
+
+/** A governance rule the report was judged by: which one, which version, where it came from, whether anybody confirmed it. */
+export interface RuleUsed {
+  type: string;
+  version: number;
+  source: string;
+  unverified: boolean;
+  params: Record<string, number | string>;
+}
+
+export interface EvmCoverage {
+  contracts: number;
+  covered: number;
+  missing: Record<string, number>;
+  v0Contracts: number;
+}
+
+export interface EvmFigures {
+  bacVnd: string | null;
+  pvVnd: string | null;
+  evVnd: string | null;
+  acVnd: string | null;
+  svVnd: string | null;
+  spi: IndicatorValue | null;
+  cpi: IndicatorValue | null;
+  ragSpi: string | null;
+  ragCpi: string | null;
+}
+
+/** The earned value of the selection: figures and how many contracts have them, or why the block has none (NOT_IN_SNAPSHOT for a frozen period). */
+export interface EvmView {
+  status: 'OK' | 'UNAVAILABLE';
+  reason: string | null;
+  coverage: EvmCoverage | null;
+  figures: EvmFigures | null;
+}
+
+export interface TierGroupView {
+  key: string;
+  count: number;
+  deltaVnd: string | null;
+  growth: IndicatorValue | null;
+  shareOfGrowthPct: string | null;
+  maxCumulativePct: string | null;
+}
+
+export interface TierSplitView {
+  status: 'OK' | 'UNAVAILABLE';
+  reason: string | null;
+  originalValueVnd: string;
+  totalDeltaVnd: string;
+  totalCount: number;
+  groups: TierGroupView[];
+}
+
+export interface LadderStep {
+  key: string;
+  count: number;
+  amountVnd: string;
+}
+
+export interface LadderView {
+  status: 'OK' | 'UNAVAILABLE';
+  reason: string | null;
+  retention: LadderStep[];
+  guarantee: LadderStep[];
+}
+
 export interface ReportView {
   code: string;
   ref: string;
@@ -162,9 +234,13 @@ export interface ReportView {
   items: RowView[];
   totals: TotalsView;
   breakdown: { dimension: string; groups: BreakdownGroup[] } | null;
+  breakdowns: Breakdown[];
+  rules: RuleUsed[];
   definitions: Definition[];
   nextCursor: string | null;
-  evmStatus: string | null;
+  evm: EvmView | null;
+  tierSplit: TierSplitView | null;
+  ladders: LadderView | null;
   paymentClock: { acceptanceToRequestDays: number; requestToTreasuryDays: number } | null;
 }
 
@@ -227,6 +303,138 @@ function toRow(raw: unknown): RowView[] {
   ];
 }
 
+const toBreakdown = (raw: unknown): Breakdown[] => {
+  const breakdown = asRecord(raw);
+  const dimension = str(breakdown?.dimension);
+  if (breakdown === undefined || dimension === undefined) return [];
+  return [
+    {
+      dimension,
+      groups: list(breakdown.groups).flatMap((group): BreakdownGroup[] => {
+        const row = asRecord(group);
+        const key = str(row?.key);
+        const groupTotals = toTotals(row?.totals);
+        return key === undefined || groupTotals === undefined ? [] : [{ key, totals: groupTotals }];
+      }),
+    },
+  ];
+};
+
+function toRule(raw: unknown): RuleUsed[] {
+  const row = asRecord(raw);
+  const type = str(row?.type);
+  if (row === undefined || type === undefined) return [];
+  const params: Record<string, number | string> = {};
+  for (const [key, value] of Object.entries(asRecord(row.params) ?? {})) if (typeof value === 'number' || typeof value === 'string') params[key] = value;
+  return [{ type, version: num(row.version) ?? 0, source: str(row.source) ?? 'DEFAULT', unverified: row.unverified !== false, params }];
+}
+
+const toOne = (raw: unknown): IndicatorValue | null => toIndicator(raw)[0] ?? null;
+
+/** The earned value block of the schedule report and of the S-curve answer. */
+export function toEvmView(raw: unknown): EvmView | null {
+  const row = asRecord(raw);
+  if (row === undefined) return null;
+  const status = row.status === 'OK' ? 'OK' : 'UNAVAILABLE';
+  const coverage = asRecord(row.coverage);
+  const figures = asRecord(row.figures);
+  const missing: Record<string, number> = {};
+  for (const [key, value] of Object.entries(asRecord(coverage?.missing) ?? {})) if (typeof value === 'number') missing[key] = value;
+  return {
+    status,
+    reason: strOrNull(row.reason),
+    coverage: coverage === undefined ? null : { contracts: num(coverage.contracts) ?? 0, covered: num(coverage.covered) ?? 0, missing, v0Contracts: num(coverage.v0_contracts) ?? 0 },
+    figures:
+      figures === undefined
+        ? null
+        : {
+            bacVnd: strOrNull(figures.bac_vnd),
+            pvVnd: strOrNull(figures.pv_vnd),
+            evVnd: strOrNull(figures.ev_vnd),
+            acVnd: strOrNull(figures.ac_vnd),
+            svVnd: strOrNull(figures.sv_vnd),
+            spi: toOne(figures.spi),
+            cpi: toOne(figures.cpi),
+            ragSpi: strOrNull(figures.rag_spi),
+            ragCpi: strOrNull(figures.rag_cpi),
+          },
+  };
+}
+
+function toTierSplit(raw: unknown): TierSplitView | null {
+  const row = asRecord(raw);
+  if (row === undefined) return null;
+  if (row.status === 'UNAVAILABLE') return { status: 'UNAVAILABLE', reason: strOrNull(row.reason), originalValueVnd: '0', totalDeltaVnd: '0', totalCount: 0, groups: [] };
+  const original = str(row.original_value_vnd);
+  const total = str(row.total_delta_vnd);
+  if (original === undefined || total === undefined || !Array.isArray(row.groups)) return null;
+  return {
+    status: 'OK',
+    reason: null,
+    originalValueVnd: original,
+    totalDeltaVnd: total,
+    totalCount: num(row.total_count) ?? 0,
+    groups: list(row.groups).flatMap((group): TierGroupView[] => {
+      const one = asRecord(group);
+      const key = str(one?.key);
+      return one === undefined || key === undefined
+        ? []
+        : [{ key, count: num(one.count) ?? 0, deltaVnd: strOrNull(one.delta_vnd), growth: toOne(one.growth), shareOfGrowthPct: strOrNull(one.share_of_growth_pct), maxCumulativePct: strOrNull(one.max_cumulative_variation_pct) }];
+    }),
+  };
+}
+
+const toSteps = (raw: unknown): LadderStep[] =>
+  list(raw).flatMap((step): LadderStep[] => {
+    const one = asRecord(step);
+    const key = str(one?.key);
+    return one === undefined || key === undefined ? [] : [{ key, count: num(one.count) ?? 0, amountVnd: str(one.amount_vnd) ?? '0' }];
+  });
+
+function toLadders(raw: unknown): LadderView | null {
+  const row = asRecord(raw);
+  if (row === undefined) return null;
+  if (row.status === 'UNAVAILABLE') return { status: 'UNAVAILABLE', reason: strOrNull(row.reason), retention: [], guarantee: [] };
+  if (!Array.isArray(row.retention) || !Array.isArray(row.guarantee)) return null;
+  return { status: 'OK', reason: null, retention: toSteps(row.retention), guarantee: toSteps(row.guarantee) };
+}
+
+export interface CurvePointView {
+  day: string;
+  pvV0Vnd: string | null;
+  pvCurrentVnd: string;
+  evVnd: string | null;
+  acVnd: string | null;
+}
+
+export interface CurveView {
+  evm: EvmView;
+  asOf: string;
+  contracts: number;
+  v0Complete: boolean;
+  points: CurvePointView[];
+}
+
+/** The S-curve answer of the schedule report; undefined when the body is not what the contract says. */
+export function toCurveView(raw: unknown): CurveView | undefined {
+  const body = asRecord(raw);
+  const evm = toEvmView(body?.evm);
+  const curve = asRecord(body?.curve);
+  if (body === undefined || evm === null || curve === undefined || !Array.isArray(curve.points)) return undefined;
+  return {
+    evm,
+    asOf: str(curve.as_of) ?? '',
+    contracts: num(curve.contracts) ?? 0,
+    v0Complete: curve.v0_complete === true,
+    points: list(curve.points).flatMap((point): CurvePointView[] => {
+      const one = asRecord(point);
+      const day = str(one?.day);
+      const current = str(one?.pv_current_vnd);
+      return one === undefined || day === undefined || current === undefined ? [] : [{ day, pvV0Vnd: strOrNull(one.pv_v0_vnd), pvCurrentVnd: current, evVnd: strOrNull(one.ev_vnd), acVnd: strOrNull(one.ac_vnd) }];
+    }),
+  };
+}
+
 /** The portfolio or a report R1 to R7; undefined when the body is not what the contract says (the screen shows the error state). */
 export function toReportView(raw: unknown): ReportView | undefined {
   const body = asRecord(raw);
@@ -234,8 +442,6 @@ export function toReportView(raw: unknown): ReportView | undefined {
   const totals = toTotals(body?.totals);
   const code = str(body?.code);
   if (body === undefined || context === undefined || totals === undefined || code === undefined || !Array.isArray(body.items) || !Array.isArray(body.columns)) return undefined;
-  const breakdown = asRecord(body.breakdown);
-  const evm = asRecord(body.evm);
   const clock = asRecord(body.payment_clock);
   return {
     code,
@@ -248,21 +454,14 @@ export function toReportView(raw: unknown): ReportView | undefined {
     }),
     items: list(body.items).flatMap(toRow),
     totals,
-    breakdown:
-      breakdown === undefined || str(breakdown.dimension) === undefined
-        ? null
-        : {
-            dimension: str(breakdown.dimension) as string,
-            groups: list(breakdown.groups).flatMap((group): BreakdownGroup[] => {
-              const row = asRecord(group);
-              const key = str(row?.key);
-              const groupTotals = toTotals(row?.totals);
-              return key === undefined || groupTotals === undefined ? [] : [{ key, totals: groupTotals }];
-            }),
-          },
+    breakdown: toBreakdown(body.breakdown)[0] ?? null,
+    breakdowns: Array.isArray(body.breakdowns) ? list(body.breakdowns).flatMap(toBreakdown) : toBreakdown(body.breakdown),
+    rules: list(body.rules).flatMap(toRule),
     definitions: list(body.definitions).flatMap(toDefinition),
     nextCursor: strOrNull(body.next_cursor),
-    evmStatus: evm === undefined ? null : (str(evm.status) ?? null),
+    evm: toEvmView(body.evm),
+    tierSplit: toTierSplit(body.tier_split),
+    ladders: toLadders(body.ladders),
     paymentClock:
       clock === undefined || num(clock.acceptance_to_request_days) === undefined || num(clock.request_to_treasury_days) === undefined
         ? null
@@ -453,6 +652,15 @@ export function moneyText(value: string, locale: string): string {
   return /^-?\d+$/.test(value) ? new Intl.NumberFormat(locale).format(BigInt(value)) : value;
 }
 
+/** Whole dong as billions for the picture only (never shown as a figure); null for what is not whole dong. */
+export function billionsOf(value: string | null): number | null {
+  if (value === null || !/^-?\d{1,24}$/.test(value)) return null;
+  return Number(BigInt(value)) / 1e9;
+}
+
+/** A decimal figure (an index of four places) with the decimal mark of the language. */
+export const decimalText = (value: string, locale: string): string => (locale === 'vi' ? value.replace('.', ',') : value);
+
 /** A percent with two decimals from its text, with the decimal mark of the language. */
 export function percentText(value: string, locale: string): string {
   return `${locale === 'vi' ? value.replace('.', ',') : value}%`;
@@ -476,16 +684,28 @@ export const barLength = (value: string | null): number => {
 };
 
 /** The breakdown of a report as points of a chart: a group with no figure for the column is left out (the table says it has none), never drawn as zero. */
-export function breakdownPoints(view: ReportView, column: string): Array<{ key: string; value: number; text: Cell }> {
-  if (view.breakdown === null) return [];
-  return view.breakdown.groups.flatMap((group) => {
+export function breakdownPoints(view: ReportView, column: string, dimension?: string): Array<{ key: string; value: number; text: Cell }> {
+  const breakdown = dimension === undefined ? view.breakdown : (view.breakdowns.find((one) => one.dimension === dimension) ?? null);
+  if (breakdown === null) return [];
+  return breakdown.groups.flatMap((group) => {
     const cell = group.totals.cells[column] ?? null;
     const value = cell === null ? Number.NaN : Number(cell);
     return Number.isFinite(value) ? [{ key: group.key, value, text: cell }] : [];
   });
 }
 
-/** The column the breakdown chart draws for a report: the first money column that sums, else the first count. */
-export function chartColumn(view: ReportView): ColumnView | undefined {
-  return view.columns.find((column) => column.kind === 'MONEY' && column.total === 'SUM' && !column.ledger) ?? view.columns.find((column) => column.kind === 'MONEY' && column.total === 'SUM') ?? view.columns.find((column) => column.kind === 'COUNT' && column.total === 'SUM');
+/** The column a breakdown of a report draws when the report says which one tells the story of its groups (the age of an advance is told by what is outstanding, not by what was lent). */
+const CHART_COLUMN: Readonly<Record<string, string>> = {
+  'schedule-delay:delay_band': 'earned_value_vnd',
+  'payment-three-way:match_status': 'paid_vnd',
+  'advance-ageing:age_bucket': 'advance_outstanding_vnd',
+  'advance-ageing:recovery_status': 'advance_recovery_shortfall_vnd',
+  'retention-guarantee:contract_status': 'retention_held_vnd',
+  'change-growth:change_tier': 'approved_change_delta_vnd',
+};
+
+/** The column the breakdown chart draws for a report: the one the report names, else the first money column that sums, else the first count. */
+export function chartColumn(view: ReportView, dimension?: string): ColumnView | undefined {
+  const named = dimension === undefined ? undefined : view.columns.find((column) => column.key === CHART_COLUMN[`${view.code}:${dimension}`]);
+  return named ?? view.columns.find((column) => column.kind === 'MONEY' && column.total === 'SUM' && !column.ledger) ?? view.columns.find((column) => column.kind === 'MONEY' && column.total === 'SUM') ?? view.columns.find((column) => column.kind === 'COUNT' && column.total === 'SUM');
 }

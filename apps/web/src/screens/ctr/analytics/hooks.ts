@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { useSession } from '../../../session/SessionContext';
-import { queryParams, toConcentrationView, toReportFile, toReportView, toSnapshotRef } from './model';
-import type { AnalyticsQuery, ConcentrationView, ReportCode, ReportFile, ReportView, SnapshotRef } from './model';
+import { queryParams, toConcentrationView, toCurveView, toReportFile, toReportView, toSnapshotRef } from './model';
+import type { AnalyticsQuery, ConcentrationView, CurveView, ReportCode, ReportFile, ReportView, SnapshotRef } from './model';
 
 // What these screens show depends on the scope of the membership that is signed in, not only on the tenant: the membership is part of every key.
 export function useScopeKey(): readonly ['ctr-analytics', string | undefined, string | undefined] {
@@ -43,6 +43,26 @@ export function useReport(code: Exclude<ReportCode, 'contractor-concentration'>,
     queryFn: async () => {
       const view = toReportView(await client.read('getContractReport' as never, { path: { code }, query: params } as never));
       if (view === undefined) throw malformed('getContractReport');
+      return view;
+    },
+    enabled: enabled && key[1] !== undefined,
+    retry: false,
+    placeholderData: (previous) => previous,
+  });
+}
+
+/** The S-curve of the contracts a filter selects (R3): the curve is read apart from the table, so a failure of it leaves the figures in place. Live only: a frozen period holds no earned value. */
+export function useScheduleCurve(query: AnalyticsQuery, enabled = true) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  const params = queryParams({ ...query, filter: { ...query.filter, period: '' } }, false);
+  delete params.sort;
+  delete params.dir;
+  return useQuery<CurveView>({
+    queryKey: [...key, 'report', 'schedule-delay', 's-curve', params],
+    queryFn: async () => {
+      const view = toCurveView(await client.read('getContractScheduleSCurve' as never, { query: params } as never));
+      if (view === undefined) throw malformed('getContractScheduleSCurve');
       return view;
     },
     enabled: enabled && key[1] !== undefined,

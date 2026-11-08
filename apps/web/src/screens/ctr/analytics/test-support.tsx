@@ -163,7 +163,61 @@ export const concentrationBody = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
+const indicator = (code: string, value: string | null, extra: Record<string, unknown> = {}) => ({ code, value, status: value === null ? 'NOT_APPLICABLE' : 'OK', reason: null, numerator: null, denominator: null, ...extra });
+
+/** The earned value block of the schedule report and of the S-curve answer: two of three contracts have figures, one has no package. */
+export const evmBody = (over: Record<string, unknown> = {}) => ({
+  status: 'OK',
+  reason: null,
+  as_of: '2026-11-08',
+  coverage: { contracts: 3, covered: 2, missing: { NO_CONTRACT_LINK: 1 }, v0_contracts: 2 },
+  figures: {
+    bac_vnd: '4000000000',
+    pv_vnd: '2500000000',
+    ev_vnd: '2000000000',
+    ac_vnd: '2200000000',
+    sv_vnd: '-500000000',
+    spi: indicator('SPI', '0.8000', { numerator: '2000000000', denominator: '2500000000' }),
+    cpi: indicator('CPI', '0.9091', { numerator: '2000000000', denominator: '2200000000' }),
+    rag_spi: 'RED',
+    rag_cpi: 'AMBER',
+  },
+  policy: { version: 'built-in:1', source: 'BUILT_IN', eac_method: 'CPI_CUMULATIVE', amber_below: 0.95, red_below: 0.85 },
+  ...over,
+});
+
+export const curveBody = (over: Record<string, unknown> = {}) => ({
+  code: 'schedule-delay',
+  as_of: '2026-11-08T01:00:00.000Z',
+  context: context(),
+  evm: evmBody(),
+  curve: {
+    as_of: '2026-11-08',
+    contracts: 2,
+    v0_contracts: 2,
+    v0_complete: true,
+    points: [
+      { day: '2026-01-31', pv_v0_vnd: '500000000', pv_current_vnd: '400000000', ev_vnd: '300000000', ac_vnd: '350000000' },
+      { day: '2026-11-08', pv_v0_vnd: '3000000000', pv_current_vnd: '2500000000', ev_vnd: '2000000000', ac_vnd: '2200000000' },
+      { day: '2027-12-31', pv_v0_vnd: '4000000000', pv_current_vnd: '4000000000', ev_vnd: null, ac_vnd: null },
+    ],
+  },
+  ...over,
+});
+
+export const DEFINITIONS_CA2 = ['SPI', 'CPI', 'ON_TIME_PAYMENT_RATE', 'MEASURED_TO_ACCEPTED', 'ADVANCE_RECOVERY_SHORTFALL', 'GUARANTEE_EXPOSURE', 'CHANGE_TIER_GROWTH'].map((code) => ({
+  code,
+  name: code,
+  formula: `formula of ${code}`,
+  numerator: 'a',
+  denominator: code === 'GUARANTEE_EXPOSURE' || code === 'ADVANCE_RECOVERY_SHORTFALL' ? null : 'b',
+  unit: code === 'SPI' || code === 'CPI' ? 'INDEX' : 'PERCENT',
+  source_tables: ['contract'],
+  null_policy: 'never 0',
+}));
+
 export interface Answers {
+  curve?: () => unknown;
   portfolio?: (query: Record<string, string> | undefined) => unknown;
   report?: (code: string, query: Record<string, string> | undefined) => unknown;
   exportFile?: (code: string, query: Record<string, string> | undefined) => unknown;
@@ -185,6 +239,8 @@ export function analyticsClient(answers: Answers): Harness {
         return answers.report === undefined ? portfolioBody() : answers.report(typed?.path?.code ?? '', typed?.query);
       case 'exportContractReport':
         return answers.exportFile === undefined ? new Error('no export') : answers.exportFile(typed?.path?.code ?? '', typed?.query);
+      case 'getContractScheduleSCurve':
+        return answers.curve === undefined ? curveBody() : answers.curve();
       case 'listContractFactSnapshots':
         return answers.snapshots === undefined ? { items: [], as_of: '2026-11-08T00:00:00.000Z' } : answers.snapshots();
       default:

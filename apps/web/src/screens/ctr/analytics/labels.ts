@@ -29,6 +29,9 @@ export function groupLabel(t: Translate, dimension: string, key: string): string
 
 export const dimensionLabel = (t: Translate, dimension: string): string => t(`ca1.dimension.${camel(dimension)}`);
 
+/** The name of a governance rule the report was judged by (a rule the screen has no word for is shown by its code). */
+export const ruleLabel = (t: Translate, type: string): string => (hasMessage(`ca2.rule.${camel(type)}`) ? t(`ca2.rule.${camel(type)}`) : type);
+
 /** The level of a concentration or of the health of a contract. */
 export const levelLabel = (t: Translate, level: string | null): string => (level === null ? t('ca1.level.none') : t(`ca1.level.${camel(level)}`));
 

@@ -1,16 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { PORTFOLIO_COLUMNS, concentrationBody, portfolioBody, snapshot } from './test-support';
+import { PORTFOLIO_COLUMNS, concentrationBody, curveBody, evmBody, portfolioBody, snapshot } from './test-support';
 import {
   DEFAULT_QUERY,
   EMPTY_ANALYTICS_FILTER,
   REPORT_CODES,
   REPORT_PATHS,
   barLength,
+  billionsOf,
   breakdownPoints,
   bytesOfBase64,
   camel,
   chartColumn,
   dateText,
+  decimalText,
   filterCount,
   healthTone,
   isReportCode,
@@ -19,6 +21,7 @@ import {
   percentText,
   queryParams,
   toConcentrationView,
+  toCurveView,
   toContext,
   toReportFile,
   toReportView,
@@ -164,5 +167,56 @@ describe('figures', () => {
     expect(chartColumn(view)?.key).toBe('contract_value_vnd');
     expect(breakdownPoints(view, 'contract_value_vnd').map((point) => point.key)).toEqual(['DRAFT']);
     expect(barLength(null)).toBe(0);
+  });
+});
+
+describe('the money reports of CA-2 as the screens read them', () => {
+  const view = (over: Record<string, unknown>) => toReportView(portfolioBody({ code: 'schedule-delay', ...over }));
+
+  it('reads the earned value block with its coverage and the reason of a block that has none', () => {
+    const read = view({ evm: evmBody() });
+    expect(read?.evm).toMatchObject({ status: 'OK', coverage: { contracts: 3, covered: 2, missing: { NO_CONTRACT_LINK: 1 }, v0Contracts: 2 }, figures: { bacVnd: '4000000000', ragSpi: 'RED' } });
+    expect(read?.evm?.figures?.spi).toMatchObject({ code: 'SPI', value: '0.8000' });
+    expect(view({ evm: { status: 'UNAVAILABLE', reason: 'NOT_IN_SNAPSHOT' } })?.evm).toMatchObject({ status: 'UNAVAILABLE', reason: 'NOT_IN_SNAPSHOT', figures: null, coverage: null });
+    expect(view({})?.evm).toBeNull();
+  });
+
+  it('reads every breakdown and the rules, and falls back to the one breakdown of the older answer', () => {
+    const many = view({ breakdowns: [{ dimension: 'a', groups: [] }, 'bad', { dimension: 'b', groups: [] }], rules: [{ type: 'CONTRACT_THREE_WAY_MATCH', version: 2, source: 'RULE', unverified: false, params: { tolerance_pct: 2, tolerance_vnd: 1, junk: null } }, 'bad'] });
+    expect(many?.breakdowns.map((one) => one.dimension)).toEqual(['a', 'b']);
+    expect(many?.rules).toEqual([{ type: 'CONTRACT_THREE_WAY_MATCH', version: 2, source: 'RULE', unverified: false, params: { tolerance_pct: 2, tolerance_vnd: 1 } }]);
+    expect(toReportView(portfolioBody())?.breakdowns.map((one) => one.dimension)).toEqual(['contract_status']);
+  });
+
+  it('reads the tier split and the ladders, and treats a body that is neither as absent rather than as empty', () => {
+    expect(view({ tier_split: { original_value_vnd: '10', total_delta_vnd: '1', total_count: 1, groups: [{ key: 'TIER_1', count: 1, delta_vnd: '1', growth: { code: 'CHANGE_TIER_GROWTH', value: '10.00' }, share_of_growth_pct: '100.00', max_cumulative_variation_pct: null }, 'bad'] } })?.tierSplit?.groups).toHaveLength(1);
+    expect(view({ tier_split: { status: 'UNAVAILABLE', reason: 'NOT_IN_SNAPSHOT' } })?.tierSplit).toMatchObject({ status: 'UNAVAILABLE', reason: 'NOT_IN_SNAPSHOT' });
+    expect(view({ tier_split: { groups: 'x' } })?.tierSplit).toBeNull();
+    expect(view({ ladders: { retention: [{ key: 'DUE_NOW', count: 1, amount_vnd: '5' }], guarantee: [] } })?.ladders).toMatchObject({ status: 'OK', retention: [{ key: 'DUE_NOW', count: 1, amountVnd: '5' }] });
+    expect(view({ ladders: { retention: 'x' } })?.ladders).toBeNull();
+  });
+
+  it('reads the S-curve answer, point by point, and refuses a body that is not one', () => {
+    const read = toCurveView(curveBody());
+    expect(read?.points).toHaveLength(3);
+    expect(read?.points[2]).toMatchObject({ evVnd: null, acVnd: null, pvCurrentVnd: '4000000000' });
+    expect(read?.v0Complete).toBe(true);
+    expect(toCurveView({ evm: evmBody(), curve: { points: [{ day: '2026-01-01' }, 'bad'] } })?.points).toEqual([]);
+    expect(toCurveView({ curve: { points: [] } })).toBeUndefined();
+    expect(toCurveView(null)).toBeUndefined();
+  });
+
+  it('draws a breakdown by the column the report says tells its story, and writes an index with the decimal mark of the language', () => {
+    const read = view({
+      columns: [{ key: 'code', kind: 'TEXT', ledger: false, indicator: null, total: null }, { key: 'advance_outstanding_vnd', kind: 'MONEY', ledger: true, indicator: null, total: 'SUM' }, { key: 'advance_paid_vnd', kind: 'MONEY', ledger: true, indicator: null, total: 'SUM' }],
+      code: 'advance-ageing',
+    }) as NonNullable<ReturnType<typeof toReportView>>;
+    expect(chartColumn(read, 'age_bucket')?.key).toBe('advance_outstanding_vnd');
+    expect(chartColumn(read, 'unknown_dimension')?.key).toBe('advance_outstanding_vnd');
+    expect(decimalText('0.9091', 'vi')).toBe('0,9091');
+    expect(decimalText('0.9091', 'en')).toBe('0.9091');
+    expect(billionsOf('2500000000')).toBe(2.5);
+    expect(billionsOf(null)).toBeNull();
+    expect(billionsOf('1.5')).toBeNull();
   });
 });

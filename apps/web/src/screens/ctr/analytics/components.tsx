@@ -14,7 +14,7 @@ import type { ContractStatus, ContractType } from '../model';
 import { useExportReport, useFactSnapshots } from './hooks';
 import type { ExportFormat } from './hooks';
 import { columnLabel, definitionText, groupLabel, indicatorName, infoLabels, levelLabel, reasonText } from './labels';
-import { barLength, breakdownPoints, camel, chartColumn, dateText, filterCount, healthTone, moneyText, percentText } from './model';
+import { barLength, breakdownPoints, camel, chartColumn, dateText, decimalText, filterCount, healthTone, moneyText, percentText } from './model';
 import type { AnalyticsContext, AnalyticsFilter, AnalyticsQuery, Cell, ColumnView, Definition, IndicatorValue, ReportCode, ReportFile, ReportView, RowView } from './model';
 import './analytics.css';
 
@@ -93,7 +93,7 @@ export function Info({ definition, asOf }: { definition: Definition | undefined;
   );
 }
 
-const definitionOf = (definitions: readonly Definition[], code: string | null): Definition | undefined => (code === null ? undefined : definitions.find((definition) => definition.code === code));
+export const definitionOf = (definitions: readonly Definition[], code: string | null): Definition | undefined => (code === null ? undefined : definitions.find((definition) => definition.code === code));
 
 // ---- figures ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -145,8 +145,11 @@ export function cellNode(t: Translate, locale: string, column: ColumnView, value
       return <StatusPill tone={healthTone(String(value))}>{levelLabel(t, String(value))}</StatusPill>;
     case 'COUNT':
       return String(value);
+    case 'INDEX':
+      return decimalText(String(value), locale);
     default:
       if (column.key === 'contract_status') return statusLabelOf(t, String(value));
+      if (column.key === 'match_status' || column.key === 'recovery_status') return groupLabel(t, column.key, String(value));
       if (column.key === 'payment_clock') return t(`ca1.clock.${camel(String(value))}`);
       if (column.key === 'age_bucket') return groupLabel(t, 'age_bucket', String(value));
       return String(value);
@@ -230,24 +233,35 @@ export function ReportKpis({ view }: { view: ReportView }) {
   );
 }
 
-/** The groups of a breakdown as bars: the bar is the total of the column of the group, written beside it as text (a bar alone says nothing). A group with no figure is not drawn as zero. */
+/** The groups of every breakdown of a report as bars: the bar is the total of the column of the group, written beside it as text (a bar alone says nothing). A group with no figure is not drawn as zero. */
 export function BreakdownBars({ view }: { view: ReportView }) {
+  const breakdowns = view.breakdowns.length > 0 ? view.breakdowns : view.breakdown === null ? [] : [view.breakdown];
+  return (
+    <>
+      {breakdowns.map((breakdown, index) => (
+        <BreakdownChart key={breakdown.dimension} view={view} dimension={breakdown.dimension} testId={index === 0 ? 'breakdown' : `breakdown-${breakdown.dimension}`} />
+      ))}
+    </>
+  );
+}
+
+function BreakdownChart({ view, dimension, testId }: { view: ReportView; dimension: string; testId: string }) {
   const { t, locale } = useTranslation();
-  const column = chartColumn(view);
+  const column = chartColumn(view, dimension);
   const titleId = useId();
-  if (view.breakdown === null || column === undefined) return null;
-  const points = breakdownPoints(view, column.key);
+  if (column === undefined) return null;
+  const points = breakdownPoints(view, column.key, dimension);
   if (points.length === 0) return null;
   const largest = Math.max(1, ...points.map((point) => Math.abs(barLength(String(point.text)))));
   return (
     <SectionCard title={t('ca1.chart.title', { column: columnLabel(t, column.key) })}>
-      <ul className="ca1-bars" aria-labelledby={titleId} data-testid="breakdown">
+      <ul className="ca1-bars" aria-labelledby={titleId} data-testid={testId}>
         <li id={titleId} className="ui-sr-only">
-          {t('ca1.chart.caption', { dimension: t(`ca1.dimension.${camel(view.breakdown.dimension)}`) })}
+          {t('ca1.chart.caption', { dimension: t(`ca1.dimension.${camel(dimension)}`) })}
         </li>
         {points.map((point) => (
           <li key={point.key} className="ca1-bars__row">
-            <span className="ca1-bars__label">{groupLabel(t, view.breakdown?.dimension ?? '', point.key)}</span>
+            <span className="ca1-bars__label">{groupLabel(t, dimension, point.key)}</span>
             <span className="ca1-bars__track" aria-hidden="true">
               <span className="ca1-bars__bar" style={{ width: `${Math.round((Math.abs(point.value) / largest) * 100)}%` }} />
             </span>

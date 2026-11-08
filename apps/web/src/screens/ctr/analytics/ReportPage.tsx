@@ -1,3 +1,4 @@
+import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -7,7 +8,8 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { StatusPill } from '../../../ui';
 import { AnalyticsFilters, BreakdownBars, DefinitionsList, ExportBar, ReportContext, ReportKpis, ReportTable } from './components';
-import { usePortfolio, useReport } from './hooks';
+import { usePortfolio, useReport, useScheduleCurve } from './hooks';
+import { EvmPanel, LadderPanel, RulesNote, TierSplitPanel } from './money-components';
 import { reportLead, reportTitle } from './labels';
 import { DEFAULT_QUERY, EMPTY_ANALYTICS_FILTER, PORTFOLIO_PERMISSION, REPORT_PERMISSION, bytesOfBase64, filterCount } from './model';
 import type { AnalyticsFilter, ReportCode, RowView } from './model';
@@ -69,6 +71,7 @@ function ReportContent({ route, code }: ReportPageProps) {
   const query = { ...DEFAULT_QUERY, filter, sort, direction, limit: size, cursor: cursors[index] ?? null };
   const portfolio = usePortfolio(query, allowed && code === 'portfolio-status');
   const report = useReport(code === 'portfolio-status' ? 'bid-variance' : code, query, allowed && code !== 'portfolio-status');
+  const curve = useScheduleCurve(query, allowed && code === 'schedule-delay' && report.data !== undefined && report.data.evm?.reason !== 'NOT_IN_SNAPSHOT');
   const read = code === 'portfolio-status' ? portfolio : report;
   const view = read.data;
   const state = useScreenState({ isLoading: read.isLoading, error: read.error, data: view, isEmpty: () => false });
@@ -102,6 +105,11 @@ function ReportContent({ route, code }: ReportPageProps) {
         </Link>
       </div>
       {view === undefined ? null : <ReportContext context={view.context} updatedAt={read.dataUpdatedAt} onUseLatest={(period) => changeFilter({ ...filter, period, asOf: '' })} />}
+      {read.error instanceof ApiError && read.error.code === 'REPORT_SELECTION_TOO_LARGE' ? (
+        <p className="callout warning ca1-notice" role="alert" data-testid="selection-too-large">
+          {t('ca2.error.tooLarge')}
+        </p>
+      ) : null}
       <StateBoundary state={forbidden} onRetry={() => void read.refetch()}>
         <AnalyticsFilters
           value={filter}
@@ -125,11 +133,9 @@ function ReportContent({ route, code }: ReportPageProps) {
             ) : null}
             <ReportKpis view={view} />
             <BreakdownBars view={view} />
-            {code === 'schedule-delay' && view.evmStatus === 'UNAVAILABLE' ? (
-              <p className="callout ca1-notice" role="status" data-testid="evm-slot">
-                {t('ca1.evm.unavailable')}
-              </p>
-            ) : null}
+            {code === 'schedule-delay' ? <EvmPanel view={view} curve={curve} /> : null}
+            {code === 'change-growth' ? <TierSplitPanel view={view} /> : null}
+            {code === 'retention-guarantee' ? <LadderPanel view={view} /> : null}
             {code === 'payment-three-way' && view.paymentClock !== null ? (
               <p className="callout ca1-notice" role="status" data-testid="clock-note">
                 {t('ca1.clock.note', { acceptance: view.paymentClock.acceptanceToRequestDays, treasury: view.paymentClock.requestToTreasuryDays })}
@@ -178,6 +184,7 @@ function ReportContent({ route, code }: ReportPageProps) {
                 {t('ca1.trend.note')} <Link to="/bi/bi-09">{t('ca1.trend.link')}</Link>
               </p>
             ) : null}
+            <RulesNote rules={view.rules} />
             <DefinitionsList definitions={view.definitions} asOf={view.context.asOf} />
           </>
         )}

@@ -128,12 +128,12 @@ describe('the bid variance (CTR-30) and the other reports of the catalogue', () 
   });
 
   it.each(['schedule-delay', 'payment-three-way', 'advance-ageing', 'retention-guarantee', 'change-growth'])('opens the report %s in the hub by its name, through the one generic screen', async (code) => {
-    const h = analyticsClient({ report: (name) => portfolioBody({ code: name, ref: 'R', evm: { status: 'UNAVAILABLE', reason: 'NOT_WIRED' }, payment_clock: { acceptance_to_request_days: 14, request_to_treasury_days: 7 } }) });
+    const h = analyticsClient({ report: (name) => portfolioBody({ code: name, ref: 'R', evm: { status: 'UNAVAILABLE', reason: 'NO_CONTRACT_LINK' }, payment_clock: { acceptance_to_request_days: 14, request_to_treasury_days: 7 } }) });
     mount(<HubScreen route={routeOf('CTR-28', 'FR-CTR-28')} />, h, { permissions: ANALYST, path: `/ctr/ctr-28?report=${code}` });
     await waitFor(() => expect(screen.getByTestId('report-table')).toBeTruthy());
     expect(reports(h)[0]?.code).toBe(code);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(message(`ca1.report.${code.replace(/-(\w)/g, (_m, c: string) => c.toUpperCase())}.title`));
-    if (code === 'schedule-delay') expect(screen.getByTestId('evm-slot').textContent).toBe(message('ca1.evm.unavailable'));
+    if (code === 'schedule-delay') expect(screen.getByTestId('evm-unavailable').textContent).toBe(message('ca2.evm.unavailable', { reason: message('ca1.na.noContractLink') }));
     if (code === 'payment-three-way') expect(screen.getByTestId('clock-note').textContent).toBe(message('ca1.clock.note', { acceptance: 14, treasury: 7 }));
   });
 
