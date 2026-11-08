@@ -61,7 +61,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read', 'committee.audit.read'], guestAllowed: false },
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
   // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
-  { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read'], guestAllowed: true },
+  { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read', 'vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation'], guestAllowed: true },
   // PENDING SIGN-OFF: the table names the notification box and the personal profile; the help of IAM-08 is asked for by every member (ST-IAM-007), so they raise and read their own support tickets.
   { code: 'MEMBER', name: key('MEMBER'), rank: 5, permissions: ['notification.self', 'profile.self', 'session.self', 'support.ticket.create', 'support.ticket.read', 'tenant.theme.read', 'sync.submit', 'sync.upload'], guestAllowed: true },
 ];
