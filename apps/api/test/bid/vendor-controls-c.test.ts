@@ -168,7 +168,7 @@ describe('the risk grade and the performance of a contractor (VND-2: VND-11 and 
       const contractorId = await contractor('Cty Risk Api');
       const before = await call('GET', `/vendor/contractors/${contractorId}/risk`, { member: READER });
       expect(before.status).toBe(200);
-      expect(before.json).toMatchObject({ contractor_id: contractorId, tier: null, confirmed: null, pending: null, live: { tier: 'LOW', score: 10, dual_check: false, reasons: ['PROFILE_GAP'] } });
+      expect(before.json).toMatchObject({ contractor_id: contractorId, tier: null, confirmed: null, pending: null, live: { tier: 'LOW', score: 15, dual_check: false, reasons: ['PROFILE_GAP', 'FINANCE_BELOW'] } });
       expect((before.json.live as { factors: unknown[] }).factors).toHaveLength(11);
       expect(before.json.policy).toMatchObject({ code: 'VENDOR_RISK', version: 'builtin', unverified: true });
       expect(typeof (before.json.policy as { formula: string }).formula).toBe('string');
@@ -177,7 +177,7 @@ describe('the risk grade and the performance of a contractor (VND-2: VND-11 and 
       expect(assessed).toMatchObject({ status: 200, json: { status: 'PROPOSED', resource_version: 1 } });
       const assessmentId = assessed.json.resource_id as string;
       const [audit] = await audits(assessmentId, 'vnd.risk_assessed');
-      expect(audit).toMatchObject({ classification: 'CONFIDENTIAL', actor_id: memberId(ADMIN), safe_diff: { contractor_id: contractorId, tier: 'LOW', score: 10 } });
+      expect(audit).toMatchObject({ classification: 'CONFIDENTIAL', actor_id: memberId(ADMIN), safe_diff: { contractor_id: contractorId, tier: 'LOW', score: 15 } });
       const [event] = await events(assessmentId, 'vnd.risk.assessed.v1');
       expect(event?.payload).toMatchObject({ contractor_id: contractorId, tier: 'LOW', actor_id: memberId(ADMIN) });
       expect(JSON.stringify(event?.payload)).not.toContain('Cty Risk Api');

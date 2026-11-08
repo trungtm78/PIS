@@ -258,7 +258,8 @@ describe('the follow-up report and the closure over HTTP (ST-AUD-005, AUD-10)', 
   }, 60_000);
 
   it('serves the controllers of the report in the module of AUD', () => {
-    expect(audModule.controllers.slice(-2)).toEqual([AuditReportController, AuditReportReadsController]);
+    const at = audModule.controllers.indexOf(AuditReportController);
+    expect(audModule.controllers.slice(at, at + 2)).toEqual([AuditReportController, AuditReportReadsController]);
   });
 
   describe('requestAuditFollowUpReport', () => {

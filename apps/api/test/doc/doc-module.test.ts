@@ -23,10 +23,10 @@ const OUTSIDE = [
 ];
 
 describe('docModule', () => {
-  it('is registered under the code DOC with its twenty-five controllers', () => {
+  it('is registered under the code DOC with its twenty-seven controllers', () => {
     expect(MODULES).toContain(docModule);
     expect(docModule.code).toBe('DOC');
-    expect(docModule.controllers.map((controller) => controller.name)).toEqual(['IncomingController', 'IncomingReadsController', 'DossiersController', 'DossierReadsController', 'RetentionRulesController', 'DocumentOverviewController', 'DocumentsController', 'DocumentVersionReadsController', 'OutgoingController', 'OutgoingDraftsController', 'IssueRequestsController', 'SignedDocumentsController', 'DocumentFilesController', 'RegistersController', 'SignaturesController', 'DocumentTemplatesController', 'LayoutProfilesController', 'OutgoingIssuanceController', 'DocumentDistributionsController', 'DocInteropController', 'OutgoingRecallController', 'OutgoingSupersessionController', 'ProjectDocumentFilesController', 'ProjectDocumentsController', 'ProjectDocumentReadsController', 'DocumentCommentsController', 'DocumentReviewsController', 'DocumentReviewReadsController']);
+    expect(docModule.controllers.map((controller) => controller.name)).toEqual(['TransmittalController', 'TransmittalReadsController', 'IncomingController', 'IncomingReadsController', 'DossiersController', 'DossierReadsController', 'RetentionRulesController', 'DocumentOverviewController', 'DocumentsController', 'DocumentVersionReadsController', 'OutgoingController', 'OutgoingDraftsController', 'IssueRequestsController', 'SignedDocumentsController', 'DocumentFilesController', 'RegistersController', 'SignaturesController', 'DocumentTemplatesController', 'LayoutProfilesController', 'OutgoingIssuanceController', 'DocumentDistributionsController', 'DocInteropController', 'OutgoingRecallController', 'OutgoingSupersessionController', 'ProjectDocumentFilesController', 'ProjectDocumentsController', 'ProjectDocumentReadsController', 'DocumentCommentsController', 'DocumentReviewsController', 'DocumentReviewReadsController']);
   });
 
   it('wires a renderer that draws with the vendored fonts, the fixed texts and an in-memory file port', async () => {
