@@ -9,6 +9,7 @@ import { useVendorCommand } from './investigation-hooks';
 type T = Translator['t'];
 
 const MAX_FILES = 100;
+const TIME = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
 const clean = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
 
 /** A file of the proposal with the facts the officer read from it: its version, author, the program that produced it and the stamp of its creation. */
@@ -26,10 +27,25 @@ export function hasTraceFact(values: Values): boolean {
   return rowsOf(values.files).some((file) => ['author', 'producer', 'created_stamp'].some((name) => clean(file[name]) !== ''));
 }
 
+/**
+ * The instant of the submission: the day and the time of day read in Vietnam (+07:00), sent as the exact instant. A day alone is NOT sent: the server would store it as midnight UTC and that would replace the real
+ * submission time that the time-window signals of the screening rest on.
+ */
+export function submittedInstant(values: Values): string | undefined {
+  const day = clean(values.submitted_day);
+  const time = clean(values.submitted_time);
+  return day !== '' && TIME.test(time) ? `${day}T${time}:00+07:00` : undefined;
+}
+
+/** A time of day without a day cannot be placed on the calendar. */
+export const timeWithoutDay = (values: Values): boolean => clean(values.submitted_time) !== '' && clean(values.submitted_day) === '';
+
 /** The body of the command: only what was typed, trimmed; a file with nothing but its version keeps only the version. */
 export function traceBody(values: Values): Record<string, unknown> {
   const body: Record<string, unknown> = {};
-  for (const name of ['origin', 'device', 'agent', 'submitted_at'] as const) if (clean(values[name]) !== '') body[name] = clean(values[name]);
+  for (const name of ['origin', 'device', 'agent'] as const) if (clean(values[name]) !== '') body[name] = clean(values[name]);
+  const instant = submittedInstant(values);
+  if (instant !== undefined) body.submitted_at = instant;
   const files = rowsOf(values.files).map((file) => ({
     document_version_id: clean(file.document_version_id),
     ...(clean(file.author) === '' ? {} : { author: clean(file.author) }),
@@ -50,7 +66,8 @@ function fieldsOf(t: T): FieldSpec[] {
     { name: 'origin', label: t('lookahead.vnd.trace.origin.label'), kind: 'text', min: 3, max: 100 },
     { name: 'device', label: t('lookahead.vnd.trace.device.label'), kind: 'text', min: 3, max: 200 },
     { name: 'agent', label: t('lookahead.vnd.trace.agent.label'), kind: 'text', min: 3, max: 500 },
-    { name: 'submitted_at', label: t('lookahead.vnd.trace.submittedAt.label'), kind: 'date' },
+    { name: 'submitted_day', label: t('lookahead.vnd.trace.submittedAt.label'), kind: 'date', hint: t('lookahead.vnd.trace.submittedAt.hint') },
+    { name: 'submitted_time', label: t('lookahead.vnd.trace.submittedTime.label'), kind: 'text', pattern: TIME, hint: t('lookahead.vnd.trace.submittedTime.hint') },
     {
       name: 'files',
       label: t('lookahead.vnd.trace.files.label'),
@@ -99,7 +116,7 @@ export function SubmissionTraceDialog({ onClose, onDone }: { onClose: () => void
       note={<p className="vnd-note">{t('lookahead.vnd.trace.note')}</p>}
       confirmLabel={t('lookahead.vnd.trace.confirm')}
       fields={fieldsOf(t)}
-      blocked={(values) => !hasTraceFact(values)}
+      blocked={(values) => !hasTraceFact(values) || timeWithoutDay(values)}
       wide
       describeError={describe}
       run={(values) => command.mutateAsync({ path: { id: clean(values.proposal) }, body: traceBody(values) })}

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it } from 'vitest';
 import { translator } from '../../../i18n';
 import LeadsScreen from './LeadsScreen';
-import { hasTraceFact, traceBody } from './trace-dialog';
+import { hasTraceFact, timeWithoutDay, traceBody } from './trace-dialog';
 import { AUDITOR, client, investigationFigures, leadLine, leadPage, mount, routeOf, uuid } from './test/investigation-fixtures';
 import type { World } from './test/investigation-fixtures';
 import { problem, word } from './test/helpers';
@@ -66,6 +66,7 @@ describe('LeadsScreen (VND-13): recording the submission trace of a proposal', (
     type(word('lookahead.vnd.trace.origin.label'), ' 10.1.2.3 ');
     type(word('lookahead.vnd.trace.device.label'), 'Laptop A');
     type(word('lookahead.vnd.trace.submittedAt.label'), '2026-11-05');
+    type(word('lookahead.vnd.trace.submittedTime.label'), '14:30');
     fireEvent.click(screen.getByTestId('trace-add-file'));
     expect(confirm().disabled).toBe(true);
     fireEvent.change(screen.getByTestId('trace-file-version-1'), { target: { value: VERSION } });
@@ -75,7 +76,7 @@ describe('LeadsScreen (VND-13): recording the submission trace of a proposal', (
     await waitFor(() =>
       expect(h.command).toHaveBeenCalledWith('recordProposalSubmissionTrace', {
         path: { id: PROPOSAL },
-        body: { origin: '10.1.2.3', device: 'Laptop A', submitted_at: '2026-11-05', files: [{ document_version_id: VERSION, author: 'Nguyen Van A' }] },
+        body: { origin: '10.1.2.3', device: 'Laptop A', submitted_at: '2026-11-05T14:30:00+07:00', files: [{ document_version_id: VERSION, author: 'Nguyen Van A' }] },
         attempt: { key: expect.any(String) },
       }),
     );
@@ -115,6 +116,13 @@ describe('LeadsScreen (VND-13): recording the submission trace of a proposal', (
 });
 
 describe('the body of the trace', () => {
+  it('sends the exact instant read in Vietnam when day and time are given, and omits it for a day alone or a bad time', () => {
+    expect(traceBody({ origin: 'a b', submitted_day: '2026-11-05', submitted_time: '09:05', files: [] })).toEqual({ origin: 'a b', submitted_at: '2026-11-05T09:05:00+07:00' });
+    expect(traceBody({ origin: 'a b', submitted_day: '2026-11-05', submitted_time: '', files: [] })).toEqual({ origin: 'a b' });
+    expect(traceBody({ origin: 'a b', submitted_day: '2026-11-05', submitted_time: '25:00', files: [] })).toEqual({ origin: 'a b' });
+    expect(timeWithoutDay({ submitted_time: '09:05', submitted_day: '' })).toBe(true);
+  });
+
   it('keeps only what was typed, trimmed, and a file with nothing but its version keeps only the version', () => {
     expect(traceBody({ origin: ' a b ', device: '', agent: '', submitted_at: '', files: [{ document_version_id: VERSION, author: '', producer: ' P ', created_stamp: '' }] })).toEqual({ origin: 'a b', files: [{ document_version_id: VERSION, producer: 'P' }] });
     expect(traceBody({ origin: '', files: [] })).toEqual({});
