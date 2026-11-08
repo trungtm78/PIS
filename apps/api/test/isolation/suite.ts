@@ -640,6 +640,17 @@ const hubFixture = (letter: 'a' | 'b', word: string) => ({
 export const HUB_FIXTURES: Readonly<Record<TenantName, ReturnType<typeof hubFixture>>> = {
   'TNT-A': hubFixture('a', 'ALPHA'),
   'TNT-B': hubFixture('b', 'BETA'),
+/** The committee of each tenant (BAN-1): a committee with a place on it and an open alert; the words are distinctive (tenant confidential data). */
+const banFixture = (letter: 'a' | 'b', word: string) => ({
+  committeeId: `00000000-0000-4000-${letter}0ba-000000000001`,
+  memberId: `00000000-0000-4000-${letter}0ba-000000000002`,
+  alertId: `00000000-0000-4000-${letter}0ba-000000000003`,
+  committeeName: `${word} isolation steering committee`,
+  alertLabel: `${word} isolation committee alert unit`,
+});
+export const COMMITTEE_FIXTURES: Readonly<Record<TenantName, ReturnType<typeof banFixture>>> = {
+  'TNT-A': banFixture('a', 'ALPHA'),
+  'TNT-B': banFixture('b', 'BETA'),
 };
 
 /** An evaluation report of the package of each tenant, a draft of the run with its decision (the conclusion is distinctive; tenant confidential data). */
@@ -1869,6 +1880,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'hub reject id', value: HUB_FIXTURES[tenant].rejectId },
     { kind: 'hub incident summary', value: HUB_FIXTURES[tenant].incidentSummary },
     { kind: 'hub reject key', value: HUB_FIXTURES[tenant].rejectKey },
+    { kind: 'committee member id', value: COMMITTEE_FIXTURES[tenant].memberId },
+    { kind: 'committee alert id', value: COMMITTEE_FIXTURES[tenant].alertId },
+    { kind: 'committee name', value: COMMITTEE_FIXTURES[tenant].committeeName },
+    { kind: 'committee alert label', value: COMMITTEE_FIXTURES[tenant].alertLabel },
     { kind: 'bid clarification question', value: CLARIFICATION_FIXTURES[tenant].question },
     { kind: 'interop message id', value: INTEROP_FIXTURES[tenant].id },
     { kind: 'interop message external id', value: INTEROP_FIXTURES[tenant].externalId },

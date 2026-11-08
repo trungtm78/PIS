@@ -740,7 +740,13 @@
     "attestAiProvider",
     "requestAiExternalException",
     "decideAiExternalException",
-    "revokeAiExternalException"
+    "revokeAiExternalException",
+    "registerCommittee",
+    "appointCommitteeMember",
+    "endCommitteeMember",
+    "recordAttentionDecision",
+    "evaluateCommitteeAlerts",
+    "acknowledgeCommitteeAlert"
   ],
   "controlCommands": [
     "decideTenantRestore",

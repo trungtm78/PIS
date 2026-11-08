@@ -3005,6 +3005,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   requestAiExternalException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/ai/external-exceptions', body: { provider_id: '00000000-0000-4000-8000-0000000000f1', max_classification: 'INTERNAL', reason: REASON, valid_days: 7 } }) },
   decideAiExternalException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/ai/external-exceptions/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'REJECT', note: REASON } }) },
   revokeAiExternalException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/ai/external-exceptions/00000000-0000-4000-8000-0000000000f1/revocation', ifMatch: '"1"', body: { reason: REASON } }) },
+  // BAN-1: the committee workspace; a refused caller registers no committee, appoints nobody, records no decision, raises no alert.
+  registerCommittee: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/committee/roster', body: { code: 'MATRIX', name: 'Matrix committee' } }) },
+  appointCommitteeMember: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/committee/roster/members', body: { committee_id: '00000000-0000-4000-8000-0000000000f1', membership_id: '00000000-0000-4000-8000-0000000000f2', committee_role: 'MEMBER', valid_from: '2026-01-01' } }) },
+  endCommitteeMember: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/committee/roster/members/00000000-0000-4000-8000-0000000000f1/ending', ifMatch: '"1"', body: { reason: REASON } }) },
+  recordAttentionDecision: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/committee/attention/decisions', body: { project_id: '00000000-0000-4000-8000-0000000000f1', decision: 'ACKNOWLEDGED', note: REASON } }) },
+  evaluateCommitteeAlerts: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/committee/alerts/evaluate', body: {} }) },
+  acknowledgeCommitteeAlert: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/committee/alerts/00000000-0000-4000-8000-0000000000f1/acknowledgement', ifMatch: '"1"', body: { note: REASON } }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),
