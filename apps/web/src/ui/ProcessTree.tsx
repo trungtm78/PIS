@@ -377,7 +377,9 @@ export function ProcessTree({
           tabIndex={activeId === id ? 0 : -1}
           className={`ui-process-tree__item${selected ? ' is-selected' : ''}${node.count === 0 ? ' is-empty' : ''}`}
           onKeyDown={(event) => {
-            if (event.target === event.currentTarget) onKey(event, node, true);
+            // A click leaves the focus on the button of the row: it keeps the keys of the tree, and Enter and Space stay the button's own.
+            const fromRowButton = event.target instanceof HTMLButtonElement && event.currentTarget.contains(event.target) && event.key !== 'Enter' && event.key !== ' ';
+            if (event.target === event.currentTarget || fromRowButton) onKey(event, node, true);
           }}
           onFocus={(event) => {
             if (event.target === event.currentTarget) setFocusId(id);
