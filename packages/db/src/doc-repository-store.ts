@@ -255,6 +255,23 @@ const like = (text: string): string => `%${text.replace(/[\\%_]/g, (char) => `\\
 export class DocumentRepositoryStore {
   // ---- reads ----------------------------------------------------------------------------------------------------------------------------------
 
+  /** The display names of members; an id with no name in the directory is left out, never guessed. */
+  async names(tx: TenantTx, ids: Iterable<string | null | undefined>): Promise<Map<string, string>> {
+    const wanted = [...new Set([...ids].filter((id): id is string => typeof id === 'string'))];
+    const names = new Map<string, string>();
+    if (wanted.length === 0) return names;
+    const rows = await tx.query<{ membership_id: string; display_name: string }>('select membership_id, display_name from machvon.tenant_user_directory where membership_id = any($1::uuid[])', [wanted]);
+    for (const row of rows) names.set(row.membership_id, row.display_name);
+    return names;
+  }
+
+  /** The unit that owns the project of a document: where the approvers of its review are looked for. */
+  async ownerUnitOf(tx: TenantTx, documentId: string): Promise<string> {
+    const rows = await tx.query<{ owner_unit_id: string }>('select p.owner_unit_id from machvon.project_document d join machvon.project p on p.tenant_id = d.tenant_id and p.id = d.project_id where d.id = $1::uuid', [documentId]);
+    if (rows[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return rows[0].owner_unit_id;
+  }
+
   /** One document as the caller may see it, or undefined when it does not exist or its project is out of the scope. */
   async find(tx: TenantTx, id: string, scope: ScopeBuilder, now: Date): Promise<DocumentHeader | undefined> {
     const predicate = scope(2);

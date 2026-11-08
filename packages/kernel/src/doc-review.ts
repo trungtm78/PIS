@@ -100,6 +100,8 @@ export interface BoardTask {
   stepIndex: number;
   assigneeId: string;
   assigneeName?: string | null;
+  /** The version of the task row, which a decision names (If-Match). */
+  taskVersion?: number | null;
   status: 'Pending' | 'Decided' | 'Reassigned' | 'Cancelled' | 'Expired';
   decision: 'approve' | 'return' | 'reject' | null;
   reason: string | null;
@@ -120,7 +122,7 @@ export interface BoardStage {
   minApprovals: number;
   state: StageState;
   approvals: number;
-  reviewers: Array<{ taskId: string; assigneeId: string; assigneeName: string | null; state: ReviewerState; decision: BoardTask['decision']; reason: string | null; decidedAt: string | null; dueAt: string }>;
+  reviewers: Array<{ taskId: string; assigneeId: string; assigneeName: string | null; taskVersion: number | null; state: ReviewerState; decision: BoardTask['decision']; reason: string | null; decidedAt: string | null; dueAt: string }>;
 }
 
 const reviewerStateOf = (task: BoardTask): ReviewerState => {
@@ -140,7 +142,7 @@ export function reviewBoardOf(steps: readonly BoardStep[], instance: BoardInstan
   const endedAt = instance === null || instance.status === 'Running' ? -1 : Math.max(-1, ...tasks.filter((task) => task.status === 'Decided').map((task) => task.stepIndex));
   return steps.map((step, index): BoardStage => {
     const own = tasks.filter((task) => task.stepIndex === index);
-    const reviewers = own.map((task) => ({ taskId: task.id, assigneeId: task.assigneeId, assigneeName: task.assigneeName ?? null, state: reviewerStateOf(task), decision: task.decision, reason: task.reason, decidedAt: task.decidedAt, dueAt: task.dueAt }));
+    const reviewers = own.map((task) => ({ taskId: task.id, assigneeId: task.assigneeId, assigneeName: task.assigneeName ?? null, taskVersion: task.taskVersion ?? null, state: reviewerStateOf(task), decision: task.decision, reason: task.reason, decidedAt: task.decidedAt, dueAt: task.dueAt }));
     const approvals = own.filter((task) => task.status === 'Decided' && task.decision === 'approve').length;
     let state: StageState;
     if (instance === null) state = 'WAITING';

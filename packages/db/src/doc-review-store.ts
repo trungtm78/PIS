@@ -93,6 +93,8 @@ export interface ReviewListRow extends ReviewRow {
   documentTitle: string;
   docClass: string;
   project: { id: string; code: string; name: string };
+  /** The name of the stage an open round waits at, from the definition the round runs by. */
+  currentStage: string | null;
 }
 
 /** What the final command of the workflow did with a review. */
@@ -133,9 +135,12 @@ export class DocumentReviewStore {
     if (filter.documentId !== undefined) where.push(`r.document_id = ${next(filter.documentId)}::uuid`);
     if (filter.status !== undefined) where.push(`r.status = ${next(filter.status)}`);
     if (page.after !== undefined) where.push(`(${timestampKey('r.submitted_at')}, r.id) < (${next(page.after.key)}::text, ${next(page.after.id)}::uuid)`);
-    const rows = await tx.query<ReviewSql & { title: string; doc_class: string; project_id: string; project_code: string; project_name: string; submitted_key: string }>(
-      `select ${REVIEW_COLUMNS}, d.title, d.doc_class, d.project_id, p.code as project_code, p.name as project_name, ${timestampKey('r.submitted_at')} as submitted_key
+    const rows = await tx.query<ReviewSql & { title: string; doc_class: string; project_id: string; project_code: string; project_name: string; submitted_key: string; current_stage: string | null }>(
+      `select ${REVIEW_COLUMNS}, d.title, d.doc_class, d.project_id, p.code as project_code, p.name as project_name, ${timestampKey('r.submitted_at')} as submitted_key,
+              case when r.status = 'IN_REVIEW' then wv.definition_json->'steps'->wi.current_step->>'name' end as current_stage
          from ${REVIEW_FROM}
+         left join machvon.workflow_instance wi on wi.tenant_id = r.tenant_id and wi.id = r.workflow_instance_id
+         left join machvon.workflow_version wv on wv.tenant_id = wi.tenant_id and wv.id = wi.workflow_version_id
          join machvon.project_document d on d.tenant_id = r.tenant_id and d.id = r.document_id
          join machvon.project p on p.tenant_id = d.tenant_id and p.id = d.project_id
          join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
@@ -146,7 +151,7 @@ export class DocumentReviewStore {
     const shown = rows.slice(0, page.limit);
     const last = shown[shown.length - 1];
     return {
-      items: shown.map((row) => ({ ...reviewOf(row), documentTitle: row.title, docClass: row.doc_class, project: { id: row.project_id, code: row.project_code, name: row.project_name } })),
+      items: shown.map((row) => ({ ...reviewOf(row), documentTitle: row.title, docClass: row.doc_class, project: { id: row.project_id, code: row.project_code, name: row.project_name }, currentStage: row.current_stage })),
       more: rows.length > page.limit,
       last: last === undefined ? undefined : { key: last.submitted_key, id: last.id },
     };
@@ -256,8 +261,9 @@ export class DocumentReviewStore {
       reason: string | null;
       decided_at: string | null;
       due_at: string;
+      version: string;
     }>(
-      `select t.id, t.step_index, t.assignee_id, a.display_name as assignee_name, t.status, t.decision, t.reason, to_char(t.decided_at at time zone 'UTC', ${ISO}) as decided_at, to_char(t.due_at at time zone 'UTC', ${ISO}) as due_at
+      `select t.id, t.step_index, t.assignee_id, a.display_name as assignee_name, t.status, t.decision, t.reason, to_char(t.decided_at at time zone 'UTC', ${ISO}) as decided_at, to_char(t.due_at at time zone 'UTC', ${ISO}) as due_at, t.version::text as version
          from machvon.approval_task t left join machvon.tenant_user_directory a on a.tenant_id = t.tenant_id and a.membership_id = t.assignee_id
         where t.workflow_instance_id = $1::uuid order by t.step_index, t.created_at, t.id`,
       [review.workflowInstanceId],
@@ -265,7 +271,7 @@ export class DocumentReviewStore {
     const stages = reviewBoardOf(
       steps,
       { status: instance.status, outcome: instance.outcome, currentStep: instance.current_step },
-      tasks.map((task) => ({ id: task.id, stepIndex: task.step_index, assigneeId: task.assignee_id, assigneeName: task.assignee_name, status: task.status, decision: task.decision, reason: task.reason, decidedAt: task.decided_at, dueAt: task.due_at })),
+      tasks.map((task) => ({ id: task.id, stepIndex: task.step_index, assigneeId: task.assignee_id, assigneeName: task.assignee_name, taskVersion: Number(task.version), status: task.status, decision: task.decision, reason: task.reason, decidedAt: task.decided_at, dueAt: task.due_at })),
     );
     return {
       stages,
