@@ -54,6 +54,7 @@ import { seedVendorControlsAFixtures } from './vendor-controls-a-fixtures';
 import { seedVendorControlsBFixtures } from './vendor-controls-b-fixtures';
 import { seedVendorControlsCFixtures } from './vendor-controls-c-fixtures';
 import { seedVendorPortalFixtures } from './vnd3-portal-fixtures';
+import { seedPortal2Fixtures } from './portal2-fixtures';
 import { seedVendorInvestigationFixtures } from './vnd3-investigation-fixtures';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
@@ -1322,6 +1323,18 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'confirmPortalReconfirmation',
   'agreePortalRemediationPlan',
   'markPortalRemediationActionDone',
+  // PORTAL-2: portal access through the registry, the outcome of a petition and the upload of the portal
+  'listVendorPortalInvitations',
+  'proposeVendorPortalInvitation',
+  'approveVendorPortalInvitation',
+  'rejectVendorPortalInvitation',
+  'revokeVendorPortalInvitation',
+  'listProcurementPetitionOutcomes',
+  'recordProcurementPetitionOutcome',
+  'confirmProcurementPetitionOutcome',
+  'returnProcurementPetitionOutcome',
+  'listPortalAttachments',
+  'uploadPortalAttachment',
   'proposeClaimTerm',
   'decideClaimTerm',
   'listClaimTerms',
@@ -2801,6 +2814,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const result = RESULT_FIXTURES[tenant];
     await client.query(INSERT_RESULT, [tenantId, result.id, pack.id, contractor.id, result.awardPrice, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_PETITION, [tenantId, PETITION_FIXTURES[tenant].id, pack.id, contractor.id, documents.documentId, ACTOR_ID]);
+    await seedPortal2Fixtures(client, tenant, { tenantId, contractorId: contractor.id, membershipId: MEMBERSHIP_ID, unitId: home ?? UNIT_FIXTURES[tenant][1]?.id ?? '', petitionId: PETITION_FIXTURES[tenant].id });
     // A question to the contractor of the proposal; the letter that carries it is a document of the tenant.
     // A message the LGSP delivered and nobody has processed yet: the monitor of the tenant lists it, and a foreign tenant cannot reach it.
     await client.query(INSERT_INTEROP, [tenantId, INTEROP_FIXTURES[tenant].id, INTEROP_FIXTURES[tenant].externalId, INTEROP_FIXTURES[tenant].sender, INTEROP_FIXTURES[tenant].digest, `tenants/${tenantId}/interop-envelope/isolation`, ACTOR_ID]);

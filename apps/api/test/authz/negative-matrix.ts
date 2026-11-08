@@ -3133,6 +3133,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   confirmPortalReconfirmation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/portal/reconfirmation', body: { declaration_version: 'V1', accepted: true } }) },
   agreePortalRemediationPlan: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/portal/remediation-plans/00000000-0000-4000-8000-0000000000f1/agreement', ifMatch: '"1"', body: {} }) },
   markPortalRemediationActionDone: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/portal/remediation-actions/00000000-0000-4000-8000-0000000000f1/done', ifMatch: '"1"', body: { note: 'Matrix note' } }) },
+  // PORTAL-2: portal access through the registry, the outcome of a petition and the upload of the portal; a caller who is refused changes nothing, and a caller of another tenant finds nothing.
+  proposeVendorPortalInvitation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/portal/invitations', body: { contractor_id: '00000000-0000-4000-8000-0000000000f1', contact_email: 'matrix@example.test', contact_name: 'Matrix contact', contact_basis: 'OTHER_EVIDENCE', basis_reference: 'Matrix evidence' } }) },
+  approveVendorPortalInvitation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/portal/invitations/00000000-0000-4000-8000-0000000000f1/approval', ifMatch: '"1"', body: {} }) },
+  rejectVendorPortalInvitation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/portal/invitations/00000000-0000-4000-8000-0000000000f1/rejection', ifMatch: '"1"', body: { reason: REASON } }) },
+  revokeVendorPortalInvitation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/portal/invitations/00000000-0000-4000-8000-0000000000f1/revocation', ifMatch: '"1"', body: { reason: REASON } }) },
+  recordProcurementPetitionOutcome: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/procurement-petitions/00000000-0000-4000-8000-0000000000f1/outcome', body: { outcome: 'UPHELD', decision_ref: 'Matrix decision 1', decision_on: '2026-10-12' } }) },
+  confirmProcurementPetitionOutcome: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/procurement-petition-outcomes/00000000-0000-4000-8000-0000000000f1/confirmation', ifMatch: '"1"', body: {} }) },
+  returnProcurementPetitionOutcome: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/procurement-petition-outcomes/00000000-0000-4000-8000-0000000000f1/return', ifMatch: '"1"', body: { reason: REASON } }) },
+  uploadPortalAttachment: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/portal/attachments?purpose=OTHER&title=Matrix', body: {} }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),

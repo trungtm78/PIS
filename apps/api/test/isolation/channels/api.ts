@@ -79,6 +79,7 @@ import { VENDOR_CONTROLS_B_FIXTURES } from './vendor-controls-b-fixtures';
 import { VENDOR_CONTROLS_C_FIXTURES } from './vendor-controls-c-fixtures';
 import { RATING_FIXTURES } from './gov/rating.fixtures';
 import { VENDOR_PORTAL_FIXTURES } from './vnd3-portal-fixtures';
+import { PORTAL2_FIXTURES } from './portal2-fixtures';
 import { VENDOR_INVESTIGATION_FIXTURES } from './vnd3-investigation-fixtures';
 import {
   ACCEPTANCE_FIXTURES,
@@ -1748,6 +1749,13 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'respondPortalRequest', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].requestId, versioned: true, body: { text: 'Isolation foreign answer' }, expectedStatuses: [403, 404] },
   { operation: 'agreePortalRemediationPlan', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].planId, versioned: true, body: {}, expectedStatuses: [403, 404] },
   { operation: 'markPortalRemediationActionDone', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].actionId, versioned: true, body: { note: 'Isolation foreign note' }, expectedStatuses: [403, 404] },
+  // PORTAL-2: portal access through the registry and the outcome of a petition; each case names a real object of TNT-B.
+  { operation: 'approveVendorPortalInvitation', method: 'POST', id: PORTAL2_FIXTURES['TNT-B'].invitationId, versioned: true, body: {} },
+  { operation: 'rejectVendorPortalInvitation', method: 'POST', id: PORTAL2_FIXTURES['TNT-B'].invitationId, versioned: true, body: { reason: 'Isolation foreign attempt to reject an invitation' } },
+  { operation: 'revokeVendorPortalInvitation', method: 'POST', id: PORTAL2_FIXTURES['TNT-B'].invitationId, versioned: true, body: { reason: 'Isolation foreign attempt to revoke an invitation' } },
+  { operation: 'recordProcurementPetitionOutcome', method: 'POST', id: PETITION_FIXTURES['TNT-B'].id, body: { outcome: 'REJECTED', decision_ref: 'Isolation decision', decision_on: '2026-01-03' } },
+  { operation: 'confirmProcurementPetitionOutcome', method: 'POST', id: PORTAL2_FIXTURES['TNT-B'].outcomeId, versioned: true, body: {} },
+  { operation: 'returnProcurementPetitionOutcome', method: 'POST', id: PORTAL2_FIXTURES['TNT-B'].outcomeId, versioned: true, body: { reason: 'Isolation foreign attempt to return an outcome' } },
   // VND-3: the investigation and the screening of contractors; each case names a real object of TNT-B.
   { operation: 'getVendorLead', method: 'GET', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId },
   { operation: 'getVendorContractorLinks', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },

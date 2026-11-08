@@ -135,7 +135,7 @@ describe('seedSystemRoles', () => {
     );
 
   it('inserts the eighteen roles once and nothing the second time', async () => {
-    expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 17 });
+    expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 18 });
     expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 0 });
     const rows = await rolesOf(TENANT_A);
     expect(rows).toHaveLength(18);
@@ -200,7 +200,7 @@ describe('seedSystemRoles', () => {
 
   it('keeps the roles of one tenant invisible to another', async () => {
     expect(await rolesOf(TENANT_B)).toEqual([]);
-    expect(await tenants.withTenant(ctx(TENANT_B), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 17 });
+    expect(await tenants.withTenant(ctx(TENANT_B), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 18 });
     expect(await rolesOf(TENANT_B)).toHaveLength(18);
   });
 });

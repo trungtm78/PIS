@@ -952,6 +952,14 @@
     "importEbsFile",
     "reconcileEbs",
     "resolveEbsDifference",
-    "reassignEbsDifference"
+    "reassignEbsDifference",
+    "proposeVendorPortalInvitation",
+    "approveVendorPortalInvitation",
+    "rejectVendorPortalInvitation",
+    "revokeVendorPortalInvitation",
+    "recordProcurementPetitionOutcome",
+    "confirmProcurementPetitionOutcome",
+    "returnProcurementPetitionOutcome",
+    "uploadPortalAttachment"
   ]
 }

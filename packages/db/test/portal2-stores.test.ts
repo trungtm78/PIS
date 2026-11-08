@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Client } from 'pg';
+import { GuestAccessStore } from '../src/guest-access-store';
 import { enterPortalPath } from '../src/portal-boundary';
 import { BidPetitionOutcomeStore } from '../src/bid-petition-outcome-store';
 import { VendorDisputeStore } from '../src/vnd-dispute-store';
@@ -198,6 +199,24 @@ describe('portal access through the registry, petition outcomes and portal attac
       expect((await as((tx) => invitations.find(tx, open.id, later(400))))?.status).toBe('EXPIRED');
       expect((await as((tx) => invitations.find(tx, p.id, later(400))))?.status).toBe('EXPIRED');
       expect((await owner<{ status: string }>('select status from machvon.membership where id = $1::uuid', [memberId(GUEST_NEW2)]))[0]?.status).toBe('Ended');
+    });
+  });
+
+  describe('the access of a registry-bound account when contracts close', () => {
+    it('keeps the account when the last contract it was granted ends: its portal grant names no contract', async () => {
+      const role = randomUUID();
+      const contract = randomUUID();
+      await owner("insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, is_system, guest_allowed, status, created_by) values ($1, $2, 'T_PORTAL2', 'Test portal role 2', ARRAY['vnd.portal.read']::text[], 10, false, true, 'Active', $3)", [TENANT_A, role, memberId(STAFF)]);
+      const grant = (kind: string, refs: string[]): Promise<unknown[]> =>
+        owner("insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason) values ($1, gen_random_uuid(), $2, $3, '{}'::jsonb, now(), $4, $5::uuid[], 'Active', $6, 'test')", [TENANT_A, memberId(GUEST_B), role, kind, refs, memberId(STAFF)]);
+      await grant('CONTRACT', [contract]);
+      await grant('UNIT_ONLY', [unitId(1)]);
+      const change = await as((tx) => new GuestAccessStore().endContractAccess(tx, contract, 'contract closed'));
+      expect(change.grants).toHaveLength(1);
+      expect(change.grants[0]).toMatchObject({ outcome: 'Expired' });
+      expect(change.endedMembershipIds).toEqual([]);
+      expect((await owner<{ status: string }>('select status from machvon.membership where id = $1::uuid', [memberId(GUEST_B)]))[0]?.status).toBe('Active');
+      expect((await owner<{ n: number }>("select count(*)::int as n from machvon.role_grant where membership_id = $1::uuid and status = 'Active' and scope_kind = 'UNIT_ONLY'", [memberId(GUEST_B)]))[0]?.n).toBe(1);
     });
   });
 

@@ -866,6 +866,7 @@ describe('standard jobs', () => {
       redFlagScan: { run: async () => ({ flagged: 0 }) },
       vendorLinkScan: { run: async () => ({ leadsNew: 0 }) },
       vendorScreening: { run: async () => ({ hitsNew: 0 }) },
+      vendorPortalInvitationExpiry: { run: async () => ({ proposals: 0, accesses: 0 }) },
       earlyWarningScore: { run: async () => ({ written: 0 }) },
       riskRescore: { run: async () => ({ opened: 0, rescored: 0, cleared: 0 }) },
       diaryCoverage: { run: async () => ({ contracts: 0, missing: 0 }) },
