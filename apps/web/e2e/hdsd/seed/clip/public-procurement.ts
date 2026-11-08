@@ -1,6 +1,7 @@
 import { vndMillions } from '../context.ts';
 import type { CommandReply, Obj, SeedContext } from '../context.ts';
 import { asObj } from '../context.ts';
+import { ensureWorkCalendar } from '../field-assurance/shared.ts';
 import { linesOf, packageOf, projectOf } from '../procurement-finance/bid.ts';
 import { CHECKER, LEADER, MAKER, decisionInForce, defineDocumentTypes, registerContractors } from '../procurement-finance/shared.ts';
 import { clipPlan } from './plan.ts';
@@ -111,10 +112,33 @@ async function viewOf(ctx: SeedContext, packageId: string): Promise<WorkflowView
   return { id: String(workflow.id), version: Number(workflow.version), step: String(asObj(workflow.step).code), status: String(workflow.status), items, steps };
 }
 
+/**
+ * The steps whose evidence is a MILESTONE of the package: the date it really happened, in the past, in the order of the tender (a milestone is recorded when the step
+ * is current, so the item is not completed by the date before the step asks for its other evidence).
+ */
+const MILESTONE_OF_STEP: Record<string, { kind: string; daysAgo: number; hour: number }> = {
+  NOTICE_POST: { kind: 'INVITATION_PUBLISHED', daysAgo: 45, hour: 9 },
+  BID_CLOSING: { kind: 'BID_CLOSING', daysAgo: 28, hour: 9 },
+  BID_OPENING: { kind: 'BID_OPENING', daysAgo: 28, hour: 10 },
+  RESULT_POST: { kind: 'RESULT_PUBLISHED', daysAgo: 7, hour: 9 },
+  CONTRACT_SIGN: { kind: 'CONTRACT_SIGNED', daysAgo: 2, hour: 9 },
+};
+
+async function recordStepMilestone(ctx: SeedContext, packageId: string, step: string): Promise<string | undefined> {
+  const wanted = MILESTONE_OF_STEP[step];
+  if (wanted === undefined) return undefined;
+  const version = Number((await ctx.get<Obj>(MAKER, `/resources/procurement_package/${packageId}`)).version);
+  const actualAt = new Date(Date.parse(`${ctx.day(-wanted.daysAgo)}T${String(wanted.hour).padStart(2, '0')}:00:00+07:00`)).toISOString();
+  await ctx.attempt(MAKER, 'POST', `/procurement-packages/${packageId}/milestones`, { milestone_kind: wanted.kind, actual_at: actualAt }, { version });
+  const found = (await ctx.list<Obj>(MAKER, '/procurement-milestones', { package_id: packageId })).find((row) => row.milestone_kind === wanted.kind);
+  return found === undefined ? undefined : String(found.id);
+}
+
 /** Completes the open items of the current step with the evidence they ask for, trying the kinds in turn (the step says which one it needs). */
-async function completeStep(ctx: SeedContext, view: WorkflowView, documentId: string, note: string): Promise<void> {
+async function completeStep(ctx: SeedContext, view: WorkflowView, documentId: string, note: string, milestoneId?: string): Promise<void> {
   for (const item of view.items.filter((candidate) => candidate.status !== 'DONE')) {
     const kinds: Array<Array<Record<string, string>>> = [
+      ...(milestoneId === undefined ? [] : [[{ kind: 'MILESTONE', milestone_id: milestoneId }]]),
       [{ kind: 'DOCUMENT', document_id: documentId }],
       [{ kind: 'DECISION_DOCUMENT', document_id: documentId }],
       [{ kind: 'ATTESTATION', note }],
@@ -141,7 +165,9 @@ async function driveTo(ctx: SeedContext, packageId: string, code: string, target
   if (!started.ok && started.status !== 409) return;
   view = await viewOf(ctx, packageId);
   for (let guard = 0; guard < 24 && view.step !== step && view.status === 'IN_PROGRESS'; guard += 1) {
-    await completeStep(ctx, view, documentId, note);
+    const milestoneId = await recordStepMilestone(ctx, packageId, view.step);
+    view = await viewOf(ctx, packageId);
+    await completeStep(ctx, view, documentId, note, milestoneId);
     view = await viewOf(ctx, packageId);
     let moved = await ctx.call(MAKER, 'POST', `/package-workflows/${view.id}/advance`, { note }, { version: view.version });
     if (!moved.ok) moved = await ctx.call(CHECKER, 'POST', `/package-workflows/${view.id}/advance`, { note }, { version: view.version });
@@ -166,6 +192,8 @@ export async function seedClipProcurement(ctx: SeedContext): Promise<void> {
     ctx.warn('no clip plan (CLIP_PLAN_FILE): the procurement group has nothing to do');
     return;
   }
+  // The due dates of the steps run on the working calendar: it must exist before the first workflow starts.
+  await ctx.step('ADM', 'working calendar', () => ensureWorkCalendar(ctx));
   await ctx.step('DOC', 'document types of the papers', () => defineDocumentTypes(ctx));
   await ctx.step('BID', 'contractors', () => registerContractors(ctx));
   for (const [index, spec] of block.plans.entries()) await ctx.step('BID', `procurement plan of ${spec.project}`, () => approvedPlanOf(ctx, block, spec, index));

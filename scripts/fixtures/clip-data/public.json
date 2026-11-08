@@ -356,5 +356,13 @@
       "sender": "Ủy ban nhân dân tỉnh Cao Bằng"
     },
     "note": "Bước thực hiện theo quy trình gói thầu của hệ thống; số liệu minh họa"
+  },
+  "egp": {
+    "planPrefix": "KH2026",
+    "fileRows": 12,
+    "badRows": 3,
+    "decisionNo": "QD-2026-UBND",
+    "noticePrefix": "IB",
+    "reason": "Đối chiếu với kế hoạch lựa chọn nhà thầu đã được phê duyệt"
   }
 }

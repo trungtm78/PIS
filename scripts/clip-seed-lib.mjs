@@ -8,7 +8,7 @@ export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-egp'],
   enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'],
 };
 
@@ -270,6 +270,7 @@ export function buildPlan(dataset) {
       extraAppropriations: dataset.funding.extraAppropriations,
       projects: portfolio.projects,
       lines: portfolio.lines,
+      egp: dataset.egp,
       procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: buildProcurement(dataset, portfolio.projects, portfolio.lines) },
       expect: summarise(dataset, portfolio),
     };

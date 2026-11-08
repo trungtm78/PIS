@@ -36,6 +36,26 @@ export async function procurementChecks(plan, reader) {
   ];
 }
 
+/** Checks of the national procurement network chapter: records imported, mappings decided, posting clocks (overdue, due soon, met) and the reconciliation. */
+export async function egpChecks(plan, reader) {
+  const read = async (path) => safe(async () => {
+    const reply = await reader.get('projectManager', path);
+    return reply.ok ? reply.json : undefined;
+  });
+  const [connection, obligations, mappings, items] = await Promise.all([read('/egp/connection'), read('/egp/obligations'), read('/egp/mappings'), read('/egp/reconciliation/items')]);
+  return [
+    { name: 'egp plan records imported', value: connection?.record_counts?.KHLCNT, min: plan.egp.fileRows },
+    { name: 'egp notice records imported', value: connection?.record_counts?.TBMT, min: 1 },
+    { name: 'egp mappings active', value: mappings?.counts?.ACTIVE, min: 1 },
+    { name: 'egp mappings waiting', value: mappings?.counts?.PROPOSED, min: 1 },
+    { name: 'egp obligations overdue', value: obligations?.counts?.overdue, min: 1 },
+    { name: 'egp obligations due soon', value: obligations?.counts?.due_soon, min: 1 },
+    { name: 'egp obligations met', value: obligations?.counts?.met, min: 1 },
+    { name: 'egp differences open', value: items?.counts?.open, min: 1 },
+    { name: 'egp differences resolved', value: items?.counts?.resolved, min: 1 },
+  ];
+}
+
 /** Checks of the enterprise dataset: the projects, the funding batches of the year (equity and loan), the directives and the accounting differences. */
 export async function enterpriseChecks(plan, reader) {
   const codes = new Set(plan.projects.map((project) => project.code));
@@ -57,7 +77,7 @@ export async function enterpriseChecks(plan, reader) {
 
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
-  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader))];
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await egpChecks(plan, reader))];
   if (plan.dataset === 'enterprise') return enterpriseChecks(plan, reader);
   return [];
 }

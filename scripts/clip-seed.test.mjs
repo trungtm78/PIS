@@ -144,9 +144,11 @@ test('verify passes when the register holds every planned project and fails when
     '/resources/procurement_package': plan.procurement.plans.flatMap((entry) => entry.packages),
     '/resources/contractor': Array.from({ length: 16 }, (_, index) => ({ id: index })),
   };
-  assert.equal(judgeAll(await verifyChecks(plan, stubReader({ '/resources/project': rows, ...procurement }))).ok, true);
+  const egp = { async get(_person, path) { return { ok: true, json: ({ '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } }, '/egp/obligations': { counts: { overdue: 3, due_soon: 1, met: 2 } }, '/egp/mappings': { counts: { ACTIVE: 9, PROPOSED: 2 } }, '/egp/reconciliation/items': { counts: { open: 4, resolved: 3 } } })[path] }; } };
+  const full = (extra) => ({ ...stubReader({ '/resources/project': rows, ...procurement, ...extra }), get: egp.get });
+  assert.equal(judgeAll(await verifyChecks(plan, full({}))).ok, true);
   const short = rows.filter((row, index) => !(row.status === 'IMPLEMENTATION' && index > 4));
-  const verdict = judgeAll(await verifyChecks(plan, stubReader({ '/resources/project': short, ...procurement })));
+  const verdict = judgeAll(await verifyChecks(plan, full({ '/resources/project': short })));
   assert.equal(verdict.ok, false);
   assert.ok(verdict.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
 });

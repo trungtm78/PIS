@@ -183,20 +183,20 @@ function plans(ctx: SeedContext): OutgoingPlan[] {
       recipients: () => [UBND_TINH, BO_KHDT],
     },
     {
-      key: 'TB-GIAO-BAN', type: 'TB', template: 'DOC-CV-DON-DOC-GIAI-NGAN', unit: 'CB-SKHDT-VP', upTo: 'signed',
+      key: 'TB-GIAO-BAN', type: 'CV', template: 'DOC-CV-DON-DOC-GIAI-NGAN', unit: 'CB-SKHDT-VP', upTo: 'signed',
       title: tx('title.047'),
       payload: { ...face, subject: tx('title.047'), greeting: tx('greeting.048'), body: tx('body.049') },
       recipients: (c) => [QLDA(c), VP(c), STC(c)],
     },
     {
-      key: 'TTR-DIEU-CHINH-VON', type: 'TTR', template: 'DOC-QD-DIEU-CHINH-KE-HOACH-VON', unit: 'CB-SKHDT-QLDA', upTo: 'submitted', urgency: 'THUONG_KHAN',
+      key: 'TTR-DIEU-CHINH-VON', type: 'QD', template: 'DOC-QD-DIEU-CHINH-KE-HOACH-VON', unit: 'CB-SKHDT-QLDA', upTo: 'submitted', urgency: 'THUONG_KHAN',
       title: tx('title.050'),
       payload: { ...face, title: tx('title.050'), body: tx('body.051') },
       amountVnd: '18000000000',
       recipients: () => [UBND_TINH],
     },
     {
-      key: 'KH-KIEM-TRA-TIEN-DO', type: 'KH', template: 'DOC-QD-CHU-TRUONG-DAU-TU', unit: 'CB-SKHDT-VP', upTo: 'review',
+      key: 'KH-KIEM-TRA-TIEN-DO', type: 'QD', template: 'DOC-QD-CHU-TRUONG-DAU-TU', unit: 'CB-SKHDT-VP', upTo: 'review',
       title: tx('title.052'),
       payload: { ...face, title: tx('title.052'), body: tx('body.053') },
       recipients: (c) => [QLDA(c), STC(c)],
@@ -214,7 +214,7 @@ function plans(ctx: SeedContext): OutgoingPlan[] {
       recipients: (c) => [VP(c), QLDA(c)],
     },
     {
-      key: 'GM-HOP-CHU-DAU-TU', type: 'GM', template: 'DOC-CV-GIAI-TRINH', unit: 'CB-SKHDT-VP', upTo: 'draft', urgency: 'HOA_TOC',
+      key: 'GM-HOP-CHU-DAU-TU', type: 'CV', template: 'DOC-CV-GIAI-TRINH', unit: 'CB-SKHDT-VP', upTo: 'draft', urgency: 'HOA_TOC',
       title: tx('title.061'),
       payload: { ...face, subject: tx('subject.062'), greeting: tx('greeting.063'), body: tx('body.064') },
       recipients: (c) => [QLDA(c), STC(c)],
