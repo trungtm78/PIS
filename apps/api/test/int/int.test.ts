@@ -127,9 +127,9 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
     await harness.seedGrants(TENANT_B, [{ n: 1, member: ADMIN, role: 1, kind: 'TENANT' }]);
     await dropSnapshotFixtureKeys(harness, TENANT_A);
     await seedSnapshot(harness, TENANT_A, ADMIN, { lines: [{}, {}, {}] });
-    await seedProject(TENANT_A, 'PRJ-A-1');
-    await seedProject(TENANT_A, 'PRJ-A-2', 'CONCEPT');
-    await seedProject(TENANT_B, 'PRJ-B-1');
+    await seedProject(TENANT_A, 'AAA-1');
+    await seedProject(TENANT_A, 'AAA-2', 'CONCEPT');
+    await seedProject(TENANT_B, 'AAA-B1');
     const tenants = harness.tenants as TenantDatabase;
     control = new Pool({ connectionString: harness.database.urlFor('machvon_control'), max: 2 });
     control.on('error', () => undefined);
@@ -194,7 +194,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       const secret = first.json.client_secret as string;
       const replay = await call('POST', '/int/machine-accounts', { member: ADMIN, body, key });
       expect(replay.status).toBe(201);
-      expect(replay.headers.get('idempotent-replayed')).toBe('true');
+      expect(replay.headers.get('idempotency-replayed')).toBe('true');
       expect(replay.json).toMatchObject({ client_secret: '', client_id: first.json.client_id, account_id: first.json.account_id });
       // The secret is in no table: not the credential, not the stored answer, not the audit, not the outbox.
       for (const table of ['int_machine_credential', 'int_machine_account', 'idempotency_record', 'audit_event', 'outbox_event', 'int_access_log']) {
@@ -291,12 +291,12 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       const page = await open('GET', '/open/v1/projects?limit=1', { bearer: reader.token });
       expect(page.status).toBe(200);
       const items = page.json.items as Array<{ code: string; external_codes: unknown[] }>;
-      expect(items.map((item) => item.code)).toEqual(['PRJ-A-1']);
+      expect(items.map((item) => item.code)).toEqual(['AAA-1']);
       expect(page.json.next_cursor).toEqual(expect.any(String));
       const second = await open('GET', `/open/v1/projects?limit=5&cursor=${page.json.next_cursor as string}`, { bearer: reader.token });
-      expect((second.json.items as Array<{ code: string }>).map((item) => item.code)).toEqual(['PRJ-A-2']);
+      expect((second.json.items as Array<{ code: string }>).map((item) => item.code)).toEqual(['AAA-2']);
       expect(second.json.next_cursor).toBeNull();
-      expect(JSON.stringify([page.json, second.json])).not.toContain('PRJ-B-1');
+      expect(JSON.stringify([page.json, second.json])).not.toContain('AAA-B1');
       expect(((await open('GET', '/open/v1/projects?status=CONCEPT', { bearer: reader.token })).json.items as unknown[]).length).toBe(1);
       expect((await open('GET', '/open/v1/projects?cursor=not-a-cursor', { bearer: reader.token })).status).toBe(422);
     });
@@ -316,7 +316,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
     it('needs the scope of the operation and logs the refusal', async () => {
       const denied = await open('GET', '/open/v1/contract-lines', { bearer: reader.token });
       expect(denied.status).toBe(403);
-      expect(denied.json).toMatchObject({ code: 'OPEN_SCOPE_DENIED', extensions: { required_scope: 'open.contracts.read' } });
+      expect(denied.json).toMatchObject({ code: 'OPEN_SCOPE_DENIED', required_scope: 'open.contracts.read' });
       expect((await logOf(reader.id)).some((entry) => entry.operation === 'listOpenContractLines' && entry.outcome === 'DENIED_SCOPE' && entry.status === 403)).toBe(true);
     });
 
@@ -367,7 +367,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       const foreign = await call('POST', '/int/machine-accounts', { member: ADMIN, tenantId: TENANT_B, body: { name: 'Foreign reader', scopes: ['open.projects.read'] } });
       const token = ((await exchange(foreign.json.client_id as string, foreign.json.client_secret as string)).json.access_token as string);
       const items = (await open('GET', '/open/v1/projects', { bearer: token })).json.items as Array<{ code: string }>;
-      expect(items.map((item) => item.code)).toEqual(['PRJ-B-1']);
+      expect(items.map((item) => item.code)).toEqual(['AAA-B1']);
     });
   });
 
@@ -386,7 +386,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect((listed.json.items as Array<Record<string, unknown>>).map((item) => [item.dataset_code, item.open, item.reason])).toEqual([['DS-DISB', false, 'DISABLED'], ['DS-CTR', false, 'DISABLED']]);
       const closed = await open('GET', '/open/v1/disbursement-lines', { bearer: accountToken });
       expect(closed.status).toBe(403);
-      expect(closed.json).toMatchObject({ code: 'OPEN_DATASET_NOT_CERTIFIED', extensions: { reason: 'DISABLED' } });
+      expect(closed.json).toMatchObject({ code: 'OPEN_DATASET_NOT_CERTIFIED', reason: 'DISABLED' });
       expect((await logOf(accountId)).some((entry) => entry.operation === 'listOpenDisbursementLines' && entry.outcome === 'DENIED_DATASET')).toBe(true);
     });
 
@@ -395,7 +395,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       const strong = await seedProduct(TENANT_A, 'DP-STRONG');
       const refused = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(1), body: { dataset_code: 'DS-DISB', enabled: true, product_id: weak, reason: REASON } });
       expect(refused.status).toBe(422);
-      expect(refused.json).toMatchObject({ code: 'OPEN_DATASET_NOT_CERTIFIED', extensions: { reason: 'NOT_CERTIFIED' } });
+      expect(refused.json).toMatchObject({ code: 'OPEN_DATASET_NOT_CERTIFIED', reason: 'NOT_CERTIFIED' });
       expect((await call('POST', '/int/export-datasets/state', { member: READER, ifMatch: etag(1), body: { dataset_code: 'DS-DISB', enabled: true, product_id: strong, reason: REASON } })).status).toBe(403);
       expect((await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(1), body: { dataset_code: 'DS-NOPE', enabled: true, product_id: strong, reason: REASON } })).status).toBe(422);
       const on = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(1), body: { dataset_code: 'DS-DISB', enabled: true, product_id: strong, reason: REASON } });
@@ -426,7 +426,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       const disb = state.find((item) => item.dataset_code === 'DS-DISB') as { product_id: string; version: number };
       await rows("update machvon.data_product set certification_status = 'REVOKED', revoke_reason = 'Revoked for the open API test' where id = $1", [disb.product_id]);
       const closed = await open('GET', '/open/v1/disbursement-lines', { bearer: accountToken });
-      expect(closed.json).toMatchObject({ code: 'OPEN_DATASET_NOT_CERTIFIED', extensions: { reason: 'NOT_CERTIFIED' } });
+      expect(closed.json).toMatchObject({ code: 'OPEN_DATASET_NOT_CERTIFIED', reason: 'NOT_CERTIFIED' });
       expect(((await open('GET', '/open/v1/datasets', { bearer: accountToken })).json.items as Array<{ open: boolean }>)[0]?.open).toBe(false);
       const fresh = await seedProduct(TENANT_A, 'DP-FRESH');
       const off = await call('POST', '/int/export-datasets/state', { member: ADMIN, ifMatch: etag(disb.version), body: { dataset_code: 'DS-DISB', enabled: false, reason: REASON } });
@@ -521,11 +521,11 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect((await call('POST', '/int/source-systems', { member: ADMIN, body: { code: 'EBS', name: 'Again', kind: 'ERP' } })).json).toMatchObject({ code: 'INT_SOURCE_SYSTEM_TAKEN' });
       expect((await call('POST', '/int/source-systems', { member: ADMIN, body: { code: 'MUASAMCONG', name: 'No', kind: 'OTHER' } })).status).toBe(422);
       expect((await call('POST', '/int/source-systems', { member: READER, body: { code: 'HPM', name: 'No', kind: 'FINANCE' } })).status).toBe(403);
-      const bad = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'EBS', our_code: 'PRJ-A-1', external_code: 'WRONG', reason: REASON } });
+      const bad = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'EBS', our_code: 'AAA-1', external_code: 'WRONG', reason: REASON } });
       expect(bad.json).toMatchObject({ code: 'VALIDATION_FAILED' });
-      const proposed = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'EBS', our_code: 'PRJ-A-1', external_code: 'P-100', reason: REASON } });
+      const proposed = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'EBS', our_code: 'AAA-1', external_code: 'P-100', reason: REASON } });
       expect(proposed.status).toBe(201);
-      expect(proposed.json).toMatchObject({ status: 'PROPOSED', project_code: 'PRJ-A-1', external_code: 'P-100', version: 1, actions: { decide: false, retire: false } });
+      expect(proposed.json).toMatchObject({ status: 'PROPOSED', project_code: 'AAA-1', external_code: 'P-100', version: 1, actions: { decide: false, retire: false } });
       const id = proposed.json.id as string;
       expect(((await open('GET', '/open/v1/project-codes', { bearer: await tokenWith(['open.project-codes.read']) })).json.items as unknown[]).length).toBe(0);
       expect((await call('POST', `/int/project-codes/${id}/decision`, { member: ADMIN, ifMatch: etag(1), body: { decision: 'APPROVE', reason: REASON } })).json).toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
@@ -536,11 +536,11 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect(approved.json).toMatchObject({ status: 'ACTIVE', resource_version: 2 });
       const token = await tokenWith(['open.project-codes.read', 'open.projects.read']);
       const codes = await open('GET', '/open/v1/project-codes?source_system=EBS&external_code=P-100', { bearer: token });
-      expect(codes.json.items).toEqual([expect.objectContaining({ project_code: 'PRJ-A-1', source_system: 'EBS', external_type: 'PROJECT_CODE', external_code: 'P-100', valid_until: null })]);
+      expect(codes.json.items).toEqual([expect.objectContaining({ project_code: 'AAA-1', source_system: 'EBS', external_type: 'PROJECT_CODE', external_code: 'P-100', valid_until: null })]);
       const projects = (await open('GET', '/open/v1/projects?limit=1', { bearer: token })).json.items as Array<{ external_codes: Array<{ source_system: string; external_code: string }> }>;
       expect(projects[0]?.external_codes).toEqual([expect.objectContaining({ source_system: 'EBS', external_code: 'P-100' })]);
-      const dup = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'EBS', our_code: 'PRJ-A-2', external_code: 'P-100', reason: REASON } });
-      expect(dup.json).toMatchObject({ code: 'CROSSWALK_DUPLICATE', extensions: { reason: 'EXTERNAL_CODE_TAKEN' } });
+      const dup = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'EBS', our_code: 'AAA-2', external_code: 'P-100', reason: REASON } });
+      expect(dup.json).toMatchObject({ code: 'CROSSWALK_DUPLICATE', reason: 'EXTERNAL_CODE_TAKEN' });
       expect((await call('POST', `/int/source-systems/${registered.json.id as string}/retire`, { member: ADMIN, ifMatch: etag(1), body: { reason: REASON } })).json).toMatchObject({ code: 'INT_SOURCE_SYSTEM_IN_USE' });
       const retired = await call('POST', `/int/project-codes/${id}/retire`, { member: ADMIN, ifMatch: etag(2), body: { reason: REASON } });
       expect(retired.json).toMatchObject({ status: 'RETIRED' });
