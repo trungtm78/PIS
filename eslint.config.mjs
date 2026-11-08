@@ -76,6 +76,11 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.jest } },
   },
   {
+    // The k6 scripts run in k6, not in Node: its globals.
+    files: ['tests/k6/**/*.js'],
+    languageOptions: { globals: { __ENV: 'readonly', open: 'readonly' } },
+  },
+  {
     // The web app runs in the browser; hooks rules apply, and warnings and errors may be logged.
     files: ['apps/web/**/*.{ts,tsx}'],
     languageOptions: { globals: { ...globals.browser } },
