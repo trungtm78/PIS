@@ -2557,6 +2557,9 @@ export * from './vendor-security.ts';
 export * from './vendor-subcontract.ts';
 export * from './vendor-risk.ts';
 export * from './vendor-performance.ts';
+export { VND2A_TEXT } from './messages/vnd2a-texts.ts';
+export { VND2B_TEXT, vnd2bText } from './messages/vnd2b-texts.ts';
+export { VND2C_TEXT, vnd2cText } from './messages/vnd2c-texts.ts';
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export * from './ctr-claim.ts';
 export * from './ctr-early-warning.ts';

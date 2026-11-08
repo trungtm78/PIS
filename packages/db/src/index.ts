@@ -1694,6 +1694,10 @@ export * from './vendor-venture-store.ts';
 export * from './vendor-reputation-store.ts';
 export * from './vendor-gate.ts';
 export { HomeVendorSources, VENDOR_AUDIENCE_PERMISSIONS } from './home-vendor-sources.ts';
+// VND-2 (alpha): the controls of a package, the independence of bidders and evaluators, the finance and the load of a contractor.
+export * from './vendor-package-control-store.ts';
+export * from './vendor-independence-store.ts';
+export * from './vendor-finance-store.ts';
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export { CtrRegisterPolicy } from './ctr-register-policy.ts';
 export type { ClaimTermTemplate, PolicyBasis, PolicyReading } from './ctr-register-policy.ts';
@@ -1842,3 +1846,12 @@ export type { InvestorStanding, ProfileRecommendation as InvestorProfileRecommen
 export { PeriodReportStore } from './period-report-store.ts';
 export type { IssueFacts as PeriodIssueFacts, LockRow as PeriodLockRow, SessionRow as ReportSignatureSessionRow, SignatureRow as ReportSignatureRow } from './period-report-store.ts';
 export { readPolicy as readGov12Policy } from './gov12-policy.ts';
+=======
+// VND-2 (slice beta): the bid security register and the subcontracts of a contract.
+export * from './vendor-security-store.ts';
+export * from './vendor-subcontract-store.ts';
+// VND-2 (slice gamma): the risk grade of a contractor and the publication of its performance.
+export * from './vendor-risk-signals.ts';
+export * from './vendor-risk-store.ts';
+export * from './vendor-performance-store.ts';
+export { GAMMA_AUDIENCE_PERMISSIONS } from './home-vendor-gamma-sources.ts';

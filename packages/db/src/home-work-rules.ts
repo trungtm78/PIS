@@ -163,7 +163,7 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   // EGP-2: a posting to the national procurement network by the time that is left (rule EGP_POSTING_SEVERITY): urgent when little time is left and once past the deadline, else to be acted on.
   EGP_POSTING: { DUE_SOON: 'ACTION', DUE_SOON_URGENT: 'URGENT', OVERDUE: 'URGENT' },
   // VND-1: the facet of an alert of the contractor register (the table of the kernel, VENDOR_FACET_SEVERITY); a tenant changes it on the alert type.
-  VENDOR: { EXPOSED: 'URGENT', DUE_SOON: 'ACTION', OVERDUE: 'URGENT', FIRST: 'WATCH', SECOND: 'ACTION', EXPIRED: 'URGENT', CHANGE_STALLED: 'ACTION', SHARED_ACCOUNT: 'URGENT', FINDING_STRONG: 'URGENT', FINDING_MEDIUM: 'ACTION', SIGNAL: 'WATCH', PENDING: 'ACTION', STREAK: 'WATCH' },
+  VENDOR: { EXPOSED: 'URGENT', DUE_SOON: 'ACTION', OVERDUE: 'URGENT', FIRST: 'WATCH', SECOND: 'ACTION', EXPIRED: 'URGENT', CHANGE_STALLED: 'ACTION', SHARED_ACCOUNT: 'URGENT', FINDING_STRONG: 'URGENT', FINDING_MEDIUM: 'ACTION', SIGNAL: 'WATCH', PENDING: 'ACTION', REVIEW_OVERDUE: 'ACTION', STREAK: 'WATCH' },
   // G1-9 (lane GOV-8): a limitation day the owner owes is acted on before it and urgent once missed; one the other side owes, once missed, is acted on (the owner decides what a late notice means); a response the owner owes is urgent when past; a settlement past its day is acted on.
   CONTRACT_CLAIM: { LIMITATION_APPROACHING: 'ACTION', LIMITATION_MISSED_OWN: 'URGENT', LIMITATION_MISSED_OTHER: 'ACTION', RESPONSE_DUE_SOON: 'ACTION', RESPONSE_OVERDUE: 'URGENT', SETTLEMENT_OVERDUE: 'ACTION' },
   // G1-15 (lane GOV-8): the rhythm of the early-warning register is watched while it is approaching and acted on once it is past; an action past its day is acted on.

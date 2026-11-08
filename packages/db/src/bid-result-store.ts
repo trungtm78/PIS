@@ -20,6 +20,9 @@ import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 import { VendorGate } from './vendor-gate.ts';
+import { VendorIndependenceGate } from './vendor-independence-store.ts';
+import { VendorPolicyReader } from './vendor-policy.ts';
+import { VendorSecurityGate } from './vendor-security-store.ts';
 
 const PRICE = /^[0-9]{1,24}$/;
 const UNIQUE_VIOLATION = '23505';
@@ -161,6 +164,9 @@ const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`;
 export class BidResultStore {
   private readonly contractors = new BidContractorStore();
   private readonly vendorGate = new VendorGate();
+  private readonly independenceGate = new VendorIndependenceGate();
+  private readonly securityGate = new VendorSecurityGate();
+  private readonly vendorPolicies = new VendorPolicyReader();
 
   /**
    * Refusals in order: the shape (422 `VALIDATION_FAILED`), the package (404 outside the scope, 409 `PLAN_NOT_APPROVED` unless its plan is in force), a result that is still
@@ -310,6 +316,10 @@ export class BidResultStore {
     await this.contractors.assertMayTakePart(tx, contractorId, vietnamDateOf(now));
     // VND-1: a restriction on a member of the venture the winner leads stops the result as well.
     await this.vendorGate.assertAllowed(tx, 'RESULT', { contractorId, packageId, now });
+    // VND-2: a package whose independence check left a finding blocked or a strong one undecided, or whose winner lodged no valid bid security where the package asks for one, is not awarded.
+    const today = vietnamDateOf(now);
+    await this.independenceGate.assertOpen(tx, packageId, await this.vendorPolicies.independence(tx, today));
+    await this.securityGate.assertAllowed(tx, { packageId, contractorId, today });
   }
 
   /** The evaluation minutes are a document of the tenant that is in force, issued through DOC; one that is still being drafted or was recalled is 409 `REPORT_NOT_ISSUED`. */
