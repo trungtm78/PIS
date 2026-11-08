@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { t } from '../../../i18n';
 import { AS_OF, clientFor, id, logEntry, mount, problem, routeFor } from '../test-support';
@@ -24,8 +24,8 @@ describe('AccessLogScreen (INT-05): every call of a machine to the open API', ()
     expect(screen.getByTestId('bi-note').textContent).toBe(t('int.log.note.bi'));
     const table = screen.getByRole('table', { name: t('int.log.table.caption') });
     expect(Array.from(table.querySelectorAll('thead th')).map((cell) => cell.textContent)).toEqual(['time', 'account', 'operation', 'scope', 'path', 'keys', 'outcome', 'status', 'rows', 'correlation'].map((column) => t(`int.log.column.${column}` as never)));
-    expect(screen.getByText(t('int.log.outcome.rateLimited'))).toBeTruthy();
-    expect(screen.getByText(t('int.log.outcome.ok'))).toBeTruthy();
+    expect(within(table).getByText(t('int.log.outcome.rateLimited'))).toBeTruthy();
+    expect(within(table).getByText(t('int.log.outcome.ok'))).toBeTruthy();
   });
 
   it('says why the log is empty, shows a failed read as an error with retry, and a refusal as denied', async () => {
