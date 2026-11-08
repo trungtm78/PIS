@@ -8,6 +8,7 @@ import { enterPortalPath } from './portal-boundary.ts';
 import type { TenantTx } from './tenant-database.ts';
 import { VendorPortalPolicyReader } from './vnd3-portal-policy.ts';
 import { VendorPolicyReader } from './vendor-policy.ts';
+import { VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 import { VendorProfileStore } from './vendor-profile-store.ts';
 import type { KeyStaffRow, QualificationRow } from './vendor-qualification-store.ts';
 import { VendorQualificationStore } from './vendor-qualification-store.ts';
@@ -149,6 +150,7 @@ export class VendorPortalStore {
   private readonly contractors = new BidContractorStore();
   private readonly profiles = new VendorProfileStore();
   private readonly qualifications = new VendorQualificationStore();
+  private readonly attachments = new VendorPortalAttachmentStore();
 
   constructor(policies: VendorPortalPolicyReader = new VendorPortalPolicyReader(), calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
     this.policies = policies;
@@ -330,7 +332,8 @@ export class VendorPortalStore {
     const next = nextPortalRequestStatus(current.status as PortalRequestStatus, 'RESPOND', 'CONTRACTOR');
     const text = answer.text === undefined ? null : textOf(answer.text, 'text', 1, 4000);
     if (text === null && answer.documentId === undefined && answer.qualificationId === undefined) throw invalid('text');
-    if (answer.documentId !== undefined && (await tx.query('select 1 from machvon.document where id = $1::uuid', [answer.documentId])).length === 0) throw invalid('document_id');
+    // PORTAL-2: the paper must be one of the contractor's own portal attachments (the register of documents is closed to the portal path).
+    if (answer.documentId !== undefined) await this.attachments.take(tx, answer.documentId, 'REQUEST', id);
     if (answer.qualificationId !== undefined && (await tx.query('select 1 from machvon.contractor_qualification where id = $1::uuid and contractor_id = $2::uuid', [answer.qualificationId, caller.contractorId])).length === 0) throw invalid('qualification_id');
     const late = now.getTime() > new Date(current.dueAt).getTime();
     await tx.query(
@@ -388,7 +391,8 @@ export class VendorPortalStore {
       const request = await this.find(tx, requestId, now);
       if (request === undefined || request.contractorId !== caller.contractorId) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     }
-    const row = await this.qualifications.addQualification(tx, caller.contractorId, input, caller.membershipId);
+    const row = await this.qualifications.addQualification(tx, caller.contractorId, input, caller.membershipId, { documentChecked: true });
+    if (input.documentId !== undefined) await this.attachments.take(tx, input.documentId, 'QUALIFICATION', row.id);
     return row;
   }
 

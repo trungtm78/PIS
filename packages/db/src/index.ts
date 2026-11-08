@@ -1883,3 +1883,11 @@ export { CLAIM_OUTCOMES, PETITION_OUTCOMES, VendorDisputeStore, VendorOcdsReader
 export type { DisputeReport, DisputeRow } from './vnd-dispute-store.ts';
 export { HomeVendorPortalSources } from './home-vendor-portal-sources.ts';
 export { FeedProvinceFactsReader, SnapshotOrFeedFactsReader, stableId } from './province-facts-feed.ts';
+
+// PORTAL-2: registry-bound portal invitations, recorded petition outcomes and portal attachments.
+export { VendorPortalInvitationStore } from './vnd-portal-invitation-store.ts';
+export type { AccountCreator, PortalInvitationRow } from './vnd-portal-invitation-store.ts';
+export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
+export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
+export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';

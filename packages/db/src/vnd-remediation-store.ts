@@ -4,6 +4,7 @@ import type { RemediationActionStatus, RemediationStatus } from '@machvon/kernel
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 import { VendorPortalPolicyReader } from './vnd3-portal-policy.ts';
+import { VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 import type { PortalCaller } from './vnd-portal-store.ts';
 import { VendorPortalStore } from './vnd-portal-store.ts';
 
@@ -184,6 +185,7 @@ const isDay = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value) && n
 export class VendorRemediationStore {
   private readonly policies: VendorPortalPolicyReader;
   private readonly portal = new VendorPortalStore();
+  private readonly attachments = new VendorPortalAttachmentStore();
 
   constructor(policies: VendorPortalPolicyReader = new VendorPortalPolicyReader()) {
     this.policies = policies;
@@ -297,7 +299,7 @@ export class VendorRemediationStore {
     if (action.version !== expectedVersion) throw versionConflict(action.version);
     if (plan.status !== 'IN_PROGRESS' || action.status !== 'OPEN') throw new DomainError('REMEDIATION_STATE_INVALID', 409, 'status');
     const note = textOf(input.note, 'note', 1, 2000);
-    if (input.documentId !== undefined && (await tx.query('select 1 from machvon.document where id = $1::uuid', [input.documentId])).length === 0) throw invalid('document_id');
+    if (input.documentId !== undefined) await this.attachments.take(tx, input.documentId, 'REMEDIATION_ACTION', actionId);
     await tx.query(
       "update machvon.contractor_remediation_action set status = 'DONE', done_by = $2::uuid, done_at = $3::timestamptz, done_note = $4, evidence_document_id = $5::uuid, version = version + 1 where id = $1::uuid",
       [actionId, caller.membershipId, now.toISOString(), note, input.documentId ?? null],

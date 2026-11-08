@@ -1,5 +1,5 @@
-import { PORTAL_CLOCK_DEFAULTS, ocdsExportPolicyOf, portalClockPolicyOf, reconfirmationPolicyOf, remediationPolicyOf } from '@machvon/kernel';
-import type { OcdsExportPolicy, PortalClockPolicy, PortalRequestKind, ReconfirmationPolicy, RemediationPolicy, ResolvedGovernanceRule } from '@machvon/kernel';
+import { PORTAL_CLOCK_DEFAULTS, ocdsExportPolicyOf, portalAccessPolicyOf, portalClockPolicyOf, reconfirmationPolicyOf, remediationPolicyOf } from '@machvon/kernel';
+import type { OcdsExportPolicy, PortalAccessPolicy, PortalClockPolicy, PortalRequestKind, ReconfirmationPolicy, RemediationPolicy, ResolvedGovernanceRule } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import type { Policy } from './vendor-policy.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -39,6 +39,11 @@ export class VendorPortalPolicyReader {
 
   remediation(tx: TenantTx, today: string): Promise<Policy<RemediationPolicy>> {
     return this.read(tx, 'VENDOR_REMEDIATION', 'DEFAULT', today, remediationPolicyOf);
+  }
+
+  /** PORTAL-2: the rule `VENDOR_PORTAL_ACCESS` (proposal and access days, accounts per contractor, largest upload). */
+  access(tx: TenantTx, today: string): Promise<Policy<PortalAccessPolicy>> {
+    return this.read(tx, 'VENDOR_PORTAL_ACCESS', 'DEFAULT', today, portalAccessPolicyOf);
   }
 
   ocds(tx: TenantTx, today: string): Promise<Policy<OcdsExportPolicy>> {

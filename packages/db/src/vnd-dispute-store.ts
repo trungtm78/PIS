@@ -11,6 +11,8 @@ export interface DisputeRow extends DisputeFacts {
   subjectCode: string | null;
   /** The status as the source module says it (the screen shows it next to the folded outcome). */
   sourceStatus: string;
+  /** The reference of the confirmed decision of a petition (PORTAL-2), when there is one. */
+  decisionRef: string | null;
 }
 
 export interface DisputeReport {
@@ -24,11 +26,10 @@ export interface DisputeReport {
 type Outcome = DisputeFacts['outcome'];
 
 /**
- * How the words of each source fold to four outcomes. A petition has no recorded decision of its own (it is answered by a resolution document), so an answered petition is folded as rejected and one passed up as still open; the
- * source status stays on every line so that a screen never hides what the source said. A claim of the contractor that was settled is upheld (the contractor got an amount or days), one declared barred is rejected, a withdrawn one
+ * How the words of each source fold to four outcomes. A petition is answered by a resolution document, which says nothing about who was right; its decision is recorded apart (PORTAL-2, `procurement_petition_outcome`) and counts here only once a second person confirmed it. A petition without a confirmed decision is still open, and an answered one is counted as `awaitingOutcome`, so the share upheld is over decisions only; the source status stays on every line so that a screen never hides what the source said. A claim of the contractor that was settled is upheld (the contractor got an amount or days), one declared barred is rejected, a withdrawn one
  * is withdrawn, one referred to the level above is still open (it is not decided here).
  */
-export const PETITION_OUTCOMES: Readonly<Record<string, Outcome>> = { RECEIVED: 'OPEN', PROCESSING: 'OPEN', ESCALATED: 'OPEN', RESOLVED: 'REJECTED', WITHDRAWN: 'WITHDRAWN' };
+export const PETITION_OUTCOMES: Readonly<Record<string, Outcome>> = { RECEIVED: 'OPEN', PROCESSING: 'OPEN', ESCALATED: 'OPEN', RESOLVED: 'OPEN', WITHDRAWN: 'WITHDRAWN' };
 export const CLAIM_OUTCOMES: Readonly<Record<string, Outcome>> = {
   EVENT_RECORDED: 'OPEN',
   NOTICE_SERVED: 'OPEN',
@@ -44,10 +45,11 @@ export const CLAIM_OUTCOMES: Readonly<Record<string, Outcome>> = {
 /** The petitions and the claims of the contractors (VND-3, V16): counts, the share upheld among the decided ones and the days to close, for one contractor and for the whole register. Counts only: the source modules keep the cases. */
 export class VendorDisputeStore {
   async report(tx: TenantTx, contractorId: string | undefined): Promise<DisputeReport> {
-    const petitions = await tx.query<{ id: string; contractor_id: string; contractor_name: string; code: string; status: string; opened: string; closed: string | null }>(
+    const petitions = await tx.query<{ id: string; contractor_id: string; contractor_name: string; code: string; status: string; opened: string; closed: string | null; decided: Outcome | null; decision_ref: string | null; decision_on: string | null }>(
       `select p.id, p.contractor_id, c.legal_name as contractor_name, k.code, p.status, p.received_on::text as opened,
-              case when p.status = 'RESOLVED' then (p.resolved_at at time zone 'Asia/Ho_Chi_Minh')::date::text when p.status = 'WITHDRAWN' then (p.updated_at at time zone 'Asia/Ho_Chi_Minh')::date::text else null end as closed
-         from machvon.procurement_petition p join machvon.contractor c on c.tenant_id = p.tenant_id and c.id = p.contractor_id left join machvon.procurement_package k on k.tenant_id = p.tenant_id and k.id = p.package_id
+              case when p.status = 'RESOLVED' then (p.resolved_at at time zone 'Asia/Ho_Chi_Minh')::date::text when p.status = 'WITHDRAWN' then (p.updated_at at time zone 'Asia/Ho_Chi_Minh')::date::text else null end as closed,
+              o.outcome as decided, o.decision_ref, o.decision_on::text as decision_on
+         from machvon.procurement_petition p left join machvon.procurement_petition_outcome o on o.tenant_id = p.tenant_id and o.petition_id = p.id and o.status = 'CONFIRMED' join machvon.contractor c on c.tenant_id = p.tenant_id and c.id = p.contractor_id left join machvon.procurement_package k on k.tenant_id = p.tenant_id and k.id = p.package_id
         order by p.received_on desc, p.id limit 5000`,
     );
     const claims = await tx.query<{ id: string; contractor_id: string; contractor_name: string; code: string; status: string; opened: string; closed: string | null }>(
@@ -57,12 +59,24 @@ export class VendorDisputeStore {
     );
     const all: DisputeRow[] = [
       ...petitions.map((row): DisputeRow => {
-        const outcome = PETITION_OUTCOMES[row.status] ?? 'OPEN';
-        return { kind: 'PETITION', id: row.id, contractorId: row.contractor_id, contractorName: row.contractor_name, subjectCode: row.code, outcome, sourceStatus: row.status, openedOn: row.opened, closedOn: outcome === 'OPEN' ? null : row.closed };
+        const outcome = row.decided ?? PETITION_OUTCOMES[row.status] ?? 'OPEN';
+        return {
+          kind: 'PETITION',
+          id: row.id,
+          contractorId: row.contractor_id,
+          contractorName: row.contractor_name,
+          subjectCode: row.code,
+          outcome,
+          sourceStatus: row.status,
+          decisionRef: row.decision_ref,
+          awaitingOutcome: outcome === 'OPEN' && row.status === 'RESOLVED',
+          openedOn: row.opened,
+          closedOn: outcome === 'OPEN' ? null : (row.decision_on ?? row.closed),
+        };
       }),
       ...claims.map((row): DisputeRow => {
         const outcome = CLAIM_OUTCOMES[row.status] ?? 'OPEN';
-        return { kind: 'CLAIM', id: row.id, contractorId: row.contractor_id, contractorName: row.contractor_name, subjectCode: row.code, outcome, sourceStatus: row.status, openedOn: row.opened, closedOn: outcome === 'OPEN' ? null : row.closed };
+        return { kind: 'CLAIM', id: row.id, contractorId: row.contractor_id, contractorName: row.contractor_name, subjectCode: row.code, outcome, sourceStatus: row.status, decisionRef: null, openedOn: row.opened, closedOn: outcome === 'OPEN' ? null : row.closed };
       }),
     ];
     const mine = contractorId === undefined ? all : all.filter((row) => row.contractorId === contractorId);

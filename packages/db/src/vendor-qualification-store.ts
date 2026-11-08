@@ -203,10 +203,11 @@ export class VendorQualificationStore {
     if (documentId !== undefined && (await tx.query('select 1 from machvon.document where id = $1::uuid', [documentId])).length === 0) throw invalid('document_id');
   }
 
-  async addQualification(tx: TenantTx, contractorId: string, input: NewQualification, actor: string): Promise<QualificationRow> {
+  /** `documentChecked`: the caller already proved the document is one it may name (the portal checks its own attachments; the register of documents is closed to the portal path). */
+  async addQualification(tx: TenantTx, contractorId: string, input: NewQualification, actor: string, options: { documentChecked?: boolean } = {}): Promise<QualificationRow> {
     await this.assertContractor(tx, contractorId);
     assertValidityPeriod(input.issuedOn, input.expiresOn ?? null);
-    await this.assertDocument(tx, input.documentId);
+    if (options.documentChecked !== true) await this.assertDocument(tx, input.documentId);
     const id = randomUUID();
     await tx.query(
       `insert into machvon.contractor_qualification (tenant_id, id, contractor_id, kind, certificate_no, grade, scope, issuer, issued_on, expires_on, document_id, created_by, updated_by)

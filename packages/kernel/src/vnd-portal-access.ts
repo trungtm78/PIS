@@ -70,7 +70,7 @@ export function effectiveInvitationStatus(input: { status: PortalInvitationStatu
 }
 
 const DAY_MS = 86_400_000;
-export const addDays = (from: Date, days: number): Date => new Date(from.getTime() + days * DAY_MS);
+export const plusDays = (from: Date, days: number): Date => new Date(from.getTime() + days * DAY_MS);
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** The address as it is kept: trimmed, lower case; 422 `VALIDATION_FAILED` on `contact_email` when it is not an address. */
