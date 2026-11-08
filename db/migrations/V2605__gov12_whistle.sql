@@ -76,8 +76,8 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = machvon, pg_temp AS $fn$
 $fn$;
 REVOKE ALL ON FUNCTION machvon.whistle_tenant(text) FROM PUBLIC;
 
--- Submits a report. The caller gives the days of the rule (read by the API from the defaults: the public side cannot read the rules of a tenant); the function checks their range through the table checks.
-CREATE FUNCTION machvon.whistle_submit(p_slug text, p_category text, p_body text, p_code_hash text, p_received_on date, p_acknowledge_days integer, p_resolve_days integer)
+-- Submits a report. The caller gives the days of the rule as the portal settings hold them (a snapshot taken when the settings were saved: the public side cannot read the rules of a tenant); the table checks their range.
+CREATE FUNCTION machvon.whistle_submit(p_slug text, p_category text, p_body text, p_code_hash text, p_received_on date, p_acknowledge_days integer, p_resolve_days integer, p_rule_version integer)
 RETURNS date
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = machvon, pg_temp AS $fn$
 DECLARE
@@ -88,7 +88,7 @@ BEGIN
   END IF;
   PERFORM set_config('app.tenant_id', v_tenant::text, true);
   INSERT INTO machvon.whistle_report (tenant_id, category, body, access_code_hash, received_on, acknowledge_days, resolve_days, rule_version)
-  VALUES (v_tenant, p_category, p_body, p_code_hash, p_received_on, p_acknowledge_days, p_resolve_days, 0);
+  VALUES (v_tenant, p_category, p_body, p_code_hash, p_received_on, p_acknowledge_days, p_resolve_days, p_rule_version);
   PERFORM set_config('app.tenant_id', '', true);
   RETURN p_received_on;
 END $fn$;
@@ -144,11 +144,11 @@ BEGIN
   PERFORM set_config('app.tenant_id', '', true);
   RETURN v_seq;
 END $fn$;
-REVOKE ALL ON FUNCTION machvon.whistle_submit(text, text, text, text, date, integer, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION machvon.whistle_submit(text, text, text, text, date, integer, integer, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION machvon.whistle_lookup(text, text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION machvon.whistle_thread(text, text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION machvon.whistle_reply(text, text, text, date) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION machvon.whistle_submit(text, text, text, text, date, integer, integer) TO machvon_control;
+GRANT EXECUTE ON FUNCTION machvon.whistle_submit(text, text, text, text, date, integer, integer, integer) TO machvon_control;
 GRANT EXECUTE ON FUNCTION machvon.whistle_lookup(text, text) TO machvon_control;
 GRANT EXECUTE ON FUNCTION machvon.whistle_thread(text, text) TO machvon_control;
 GRANT EXECUTE ON FUNCTION machvon.whistle_reply(text, text, text, date) TO machvon_control;

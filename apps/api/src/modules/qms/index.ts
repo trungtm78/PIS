@@ -6,6 +6,7 @@ import { DiaryController, DiaryReadsController } from './diary.controller';
 import { InspectionController, InspectionReadsController } from './inspection.controller';
 import { MaterialController, MaterialReadsController } from './material.controller';
 import { PhotoController, PhotoReadsController } from './photo.controller';
+import { PhotoFindingController, PhotoFindingReadsController } from './photo-finding.controller';
 
 /**
  * QMS, quality management: the electronic site diary of a contract and a day, signed in turn by the contractor, the supervisor and the owner over a hash of what it says, locked, and corrected only as a new revision (ST-QMS-001); the inspections of work under a contract, requested by a contractor or the supervisor, given the regime and the checklist in force on the day of the request,
@@ -14,5 +15,5 @@ import { PhotoController, PhotoReadsController } from './photo.controller';
  */
 export const qmsModule = defineModule({
   code: 'QMS',
-  controllers: [DiaryController, DiaryReadsController, DiaryCoverageController, PhotoController, PhotoReadsController, InspectionController, InspectionReadsController, AcceptanceController, AcceptanceReadsController, NonconformanceController, NonconformanceReadsController, MaterialController, MaterialReadsController],
+  controllers: [PhotoFindingController, PhotoFindingReadsController, DiaryController, DiaryReadsController, DiaryCoverageController, PhotoController, PhotoReadsController, InspectionController, InspectionReadsController, AcceptanceController, AcceptanceReadsController, NonconformanceController, NonconformanceReadsController, MaterialController, MaterialReadsController],
 });

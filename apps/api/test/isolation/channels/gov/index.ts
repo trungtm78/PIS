@@ -7,6 +7,8 @@ import { EGP_OPERATIONS, EGP_SNAPSHOT_TABLES, EGP_SPECS, seedEgp } from './egp';
 import { FEED_OPERATIONS, FEED_SNAPSHOT_TABLES, FEED_SPECS, seedFeed } from './feed';
 import { GOV10_OPERATIONS, GOV10_SNAPSHOT_TABLES, GOV10_SPECS, seedGov10 } from './gov10';
 import { GOV11A_OPERATIONS, GOV11A_SNAPSHOT_TABLES, GOV11A_SPECS, seedGov11a } from './gov11a';
+=======
+import { GOV12_OPERATIONS, GOV12_SNAPSHOT_TABLES, GOV12_SPECS, seedGov12 } from './gov12';
 import { GOVRULE_OPERATIONS, GOVRULE_SNAPSHOT_TABLES, GOVRULE_SPECS, seedGovrule } from './govrule';
 import { HOME_OPERATIONS, HOME_SNAPSHOT_TABLES, seedHome } from './home';
 import { HUB_OPERATIONS, HUB_SNAPSHOT_TABLES, HUB_SPECS, seedHub } from './hub';
@@ -34,6 +36,8 @@ export const GOVERNANCE_SPECS: readonly ForeignAttemptSpec[] = [
   ...FEED_SPECS,
   ...GOV10_SPECS,
   ...HUB_SPECS,
+=======
+  ...GOV12_SPECS,
 ];
 
 /** Every operation of these controllers: the test role of the suite holds the permission of each. */
@@ -46,6 +50,8 @@ export const GOVERNANCE_OPERATIONS: readonly string[] = [
   ...EGP_OPERATIONS,
   ...RATING_OPERATIONS,
   ...GOV11A_OPERATIONS,
+=======
+  ...GOV12_OPERATIONS,
   ...HOME_OPERATIONS,
   ...ANALYTICS_OPERATIONS,
   ...MR1_OPERATIONS,
@@ -67,6 +73,8 @@ export const GOVERNANCE_SNAPSHOT_TABLES: readonly string[] = [
     ...EGP_SNAPSHOT_TABLES,
     ...RATING_SNAPSHOT_TABLES,
     ...GOV11A_SNAPSHOT_TABLES,
+=======
+    ...GOV12_SNAPSHOT_TABLES,
     ...HOME_SNAPSHOT_TABLES,
     ...ANALYTICS_SNAPSHOT_TABLES,
     ...MR1_SNAPSHOT_TABLES,
@@ -87,6 +95,8 @@ export async function seedGovernance(client: Client, context: SeedContext): Prom
   await seedEgp(client, context);
   await seedRating(client, context);
   await seedGov11a(client, context);
+=======
+  await seedGov12(client, context);
   await seedHome(client, context);
   await seedAnalytics(client, context);
   await seedMr1(client, context);

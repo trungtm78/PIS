@@ -33,6 +33,7 @@ import { PdfLibRenderer, loadRendererResources } from './pdf-renderer';
 import type { RendererResources } from './pdf-renderer';
 import { RegistersController } from './registers.controller';
 import { SignaturesController } from './signatures.controller';
+import { TransmittalController, TransmittalReadsController } from './transmittal.controller';
 import { UnconfiguredSigningPort } from './signing-adapters';
 import { DocumentTemplatesController } from './templates.controller';
 import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_INTEROP_CODEC, DOC_INTEROP_TRANSPORT, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
@@ -58,6 +59,8 @@ import type { DocumentTextExtractionPort } from './text-extraction';
 export const docModule = defineModule({
   code: 'DOC',
   controllers: [
+    TransmittalController,
+    TransmittalReadsController,
     IncomingController,
     IncomingReadsController,
     DossiersController,

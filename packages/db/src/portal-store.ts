@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import {
   DomainError,
   PORTAL_RULE_TYPE,
+  WHISTLE_RULE_TYPE,
   assertPortalSlug,
   cutToAllowed,
   oc4idsPackage,
@@ -10,8 +11,10 @@ import {
   projectPortalRecord,
   validateOc4idsPackage,
   versionConflict,
+  whistleDefaults,
+  whistlePolicyOf,
 } from '@machvon/kernel';
-import type { Oc4idsIssue, Oc4idsPackage, PortalField, PortalPolicy, PortalProjectFacts, PortalRecord, PublisherInput } from '@machvon/kernel';
+import type { Oc4idsIssue, Oc4idsPackage, PortalField, PortalPolicy, PortalProjectFacts, PortalRecord, PublisherInput, WhistlePolicy } from '@machvon/kernel';
 import { ISO, readPolicy } from './gov12-policy.ts';
 import type { PolicyReading } from './gov12-policy.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -30,6 +33,10 @@ export interface PortalSettingRow {
   ratePerMinute: number;
   pageSizeMax: number;
   policyRuleVersion: number;
+  whistleAcknowledgeDays: number;
+  whistleResolveDays: number;
+  whistleRatePerHour: number;
+  whistleRuleVersion: number;
   version: number;
   updatedAt: string;
 }
@@ -70,6 +77,9 @@ export interface PublicInfo {
   pageSizeMax: number;
   recordCount: number;
   lastPublishedAt: string | null;
+  whistleEnabled: boolean;
+  /** The policy of the anonymous channel as the settings hold it, for the public side that cannot read the rules. */
+  whistle: { policy: WhistlePolicy; ruleVersion: number };
 }
 
 export interface PublicRecord {
@@ -81,7 +91,7 @@ export interface PublicRecord {
 
 type Raw = Record<string, unknown>;
 
-const SETTING_COLUMNS = `id, slug, enabled, whistle_enabled, title, publisher_name, id_prefix, license_uri, policy_uri, allowed_fields, rate_per_minute, page_size_max, policy_rule_version, version, ${ISO('updated_at')} as updated_at`;
+const SETTING_COLUMNS = `id, slug, enabled, whistle_enabled, title, publisher_name, id_prefix, license_uri, policy_uri, allowed_fields, rate_per_minute, page_size_max, policy_rule_version, whistle_acknowledge_days, whistle_resolve_days, whistle_rate_per_hour, whistle_rule_version, version, ${ISO('updated_at')} as updated_at`;
 const toSetting = (row: Raw): PortalSettingRow => ({
   id: row.id as string,
   slug: row.slug as string,
@@ -96,6 +106,10 @@ const toSetting = (row: Raw): PortalSettingRow => ({
   ratePerMinute: row.rate_per_minute as number,
   pageSizeMax: row.page_size_max as number,
   policyRuleVersion: row.policy_rule_version as number,
+  whistleAcknowledgeDays: row.whistle_acknowledge_days as number,
+  whistleResolveDays: row.whistle_resolve_days as number,
+  whistleRatePerHour: row.whistle_rate_per_hour as number,
+  whistleRuleVersion: row.whistle_rule_version as number,
   version: Number(row.version),
   updatedAt: row.updated_at as string,
 });
@@ -137,21 +151,22 @@ export class PortalStore {
   async saveSettings(tx: TenantTx, input: SettingsInput, expectedVersion: number | undefined, actor: string, today: string): Promise<PortalSettingRow> {
     assertPortalSlug(input.slug);
     const reading = await this.policy(tx, today);
+    const whistle = await readPolicy(tx, WHISTLE_RULE_TYPE, today, whistlePolicyOf, whistleDefaults);
     const current = await this.setting(tx, true);
     try {
       if (current === undefined) {
         if (expectedVersion !== undefined && expectedVersion !== 0) throw versionConflict(0);
         await tx.query(
-          `insert into machvon.portal_setting (tenant_id, slug, enabled, whistle_enabled, title, publisher_name, id_prefix, license_uri, policy_uri, allowed_fields, rate_per_minute, page_size_max, policy_rule_version, updated_by)
-           values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5, $6, $7, $8, $9::text[], $10, $11, $12, $13::uuid)`,
-          [input.slug, input.enabled, input.whistleEnabled, input.title.trim(), input.publisherName.trim(), input.idPrefix, input.licenseUri.trim(), input.policyUri.trim(), reading.policy.allowed_fields, reading.policy.rate_per_minute, reading.policy.page_size_max, reading.version, actor],
+          `insert into machvon.portal_setting (tenant_id, slug, enabled, whistle_enabled, title, publisher_name, id_prefix, license_uri, policy_uri, allowed_fields, rate_per_minute, page_size_max, policy_rule_version, whistle_acknowledge_days, whistle_resolve_days, whistle_rate_per_hour, whistle_rule_version, updated_by)
+           values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5, $6, $7, $8, $9::text[], $10, $11, $12, $13, $14, $15, $16, $17::uuid)`,
+          [input.slug, input.enabled, input.whistleEnabled, input.title.trim(), input.publisherName.trim(), input.idPrefix, input.licenseUri.trim(), input.policyUri.trim(), reading.policy.allowed_fields, reading.policy.rate_per_minute, reading.policy.page_size_max, reading.version, whistle.policy.acknowledge_days, whistle.policy.resolve_days, whistle.policy.rate_per_hour, whistle.version, actor],
         );
       } else {
         if (expectedVersion !== current.version) throw versionConflict(current.version);
         await tx.query(
           `update machvon.portal_setting set slug = $1, enabled = $2, whistle_enabled = $3, title = $4, publisher_name = $5, id_prefix = $6, license_uri = $7, policy_uri = $8, allowed_fields = $9::text[],
-                  rate_per_minute = $10, page_size_max = $11, policy_rule_version = $12, updated_by = $13::uuid, updated_at = now(), version = version + 1`,
-          [input.slug, input.enabled, input.whistleEnabled, input.title.trim(), input.publisherName.trim(), input.idPrefix, input.licenseUri.trim(), input.policyUri.trim(), reading.policy.allowed_fields, reading.policy.rate_per_minute, reading.policy.page_size_max, reading.version, actor],
+                  rate_per_minute = $10, page_size_max = $11, policy_rule_version = $12, whistle_acknowledge_days = $13, whistle_resolve_days = $14, whistle_rate_per_hour = $15, whistle_rule_version = $16, updated_by = $17::uuid, updated_at = now(), version = version + 1`,
+          [input.slug, input.enabled, input.whistleEnabled, input.title.trim(), input.publisherName.trim(), input.idPrefix, input.licenseUri.trim(), input.policyUri.trim(), reading.policy.allowed_fields, reading.policy.rate_per_minute, reading.policy.page_size_max, reading.version, whistle.policy.acknowledge_days, whistle.policy.resolve_days, whistle.policy.rate_per_hour, whistle.version, actor],
         );
       }
     } catch (error) {
@@ -255,6 +270,8 @@ export class PortalPublicReads {
       pageSizeMax: row.page_size_max as number,
       recordCount: Number(row.record_count),
       lastPublishedAt: row.last_published_at === null || row.last_published_at === undefined ? null : new Date(row.last_published_at as string).toISOString(),
+      whistleEnabled: row.whistle_enabled as boolean,
+      whistle: { policy: { acknowledge_days: row.whistle_acknowledge_days as number, resolve_days: row.whistle_resolve_days as number, rate_per_hour: row.whistle_rate_per_hour as number }, ruleVersion: row.whistle_rule_version as number },
     };
   }
 

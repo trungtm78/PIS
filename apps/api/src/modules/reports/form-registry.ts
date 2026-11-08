@@ -1,5 +1,7 @@
 import { DIS_WEEKLY_LAYOUT, DomainError, validateLayout } from '@machvon/kernel';
 import type { EffectiveAccess, ReportFormBundle } from '@machvon/kernel';
+import { DIS_WEEKLY_LAYOUT, DomainError, MOF_LAYOUTS, MOF_RECEIVER, mofFormOf, validateLayout } from '@machvon/kernel';
+import type { ReportFormBundle } from '@machvon/kernel';
 import { buildBlankTemplate } from './blank-template';
 import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
@@ -78,6 +80,8 @@ export const layoutReadable = (access: EffectiveAccess, layoutCode: string): boo
 export function assertLayoutAccess(access: EffectiveAccess, layoutCode: string): void {
   if (!layoutReadable(access, layoutCode)) throw new DomainError('SCOPE_DENIED', 403);
 }
+/** The figures of the periodic forms for the Ministry: the snapshot that stood at the end of the period of the report. */
+export const MOF_PROVIDER = 'MOF_DIS';
 
 /** The generic forms of the public edition: the weekly disbursement report, read from the command center through its provider. Calling it again changes nothing. */
 export function registerPublicReportForms(registry: ReportFormRegistry = REPORT_FORMS): void {
@@ -93,4 +97,17 @@ export function registerPublicReportForms(registry: ReportFormRegistry = REPORT_
     templates: async () => ({ xlsx: await buildBlankTemplate(DIS_WEEKLY_LAYOUT), docx: null }),
   });
   registerCommitteeReportForm(registry);
+}
+
+/**
+ * The four forms for the Ministry of Finance (GOV-12, G4-6): PENDING_EXTERNAL layouts built from the indicators of the register, with live figures from the snapshot at the end of the period. They can be drafted and read; they cannot be
+ * issued until the official template is supplied and a new READY version of the same code is registered (see docs/report-engine.md). Calling it again changes nothing.
+ */
+export function registerMofReportForms(registry: ReportFormRegistry = REPORT_FORMS): void {
+  registry.registerProvider(new DisHomeProvider(MOF_PROVIDER, true));
+  for (const layout of MOF_LAYOUTS) {
+    const form = mofFormOf(layout.code);
+    if (form === undefined) continue;
+    registry.register({ edition: 'public', layout, narrative: null, receiver: MOF_RECEIVER, periodKind: form.periodKind, dataSource: 'LIVE', provider: MOF_PROVIDER, templates: async () => ({ xlsx: await buildBlankTemplate(layout), docx: null }) });
+  }
 }

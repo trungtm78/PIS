@@ -3243,3 +3243,4 @@ export type { AuditStandingPolicy, RankedStanding, RecommendationFact, AuditReco
 export { MOF_FORMS, MOF_RECEIVER, PERIOD_REPORT_RULE_TYPE, SIGNATURE_PROVIDERS, assertPeriodOpen, assertSignedForDelivery, assertSignerIsApprover, assertUnlock, eventLocks, isLocked, mofFormOf, periodKeyOf, periodReportDefaults, periodReportPolicyOf, signatureCountsForDelivery, signatureCovers } from './period-report.ts';
 export type { MofFormCode, PeriodLockFacts, PeriodReportPolicy, ReportSignatureFacts, SignatureProvider } from './period-report.ts';
 export { GOV12_SCREENS } from './gov12-screens.ts';
+export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';

@@ -117,6 +117,12 @@ export class PeriodReportStore {
     return row === undefined ? undefined : { id: row.id as string, layoutCode: row.layout_code as string, periodCode: row.period_code as string, revision: row.revision as number, sha256: (row.sha256 as string).trim(), approvedBy: row.approved_by as string, countsAsAccepted: row.counts_as_accepted as boolean };
   }
 
+  /** Whether no later revision replaced the copy: only the head of a series is signed. */
+  async isHead(tx: TenantTx, id: string): Promise<boolean> {
+    const [row] = await tx.query<{ replaced: boolean }>('select exists (select 1 from machvon.report_issue where supersedes_id = $1::uuid) as replaced', [id]);
+    return row !== undefined && !row.replaced;
+  }
+
   /** The open lock of a series and period, or none. */
   async openLock(tx: TenantTx, layoutCode: string, periodCode: string): Promise<LockRow | undefined> {
     const [row] = await tx.query<Raw>(`select ${LOCK_COLUMNS} from machvon.report_period_lock where layout_code = $1 and period_code = $2 and unlocked_at is null`, [layoutCode, periodCode]);
@@ -147,7 +153,7 @@ export class PeriodReportStore {
     const open = await this.openLock(tx, copy.layoutCode, copy.periodCode);
     if (open !== undefined) {
       if (open.issueId === copy.id) return { lock: open, created: false };
-      throw new DomainError('PERIOD_LOCKED', 409, 'period');
+      throw new DomainError('PERIOD_LOCKED', 422, 'period');
     }
     await tx.query(
       `insert into machvon.report_period_lock (tenant_id, layout_code, period_code, issue_id, digest_sha256, locked_by) values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3::uuid, $4, $5::uuid)`,

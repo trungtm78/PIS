@@ -1,12 +1,14 @@
 import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { TenantDatabase, copyRefOf } from '@machvon/db';
+import { PeriodReportStore, TenantDatabase, copyRefOf } from '@machvon/db';
 import type { ReportDeliveryRow, ReportDraftRow, ReportIssueRow } from '@machvon/db';
 import {
   DomainError,
   assertDeliveryTarget,
   assertLayoutIssuable,
   assertPeriodFitsForm,
+  assertSignedForDelivery,
+  eventLocks,
   issueMarksOf,
   nextIssueOf,
   packageDigestOf,
@@ -34,6 +36,9 @@ const CLASSIFICATION = 'INTERNAL';
 const CREATOR = 'MACHVON';
 /** Reserved for the adapter of the group's system (ENT-2): a person cannot write that a push happened. */
 const RESERVED_CHANNEL = 'HPM_PUSH';
+
+/** The lock of a period and the signature of a copy (GOV-12, G4-6): a locked period takes no new copy, and a copy goes to a receiver that requires a signature only when it is signed. */
+const periodStore = new PeriodReportStore();
 
 const periodOf = (body: Schemas['RptPeriod']): FormPeriod => ({ kind: body.kind, year: body.year, ...(body.index === undefined ? {} : { index: body.index }), ...(body.day === undefined ? {} : { day: body.day }) });
 
@@ -133,6 +138,7 @@ export class ReportController {
     const docxSha = rendered.docx === null ? null : await reportStore.putOutput(tx, 'DOCX', rendered.docx, by);
     const packageSha = packageDigestOf([{ format: 'XLSX', sha256: xlsxSha }, ...(docxSha === null ? [] : [{ format: 'DOCX' as ReportFileFormat, sha256: docxSha }])]);
     const code = periodCode(period);
+    await periodStore.assertOpen(tx, bundle.layout.code, code);
     const series = await reportStore.series(tx, layout.code, code);
     const head = series[series.length - 1];
     // R17: the same bytes as the head are a repeat (nothing new is made); other bytes are the next revision and need a reason.
@@ -272,6 +278,18 @@ export class ReportController {
     });
   }
 
+  /** The receiver accepted the copy: the period is locked then too when the rule says so (it is locked already when the copy was signed). */
+  private async lockOnAcceptance(scope: CommandScope, issueId: string): Promise<void> {
+    const policy = (await periodStore.policy(scope.tx, vietnamDateOf(this.clock()))).policy;
+    if (!eventLocks('ACCEPTED', policy)) return;
+    const facts = await periodStore.issue(scope.tx, issueId);
+    if (facts === undefined) return;
+    const { lock, created } = await periodStore.lock(scope.tx, facts, scope.tenant.membershipId);
+    if (!created) return;
+    await scope.audit({ action: 'rpt.period_locked', resourceType: 'report_period_lock', resourceId: lock.id, classification: CLASSIFICATION, diff: { layout_code: lock.layoutCode, period_code: lock.periodCode, issue_id: lock.issueId, digest_sha256: lock.digestSha256, event: 'ACCEPTED' } });
+    await scope.emit({ aggregateType: 'report_period_lock', aggregateId: lock.id, aggregateVersion: lock.version, type: 'rpt.period.locked.v1', schemaVersion: 1, payload: { tenant_id: scope.tenant.tenantId, lock_id: lock.id, layout_code: lock.layoutCode, period_code: lock.periodCode, actor_id: scope.tenant.membershipId }, eventKey: `report_period_lock:${lock.id}:locked` });
+  }
+
   private async announceDelivery(scope: CommandScope, copy: ReportIssueRow, row: ReportDeliveryRow, action: string, type: string): Promise<void> {
     await scope.audit({
       action,
@@ -303,6 +321,13 @@ export class ReportController {
     const copy = await reportStore.findIssue(scope.tx, id);
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     assertLayoutAccess(access, copy.layoutCode);
+    const signature = await periodStore.signatureOf(scope.tx, copy.id);
+    assertSignedForDelivery({
+      receiver: body.receiver,
+      policy: (await periodStore.policy(scope.tx, vietnamDateOf(this.clock()))).policy,
+      signature: signature === undefined ? null : { digestSha256: signature.digestSha256, provider: signature.provider, signerId: signature.signerId },
+      copyDigestSha256: copy.sha256,
+    });
     const row = await reportStore.deliver(scope.tx, copy, { receiver: body.receiver, channel: body.channel, reference: body.reference ?? null, note: body.note ?? null, by: scope.tenant.membershipId });
     await this.announceDelivery(scope, copy, row, 'rpt.report_delivered', 'rpt.report.delivered.v1');
     return (await deliveryDtos(scope, [row]))[0] as Schemas['RptDelivery'];
@@ -321,6 +346,7 @@ export class ReportController {
     assertLayoutAccess(access, copy.layoutCode);
     const row = await reportStore.answer(scope.tx, copy, body.outcome, { receiver: body.receiver, channel: 'MANUAL', reference: body.reference ?? null, note: body.note ?? null, by: scope.tenant.membershipId });
     await this.announceDelivery(scope, copy, row, 'rpt.report_answered', 'rpt.report.answered.v1');
+    if (body.outcome === 'ACCEPTED' && row.countsAsAccepted) await this.lockOnAcceptance(scope, copy.id);
     return (await deliveryDtos(scope, [row]))[0] as Schemas['RptDelivery'];
   }
 }

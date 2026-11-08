@@ -1,4 +1,7 @@
 import { defineModule } from '../module-descriptor';
+import { GiftController, GiftReadsController } from './gift.controller';
+import { InvestorStandingReadsController } from './standing.controller';
+import { WhistleController, WhistlePublicController, WhistleReadsController } from './whistle.controller';
 import { AuditConclusionController, AuditConclusionReadsController } from './conclusion.controller';
 import { AuditEngagementController, AuditEngagementReadsController } from './engagement.controller';
 import { RedFlagController, RedFlagReadsController } from './red-flag.controller';
@@ -15,4 +18,8 @@ import { AuditReportController, AuditReportReadsController } from './report.cont
 export const audModule = defineModule({
   code: 'AUD',
   controllers: [RedFlagController, RedFlagReadsController, AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController, AuditRecommendationController, AuditRecommendationReadsController, AuditRecoveryController, AuditRecoveryReadsController, AuditReportController, AuditReportReadsController],
+=======
+  controllers: [WhistleController, WhistleReadsController, GiftController, GiftReadsController, InvestorStandingReadsController, AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController, AuditRecommendationController, AuditRecommendationReadsController, AuditRecoveryController, AuditRecoveryReadsController, AuditReportController, AuditReportReadsController],
+  // The anonymous channel of the reporter works through the control database and holds no identity.
+  controlPlane: { controllers: [WhistlePublicController] },
 });

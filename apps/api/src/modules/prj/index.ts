@@ -1,4 +1,7 @@
 import { defineModule } from '../module-descriptor';
+import { MonitoringController, MonitoringReadsController } from './monitoring.controller';
+import { PortalController, PortalReadsController } from './portal.controller';
+import { PortalPublicController } from './portal-public.controller';
 import { ProjectAccountabilityController } from './accountability.controller';
 import { ExplanationController } from './explanation.controller';
 import { AccountabilityReadsController } from './accountability-reads.controller';
@@ -31,4 +34,8 @@ import { ProjectWbsController, ProjectWbsReadsController } from './wbs.controlle
 export const prjModule = defineModule({
   code: 'PRJ',
   controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectAppraisalController, NationalCodeController, NationalCodeFileController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController, ExplanationController, TransferController, ProjectRiskController, ProjectRiskReadsController, ProjectRevisionController, ProjectRevisionReadsController, ProjectWbsController, ProjectWbsReadsController, ProjectReserveController, ProjectReserveReadsController, ProjectBaselineController, ProjectBaselineReadsController, ProjectEvmController, ProjectEvmReadsController, InvestmentAppraisalController, InvestmentAppraisalReadsController, LookAheadController, LessonsController, ProjectRiskAlertController, ProjectRiskSignalReadsController],
+=======
+  controllers: [MonitoringController, MonitoringReadsController, PortalController, PortalReadsController, ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectAppraisalController, NationalCodeController, NationalCodeFileController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController, ExplanationController, TransferController, ProjectRiskController, ProjectRiskReadsController, ProjectRevisionController, ProjectRevisionReadsController, ProjectWbsController, ProjectWbsReadsController, ProjectReserveController, ProjectReserveReadsController, ProjectBaselineController, ProjectBaselineReadsController, ProjectEvmController, ProjectEvmReadsController, InvestmentAppraisalController, InvestmentAppraisalReadsController],
+  // The public portal reads through the control database: it exists only where the process holds the control plane.
+  controlPlane: { controllers: [PortalPublicController] },
 });

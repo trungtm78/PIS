@@ -126,7 +126,7 @@ export const isLocked = (lock: PeriodLockFacts | null): boolean => lock !== null
 
 /** A period that is locked takes no new revision: a correction needs the unlock first (PERIOD_LOCKED). */
 export function assertPeriodOpen(lock: PeriodLockFacts | null): void {
-  if (isLocked(lock)) throw new DomainError('PERIOD_LOCKED', 409, 'period');
+  if (isLocked(lock)) throw new DomainError('PERIOD_LOCKED', 422, 'period');
 }
 
 /** Whether the event (a copy signed, a copy accepted) locks the period under the policy. */

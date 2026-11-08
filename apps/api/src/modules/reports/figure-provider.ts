@@ -1,6 +1,6 @@
 import { AnalyticsGovernanceStore, ReportStore } from '@machvon/db';
 import type { TenantDatabase } from '@machvon/db';
-import { DIS_WEEKLY_INDICATORS, DomainError, defaultBasisOf, weeklySnapshotLine, WEEKLY_ORG_FALLBACK } from '@machvon/kernel';
+import { DIS_WEEKLY_INDICATORS, DomainError, defaultBasisOf, periodRange, weeklySnapshotLine, WEEKLY_ORG_FALLBACK } from '@machvon/kernel';
 import type { EffectiveAccess, FormPeriod, KpiDefinition, ReportFigure, ReportFillData, ReportIndicatorDefinition, ReportLayout, SnapshotRevisionRef, TenantContext } from '@machvon/kernel';
 import { HomeFigureReader } from '../home/figures';
 
@@ -52,16 +52,31 @@ const definitionOf = (definition: KpiDefinition): ReportIndicatorDefinition => (
  * leader, so the file and the screen give one number. A tenant with no frozen snapshot gets the form with empty cells and the line "no snapshot", never zeros.
  */
 export class DisHomeProvider implements ReportFigureProvider {
-  readonly id = DIS_HOME_PROVIDER;
   readonly wholeTenant = true;
   private readonly register = new AnalyticsGovernanceStore();
   private readonly store = new ReportStore();
 
+  /**
+   * `atPeriodEnd` makes the provider read the snapshot that stood at the end of the period of the report (the latest frozen close snapshot dated on or before the last day of the period), for the periodic forms of the Ministry
+   * (GOV-12, G4-6): a report of March is not made from the snapshot of June. Without it the provider reads the latest frozen snapshot, as the weekly report does.
+   */
+  constructor(readonly id: string = DIS_HOME_PROVIDER, private readonly atPeriodEnd = false) {}
+
+  private async snapshotAt(context: ProviderContext): Promise<string | null> {
+    const cutoff = periodRange(context.period).to;
+    const rows = await context.database.withTenant(context.tenant, (tx) =>
+      tx.query<{ id: string }>("select id from machvon.period_snapshot where status = 'FROZEN' and snapshot_kind = 'PERIOD_CLOSE' and as_of_date <= $1::date order by as_of_date desc, frozen_at desc, id desc limit 1", [cutoff]),
+    );
+    return rows[0]?.id ?? null;
+  }
+
   async load(context: ProviderContext): Promise<ProviderResult> {
     const reader = new HomeFigureReader(context.database);
     let read: Awaited<ReturnType<HomeFigureReader['read']>> | null = null;
+    const pinned = this.atPeriodEnd ? await this.snapshotAt(context) : undefined;
     try {
-      read = await reader.read(context.tenant, context.access, { snapshotId: undefined, unitId: undefined }, context.now, context.today);
+      // No frozen snapshot at the end of the period is a report with empty cells, never the figures of another period.
+      if (pinned !== null) read = await reader.read(context.tenant, context.access, { snapshotId: pinned, unitId: undefined }, context.now, context.today);
     } catch (error) {
       // No frozen snapshot yet is a report with empty cells; every other refusal (scope, permission) stands.
       if (!(error instanceof DomainError) || error.code !== 'RESOURCE_NOT_FOUND') throw error;

@@ -348,7 +348,7 @@ describe('GOV-12 stores', () => {
       try {
         const control = new ControlDatabase(pool);
         const reads = new WhistlePublicReads();
-        await control.withControl((tx) => reads.submit(tx, 'cao-bang', { category: 'PROCUREMENT_IRREGULARITY', text: 'A package was split to stay under the threshold of open bidding.', codeHash, receivedOn: TODAY }, { acknowledge_days: 7, resolve_days: 90, rate_per_hour: 5 }));
+        await control.withControl((tx) => reads.submit(tx, 'cao-bang', { category: 'PROCUREMENT_IRREGULARITY', text: 'A package was split to stay under the threshold of open bidding.', codeHash, receivedOn: TODAY }, { acknowledge_days: 7, resolve_days: 90, rate_per_hour: 5 }, 0));
         await expect(control.withControl((tx) => reads.submit(tx, 'cao-bang', { category: 'PROCUREMENT_IRREGULARITY', text: 'The same code again must not be accepted twice.', codeHash, receivedOn: TODAY }, { acknowledge_days: 7, resolve_days: 90, rate_per_hour: 5 }))).rejects.toThrow();
         await expect(control.withControl((tx) => reads.submit(tx, 'no-such', { category: 'OTHER', text: 'Nobody is listening at this address at all.', codeHash: 'f'.repeat(64), receivedOn: TODAY }, { acknowledge_days: 7, resolve_days: 90, rate_per_hour: 5 }))).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
         expect(await control.withControl((tx) => reads.lookup(tx, 'cao-bang', codeHash))).toMatchObject({ category: 'PROCUREMENT_IRREGULARITY', status: 'RECEIVED', receivedOn: TODAY });

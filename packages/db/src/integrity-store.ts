@@ -189,10 +189,10 @@ export class WhistleStore {
 
 /** The reporter's side, over the control plane: the functions of V2605 take the slug and the hash of the access code. They hold no address, agent or account, and nothing here logs one. */
 export class WhistlePublicReads {
-  async submit(tx: TenantTx, slug: string, input: { category: string; text: string; codeHash: string; receivedOn: string }, policy: WhistlePolicy): Promise<void> {
+  async submit(tx: TenantTx, slug: string, input: { category: string; text: string; codeHash: string; receivedOn: string }, policy: WhistlePolicy, ruleVersion = 0): Promise<void> {
     assertWhistleInput({ category: input.category, text: input.text });
     try {
-      await tx.query('select machvon.whistle_submit($1, $2, $3, $4, $5::date, $6, $7)', [slug, input.category, input.text.trim(), input.codeHash, input.receivedOn, policy.acknowledge_days, policy.resolve_days]);
+      await tx.query('select machvon.whistle_submit($1, $2, $3, $4, $5::date, $6, $7, $8)', [slug, input.category, input.text.trim(), input.codeHash, input.receivedOn, policy.acknowledge_days, policy.resolve_days, ruleVersion]);
     } catch (error) {
       throw mapPublicError(error);
     }

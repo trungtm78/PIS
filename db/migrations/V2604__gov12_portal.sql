@@ -21,6 +21,10 @@ CREATE TABLE machvon.portal_setting (
   rate_per_minute integer NOT NULL DEFAULT 60 CHECK (rate_per_minute BETWEEN 1 AND 6000),
   page_size_max integer NOT NULL DEFAULT 100 CHECK (page_size_max BETWEEN 1 AND 500),
   policy_rule_version integer NOT NULL DEFAULT 0 CHECK (policy_rule_version >= 0),
+  whistle_acknowledge_days integer NOT NULL DEFAULT 7 CHECK (whistle_acknowledge_days BETWEEN 1 AND 60),
+  whistle_resolve_days integer NOT NULL DEFAULT 90 CHECK (whistle_resolve_days BETWEEN 1 AND 730),
+  whistle_rate_per_hour integer NOT NULL DEFAULT 5 CHECK (whistle_rate_per_hour BETWEEN 1 AND 1000),
+  whistle_rule_version integer NOT NULL DEFAULT 0 CHECK (whistle_rule_version >= 0),
   updated_by uuid NOT NULL,
   updated_at timestamptz NOT NULL DEFAULT now(),
   version integer NOT NULL DEFAULT 1 CHECK (version >= 1),
@@ -80,7 +84,7 @@ REVOKE DELETE, TRUNCATE ON TABLE machvon.portal_record FROM machvon_app;
 
 CREATE TABLE machvon.portal_directory (
   slug text PRIMARY KEY CHECK (slug = lower(slug)),
-  holder_tenant_id uuid NOT NULL REFERENCES machvon.tenant (id),
+  holder_tenant_id uuid NOT NULL,
   enabled boolean NOT NULL,
   whistle_enabled boolean NOT NULL
 );
@@ -103,7 +107,7 @@ END $fn$;
 CREATE TRIGGER portal_setting_directory_tg AFTER INSERT OR UPDATE ON machvon.portal_setting FOR EACH ROW EXECUTE FUNCTION machvon.keep_portal_directory();
 
 -- The public reads. Each function resolves the slug in the directory, refuses a portal that is off, sets the tenant of the transaction, reads only published rows and clears the tenant again.
-CREATE FUNCTION machvon.portal_public_info(p_slug text) RETURNS TABLE (title text, publisher_name text, id_prefix text, license_uri text, policy_uri text, allowed_fields text[], rate_per_minute integer, page_size_max integer, record_count bigint, last_published_at timestamptz)
+CREATE FUNCTION machvon.portal_public_info(p_slug text) RETURNS TABLE (title text, publisher_name text, id_prefix text, license_uri text, policy_uri text, allowed_fields text[], rate_per_minute integer, page_size_max integer, record_count bigint, last_published_at timestamptz, whistle_enabled boolean, whistle_acknowledge_days integer, whistle_resolve_days integer, whistle_rate_per_hour integer, whistle_rule_version integer)
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = machvon, pg_temp AS $fn$
 DECLARE
   v_tenant uuid;
@@ -116,7 +120,8 @@ BEGIN
   RETURN QUERY
     SELECT s.title, s.publisher_name, s.id_prefix, s.license_uri, s.policy_uri, s.allowed_fields, s.rate_per_minute, s.page_size_max,
            (SELECT count(*) FROM machvon.portal_record r WHERE r.tenant_id = s.tenant_id AND r.withdrawn_at IS NULL),
-           (SELECT max(r.published_at) FROM machvon.portal_record r WHERE r.tenant_id = s.tenant_id AND r.withdrawn_at IS NULL)
+           (SELECT max(r.published_at) FROM machvon.portal_record r WHERE r.tenant_id = s.tenant_id AND r.withdrawn_at IS NULL),
+           s.whistle_enabled, s.whistle_acknowledge_days, s.whistle_resolve_days, s.whistle_rate_per_hour, s.whistle_rule_version
       FROM machvon.portal_setting s WHERE s.tenant_id = v_tenant AND s.enabled;
   PERFORM set_config('app.tenant_id', '', true);
 END $fn$;
