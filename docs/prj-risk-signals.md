@@ -40,5 +40,5 @@ The board lists the live lines and the live risks of PRJ-16 in the scope of the 
 
 ## Hooks left for other lanes
 
-- The alert centre does not read `project_risk_alert` yet: a source `PROJECT_RISK` in `work_action.source` and a reader in `home-integrity-sources.ts` (as for the baseline alerts, GOV-INT).
+- The alert centre reads `project_risk_alert` (lane HUBADAPT, step 4): source `PROJECT_RISK`, kinds `RISK_SCORE_CRITICAL` (ACTION) and `RISK_SCORE_JUMP` (WATCH), the open and acknowledged rows only, in the scope of the projects of the reader (in the view mine: the projects the reader answers for and what was handed over); the item opens PRJ-28 for the project. The reader is `packages/db/src/home-risk-committee-sources.ts`, the check on `work_action.source` is widened by `V2620__hub2_alert_sources.sql`.
 - A signal kind of another lane (for example the claim register of GOV-8) is read through `to_regclass`, so it works before and after that lane is merged.

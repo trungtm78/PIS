@@ -235,7 +235,7 @@ describe('HomeWorkStore and HomeWorkActionStore', () => {
 
     it('keeps the decisions of people about an item of each new source (the check on work_action.source takes them and still takes the others)', async () => {
       const refused: string[] = [];
-      for (const source of ['TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'PROCUREMENT_WORKFLOW', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'ADVANCE']) {
+      for (const source of ['TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'PROCUREMENT_WORKFLOW', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'ADVANCE', 'PROJECT_RISK', 'COMMITTEE', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'RED_FLAG', 'ALERT_FEEDBACK']) {
         await as((tx) => actions.record(tx, { source, sourceId: randomUUID(), action: 'CLAIM', actor: memberId(READER) } as never)).catch(() => refused.push(source));
       }
       expect(refused).toEqual([]);

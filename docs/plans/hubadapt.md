@@ -18,7 +18,7 @@ Owner rule 2026-11-08: no scope cut, decide by deepest governance and extensibil
 - [ ] 1. Kernel: descriptors for fin.sotaichinh, access.open-api, bi.read-views, indicator.import, master.data_import, backup.tenant (if it fits); conformance cases for each; alert types and freshness codes they need. Tests: `connector-hub.test.ts` additions.
 - [ ] 2. Enterprise: descriptors hpm.reports and ebs.ledger, freshness code `HPM_PUSH`, registration when the edition loads. Tests: `connection-descriptors.test.ts`.
 - [ ] 3. DB: `HubRunPort`, `HubProbe` registry and sweep hook, state adapters for fin.sotaichinh and the enterprise connections, feed and HPM report their runs through the port; access probe. Tests: `hub-adapt.test.ts` through the db lane.
-- [ ] 4. Alert sources (MR-1, BAN-1, GOV-8 check): kernel kinds, db sources, migration V2620 for the check on `work_action.source`, `WORK_SOURCES`, web alert kit, work model, contract enums. Tests: kernel, db, web.
+- [x] 4. Alert sources (MR-1, BAN-1, GOV-8 check): kernel kinds, db sources, migration V2620 for the check on `work_action.source`, `WORK_SOURCES`, web alert kit, work model, contract enums. Tests: kernel, db, web.
 - [ ] 5. Registry read: operation `listHubRegistry` (contract-patch), controller, authz, story row. API test.
 - [ ] 6. Web: Registry tab on HUB-01, i18n parts `hubadapt.{vi,en}.json`, vitest.
 - [ ] 7. Shared suite entries (not run): isolation, reachability, command-conformance counts, outbox consumers, workers/jobs lists; docs (`docs/integration-hub.md`, finance feed, notes).
