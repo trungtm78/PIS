@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { DIS_WITHDRAWAL_METRIC, DisPeriodStore, DisReportStore, REPORT_RESOURCE, projectScope } from '@machvon/db';
-import { DomainError, NOOP_METRICS, deletionOf, fundingTotals, restoreDeadline, withdrawRefusal, withdrawalOf } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, deletionOf, fundingTotals, message, restoreDeadline, withdrawRefusal, withdrawalOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -10,6 +10,9 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
+import type { FinalCommandRegistry } from '../adm/approval.service';
+import { ReportApprovalFlow } from './report-approval.flow';
 import { DIS_CLOCK, DIS_METRICS } from './tokens';
 
 const READ_PERMISSION = PERMISSIONS.getReportRevision;
@@ -28,13 +31,16 @@ export class ReportLifecycleController {
   private readonly periods = new DisPeriodStore();
   private readonly clock: () => Date;
   private readonly metrics: MetricsSink;
+  private readonly flow: ReportApprovalFlow;
 
   constructor(
     @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
     @Optional() @Inject(DIS_METRICS) metrics?: MetricsSink,
+    @Optional() @Inject(APPROVAL_FINAL_COMMANDS) commands?: FinalCommandRegistry,
   ) {
     this.clock = clock ?? ((): Date => new Date());
     this.metrics = metrics ?? NOOP_METRICS;
+    this.flow = new ReportApprovalFlow(commands);
   }
 
   @Post('reports/:id/withdrawal')
@@ -98,6 +104,8 @@ export class ReportLifecycleController {
       },
       eventKey: `${REPORT_RESOURCE}:${id}:withdrawn`,
     });
+    // A report that is taken back leaves the approval it was in: its instance ends with it, so that no approver is asked to decide on it.
+    await this.flow.cancelIfRunning(scope.tx, effectsOf(scope), id, message('dis.workflow.cancel_reason.withdrawn'), now);
     scope.afterCommit(() => this.metrics.increment(DIS_WITHDRAWAL_METRIC, {}));
     return commandResult(scope, 'WITHDRAWN', done.version, id);
   }

@@ -51,6 +51,11 @@ function existsInEdition(module: ModuleDescriptor, options: AppModuleOptions): b
   return moduleInEdition(manifest, module.code);
 }
 
+/** The codes of the modules that are mounted for these options (the boot guard of the approval engine judges the business types of these). */
+export function activeModuleCodes(options: AppModuleOptions, modules: readonly ModuleDescriptor[] = MODULES): string[] {
+  return activeModules(options, modules).map((module) => module.code);
+}
+
 /** The controllers of the active modules, in registry order; the control-plane part of a module only with the control plane. */
 export function controllersOf(options: AppModuleOptions, modules: readonly ModuleDescriptor[] = MODULES): Type[] {
   return activeModules(options, modules).flatMap((module) => [...module.controllers, ...(options.control === undefined ? [] : (module.controlPlane?.controllers ?? []))]);

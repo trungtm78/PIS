@@ -1,7 +1,7 @@
 import { InboxHandlerRegistry, IntegrationInboxProcessor, TenantDatabase } from '@machvon/db';
 import { defineModule } from '../module-descriptor';
 import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
-import { APPROVAL_FINAL_COMMANDS, ApprovalService, FinalCommandRegistry } from './approval.service';
+import { APPROVAL_FINAL_COMMANDS, ApprovalBootGuard, ApprovalService, FinalCommandRegistry } from './approval.service';
 import { AuditEventsController } from './audit-events.controller';
 import { AuditExportsController } from './audit-export.controller';
 import { SigningCertificateReadsController, SigningCertificatesController } from './certificates.controller';
@@ -72,9 +72,11 @@ export const admModule = defineModule({
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [
-    // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles until they do).
+    // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles exist in a test build only).
     { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
     ApprovalService,
+    // Stops the process at boot when an enabled business type has no real final command (R14).
+    ApprovalBootGuard,
     // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): the saga stops at the first project it has to move.
     { provide: REORGANIZATION_PROJECT_PORT, useValue: new UnboundProjectTransferPort() },
     { provide: INVITATION_MAILER, useValue: new MockInvitationMailer() },

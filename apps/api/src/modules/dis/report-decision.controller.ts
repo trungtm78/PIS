@@ -1,8 +1,8 @@
 import { Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Body } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { DIS_DECISION_METRIC, DIS_CORRECTION_METRIC, DisPeriodStore, DisReportStore, REPORT_RESOURCE, decisionLabels, projectScope } from '@machvon/db';
+import { DIS_CORRECTION_METRIC, DisPeriodStore, DisReportStore, REPORT_RESOURCE, projectScope } from '@machvon/db';
 import type { AttachmentFile, NewCorrection, RevisionDetail } from '@machvon/db';
-import { DomainError, NOOP_METRICS, correctionOf, correctionSourceRefusal, decisionOf, fundingCells, fundingTotals, negativeDeltaExplanation, progressOf } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, correctionOf, correctionSourceRefusal, decisionOf, fundingCells, fundingTotals, message, negativeDeltaExplanation, progressOf } from '@machvon/kernel';
 import type { EffectiveAccess, FundingInput, MetricsSink, ProgressInput } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -11,15 +11,25 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
+import type { FinalCommandRegistry } from '../adm/approval.service';
+import { ReportApprovalFlow } from './report-approval.flow';
+import { applyReportDecision } from './report-decision.core';
+import type { DecisionEffects } from './report-decision.core';
 import { DIS_CLOCK, DIS_METRICS } from './tokens';
 
 const READ_PERMISSION = PERMISSIONS.getReportRevision;
 const DECISION_PERMISSION = PERMISSIONS.post_reports_id_decision;
 const CORRECTION_PERMISSION = PERMISSIONS.post_reports_id_corrections;
 
-/** The events a decision raises: an acceptance, and a return or a request for an amendment (both are a report sent back to its maker). */
-const EVENT_OF = { ACCEPTED: 'report.accepted.v1', RETURNED: 'report.returned.v1', AMENDMENT_REQUESTED: 'report.returned.v1' } as const;
-const AUDIT_OF = { ACCEPTED: 'dis.report_accepted', RETURNED: 'dis.report_returned', AMENDMENT_REQUESTED: 'dis.report_amendment_requested' } as const;
+/** What a decision writes, as the scope of the command gives it. */
+const decisionEffectsOf = (scope: CommandScope): DecisionEffects => ({
+  tenantId: scope.tenant.tenantId,
+  actor: scope.tenant.membershipId,
+  audit: (entry) => scope.audit(entry),
+  emit: (event) => scope.emit(event),
+  afterCommit: (callback) => scope.afterCommit(callback),
+});
 
 const cellOf = (row: RevisionDetail['lines'][number]): FundingInput => ({
   bucket: row.bucket,
@@ -79,13 +89,16 @@ export class ReportDecisionController {
   private readonly periods = new DisPeriodStore();
   private readonly clock: () => Date;
   private readonly metrics: MetricsSink;
+  private readonly flow: ReportApprovalFlow;
 
   constructor(
     @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
     @Optional() @Inject(DIS_METRICS) metrics?: MetricsSink,
+    @Optional() @Inject(APPROVAL_FINAL_COMMANDS) commands?: FinalCommandRegistry,
   ) {
     this.clock = clock ?? ((): Date => new Date());
     this.metrics = metrics ?? NOOP_METRICS;
+    this.flow = new ReportApprovalFlow(commands);
   }
 
   @Post('reports/:id/decision')
@@ -104,55 +117,27 @@ export class ReportDecisionController {
     const head = await this.reports.lock(scope.tx, id, seen, projectScope(access, DECISION_PERMISSION, now), scope.expectedVersion ?? 0);
     const detail = await this.reports.find(scope.tx, id, seen);
     if (detail === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    const actor = scope.tenant.membershipId;
-    const done = await this.reports.decide(scope.tx, head, input, actor, now);
-    const outcome = input.decision === 'approve' ? 'ACCEPTED' : input.decision === 'return' ? 'RETURNED' : 'AMENDMENT_REQUESTED';
-    const totals = fundingTotals(detail.lines);
-    await scope.audit({
-      action: AUDIT_OF[outcome],
-      resourceType: REPORT_RESOURCE,
-      resourceId: id,
-      diff: {
-        project_code: detail.project.code,
-        period_code: detail.period.code,
-        revision: detail.revision,
-        previous_status: head.status,
-        decision: outcome,
-        evidence_count: input.evidenceIds.length,
-        items_count: input.returnItems.length,
-        due_at: input.dueAt?.toISOString() ?? null,
-        superseded_report_id: done.supersededId,
-        payload_hash: detail.payloadHash,
-        version: done.version,
-      },
-    });
-    await scope.emit({
-      aggregateType: REPORT_RESOURCE,
-      aggregateId: id,
-      aggregateVersion: done.version,
-      type: EVENT_OF[outcome],
-      schemaVersion: 1,
-      payload: {
-        tenant_id: scope.tenant.tenantId,
-        actor_id: actor,
-        occurred_at: now.toISOString(),
-        report_id: id,
-        project_id: head.projectId,
-        period_id: head.periodId,
-        revision: detail.revision,
-        report_type: detail.reportType,
-        submitted_by: head.submittedBy,
-        decision: outcome,
-        decision_id: done.decisionId,
-        payload_hash: detail.payloadHash,
-        cumulative_vnd: totals.cumulativeVnd,
-        ctmtqg_vnd: totals.ctmtqgVnd,
-        ...(outcome === 'ACCEPTED' ? { accepted_at: now.toISOString(), superseded_report_id: done.supersededId } : { reason: input.reason, return_items: input.returnItems, due_at: input.dueAt?.toISOString() ?? null }),
-      },
-      eventKey: `${REPORT_RESOURCE}:${id}:${outcome.toLowerCase()}`,
-    });
-    scope.afterCommit(() => this.metrics.increment(DIS_DECISION_METRIC, decisionLabels(outcome)));
-    return commandResult(scope, outcome, done.version, id);
+    const effects = decisionEffectsOf(scope);
+    // A report with a running instance (the tenant runs the staged approval) is decided through the steps of the instance; one without is decided as it always was.
+    const instance = await this.flow.runningFor(scope.tx, id);
+    if (instance !== undefined) {
+      // The refusals that come before anything is written are the same ones, in the same order, whatever the steps are.
+      this.reports.assertDecidable(head, input, effects.actor);
+      if (input.decision === 'approve') {
+        const applied: { version: number | undefined } = { version: undefined };
+        const step = await this.flow.approve(scope.tx, effectsOf(scope), instance, input, now, async () => {
+          applied.version = (await applyReportDecision(this.reports, scope.tx, effects, { head, detail }, input, now, this.metrics)).version;
+        });
+        if (step.step !== 'COMPLETED' || applied.version === undefined) return commandResult(scope, 'STEP_APPROVED', head.version, id);
+        return commandResult(scope, 'ACCEPTED', applied.version, id);
+      }
+      // A return sends the report to its maker whatever the step: the report is decided and the instance ends with it.
+      const returned = await applyReportDecision(this.reports, scope.tx, effects, { head, detail }, input, now, this.metrics);
+      await this.flow.cancelIfRunning(scope.tx, effectsOf(scope), id, message('dis.workflow.cancel_reason.returned'), now);
+      return commandResult(scope, returned.outcome, returned.version, id);
+    }
+    const done = await applyReportDecision(this.reports, scope.tx, effects, { head, detail }, input, now, this.metrics);
+    return commandResult(scope, done.outcome, done.version, id);
   }
 
   @Post('reports/:id/corrections')

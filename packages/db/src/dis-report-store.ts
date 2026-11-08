@@ -516,6 +516,18 @@ export class DisReportStore {
     );
   }
 
+  /** Locks a revision by its id with no judgement of who asks: for the final command of a workflow, which runs for the whole tenant after the approvers were judged (undefined when there is no such revision). */
+  async lockHead(tx: TenantTx, id: string): Promise<RevisionHead | undefined> {
+    const [row] = await tx.query<HeadSql>(`select ${HEAD_COLUMNS} from machvon.report_revision r where r.id = $1::uuid for update of r`, [id]);
+    return row === undefined ? undefined : toHead(row);
+  }
+
+  /** The two refusals of a decision that come before anything is written: a report that is not in a state the decision leads from (409 `REPORT_STATE_INVALID`), and the person who handed it in deciding on it (403 `SELF_APPROVAL_DENIED`). */
+  assertDecidable(head: RevisionHead, input: DecisionInput, actor: string): void {
+    decisionOutcome(head.status, input.decision);
+    if (head.submittedBy !== null) assertFourEyes(head.submittedBy, actor);
+  }
+
   /**
    * Locks a revision for a command in the scope of the caller (404 outside it, 403 when the caller sees it and may not act on it). The version must be the one the screen showed (409
    * `VERSION_CONFLICT`); a revision that is no longer a live draft is not edited (409 `REVISION_IMMUTABLE`).

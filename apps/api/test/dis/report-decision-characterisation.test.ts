@@ -1,3 +1,4 @@
+import { ReportWorkflowReadsController } from '../../src/modules/dis/report-workflow.controller';
 import { DisFlow, ELSEWHERE_REVIEWER, MAKER, OTHER_MAKER, READER, REVIEWER, memberId } from './support/dis-flow-app';
 import type { Reply } from './support/dis-flow-app';
 
@@ -19,7 +20,7 @@ describe('the review of a weekly report on the default definition: the outcomes 
   const flow = new DisFlow();
 
   beforeAll(async () => {
-    await flow.start({ tmpPrefix: 'machvon-dis-characterisation-' });
+    await flow.start({ tmpPrefix: 'machvon-dis-characterisation-', controllers: [ReportWorkflowReadsController] });
   }, 300_000);
 
   afterAll(async () => {
@@ -160,6 +161,16 @@ describe('the review of a weekly report on the default definition: the outcomes 
       expect(answerOf(await flow.decide(reportId, 2, body))).toEqual({ status: 422, code: 'VALIDATION_FAILED', detail });
     }
     expect(await flow.state(reportId)).toMatchObject({ status: 'SUBMITTED', version: '2' });
+  });
+
+  it('the steps of the review on the default definition are the one step of the unit approver, current while the report waits and done when it is decided', async () => {
+    const { reportId } = await flow.submitted();
+    const waiting = await flow.call('GET', `/reports/${reportId}/workflow`, { member: READER });
+    expect(waiting).toMatchObject({ status: 200, json: { mode: 'SINGLE_DECISION', rule_version: 0, rule_source: 'DEFAULT', instance: null } });
+    expect((waiting.json.steps as Array<{ kind: string; status: string }>).map((one) => [one.kind, one.status])).toEqual([['UNIT_APPROVER', 'CURRENT']]);
+    await flow.approve(reportId, 2);
+    const done = await flow.call('GET', `/reports/${reportId}/workflow`, { member: READER });
+    expect((done.json.steps as Array<{ status: string }>).map((one) => one.status)).toEqual(['DONE']);
   });
 
   it('who may decide: a reader and a maker without the right are 403, another branch and another tenant are 404', async () => {

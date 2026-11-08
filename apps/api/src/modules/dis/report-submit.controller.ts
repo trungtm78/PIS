@@ -9,6 +9,9 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
+import type { FinalCommandRegistry } from '../adm/approval.service';
+import { ReportApprovalFlow } from './report-approval.flow';
 import { reviewOf } from './report-review';
 import { DIS_CLOCK, DIS_METRICS } from './tokens';
 
@@ -30,13 +33,16 @@ export class ReportSubmitController {
   private readonly periods = new DisPeriodStore();
   private readonly clock: () => Date;
   private readonly metrics: MetricsSink;
+  private readonly flow: ReportApprovalFlow;
 
   constructor(
     @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
     @Optional() @Inject(DIS_METRICS) metrics?: MetricsSink,
+    @Optional() @Inject(APPROVAL_FINAL_COMMANDS) commands?: FinalCommandRegistry,
   ) {
     this.clock = clock ?? ((): Date => new Date());
     this.metrics = metrics ?? NOOP_METRICS;
+    this.flow = new ReportApprovalFlow(commands);
   }
 
   @Post('reports/:id/submit')
@@ -103,6 +109,8 @@ export class ReportSubmitController {
       },
       eventKey: `${REPORT_RESOURCE}:${id}:submitted`,
     });
+    // A tenant that runs the staged approval has the hand-in start its instance in this transaction: a refusal of the engine (no DoA rule, no approver) takes the hand-in back and the report stays a draft.
+    await this.flow.startIfStaged(scope.tx, effectsOf(scope), { id, projectId: head.projectId, version: sealed.version, submittedBy: scope.tenant.membershipId, cumulativeVnd: totals.cumulativeVnd }, now);
     scope.afterCommit(() => this.metrics.increment(DIS_SUBMIT_METRIC, submitLabels(judged.late)));
     return {
       ...commandResult(scope, 'SUBMITTED', sealed.version, id),

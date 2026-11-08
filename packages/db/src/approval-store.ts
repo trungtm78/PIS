@@ -30,10 +30,12 @@ export interface ApprovalEffects {
   actor: string;
   audit(entry: Omit<AuditEntry, 'correlationId' | 'requestId'>): Promise<unknown>;
   emit(event: Omit<OutboxEventInput, 'correlationId'>): Promise<unknown>;
+  /** Work for after the transaction committed (a counter, a cache); present where the caller is a command, absent for a job. */
+  afterCommit?(callback: () => void | Promise<void>): void;
 }
 
 /** The final command of an instance, as the module that owns the business type runs it (ADM 3.7 item 6). The domain's own transition table is the guard: a refusal ends the instance as GUARD_REJECTED. */
-export type FinalCommand = (call: { tx: TenantTx; instance: InstanceRecord; outcome: WorkflowOutcome; command: string; idempotencyKey: string }) => Promise<'APPLIED' | 'GUARD_REJECTED'>;
+export type FinalCommand = (call: { tx: TenantTx; instance: InstanceRecord; outcome: WorkflowOutcome; command: string; idempotencyKey: string; effects: ApprovalEffects }) => Promise<'APPLIED' | 'GUARD_REJECTED'>;
 
 export interface VersionRecord {
   id: string;
@@ -467,6 +469,72 @@ export class ApprovalStore {
     return instance;
   }
 
+  /**
+   * The published version of a business type that runs `definition`, for a module whose steps are governed as data (WF-1: the governance rules registry holds them). The version in force that already has this definition is
+   * the answer; otherwise the definition is published as the next revision and the one in force is superseded, in this transaction. The person who proposed the rule is the author and the person who approved it is the
+   * publisher, so the checker of the rule is the checker of the definition (the table refuses the same person in both). Instances that run keep the version they started with.
+   */
+  async adopt(tx: TenantTx, effects: ApprovalEffects, input: { businessType: string; definition: unknown; proposedBy: string; approvedBy: string; ruleVersion: number; now: Date }): Promise<VersionRecord> {
+    assertValidDefinition(input.definition, input.businessType);
+    const hash = sha256Hex(canonicalJson(input.definition));
+    await tx.query("select pg_advisory_xact_lock(hashtext('workflow-publish:' || current_setting('app.tenant_id', true) || ':' || $1))", [input.businessType]);
+    const [inForce] = await tx.query<VersionRow & { definition_hash: string }>(`select ${VERSION_COLUMNS}, definition_hash from machvon.workflow_version where kind = 'APPROVAL' and business_type = $1 and status = 'Published' for update`, [input.businessType]);
+    if (inForce !== undefined && inForce.definition_hash === hash) return toVersion(inForce);
+    const [latest] = await tx.query<{ revision: number | null }>("select max(revision) as revision from machvon.workflow_version where kind = 'APPROVAL' and business_type = $1", [input.businessType]);
+    if (inForce !== undefined) await tx.query("update machvon.workflow_version set status = 'Superseded', version = version + 1 where id = $1::uuid", [inForce.id]);
+    const [row] = await tx.query<VersionRow>(
+      `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, created_by, last_edited_by, published_by, published_at, effective_from, supersedes_id, definition_hash)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, $3::jsonb, 'Published', 'APPROVAL', $4::uuid, $4::uuid, $5::uuid, $6::timestamptz, $6::timestamptz, $7::uuid, $8) returning ${VERSION_COLUMNS}`,
+      [input.businessType, (latest?.revision ?? 0) + 1, JSON.stringify(input.definition), input.proposedBy, input.approvedBy, input.now.toISOString(), inForce?.id ?? null, hash],
+    );
+    const version = toVersion(row as VersionRow);
+    await effects.audit({ action: 'workflow.adopted', resourceType: 'workflow_version', resourceId: version.id, classification: 'INTERNAL', diff: { business_type: version.businessType, revision: version.revision, superseded_id: inForce?.id ?? null, rule_version: input.ruleVersion } });
+    await effects.emit({
+      aggregateType: 'workflow_version',
+      aggregateId: version.id,
+      aggregateVersion: version.version,
+      type: 'adm.workflow_version.published.v1',
+      schemaVersion: 1,
+      payload: { workflow_version_id: version.id, business_type: version.businessType, revision: version.revision, superseded_id: inForce?.id ?? null },
+      eventKey: `workflow_version:${version.id}:published`,
+    });
+    return version;
+  }
+
+  /** The instance of a record that is running now, or undefined (a record has at most one running instance). */
+  async findRunning(tx: TenantTx, resourceType: string, resourceId: string): Promise<InstanceRecord | undefined> {
+    const [row] = await tx.query<InstanceRow>(`select ${INSTANCE_COLUMNS} from machvon.workflow_instance i where i.resource_type = $1 and i.resource_id = $2::uuid and i.status = 'Running'`, [resourceType, resourceId]);
+    return row === undefined ? undefined : toInstance(row);
+  }
+
+  /** The instance a record had last, running or not (the one a screen shows beside the record). */
+  async findLatest(tx: TenantTx, resourceType: string, resourceId: string): Promise<InstanceRecord | undefined> {
+    const [row] = await tx.query<InstanceRow>(`select ${INSTANCE_COLUMNS} from machvon.workflow_instance i where i.resource_type = $1 and i.resource_id = $2::uuid order by i.started_at desc, i.id desc limit 1`, [resourceType, resourceId]);
+    return row === undefined ? undefined : toInstance(row);
+  }
+
+  /** The definition an instance runs by, as it was published when the instance started. */
+  async definitionOf(tx: TenantTx, instance: InstanceRecord): Promise<ApprovalWorkflowDefinition> {
+    const [row] = await tx.query<{ definition_json: unknown }>('select definition_json from machvon.workflow_version where id = $1::uuid', [instance.workflowVersionId]);
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return row.definition_json as ApprovalWorkflowDefinition;
+  }
+
+  /** Every task of an instance, the first step first (those the viewer is not allowed to see are left out unless `all`). */
+  async tasksOf(tx: TenantTx, instanceId: string): Promise<TaskRecord[]> {
+    const rows = await tx.query<TaskRow>(`select ${TASK_COLUMNS} from ${TASK_FROM} where t.workflow_instance_id = $1::uuid order by t.step_index, t.created_at, t.id`, [instanceId]);
+    return rows.map(toTask);
+  }
+
+  /** The pending task of an instance that this member may decide: their own, or one whose assignee delegated approval.decide to them for the unit of the instance. */
+  async pendingTaskFor(tx: TenantTx, instance: InstanceRecord, membershipId: string): Promise<TaskRecord | undefined> {
+    const rows = await tx.query<TaskRow>(
+      `select ${taskColumns(delegatedTo('$2', 't.assignee_id', 'i.unit_id', 'now()'))} from ${TASK_FROM} where t.workflow_instance_id = $1::uuid and t.status = 'Pending' order by t.due_at, t.id`,
+      [instance.id, membershipId],
+    );
+    return rows.map(toTask).find((task) => task.assigneeId === membershipId || task.delegatedToMe);
+  }
+
   /** `ApprovalService.cancel`: the module withdrew the record. The running instance ends Cancelled and its open tasks with it; with no running instance nothing happens (false). */
   async cancel(tx: TenantTx, effects: ApprovalEffects, input: { resourceType: string; resourceId: string; reason: string; now: Date }): Promise<boolean> {
     const [row] = await tx.query<InstanceRow>(`select ${INSTANCE_COLUMNS} from machvon.workflow_instance i where i.resource_type = $1 and i.resource_id = $2::uuid and i.status = 'Running' for update`, [input.resourceType, input.resourceId]);
@@ -598,7 +666,7 @@ export class ApprovalStore {
       await tx.query("update machvon.approval_task set status = 'Cancelled', version = version + 1 where workflow_instance_id = $1::uuid and status = 'Pending'", [instance.id]);
       finalCommand = definition.terminal[next.outcome === 'APPROVED' ? 'approved' : next.outcome === 'RETURNED' ? 'returned' : 'rejected'];
       // The domain's own transition table is the guard (BR-ADM-07): when it refuses, the record is left as it was and the instance says so.
-      const applied = await input.finish({ tx, instance: { ...instance, decisionSeq: sequence }, outcome: next.outcome, command: finalCommand, idempotencyKey: finalCommandKey(instance.id, sequence) });
+      const applied = await input.finish({ tx, instance: { ...instance, decisionSeq: sequence }, outcome: next.outcome, command: finalCommand, idempotencyKey: finalCommandKey(instance.id, sequence), effects });
       outcome = applied === 'APPLIED' ? next.outcome : 'GUARD_REJECTED';
       await tx.query("update machvon.workflow_instance set status = 'Completed', outcome = $2, ended_at = $3::timestamptz, version = version + 1 where id = $1::uuid", [instance.id, outcome, input.now.toISOString()]);
       stepResult = 'COMPLETED';
@@ -754,7 +822,8 @@ export class ApprovalStore {
     const step = definition.steps[task.stepIndex];
     if (step === undefined) return;
     const action: ApprovalSlaAction = slaAction({ remindAt: at(clockRow?.remind_at), remindedAt: at(clockRow?.reminded_at), dueAt: new Date(task.dueAt), nextReminderAt: at(clockRow?.next_reminder_at), escalatedAt: at(clockRow?.escalated_at) }, step.on_timeout, now);
-    const subject = { task_id: task.id, instance_id: instance.id, business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, step_id: task.stepId, assignee_id: task.assigneeId, due_at: task.dueAt };
+    // `notification.recipients` is what the notification service reads to know who to tell: the approver the task is given to (the channels they get it on are the tenant's notification workflow).
+    const subject = { task_id: task.id, instance_id: instance.id, business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, step_id: task.stepId, assignee_id: task.assigneeId, due_at: task.dueAt, notification: { recipients: [task.assigneeId] } };
     const remind = async (kind: 'BEFORE_DUE' | 'OVERDUE', extra: Record<string, unknown> = {}): Promise<void> => {
       const sent = task.overdueReminders + (kind === 'OVERDUE' ? 1 : 0);
       if (kind === 'BEFORE_DUE') await tx.query('update machvon.approval_task set reminded_at = $2::timestamptz where id = $1::uuid', [task.id, now.toISOString()]);

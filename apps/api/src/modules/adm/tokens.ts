@@ -11,3 +11,5 @@ export const ADM_INBOX_PROCESSOR = Symbol('ADM_INBOX_PROCESSOR');
  * MOCK adapter is never Active there. An environment that is not named is taken as production.
  */
 export const ADM_ENVIRONMENT = Symbol('ADM_ENVIRONMENT');
+/** Injection token of the codes of the modules mounted in this process: the boot guard of the approval engine judges the business types whose owning module is among them (R14). Absent where the host does not say. */
+export const ADM_MOUNTED_MODULES = Symbol('ADM_MOUNTED_MODULES');

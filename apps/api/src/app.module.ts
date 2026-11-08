@@ -12,11 +12,11 @@ import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
 import { ControlFeatureFlagSource, FeatureFlagModule, NoFeatureFlags } from './entitlements/feature-flag.guard';
 import { MyFeatureFlagsController } from './entitlements/my-feature-flags.controller';
-import { ADM_METRICS } from './modules/adm/tokens';
+import { ADM_METRICS, ADM_MOUNTED_MODULES } from './modules/adm/tokens';
 import { BI_DRILL_SECRET } from './modules/bi/tokens';
 import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
 import type { OrchestrationOptions } from './modules/orchestration';
-import { controllersOf, providersOf } from './modules/registry';
+import { activeModuleCodes, controllersOf, providersOf } from './modules/registry';
 import { LicenseController, LicenseReadsController, SystemLicenseReadsController } from './modules/sas/license.controller';
 import { LICENSE_KEYS } from './modules/sas/license-signer';
 import type { LicenseKeyStore } from './modules/sas/license-signer';
@@ -109,6 +109,7 @@ export class AppModule {
       ],
       providers: [
         ...providersOf(options),
+        { provide: ADM_MOUNTED_MODULES, useValue: activeModuleCodes(options) },
         // The sink the policy guard counts the decisions in is the one the ADM controllers count their alerts in (`workflow_guard_rejected_total`); without one they stay silent.
         ...(options.policy?.metrics === undefined ? [] : [{ provide: ADM_METRICS, useValue: options.policy.metrics }]),
         ...(options.orchestration === undefined ? [] : [{ provide: ORCHESTRATION_OPTIONS, useValue: options.orchestration }]),
