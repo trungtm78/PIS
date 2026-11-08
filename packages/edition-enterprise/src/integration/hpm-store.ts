@@ -346,9 +346,10 @@ export class HpmPushStore {
     if (accepted !== undefined && request.revision > accepted.revision && request.correctionId !== null) {
       const correction = await this.correctionFor(tx, request.correctionId);
       const matches = correction !== undefined && correction.layoutCode === request.layoutCode && correction.period === request.period && correction.fromRevision === accepted.revision;
-      if (matches && correction.state === 'APPROVED') {
-        overwrite = { periodReopened: (await input.reopen.status(tx, correction.periodReopenId, input.now)) === 'OPEN', correctionApproved: true };
-        consumed = correction;
+      if (matches && (correction.state === 'APPROVED' || correction.state === 'PROPOSED')) {
+        // A proposal that waits for its decision still says whether the period is reopened: what is missing is told as it is.
+        overwrite = { periodReopened: (await input.reopen.status(tx, correction.periodReopenId, input.now)) === 'OPEN', correctionApproved: correction.state === 'APPROVED' };
+        if (correction.state === 'APPROVED') consumed = correction;
       } else if (matches && correction.state === 'CONSUMED' && existing !== undefined && correction.consumedByPushId === existing.id) {
         // The push that consumed the correction is being retried: what was authorised once stays authorised for the same key.
         overwrite = { periodReopened: true, correctionApproved: true };

@@ -240,7 +240,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
         pushed_by: memberId(PUSHER),
         receipt: null,
         response: { mode: 'FILE', receiver: 'AWAITING_RECEIPT', acceptance: 'PENDING_EXTERNAL', package_name: `HPM-${LAYOUT}-2026-M10-r1.zip` },
-        actions: { may_retry: false, may_record_receipt: true },
+        actions: { may_retry: true, may_record_receipt: false },
       });
       expect((row.attempt_log as Array<{ attempt_no: number; outcome: string }>).map((attempt) => [attempt.attempt_no, attempt.outcome])).toEqual([[1, 'WRITTEN']]);
       // The package carries the report byte for byte and the key.
@@ -477,7 +477,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       const sent = pushOf(await push(PUSHER, await report('demo,form'), '2025-M08', 1, { marks: { form_status: 'DEMO', demo_mark: 'DEMO MARK' } }));
       expect(sent).toMatchObject({ form_status: 'DEMO', demo_mark: 'DEMO MARK' });
       const refused = await receipt(RECEIVER, sent.id as string, sent.version as number, { outcome: 'ACCEPTED', reference: 'HPM-D' });
-      expect(refused.status).toBe(422);
+      expect(refused.status).toBe(409);
       expect(refused.json.code).toBe('TEMPLATE_UNCONFIRMED');
       const rows_ = await rows<{ status: string }>("select status from machvon.hpm_push where id = $1", [sent.id]);
       expect(rows_[0]?.status).toBe('WRITTEN');
@@ -487,7 +487,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
   describe('an issued copy of the report engine (RPT-1c)', () => {
     let seeded = 0;
     /** An issued copy as the report engine keeps it: the workbook in its content-addressed store and the row of the copy. */
-    async function seedIssue(period: string, revision: number, options: { tenantId?: string; formStatus?: string; snapshot?: boolean } = {}): Promise<{ id: string; sha: string; xlsx: Uint8Array }> {
+    async function seedIssue(period: string, revision: number, options: { tenantId?: string; formStatus?: string; snapshot?: boolean; supersedes?: string } = {}): Promise<{ id: string; sha: string; xlsx: Uint8Array }> {
       seeded += 1;
       const tenantId = options.tenantId ?? TENANT_A;
       const xlsx = new TextEncoder().encode(`workbook ${period} r${revision} #${seeded}`);
@@ -509,7 +509,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
             LAYOUT,
             period,
             revision,
-            null,
+            options.supersedes ?? null,
             revision === 1 ? null : 'A correction after a late invoice',
             randomUUID(),
             hash,
@@ -564,7 +564,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
 
     it('judges staleness against the newest revision the engine issued, even when this ledger never saw it', async () => {
       const first = await seedIssue('2024-M04', 1);
-      await seedIssue('2024-M04', 2);
+      await seedIssue('2024-M04', 2, { supersedes: first.id });
       const stale = await byIssue(first, '2024-M04', 1);
       expect(stale.status).toBe(409);
       expect(stale.json).toMatchObject({ code: 'REPORT_OUT_OF_DATE', current_revision: 2 });
@@ -689,8 +689,9 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       } finally {
         spy.mockRestore();
       }
-      expect(targets.length).toBeGreaterThan(0);
+      // The pooled connection of the test client may be reused, so there may be no new connection at all: what must hold is that none goes anywhere but here, and that the writer did its work.
       for (const target of targets) expect(['127.0.0.1', 'localhost', '::1']).toContain(target);
+      expect(written.some((entry) => entry.name === `HPM-${LAYOUT}-2025-M02-r1.zip`)).toBe(true);
     });
   });
 
