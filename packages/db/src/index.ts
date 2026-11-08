@@ -1755,3 +1755,8 @@ export { AiAssistSourceStore } from './ai-assist-source-store.ts';
 export type { AssistReadScopes, ReadableSource } from './ai-assist-source-store.ts';
 export { LlmExternalExceptionStore } from './llm-external-exception-store.ts';
 export type { AiExceptionFilter, ExceptionRow, ExceptionUseRow } from './llm-external-exception-store.ts';
+// The Integration Hub (lane HUB-1): the read model over the connectors, the run log, incidents, snapshots, mappings, rejects, lineage and collector agents.
+export { HubStore } from './hub-store.ts';
+export type { HubAgentRow, HubConnectorReading, HubIncidentRow, HubKpiReading, HubMappingRow, HubRejectRow, HubRuleInfo, HubRunView, HubSnapshotRow, HubSweepChange } from './hub-store.ts';
+export { hubStateAdapterOf, registerBuiltInHubAdapters, registerHubStateAdapter } from './hub-adapters.ts';
+export type { HubStateAdapter } from './hub-adapters.ts';
