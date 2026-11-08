@@ -26,7 +26,6 @@ export type AccuracyBand = (typeof ACCURACY_BANDS)[number];
 export const MONTH_DAY_PATTERN = '^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$';
 const MONTH_DAY = new RegExp(MONTH_DAY_PATTERN);
 const CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
-const DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);

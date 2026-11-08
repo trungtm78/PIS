@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { AuditWriter } from '../src/audit-writer';
+import type { AuditWriter } from '../src/audit-writer';
 import { CtrAdjustmentStore } from '../src/ctr-adjustment-store';
 import { CtrLinkageReads } from '../src/ctr-linkage-reads';
 import { putRevisionInForce } from '../src/ctr-revision-effective';
