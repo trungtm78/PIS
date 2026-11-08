@@ -23,13 +23,16 @@ Public (`--dataset public`), groups in order: `base`, `capital`, `clip-public-do
   (17 in implementation, 9 budgeted, 4 completed, 2 suspended, 4 in appraisal, 5 in the pipeline, 2 rejected, 2 concept). Funded projects get a national
   code and lines of the annual plan `KHV-2026` drawn on the assignments of capital: central (`NSTW`), local (`NSDP`), the national target programme,
   ODA grant (`SUPPORT`) and ODA on-lending (`ODAV`). The assignments are decided by the leader.
-- Procurement: a plan of 14 funded projects, 42 packages, approved by the leader on an issued decision; the package workflow of each package is moved to the
-  step the plan names (a spread of steps for the process tree, some on hold, some given back, some not started).
+- Procurement: a plan of 14 funded projects with 42 packages is created and submitted by the officer. The leader approves it on an ISSUED decision, and the
+  package workflow of each package is then moved to the step the plan names (a spread of steps for the process tree, some on hold, some given back, some not
+  started). In the run on the local stack no decision could be issued (see the limits), so the plans wait in review and no workflow was started: the driver
+  is written but not yet proven.
 - The seed layer of the guide also makes the contractors (16, with verification by a second person) and, through `field-assurance` and `intelligence`,
   permits, land, quality, issues, audit and the AI board (run them with `--groups` when a chapter needs them).
 
 Enterprise (`--dataset enterprise`, the stack must serve the enterprise edition), groups: `clip-ent-projects`, `clip-ent-funding`, `clip-ent-directives`, `clip-ent-ebs`.
 
+- (run on a local stack: 12 projects, 24 accepted funding batches, 6 directives, 16 accounting rows imported, 32 differences opened)
 - 6 investment and 6 equipment-purchase projects of the group; the year plan of each split into equity and loan (prepared by the project manager, accepted
   by the leader); the directives of three steering meetings (some overdue); the file of the accounting system imported and reconciled (some figures
   differ on purpose, so the differences have an owner and a result to show).
@@ -65,6 +68,8 @@ projects, codes, packages and figures; only the dates move with the day of the r
   opened with a trigger a month ago is overdue at once).
 - The decision documents that procurement plans need must be ISSUED outgoing decisions. The group `clip-public-documents` makes the delegation of authority
   matrix and runs the document seed of the guide (`platform-records/doc.ts`) to issue them.
+- The upload and preview permissions of the accounting file end in "preview", so the roles of the docs stack give them to the leader, not the officer: the group
+  uploads and previews as the leader and imports as the officer (the owner owns the differences).
 - Not yet seeded by this layer (hooks for the next step): contracts with claims, payments and advances; e-GP import files and obligations; the finance
   feed through the generator into the province committee workspace (the committee workspace reads period snapshots; no code feeds feed records into it);
   alert evaluation; BI dashboards (no HTTP route stores the metric bundle); the PVN forms issued and the HPM push log (the six PVN forms are DEMO forms and

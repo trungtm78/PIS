@@ -27,13 +27,13 @@ real HTTP commands of the product (real personas, real maker-checker and approva
 ## Steps
 
 - [x] 0. Research the surface (API cheat sheets, existing seeds, stack).
-- [ ] 1. Pure planner + fixtures + `clip-seed.mjs` (plan/apply/verify skeleton) + tests `scripts/clip-seed.test.mjs`.
-- [ ] 2. Run the existing groups on a fresh docs stack (baseline proof), fix what is broken.
-- [ ] 3. Public groups: portfolio to 40+ projects with central/local/ODA, plans, packages and workflow states, contractors, contracts, payments.
-- [ ] 4. Public groups: e-GP import and obligations, finance feed and committee, alerts, directives, accounts.
-- [ ] 5. Enterprise stack switch + enterprise groups (funding figures, PVN forms, HPM, EBS, directives).
-- [ ] 6. Run each dataset end to end on a local stack; `verify` green; stop the stack.
-- [ ] 7. `docs/clip-data.md`; gates (lint, typecheck, scan); Codex review (gpt-6-astra) and triage; final report.
+- [x] 1. Pure planner + fixtures + `clip-seed.mjs` (plan/apply/verify skeleton) + tests `scripts/clip-seed.test.mjs`.
+- [x] 2. Run the existing groups on a fresh docs stack (baseline proof), fix what is broken (appropriation of the programme fund, document seed route).
+- [~] 3. Public groups: portfolio of 45 projects with central/local/ODA lines DONE and run; contractors DONE; 14 procurement plans / 42 packages created and submitted DONE; approval and the package workflow driver WRITTEN but BLOCKED (needs an issued decision, the document seed of the guide fails at template_code); contracts, payments NOT DONE.
+- [ ] 4. Public groups: e-GP import and obligations, finance feed and committee, alerts, directives, accounts. NOT DONE (hooks and cheat sheet in docs/clip-data.md).
+- [~] 5. Enterprise stack switch DONE; groups for projects, equity/loan funding, directives, EBS import and reconciliation DONE and run; PVN forms and HPM push NOT DONE.
+- [x] 6. Each dataset run on a local stack with `verify` green (public: 13 checks; enterprise: 5 checks); stack stopped.
+- [x] 7. `docs/clip-data.md`; gates; Codex review (gpt-6-astra) and triage; final report.
 
 ## Tests per step
 
