@@ -1,5 +1,5 @@
 import { DIS_WEEKLY_LAYOUT, DomainError, validateLayout } from '@machvon/kernel';
-import type { ReportFormBundle } from '@machvon/kernel';
+import type { EffectiveAccess, ReportFormBundle } from '@machvon/kernel';
 import { buildBlankTemplate } from './blank-template';
 import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
