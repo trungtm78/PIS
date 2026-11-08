@@ -40,3 +40,7 @@ The field mapping (data → cell of the form) is the accountant's to sign: value
 * **PAY-14** the four forms with the template revision, the legal basis and the hash of the one that stands, the ones it replaced, the commands to draw one or all (asking the place) and to record the send (asking the day and the number). PAY-03 leads to it once the request is checked.
 
 Browser flow `apps/web/e2e/pay-payment-flows.spec.ts` (the last test); visual regions PAY-04 and PAY-14.
+
+## Demo templates of the four forms (clip data)
+
+The Treasury forms 03.a/TT, 04.a/TT, 04.b/TT and 05.a/TT are drawn from templates in force that a person confirmed legally. For demo tenants the platform pack carries four DEMO templates (`apps/api/src/modules/doc/payment-forms-demo.json`, group `TREASURY_FORM`): their title says "bản demo", their body ends with the paragraph "Mẫu demo của hệ thống, không phải mẫu chính thức của Kho bạc Nhà nước", their watermark begins "MẪU DEMO — chờ mẫu chính thức", and they use only fields the form payload really fills (a test checks it). They are added to the pack only where the demo forms are on (`DEMO_FORMS=true`, like the demo forms of the report engine; `loadTemplatePack(directory, { demoForms })`), so the pack of an ordinary tenant is unchanged (25 templates). The clip data confirms them with the reference `DEMO-PAY-FORMS`; the real forms replace them by a new revision when the Treasury gives the official layout, and a demo form is never an official acceptance.
