@@ -59,7 +59,7 @@
     "split": {
       "window": {
         "x": 56,
-        "y": 250,
+        "y": 318,
         "hole": {
           "width": 1008,
           "height": 567
@@ -75,8 +75,8 @@
       },
       "headline": {
         "x": 56,
-        "y": 96,
-        "width": 1100
+        "y": 84,
+        "width": 1160
       },
       "chips": false
     },

@@ -11,6 +11,7 @@ import { CURSOR_SCRIPT } from './record/cursor.mjs';
 import { Ui } from './record/ui.mjs';
 import { ReplayUi, groupSteps, replayView, summariseReplay, viewShares } from './record/replay.mjs';
 import { sentencesOf } from './text.mjs';
+import { analyzeVideo, findings } from './quality.mjs';
 import { Painter, brandFile, readBrand } from './compose/render.mjs';
 import { LOOP_SEC, brandOf, layouts, frames, headlineOf, keyTerm, layoutOf, mapBox, tickerOf } from './compose/design.mjs';
 import { cardArgs, chipsFor, segmentArgs } from './compose/plan.mjs';
@@ -281,7 +282,7 @@ async function main(argv) {
   const manifestPath = argument(argv, 'manifest');
   const out = argument(argv, 'out');
   if (clip === undefined || audioPath === undefined || manifestPath === undefined || out === undefined) {
-    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps] [--no-compose] [--phone-dir <dir with <scene id>.mp4 films of the phone>]');
+    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps] [--no-compose] [--no-quality] [--phone-dir <dir with <scene id>.mp4 films of the phone>]');
     return 2;
   }
   const scenario = loadScenario(clip);
@@ -419,7 +420,16 @@ async function main(argv) {
   writeFileSync(list, segments.map((file) => `file '${file.replace(/\\/gu, '/')}'`).join('\n'));
   const screen = join(dir, `${clip}.${cut}.screen.mp4`);
   ffmpeg(['-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', screen]);
-  writeFileSync(join(dir, `${clip}.${cut}.make.json`), `${JSON.stringify({ screen, bar: barFile ?? null, scenes: report }, null, 2)}\n`);
+  // Quality check of the joined film: still or black windows, and what the recorder saw in the pages. The findings are part of the make report.
+  let quality = null;
+  if (!flag(argv, 'no-quality')) {
+    const analysis = analyzeVideo(screen);
+    const list = findings(analysis, { timeline, makeReport: { scenes: report } });
+    quality = { freezes: analysis.freezes, blacks: analysis.blacks, findings: list };
+    for (const item of list) console.log(`quality ${item.level} ${item.scene ?? '-'}: ${item.text}`);
+    console.log(`quality: ${list.length} findings`);
+  }
+  writeFileSync(join(dir, `${clip}.${cut}.make.json`), `${JSON.stringify({ screen, bar: barFile ?? null, scenes: report, quality }, null, 2)}\n`);
   console.log(`screen film: ${screen}`);
   return 0;
 }
