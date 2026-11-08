@@ -1,0 +1,336 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "province-committee",
+  "title": "Ban chỉ đạo cấp tỉnh",
+  "summary": "The provincial steering committee: roster, command board for the head, projects that need attention, directive tracker, committee alerts, meeting pack, the finance department feed and its reconciliation, the audit of sensitive views. Real data through the real import path; no simulation label anywhere.",
+  "figures": {
+    "committee-projects": {
+      "kind": "count",
+      "sample": 45,
+      "description": "Projects in the feed that the committee workspace reads.",
+      "source": {
+        "operation": "getCommitteeWorkspace",
+        "select": "feed.projects"
+      }
+    },
+    "committee-attention-total": {
+      "kind": "count",
+      "sample": 12,
+      "description": "Projects that need the attention of the head of the committee.",
+      "source": {
+        "operation": "getCommitteeWorkspace",
+        "select": "attention_total"
+      }
+    },
+    "committee-directives-overdue": {
+      "kind": "count",
+      "sample": 3,
+      "description": "Overdue directives of the committee in the tracker.",
+      "source": {
+        "operation": "getCommitteeDirectiveTracker",
+        "select": "totals.overdue"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "ban-roster",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Ban chỉ đạo cấp tỉnh điều hành tiến độ đầu tư công của cả tỉnh. Danh sách ghi rõ Trưởng ban, Phó ban, thành viên và thư ký, cơ quan của từng người và quyết định bổ nhiệm. Mọi thành viên chỉ đọc số liệu, không sửa số tài chính.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "BAN-06"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.roster.members"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Trưởng ban, Phó ban, thành viên, thư ký",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 17
+    },
+    {
+      "id": "ban-dashboard",
+      "chapter": "province-committee",
+      "main": true,
+      "narration": "Bảng điều hành Ban chỉ đạo cho Trưởng ban thấy kế hoạch, số đã giải ngân và dải dự báo cuối năm. Số liệu chia theo ngành, địa bàn, chủ đầu tư và nguồn vốn. Hiện có {{figure:committee-projects}} dự án trong nguồn cấp dữ liệu. Ngày chốt và nguồn số liệu luôn nằm trên cùng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "BAN-01"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.dashboard.context-bar"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.dashboard.by-sector"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.dashboard.forecast-band"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Ngày chốt và nguồn số liệu",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 19.4
+    },
+    {
+      "id": "ban-attention",
+      "chapter": "province-committee",
+      "main": true,
+      "narration": "Danh sách dự án cần Trưởng ban quan tâm xếp theo mức tác động. Mỗi dòng nêu lý do: chậm tiến độ, vướng thủ tục, giải ngân thấp hoặc đơn vị không báo cáo. Hiện có {{figure:committee-attention-total}} dự án cần chú ý. Trưởng ban ghi quyết định và ra chỉ đạo ngay tại đây.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BAN-02"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.attention.first-row"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.attention.decision"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.8
+    },
+    {
+      "id": "ban-directives",
+      "chapter": "province-committee",
+      "main": true,
+      "narration": "Theo dõi chỉ đạo cho biết mỗi đơn vị còn bao nhiêu chỉ đạo đang mở, quá hạn và đã leo thang. Hiện có {{figure:committee-directives-overdue}} chỉ đạo quá hạn. Bấm vào một chỉ đạo để xem dòng thời gian và lần gia hạn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-04",
+          "DIR-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BAN-04"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.tracker.units"
+        },
+        {
+          "do": "click",
+          "ref": "ban.tracker.first-overdue"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "ban-alerts",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Cảnh báo của Ban chỉ đạo gồm toàn tỉnh chậm, ngành chậm, đơn vị không báo cáo và chỉ đạo quá hạn. Mỗi cảnh báo có chủ sở hữu, việc cần làm, hậu quả và hạn phản hồi. Trưởng ban xác nhận đã nhận kèm ghi chú.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BAN-05"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.alerts.first-row"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.alerts.acknowledge"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16
+    },
+    {
+      "id": "ban-pack",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Hồ sơ họp định kỳ được lập thành tệp Word và Excel qua bộ sinh báo cáo. Người lập, người kiểm và người duyệt là ba người khác nhau, và bản đã phát hành không sửa được.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "BAN-03"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.pack.roles"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "ban-feed",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Số liệu từ ứng dụng của Sở Tài chính vào hệ thống qua đúng đường nhập thật. Tệp được chạy thử trước, lỗi hiện theo từng dòng, rồi mới áp dụng. Mẫu tệp là giả định, chờ đặc tả chính thức.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "FEED-01",
+          "FEED-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "FEED-01"
+        },
+        {
+          "do": "spot",
+          "ref": "feed.connection.health"
+        },
+        {
+          "do": "open",
+          "screen": "FEED-02"
+        },
+        {
+          "do": "spot",
+          "ref": "feed.runs.dry-run"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+          "atSec": 6,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "egp-assumption"
+      ],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "ban-reconcile",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Mã dự án của Sở được ánh xạ sang mã của ta, mã chưa ánh xạ hiện riêng. Sai lệch giữa số của Sở và số của ta được đối chiếu từng trường. Mỗi chênh lệch có chủ sở hữu, hạn xử lý và cách xử lý.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "FEED-03",
+          "FEED-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "FEED-03"
+        },
+        {
+          "do": "spot",
+          "ref": "feed.mapping.pending"
+        },
+        {
+          "do": "open",
+          "screen": "FEED-04"
+        },
+        {
+          "do": "spot",
+          "ref": "feed.diff.owner-column"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16
+    },
+    {
+      "id": "ban-audit",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Mọi lần xem màn hình nhạy cảm của Ban chỉ đạo đều được ghi lại. Nhật ký cho biết ai xem, giữ vị trí nào, xem màn hình nào, bộ lọc gì, số liệu ngày nào và phiên xác thực ra sao. Kiểm toán viên đọc nhật ký này.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BAN-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "BAN-07"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.audit.latest"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    }
+  ]
+}

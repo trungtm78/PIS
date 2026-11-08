@@ -6,39 +6,7 @@
   "summary": "Intro clip of the enterprise edition for Dam Phu My (PVFCCo): investment and equipment purchase projects, equity and loan capital, reports to the group, HPM push, accounting reconciliation, meeting directives, the leader PWA. Every name, figure and form is illustrative; the six forms are DEMO forms stamped as such.",
   "data": {
     "tenant": "enterprise edition, illustrative PVFCCo tenant (no customer figure is used)",
-    "seedGroups": [
-      "base"
-    ],
-    "newSeedGroups": [
-      {
-        "name": "clip-enterprise-capital",
-        "purpose": "Real commands: the enterprise funding pack (equity, loan, other), the original and adjusted year plan, quarter and month phasing, estimates replaced by actuals with the conversion history."
-      },
-      {
-        "name": "clip-enterprise-projects",
-        "purpose": "Real commands: the illustrative projects of packages/edition-enterprise (investment, asset purchase, fixed asset purchase, major repair) through the stage gates, appraisal scoring and a feasibility run."
-      },
-      {
-        "name": "clip-enterprise-reports",
-        "purpose": "Real commands: indicator dictionary, entry rules, period data entered and closed, the six DEMO forms filled and one issued copy by three different people."
-      },
-      {
-        "name": "clip-enterprise-integration",
-        "purpose": "Real commands: the period approval workflow, a file written for HPM with a retry and a refused stale version, an accounting (EBS) file imported and reconciled, a directive board from two meetings."
-      },
-      {
-        "name": "clip-public-alerts",
-        "purpose": "Shared with the public clip: alerts of three severities, one snoozed, one escalated, an absence delegation."
-      },
-      {
-        "name": "clip-public-contractors",
-        "purpose": "Shared with the public clip: contractors, a restriction, evaluations, concentration."
-      },
-      {
-        "name": "clip-public-packages",
-        "purpose": "Shared with the public clip: procurement packages spread over the process tree."
-      }
-    ],
+    "dataset": "enterprise",
     "fixtures": {
       "ebs-ledger-sample": "Accounting ledger file in the assumed layout with two projects whose figures differ from the reported ones",
       "excel-entry-sample": "Excel entry file mapped by the approved entry mapping version"
@@ -274,7 +242,7 @@
       "id": "ent-home",
       "chapter": "leader-home",
       "main": true,
-      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, giải ngân lũy kế {{figure:ent-rate-disbursed}}, và {{figure:ent-projects-delayed}} trên {{figure:ent-projects-total}} dự án đang chậm.",
+      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}} và giải ngân lũy kế {{figure:ent-rate-disbursed}}. Có {{figure:ent-projects-delayed}} trên {{figure:ent-projects-total}} dự án đang chậm.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -307,7 +275,7 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 18.1
+      "expectedSec": 18.7
     },
     {
       "include": "shared/leader-home.json"
@@ -1032,7 +1000,7 @@
       "id": "ent-lake-api",
       "chapter": "hpm-ebs",
       "main": false,
-      "narration": "Cho kho dữ liệu Lakehouse và Power BI, mỗi tổ chức có một tài khoản chỉ đọc riêng trên các bảng xem đã chứng nhận, và chỉ thấy dòng của tổ chức mình. Giao diện mở API có tài liệu, tài khoản máy, phạm vi và giới hạn tần suất.",
+      "narration": "Cho kho dữ liệu Lakehouse và Power BI, mỗi tổ chức có một tài khoản chỉ đọc riêng trên các bảng xem đã chứng nhận. Tài khoản đó chỉ thấy dòng của tổ chức mình. Giao diện mở API có tài liệu, tài khoản máy, phạm vi và giới hạn tần suất.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -1054,7 +1022,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 17.8
+      "expectedSec": 18.8
     },
     {
       "id": "ent-cross-code",
@@ -1180,7 +1148,7 @@
       "id": "dir-feed",
       "chapter": "directives",
       "main": false,
-      "narration": "Chỉ đạo của kỳ trở thành đầu vào của báo cáo kỳ sau: báo cáo tự liệt kê chỉ đạo đã hoàn thành, đang làm và quá hạn, không ai phải chép lại.",
+      "narration": "Chỉ đạo của kỳ trở thành đầu vào của báo cáo kỳ sau. Báo cáo tự liệt kê chỉ đạo đã hoàn thành, đang làm và quá hạn, không ai phải chép lại.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -1202,7 +1170,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 11.1
+      "expectedSec": 11.5
     },
     {
       "id": "doc-repo",
@@ -1337,7 +1305,7 @@
       "id": "ent-close-trust",
       "chapter": "close",
       "main": true,
-      "narration": "Phần mềm cài đặt tại chỗ của Tổng công ty: đăng nhập một lần qua AD kèm xác thực hai lớp, sao lưu có bản bất biến, được kiểm thử bảo mật độc lập. Mọi thay đổi đều ghi nhật ký kiểm toán.",
+      "narration": "Phần mềm cài đặt tại chỗ của Tổng công ty. Đăng nhập một lần qua AD kèm xác thực hai lớp, sao lưu có bản bất biến, và được kiểm thử bảo mật độc lập. Mọi thay đổi đều ghi nhật ký kiểm toán.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -1360,7 +1328,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 14.8
+      "expectedSec": 15.4
     },
     {
       "id": "ent-close-outro",

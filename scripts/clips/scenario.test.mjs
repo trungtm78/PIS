@@ -107,9 +107,13 @@ test('a broken scenario is reported with what is wrong, one message each', () =>
 });
 
 test('strict mode turns what other lanes still have to build into errors', () => {
-  const strict = loadContext({ strict: true });
-  const problems = validateScenario(loadScenario('public-investment'), strict).problems;
-  assert.ok(problems.some((p) => /planned:egp-obligations is still planned \(lane EGP-2\)/u.test(p)));
+  const strict = { ...loadContext({ strict: true }), planned: { operations: {}, screens: { 'planned:later': { lane: 'LATER-1' } } } };
+  const base = loadScenario('public-investment');
+  const scenario = { ...base, scenes: base.scenes.map((scene) => ({ ...scene })), _loadProblems: [] };
+  scenario.scenes[4].screen = { platform: 'web', screens: ['planned:later'] };
+  const problems = validateScenario(scenario, strict).problems;
+  assert.ok(problems.some((p) => /planned:later is still planned \(lane LATER-1\)/u.test(p)));
+  assert.deepEqual(validateScenario(loadScenario('public-investment'), loadContext({ strict: true })).problems, []);
 });
 
 test('every verb of the step vocabulary is documented in the README and used or reserved', () => {
@@ -119,7 +123,7 @@ test('every verb of the step vocabulary is documented in the README and used or 
 
 test('every scenario file and shared chapter is valid JSON with Vietnamese only in data files', () => {
   const dir = join(CLIPS_DIR, 'scenarios');
-  const files = [...readdirSync(dir).filter((name) => name.endsWith('.json')), ...readdirSync(join(dir, 'shared')).map((name) => `shared/${name}`)];
+  const files = [...readdirSync(dir).filter((name) => name.endsWith('.json')), ...readdirSync(join(dir, 'shared')).map((name) => `shared/${name}`), ...readdirSync(join(dir, 'public')).map((name) => `public/${name}`)];
   assert.ok(files.length >= 7);
   for (const file of files) JSON.parse(readFileSync(join(dir, file), 'utf8'));
 });

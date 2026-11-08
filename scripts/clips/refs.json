@@ -90,6 +90,54 @@
       "screen": "AUD-14",
       "what": "red flags / indicator list (aud)"
     },
+    "ban.alerts.acknowledge": {
+      "screen": "BAN-05",
+      "what": "alerts / acknowledge with a note (committee)"
+    },
+    "ban.alerts.first-row": {
+      "screen": "BAN-05",
+      "what": "alerts / first committee alert (committee)"
+    },
+    "ban.attention.decision": {
+      "screen": "BAN-02",
+      "what": "attention / decision and directive action (committee)"
+    },
+    "ban.attention.first-row": {
+      "screen": "BAN-02",
+      "what": "attention / first project row with its reasons (committee)"
+    },
+    "ban.audit.latest": {
+      "screen": "BAN-07",
+      "what": "audit / latest sensitive views (committee)"
+    },
+    "ban.dashboard.by-sector": {
+      "screen": "BAN-01",
+      "what": "dashboard / plan and disbursed by sector (committee)"
+    },
+    "ban.dashboard.context-bar": {
+      "screen": "BAN-01",
+      "what": "dashboard / context bar with as-of date and source (committee)"
+    },
+    "ban.dashboard.forecast-band": {
+      "screen": "BAN-01",
+      "what": "dashboard / year end forecast band (committee)"
+    },
+    "ban.pack.roles": {
+      "screen": "BAN-03",
+      "what": "pack / maker, checker and approver (committee)"
+    },
+    "ban.roster.members": {
+      "screen": "BAN-06",
+      "what": "roster / members and positions (committee)"
+    },
+    "ban.tracker.first-overdue": {
+      "screen": "BAN-04",
+      "what": "tracker / first overdue directive link to DIR-04 (committee)"
+    },
+    "ban.tracker.units": {
+      "screen": "BAN-04",
+      "what": "tracker / units with open, overdue and escalated directives (committee)"
+    },
     "bi.chart-builder.dataset": {
       "screen": "BI-02",
       "what": "chart builder / dataset (bi)"
@@ -425,6 +473,22 @@
     "ent.home.kpi-strip": {
       "screen": "HOME-09",
       "what": "home / kpi strip (ent)"
+    },
+    "feed.connection.health": {
+      "screen": "FEED-01",
+      "what": "connection / health, age and completeness (feed)"
+    },
+    "feed.diff.owner-column": {
+      "screen": "FEED-04",
+      "what": "differences / owner and due date columns (feed)"
+    },
+    "feed.mapping.pending": {
+      "screen": "FEED-03",
+      "what": "mapping / codes not mapped yet (feed)"
+    },
+    "feed.runs.dry-run": {
+      "screen": "FEED-02",
+      "what": "runs / dry run with rows named (feed)"
     },
     "home.changes.list": {
       "screen": "HOME-09",

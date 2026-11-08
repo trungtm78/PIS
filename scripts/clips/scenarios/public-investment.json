@@ -6,31 +6,7 @@
   "summary": "Intro clip of the public edition: a province (Cao Bang sample data) managing public investment from the capital plan to settlement, with the stress on early warning, disbursement, contracts, analytics, alerts, contractor management, the national procurement network connection and the progress tree.",
   "data": {
     "tenant": "public edition, provincial sample tenant (Cao Bang)",
-    "seedGroups": [
-      "base",
-      "capital",
-      "field-assurance",
-      "procurement-finance",
-      "intelligence"
-    ],
-    "newSeedGroups": [
-      {
-        "name": "clip-public-egp",
-        "purpose": "Real commands: connect the egp connection, import a plan file and a notice file (dry run then apply), propose and approve mappings, leave two obligations due and one overdue, leave one reconciliation item per resolution kind."
-      },
-      {
-        "name": "clip-public-alerts",
-        "purpose": "Real commands: open alerts of the three severities for the leader, one snoozed with a reason, one escalated, delegation of absence for one unit head."
-      },
-      {
-        "name": "clip-public-contractors",
-        "purpose": "Real commands: contractors with profiles, one restriction through the whole procedure, evaluations with a different approver, a concentration worth showing."
-      },
-      {
-        "name": "clip-public-packages",
-        "purpose": "Real commands: about forty procurement packages moved through the steps of the workflow over several weeks (back dated through the command clock), some late, one on hold, one returned, one fed by an imported milestone."
-      }
-    ],
+    "dataset": "public",
     "fixtures": {
       "egp-khlcnt-sample": "KHLCNT file in the working-assumption layout with a few bad rows (a wrong tax code, a wrong day, a duplicate)",
       "egp-tbmt-sample": "TBMT file in the working-assumption layout, valid"
@@ -430,7 +406,7 @@
       "id": "pay-conditions",
       "chapter": "disbursement",
       "main": false,
-      "narration": "Dự án chưa có danh mục và kế hoạch vốn trên hệ thống thì không lập được đề nghị thanh toán, và hệ thống nói đúng nguyên nhân cùng cách xử lý. Số trên hệ thống thắng số trên giấy. Căn cứ pháp lý của quy tắc này còn ghi chưa kiểm chứng.",
+      "narration": "Dự án chưa có danh mục và kế hoạch vốn trên hệ thống thì không lập được đề nghị thanh toán. Hệ thống nói đúng nguyên nhân cùng cách xử lý. Số trên hệ thống thắng số trên giấy. Căn cứ pháp lý của quy tắc này còn ghi chưa kiểm chứng.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -1000,7 +976,7 @@
       "id": "egp-no-egress",
       "chapter": "egp",
       "main": false,
-      "narration": "Cam kết không kết nối ra ngoài được chứng minh bằng kiểm thử. Mọi đường ra khỏi máy bị thay bằng bộ đếm, hệ thống chạy toàn bộ thao tác nhập, ánh xạ, đối chiếu và đồng hồ, kết quả là không lần thử kết nối nào. Mã nguồn cũng bị quét để không có lời gọi mạng.",
+      "narration": "Cam kết không kết nối ra ngoài được chứng minh bằng kiểm thử. Mọi đường ra khỏi máy bị thay bằng bộ đếm. Hệ thống chạy toàn bộ thao tác nhập, ánh xạ, đối chiếu và đồng hồ, và kết quả là không lần thử kết nối nào. Mã nguồn cũng bị quét để không có lời gọi mạng.",
       "screen": {
         "platform": "animatic",
         "screens": [],
@@ -1013,7 +989,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 19.4
+      "expectedSec": 20
     },
     {
       "id": "egp-restrictions",
@@ -1052,6 +1028,9 @@
         "egp-assumption"
       ],
       "expectedSec": 16.9
+    },
+    {
+      "include": "public/province-committee.json"
     },
     {
       "include": "shared/process-tree.json"

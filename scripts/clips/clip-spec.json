@@ -93,6 +93,7 @@
     "paymentApprover",
     "dgvSteward",
     "mneAdmin",
-    "sysAdmin"
+    "sysAdmin",
+    "docHead"
   ]
 }

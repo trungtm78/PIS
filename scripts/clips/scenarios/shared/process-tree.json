@@ -152,7 +152,7 @@
       "id": "tree-board",
       "chapter": "process-tree",
       "main": true,
-      "narration": "Nhìn theo công đoạn là bảng cột theo bước: mỗi thẻ là một gói, lọc theo đơn vị, hình thức hay chỉ gói trễ, số lượng và giá trị đổi theo.",
+      "narration": "Nhìn theo công đoạn là bảng cột theo bước, mỗi thẻ là một gói. Lọc theo đơn vị, hình thức hay chỉ gói trễ thì số lượng và giá trị đổi theo.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -174,7 +174,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 10.5
+      "expectedSec": 11.1
     },
     {
       "id": "tree-bottleneck",
@@ -242,7 +242,7 @@
       "id": "tree-definition",
       "chapter": "process-tree",
       "main": false,
-      "narration": "Quy trình lựa chọn nhà thầu là dữ liệu có phiên bản, cấu hình theo từng hình thức: đấu thầu rộng rãi, hạn chế, chỉ định thầu, chào hàng cạnh tranh và các hình thức khác. Mỗi bước có điều kiện vào, điều kiện ra, người chịu trách nhiệm, thời hạn chuẩn và bằng chứng. Các bước theo Luật Đấu thầu còn ghi chưa kiểm chứng.",
+      "narration": "Quy trình lựa chọn nhà thầu là dữ liệu có phiên bản, cấu hình theo từng hình thức. Đó là đấu thầu rộng rãi, hạn chế, chỉ định thầu, chào hàng cạnh tranh và các hình thức khác. Mỗi bước có điều kiện vào, điều kiện ra, người chịu trách nhiệm, thời hạn chuẩn và bằng chứng. Các bước theo Luật Đấu thầu còn ghi chưa kiểm chứng.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -278,7 +278,7 @@
       "stamps": [
         "unverified-legal"
       ],
-      "expectedSec": 21.8
+      "expectedSec": 22.8
     },
     {
       "id": "tree-checklist",
@@ -316,7 +316,7 @@
       "id": "tree-alerts",
       "chapter": "process-tree",
       "main": false,
-      "narration": "Quy trình tự sinh cảnh báo: bước quá hạn, mục bắt buộc sát hạn mà chưa xong, gói đứng yên quá lâu, gói thiếu người phụ trách và thứ tự đăng tải sai trên mạng đấu thầu. Mỗi cảnh báo có chủ, hành động mong đợi và hậu quả.",
+      "narration": "Quy trình tự sinh cảnh báo. Đó là bước quá hạn, mục bắt buộc sát hạn mà chưa xong, gói đứng yên quá lâu, gói thiếu người phụ trách và thứ tự đăng tải sai trên mạng đấu thầu. Mỗi cảnh báo có chủ, hành động mong đợi và hậu quả.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -339,7 +339,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 16.3
+      "expectedSec": 17.3
     }
   ]
 }

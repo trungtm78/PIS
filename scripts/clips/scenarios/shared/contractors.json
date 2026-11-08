@@ -212,7 +212,7 @@
       "id": "vnd-egp-link",
       "chapter": "contractors",
       "main": false,
-      "narration": "Quản lý nhà thầu nối với mạng đấu thầu quốc gia qua nhập và xuất tệp: nhận danh sách hạn chế, đăng tải đánh giá thực hiện hợp đồng trong thời hạn, và đối chiếu từng trường giữa số của mình với số trên mạng. Hệ thống không quét trang web.",
+      "narration": "Quản lý nhà thầu nối với mạng đấu thầu quốc gia qua nhập và xuất tệp. Hệ thống nhận danh sách hạn chế và đăng tải đánh giá thực hiện hợp đồng trong thời hạn. Từng trường giữa số của mình và số trên mạng được đối chiếu. Hệ thống không quét trang web.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -241,13 +241,13 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 16.9
+      "expectedSec": 18.5
     },
     {
       "id": "vnd-redflag",
       "chapter": "contractors",
       "main": false,
-      "narration": "Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn, chẳng hạn chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.",
+      "narration": "Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn. Ví dụ chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -275,7 +275,7 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 19.7
+      "expectedSec": 20
     },
     {
       "id": "vnd-portal",
