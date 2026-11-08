@@ -11,6 +11,7 @@ import { CURSOR_SCRIPT } from './record/cursor.mjs';
 import { withPersona } from './record/scene.mjs';
 import { Ui } from './record/ui.mjs';
 import { sentencesOf } from './text.mjs';
+import { composePhoneSegment, footageOf, loadFootage } from './phone-compose.mjs';
 import { buildTimeline, cuesOf, formatSrt, formatVtt, checkCues } from './subtitles.mjs';
 
 /**
@@ -218,12 +219,12 @@ function phoneCard(scene, out, dir) {
 }
 
 async function main(argv) {
-  const [clip, cut = 'main'] = positionals(argv, ['audio', 'manifest', 'web-url', 'out', 'only', 'phone-cards']);
+  const [clip, cut = 'main'] = positionals(argv, ['audio', 'manifest', 'web-url', 'out', 'only', 'phone-cards', 'phone-footage']);
   const audioPath = argument(argv, 'audio');
   const manifestPath = argument(argv, 'manifest');
   const out = argument(argv, 'out');
   if (clip === undefined || audioPath === undefined || manifestPath === undefined || out === undefined) {
-    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web]');
+    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--phone-footage D:/PIS-clips-out/phone]');
     return 2;
   }
   const scenario = loadScenario(clip);
@@ -242,6 +243,8 @@ async function main(argv) {
   const only = argument(argv, 'only')?.split(',');
   const reuse = flag(argv, 'reuse');
   const webUrl = argument(argv, 'web-url');
+  const footageDir = argument(argv, 'phone-footage');
+  const footageIndex = footageDir === undefined ? undefined : loadFootage(resolve(footageDir));
   let browser;
   const report = [];
   const segments = [];
@@ -277,6 +280,13 @@ async function main(argv) {
         finishSegment({ input: recorded.path, startSec: recorded.contentAt / 1000, seconds, ass, out: file, hold: true });
         rmSync(rawDir, { recursive: true, force: true });
         report.push({ id: entry.id, kind: 'web', screens: views.map((view) => view.screen), seconds, problems: recorded.problems });
+      } else if (footageOf(footageIndex, scene.id, scenario.edition) !== undefined) {
+        // Real footage of the phone (scripts/clips/record/phone-film.mjs): the phone frame, the headline and the words of the scene.
+        const footage = footageOf(footageIndex, scene.id, scenario.edition);
+        const sentences = sentencesOf(entry.subtitles.map((cue) => cue.text).join(' '));
+        const headline = footage.headline ?? scenario.chapters.find((chapter) => chapter.id === scene.chapter)?.title ?? scene.id;
+        const done = composePhoneSegment({ footage, seconds, headline, bullets: sentences.slice(0, 3), ass, out: file, workDir: join(dir, 'seg') });
+        report.push({ id: entry.id, kind: 'phone-footage', seconds, speed: done.speed, standIn: done.standIn });
       } else {
         const raw = join(dir, 'seg', `${entry.id}.raw.mp4`);
         const sentences = sentencesOf(entry.subtitles.map((cue) => cue.text).join(' '));
