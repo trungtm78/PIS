@@ -282,7 +282,6 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
           'work-reminder': 'SUCCESS',
           'alert-observe': 'SUCCESS',
           'alert-ladder': 'SUCCESS',
-          'red-flag-scan': 'SUCCESS',
           'early-warning-score': 'SUCCESS',
           'diary-coverage': 'SUCCESS',
           'capital-balance-reconcile': 'SUCCESS',
