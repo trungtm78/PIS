@@ -162,11 +162,14 @@ describe('the response window', () => {
   const notifiedAt = new Date('2026-11-01T00:00:00Z');
   const dueAt = new Date('2026-11-21T10:00:00Z');
   it('is answered in time, late, running, near or lapsed', () => {
-    expect(ratingResponseClock({ notifiedAt, dueAt, respondedAt: new Date('2026-11-10T00:00:00Z'), now: new Date('2026-11-30T00:00:00Z'), calendars: undefined }).status).toBe('ANSWERED_IN_TIME');
-    expect(ratingResponseClock({ notifiedAt, dueAt, respondedAt: new Date('2026-11-25T00:00:00Z'), now: new Date('2026-11-30T00:00:00Z'), calendars: undefined }).status).toBe('ANSWERED_LATE');
-    expect(ratingResponseClock({ notifiedAt, dueAt, respondedAt: null, now: new Date('2026-11-05T00:00:00Z'), calendars: undefined })).toMatchObject({ status: 'RUNNING', basis: 'CALENDAR_UNAVAILABLE' });
-    expect(ratingResponseClock({ notifiedAt, dueAt, respondedAt: null, now: new Date('2026-11-21T08:00:00Z'), calendars: undefined }).status).toBe('NEAR');
-    expect(ratingResponseClock({ notifiedAt, dueAt, respondedAt: null, now: new Date('2026-11-22T00:00:00Z'), calendars: undefined }).status).toBe('LAPSED');
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: '2026-11-10', now: new Date('2026-11-30T00:00:00Z'), calendars: undefined }).status).toBe('ANSWERED_IN_TIME');
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: '2026-11-25', now: new Date('2026-11-30T00:00:00Z'), calendars: undefined }).status).toBe('ANSWERED_LATE');
+    // timeliness is the day the answer ARRIVED: typed in a week after the day, an answer that arrived on time is on time
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: '2026-11-21', now: new Date('2026-11-30T00:00:00Z'), calendars: undefined }).status).toBe('ANSWERED_IN_TIME');
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: '2026-11-22', now: new Date('2026-11-30T00:00:00Z'), calendars: undefined }).status).toBe('ANSWERED_LATE');
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: null, now: new Date('2026-11-05T00:00:00Z'), calendars: undefined })).toMatchObject({ status: 'RUNNING', basis: 'CALENDAR_UNAVAILABLE' });
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: null, now: new Date('2026-11-21T08:00:00Z'), calendars: undefined }).status).toBe('NEAR');
+    expect(ratingResponseClock({ notifiedAt, dueAt, receivedOn: null, now: new Date('2026-11-22T00:00:00Z'), calendars: undefined }).status).toBe('LAPSED');
   });
 });
 
@@ -185,7 +188,7 @@ describe('what a command carries', () => {
 describe('the row of the report', () => {
   const now = new Date('2026-11-08T05:00:00Z');
   it('shows the live proposal, the status of the stored one and the official rating, and counts coverage over the rows', () => {
-    const scored = ratingRow(contract, base(), ratingDefaults(), { id: 'p1', state: 'NOTIFIED', kind: 'PERIODIC', periodLabel: 'Q4', responseDueAt: '2026-11-21T10:00:00.000Z', respondedAt: null }, { rating: 'GOOD', overallScore: '80.00' }, now);
+    const scored = ratingRow(contract, base(), ratingDefaults(), { id: 'p1', state: 'NOTIFIED', kind: 'PERIODIC', periodLabel: 'Q4', responseDueAt: '2026-11-21T10:00:00.000Z', receivedOn: null }, { rating: 'GOOD', overallScore: '80.00' }, now);
     expect(scored.cells.overall_score).toBe('100.00');
     expect(scored.cells.score_quality).toBe('100.00');
     expect(scored.cells.rating_status).toBe('NOTIFIED');
@@ -198,8 +201,10 @@ describe('the row of the report', () => {
     expect(bare.na.overall_score).toBe('NOT_ENOUGH_CRITERIA');
     expect(bare.cells.score_quality).toBeNull();
     expect(bare.cells.rating_status).toBe('NONE');
-    const late = ratingRow({ ...contract, id: 'c3' }, base(), ratingDefaults(), { id: 'p3', state: 'NOTIFIED', kind: 'PERIODIC', periodLabel: 'Q3', responseDueAt: '2026-11-01T10:00:00.000Z', respondedAt: null }, null, now);
+    const late = ratingRow({ ...contract, id: 'c3' }, base(), ratingDefaults(), { id: 'p3', state: 'NOTIFIED', kind: 'PERIODIC', periodLabel: 'Q3', responseDueAt: '2026-11-01T10:00:00.000Z', receivedOn: null }, null, now);
     expect(late.cells.responded_in_time).toBe(0);
+    const typedLate = ratingRow({ ...contract, id: 'c4' }, base(), ratingDefaults(), { id: 'p4', state: 'RESPONDED', kind: 'PERIODIC', periodLabel: 'Q2', responseDueAt: '2026-11-01T10:00:00.000Z', receivedOn: '2026-10-30' }, null, now);
+    expect(typedLate.cells.responded_in_time).toBe(1);
     const totals = registerTotals('performance-rating', [scored, bare, late]);
     expect(totals.cells.scored).toBe('66.67');
     expect(totals.cells.responded_in_time).toBe('0.00');

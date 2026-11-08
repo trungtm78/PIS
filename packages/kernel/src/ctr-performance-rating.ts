@@ -4,6 +4,7 @@ import { EVALUATION_STATUSES, RATINGS } from './ctr-scorecard.ts';
 import type { EvaluationKind, Rating } from './ctr-scorecard.ts';
 import { newRegisterRow, putRegisterCell, putRegisterContractIdentity, putRegisterFlag } from './ctr-register-reports.ts';
 import type { RegisterContract, RegisterRow } from './ctr-register-reports.ts';
+import { vietnamDateOf } from './doc-numbering.ts';
 import { asUuid } from './tenant-context.ts';
 import { nativeClock } from './work-clock.ts';
 import type { WorkCalendarSource } from './working-time.ts';
@@ -313,9 +314,9 @@ export interface ResponseClock {
 }
 
 /** The window of the contractor: an answer inside it is on time, one after it is late; with no answer the clock of the work-clock engine says running, near (within the hours given) or lapsed. */
-export function ratingResponseClock(input: { notifiedAt: Date; dueAt: Date; respondedAt: Date | null; now: Date; calendars: WorkCalendarSource | undefined; nearWorkingHours?: number }): ResponseClock {
+export function ratingResponseClock(input: { notifiedAt: Date; dueAt: Date; receivedOn: string | null; now: Date; calendars: WorkCalendarSource | undefined; nearWorkingHours?: number }): ResponseClock {
   const due = input.dueAt.toISOString();
-  if (input.respondedAt !== null) return { status: input.respondedAt.getTime() <= input.dueAt.getTime() ? 'ANSWERED_IN_TIME' : 'ANSWERED_LATE', dueAt: due, basis: input.calendars === undefined ? 'CALENDAR_UNAVAILABLE' : 'WORKING_TIME' };
+  if (input.receivedOn !== null) return { status: input.receivedOn <= vietnamDateOf(input.dueAt) ? 'ANSWERED_IN_TIME' : 'ANSWERED_LATE', dueAt: due, basis: input.calendars === undefined ? 'CALENDAR_UNAVAILABLE' : 'WORKING_TIME' };
   const clock = nativeClock({ startedAt: input.notifiedAt, dueAt: input.dueAt, now: input.now, pauses: [], calendars: input.calendars, nearWorkingHours: input.nearWorkingHours ?? 24 });
   return { status: clock.resolve.state === 'BREACHED' ? 'LAPSED' : clock.near ? 'NEAR' : 'RUNNING', dueAt: clock.resolve.due_at ?? due, basis: clock.basis };
 }
@@ -417,7 +418,8 @@ export interface RatingProposalSummary {
   kind: EvaluationKind;
   periodLabel: string;
   responseDueAt: string | null;
-  respondedAt: string | null;
+  /** The day the answer of the contractor ARRIVED (not the day it was typed in): timeliness is judged by it. */
+  receivedOn: string | null;
 }
 
 export interface OfficialRating {
@@ -458,8 +460,8 @@ export function ratingRow(contract: RegisterContract, inputs: RatingInputs, para
   const open = latest !== null && latest.state === 'NOTIFIED' && latest.responseDueAt !== null;
   const left = open ? Math.floor((Date.parse(latest.responseDueAt as string) - now.getTime()) / 86_400_000) : null;
   putRegisterCell(row, 'response_days_left', left === null || left < 0 ? null : left, latest === null ? 'NO_PROPOSAL' : left !== null ? 'WINDOW_LAPSED' : 'NOT_OPEN');
-  const judgedAnswer = latest !== null && latest.responseDueAt !== null && (latest.respondedAt !== null || now.getTime() > Date.parse(latest.responseDueAt));
-  putRegisterFlag(row, 'responded_in_time', judgedAnswer ? latest.respondedAt !== null && Date.parse(latest.respondedAt) <= Date.parse(latest.responseDueAt as string) : null, latest === null ? 'NO_PROPOSAL' : 'WINDOW_RUNNING');
+  const judgedAnswer = latest !== null && latest.responseDueAt !== null && (latest.receivedOn !== null || now.getTime() > Date.parse(latest.responseDueAt));
+  putRegisterFlag(row, 'responded_in_time', judgedAnswer ? latest.receivedOn !== null && latest.receivedOn <= vietnamDateOf(new Date(latest.responseDueAt as string)) : null, latest === null ? 'NO_PROPOSAL' : 'WINDOW_RUNNING');
   putRegisterCell(row, 'official_rating', official?.rating ?? null, 'NO_PROPOSAL');
   putRegisterCell(row, 'official_score', official?.overallScore ?? null, 'NO_PROPOSAL');
   row.groups.proposed_rating = contract.ledgerOk ? (proposal.rating ?? 'NONE') : 'NONE';

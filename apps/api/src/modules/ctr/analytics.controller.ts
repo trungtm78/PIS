@@ -584,7 +584,7 @@ export class ContractAnalyticsController {
           const inputs = ratingInputsOf({ asOf, fact, daysLate: daysLateOfFact(fact, asOf), defects: defectsBy.get(fact.id) ?? [], obstacles: obstaclesBy.get(fact.id) ?? [], violations: violations.get(fact.id) ?? [], findings: findingsBy.get(fact.id) ?? [] });
           const latest = state.proposals.get(fact.id);
           const official = state.official.get(fact.id);
-          return ratingRow(registerContractOf(fact), inputs, params, latest === undefined ? null : { id: latest.id, state: latest.state as never, kind: latest.kind as never, periodLabel: latest.periodLabel, responseDueAt: latest.responseDueAt, respondedAt: latest.respondedAt }, official === undefined ? null : { rating: official.rating as never, overallScore: official.overallScore }, now);
+          return ratingRow(registerContractOf(fact), inputs, params, latest === undefined ? null : { id: latest.id, state: latest.state as never, kind: latest.kind as never, periodLabel: latest.periodLabel, responseDueAt: latest.responseDueAt, receivedOn: latest.receivedOn }, official === undefined ? null : { rating: official.rating as never, overallScore: official.overallScore }, now);
         });
         break;
       }

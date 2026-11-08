@@ -393,6 +393,13 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
       expect(view.status).toBe(200);
       expect(view.json).toMatchObject({ state: 'NOTIFIED', allowed: { respond: true, adopt: false, notify: false, withdraw: false } });
       expect((view.json.response_clock as { status: string }).status).toBe('RUNNING');
+      // the financial score, the overall score and the rating are made of the ledger: a reader without it is shown none of them
+      const masked = await get(`/contract-rating-proposals/${proposalId}`, NO_LEDGER);
+      expect(masked.status).toBe(200);
+      expect(masked.json.overall_score).toBeNull();
+      expect(masked.json.rating).toBeNull();
+      expect((masked.json.criteria as Record<string, { score: number | null; reason: string | null; readings: object }>).financial).toEqual({ score: null, reason: 'LEDGER_DENIED', readings: {} });
+      expect((view.json.criteria as Record<string, { score: number | null }>).financial?.score).not.toBeNull();
     });
 
     it('cannot be adopted while the window runs, takes the answer, and is adopted by a second person into the evaluation of CTR-23', async () => {

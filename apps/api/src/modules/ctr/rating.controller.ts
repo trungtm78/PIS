@@ -93,7 +93,7 @@ export class RatingController {
   async respond(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrRecordContractRatingResponse']): Promise<CommandResult> {
     const now = new Date();
     const done = await this.ratings.respond(scope.tx, id.toLowerCase(), scope.expectedVersion ?? 0, assertRatingResponse(body, vietnamDateOf(now)), scope.tenant.membershipId, now, scopesFor(access, RATING_RESPOND_PERMISSION, now));
-    await this.write(scope, done.row, 'responded', 'ctr.contract_rating.responded.v1', { response_kind: done.row.responseKind, late: done.row.responseDueAt !== null && done.row.respondedAt !== null && Date.parse(done.row.respondedAt) > Date.parse(done.row.responseDueAt) });
+    await this.write(scope, done.row, 'responded', 'ctr.contract_rating.responded.v1', { response_kind: done.row.responseKind, late: done.row.responseDueAt !== null && done.row.responseReceivedOn !== null && done.row.responseReceivedOn > vietnamDateOf(new Date(done.row.responseDueAt)) });
     return commandResult(scope, done.row.state, done.row.version, done.row.id);
   }
 
@@ -129,8 +129,8 @@ export class RatingController {
       contractor_id: row.contractorId,
       evaluation_kind: row.kind,
       period_label: row.periodLabel,
-      overall_score: row.proposal.overall,
-      rating: row.proposal.rating,
+      overall_score: ledger ? row.proposal.overall : null,
+      rating: ledger ? row.proposal.rating : null,
       rule_version: row.ruleVersion,
       inputs_sha256: row.inputsSha256,
       ...extra,
@@ -205,12 +205,15 @@ export class RatingReadsController {
     let clock: Schemas['CtrContractRatingProposal']['response_clock'] = null;
     if (row.notifiedAt !== null && row.responseDueAt !== null) {
       const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
-      const found = ratingResponseClock({ notifiedAt: new Date(row.notifiedAt), dueAt: new Date(row.responseDueAt), respondedAt: row.respondedAt === null ? null : new Date(row.respondedAt), now, calendars });
+      const found = ratingResponseClock({ notifiedAt: new Date(row.notifiedAt), dueAt: new Date(row.responseDueAt), receivedOn: row.responseReceivedOn, now, calendars });
       clock = { status: found.status, due_at: found.dueAt, basis: found.basis };
     }
     const lapsed = clock?.status === 'LAPSED';
     const criteria: Record<string, { score: number | null; reason: string | null; readings: Record<string, number | string> }> = {};
     for (const criterion of RATING_CRITERIA) criteria[criterion] = { score: row.proposal.criteria[criterion].score, reason: row.proposal.criteria[criterion].reason, readings: row.proposal.criteria[criterion].readings };
+    // The financial criterion, the overall score and the rating are made of the ledger: a reader without `ledger.read` over the contract is shown none of them, as in the report.
+    const ledger = reaches(access, 'ledger.read', placeRefs(place), now);
+    if (!ledger) criteria.financial = { score: null, reason: 'LEDGER_DENIED', readings: {} };
     return {
       id: row.id,
       contract_id: row.contractId,
@@ -223,8 +226,8 @@ export class RatingReadsController {
       rule: { version: row.ruleVersion, source: row.ruleSource },
       criteria,
       covered: row.proposal.covered,
-      overall_score: row.proposal.overall,
-      rating: row.proposal.rating,
+      overall_score: ledger ? row.proposal.overall : null,
+      rating: ledger ? row.proposal.rating : null,
       inputs_sha256: row.inputsSha256,
       proposed_by: row.proposedBy,
       proposed_note: row.proposedNote,

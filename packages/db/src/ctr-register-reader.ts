@@ -322,12 +322,12 @@ export class CtrRegisterReader {
   async ratingState(
     tx: TenantTx,
     query: FactQuery,
-  ): Promise<{ proposals: Map<string, { id: string; state: string; kind: string; periodLabel: string; responseDueAt: string | null; respondedAt: string | null }>; official: Map<string, { rating: string; overallScore: string }> }> {
-    const proposals = await this.rows<{ contract_id: string; id: string; state: string; kind: string; period_label: string; due: string | null; responded: string | null }>(
+  ): Promise<{ proposals: Map<string, { id: string; state: string; kind: string; periodLabel: string; responseDueAt: string | null; receivedOn: string | null }>; official: Map<string, { rating: string; overallScore: string }> }> {
+    const proposals = await this.rows<{ contract_id: string; id: string; state: string; kind: string; period_label: string; due: string | null; received: string | null }>(
       tx,
       query,
       (base) => `select distinct on (c.id) c.id::text as contract_id, q.id::text as id, q.state, q.evaluation_kind as kind, q.period_label,
-              to_char(q.response_due_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as due, to_char(q.responded_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as responded
+              to_char(q.response_due_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as due, q.response_received_on::text as received
          from ${base.from} join machvon.contract_rating_proposal q on q.tenant_id = c.tenant_id and q.contract_id = c.id and q.state <> 'WITHDRAWN'
         where ${base.where} order by c.id, q.created_at desc, q.id desc limit $CAP`,
     );
@@ -339,7 +339,7 @@ export class CtrRegisterReader {
         where ${base.where} order by c.id, e.approved_at desc nulls last, e.id desc limit $CAP`,
     );
     return {
-      proposals: new Map(proposals.map((row) => [row.contract_id, { id: row.id, state: row.state, kind: row.kind, periodLabel: row.period_label, responseDueAt: row.due, respondedAt: row.responded }])),
+      proposals: new Map(proposals.map((row) => [row.contract_id, { id: row.id, state: row.state, kind: row.kind, periodLabel: row.period_label, responseDueAt: row.due, receivedOn: row.received }])),
       official: new Map(official.map((row) => [row.contract_id, { rating: row.rating, overallScore: row.overall }])),
     };
   }
