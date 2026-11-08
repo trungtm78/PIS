@@ -1400,6 +1400,21 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'recordAttentionDecision',
         'evaluateCommitteeAlerts',
         'acknowledgeCommitteeAlert',
+        // IND-1: none of them names an object by a path id (the dictionary and the catalogues are read by code, the rest by query), so none needs a foreign-id case.
+        'listIndicators',
+        'getIndicator',
+        'listIndicatorEntryRules',
+        'evaluateIndicatorEntry',
+        'listIndicatorImportMappings',
+        'getIndicatorImportMapping',
+        'enterIndicatorFigures',
+        'listIndicatorFigures',
+        'listIndicatorFigureHistory',
+        'uploadIndicatorFile',
+        'previewIndicatorImport',
+        'importIndicatorFile',
+        'listIndicatorImports',
+        'listIndicatorImportRows',
       ].sort(),
     );
   });

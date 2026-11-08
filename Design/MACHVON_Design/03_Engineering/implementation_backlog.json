@@ -20293,5 +20293,118 @@
     "stories": [
       "ST-EBS-002"
     ]
+  },
+  {
+    "id": "BL-IND-01",
+    "requirement": "FR-IND-01",
+    "screen": "IND-01",
+    "title": "Từ điển chỉ tiêu",
+    "module": "IND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DIS",
+    "fields": [
+      "Mã chỉ tiêu",
+      "Tên",
+      "Đơn vị",
+      "Nhóm",
+      "Cách có số",
+      "Công thức",
+      "Người phụ trách",
+      "Phiên bản",
+      "Trạng thái xác nhận"
+    ],
+    "rule": "Chỉ tiêu là một định nghĩa KPI có phiên bản và người duyệt, không có bản sao thứ hai; chỉ tiêu do hệ thống tính không được nhập; số nhập là bản ghi chỉ thêm, sửa là bản kế tiếp có lý do; giá trị khởi điểm chưa được khách hàng xác nhận phải ghi rõ",
+    "test_ids": [
+      "UI-IND-01",
+      "UAT-PLAN-IND-1",
+      "UAT-PLAN-IND-2"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả docs/ind-indicator-dictionary.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền và test oracle theo đặc tả; fixture synthetic có ID; từ điển chính thức của khách hàng (DL.01, DL.02) có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng từ điển chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-IND-001",
+      "ST-IND-002"
+    ]
+  },
+  {
+    "id": "BL-IND-02",
+    "requirement": "FR-IND-02",
+    "screen": "IND-02",
+    "title": "Quy tắc nhập liệu",
+    "module": "IND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DIS,PRJ",
+    "fields": [
+      "Mã quy tắc",
+      "Loại kiểm tra",
+      "Mức",
+      "Trường",
+      "Nơi áp dụng",
+      "Hiệu lực",
+      "Phiên bản",
+      "Chạy thử"
+    ],
+    "rule": "Chỉ quy tắc đã duyệt mới chặn hoặc cảnh báo; quy tắc khởi điểm chỉ là khuôn và không giữ lần nhập nào; nơi nhập không có quy tắc đã duyệt thì hành vi không đổi; quy tắc chặn là 422 IND_ENTRY_RULE_VIOLATED liệt kê từng quy tắc",
+    "test_ids": [
+      "UI-IND-02",
+      "UAT-PLAN-IND-1",
+      "UAT-PLAN-IND-2"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả docs/ind-indicator-dictionary.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền và test oracle theo đặc tả; fixture synthetic có ID; bộ nguyên tắc nhập liệu của khách hàng có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-IND-001"
+    ]
+  },
+  {
+    "id": "BL-IND-03",
+    "requirement": "FR-IND-03",
+    "screen": "IND-03",
+    "title": "Bảng ánh xạ nhập Excel",
+    "module": "IND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,DIS",
+    "fields": [
+      "Mã bảng",
+      "Cách bố trí",
+      "Dòng ánh xạ",
+      "Phiên bản",
+      "Người lập",
+      "Người duyệt",
+      "Hiệu lực",
+      "Chạy thử và áp dụng tệp",
+      "Lịch sử nhập"
+    ],
+    "rule": "Tệp chỉ đọc qua phiên bản đã duyệt bởi người khác người lập; chạy thử không ghi gì, áp dụng một lần theo băm tệp; số khác số đang có không bị ghi đè mà thành chênh lệch có người xử lý; mẫu tệp của khách hàng chưa có nên bố cục mẫu là giả định PENDING-EXTERNAL",
+    "test_ids": [
+      "UI-IND-03",
+      "UAT-PLAN-IND-3"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả docs/ind-indicator-dictionary.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền và test oracle theo đặc tả; fixture synthetic có ID; tệp mẫu của khách hàng có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng bố cục chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-IND-003"
+    ]
   }
 ]

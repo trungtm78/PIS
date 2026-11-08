@@ -203,6 +203,12 @@
       "module": "EBS",
       "title": "Oracle EBS import and reconciliation (enterprise edition)",
       "goal": "Read files extracted from Oracle EBS and reconcile them with our figures by project code, each difference an item with an owner who is not a maker; PENDING-EXTERNAL until an official sample file exists."
+    },
+    {
+      "id": "EP-IND",
+      "module": "IND",
+      "title": "Indicator dictionary and data entry rules",
+      "goal": "Give every indicator of the customer one definition (code, name, unit, formula, owner, version, approver) in a dictionary that extends the KPI register, hold every number to the identities of the data at the moment it is typed or loaded (cumulative not above the total investment, equity plus loans equal to the total, a closed period is not edited, required fields, plausible ranges) through rules a tenant approves, and load the customer's Excel forms through mappings that have versions and an approver, with a dry run before the apply."
     }
   ],
   "features": [
@@ -1015,6 +1021,11 @@
       "id": "FT-EBS-01",
       "epic": "EP-EBS",
       "title": "File import and reconciliation by project code"
+    },
+    {
+      "id": "FT-IND-01",
+      "epic": "EP-IND",
+      "title": "Dictionary, entry rules, figures and form import"
     }
   ],
   "stories": [
@@ -53647,6 +53658,304 @@
           "title": "Screen-contract tests for the seven standard UI states",
           "test_ids": [
             "UI-EBS-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-IND-001",
+      "epic": "EP-IND",
+      "feature": "FT-IND-01",
+      "module": "IND",
+      "title": "Indicator dictionary and entry rules: read, filter and try numbers against the rules",
+      "narrative": "As a data standards officer I can read the dictionary of indicators with its definitions, versions and approvers, see which entry rules are in force and which are only starting templates, and try a set of numbers against the rules before they are approved.",
+      "release": "R2",
+      "screens": [
+        "IND-01",
+        "IND-02"
+      ],
+      "operations": [
+        "listIndicators",
+        "getIndicator",
+        "listIndicatorEntryRules",
+        "evaluateIndicatorEntry"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-IND-001-1",
+          "given": "The starting dictionary and no approved entry rule, then one approved rule that blocks a cumulative above the total",
+          "when": "The dictionary, the rules and a try of numbers are read before and after the approval",
+          "then": "Derived indicators are listed as not enterable, the starting rules are listed as templates and hold no entry, the try with templates shows what adopting them would do, and after the approval only that rule is in force",
+          "test_id": "UAT-PLAN-IND-1"
+        },
+        {
+          "id": "AC-ST-IND-001-2",
+          "given": "IND-01 and IND-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-IND-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-022"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "The customer's dictionary (DL.01, DL.02) is not received, so the indicators and rules are starting values flagged as not confirmed."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-IND-001-1",
+          "kind": "backend",
+          "title": "Read models of the dictionary and the entry rules, and the dry run of the rules; no state is written",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-001-2",
+          "kind": "web",
+          "title": "IND-01 and IND-02 screens built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for IND-01 and IND-02; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-IND-1"
+          ]
+        },
+        {
+          "id": "TK-IND-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-IND-01",
+            "UI-IND-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-IND-002",
+      "epic": "EP-IND",
+      "feature": "FT-IND-01",
+      "module": "IND",
+      "title": "Figures entered against the dictionary: append-only revisions held to the entry rules",
+      "narrative": "As a project officer I can enter the figures of an indicator for a project and a period, with the entry rules holding the numbers together, and correct a number only with a reason that creates the next revision.",
+      "release": "R2",
+      "screens": [
+        "IND-01"
+      ],
+      "operations": [
+        "enterIndicatorFigures",
+        "listIndicatorFigures",
+        "listIndicatorFigureHistory"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-IND-002-1",
+          "given": "A project, an open period, an approved rule that equity plus loan equals the total and one that warns above 90 percent progress",
+          "when": "Figures are entered that break the first rule, then entered correctly, then the same number again, then a different number without and with a reason",
+          "then": "422 IND_ENTRY_RULE_VIOLATED listing the rule and nothing written, the correct entry is revision 1 with the warning in the trail, the same number changes nothing, a different number without a reason is 422 and with a reason is revision 2, and no revision can be updated or deleted",
+          "test_id": "UAT-PLAN-IND-2"
+        },
+        {
+          "id": "AC-ST-IND-002-2",
+          "given": "A locked period, a project outside the scope of the caller and a caller who only reads",
+          "when": "Each tries to enter a figure",
+          "then": "409 PERIOD_LOCKED, 404, and 403, and a derived indicator or a number that does not fit its unit is 422",
+          "test_id": "UAT-PLAN-IND-2"
+        }
+      ],
+      "dependencies": [
+        "ST-IND-001",
+        "ST-DIS-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Figures are whole dong for money and up to six places otherwise; the unit of the customer's sheets is a property of the import mapping."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-IND-002-1",
+          "kind": "backend",
+          "title": "Figure store with append-only revisions, entry command and the entry guard of the weekly report and the project register",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-002-2",
+          "kind": "web",
+          "title": "Figure entry and history on IND-01 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-002-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the figure entry; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-002-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-IND-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-IND-003",
+      "epic": "EP-IND",
+      "feature": "FT-IND-01",
+      "module": "IND",
+      "title": "Excel import mappings with versions and an approver: upload, dry run, apply and history",
+      "narrative": "As a data standards officer I can map the columns or rows of the customer's form to indicator codes in a version that another person approves, then load a file through it with a dry run first, and settle the differences the file leaves.",
+      "release": "R2",
+      "screens": [
+        "IND-03"
+      ],
+      "operations": [
+        "listIndicatorImportMappings",
+        "getIndicatorImportMapping",
+        "uploadIndicatorFile",
+        "previewIndicatorImport",
+        "importIndicatorFile",
+        "listIndicatorImports",
+        "listIndicatorImportRows"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-IND-003-1",
+          "given": "A file of the customer's form, the starting sample mapping and then a mapping approved by someone other than its maker",
+          "when": "The dry run and the apply are run through each, then the same file is applied again",
+          "then": "409 IND_MAPPING_NOT_APPROVED through the sample, the dry run writes nothing, the apply writes figures that name the file, the line and the mapping version, and a repeat reports the file as already loaded",
+          "test_id": "UAT-PLAN-IND-3"
+        },
+        {
+          "id": "AC-ST-IND-003-2",
+          "given": "A file with a row for a project outside the scope, a row for an unknown period, a row an entry rule blocks and a row whose number differs from the one held",
+          "when": "The file is applied",
+          "then": "the refused rows are in the error report with line, field and code, the differing number is never overwritten and becomes a difference with an owner, and the rest of the file is applied",
+          "test_id": "UAT-PLAN-IND-3"
+        },
+        {
+          "id": "AC-ST-IND-003-3",
+          "given": "IND-03 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-IND-03"
+        }
+      ],
+      "dependencies": [
+        "ST-IND-002"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 60
+        },
+        "confidence": "low",
+        "assumption": "The customer's form files are not received, so the layouts of the two sample mappings are working assumptions: anything built on them is marked PENDING-EXTERNAL until the official fixture exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-IND-003-1",
+          "kind": "backend",
+          "title": "Import adapter of the file import framework, mapping reader, upload door, dry run and apply; no new table",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-003-2",
+          "kind": "web",
+          "title": "IND-03 screen built with the kit, the import flow and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-003-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for IND-03; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IND-003-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-IND-3"
+          ]
+        },
+        {
+          "id": "TK-IND-003-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-IND-03"
           ]
         }
       ]

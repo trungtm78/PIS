@@ -23351,5 +23351,117 @@
     "covers": [
       "FR-EBS-02"
     ]
+  },
+  {
+    "id": "UAT-PLAN-IND-1",
+    "source": "ind-indicator-dictionary.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Starting dictionary of the platform, no approved entry rule, a tenant rule that blocks a cumulative above the total investment.",
+    "steps": [
+      "Read the dictionary and the entry rules",
+      "Try CUMULATIVE 9 against TOTAL_INVESTMENT 1 with and without templates",
+      "Approve the rule and try again"
+    ],
+    "expected": "Step 1: derived indicators are not enterable and the starting rules are templates; step 2: allowed without templates, blocked with them; step 3: blocked by the approved rule only.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01",
+      "FR-IND-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-IND-2",
+    "source": "ind-indicator-dictionary.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Project, open period, locked period, rules: equity plus loan equals total (block), progress above 90 percent (warn).",
+    "steps": [
+      "Enter equity 400, loan 500, total 1000",
+      "Enter equity 400, loan 600, total 1000 and progress 95",
+      "Enter the same plan figure again",
+      "Enter a different plan figure without a reason, then with one",
+      "Enter into the locked period"
+    ],
+    "expected": "Step 1: 422 IND_ENTRY_RULE_VIOLATED and nothing written; step 2: revision 1 with the warning in the audit trail; step 3: unchanged; step 4: 422 on reason, then revision 2; step 5: 409 PERIOD_LOCKED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01",
+      "FR-IND-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-IND-3",
+    "source": "ind-indicator-dictionary.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Form file F-1 with 5 rows (one project outside the scope, one unknown period, one blocked by a rule, one with a number that differs from the held one), layout flagged PENDING-EXTERNAL.",
+    "steps": [
+      "Dry run F-1 through the sample mapping",
+      "Dry run and apply F-1 through the approved mapping",
+      "Apply F-1 again"
+    ],
+    "expected": "Step 1: 409 IND_MAPPING_NOT_APPROVED; step 2: dry run writes nothing, apply writes the valid figures with the file, line and mapping version, the refused rows are in the error report with line, field and code and the differing number is a difference; step 3: already loaded.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UI-IND-01",
+    "source": "FR-IND-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Từ điển chỉ tiêu; user có quyền và user chỉ đọc; route IND-01",
+    "steps": [
+      "Mở IND-01 từ menu và deep link; kiểm nhãn trường: Mã chỉ tiêu, Tên, Đơn vị, Nhóm, Cách có số, Công thức, Người phụ trách, Phiên bản, Trạng thái xác nhận",
+      "Thực hiện thao tác chính: lọc từ điển, mở chi tiết, nhập một số liệu và sửa có lý do",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên IND-01"
+    ],
+    "expected": "Từ điển chỉ tiêu: hiển thị đúng 9 trường, giá trị khởi điểm ghi rõ chưa xác nhận, chỉ tiêu do hệ thống tính không có ô nhập; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UI-IND-02",
+    "source": "FR-IND-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Quy tắc nhập liệu; user có quyền và user chỉ đọc; route IND-02",
+    "steps": [
+      "Mở IND-02 từ menu và deep link; kiểm nhãn trường: Mã quy tắc, Loại kiểm tra, Mức, Trường, Nơi áp dụng, Hiệu lực, Phiên bản, Chạy thử",
+      "Thực hiện thao tác chính: chạy thử một bộ số liệu có và không có quy tắc khởi điểm",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên IND-02"
+    ],
+    "expected": "Quy tắc nhập liệu: hiển thị đúng 8 trường, quy tắc khởi điểm ghi là khuôn chưa áp dụng, kết quả chạy thử nêu từng quy tắc và lý do; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-02"
+    ]
+  },
+  {
+    "id": "UI-IND-03",
+    "source": "FR-IND-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bảng ánh xạ nhập Excel; user có quyền và user chỉ đọc; route IND-03",
+    "steps": [
+      "Mở IND-03 từ menu và deep link; kiểm nhãn trường: Mã bảng, Cách bố trí, Dòng ánh xạ, Phiên bản, Người lập, Người duyệt, Hiệu lực, Chạy thử và áp dụng tệp, Lịch sử nhập",
+      "Thực hiện thao tác chính: tải tệp, chọn bảng ánh xạ, chạy thử rồi áp dụng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên IND-03"
+    ],
+    "expected": "Bảng ánh xạ nhập Excel: hiển thị đúng 9 trường, bảng mẫu ghi là khuôn chưa dùng được để đọc tệp, chạy thử không ghi gì, dòng bị từ chối nêu dòng, trường và mã; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
   }
 ]

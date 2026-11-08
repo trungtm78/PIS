@@ -11298,5 +11298,61 @@
       "UAT-PLAN-149",
       "UAT-PLAN-150"
     ]
+  },
+  {
+    "requirement": "FR-IND-01",
+    "screen": "IND-01",
+    "title": "Từ điển chỉ tiêu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch IND-1 và hồ sơ khách hàng DL.02; docs/ind-indicator-dictionary.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "docs/ind-indicator-dictionary.md; 4 test",
+    "backlog_id": "BL-IND-01",
+    "test_ids": [
+      "UI-IND-01",
+      "UAT-PLAN-IND-1",
+      "UAT-PLAN-IND-2"
+    ]
+  },
+  {
+    "requirement": "FR-IND-02",
+    "screen": "IND-02",
+    "title": "Quy tắc nhập liệu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch IND-1 và hồ sơ khách hàng DL.02; docs/ind-indicator-dictionary.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "docs/ind-indicator-dictionary.md; 3 test",
+    "backlog_id": "BL-IND-02",
+    "test_ids": [
+      "UI-IND-02",
+      "UAT-PLAN-IND-1",
+      "UAT-PLAN-IND-2"
+    ]
+  },
+  {
+    "requirement": "FR-IND-03",
+    "screen": "IND-03",
+    "title": "Bảng ánh xạ nhập Excel",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch IND-1 và hồ sơ khách hàng DL.02; docs/ind-indicator-dictionary.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "docs/ind-indicator-dictionary.md; 2 test",
+    "backlog_id": "BL-IND-03",
+    "test_ids": [
+      "UI-IND-03",
+      "UAT-PLAN-IND-3"
+    ]
   }
 ]

@@ -3,9 +3,9 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 492,
-    "webCatalog": 492,
-    "webModules": 27,
+    "webRoutes": 495,
+    "webCatalog": 495,
+    "webModules": 28,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
     "modulesTotal": 27
@@ -133,6 +133,16 @@
         "IAM",
         "DOC",
         "BAN"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Dữ liệu",
+      "icon": "data",
+      "modules": [
+        "MDM",
+        "DGV",
+        "IND"
       ]
     }
   ],
@@ -2117,6 +2127,26 @@
           "parents": {}
         }
       ]
+    },
+    "IND": {
+      "name": "Chỉ tiêu và nhập liệu",
+      "groups": [
+        {
+          "title": "Chỉ tiêu và nhập liệu",
+          "description": "Từ điển chỉ tiêu, quy tắc kiểm số liệu khi nhập và bảng ánh xạ nhập Excel",
+          "ids": [
+            1,
+            2,
+            3
+          ],
+          "primary": [
+            1,
+            2,
+            3
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2624,7 +2654,8 @@
     "VND": "Sổ nhà thầu và nhà cung cấp, hồ sơ chủ, hồ sơ cấm tham gia đấu thầu, tài khoản nhận tiền, chứng chỉ, sự kiện uy tín dự thầu và liên danh.",
     "INT": "Mở dữ liệu đã chứng nhận cho máy và công cụ BI mà không có đường vòng qua ranh giới tổ chức.",
     "HUB": "Mọi kết nối dữ liệu với hệ thống bên ngoài trong một trung tâm: sức khỏe, giao thức, quy trình ETL, ánh xạ, sự cố và tác tử thu thập.",
-    "BAN": "Tiến độ đầu tư công toàn tỉnh cho Trưởng ban, dự án cần quan tâm, hồ sơ họp, theo dõi chỉ đạo, cảnh báo và nhật ký xem."
+    "BAN": "Tiến độ đầu tư công toàn tỉnh cho Trưởng ban, dự án cần quan tâm, hồ sơ họp, theo dõi chỉ đạo, cảnh báo và nhật ký xem.",
+    "IND": "Từ điển chỉ tiêu của doanh nghiệp, quy tắc kiểm số liệu ngay khi nhập và bảng ánh xạ nhập tệp Excel có phiên bản và người duyệt."
   },
   "adminLibraryModules": [
     "IAM",
@@ -7824,6 +7855,36 @@
       "area": "overview",
       "module": "BAN",
       "group": "Theo dõi và quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IND-01",
+      "title": "Từ điển chỉ tiêu",
+      "kind": "table",
+      "area": "data",
+      "module": "IND",
+      "group": "Chỉ tiêu và nhập liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IND-02",
+      "title": "Quy tắc nhập liệu",
+      "kind": "table",
+      "area": "data",
+      "module": "IND",
+      "group": "Chỉ tiêu và nhập liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IND-03",
+      "title": "Bảng ánh xạ nhập Excel",
+      "kind": "table",
+      "area": "data",
+      "module": "IND",
+      "group": "Chỉ tiêu và nhập liệu",
       "role": "workspace",
       "parent": null
     }
