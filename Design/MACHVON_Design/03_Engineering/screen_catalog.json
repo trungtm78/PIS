@@ -13525,5 +13525,60 @@
     "platform": "web",
     "req": "FR-VND-22",
     "source": "research-vendor V16, V18"
+  },
+  {
+    "id": "MOB-72",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Bảng điều hành Ban chỉ đạo tỉnh trên điện thoại",
+    "kind": "dashboard",
+    "fields": [
+      "Tiến độ giải ngân toàn tỉnh so với đường cong kỳ vọng, dải dự báo cuối năm",
+      "Tiến độ theo ngành, huyện, chủ đầu tư và nguồn vốn",
+      "Dự án cần chú ý với lý do, chỉ đạo quá hạn theo đơn vị, đơn vị chưa báo cáo, cảnh báo của Ban",
+      "Nút i của từng số: công thức, nguồn, ngày số liệu"
+    ],
+    "role": "Trưởng ban, thành viên và thư ký Ban chỉ đạo (quyền committee.read)",
+    "rule": "Chỉ đọc; mỗi lần mở ghi một dòng nhật ký xem ở máy chủ; số không có giá trị không bao giờ đọc thành 0; màu luôn kèm biểu tượng và chữ",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-72",
+    "source": "Kế hoạch BAN-1, docs/committee-workspace.md; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "MOB-73",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Xếp hạng rủi ro nhà thầu trên điện thoại",
+    "kind": "list",
+    "fields": [
+      "Danh sách nhà thầu theo mức rủi ro (thấp, trung bình, cao, nghiêm trọng) và điểm",
+      "Ngày xét lại kế tiếp, quá hạn xét lại, đề xuất mức đang chờ xác nhận",
+      "Các số tổng của danh sách và quy tắc đang áp dụng"
+    ],
+    "role": "Cán bộ quản lý hợp đồng và lãnh đạo có quyền vnd.read",
+    "rule": "Chỉ đọc; mức rủi ro là tín hiệu có giải thích, không phải kết luận; quy tắc chưa kiểm chứng được ghi rõ",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-73",
+    "source": "Kế hoạch VND-2, docs/vendor-controls.md; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "MOB-74",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Rủi ro và kết quả thực hiện của một nhà thầu trên điện thoại",
+    "kind": "detail",
+    "fields": [
+      "Mức rủi ro đã xác nhận, điểm và các yếu tố tạo nên điểm, lý do bằng chữ",
+      "Lịch sử các lần chấm điểm",
+      "Kết quả thực hiện hợp đồng: xếp loại, đồng hồ đăng tải, đồng hồ phản hồi, chuỗi xếp loại kém và gợi ý"
+    ],
+    "role": "Cán bộ quản lý hợp đồng và lãnh đạo có quyền vnd.read",
+    "rule": "Chỉ đọc; không có nút quyết định trên điện thoại; mọi con số kèm quy tắc, phiên bản và ngày tính",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-74",
+    "source": "Kế hoạch VND-2, docs/vendor-controls.md; phần điện thoại chỉ đọc"
   }
 ]
