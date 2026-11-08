@@ -12201,5 +12201,193 @@
       "UI-VND-12",
       "UAT-VND2-06"
     ]
+  },
+  {
+    "requirement": "FR-VND-13",
+    "screen": "VND-13",
+    "title": "Đầu mối điều tra nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-13",
+    "test_ids": [
+      "UI-VND-13",
+      "UAT-VND3-01",
+      "UAT-VND3-02",
+      "UAT-VND3-03"
+    ]
+  },
+  {
+    "requirement": "FR-VND-14",
+    "screen": "VND-14",
+    "title": "Chi tiết đầu mối và đồ thị liên kết",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-14",
+    "test_ids": [
+      "UI-VND-14",
+      "UAT-VND3-01",
+      "UAT-VND3-02"
+    ]
+  },
+  {
+    "requirement": "FR-VND-15",
+    "screen": "VND-15",
+    "title": "Sàng lọc liên tục danh sách bên bị cấm",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-15",
+    "test_ids": [
+      "UI-VND-15",
+      "UAT-VND3-04"
+    ]
+  },
+  {
+    "requirement": "FR-VND-16",
+    "screen": "VND-16",
+    "title": "Cổng nhà thầu: hồ sơ của tôi",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-16",
+    "test_ids": [
+      "UI-VND-16",
+      "UAT-VND3-05",
+      "UAT-VND3-07"
+    ]
+  },
+  {
+    "requirement": "FR-VND-17",
+    "screen": "VND-17",
+    "title": "Cổng nhà thầu: yêu cầu và trả lời",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-17",
+    "test_ids": [
+      "UI-VND-17",
+      "UAT-VND3-05",
+      "UAT-VND3-06"
+    ]
+  },
+  {
+    "requirement": "FR-VND-18",
+    "screen": "VND-18",
+    "title": "Cổng nhà thầu: chứng chỉ",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-18",
+    "test_ids": [
+      "UI-VND-18",
+      "UAT-VND3-05",
+      "UAT-VND3-07"
+    ]
+  },
+  {
+    "requirement": "FR-VND-19",
+    "screen": "VND-19",
+    "title": "Cổng nhà thầu: đánh giá và kế hoạch khắc phục",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-19",
+    "test_ids": [
+      "UI-VND-19",
+      "UAT-VND3-05",
+      "UAT-VND3-08"
+    ]
+  },
+  {
+    "requirement": "FR-VND-20",
+    "screen": "VND-20",
+    "title": "Quản lý cổng nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-20",
+    "test_ids": [
+      "UI-VND-20",
+      "UAT-VND3-06",
+      "UAT-VND3-10"
+    ]
+  },
+  {
+    "requirement": "FR-VND-21",
+    "screen": "VND-21",
+    "title": "Kế hoạch khắc phục của nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-21",
+    "test_ids": [
+      "UI-VND-21",
+      "UAT-VND3-08"
+    ]
+  },
+  {
+    "requirement": "FR-VND-22",
+    "screen": "VND-22",
+    "title": "Kiến nghị, claim và xuất OCDS của nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-3 (nghiên cứu quản trị nhà thầu V6, V14, V15, V16, V17, V18), docs/vendor-investigation.md",
+    "phase": "P3",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-22",
+    "test_ids": [
+      "UI-VND-22",
+      "UAT-VND3-09"
+    ]
   }
 ]

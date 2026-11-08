@@ -25195,5 +25195,379 @@
     "covers": [
       "FR-VND-12"
     ]
+  },
+  {
+    "id": "UI-VND-13",
+    "source": "FR-VND-13",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đầu mối điều tra nhà thầu; user có quyền và user chỉ đọc; route VND-13",
+    "steps": [
+      "Mở VND-13 từ menu và deep link; kiểm nhãn trường: Hạng, Loại đầu mối, Nhà thầu, Gói thầu, Trạng thái, Ngày phát hiện, Người xem xét",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ kiểm toán xem được; tín hiệu để xem xét, không phải kết luận; đóng góp độ chính xác vào chỉ số tỷ lệ đầu mối đúng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-13"
+    ],
+    "expected": "Đầu mối điều tra nhà thầu: hiển thị đúng 7 trường, áp quy tắc \"Chỉ kiểm toán xem được; tín hiệu để xem xét, không phải kết luận; đóng góp độ chính xác vào chỉ số tỷ lệ đầu mối đúng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-13"
+    ]
+  },
+  {
+    "id": "UI-VND-14",
+    "source": "FR-VND-14",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết đầu mối và đồ thị liên kết; user có quyền và user chỉ đọc; route VND-14",
+    "steps": [
+      "Mở VND-14 từ menu và deep link; kiểm nhãn trường: Đồ thị liên kết, Tín hiệu, Bằng chứng, Nhà thầu liên quan, Lịch sử xem xét, Xem xét hai bước",
+      "Thực hiện thao tác chính theo quy tắc: Xóa đầu mối cần hai kiểm toán viên; đồ thị có bảng thay thế; không lộ khóa gốc",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-14"
+    ],
+    "expected": "Chi tiết đầu mối và đồ thị liên kết: hiển thị đúng 6 trường, áp quy tắc \"Xóa đầu mối cần hai kiểm toán viên; đồ thị có bảng thay thế; không lộ khóa gốc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-14"
+    ]
+  },
+  {
+    "id": "UI-VND-15",
+    "source": "FR-VND-15",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sàng lọc liên tục danh sách bên bị cấm; user có quyền và user chỉ đọc; route VND-15",
+    "steps": [
+      "Mở VND-15 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Nguồn danh sách, Điểm, Căn cứ, Tạm giữ, Trạng thái, Ngày khớp, Quyết định",
+      "Thực hiện thao tác chính theo quy tắc: Khớp tạm giữ giao dịch đến khi quyết định; xác nhận mở hồ sơ cấm; bác bỏ cần lý do 20 ký tự",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-15"
+    ],
+    "expected": "Sàng lọc liên tục danh sách bên bị cấm: hiển thị đúng 8 trường, áp quy tắc \"Khớp tạm giữ giao dịch đến khi quyết định; xác nhận mở hồ sơ cấm; bác bỏ cần lý do 20 ký tự\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-15"
+    ]
+  },
+  {
+    "id": "UI-VND-16",
+    "source": "FR-VND-16",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng nhà thầu: hồ sơ của tôi; user có quyền và user chỉ đọc; route VND-16",
+    "steps": [
+      "Mở VND-16 từ menu và deep link; kiểm nhãn trường: Hồ sơ, Xác nhận lại hằng năm, Cam kết liêm chính, Việc đang chờ",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ thấy hồ sơ của chính mình; không thấy red flag hay nhà thầu khác",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-16"
+    ],
+    "expected": "Cổng nhà thầu: hồ sơ của tôi: hiển thị đúng 4 trường, áp quy tắc \"Chỉ thấy hồ sơ của chính mình; không thấy red flag hay nhà thầu khác\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-16"
+    ]
+  },
+  {
+    "id": "UI-VND-17",
+    "source": "FR-VND-17",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng nhà thầu: yêu cầu và trả lời; user có quyền và user chỉ đọc; route VND-17",
+    "steps": [
+      "Mở VND-17 từ menu và deep link; kiểm nhãn trường: Yêu cầu, Loại, Hạn trả lời, Trạng thái, Câu trả lời, Lần",
+      "Thực hiện thao tác chính theo quy tắc: Trả lời muộn vẫn được ghi và đánh dấu muộn",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-17"
+    ],
+    "expected": "Cổng nhà thầu: yêu cầu và trả lời: hiển thị đúng 6 trường, áp quy tắc \"Trả lời muộn vẫn được ghi và đánh dấu muộn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-17"
+    ]
+  },
+  {
+    "id": "UI-VND-18",
+    "source": "FR-VND-18",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng nhà thầu: chứng chỉ; user có quyền và user chỉ đọc; route VND-18",
+    "steps": [
+      "Mở VND-18 từ menu và deep link; kiểm nhãn trường: Loại, Số, Hạng, Phạm vi, Hiệu lực, Trạng thái, Đối chiếu",
+      "Thực hiện thao tác chính theo quy tắc: Chứng chỉ tải lên chờ người khác đối chiếu; chưa đối chiếu thì không tính cho điều kiện năng lực",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-18"
+    ],
+    "expected": "Cổng nhà thầu: chứng chỉ: hiển thị đúng 7 trường, áp quy tắc \"Chứng chỉ tải lên chờ người khác đối chiếu; chưa đối chiếu thì không tính cho điều kiện năng lực\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-18"
+    ]
+  },
+  {
+    "id": "UI-VND-19",
+    "source": "FR-VND-19",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng nhà thầu: đánh giá và kế hoạch khắc phục; user có quyền và user chỉ đọc; route VND-19",
+    "steps": [
+      "Mở VND-19 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Kỳ đánh giá, Điểm, Xếp hạng, Kế hoạch khắc phục, Hành động, Hạn",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ thấy đánh giá đã duyệt của chính mình; đồng ý kế hoạch và báo hành động đã làm",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-19"
+    ],
+    "expected": "Cổng nhà thầu: đánh giá và kế hoạch khắc phục: hiển thị đúng 7 trường, áp quy tắc \"Chỉ thấy đánh giá đã duyệt của chính mình; đồng ý kế hoạch và báo hành động đã làm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-19"
+    ]
+  },
+  {
+    "id": "UI-VND-20",
+    "source": "FR-VND-20",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Quản lý cổng nhà thầu; user có quyền và user chỉ đọc; route VND-20",
+    "steps": [
+      "Mở VND-20 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Yêu cầu, Loại, Hạn, Trạng thái, Tái xác nhận, Hạn xác nhận",
+      "Thực hiện thao tác chính theo quy tắc: Gửi yêu cầu, chấp nhận hoặc trả lại câu trả lời; theo dõi tái xác nhận hằng năm",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-20"
+    ],
+    "expected": "Quản lý cổng nhà thầu: hiển thị đúng 7 trường, áp quy tắc \"Gửi yêu cầu, chấp nhận hoặc trả lại câu trả lời; theo dõi tái xác nhận hằng năm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-20"
+    ]
+  },
+  {
+    "id": "UI-VND-21",
+    "source": "FR-VND-21",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kế hoạch khắc phục của nhà thầu; user có quyền và user chỉ đọc; route VND-21",
+    "steps": [
+      "Mở VND-21 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Mục tiêu, Hành động, Hạn, Trạng thái, Xác minh",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ hoàn thành khi mọi hành động đã xác minh; nhà thầu đồng ý kế hoạch của chính mình",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-21"
+    ],
+    "expected": "Kế hoạch khắc phục của nhà thầu: hiển thị đúng 6 trường, áp quy tắc \"Chỉ hoàn thành khi mọi hành động đã xác minh; nhà thầu đồng ý kế hoạch của chính mình\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-21"
+    ]
+  },
+  {
+    "id": "UI-VND-22",
+    "source": "FR-VND-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kiến nghị, claim và xuất OCDS của nhà thầu; user có quyền và user chỉ đọc; route VND-22",
+    "steps": [
+      "Mở VND-22 từ menu và deep link; kiểm nhãn trường: Kiến nghị, Claim, Tỷ lệ chấp nhận, Số ngày giải quyết, Các bên OCDS",
+      "Thực hiện thao tác chính theo quy tắc: Thống kê theo nhà thầu và toàn sổ; xuất bên theo OCDS, chủ sở hữu chỉ khi quy tắc cho phép",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-22"
+    ],
+    "expected": "Kiến nghị, claim và xuất OCDS của nhà thầu: hiển thị đúng 5 trường, áp quy tắc \"Thống kê theo nhà thầu và toàn sổ; xuất bên theo OCDS, chủ sở hữu chỉ khi quy tắc cho phép\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-22"
+    ]
+  },
+  {
+    "id": "UAT-VND3-01",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Four verified contractors: A and B share a bank account and the legal representative, C shares only the address with B, D is alone; auditors X and Y, officer Z who drafted the package of B; rules VENDOR_LINK_RULE and VENDOR_INVESTIGATION default.",
+    "steps": [
+      "Run the link scan and read the leads as auditor X, as officer Z and as a contractor guest",
+      "X takes the lead of the cluster of A and B and proposes the dismissal with a reason; X tries to confirm it",
+      "Y confirms the dismissal; run the scan again; then give C the same representative and scan again"
+    ],
+    "expected": "Step 1: one lead LINK_CLUSTER with A and B (strength 93 from the account and the representative), C and D unlinked because an address alone is 35 points, Z gets 404 and the guest 403; step 2: 403 SELF_APPROVAL_DENIED; step 3: DISMISSED, the second scan keeps it dismissed, the new evidence reopens it with reopened_count 1 and the history keeps every move.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-13",
+      "FR-VND-14"
+    ]
+  },
+  {
+    "id": "UAT-VND3-02",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Package P1 with four bids 1,000,000,000, 1,003,000,000, 1,300,000,000 and 1,400,000,000; package P2 with two identical prices; five packages of one unit won in turn by A, B, C, A, B; rule VENDOR_BID_RIGGING default.",
+    "steps": [
+      "Run the scan",
+      "Read the signals of each lead",
+      "Switch off the weight of the cover bid (an approved rule version) and scan again"
+    ],
+    "expected": "Step 1: leads COVER_BID on P1 (close gap 30 bp, nearest far gap 2961 bp, score 75), PRICE_PATTERN on P2 and ROTATING_WINNERS on the five packages (score 80); step 2: each lead is a signal with is_conclusion false and the numbers it rests on; step 3: the cover bid lead no longer appears for new scans and the old one keeps its history.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-13",
+      "FR-VND-14"
+    ]
+  },
+  {
+    "id": "UAT-VND3-03",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Two proposals of one package; the same address key and the same author key in a file of each; the officer who received them; rule VENDOR_BID_RIGGING default.",
+    "steps": [
+      "Record the trace of the first proposal with an address, a device and one file",
+      "Record it again",
+      "Record the trace of the second proposal with the same address inside the window and read the figures"
+    ],
+    "expected": "Step 1: stored as keys only (no address or author in any column or answer); step 2: 409 SUBMISSION_TRACE_EXISTS; step 3: leads SHARED_ORIGIN and FILE_METADATA appear after the next scan and the trace coverage reads 2 of 2 bids.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-13"
+    ]
+  },
+  {
+    "id": "UAT-VND3-04",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Verified contractor with tax code 0312345678 and the name Xay dung Thanh Cong; an egp_record of kind RESTRICTION for that code in force; a second contractor whose name only is alike; rule VENDOR_SCREENING default.",
+    "steps": [
+      "Run the screening",
+      "Ask the gate for a bid submission, a payment and a contract activation for the first contractor",
+      "Dismiss the hit with a reason of 5 characters, then of 20 characters",
+      "Run again with the entry changed, then confirm the hit"
+    ],
+    "expected": "Step 1: a hit of score 100 with a hold for the first contractor and a hit of score 60 without hold for the second; step 2: each is 422 CONTRACTOR_SCREENING_HOLD; step 3: 422 VALIDATION_FAILED, then DISMISSED and the gate opens at once; step 4: the changed entry asks again (PENDING, reopened_count 1), and a confirmation opens the case of VND-1 with trigger EGP_IMPORT, never a restriction row.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-15"
+    ]
+  },
+  {
+    "id": "UAT-VND3-05",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contractors A and B each with a guest account (GUEST_CONTRACTOR bound to its contractor), one request and one certificate each, a red flag and a lead about both; staff accounts.",
+    "steps": [
+      "As guest A read the home, the requests, the certificates, the evaluations and the plans",
+      "As guest A ask for the request of B, the profile of B and the leads and red flags by id",
+      "Run the isolation queries of the database path with the portal setting of A: every table of one contractor and every table of the investigation",
+      "As guest A try a staff operation"
+    ],
+    "expected": "Step 1: only the rows of A; step 2: 404 for the request and the profile of B, 403 for the leads and the red flags; step 3: the rows of B are not returned, the tables of the investigation return no row and refuse every write; step 4: 403 SCOPE_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-16",
+      "FR-VND-17",
+      "FR-VND-18",
+      "FR-VND-19"
+    ]
+  },
+  {
+    "id": "UAT-VND3-06",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contractor with a guest account; rule VENDOR_PORTAL default (20 calendar days for an evaluation); working calendar of 2026.",
+    "steps": [
+      "Staff create a request of kind EVALUATION_RESPONSE",
+      "The guest answers after the due day",
+      "Staff return the answer with a reason and the guest answers again",
+      "Staff accept the second answer"
+    ],
+    "expected": "Step 1: due 20 days later and the policy version kept; step 2: accepted and marked response_late true, never refused; step 3: the request is returned with its reason, opens round 2 and the guest answers again; step 4: ACCEPTED by a person other than the one who answered, and the figure of answers in time counts one late.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-17",
+      "FR-VND-20"
+    ]
+  },
+  {
+    "id": "UAT-VND3-07",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Guest account; a certificate request; rule VENDOR_RECONFIRMATION default (12 months, declaration V1); a contractor whose review day passed 40 days ago.",
+    "steps": [
+      "The guest submits a certificate and staff read the gate for the package that asks for it",
+      "Another person verifies it",
+      "The guest confirms the profile with the declaration version V0 and then V1",
+      "Read the next due day"
+    ],
+    "expected": "Step 1: the certificate is entered by the guest and counts for nothing until verified (QUALIFICATION gap NOT_VERIFIED); step 2: verified once, the gap closes; step 3: 409 RECONFIRMATION_DECLARATION_STALE, then recorded with the hash of the text; step 4: next due day is the confirmation day plus 12 months and the state is CURRENT.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-16",
+      "FR-VND-18"
+    ]
+  },
+  {
+    "id": "UAT-VND3-08",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contract with a POOR evaluation; guest account; two actions with due days; rule VENDOR_REMEDIATION default.",
+    "steps": [
+      "Staff propose the plan, the guest agrees",
+      "Staff start it; the guest marks one action done with a note",
+      "Staff try to complete the plan, then verify both actions and complete it",
+      "Let an action pass its day and read the alert"
+    ],
+    "expected": "Step 1: AGREED by the contractor, not by staff; step 2: IN_PROGRESS and the action is DONE; step 3: 409 REMEDIATION_STATE_INVALID until every action is VERIFIED, then COMPLETED; step 4: an alert VENDOR_REMEDIATION_ACTION with facet REMEDIATION_OVERDUE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-19",
+      "FR-VND-21"
+    ]
+  },
+  {
+    "id": "UAT-VND3-09",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A contractor with three petitions (one upheld, two rejected) and one claim open; rule VENDOR_OCDS_EXPORT default.",
+    "steps": [
+      "Read the disputes of the contractor and of the register",
+      "Export the parties of the contractor",
+      "Approve a rule version that includes the owners and export again"
+    ],
+    "expected": "Step 1: upheld 33 percent of the decided, counts add up to the total; step 2: party with the tax code as identifier and no owner and no contact point; step 3: owners in beneficialOwners and the export records the rule version.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-22"
+    ]
+  },
+  {
+    "id": "UAT-VND3-10",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A lead of rank 85, a hold, a re-confirmation overdue, a request past its due day and an action past its day; the five KPI definitions.",
+    "steps": [
+      "Read the alert centre as an auditor, as the approver of the register and as a contractor guest",
+      "Read the figures of the investigation, the screening, the requests and the re-confirmations"
+    ],
+    "expected": "Step 1: the lead alert only for auditors who did not take part, the other four for the approver, none for the guest; each row names owner, expected action and consequence; step 2: precision, leads open, hits decided in time, answers in time and current confirmations are computed with numerator, denominator and source.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-13",
+      "FR-VND-15",
+      "FR-VND-20"
+    ]
   }
 ]

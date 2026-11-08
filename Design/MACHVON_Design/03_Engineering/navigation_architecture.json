@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 574,
-    "webCatalog": 574,
+    "webRoutes": 584,
+    "webCatalog": 584,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -2121,6 +2121,54 @@
           "primary": [
             11,
             12
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Điều tra và sàng lọc nhà thầu",
+          "description": "Đầu mối liên kết bên liên quan và thông thầu cho kiểm toán, sàng lọc danh sách bên bị cấm, thống kê kiến nghị, claim và xuất OCDS",
+          "ids": [
+            13,
+            14,
+            15,
+            22
+          ],
+          "primary": [
+            13,
+            15
+          ],
+          "parents": {
+            "14": 13
+          }
+        },
+        {
+          "title": "Cổng nhà thầu",
+          "description": "Hồ sơ của nhà thầu, yêu cầu và trả lời, chứng chỉ, đánh giá và kế hoạch khắc phục, dành cho tài khoản khách của nhà thầu",
+          "ids": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "primary": [
+            16,
+            17
+          ],
+          "parents": {
+            "18": 16,
+            "19": 16
+          }
+        },
+        {
+          "title": "Quản lý cổng và khắc phục",
+          "description": "Gửi yêu cầu cho nhà thầu, tái xác nhận hằng năm và kế hoạch khắc phục của nhà thầu",
+          "ids": [
+            20,
+            21
+          ],
+          "primary": [
+            20,
+            21
           ],
           "parents": {}
         }
@@ -8641,6 +8689,106 @@
       "module": "VND",
       "group": "Kiểm soát gói thầu và tài chính nhà thầu",
       "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-13",
+      "title": "Đầu mối điều tra nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Điều tra và sàng lọc nhà thầu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-14",
+      "title": "Chi tiết đầu mối và đồ thị liên kết",
+      "kind": "record",
+      "area": "insights",
+      "module": "VND",
+      "group": "Điều tra và sàng lọc nhà thầu",
+      "role": "detail",
+      "parent": "VND-13"
+    },
+    {
+      "id": "VND-15",
+      "title": "Sàng lọc liên tục danh sách bên bị cấm",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Điều tra và sàng lọc nhà thầu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-16",
+      "title": "Cổng nhà thầu: hồ sơ của tôi",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "VND",
+      "group": "Cổng nhà thầu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-17",
+      "title": "Cổng nhà thầu: yêu cầu và trả lời",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Cổng nhà thầu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-18",
+      "title": "Cổng nhà thầu: chứng chỉ",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Cổng nhà thầu",
+      "role": "detail",
+      "parent": "VND-16"
+    },
+    {
+      "id": "VND-19",
+      "title": "Cổng nhà thầu: đánh giá và kế hoạch khắc phục",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Cổng nhà thầu",
+      "role": "detail",
+      "parent": "VND-16"
+    },
+    {
+      "id": "VND-20",
+      "title": "Quản lý cổng nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Quản lý cổng và khắc phục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-21",
+      "title": "Kế hoạch khắc phục của nhà thầu",
+      "kind": "record",
+      "area": "insights",
+      "module": "VND",
+      "group": "Quản lý cổng và khắc phục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-22",
+      "title": "Kiến nghị, claim và xuất OCDS của nhà thầu",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "VND",
+      "group": "Điều tra và sàng lọc nhà thầu",
+      "role": "detail",
       "parent": null
     }
   ],

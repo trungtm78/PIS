@@ -21911,5 +21911,356 @@
     "stories": [
       "ST-VND-011"
     ]
+  },
+  {
+    "id": "BL-VND-13",
+    "requirement": "FR-VND-13",
+    "screen": "VND-13",
+    "title": "Đầu mối điều tra nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Hạng",
+      "Loại đầu mối",
+      "Nhà thầu",
+      "Gói thầu",
+      "Trạng thái",
+      "Ngày phát hiện",
+      "Người xem xét"
+    ],
+    "rule": "Chỉ kiểm toán xem được; tín hiệu để xem xét, không phải kết luận; đóng góp độ chính xác vào chỉ số tỷ lệ đầu mối đúng",
+    "test_ids": [
+      "UI-VND-13",
+      "UAT-VND3-01",
+      "UAT-VND3-02",
+      "UAT-VND3-03"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-006"
+    ]
+  },
+  {
+    "id": "BL-VND-14",
+    "requirement": "FR-VND-14",
+    "screen": "VND-14",
+    "title": "Chi tiết đầu mối và đồ thị liên kết",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Đồ thị liên kết",
+      "Tín hiệu",
+      "Bằng chứng",
+      "Nhà thầu liên quan",
+      "Lịch sử xem xét",
+      "Xem xét hai bước"
+    ],
+    "rule": "Xóa đầu mối cần hai kiểm toán viên; đồ thị có bảng thay thế; không lộ khóa gốc",
+    "test_ids": [
+      "UI-VND-14",
+      "UAT-VND3-01",
+      "UAT-VND3-02"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-006"
+    ]
+  },
+  {
+    "id": "BL-VND-15",
+    "requirement": "FR-VND-15",
+    "screen": "VND-15",
+    "title": "Sàng lọc liên tục danh sách bên bị cấm",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Nhà thầu",
+      "Nguồn danh sách",
+      "Điểm",
+      "Căn cứ",
+      "Tạm giữ",
+      "Trạng thái",
+      "Ngày khớp",
+      "Quyết định"
+    ],
+    "rule": "Khớp tạm giữ giao dịch đến khi quyết định; xác nhận mở hồ sơ cấm; bác bỏ cần lý do 20 ký tự",
+    "test_ids": [
+      "UI-VND-15",
+      "UAT-VND3-04"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-007"
+    ]
+  },
+  {
+    "id": "BL-VND-16",
+    "requirement": "FR-VND-16",
+    "screen": "VND-16",
+    "title": "Cổng nhà thầu: hồ sơ của tôi",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Hồ sơ",
+      "Xác nhận lại hằng năm",
+      "Cam kết liêm chính",
+      "Việc đang chờ"
+    ],
+    "rule": "Chỉ thấy hồ sơ của chính mình; không thấy red flag hay nhà thầu khác",
+    "test_ids": [
+      "UI-VND-16",
+      "UAT-VND3-05",
+      "UAT-VND3-07"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-008"
+    ]
+  },
+  {
+    "id": "BL-VND-17",
+    "requirement": "FR-VND-17",
+    "screen": "VND-17",
+    "title": "Cổng nhà thầu: yêu cầu và trả lời",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Yêu cầu",
+      "Loại",
+      "Hạn trả lời",
+      "Trạng thái",
+      "Câu trả lời",
+      "Lần"
+    ],
+    "rule": "Trả lời muộn vẫn được ghi và đánh dấu muộn",
+    "test_ids": [
+      "UI-VND-17",
+      "UAT-VND3-05",
+      "UAT-VND3-06"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-008"
+    ]
+  },
+  {
+    "id": "BL-VND-18",
+    "requirement": "FR-VND-18",
+    "screen": "VND-18",
+    "title": "Cổng nhà thầu: chứng chỉ",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Loại",
+      "Số",
+      "Hạng",
+      "Phạm vi",
+      "Hiệu lực",
+      "Trạng thái",
+      "Đối chiếu"
+    ],
+    "rule": "Chứng chỉ tải lên chờ người khác đối chiếu; chưa đối chiếu thì không tính cho điều kiện năng lực",
+    "test_ids": [
+      "UI-VND-18",
+      "UAT-VND3-05",
+      "UAT-VND3-07"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-008"
+    ]
+  },
+  {
+    "id": "BL-VND-19",
+    "requirement": "FR-VND-19",
+    "screen": "VND-19",
+    "title": "Cổng nhà thầu: đánh giá và kế hoạch khắc phục",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Hợp đồng",
+      "Kỳ đánh giá",
+      "Điểm",
+      "Xếp hạng",
+      "Kế hoạch khắc phục",
+      "Hành động",
+      "Hạn"
+    ],
+    "rule": "Chỉ thấy đánh giá đã duyệt của chính mình; đồng ý kế hoạch và báo hành động đã làm",
+    "test_ids": [
+      "UI-VND-19",
+      "UAT-VND3-05",
+      "UAT-VND3-08"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-008"
+    ]
+  },
+  {
+    "id": "BL-VND-20",
+    "requirement": "FR-VND-20",
+    "screen": "VND-20",
+    "title": "Quản lý cổng nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Nhà thầu",
+      "Yêu cầu",
+      "Loại",
+      "Hạn",
+      "Trạng thái",
+      "Tái xác nhận",
+      "Hạn xác nhận"
+    ],
+    "rule": "Gửi yêu cầu, chấp nhận hoặc trả lại câu trả lời; theo dõi tái xác nhận hằng năm",
+    "test_ids": [
+      "UI-VND-20",
+      "UAT-VND3-06",
+      "UAT-VND3-10"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-009"
+    ]
+  },
+  {
+    "id": "BL-VND-21",
+    "requirement": "FR-VND-21",
+    "screen": "VND-21",
+    "title": "Kế hoạch khắc phục của nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Nhà thầu",
+      "Mục tiêu",
+      "Hành động",
+      "Hạn",
+      "Trạng thái",
+      "Xác minh"
+    ],
+    "rule": "Chỉ hoàn thành khi mọi hành động đã xác minh; nhà thầu đồng ý kế hoạch của chính mình",
+    "test_ids": [
+      "UI-VND-21",
+      "UAT-VND3-08"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-009"
+    ]
+  },
+  {
+    "id": "BL-VND-22",
+    "requirement": "FR-VND-22",
+    "screen": "VND-22",
+    "title": "Kiến nghị, claim và xuất OCDS của nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P3",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,AUD,BID,CTR",
+    "fields": [
+      "Kiến nghị",
+      "Claim",
+      "Tỷ lệ chấp nhận",
+      "Số ngày giải quyết",
+      "Các bên OCDS"
+    ],
+    "rule": "Thống kê theo nhà thầu và toàn sổ; xuất bên theo OCDS, chủ sở hữu chỉ khi quy tắc cho phép",
+    "test_ids": [
+      "UI-VND-22",
+      "UAT-VND3-09"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/VND.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-VND-010"
+    ]
   }
 ]
