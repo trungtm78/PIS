@@ -1773,3 +1773,11 @@ export { DocumentCommentStore } from './doc-comment-store.ts';
 export type { CommentRow } from './doc-comment-store.ts';
 export { DocumentReviewStore } from './doc-review-store.ts';
 export type { Conclusion, ReviewEventRow, ReviewListFilter, ReviewListRow, ReviewRow } from './doc-review-store.ts';
+// ENT-2: what an edition that adds a connection needs of the alert centre and of the import framework (the connection readers of the source CONNECTOR, the work-source row, the audience filter, the id and member helpers).
+export { registerConnectorAlertReader } from './home-connector-sources.ts';
+export type { ConnectorAlertReader } from './home-connector-sources.ts';
+export { forAudience } from './home-integrity-sources.ts';
+export { base as workSourceBase } from './home-work-sources.ts';
+export type { SourceContext as WorkSourceContext, SourceRow as WorkSourceRow } from './home-work-sources.ts';
+export { isActiveMember, normalizeUuid } from './file-import-item-store.ts';
+export { timestampKey } from './keyset.ts';

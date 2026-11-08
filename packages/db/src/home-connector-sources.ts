@@ -9,6 +9,25 @@ import type { SourceContext, SourceRow } from './home-work-sources.ts';
 export const CONNECTOR_AUDIENCE_PERMISSION = 'bid.egp.admin';
 
 /**
+ * A reader of the connections an edition adds to the alert centre (ENT-2): a connection that is not part of the base product (the push to the reporting platform of the customer, the file import of its ledger) says in its own rows when it is stale or
+ * failed. The edition registers its readers once when its package loads; a public process registers none and the source reads the national procurement network alone. The rows are of the kind CONNECTOR_STALE and carry the alert type
+ * code of the reader, so that owner, expected action and consequence come from the registry of alert types like any other item.
+ */
+export interface ConnectorAlertReader {
+  /** A stable id, lower case with dots (`hpm.reports`): registering the same id again changes nothing. */
+  id: string;
+  read(context: SourceContext): Promise<SourceRow[]>;
+}
+
+const EXTRA_READERS: ConnectorAlertReader[] = [];
+
+/** Adds a reader of connections to the source CONNECTOR; a reader already registered under the id is kept as it is. */
+export function registerConnectorAlertReader(reader: ConnectorAlertReader): void {
+  if (EXTRA_READERS.some((known) => known.id === reader.id)) return;
+  EXTRA_READERS.push(reader);
+}
+
+/**
  * The connections to outside systems as a source of the alert centre (EGP-1, `docs/egp-connector.md`). One kind, `CONNECTOR_STALE`, with its ALERT_TYPE (owner: integration administrator; expected action: check the
  * connector, fetch the latest file and record the cause; consequence: the figures from outside are older than allowed and must say so): the connection `egp.muasamcong` whose last applied file is older than
  * `max_age_hours` of the rule `CONNECTOR_FRESHNESS`, code `EGP_FILE` (read through `GovernancePolicyPort`; the numbers are our own and flagged UNVERIFIED until the tenant approves its rule). The severity is the
@@ -19,6 +38,13 @@ export class HomeConnectorSources {
   private readonly connections = new EgpConnectionStore();
 
   async items(context: SourceContext): Promise<SourceRow[]> {
+    const own = await this.nationalNetwork(context);
+    const extra: SourceRow[] = [];
+    for (const reader of EXTRA_READERS) extra.push(...(await reader.read(context)));
+    return [...own, ...extra];
+  }
+
+  private async nationalNetwork(context: SourceContext): Promise<SourceRow[]> {
     const connection = await this.connections.current(context.tx);
     if (connection.id === null || !connection.enabled) return [];
     const reading = await this.connections.health(context.tx, context.now, connection);

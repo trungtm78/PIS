@@ -11,6 +11,8 @@ import { dirname, join } from 'node:path';
 const FOLDERS: readonly (readonly string[])[] = [
   ['packages', 'edition-enterprise', 'src', 'report-forms', 'messages'],
   ['src', 'report-forms', 'messages'],
+  ['packages', 'edition-enterprise', 'src', 'integration', 'messages'],
+  ['src', 'integration', 'messages'],
 ];
 
 const CACHE = new Map<string, unknown>();

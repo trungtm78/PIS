@@ -22,6 +22,8 @@ export interface SourceRow extends WorkItem {
    * The moment the item became something to act on, when the module knows it (an ISO instant): the claim clock of the item counts from it. Absent when the module does not say, and the clock then is absent too, never guessed.
    */
   startedAt?: string | null;
+  /** The alert type of the item when its kind is shared by several types (the connectors an edition adds): the registry of alert types is read under this code, not under the kind. */
+  alertTypeCode?: string | undefined;
   /** The action a native clock says is expected, and the type of the clock (only the source `CLOCK` has them). */
   expectedAction?: string | null;
   clockType?: string | null;

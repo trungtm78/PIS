@@ -25,10 +25,14 @@ describe('the enterprise manifest', () => {
 });
 
 describe('the adapter registry', () => {
-  it('is empty until a lane adds an adapter', () => {
-    expect(ENTERPRISE_ADAPTERS.all).toEqual([]);
-    expect(ENTERPRISE_ADAPTERS.has('ebs.ledger')).toBe(false);
-    expect(ENTERPRISE_ADAPTERS.get('ebs.ledger')).toBeUndefined();
+  it('holds the two connections of ENT-2: the file writer that stands for HPM and the file reader of Oracle EBS', () => {
+    expect(ENTERPRISE_ADAPTERS.all).toEqual([
+      { id: 'hpm.reports', kind: 'hpm' },
+      { id: 'ebs.ledger', kind: 'ebs' },
+    ]);
+    expect(ENTERPRISE_ADAPTERS.has('ebs.ledger')).toBe(true);
+    expect(ENTERPRISE_ADAPTERS.get('hpm.reports')).toEqual({ id: 'hpm.reports', kind: 'hpm' });
+    expect(ENTERPRISE_ADAPTERS.get('lakehouse.read')).toBeUndefined();
     expect(ENTERPRISE_EDITION.adapters).toBe(ENTERPRISE_ADAPTERS);
   });
 

@@ -1,0 +1,32 @@
+{
+  "source": "Kế hoạch ENT-2 (đẩy báo cáo lên HPM, nhập Oracle EBS và đối chiếu theo mã dự án); các con số là cấu hình của chính hệ thống, chưa được khách hàng xác nhận",
+  "hpmPolicy": {
+    "formula": "Một lần đẩy bị dừng thử lại sau max_attempts lần; lần giao gần nhất cũ hơn warn_after_hours thì cảnh báo già, cũ hơn max_age_hours thì quá hạn và phát cảnh báo ở mức stale_severity",
+    "source": "Quyết định thiết kế ENT-2 ngày 2026-11-08 (giao diện kỹ thuật của HPM chưa có, PENDING-EXTERNAL); số lần và số giờ là giả định chưa kiểm chứng"
+  },
+  "ebsPolicy": {
+    "formula": "Một chênh lệch với Oracle EBS phải được giải trình trong due_in_working_days ngày làm việc theo lịch đã công bố, kể từ ngày mở",
+    "source": "Quyết định thiết kế ENT-2 ngày 2026-11-08 (định dạng tệp EBS chưa có, PENDING-EXTERNAL); số ngày là giả định chưa kiểm chứng"
+  },
+  "ebsFreshness": {
+    "formula": "Tuổi = bây giờ trừ thời điểm áp dụng tệp Oracle EBS gần nhất; mới đến warn_after_hours, già đến max_age_hours, quá hạn sau đó; chưa nhập tệp nào thì không báo động"
+  },
+  "alerts": {
+    "hpmPushFailed": {
+      "action": "Mở màn hình đẩy báo cáo lên HPM, xem lý do lỗi của lần thử gần nhất và đẩy lại cùng khóa chống trùng, hoặc ghi nguyên nhân nếu không đẩy được",
+      "consequence": "Báo cáo kỳ này chưa đến nơi nhận; hạn nộp có thể bị lỡ và số liệu bên HPM cũ hơn số liệu của hệ thống",
+      "why": "Một lần đẩy báo cáo bị lỗi mà không ai thử lại sẽ im lặng làm lỡ hạn nộp cho nơi nhận"
+    },
+    "hpmPushStale": {
+      "action": "Kiểm tra kết nối HPM, đẩy bản báo cáo mới nhất và ghi nhận biên nhận của nơi nhận",
+      "consequence": "Nơi nhận đang giữ báo cáo cũ hơn mức cho phép và các số liệu bên đó phải được hiểu là chưa cập nhật",
+      "why": "Báo cáo giao lần cuối đã quá cũ so với quy tắc đẩy báo cáo; phải thấy ngay chứ không chờ đến kỳ sau"
+    }
+  },
+  "rows": {
+    "hpmPushFailedTitle": "Đẩy báo cáo lên HPM thất bại",
+    "hpmPushFailedDetail": "Có {count} lần đẩy lỗi chưa được thử lại",
+    "hpmPushStaleTitle": "Báo cáo giao cho HPM đã cũ",
+    "hpmPushStaleDetail": "Lần giao gần nhất cách đây {hours} giờ, mức cho phép là {max} giờ"
+  }
+}

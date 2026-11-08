@@ -2,7 +2,7 @@
   "name": "@machvon/edition-enterprise",
   "version": "0.0.0",
   "private": true,
-  "description": "Everything that belongs to the enterprise edition only (ENT-0): its manifest, its adapters and its report forms (RPT-1, src/server.ts). No public source imports it (npm run edition:check).",
+  "description": "Everything that belongs to the enterprise edition only (ENT-0): its manifest, its adapters, its report forms (RPT-1) and its connections to HPM and Oracle EBS (ENT-2, src/server.ts). No public source imports it (npm run edition:check).",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
@@ -13,12 +13,19 @@
   },
   "jest": {
     "preset": "../../jest.preset.cjs",
+    "collectCoverageFrom": [
+      "<rootDir>/src/**/*.ts",
+      "!<rootDir>/src/**/*.test.ts",
+      "!<rootDir>/src/integration/*-store.ts",
+      "!<rootDir>/src/integration/integration-alerts.ts"
+    ],
     "testMatch": [
       "<rootDir>/src/**/*.test.ts",
       "<rootDir>/test/**/*.test.ts"
     ]
   },
   "dependencies": {
+    "@machvon/db": "*",
     "@machvon/kernel": "*",
     "docx": "9.15.3",
     "exceljs": "4.4.0",

@@ -29,6 +29,8 @@ interface AlertTypedRow {
   /** What a native clock says is expected: an item that carries its own expected action carries its own consequence too (both are mandatory when a module starts the clock), and the type does not replace it. */
   expectedAction?: string | null;
   alertType?: AlertTypeReading | null;
+  /** The type an item names itself when its kind is shared by several types (the connectors an edition adds). */
+  alertTypeCode?: string | undefined;
 }
 
 const BY_CONSEQUENCE: ReadonlyMap<string, string> = new Map(Object.entries(CONSEQUENCES).map(([code, sentence]) => [sentence, code]));
@@ -37,7 +39,8 @@ const BY_CONSEQUENCE: ReadonlyMap<string, string> = new Map(Object.entries(CONSE
  * The alert type of an item. The sources of the alert centre say what is not done in a sentence that is the consequence of the type, so the sentence names the type; a kind of work that is its own type (the money
  * control) names itself; the work that was there before the alert centre has the type of its source.
  */
-export function alertTypeCodeOf(row: Pick<AlertTypedRow, 'kind' | 'source' | 'consequence'>): string {
+export function alertTypeCodeOf(row: Pick<AlertTypedRow, 'kind' | 'source' | 'consequence' | 'alertTypeCode'>): string {
+  if (row.alertTypeCode !== undefined) return row.alertTypeCode;
   return (row.consequence === null ? undefined : BY_CONSEQUENCE.get(row.consequence)) ?? (CONSEQUENCES[row.kind] === undefined ? row.source : row.kind);
 }
 
