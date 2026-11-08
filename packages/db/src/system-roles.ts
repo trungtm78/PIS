@@ -14,7 +14,7 @@ export interface SystemRole {
 // tenant: its owner holds it, so that the owner can grant it (a role cannot hold what its maker does not), and the plane of the token keeps an owner from using it.
 // TENANT_OWNER holds "all tenant-plane permissions"; system-roles.test.ts proves the list covers the whole catalogue.
 const TENANT_PLANE_PREFIXES: readonly string[] = [
-  'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'allocation_line', 'analysis_finding', 'analysis_run', 'analytics',
+  'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'alert', 'allocation_line', 'analysis_finding', 'analysis_run', 'analytics',
   'approval', 'approval_task', 'asset', 'asset_record', 'aud', 'audit', 'audit_event', 'bi', 'bid', 'boq', 'boq_line', 'budget_reservation',
   'capital', 'change', 'change_request', 'channel_account', 'channel_message', 'contact', 'contact_consent', 'contract', 'contract_revision',
   'contractor', 'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract',
