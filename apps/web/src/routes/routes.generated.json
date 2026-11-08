@@ -456,6 +456,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {"id":"RPT-01","path":"/rpt/rpt-01","title":"Danh mục biểu mẫu báo cáo và lập báo cáo","kind":"table","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-01"},
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
@@ -517,5 +518,11 @@
     {"id":"BAN-06","path":"/ban/ban-06","title":"Danh sách Ban chỉ đạo và vị trí","kind":"form","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-06"},
     {"id":"BAN-07","path":"/ban/ban-07","title":"Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo","kind":"table","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-07"}
 >>>>>>> 70baf081 (feat(web): committee workspace screens BAN-01 to BAN-07, PWA card, routes and strings)
+=======
+    {"id":"DOC-24","path":"/doc/doc-24","title":"Kho hồ sơ dự án","kind":"table","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-24"},
+    {"id":"DOC-25","path":"/doc/doc-25","title":"Hồ sơ và trình xem có dẫn nguồn","kind":"detail","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-24","req":"FR-DOC-25"},
+    {"id":"DOC-26","path":"/doc/doc-26","title":"Bảng luồng duyệt hồ sơ","kind":"approval","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-26"},
+    {"id":"DOC-27","path":"/doc/doc-27","title":"So sánh hai phiên bản hồ sơ","kind":"compare","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-25","req":"FR-DOC-27"}
+>>>>>>> 82112183 (feat(web): DOC-24 to DOC-27 repository, document viewer with citations, review board and compare)
   ]
 }

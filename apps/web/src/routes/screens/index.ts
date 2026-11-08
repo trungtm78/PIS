@@ -528,4 +528,10 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'BAN-05': () => import('../../screens/ban/AlertsScreen'),
   'BAN-06': () => import('../../screens/ban/RosterScreen'),
   'BAN-07': () => import('../../screens/ban/ViewAuditScreen'),
+=======
+  // The project document repository (DOC-2).
+  'DOC-24': () => import('../../screens/doc/repository/RepositoryScreen'),
+  'DOC-25': () => import('../../screens/doc/repository/DocumentScreen'),
+  'DOC-26': () => import('../../screens/doc/repository/ReviewBoardScreen'),
+  'DOC-27': () => import('../../screens/doc/repository/CompareScreen'),
 };

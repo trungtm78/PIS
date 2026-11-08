@@ -1,0 +1,32 @@
+/* DOC-24 to DOC-27, the project document repository. Tokens only; the kit (apps/web/src/ui) draws the pills, the context bar and the dialogs. */
+.doc2-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-16) 0; align-items: end; }
+.doc2-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin: var(--mv-space-16) 0; align-items: center; }
+.doc2-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }
+.doc2-locked { border-color: var(--mv-color-info); background: var(--mv-color-info-soft); }
+.doc2-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-12) 0; }
+.doc2-facts dt { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.doc2-facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.doc2-units, .doc2-comments, .doc2-replies, .doc2-entries, .doc2-stages { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--mv-space-8); }
+.doc2-unit { padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.doc2-unit[data-anchored='true'] { border-color: var(--mv-color-primary); background: var(--mv-color-primary-soft); }
+.doc2-unit-text { margin: var(--mv-space-8) 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.doc2-unit-foot { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); align-items: center; }
+.doc2-unit-foot code { min-width: 0; overflow-wrap: anywhere; font-size: 12px; color: var(--mv-color-text-secondary); }
+.doc2-comment { padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.doc2-reply { margin-left: var(--mv-space-16); background: var(--mv-color-surface-2); }
+.doc2-comment-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.doc2-stage { padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); }
+.doc2-stage[data-state='CURRENT'] { border-color: var(--mv-color-info); }
+.doc2-stage-head { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); align-items: center; margin-bottom: var(--mv-space-8); }
+.doc2-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-12) 0; padding: 0; list-style: none; }
+.doc2-entry { display: grid; gap: var(--mv-space-8); padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.doc2-entry-equal { background: var(--mv-color-surface-2); }
+.doc2-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mv-space-12); }
+.doc2-side { min-width: 0; overflow-wrap: anywhere; }
+.doc2-side p { margin: 0; }
+.doc2-mark { padding: 0 2px; border-radius: 3px; font-weight: 600; }
+.doc2-mark-out { background: var(--mv-color-danger-soft); color: var(--mv-color-danger); text-decoration: line-through; }
+.doc2-mark-in { background: var(--mv-color-success-soft); color: var(--mv-color-success); }
+@media (max-width: 640px) {
+  .doc2-sides { grid-template-columns: minmax(0, 1fr); }
+}
