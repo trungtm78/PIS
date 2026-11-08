@@ -7,7 +7,7 @@ import { useScopeKey } from '../shared/vnd-hooks';
 import { gradeLabel, kindLabel } from '../shared/vnd-labels';
 import { CERTIFICATE_KINDS, GRADES, failureCode, isDay, vietnamStamp } from '../shared/vnd-model';
 import type { CertificateKind, Grade } from '../shared/vnd-model';
-import { attachmentField } from './portal2-files';
+import { attachmentField, isUploading } from './portal2-files';
 import { useContractorChoices, usePortalCommand } from './portal-hooks';
 import { actionStatusLabel, portalErrorText, requestKindLabel, subjectTypeLabel, triggerKindLabel } from './portal-labels';
 import { REQUEST_KINDS, SUBJECT_TYPES, TRIGGER_KINDS } from './portal-model';
@@ -35,7 +35,7 @@ export function AnswerRequestDialog({ request, onClose, onDone }: DialogProps & 
   const late = request.clock === 'OVERDUE';
   const fields: FieldSpec[] = [
     { name: 'text', label: t('vnp.answer.field.text.label'), kind: 'textarea', required: true, min: 1, max: 4000 },
-    attachmentField(t, 'document_id', t('vnp.answer.field.document.label'), 'REQUEST_RESPONSE'),
+    attachmentField(t, 'document_id', t('vnp.answer.field.document.label'), 'REQUEST_RESPONSE', request.id),
   ];
   return (
     <CommandDialog
@@ -44,6 +44,7 @@ export function AnswerRequestDialog({ request, onClose, onDone }: DialogProps & 
       note={late ? <p className="vnd-note portal-late" data-testid="late-note">{t('vnp.answer.late.note')}</p> : <p className="vnd-note">{t('vnp.answer.note.text')}</p>}
       confirmLabel={t('vnp.answer.confirm.action')}
       fields={fields}
+      blocked={(values) => isUploading(values.document_id)}
       describeError={portalErrorText}
       run={(values) => command.mutateAsync({ path: { id: request.id }, ifMatchVersion: request.version, body: { text: text(values.text), ...optional('document_id', values.document_id) } })}
       onClose={onClose}
@@ -117,6 +118,7 @@ export function SubmitCertificateDialog({ requestId, onClose, onDone }: DialogPr
       note={<p className="vnd-note">{t('vnp.certificate.add.note')}</p>}
       confirmLabel={t('vnp.certificate.add.confirm')}
       fields={fields}
+      blocked={(values) => isUploading(values.document_id)}
       describeError={portalErrorText}
       run={(values) => {
         const grade = gradeOf(values.grade);
@@ -164,7 +166,7 @@ export function ActionDoneDialog({ action, onClose, onDone }: DialogProps & { ac
   const command = usePortalCommand('markPortalRemediationActionDone');
   const fields: FieldSpec[] = [
     { name: 'note', label: t('vnp.plan.done.field.label'), kind: 'textarea', required: true, min: 1, max: 2000 },
-    attachmentField(t, 'document_id', t('vnp.answer.field.document.label'), 'REMEDIATION_EVIDENCE'),
+    attachmentField(t, 'document_id', t('vnp.answer.field.document.label'), 'REMEDIATION_EVIDENCE', action.id),
   ];
   return (
     <CommandDialog
@@ -173,6 +175,7 @@ export function ActionDoneDialog({ action, onClose, onDone }: DialogProps & { ac
       note={<p className="vnd-note">{t('vnp.plan.done.note')}</p>}
       confirmLabel={t('vnp.plan.done.confirm')}
       fields={fields}
+      blocked={(values) => isUploading(values.document_id)}
       describeError={portalErrorText}
       run={(values) => command.mutateAsync({ path: { id: action.id }, ifMatchVersion: action.version, body: { note: text(values.note), ...optional('document_id', values.document_id) } })}
       onClose={onClose}

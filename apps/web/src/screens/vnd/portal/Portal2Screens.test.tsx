@@ -403,3 +403,100 @@ describe('the attachment picker in the portal dialogs', () => {
     expect(within(box).queryByTestId('upload-control')).toBeNull();
   });
 });
+
+describe('the attachment picker keeps the command honest (review findings)', () => {
+  const route = routeOf('VND-17', 'FR-VND-17');
+  const REQUEST = uuid('0040', 1);
+  const world = (items: Array<Record<string, unknown>>) => ({
+    getPortalHome: portalHome(),
+    listPortalRequests: requestPage([portalRequest(1)]),
+    listPortalAttachments: attachmentPage(items),
+  });
+  const openAnswer = async (items: Array<Record<string, unknown>>) => {
+    const h = open(<PortalRequestsScreen route={route} />, world(items), { permissions: GUEST_UPLOAD, path: '/vnd/vnd-17' });
+    fireEvent.click(await screen.findByTestId('answer'));
+    const box = dialog();
+    await within(box).findByTestId('upload-control');
+    return { h, box };
+  };
+  const pickPdf = (box: HTMLElement): void => {
+    fireEvent.change(within(box).getByTestId('upload-file'), { target: { files: [new File(['%PDF-1.7'], 'moi.pdf', { type: 'application/pdf' })] } });
+  };
+
+  it('offers only the files that are free, and the one attached to this request', async () => {
+    const { box } = await openAnswer([
+      portalAttachment(1, { title: 'Tep tu do' }),
+      portalAttachment(2, { title: 'Tep cua yeu cau nay', linked_kind: 'REQUEST', linked_id: REQUEST }),
+      portalAttachment(3, { title: 'Tep cua chung chi', linked_kind: 'QUALIFICATION', linked_id: uuid('0006', 1) }),
+    ]);
+    await within(box).findByRole('option', { name: /Tep tu do/ });
+    expect(within(box).getByRole('option', { name: /Tep cua yeu cau nay/ })).toBeTruthy();
+    expect(within(box).queryByRole('option', { name: /Tep cua chung chi/ })).toBeNull();
+  });
+
+  it('keeps the answer closed while a file is on the way and opens it with the new document when the upload ends', async () => {
+    const { h, box } = await openAnswer([portalAttachment(1)]);
+    let finish: (value: unknown) => void = () => undefined;
+    (h.client as unknown as { upload: unknown }).upload = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    type(box, word('vnp.answer.field.text.label'), 'Tra loi kem tep');
+    const confirm = within(box).getByRole('button', { name: word('vnp.answer.confirm.action') }) as HTMLButtonElement;
+    expect(confirm.disabled).toBe(false);
+    pickPdf(box);
+    fireEvent.click(within(box).getByTestId('upload-send'));
+    await waitFor(() => expect(confirm.disabled).toBe(true));
+    fireEvent.click(confirm);
+    expect(h.command).not.toHaveBeenCalled();
+    finish(portalAttachment(7, { document_id: uuid('0051', 7), title: 'moi' }));
+    await waitFor(() => expect(confirm.disabled).toBe(false));
+    fireEvent.click(confirm);
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('respondPortalRequest', { path: { id: REQUEST }, ifMatchVersion: 3, body: { text: 'Tra loi kem tep', document_id: uuid('0051', 7) }, ...sent() }));
+  });
+
+  it('opens the answer again, with the choice it had, when the upload fails', async () => {
+    const { h, box } = await openAnswer([portalAttachment(1, { document_id: DOCUMENT })]);
+    (h.client as unknown as { upload: unknown }).upload = vi.fn(() => Promise.reject(problem(409, 'SCAN_PENDING')));
+    type(box, word('vnp.answer.field.text.label'), 'Tra loi');
+    fireEvent.change(within(box).getByLabelText(labelOf(word('vnp.answer.field.document.label'))), { target: { value: DOCUMENT } });
+    pickPdf(box);
+    fireEvent.click(within(box).getByTestId('upload-send'));
+    expect((await within(box).findByTestId('upload-error')).textContent).toBe(word('po2.error.scanPending.text'));
+    const confirm = within(box).getByRole('button', { name: word('vnp.answer.confirm.action') }) as HTMLButtonElement;
+    expect(confirm.disabled).toBe(false);
+    expect((within(box).getByLabelText(labelOf(word('vnp.answer.field.document.label'))) as HTMLSelectElement).value).toBe(DOCUMENT);
+  });
+
+  it('lets the same valid file be sent again after a failure of the request: the same idempotency key after a lost answer, a new one after a final refusal or once the title changes', async () => {
+    const { h, box } = await openAnswer([portalAttachment(1)]);
+    const upload = vi.fn(() => Promise.reject(problem(503, 'DEPENDENCY_UNAVAILABLE')));
+    (h.client as unknown as { upload: unknown }).upload = upload;
+    pickPdf(box);
+    const send = within(box).getByTestId('upload-send') as HTMLButtonElement;
+    fireEvent.click(send);
+    await within(box).findByTestId('upload-error');
+    expect(send.disabled).toBe(false);
+    fireEvent.click(send);
+    await waitFor(() => expect(upload).toHaveBeenCalledTimes(2));
+    const keys = upload.mock.calls.map((call) => ((call as unknown as [string, { attempt: { key: string } }])[1]).attempt.key);
+    expect(keys[0]).toBe(keys[1]);
+    fireEvent.change(within(box).getByTestId('upload-title'), { target: { value: 'Ten khac' } });
+    expect(within(box).queryByTestId('upload-error')).toBeNull();
+    fireEvent.click(send);
+    await waitFor(() => expect(upload).toHaveBeenCalledTimes(3));
+    expect(((upload.mock.calls[2] as unknown as [string, { attempt: { key: string } }])[1]).attempt.key).not.toBe(keys[0]);
+  });
+
+  it('keeps a file that is wrong in itself closed until another file is chosen', async () => {
+    const { box } = await openAnswer([portalAttachment(1)]);
+    fireEvent.change(within(box).getByTestId('upload-file'), { target: { files: [new File(['x'], 'a.zip', { type: 'application/zip' })] } });
+    expect((await within(box).findByTestId('upload-error')).textContent).toBe(word('po2.upload.problem.type'));
+    fireEvent.change(within(box).getByTestId('upload-title'), { target: { value: 'Ten khac' } });
+    expect((within(box).getByTestId('upload-send') as HTMLButtonElement).disabled).toBe(true);
+    pickPdf(box);
+    expect((within(box).getByTestId('upload-send') as HTMLButtonElement).disabled).toBe(false);
+  });
+});
