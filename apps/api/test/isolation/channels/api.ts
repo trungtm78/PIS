@@ -78,6 +78,8 @@ import { VENDOR_CONTROLS_A_FIXTURES } from './vendor-controls-a-fixtures';
 import { VENDOR_CONTROLS_B_FIXTURES } from './vendor-controls-b-fixtures';
 import { VENDOR_CONTROLS_C_FIXTURES } from './vendor-controls-c-fixtures';
 import { RATING_FIXTURES } from './gov/rating.fixtures';
+import { VENDOR_PORTAL_FIXTURES } from './vnd3-portal-fixtures';
+import { VENDOR_INVESTIGATION_FIXTURES } from './vnd3-investigation-fixtures';
 import {
   ACCEPTANCE_FIXTURES,
   ADVANCE_FIXTURES,
@@ -1732,6 +1734,33 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'decideVendorRiskGrade', method: 'POST', id: VENDOR_CONTROLS_C_FIXTURES['TNT-B'].riskAssessmentId, versioned: true, body: { decision: 'REJECT', reason: 'Isolation foreign attempt of a vendor control' } },
   { operation: 'postVendorPerformance', method: 'POST', id: RATING_FIXTURES['TNT-B'].read.id, body: { kind: 'INITIAL', receipt: 'ISO-FOREIGN-0001' } },
   { operation: 'endVendorJointVenture', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].ventureId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  // VND-3: the contractor portal and the plans of remediation; each case names a real object of TNT-B. The guest operations answer 403 to this caller (a member of staff, not a guest), the staff operations 404.
+  { operation: 'getVendorRemediationPlan', method: 'GET', id: VENDOR_PORTAL_FIXTURES['TNT-B'].planId },
+  { operation: 'createVendorPortalRequest', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: { kind: 'INFORMATION', title: 'Isolation foreign request' } },
+  { operation: 'acceptVendorPortalRequest', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].requestId, versioned: true, body: {} },
+  { operation: 'returnVendorPortalRequest', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].requestId, versioned: true, body: { reason: 'Isolation foreign attempt to return' } },
+  { operation: 'cancelVendorPortalRequest', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].requestId, versioned: true, body: { reason: 'Isolation foreign attempt to cancel' } },
+  { operation: 'createVendorRemediationPlan', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: { title: 'Isolation foreign plan', objective: 'Isolation foreign plan objective', trigger_kind: 'MANUAL', actions: [{ description: 'Isolation action', due_on: '2030-01-01' }] } },
+  { operation: 'startVendorRemediationPlan', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].planId, versioned: true, body: {} },
+  { operation: 'verifyVendorRemediationAction', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].actionId, versioned: true, body: { outcome: 'VERIFIED' } },
+  { operation: 'completeVendorRemediationPlan', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].planId, versioned: true, body: {} },
+  { operation: 'closeVendorRemediationPlan', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].planId, versioned: true, body: { outcome: 'CANCELLED', reason: 'Isolation foreign attempt to close' } },
+  { operation: 'respondPortalRequest', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].requestId, versioned: true, body: { text: 'Isolation foreign answer' }, expectedStatuses: [403, 404] },
+  { operation: 'agreePortalRemediationPlan', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].planId, versioned: true, body: {}, expectedStatuses: [403, 404] },
+  { operation: 'markPortalRemediationActionDone', method: 'POST', id: VENDOR_PORTAL_FIXTURES['TNT-B'].actionId, versioned: true, body: { note: 'Isolation foreign note' }, expectedStatuses: [403, 404] },
+  // VND-3: the investigation and the screening of contractors; each case names a real object of TNT-B.
+  { operation: 'getVendorLead', method: 'GET', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId },
+  { operation: 'getVendorContractorLinks', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
+  { operation: 'getVendorScreeningHit', method: 'GET', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].hitId },
+  { operation: 'takeVendorLead', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId, versioned: true, body: {} },
+  { operation: 'proposeVendorLeadDismissal', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId, versioned: true, body: { reason: 'Isolation foreign attempt to dismiss a lead' } },
+  { operation: 'confirmVendorLeadDismissal', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId, versioned: true, body: {} },
+  { operation: 'rejectVendorLeadDismissal', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId, versioned: true, body: { reason: 'Isolation foreign attempt to reject a dismissal' } },
+  { operation: 'confirmVendorLeadSignal', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId, versioned: true, body: { reason: 'Isolation foreign attempt to confirm a signal' } },
+  { operation: 'referVendorLead', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].leadId, versioned: true, body: { reason: 'Isolation foreign attempt to refer a lead' } },
+  { operation: 'recordProposalSubmissionTrace', method: 'POST', id: PROPOSAL_FIXTURES['TNT-B'].id, body: { origin: 'isolation-origin' } },
+  { operation: 'confirmVendorScreeningHit', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].hitId, versioned: true, body: {} },
+  { operation: 'dismissVendorScreeningHit', method: 'POST', id: VENDOR_INVESTIGATION_FIXTURES['TNT-B'].hitId, versioned: true, body: { reason: 'Isolation foreign attempt to dismiss a hit of the screening' } },
   // GOV-8: the claim register and the early-warning register of a contract.
   { operation: 'proposeClaimTerm', method: 'POST', id: CONTRACT_FIXTURES['TNT-B'].id, body: { claimant_side: 'OWNER', notice_days: 10, clause_reference: 'Isolation foreign clause' } },
   { operation: 'decideClaimTerm', method: 'POST', id: CLAIM_FIXTURES['TNT-B'].termId, versioned: true, body: { decision: 'REJECT', note: 'Isolation foreign decision attempt' } },

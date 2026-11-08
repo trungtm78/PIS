@@ -53,6 +53,8 @@ import { seedVendorFixtures } from './vendor-fixtures';
 import { seedVendorControlsAFixtures } from './vendor-controls-a-fixtures';
 import { seedVendorControlsBFixtures } from './vendor-controls-b-fixtures';
 import { seedVendorControlsCFixtures } from './vendor-controls-c-fixtures';
+import { seedVendorPortalFixtures } from './vnd3-portal-fixtures';
+import { seedVendorInvestigationFixtures } from './vnd3-investigation-fixtures';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
@@ -1275,6 +1277,51 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'listVendorBidSecurities',
   'getVendorBidSecurity',
   'listVendorSubcontracts',
+  // VND-3: the investigation and the screening of contractors
+  'listVendorLeads',
+  'getVendorLead',
+  'getVendorContractorLinks',
+  'getVendorInvestigationFigures',
+  'getVendorScreening',
+  'getVendorScreeningHit',
+  'runVendorLinkScan',
+  'takeVendorLead',
+  'proposeVendorLeadDismissal',
+  'confirmVendorLeadDismissal',
+  'rejectVendorLeadDismissal',
+  'confirmVendorLeadSignal',
+  'referVendorLead',
+  'recordProposalSubmissionTrace',
+  'runVendorScreening',
+  'confirmVendorScreeningHit',
+  'dismissVendorScreeningHit',
+  'importVendorScreeningList',
+  // VND-3: the contractor portal and the plans of remediation
+  'listVendorPortalRequests',
+  'listVendorReconfirmations',
+  'listVendorRemediationPlans',
+  'getVendorRemediationPlan',
+  'getVendorDisputes',
+  'exportVendorOcdsParties',
+  'createVendorPortalRequest',
+  'acceptVendorPortalRequest',
+  'returnVendorPortalRequest',
+  'cancelVendorPortalRequest',
+  'createVendorRemediationPlan',
+  'startVendorRemediationPlan',
+  'verifyVendorRemediationAction',
+  'completeVendorRemediationPlan',
+  'closeVendorRemediationPlan',
+  'getPortalHome',
+  'listPortalRequests',
+  'listPortalQualifications',
+  'listPortalEvaluations',
+  'listPortalRemediationPlans',
+  'respondPortalRequest',
+  'submitPortalQualification',
+  'confirmPortalReconfirmation',
+  'agreePortalRemediationPlan',
+  'markPortalRemediationActionDone',
   'proposeClaimTerm',
   'decideClaimTerm',
   'listClaimTerms',
@@ -2744,6 +2791,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const contractor = CONTRACTOR_FIXTURES[tenant];
     await client.query(INSERT_CONTRACTOR, [tenantId, contractor.id, contractor.taxIdentifier, contractor.legalName, documents.documentId, ACTOR_ID]);
     await seedVendorFixtures(client, tenant, { tenantId, contractorId: contractor.id, actorId: ACTOR_ID, membershipId: MEMBERSHIP_ID, documentId: documents.documentId });
+    await seedVendorPortalFixtures(client, tenant, { tenantId, contractorId: contractor.id, membershipId: MEMBERSHIP_ID });
+    await seedVendorInvestigationFixtures(client, tenant, { tenantId, contractorId: contractor.id, membershipId: MEMBERSHIP_ID });
     const proposal = PROPOSAL_FIXTURES[tenant];
     await client.query(INSERT_PROPOSAL, [tenantId, proposal.id, project.id, pack.id, contractor.id, proposal.bidPrice, ACTOR_ID]);
     await client.query(INSERT_CONFLICT, [tenantId, proposal.declarationId, pack.id, ACTOR_ID, proposal.relation]);

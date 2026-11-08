@@ -15,6 +15,13 @@ import { VendorSubcontractController, VendorSubcontractReadsController } from '.
 import { VendorRiskController, VendorRiskReadsController } from './vendor-risk.controller';
 import { VendorPerformanceController, VendorPerformanceReadsController } from './vendor-performance.controller';
 import { VendorControlFiguresController } from './vendor-control-figures.controller';
+=======
+import { VendorInvestigationController } from './vendor-investigation.controller';
+import { VendorInvestigationReadsController } from './vendor-investigation-reads.controller';
+import { PortalController } from './portal.controller';
+import { PortalReadsController } from './portal-reads.controller';
+import { VendorPortalStaffController } from './vendor-portal-staff.controller';
+import { VendorPortalStaffReadsController } from './vendor-portal-staff-reads.controller';
 import { VENDOR_CIPHER } from './tokens';
 import { createFieldCipher } from '../lnd/field-cipher';
 import { ContractorController, ContractorReadsController } from './contractor.controller';
@@ -45,5 +52,7 @@ import { PackageWorkflowController, PackageWorkflowReadsController } from './wor
 export const bidModule = defineModule({
   code: 'BID',
   controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, AnalysisController, ReviewController, ClarificationController, ReportController, ResultController, PetitionController, PackageWorkflowController, PackageWorkflowReadsController, EgpConnectionController, EgpImportController, EgpMappingController, EgpReadsController, EgpObligationController, EgpObligationReadsController, EgpReconciliationController, EgpReconciliationReadsController, VendorController, VendorReadsController, VendorIndependenceController, VendorIndependenceReadsController, VendorSecurityController, VendorSecurityReadsController, VendorSubcontractController, VendorSubcontractReadsController, VendorRiskController, VendorRiskReadsController, VendorPerformanceController, VendorPerformanceReadsController, VendorControlFiguresController],
+=======
+  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, AnalysisController, ReviewController, ClarificationController, ReportController, ResultController, PetitionController, PackageWorkflowController, PackageWorkflowReadsController, EgpConnectionController, EgpImportController, EgpMappingController, EgpReadsController, EgpObligationController, EgpObligationReadsController, EgpReconciliationController, EgpReconciliationReadsController, VendorController, VendorReadsController, VendorPortalStaffController, VendorPortalStaffReadsController, PortalController, PortalReadsController, VendorInvestigationController, VendorInvestigationReadsController],
   providers: [{ provide: CONTRACTOR_IDENTITY_PORT, useValue: new UnboundIdentityPort() }, BidAnalysisService, { provide: VENDOR_CIPHER, useFactory: () => createFieldCipher() }],
 });
