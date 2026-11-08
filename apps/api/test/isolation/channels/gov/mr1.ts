@@ -72,6 +72,8 @@ export async function seedMr1(client: Client, context: SeedContext): Promise<voi
     [tenantId, fixtures.alert.id, projectId, fixtures.signal.id, maker],
   );
 
+  const held = await client.query('select 1 from machvon.effect_target_set where id = $1', [fixtures.fixedSet.id]);
+  if (held.rowCount === 0) {
   // The set that stands FIXED: written as a draft with its indicator, then fixed by the member who is not its author (the database keeps the indicators of a draft only).
   await client.query(
     `insert into machvon.effect_target_set (tenant_id, id, project_id, version_no, status, basis, drafted_by) values ($1, $2, $3, 1, 'DRAFT', $4, $5) on conflict do nothing`,
@@ -86,6 +88,7 @@ export async function seedMr1(client: Client, context: SeedContext): Promise<voi
     `update machvon.effect_target_set set status = 'FIXED', fixed_by = $2, fixed_at = timestamptz '2026-02-02 08:00:00+00', fixed_on = date '2026-02-02' where id = $1 and status = 'DRAFT'`,
     [fixtures.fixedSet.id, checker],
   );
+  }
 
   // The draft that replaces it, written by the maker, waiting to be fixed by somebody else.
   await client.query(
@@ -94,7 +97,7 @@ export async function seedMr1(client: Client, context: SeedContext): Promise<voi
   );
   await client.query(
     `insert into machvon.effect_indicator (tenant_id, id, target_set_id, project_id, code, name, unit, direction, target_value, data_source, formula, sort_order)
-     values ($1, $2, $3, $4, $5, $6, '%', 'LOWER_IS_BETTER', 6, 'Grid operator report', 'Lost energy over energy sent', 1) on conflict do nothing`,
+     select $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6, '%', 'LOWER_IS_BETTER', 6, 'Grid operator report', 'Lost energy over energy sent', 1 where not exists (select 1 from machvon.effect_indicator where id = $2::uuid)`,
     [tenantId, fixtures.indicators.draft.id, fixtures.draftSet.id, projectId, fixtures.indicators.draft.code, fixtures.indicators.draft.name],
   );
 

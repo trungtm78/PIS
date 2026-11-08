@@ -777,7 +777,14 @@
     "decideFinanceFeedMapping",
     "retireFinanceFeedMapping",
     "runFinanceFeedReconciliation",
-    "resolveFinanceFeedDifference"
+    "resolveFinanceFeedDifference",
+    "acknowledgeProjectRiskAlert",
+    "saveEffectTargetDraft",
+    "fixEffectTargets",
+    "recordEffectMeasurement",
+    "generateEffectCalendar",
+    "submitEffectAssessment",
+    "decideEffectAssessment"
   ],
   "controlCommands": [
     "decideTenantRestore",
