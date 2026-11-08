@@ -58,8 +58,8 @@ server {
         proxy_pass http://${API_UPSTREAM}/;
     }
 
-    # Keycloak under /auth (KC_HTTP_RELATIVE_PATH=/auth): sign-in, MFA and the token endpoints. Brute-force limits are Keycloak's (5 failures, 15 minutes), this only slows floods.
-    location /auth/ {
+    # Keycloak under /idp (KC_HTTP_RELATIVE_PATH=/idp; /auth/callback belongs to the web application): sign-in, MFA and the token endpoints. Brute-force limits are Keycloak's (5 failures, 15 minutes), this only slows floods.
+    location /idp/ {
         limit_req zone=machvon_auth burst=30 nodelay;
         include /etc/nginx/snippets/proxy.conf;
         include /etc/nginx/snippets/security-headers-passthrough.conf;
@@ -69,7 +69,7 @@ server {
     }
 
     # The administration console and the metrics of Keycloak are not offered on the public edge.
-    location ~ ^/auth/(admin|metrics|health) {
+    location ~ ^/idp/(admin|metrics|health) {
         include /etc/nginx/snippets/security-headers-passthrough.conf;
         return 404;
     }

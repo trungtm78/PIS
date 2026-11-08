@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # MACHVON web and edge image, linux/amd64 and linux/arm64: the built single-page application served by an unprivileged nginx that also terminates TLS,
-# sends the security headers (infra/onprem/nginx) and proxies /api/ to the api and /auth/ to Keycloak, so the browser sees one origin.
+# sends the security headers (infra/onprem/nginx) and proxies /api/ to the api and /idp/ to Keycloak, so the browser sees one origin.
 #
 # The OIDC issuer is compiled into the web build (VITE_OIDC_ISSUER), so this image is built for one public host: the offline bundle script passes
 # --build-arg PUBLIC_HOST=<host>. The api, workers and db images do not depend on the host.
@@ -16,7 +16,7 @@ WORKDIR /app/apps/web
 ENV VITE_EDITION=${MACHVON_EDITION} \
     VITE_API_BASE_URL=/api \
     VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
-RUN VITE_OIDC_ISSUER="https://${PUBLIC_HOST}/auth/realms/${OIDC_REALM}" npx vite build --outDir /app/web-dist
+RUN VITE_OIDC_ISSUER="https://${PUBLIC_HOST}/idp/realms/${OIDC_REALM}" npx vite build --outDir /app/web-dist
 
 FROM nginxinc/nginx-unprivileged:1.30.1-alpine@sha256:acc3239879a65d9e3d250b21847ec3f34f33367017394d22830242af15cf1cb0 AS runtime
 LABEL org.opencontainers.image.title="machvon-web" \

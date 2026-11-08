@@ -6,6 +6,13 @@ import { TenantRestoreStore } from './tenant-restore-store.ts';
 /** The membership under which the mock reads the tenant it measures: no person, the platform's own. */
 const MOCK_ENGINE_MEMBERSHIP_ID = '00000000-0000-4000-8000-000000000000';
 
+/**
+ * What a tenant holds now, read in one snapshot as the platform itself (no person). The MOCK engine and the restore drill (restore-drill.ts) measure the same way, so that a restored copy and its source are compared by the same function.
+ */
+export function measureTenant(database: TenantDatabase, tenantId: string, store: TenantRestoreStore = new TenantRestoreStore()): Promise<Measurement> {
+  return database.withSnapshot({ tenantId, membershipId: MOCK_ENGINE_MEMBERSHIP_ID, scopeVersion: 1 }, (tx) => store.measure(tx));
+}
+
 /** What the engine is asked to restore. */
 export interface RestoreJob {
   tenantId: string;
@@ -116,7 +123,7 @@ export class MockRestoreEngine implements TenantRestoreEngine {
       throw new RestoreEngineUnreachable();
     }
     const database = this.tenants;
-    const measured = await database.withSnapshot({ tenantId: job.tenantId, membershipId: MOCK_ENGINE_MEMBERSHIP_ID, scopeVersion: 1 }, (tx) => this.store.measure(tx));
+    const measured = await measureTenant(database, job.tenantId, this.store);
     this.restored.push(job);
     const copy: RestoredCopy = { ...measured, foreignRows: 0 };
     return {

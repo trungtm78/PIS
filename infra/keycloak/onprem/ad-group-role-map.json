@@ -1,0 +1,35 @@
+{
+  "description": "AD group to system role mapping (source of truth for the groups of machvon-realm.json). Only groups named MACHVON-* are imported from the directory (the group mapper filter); every other directory group is ignored. A person gets a control-plane role only through membership of the matching directory group, so the directory team grants and removes it; every grant is audited by the directory and by the application.",
+  "groupFilter": "(cn=MACHVON-*)",
+  "webauthnMarkerRole": "mfa-webauthn-required",
+  "mappings": [
+    {
+      "adGroup": "MACHVON-SYSTEM-ADMINS",
+      "roles": [
+        "SystemAdmin"
+      ],
+      "approver": "security-administration"
+    },
+    {
+      "adGroup": "MACHVON-PLATFORM-OPERATORS",
+      "roles": [
+        "PlatformOperator"
+      ],
+      "approver": "platform-operations"
+    },
+    {
+      "adGroup": "MACHVON-BILLING-OPERATORS",
+      "roles": [
+        "BillingOperator"
+      ],
+      "approver": "platform-operations"
+    },
+    {
+      "adGroup": "MACHVON-SUPPORT-OPERATORS",
+      "roles": [
+        "SupportOperator"
+      ],
+      "approver": "platform-operations"
+    }
+  ]
+}

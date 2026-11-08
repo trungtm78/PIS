@@ -191,3 +191,33 @@ jobs:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: node ci/src/review-labels-cli.mjs --locale en
+
+  # The linux/arm64 leg (INFRA-1, ARM cross-platform): the product builds and its unit tests pass on a native ARM runner, so the images of the offline bundle
+  # (infra/onprem, images.yml) are not x86-only by accident. native-deps:check lists the native npm packages and flags any without an arm64 build.
+  arm64:
+    name: ARM64 build and unit tests
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install product dependencies
+        run: npm ci
+
+      - name: Native dependencies have an arm64 build
+        run: npm run native-deps:check -- --list --locale en
+
+      - name: Typecheck and unit tests
+        run: |
+          npm run typecheck
+          npm test
+
+      - name: Web build
+        working-directory: apps/web
+        run: npx vite build --outDir "$RUNNER_TEMP/web-arm64"

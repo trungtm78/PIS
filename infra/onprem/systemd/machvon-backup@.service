@@ -1,0 +1,11 @@
+[Unit]
+Description=MACHVON pgBackRest backup (%i)
+Requires=docker.service
+After=docker.service
+# pgBackRest holds a lock per stanza: a run that finds another one active stops with an error and the next timer tick retries.
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker compose --env-file /etc/machvon/compose.env -f /opt/machvon/current/infra/onprem/compose/compose.yaml --profile tools run --rm backup backup --type=%i
+TimeoutStartSec=4h
+Nice=10

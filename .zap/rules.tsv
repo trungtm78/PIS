@@ -1,0 +1,22 @@
+# Rules of the ZAP baseline and API scans (dast.yml). Columns: rule id, level (IGNORE, INFO, WARN, FAIL), reason. A FAIL fails the scan.
+# Headers every response must carry (docs/runbooks/infra/tls-headers.md): their absence fails the scan.
+10020	FAIL	(Missing anti-clickjacking header)
+10021	FAIL	(X-Content-Type-Options header missing)
+10035	FAIL	(Strict-Transport-Security header missing)
+10038	FAIL	(Content-Security-Policy header not set)
+10036	FAIL	(Server leaks version information)
+10037	FAIL	(Server leaks information through X-Powered-By)
+10010	FAIL	(Cookie without HttpOnly)
+10011	FAIL	(Cookie without Secure)
+10054	FAIL	(Cookie without SameSite)
+90022	FAIL	(Application error disclosure)
+# Injection and scripting findings of the active API scan.
+40012	FAIL	(Reflected cross site scripting)
+40014	FAIL	(Persistent cross site scripting)
+40018	FAIL	(SQL injection)
+90019	FAIL	(Server side code injection)
+# Accepted, with the reason in the runbook: the single-page application needs inline styles (style-src 'unsafe-inline'); see tls-headers.md, "Known exceptions".
+10055	WARN	(CSP style-src unsafe-inline)
+10063	WARN	(Permissions Policy header: reported when a browser feature list changes)
+# Not applicable: the API is called with a bearer token in a header, not with cookies, so a form anti-CSRF token does not exist.
+10202	IGNORE	(Absence of anti-CSRF tokens: bearer tokens, no cookie session)

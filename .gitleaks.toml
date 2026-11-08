@@ -1,0 +1,17 @@
+# Rules of the secret scan (security.yml). The default rules of gitleaks apply; the allowances below are the files that hold FAKE secrets on purpose.
+title = "MACHVON secret scan"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fake credentials of tests, fixtures, the design prototype and generated lockfiles; a real secret in these paths is still caught by the push gate (ci/src/rules.mjs) for product code."
+paths = [
+  '''package-lock\.json$''',
+  '''pubspec\.lock$''',
+  '''(^|/)(test|tests|fixtures|e2e|test-results)/''',
+  '''\.(test|spec)\.[cm]?[jt]sx?$''',
+  '''_test\.dart$''',
+  '''^Design/''',
+  '''^docs/UAT-''',
+]

@@ -1,0 +1,5 @@
+# Accepted findings of the Trivy scans: one identifier per line, each with a comment that names the owner and the last day (YYYY-MM-DD, at most 90 days ahead).
+# Review this file with the daily advisory audit. An empty list is the goal.
+#
+# Example (not active):
+# CVE-2099-00000  # owner: security-administration, until 2099-01-01, no fixed package yet, not reachable from the product

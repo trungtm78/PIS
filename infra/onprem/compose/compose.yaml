@@ -23,8 +23,8 @@ x-hardening: &hardening
 x-api-environment: &api-environment
   NODE_ENV: production
   PORT: "3000"
-  OIDC_ISSUER: https://${PUBLIC_HOST}/auth/realms/${OIDC_REALM}
-  OIDC_JWKS_URI: http://keycloak:8080/auth/realms/${OIDC_REALM}/protocol/openid-connect/certs
+  OIDC_ISSUER: https://${PUBLIC_HOST}/idp/realms/${OIDC_REALM}
+  OIDC_JWKS_URI: http://keycloak:8080/idp/realms/${OIDC_REALM}/protocol/openid-connect/certs
   OIDC_IDENTITY_AUDIENCE: machvon-api
   OIDC_CONTROL_AUDIENCE: machvon-control
   TENANT_TOKEN_ISSUER: https://${PUBLIC_HOST}/api
@@ -136,11 +136,13 @@ services:
       KC_DB_PASSWORD_FILE: /run/secrets/keycloak_db_password
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
       KC_BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/keycloak_admin_password
-      KC_HOSTNAME: https://${PUBLIC_HOST}/auth
+      KC_HOSTNAME: https://${PUBLIC_HOST}/idp
       KC_HTTP_ENABLED: "true"
-      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HTTP_RELATIVE_PATH: /idp
       KC_PROXY_HEADERS: xforwarded
+      KC_TRUSTSTORE_PATHS: /run/secrets/ldap_ca_cert
       REALM_NAME: ${OIDC_REALM}
+      WEBAUTHN_RP_ID: ${PUBLIC_HOST}
       TENANT_HOST: ${PUBLIC_HOST}
       CONTROL_HOST: ${CONTROL_HOST}
       LDAP_URL: ${LDAP_URL}
@@ -155,9 +157,10 @@ services:
       - keycloak_db_password
       - keycloak_admin_password
       - ldap_bind_credential
+      - ldap_ca_cert
     healthcheck:
       # The realm answers its discovery document: the server is up and the imported realm exists.
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /auth/realms/${OIDC_REALM}/.well-known/openid-configuration HTTP/1.0\\r\\n\\r\\n' >&3 && head -n1 <&3 | grep -q ' 200 '"]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /idp/realms/${OIDC_REALM}/.well-known/openid-configuration HTTP/1.0\\r\\n\\r\\n' >&3 && head -n1 <&3 | grep -q ' 200 '"]
       interval: 15s
       timeout: 5s
       retries: 10
@@ -369,6 +372,8 @@ secrets:
     file: ${MACHVON_SECRETS_DIR}/keycloak_admin_password
   ldap_bind_credential:
     file: ${MACHVON_SECRETS_DIR}/ldap_bind_credential
+  ldap_ca_cert:
+    file: ${MACHVON_SECRETS_DIR}/ldap_ca_cert
   tls_cert:
     file: ${MACHVON_SECRETS_DIR}/tls_cert
   tls_key:

@@ -1,0 +1,10 @@
+[Unit]
+Description=MACHVON weekly backup verification
+
+[Timer]
+OnCalendar=Sun *-*-* 03:30:00
+Persistent=true
+Unit=machvon-backup-verify.service
+
+[Install]
+WantedBy=timers.target

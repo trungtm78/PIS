@@ -1,0 +1,33 @@
+{
+  "description": "Backup policy of the on-prem deployment (CR-04-28): pgBackRest full, incremental and continuous WAL archive to a second site, immutable (object lock) and encrypted, restore drilled every quarter. scripts/backup-verify.mjs checks every file named here against this policy; infra:check runs the same checks.",
+  "tool": "pgbackrest",
+  "stanza": "machvon",
+  "schedule": {
+    "full": { "onCalendar": "*-*-* 01:30:00", "description": "daily full backup" },
+    "incremental": { "onCalendar": "*-*-* 05,09,13,17,21:30:00", "description": "incremental backup every four hours, between the daily fulls" },
+    "wal": { "mode": "continuous", "archiveTimeoutSeconds": 60, "description": "every WAL segment is archived as it completes and the segment is forced to switch at least every 60 seconds" },
+    "verify": { "onCalendar": "Sun *-*-* 03:30:00", "description": "weekly pgbackrest verify: reads the repository and checks every file against its checksum" }
+  },
+  "retention": { "fullDays": 35, "pitrDays": 35, "archiveDays": 35 },
+  "targets": { "rpoMinutes": 15, "rtoHours": 4 },
+  "encryption": {
+    "clientSide": { "cipher": "aes-256-cbc", "passphraseSecret": "pgbackrest_cipher_pass", "escrow": "offline, two custodians" },
+    "serverSide": { "algorithm": "AES256" },
+    "transport": "TLS 1.2 or newer to the object store"
+  },
+  "immutability": {
+    "objectLock": { "enabled": true, "mode": "COMPLIANCE", "retentionDays": 36 },
+    "versioning": true,
+    "writerCannot": ["s3:BypassGovernanceRetention", "s3:PutBucketObjectLockConfiguration", "s3:DeleteObjectVersion", "s3:DeleteBucket", "s3:PutBucketVersioning", "s3:PutLifecycleConfiguration", "s3:PutBucketPolicy"],
+    "adminAndWriterAreDifferentPeople": true
+  },
+  "secondSite": { "required": true, "component": "object-storage", "role": "backup-target" },
+  "restoreDrill": {
+    "frequency": "quarterly",
+    "maxDaysBetweenDrills": 92,
+    "script": "scripts/restore-drill.mjs",
+    "runbook": "docs/runbooks/infra/restore-drill.md",
+    "evidenceDirectory": "docs/runbooks/infra/evidence",
+    "verify": ["checksum", "row-counts", "file-references", "money-total"]
+  }
+}

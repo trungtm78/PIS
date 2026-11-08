@@ -1,0 +1,97 @@
+name: Images
+
+# Builds every on-prem image (infra/onprem/docker) natively on each architecture, scans it with the policy of infra/scan/trivy.yaml and keeps its SBOM, then checks the plan of the
+# offline bundle. Nothing is pushed: the bundle is built and exported by the release process (docs/runbooks/infra/onprem-install.md). A native ARM runner builds the arm64 images,
+# so a dependency that has no arm64 build fails here and not at a customer.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/onprem/**'
+      - 'apps/**'
+      - 'packages/**'
+      - 'package-lock.json'
+      - '.github/workflows/images.yml'
+  pull_request:
+    paths:
+      - 'infra/onprem/**'
+      - 'package-lock.json'
+      - '.github/workflows/images.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    name: ${{ matrix.image }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [api, workers, web, db]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build for linux/${{ matrix.arch }}
+        run: |
+          docker buildx build --platform linux/${{ matrix.arch }} --load \
+            --file infra/onprem/docker/${{ matrix.image }}.Dockerfile \
+            --build-arg PUBLIC_HOST=ci.example.test --build-arg MACHVON_EDITION=public \
+            --tag machvon/${{ matrix.image }}:ci-${{ matrix.arch }} .
+
+      - name: Scan the image
+        run: |
+          mkdir -p scan
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src" -w /src aquasec/trivy:0.70.0@sha256:be1190afcb28352bfddc4ddeb71470835d16462af68d310f9f4bca710961a41e \
+            image --config infra/scan/trivy.yaml machvon/${{ matrix.image }}:ci-${{ matrix.arch }}
+
+      - name: SBOM of the image
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src" -w /src aquasec/trivy:0.70.0@sha256:be1190afcb28352bfddc4ddeb71470835d16462af68d310f9f4bca710961a41e \
+            image --format cyclonedx --output scan/${{ matrix.image }}-${{ matrix.arch }}.cdx.json machvon/${{ matrix.image }}:ci-${{ matrix.arch }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-image-${{ matrix.image }}-${{ matrix.arch }}
+          path: scan/${{ matrix.image }}-${{ matrix.arch }}.cdx.json
+          if-no-files-found: error
+
+  # The release builds both platforms into one image index (buildx with QEMU); this proves the multi-platform build definitions and the plan of the offline bundle.
+  multi-platform:
+    name: Multi-platform build definitions and bundle plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Plan of the offline bundle
+        run: node scripts/onprem-bundle.mjs plan --version 0.0.0-ci --public-host ci.example.test --locale en
+
+      - name: Build the database image for both platforms into an OCI archive
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 --file infra/onprem/docker/db.Dockerfile \
+            --output type=oci,dest=db.oci.tar,name=machvon/db:ci .
+          tar -xOf db.oci.tar index.json

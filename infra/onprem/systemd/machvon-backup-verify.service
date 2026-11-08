@@ -1,0 +1,10 @@
+[Unit]
+Description=MACHVON pgBackRest repository verification
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker compose --env-file /etc/machvon/compose.env -f /opt/machvon/current/infra/onprem/compose/compose.yaml --profile tools run --rm backup verify
+TimeoutStartSec=6h
+Nice=10

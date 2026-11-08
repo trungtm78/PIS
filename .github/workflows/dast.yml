@@ -1,0 +1,82 @@
+name: DAST
+
+# Dynamic scan (OWASP ZAP) of a DEPLOYED TEST STACK, never of production and never of a customer system (docs/runbooks/infra/security-scanning.md).
+# The stack is the on-prem compose set installed on a test host; this repository only carries the workflow. Set the repository variables:
+#   DAST_WEB_URL  https://<test host>           the edge of the test stack (baseline scan of the web application)
+#   DAST_API_URL  https://<test host>/api       the API of the test stack (scan driven by the OpenAPI document)
+# and, for an authenticated API scan, the secret DAST_BEARER_TOKEN (a token of a test account; never a real person's).
+# While a variable is empty the job says so and ends; it does not pretend to have scanned. Rules and accepted warnings: .zap/rules.tsv.
+
+on:
+  schedule:
+    - cron: '41 4 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dast
+  cancel-in-progress: false
+
+jobs:
+  baseline:
+    name: ZAP baseline (web)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      TARGET: ${{ vars.DAST_WEB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No test stack configured
+        if: env.TARGET == ''
+        run: |
+          echo "::warning::DAST_WEB_URL is not set: nothing was scanned (the baseline scan earned no credit)"
+
+      - name: Baseline scan
+        if: env.TARGET != ''
+        run: |
+          mkdir -p zap && chmod 777 zap
+          docker run --rm -v "$PWD/zap:/zap/wrk:rw" -v "$PWD/.zap:/zap/rules:ro" zaproxy/zap-stable:2.17.0@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af \
+            zap-baseline.py -t "$TARGET" -c /zap/rules/rules.tsv -r baseline.html -J baseline.json -w baseline.md
+
+      - uses: actions/upload-artifact@v4
+        if: always() && env.TARGET != ''
+        with:
+          name: zap-baseline
+          path: zap
+          if-no-files-found: warn
+
+  api:
+    name: ZAP API scan (OpenAPI)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      TARGET: ${{ vars.DAST_API_URL }}
+      BEARER: ${{ secrets.DAST_BEARER_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No test stack configured
+        if: env.TARGET == ''
+        run: |
+          echo "::warning::DAST_API_URL is not set: nothing was scanned (the API scan earned no credit)"
+
+      - name: API scan
+        if: env.TARGET != ''
+        run: |
+          mkdir -p zap && chmod 777 zap
+          cp Design/MACHVON_Design/03_Engineering/openapi.json zap/openapi.json
+          # An authenticated scan: the ZAP container adds this header to every request (a token of a test account).
+          header=()
+          if [ -n "$BEARER" ]; then header=(-e ZAP_AUTH_HEADER=Authorization -e "ZAP_AUTH_HEADER_VALUE=Bearer $BEARER"); fi
+          docker run --rm "${header[@]}" -v "$PWD/zap:/zap/wrk:rw" -v "$PWD/.zap:/zap/rules:ro" zaproxy/zap-stable:2.17.0@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af \
+            zap-api-scan.py -t /zap/wrk/openapi.json -f openapi -O "$TARGET" -c /zap/rules/rules.tsv -r api.html -J api.json -w api.md
+
+      - uses: actions/upload-artifact@v4
+        if: always() && env.TARGET != ''
+        with:
+          name: zap-api
+          path: zap
+          if-no-files-found: warn

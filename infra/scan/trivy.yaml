@@ -1,0 +1,15 @@
+# Policy of every Trivy scan of the product (images.yml, security.yml, supply-chain.json "imageScan"): the build fails on a HIGH or CRITICAL finding that has a fix.
+# A finding that cannot be fixed yet is accepted in infra/scan/.trivyignore with an owner and a last day, never by lowering this level.
+format: table
+exit-code: 1
+severity:
+  - HIGH
+  - CRITICAL
+ignore-unfixed: true
+ignorefile: infra/scan/.trivyignore
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+timeout: 15m
