@@ -42,7 +42,7 @@ describe('the public pack through the figure engine is the public edition as it 
     for (const id of ['G-1', 'G-3', 'G-4', 'G-5a', 'G-6', 'G-7', 'G-8', 'G-9', 'G-10']) expect(fixture.cases.some((one) => one.id === id)).toBe(true);
   });
 
-  it('1. engine equality: every line of every fixture project is what was recorded and what buildLines answers now, field by field', () => {
+  it('AC-ST-DIS-026-1 / UAT-PLAN-93 / 1. engine equality: every line of every fixture project is what was recorded and what buildLines answers now, field by field', () => {
     for (const one of fixture.cases) {
       const project = projectOf(one.project);
       const lines = buildPackLines(PACK, project, one.cutoff);

@@ -187,7 +187,7 @@ describe('the figures of the funding model: batches, acceptance, the board and t
       expect([other.status, other.json.code]).toEqual([409, 'IDEMPOTENCY_CONFLICT']);
     });
 
-    it('is handed in by the preparer only; accepted by somebody else (403 SELF_APPROVAL_DENIED for the preparer himself); stale versions are 409 VERSION_CONFLICT; a settled batch is 409 FIGURE_STATE_INVALID', async () => {
+    it('AC-ST-DIS-026-2 / UAT-PLAN-93: is handed in by the preparer only; accepted by somebody else (403 SELF_APPROVAL_DENIED for the preparer himself); stale versions are 409 VERSION_CONFLICT; a settled batch is 409 FIGURE_STATE_INVALID', async () => {
       const drafted = await call('POST', '/funding-figures/batches', { member: BOTH, body: estimate({ entries: [{ period_ordinal: 5, amount_vnd: '50' }], as_of_date: '2026-05-10' }) });
       const batchId = drafted.json.resource_id as string;
       expect((await call('POST', batchUrl(batchId, '/submission'), { member: PREPARER, ifMatch: '"1"' })).status).toBe(403);

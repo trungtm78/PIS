@@ -40,7 +40,7 @@ describe('DIS-27: the figures of the funding model and their indicators', () => 
     expect(h.read).toHaveBeenCalledWith('getFundingFigureBoard', expect.objectContaining({ query: expect.objectContaining({ period_grain: 'MONTH', view: 'AS_REPORTED' }) }));
   });
 
-  it('puts the "i" on every number: the formula, the terms, the source, the day it is as of, and the pack with its version, flagged unverified', async () => {
+  it('AC-ST-DIS-026-3 / UI-DIS-27: puts the "i" on every number: the formula, the terms, the source, the day it is as of, and the pack with its version, flagged unverified', async () => {
     open();
     const tile = (await screen.findByText('Tỷ lệ thực hiện năm')).closest('.ui-kpi') as HTMLElement;
     await userEvent.click(within(tile).getByRole('button', { name: /Công thức, nguồn và ngày của Tỷ lệ thực hiện năm/ }));
