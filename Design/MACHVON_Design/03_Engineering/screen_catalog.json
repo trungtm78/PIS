@@ -10868,5 +10868,101 @@
     "platform": "mobile",
     "req": "FR-MOB-71",
     "source": "Kế hoạch PRC-1, docs/bid-workflow.md; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "RPT-01",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "Danh mục biểu mẫu báo cáo và lập báo cáo",
+    "kind": "table",
+    "fields": [
+      "Mã và tên biểu mẫu",
+      "Phiên bản",
+      "Bản (công khai hoặc doanh nghiệp)",
+      "Trạng thái biểu mẫu (mẫu demo, nháp, sẵn sàng)",
+      "Mẫu chính thức (đã xác nhận hay chờ)",
+      "Bên nhận",
+      "Loại kỳ",
+      "Nguồn số liệu (thật hay minh họa)",
+      "Có phát hành được không",
+      "Chọn kỳ và lập báo cáo"
+    ],
+    "role": "Người lập báo cáo (rpt.generate) trên toàn tenant; người đọc (rpt.read)",
+    "rule": "Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RPT-01",
+    "source": "Kế hoạch RPT-1 phần 2 và docs/report-engine.md"
+  },
+  {
+    "id": "RPT-02",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành",
+    "kind": "detail",
+    "fields": [
+      "Biểu mẫu và kỳ",
+      "Trạng thái (nháp, đã kiểm, đã duyệt, đã phát hành)",
+      "Xem trước từng ô của bảng và phần thuyết minh",
+      "Ô thiếu số và lý do",
+      "Mã băm của tệp và của bản",
+      "Người lập, người kiểm tra, người phê duyệt",
+      "Bản snapshot DIS và phiên bản",
+      "Lý do bản sửa",
+      "Tải tệp Excel và Word"
+    ],
+    "role": "Người lập (rpt.generate), người kiểm tra (rpt.check), người phê duyệt và phát hành (rpt.approve, rpt.issue)",
+    "rule": "Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RPT-02",
+    "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md"
+  },
+  {
+    "id": "RPT-03",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "Các bản báo cáo đã phát hành",
+    "kind": "table",
+    "fields": [
+      "Biểu mẫu, kỳ và phiên bản",
+      "Mã băm sha256 của bản",
+      "Tệp và mã băm từng tệp",
+      "Còn hiệu lực hay đã bị thay",
+      "Chuỗi các phiên bản và lý do sửa",
+      "Người lập, kiểm tra, phê duyệt, phát hành",
+      "Mẫu demo (không tính là đã nhận)",
+      "Giao cho bên nhận",
+      "Câu trả lời của bên nhận"
+    ],
+    "role": "Người đọc (rpt.read); người giao (rpt.deliver); ghi câu trả lời (rpt.answer)",
+    "rule": "Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RPT-03",
+    "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md"
+  },
+  {
+    "id": "RPT-04",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "Nhật ký giao báo cáo cho bên nhận",
+    "kind": "table",
+    "fields": [
+      "Thời điểm",
+      "Biểu mẫu, kỳ và phiên bản",
+      "Bên nhận",
+      "Kênh giao",
+      "Sự kiện (đã giao, đã nhận, trả lại)",
+      "Số tham chiếu",
+      "Người ghi",
+      "Có tính là đã nhận không"
+    ],
+    "role": "Người đọc (rpt.read)",
+    "rule": "Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RPT-04",
+    "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md"
   }
 ]

@@ -18300,5 +18300,157 @@
     "stories": [
       "ST-DIR-005"
     ]
+  },
+  {
+    "id": "BL-RPT-01",
+    "requirement": "FR-RPT-01",
+    "screen": "RPT-01",
+    "title": "Danh mục biểu mẫu báo cáo và lập báo cáo",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Mã và tên biểu mẫu",
+      "Phiên bản",
+      "Bản (công khai hoặc doanh nghiệp)",
+      "Trạng thái biểu mẫu (mẫu demo, nháp, sẵn sàng)",
+      "Mẫu chính thức (đã xác nhận hay chờ)",
+      "Bên nhận",
+      "Loại kỳ",
+      "Nguồn số liệu (thật hay minh họa)",
+      "Có phát hành được không",
+      "Chọn kỳ và lập báo cáo"
+    ],
+    "rule": "Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)",
+    "test_ids": [
+      "UI-RPT-01",
+      "UAT-RPT-001",
+      "UAT-RPT-003"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-RPT-001"
+    ]
+  },
+  {
+    "id": "BL-RPT-02",
+    "requirement": "FR-RPT-02",
+    "screen": "RPT-02",
+    "title": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Biểu mẫu và kỳ",
+      "Trạng thái (nháp, đã kiểm, đã duyệt, đã phát hành)",
+      "Xem trước từng ô của bảng và phần thuyết minh",
+      "Ô thiếu số và lý do",
+      "Mã băm của tệp và của bản",
+      "Người lập, người kiểm tra, người phê duyệt",
+      "Bản snapshot DIS và phiên bản",
+      "Lý do bản sửa",
+      "Tải tệp Excel và Word"
+    ],
+    "rule": "Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0",
+    "test_ids": [
+      "UI-RPT-02",
+      "UAT-RPT-001",
+      "UAT-RPT-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-RPT-001"
+    ]
+  },
+  {
+    "id": "BL-RPT-03",
+    "requirement": "FR-RPT-03",
+    "screen": "RPT-03",
+    "title": "Các bản báo cáo đã phát hành",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Biểu mẫu, kỳ và phiên bản",
+      "Mã băm sha256 của bản",
+      "Tệp và mã băm từng tệp",
+      "Còn hiệu lực hay đã bị thay",
+      "Chuỗi các phiên bản và lý do sửa",
+      "Người lập, kiểm tra, phê duyệt, phát hành",
+      "Mẫu demo (không tính là đã nhận)",
+      "Giao cho bên nhận",
+      "Câu trả lời của bên nhận"
+    ],
+    "rule": "Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm",
+    "test_ids": [
+      "UI-RPT-03",
+      "UAT-RPT-002",
+      "UAT-RPT-003"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-RPT-001"
+    ]
+  },
+  {
+    "id": "BL-RPT-04",
+    "requirement": "FR-RPT-04",
+    "screen": "RPT-04",
+    "title": "Nhật ký giao báo cáo cho bên nhận",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Thời điểm",
+      "Biểu mẫu, kỳ và phiên bản",
+      "Bên nhận",
+      "Kênh giao",
+      "Sự kiện (đã giao, đã nhận, trả lại)",
+      "Số tham chiếu",
+      "Người ghi",
+      "Có tính là đã nhận không"
+    ],
+    "rule": "Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận",
+    "test_ids": [
+      "UI-RPT-04",
+      "UAT-RPT-002",
+      "UAT-RPT-003"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-RPT-001"
+    ]
   }
 ]

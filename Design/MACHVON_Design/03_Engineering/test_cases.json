@@ -21377,5 +21377,143 @@
     "covers": [
       "FR-DIR-06"
     ]
+  },
+  {
+    "id": "UI-RPT-01",
+    "source": "FR-RPT-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Danh mục biểu mẫu báo cáo và lập báo cáo; user có quyền và user chỉ đọc; route RPT-01",
+    "steps": [
+      "Mở RPT-01 từ menu và deep link; kiểm nhãn trường: Mã và tên biểu mẫu, Phiên bản, Bản (công khai hoặc doanh nghiệp), Trạng thái biểu mẫu (mẫu demo, nháp, sẵn sàng), Mẫu chính thức (đã xác nhận hay chờ), Bên nhận, Loại kỳ, Nguồn số liệu (thật hay minh họa), Có phát hành được không, Chọn kỳ và lập báo cáo",
+      "Thực hiện thao tác chính theo quy tắc: Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-01"
+    ],
+    "expected": "Danh mục biểu mẫu báo cáo và lập báo cáo: hiển thị đúng 10 trường, áp quy tắc \"Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01"
+    ]
+  },
+  {
+    "id": "UI-RPT-02",
+    "source": "FR-RPT-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành; user có quyền và user chỉ đọc; route RPT-02",
+    "steps": [
+      "Mở RPT-02 từ menu và deep link; kiểm nhãn trường: Biểu mẫu và kỳ, Trạng thái (nháp, đã kiểm, đã duyệt, đã phát hành), Xem trước từng ô của bảng và phần thuyết minh, Ô thiếu số và lý do, Mã băm của tệp và của bản, Người lập, người kiểm tra, người phê duyệt, Bản snapshot DIS và phiên bản, Lý do bản sửa, Tải tệp Excel và Word",
+      "Thực hiện thao tác chính theo quy tắc: Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-02"
+    ],
+    "expected": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành: hiển thị đúng 9 trường, áp quy tắc \"Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UI-RPT-03",
+    "source": "FR-RPT-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Các bản báo cáo đã phát hành; user có quyền và user chỉ đọc; route RPT-03",
+    "steps": [
+      "Mở RPT-03 từ menu và deep link; kiểm nhãn trường: Biểu mẫu, kỳ và phiên bản, Mã băm sha256 của bản, Tệp và mã băm từng tệp, Còn hiệu lực hay đã bị thay, Chuỗi các phiên bản và lý do sửa, Người lập, kiểm tra, phê duyệt, phát hành, Mẫu demo (không tính là đã nhận), Giao cho bên nhận, Câu trả lời của bên nhận",
+      "Thực hiện thao tác chính theo quy tắc: Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-03"
+    ],
+    "expected": "Các bản báo cáo đã phát hành: hiển thị đúng 9 trường, áp quy tắc \"Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UI-RPT-04",
+    "source": "FR-RPT-04",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Nhật ký giao báo cáo cho bên nhận; user có quyền và user chỉ đọc; route RPT-04",
+    "steps": [
+      "Mở RPT-04 từ menu và deep link; kiểm nhãn trường: Thời điểm, Biểu mẫu, kỳ và phiên bản, Bên nhận, Kênh giao, Sự kiện (đã giao, đã nhận, trả lại), Số tham chiếu, Người ghi, Có tính là đã nhận không",
+      "Thực hiện thao tác chính theo quy tắc: Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-04"
+    ],
+    "expected": "Nhật ký giao báo cáo cho bên nhận: hiển thị đúng 8 trường, áp quy tắc \"Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-001",
+    "source": "RPT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Three members with the rights to generate, check and approve; a frozen DIS snapshot; the weekly report DIS-WEEKLY.",
+    "steps": [
+      "The preparer generates the report for the week",
+      "The preparer tries to check it",
+      "The checker checks it",
+      "The checker tries to approve it",
+      "The approver approves and issues it",
+      "Download the file and compute its sha256"
+    ],
+    "expected": "Steps 2 and 4: 403 SELF_APPROVAL_DENIED; step 5: one copy of revision 1; step 6: the hash is the hash recorded on the copy.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-02",
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-002",
+    "source": "RPT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A copy of revision 1 of DIS-WEEKLY for a week; a newer frozen snapshot with other figures; a receiver MOF.",
+    "steps": [
+      "Generate the same week without a reason",
+      "Generate it with a reason, check, approve and issue",
+      "Deliver revision 1 to MOF",
+      "Deliver revision 2 to MOF",
+      "Deliver revision 2 to MOF again"
+    ],
+    "expected": "Step 1: 422 VALIDATION_FAILED; step 2: revision 2 names revision 1 and the reason; step 3: 409 REPORT_OUT_OF_DATE with the current revision; step 4: delivered; step 5: 409 ALREADY_DELIVERED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02",
+      "FR-RPT-03",
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-003",
+    "source": "RPT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The enterprise edition with the six demo forms; demo forms off, then on.",
+    "steps": [
+      "Generate PVN-MONTHLY with demo forms off",
+      "Switch demo forms on and generate, check, approve and issue it",
+      "Open the Excel file and read its print header and first row",
+      "Deliver it and record that the receiver accepts it"
+    ],
+    "expected": "Step 1: 409 TEMPLATE_UNCONFIRMED; step 3: every place carries \"MẪU DEMO — chờ mẫu chính thức\"; step 4: delivery recorded, acceptance refused with 409 TEMPLATE_UNCONFIRMED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-03",
+      "FR-RPT-04"
+    ]
   }
 ]

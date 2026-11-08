@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 447,
-    "webCatalog": 447,
-    "webModules": 25,
+    "webRoutes": 451,
+    "webCatalog": 451,
+    "webModules": 26,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
-    "modulesTotal": 26
+    "modulesTotal": 27
   },
   "libraryGroups": [
     {
@@ -47,7 +47,8 @@
         "BID",
         "BI",
         "MNE",
-        "AUD"
+        "AUD",
+        "RPT"
       ]
     },
     {
@@ -1854,6 +1855,37 @@
           }
         }
       ]
+    },
+    "RPT": {
+      "name": "Báo cáo theo biểu mẫu",
+      "groups": [
+        {
+          "title": "Lập và phát hành",
+          "description": "Danh mục biểu mẫu, bản nháp và luồng ký",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Đã phát hành và giao",
+          "description": "Bản đã phát hành có mã băm và nhật ký giao",
+          "ids": [
+            3,
+            4
+          ],
+          "primary": [
+            3,
+            4
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2342,7 +2374,8 @@
     "AUD": "Thanh tra, kiểm toán, kiến nghị và theo dõi khắc phục.",
     "AST": "Tài sản hình thành từ đầu tư, bàn giao và hạch toán.",
     "MNE": "Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia.",
-    "DIR": "Cuộc giao ban đầu tư, chỉ đạo của lãnh đạo, đơn vị thực hiện, hạn và bằng chứng hoàn thành."
+    "DIR": "Cuộc giao ban đầu tư, chỉ đạo của lãnh đạo, đơn vị thực hiện, hạn và bằng chứng hoàn thành.",
+    "RPT": "Lập báo cáo đúng biểu mẫu, ký ba người, phát hành bản bất biến và ghi việc giao."
   },
   "adminLibraryModules": [
     "IAM",
@@ -6976,6 +7009,46 @@
       "area": "overview",
       "module": "DIR",
       "group": "Theo dõi chỉ đạo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-01",
+      "title": "Danh mục biểu mẫu báo cáo và lập báo cáo",
+      "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Lập và phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-02",
+      "title": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành",
+      "kind": "detail",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Lập và phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-03",
+      "title": "Các bản báo cáo đã phát hành",
+      "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Đã phát hành và giao",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-04",
+      "title": "Nhật ký giao báo cáo cho bên nhận",
+      "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Đã phát hành và giao",
       "role": "workspace",
       "parent": null
     }

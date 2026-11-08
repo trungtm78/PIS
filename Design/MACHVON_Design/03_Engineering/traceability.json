@@ -10241,5 +10241,81 @@
       "UI-DIR-06",
       "UAT-PLAN-140"
     ]
+  },
+  {
+    "requirement": "FR-RPT-01",
+    "screen": "RPT-01",
+    "title": "Danh mục biểu mẫu báo cáo và lập báo cáo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch RPT-1 phần 2 và docs/report-engine.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/RPT.md §10–§11; 3 test",
+    "backlog_id": "BL-RPT-01",
+    "test_ids": [
+      "UI-RPT-01",
+      "UAT-RPT-001",
+      "UAT-RPT-003"
+    ]
+  },
+  {
+    "requirement": "FR-RPT-02",
+    "screen": "RPT-02",
+    "title": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/RPT.md §10–§11; 3 test",
+    "backlog_id": "BL-RPT-02",
+    "test_ids": [
+      "UI-RPT-02",
+      "UAT-RPT-001",
+      "UAT-RPT-002"
+    ]
+  },
+  {
+    "requirement": "FR-RPT-03",
+    "screen": "RPT-03",
+    "title": "Các bản báo cáo đã phát hành",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/RPT.md §10–§11; 3 test",
+    "backlog_id": "BL-RPT-03",
+    "test_ids": [
+      "UI-RPT-03",
+      "UAT-RPT-002",
+      "UAT-RPT-003"
+    ]
+  },
+  {
+    "requirement": "FR-RPT-04",
+    "screen": "RPT-04",
+    "title": "Nhật ký giao báo cáo cho bên nhận",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch RPT-1 phần 2, R17, R18 và docs/report-engine.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/RPT.md §10–§11; 3 test",
+    "backlog_id": "BL-RPT-04",
+    "test_ids": [
+      "UI-RPT-04",
+      "UAT-RPT-002",
+      "UAT-RPT-003"
+    ]
   }
 ]
