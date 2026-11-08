@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { AuditWriter, DisMilestoneStore, MILESTONE_RESOURCE, WORKER_MEMBERSHIP_ID, consumeOnce, milestoneRecord } from '@machvon/db';
+import { AuditWriter, DIS_MILESTONE_RESOURCE as MILESTONE_RESOURCE, DisMilestoneStore, WORKER_MEMBERSHIP_ID, consumeOnce, milestoneRecord } from '@machvon/db';
 import type { ConsumeSecurity, OutboxDelivery, TenantDatabase } from '@machvon/db';
 import { DomainError, asUuid } from '@machvon/kernel';
 

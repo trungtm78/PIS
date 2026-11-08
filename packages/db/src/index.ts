@@ -1779,8 +1779,8 @@ export type { CandidatesView, ImpactView, PlanLine, ReadPolicy } from './cap-rea
 =======
 export type { CandidatesView, ImpactView, PlanLine as ReallocationPlanLine, ReadPolicy as ReallocationReadPolicy } from './cap-reallocation-impact-store.ts';
 // GOV-11 DIS (G1-16): the milestone vintages, the board and the accuracy of the forecasts.
-export { DisMilestoneStore, MILESTONE_RECORDED_EVENT, MILESTONE_RESOURCE, lastFullMonth, milestoneRecord } from './dis-milestone-store.ts';
-export type { AccuracyUnit, AccuracyView, AlertMilestone, MilestoneBoard, MilestoneGroup, MilestoneUnitRow, RecordResult as MilestoneRecordResult, RuleReading } from './dis-milestone-store.ts';
+export { DisMilestoneStore, MILESTONE_RECORDED_EVENT, MILESTONE_RESOURCE as DIS_MILESTONE_RESOURCE, lastFullMonth, milestoneRecord } from './dis-milestone-store.ts';
+export type { AccuracyUnit, AccuracyView, AlertMilestone, MilestoneBoard, MilestoneGroup, MilestoneUnitRow, RecordResult as MilestoneRecordResult, RuleReading as DisRuleReading } from './dis-milestone-store.ts';
 // GOV-11 PAY (G1-17): the clock of the Treasury control.
 export { PAYMENT_CLOCK_RESOURCE, PayClockStore } from './pay-clock-store.ts';
 export type { ClockBoard, ClockFilter, ClockRuleReading, PaymentClockRow, ReasonReading } from './pay-clock-store.ts';

@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { DisMilestoneStore, TenantDatabase, projectScope } from '@machvon/db';
-import type { AccuracyView, MilestoneBoard, RuleReading } from '@machvon/db';
+import type { AccuracyView, DisRuleReading as RuleReading, MilestoneBoard } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';

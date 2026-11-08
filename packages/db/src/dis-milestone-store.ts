@@ -17,7 +17,7 @@ import {
   readMilestones,
   summarizeMilestone,
 } from '@machvon/kernel';
-import type { AccuracyPair, AccuracyPolicy, AccuracyReport, Estimate, MilestonePolicy, MilestoneReading, MilestoneRow, MilestoneStatus, MilestoneSummary, Provenance } from '@machvon/kernel';
+import type { AccuracyPair, AccuracyPolicy, AccuracyReport, Estimate, MilestonePolicy, MilestoneReading, MilestoneRow, DisMilestoneStatus as MilestoneStatus, MilestoneSummary, Provenance } from '@machvon/kernel';
 import { DisForecastStore } from './dis-forecast-store.ts';
 import type { ForecastProject } from './dis-forecast-store.ts';
 import { DisPeriodStore } from './dis-period-store.ts';
