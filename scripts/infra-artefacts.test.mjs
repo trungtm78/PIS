@@ -32,7 +32,8 @@ function scratch(edit = () => {}) {
     // A text edit must change something: an edit that finds nothing would make the case pass without testing anything.
     text(path, change) {
       const file = join(root, path);
-      const before = readFileSync(file, 'utf8');
+      // A checkout with CRLF line ends (Windows) must not hide the text an edit looks for.
+      const before = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
       const after = change(before);
       assert.notEqual(after, before, `the edit of ${path} changed nothing`);
       writeFileSync(file, after);
