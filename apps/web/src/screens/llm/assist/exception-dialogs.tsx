@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { classificationLabel } from '../labels';
 import { useTranslation } from '../../../i18n';
 import { ConfirmDialog } from '../../../ui';
 import { Field, describedBy } from './assist-components';
