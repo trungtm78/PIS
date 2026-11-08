@@ -1,4 +1,5 @@
 import type { DirectiveDetail, DirectiveEventView, DirectiveLine, DirectiveSummary, EvidenceView, ExtensionView, MeetingLine, ReportView } from '@machvon/db';
+import { message } from '@machvon/kernel';
 import type { DirectivePolicyReading, ResourceRef } from '@machvon/kernel';
 
 const unit = (value: { id: string; code: string; name: string }): Record<string, unknown> => ({ id: value.id, code: value.code, name: value.name });
@@ -122,10 +123,10 @@ export function directiveDetailView(detail: DirectiveDetail, policy: DirectivePo
 
 /** What each number on the summary is, in the words of the user: its formula, its source and the day it is read on. */
 export const SUMMARY_DEFINITIONS = {
-  by_status: 'Số chỉ đạo theo trạng thái mà người đọc thấy: Quá hạn là chỉ đạo đang mở hoặc đang thực hiện mà hạn trước ngày hôm nay (giờ Việt Nam). Nguồn: bảng chỉ đạo, trong phạm vi của người đọc.',
-  due_soon: 'Chỉ đạo chưa xong có hạn trong số ngày nhắc trước hạn của chính sách (mặc định 3 ngày) tính từ hôm nay, kể cả hôm nay.',
-  escalated: 'Chỉ đạo chưa xong quá hạn từ số ngày nâng cấp của chính sách (mặc định 7 ngày) trở lên: khẩn và báo lên lãnh đạo đơn vị thực hiện.',
-  by_unit: 'Số chỉ đạo theo đơn vị thực hiện: tổng, đang mở, quá hạn, đã xong.',
+  by_status: message('dir.view.summary.by_status'),
+  due_soon: message('dir.view.summary.due_soon'),
+  escalated: message('dir.view.summary.escalated'),
+  by_unit: message('dir.view.summary.by_unit'),
 } as const;
 
 export function summaryView(summary: DirectiveSummary, policy: DirectivePolicyReading, asOf: string): Record<string, unknown> {
@@ -143,12 +144,12 @@ export function summaryView(summary: DirectiveSummary, policy: DirectivePolicyRe
 }
 
 export const REPORT_DEFINITIONS = {
-  raised: 'Chỉ đạo của các cuộc giao ban họp trong kỳ.',
-  closed: 'Chỉ đạo có sự kiện đóng trong kỳ.',
-  extended: 'Chỉ đạo có đề nghị gia hạn được duyệt trong kỳ.',
-  open_at_end: 'Chỉ đạo chưa đóng và chưa hủy vào cuối ngày cuối kỳ, dựng lại từ dòng thời gian.',
-  overdue_at_end: 'Chỉ đạo chưa đóng có hạn (tại cuối kỳ) không sau ngày cuối kỳ: hết ngày cuối kỳ mà chưa xong là quá hạn. Hạn tính theo gia hạn đã duyệt đến hết kỳ.',
-  by_status: 'Trạng thái vào cuối ngày cuối kỳ; mọi chỉ đạo của kỳ nằm đúng một trạng thái nên tổng bằng số chỉ đạo của danh sách.',
+  raised: message('dir.view.report.raised'),
+  closed: message('dir.view.report.closed'),
+  extended: message('dir.view.report.extended'),
+  open_at_end: message('dir.view.report.open_at_end'),
+  overdue_at_end: message('dir.view.report.overdue_at_end'),
+  by_status: message('dir.view.report.by_status'),
 } as const;
 
 export function reportView(report: ReportView, asOf: string): Record<string, unknown> {

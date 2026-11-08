@@ -1,4 +1,4 @@
-import { directiveClock } from '@machvon/kernel';
+import { directiveClock, message } from '@machvon/kernel';
 import type { DirectivePhase, StoredDirectiveStatus } from '@machvon/kernel';
 import { DirectivePolicyReader } from './dir-policy-reader.ts';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
@@ -56,7 +56,7 @@ export class HomeDirectiveSources {
       const facet = FACET[clock.phase];
       const overdue = clock.phase === 'OVERDUE' || clock.phase === 'ESCALATED';
       const kind = overdue ? 'DIRECTIVE_OVERDUE' : 'DIRECTIVE_DUE';
-      const title = overdue ? `Chỉ đạo quá hạn · ${row.code}` : clock.phase === 'DUE_TODAY' ? `Chỉ đạo đến hạn hôm nay · ${row.code}` : `Chỉ đạo sắp đến hạn · ${row.code}`;
+      const title = overdue ? message('home.source.directive.overdue', { code: row.code }) : clock.phase === 'DUE_TODAY' ? message('home.source.directive.due_today', { code: row.code }) : message('home.source.directive.due_soon', { code: row.code });
       items.push({
         ...base(kind),
         id: row.id,
@@ -69,7 +69,7 @@ export class HomeDirectiveSources {
         lifecycle: row.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'NEW',
         consequence: (clock.phase === 'ESCALATED' ? CONSEQUENCES.DIRECTIVE_ESCALATED : overdue ? CONSEQUENCES.DIRECTIVE_OVERDUE : CONSEQUENCES.DIRECTIVE_DUE) ?? null,
         causeKey: null,
-        escalation: overdue ? { level: clock.phase === 'ESCALATED' ? 2 : 1, of: 2, nextAt: clock.escalatesOn, chain: ['Người thực hiện', 'Lãnh đạo đơn vị'] } : null,
+        escalation: overdue ? { level: clock.phase === 'ESCALATED' ? 2 : 1, of: 2, nextAt: clock.escalatesOn, chain: [message('home.source.chain.directive.assignee'), message('home.source.chain.directive.unit_leader')] } : null,
         target: { screen: 'DIR-04', id: row.id },
       });
     }

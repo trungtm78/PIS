@@ -6,7 +6,7 @@ import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
- * The precondition of a disbursement (G1-2; NĐ 85/2025 Điều 53): a payment is built, revised and sent only for a project that is on the list of the investment projects (its stage is not one of the stages the policy
+ * The precondition of a disbursement (G1-2; Decree 85/2025, Article 53): a payment is built, revised and sent only for a project that is on the list of the investment projects (its stage is not one of the stages the policy
  * `DISBURSEMENT_PRECONDITION` closes) and that holds an approved amount in the capital plan on the system (the sum of the balances of its lines is above nothing). The number on the system wins over paper. A refusal is
  * 422 with the cause and the way to fix it (`DISBURSEMENT_PROJECT_NOT_LISTED`, `DISBURSEMENT_NO_APPROVED_PLAN`); an open request to appraise the project again is only a warning. The read (`check`) gives the same
  * verdict without refusing, for the screen that tells a person why a payment will not go before the person fills a request.

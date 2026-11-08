@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Inject, Optional, Post } from '@nestjs/comm
 import { PERMISSIONS } from '@machvon/contracts';
 import { DisWarningStore, PayAdvanceStore, WARNING_RESOURCE, contractScope, projectScope } from '@machvon/db';
 import type { WorkRow } from '@machvon/db';
-import { DomainError, evaluateSnooze, reasonOf, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, evaluateSnooze, message, reasonOf, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandResult } from '../../command-result';
@@ -16,7 +16,7 @@ import { WorkActionSupport, invalid } from './work-action-support';
 import { holdsGrantOf, workScopes } from './work-scope';
 
 /** What the acknowledgement of a warning says when the person who took it up gave no words. */
-const DEFAULT_ACK_REASON = 'Đã nhận xử lý từ trung tâm cảnh báo';
+const DEFAULT_ACK_REASON = message('home.work_action.default_ack_reason');
 
 /**
  * The three things a person does about an item of the alert centre: take it up (`claimWork`), give it to someone with a day (`assignWork`), put it off (`snoozeWork`). The item has to be in the work the person may see (404

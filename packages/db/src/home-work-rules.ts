@@ -1,6 +1,6 @@
-import type { WorkBucket, WorkKind } from '@machvon/kernel';
+import { message, type WorkBucket, type WorkKind } from '@machvon/kernel';
 
-/** How urgent an item of the alert centre is: "Khẩn", "Cần xử lý", "Theo dõi". */
+/** How urgent an item of the alert centre is: urgent, to be acted on, to be watched. */
 export type WorkSeverity = 'URGENT' | 'ACTION' | 'WATCH';
 export const WORK_SEVERITIES: readonly WorkSeverity[] = ['URGENT', 'ACTION', 'WATCH'];
 
@@ -123,42 +123,42 @@ export const GUARANTEE_SOON_DAYS = 7;
 
 export const SEVERITY_RANK: Readonly<Record<WorkSeverity, number>> = { URGENT: 0, ACTION: 1, WATCH: 2 };
 
-/** What happens when the item is not done: one sentence, in the words of the user. */
-export const CONSEQUENCES: Readonly<Record<string, string>> = {
-  CLOCK: 'Thời hạn của việc này tính theo giờ làm việc; quá hạn sẽ bị ghi nhận là chậm và báo lên cấp trên.',
-  APPROVAL: 'Hồ sơ chờ bạn duyệt bị dừng ở bước này cho đến khi có quyết định.',
-  EXPLANATION: 'Yêu cầu giải trình chưa được trả lời sẽ bị tính là quá hạn và báo lên người yêu cầu.',
-  EXPLANATION_CONCLUDE: 'Giải trình đã nhận chưa được kết luận thì cảnh báo liên quan vẫn còn mở.',
-  REPORT: 'Báo cáo chưa nộp đúng kỳ làm số liệu của dự án thiếu hoặc chậm trên bảng điều hành.',
-  OBLIGATION: 'Báo cáo giám sát đánh giá chưa nộp đúng hạn sẽ bị ghi nhận là chậm.',
-  EARLY_WARNING: 'Cảnh báo chưa xử lý có thể làm dự án chậm so với kế hoạch giải ngân của kỳ.',
-  ADVANCE: 'Tạm ứng chưa thu hồi đúng hạn sẽ bị nâng cấp cảnh báo lên lãnh đạo.',
-  PERMIT_EXPIRED: 'Giấy phép đã hết hạn: công việc cần giấy phép này có thể phải dừng cho đến khi được gia hạn.',
-  PERMIT_EXPIRING: 'Giấy phép sắp hết hạn: cần gia hạn trước ngày hết hạn để thi công không bị gián đoạn.',
-  AUDIT_RECOMMENDATION_OVERDUE: 'Kiến nghị quá hạn thực hiện sẽ tiếp tục bị đưa vào theo dõi của cơ quan kiểm toán.',
-  AUDIT_RECOMMENDATION_ESCALATED: 'Kiến nghị quá hạn đã được nâng lên lãnh đạo: đơn vị cần báo cáo kết quả xử lý ngay.',
-  ISSUE_SLA_BREACH: 'Vấn đề vượt thời hạn xử lý sẽ tiếp tục được chuyển lên cấp cao hơn.',
-  ISSUE_SLA_BREACH_L3: 'Vấn đề đã lên cấp 3 (tổ công tác): cần xử lý ngay để không ảnh hưởng tiến độ dự án.',
-  SITE_DIARY: 'Thiếu nhật ký công trường thì hồ sơ chất lượng không đủ căn cứ để nghiệm thu.',
-  GUARANTEE: 'Bảo lãnh hết hạn mà chưa được thay thế thì hợp đồng không còn được bảo đảm.',
-  EAC_EXCEEDS_TMDT: 'Dự báo chi phí hoàn thành vượt tổng mức đầu tư đã duyệt: dự án cần điều chỉnh quyết định đầu tư trước khi ký thêm hợp đồng hoặc lệnh thay đổi.',
-  RESERVE_BELOW_RISK_EV: 'Dự phòng còn lại thấp hơn giá trị kỳ vọng của các rủi ro đang mở: một rủi ro xảy ra sẽ phải xin điều chỉnh thay vì rút dự phòng.',
-  ADVANCE_EXCEEDS_REMAINING: 'Dư nợ tạm ứng lớn hơn giá trị còn lại phải thanh toán: không kỳ thanh toán nào còn đủ để thu hồi, và thanh toán cuối sẽ bị chặn.',
-  DIRECTIVE_DUE: 'Chỉ đạo sắp đến hạn: nếu không có báo cáo tiến độ hoặc đề nghị gia hạn có lý do, chỉ đạo sẽ bị tính là quá hạn và báo lên lãnh đạo đơn vị.',
-  DIRECTIVE_OVERDUE: 'Chỉ đạo quá hạn được đưa vào báo cáo kỳ sau là chưa hoàn thành; quá hạn 7 ngày sẽ báo lên lãnh đạo đơn vị.',
-  DIRECTIVE_ESCALATED: 'Chỉ đạo quá hạn từ 7 ngày đã được nâng lên lãnh đạo đơn vị: cần báo cáo kết quả hoặc xin gia hạn có lý do ngay.',
-  PRC_STEP_OVERDUE: 'Gói thầu ở lại bước quá số ngày chuẩn: các bước sau và ngày ký hợp đồng bị đẩy lùi, dự án có thể chậm giải ngân.',
-  PRC_CHECKLIST_DUE: 'Mục bắt buộc chưa xong chặn không cho gói thầu sang bước sau; quá hạn sẽ làm bước bị trễ.',
-  PRC_PACKAGE_STALLED: 'Gói thầu đứng yên quá số ngày làm việc cho phép mà không có ai ghi nhận: tiến độ thực tế không còn được theo dõi.',
-  PRC_NO_OWNER: 'Gói thầu không có người phụ trách thì không ai nhận cảnh báo của bước và mục danh mục kiểm, gói sẽ trôi.',
-  // Lane D (G4-1, G4-2, G4-4, G4-5) and lane B1 (G1-3): the sentences are the ones of the `ALERT_TYPE` seeds (the registry replaces them when a tenant approves its own type).
-  TREASURY_RECON_ITEM_OVERDUE: 'Chỉ tiêu liên quan vẫn bị đánh dấu và một vướng mắc được mở ở phân hệ ISS.',
-  CROSS_TOTAL_MISMATCH: 'Chỉ tiêu không được công bố cho đến khi ba tổng khớp nhau.',
-  SOD_EXCEPTION_EXPIRING: 'Ngoại lệ hết hạn thì người giữ cả hai nhiệm vụ bị chặn ở lần thao tác kế tiếp.',
-  SOD_EXCEPTION_USED: 'Hồ sơ đi qua ngoại lệ mà không ai xem lại thì ngoại lệ mất tác dụng kiểm soát.',
-  PAYMENT_INTEGRITY_BLOCKED: 'Đề nghị thanh toán bị chặn không gửi đi được cho đến khi hết phát hiện chặn hoặc có ngoại lệ được duyệt.',
-  PAYMENT_INTEGRITY_SIGNAL: 'Tín hiệu bất thường không được xem xét sẽ còn nguyên trong hồ sơ cho kiểm toán.',
-  DISBURSEMENT_EXCEPTION_EXPIRING: 'Ngoại lệ giải ngân hết hạn thì thanh toán vượt trần bị chặn trở lại.',
-  RESCHEDULE_COUNT: 'Đường cơ sở bị sửa nhiều lần mà không ai xem lại: kiểm toán theo dõi muộn.',
-  CONNECTOR_STALE: 'Số liệu lấy từ nguồn bên ngoài cũ hơn mức cho phép và chỉ tiêu dựa vào đó phải ghi rõ là chưa cập nhật.',
-};
+/** What happens when the item is not done: one sentence, in the words of the user (the texts are in the kernel message catalogue, `home.consequence.<key>`). */
+const CONSEQUENCE_KEYS = [
+  'CLOCK',
+  'APPROVAL',
+  'EXPLANATION',
+  'EXPLANATION_CONCLUDE',
+  'REPORT',
+  'OBLIGATION',
+  'EARLY_WARNING',
+  'ADVANCE',
+  'PERMIT_EXPIRED',
+  'PERMIT_EXPIRING',
+  'AUDIT_RECOMMENDATION_OVERDUE',
+  'AUDIT_RECOMMENDATION_ESCALATED',
+  'ISSUE_SLA_BREACH',
+  'ISSUE_SLA_BREACH_L3',
+  'SITE_DIARY',
+  'GUARANTEE',
+  'EAC_EXCEEDS_TMDT',
+  'RESERVE_BELOW_RISK_EV',
+  'ADVANCE_EXCEEDS_REMAINING',
+  'DIRECTIVE_DUE',
+  'DIRECTIVE_OVERDUE',
+  'DIRECTIVE_ESCALATED',
+  'PRC_STEP_OVERDUE',
+  'PRC_CHECKLIST_DUE',
+  'PRC_PACKAGE_STALLED',
+  'PRC_NO_OWNER',
+  'TREASURY_RECON_ITEM_OVERDUE',
+  'CROSS_TOTAL_MISMATCH',
+  'SOD_EXCEPTION_EXPIRING',
+  'SOD_EXCEPTION_USED',
+  'PAYMENT_INTEGRITY_BLOCKED',
+  'PAYMENT_INTEGRITY_SIGNAL',
+  'DISBURSEMENT_EXCEPTION_EXPIRING',
+  'RESCHEDULE_COUNT',
+  'CONNECTOR_STALE',
+] as const;
+export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

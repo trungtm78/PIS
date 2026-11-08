@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
 import { AnalyticsGovernanceStore, AuditWriter, TenantDatabase } from '@machvon/db';
-import { DomainError, buildHomeExportDocument, csvOf, isRuleDay, vietnamDateOf, xlsxOf } from '@machvon/kernel';
+import { DomainError, buildHomeExportDocument, csvOf, isRuleDay, message, vietnamDateOf, xlsxOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -102,7 +102,7 @@ export class KpiRegisterController {
       asOfDate: read.snapshot.asOfDate,
       treasuryCutoffDate: read.snapshot.treasuryCutoffDate,
       definitionStatus: read.snapshot.definitionStatus,
-      scopeText: unitId === undefined ? 'Toàn bộ phạm vi người xem được đọc' : `unit:${unitId as string}`,
+      scopeText: unitId === undefined ? message('home.kpi_register.scope_all') : `unit:${unitId as string}`,
       createdAt: now,
       rows: all.map((figure) => ({
         code: figure.metric_code,

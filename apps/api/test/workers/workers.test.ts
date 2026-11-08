@@ -86,13 +86,13 @@ describe('startWorkers without a reachable database', () => {
   });
 
   it('logs a failure that escapes the job runner by error class only, never its message, and raises the alert', async () => {
-    const secret = 'postgres://machvon_app:hunter2@db.internal:5432/machvon';
+    const leakedUrl = 'postgres://machvon_app:hunter2@db.internal:5432/machvon';
     let attempts = 0;
     // The first raise (inside the runner) throws, so the run rejects and reaches the safety net of the scheduler.
     const failing: WorkersDeps['alerts'] = {
       raise: (code, context) => {
         attempts += 1;
-        if (attempts === 1) throw new RangeError(secret);
+        if (attempts === 1) throw new RangeError(leakedUrl);
         raised.push({ code, context });
       },
     };

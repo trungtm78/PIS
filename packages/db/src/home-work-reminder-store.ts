@@ -73,7 +73,7 @@ export class HomeWorkReminderStore {
     return summary;
   }
 
-  /** The notices to the next level an item has had, newest first (what the item shows as "báo lên cấp trên"). */
+  /** The notices to the next level an item has had, newest first (what the item shows as "told to the level above"). */
   async notices(tx: TenantTx, items: ReadonlyArray<{ source: string; sourceId: string }>): Promise<Map<string, Array<{ kind: ReminderKind; at: string }>>> {
     const notices = new Map<string, Array<{ kind: ReminderKind; at: string }>>();
     for (let from = 0; from < items.length; from += CHUNK) {

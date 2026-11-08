@@ -1,4 +1,4 @@
-import { ADVANCE_ESCALATION_DAYS, coverageRange } from '@machvon/kernel';
+import { ADVANCE_ESCALATION_DAYS, coverageRange, message } from '@machvon/kernel';
 import type { NativeClock, WorkItem, WorkKind } from '@machvon/kernel';
 import { AUDIT_ESCALATION_DAYS, CONSEQUENCES, EXPIRY_WINDOW_DAYS, GUARANTEE_SOON_DAYS, SOURCE_OF_KIND, severityOf } from './home-work-rules.ts';
 import type { SeverityRules, WorkEscalation, WorkLifecycle, WorkSeverity, WorkSource } from './home-work-rules.ts';
@@ -179,7 +179,7 @@ export class HomeCrossSources {
         id: row.id,
         dueOn: row.recovery_deadline ?? row.overdue_since,
         originalDueOn: row.recovery_deadline ?? row.overdue_since,
-        title: `Tạm ứng ${row.contract_code} quá hạn thu hồi`,
+        title: message('home.source.advance.title', { contract: row.contract_code }),
         subtitle: row.project_code,
         status: row.status,
         severity: severityOf('ADVANCE', 'OVERDUE', context.rules),
@@ -187,7 +187,7 @@ export class HomeCrossSources {
         consequence: CONSEQUENCES.ADVANCE ?? null,
         causeKey: row.id,
         startedAt: startOfDay(row.overdue_since),
-        escalation: { level, of: 4, nextAt: level < 4 ? addDays(row.overdue_since, ADVANCE_ESCALATION_DAYS) : null, chain: ['Nhắc trước hạn', 'Đến hạn thu hồi', 'Quá hạn', 'Báo lãnh đạo'] },
+        escalation: { level, of: 4, nextAt: level < 4 ? addDays(row.overdue_since, ADVANCE_ESCALATION_DAYS) : null, chain: [message('home.source.chain.advance.remind'), message('home.source.chain.advance.due'), message('home.source.chain.advance.overdue'), message('home.source.chain.advance.leader')] },
         target: { screen: 'PAY-12', id: row.id },
       };
     });
@@ -216,14 +216,14 @@ export class HomeCrossSources {
         id: row.id,
         dueOn: row.valid_until,
         originalDueOn: row.valid_until,
-        title: label(row.type_name ?? 'Giấy phép', row.permit_no) ?? 'Giấy phép',
+        title: label(row.type_name ?? message('home.source.permit.fallback'), row.permit_no) ?? message('home.source.permit.fallback'),
         subtitle: row.project_code,
         status: row.status,
         severity: severityOf('PERMIT', expired ? 'EXPIRED' : 'EXPIRING', context.rules),
         consequence: (expired ? CONSEQUENCES.PERMIT_EXPIRED : CONSEQUENCES.PERMIT_EXPIRING) ?? null,
         causeKey: row.id,
         startedAt: row.valid_until === null ? null : startOfDay(expired ? addDays(row.valid_until, 1) : addDays(row.valid_until, -EXPIRY_WINDOW_DAYS)),
-        escalation: level === 0 ? null : { level, of: 4, nextAt: next, chain: ['Còn 60 ngày', 'Còn 30 ngày', 'Còn 15 ngày', 'Hết hạn'] },
+        escalation: level === 0 ? null : { level, of: 4, nextAt: next, chain: [message('home.source.chain.days_left_60'), message('home.source.chain.days_left_30'), message('home.source.chain.days_left_15'), message('home.source.chain.permit.expired')] },
         target: { screen: 'PMT-02', id: row.id },
       };
     });
@@ -251,7 +251,7 @@ export class HomeCrossSources {
         id: row.id,
         dueOn: row.due_on,
         originalDueOn: row.due_on,
-        title: `Kiến nghị ${row.rec_code} quá hạn`,
+        title: message('home.source.audit.title', { code: row.rec_code }),
         subtitle: row.project_code ?? row.unit_code,
         status: row.status,
         severity: severityOf('AUDIT_RECOMMENDATION', escalated ? 'ESCALATED' : 'OVERDUE', context.rules),
@@ -259,7 +259,7 @@ export class HomeCrossSources {
         consequence: (escalated ? CONSEQUENCES.AUDIT_RECOMMENDATION_ESCALATED : CONSEQUENCES.AUDIT_RECOMMENDATION_OVERDUE) ?? null,
         causeKey: row.id,
         startedAt: startOfDay(addDays(row.due_on, 1)),
-        escalation: { level: escalated ? 2 : 1, of: 2, nextAt: escalated ? null : addDays(row.due_on, AUDIT_ESCALATION_DAYS), chain: ['Đơn vị thực hiện', 'Lãnh đạo'] },
+        escalation: { level: escalated ? 2 : 1, of: 2, nextAt: escalated ? null : addDays(row.due_on, AUDIT_ESCALATION_DAYS), chain: [message('home.source.chain.audit.unit'), message('home.source.chain.audit.leader')] },
         target: { screen: 'AUD-11', id: row.id },
       };
     });
@@ -303,7 +303,7 @@ export class HomeCrossSources {
         causeKey: row.source_ref_id,
         startedAt: row.overdue_at,
         // The day the next level is reached depends on the working calendar of the policy and is the job's to count; it is not guessed here.
-        escalation: { level, of: 3, nextAt: null, chain: ['Người xử lý', unit ?? 'Đơn vị', 'Tổ công tác'] },
+        escalation: { level, of: 3, nextAt: null, chain: [message('home.source.chain.issue.handler'), unit ?? message('home.source.chain.issue.unit'), message('home.source.chain.issue.task_force')] },
         target: { screen: 'ISS-03', id: row.id },
       };
     });
@@ -331,14 +331,14 @@ export class HomeCrossSources {
         id: row.id,
         dueOn: row.expires_on,
         originalDueOn: row.expires_on,
-        title: `Bảo lãnh ${row.contract_code} sắp hết hạn`,
+        title: message('home.source.guarantee.title', { contract: row.contract_code }),
         subtitle: row.project_code,
         status: 'ACTIVE',
         severity: severityOf('GUARANTEE', row.days_left <= GUARANTEE_SOON_DAYS ? 'EXPIRING_SOON' : 'EXPIRING', context.rules),
         consequence: CONSEQUENCES.GUARANTEE ?? null,
         causeKey: row.id,
         startedAt: startOfDay(addDays(row.expires_on, -EXPIRY_WINDOW_DAYS)),
-        escalation: { level, of: 4, nextAt: nextDays === undefined ? null : addDays(row.expires_on, -nextDays), chain: ['Còn 30 ngày', 'Còn 15 ngày', 'Còn 7 ngày', 'Đến hạn'] },
+        escalation: { level, of: 4, nextAt: nextDays === undefined ? null : addDays(row.expires_on, -nextDays), chain: [message('home.source.chain.days_left_30'), message('home.source.chain.days_left_15'), message('home.source.chain.days_left_7'), message('home.source.chain.guarantee.due')] },
         target: { screen: 'CTR-05', id: row.id },
       };
     });
@@ -387,11 +387,16 @@ export class HomeCrossSources {
         id: `site-diary:${month}`,
         dueOn: null,
         originalDueOn: null,
-        title: projects.length === 1 && first !== undefined ? `Thiếu ${total} nhật ký công trường · ${first.code}` : `${projects.length} dự án thiếu nhật ký công trường`,
-        subtitle: `${projects
-          .slice(0, 3)
-          .map((project) => project.code)
-          .join(', ')}${projects.length > 3 ? '…' : ''} · ${total} ngày làm việc chưa có nhật ký (tháng ${month.slice(5)}/${month.slice(0, 4)})`,
+        title: projects.length === 1 && first !== undefined ? message('home.source.site_diary.title_one', { total, code: first.code }) : message('home.source.site_diary.title_many', { count: projects.length }),
+        subtitle: message('home.source.site_diary.detail', {
+          codes: `${projects
+            .slice(0, 3)
+            .map((project) => project.code)
+            .join(', ')}${projects.length > 3 ? '…' : ''}`,
+          total,
+          month: month.slice(5),
+          year: month.slice(0, 4),
+        }),
         status: 'MISSING',
         severity: severityOf('SITE_DIARY', 'MISSING', context.rules),
         consequence: CONSEQUENCES.SITE_DIARY ?? null,

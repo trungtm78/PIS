@@ -724,7 +724,7 @@ export class EgpMappingStore {
   }
 
   /**
-   * What the system proposes for a person to confirm (BID-23, "Gợi ý chờ xác nhận"): a package of the network that has no mapping and whose price equals the budget of a package of ours to the unit and
+   * What the system proposes for a person to confirm (BID-23, "suggestions awaiting confirmation"): a package of the network that has no mapping and whose price equals the budget of a package of ours to the unit and
    * whose name is alike (Jaccard index, the line `EGP_SUGGESTION_THRESHOLD`, our own number and unverified). It is a hint, never a link: nothing is written until a person proposes the mapping and another approves it.
    */
   async suggestions(tx: TenantTx, limit: number): Promise<{ items: EgpSuggestion[]; threshold: number }> {

@@ -2,7 +2,7 @@ import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/co
 import { PERMISSIONS } from '@machvon/contracts';
 import { DIRECTIVE_READ_LIMIT, DirDirectiveStore, DirectivePolicyReader, SCOPE_FROM, TenantDatabase, directiveScope, meetingScope, projectScope } from '@machvon/db';
 import type { DirectiveFilter, DirectiveLine } from '@machvon/db';
-import { DomainError, directiveStatusOf, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, directiveStatusOf, message, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, ResourceRef, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -177,7 +177,7 @@ export class DirectiveReadsController {
       counts: { overdue: summary.byStatus.OVERDUE, due_soon: summary.dueSoon, escalated: summary.escalated, open: summary.byStatus.OPEN + summary.byStatus.IN_PROGRESS },
       items: lines.map(directiveLineView),
       truncated: summary.truncated,
-      definitions: { overdue: 'Chỉ đạo đang mở hoặc đang thực hiện mà hạn trước ngày hôm nay (giờ Việt Nam), trong phạm vi của người đọc; xếp quá hạn lâu nhất trước.', due_soon: 'Chỉ đạo chưa xong có hạn trong số ngày nhắc trước hạn của chính sách.', escalated: 'Chỉ đạo quá hạn từ số ngày nâng cấp của chính sách trở lên.' },
+      definitions: { overdue: message('dir.view.widget.overdue'), due_soon: message('dir.view.widget.due_soon'), escalated: message('dir.view.widget.escalated') },
       policy: policyView(policy),
       as_of: now.toISOString(),
     };

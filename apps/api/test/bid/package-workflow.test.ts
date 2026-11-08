@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies are JSON read back as they came, the tests index into them */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { DEFAULT_SEVERITY_RULES, EffectiveAccessStore, HomeWorkStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
@@ -33,6 +32,47 @@ const ELSEWHERE = 3;
 interface Reply {
   status: number;
   json: Record<string, unknown>;
+}
+
+/** The members of the bodies that this suite looks into: the replies are JSON read back as they came, so each shape names only what the assertions use. */
+interface ItemBody {
+  id: string;
+  code: string;
+  status: string;
+  completed_via?: string;
+  completed_by: string | null;
+  evidence: unknown[];
+}
+interface WorkflowBody {
+  id: string;
+  version: number;
+  status: string;
+  step?: { code: string };
+  blockers: Array<{ reason: string }>;
+  owner: unknown;
+  exceptions: Array<{ id: string; status: string; kind: string }>;
+  checklist: ItemBody[];
+  timeline: { days: unknown };
+}
+interface BoardBody {
+  columns: Array<{ code: string; cards: Array<{ actions: { advance: boolean } }> }>;
+}
+interface WholeBody {
+  actions: unknown;
+  workflow: { links: unknown };
+}
+interface StatisticsBody {
+  steps: unknown;
+  stuck: unknown[];
+  kpis: unknown;
+}
+interface ExportBody {
+  content_base64: string;
+  content_type: string;
+  size_bytes: number;
+}
+interface SummaryBody {
+  top_steps: unknown;
 }
 
 const dayFromToday = (offset: number): string => new Date(Date.now() + 7 * 3_600_000 + offset * 86_400_000).toISOString().slice(0, 10);
@@ -115,9 +155,9 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
   const newPackage = async (projectId?: string, unit?: number) => seedBidPackage(harness, { ...(projectId === undefined ? {} : { projectId }), ...(unit === undefined ? {} : { unit }) });
   const start = (packageId: string, member = MANAGER, body: Record<string, unknown> = {}, key?: string): Promise<Reply> => call('POST', `/procurement-packages/${packageId}/workflow`, { member, body, ...(key === undefined ? {} : { key }) });
   const detail = (packageId: string, member = MANAGER, tenantId?: string): Promise<Reply> => call('GET', `/procurement-packages/${packageId}/workflow`, { member, ...(tenantId === undefined ? {} : { tenantId }) });
-  const workflowOf = async (packageId: string): Promise<Record<string, any>> => ((await detail(packageId)).json.workflow ?? {}) as Record<string, any>;
+  const workflowOf = async (packageId: string): Promise<WorkflowBody> => ((await detail(packageId)).json.workflow ?? {}) as WorkflowBody;
   const versionOf = async (packageId: string): Promise<number> => Number((await workflowOf(packageId)).version);
-  const itemOf = async (packageId: string, code: string): Promise<Record<string, any>> => ((await workflowOf(packageId)).checklist as Array<Record<string, any>>).find((one) => one.code === code) as Record<string, any>;
+  const itemOf = async (packageId: string, code: string): Promise<ItemBody> => (await workflowOf(packageId)).checklist.find((one) => one.code === code) as ItemBody;
   const complete = async (packageId: string, code: string, member: number, evidence: unknown[] = []): Promise<Reply> => call('POST', `/package-checklist-items/${(await itemOf(packageId, code)).id}/completion`, { member, body: { evidence } });
   const advance = async (packageId: string, member: number, body: Record<string, unknown> = {}): Promise<Reply> => call('POST', `/package-workflows/${(await workflowOf(packageId)).id}/advance`, { member, ifMatch: `"${await versionOf(packageId)}"`, body });
   const post = async (packageId: string, path: string, member: number, body: Record<string, unknown>, versioned = true): Promise<Reply> =>
@@ -302,7 +342,7 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       await complete(pkg.packageId, 'DECISION', MANAGER, [await decisionDoc()]);
       await complete(pkg.packageId, 'CHECKED', WORKER);
       expect(await advance(pkg.packageId, MANAGER)).toMatchObject({ status: 403, json: { code: 'WORKFLOW_MAKER_IS_APPROVER' } });
-      expect((await workflowOf(pkg.packageId)).step.code).toBe('APPROVE_STEP');
+      expect((await workflowOf(pkg.packageId)).step?.code).toBe('APPROVE_STEP');
       expect((await advance(pkg.packageId, ADVANCER)).status).toBe(200);
       const [closed] = await rows<{ approved_by: string | null }>(`select approved_by from machvon.package_step where package_id = $1::uuid and step_code = 'APPROVE_STEP'`, [pkg.packageId]);
       expect(closed?.approved_by).toBe(memberId(ADVANCER));
@@ -317,7 +357,7 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       expect(signed.evidence).toEqual([expect.objectContaining({ kind: 'MILESTONE', milestone_kind: 'CONTRACT_SIGNED' })]);
       const done = await advance(pkg.packageId, ADVANCER);
       expect(done).toMatchObject({ status: 200, json: { status: 'COMPLETED' } });
-      const finished = (await detail(pkg.packageId)).json.workflow as Record<string, any>;
+      const finished = (await detail(pkg.packageId)).json.workflow as WorkflowBody;
       expect(finished).toMatchObject({ status: 'COMPLETED', step: null, progress: { percent: 100 } });
       expect(await post(pkg.packageId, 'hold', MANAGER, { reason: 'Không còn gì để dừng' })).toMatchObject({ status: 409, json: { code: 'PACKAGE_WORKFLOW_STATE_INVALID' } });
       expect((await events(finished.id, 'bid.workflow.completed.v1'))[0]?.payload).toMatchObject({ status: 'COMPLETED', from_step: 'SIGN_STEP' });
@@ -338,7 +378,7 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       expect(await post(pkg.packageId, 'return', MANAGER, { to_step: 'SIGN_STEP', reason: 'Không phải bước trước' })).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
       expect(await post(pkg.packageId, 'return', MANAGER, { to_step: 'PLAN_STEP', reason: 'Thiếu hồ sơ kỹ thuật' })).toMatchObject({ status: 200, json: { status: 'IN_PROGRESS' } });
       const back = await workflowOf(pkg.packageId);
-      expect(back.step.code).toBe('PLAN_STEP');
+      expect(back.step?.code).toBe('PLAN_STEP');
       expect(back.checklist.map((one: { status: string }) => one.status)).toEqual(['OPEN', 'OPEN']);
       expect((await rows('select visit from machvon.package_step where package_id = $1::uuid', [pkg.packageId])).length).toBe(4);
       expect(await post(pkg.packageId, 'cancel', APPROVER, { reason: 'Đấu thầu không thành' })).toMatchObject({ status: 200, json: { status: 'CANCELLED' } });
@@ -382,7 +422,7 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       expect(await advance(pkg.packageId, ADVANCER)).toMatchObject({ status: 409, json: { code: 'PACKAGE_WORKFLOW_BLOCKED' } });
       const moved = await advance(pkg.packageId, ADVANCER, { exception_id: exceptionId });
       expect(moved).toMatchObject({ status: 200, json: { status: 'IN_PROGRESS' } });
-      expect((await workflowOf(pkg.packageId)).step.code).toBe('APPROVE_STEP');
+      expect((await workflowOf(pkg.packageId)).step?.code).toBe('APPROVE_STEP');
       expect(await rows('select status, completed_via from machvon.package_checklist_item where workflow_id = $1::uuid and item_code = $2', [id, 'PLAN_DOC'])).toEqual([{ status: 'WAIVED', completed_via: 'EXCEPTION' }]);
       expect((await rows<{ status: string; decided_by: string }>('select status, decided_by from machvon.package_step_exception where id = $1::uuid', [exceptionId]))[0]).toMatchObject({ status: 'USED', decided_by: memberId(MANAGER) });
       expect(await advance(pkg.packageId, ADVANCER, { exception_id: exceptionId })).toMatchObject({ status: 409 });
@@ -410,7 +450,7 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       expect(waiting).toEqual([expect.objectContaining({ kind: 'CORRECT_BACK', status: 'REQUESTED' })]);
       expect(await call('POST', `/package-step-exceptions/${waiting[0]?.id}/decision`, { member: APPROVER, body: { decision: 'APPROVE', note: 'Đúng là chuyển nhầm' } })).toMatchObject({ status: 200 });
       const back = await workflowOf(pkg.packageId);
-      expect(back.step.code).toBe('PLAN_STEP');
+      expect(back.step?.code).toBe('PLAN_STEP');
       expect(back.exceptions[0]).toMatchObject({ status: 'USED' });
       const visits = await rows<{ visit: number; step_code: string; exit_kind: string | null; entry_kind: string }>('select visit, step_code, exit_kind, entry_kind from machvon.package_step where package_id = $1::uuid order by visit', [pkg.packageId]);
       expect(visits).toEqual([
@@ -506,12 +546,12 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       expect(codes).toEqual([...codes].sort());
       const list = await call('GET', `/package-workflows?project_id=${projectId}&step=PLAN_STEP`, { member: READER });
       expect(list.json.items).toHaveLength(3);
-      expect((list.json.items as Array<Record<string, any>>)[0]).toMatchObject({ status: 'IN_PROGRESS', step: { code: 'PLAN_STEP', order: 1, of: 3 }, actions: { advance: false, start: false } });
+      expect((list.json.items as unknown[])[0]).toMatchObject({ status: 'IN_PROGRESS', step: { code: 'PLAN_STEP', order: 1, of: 3 }, actions: { advance: false, start: false } });
       expect(((await call('GET', `/package-workflows?project_id=${projectId}&no_owner=true`, { member: READER })).json.items as unknown[]).length).toBe(3);
-      const board = (await call('GET', `/package-workflows/board?project_id=${projectId}&method=OPEN_BIDDING`, { member: MANAGER })).json as Record<string, any>;
+      const board = (await call('GET', `/package-workflows/board?project_id=${projectId}&method=OPEN_BIDDING`, { member: MANAGER })).json as unknown as BoardBody;
       expect(board.columns.map((one: { code: string }) => one.code)).toEqual(['NOT_STARTED', 'PLAN_STEP', 'APPROVE_STEP', 'SIGN_STEP', 'COMPLETED', 'CANCELLED']);
       expect(board.columns[1]).toMatchObject({ count: 3, value_vnd: '300000000' });
-      expect(board.columns[1].cards[0].actions.advance).toBe(true);
+      expect(board.columns[1]?.cards[0]?.actions.advance).toBe(true);
       for (const bad of ['node_id=nope', 'node_id=S:OPEN_BIDDING:PLAN_STEP:SLEEPING', 'node_id=']) expect((await call('GET', `/package-workflows/process-tree/packages?${bad}`, { member: READER })).status).toBe(422);
       expect((await call('GET', '/package-workflows?method=SPACESHIP', { member: READER })).status).toBe(422);
       expect((await call('GET', '/package-workflows?late_only=maybe', { member: READER })).status).toBe(422);
@@ -545,7 +585,7 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       expect(gantt.map((bar) => bar.step_code)).toEqual(['PLAN_STEP', 'APPROVE_STEP', 'SIGN_STEP']);
       expect(gantt[0]?.planned?.start_on).toBe(dayFromToday(0));
       expect(gantt[2]?.actual).toBeNull();
-      const whole = (await detail(pkg.packageId, READER)).json as Record<string, any>;
+      const whole = (await detail(pkg.packageId, READER)).json as unknown as WholeBody;
       expect(whole.actions).toMatchObject({ advance: false, work: false, start: false });
       expect(whole.workflow.links).toMatchObject({ petitions: { total: 0 }, result: null });
       expect((await call('GET', `/procurement-packages/${pkg.packageId}/workflow/timeline?order=sideways`, { member: READER })).status).toBe(422);
@@ -559,20 +599,20 @@ describe('the workflow of a procurement package over HTTP (PRC-1)', () => {
       await start(pkg.packageId);
       await complete(pkg.packageId, 'PLAN_DOC', WORKER, [await doc()]);
       await advance(pkg.packageId, ADVANCER);
-      const stats = (await call('GET', `/package-workflows/statistics?project_id=${pkg.projectId}&from=${dayFromToday(-1)}&to=${dayFromToday(1)}`, { member: READER })).json as Record<string, any>;
+      const stats = (await call('GET', `/package-workflows/statistics?project_id=${pkg.projectId}&from=${dayFromToday(-1)}&to=${dayFromToday(1)}`, { member: READER })).json as unknown as StatisticsBody;
       expect(stats.steps).toEqual(expect.arrayContaining([expect.objectContaining({ method: 'OPEN_BIDDING', step_code: 'PLAN_STEP', completed_visits: 1, median_days: 0, on_time_share: 1 }), expect.objectContaining({ step_code: 'APPROVE_STEP', open_visits: 1 })]));
       expect(stats.stuck[0]).toMatchObject({ package_id: pkg.packageId, step_code: 'APPROVE_STEP' });
       expect(stats.kpis).toMatchObject({ completed_visits: 1, on_time_share: 1 });
-      const exported = (await call('GET', `/package-workflows/statistics/export?project_id=${pkg.projectId}&format=csv`, { member: READER })).json as Record<string, any>;
+      const exported = (await call('GET', `/package-workflows/statistics/export?project_id=${pkg.projectId}&format=csv`, { member: READER })).json as unknown as ExportBody;
       const csv = Buffer.from(exported.content_base64, 'base64').toString('utf8');
       expect(exported.content_type).toContain('text/csv');
       expect(csv).toContain('PLAN_STEP');
       expect(csv).toContain('chưa được kiểm chứng');
-      const xlsx = (await call('GET', `/package-workflows/statistics/export?project_id=${pkg.projectId}`, { member: READER })).json as Record<string, any>;
+      const xlsx = (await call('GET', `/package-workflows/statistics/export?project_id=${pkg.projectId}`, { member: READER })).json as unknown as ExportBody;
       expect(Buffer.from(xlsx.content_base64, 'base64').subarray(0, 2).toString()).toBe('PK');
       expect(xlsx.size_bytes).toBe(Buffer.from(xlsx.content_base64, 'base64').length);
       expect((await call('GET', '/package-workflows/statistics/export?format=pdf', { member: READER })).status).toBe(422);
-      const summary = (await call('GET', `/package-workflows/summary?project_id=${pkg.projectId}`, { member: READER })).json as Record<string, any>;
+      const summary = (await call('GET', `/package-workflows/summary?project_id=${pkg.projectId}`, { member: READER })).json as unknown as SummaryBody;
       expect(summary).toMatchObject({ total: 1, running: 1, late: 0, no_owner: 1, on_hold: 0 });
       expect(summary.top_steps).toEqual([expect.objectContaining({ node_id: 'S:OPEN_BIDDING:APPROVE_STEP', count: 1 })]);
     });

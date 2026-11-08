@@ -1,4 +1,4 @@
-import { WORKFLOW_DEFAULT_STALLED_DAYS, isStalled } from '@machvon/kernel';
+import { WORKFLOW_DEFAULT_STALLED_DAYS, isStalled, message } from '@machvon/kernel';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import { Params, SOURCE_LIMIT, addDays, base, reach, startOfDay } from './home-work-sources.ts';
@@ -53,8 +53,8 @@ export class HomePrcSources {
       id: row.id,
       dueOn: row.due_on,
       originalDueOn: row.due_on,
-      title: `Gói thầu ${row.package_code} quá hạn bước ${row.step_code}`,
-      subtitle: label(row.project_code, `Hạn bước ${row.due_on}`),
+      title: message('home.source.prc.step.title', { package: row.package_code, step: row.step_code }),
+      subtitle: label(row.project_code, message('home.source.prc.step.due', { date: row.due_on })),
       status: 'OVERDUE',
       severity: severityOf('PROCUREMENT_WORKFLOW', 'STEP_OVERDUE', context.rules),
       lifecycle: 'NEW',
@@ -86,7 +86,7 @@ export class HomePrcSources {
         id: row.id,
         dueOn: row.due_on,
         originalDueOn: row.due_on,
-        title: late ? `Mục bắt buộc quá hạn · ${row.package_code}` : `Mục bắt buộc sắp đến hạn · ${row.package_code}`,
+        title: late ? message('home.source.prc.checklist.late', { package: row.package_code }) : message('home.source.prc.checklist.soon', { package: row.package_code }),
         subtitle: label(row.project_code, row.name),
         status: late ? 'OVERDUE' : 'DUE_SOON',
         severity: severityOf('PROCUREMENT_WORKFLOW', late ? 'CHECKLIST_OVERDUE' : 'CHECKLIST_DUE_SOON', context.rules),
@@ -122,8 +122,8 @@ export class HomePrcSources {
         id: row.id,
         dueOn: context.today,
         originalDueOn: context.today,
-        title: `Gói thầu ${row.package_code} đứng yên từ ${row.last_activity_on}`,
-        subtitle: label(row.project_code, `Không có biến động quá ${row.stalled_days} ngày làm việc`),
+        title: message('home.source.prc.stalled.title', { package: row.package_code, date: row.last_activity_on }),
+        subtitle: label(row.project_code, message('home.source.prc.stalled.detail', { days: row.stalled_days })),
         status: 'STALLED',
         severity: severityOf('PROCUREMENT_WORKFLOW', 'PACKAGE_STALLED', context.rules),
         lifecycle: 'NEW',
@@ -151,8 +151,8 @@ export class HomePrcSources {
       id: row.id,
       dueOn: context.today,
       originalDueOn: row.started_on,
-      title: `Gói thầu ${row.package_code} chưa có người phụ trách`,
-      subtitle: label(row.project_code, `Bắt đầu quy trình ${row.started_on}`),
+      title: message('home.source.prc.no_owner.title', { package: row.package_code }),
+      subtitle: label(row.project_code, message('home.source.prc.no_owner.detail', { date: row.started_on })),
       status: 'NO_OWNER',
       severity: severityOf('PROCUREMENT_WORKFLOW', 'NO_OWNER', context.rules),
       lifecycle: 'NEW',

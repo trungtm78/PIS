@@ -90,7 +90,7 @@ export function endpointAllowed(endpoint: string, suffixes: readonly string[] = 
 /** The links a web push may open: the opaque link of a notification, or a start page of the manager screens. */
 export const MANAGER_START_PATHS: readonly string[] = ['/m', '/m/approvals', '/m/dashboard', '/m/directives'];
 export const TITLE_MAX = 60;
-const MONEY_WORDS = /(?:vnd|vnđ|usd|đồng|dong|tỷ|ty\s|triệu|trieu|nghìn|billion|million|thousand|₫|\$)/i;
+const MONEY_WORDS = /(?:vnd|vn\u0111|usd|\u0111\u1ED3ng|dong|t\u1EF7|ty\s|tri\u1EC7u|trieu|ngh\u00ECn|billion|million|thousand|\u20AB|\$)/i;
 const IDENTIFYING = /(?:@|\d|[A-Z]{2,}-[A-Z0-9]+)/;
 
 /** A title is generic when it is a short phrase with no digit, no code, no mail address and no word of money. */

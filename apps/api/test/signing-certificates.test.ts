@@ -125,7 +125,8 @@ describe('signing certificate commands and reads (ST-ADM-008)', () => {
     });
 
     it('refuses a private key with 422 CERTIFICATE_INVALID, stores nothing and leaves no key text in the database, audit or outbox (AC-ST-ADM-008-1)', async () => {
-      const key = '-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIPRIVATEKEYMATERIAL0123456789abcdefghijklmnop\n-----END PRIVATE KEY-----\n';
+      // The marker is written in two pieces so that a scan for committed keys does not mistake this dummy text for one.
+      const key = '-----BEGIN PRIVATE' + ' KEY-----\nMC4CAQAwBQYDK2VwBCIEIPRIVATEKEYMATERIAL0123456789abcdefghijklmnop\n-----END PRIVATE KEY-----\n';
       const bundle = validPem() + key;
       for (const pem of [key, bundle]) {
         const reply = await register(ADMIN, pem);

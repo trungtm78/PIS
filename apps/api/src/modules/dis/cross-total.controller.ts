@@ -2,7 +2,7 @@ import { Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post } from '@
 import { PERMISSIONS } from '@machvon/contracts';
 import { DisCrossTotalStore, DisSnapshotStore, TenantDatabase, crossTotalRecord, projectScope } from '@machvon/db';
 import type { CrossTotalView } from '@machvon/db';
-import { DomainError, UNMATCHED_FUND } from '@machvon/kernel';
+import { DomainError, UNMATCHED_FUND, message } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -73,7 +73,7 @@ export class CrossTotalController {
       recorded: found.recorded === undefined ? null : crossTotalView(found.recorded),
       history: found.history.map(crossTotalView),
       as_of: now.toISOString(),
-      formula: 'Tổng theo đơn vị (các dòng của snapshot) = tổng theo nguồn vốn (sổ Kho bạc theo dòng phân bổ) = tổng theo dự án (sổ Kho bạc theo dự án), từ đầu năm tài chính đến ngày chốt; bằng nhau đến từng đồng thì chỉ tiêu mới được công bố',
+      formula: message('dis.cross_total.formula'),
     };
   }
 

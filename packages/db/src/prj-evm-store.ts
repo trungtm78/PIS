@@ -12,7 +12,7 @@ import type { TenantTx } from './tenant-database.ts';
 /**
  * The earned value of a project, a work package and a contract (G1-4, G1-5; research F01, F02, F03): the planned value comes from the baseline (the current version, or version 0 when asked), the earned value only from
  * the quantities that were accepted on the contracts that carry the package, the actual cost only from the payments that were certified (a payment that was reversed by the day taking nothing). What cannot be known
- * is "chưa đủ dữ liệu" with the reason, never a zero. The result of a closed period is frozen with the snapshot of the period (`freezeForSnapshot`, called by the freezing of the snapshot) and read from there when
+ * is "not enough data" with the reason, never a zero. The result of a closed period is frozen with the snapshot of the period (`freezeForSnapshot`, called by the freezing of the snapshot) and read from there when
  * the day of the view is the day of a frozen snapshot; the live figures are never written back over a frozen one. The thresholds and the formula of the estimate at completion come from the governance rule `EVM_POLICY`.
  */
 
@@ -199,7 +199,7 @@ export class PrjEvmStore {
 
   /**
    * Freezes the earned value of every project of a snapshot of a closed period, with the snapshot (called inside the transaction that freezes it): the result of a project that has no baseline is frozen too, as
-   * "chưa đủ dữ liệu" with the reason, so the closed period says what it did not know. Written once with its own hash; never changed afterwards.
+   * "not enough data" with the reason, so the closed period says what it did not know. Written once with its own hash; never changed afterwards.
    */
   async freezeForSnapshot(tx: TenantTx, snapshot: { id: string; asOfDate: string }, actor: string, at: Date): Promise<number> {
     const projects = await tx.query<{ project_id: string; code: string; total: string }>(

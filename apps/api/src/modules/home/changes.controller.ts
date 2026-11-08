@@ -16,7 +16,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
 /**
- * "Thay đổi từ tuần trước" (G3-4, HOME and BI): at most five lines made by rules from the figures of this snapshot and of the week before, each a fact with its numbers and a link to where it can be checked (a drill
+ * "What changed since last week" (G3-4, HOME and BI): at most five lines made by rules from the figures of this snapshot and of the week before, each a fact with its numbers and a link to where it can be checked (a drill
  * with its token, the colours, the warnings, the work, the ranking). No language model writes a word: the kernel (`weeklyChanges`) makes the lines, and a line that cannot be computed is not written. The figures are
  * read in the scope of the reader, so the lines are the reader's own; the units that moved are told as counts, never by name (the link opens the list where the right to read is judged again). A figure that a leader
  * is not given because its definition is not certified makes no line.

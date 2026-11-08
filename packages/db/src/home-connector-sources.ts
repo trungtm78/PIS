@@ -1,4 +1,4 @@
-import { EGP_CONNECTOR_CODE } from '@machvon/kernel';
+import { EGP_CONNECTOR_CODE, message } from '@machvon/kernel';
 import { EgpConnectionStore } from './egp-store.ts';
 import { forAudience } from './home-integrity-sources.ts';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
@@ -12,7 +12,7 @@ export const CONNECTOR_AUDIENCE_PERMISSION = 'bid.egp.admin';
  * The connections to outside systems as a source of the alert centre (EGP-1, `docs/egp-connector.md`). One kind, `CONNECTOR_STALE`, with its ALERT_TYPE (owner: integration administrator; expected action: check the
  * connector, fetch the latest file and record the cause; consequence: the figures from outside are older than allowed and must say so): the connection `egp.muasamcong` whose last applied file is older than
  * `max_age_hours` of the rule `CONNECTOR_FRESHNESS`, code `EGP_FILE` (read through `GovernancePolicyPort`; the numbers are our own and flagged UNVERIFIED until the tenant approves its rule). The severity is the
- * `stale_severity` of that rule. A tenant that never imported a file is not nagged (the connection says "Chưa nhập lần nào"), and one that switched the connection off with a reason is not either: it chose to stop.
+ * `stale_severity` of that rule. A tenant that never imported a file is not nagged (the connection says it never took a file in), and one that switched the connection off with a reason is not either: it chose to stop.
  * The age is computed when the list is read, so there is no job to run and nothing to fall behind.
  */
 export class HomeConnectorSources {
@@ -31,8 +31,8 @@ export class HomeConnectorSources {
       id: `${EGP_CONNECTOR_CODE}:stale`,
       dueOn: context.today,
       originalDueOn: staleSince.slice(0, 10),
-      title: `Kết nối ${EGP_CONNECTOR_CODE} đã cũ`,
-      subtitle: age === null ? null : `Tệp được áp dụng gần nhất cách đây ${Math.round(age)} giờ, quá ${reading.rule.params.maxAgeHours} giờ`,
+      title: message('home.source.connector.title', { code: EGP_CONNECTOR_CODE }),
+      subtitle: age === null ? null : message('home.source.connector.detail', { hours: Math.round(age), max: String(reading.rule.params.maxAgeHours) }),
       status: 'STALE',
       severity: severityOf('CONNECTOR', `STALE_${alert.severity}`, context.rules),
       lifecycle: 'NEW',

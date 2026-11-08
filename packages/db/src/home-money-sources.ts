@@ -1,4 +1,4 @@
-import { eacControl, openRiskExpectedValue, reserveCover } from '@machvon/kernel';
+import { eacControl, message, openRiskExpectedValue, reserveCover } from '@machvon/kernel';
 import type { OpenRisk } from '@machvon/kernel';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import { PROJECT_JOINS, Params, SOURCE_LIMIT, base, reach } from './home-work-sources.ts';
@@ -61,8 +61,8 @@ export class HomeMoneySources {
         id: `eac:${row.id}`,
         dueOn: null,
         originalDueOn: null,
-        title: `Dự báo hoàn thành vượt tổng mức đầu tư · ${row.code}`,
-        subtitle: label(row.code, `vượt ${control.overByVnd} đồng${control.overPct === null ? '' : ` (${control.overPct}%)`}`),
+        title: message('home.source.money.eac.title', { code: row.code }),
+        subtitle: label(row.code, control.overPct === null ? message('home.source.money.eac.over', { amount: control.overByVnd }) : message('home.source.money.eac.over_pct', { amount: control.overByVnd, pct: control.overPct })),
         status: 'OVER',
         severity: severityOf('MONEY_CONTROL', 'EAC_EXCEEDS_TMDT', context.rules),
         consequence: CONSEQUENCES.EAC_EXCEEDS_TMDT ?? null,
@@ -100,8 +100,8 @@ export class HomeMoneySources {
         id: `reserve:${row.id}`,
         dueOn: null,
         originalDueOn: null,
-        title: `Dự phòng thấp hơn giá trị kỳ vọng của rủi ro · ${row.code}`,
-        subtitle: label(row.code, `còn ${cover.balanceVnd} đồng, kỳ vọng ${cover.expectedValueVnd} đồng, thiếu ${cover.shortfallVnd} đồng`),
+        title: message('home.source.money.reserve.title', { code: row.code }),
+        subtitle: label(row.code, message('home.source.money.reserve.detail', { balance: cover.balanceVnd, expected: cover.expectedValueVnd, shortfall: cover.shortfallVnd })),
         status: 'BELOW',
         severity: severityOf('MONEY_CONTROL', 'RESERVE_BELOW_RISK_EV', context.rules),
         consequence: CONSEQUENCES.RESERVE_BELOW_RISK_EV ?? null,
@@ -128,8 +128,8 @@ export class HomeMoneySources {
       id: `advance:${row.id}`,
       dueOn: null,
       originalDueOn: null,
-      title: `Dư nợ tạm ứng lớn hơn giá trị còn lại phải thanh toán · ${row.code}`,
-      subtitle: label(row.project_code, `dư nợ ${row.outstanding} đồng, còn thanh toán ${row.remaining} đồng`),
+      title: message('home.source.money.advance.title', { code: row.code }),
+      subtitle: label(row.project_code, message('home.source.money.advance.detail', { outstanding: row.outstanding, remaining: row.remaining })),
       status: 'EXCEEDS',
       severity: severityOf('MONEY_CONTROL', 'ADVANCE_EXCEEDS_REMAINING', context.rules),
       consequence: CONSEQUENCES.ADVANCE_EXCEEDS_REMAINING ?? null,

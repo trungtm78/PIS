@@ -1,10 +1,10 @@
 import type { EgpHealthReading, EgpMappingRow, EgpRunRow, QuarantinedRow } from '@machvon/db';
-import { EGP_LAYOUT_KINDS, EGP_PENDING_EXTERNAL_ITEMS, egpAcceptance, egpHeaderOf, egpLayoutColumns } from '@machvon/kernel';
+import { EGP_LAYOUT_KINDS, EGP_PENDING_EXTERNAL_ITEMS, egpAcceptance, egpHeaderOf, egpLayoutColumns, message } from '@machvon/kernel';
 import type { EgpLayoutKind } from '@machvon/kernel';
 
 /** The words of the formula behind a suggestion: shown beside the number on BID-23. */
-export const SUGGESTION_FORMULA = 'Độ giống = số từ chung của hai tên (bỏ dấu, không phân biệt hoa thường) chia số từ của hợp của hai tên (chỉ số Jaccard); chỉ gợi ý khi giá bằng nhau đến đơn vị và độ giống đạt ngưỡng.';
-export const SUGGESTION_SOURCE = 'Ngưỡng EGP_SUGGESTION_THRESHOLD do nhóm phát triển đặt (EGP-1), chưa có văn bản hay đơn vị vận hành xác nhận; là gợi ý để người xác nhận, không bao giờ tự nối.';
+export const SUGGESTION_FORMULA = message('bid.egp.suggestion.formula');
+export const SUGGESTION_SOURCE = message('bid.egp.suggestion.source');
 
 const nameOf = (names: ReadonlyMap<string, string>, id: string | null): string | null => (id === null ? null : (names.get(id) ?? null));
 

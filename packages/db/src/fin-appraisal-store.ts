@@ -15,6 +15,7 @@ import {
   computeAppraisal,
   isFinCriteriaCategory,
   isFinKind,
+  message,
   normalizeFinModel,
   permissionMatches,
   requiredAssumptionKeys,
@@ -769,7 +770,7 @@ export class FinAppraisalStore {
       throw new DomainError('APPRAISAL_RESULTS_STALE', 409, 'results', { extensions: { computed: view.results !== null } });
     }
     const [header] = await tx.query<{ inputs_hash: string | null }>('select results_inputs_hash as inputs_hash from machvon.investment_appraisal where id = $1::uuid', [view.id]);
-    const links = [view.project === null ? null : `Dự án ${view.project.code}`, view.package === null ? null : `Gói ${view.package.code}`, view.contract === null ? null : `Hợp đồng ${view.contract.code}`].filter((part): part is string => part !== null);
+    const links = [view.project === null ? null : message('fin.appraisal.export.link.project', { code: view.project.code }), view.package === null ? null : message('fin.appraisal.export.link.package', { code: view.package.code }), view.contract === null ? null : message('fin.appraisal.export.link.contract', { code: view.contract.code })].filter((part): part is string => part !== null);
     return {
       input: {
         code: view.code,

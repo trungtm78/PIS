@@ -1,12 +1,12 @@
 import { AlignmentType, BorderStyle, Document, Footer, Header, HeadingLevel, LevelFormat, PageBreak, PageNumber, Packer, Paragraph, ShadingType, Table, TableCell, TableRow, TextRun, VerticalAlign, WidthType } from 'docx';
 import type { ParagraphChild } from 'docx';
 import { unzipSync } from 'fflate';
-import { DomainError } from '@machvon/kernel';
+import { DomainError, message } from '@machvon/kernel';
 import type { NarrativeBlock } from '@machvon/kernel';
 import { normalizeZip } from './zip-normalize';
 
 /**
- * Writes the narrative part of a report (thuyết minh) as a Word document (RPT-1). The blocks come from the kernel (`fillNarrative` has already put the figures of the register into the text, so a sentence and a table
+ * Writes the narrative part of a report (the explanatory note) as a Word document (RPT-1). The blocks come from the kernel (`fillNarrative` has already put the figures of the register into the text, so a sentence and a table
  * cannot disagree). The library is `docx` (MIT, pure JavaScript, maintained). The default page is the one of a Vietnamese administrative document: A4 portrait, Times New Roman 13 pt, margins 20 mm above and below, 30 mm
  * left and 15 mm right; a customer who wants another page says so in the options. The output is deterministic (fixed zip order and times, document dates set to the time of the issue), so the same blocks give the same
  * bytes and the same sha256.
@@ -94,7 +94,7 @@ function signaturesOf(block: Extract<NarrativeBlock, { type: 'SIGNATURES' }>): T
       borders: { top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: NO_BORDER },
       children: [
         new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: slot.role, bold: true })] }),
-        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: '(Ký, ghi rõ họ tên)', italics: true, size: 22 })] }),
+        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: message('reports.docx.signature_hint'), italics: true, size: 22 })] }),
         new Paragraph({ children: [new TextRun({ text: '' })], spacing: { before: 900 } }),
         new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: slot.name ?? '', bold: true })] }),
       ],

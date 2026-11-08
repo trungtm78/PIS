@@ -1,4 +1,4 @@
-import { SOD_EXPIRING_WITHIN_DAYS } from '@machvon/kernel';
+import { SOD_EXPIRING_WITHIN_DAYS, message } from '@machvon/kernel';
 import { PayIntegrityAlertSource } from './gov-d-integrity-alerts.ts';
 import type { IntegrityAlertItem } from './gov-d-integrity-alerts.ts';
 import { SodStore } from './gov-d-sod-store.ts';
@@ -110,8 +110,8 @@ export class HomeIntegritySources {
       id: row.id,
       dueOn: row.due_on,
       originalDueOn: row.due_on,
-      title: `Chênh lệch đối chiếu Kho bạc quá hạn xử lý${row.project_code === null ? '' : ` · ${row.project_code}`}`,
-      subtitle: label(row.fund_label ?? row.fund_key, `ngày ${row.recon_date}`, `lệch ${row.difference} đồng`),
+      title: `${message('home.source.treasury.title')}${row.project_code === null ? '' : ` · ${row.project_code}`}`,
+      subtitle: label(row.fund_label ?? row.fund_key, message('home.source.treasury.date', { date: row.recon_date }), message('home.source.treasury.difference', { amount: row.difference })),
       status: row.status,
       severity: severityOf('TREASURY_RECON', 'OVERDUE', context.rules),
       // An item that was explained is in the hands of whoever checks the explanation.
@@ -133,17 +133,17 @@ export class HomeIntegritySources {
           and c.id = (select l.id from machvon.cross_total_check l where l.tenant_id = c.tenant_id and l.snapshot_id = c.snapshot_id order by l.created_at desc, l.id desc limit 1)
         order by c.created_at desc, c.snapshot_id limit ${SOURCE_LIMIT}`,
     );
-    const dimensions: Readonly<Record<string, string>> = { UNIT: 'đơn vị', FUND: 'nguồn vốn', PROJECT: 'dự án' };
+    const dimensions: Readonly<Record<string, string>> = { UNIT: message('home.source.cross_total.dimension.unit'), FUND: message('home.source.cross_total.dimension.fund'), PROJECT: message('home.source.cross_total.dimension.project') };
     const items: SourceRow[] = rows.map((row) => ({
       ...base('CROSS_TOTAL_MISMATCH'),
       id: row.snapshot_id,
       dueOn: null,
       originalDueOn: null,
-      title: `Ba tổng giải ngân không khớp nhau · năm ${row.fiscal_year}`,
+      title: message('home.source.cross_total.title', { year: row.fiscal_year }),
       subtitle: label(
-        row.disagreeing.length === 0 ? null : `lệch theo ${row.disagreeing.map((dimension) => dimensions[dimension] ?? dimension).join(', ')}`,
-        `đơn vị ${row.total_unit}, nguồn vốn ${row.total_fund}, dự án ${row.total_project} đồng`,
-        `đến ngày ${row.cutoff}`,
+        row.disagreeing.length === 0 ? null : message('home.source.cross_total.disagreeing', { dimensions: row.disagreeing.map((dimension) => dimensions[dimension] ?? dimension).join(', ') }),
+        message('home.source.cross_total.totals', { unit: row.total_unit, fund: row.total_fund, project: row.total_project }),
+        message('home.source.cross_total.cutoff', { date: row.cutoff }),
       ),
       status: 'MISMATCH',
       severity: severityOf('CROSS_TOTAL', 'MISMATCH', context.rules),
@@ -163,8 +163,8 @@ export class HomeIntegritySources {
       id: row.id,
       dueOn: row.validTo,
       originalDueOn: row.validTo,
-      title: `Ngoại lệ tách bạch nhiệm vụ sắp hết hạn · ${row.actionA} và ${row.actionB}`,
-      subtitle: label(row.memberName, `đến hết ngày ${row.validTo}`),
+      title: message('home.source.sod.expiring.title', { actionA: row.actionA, actionB: row.actionB }),
+      subtitle: label(row.memberName, message('home.source.until_end_of_day', { date: row.validTo })),
       status: row.view,
       severity: severityOf('SOD_EXCEPTION', 'EXPIRING', context.rules),
       consequence: CONSEQUENCES.SOD_EXCEPTION_EXPIRING ?? null,
@@ -189,8 +189,8 @@ export class HomeIntegritySources {
       id: `used:${exceptionId}`,
       dueOn: null,
       originalDueOn: null,
-      title: `Hồ sơ đã đi qua ngoại lệ tách bạch nhiệm vụ · ${latest.actionA} và ${latest.actionB}`,
-      subtitle: label(latest.memberName, `${count} lần dùng, gần nhất ${latest.usedAt.slice(0, 10)}`),
+      title: message('home.source.sod.used.title', { actionA: latest.actionA, actionB: latest.actionB }),
+      subtitle: label(latest.memberName, message('home.source.sod.used.detail', { count, date: latest.usedAt.slice(0, 10) })),
       status: 'USED',
       severity: severityOf('SOD_EXCEPTION', 'USED', context.rules),
       consequence: CONSEQUENCES.SOD_EXCEPTION_USED ?? null,
@@ -231,13 +231,13 @@ export class HomeIntegritySources {
     return read.map(({ item, key, name }): SourceRow => {
       const blocked = item.alertType === 'PAYMENT_INTEGRITY_BLOCKED';
       const codes = Array.isArray(item.detail.codes) ? (item.detail.codes as string[]).join(', ') : null;
-      const request = name === undefined ? 'đề nghị thanh toán' : `đề nghị thanh toán ${name.requestNo ?? name.contractCode}`;
+      const request = name === undefined ? message('home.source.payment.request') : message('home.source.payment.request_named', { name: name.requestNo ?? name.contractCode });
       return {
         ...base(item.alertType),
         id: key,
         dueOn: null,
         originalDueOn: null,
-        title: blocked ? `Kiểm tra toàn vẹn chặn ${request}` : `Tín hiệu bất thường ở ${request}`,
+        title: blocked ? message('home.source.payment.blocked.title', { request }) : message('home.source.payment.signal.title', { request }),
         subtitle: label(name?.projectCode, name?.contractCode, codes),
         status: blocked ? 'BLOCKED' : 'SIGNAL',
         severity: severityOf('PAYMENT_INTEGRITY', blocked ? 'BLOCKED' : 'SIGNAL', context.rules),
@@ -256,15 +256,15 @@ export class HomeIntegritySources {
     return read
       .filter(({ item }) => typeof item.detail.days_left === 'number' && item.detail.days_left >= -LAPSED_EXCEPTION_DAYS)
       .map(({ item, name }): SourceRow => {
-        const ceilings: Readonly<Record<string, string>> = { EXCEEDS_PLAN: 'kế hoạch', EXCEEDS_CONTRACT: 'hợp đồng' };
+        const ceilings: Readonly<Record<string, string>> = { EXCEEDS_PLAN: message('home.source.disbursement_exception.ceiling.exceeds_plan'), EXCEEDS_CONTRACT: message('home.source.disbursement_exception.ceiling.exceeds_contract') };
         const ceiling = typeof item.detail.ceiling === 'string' ? (ceilings[item.detail.ceiling] ?? item.detail.ceiling) : null;
         return {
           ...base('DISBURSEMENT_EXCEPTION_EXPIRING'),
           id: item.itemId,
           dueOn: item.since,
           originalDueOn: item.since,
-          title: `Ngoại lệ giải ngân vượt trần${ceiling === null ? '' : ` ${ceiling}`} sắp hết hạn`,
-          subtitle: label(name?.projectCode, name?.contractCode, name?.requestNo, `đến hết ngày ${item.since}`),
+          title: ceiling === null ? message('home.source.disbursement_exception.title') : message('home.source.disbursement_exception.title_ceiling', { ceiling }),
+          subtitle: label(name?.projectCode, name?.contractCode, name?.requestNo, message('home.source.until_end_of_day', { date: item.since })),
           status: 'APPROVED',
           severity: severityOf('DISBURSEMENT_EXCEPTION', 'EXPIRING', context.rules),
           consequence: CONSEQUENCES.DISBURSEMENT_EXCEPTION_EXPIRING ?? null,
@@ -294,8 +294,8 @@ export class HomeIntegritySources {
       id: row.id,
       dueOn: null,
       originalDueOn: null,
-      title: `${row.subject_kind === 'MILESTONE' ? `Mốc${row.milestone_name === null ? '' : ` ${row.milestone_name}`}` : 'Ngày kết thúc dự án'} đã bị dời ${row.move_count} lần${row.project_code === null ? '' : ` · ${row.project_code}`}`,
-      subtitle: label(row.project_code, `ngưỡng ${row.threshold} lần`, `từ ngày ${row.raised_on}`),
+      title: `${row.subject_kind === 'MILESTONE' ? (row.milestone_name === null ? message('home.source.governance.milestone', { count: row.move_count }) : message('home.source.governance.milestone_named', { name: row.milestone_name, count: row.move_count })) : message('home.source.governance.project_end', { count: row.move_count })}${row.project_code === null ? '' : ` · ${row.project_code}`}`,
+      subtitle: label(row.project_code, message('home.source.governance.threshold', { threshold: row.threshold }), message('home.source.governance.since', { date: row.raised_on })),
       status: 'OPEN',
       severity: severityOf('PROJECT_GOVERNANCE', 'RESCHEDULE_COUNT', context.rules),
       consequence: CONSEQUENCES.RESCHEDULE_COUNT ?? null,

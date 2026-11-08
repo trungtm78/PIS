@@ -10,7 +10,7 @@ export interface CertPerson {
   name: string;
 }
 
-/** What a subject's certification is now: the latest line of the version asked for (a version with no line is Nháp). The built-in default of a definition is certified by the review of the repository, with no person. */
+/** What a subject's certification is now: the latest line of the version asked for (a version with no line is a draft). The built-in default of a definition is certified by the review of the repository, with no person. */
 export interface CertificationView {
   subject: CertSubject | 'METRIC';
   key: string;
@@ -129,7 +129,7 @@ export class AnalyticsGovernanceStore {
   }
 
   /**
-   * What each definition is now. The built-in default (version 0) is certified by the review of the repository: nobody is named. A version a tenant approved has no line until someone confirms it, so it is Nháp
+   * What each definition is now. The built-in default (version 0) is certified by the review of the repository: nobody is named. A version a tenant approved has no line until someone confirms it, so it is a draft
    * and its figures are not given to a leader until it is certified (the second person).
    */
   async kpiCertifications(tx: TenantTx, definitions: Iterable<KpiDefinition>): Promise<Map<string, CertificationView>> {

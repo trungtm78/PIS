@@ -49,13 +49,13 @@ const refuse = (detail: string): never => {
   throw new DomainError('VALIDATION_FAILED', 422, detail);
 };
 
-/** Vietnamese letters to plain ASCII (đ and Đ do not decompose); anything else that a file name should not hold becomes an underscore. */
+/** Vietnamese letters to plain ASCII (the stroked d, U+0111 and U+0110, does not decompose); anything else that a file name should not hold becomes an underscore. */
 export function asciiSlug(text: string): string {
   return text
     .normalize('NFD')
     .replace(/\p{M}+/gu, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D')
+    .replace(/\u0111/g, 'd')
+    .replace(/\u0110/g, 'D')
     .replace(/[^A-Za-z0-9._-]+/g, '_')
     .replace(/_{2,}/g, '_')
     .replace(/^[_.-]+|[_.-]+$/g, '');

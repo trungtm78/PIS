@@ -55,7 +55,7 @@ function unitView(reading: RagUnitReading, history: readonly StoredScore[], week
     override: shown.overridden && override !== null ? { band: override.band, rule_band: override.ruleBand, reason: override.reason, until: override.until, by: override.by, at: override.at } : null,
     score: evaluation.score,
     coverage_pct: evaluation.coveragePct,
-    // A unit with too little data is "chưa đủ dữ liệu": it is not green and the score is not 0.
+    // A unit with too little data is "not enough data": it is not green and the score is not 0.
     no_data_reason: evaluation.band === 'NO_DATA' ? 'LOW_COVERAGE' : null,
     factors: evaluation.factors.map(factorView),
     reasons: evaluation.reasons.map(factorView),
@@ -67,7 +67,7 @@ function unitView(reading: RagUnitReading, history: readonly StoredScore[], week
 
 /**
  * The explainable colour of the units (G3-2, HOME and BI): red, amber or green is judged by rules (the factors, their lines and weights are `RAG_THRESHOLDS` rules of the governance store), and each unit comes with the one to
- * three factors that moved it, each value against its line, how much of the data was there, the score of the week before and the weeks of the trend. A unit with too little data is "chưa đủ dữ liệu", never green and never 0. A person may
+ * three factors that moved it, each value against its line, how much of the data was there, the score of the week before and the weeks of the trend. A unit with too little data is "not enough data", never green and never 0. A person may
  * put a colour over the rules' own, with a reason in words and a last day (at most 90 days ahead); the override is shown beside the colour of the rules, never in place of it, and every override and every withdrawal is
  * an append-only line with an audit row and an event. The weekly score of each unit is written once for the week by the job `early-warning-score`, which `scoreEarlyWarningWeek` runs on demand.
  */
