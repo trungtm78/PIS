@@ -1,3 +1,4 @@
+import { DECISION_DEFAULTS, DECISION_RULE_CODE, DECISION_RULE_TYPE, decisionPolicyOf } from './ana-decision.ts';
 import type { ForecastParams } from './ana-forecast.ts';
 import { DomainError } from './errors.ts';
 import type { FieldSpec, RuleParams } from './governance-rules.ts';
@@ -76,5 +77,29 @@ export function forecastParamsOf(params: RuleParams): ForecastParams {
   return parsed;
 }
 
+const DECISION: ExecRuleType = {
+  type: DECISION_RULE_TYPE,
+  ownerModule: 'HOME',
+  modules: ['HOME', 'BI', 'ADM'],
+  formula: message('ana.rules.decision.formula'),
+  source: message('ana.rules.source'),
+  schema: {
+    kinds: { kind: 'list', of: { kind: 'text', max: 40, pattern: '^[A-Z][A-Z0-9_]{1,39}$' }, min: 1, max: 20 },
+    reason_min: int(1, 500),
+    reason_max: int(10, 4000),
+    follow_up_max_days: int(1, 730),
+    outcome_note_min: int(1, 200),
+  },
+  refine: (params) => {
+    try {
+      decisionPolicyOf(params);
+      return undefined;
+    } catch (failure) {
+      return failure instanceof DomainError ? (failure.detail ?? 'params') : 'params';
+    }
+  },
+  defaults: { [DECISION_RULE_CODE]: DECISION_DEFAULTS as RuleParams },
+};
+
 /** Every rule type of the lane, in the order they are registered. */
-export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST];
+export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION];

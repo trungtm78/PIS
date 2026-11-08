@@ -3081,3 +3081,5 @@ export { cumulativeAt, neededOf, outlookOf, sameDayLastYear } from './ana-foreca
 export type { Band, BandRatios, ForecastNullReason, ForecastParams, MultipleNullReason, NeededPerWeek, NeededStatus, Outlook, OutlookInput, SeasonalNullReason, SeriesPoint, SkippedWindowReason, WindowProjection } from './ana-forecast.ts';
 export { EXEC_RULE_TYPES, FORECAST_RULE_CODE, FORECAST_RULE_TYPE, forecastParamsOf } from './ana-rules.ts';
 export type { ExecRuleType } from './ana-rules.ts';
+export { DECISION_OUTCOMES, DECISION_RULE_CODE, DECISION_RULE_TYPE, DECISION_SUBJECT_KINDS, FOLLOW_UP_SOON_DAYS, checkDecision, checkOutcome, compareFigure, decisionPolicyOf, figuresDigest, followUpState } from './ana-decision.ts';
+export type { DecisionDraft, DecisionOutcome, DecisionPolicy, DecisionSubject, DecisionSubjectKind, FigureCompareReason, FigureComparison, FigureFact, FollowUpState, OutcomeDraft } from './ana-decision.ts';

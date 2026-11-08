@@ -12547,5 +12547,26 @@
     "platform": "web",
     "req": "FR-PRJ-29",
     "source": "docs/governance-roadmap-10of10.md G1-19; GOV-11a"
+  },
+  {
+    "id": "BI-21",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Dự báo giải ngân cuối năm",
+    "kind": "dashboard",
+    "fields": [
+      "Lũy kế đã giải ngân",
+      "Kế hoạch năm",
+      "Dải dự báo cuối năm theo tốc độ 4-8 tuần",
+      "Dự báo theo mùa vụ năm trước",
+      "Cần mỗi tuần để đạt kế hoạch",
+      "Theo nguồn vốn"
+    ],
+    "role": "Lãnh đạo, chuyên viên kế hoạch vốn",
+    "rule": "Dự báo là phép tính theo nhịp độ chứ không phải cam kết; mọi con số có i công thức, nguồn, ngày số liệu; thiếu dữ liệu là N/A kèm lý do; tham số lấy từ quy tắc quản trị, đánh dấu chưa xác nhận; lãnh đạo chỉ thấy khi định nghĩa tỷ lệ giải ngân đã chứng nhận",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-21",
+    "source": "Lộ trình quản trị 10/10 (G3-5, G3-11); thiết kế làn GOV-11b"
   }
 ]

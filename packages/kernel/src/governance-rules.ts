@@ -2144,6 +2144,7 @@ export function registerAllGovernanceRules(): void {
   registerPaymentClockRules();
   registerSettlementClockRules();
   registerLookAheadRules();
+  registerExecAnalyticsRules();
 }
 
 registerAllGovernanceRules();
