@@ -251,6 +251,7 @@ export {
   registerDirectiveRules,
   registerEnterpriseRules,
   registerFinanceRules,
+  registerGov10Rules,
   registerIntegrationRules,
   registerIntegrityRules,
   registerMoneyRules,
@@ -2548,3 +2549,17 @@ export type { NotifyChannel, AlertNotifyPolicy, AlertProfile, ChannelDecision, D
 export { HEALTH_DEFAULT_CODE, HEALTH_RULE_TYPE, KPI_CODES, computeAlertHealth, healthTargetDefaults, healthTargetsOf, judgeFigure, percentile } from './alert-health.ts';
 export type { AlertHealth, HealthDelivery, HealthGap, HealthInput, HealthItem, HealthNotice, HealthTargets, Kpi, KpiCode, KpiPart, KpiStatus, StaleUnit, TopType, TraceState } from './alert-health.ts';
 export { ALERT_GOV_TEXT } from './messages/alert-gov-texts.ts';
+
+// GOV-10: the clocks of a contract, the review of a document, the freshness of a dataset and the anomalies of the money as sources of the alert centre.
+export { ANOMALY_CODES, ANOMALY_RULE_TYPE, CONTRACT_CLOCK_RULE_TYPE, DATA_FRESHNESS_RULE_TYPE, DOC_REVIEW_RULE_TYPE, advanceWhileOpen, contractClockDefaults, contractClockFindings, contractEndOn, dataFreshnessDefaults, dataFreshnessFacet, docReviewDefaults, docReviewFacet, periodEndRush, periodEndWindowStart, repeatedReallocation } from './alert-sources.ts';
+export type { AlertSeverityWord, AnomalyCode, AnomalyParams, ContractClockFact, ContractClockFacet, ContractClockFinding, ContractClockParams, DataFreshnessFacet, DataFreshnessParams, DocReviewFacet, DocReviewParams } from './alert-sources.ts';
+// GOV-10: closing and reopening of alerts, the report that an alert is wrong, flood protection, the channel ladder with its receipts and the red flags of procurement.
+export { FEEDBACK_NOTE_MAX, FEEDBACK_REASONS, ALERT_FEEDBACK_STATUSES, assertFeedbackInput, closedWithoutRecord, isFeedbackReason, itemKey, needsRationalisation, nextAlertFeedbackStatus, observationDecision, unhelpfulShare } from './alert-lifecycle.ts';
+export type { FeedbackMove, FeedbackReason, AlertFeedbackStatus, ObservationDecision, ObservationPass, ObservedItem, ObservedState } from './alert-lifecycle.ts';
+export { FLOOD_DIMENSIONS, FLOOD_RULE_TYPE, floodPolicyDefaults, floodPolicyOf, floodProtects, groupForFlood, stormTransition } from './alert-flood.ts';
+export type { FloodDimension, FloodGroup, FloodItem, FloodPolicy, FloodResult, FloodSeverity, StormChange, StormState } from './alert-flood.ts';
+export { ENGINE_CHANNEL, LADDER_CHANNELS, LADDER_RULE_TYPE, LADDER_SEVERITIES, RUNG_STATES, SUPPRESSION_REASONS, assertLadderPayload, carriesNoFinancialFigure, channelNeedsConsent, ladderDefaults, ladderEventType, ladderPolicyOf, nextLadderMove, receiptStateOf } from './alert-ladder.ts';
+export type { LadderChannel, LadderInput, LadderMove, LadderPayload, LadderPolicy, LadderRung, LadderSeverity, ReceiptEvidence, RungRecord, RungState, SuppressionReason } from './alert-ladder.ts';
+export { BUILT_IN_OCP_IDS, BUILT_IN_RED_FLAG_CODES, RED_FLAG_STATUSES, RED_FLAG_RANKING_RULE_TYPE, RED_FLAG_RULE_TYPE, compareFindings, evaluateRedFlags, isInvolved, nextRedFlagStatus, rankingDefaults, redFlagIndicator, registerBuiltInRedFlagIndicators, registerRedFlagIndicator, registeredRedFlagIndicators, reopensAfterRescan, scoreOf } from './red-flags.ts';
+export type { RedFlagMove, RedFlagStatus, IndicatorParams, IndicatorReading, IndicatorStatus, RankingParams, RedFlagBand, RedFlagFacts, RedFlagIndicator, RedFlagSubjectType, Score as RedFlagScore } from './red-flags.ts';
+export { FEEDBACK_RULE_TYPE } from './gov10-rule-types.ts';

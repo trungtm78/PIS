@@ -26,6 +26,8 @@ import { ESCALATION_RULE_TYPE, ESCALATION_TRIGGERS, escalationPolicyDefaults, es
 import { HEALTH_RULE_TYPE, healthTargetDefaults, healthTargetsOf } from './alert-health.ts';
 import { ALERT_CHANNELS, NOTIFY_RULE_TYPE, alertNotifyDefaults, alertNotifyPolicyOf } from './alert-notify.ts';
 import { ALERT_GOV_TEXT } from './messages/alert-gov-texts.ts';
+import { GOV10_ALERT_SEEDS, gov10RedFlagDefaults, gov10RuleTypes, redFlagProvenance } from './gov10-rule-types.ts';
+import { registerBuiltInRedFlagIndicators } from './red-flags.ts';
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -564,7 +566,7 @@ export const registerCoreRules = (): void =>
       source: message('gov.rules.register_core_rules.source.red_flag_rule'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
-      schema: { indicator: text(200), threshold: num(0, 1_000_000_000, true), window_days: int(1, 3650, true), weight: int(1, 5), enabled: bool },
+      schema: { indicator: text(200), threshold: num(0, 1_000_000_000, true), window_days: int(1, 3650, true), weight: int(1, 5), enabled: bool, threshold_vnd: { kind: 'text', max: 24, optional: true, pattern: '^[0-9]{1,24}$' }, margin_pct: num(0, 100, true), min_count: int(1, 1000, true) },
       defaults: {
         SINGLE_BIDDER: rule({ indicator: message('gov.rules.red_flag_rule.single_bidder.indicator'), weight: 3, enabled: true }),
         SHORT_TENDER_PERIOD: rule({ indicator: message('gov.rules.red_flag_rule.short_tender_period.indicator'), threshold: 10, weight: 2, enabled: true }),
@@ -1704,6 +1706,16 @@ export const registerAlertGovernanceRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(ALERT_GOVERNANCE_ALERT_SEEDS, { source }));
   });
 
+/** The kinds of rule and the alert types of lane GOV-10 (red flags, the channel ladder, the closing and the flood of alerts, the new alert sources); the data is in gov10-rule-types.ts. */
+export const registerGov10Rules = (): void =>
+  once('gov10', () => {
+    registerCoreRules();
+    for (const type of gov10RuleTypes()) registerRuleType(type);
+    registerRuleDefaults('RED_FLAG_RULE', gov10RedFlagDefaults());
+    registerBuiltInRedFlagIndicators(redFlagProvenance);
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(GOV10_ALERT_SEEDS, { source: message('gov.rules.gov10.source') }));
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -1722,6 +1734,7 @@ export function registerAllGovernanceRules(): void {
   registerVendorRules();
   registerClaimRules();
   registerAlertGovernanceRules();
+  registerGov10Rules();
 }
 
 registerAllGovernanceRules();

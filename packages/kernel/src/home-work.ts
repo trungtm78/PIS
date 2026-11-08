@@ -63,6 +63,14 @@ export const WORK_KINDS = [
   // The governance of the alert system (lane GOV-9a): an item that was sent up to the person by the chain of escalation, and a gap in the coverage of the receivers of alerts (an absence nobody covers, an owner who left).
   'ESCALATED_ITEM',
   'COVERAGE_GAP',
+  // GOV-10: the clocks of a contract, a document review that is due, a dataset that is not fresh, an anomaly of the money, a red flag of procurement (auditors only) and a report that an alert was wrong (the owner of the type reviews it).
+  'CONTRACT_END_NEAR',
+  'CONTRACT_PAYMENT_UNREQUESTED',
+  'DOC_REVIEW_OVERDUE',
+  'DATA_STALE',
+  'ANOMALY_SIGNAL',
+  'RED_FLAG_NEW',
+  'ALERT_FEEDBACK_REVIEW',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -120,6 +128,13 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   EW_ACTION_OVERDUE: 46,
   ESCALATED_ITEM: 47,
   COVERAGE_GAP: 48,
+  CONTRACT_END_NEAR: 49,
+  CONTRACT_PAYMENT_UNREQUESTED: 50,
+  DOC_REVIEW_OVERDUE: 51,
+  DATA_STALE: 52,
+  ANOMALY_SIGNAL: 53,
+  RED_FLAG_NEW: 54,
+  ALERT_FEEDBACK_REVIEW: 55,
 };
 
 export interface WorkItem {
