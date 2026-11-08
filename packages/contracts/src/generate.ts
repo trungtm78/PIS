@@ -75,6 +75,8 @@ const RESOURCE_MODULES: Readonly<Record<string, string>> = {
   asset_record: 'AST',
   analysis_run: 'AUD', analysis_finding: 'AUD',
   maturity_assessment: 'MNE', maturity_evidence: 'MNE',
+  // The project documents of DOC carry the `project.` prefix too, so the project itself is named: its read belongs to PRJ, not to whoever tags a project operation first.
+  project: 'PRJ',
 };
 
 // Maps every operationId to the module it belongs to: its first tag, else the module of its resource (RESOURCE_MODULES), else the only module whose tagged operations share the first segment of its permission; an operation
