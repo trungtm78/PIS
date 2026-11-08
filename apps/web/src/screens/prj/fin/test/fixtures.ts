@@ -1,12 +1,8 @@
-import { FIN_DEFAULT_SCENARIOS } from '@machvon/kernel/src/fin-defaults.ts';
-import { buildReport } from '@machvon/kernel/src/fin-analysis.ts';
+import reportFixture from './report.fixture.json';
 
 /** An appraisal as the API answers it, with the report made by the real formula module (so the screens are tested against the structure the server sends). */
 export const OWNER = '00000000-0000-4000-8000-000000000001';
-export const report = buildReport({
-  model: { periodUnit: 'YEAR', discountRatePct: '10', convention: 'END', lines: [{ period: 0, capex: '1000' }, { period: 1, benefit: '300' }, { period: 2, benefit: '400' }, { period: 3, benefit: '500' }, { period: 4, benefit: '600' }] },
-  scenarios: [...FIN_DEFAULT_SCENARIOS],
-});
+export const report = reportFixture as unknown;
 
 export const raw = (over: Record<string, unknown> = {}): Record<string, unknown> => ({
   id: '00000000-0000-4000-8000-0000000000a1',

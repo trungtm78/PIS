@@ -1,0 +1,1193 @@
+{
+  "formulaVersion": "fin-analysis/1.0.0",
+  "inputs": {
+    "model": {
+      "periodUnit": "YEAR",
+      "discountRatePct": "10",
+      "convention": "END",
+      "lines": [
+        {
+          "period": 0,
+          "capex": "1000"
+        },
+        {
+          "period": 1,
+          "benefit": "300"
+        },
+        {
+          "period": 2,
+          "benefit": "400"
+        },
+        {
+          "period": 3,
+          "benefit": "500"
+        },
+        {
+          "period": 4,
+          "benefit": "600"
+        }
+      ]
+    },
+    "scenarios": [
+      {
+        "code": "FAVOURABLE",
+        "label": "Thuận lợi",
+        "deltas": {
+          "benefitPct": "10",
+          "capexPct": "-5",
+          "opexPct": "-5",
+          "maintenancePct": "-5",
+          "discountRatePp": "-1"
+        }
+      },
+      {
+        "code": "ADVERSE",
+        "label": "Bất lợi",
+        "deltas": {
+          "benefitPct": "-15",
+          "capexPct": "15",
+          "opexPct": "10",
+          "maintenancePct": "10",
+          "discountRatePp": "2",
+          "benefitDelayPeriods": "1"
+        }
+      }
+    ],
+    "sensitivity": {
+      "oneWay": {
+        "benefitPct": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ],
+        "capexPct": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ],
+        "opexPct": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ],
+        "maintenancePct": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ],
+        "residualPct": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ],
+        "discountRatePp": [
+          "-2",
+          "-1",
+          "0",
+          "1",
+          "2"
+        ],
+        "benefitDelayPeriods": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "twoWay": {
+        "x": "benefitPct",
+        "xPoints": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ],
+        "y": "capexPct",
+        "yPoints": [
+          "-20",
+          "-10",
+          "0",
+          "10",
+          "20"
+        ]
+      },
+      "tornado": {
+        "pctSwing": "10",
+        "ratePpSwing": "1",
+        "delaySwing": "1"
+      },
+      "around": {}
+    }
+  },
+  "analysis": {
+    "table": [
+      {
+        "period": 0,
+        "benefit": "0.00",
+        "capex": "1000.00",
+        "opex": "0.00",
+        "maintenance": "0.00",
+        "residual": "0.00",
+        "net": "-1000.00",
+        "factor": "1.00000000",
+        "presentValue": "-1000.00",
+        "cumulativeNet": "-1000.00",
+        "cumulativePresentValue": "-1000.00"
+      },
+      {
+        "period": 1,
+        "benefit": "300.00",
+        "capex": "0.00",
+        "opex": "0.00",
+        "maintenance": "0.00",
+        "residual": "0.00",
+        "net": "300.00",
+        "factor": "0.90909091",
+        "presentValue": "272.73",
+        "cumulativeNet": "-700.00",
+        "cumulativePresentValue": "-727.27"
+      },
+      {
+        "period": 2,
+        "benefit": "400.00",
+        "capex": "0.00",
+        "opex": "0.00",
+        "maintenance": "0.00",
+        "residual": "0.00",
+        "net": "400.00",
+        "factor": "0.82644628",
+        "presentValue": "330.58",
+        "cumulativeNet": "-300.00",
+        "cumulativePresentValue": "-396.69"
+      },
+      {
+        "period": 3,
+        "benefit": "500.00",
+        "capex": "0.00",
+        "opex": "0.00",
+        "maintenance": "0.00",
+        "residual": "0.00",
+        "net": "500.00",
+        "factor": "0.75131480",
+        "presentValue": "375.66",
+        "cumulativeNet": "200.00",
+        "cumulativePresentValue": "-21.04"
+      },
+      {
+        "period": 4,
+        "benefit": "600.00",
+        "capex": "0.00",
+        "opex": "0.00",
+        "maintenance": "0.00",
+        "residual": "0.00",
+        "net": "600.00",
+        "factor": "0.68301346",
+        "presentValue": "409.81",
+        "cumulativeNet": "800.00",
+        "cumulativePresentValue": "388.77"
+      }
+    ],
+    "npv": {
+      "code": "NPV",
+      "status": "OK",
+      "value": "388.77",
+      "reason": null,
+      "detail": {},
+      "formula": "NPV = Σ CF(t) / (1 + r)^t, t = 0..T, với CF(t) = lợi ích(t) + giá trị thu hồi(t) - vốn đầu tư(t) - vận hành(t) - bảo trì(t); giữa kỳ: số mũ là (t - 1/2) từ kỳ 1",
+      "inputs": {
+        "discount_rate_pct": "10.0000",
+        "convention": "END",
+        "period_unit": "YEAR",
+        "last_period": "4",
+        "net_flows": "-1000.00 | 300.00 | 400.00 | 500.00 | 600.00"
+      },
+      "assumptions": [
+        {
+          "code": "END_PERIOD",
+          "text": "Mỗi dòng tiền phát sinh vào cuối kỳ của nó; kỳ 0 là hôm nay và không bị chiết khấu."
+        },
+        {
+          "code": "RATE_PER_PERIOD",
+          "text": "Tỷ lệ chiết khấu tính cho một kỳ và không đổi trong suốt thời gian phân tích."
+        },
+        {
+          "code": "EXACT_ARITHMETIC",
+          "text": "Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0."
+        }
+      ]
+    },
+    "irr": {
+      "code": "IRR",
+      "status": "OK",
+      "value": "24.888336",
+      "reason": null,
+      "detail": {
+        "sign_changes": 1,
+        "bracket_pct": [
+          "24.888336",
+          "24.888336"
+        ],
+        "method": "grid scan then bisection on the exact sign of the NPV"
+      },
+      "formula": "IRR là r sao cho NPV(r) = Σ CF(t) / (1 + r)^t = 0",
+      "inputs": {
+        "discount_rate_pct": "10.0000",
+        "convention": "END",
+        "period_unit": "YEAR",
+        "last_period": "4",
+        "net_flows": "-1000.00 | 300.00 | 400.00 | 500.00 | 600.00"
+      },
+      "assumptions": [
+        {
+          "code": "IRR_ROOT",
+          "text": "IRR là tỷ suất làm NPV bằng 0, tìm bằng cách dò dấu của NPV trên lưới từ -99,9% đến 10.000% rồi chia đôi khoảng; không phụ thuộc quy ước giữa kỳ hay cuối kỳ. Một nghiệm bội chẵn chạm trục mà không đổi dấu không bị phát hiện."
+        },
+        {
+          "code": "IRR_UNIQUE",
+          "text": "Chỉ báo IRR khi có đúng một nghiệm; có nhiều nghiệm thì không báo tỷ suất nào."
+        },
+        {
+          "code": "EXACT_ARITHMETIC",
+          "text": "Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0."
+        }
+      ]
+    },
+    "payback": {
+      "code": "PAYBACK",
+      "status": "OK",
+      "value": "2.6000",
+      "reason": null,
+      "detail": {
+        "recovered_in_period": 3,
+        "cumulative_before": "-300.00",
+        "cumulative_after": "200.00",
+        "falls_below_zero_again": false
+      },
+      "formula": "Hoàn vốn = (T - 1) + |lũy kế(T - 1)| / dòng tiền(T), với T là kỳ đầu tiên lũy kế quay lại không âm sau khi đã âm",
+      "inputs": {
+        "period_unit": "YEAR",
+        "last_period": "4",
+        "net_flows": "-1000.00 | 300.00 | 400.00 | 500.00 | 600.00"
+      },
+      "assumptions": [
+        {
+          "code": "PAYBACK_FIRST",
+          "text": "Hoàn vốn là lần đầu lũy kế quay lại không âm sau khi đã âm; dòng tiền trong một kỳ phát sinh đều nên phần lẻ của kỳ được nội suy tuyến tính."
+        },
+        {
+          "code": "EXACT_ARITHMETIC",
+          "text": "Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0."
+        }
+      ]
+    },
+    "discountedPayback": {
+      "code": "DISCOUNTED_PAYBACK",
+      "status": "OK",
+      "value": "3.0513",
+      "reason": null,
+      "detail": {
+        "recovered_in_period": 4,
+        "cumulative_before": "-21.04",
+        "cumulative_after": "388.77",
+        "falls_below_zero_again": false
+      },
+      "formula": "Hoàn vốn có chiết khấu = (T - 1) + |lũy kế PV(T - 1)| / PV dòng tiền(T), với PV(t) = CF(t) / (1 + r)^t",
+      "inputs": {
+        "discount_rate_pct": "10.0000",
+        "convention": "END",
+        "period_unit": "YEAR",
+        "last_period": "4",
+        "net_flows": "-1000.00 | 300.00 | 400.00 | 500.00 | 600.00"
+      },
+      "assumptions": [
+        {
+          "code": "PAYBACK_FIRST",
+          "text": "Hoàn vốn là lần đầu lũy kế quay lại không âm sau khi đã âm; dòng tiền trong một kỳ phát sinh đều nên phần lẻ của kỳ được nội suy tuyến tính."
+        },
+        {
+          "code": "PAYBACK_DISCOUNTED",
+          "text": "Hoàn vốn có chiết khấu dùng giá trị hiện tại của từng kỳ theo cùng tỷ lệ và quy ước của NPV."
+        },
+        {
+          "code": "END_PERIOD",
+          "text": "Mỗi dòng tiền phát sinh vào cuối kỳ của nó; kỳ 0 là hôm nay và không bị chiết khấu."
+        },
+        {
+          "code": "EXACT_ARITHMETIC",
+          "text": "Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0."
+        }
+      ]
+    },
+    "bcr": {
+      "code": "BCR",
+      "status": "OK",
+      "value": "1.3888",
+      "reason": null,
+      "detail": {
+        "pv_benefits": "1388.77",
+        "pv_net_cost": "1000.00"
+      },
+      "formula": "B/C = PV(lợi ích) / (PV(vốn đầu tư) + PV(vận hành) + PV(bảo trì) - PV(giá trị thu hồi))",
+      "inputs": {
+        "discount_rate_pct": "10.0000",
+        "convention": "END",
+        "period_unit": "YEAR",
+        "last_period": "4"
+      },
+      "assumptions": [
+        {
+          "code": "BCR_NET_COST",
+          "text": "Chi phí ở mẫu số là vốn đầu tư, vận hành và bảo trì, trừ giá trị thu hồi; tử số là lợi ích."
+        },
+        {
+          "code": "END_PERIOD",
+          "text": "Mỗi dòng tiền phát sinh vào cuối kỳ của nó; kỳ 0 là hôm nay và không bị chiết khấu."
+        },
+        {
+          "code": "RATE_PER_PERIOD",
+          "text": "Tỷ lệ chiết khấu tính cho một kỳ và không đổi trong suốt thời gian phân tích."
+        },
+        {
+          "code": "EXACT_ARITHMETIC",
+          "text": "Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0."
+        }
+      ]
+    },
+    "tco": {
+      "code": "TCO",
+      "status": "OK",
+      "value": {
+        "nominalTotal": "1000.00",
+        "presentValueTotal": "1000.00",
+        "equivalentPerPeriod": "315.47",
+        "byKind": {
+          "capex": {
+            "nominal": "1000.00",
+            "presentValue": "1000.00"
+          },
+          "opex": {
+            "nominal": "0.00",
+            "presentValue": "0.00"
+          },
+          "maintenance": {
+            "nominal": "0.00",
+            "presentValue": "0.00"
+          },
+          "residual": {
+            "nominal": "0.00",
+            "presentValue": "0.00"
+          }
+        },
+        "capexSharePct": "100.00"
+      },
+      "reason": null,
+      "detail": {},
+      "formula": "TCO = Σ (vốn đầu tư(t) + vận hành(t) + bảo trì(t) - giá trị thu hồi(t)) / (1 + r)^t; chi phí bình quân hằng kỳ = PV(TCO) / Σ 1 / (1 + r)^t, t = 1..T",
+      "inputs": {
+        "discount_rate_pct": "10.0000",
+        "convention": "END",
+        "period_unit": "YEAR",
+        "last_period": "4"
+      },
+      "assumptions": [
+        {
+          "code": "TCO_RESIDUAL",
+          "text": "Giá trị thu hồi làm giảm chi phí sở hữu; chi phí bình quân hằng kỳ là giá trị hiện tại chia cho hệ số niên kim của các kỳ 1..T."
+        },
+        {
+          "code": "END_PERIOD",
+          "text": "Mỗi dòng tiền phát sinh vào cuối kỳ của nó; kỳ 0 là hôm nay và không bị chiết khấu."
+        },
+        {
+          "code": "RATE_PER_PERIOD",
+          "text": "Tỷ lệ chiết khấu tính cho một kỳ và không đổi trong suốt thời gian phân tích."
+        },
+        {
+          "code": "EXACT_ARITHMETIC",
+          "text": "Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0."
+        }
+      ]
+    }
+  },
+  "scenarios": [
+    {
+      "code": "BASE",
+      "label": "Cơ sở",
+      "deltas": {},
+      "headline": {
+        "npv": "388.77",
+        "irrPct": "24.888336",
+        "irrReason": null,
+        "paybackPeriods": "2.6000",
+        "paybackReason": null,
+        "discountedPaybackPeriods": "3.0513",
+        "discountedPaybackReason": null,
+        "bcr": "1.3888",
+        "bcrReason": null,
+        "tcoPresentValue": "1000.00"
+      }
+    },
+    {
+      "code": "FAVOURABLE",
+      "label": "Thuận lợi",
+      "deltas": {
+        "benefitPct": "10",
+        "capexPct": "-5",
+        "opexPct": "-5",
+        "maintenancePct": "-5",
+        "discountRatePp": "-1"
+      },
+      "headline": {
+        "npv": "615.35",
+        "irrPct": "32.514180",
+        "irrReason": null,
+        "paybackPeriods": "2.3273",
+        "paybackReason": null,
+        "discountedPaybackPeriods": "2.6520",
+        "discountedPaybackReason": null,
+        "bcr": "1.6477",
+        "bcrReason": null,
+        "tcoPresentValue": "950.00"
+      }
+    },
+    {
+      "code": "ADVERSE",
+      "label": "Bất lợi",
+      "deltas": {
+        "benefitPct": "-15",
+        "capexPct": "15",
+        "opexPct": "10",
+        "maintenancePct": "10",
+        "discountRatePp": "2",
+        "benefitDelayPeriods": "1"
+      },
+      "headline": {
+        "npv": "-434.62",
+        "irrPct": "-3.703545",
+        "irrReason": null,
+        "paybackPeriods": null,
+        "paybackReason": "NOT_RECOVERED",
+        "discountedPaybackPeriods": null,
+        "discountedPaybackReason": "NOT_RECOVERED",
+        "bcr": "0.6221",
+        "bcrReason": null,
+        "tcoPresentValue": "1150.00"
+      }
+    }
+  ],
+  "oneWay": [
+    {
+      "parameter": "discountRatePp",
+      "points": [
+        {
+          "delta": "-2",
+          "headline": {
+            "npv": "458.65",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "2.9556",
+            "discountedPaybackReason": null,
+            "bcr": "1.4586",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "-1",
+          "headline": {
+            "npv": "423.05",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0047",
+            "discountedPaybackReason": null,
+            "bcr": "1.4230",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "1",
+          "headline": {
+            "npv": "355.75",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0999",
+            "discountedPaybackReason": null,
+            "bcr": "1.3558",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "2",
+          "headline": {
+            "npv": "323.94",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.1505",
+            "discountedPaybackReason": null,
+            "bcr": "1.3239",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "parameter": "benefitPct",
+      "points": [
+        {
+          "delta": "-20",
+          "headline": {
+            "npv": "111.02",
+            "irrPct": "14.474812",
+            "irrReason": null,
+            "paybackPeriods": "3.0833",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.6614",
+            "discountedPaybackReason": null,
+            "bcr": "1.1110",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "-10",
+          "headline": {
+            "npv": "249.89",
+            "irrPct": "19.804406",
+            "irrReason": null,
+            "paybackPeriods": "2.8222",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.3225",
+            "discountedPaybackReason": null,
+            "bcr": "1.2499",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "10",
+          "headline": {
+            "npv": "527.65",
+            "irrPct": "29.768767",
+            "irrReason": null,
+            "paybackPeriods": "2.4182",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "2.8140",
+            "discountedPaybackReason": null,
+            "bcr": "1.5276",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "20",
+          "headline": {
+            "npv": "666.53",
+            "irrPct": "34.477750",
+            "irrReason": null,
+            "paybackPeriods": "2.2667",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "2.6123",
+            "discountedPaybackReason": null,
+            "bcr": "1.6665",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "parameter": "capexPct",
+      "points": [
+        {
+          "delta": "-20",
+          "headline": {
+            "npv": "588.77",
+            "irrPct": "36.775972",
+            "irrReason": null,
+            "paybackPeriods": "2.2000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "2.5236",
+            "discountedPaybackReason": null,
+            "bcr": "1.7360",
+            "bcrReason": null,
+            "tcoPresentValue": "800.00"
+          }
+        },
+        {
+          "delta": "-10",
+          "headline": {
+            "npv": "488.77",
+            "irrPct": "30.299944",
+            "irrReason": null,
+            "paybackPeriods": "2.4000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "2.7898",
+            "discountedPaybackReason": null,
+            "bcr": "1.5431",
+            "bcrReason": null,
+            "tcoPresentValue": "900.00"
+          }
+        },
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "10",
+          "headline": {
+            "npv": "288.77",
+            "irrPct": "20.276010",
+            "irrReason": null,
+            "paybackPeriods": "2.8000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.2954",
+            "discountedPaybackReason": null,
+            "bcr": "1.2625",
+            "bcrReason": null,
+            "tcoPresentValue": "1100.00"
+          }
+        },
+        {
+          "delta": "20",
+          "headline": {
+            "npv": "188.77",
+            "irrPct": "16.281790",
+            "irrReason": null,
+            "paybackPeriods": "3.0000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.5394",
+            "discountedPaybackReason": null,
+            "bcr": "1.1573",
+            "bcrReason": null,
+            "tcoPresentValue": "1200.00"
+          }
+        }
+      ]
+    },
+    {
+      "parameter": "opexPct",
+      "points": [
+        {
+          "delta": "-20",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "-10",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "10",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "20",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "parameter": "maintenancePct",
+      "points": [
+        {
+          "delta": "-20",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "-10",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "10",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "20",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "parameter": "residualPct",
+      "points": [
+        {
+          "delta": "-20",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "-10",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "10",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "20",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "parameter": "benefitDelayPeriods",
+      "points": [
+        {
+          "delta": "0",
+          "headline": {
+            "npv": "388.77",
+            "irrPct": "24.888336",
+            "irrReason": null,
+            "paybackPeriods": "2.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": "3.0513",
+            "discountedPaybackReason": null,
+            "bcr": "1.3888",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "1",
+          "headline": {
+            "npv": "-110.03",
+            "irrPct": "5.962504",
+            "irrReason": null,
+            "paybackPeriods": "3.6000",
+            "paybackReason": null,
+            "discountedPaybackPeriods": null,
+            "discountedPaybackReason": "NOT_RECOVERED",
+            "bcr": "0.8900",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        },
+        {
+          "delta": "2",
+          "headline": {
+            "npv": "-501.40",
+            "irrPct": "-9.473818",
+            "irrReason": null,
+            "paybackPeriods": null,
+            "paybackReason": "NOT_RECOVERED",
+            "discountedPaybackPeriods": null,
+            "discountedPaybackReason": "NOT_RECOVERED",
+            "bcr": "0.4986",
+            "bcrReason": null,
+            "tcoPresentValue": "1000.00"
+          }
+        }
+      ]
+    }
+  ],
+  "twoWay": {
+    "x": "benefitPct",
+    "y": "capexPct",
+    "xPoints": [
+      "-20",
+      "-10",
+      "0",
+      "10",
+      "20"
+    ],
+    "yPoints": [
+      "-20",
+      "-10",
+      "0",
+      "10",
+      "20"
+    ],
+    "npv": [
+      [
+        "311.02",
+        "449.89",
+        "588.77",
+        "727.65",
+        "866.53"
+      ],
+      [
+        "211.02",
+        "349.89",
+        "488.77",
+        "627.65",
+        "766.53"
+      ],
+      [
+        "111.02",
+        "249.89",
+        "388.77",
+        "527.65",
+        "666.53"
+      ],
+      [
+        "11.02",
+        "149.89",
+        "288.77",
+        "427.65",
+        "566.53"
+      ],
+      [
+        "-88.98",
+        "49.89",
+        "188.77",
+        "327.65",
+        "466.53"
+      ]
+    ]
+  },
+  "tornado": [
+    {
+      "parameter": "benefitDelayPeriods",
+      "low": {
+        "delta": "0",
+        "npv": "388.77"
+      },
+      "high": {
+        "delta": "1",
+        "npv": "-110.03"
+      },
+      "swing": "498.80"
+    },
+    {
+      "parameter": "benefitPct",
+      "low": {
+        "delta": "-10",
+        "npv": "249.89"
+      },
+      "high": {
+        "delta": "10",
+        "npv": "527.65"
+      },
+      "swing": "277.75"
+    },
+    {
+      "parameter": "capexPct",
+      "low": {
+        "delta": "-10",
+        "npv": "488.77"
+      },
+      "high": {
+        "delta": "10",
+        "npv": "288.77"
+      },
+      "swing": "200.00"
+    },
+    {
+      "parameter": "discountRatePp",
+      "low": {
+        "delta": "-1",
+        "npv": "423.05"
+      },
+      "high": {
+        "delta": "1",
+        "npv": "355.75"
+      },
+      "swing": "67.29"
+    },
+    {
+      "parameter": "opexPct",
+      "low": {
+        "delta": "-10",
+        "npv": "388.77"
+      },
+      "high": {
+        "delta": "10",
+        "npv": "388.77"
+      },
+      "swing": "0.00"
+    },
+    {
+      "parameter": "maintenancePct",
+      "low": {
+        "delta": "-10",
+        "npv": "388.77"
+      },
+      "high": {
+        "delta": "10",
+        "npv": "388.77"
+      },
+      "swing": "0.00"
+    },
+    {
+      "parameter": "residualPct",
+      "low": {
+        "delta": "-10",
+        "npv": "388.77"
+      },
+      "high": {
+        "delta": "10",
+        "npv": "388.77"
+      },
+      "swing": "0.00"
+    }
+  ],
+  "switching": [
+    {
+      "parameter": "benefitPct",
+      "status": "OK",
+      "pct": "-27.99",
+      "reason": null
+    },
+    {
+      "parameter": "capexPct",
+      "status": "OK",
+      "pct": "38.88",
+      "reason": null
+    },
+    {
+      "parameter": "opexPct",
+      "status": "NOT_APPLICABLE",
+      "pct": null,
+      "reason": "COMPONENT_ZERO"
+    },
+    {
+      "parameter": "maintenancePct",
+      "status": "NOT_APPLICABLE",
+      "pct": null,
+      "reason": "COMPONENT_ZERO"
+    },
+    {
+      "parameter": "residualPct",
+      "status": "NOT_APPLICABLE",
+      "pct": null,
+      "reason": "COMPONENT_ZERO"
+    }
+  ]
+}
