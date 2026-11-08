@@ -3,9 +3,9 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 480,
-    "webCatalog": 480,
-    "webModules": 26,
+    "webRoutes": 485,
+    "webCatalog": 485,
+    "webModules": 27,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
     "modulesTotal": 27
@@ -111,6 +111,16 @@
         "LLM",
         "SAS",
         "INT"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Dữ liệu",
+      "icon": "data",
+      "modules": [
+        "MDM",
+        "DGV",
+        "HUB"
       ]
     }
   ],
@@ -2029,6 +2039,35 @@
           "parents": {}
         }
       ]
+    },
+    "HUB": {
+      "name": "Trung tâm tích hợp dữ liệu",
+      "groups": [
+        {
+          "title": "Kết nối và sức khỏe",
+          "description": "Danh mục bộ kết nối, chi tiết và quy trình ETL",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Sự cố",
+          "description": "Nhật ký sự cố tích hợp",
+          "ids": [
+            3
+          ],
+          "primary": [
+            3
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2534,7 +2573,8 @@
     "DIR": "Cuộc giao ban đầu tư, chỉ đạo của lãnh đạo, đơn vị thực hiện, hạn và bằng chứng hoàn thành.",
     "RPT": "Lập báo cáo đúng biểu mẫu, ký ba người, phát hành bản bất biến và ghi việc giao.",
     "VND": "Sổ nhà thầu và nhà cung cấp, hồ sơ chủ, hồ sơ cấm tham gia đấu thầu, tài khoản nhận tiền, chứng chỉ, sự kiện uy tín dự thầu và liên danh.",
-    "INT": "Mở dữ liệu đã chứng nhận cho máy và công cụ BI mà không có đường vòng qua ranh giới tổ chức."
+    "INT": "Mở dữ liệu đã chứng nhận cho máy và công cụ BI mà không có đường vòng qua ranh giới tổ chức.",
+    "HUB": "Mọi kết nối dữ liệu với hệ thống bên ngoài trong một trung tâm: sức khỏe, giao thức, quy trình ETL, ánh xạ, sự cố và tác tử thu thập."
   },
   "adminLibraryModules": [
     "IAM",
@@ -7634,6 +7674,36 @@
       "area": "admin",
       "module": "LLM",
       "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HUB-01",
+      "title": "Danh mục bộ kết nối và sức khỏe tích hợp",
+      "kind": "table",
+      "area": "data",
+      "module": "HUB",
+      "group": "Kết nối và sức khỏe",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HUB-02",
+      "title": "Chi tiết bộ kết nối",
+      "kind": "detail",
+      "area": "data",
+      "module": "HUB",
+      "group": "Kết nối và sức khỏe",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HUB-03",
+      "title": "Nhật ký sự cố tích hợp",
+      "kind": "table",
+      "area": "data",
+      "module": "HUB",
+      "group": "Sự cố",
       "role": "workspace",
       "parent": null
     }

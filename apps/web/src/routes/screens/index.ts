@@ -515,4 +515,8 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'INT-03': () => import('../../screens/int/codes/CodesScreen'),
   'INT-04': () => import('../../screens/int/bi/BiScreen'),
   'INT-05': () => import('../../screens/int/log/AccessLogScreen'),
+=======
+  'HUB-01': () => import('../../screens/hub/CatalogueScreen'),
+  'HUB-02': () => import('../../screens/hub/ConnectorScreen'),
+  'HUB-03': () => import('../../screens/hub/IncidentScreen'),
 };

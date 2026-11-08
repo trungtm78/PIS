@@ -285,7 +285,7 @@ function PipelineTab({ data, onReject }: { data: Detail; onReject: (reject: Reje
                 <td>{protocol.code}</td>
                 <td>{t(`hub.pipe.protocols.status.${word(protocol.status)}`)}</td>
                 <td>{t(`hub.pipe.egress.${word(protocol.egress)}`)}</td>
-                <td>{`${protocol.auth.join(' / ')}; TLS ${t(`hub.pipe.tls.${word(protocol.tls)}`)}; ${t('hub.pipe.signature', { value: t(`hub.pipe.signature.${word(protocol.signature)}`) })}`}</td>
+                <td>{t('hub.pipe.securityLine', { auth: protocol.auth.join(' / '), tls: t(`hub.pipe.tls.${word(protocol.tls)}`), signature: t(`hub.pipe.signature.${word(protocol.signature)}`) })}</td>
                 <td>{`${protocol.retry}; ${protocol.delivery}`}</td>
                 <td>{t(`hub.pipe.impl.${word(protocol.implementation)}`)}</td>
               </tr>

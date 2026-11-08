@@ -463,6 +463,7 @@
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
+<<<<<<< HEAD
     {"id":"VND-01","path":"/vnd/vnd-01","title":"Sổ nhà thầu","kind":"table","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"workspace","parent":null,"req":"FR-VND-01"},
     {"id":"VND-02","path":"/vnd/vnd-02","title":"Hồ sơ nhà thầu chủ","kind":"detail","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"detail","parent":"VND-01","req":"FR-VND-02"},
     {"id":"VND-03","path":"/vnd/vnd-03","title":"Hồ sơ cấm tham gia đấu thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-03"},
@@ -501,5 +502,10 @@
     {"id":"LLM-26","path":"/llm/llm-26","title":"Danh mục rà soát và bộ tiêu chí đánh giá","kind":"table","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-26"},
     {"id":"LLM-27","path":"/llm/llm-27","title":"Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu","kind":"table","area":"admin","module":"LLM","group":"Model & định tuyến","role":"workspace","parent":null,"req":"FR-LLM-27"}
 >>>>>>> 105b2273 (feat(web): AI assistant screens LLM-22 to LLM-27 with model, labels and strings)
+=======
+    {"id":"HUB-01","path":"/hub/hub-01","title":"Danh mục bộ kết nối và sức khỏe tích hợp","kind":"table","area":"data","module":"HUB","group":"Kết nối và sức khỏe","role":"workspace","parent":null,"req":"FR-HUB-01"},
+    {"id":"HUB-02","path":"/hub/hub-02","title":"Chi tiết bộ kết nối","kind":"detail","area":"data","module":"HUB","group":"Kết nối và sức khỏe","role":"workspace","parent":null,"req":"FR-HUB-02"},
+    {"id":"HUB-03","path":"/hub/hub-03","title":"Nhật ký sự cố tích hợp","kind":"table","area":"data","module":"HUB","group":"Sự cố","role":"workspace","parent":null,"req":"FR-HUB-03"}
+>>>>>>> ff2b50cb (feat(web): register HUB screens, navigation, routes and folded i18n)
   ]
 }
