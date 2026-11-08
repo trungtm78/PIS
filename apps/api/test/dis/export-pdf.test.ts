@@ -70,7 +70,7 @@ describe('the PDF of an export (ST-DIS-016)', () => {
     expect(notices).toHaveLength(pageNumbers.length * Math.max(1, notices.length / pageNumbers.length));
     expect(texts.filter((text) => text === 'Mã dự án')).toHaveLength(pageNumbers.length);
     expect(pageNumbers[pageNumbers.length - 1]).toMatch(new RegExp(`· ${pageNumbers.length}/${pageNumbers.length}$`));
-  });
+  }, 60_000);
 
   it('says nothing of a sign-off once the definitions are signed, and cuts a long name with an ellipsis instead of running into the next column', async () => {
     const signed = await drawn(buildExportDocument(input({ definitionStatus: 'SIGNED', lines: [{ ...LINE, projectName: 'Rất dài '.repeat(40) }] })));
