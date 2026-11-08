@@ -300,8 +300,9 @@ describe('the post-investment effectiveness of a project (MR.03, G4-7)', () => {
       await stageChange(projectId, 'COMPLETED', '2026-06-30', 2);
       await seedAs(harness, [
         [
-          `insert into machvon.handover (tenant_id, id, project_id, contract_id, recipient_unit_id, document_version_id, punch_list, accepted_at, status) values ($1, $2, $3, $4, $5, $6, '[]'::jsonb, $7::timestamptz, 'ACCEPTED')`,
-          [TENANT_A, randomUUID(), projectId, randomUUID(), unitId(DEPARTMENT), randomUUID(), '2026-07-15T03:00:00Z'],
+          `insert into machvon.handover (tenant_id, id, project_id, contract_id, recipient_unit_id, document_version_id, punch_list, accepted_at, accepted_by, open_critical_punch_count, as_built_document_version_id, status)
+           values ($1, $2, $3, $4, $5, $6, '[]'::jsonb, $7::timestamptz, $8, 0, $9, 'ACCEPTED')`,
+          [TENANT_A, randomUUID(), projectId, randomUUID(), unitId(DEPARTMENT), randomUUID(), '2026-07-15T03:00:00Z', memberId(MAKER), randomUUID()],
         ],
       ]);
       const made = await as((tx) => effects.generateCalendar(tx, { projectId, actor: memberId(MAKER), scopes, now: NOW }));

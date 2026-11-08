@@ -51,13 +51,14 @@ async function databaseRefusal(work: Promise<unknown>): Promise<string> {
 
 let counter = 0;
 async function lateMilestone(projectId: string, planned: string, status = 'PLANNED', actual: string | null = null): Promise<string> {
+  const reason = status === 'DELAYED' || status === 'CANCELLED' ? 'Moved by the site handover' : null;
   const milestoneId = randomUUID();
   counter += 1;
   await seedAs(harness, [
     [
-      `insert into machvon.project_milestone (tenant_id, id, project_id, code, name, baseline_date, planned_date, actual_date, status, created_by, updated_by)
-       values ($1, $2, $3, $4, 'Handover of the site', $5::date, $5::date, $6::date, $7, $8, $8)`,
-      [TENANT_A, milestoneId, projectId, `MS-${counter}`, planned, actual, status, memberId(OFFICER)],
+      `insert into machvon.project_milestone (tenant_id, id, project_id, code, name, baseline_date, planned_date, actual_date, status, status_reason, created_by, updated_by)
+       values ($1, $2, $3, $4, 'Handover of the site', $5::date, $5::date, $6::date, $7, $9, $8, $8)`,
+      [TENANT_A, milestoneId, projectId, `MS-${counter}`, planned, actual, status, memberId(OFFICER), reason],
     ],
   ]);
   return milestoneId;
