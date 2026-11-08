@@ -13,10 +13,10 @@ import { DomainError } from './errors.ts';
 
 export const PORTAL_RULE_TYPE = 'PUBLIC_PORTAL_RULE';
 
-export const PORTAL_FIELDS = ['project_code', 'title', 'summary', 'status', 'project_group', 'sector', 'project_type', 'purpose', 'start_year', 'end_year', 'budget_vnd', 'authority_name', 'progress_pct', 'disbursed_vnd', 'updated_on'] as const;
+export const PORTAL_FIELDS = ['project_code', 'title', 'summary', 'status', 'project_group', 'sector', 'project_type', 'purpose', 'start_year', 'end_year', 'budget_vnd', 'authority_name', 'updated_on'] as const;
 export type PortalField = (typeof PORTAL_FIELDS)[number];
 
-/** What a tenant shows when it has made no choice: no money that moved and no progress figure, which a tenant adds only on purpose. */
+/** What a tenant shows when it has made no choice: every field of the catalogue (the catalogue holds no figure of money that moved and no progress figure; a later lane adds them as new fields a tenant turns on on purpose). */
 export const PORTAL_DEFAULT_FIELDS: readonly PortalField[] = ['project_code', 'title', 'summary', 'status', 'project_group', 'sector', 'project_type', 'purpose', 'start_year', 'end_year', 'budget_vnd', 'authority_name', 'updated_on'];
 
 export interface PortalPolicy {
@@ -66,8 +66,6 @@ export interface PortalProjectFacts {
   endYear: number | null;
   authorityName: string | null;
   updatedOn: string;
-  progressPct: number | null;
-  disbursedVnd: string | null;
 }
 
 export interface PublisherInput {
@@ -114,8 +112,6 @@ function allFields(facts: PortalProjectFacts, input: PublisherInput): Record<Por
     end_year: facts.endYear,
     budget_vnd: facts.totalInvestmentVnd,
     authority_name: facts.authorityName,
-    progress_pct: facts.progressPct,
-    disbursed_vnd: facts.disbursedVnd,
     updated_on: facts.updatedOn,
   };
 }

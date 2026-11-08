@@ -1828,3 +1828,17 @@ export { RISK_ALERT_RESOURCE, RISK_SIGNAL_RESOURCE, RiskSignalStore } from './ri
 export type { AlertView as RiskAlertView, Board as RiskBoard, BoardFilter as RiskBoardFilter, BoardItem as RiskBoardItem, HistoryRow as RiskHistoryRow, SignalLine as RiskSignalLine } from './risk-signal-store.ts';
 export { EFFECT_ASSESSMENT_RESOURCE, EFFECT_CALENDAR_RESOURCE, EFFECT_MEASUREMENT_RESOURCE, EFFECT_TARGET_RESOURCE, EffectStore } from './effect-store.ts';
 export type { AssessmentChange as EffectAssessmentChange, AssessmentRow as EffectAssessmentRow, CalendarChange as EffectCalendarChange, CalendarRow as EffectCalendarRow, EffectivenessView, IndicatorLine as EffectIndicatorLine, MeasurementChange as EffectMeasurementChange, MeasurementRow as EffectMeasurementRow, PolicyView as EffectPolicyView, SetChange as EffectSetChange, TargetSetView as EffectTargetSetView } from './effect-store.ts';
+// GOV-12: community monitoring, document transmittal, public portal, anonymous channel, gifts, photo findings, audit standing, period lock and signature.
+export { MonitoringStore } from './monitoring-store.ts';
+export type { FeedbackEventRow as MonitoringFeedbackEventRow, FeedbackRow as MonitoringFeedbackRow, FileReading as MonitoringFileReading, MonitoringFileRow, PackItemRow as MonitoringPackItemRow } from './monitoring-store.ts';
+export { DocTransmittalStore } from './doc-transmittal-store.ts';
+export type { ContainerRow as DocContainerRow, ItemRow as DocTransmittalItemRow, MoveRow as DocContainerMoveRow, RecipientRow as DocTransmittalRecipientRow, TransmittalReading as DocTransmittalReading, TransmittalRow as DocTransmittalRow } from './doc-transmittal-store.ts';
+export { PortalPublicReads, PortalStore, recordHash as portalRecordHash } from './portal-store.ts';
+export type { PortalRecordRow, PortalSettingRow, PublicInfo as PortalPublicInfo, PublicRecord as PortalPublicRecord, SettingsInput as PortalSettingsInput } from './portal-store.ts';
+export { GiftStore, PhotoFindingStore, WhistlePublicReads, WhistleStore } from './integrity-store.ts';
+export type { GiftRow, PhotoFindingRow, WhistleMessageRow, WhistleRow } from './integrity-store.ts';
+export { AuditStandingStore } from './audit-standing-store.ts';
+export type { InvestorStanding, ProfileRecommendation as InvestorProfileRecommendation, StandingReading as InvestorStandingReading } from './audit-standing-store.ts';
+export { PeriodReportStore } from './period-report-store.ts';
+export type { IssueFacts as PeriodIssueFacts, LockRow as PeriodLockRow, SessionRow as ReportSignatureSessionRow, SignatureRow as ReportSignatureRow } from './period-report-store.ts';
+export { readPolicy as readGov12Policy } from './gov12-policy.ts';

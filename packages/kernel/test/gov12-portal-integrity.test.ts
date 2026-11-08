@@ -20,21 +20,19 @@ const codeOf = (run: () => unknown): string => {
   return 'NO_ERROR';
 };
 
-const FACTS: PortalProjectFacts = { code: 'DA-001', name: 'Road to the commune', status: 'IMPLEMENTATION', classification: 'PUBLIC', projectGroup: 'B', totalInvestmentVnd: '120000000000', startYear: 2025, endYear: 2027, authorityName: 'Provincial Board', updatedOn: '2026-11-01', progressPct: 42, disbursedVnd: '50000000000' };
+const FACTS: PortalProjectFacts = { code: 'DA-001', name: 'Road to the commune', status: 'IMPLEMENTATION', classification: 'PUBLIC', projectGroup: 'B', totalInvestmentVnd: '120000000000', startYear: 2025, endYear: 2027, authorityName: 'Provincial Board', updatedOn: '2026-11-01' };
 const INPUT: PublisherInput = { summary: 'A road of 12 km that joins two communes.', sector: 'transport.road', projectType: 'construction', purpose: 'economic' };
 
 describe('public portal allow-list (G4-9)', () => {
   it('shows only the allowed fields and never the ones a tenant did not choose', () => {
     const record = projectPortalRecord(FACTS, INPUT, PORTAL_DEFAULT_FIELDS);
     expect(Object.keys(record).sort()).toEqual([...PORTAL_DEFAULT_FIELDS].sort());
-    expect(record.disbursed_vnd).toBeUndefined();
-    expect(record.progress_pct).toBeUndefined();
     const narrow = projectPortalRecord(FACTS, INPUT, ['project_code', 'title']);
     expect(narrow).toEqual({ project_code: 'DA-001', title: 'Road to the commune' });
   });
 
   it('cuts a stored record again on the way out: a field that is no longer allowed, or not in the catalogue, is dropped', () => {
-    const stored = { project_code: 'DA-001', title: 'T', disbursed_vnd: '5', internal_note: 'secret', created_by: 'u1', budget_vnd: { nested: true } };
+    const stored = { project_code: 'DA-001', title: 'T', progress_pct: '5', internal_note: 'secret', created_by: 'u1', budget_vnd: { nested: true } };
     expect(cutToAllowed(stored, ['project_code', 'title', 'budget_vnd'])).toEqual({ project_code: 'DA-001', title: 'T' });
   });
 
