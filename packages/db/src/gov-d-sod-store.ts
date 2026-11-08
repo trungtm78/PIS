@@ -440,7 +440,8 @@ export class SodStore {
     }
     params.push(filter.limit);
     const rows = await tx.query<ExceptionSql>(
-      `select ${EXCEPTION_COLUMNS} from ${EXCEPTION_FROM} ${where.length === 0 ? '' : `where ${where.join(' and ')}`} order by e.created_at desc, e.id desc limit $${params.length}`,
+      // The day is typed in the statement itself: a read with no filter never names it otherwise, and the server cannot tell the type of a parameter the statement does not use.
+      `select ${EXCEPTION_COLUMNS} from ${EXCEPTION_FROM} where $1::date is not null${where.map((condition) => ` and ${condition}`).join('')} order by e.created_at desc, e.id desc limit $${params.length}`,
       params,
     );
     return rows.map((row) => toException(row, today));

@@ -3,6 +3,8 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
+import { GOVRULE_FIXTURES } from './gov/govrule.fixtures';
+import { GOVERNANCE_SPECS } from './gov';
 import {
   AUDIT_EVENT_FIXTURES,
   CERTIFICATE_FIXTURES,
@@ -130,6 +132,8 @@ export interface ForeignAttemptSpec {
   method: 'GET' | 'PUT' | 'POST';
   /** The TNT-B object the path names. */
   id: string;
+  /** The other path parameters of a path that has more than one (by their name in the braces); the parameters not named here take `id`. */
+  pathParams?: Readonly<Record<string, string>>;
   /** A query string the operation asks for, so the request reaches the handler's own lookup (the reason of a reading). */
   query?: string;
   /** Needs `If-Match` (the command is versioned). */
@@ -483,10 +487,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   // The lifecycle and the earned value (lane B1): a project, a request to appraise again and an alert of another tenant are not found, whatever is asked of them.
   { operation: 'getProjectBaseline', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'captureProjectBaseline', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: {} },
-  { operation: 'decideReappraisalRequest', method: 'POST', id: REVISION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'WAIVE', reason: 'Isolation foreign decision attempt' } },
-  { operation: 'acknowledgeGovernanceAlert', method: 'POST', id: REVISION_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign acknowledgement attempt' } },
+  { operation: 'decideReappraisalRequest', method: 'POST', id: GOVRULE_FIXTURES['TNT-B'].baseline.reappraisalId, versioned: true, body: { decision: 'WAIVE', reason: 'Isolation foreign decision attempt' } },
+  { operation: 'acknowledgeGovernanceAlert', method: 'POST', id: GOVRULE_FIXTURES['TNT-B'].baseline.alertId, versioned: true, body: { note: 'Isolation foreign acknowledgement attempt' } },
   { operation: 'listProjectComponentContracts', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
-  { operation: 'linkContractComponent', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { contract_id: '00000000-0000-4000-b0fd-000000000010', component_id: null } },
+  { operation: 'linkContractComponent', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { contract_id: CONTRACT_FIXTURES['TNT-B'].id, component_id: null } },
   { operation: 'getProjectEvm', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'getProjectSCurve', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   { operation: 'exportProjectSCurve', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
@@ -1580,6 +1584,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'suspendMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign suspend attempt' } },
   { operation: 'reactivateMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign reactivate attempt' } },
   { operation: 'endMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign end attempt' } },
+  // The governance deepening: the objects of the rules, the reserves, the appraisals, the directives, the checks of payments, the workflows of packages and the e-GP mappings.
+  ...GOVERNANCE_SPECS,
 ];
 
 /** Operations that this channel exercises with a foreign id (the registered foreign-id cases). */
@@ -1623,7 +1629,7 @@ export async function attempt(options: ApiChannelOptions, spec: ForeignAttemptSp
     headers['idempotency-key'] = `isolation-${randomUUID()}`;
   }
   if (spec.versioned === true) headers['if-match'] = '"1"';
-  const path = `${fillPath(operationPath(options.doc, spec.operation), spec.id)}${spec.query === undefined ? '' : `?${spec.query}`}`;
+  const path = `${fillPath(operationPath(options.doc, spec.operation), spec.id, spec.pathParams)}${spec.query === undefined ? '' : `?${spec.query}`}`;
   const response = await fetch(`${options.baseUrl}${path}`, {
     method: spec.method,
     headers,

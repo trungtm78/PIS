@@ -47,7 +47,10 @@ export function operationPath(doc: OpenApiDocument, operationId: string): string
   return entry.path;
 }
 
-/** Fills the single path parameter of a template with an id. */
-export function fillPath(template: string, id: string): string {
-  return template.replace(PATH_PARAMETERS, encodeURIComponent(id));
+/**
+ * Fills the path parameters of a template with an id. A template with more than one parameter names the others in `named` (by their name in the braces);
+ * every parameter that is not named there takes the id.
+ */
+export function fillPath(template: string, id: string, named: Readonly<Record<string, string>> = {}): string {
+  return template.replace(PATH_PARAMETERS, (placeholder) => encodeURIComponent(named[placeholder.slice(1, -1)] ?? id));
 }

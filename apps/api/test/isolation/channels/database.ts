@@ -3,6 +3,7 @@ import { PERMISSIONS } from '@machvon/contracts';
 import { ND30_A4_STANDARD, objectKey } from '@machvon/kernel';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
+import { GOVERNANCE_OPERATIONS, GOVERNANCE_SNAPSHOT_TABLES, seedGovernance } from './gov';
 import {
   AUDIT_EVENT_FIXTURES,
   CERTIFICATE_FIXTURES,
@@ -135,7 +136,7 @@ const ACTOR_ID = '00000000-0000-4000-8000-0000000000f0';
 const APPROVER_ID = '00000000-0000-4000-8000-0000000000f2';
 
 /** The operations whose permissions the TNT-A test role holds: every id-bearing operation the isolation suite aims at TNT-B. */
-export const FULL_RIGHTS_OPERATIONS = [
+const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'get_resources_membership_id',
   'get_resources_organization_unit',
   'get_resources_organization_unit_id',
@@ -1076,6 +1077,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getTenantExportManifest',
   'downloadTenantExportFile',
 ] as const;
+
+export const FULL_RIGHTS_OPERATIONS: readonly string[] = [...EARLIER_FULL_RIGHTS_OPERATIONS, ...GOVERNANCE_OPERATIONS];
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
 const FULL_RIGHTS = [...new Set(FULL_RIGHTS_OPERATIONS.map((operation) => PERMISSION_OF[operation] ?? ''))];
@@ -2543,6 +2546,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_OUTGOING, [tenantId, documents.outgoingId, documents.documentId, documents.layoutProfileId, home, MEMBERSHIP_ID]);
     await client.query(INSERT_SIGNING_SESSION, [tenantId, documents.sessionId, documents.outgoingId, MEMBERSHIP_ID, documents.versionId]);
     await client.query(INSERT_DISTRIBUTION, [tenantId, documents.distributionId, documents.outgoingId, MEMBERSHIP_ID]);
+    // The governance deepening: rules, reserves, appraisals, directives, checks of payments, workflows of packages, e-GP, the alert centre.
+    await seedGovernance(client, { tenant, tenantId, home: home ?? '', membershipId: MEMBERSHIP_ID, actorId: ACTOR_ID, approverId: APPROVER_ID });
     await client.query('commit');
   } finally {
     await client.end();
@@ -2654,6 +2659,7 @@ const SNAPSHOT_TABLES = [
   'land_handover_section',
   'land_parcel',
   'land_deadline',
+  ...GOVERNANCE_SNAPSHOT_TABLES,
 ] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
@@ -2664,7 +2670,7 @@ export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Prom
     await client.query('begin');
     await client.query("select set_config('app.tenant_id', $1, true)", [TENANT_IDS[tenant]]);
     const parts: unknown[] = [];
-    for (const table of SNAPSHOT_TABLES) {
+    for (const table of new Set<string>(SNAPSHOT_TABLES)) {
       const { rows } = await client.query<{ row: unknown }>(`select to_jsonb(t) as row from machvon.${table} t order by id`);
       parts.push(rows.map((row) => row.row));
     }

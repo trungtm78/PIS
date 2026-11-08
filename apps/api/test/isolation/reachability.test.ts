@@ -10,6 +10,7 @@ import type { DocumentFilePort } from '../../src/modules/doc/file-port';
 import { FileService } from '../../src/modules/files';
 import type { ObjectStoragePort } from '@machvon/kernel';
 import { FOREIGN_ATTEMPT_SPECS, attempt, createApiChannel, tokenFor } from './channels/api';
+import { GOVRULE_FIXTURES } from './channels/gov/govrule.fixtures';
 import type { ForeignAttemptSpec } from './channels/api';
 import { DOCUMENT_FIXTURES, HOUSEHOLD_FIXTURES, MASTER_IMPORT_FIXTURES, PROJECT_FIXTURES, REPORT_EXPORT_FIXTURES, SCORECARD_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, exportManifestObjectId, exportManifestOf, runIsolationSuite } from './suite';
 import type { ForeignAttempt, IsolationChannel } from './suite';
@@ -101,10 +102,21 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   // The reads of the caller's own access, entitlements and notification preferences answer one object, not a page of rows: they are read for leaks like the others. The preferences hold an `items` list that is empty for a person who never saved. The two rates answer one aggregate over a snapshot (its groups are asked for), not a page of rows.
   // The runs and the findings of the AI analysis are listed only for the proposals the caller has in full (an evaluator of the project who declared no conflict), which the generic reader of this test is not: their isolation is tested with the rows of the runs, the findings and the evidence in the isolation suite, and with the cases of the analysis itself.
   // listResettlementCandidates reads the items of approved plans that give resettlement and have no unit yet: the fixtures hold no such plan (its isolation is tested with the rows of the allocations, and by the test of the command).
-  const LISTS_WITHOUT_ROWS: string[] = ['getAuditOverview', 'getCommandCenter', 'getConversionOptions', 'getDisbursementForecast', 'getDisbursementRates', 'getDocumentOverview', 'getHomeChannelHealth', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyProfile', 'getMyUsage', 'listExpiringWarranties', 'listMaterialContracts', 'listOverdueAdvances', 'listResettlementCandidates'];
+  // The reads of the governance deepening that answer one object or one aggregate (the summary of the directives, the board and the statistics of the workflows, the register of the figures, the readings of the colours, the matrix of the exceptions, the connection to e-GP, the tree of the packages, the counts of the work, the changes of the week, the policies of the clocks, the certifications of the figures, the exports as a file) have no `items` page to count: they are read for leaks like the others, and what they hold of the tenant comes from the rows the fixtures seed.
+  const LISTS_WITHOUT_ROWS: string[] = ['exportHomeFigures', 'exportPackageWorkflowReport', 'getAuditOverview', 'getCommandCenter', 'getConversionOptions', 'getDirectiveSummary', 'getDisbursementForecast', 'getDisbursementRates', 'getDocumentOverview', 'getEgpConnection', 'getHomeChanges', 'getHomeChannelHealth', 'getKpiRegister', 'getMyEffectiveAccess', 'getMyEntitlements', 'getMyNotificationPreferences', 'getMyProfile', 'getMyUsage', 'getMyWorkCounts', 'getPackageProcessTree', 'getPackageProcessTreeNode', 'getPackageWorkflowBoard', 'getPackageWorkflowStatistics', 'getPackageWorkflowSummary', 'getRagReading', 'getSodMatrix', 'getWorkClockPolicies', 'listAnalyticsCertifications', 'listExpiringWarranties', 'listMaterialContracts', 'listOverdueAdvances', 'listResettlementCandidates'];
   // The capital available on a line or an appropriation names what it reads in its query (the line or the appropriation): it is not a list.
   // The drill of a figure names what it reads in a signed token of the member (another member's or another tenant's token is a 400 of its own, tested with the drill): it is not a list either.
-  const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getDeliveryOverview', 'getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain', 'explainHomeMetric', 'getDisbursementRankings', 'explainBiMetric', 'listNotificationTestRecipients', 'getIssueWeeklyMatrix', 'getLineageGraph']);
+  const NOT_PLAIN_LISTS: ReadonlySet<string> = new Set(['getDeliveryOverview', 'getMyPublishedTheme', 'searchGlobal', 'getCapitalAvailability', 'getPaymentChain', 'explainHomeMetric', 'getDisbursementRankings', 'explainBiMetric', 'listNotificationTestRecipients', 'getIssueWeeklyMatrix', 'getLineageGraph', 'getEffectiveGovernanceRule']);
+
+  // The effective governance rule names the rule type and the code it reads: a code the tenant has no rule for is a 404 of its own (tested below), so it is not a list either.
+  // The reads below need a query of their own to answer at all: the period of the directives of a report, the rule type and code of the versions of a rule, and the node of the tree of the procurement packages.
+  const LIST_QUERIES: Readonly<Record<string, string>> = {
+    getDirectivesForReport: 'from=2026-01-01&to=2026-12-31',
+    listGovernanceRuleVersions: `rule_type=RAG_THRESHOLDS&code=${GOVRULE_FIXTURES['TNT-B'].rules.read.code}`,
+    getPackageProcessTreeNode: 'node_id=ROOT',
+    listPackageProcessTreeNodePackages: 'node_id=ROOT',
+    getPackageProcessTreeNodeFeed: 'node_id=ROOT',
+  };
 
   // The isolation suite reads one list (the organization units) as the other tenant. Every other list read is a place where a missing tenant
   // predicate would show the rows of another tenant, so each one is read here as TNT-A, and what comes back is judged by the markers of TNT-B.
@@ -117,17 +129,28 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   const PROJECT_LISTS: ReadonlySet<string> = new Set(['listLandParcels', 'listLandSections', 'listAffectedHouseholds', 'listCompensationPlans', 'listUpcomingLandDeadlines', 'listLandComplaints', 'listResettlementAllocations', 'listResettlementCandidates', 'listEnforcementCases']);
   // The list of the records of a household names the household it reads.
   const HOUSEHOLD_LISTS: ReadonlySet<string> = new Set(['listInventoryRecords']);
+  const READS_AT_ONCE = 24;
+  // The list of the investment appraisals declares a page of at most 100 rows in the contract, not 200.
+  const LIST_LIMITS: Readonly<Record<string, number>> = { listInvestmentAppraisals: 100 };
   const readAs = async (tenant: 'TNT-A' | 'TNT-B', operationId: string): Promise<{ status: number; body: string }> => {
     const project = PROJECT_LISTS.has(operationId) ? `&project_id=${PROJECT_FIXTURES['TNT-B'].id}` : HOUSEHOLD_LISTS.has(operationId) ? `&household_id=${HOUSEHOLD_FIXTURES['TNT-B'].id}` : '';
-    const response = await fetch(`${app.baseUrl}${pathOf(operationId)}?limit=200${project}`, { headers: { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) } });
+    const query = LIST_QUERIES[operationId] === undefined ? '' : `&${LIST_QUERIES[operationId]}`;
+    const response = await fetch(`${app.baseUrl}${pathOf(operationId)}?limit=${LIST_LIMITS[operationId] ?? 200}${project}${query}`, { headers: { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) } });
     return { status: response.status, body: await response.text() };
   };
 
   it('reads every list of the application as the other tenant without meeting a row of TNT-B (and the lists have rows to meet)', async () => {
     const operations = listReads();
     expect(operations.length).toBeGreaterThan(30);
-    const foreignAttempts = async (): Promise<ForeignAttempt[]> =>
-      Promise.all(operations.map(async (operation) => ({ operation, ...(await readAs('TNT-A', operation)), expectedStatuses: [200] })));
+    // A batch at a time: a hundred and more connections at once are refused by the listener of a loaded machine, which is not what this test is about.
+    const foreignAttempts = async (): Promise<ForeignAttempt[]> => {
+      const answers: ForeignAttempt[] = [];
+      for (let from = 0; from < operations.length; from += READS_AT_ONCE) {
+        const batch = operations.slice(from, from + READS_AT_ONCE);
+        answers.push(...(await Promise.all(batch.map(async (operation) => ({ operation, ...(await readAs('TNT-A', operation)), expectedStatuses: [200] })))));
+      }
+      return answers;
+    };
     const channel: IsolationChannel = {
       name: 'lists',
       seed: () => Promise.resolve(),
@@ -148,6 +171,18 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
     }
     expect(empty).toEqual(LISTS_WITHOUT_ROWS);
   }, 120_000);
+
+  it('answers the effective rule of TNT-B to its owner and 404 to another tenant', async () => {
+    const query = `rule_type=RAG_THRESHOLDS&code=${GOVRULE_FIXTURES['TNT-B'].rules.read.code}`;
+    const read = async (tenant: 'TNT-A' | 'TNT-B'): Promise<{ status: number; body: string }> => {
+      const response = await fetch(`${app.baseUrl}${pathOf('getEffectiveGovernanceRule')}?${query}`, { headers: { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) } });
+      return { status: response.status, body: await response.text() };
+    };
+    expect((await read('TNT-B')).status).toBe(200);
+    const foreign = await read('TNT-A');
+    expect(foreign.status).toBe(404);
+    expect(foreign.body).not.toContain(GOVRULE_FIXTURES['TNT-B'].rules.read.code);
+  }, 60_000);
 
   // These cases find a row and then read a stored file. The isolation suite seeds the rows only: with no file behind them the answer is 404
   // whoever asks, so a lookup that leaked would go unseen. With the files in place the 404 can only come from the lookup.

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { governanceMarkers } from './channels/gov/markers';
 /** Names of the fixture tenants in Design/MACHVON_Design/03_Engineering/test_fixtures.json. */
 export type TenantName = 'TNT-A' | 'TNT-B';
 
@@ -1982,6 +1983,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'member name', value: MEMBERSHIP_FIXTURES[tenant].displayName },
     { kind: 'member email', value: MEMBERSHIP_FIXTURES[tenant].email },
   ];
+  markers.push(...governanceMarkers(tenant));
   for (const unit of UNIT_FIXTURES[tenant]) {
     markers.push({ kind: 'unit id', value: unit.id }, { kind: 'unit code', value: unit.code }, { kind: 'unit name', value: unit.name });
   }
