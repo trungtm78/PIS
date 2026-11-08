@@ -3,6 +3,7 @@ import { aiEditionPolicy, PUBLIC_AI_POLICY } from '@machvon/kernel';
 import { clearEnterpriseAiPolicy, registerEnterpriseAiPolicy } from '@machvon/edition-enterprise/src/server.ts';
 import { loadEnterpriseManifest } from '../../src/editions/load-enterprise';
 import { asObjects } from '../support/json';
+import { memberId } from '../../../../packages/db/test/support/authz-fixtures';
 import { ASKER, EXCEPTION_ASKER, EXCEPTION_DECIDER, PROVIDER_ADMIN, PROVIDER_APPROVER, TENANT_A, AssistWorld } from './assist-world';
 import type { Records, Reply } from './assist-world';
 
@@ -131,8 +132,8 @@ describe('the AI of the enterprise edition: external providers off by default, o
     world.gateway.script('dom-model', [
       async () => {
         // While the model works, the person with the right revokes the exception.
-        const revoked = await world.call('POST', `/ai/external-exceptions/${exceptionId}/revocation`, { member: EXCEPTION_DECIDER, ifMatch: '"2"', body: { reason: 'The provider changed its terms of use.' } });
-        expect(revoked.status).toBe(200);
+        // Written straight into the table, as the revocation of another session would be: the command locks the row, which the call of the gateway holds a share of.
+        await world.rows("update machvon.ai_external_exception set status = 'REVOKED', revoked_by = $2::uuid, revoked_at = now(), revoke_reason = 'The provider changed its terms of use.', version = version + 1 where id = $1::uuid", [exceptionId, memberId(EXCEPTION_DECIDER)]);
         return { providerRequestId: `mock-${randomUUID()}`, output: invalid, usage: { inputTotal: 10, cachedInput: 0, outputTotal: 5 }, latencyMs: 5 };
       },
       { output: invalid },
@@ -169,7 +170,7 @@ describe('the AI of the enterprise edition: external providers off by default, o
     const provider = randomUUID();
     await world.rows(
       `insert into machvon.ai_provider (tenant_id, id, provider_code, name, region_country, route_class, max_classification, status, created_by, updated_by)
-       values ($1, $2, 'VN-NEW', 'VN-NEW', 'VN', 'DOMESTIC_HOSTED', 'INTERNAL', 'PROPOSED', $3, $3)`,
+       values ($1, $2, 'VN-NEW', 'VN-NEW', 'VN', 'DOMESTIC_HOSTED', 'PUBLIC', 'PROPOSED', $3, $3)`,
       [TENANT_A, provider, '00000000-0000-4000-8000-000000000f0f'],
     );
     const activate = (): Promise<Reply> => world.call('POST', `/ai-providers/${provider}/activation`, { member: PROVIDER_APPROVER, ifMatch: '"1"', body: {} });
