@@ -1,0 +1,25 @@
+/* BID-22, the connection to the national e-procurement network. Tokens only; the kit (apps/web/src/ui) draws the cards, the tables, the pills and the dialog. */
+@import '../bid.css';
+
+.egp1-page .ui-section { margin-bottom: var(--mv-space-16); }
+.egp1-facts { display: grid; gap: var(--mv-space-12); margin: 0; }
+.egp1-fact { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: var(--mv-space-4) var(--mv-space-16); align-items: baseline; padding-bottom: var(--mv-space-8); border-bottom: 1px solid var(--mv-color-border); }
+.egp1-fact dt { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.egp1-fact dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .egp1-fact { grid-template-columns: minmax(0, 1fr); }
+}
+.egp1-explain { margin: 0 0 var(--mv-space-12); font-weight: 600; }
+.egp1-explain[data-status='STALE'] { color: var(--mv-color-warning); }
+.egp1-note { margin: 0 0 var(--mv-space-12); color: var(--mv-color-text-secondary); font-size: 14px; }
+.egp1-none { margin: 0; color: var(--mv-color-text-secondary); }
+.egp1-link { margin: var(--mv-space-12) 0 0; }
+.egp1-actions { display: grid; gap: var(--mv-space-8); margin: 0; padding: 0; list-style: none; }
+.egp1-action { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.egp1-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-16) 0 0; padding: 0; list-style: none; }
+.egp1-stack { display: inline-flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-4); }
+.egp1-layout { margin-bottom: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.egp1-layout > summary { min-height: 44px; display: flex; align-items: center; padding: 0 var(--mv-space-16); font-weight: 600; cursor: pointer; }
+.egp1-layout > summary:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.egp1-layout[open] > summary { border-bottom: 1px solid var(--mv-color-border); }
+.egp1-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }

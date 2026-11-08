@@ -1,0 +1,22 @@
+/* BID-24 (import runs of the files of the national e-procurement network). Tokens only; the kit (apps/web/src/ui) draws the sections, the figures and the tables. */
+@import '../bid.css';
+
+.egpi-import { display: grid; gap: var(--mv-space-16); }
+.egpi-import .heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--mv-space-12); }
+.egpi-links { display: flex; flex-wrap: wrap; gap: var(--mv-space-16); }
+.egpi-badges { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.egpi-form { display: grid; gap: var(--mv-space-12); max-width: 960px; }
+.egpi-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.egpi-facts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-16); margin: 0 0 var(--mv-space-12); }
+.egpi-filter { max-width: 320px; margin: var(--mv-space-12) 0; }
+.egpi-columns { border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); padding: var(--mv-space-8) var(--mv-space-12); background: var(--mv-color-surface); }
+.egpi-columns > summary { cursor: pointer; min-height: 24px; font-weight: 600; }
+.egpi-columns > summary:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.egpi-hash { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.egpi-layout { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.egpi-status { display: grid; gap: var(--mv-space-4); }
+.egpi-preview { display: grid; gap: var(--mv-space-4); }
+.egpi-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--mv-space-12); margin: 0 0 var(--mv-space-12); }
+.egpi-counts > div { padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.egpi-counts dt { font-size: 12px; color: var(--mv-color-text-secondary); }
+.egpi-counts dd { margin: 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }

@@ -42,6 +42,8 @@ export const WORK_KINDS = [
   'PAYMENT_INTEGRITY_SIGNAL',
   'DISBURSEMENT_EXCEPTION_EXPIRING',
   'RESCHEDULE_COUNT',
+  // The connection to the national procurement network is older than its rule allows (lane EGP-1).
+  'CONNECTOR_STALE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;

@@ -1,0 +1,43 @@
+/* BID-23, the mapping of the codes of the national bidding network. Tokens only; the kit (apps/web/src/ui) draws the table, the pills, the dialogs and the "i". */
+@import '../bid.css';
+
+.mapping-badges { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin-top: var(--mv-space-8); }
+.mapping-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.mapping-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }
+
+.mapping-chips { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin: var(--mv-space-12) 0; padding: 0; border: 0; }
+.mapping-chips legend { padding: 0; margin-bottom: var(--mv-space-4); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mv-color-text-secondary); }
+.mapping-chip { min-height: 44px; padding: 0 var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-pill); background: var(--mv-color-surface); color: var(--mv-color-ink); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; }
+.mapping-chip:hover { background: var(--mv-color-primary-soft); }
+.mapping-chip[aria-pressed='true'] { border-color: var(--mv-color-primary); background: var(--mv-color-primary); color: var(--mv-color-surface); font-weight: 600; }
+.mapping-chip:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+
+.mapping-filters { display: flex; flex-wrap: wrap; gap: var(--mv-space-12); align-items: end; margin-bottom: var(--mv-space-12); }
+.mapping-filters .field { min-width: 180px; }
+
+.mapping-code { font-family: inherit; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mapping-cell { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.mapping-cell small, .mapping-people small { color: var(--mv-color-text-secondary); font-size: 12px; }
+.mapping-people { display: flex; flex-direction: column; gap: 2px; }
+.mapping-row-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); align-items: center; }
+.mapping-words { font-size: 12px; color: var(--mv-color-text-secondary); }
+
+.mapping-more { display: flex; align-items: center; justify-content: space-between; gap: var(--mv-space-12); margin-top: var(--mv-space-12); }
+
+.mapping-state { display: flex; flex-direction: column; gap: var(--mv-space-8); align-items: flex-start; padding: var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); }
+.mapping-state h2 { margin: 0; font-size: 18px; }
+.mapping-state p { margin: 0; }
+.mapping-state--denied, .mapping-state--error { border-color: var(--mv-color-danger); }
+
+.mapping-suggestions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--mv-space-12); }
+.mapping-suggestion { padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface2); }
+.mapping-suggestion__head { display: flex; flex-direction: column; gap: 2px; margin-bottom: var(--mv-space-8); }
+.mapping-suggestion__meta { color: var(--mv-color-text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.mapping-candidates { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--mv-space-8); }
+.mapping-candidate { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--mv-space-12); padding: var(--mv-space-8); border-top: 1px solid var(--mv-color-border); }
+.mapping-candidate__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mapping-candidate__likeness { display: inline-flex; align-items: center; gap: var(--mv-space-4); font-variant-numeric: tabular-nums; }
+
+.mapping-form { display: flex; flex-direction: column; gap: var(--mv-space-12); }
+.mapping-error { color: var(--mv-color-danger); font-size: 12px; }
+.mapping-findings { margin: 0; padding-inline-start: var(--mv-space-20); color: var(--mv-color-danger); }
