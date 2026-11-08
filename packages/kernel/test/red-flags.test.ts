@@ -133,7 +133,7 @@ describe('red flags of procurement (G4-3)', () => {
       evaluate: () => ({ status: 'NOT_COMPUTABLE', value: null, threshold: null, missing: ['vendorAddress'] }),
     });
     expect(registeredRedFlagIndicators().some((indicator) => indicator.code === 'VENDOR_SAME_ADDRESS' && indicator.vendorSide)).toBe(true);
-    expect(() => registerRedFlagIndicator({ ...(redFlagIndicator('VENDOR_SAME_ADDRESS') as never) })).toThrow('already registered');
+    expect(() => registerRedFlagIndicator({ ...(redFlagIndicator('VENDOR_SAME_ADDRESS') as unknown as Record<string, unknown>) } as never)).toThrow('already registered');
   });
 
   it('reviews a finding in two steps: clearing needs a second auditor, and every decision needs its reason', () => {

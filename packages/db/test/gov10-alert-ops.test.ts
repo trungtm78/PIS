@@ -197,7 +197,8 @@ describe('the stores of the alert operations', () => {
     });
 
     it('finishes a ladder once, lists it with its rungs, and measures the delivery of urgent alerts', async () => {
-      const [{ run }] = await as((tx) => ladders.forItem(tx, 'ADVANCE', 'ladder-1'));
+      const [entry] = await as((tx) => ladders.forItem(tx, 'ADVANCE', 'ladder-1'));
+      const run = (entry as NonNullable<typeof entry>).run;
       await as((tx) => ladders.finish(tx, run.id, { kind: 'DONE', by: 'RECEIPT' }, new Date(NOW.getTime() + 31 * 60_000)));
       expect((await as((tx) => ladders.require(tx, run.id))).state).toBe('DONE');
       // An ended ladder is not finished again, and a new one may start for the same item.
