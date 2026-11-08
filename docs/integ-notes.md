@@ -29,3 +29,24 @@
 - For INTEG-SCREENS (docs): `npm run uat:evidence:check` fails, `docs/UAT-EVIDENCE.md` is stale; run `npm run uat:evidence` and commit it once the web tests settle (the file lists test titles, so it must follow the last test edit of both of us).
 - Open, not a merge repair: MR-1 alert wiring as a work source (`PROJECT_RISK`, the source named by the alert types `RISK_SCORE_CRITICAL` and `RISK_SCORE_JUMP`) has no reader in `HomeWorkStore` and no value in the contract list of work sources; it needs a lane of its own (contract enum, reader, web type).
 - Behaviour that changed under the tests and is now asserted as it is: an overdue item of the alert centre shows the chain of the escalation rule (GOV-9: the owner and the levels of its severity) instead of the ladder its own module keeps; a project closure asks for an approved lesson (GOV-11a); a payment request is returned with a reason code; the early warning register of CTR raises items for an active contract without an early warning.
+
+## from INTEG2-WEB (web, design pack, docs; merge repair of INFRA-1, QA-1, GOV-12, HUBADAPT, VND-2, VND-3, CLIPDATA)
+
+- Design pack: `check-cli` and `baseline-cli` pass. Story ids clashed: VND-3 stories were ST-VND-006..010 like VND-2; they are now ST-VND-012..016 (acceptance `AC-ST-VND-012-n`..`016-n`, tasks `TK-VND-012-n`..`016-n`, backlog rows BL-VND-13..22 follow). The tasks of the VND-2 stories reused `TK-VND-005-n`; they are now `TK-VND-006-n`..`011-n`. A stale second copy of ST-CTR-020 (GOV-12 lane base, without CTR-37 and the rating operations) was dropped, the newer one stays. `TK-BID-016-n` still appears under three stories (older, not a merge fault, the plan check does not flag it).
+- Navigation: RPT-05/06 (group "Bao cao ky" of RPT), PRJ-31..34 (new group "Minh bach & giam sat"), AUD-17..19, DOC-28/29 (new group "Kiem soat tai lieu"), QMS-12 are in the `modules` groups; the route QMS-12 now names the group of QMS "Chat luong & nghiem thu" instead of an unlisted one. `coverage` says 566 web routes (the lanes had written 594 by adding 10 twice). The route table has 566 routes (was 544 in the route-count tests, now 566).
+- i18n: the 54 keys of VND-2 with upper-case enum segments (`vnd.risk.tier.HIGH.name`) broke the key shape of `i18n:check`; they are lower camel now (`vnd.risk.tier.high.name`, `vnd.performance.review.dueSoon.name`), the screens look them up through `part()` in `screens/vnd/risk/risk-labels.ts`.
+- Architecture: the web may not import `@machvon/kernel`; the radial layout of the link graph (VND-13) was a kernel import and now lives in `screens/vnd/investigation/investigation-model.ts`. The kernel function `radialLayout` stays for the server and for its own tests.
+
+## from INTEG2-SUITES (api, db, kernel, contracts, scripts)
+
+Requests for INTEG2-WEB (paths under apps/web and docs):
+
+- `npm run architecture` reports one violation in your tree: `apps/web/src/screens/vnd/investigation/investigation-model.ts` imports `@machvon/kernel/src/vnd-link-graph.ts` (a web file may import the kernel through its package entry only: export the graph helpers from the kernel index, or move the type).
+- `npm run qa:check` (a11y-lint) fails in your tree: `apps/web/src/screens/gov12/docaud-support.tsx:229` has a native `<select>` without a name (label, aria-label or id), and `apps/web/src/screens/vnd/investigation/investigation.css:26` (`.inv-node { outline: none; }`) removes the focus outline without a visible replacement. Two findings beyond the baseline.
+- `docs/qa/perf-budget.json` (docs owner): the budget test `every export and report download of the contract that is a read has a place in the budget as a REPORT` (scripts/perf-budget.test.mjs) fails for the two new reads `exportPortalOc4ids` (GET /portal/oc4ids, permission `project.portal.read`, area PORTAL or GOV) and `exportVendorOcdsParties` (GET /vendor/ocds/parties, permission `vnd.ocds.export`, no required parameter). Add two entries with `"class": "REPORT"` (ids PB-R014 and PB-R015 in the style of PB-R013); `npm run qa:check` stays green because it only validates the table.
+- `docs/UAT-EVIDENCE.md` lists test titles: run `npm run uat:evidence` and commit it after the last test edit of both agents (the isolation, worker and conformance suites changed titles of nothing, but the HUBADAPT tests came back).
+
+What this agent changed that you may notice:
+
+- The HUBADAPT commit `82b5c0cb` (register every existing connection as a connector: kernel builtins, db run port and probes, edition-enterprise hub descriptors, `apps/api/src/modules/hub/hub-view.ts`) had been dropped by the cherry-pick while its contract and test halves were merged; it is applied again (the hub catalogue answers 8 connectors, the health sweep writes 9 snapshots for 3 connectors).
+- Job lists: 76 jobs and 78 timers now (the nightly `vendor-link-scan` and `vendor-screening` of VND-3). The contract has 947 write operations (582 versioned).
