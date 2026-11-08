@@ -130,7 +130,8 @@ describe('the alert centre over HTTP', () => {
   async function project(unit: number, code: string, tenant = TENANT_A): Promise<string> {
     return insert('project', { code, name: code, owner_unit_id: unitId(unit), classification: 'INTERNAL', total_investment_vnd: 1000, status: 'IMPLEMENTATION', version: 1, project_group: 'B' }, tenant);
   }
-  const contract = (projectId: string, code: string, status = 'ACTIVE'): Promise<string> => insert('contract', { code, project_id: projectId, status, signed_on: day(-200), effective_from: day(-200), type: 'LUMP_SUM', contract_value_vnd: 1000 });
+  // A contract that started long ago and has no early warning yet is late for the register of CTR (EW_REGISTER_OVERDUE); the tests that are not about the register start theirs yesterday.
+  const contract = (projectId: string, code: string, status = 'ACTIVE', startedOn = day(-200)): Promise<string> => insert('contract', { code, project_id: projectId, status, signed_on: day(-200), effective_from: startedOn, type: 'LUMP_SUM', contract_value_vnd: 1000 });
   async function rule(severity: string, code: string, tenant = TENANT_A): Promise<string> {
     return insert('early_warning_rule', { rule_code: code, name: `Rule ${code}`, metric_code: 'YTD_RATE_GAP', comparator: 'GTE', threshold_json: { points: 10 }, severity, scope_kind: 'PROJECT', status: 'PUBLISHED', revision: 1, effective_from: '2027-01-01', approved_by: memberId(MAKER), created_by: memberId(LEADER), version: 1 }, tenant);
   }
@@ -278,8 +279,9 @@ describe('the alert centre over HTTP', () => {
       await advance(c, { paid: 100, recovered: 0, status: 'PAID', overdueSince: null, level: 0 });
       const found = bySource(await list('?view=scope'), 'ADVANCE');
       expect(found).toHaveLength(1);
-      expect(found[0]).toMatchObject({ id: owed, severity: 'ACTION', kind: 'ADVANCE_OVERDUE', due_on: day(-3), target: { screen: 'PAY-12', id: owed }, escalation: { level: 3, of: 4, next_at: day(4) } });
-      expect(found[0]?.escalation?.chain).toHaveLength(4);
+      expect(found[0]).toMatchObject({ id: owed, severity: 'ACTION', kind: 'ADVANCE_OVERDUE', due_on: day(-3), target: { screen: 'PAY-12', id: owed }, escalation: { level: 2, of: 3, next_at: null } });
+      // An item that is overdue shows the chain of the rule of the escalation (GOV-9): the owner and the levels of its severity, the first one reached at once.
+      expect(found[0]?.escalation?.chain).toHaveLength(3);
     });
 
     it('gives a permit that has expired as urgent and one that ends within 30 days as to be watched, and not one that ends later', async () => {
@@ -289,7 +291,7 @@ describe('the alert centre over HTTP', () => {
       await permit(p, { status: 'ISSUED', validUntil: day(90) });
       const found = bySource(await list('?view=scope'), 'PERMIT');
       expect(found.map((item) => [item.id, item.severity]).sort()).toEqual([[expired, 'URGENT'], [ending, 'WATCH']].sort());
-      expect(found.find((item) => item.id === expired)).toMatchObject({ escalation: { level: 4, of: 4, next_at: null }, consequence: expect.stringContaining('hết hạn') });
+      expect(found.find((item) => item.id === expired)).toMatchObject({ escalation: { level: 2, of: 4, next_at: null }, consequence: expect.stringContaining('hết hạn') });
       expect(found.find((item) => item.id === ending)?.escalation).toMatchObject({ level: 3, of: 4, next_at: day(10) });
     });
 
@@ -301,8 +303,8 @@ describe('the alert centre over HTTP', () => {
       await recommendation(p, { due: day(-40), status: 'CLOSED' });
       const found = bySource(await list('?view=scope'), 'AUDIT_RECOMMENDATION');
       expect(found.map((item) => [item.id, item.severity]).sort()).toEqual([[late, 'ACTION'], [escalated, 'URGENT']].sort());
-      expect(found.find((item) => item.id === escalated)?.escalation).toMatchObject({ level: 2, of: 2, next_at: null });
-      expect(found.find((item) => item.id === late)?.escalation).toMatchObject({ level: 1, of: 2, next_at: day(20) });
+      expect(found.find((item) => item.id === escalated)?.escalation).toMatchObject({ level: 2, of: 4, next_at: null });
+      expect(found.find((item) => item.id === late)?.escalation).toMatchObject({ level: 2, of: 3, next_at: null });
     });
 
     it('gives an issue that missed the SLA by the level it was raised to: level 3 is urgent, levels 1 and 2 are to be acted on, and one that is on time is not given', async () => {
@@ -312,8 +314,9 @@ describe('the alert centre over HTTP', () => {
       const third = await issue(p, { level: 3, overdue: true });
       await issue(p, { level: 0, overdue: false });
       const found = bySource(await list('?view=scope'), 'ISSUE');
-      expect(found.map((item) => [item.id, item.severity, item.escalation?.level]).sort()).toEqual([[first, 'ACTION', 1], [second, 'ACTION', 2], [third, 'URGENT', 3]].sort());
-      expect(found.find((item) => item.id === third)).toMatchObject({ due_on: day(-3), escalation: { of: 3, chain: ['Người xử lý', 'Đơn vị', 'Tổ công tác'] }, target: { screen: 'ISS-03' } });
+      expect(found.map((item) => [item.id, item.severity, item.escalation?.level]).sort()).toEqual([[first, 'ACTION', 2], [second, 'ACTION', 2], [third, 'URGENT', 2]].sort());
+      expect(found.find((item) => item.id === third)).toMatchObject({ due_on: day(-3), escalation: { of: 4 }, target: { screen: 'ISS-03' } });
+      expect(found.find((item) => item.id === third)?.escalation?.chain).toHaveLength(4);
     });
 
     it('gives a guarantee that ends within 30 days (to be watched, and to be acted on in the last week) and not one that ends later', async () => {
@@ -439,7 +442,7 @@ describe('the alert centre over HTTP', () => {
   describe('a source that fails', () => {
     it('is named and the others go on: a calendar that is not published makes the diaries unavailable and nothing else', async () => {
       const p = await project(NORTH, 'P-PART');
-      await contract(p, 'C-PART');
+      await contract(p, 'C-PART', 'ACTIVE', day(-1));
       const w = await warning(p, 'CRITICAL');
       const reply = await list('?view=scope');
       expect(reply.status).toBe(200);
@@ -451,7 +454,7 @@ describe('the alert centre over HTTP', () => {
 
     it('is named when its own statement fails, and the transaction goes on for the others', async () => {
       const p = await project(NORTH, 'P-SQL');
-      const c = await contract(p, 'C-SQL');
+      const c = await contract(p, 'C-SQL', 'ACTIVE', day(-1));
       await guarantee(c, 5);
       const w = await warning(p, 'CRITICAL');
       await admin(async (client) => void (await client.query('alter table machvon.guarantee rename column kind to kind_moved')));
@@ -476,7 +479,7 @@ describe('the alert centre over HTTP', () => {
       // The contract is in execution: the diaries are counted on a published calendar.
       await calendars();
       const p = await project(NORTH, 'P-INT');
-      const c = await contract(p, 'C-INT');
+      const c = await contract(p, 'C-INT', 'ACTIVE', day(-1));
       await accountable(p, MAKER);
       const recon = await insert('treasury_daily_recon_item', { project_id: p, fund_key: 'NSTW', recon_date: day(-3), kind: 'AMOUNT', books_vnd: 100, treasury_vnd: 150, latest_difference_vnd: 50, owner_membership_id: memberId(OTHER), due_on: day(-1), status: 'OPEN', ...person });
       const snapshot = await insert('period_snapshot', { snapshot_kind: 'ADHOC', status: 'BUILDING', definition_status: 'SIGNED', metric_set_version: 'v1', period_id: randomUUID(), as_of_date: TODAY, treasury_cutoff_date: TODAY, ...person });
@@ -563,7 +566,7 @@ describe('the alert centre over HTTP', () => {
       const reply = await list('?view=scope', LEADER);
       expect(items(reply).map((item) => item.id)).toEqual([recon]);
       // The item shows the more urgent of the two severities and the escalation of the issue.
-      expect(items(reply)[0]).toMatchObject({ kind: 'TREASURY_RECON_ITEM_OVERDUE', severity: 'URGENT', escalation: { level: 3, of: 3 } });
+      expect(items(reply)[0]).toMatchObject({ kind: 'TREASURY_RECON_ITEM_OVERDUE', severity: 'URGENT', escalation: { level: 2, of: 4 } });
     });
 
     it('names the source that fails, over HTTP, and still gives the others', async () => {
@@ -600,7 +603,7 @@ describe('the alert centre over HTTP', () => {
       await issue(p, { level: 2, overdue: true, sourceModule: 'PMT', sourceRef: expired });
       const reply = await list('?view=scope');
       expect(items(reply)).toHaveLength(1);
-      expect(items(reply)[0]).toMatchObject({ id: expired, source: 'PERMIT', severity: 'URGENT', escalation: { level: 2, of: 3 } });
+      expect(items(reply)[0]).toMatchObject({ id: expired, source: 'PERMIT', severity: 'URGENT', escalation: { level: 2, of: 4 } });
       expect((await counted('?view=scope')).json).toMatchObject({ counts: { total: 1, urgent: 1 } });
     });
   });
@@ -742,7 +745,7 @@ describe('the alert centre over HTTP', () => {
 
     it('puts an item off until a time that is not past its day: it leaves the list and the counts of the one who put it off, stays for another reader with the time it comes back, and returns when the time comes', async () => {
       const p = await project(NORTH, 'P-SN2');
-      const c = await contract(p, 'C-SN2');
+      const c = await contract(p, 'C-SN2', 'ACTIVE', day(-1));
       const soon = await guarantee(c, 5);
       const reply = await act('snooze', { source: 'GUARANTEE', source_id: soon, snooze_until: at(2), reason: 'Waiting for the bank.', ...WHY });
       expect(reply.status).toBe(200);

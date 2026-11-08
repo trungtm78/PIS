@@ -233,8 +233,16 @@ export class EffectController {
     const now = new Date();
     const change = await this.effects.generateCalendar(scope.tx, { projectId: id.toLowerCase(), actor: scope.tenant.membershipId, scopes: stages(access, CALENDAR_PERMISSION, now), now });
     const first = change.created[0];
-    // A call that makes no entry (they were all made before) leaves no audit row and no event: nothing happened.
-    if (first !== undefined) {
+    // A call that makes no entry (they were all made before) leaves no event, since nothing happened; the command pipeline wants an audit row for every command that succeeds, so the check itself is recorded.
+    if (first === undefined) {
+      await scope.audit({
+        action: 'mne.effect_calendar_checked',
+        resourceType: EFFECT_CALENDAR_RESOURCE,
+        resourceId: change.projectId,
+        classification: change.classification,
+        diff: { project_id: change.projectId, code: change.projectCode, rule_code: change.ruleCode, rule_version: change.ruleVersion, created: [], waiting: change.waiting.map((entry) => entry.kind) },
+      });
+    } else {
       await scope.audit({
         action: 'mne.effect_calendar_generated',
         resourceType: EFFECT_CALENDAR_RESOURCE,

@@ -19,7 +19,10 @@ import { APPROVER_COMMANDS, SEED_APPRAISAL, STEP_UP_REPLAYS, derivedId, evaluate
 
 const SIGNING_KEY = randomBytes(32);
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
-const MATRIX_COMMANDS: string[] = (JSON.parse(readFileSync(join(__dirname, 'matrix-commands.json'), 'utf8')) as { commands: string[] }).commands;
+const MATRIX_FILE = JSON.parse(readFileSync(join(__dirname, 'matrix-commands.json'), 'utf8')) as { commands: string[]; identityCommands?: string[] };
+const MATRIX_COMMANDS: string[] = MATRIX_FILE.commands;
+/** Commands that no role decides (they are tested with identity tokens, or with the client credentials of a machine account): the role matrix has no case for them. */
+const IDENTITY_COMMANDS: ReadonlySet<string> = new Set(MATRIX_FILE.identityCommands ?? []);
 
 const ROLE_MEMBER_BASE = 10; // member n = ROLE_MEMBER_BASE + index of the role in SYSTEM_ROLES
 const RECIPIENT = 5;
@@ -56,7 +59,7 @@ describe('negative authorization matrix generator', () => {
       });
       try {
         const writes = new Set(writeOperationsOf(loadOpenApi()).map((operation) => operation.operationId));
-        const implementedCommands = [...app.implementedOperations].filter((operationId) => writes.has(operationId)).sort();
+        const implementedCommands = [...app.implementedOperations].filter((operationId) => writes.has(operationId) && !IDENTITY_COMMANDS.has(operationId)).sort();
         expect(implementedCommands).toEqual([...MATRIX_COMMANDS].sort());
       } finally {
         await app.close();

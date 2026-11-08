@@ -281,8 +281,16 @@ describe('the guarded lifecycle transitions and the project bank (ST-PRJ-002)', 
       for (const item of cases) {
         const target = await project(item.from);
         const decision = await document();
+        // Closing a project asks for an approved lesson of the project (GOV-11a): one proposed by one person and approved by another.
+        if (item.path === 'closure') {
+          await rows(
+            `insert into machvon.lesson_learned (tenant_id, id, project_id, owner_unit_id, category, title, situation, recommendation, status, proposed_by, decided_by, decided_at)
+             values ($1::uuid, gen_random_uuid(), $2::uuid, $3::uuid, 'GENERAL', 'Lesson of the closure', 'The works finished with a delay of one month.', 'Order the materials earlier.', 'APPROVED', $4::uuid, $5::uuid, now())`,
+            [TENANT_A, target.id, unitId(DEPARTMENT), memberId(DEPARTMENT_MANAGER), memberId(MANAGER)],
+          );
+        }
         const reply = await stageCall(MANAGER, item.path, target, { [item.ground === 'investment' ? 'investment_decision_document_id' : 'decision_document_id']: decision, effective_date: '2026-11-01' });
-        expect(reply.status).toBe(200);
+        expect([item.path, reply.status, reply.status === 200 ? '' : JSON.stringify(reply.json)]).toEqual([item.path, 200, '']);
         expect(reply.json).toMatchObject({ status: item.to, resource_version: 2, resource_id: target.id });
         expect(await row(target.id)).toMatchObject({ status: item.to, version: '2', updated_by: memberId(MANAGER) });
         expect(await history(target.id)).toMatchObject([{ project_version: '2', from_stage: item.from, to_stage: item.to, actor_kind: 'USER', actor_id: memberId(MANAGER), decision_document_id: decision, reason: 'A reason for the move' }]);

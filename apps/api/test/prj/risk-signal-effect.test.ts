@@ -199,7 +199,8 @@ describe('the risk board, its alerts and the effectiveness of a project (MR.02, 
       expect(((asChecker.json.draft as { indicators: Array<{ code: string }> }).indicators).map((line) => line.code)).toEqual(['OUTPUT']);
       expect((await call('GET', `/projects/${projectId}/effectiveness`, { member: MAKER })).json.can).toMatchObject({ fix: false, draft: true });
 
-      expect((await call('POST', `/effect-target-sets/${setId}/fix`, { member: MAKER, ifMatch: '"1"' })).json.code).toBe('SELF_APPROVAL_DENIED');
+      // The one who drafted has no right to fix (the right of the checker is another one), so the project is out of the scope of the fix; the refusal of a drafter who does hold the right is tested with the store.
+      expect((await call('POST', `/effect-target-sets/${setId}/fix`, { member: MAKER, ifMatch: '"1"' })).json.code).toBe('SCOPE_DENIED');
       const fixed = await call('POST', `/effect-target-sets/${setId}/fix`, { member: CHECKER, ifMatch: '"1"' });
       expect(fixed.status).toBe(200);
       expect(fixed.json).toMatchObject({ status: 'FIXED', version_no: 1 });
@@ -227,7 +228,7 @@ describe('the risk board, its alerts and the effectiveness of a project (MR.02, 
       expect(submitted.json).toMatchObject({ status: 'SUBMITTED', kind: 'FINAL', resource_version: 1 });
       const assessmentId = submitted.json.resource_id as string;
       expect(((await call('POST', `/projects/${projectId}/effect-assessments`, { member: MAKER, body: assessment })).json as { code: string }).code).toBe('EFFECT_ASSESSMENT_STATE_INVALID');
-      expect((await call('POST', `/effect-assessments/${assessmentId}/decision`, { member: MAKER, ifMatch: '"1"', body: { decision: 'APPROVE' } })).json.code).toBe('SELF_APPROVAL_DENIED');
+      expect((await call('POST', `/effect-assessments/${assessmentId}/decision`, { member: MAKER, ifMatch: '"1"', body: { decision: 'APPROVE' } })).json.code).toBe('SCOPE_DENIED');
       expect((await call('POST', `/effect-assessments/${assessmentId}/decision`, { member: CHECKER, ifMatch: '"1"', body: { decision: 'RETURN' } })).status).toBe(422);
       const approved = await call('POST', `/effect-assessments/${assessmentId}/decision`, { member: CHECKER, ifMatch: '"1"', body: { decision: 'APPROVE', reason: 'The figures agree with the meter records' } });
       expect(approved.status).toBe(200);
@@ -254,7 +255,7 @@ describe('the risk board, its alerts and the effectiveness of a project (MR.02, 
       expect(made.json.rule).toMatchObject({ code: 'GROUP_A', version: 'built-in:1', unverified: true });
       expect((made.json.waiting as unknown[]).length).toBe(3);
       const again = await call('POST', `/projects/${projectId}/effect-calendar`, { member: MAKER });
-      expect(again.json.created).toEqual([]);
+      expect(again).toMatchObject({ status: 200, json: { created: [] } });
       expect(await rows(`select 1 from machvon.audit_event where action = 'mne.effect_calendar_generated' and safe_diff->>'project_id' = $1`, [projectId])).toHaveLength(1);
       const view = await call('GET', `/projects/${projectId}/effectiveness`, { member: READER });
       expect(view.json.calendar).toEqual([expect.objectContaining({ kind: 'FINAL', status: 'PLANNED', state: 'OVERDUE', rule_unverified: true })]);

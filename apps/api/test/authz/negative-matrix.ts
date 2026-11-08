@@ -2658,16 +2658,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/home/rag/scores', body: undefined }),
   },
+  // The body of a free decision names no object of a tenant, so the wrong-tenant case judges that nothing leaks and nothing changes (there is no foreign object to be refused).
   recordAnalyticsDecision: {
-    referencesTenantIds: true,
+    referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/home/decisions', body: { subject: { kind: 'FREE', title: 'Matrix probe' }, kind: 'DEFER', reason: 'Matrix probe: nothing is recorded.' } }),
   },
   recordAnalyticsDecisionOutcome: {
     referencesTenantIds: true,
     build: () => ({ method: 'POST', path: '/home/decisions/00000000-0000-4000-8000-0000000000e8/outcomes', body: { outcome: 'STILL_OPEN', note: 'Matrix probe note' } }),
   },
+  // The unit is named in the body, not in the path: a unit of the other tenant is a unit that does not exist (422 for both), which is the isolation answer; the case judges that nothing leaks and nothing changes.
   proposeRankingAnnotation: {
-    referencesTenantIds: true,
+    referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/home/rankings/annotations', body: { unit_id: '00000000-0000-4000-8000-0000000000e8', reason_code: 'LAND_CLEARANCE', metric_codes: ['RATE'], evidence: 'Matrix probe: no unit', valid_to: '2999-01-01' } }),
   },
   decideRankingAnnotation: {
