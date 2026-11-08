@@ -37,6 +37,7 @@ void main() {
       'Phân tích nhà thầu': '/projects/mob-38',
       'Chỉ đạo giao ban': '/projects/dir-06',
       'Gói thầu theo công đoạn': '/projects/mob-69',
+      'Rủi ro nhà thầu': '/projects/mob-73',
     };
 
     testWidgets('the group is closed until it is opened, and the projects stay the first thing on the page', (WidgetTester tester) async {
