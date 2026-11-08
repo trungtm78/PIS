@@ -2905,3 +2905,7 @@ export type { EntryFacts, EntryRule, EntrySkip, EntryVerdict, EntryViolation } f
 export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
 export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, ScaleOutcome } from './ind-import-mapping.ts';
 export { registerIndicatorRules } from './governance-rules.ts';
+=======
+export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, mappingProblems, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
+export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, MappingProblem, ScaleOutcome } from './ind-import-mapping.ts';
+export { registerIndicatorRules } from './governance-rules.ts';

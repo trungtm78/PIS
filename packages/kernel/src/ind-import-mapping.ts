@@ -4,7 +4,8 @@ import type { FileImportFormat, RowJudgement, SourceRow } from './file-import.ts
 import { multiplyDecimal } from './decimal.ts';
 import { IMPORT_LAYOUTS, IMPORT_SCALES, INDICATOR_IMPORT_RULE_TYPE, NUMBER_FORMATS, SCALE_FACTORS } from './ind-definitions.ts';
 import type { ImportLayout, ImportScale, NumberFormat } from './ind-definitions.ts';
-import { normalizeLabel } from './ind-dictionary.ts';
+import { isEnterable, normalizeLabel } from './ind-dictionary.ts';
+import type { IndicatorEntry } from './ind-dictionary.ts';
 import { readTabularFile } from './tabular-file.ts';
 
 /**
@@ -138,6 +139,25 @@ export function scaledFigure(value: string, scale: ImportScale): ScaleOutcome {
 export function figureFitsUnit(value: string, unit: string): boolean {
   if (unit === 'VND' || unit === 'COUNT') return !value.includes('.');
   return true;
+}
+
+export interface MappingProblem {
+  code: 'INDICATOR_UNKNOWN' | 'INDICATOR_NOT_ENTERABLE';
+  indicator: string;
+  /** The position of the line in the mapping, from 0. */
+  line: number;
+}
+
+/** What is wrong with a mapping against the dictionary in force: a line that names an indicator nobody defined, or one the platform computes and nobody may enter. A mapping with a problem is shown as such and its rows are refused. */
+export function mappingProblems(mapping: ImportMapping, indicators: readonly IndicatorEntry[]): MappingProblem[] {
+  const byCode = new Map(indicators.map((indicator) => [indicator.code, indicator]));
+  const found: MappingProblem[] = [];
+  for (const [line, one] of mapping.lines.entries()) {
+    const indicator = byCode.get(one.indicator);
+    if (indicator === undefined) found.push({ code: 'INDICATOR_UNKNOWN', indicator: one.indicator, line });
+    else if (!isEnterable(indicator)) found.push({ code: 'INDICATOR_NOT_ENTERABLE', indicator: one.indicator, line });
+  }
+  return found;
 }
 
 // ---- the format ------------------------------------------------------------------------------------------------------------------------------------------------------
