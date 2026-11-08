@@ -6843,6 +6843,14 @@
       "module": "EBS",
       "statusBasis": "spec",
       "source": "spec:EBS"
+    },
+    "REALLOCATION_IMPACT_MISSING": {
+      "status": 422,
+      "title": "Reallocation impact not recorded",
+      "meaning": "Chưa có bản mô phỏng tác động của đề xuất điều chuyển vốn lên tỷ lệ giải ngân; phải nộp đề xuất (ghi nhận tác động) trước khi duyệt.",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
     }
   }
 }

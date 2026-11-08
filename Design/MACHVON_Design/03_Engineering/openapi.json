@@ -35620,7 +35620,10 @@
         },
         "x-error-codes": [
           "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "REALLOCATION_IMPACT_MISSING",
+          "DOA_RULE_NOT_FOUND",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "requestBody": {
@@ -35768,7 +35771,9 @@
           "DECISION_REQUIRED",
           "REVISED_BELOW_COMMITTED",
           "PLAN_CHANGED_SINCE_PROPOSAL",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "DOA_RULE_NOT_FOUND",
+          "SCOPE_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -198735,6 +198740,256 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/reallocation-proposals/{id}/impact": {
+      "get": {
+        "operationId": "getReallocationImpact",
+        "summary": "Impact of a reallocation proposal on the disbursement rates (frozen at submit, live for a draft)",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapReallocationImpact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/reallocation-candidates": {
+      "get": {
+        "operationId": "listReallocationCandidates",
+        "summary": "Donors and recipients of capital ranked by projected performance, from the rule REALLOCATION_POLICY",
+        "tags": [
+          "CAP"
+        ],
+        "x-permission": "capital.read",
+        "parameters": [
+          {
+            "name": "snapshot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapReallocationCandidates"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "SNAPSHOT_NOT_FROZEN",
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -267901,6 +268156,291 @@
         "required": [
           "items",
           "reason_code_required",
+          "as_of"
+        ]
+      },
+      "CapReallocationDelegation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "document_type": {
+            "type": "string"
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "approver_role_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "approver_role_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approval_levels": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "matrix_version_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "document_type",
+          "configured",
+          "approver_role_id",
+          "approver_role_name",
+          "approval_levels",
+          "matrix_version_id"
+        ]
+      },
+      "CapReallocationImpact": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "basis_snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "treasury_cutoff_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "frozen": {
+            "type": "boolean"
+          },
+          "record": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          },
+          "policy": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The rule REALLOCATION_POLICY in force: params, version, source, unverified, formula, source text, as-of."
+          },
+          "assumptions": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "moves": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "result": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "basis.CURRENT_YEAR and basis.CARRYOVER (province, units, projects: before, after, delta), projected, warnings."
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "code",
+                "name"
+              ]
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "code",
+                "name"
+              ]
+            }
+          },
+          "delegation": {
+            "$ref": "#/components/schemas/CapReallocationDelegation"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "proposal_id",
+          "basis_snapshot_id",
+          "plan_year",
+          "as_of_date",
+          "treasury_cutoff_date",
+          "frozen",
+          "record",
+          "policy",
+          "assumptions",
+          "moves",
+          "result",
+          "units",
+          "projects",
+          "delegation",
+          "as_of"
+        ]
+      },
+      "CapReallocationCandidates": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "treasury_cutoff_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "policy": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "donors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "recipients": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "excluded": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "code",
+                "name"
+              ]
+            }
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "code",
+                "name"
+              ]
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "as_of_date",
+          "treasury_cutoff_date",
+          "plan_year",
+          "policy",
+          "donors",
+          "recipients",
+          "excluded",
+          "lines",
+          "projects",
+          "units",
           "as_of"
         ]
       }
