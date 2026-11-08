@@ -41,6 +41,9 @@ import { ALERT_CHANNELS, NOTIFY_RULE_TYPE, alertNotifyDefaults, alertNotifyPolic
 import { ALERT_GOV_TEXT } from './messages/alert-gov-texts.ts';
 import { GOV10_ALERT_SEEDS, gov10RedFlagDefaults, gov10RuleTypes, redFlagProvenance } from './gov10-rule-types.ts';
 import { registerBuiltInRedFlagIndicators } from './red-flags.ts';
+import { TEXT as MR1_TEXT } from './messages/mr1-texts.ts';
+import { RISK_INDICATORS, RISK_SIGNAL_DEFAULTS, RISK_SIGNAL_KINDS, RISK_SIGNAL_RULE_CODE, RISK_SIGNAL_RULE_TYPE, parseRiskSignalPolicy, riskSignalParams } from './risk-signals.ts';
+import { CALENDAR_DEFAULTS, EFFECT_ANCHORS, EFFECT_CALENDAR_RULE_TYPE, EFFECT_EVALUATION_KINDS, EFFECT_POLICY_DEFAULTS, EFFECT_POLICY_RULE_CODE, EFFECT_POLICY_RULE_TYPE, EFFECT_PROJECT_GROUPS, calendarRuleCode, calendarRuleParams, effectPolicyParams, parseCalendarRule, parseEffectPolicy } from './effect-target.ts';
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -2158,6 +2161,66 @@ export const registerFinanceFeedRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(FEED_ALERT_SEEDS, { source: FEED_TEXT.policy_source }));
   });
 
+/** The alert types of the risk register scored from live signals (lane MR-1, MR.02): the score of a signal line crossed the critical line, or rose by the points of a jump (the table `project_risk_alert`). */
+const RISK_SIGNAL_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'RISK_SCORE_CRITICAL', source: 'PROJECT_RISK', owner: 'PROJECT_OWNER', action: MR1_TEXT.alert_critical_action, consequence: MR1_TEXT.alert_critical_consequence, hours: 72, severity: 'ACTION', why: MR1_TEXT.alert_critical_why },
+  { code: 'RISK_SCORE_JUMP', source: 'PROJECT_RISK', owner: 'PROJECT_OWNER', action: MR1_TEXT.alert_jump_action, consequence: MR1_TEXT.alert_jump_consequence, hours: 168, severity: 'WATCH', why: MR1_TEXT.alert_jump_why },
+];
+
+/** The risk register scored from live signals and the post-investment effectiveness (lane MR-1: MR.02, MR.03, G1-14, G4-7; packages/kernel/src/risk-signals.ts and effect-target.ts). */
+export const registerRiskEffectRules = (): void =>
+  once('risk_effect', () => {
+    registerCoreRules();
+    const thresholdLine = list(num(0, 100000), 4, 4);
+    registerRuleType({
+      type: RISK_SIGNAL_RULE_TYPE,
+      ownerModule: 'PRJ',
+      modules: ['PRJ', 'HOME', 'AUD'],
+      formula: MR1_TEXT.risk_policy_formula,
+      source: MR1_TEXT.risk_policy_source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        impact: shape(Object.fromEntries(RISK_SIGNAL_KINDS.map((kind) => [kind, int(1, 5)]))),
+        thresholds: shape(Object.fromEntries(RISK_INDICATORS.map((indicator) => [indicator, thresholdLine]))),
+        open_from_likelihood: int(2, 5),
+        critical_score: int(1, 25),
+        jump_points: int(1, 24),
+        scored_statuses: list(codeText(), 12, 1),
+      },
+      refine: refineWith(parseRiskSignalPolicy),
+      defaults: { [RISK_SIGNAL_RULE_CODE]: rule(riskSignalParams(RISK_SIGNAL_DEFAULTS)) },
+    });
+    registerRuleType({
+      type: EFFECT_POLICY_RULE_TYPE,
+      ownerModule: 'MNE',
+      modules: ['MNE', 'PRJ', 'BI'],
+      formula: MR1_TEXT.effect_policy_formula,
+      source: MR1_TEXT.effect_policy_source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { met_at_pct: num(1, 200), partly_at_pct: num(0, 199), draft_statuses: list(codeText(), 12, 1), fix_statuses: list(codeText(), 12, 1), measure_statuses: list(codeText(), 12, 1) },
+      refine: refineWith(parseEffectPolicy),
+      defaults: { [EFFECT_POLICY_RULE_CODE]: rule(effectPolicyParams(EFFECT_POLICY_DEFAULTS)) },
+    });
+    registerRuleType({
+      type: EFFECT_CALENDAR_RULE_TYPE,
+      ownerModule: 'MNE',
+      modules: ['MNE', 'PRJ'],
+      formula: MR1_TEXT.calendar_formula,
+      source: MR1_TEXT.calendar_source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        project_group: oneOf(...EFFECT_PROJECT_GROUPS),
+        entries: list(shape({ kind: oneOf(...EFFECT_EVALUATION_KINDS), anchor: oneOf(...EFFECT_ANCHORS), months: int(0, 240), required: bool }), 4, 1),
+      },
+      refine: refineWith(parseCalendarRule),
+      defaults: Object.fromEntries(EFFECT_PROJECT_GROUPS.map((group) => [calendarRuleCode(group), rule(calendarRuleParams(CALENDAR_DEFAULTS[group]), 'UNVERIFIED')])),
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(RISK_SIGNAL_ALERT_SEEDS, { source: MR1_TEXT.alert_source }));
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -2187,6 +2250,7 @@ export function registerAllGovernanceRules(): void {
   registerLookAheadRules();
   registerExecAnalyticsRules();
   registerFinanceFeedRules();
+  registerRiskEffectRules();
 }
 
 registerAllGovernanceRules();
