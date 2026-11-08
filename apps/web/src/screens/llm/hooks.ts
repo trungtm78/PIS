@@ -26,13 +26,13 @@ export function useProviders() {
   });
 }
 
-export function useModels() {
+export function useModels(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<ModelEntry[]>({
     queryKey: [...llmRoot(tenant?.id), 'models', tenant?.membershipId],
     queryFn: async () => (await client.readAll('listAiModels')).flatMap((raw) => toModel(raw) ?? []),
-    enabled: tenant !== undefined,
+    enabled: tenant !== undefined && enabled,
     retry: false,
   });
 }

@@ -459,6 +459,23 @@ describe('LLM-09 usage and reconciliation (ST-LLM-003, LLM F3, BR-LLM-06)', () =
     expect(within(bar).getByText('Chu kỳ')).toBeTruthy();
   });
 
+  it('offers the reconciliation of a budget only the reservations that are held against it, and starts over when another budget is chosen', async () => {
+    const first = '00000000-0000-4000-8000-0000000000f1';
+    const second = '00000000-0000-4000-8000-0000000000f2';
+    const world = { ...normal(), reservations: [rawReservation({ id: first, budget_ids: [B1] }), rawReservation({ id: second, budget_ids: [B2] })] };
+    mount(<UsageScreen route={USAGE} />, client(world), { permissions: FINOPS }, `/llm/llm-09?budget=${B1}`);
+    await screen.findByTestId('reconcile-form');
+    expect(screen.queryByTestId(`reserve-${first}`)).not.toBeNull();
+    expect(screen.queryByTestId(`reserve-${second}`)).toBeNull();
+    cleanup();
+    mount(<UsageScreen route={USAGE} />, client(world), { permissions: FINOPS }, `/llm/llm-09?budget=${B2}`);
+    await screen.findByTestId('reconcile-form');
+    expect(screen.queryByTestId(`reserve-${first}`)).toBeNull();
+    expect(screen.queryByTestId(`reserve-${second}`)).not.toBeNull();
+    expect(toReservation(rawReservation({ budget_ids: [B1, B2] }))?.budgetIds).toEqual([B1, B2]);
+    expect(toReservation(rawReservation())?.budgetIds).toEqual([]);
+  });
+
   it('does not show a pending notice when nothing waits, and says that nothing is held when there is no reservation', async () => {
     const world = { ...normal(), reservations: [], spend: rawSpend({ current: { attempts: 0, input_total: '0', cached_input: '0', noncached_input: '0', output_total: '0', cost_vnd: '0', pending_reconcile: 0 } }) };
     mount(<UsageScreen route={USAGE} />, client(world), { permissions: FINOPS });

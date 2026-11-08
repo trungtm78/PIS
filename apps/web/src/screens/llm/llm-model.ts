@@ -676,6 +676,8 @@ export function priceBody(values: PriceValues, modelId: string) {
 }
 
 export interface ReservationEntry {
+  /** The budgets the reservation holds money against (one for each scope that has a budget). */
+  budgetIds: string[];
   id: string;
   requestId: string;
   amount: string;
@@ -695,6 +697,7 @@ export function toReservation(raw: unknown): ReservationEntry | undefined {
   if (row === undefined || id === undefined || requestId === undefined || held === undefined || status === undefined) return undefined;
   return {
     id,
+    budgetIds: Array.isArray(row.budget_ids) ? row.budget_ids.filter((one): one is string => typeof one === 'string') : [],
     requestId,
     amount: held,
     status,

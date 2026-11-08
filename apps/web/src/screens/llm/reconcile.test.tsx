@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { harness, mount } from '../sas/test-support';
 import { ReconcilePanel } from './ReconcilePanel';
-import { EMPTY_RECONCILE, RECONCILE_PERMISSION, mayReconcile, reconcileBody, reconcileProblems, toggleReservation } from './reconcile-model';
+import { EMPTY_RECONCILE, REASON_MIN, RECONCILE_PERMISSION, mayReconcile, reconcileBody, reconcileProblems, toggleReservation } from './reconcile-model';
 import type { BudgetEntry, ReservationEntry } from './llm-model';
 
 const BUDGET = '00000000-0000-4000-8000-0000000000a1';
@@ -21,8 +21,11 @@ afterEach(() => {
 });
 
 describe('the model of the reconciliation', () => {
-  it('wants a reservation and a reason of five characters', () => {
+  it('wants a reservation and a reason of ten characters once trimmed, as the store does', () => {
     expect(reconcileProblems(EMPTY_RECONCILE)).toEqual({ reservations: 'noReservation', reason: 'reasonShort' });
+    expect(reconcileProblems({ decision: 'approve', reason: '  123456789  ', reservationIds: [R1] })).toEqual({ reason: 'reasonShort' });
+    expect(reconcileProblems({ decision: 'approve', reason: ' 1234567890 ', reservationIds: [R1] })).toEqual({});
+    expect(REASON_MIN).toBe(10);
     expect(reconcileProblems({ decision: 'reject', reason: 'x'.repeat(2001), reservationIds: [R1] })).toEqual({ reason: 'reasonLong' });
     expect(reconcileProblems({ decision: 'approve', reason: 'The usage was measured', reservationIds: [R1] })).toEqual({});
   });

@@ -7,6 +7,8 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, Fact } from '../../ctr/components';
 import { ManualConfirmDialog } from './ManualConfirmDialog';
+import type { ManualOutcome } from './manual-confirm-model';
+import { itemLink } from '../recon/model';
 import { MANUAL_CONFIRM_PERMISSION } from './manual-confirm-model';
 import { AttachDialog, CancelDialog, ReturnDialog, ReviseDialog, SubmitDialog, VerifyDialog } from './PaymentDialogs';
 import { usePayment } from './hooks';
@@ -65,6 +67,7 @@ function Detail({ request }: { request: PaymentRequest }) {
   const { mode, permissions } = useSession();
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const [done, setDone] = useState<{ message: string; warnings: WarningCode[] } | undefined>(undefined);
+  const [manual, setManual] = useState<ManualOutcome | undefined>(undefined);
   const money = (value: string): string => signedAmountText(value, locale) ?? value;
   const close = (): void => setDialog(undefined);
   const finished =
@@ -188,6 +191,22 @@ function Detail({ request }: { request: PaymentRequest }) {
           ) : null}
         </div>
       </SectionCard>
+      {manual === undefined ? null : manual.exception ? (
+        <div className="callout warning" role="alert" data-testid="manual-exception">
+          <p>{t('pay.manual.done.exception')}</p>
+          {manual.reconciliationItemId === null ? null : (
+            <p>
+              <Link to={itemLink(manual.reconciliationItemId)} data-testid="manual-item">
+                {t('pay.manual.done.item', { id: manual.reconciliationItemId.slice(0, 8) })}
+              </Link>
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="callout" role="status" data-testid="manual-done">
+          <p>{t('pay.manual.done')}</p>
+        </div>
+      )}
       {done === undefined ? null : (
         <div className="callout" role="status" data-testid="done">
           <p>{done.message}</p>
@@ -238,7 +257,7 @@ function Detail({ request }: { request: PaymentRequest }) {
       {dialog === 'cancel' ? <CancelDialog request={request} onDone={finished(t('pay.payment.done.cancelled'))} onClose={close} /> : null}
       {dialog === 'submit' ? <SubmitDialog request={request} onDone={finished(t('pay.payment.done.submitted'))} onClose={close} /> : null}
       {dialog === 'verify' ? <VerifyDialog request={request} onDone={finished(t('pay.payment.done.verified'))} onClose={close} /> : null}
-      {dialog === 'manual' ? <ManualConfirmDialog request={request} onDone={finished(t('pay.manual.done'))} onClose={close} /> : null}
+      {dialog === 'manual' ? <ManualConfirmDialog request={request} onDone={(outcome) => { setManual(outcome); setDone(undefined); close(); }} onClose={close} /> : null}
       {dialog === 'return' ? <ReturnDialog request={request} onDone={finished(t('pay.payment.done.returned'))} onClose={close} /> : null}
     </>
   );

@@ -1,5 +1,8 @@
 import { ApiError } from '@machvon/api-client';
 
+/** The right to list the models of the AI gateway: an evaluator may not hold it, and then names the model by its identifier. */
+export const MODELS_READ_PERMISSION = 'llm.provider.read';
+
 export const QUESTION_MAX = 4000;
 export const LIMIT_MAX = 20;
 export const LIMIT_DEFAULT = 5;

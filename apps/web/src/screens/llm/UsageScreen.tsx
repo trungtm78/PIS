@@ -136,7 +136,7 @@ function UsageContent({ route }: ScreenProps) {
           rows={waitingRows}
           query={waiting}
         />
-        {chosen === undefined ? null : <ReconcilePanel budget={chosen} waiting={waitingRows} />}
+        {chosen === undefined ? null : <ReconcilePanel key={chosen.id} budget={chosen} waiting={waitingRows.filter((entry) => entry.budgetIds.includes(chosen.id))} />}
         <ReservationList title={t('llm.usage.reservations.title')} tableId="reservation-table" noneId="reservations-none" none={t('llm.usage.reservations.none')} rows={recentRows} query={recent} />
       </StateBoundary>
     </section>

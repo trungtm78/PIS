@@ -6,12 +6,12 @@ import { CommandFrame } from '../../qms/CommandFrame';
 import { useManualTreasuryConfirm } from './hooks';
 import { problemMessage } from './labels';
 import { describeManualRefusal, emptyManualConfirm, manualConfirmBody, validateManualConfirm } from './manual-confirm-model';
-import type { ManualConfirmField, ManualConfirmForm, ManualConfirmProblem } from './manual-confirm-model';
-import type { PaymentAnswer, PaymentRequest } from './model';
+import type { ManualConfirmField, ManualConfirmForm, ManualConfirmProblem, ManualOutcome } from './manual-confirm-model';
+import type { PaymentRequest } from './model';
 
 interface Props {
   request: PaymentRequest;
-  onDone(answer: PaymentAnswer | undefined): void;
+  onDone(outcome: ManualOutcome): void;
   onClose(): void;
 }
 

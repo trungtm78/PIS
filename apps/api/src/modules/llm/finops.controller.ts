@@ -86,6 +86,7 @@ export function reservationView(row: ReservationRow): Record<string, unknown> {
     id: row.id,
     request_id: row.requestId,
     scope: row.scope.map((entry) => ({ kind: entry.kind, ref: entry.ref })),
+    budget_ids: row.scope.map((entry) => entry.budgetId),
     reserved_amount: row.reservedAmount,
     currency: row.currency,
     status: row.status,

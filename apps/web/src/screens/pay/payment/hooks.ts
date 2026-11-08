@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useScopeKey } from '../hooks';
+import { toManualOutcome } from './manual-confirm-model';
+import type { ManualOutcome } from './manual-confirm-model';
 import { toAnswer, toPaymentRequest } from './model';
 import type { AttachBody, CreateBody, PaymentAnswer, PaymentRequest, ReviseBody } from './model';
 
@@ -154,5 +156,16 @@ export interface ManualConfirmInput {
 /** Confirms by hand that the Treasury paid a request (source manual-confirmed): the document, its day, the amount and the evidence in DOC; the person who sent the request to the Treasury cannot confirm it. */
 export function useManualTreasuryConfirm() {
   const client = useApiClient();
-  return useCommand<ManualConfirmInput>((input, attempt) => client.command('confirmTreasuryManually', { body: input.body, attempt }));
+  const queryClient = useQueryClient();
+  const key = useScopeKey();
+  const attempts = useRef(new AttemptRegistry());
+  // The answer is read as it is (status EXCEPTION and the reconciliation item), not as the figures of a payment request.
+  return useMutation<ManualOutcome, Error, ManualConfirmInput>({
+    mutationFn: async (input) => toManualOutcome(await client.command('confirmTreasuryManually', { body: input.body, attempt: attempts.current.forPayload(input) })),
+    onSuccess: async () => {
+      attempts.current.done();
+      await queryClient.invalidateQueries({ queryKey: key });
+    },
+    onError: (error) => attempts.current.ended(error),
+  });
 }

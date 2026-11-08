@@ -5,7 +5,8 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { useTranslation } from '../../../i18n';
 import { useSession } from '../../../session/SessionContext';
 import { Info } from '../../gov11/gov11-kit';
-import { useCollections } from '../../llm/knowledge/hooks';
+import { useModels } from '../../llm/hooks';
+import { MODELS_READ_PERMISSION } from './passage-model';
 import { LIMIT_DEFAULT, LIMIT_MAX, QUESTION_MAX, describePassageRefusal, distanceText, passageProblems, toPassages } from './passage-model';
 import type { PassageQuery, PassageResult } from './passage-model';
 
@@ -27,12 +28,12 @@ function usePassages(packageId: string, query: PassageQuery | undefined) {
  */
 export function PassageSearchPanel({ packageId }: { packageId: string }) {
   const { t } = useTranslation();
-  const collections = useCollections();
-  const models = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const collection of collections.data ?? []) if (!seen.has(collection.embeddingModelId)) seen.set(collection.embeddingModelId, collection.code);
-    return [...seen.entries()].map(([id, code]) => ({ id, code }));
-  }, [collections.data]);
+  const { permissions } = useSession();
+  // An evaluator needs only the right to evaluate; the list of models belongs to the AI administrators. Without it the person names the model they were given, and the server judges it.
+  const mayList = permissions === undefined || permissions.includes(MODELS_READ_PERMISSION);
+  const listed = useModels(mayList);
+  const models = useMemo(() => (listed.data ?? []).filter((model) => model.status === 'APPROVED').map((model) => ({ id: model.id, name: model.modelVersion === null ? model.modelId : `${model.modelId} ${model.modelVersion}` })), [listed.data]);
+  const typed = !mayList || listed.isError;
   const [draft, setDraft] = useState({ modelId: '', question: '', limit: String(LIMIT_DEFAULT) });
   const [asked, setAsked] = useState<PassageQuery | undefined>(undefined);
   const [tried, setTried] = useState(false);
@@ -52,23 +53,25 @@ export function PassageSearchPanel({ packageId }: { packageId: string }) {
       <p className="sub">{t('bid.passages.help')}</p>
       <div className="field">
         <label htmlFor="passages-model">{t('bid.passages.model.label')}</label>
-        <select id="passages-model" value={draft.modelId} onChange={(event) => setDraft({ ...draft, modelId: event.target.value })} disabled={collections.isLoading} aria-invalid={problems.model !== undefined}>
-          <option value="">{collections.isLoading ? t('bid.passages.loading') : t('bid.passages.model.choose')}</option>
-          {models.map((model) => (
-            <option key={model.id} value={model.id}>
-              {t('bid.passages.model.option', { code: model.code })}
-            </option>
-          ))}
-        </select>
+        {typed ? (
+          <input id="passages-model" value={draft.modelId} onChange={(event) => setDraft({ ...draft, modelId: event.target.value })} aria-invalid={problems.model !== undefined} aria-describedby="passages-model-note" />
+        ) : (
+          <select id="passages-model" value={draft.modelId} onChange={(event) => setDraft({ ...draft, modelId: event.target.value })} disabled={listed.isLoading} aria-invalid={problems.model !== undefined}>
+            <option value="">{listed.isLoading ? t('bid.passages.loading') : t('bid.passages.model.choose')}</option>
+            {models.map((model) => (
+              <option key={model.id} value={model.id}>
+                {t('bid.passages.model.option', { name: model.name })}
+              </option>
+            ))}
+          </select>
+        )}
         {problems.model === undefined ? null : <small role="alert" className="field-error">{t('bid.passages.error.model')}</small>}
-        {collections.isError ? (
-          <small role="alert" data-testid="passages-models-error">
-            {t('bid.passages.model.error')}
+        {typed ? (
+          <small id="passages-model-note" role="status" data-testid="passages-model-typed">
+            {mayList ? t('bid.passages.model.error') : t('bid.passages.model.noRight')}
           </small>
         ) : null}
-        {!collections.isLoading && !collections.isError && models.length === 0 ? (
-          <small data-testid="passages-no-models">{t('bid.passages.model.none')}</small>
-        ) : null}
+        {!typed && !listed.isLoading && models.length === 0 ? <small data-testid="passages-no-models">{t('bid.passages.model.none')}</small> : null}
       </div>
       <div className="field">
         <label htmlFor="passages-question">{t('bid.passages.question.label')}</label>
@@ -81,7 +84,7 @@ export function PassageSearchPanel({ packageId }: { packageId: string }) {
         {problems.limit === undefined ? null : <small role="alert" className="field-error">{t('bid.passages.error.limit', { max: LIMIT_MAX })}</small>}
       </div>
       <div className="formfooter">
-        <button type="submit" className="button primary" disabled={found.isFetching} data-testid="passages-submit">
+        <button type="submit" className="button primary" disabled={found.isFetching || listed.isLoading} data-testid="passages-submit">
           {found.isFetching ? t('bid.passages.searching') : t('bid.passages.submit')}
         </button>
       </div>

@@ -77,3 +77,22 @@ export function describeManualRefusal(error: unknown): ManualConfirmRefusal {
   }
   return { general: describeProblem(error) };
 }
+
+export interface ManualOutcome {
+  /** The match status the server gave the transaction: UNMATCHED (recorded, waits to be matched) or EXCEPTION (the amount is not the net of the request). */
+  status: string;
+  transactionId: string;
+  /** The difference opened to reconcile, when the amount was not the net amount. */
+  reconciliationItemId: string | null;
+  exception: boolean;
+}
+
+const text = (value: unknown): string => (typeof value === 'string' ? value : '');
+
+/** The answer of the confirmation: a figure that is not the net of the request is not a refusal, the transaction is recorded in EXCEPTION and a reconciliation item is opened. */
+export function toManualOutcome(raw: unknown): ManualOutcome {
+  const row = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+  const status = text(row.status);
+  const item = text(row.reconciliation_item_id);
+  return { status, transactionId: text(row.resource_id), reconciliationItemId: item === '' ? null : item, exception: status === 'EXCEPTION' || item !== '' };
+}

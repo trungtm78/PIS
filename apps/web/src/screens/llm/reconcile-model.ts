@@ -4,7 +4,8 @@ export const RECONCILE_PERMISSION = 'llm.finops';
 export const RECONCILE_DECISIONS = ['approve', 'return', 'reject'] as const;
 export type ReconcileDecision = (typeof RECONCILE_DECISIONS)[number];
 
-export const REASON_MIN = 5;
+/** The store takes a reason of ten characters at least once trimmed (422 VALIDATION_FAILED otherwise). */
+export const REASON_MIN = 10;
 export const REASON_MAX = 2000;
 
 export interface ReconcileForm {
@@ -18,7 +19,7 @@ export const EMPTY_RECONCILE: ReconcileForm = { decision: 'approve', reason: '',
 
 export type ReconcileProblem = 'noReservation' | 'reasonShort' | 'reasonLong';
 
-/** At least one reservation is chosen, and the reason is five characters at least once trimmed. */
+/** At least one reservation is chosen, and the reason is ten characters at least once trimmed. */
 export function reconcileProblems(form: ReconcileForm): Partial<Record<'reservations' | 'reason', ReconcileProblem>> {
   const found: Partial<Record<'reservations' | 'reason', ReconcileProblem>> = {};
   if (form.reservationIds.length === 0) found.reservations = 'noReservation';
