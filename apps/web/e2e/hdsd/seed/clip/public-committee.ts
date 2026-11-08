@@ -18,6 +18,7 @@ interface CommitteeBlock {
   headAgency: string;
   headAgencyCode: string;
   meetingReason: string;
+  members: Array<{ person: string; role: string; agency: string; code: string }>;
 }
 
 export async function seedClipCommittee(ctx: SeedContext): Promise<void> {
@@ -33,12 +34,7 @@ export async function seedClipCommittee(ctx: SeedContext): Promise<void> {
     const made = await ctx.command(MAKER, '/committee/roster', { code: block.code, name: block.name, legal_basis: block.legalBasis });
     committee = { id: made.resource_id };
   }
-  const members = [
-    { person: 'docHead', role: 'HEAD', agency: block.headAgency, code: block.headAgencyCode },
-    { person: 'capApprover', role: 'DEPUTY', agency: 'Sở Kế hoạch và Đầu tư', code: 'SKHDT' },
-    { person: 'treasuryMaker', role: 'MEMBER', agency: 'Sở Tài chính', code: 'STC' },
-    { person: 'unitAdmin', role: 'SECRETARIAT', agency: 'Văn phòng Ban chỉ đạo', code: 'VPBCD' },
-  ];
+  const members = block.members;
   for (const member of members) {
     const reply = await ctx.attempt(MAKER, 'POST', '/committee/roster/members', {
       committee_id: String(committee.id),

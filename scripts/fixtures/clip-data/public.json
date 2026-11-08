@@ -409,7 +409,33 @@
     "legalBasis": "Quyết định thành lập Ban chỉ đạo của Ủy ban nhân dân tỉnh",
     "headAgency": "Công an tỉnh",
     "headAgencyCode": "PA05",
-    "meetingReason": "Ban chỉ đạo yêu cầu báo cáo tiến độ giải ngân"
+    "meetingReason": "Ban chỉ đạo yêu cầu báo cáo tiến độ giải ngân",
+    "members": [
+      {
+        "person": "docHead",
+        "role": "HEAD",
+        "agency": "Công an tỉnh",
+        "code": "PA05"
+      },
+      {
+        "person": "capApprover",
+        "role": "DEPUTY",
+        "agency": "Sở Kế hoạch và Đầu tư",
+        "code": "SKHDT"
+      },
+      {
+        "person": "treasuryMaker",
+        "role": "MEMBER",
+        "agency": "Sở Tài chính",
+        "code": "STC"
+      },
+      {
+        "person": "unitAdmin",
+        "role": "SECRETARIAT",
+        "agency": "Văn phòng Ban chỉ đạo",
+        "code": "VPBCD"
+      }
+    ]
   },
   "alerts": {
     "rules": [

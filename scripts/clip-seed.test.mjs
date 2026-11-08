@@ -218,7 +218,7 @@ test('the command line plans a dataset, refuses a missing api and prints the usa
 
 test('the dataset fixtures hold no key, token or password', () => {
   const text = readFileSync(join(HERE, 'fixtures', 'clip-data', 'public.json'), 'utf8');
-  assert.doesNotMatch(text, /api[_-]?key|secret|password|bearer/iu);
+  assert.doesNotMatch(text, /api[_-]?key|secret(?!ariat)|password|bearer/iu);
 });
 
 test('the procurement plans cover forty packages inside the biggest line of each project, with a spread of workflow targets', () => {
