@@ -12,6 +12,7 @@ import { APPROVAL_WORKFLOW_RULE_TYPE, REPORT_STEP_ASSIGNEE_TYPES, REPORT_STEP_KI
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
 import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
+import { ACTUALS_PRECEDENCES, ACTUAL_SOURCES, ENTRY_MODES, FUNDING_TAXONOMY_RULE_TYPE, MEASURES, PERIOD_GRAINS, RATIO_BASES, RATIO_TERMS, enterprisePackParams, publicPackParams, refineFundingPack } from './fnd-taxonomy.ts';
 import { message } from './messages.ts';
 
 /**
@@ -1133,35 +1134,33 @@ export const registerEnterpriseRules = (): void =>
   once('enterprise', () => {
     registerCoreRules();
     registerRuleType({
-      type: 'FUNDING_TAXONOMY',
+      type: FUNDING_TAXONOMY_RULE_TYPE,
       ownerModule: 'FND',
-      modules: ['FND', 'DIS', 'BI'],
+      modules: ['FND', 'DIS', 'CAP', 'MNE', 'BI'],
       formula: message('gov.rules.register_enterprise_rules.formula.funding_taxonomy'),
       source: message('gov.rules.register_enterprise_rules.source.funding_taxonomy'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
-        package_kind: oneOf('PUBLIC', 'ENTERPRISE'),
-        categories: list(shape({ code: codeText(), label: text(120), kind: oneOf('EXISTING_FUND_SOURCE', 'EQUITY', 'DEBT', 'OTHER') }), 12, 1),
-        total_rule: oneOf('SUM_EQUALS_TOTAL', 'NONE'),
+        pack_label: text(80),
+        classes: list(shape({ code: codeText(), label: text(120), additive: bool, takes_subsets: list(codeText(), 6) }), 12, 2),
+        tiers: list(shape({ code: codeText(), label: text(120) }), 6, 1),
+        subsets: list(shape({ code: codeText(), label: text(160), of_classes: list(codeText(), 12, 1) }), 6),
+        tags: list(shape({ code: codeText(), label: text(120), carries_amount: bool }), 20),
+        measures: list(oneOf(...MEASURES), 2, 1),
+        origin_groups: shape({ PRIMARY: list(codeText(), 12), ADDED: list(codeText(), 12) }),
+        entry_mode: oneOf(...ENTRY_MODES),
+        phasing_must_sum: bool,
+        actuals_source: list(shape({ class_codes: list(codeText(), 12, 1), source: oneOf(...ACTUAL_SOURCES) }), 12, 1),
+        actuals_precedence: oneOf(...ACTUALS_PRECEDENCES),
+        variance_tolerance: shape({ pct: num(0, 100), abs_vnd: int(0, 1_000_000_000_000) }),
+        ratios: list(shape({ code: codeText(), numerator: oneOf(...RATIO_TERMS), denominator: oneOf(...RATIO_TERMS), class_filter: list(codeText(), 12), basis: oneOf(...RATIO_BASES) }), 16, 1),
+        period_grains: list(oneOf(...PERIOD_GRAINS), 4, 1),
       },
+      refine: refineFundingPack,
       defaults: {
-        PUBLIC: rule({ package_kind: 'PUBLIC', categories: [{ code: 'FUND_SOURCE_VERSION', label: message('gov.rules.categories.label.fund_source_version'), kind: 'EXISTING_FUND_SOURCE' }], total_rule: 'NONE' }, undefined, {
-          formula: message('gov.rules.funding_taxonomy.public.formula'),
-        }),
-        ENTERPRISE: rule(
-          {
-            package_kind: 'ENTERPRISE',
-            categories: [
-              { code: 'EQUITY', label: message('gov.rules.categories.label.equity'), kind: 'EQUITY' },
-              { code: 'DEBT', label: message('gov.rules.categories.label.debt'), kind: 'DEBT' },
-              { code: 'OTHER', label: message('gov.rules.categories.label.other'), kind: 'OTHER' },
-            ],
-            total_rule: 'SUM_EQUALS_TOTAL',
-          },
-          undefined,
-          { formula: message('gov.rules.funding_taxonomy.enterprise.formula') },
-        ),
+        PUBLIC: rule(publicPackParams(), 'VERIFIED', { formula: message('gov.rules.funding_taxonomy.public.formula') }),
+        ENTERPRISE: rule(enterprisePackParams(), 'UNVERIFIED', { formula: message('gov.rules.funding_taxonomy.enterprise.formula') }),
       },
     });
     registerRuleType({

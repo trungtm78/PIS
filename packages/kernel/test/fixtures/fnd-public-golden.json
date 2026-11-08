@@ -6,7 +6,7 @@
       "note": "FX-DIS-004: plan given 1,000 million, added 250 million, D 600 million gives 60.0000 and 48.0000",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-1",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -171,11 +171,335 @@
       ]
     },
     {
+      "id": "G-2a",
+      "note": "FX-DIS-003, first project: 50 of 100 million",
+      "cutoff": "2026-09-30",
+      "project": {
+        "projectId": "g2a",
+        "unitId": "u",
+        "planVersionId": null,
+        "plans": [
+          {
+            "bucket": "CURRENT_YEAR",
+            "budgetLevel": "CENTRAL",
+            "amountVnd": "100000000",
+            "origin": "PM_ASSIGNED",
+            "fundSourceVersionId": null
+          }
+        ],
+        "reported": {
+          "reportRevisionId": "x",
+          "cells": [
+            {
+              "bucket": "CURRENT_YEAR",
+              "budgetLevel": "CENTRAL",
+              "cumulativeVnd": "50000000",
+              "ctmtqgVnd": null,
+              "nextMonthVnd": "0"
+            }
+          ]
+        },
+        "previous": null,
+        "treasury": [
+          {
+            "amountVnd": "50000000",
+            "reversal": false,
+            "paidOn": "2026-03-01"
+          }
+        ],
+        "treasuryFrom": "2026-01-01"
+      },
+      "lines": [
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "100000000",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "100000000",
+          "disbursedTreasuryVnd": "50000000",
+          "disbursedReportedVnd": "50000000",
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": "0",
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": "50.0000",
+          "rateTotalPct": "50.0000",
+          "rateNullReason": null,
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null
+        },
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null
+        }
+      ]
+    },
+    {
+      "id": "G-2b",
+      "note": "FX-DIS-003, second project: 90 of 900 million",
+      "cutoff": "2026-09-30",
+      "project": {
+        "projectId": "g2b",
+        "unitId": "u",
+        "planVersionId": null,
+        "plans": [
+          {
+            "bucket": "CURRENT_YEAR",
+            "budgetLevel": "CENTRAL",
+            "amountVnd": "900000000",
+            "origin": "PM_ASSIGNED",
+            "fundSourceVersionId": null
+          }
+        ],
+        "reported": {
+          "reportRevisionId": "y",
+          "cells": [
+            {
+              "bucket": "CURRENT_YEAR",
+              "budgetLevel": "CENTRAL",
+              "cumulativeVnd": "90000000",
+              "ctmtqgVnd": null,
+              "nextMonthVnd": "0"
+            }
+          ]
+        },
+        "previous": null,
+        "treasury": [
+          {
+            "amountVnd": "90000000",
+            "reversal": false,
+            "paidOn": "2026-03-01"
+          }
+        ],
+        "treasuryFrom": "2026-01-01"
+      },
+      "lines": [
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "900000000",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "900000000",
+          "disbursedTreasuryVnd": "90000000",
+          "disbursedReportedVnd": "90000000",
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": "0",
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": "10.0000",
+          "rateTotalPct": "10.0000",
+          "rateNullReason": null,
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null
+        },
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null
+        }
+      ]
+    },
+    {
       "id": "G-3",
       "note": "no plan of either kind: ZERO_DENOMINATOR whatever else is missing",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-3",
         "unitId": "u",
         "planVersionId": null,
         "plans": [],
@@ -329,7 +653,7 @@
       "note": "PM plan 0 and added 250 million with D 100 million: ratePmPct null, rateTotalPct 40.0000, reason ZERO_DENOMINATOR",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-4",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -491,7 +815,7 @@
       "note": "Treasury booked nothing, coverage NONE: TREASURY_COVERAGE_NONE",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-5a",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -647,7 +971,7 @@
       "note": "Treasury booked something outside the window of the year: no figure in the window, still NONE",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-5b",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -798,7 +1122,7 @@
       "note": "Treasury net below zero: NO_DATA, coverage PARTIAL",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-6",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -965,7 +1289,7 @@
       "note": "rounding half up: 1 over 128 is 0.7813",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-7",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -1127,7 +1451,7 @@
       "note": "the carried-over rate is over the reported cells; the year rate over the Treasury",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-8",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -1326,7 +1650,7 @@
       "note": "FX-DIS-005: cutoff on 30/09, paid 30/09 counts, 01/10 does not, a refund takes off on its own day",
       "cutoff": "2026-09-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-9",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -1498,7 +1822,7 @@
       "note": "FX-DIS-001: six cells 100+200+30+70+0+20 give 420 million and CTMTQG 40 million stays out",
       "cutoff": "2026-12-31",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-10",
         "unitId": "u",
         "planVersionId": null,
         "plans": [
@@ -1730,7 +2054,7 @@
       "note": "a cell nobody reported is null; a fall against the earlier period is kept as a fall; a plan cell with no origin counts on the PM side",
       "cutoff": "2026-06-30",
       "project": {
-        "projectId": "p",
+        "projectId": "p-G-11",
         "unitId": "u",
         "planVersionId": "pv-11",
         "plans": [
@@ -11030,17 +11354,19 @@
       "id": "G-ALL",
       "note": "every recorded project as one group (HOME-01 and HOME-03 over the whole tenant)",
       "projects": [
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
-        "p",
+        "p-G-1",
+        "g2a",
+        "g2b",
+        "p-G-3",
+        "p-G-4",
+        "p-G-5a",
+        "p-G-5b",
+        "p-G-6",
+        "p-G-7",
+        "p-G-8",
+        "p-G-9",
+        "p-G-10",
+        "p-G-11",
         "p-1",
         "p-2",
         "p-3",
@@ -11085,34 +11411,34 @@
       "result": {
         "CURRENT_YEAR": {
           "sums": {
-            "projects": 51,
-            "planPmVnd": "41767669349",
+            "projects": 53,
+            "planPmVnd": "42767669349",
             "planLocalVnd": "44557743093",
-            "treasuryVnd": "13993010714",
-            "reportedVnd": "37591191147",
+            "treasuryVnd": "14133010714",
+            "reportedVnd": "37731191147",
             "ctmtqgVnd": "2692817548",
             "allNone": false,
             "allComplete": false
           },
           "figures": {
-            "projects": 51,
-            "numeratorVnd": "13993010714",
-            "planPmVnd": "41767669349",
+            "projects": 53,
+            "numeratorVnd": "14133010714",
+            "planPmVnd": "42767669349",
             "planLocalVnd": "44557743093",
-            "planTotalVnd": "86325412442",
-            "reportedVnd": "37591191147",
+            "planTotalVnd": "87325412442",
+            "reportedVnd": "37731191147",
             "ctmtqgVnd": "2692817548",
-            "ratePmPct": "33.5020",
-            "rateTotalPct": "16.2096",
+            "ratePmPct": "33.0460",
+            "rateTotalPct": "16.1843",
             "rateNullReason": null,
             "treasuryCoverage": "PARTIAL"
           },
           "tiles": [
             {
               "metricCode": "DISBURSEMENT_RATE_PM",
-              "value": "33.5020",
-              "numerator": "13993010714",
-              "denominator": "41767669349",
+              "value": "33.0460",
+              "numerator": "14133010714",
+              "denominator": "42767669349",
               "nullReason": null,
               "unit": "PERCENT",
               "formula": "disbursed_treasury_vnd / plan_pm_assigned_vnd * 100",
@@ -11120,9 +11446,9 @@
             },
             {
               "metricCode": "DISBURSEMENT_RATE_TOTAL",
-              "value": "16.2096",
-              "numerator": "13993010714",
-              "denominator": "86325412442",
+              "value": "16.1843",
+              "numerator": "14133010714",
+              "denominator": "87325412442",
               "nullReason": null,
               "unit": "PERCENT",
               "formula": "disbursed_treasury_vnd / (plan_pm_assigned_vnd + plan_local_added_vnd) * 100",
@@ -11130,7 +11456,7 @@
             },
             {
               "metricCode": "DISBURSED_TREASURY",
-              "value": "13993010714",
+              "value": "14133010714",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11140,7 +11466,7 @@
             },
             {
               "metricCode": "PLAN_PM_ASSIGNED",
-              "value": "41767669349",
+              "value": "42767669349",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11150,7 +11476,7 @@
             },
             {
               "metricCode": "PLAN_TOTAL",
-              "value": "86325412442",
+              "value": "87325412442",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11162,7 +11488,7 @@
         },
         "CARRYOVER": {
           "sums": {
-            "projects": 51,
+            "projects": 53,
             "planPmVnd": "41212689085",
             "planLocalVnd": "38353968096",
             "treasuryVnd": null,
@@ -11172,7 +11498,7 @@
             "allComplete": false
           },
           "figures": {
-            "projects": 51,
+            "projects": 53,
             "numeratorVnd": "46491342103",
             "planPmVnd": "41212689085",
             "planLocalVnd": "38353968096",
@@ -11243,6 +11569,8 @@
       "id": "G-FIRST-TEN",
       "note": "the first ten random projects as one group",
       "projects": [
+        "p-G-10",
+        "p-G-11",
         "p-1",
         "p-2",
         "p-3",
@@ -11250,41 +11578,39 @@
         "p-5",
         "p-6",
         "p-7",
-        "p-8",
-        "p-9",
-        "p-10"
+        "p-8"
       ],
       "result": {
         "CURRENT_YEAR": {
           "sums": {
             "projects": 10,
-            "planPmVnd": "11335053964",
-            "planLocalVnd": "13852192122",
-            "treasuryVnd": "2555001244",
-            "reportedVnd": "9388825134",
-            "ctmtqgVnd": "2057409699",
+            "planPmVnd": "8198585521",
+            "planLocalVnd": "13773683915",
+            "treasuryVnd": "2740001356",
+            "reportedVnd": "7200781042",
+            "ctmtqgVnd": "1570855098",
             "allNone": false,
             "allComplete": false
           },
           "figures": {
             "projects": 10,
-            "numeratorVnd": "2555001244",
-            "planPmVnd": "11335053964",
-            "planLocalVnd": "13852192122",
-            "planTotalVnd": "25187246086",
-            "reportedVnd": "9388825134",
-            "ctmtqgVnd": "2057409699",
-            "ratePmPct": "22.5407",
-            "rateTotalPct": "10.1440",
+            "numeratorVnd": "2740001356",
+            "planPmVnd": "8198585521",
+            "planLocalVnd": "13773683915",
+            "planTotalVnd": "21972269436",
+            "reportedVnd": "7200781042",
+            "ctmtqgVnd": "1570855098",
+            "ratePmPct": "33.4204",
+            "rateTotalPct": "12.4703",
             "rateNullReason": null,
             "treasuryCoverage": "PARTIAL"
           },
           "tiles": [
             {
               "metricCode": "DISBURSEMENT_RATE_PM",
-              "value": "22.5407",
-              "numerator": "2555001244",
-              "denominator": "11335053964",
+              "value": "33.4204",
+              "numerator": "2740001356",
+              "denominator": "8198585521",
               "nullReason": null,
               "unit": "PERCENT",
               "formula": "disbursed_treasury_vnd / plan_pm_assigned_vnd * 100",
@@ -11292,9 +11618,9 @@
             },
             {
               "metricCode": "DISBURSEMENT_RATE_TOTAL",
-              "value": "10.1440",
-              "numerator": "2555001244",
-              "denominator": "25187246086",
+              "value": "12.4703",
+              "numerator": "2740001356",
+              "denominator": "21972269436",
               "nullReason": null,
               "unit": "PERCENT",
               "formula": "disbursed_treasury_vnd / (plan_pm_assigned_vnd + plan_local_added_vnd) * 100",
@@ -11302,7 +11628,7 @@
             },
             {
               "metricCode": "DISBURSED_TREASURY",
-              "value": "2555001244",
+              "value": "2740001356",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11312,7 +11638,7 @@
             },
             {
               "metricCode": "PLAN_PM_ASSIGNED",
-              "value": "11335053964",
+              "value": "8198585521",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11322,7 +11648,7 @@
             },
             {
               "metricCode": "PLAN_TOTAL",
-              "value": "25187246086",
+              "value": "21972269436",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11335,33 +11661,33 @@
         "CARRYOVER": {
           "sums": {
             "projects": 10,
-            "planPmVnd": "11632351028",
-            "planLocalVnd": "20035589830",
+            "planPmVnd": "10446247386",
+            "planLocalVnd": "14917303084",
             "treasuryVnd": null,
-            "reportedVnd": "9683975920",
-            "ctmtqgVnd": "185613475",
+            "reportedVnd": "7813441145",
+            "ctmtqgVnd": "22353272",
             "allNone": false,
             "allComplete": false
           },
           "figures": {
             "projects": 10,
-            "numeratorVnd": "9683975920",
-            "planPmVnd": "11632351028",
-            "planLocalVnd": "20035589830",
-            "planTotalVnd": "31667940858",
-            "reportedVnd": "9683975920",
-            "ctmtqgVnd": "185613475",
-            "ratePmPct": "83.2504",
-            "rateTotalPct": "30.5797",
+            "numeratorVnd": "7813441145",
+            "planPmVnd": "10446247386",
+            "planLocalVnd": "14917303084",
+            "planTotalVnd": "25363550470",
+            "reportedVnd": "7813441145",
+            "ctmtqgVnd": "22353272",
+            "ratePmPct": "74.7966",
+            "rateTotalPct": "30.8058",
             "rateNullReason": null,
             "treasuryCoverage": "PARTIAL"
           },
           "tiles": [
             {
               "metricCode": "DISBURSEMENT_RATE_PM",
-              "value": "83.2504",
-              "numerator": "9683975920",
-              "denominator": "11632351028",
+              "value": "74.7966",
+              "numerator": "7813441145",
+              "denominator": "10446247386",
               "nullReason": null,
               "unit": "PERCENT",
               "formula": "disbursed_treasury_vnd / plan_pm_assigned_vnd * 100",
@@ -11369,9 +11695,9 @@
             },
             {
               "metricCode": "DISBURSEMENT_RATE_TOTAL",
-              "value": "30.5797",
-              "numerator": "9683975920",
-              "denominator": "31667940858",
+              "value": "30.8058",
+              "numerator": "7813441145",
+              "denominator": "25363550470",
               "nullReason": null,
               "unit": "PERCENT",
               "formula": "disbursed_treasury_vnd / (plan_pm_assigned_vnd + plan_local_added_vnd) * 100",
@@ -11379,7 +11705,7 @@
             },
             {
               "metricCode": "DISBURSED_TREASURY",
-              "value": "9683975920",
+              "value": "7813441145",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11389,7 +11715,7 @@
             },
             {
               "metricCode": "PLAN_PM_ASSIGNED",
-              "value": "11632351028",
+              "value": "10446247386",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11399,7 +11725,7 @@
             },
             {
               "metricCode": "PLAN_TOTAL",
-              "value": "31667940858",
+              "value": "25363550470",
               "numerator": null,
               "denominator": null,
               "nullReason": null,
@@ -11604,7 +11930,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11626,7 +11952,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11648,7 +11974,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11670,7 +11996,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11692,7 +12018,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11714,11 +12040,11 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         }
       ],
-      "hash": "d489a4a42db768864dec51fba2c6857663bca8b995626ad0d8dfc4f89f732eef"
+      "hash": "76dfddf148ee0e8049dec305a2575f571dad13aac7d04a566c537538b12dd7fe"
     },
     {
       "id": "H-MIXED",
@@ -11750,7 +12076,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11772,7 +12098,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11794,7 +12120,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11816,7 +12142,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11838,7 +12164,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
           "unitId": "u"
         },
         {
@@ -11860,7 +12186,271 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r1",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-1",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "100000000",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "100000000",
+          "disbursedTreasuryVnd": "50000000",
+          "disbursedReportedVnd": "50000000",
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": "0",
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": "50.0000",
+          "rateTotalPct": "50.0000",
+          "rateNullReason": null,
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null,
+          "projectId": "g2a",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null,
+          "projectId": "g2a",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null,
+          "projectId": "g2a",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null,
+          "projectId": "g2a",
+          "unitId": "u"
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null,
+          "projectId": "g2a",
+          "unitId": "u"
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "x",
+          "planVersionId": null,
+          "projectId": "g2a",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "900000000",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "900000000",
+          "disbursedTreasuryVnd": "90000000",
+          "disbursedReportedVnd": "90000000",
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": "0",
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": "10.0000",
+          "rateTotalPct": "10.0000",
+          "rateNullReason": null,
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null,
+          "projectId": "g2b",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CURRENT_YEAR",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null,
+          "projectId": "g2b",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null,
+          "projectId": "g2b",
+          "unitId": "u"
+        },
+        {
+          "bucket": "CARRYOVER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null,
+          "projectId": "g2b",
+          "unitId": "u"
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "CENTRAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null,
+          "projectId": "g2b",
+          "unitId": "u"
+        },
+        {
+          "bucket": "OTHER",
+          "budgetLevel": "LOCAL",
+          "fundSourceVersionId": null,
+          "planPmAssignedVnd": "0",
+          "planLocalAddedVnd": "0",
+          "planTotalVnd": "0",
+          "disbursedTreasuryVnd": null,
+          "disbursedReportedVnd": null,
+          "periodDeltaVnd": null,
+          "registeredMonthVnd": null,
+          "forecastEacVnd": null,
+          "ctmtqgSubsetVnd": null,
+          "ratePmPct": null,
+          "rateTotalPct": null,
+          "rateNullReason": "NO_DATA",
+          "treasuryCoverage": "COMPLETE",
+          "reportRevisionId": "y",
+          "planVersionId": null,
+          "projectId": "g2b",
           "unitId": "u"
         },
         {
@@ -11882,7 +12472,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r3",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-3",
           "unitId": "u"
         },
         {
@@ -11904,7 +12494,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r3",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-3",
           "unitId": "u"
         },
         {
@@ -11926,7 +12516,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r3",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-3",
           "unitId": "u"
         },
         {
@@ -11948,7 +12538,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r3",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-3",
           "unitId": "u"
         },
         {
@@ -11970,7 +12560,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r3",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-3",
           "unitId": "u"
         },
         {
@@ -11992,7 +12582,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r3",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-3",
           "unitId": "u"
         },
         {
@@ -12014,7 +12604,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r4",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-4",
           "unitId": "u"
         },
         {
@@ -12036,7 +12626,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r4",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-4",
           "unitId": "u"
         },
         {
@@ -12058,7 +12648,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r4",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-4",
           "unitId": "u"
         },
         {
@@ -12080,7 +12670,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r4",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-4",
           "unitId": "u"
         },
         {
@@ -12102,7 +12692,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r4",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-4",
           "unitId": "u"
         },
         {
@@ -12124,7 +12714,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r4",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-4",
           "unitId": "u"
         },
         {
@@ -12146,7 +12736,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": "r5",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5a",
           "unitId": "u"
         },
         {
@@ -12168,7 +12758,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": "r5",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5a",
           "unitId": "u"
         },
         {
@@ -12190,7 +12780,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": "r5",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5a",
           "unitId": "u"
         },
         {
@@ -12212,7 +12802,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": "r5",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5a",
           "unitId": "u"
         },
         {
@@ -12234,7 +12824,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": "r5",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5a",
           "unitId": "u"
         },
         {
@@ -12256,7 +12846,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": "r5",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5a",
           "unitId": "u"
         },
         {
@@ -12278,7 +12868,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": null,
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5b",
           "unitId": "u"
         },
         {
@@ -12300,7 +12890,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": null,
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5b",
           "unitId": "u"
         },
         {
@@ -12322,7 +12912,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": null,
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5b",
           "unitId": "u"
         },
         {
@@ -12344,7 +12934,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": null,
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5b",
           "unitId": "u"
         },
         {
@@ -12366,7 +12956,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": null,
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5b",
           "unitId": "u"
         },
         {
@@ -12388,7 +12978,7 @@
           "treasuryCoverage": "NONE",
           "reportRevisionId": null,
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-5b",
           "unitId": "u"
         },
         {
@@ -12410,7 +13000,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r6",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-6",
           "unitId": "u"
         },
         {
@@ -12432,7 +13022,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r6",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-6",
           "unitId": "u"
         },
         {
@@ -12454,7 +13044,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r6",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-6",
           "unitId": "u"
         },
         {
@@ -12476,7 +13066,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r6",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-6",
           "unitId": "u"
         },
         {
@@ -12498,7 +13088,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r6",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-6",
           "unitId": "u"
         },
         {
@@ -12520,7 +13110,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r6",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-6",
           "unitId": "u"
         },
         {
@@ -12542,7 +13132,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r7",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-7",
           "unitId": "u"
         },
         {
@@ -12564,7 +13154,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r7",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-7",
           "unitId": "u"
         },
         {
@@ -12586,7 +13176,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r7",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-7",
           "unitId": "u"
         },
         {
@@ -12608,7 +13198,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r7",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-7",
           "unitId": "u"
         },
         {
@@ -12630,7 +13220,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r7",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-7",
           "unitId": "u"
         },
         {
@@ -12652,7 +13242,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r7",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-7",
           "unitId": "u"
         },
         {
@@ -12674,7 +13264,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r8",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-8",
           "unitId": "u"
         },
         {
@@ -12696,7 +13286,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r8",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-8",
           "unitId": "u"
         },
         {
@@ -12718,7 +13308,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r8",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-8",
           "unitId": "u"
         },
         {
@@ -12740,7 +13330,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r8",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-8",
           "unitId": "u"
         },
         {
@@ -12762,7 +13352,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r8",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-8",
           "unitId": "u"
         },
         {
@@ -12784,7 +13374,7 @@
           "treasuryCoverage": "PARTIAL",
           "reportRevisionId": "r8",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-8",
           "unitId": "u"
         },
         {
@@ -12806,7 +13396,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r9",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-9",
           "unitId": "u"
         },
         {
@@ -12828,7 +13418,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r9",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-9",
           "unitId": "u"
         },
         {
@@ -12850,7 +13440,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r9",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-9",
           "unitId": "u"
         },
         {
@@ -12872,7 +13462,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r9",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-9",
           "unitId": "u"
         },
         {
@@ -12894,7 +13484,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r9",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-9",
           "unitId": "u"
         },
         {
@@ -12916,7 +13506,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r9",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-9",
           "unitId": "u"
         },
         {
@@ -12938,7 +13528,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r10",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-10",
           "unitId": "u"
         },
         {
@@ -12960,7 +13550,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r10",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-10",
           "unitId": "u"
         },
         {
@@ -12982,7 +13572,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r10",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-10",
           "unitId": "u"
         },
         {
@@ -13004,7 +13594,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r10",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-10",
           "unitId": "u"
         },
         {
@@ -13026,7 +13616,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r10",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-10",
           "unitId": "u"
         },
         {
@@ -13048,7 +13638,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r10",
           "planVersionId": null,
-          "projectId": "p",
+          "projectId": "p-G-10",
           "unitId": "u"
         },
         {
@@ -13070,7 +13660,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r11",
           "planVersionId": "pv-11",
-          "projectId": "p",
+          "projectId": "p-G-11",
           "unitId": "u"
         },
         {
@@ -13092,7 +13682,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r11",
           "planVersionId": "pv-11",
-          "projectId": "p",
+          "projectId": "p-G-11",
           "unitId": "u"
         },
         {
@@ -13114,7 +13704,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r11",
           "planVersionId": "pv-11",
-          "projectId": "p",
+          "projectId": "p-G-11",
           "unitId": "u"
         },
         {
@@ -13136,7 +13726,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r11",
           "planVersionId": "pv-11",
-          "projectId": "p",
+          "projectId": "p-G-11",
           "unitId": "u"
         },
         {
@@ -13158,7 +13748,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r11",
           "planVersionId": "pv-11",
-          "projectId": "p",
+          "projectId": "p-G-11",
           "unitId": "u"
         },
         {
@@ -13180,7 +13770,7 @@
           "treasuryCoverage": "COMPLETE",
           "reportRevisionId": "r11",
           "planVersionId": "pv-11",
-          "projectId": "p",
+          "projectId": "p-G-11",
           "unitId": "u"
         },
         {
@@ -13314,273 +13904,9 @@
           "planVersionId": "pv-1",
           "projectId": "p-1",
           "unitId": "u-2"
-        },
-        {
-          "bucket": "CURRENT_YEAR",
-          "budgetLevel": "CENTRAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "0",
-          "planLocalAddedVnd": "0",
-          "planTotalVnd": "0",
-          "disbursedTreasuryVnd": "72999835",
-          "disbursedReportedVnd": null,
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": null,
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": "7.9327",
-          "rateTotalPct": "3.8483",
-          "rateNullReason": null,
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-2",
-          "planVersionId": "pv-2",
-          "projectId": "p-2",
-          "unitId": "u-3"
-        },
-        {
-          "bucket": "CURRENT_YEAR",
-          "budgetLevel": "LOCAL",
-          "fundSourceVersionId": "fs-0",
-          "planPmAssignedVnd": "920234649",
-          "planLocalAddedVnd": "976705386",
-          "planTotalVnd": "1896940035",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": null,
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": null,
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-2",
-          "planVersionId": "pv-2",
-          "projectId": "p-2",
-          "unitId": "u-3"
-        },
-        {
-          "bucket": "CARRYOVER",
-          "budgetLevel": "CENTRAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "1110672672",
-          "planLocalAddedVnd": "1928998499",
-          "planTotalVnd": "3039671171",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": "1187447419",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "80000000",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-2",
-          "planVersionId": "pv-2",
-          "projectId": "p-2",
-          "unitId": "u-3"
-        },
-        {
-          "bucket": "CARRYOVER",
-          "budgetLevel": "LOCAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "0",
-          "planLocalAddedVnd": "2091560774",
-          "planTotalVnd": "2091560774",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": null,
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": null,
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-2",
-          "planVersionId": "pv-2",
-          "projectId": "p-2",
-          "unitId": "u-3"
-        },
-        {
-          "bucket": "OTHER",
-          "budgetLevel": "CENTRAL",
-          "fundSourceVersionId": "fs-2",
-          "planPmAssignedVnd": "613998923",
-          "planLocalAddedVnd": "0",
-          "planTotalVnd": "613998923",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": "1441335757",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "78000000",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-2",
-          "planVersionId": "pv-2",
-          "projectId": "p-2",
-          "unitId": "u-3"
-        },
-        {
-          "bucket": "OTHER",
-          "budgetLevel": "LOCAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "354550490",
-          "planLocalAddedVnd": "0",
-          "planTotalVnd": "354550490",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": "19198058",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "46000000",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-2",
-          "planVersionId": "pv-2",
-          "projectId": "p-2",
-          "unitId": "u-3"
-        },
-        {
-          "bucket": "CURRENT_YEAR",
-          "budgetLevel": "CENTRAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "0",
-          "planLocalAddedVnd": "0",
-          "planTotalVnd": "0",
-          "disbursedTreasuryVnd": "1603001364",
-          "disbursedReportedVnd": "827559759",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "58000000",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": "206889939",
-          "ratePmPct": "258.1987",
-          "rateTotalPct": "63.5000",
-          "rateNullReason": null,
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-3",
-          "planVersionId": "pv-3",
-          "projectId": "p-3",
-          "unitId": "u-2"
-        },
-        {
-          "bucket": "CURRENT_YEAR",
-          "budgetLevel": "LOCAL",
-          "fundSourceVersionId": "fs-2",
-          "planPmAssignedVnd": "620840204",
-          "planLocalAddedVnd": "1903573284",
-          "planTotalVnd": "2524413488",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": "1099639894",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "68000000",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": "274909973",
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-3",
-          "planVersionId": "pv-3",
-          "projectId": "p-3",
-          "unitId": "u-2"
-        },
-        {
-          "bucket": "CARRYOVER",
-          "budgetLevel": "CENTRAL",
-          "fundSourceVersionId": "fs-1",
-          "planPmAssignedVnd": "1591610313",
-          "planLocalAddedVnd": "1883867971",
-          "planTotalVnd": "3475478284",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": null,
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": null,
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-3",
-          "planVersionId": "pv-3",
-          "projectId": "p-3",
-          "unitId": "u-2"
-        },
-        {
-          "bucket": "CARRYOVER",
-          "budgetLevel": "LOCAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "0",
-          "planLocalAddedVnd": "1108440398",
-          "planTotalVnd": "1108440398",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": "1206093771",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "79000000",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-3",
-          "planVersionId": "pv-3",
-          "projectId": "p-3",
-          "unitId": "u-2"
-        },
-        {
-          "bucket": "OTHER",
-          "budgetLevel": "CENTRAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "0",
-          "planLocalAddedVnd": "0",
-          "planTotalVnd": "0",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": "1215598257",
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": "0",
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-3",
-          "planVersionId": "pv-3",
-          "projectId": "p-3",
-          "unitId": "u-2"
-        },
-        {
-          "bucket": "OTHER",
-          "budgetLevel": "LOCAL",
-          "fundSourceVersionId": null,
-          "planPmAssignedVnd": "0",
-          "planLocalAddedVnd": "1321288602",
-          "planTotalVnd": "1321288602",
-          "disbursedTreasuryVnd": null,
-          "disbursedReportedVnd": null,
-          "periodDeltaVnd": null,
-          "registeredMonthVnd": null,
-          "forecastEacVnd": null,
-          "ctmtqgSubsetVnd": null,
-          "ratePmPct": null,
-          "rateTotalPct": null,
-          "rateNullReason": "NO_DATA",
-          "treasuryCoverage": "PARTIAL",
-          "reportRevisionId": "rr-3",
-          "planVersionId": "pv-3",
-          "projectId": "p-3",
-          "unitId": "u-2"
         }
       ],
-      "hash": "813f170218eb91e75be27241c2de51d54da21e853468bd4e2eae3c01598d5280"
+      "hash": "9d7fbe3f8bbaaad0c144870767771083db104dfde17fcb8224e36550a5b400aa"
     }
   ],
   "groupRates": [
@@ -13613,5 +13939,49 @@
       "parts": [],
       "rate": null
     }
-  ]
+  ],
+  "kpiDefinitions": {
+    "DISBURSEMENT_RATE_PM": {
+      "params": {
+        "name": "Tỷ lệ giải ngân so với kế hoạch Thủ tướng giao",
+        "formula": "Số Kho bạc đã chi lũy kế trong năm chia cho kế hoạch vốn Thủ tướng Chính phủ giao, nhân 100",
+        "numerator": "Số Kho bạc Nhà nước đã chi lũy kế đến ngày chốt số của Kho bạc",
+        "denominator": "Kế hoạch vốn năm do Thủ tướng Chính phủ giao đã phân bổ cho dự án",
+        "exclusions": [
+          "Vốn chuyển tiếp từ năm trước được tính ở chỉ tiêu riêng",
+          "Dự án chưa có số của Kho bạc không đưa vào tử số và được báo riêng"
+        ],
+        "source": "Phân hệ giải ngân (DIS), ảnh chụp số liệu đã chốt",
+        "unit": "PERCENT",
+        "period": "YEAR_TO_DATE",
+        "owner": "CAPITAL_PLANNER",
+        "decimals": 2,
+        "refresh_hours": 24,
+        "allowed_lag_days": 8,
+        "rag_code": "DISBURSEMENT_RATIO"
+      },
+      "unverified": true
+    },
+    "DISBURSEMENT_RATE_TOTAL": {
+      "params": {
+        "name": "Tỷ lệ giải ngân so với toàn bộ kế hoạch vốn năm",
+        "formula": "Số Kho bạc đã chi lũy kế trong năm chia cho tổng kế hoạch Thủ tướng giao và phần tỉnh bổ sung, nhân 100",
+        "numerator": "Số Kho bạc Nhà nước đã chi lũy kế đến ngày chốt số của Kho bạc",
+        "denominator": "Kế hoạch vốn Thủ tướng giao cộng phần địa phương bổ sung, đã phân bổ cho dự án",
+        "exclusions": [
+          "Vốn chuyển tiếp từ năm trước được tính ở chỉ tiêu riêng",
+          "Dự án chưa có số của Kho bạc không đưa vào tử số và được báo riêng"
+        ],
+        "source": "Phân hệ giải ngân (DIS), ảnh chụp số liệu đã chốt",
+        "unit": "PERCENT",
+        "period": "YEAR_TO_DATE",
+        "owner": "CAPITAL_PLANNER",
+        "decimals": 2,
+        "refresh_hours": 24,
+        "allowed_lag_days": 8,
+        "rag_code": "DISBURSEMENT_RATIO"
+      },
+      "unverified": true
+    }
+  }
 }

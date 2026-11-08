@@ -2406,3 +2406,123 @@ export type { TeamsCard } from './teams-channel.ts';
   egpTriggerInstant,
 } from './egp-posting.ts';
 export type { EgpMilestoneDate, EgpMilestoneOutcome, EgpOnTime, EgpPostingFacet, EgpSeverityParams } from './egp-posting.ts';
+=======
+  ACTUALS_PRECEDENCES,
+  ACTUAL_SOURCES,
+  ENTRY_MODES,
+  FUNDING_PACK_CODES,
+  FUNDING_TAXONOMY_RULE_TYPE,
+  MEASURES as FUNDING_MEASURES,
+  OTHER_CLASS,
+  PERIOD_GRAINS,
+  RATIO_BASES,
+  RATIO_TERMS,
+  SINGLE_TIER,
+  assertClassAndTier,
+  assertClassCrosswalk,
+  assertPackChange,
+  builtInPack,
+  builtInPackParams,
+  enterprisePackParams,
+  fundingPackCodeOfEdition,
+  isFundingPackCode,
+  parseFundingPack,
+  publicPackParams,
+  refineFundingPack,
+  splitOfOrigin,
+  treasuryCarrier,
+} from './fnd-taxonomy.ts';
+export type {
+  ActualSource,
+  ActualsPrecedence,
+  EntryMode,
+  FundingClass,
+  FundingPack,
+  FundingPackCode,
+  FundingRatio,
+  FundingSubset,
+  FundingTag,
+  FundingTier,
+  Measure as FundingMeasure,
+  PeriodGrain,
+  RatioBasis,
+  RatioTerm,
+} from './fnd-taxonomy.ts';
+export {
+  FIGURE_GRAINS,
+  PERIOD_STATUSES as FIGURE_PERIOD_STATUSES,
+  assertOrdinal,
+  assertPeriodAccepts,
+  assertPlanYear as assertFigurePlanYear,
+  firstMonthOf,
+  grainAccepted,
+  isFigureGrain,
+  lastMonthOf,
+  monthIndex,
+  monthOfDay,
+  monthsOf,
+  monthsOfQuarter,
+  periodEnded,
+  periodRange as fundingPeriodRange,
+  quarterOfMonth,
+  yearMayClose,
+} from './fnd-period.ts';
+export type { FigureGrain, PeriodRef as FigurePeriodRef, PeriodStatus as FigurePeriodStatus } from './fnd-period.ts';
+export {
+  CONVERSION_REASONS,
+  FIGURE_BASES,
+  FIGURE_STATUSES,
+  FIGURE_VIEWS,
+  MAX_EXPLANATION,
+  MIN_EXPLANATION,
+  STORED_FIGURE_KINDS,
+  VARIANCE_REASONS,
+  VARIANCE_RESOLUTIONS,
+  assertResolverIsNotPreparer,
+  assertYearMayClose,
+  byKnowledge,
+  comparedAtClose,
+  currentAsOf,
+  everAccepted,
+  isFigureBasis,
+  isFigureView,
+  isStoredFigureKind,
+  officialActual,
+  periodHistory,
+  varianceExplanation,
+  varianceOf,
+} from './fnd-actuals.ts';
+export type {
+  ConversionReason,
+  FigureBasis,
+  FigureStatus,
+  FigureView,
+  HistoryEntry as FigureHistoryEntry,
+  OfficialActual,
+  StoredFigure,
+  StoredFigureKind,
+  Variance as ActualsVariance,
+  VarianceReason,
+  VarianceResolution,
+} from './fnd-actuals.ts';
+export {
+  assertCumulativeIdentity,
+  assertEstimateAllowed,
+  assertGrainSum,
+  assertNegativeExplained,
+  assertPhasing,
+  assertSubsetWithinParent,
+  cumulativeOf,
+  deriveActuals,
+  nonNegativeVnd,
+  signedVnd as signedFigureVnd,
+} from './fnd-checks.ts';
+export type { CumulativeEntry, Phasing as FigurePhasing } from './fnd-checks.ts';
+export { cellFigures, figuresOfProject, minusKnown, percentOf as fundingPercentOf, ratioOf as fundingRatioOf, sumKnown, tmdtInForce, yearPlanOf } from './fnd-figures.ts';
+export type { CellFigures, FigureBook, FigureQuery, ProjectFigures, RateReason as FundingRateReason, SourcedFigure } from './fnd-figures.ts';
+export { BOOK_TERMS, MONEY_INDICATOR_CODES, indicatorFormula, indicatorsOf, moneyIndicatorsOf } from './fnd-indicators.ts';
+export type { Indicator as FundingIndicator, MoneyIndicator, MoneyIndicatorCode } from './fnd-indicators.ts';
+export { addPublicSums, buildPackLines, publicIndicatorsOf, publicRateFigures, publicRateSums, publicRates, treasuryCoverage as publicTreasuryCoverage, treasuryNet } from './fnd-public.ts';
+export type { PublicCoverage, PublicIndicator, PublicLine, PublicPlanCell, PublicProject, PublicRateFigures, PublicRateReason, PublicRateSums, PublicRates, PublicReportedCell, PublicTreasuryEntry } from './fnd-public.ts';
+export { HASH_SCHEMAS, figureRowsOf, snapshotHashFor } from './fnd-snapshot.ts';
+export type { HashSchema, HashSchema2Extras, HashedFigureLine, SnapshotFigure, SnapshotHashHeader } from './fnd-snapshot.ts';

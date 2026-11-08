@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { homeTiles } from '../../src/home.ts';
 import { addSums, rateOfSums } from '../../src/dis-rates.ts';
 import { buildLines, groupRate, snapshotHash } from '../../src/dis-snapshot.ts';
+import { KPI_HOME_DEFAULTS } from '../../src/analytics-rule-defaults.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RECORDED_FROM = '71e23a06';
@@ -58,6 +59,18 @@ function fixedCases() {
         treasury: [paid(mil(600), '2026-08-15')],
         treasuryFrom: '2026-01-01',
       }),
+    },
+    {
+      id: 'G-2a',
+      note: 'FX-DIS-003, first project: 50 of 100 million',
+      cutoff: '2026-09-30',
+      project: base({ projectId: 'g2a', plans: [plan('CURRENT_YEAR', 'CENTRAL', mil(100), 'PM_ASSIGNED')], reported: { reportRevisionId: 'x', cells: [reported('CURRENT_YEAR', 'CENTRAL', mil(50))] }, treasury: [paid(mil(50), '2026-03-01')], treasuryFrom: '2026-01-01' }),
+    },
+    {
+      id: 'G-2b',
+      note: 'FX-DIS-003, second project: 90 of 900 million',
+      cutoff: '2026-09-30',
+      project: base({ projectId: 'g2b', plans: [plan('CURRENT_YEAR', 'CENTRAL', mil(900), 'PM_ASSIGNED')], reported: { reportRevisionId: 'y', cells: [reported('CURRENT_YEAR', 'CENTRAL', mil(90))] }, treasury: [paid(mil(90), '2026-03-01')], treasuryFrom: '2026-01-01' }),
     },
     {
       id: 'G-3',
@@ -208,7 +221,8 @@ function groupCase(id, note, lineSets) {
   return { id, note, projects: lineSets.map((one) => one.projectId), result };
 }
 
-const cases = [...fixedCases()];
+// Every fixed case is its own project (the default id would make them one).
+const cases = fixedCases().map((one) => ({ ...one, project: { ...one.project, projectId: one.project.projectId === 'p' ? `p-${one.id}` : one.project.projectId } }));
 const random = generator(20261108);
 for (let index = 1; index <= 40; index += 1) cases.push(randomCase(index, random));
 
@@ -218,10 +232,7 @@ const recorded = cases.map((one) => {
 });
 
 const groups = [];
-groups.push(groupCase('G-2', 'FX-DIS-003: 50/100 and 90/900 million group to 14.0000 (sum over sum, not the mean)', [
-  { projectId: 'g2a', lines: buildLines(base({ projectId: 'g2a', plans: [plan('CURRENT_YEAR', 'CENTRAL', mil(100), 'PM_ASSIGNED')], reported: { reportRevisionId: 'x', cells: [reported('CURRENT_YEAR', 'CENTRAL', mil(50))] }, treasury: [paid(mil(50), '2026-03-01')], treasuryFrom: '2026-01-01' }), '2026-09-30') },
-  { projectId: 'g2b', lines: buildLines(base({ projectId: 'g2b', plans: [plan('CURRENT_YEAR', 'CENTRAL', mil(900), 'PM_ASSIGNED')], reported: { reportRevisionId: 'y', cells: [reported('CURRENT_YEAR', 'CENTRAL', mil(90))] }, treasury: [paid(mil(90), '2026-03-01')], treasuryFrom: '2026-01-01' }), '2026-09-30') },
-]));
+groups.push(groupCase('G-2', 'FX-DIS-003: 50/100 and 90/900 million group to 14.0000 (sum over sum, not the mean)', recorded.filter((one) => one.id === 'G-2a' || one.id === 'G-2b').map((one) => ({ projectId: one.project.projectId, lines: one.lines }))));
 groups.push(groupCase('G-ALL', 'every recorded project as one group (HOME-01 and HOME-03 over the whole tenant)', recorded.map((one) => ({ projectId: one.project.projectId, lines: one.lines }))));
 groups.push(groupCase('G-FIRST-TEN', 'the first ten random projects as one group', recorded.slice(11, 21).map((one) => ({ projectId: one.project.projectId, lines: one.lines }))));
 groups.push(groupCase('G-EMPTY', 'a group with no project: no rate, coverage NONE', []));
@@ -238,5 +249,9 @@ const groupRates = [
   { id: 'GR-3', parts: [], rate: groupRate([]) },
 ];
 
-writeFileSync(join(HERE, 'fnd-public-golden.json'), `${JSON.stringify({ recordedFrom: RECORDED_FROM, cases: recorded, groups, hashes, groupRates }, null, 2)}\n`);
-console.log(`recorded ${recorded.length} projects, ${groups.length} groups, ${hashes.length} hashes`);
+// The two definitions of the command centre (HOME-01, HOME-03): their text is part of what must not change.
+const kpiDefinitions = Object.fromEntries(['DISBURSEMENT_RATE_PM', 'DISBURSEMENT_RATE_TOTAL'].map((code) => [code, KPI_HOME_DEFAULTS[code]]));
+
+writeFileSync(join(HERE, 'fnd-public-golden.json'), `${JSON.stringify({ recordedFrom: RECORDED_FROM, cases: recorded, groups, hashes, groupRates, kpiDefinitions }, null, 2)}\n`);
+process.stdout.write(`recorded ${recorded.length} projects, ${groups.length} groups, ${hashes.length} hashes
+`);
