@@ -332,12 +332,12 @@ export class RedFlagStore {
       outcome = 'REOPENED';
     }
     await tx.query(
-      `update machvon.red_flag_finding set subject_code = $2, project_id = $3::uuid, score = $4, band = $5, fired = $6::jsonb, readings = $7::jsonb, not_computable = $8::text[], rule_versions = $9::jsonb, ranking_version = $10,
-              status = $11, last_evaluated_at = $12::timestamptz, evaluation_count = evaluation_count + 1, reopened_count = reopened_count + $13,
+      `update machvon.red_flag_finding set subject_code = $2, project_id = $3::uuid, score = $4::int, band = $5::text, fired = $6::jsonb, readings = $7::jsonb, not_computable = $8::text[], rule_versions = $9::jsonb, ranking_version = $10,
+              status = $11::text, last_evaluated_at = $12::timestamptz, evaluation_count = evaluation_count + 1, reopened_count = reopened_count + $13::int,
               cleared_by = case when $11 = 'NEW' then null else cleared_by end, cleared_at = case when $11 = 'NEW' then null else cleared_at end, clear_proposed_by = case when $11 = 'NEW' then null else clear_proposed_by end,
               clear_reason = case when $11 = 'NEW' then null else clear_reason end, referred_by = case when $11 = 'NEW' then null else referred_by end, referred_at = case when $11 = 'NEW' then null else referred_at end,
               referral_reason = case when $11 = 'NEW' then null else referral_reason end, reviewer_membership_id = case when $11 = 'NEW' then null else reviewer_membership_id end,
-              version = version + case when $4 <> $14 or $11 <> $15 then 1 else 0 end
+              version = version + case when $4::int <> $14::int or $11::text <> $15::text then 1 else 0 end
         where id = $1::uuid`,
       [before.id, subject.code, subject.projectId, score.score, score.band, JSON.stringify(fired), JSON.stringify(readings), score.notComputable, JSON.stringify(rules.versions), rules.rankingVersion, status, now.toISOString(), outcome === 'REOPENED' ? 1 : 0, before.score, before.status],
     );
