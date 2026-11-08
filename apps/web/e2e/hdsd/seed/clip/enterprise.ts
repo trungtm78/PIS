@@ -73,8 +73,16 @@ export async function seedClipEnterpriseProjects(ctx: SeedContext): Promise<void
 
 // ---- funding: equity and loan ------------------------------------------------------------------------------------------------------------
 
-async function planYearFigure(ctx: SeedContext, plan: EnterprisePlan, project: EnterpriseProject, projectId: string, classCode: 'EQUITY' | 'LOAN', billions: number, known: Set<string>): Promise<void> {
-  if (known.has(`${projectId}:${classCode}`)) return;
+async function planYearFigure(ctx: SeedContext, plan: EnterprisePlan, project: EnterpriseProject, projectId: string, classCode: 'EQUITY' | 'LOAN', billions: number, known: Map<string, Obj>): Promise<void> {
+  const existing = known.get(`${projectId}:${classCode}`);
+  if (existing !== undefined && existing.status !== 'DRAFT' && existing.status !== 'SUBMITTED') return;
+  // A batch an earlier run left half way is taken up where it stopped: submitted, then accepted.
+  if (existing !== undefined) {
+    let version = Number(existing.version);
+    if (existing.status === 'DRAFT') version = (await ctx.command('projectManager', `/funding-figures/batches/${String(existing.id)}/submission`, {}, { version })).resource_version;
+    await ctx.command('capApprover', `/funding-figures/batches/${String(existing.id)}/acceptance`, {}, { version });
+    return;
+  }
   const made = await ctx.command('projectManager', '/funding-figures/batches', {
     project_id: projectId,
     class_code: classCode,
@@ -96,7 +104,8 @@ export async function seedClipEnterpriseFunding(ctx: SeedContext): Promise<void>
   const plan = enterprisePlan(ctx);
   if (plan === undefined) return;
   const batches = await ctx.list<Obj>('projectManager', '/funding-figures/batches', { plan_year: plan.planYear });
-  const known = new Set(batches.map((row) => `${String(row.project_id)}:${String(row.class_code)}`));
+  // Only the year plan of the class counts (another kind of figure of the same project is not the plan).
+  const known = new Map(batches.filter((row) => row.figure_kind === 'PLAN_YEAR' && row.status !== 'WITHDRAWN' && row.status !== 'RETURNED').map((row) => [`${String(row.project_id)}:${String(row.class_code)}`, row] as const));
   for (const project of plan.projects) {
     const row = await projectByCode(ctx, project.code);
     if (row === undefined) {

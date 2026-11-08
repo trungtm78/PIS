@@ -362,7 +362,8 @@ export function judge(check) {
 /** Judges all the checks; `ok` is true only when every one passes. */
 export function judgeAll(checks) {
   const results = checks.map(judge);
-  return { ok: results.every((result) => result.ok), results };
+  // A verdict over no check proves nothing: it fails.
+  return { ok: results.length > 0 && results.every((result) => result.ok), results };
 }
 
 // ---- command line -------------------------------------------------------------------------------------------------------------------

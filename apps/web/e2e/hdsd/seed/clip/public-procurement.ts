@@ -97,19 +97,23 @@ interface WorkflowView {
   version: number;
   step: string;
   status: string;
-  items: Array<{ id: string; step: string; status: string }>;
+  /** The open items of the CURRENT step (the detail lists only those). */
+  items: Array<{ id: string; status: string }>;
+  /** The codes of the steps in their order (the steps of the definition frozen in the workflow). */
+  steps: string[];
 }
 
 async function viewOf(ctx: SeedContext, packageId: string): Promise<WorkflowView> {
   const answer = await ctx.get<Obj>(MAKER, `/procurement-packages/${packageId}/workflow`);
   const workflow = asObj(answer.workflow);
-  const items = (Array.isArray(workflow.checklist) ? (workflow.checklist as Obj[]) : []).map((item) => ({ id: String(item.id), step: String(item.step_code ?? item.step ?? ''), status: String(item.status) }));
-  return { id: String(workflow.id), version: Number(workflow.version), step: String(asObj(workflow.step).code), status: String(workflow.status), items };
+  const items = (Array.isArray(workflow.checklist) ? (workflow.checklist as Obj[]) : []).map((item) => ({ id: String(item.id), status: String(item.status) }));
+  const steps = (Array.isArray(workflow.steps) ? (workflow.steps as Obj[]) : []).map((step) => String(step.code ?? step.step_code));
+  return { id: String(workflow.id), version: Number(workflow.version), step: String(asObj(workflow.step).code), status: String(workflow.status), items, steps };
 }
 
 /** Completes the open items of the current step with the evidence they ask for, trying the kinds in turn (the step says which one it needs). */
 async function completeStep(ctx: SeedContext, view: WorkflowView, documentId: string, note: string): Promise<void> {
-  for (const item of view.items.filter((candidate) => candidate.step === view.step && candidate.status !== 'DONE')) {
+  for (const item of view.items.filter((candidate) => candidate.status !== 'DONE')) {
     const kinds: Array<Array<Record<string, string>>> = [
       [{ kind: 'DOCUMENT', document_id: documentId }],
       [{ kind: 'DECISION_DOCUMENT', document_id: documentId }],
@@ -149,7 +153,8 @@ async function driveTo(ctx: SeedContext, packageId: string, code: string, target
   }
   if (mode === 'HOLD') await ctx.attempt(MAKER, 'POST', `/package-workflows/${view.id}/hold`, { reason: note }, { version: view.version });
   if (mode === 'RETURN') {
-    const earlier = (await viewOf(ctx, packageId)).items.map((item) => item.step).find((candidate) => candidate !== view.step);
+    const current = view.steps.indexOf(view.step);
+    const earlier = current > 0 ? view.steps[current - 1] : undefined;
     if (earlier !== undefined) await ctx.attempt(MAKER, 'POST', `/package-workflows/${view.id}/return`, { to_step: earlier, reason: note }, { version: view.version });
   }
   ctx.record({ module: 'BID', screen: 'BID-27', kind: 'package-workflow', id: view.id, code, note: `${mode} ${step}` });

@@ -139,9 +139,14 @@ test('verify passes when the register holds every planned project and fails when
   const rows = [];
   for (const [stage, count] of Object.entries(base)) for (let index = 0; index < count; index += 1) rows.push({ status: stage, national_project_code: index === 0 ? '1' : null });
   for (const project of plan.projects) rows.push({ status: project.target, national_project_code: project.national ?? null });
-  assert.equal(judgeAll(await verifyChecks(plan, stubReader({ '/resources/project': rows }))).ok, true);
+  const procurement = {
+    '/procurement-plans': plan.procurement.plans.map(() => ({ status: 'IN_REVIEW' })),
+    '/resources/procurement_package': plan.procurement.plans.flatMap((entry) => entry.packages),
+    '/resources/contractor': Array.from({ length: 16 }, (_, index) => ({ id: index })),
+  };
+  assert.equal(judgeAll(await verifyChecks(plan, stubReader({ '/resources/project': rows, ...procurement }))).ok, true);
   const short = rows.filter((row, index) => !(row.status === 'IMPLEMENTATION' && index > 4));
-  const verdict = judgeAll(await verifyChecks(plan, stubReader({ '/resources/project': short })));
+  const verdict = judgeAll(await verifyChecks(plan, stubReader({ '/resources/project': short, ...procurement })));
   assert.equal(verdict.ok, false);
   assert.ok(verdict.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
 });
@@ -226,4 +231,19 @@ test('the accounting rows name projects of the plan, two periods, and differ fro
 test('the enterprise dataset runs the four enterprise groups and no group of the public dataset', () => {
   assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs']);
   assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
+});
+
+test('a verdict over no check fails, so an unsupported dataset or an empty list never passes', () => {
+  assert.equal(judgeAll([]).ok, false);
+});
+
+test('the enterprise checks fail on an unseeded stack and pass on a seeded one', async () => {
+  const plan = buildPlan(enterpriseDataset());
+  const empty = { async list() { return []; }, async get() { return { ok: true, json: {} }; } };
+  assert.equal(judgeAll(await verifyChecks(plan, empty)).ok, false);
+  const projects = plan.projects.map((project) => ({ code: project.code }));
+  const batches = plan.projects.flatMap(() => [{ class_code: 'EQUITY', status: 'ACCEPTED' }, { class_code: 'LOAN', status: 'ACCEPTED' }]);
+  const directives = Array.from({ length: plan.expect.directives }, (_, index) => ({ id: index }));
+  const rows = { '/resources/project': projects, '/funding-figures/batches': batches, '/directives': directives, '/ebs/differences': [{ id: 1 }] };
+  assert.equal(judgeAll(await verifyChecks(plan, { async list(_person, path) { return rows[path]; } })).ok, true);
 });
