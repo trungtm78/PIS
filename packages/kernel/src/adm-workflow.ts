@@ -10,18 +10,41 @@ export interface BusinessTypeSpec {
   code: string;
   documentType: string;
   commands: { APPROVED: string; RETURNED: string; REJECTED: string };
+  /** The module that owns the record and binds the real final commands. */
+  ownerModule: string;
+  /** Enabled in every deployment that mounts the owning module: the platform then refuses to boot without the real final commands (R14). Types still false are enabled by configuration (`MACHVON_APPROVAL_BUSINESS_TYPES`) once their module binds them. */
+  enabledByDefault: boolean;
 }
 
-/** The business types the platform knows (ADM 3.7); until the owning module registers its real commands they are bound to test doubles. */
+/** The business types the platform knows (ADM 3.7); a test build binds the ones without a real final command to doubles, any other build has none (R14). */
 export const BUSINESS_TYPES: readonly BusinessTypeSpec[] = [
-  { code: 'report.accept', documentType: 'REPORT_ACCEPT', commands: { APPROVED: 'acceptReport', RETURNED: 'returnReport', REJECTED: 'rejectReport' } },
-  { code: 'plan.publish', documentType: 'CAPITAL_PLAN_PUBLISH', commands: { APPROVED: 'publishPlan', RETURNED: 'returnPlan', REJECTED: 'rejectPlan' } },
-  { code: 'payment.approve', documentType: 'PAYMENT_APPROVE', commands: { APPROVED: 'approvePaymentRequest', RETURNED: 'returnPaymentRequest', REJECTED: 'rejectPaymentRequest' } },
-  { code: 'contract.change', documentType: 'CONTRACT_CHANGE', commands: { APPROVED: 'approveContractChange', RETURNED: 'returnContractChange', REJECTED: 'rejectContractChange' } },
-  { code: 'period.reopen', documentType: 'PERIOD_REOPEN', commands: { APPROVED: 'reopenPeriod', RETURNED: 'returnPeriodReopen', REJECTED: 'rejectPeriodReopen' } },
+  { code: 'report.accept', documentType: 'REPORT_ACCEPT', commands: { APPROVED: 'acceptReport', RETURNED: 'returnReport', REJECTED: 'rejectReport' }, ownerModule: 'DIS', enabledByDefault: true },
+  { code: 'plan.publish', documentType: 'CAPITAL_PLAN_PUBLISH', commands: { APPROVED: 'publishPlan', RETURNED: 'returnPlan', REJECTED: 'rejectPlan' }, ownerModule: 'CAP', enabledByDefault: false },
+  { code: 'payment.approve', documentType: 'PAYMENT_APPROVE', commands: { APPROVED: 'approvePaymentRequest', RETURNED: 'returnPaymentRequest', REJECTED: 'rejectPaymentRequest' }, ownerModule: 'PAY', enabledByDefault: false },
+  { code: 'contract.change', documentType: 'CONTRACT_CHANGE', commands: { APPROVED: 'approveContractChange', RETURNED: 'returnContractChange', REJECTED: 'rejectContractChange' }, ownerModule: 'CTR', enabledByDefault: false },
+  { code: 'period.reopen', documentType: 'PERIOD_REOPEN', commands: { APPROVED: 'reopenPeriod', RETURNED: 'returnPeriodReopen', REJECTED: 'rejectPeriodReopen' }, ownerModule: 'DIS', enabledByDefault: false },
 ];
 
 export const businessTypeOf = (code: string): BusinessTypeSpec | undefined => BUSINESS_TYPES.find((type) => type.code === code);
+
+/** The environment variable that enables business types besides the ones enabled by default: a comma separated list of codes (`plan.publish,payment.approve`). */
+export const APPROVAL_BUSINESS_TYPES_VARIABLE = 'MACHVON_APPROVAL_BUSINESS_TYPES';
+
+/**
+ * The business types a process runs workflows for: the ones enabled by default and the ones the configuration names, restricted to the types whose owning module is mounted in this process (`mounted` is the list of
+ * module codes; absent means the host does not say, as in a test of the engine alone). A code the configuration names that is not a business type is a mistake of the deployment and stops it.
+ */
+export function enabledBusinessTypes(variables: Readonly<Record<string, string | undefined>>, mounted?: readonly string[]): string[] {
+  const named = (variables[APPROVAL_BUSINESS_TYPES_VARIABLE] ?? '')
+    .split(',')
+    .map((code) => code.trim())
+    .filter((code) => code !== '');
+  for (const code of named) if (businessTypeOf(code) === undefined) throw new Error(`${APPROVAL_BUSINESS_TYPES_VARIABLE} names ${code}, which is not a business type`);
+  return BUSINESS_TYPES.filter((type) => (type.enabledByDefault || named.includes(type.code)) && (mounted === undefined || mounted.includes(type.ownerModule))).map((type) => type.code);
+}
+
+/** Whether the build may bind test doubles to the final commands: a test build only (jest sets `NODE_ENV=test`), never a process that serves real data. */
+export const testDoublesAllowed = (variables: Readonly<Record<string, string | undefined>>): boolean => variables.NODE_ENV === 'test';
 
 export const ASSIGNEE_RULE_TYPES = ['DOA', 'ROLE_IN_UNIT', 'SPECIFIC'] as const;
 export type AssigneeRuleType = (typeof ASSIGNEE_RULE_TYPES)[number];
@@ -34,6 +57,7 @@ export const MAX_STEPS = 10;
 export const MAX_MIN_APPROVALS = 5;
 export const MAX_SLA_WORKING_HOURS = 720;
 const STEP_ID = /^[a-z][a-z0-9_-]{1,39}$/;
+const STEP_TAG = /^[A-Z][A-Z0-9_]{1,39}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export interface AssigneeRule {
@@ -56,6 +80,8 @@ export interface WorkflowStep {
   escalate_to?: string;
   /** The earlier step an approver may send the record back to. */
   allow_return_to?: string;
+  /** A label the owning module gives the step so that its screens can say what the step is for (`PLANNING_REVIEW`); the engine does not read it. */
+  tag?: string;
 }
 
 export interface WorkflowDefinition {
@@ -104,7 +130,8 @@ export function validateDefinition(definition: unknown, businessType: string): D
         add(path, 'NOT_AN_OBJECT', 'a step is an object');
         return;
       }
-      unknownKeys(raw, ['id', 'name', 'assignee_rule', 'min_approvals', 'sla_working_hours', 'on_timeout', 'escalate_to', 'allow_return_to'], path, defects);
+      unknownKeys(raw, ['id', 'name', 'assignee_rule', 'min_approvals', 'sla_working_hours', 'on_timeout', 'escalate_to', 'allow_return_to', 'tag'], path, defects);
+      if (raw.tag !== undefined && (typeof raw.tag !== 'string' || !STEP_TAG.test(raw.tag))) add(`${path}.tag`, 'STEP_TAG_INVALID', 'a step tag is 2 to 40 characters: upper-case letters, digits or _, starting with a letter');
       const id = raw.id;
       if (typeof id !== 'string' || !STEP_ID.test(id)) add(`${path}.id`, 'STEP_ID_INVALID', 'a step id is 2 to 40 characters: a lower-case letter, then letters, digits, - or _');
       else if (ids.includes(id)) add(`${path}.id`, 'STEP_ID_DUPLICATE', `the step id ${id} is used twice`);

@@ -7,7 +7,7 @@ import { hasControlChar } from './control-chars.ts';
  *
  *   PendingVerification -verify-> Active -disable-> Disabled          Active -(provider says the credential is gone)-> CredentialExpired -verify-> Active
  */
-export const ACCOUNT_CHANNELS = ['EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_OA', 'ZALO_ZNS', 'WHATSAPP'] as const;
+export const ACCOUNT_CHANNELS = ['EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_OA', 'ZALO_ZNS', 'WHATSAPP', 'TEAMS'] as const;
 export type AccountChannel = (typeof ACCOUNT_CHANNELS)[number];
 export const ACCOUNT_STATUSES = ['PendingVerification', 'Active', 'Disabled', 'CredentialExpired'] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];

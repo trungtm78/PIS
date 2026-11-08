@@ -8,6 +8,7 @@ import { DIRECTIVE_POLICY_DEFAULTS, parseDirectivePolicy } from './directive.ts'
 import { B1_DEFAULTS, EAC_METHODS } from './gov-b1-policy.ts';
 import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_SOURCE, WORKFLOW_METHODS, WORKFLOW_RULE_TYPE, defaultWorkflowParams, parseWorkflowDefinition } from './bid-workflow.ts';
 import { MILESTONE_KINDS } from './procurement-file.ts';
+import { APPROVAL_WORKFLOW_RULE_TYPE, REPORT_STEP_ASSIGNEE_TYPES, REPORT_STEP_KINDS, REPORT_WORKFLOW_RULE_CODE, WORKFLOW_MODES, defaultReportWorkflowParams, reportWorkflowDefect } from './dis-report-workflow.ts';
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
 import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
@@ -1254,6 +1255,44 @@ export const registerProcurementWorkflowRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(PROCUREMENT_WORKFLOW_ALERT_SEEDS, { source: message('gov.rules.register_procurement_workflow_rules.source') }));
   });
 
+/** The steps of an approval workflow as data (lane WF-1): one code per business type the ADM engine runs for a module; the built-in default of the weekly report is the single decision it has always been. */
+export const registerApprovalWorkflowRules = (): void =>
+  once('approval-workflow', () => {
+    registerCoreRules();
+    const uuidText = (optional = false): FieldSpec => ({ kind: 'text', max: 36, optional, pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' });
+    registerRuleType({
+      type: APPROVAL_WORKFLOW_RULE_TYPE,
+      ownerModule: 'ADM',
+      modules: ['ADM', 'DIS'],
+      formula: message('gov.rules.register_approval_workflow_rules.formula'),
+      source: message('gov.rules.register_approval_workflow_rules.source'),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        mode: oneOf(...WORKFLOW_MODES),
+        steps: list(
+          shape({
+            id: { kind: 'text', max: 40, pattern: '^[a-z][a-z0-9_-]{1,39}$' },
+            kind: oneOf(...REPORT_STEP_KINDS),
+            name: text(120),
+            assignee_type: oneOf(...REPORT_STEP_ASSIGNEE_TYPES),
+            role_code: optionally({ kind: 'text', max: 60, pattern: '^[A-Z][A-Z0-9_]{1,59}$' }),
+            unit_id: uuidText(true),
+            membership_ids: optionally(list(uuidText(), 20, 1)),
+            min_approvals: int(1, 5),
+            sla_working_hours: num(1, 720),
+            on_timeout: oneOf('REMIND', 'ESCALATE', 'EXPIRE'),
+            escalate_to: uuidText(true),
+          }),
+          10,
+          1,
+        ),
+      },
+      refine: reportWorkflowDefect,
+      defaults: { [REPORT_WORKFLOW_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.report_accept.formula') }) },
+    });
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -1268,6 +1307,7 @@ export function registerAllGovernanceRules(): void {
   registerEnterpriseRules();
   registerFinanceRules();
   registerProcurementWorkflowRules();
+  registerApprovalWorkflowRules();
 }
 
 registerAllGovernanceRules();

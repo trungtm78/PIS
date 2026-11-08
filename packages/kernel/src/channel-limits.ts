@@ -18,6 +18,7 @@ export const CHANNEL_UNIT_COST_VND: Readonly<Record<string, number>> = {
   ZALO_OA: 0,
   ZALO_ZNS: 300,
   WHATSAPP: 1_000,
+  TEAMS: 0,
 };
 
 /** The usage meter a send is counted under in SAS (BR-SAS-15), for the channels that have one (the meters of the catalogue are e-mail, SMS and Zalo ZNS). */

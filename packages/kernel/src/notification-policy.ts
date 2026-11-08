@@ -22,6 +22,8 @@ export type ConsentPurpose = (typeof CONSENT_PURPOSES)[number];
 
 const PREFERENCE_CHANNEL_OF: Readonly<Record<string, PreferenceChannel>> = {
   IN_APP: 'IN_APP',
+  // The staff channel of the organisation (WF-1): messages to its own staff on its own Teams, so it is judged like the inbox (no consent of a person outside the organisation, no quiet hours of a phone).
+  TEAMS: 'IN_APP',
   EMAIL: 'EMAIL',
   SMS: 'SMS',
   WHATSAPP: 'WHATSAPP',

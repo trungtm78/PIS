@@ -10,7 +10,7 @@ import { LOCK_SCREEN_MAX } from './push-port.ts';
  *  - a push template is lock-screen safe, or it is refused (the database refuses it as well), and it is a neutral sentence: it uses no variable at all and fits a lock screen (120 characters) (ST-NOT-007).
  * Pure, so the screen and the tests judge a template the way the server does.
  */
-export const TEMPLATE_CHANNELS = ['IN_APP', 'EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_ZNS', 'ZALO_OA', 'WHATSAPP'] as const;
+export const TEMPLATE_CHANNELS = ['IN_APP', 'EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_ZNS', 'ZALO_OA', 'WHATSAPP', 'TEAMS'] as const;
 export type TemplateChannel = (typeof TEMPLATE_CHANNELS)[number];
 export const TEMPLATE_LOCALES = ['vi-VN', 'en-US'] as const;
 export const TEMPLATE_PURPOSES = ['OPERATIONAL', 'SECURITY', 'REMINDER', 'ANNOUNCEMENT', 'DIGEST', 'SUPPORT_CONVERSATION'] as const;

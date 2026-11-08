@@ -255,6 +255,7 @@ export {
   registerIntegrityRules,
   registerMoneyRules,
   registerProcurementWorkflowRules,
+  registerApprovalWorkflowRules,
   registerRuleDefaults,
   registerRuleType,
   registerWorkClockRules,
@@ -1743,6 +1744,9 @@ export {
   requiredApprovals,
   slaAction,
   validateDefinition,
+  APPROVAL_BUSINESS_TYPES_VARIABLE,
+  enabledBusinessTypes,
+  testDoublesAllowed,
 } from './adm-workflow.ts';
 export type {
   Advance as WorkflowAdvance,
@@ -2361,3 +2365,20 @@ export type {
   TierSplit,
 } from './ctr-money-reports.ts';
 export { message } from './messages.ts';
+export {
+  APPROVAL_WORKFLOW_RULE_TYPE,
+  REPORT_ACCEPT_BUSINESS_TYPE,
+  REPORT_STEP_ASSIGNEE_TYPES,
+  REPORT_STEP_KINDS,
+  REPORT_WORKFLOW_RESOURCE,
+  REPORT_WORKFLOW_RULE_CODE,
+  WORKFLOW_MODES,
+  defaultReportWorkflowParams,
+  engineDefinitionOf,
+  isStaged,
+  reportWorkflowDefect,
+  reportWorkflowOf,
+} from './dis-report-workflow.ts';
+export type { ReportStepKind, ReportWorkflow, ReportWorkflowStep, WorkflowMode } from './dis-report-workflow.ts';
+export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } from './teams-channel.ts';
+export type { TeamsCard } from './teams-channel.ts';
