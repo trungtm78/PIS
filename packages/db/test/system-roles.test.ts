@@ -103,13 +103,18 @@ describe('SYSTEM_ROLES', () => {
       for (const operation of Object.values(item)) {
         const permission = operation['x-permission'];
         const plane = operation['x-plane'];
-        if (permission !== undefined && (plane === undefined || plane === 'tenant') && !permission.startsWith('system.')) tenantPlane.add(permission);
+        // The `public.` permissions name the anonymous operations of the public portal (@Public: no session, no role, read on the control plane through functions of the database): no member holds them.
+        if (permission !== undefined && (plane === undefined || plane === 'tenant') && !permission.startsWith('system.') && !permission.startsWith('public.')) tenantPlane.add(permission);
       }
     }
     expect(tenantPlane.size).toBeGreaterThan(400);
     const uncovered = [...tenantPlane].filter((permission) => !(owner?.permissions ?? []).some((pattern) => matches(pattern, permission)));
     expect(uncovered).toEqual([]);
     expect(catalogue.some((permission) => permission.startsWith('system.') && (owner?.permissions ?? []).some((pattern) => matches(pattern, permission)))).toBe(false);
+    // The anonymous operations carry no principal, so no system role may hold their permissions either.
+    const anonymous = catalogue.filter((permission) => permission.startsWith('public.'));
+    expect(anonymous.length).toBeGreaterThan(0);
+    expect(SYSTEM_ROLES.some((role) => role.permissions.some((pattern) => anonymous.some((permission) => matches(pattern, permission))))).toBe(false);
   });
 });
 

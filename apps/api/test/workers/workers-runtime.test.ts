@@ -218,7 +218,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
 
         const api = await start();
         for (const delay of ALL_DELAYS) timers.fire(delay);
-        await until(() => (api.workers?.history().length ?? 0) >= 76, 'every job to have run once');
+        await until(() => (api.workers?.history().length ?? 0) >= 77, 'every job to have run once');
         const outcomes = Object.fromEntries((api.workers?.history() ?? []).map((run) => [run.name, run.outcome]));
         expect(outcomes).toEqual({
           'outbox-relay': 'SUCCESS',
@@ -317,7 +317,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
   describe('shutdown and the switch', () => {
     it('stops every timer on stop() and a second stop is safe', async () => {
       const api = await start();
-      expect(timers.delays()).toHaveLength(78);
+      expect(timers.delays()).toHaveLength(79);
       await api.stop();
       expect(timers.delays()).toEqual([]);
       await expect(api.stop()).resolves.toBeUndefined();

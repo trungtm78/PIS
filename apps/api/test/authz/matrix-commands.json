@@ -884,6 +884,15 @@
     "unlockReportPeriod",
     "startReportSignature",
     "completeReportSignature"
+,
+    "proposeVendorPortalInvitation",
+    "approveVendorPortalInvitation",
+    "rejectVendorPortalInvitation",
+    "revokeVendorPortalInvitation",
+    "recordProcurementPetitionOutcome",
+    "confirmProcurementPetitionOutcome",
+    "returnProcurementPetitionOutcome",
+    "uploadPortalAttachment"
   ],
   "controlCommands": [
     "decideTenantRestore",
@@ -952,14 +961,6 @@
     "importEbsFile",
     "reconcileEbs",
     "resolveEbsDifference",
-    "reassignEbsDifference",
-    "proposeVendorPortalInvitation",
-    "approveVendorPortalInvitation",
-    "rejectVendorPortalInvitation",
-    "revokeVendorPortalInvitation",
-    "recordProcurementPetitionOutcome",
-    "confirmProcurementPetitionOutcome",
-    "returnProcurementPetitionOutcome",
-    "uploadPortalAttachment"
+    "reassignEbsDifference"
   ]
 }
