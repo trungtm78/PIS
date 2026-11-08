@@ -14,7 +14,7 @@ const PACKAGES = [
   { code: 'GT100-XL01', title: 'Package one', project: 'DA-GT100', millions: 1000, method: 'OPEN_BIDDING' },
   { code: 'GT100-TV01', title: 'Package "two"', project: 'DA-GT100', millions: 200, method: 'LIMITED_BIDDING' },
 ];
-const EGP = { planPrefix: 'KH2026', fileRows: 2, badRows: 3, decisionNo: 'QD-1', noticePrefix: 'IB', reason: 'A reason of more than ten characters' };
+const EGP = { planPrefix: 'KH2026', fileRows: 2, badRows: 3, decisionNo: 'QD-1', noticePrefix: 'IB', reason: 'A reason of more than ten characters', badPrice: 'Bad price', badDay: 'Bad day', repeated: 'Repeated' };
 
 test('the e-GP plan file has the header of the layout, one row for each package and three rows with an error on purpose', () => {
   const lines = khlcntCsv(PACKAGES, EGP, day).trim().split('\n');

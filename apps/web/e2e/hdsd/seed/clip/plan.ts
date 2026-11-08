@@ -35,6 +35,14 @@ export function clipPlan(): ClipPlan | undefined {
   return loaded;
 }
 
+/** A text of the dataset (Vietnamese, in the fixture): the groups hold keys, never words. `{0}`, `{1}` are replaced by the arguments in order. */
+export function clipText(key: string, ...args: readonly unknown[]): string {
+  const table = (clipPlan()?.texts ?? {}) as Record<string, string>;
+  const template = table[key];
+  if (template === undefined) throw new Error(`the text ${key} is not in the dataset (is CLIP_PLAN_FILE set?)`);
+  return template.replace(/\{(\d+)\}/gu, (_match, index: string) => String(args[Number(index)]));
+}
+
 /** Grows the tables of the capital groups with the plan (once per process). */
 export function applyClipPlan(): ClipPlan | undefined {
   const plan = clipPlan();

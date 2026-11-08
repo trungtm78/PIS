@@ -3,7 +3,7 @@ import { asObj } from '../context.ts';
 import { linesOf, projectOf } from '../procurement-finance/bid.ts';
 import { CHECKER, LEADER, MAKER, ACCOUNTANT, paper } from '../procurement-finance/shared.ts';
 import { ADVANCE_PACKAGE } from './public-contracts.ts';
-import { clipPlan } from './plan.ts';
+import { clipPlan, clipText } from './plan.ts';
 
 /**
  * Group `clip-public-payments`: measurement, acceptance, payment and advance of the active contracts, through the real commands (the Treasury forms are the DEMO templates of the
@@ -47,7 +47,7 @@ async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: st
     ctx.warn(`the contract ${String(contract.code)} has no revision or bill of quantities`);
     return undefined;
   }
-  const evidence = await paper(ctx, { symbol: `NT-${tag}/2026`, title: `Measurement ${tag}`, docType: 'BB', sender: 'Supervisor', issuedOn: ctx.day(-3) });
+  const evidence = await paper(ctx, { symbol: `NT-${tag}/2026`, title: clipText('pay.measurementPaper', tag), docType: 'BB', sender: clipText('pay.supervisor'), issuedOn: ctx.day(-3) });
   const measured = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contracts/${contractId}/measurements`, {
     contract_revision_id: String(revision.id),
     boq_item_id: String(line.id),
@@ -60,14 +60,14 @@ async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: st
   const id = measured.json.resource_id;
   const sent = await ctx.attempt<CommandReply>(MAKER, 'POST', `/measurements/${id}/submit`, {}, { version: measured.json.resource_version });
   if (!sent.ok) return undefined;
-  const approved = await ctx.attempt(LEADER, 'POST', `/measurements/${id}/decision`, { decision: 'approve', reason: 'The quantity matches the site record', evidence_ids: [] }, { version: sent.json.resource_version });
+  const approved = await ctx.attempt(LEADER, 'POST', `/measurements/${id}/decision`, { decision: 'approve', reason: clipText('pay.measurementReason'), evidence_ids: [] }, { version: sent.json.resource_version });
   if (!approved.ok) return undefined;
-  const document = await paper(ctx, { symbol: `BBNT-${tag}/2026`, title: `Acceptance record ${tag}`, docType: 'BB', sender: 'Supervisor', issuedOn: ctx.day(-2) });
+  const document = await paper(ctx, { symbol: `BBNT-${tag}/2026`, title: clipText('pay.acceptancePaper', tag), docType: 'BB', sender: clipText('pay.supervisor'), issuedOn: ctx.day(-2) });
   const acceptance = await ctx.attempt<CommandReply>(LEADER, 'POST', `/contracts/${contractId}/acceptances`, { measurement_ids: [id], period_id: periodId, document_version_id: document.versionId });
   if (!acceptance.ok) return undefined;
-  const submitted = await ctx.attempt<CommandReply>(LEADER, 'POST', `/acceptances/${acceptance.json.resource_id}/submit`, { signer_refs: [{ name: 'Investor representative', role: 'INVESTOR' }] }, { version: acceptance.json.resource_version });
+  const submitted = await ctx.attempt<CommandReply>(LEADER, 'POST', `/acceptances/${acceptance.json.resource_id}/submit`, { signer_refs: [{ name: clipText('pay.investorRep'), role: 'INVESTOR' }] }, { version: acceptance.json.resource_version });
   if (!submitted.ok) return undefined;
-  const decided = await ctx.attempt(CHECKER, 'POST', `/acceptances/${acceptance.json.resource_id}/decision`, { decision: 'approve', reason: 'Accepted on the record of the measurement', evidence_ids: [] }, { version: submitted.json.resource_version });
+  const decided = await ctx.attempt(CHECKER, 'POST', `/acceptances/${acceptance.json.resource_id}/decision`, { decision: 'approve', reason: clipText('pay.acceptanceReason'), evidence_ids: [] }, { version: submitted.json.resource_version });
   return decided.ok ? acceptance.json.resource_id : undefined;
 }
 
@@ -82,7 +82,7 @@ async function sentToTreasury(ctx: SeedContext, block: PaymentsBlock, body: Reco
   const made = await ctx.attempt<Obj>(MAKER, 'POST', '/payment-requests', body);
   if (!made.ok) return undefined;
   const id = String(made.json.resource_id);
-  const invoice = await paper(ctx, { symbol: `${block.invoicePrefix}-${tag}`, title: `Invoice ${tag}`, docType: 'HD', sender: 'Contractor', issuedOn: ctx.day(-2) });
+  const invoice = await paper(ctx, { symbol: `${block.invoicePrefix}-${tag}`, title: clipText('pay.invoicePaper', tag), docType: 'HD', sender: clipText('pay.contractor'), issuedOn: ctx.day(-2) });
   await ctx.attempt(MAKER, 'POST', `/payment-requests/${id}/documents`, { document_version_id: invoice.versionId, doc_kind: 'INVOICE', invoice_no: `${block.invoicePrefix}-${tag}`, invoice_date: ctx.day(-2), signed: true });
   const detail = await ctx.get<Obj>(MAKER, `/resources/payment_request/${id}`);
   const gross = String(detail.gross_vnd ?? asObj(made.json).gross_vnd ?? '0');
@@ -102,7 +102,7 @@ async function sentToTreasury(ctx: SeedContext, block: PaymentsBlock, body: Reco
 
 /** The Treasury confirms the payment on a day, and the accountant matches the transaction to the request, which settles it. */
 async function confirmedAndMatched(ctx: SeedContext, drawn: Drawn, confirmedOn: string, tag: string): Promise<boolean> {
-  const evidence = await paper(ctx, { symbol: `KB-${tag}`, title: `Treasury voucher ${tag}`, docType: 'BB', sender: 'Treasury', issuedOn: confirmedOn });
+  const evidence = await paper(ctx, { symbol: `KB-${tag}`, title: clipText('pay.treasuryPaper', tag), docType: 'BB', sender: clipText('pay.treasury'), issuedOn: confirmedOn });
   const confirmed = await ctx.attempt<CommandReply>(ACCOUNTANT, 'POST', '/treasury-transactions', {
     payment_request_id: drawn.id,
     document_no: `KB-${tag}`,

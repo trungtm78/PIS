@@ -280,7 +280,34 @@
   "texts": {
     "areaDecisionSymbol": "131/QĐ-UBND",
     "areaDecisionTitle": "Quyết định về việc bổ sung danh mục thị trấn dùng chung của tỉnh Cao Bằng",
-    "projectNote": "Dự án minh họa của bộ dữ liệu clip"
+    "projectNote": "Dự án minh họa của bộ dữ liệu clip",
+    "contract.paper": "Hợp đồng {0}",
+    "contract.title": "Hợp đồng gói thầu {0}",
+    "contract.boq": "Khối lượng thi công gói thầu {0}",
+    "guarantee.paper": "Bảo lãnh thực hiện hợp đồng {0}",
+    "guarantee.issuer": "Ngân hàng thương mại cổ phần",
+    "guarantee.method": "Đã xác nhận với ngân hàng phát hành bảo lãnh",
+    "contract.review": "Trình ký hợp đồng",
+    "contract.signedPaper": "Bản hợp đồng đã ký {0}",
+    "contract.activate": "Kích hoạt sau khi ký hợp đồng và có bảo lãnh thực hiện",
+    "claim.title": "Đề nghị gia hạn thời gian do thời tiết xấu",
+    "claim.description": "Mưa liên tục làm ngừng thi công phần đất trong mười một ngày",
+    "evaluation.approve": "Phê duyệt sau khi kiểm tra tại công trường",
+    "pay.supervisor": "Tư vấn giám sát",
+    "pay.measurementPaper": "Biên bản đo khối lượng {0}",
+    "pay.measurementReason": "Khối lượng khớp với nhật ký thi công",
+    "pay.acceptancePaper": "Biên bản nghiệm thu khối lượng {0}",
+    "pay.investorRep": "Đại diện chủ đầu tư",
+    "pay.acceptanceReason": "Nghiệm thu theo biên bản đo khối lượng",
+    "pay.invoicePaper": "Hóa đơn {0}",
+    "pay.contractor": "Nhà thầu",
+    "pay.treasuryPaper": "Chứng từ Kho bạc {0}",
+    "pay.treasury": "Kho bạc Nhà nước",
+    "doa.submit": "Trình lãnh đạo quyết định",
+    "doa.title": "Quyết định về việc phân cấp ủy quyền ký văn bản",
+    "doa.reason": "Ma trận ủy quyền của tỉnh",
+    "feed.mapping": "Đã đối chiếu ánh xạ với tệp nguồn cấp",
+    "feed.generator": "Khởi động bộ sinh dữ liệu cho cả tỉnh từ hạt giống của bộ dữ liệu"
   },
   "expect": {
     "projects": {
@@ -372,7 +399,10 @@
     "badRows": 3,
     "decisionNo": "QD-2026-UBND",
     "noticePrefix": "IB",
-    "reason": "Đối chiếu với kế hoạch lựa chọn nhà thầu đã được phê duyệt"
+    "reason": "Đối chiếu với kế hoạch lựa chọn nhà thầu đã được phê duyệt",
+    "badPrice": "Dòng có giá sai",
+    "badDay": "Dòng có ngày sai",
+    "repeated": "Gói thầu bị lặp"
   },
   "disbursement": {
     "office": {

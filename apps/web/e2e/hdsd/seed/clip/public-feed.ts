@@ -1,7 +1,7 @@
 import { vndMillions } from '../context.ts';
 import type { Obj, SeedContext } from '../context.ts';
 import { asObj } from '../context.ts';
-import { clipPlan } from './plan.ts';
+import { clipPlan, clipText } from './plan.ts';
 import type { ClipPlan } from './plan.ts';
 
 /**
@@ -90,14 +90,14 @@ export async function seedClipFeed(ctx: SeedContext): Promise<void> {
     const proposed = await ctx.list<Obj>(MAKER, '/finance-feed/mappings', { status: 'PROPOSED' });
     for (const [index, mapping] of proposed.entries()) {
       if (index % 5 === 4) continue;
-      await ctx.attempt(LEADER, 'POST', `/finance-feed/mappings/${String(mapping.id)}/decision`, { decision: 'APPROVE', reason: 'Mapping checked by the leader against the feed file' }, { version: Number(mapping.version) });
+      await ctx.attempt(LEADER, 'POST', `/finance-feed/mappings/${String(mapping.id)}/decision`, { decision: 'APPROVE', reason: clipText('feed.mapping') }, { version: Number(mapping.version) });
     }
   });
   // The generator: the whole province from a seed through the same import path (the records carry the channel GENERATOR for the audit, nothing else).
   await ctx.step('FEED', 'generator of the province', async () => {
     const connection = await ctx.get<Obj>(MAKER, '/finance-feed/connection');
     if (String(asObj(connection.generator).state) === 'RUNNING') return;
-    await ctx.attempt(MAKER, 'POST', '/finance-feed/generator', { action: 'START', reason: 'Generator started for the whole province from the seed of the dataset', seed: 57, fiscal_year: block.fiscalYear, current_month: block.lastMonth, project_count: 60 }, { version: Number(connection.version) });
+    await ctx.attempt(MAKER, 'POST', '/finance-feed/generator', { action: 'START', reason: clipText('feed.generator'), seed: 57, fiscal_year: block.fiscalYear, current_month: block.lastMonth, project_count: 60 }, { version: Number(connection.version) });
   });
   await ctx.step('FEED', 'reconciliation with the disbursement figures', async () => {
     const ran = await ctx.attempt<Obj>(MAKER, 'POST', '/finance-feed/reconciliations', { fiscal_year: block.fiscalYear, owner_id: ctx.person(OWNER).membershipId });

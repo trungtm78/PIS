@@ -329,6 +329,7 @@ export function buildPlan(dataset) {
       extraAppropriations: dataset.funding.extraAppropriations,
       projects: portfolio.projects,
       lines: portfolio.lines,
+      texts: dataset.texts,
       egp: dataset.egp,
       payments: dataset.payments,
       bi: dataset.bi,

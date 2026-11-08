@@ -4,6 +4,7 @@ import { PLANS, packageOf, projectOf } from '../procurement-finance/bid.ts';
 import type { PackageSpec } from '../procurement-finance/bid.ts';
 import { seedPlans, seedTenders } from '../procurement-finance/bid.ts';
 import { CHECKER, LEADER, MAKER, contractorsByNumber, paper } from '../procurement-finance/shared.ts';
+import { clipText } from './plan.ts';
 
 /**
  * Group `clip-public-contracts`: the tenders of the five projects of the guide (the plans were approved by the leader on an issued decision, the proposals are
@@ -40,13 +41,13 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
   let id: string;
   let version: number;
   if (existing === undefined) {
-    const document = await paper(ctx, { symbol: `HD-${spec.code}/2026`, title: `Contract ${spec.code}`, docType: 'HD', sender: String(winner.legal_name), issuedOn: ctx.day(-60) });
+    const document = await paper(ctx, { symbol: `HD-${spec.code}/2026`, title: clipText('contract.paper', spec.code), docType: 'HD', sender: String(winner.legal_name), issuedOn: ctx.day(-60) });
     const made = await ctx.command(MAKER, '/contracts', {
       project_id: String(project.id),
       package_id: String(pack.id),
       contractor_id: String(winner.id),
       code,
-      title: `Contract of the package ${spec.code}`,
+      title: clipText('contract.title', spec.code),
       type: CONTRACT_TYPE,
       advance_category: ADVANCE_CATEGORY[spec.category],
       contract_value_vnd: valueVnd,
@@ -68,30 +69,30 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
   // The bill of quantities: one line that adds up to the value of the contract.
   const revision = (await ctx.list<Obj>(MAKER, '/resources/contract_revision')).find((row) => String(row.contract_id) === id);
   if (revision !== undefined) {
-    const boq = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contract-revisions/${String(revision.id)}/boq-lines`, { mode: 'REPLACE', lines: [{ business_key: 'B01', description: `Works of the package ${spec.code}`, unit_code: 'M3', quantity: '1000', unit_price: String(Number(valueVnd) / 1000) }] }, { version });
+    const boq = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contract-revisions/${String(revision.id)}/boq-lines`, { mode: 'REPLACE', lines: [{ business_key: 'B01', description: clipText('contract.boq', spec.code), unit_code: 'M3', quantity: '1000', unit_price: String(Number(valueVnd) / 1000) }] }, { version });
     if (boq.ok) version = boq.json.resource_version;
   }
   if (spec.category !== 'CONSULTING') {
-    const evidence = await paper(ctx, { symbol: `BL-${spec.code}/2026`, title: `Guarantee ${spec.code}`, docType: 'BL', sender: 'Bank', issuedOn: ctx.day(-58) });
+    const evidence = await paper(ctx, { symbol: `BL-${spec.code}/2026`, title: clipText('guarantee.paper', spec.code), docType: 'BL', sender: clipText('guarantee.issuer'), issuedOn: ctx.day(-58) });
     const guarantee = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contracts/${id}/guarantees`, {
       kind: 'PERFORMANCE',
-      issuer: 'Bank',
+      issuer: clipText('guarantee.issuer'),
       guarantee_no: `BL-${spec.code}`,
       amount_vnd: String(Math.round(Number(valueVnd) * 0.05)),
       valid_from: ctx.day(-58),
       expires_at: new Date(Date.parse(`${ctx.day(400)}T00:00:00+07:00`)).toISOString(),
       document_version_id: evidence.versionId,
     });
-    if (guarantee.ok) await ctx.attempt(CHECKER, 'POST', `/guarantees/${guarantee.json.resource_id}/verify`, { outcome: 'VERIFIED', method: 'Confirmed by the issuer', evidence_document_version_id: evidence.versionId }, { version: guarantee.json.resource_version });
+    if (guarantee.ok) await ctx.attempt(CHECKER, 'POST', `/guarantees/${guarantee.json.resource_id}/verify`, { outcome: 'VERIFIED', method: clipText('guarantee.method'), evidence_document_version_id: evidence.versionId }, { version: guarantee.json.resource_version });
     const current = await ctx.get<Obj>(MAKER, `/resources/contract/${id}`);
     version = Number(current.version);
   }
-  const reviewed = await ctx.attempt<CommandReply>(LEADER, 'POST', `/contracts/${id}/submit-review`, { note: 'Submitted for signing' }, { version });
+  const reviewed = await ctx.attempt<CommandReply>(LEADER, 'POST', `/contracts/${id}/submit-review`, { note: clipText('contract.review') }, { version });
   if (!reviewed.ok) return undefined;
-  const signedCopy = await paper(ctx, { symbol: `HD-KY-${spec.code}/2026`, title: `Signed copy ${spec.code}`, docType: 'HD', sender: String(winner.legal_name), issuedOn: ctx.day(-55) });
+  const signedCopy = await paper(ctx, { symbol: `HD-KY-${spec.code}/2026`, title: clipText('contract.signedPaper', spec.code), docType: 'HD', sender: String(winner.legal_name), issuedOn: ctx.day(-55) });
   const signed = await ctx.attempt<CommandReply>(CHECKER, 'POST', `/contracts/${id}/sign`, { signed_on: ctx.day(-55), signed_document_version_id: signedCopy.versionId }, { version: reviewed.json.resource_version });
   if (!signed.ok) return undefined;
-  const activated = await ctx.attempt<CommandReply>(CHECKER, 'POST', `/contracts/${id}/activate`, { decision: 'approve', reason: 'Activated after the signature and the guarantee', evidence_ids: [], effective_from: ctx.day(-54) }, { version: signed.json.resource_version });
+  const activated = await ctx.attempt<CommandReply>(CHECKER, 'POST', `/contracts/${id}/activate`, { decision: 'approve', reason: clipText('contract.activate'), evidence_ids: [], effective_from: ctx.day(-54) }, { version: signed.json.resource_version });
   return activated.ok ? id : undefined;
 }
 
@@ -99,8 +100,8 @@ async function claimAndEvaluation(ctx: SeedContext, contractId: string): Promise
   await ctx.attempt(MAKER, 'POST', `/contracts/${contractId}/claims`, {
     claimant_side: 'CONTRACTOR',
     kind: 'EXTENSION_OF_TIME',
-    title: 'Extension of time for bad weather',
-    event_description: 'Continuous rain stopped the earth works for eleven days',
+    title: clipText('claim.title'),
+    event_description: clipText('claim.description'),
     event_on: ctx.day(-30),
     awareness_on: ctx.day(-29),
     claimed_days: 11,
@@ -114,7 +115,7 @@ async function claimAndEvaluation(ctx: SeedContext, contractId: string): Promise
     score_cooperation: 85,
     score_financial: 80,
   });
-  if (evaluation.ok) await ctx.attempt(LEADER, 'POST', `/performance-evaluations/${evaluation.json.resource_id}/approve`, { note: 'Approved after the site review' }, { version: evaluation.json.resource_version });
+  if (evaluation.ok) await ctx.attempt(LEADER, 'POST', `/performance-evaluations/${evaluation.json.resource_id}/approve`, { note: clipText('evaluation.approve') }, { version: evaluation.json.resource_version });
 }
 
 export async function seedClipContracts(ctx: SeedContext): Promise<void> {

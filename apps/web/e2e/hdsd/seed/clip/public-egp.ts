@@ -32,6 +32,10 @@ interface EgpBlock {
   noticePrefix: string;
   /** A reason of more than twenty characters for the decisions and resolutions (Vietnamese text of the dataset). */
   reason: string;
+  /** The names of the three rows with an error on purpose (Vietnamese text of the dataset). */
+  badPrice: string;
+  badDay: string;
+  repeated: string;
 }
 
 function packagesOf(): PackageRow[] {
@@ -47,9 +51,9 @@ export function khlcntCsv(rows: PackageRow[], block: EgpBlock, day: (days: numbe
     lines.push([`${block.planPrefix}-${row.project.replace('DA-', '')}`, `PK-${row.code}`, `"${row.title.replace(/"/gu, "'")}"`, String(Math.round(price)), row.method, day(-40), block.decisionNo, row.project, row.code].join(','));
   });
   // Rows with an error on purpose: a price with dots, a day that does not exist, a repeated package.
-  lines.push([`${block.planPrefix}-X1`, 'PK-BAD-1', 'Row with a wrong price', '1.200.000.000', 'OPEN_BIDDING', day(-40), block.decisionNo, '', ''].join(','));
-  lines.push([`${block.planPrefix}-X2`, 'PK-BAD-2', 'Row with a wrong day', '1200000000', 'OPEN_BIDDING', '2026-02-31', block.decisionNo, '', ''].join(','));
-  if (rows[0] !== undefined) lines.push([`${block.planPrefix}-X3`, `PK-${rows[0].code}`, 'Repeated package', String(Number(vndMillions(rows[0].millions))), rows[0].method, day(-40), block.decisionNo, rows[0].project, rows[0].code].join(','));
+  lines.push([`${block.planPrefix}-X1`, 'PK-BAD-1', block.badPrice, '1.200.000.000', 'OPEN_BIDDING', day(-40), block.decisionNo, '', ''].join(','));
+  lines.push([`${block.planPrefix}-X2`, 'PK-BAD-2', block.badDay, '1200000000', 'OPEN_BIDDING', '2026-02-31', block.decisionNo, '', ''].join(','));
+  if (rows[0] !== undefined) lines.push([`${block.planPrefix}-X3`, `PK-${rows[0].code}`, block.repeated, String(Number(vndMillions(rows[0].millions))), rows[0].method, day(-40), block.decisionNo, rows[0].project, rows[0].code].join(','));
   return `${lines.join('\n')}\n`;
 }
 
