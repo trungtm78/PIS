@@ -1220,6 +1220,18 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'deliverReport',
         'answerReportDelivery',
         'listReportDeliveries',
+=======
+        // FND-1: the funding figures
+        'getFundingTaxonomy',
+        'getFundingFigureBoard',
+        'listFundingFigureBatches',
+        'getFundingFigureBatch',
+        'getFundingFigureHistory',
+        'proposeFundingFigures',
+        'submitFundingFigures',
+        'acceptFundingFigures',
+        'returnFundingFigures',
+        'withdrawFundingFigures',
       ].sort(),
     );
   });
