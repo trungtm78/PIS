@@ -14,8 +14,8 @@ Branch `lane/vnd3`, worktree `D:\PIS-vnd3`, migration block 2440-2459. Items of 
 | # | Step | Tests |
 |---|---|---|
 | 1 | [x] Plan, migration block registered | `npm run migrations:check` |
-| 2 | [ ] Kernel: `vnd-link-graph.ts`, `vnd-bid-rigging.ts`, `vnd-screening.ts`, `vnd-portal.ts` (pure), rules, alert types, KPI definitions, texts | golden tests `packages/kernel/test/vnd3-*.test.ts` |
-| 3 | [ ] Migrations V2440-V2447 (trace, link projection, lead, screening, portal, reconfirmation, remediation, RLS, role permissions) | rls-catalog, migrations check |
+| 2 | [x] Kernel: `vnd-link-graph.ts`, `vnd-bid-rigging.ts`, `vnd-screening.ts`, `vnd-portal.ts` (pure), rules, alert types, KPI definitions, texts | golden tests `packages/kernel/test/vnd3-*.test.ts` |
+| 3 | [x] Migrations V2440-V2447 (trace, link projection, lead, screening, portal, reconfirmation, remediation, RLS, role permissions) | rls-catalog, migrations check |
 | 4 | [ ] DB stores, gate hook, alert source `HomeVendor3Sources` | `packages/db/test/vnd3-*.test.ts` through the db lane |
 | 5 | [ ] Contract (contract-patch), controllers, authz, jobs, isolation entries (not run) | `apps/api/test/bid/vendor3*.test.ts` |
 | 6 | [ ] Web: investigation, screening, portal screens, i18n part `vnd3`, routes, nav | vitest of the screens |
