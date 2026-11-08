@@ -61,6 +61,8 @@ final class VendorRiskItem {
     required this.tier,
     required this.score,
     required this.reviewOverdue,
+    this.tier,
+    this.score,
     this.taxId,
     this.nextReviewOn,
     this.pendingTier,
@@ -281,11 +283,11 @@ VendorRiskDetail? parseVendorRiskDetail(Object? raw) {
     tier: _tiers[row['tier']],
   final VendorTier? tier = _tiers[row?['tier']];
   final String? asOf = filled(row?['as_of']);
-  if (row == null || id == null || name == null || tier == null || asOf == null) return null;
+  if (row == null || id == null || name == null || asOf == null) return null;
   return VendorRiskDetail(
     contractorId: id,
     name: name,
-    tier: tier,
+    tier: _tiers[row['tier']],
     live: _grade(row['live']),
     confirmed: _snapshot(row['confirmed']),
     pending: _snapshot(row['pending']),

@@ -189,8 +189,22 @@ class _ListState extends ConsumerState<_List> {
   @override
   void initState() {
     super.initState();
+    _reset();
+  }
+
+  void _reset() {
     _items = List<VendorRiskItem>.of(widget.page.items);
     _cursor = widget.page.nextCursor;
+    _loading = false;
+    _failed = false;
+    _epoch += 1;
+  }
+
+  /// A refresh gives a new first page for the same filter: the rows and the cursor of the old page are dropped with it.
+  @override
+  void didUpdateWidget(_List oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.page, widget.page)) _reset();
   }
 
   /// The next page, appended; a page that cannot be had says so in place and can be asked again, and what is shown stays.
