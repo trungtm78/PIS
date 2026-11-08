@@ -52,7 +52,7 @@ CREATE UNIQUE INDEX master_crosswalk_subject_active_uq ON machvon.master_crosswa
 CREATE UNIQUE INDEX master_crosswalk_subject_proposed_uq ON machvon.master_crosswalk (tenant_id, source_system, external_type, external_code, subject_id)
   WHERE status = 'PROPOSED' AND subject_type IS NOT NULL;
 CREATE INDEX master_crosswalk_subject_list_idx ON machvon.master_crosswalk (tenant_id, source_system, subject_type, status, created_at DESC, id DESC) WHERE subject_type IS NOT NULL;
-CREATE INDEX master_crosswalk_subject_lookup_idx ON machvon.master_crosswalk (tenant_id, subject_type, subject_id) WHERE subject_type IS NOT NULL;
+CREATE INDEX master_crosswalk_subject_lookup_idx ON machvon.master_crosswalk (tenant_id, subject_id, subject_type) WHERE subject_type IS NOT NULL;
 CREATE INDEX master_crosswalk_import_idx ON machvon.master_crosswalk (tenant_id, import_id) WHERE import_id IS NOT NULL;
 
 CREATE FUNCTION machvon.guard_master_crosswalk_subject() RETURNS trigger

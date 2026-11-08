@@ -43,6 +43,7 @@ CREATE TABLE machvon.egp_connection_event (
   CONSTRAINT egp_connection_event_version_chk CHECK (connection_version >= 1)
 );
 CREATE INDEX egp_connection_event_idx ON machvon.egp_connection_event (tenant_id, connection_id, occurred_at DESC, id DESC);
+CREATE INDEX egp_connection_event_actor_idx ON machvon.egp_connection_event (tenant_id, actor_id, occurred_at DESC);
 
 CREATE FUNCTION machvon.egp_connection_event_append_only() RETURNS trigger
 LANGUAGE plpgsql
