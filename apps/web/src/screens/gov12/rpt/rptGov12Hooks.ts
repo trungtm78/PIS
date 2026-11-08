@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
+import type { Issue } from '../../rpt/model';
 import type { CertificateRow, LockPage, SignatureFacts } from './rptGov12Model';
 
 // What the screens show depends on the membership as well as the tenant: both are part of every key.
@@ -28,6 +29,31 @@ export function useLocks(filter: LockFilter) {
     enabled: key[1] !== undefined,
     retry: false,
   });
+}
+
+/**
+ * The latest copy of every series of each form for the Ministry: one request for each layout (the list is cut by layout on the server), so a copy of a form is never pushed out of a page by the copies of the other
+ * forms. `truncated` says that a layout has more series than one page holds; `failed` that a layout could not be read: the screen never says "no copies" in either case.
+ */
+export function useMofIssues(codes: readonly string[]) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  const results = useQueries({
+    queries: codes.map((code) => ({
+      queryKey: [...key, 'mof-issues', code],
+      queryFn: () => client.read('listReportIssues', { query: q({ layout_code: code, heads_only: true, limit: 100 }) }) as unknown as Promise<{ items: Issue[]; truncated: boolean }>,
+      enabled: key[1] !== undefined,
+      retry: false,
+    })),
+  });
+  return {
+    items: results.flatMap((result) => result.data?.items ?? []),
+    isLoading: results.some((result) => result.isLoading),
+    failed: results.some((result) => result.isError),
+    truncated: results.some((result) => result.data?.truncated === true),
+    refetch: () => Promise.all(results.map((result) => result.refetch())),
+    refreshing: results.some((result) => result.isError) && results.some((result) => result.data !== undefined),
+  };
 }
 
 export function useSignature(issueId: string | undefined) {

@@ -8,11 +8,11 @@ import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { HashLine } from '../../rpt/components';
-import { useCatalogue, useIssues } from '../../rpt/hooks';
+import { useCatalogue } from '../../rpt/hooks';
 import { kindWord, statusWord, vietnamDateTime } from '../../rpt/model';
 import type { Entry, Issue } from '../../rpt/model';
 import { LockPill, RuleInfo, SignaturePill } from './rptGov12Components';
-import { useCertificates, useCompleteSignature, useLocks, useSignature, useStartSignature } from './rptGov12Hooks';
+import { useCertificates, useCompleteSignature, useLocks, useMofIssues, useSignature, useStartSignature } from './rptGov12Hooks';
 import { holds, isMofForm, isPending, signRefusalText, signatureState } from './rptGov12Model';
 import './rptGov12.css';
 
@@ -20,14 +20,14 @@ import './rptGov12.css';
 const POLL_MS = 3000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function SignDialog({ issue, onClose }: { issue: Issue; onClose: () => void }) {
+function SignDialog({ issue, resume, onClose }: { issue: Issue; resume: string | undefined; onClose: () => void }) {
   const { t } = useTranslation();
   const { tenant } = useSession();
   const certificates = useCertificates(true);
   const start = useStartSignature();
   const complete = useCompleteSignature();
   const [certificateId, setCertificateId] = useState('');
-  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+  const [sessionId, setSessionId] = useState<string | undefined>(resume);
   const [waiting, setWaiting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const busy = useRef(false);
@@ -133,7 +133,7 @@ function SignDialog({ issue, onClose }: { issue: Issue; onClose: () => void }) {
   );
 }
 
-function CopyRow({ issue, canSign, onSign }: { issue: Issue; canSign: boolean; onSign: (issue: Issue) => void }) {
+function CopyRow({ issue, canSign, onSign }: { issue: Issue; canSign: boolean; onSign: (issue: Issue, resume: string | undefined) => void }) {
   const { t } = useTranslation();
   const query = useSignature(issue.id);
   const facts = query.data;
@@ -144,11 +144,16 @@ function CopyRow({ issue, canSign, onSign }: { issue: Issue; canSign: boolean; o
       {state === 'test' ? <p className="rpt-g12-pending" data-testid={`test-note-${issue.id}`}>{t('rpt.mof.signature.testNote')}</p> : null}
       {query.isError ? <p className="rpt-g12-pending" role="status">{t('rpt.mof.signature.unknown')}</p> : null}
       {state === 'unsigned' && canSign && facts !== undefined ? (
-        <button type="button" className="ui-button ui-button--primary ui-button--small" data-testid={`sign-${issue.id}`} onClick={() => onSign(issue)}>
+        <button type="button" className="ui-button ui-button--primary ui-button--small" data-testid={`sign-${issue.id}`} onClick={() => onSign(issue, undefined)}>
           {t('rpt.mof.action.sign')}
         </button>
       ) : null}
-      {state === 'unsigned' && !canSign && facts !== undefined ? <p className="rpt-g12-pending">{t('rpt.mof.action.noRight')}</p> : null}
+      {state === 'inProgress' && canSign && facts?.open_session_id !== null && facts?.open_session_id !== undefined ? (
+        <button type="button" className="ui-button ui-button--primary ui-button--small" data-testid={`resume-${issue.id}`} onClick={() => onSign(issue, facts.open_session_id ?? undefined)}>
+          {t('rpt.mof.action.resume')}
+        </button>
+      ) : null}
+      {(state === 'unsigned' || state === 'inProgress') && !canSign && facts !== undefined ? <p className="rpt-g12-pending">{t('rpt.mof.action.noRight')}</p> : null}
     </div>
   );
 }
@@ -171,12 +176,12 @@ function MofFormsContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { tenant, permissions } = useSession();
   const catalogue = useCatalogue();
-  const issues = useIssues({ headsOnly: true, demo: undefined });
-  const locks = useLocks({ layoutCode: undefined, openOnly: true });
-  const [signing, setSigning] = useState<Issue | undefined>(undefined);
+    const locks = useLocks({ layoutCode: undefined, openOnly: true });
+  const [signing, setSigning] = useState<{ issue: Issue; resume: string | undefined } | undefined>(undefined);
   const data = catalogue.data;
   const forms = (data?.items ?? []).filter((entry) => isMofForm(entry.code));
-  const copies = ((issues.data?.items ?? []) as Issue[]).filter((issue) => isMofForm(issue.layout_code));
+  const issues = useMofIssues(forms.map((entry) => entry.code));
+  const copies = issues.items.filter((issue) => isMofForm(issue.layout_code));
   const state = useScreenState({ isLoading: catalogue.isLoading, error: data === undefined ? catalogue.error : undefined, data: data === undefined ? undefined : forms, isEmpty: (value) => (value as unknown[]).length === 0 });
   const canSign = holds(permissions, 'rpt.sign');
 
@@ -214,7 +219,7 @@ function MofFormsContent({ route }: ScreenProps) {
     { key: 'revision', header: t('rpt.mof.col.revision'), render: (issue) => issue.revision },
     { key: 'hash', header: t('rpt.mof.col.hash'), render: (issue) => <HashLine sha={issue.sha256} /> },
     { key: 'when', header: t('rpt.mof.col.when'), render: (issue) => vietnamDateTime(issue.issued_at) },
-    { key: 'signature', header: t('rpt.mof.col.signature'), render: (issue) => <CopyRow issue={issue} canSign={canSign} onSign={setSigning} /> },
+    { key: 'signature', header: t('rpt.mof.col.signature'), render: (issue) => <CopyRow issue={issue} canSign={canSign} onSign={(issue, resume) => setSigning({ issue, resume })} /> },
     { key: 'lock', header: t('rpt.mof.col.lock'), render: (issue) => <CopyLock issueId={issue.id} /> },
   ];
 
@@ -231,7 +236,7 @@ function MofFormsContent({ route }: ScreenProps) {
       <ContextBar
         items={[{ label: t('rpt.mof.context.scope'), value: tenant?.name ?? '–' }]}
         {...(data === undefined ? {} : { asOf: vietnamDateTime(data.as_of) })}
-        stale={(catalogue.isError && data !== undefined) || (issues.isError && issues.data !== undefined)}
+        stale={(catalogue.isError && data !== undefined) || issues.refreshing}
       />
       {rule === undefined ? (
         <p className="callout" role="status" data-testid="rule-unknown">{locks.isError ? t('rpt.mof.rule.unreadable') : t('rpt.mof.rule.loading')}</p>
@@ -259,23 +264,27 @@ function MofFormsContent({ route }: ScreenProps) {
             <SectionCard title={t('rpt.mof.copies.title')}>
               {issues.isLoading ? (
                 <p className="callout" role="status">{t('rpt.mof.copies.loading')}</p>
-              ) : issues.isError ? (
+              ) : issues.failed && copies.length === 0 ? (
                 <p className="callout warning" role="alert" data-testid="copies-error">
                   {t('rpt.mof.copies.error')}{' '}
                   <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void issues.refetch()}>
                     {t('rpt.mof.copies.retry')}
                   </button>
                 </p>
-              ) : copies.length === 0 ? (
+              ) : copies.length === 0 && !issues.truncated ? (
                 <p className="callout" data-testid="copies-empty">{t('rpt.mof.copies.empty')}</p>
               ) : (
-                <DataTable caption={t('rpt.mof.copies.caption')} columns={copyColumns} rows={copies} rowKey={(issue) => issue.id} />
+                <>
+                  {copies.length > 0 ? <DataTable caption={t('rpt.mof.copies.caption')} columns={copyColumns} rows={copies} rowKey={(issue) => issue.id} /> : null}
+                  {issues.truncated ? <p className="callout warning" role="status" data-testid="copies-truncated">{t('rpt.mof.copies.truncated')}</p> : null}
+                  {issues.failed ? <p className="callout warning" role="alert" data-testid="copies-partial">{t('rpt.mof.copies.partial')}</p> : null}
+                </>
               )}
             </SectionCard>
           </>
         )}
       </StateBoundary>
-      {signing === undefined ? null : <SignDialog issue={signing} onClose={() => setSigning(undefined)} />}
+      {signing === undefined ? null : <SignDialog key={signing.issue.id} issue={signing.issue} resume={signing.resume} onClose={() => setSigning(undefined)} />}
       <p className="rpt-muted">
         <Link to="/rpt/rpt-06">{t('rpt.mof.link.locks')}</Link>
       </p>

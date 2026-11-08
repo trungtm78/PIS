@@ -35,12 +35,13 @@ interface World {
   facts?: unknown;
   certificates?: unknown;
 }
-const world = (w: World = {}) => (op: string): unknown => {
+const world = (w: World = {}) => (op: string, input?: unknown): unknown => {
   switch (op) {
     case 'listReportCatalogue':
       return w.forms ?? catalogue(FORMS);
     case 'listReportIssues':
-      return w.issues ?? page([copy]);
+      // The list is cut by layout on the server: a form gets only its own copies.
+      return w.issues ?? ((input as { query?: { layout_code?: string } } | undefined)?.query?.layout_code === copy.layout_code ? page([copy]) : page([]));
     case 'listReportPeriodLocks':
       return w.locks ?? lockPage();
     case 'getReportSignature':
@@ -181,6 +182,63 @@ describe('RPT-05, the forms for the Ministry of Finance', () => {
     cleanup();
     open({ forms: problem('SCOPE_DENIED', 403) });
     expect(await screen.findByText(word('states.denied.title'))).toBeTruthy();
+  });
+
+  it('asks for the copies of each form of the Ministry by itself, so no form is pushed out of a page by the others', async () => {
+    const yearly = issue(32, { layout_code: 'MOF-DIS-YEARLY', period_code: '2025', sha256: sha('1') });
+    const h = open({ issues: undefined }, undefined);
+    await screen.findByTestId(`copy-${copy.id}`);
+    for (const code of ['MOF-DIS-WEEKLY', 'MOF-DIS-MONTHLY', 'MOF-DIS-QUARTERLY', 'MOF-DIS-YEARLY']) {
+      expect(h.read).toHaveBeenCalledWith('listReportIssues', expect.objectContaining({ query: expect.objectContaining({ layout_code: code, heads_only: true }) }));
+    }
+    cleanup();
+    const second = harness((op, input) => (op === 'listReportIssues' ? ((input as { query: { layout_code: string } }).query.layout_code === 'MOF-DIS-YEARLY' ? page([yearly]) : page([])) : world()(op, input)));
+    mount(<MofFormsScreen route={route} />, second, { permissions: SIGNER });
+    expect(await screen.findByTestId(`copy-${yearly.id}`)).toBeTruthy();
+  });
+
+  it('never says that no copy was issued when the list is cut: it says the list is not complete', async () => {
+    open({ issues: { ...page([]), truncated: true } });
+    expect((await screen.findByTestId('copies-truncated')).textContent).toBe(word('rpt.mof.copies.truncated'));
+    expect(screen.queryByTestId('copies-empty')).toBeNull();
+    cleanup();
+    const cut = harness((op, input) => (op === 'listReportIssues' ? ((input as { query: { layout_code: string } }).query.layout_code === copy.layout_code ? { ...page([copy]), truncated: true } : page([])) : world()(op, input)));
+    mount(<MofFormsScreen route={route} />, cut, { permissions: SIGNER });
+    expect(await screen.findByTestId(`copy-${copy.id}`)).toBeTruthy();
+    expect(await screen.findByTestId('copies-truncated')).toBeTruthy();
+  });
+
+  it('offers to resume a signing that is open, goes on to complete it and does not start another', async () => {
+    const session = uuid(91);
+    const h = open({ facts: facts({ open_session_id: session }) }, () => ({ operation_id: 'o', status: 'SIGNED', resource_version: 1, resource_id: copy.id }));
+    expect(await screen.findByText(word('rpt.lock.signature.inProgress'))).toBeTruthy();
+    expect(screen.queryByTestId(`sign-${copy.id}`)).toBeNull();
+    fireEvent.click(await screen.findByTestId(`resume-${copy.id}`));
+    expect((await screen.findByTestId('sign-waiting')).textContent).toBe(word('rpt.mof.sign.started'));
+    fireEvent.click(screen.getByRole('button', { name: word('rpt.mof.sign.complete') }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('completeReportSignature', expect.objectContaining({ path: { id: session } })));
+    expect(h.command).not.toHaveBeenCalledWith('startReportSignature', expect.anything());
+    await waitFor(() => expect(screen.queryByTestId('sign-waiting')).toBeNull());
+  });
+
+  it('hides the resume action from a person without the right to sign', async () => {
+    open({ facts: facts({ open_session_id: uuid(91) }) }, undefined, ['rpt.read']);
+    await screen.findByText(word('rpt.lock.signature.inProgress'));
+    expect(screen.queryByTestId(`resume-${copy.id}`)).toBeNull();
+  });
+
+  it.each([
+    ['SIGNING_SESSION_EXPIRED', 409, 'rpt.lock.error.sessionExpired'],
+    ['REPORT_OUT_OF_DATE', 409, 'rpt.lock.error.outOfDate'],
+  ])('says %s in words when a resumed signing is completed, and lets the signer start again', async (code, status, key) => {
+    open({ facts: facts({ open_session_id: uuid(91) }) }, () => problem(code, status));
+    fireEvent.click(await screen.findByTestId(`resume-${copy.id}`));
+    await screen.findByTestId('sign-waiting');
+    fireEvent.click(screen.getByRole('button', { name: word('rpt.mof.sign.complete') }));
+    expect((await screen.findByRole('alert')).textContent).toContain(word(key));
+    // The session is gone from the dialog: the certificate is asked for again and a new signing can be started.
+    expect(await screen.findByTestId('sign-certificate')).toBeTruthy();
+    expect(screen.getByRole('button', { name: word('rpt.mof.sign.start') })).toBeTruthy();
   });
 
   it('says the rule could not be read when the person may not see period locks, and the copies could not be loaded on an error', async () => {
