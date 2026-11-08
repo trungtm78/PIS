@@ -888,6 +888,16 @@ export class HubStore {
     return { before, row: (await this.findReject(tx, id)) as HubRejectRow };
   }
 
+  /** The lineage of a record that a reprocess loaded (the run is the one that rejected it); a record is kept once per run. */
+  async addLineage(tx: TenantTx, code: string, pipelineCode: string, runId: string, entry: { sourceRef: string; key: string; targetRef: string | null; status: 'APPLIED' | 'DUPLICATE'; mappingVersion: string; layoutVersion: string; batchSha256: string }): Promise<boolean> {
+    const inserted = await tx.query(
+      `insert into machvon.hub_lineage (tenant_id, id, connector_code, pipeline_code, run_id, source_ref, record_key, target_ref, status, mapping_version, layout_version, batch_sha256)
+       values (${TENANT}, gen_random_uuid(), $1, $2, $3::uuid, $4, $5, $6, $7, $8, $9, $10) on conflict (tenant_id, run_id, source_ref) do nothing returning id`,
+      [code, pipelineCode, runId, entry.sourceRef, entry.key, entry.targetRef, entry.status, entry.mappingVersion, entry.layoutVersion, entry.batchSha256],
+    );
+    return inserted.length > 0;
+  }
+
   async openRejectCount(tx: TenantTx, code: string): Promise<number> {
     return Number((await tx.query<{ n: string }>("select count(*)::text as n from machvon.hub_pipeline_reject where connector_code = $1 and state = 'OPEN'", [code]))[0]?.n ?? 0);
   }

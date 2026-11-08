@@ -11632,5 +11632,74 @@
     "platform": "web",
     "req": "FR-LLM-27",
     "source": "AI.07, HT.01; eng-review R5, KT.02; lane AI-2"
+  },
+  {
+    "id": "HUB-01",
+    "module": "HUB",
+    "moduleName": "Trung tâm tích hợp dữ liệu",
+    "title": "Danh mục bộ kết nối và sức khỏe tích hợp",
+    "kind": "table",
+    "fields": [
+      "Mã và tên bộ kết nối",
+      "Hướng (vào, ra, hai chiều)",
+      "Giao thức",
+      "Trạng thái sức khỏe",
+      "Độ mới và tuổi dữ liệu",
+      "Lần chạy gần nhất",
+      "Trạng thái chờ bên ngoài",
+      "Bộ chỉ tiêu sức khỏe (tỷ lệ khỏe, tuổi cũ nhất, lỗi 7 ngày, chênh lệch tồn đọng, ánh xạ chờ duyệt)",
+      "Quét sức khỏe"
+    ],
+    "role": "Quản trị tích hợp, lãnh đạo (xem)",
+    "rule": "Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-HUB-01",
+    "source": "Yêu cầu chủ đầu tư 2026-11-08: xem như xây hệ Integration Hub"
+  },
+  {
+    "id": "HUB-02",
+    "module": "HUB",
+    "moduleName": "Trung tâm tích hợp dữ liệu",
+    "title": "Chi tiết bộ kết nối",
+    "kind": "detail",
+    "fields": [
+      "Tổng quan và công tắc bật tắt",
+      "Lịch sử chạy",
+      "Quy trình ETL (trích xuất, kiểm tra, biến đổi, nạp), bản ghi bị loại, lịch chạy",
+      "Ánh xạ và phiên bản",
+      "Chênh lệch",
+      "Tài khoản và tác tử thu thập",
+      "Mẫu tệp và chính sách độ mới",
+      "Liên kết tới màn hình riêng của bộ kết nối"
+    ],
+    "role": "Quản trị tích hợp",
+    "rule": "Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-HUB-02",
+    "source": "Yêu cầu chủ đầu tư 2026-11-08: giao thức kết nối và thu thập dữ liệu như ETL"
+  },
+  {
+    "id": "HUB-03",
+    "module": "HUB",
+    "moduleName": "Trung tâm tích hợp dữ liệu",
+    "title": "Nhật ký sự cố tích hợp",
+    "kind": "table",
+    "fields": [
+      "Bộ kết nối",
+      "Loại sự cố (lỗi, cũ, cũ toàn trung tâm, người báo)",
+      "Mức",
+      "Trạng thái",
+      "Thời điểm mở",
+      "Người nhận xử lý",
+      "Lý do đóng"
+    ],
+    "role": "Quản trị tích hợp",
+    "rule": "Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-HUB-03",
+    "source": "Yêu cầu chủ đầu tư 2026-11-08: xem như xây hệ Integration Hub"
   }
 ]

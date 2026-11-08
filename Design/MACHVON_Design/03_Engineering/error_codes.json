@@ -6360,6 +6360,94 @@
       "module": "LLM",
       "statusBasis": "spec",
       "source": "spec:LLM"
+    },
+    "HUB_INCIDENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Incident is not in a state that allows this step",
+      "meaning": "Sự cố không ở trạng thái cho phép bước này",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_MAPPING_VERSION_TAKEN": {
+      "status": 409,
+      "title": "Mapping version already exists",
+      "meaning": "Phiên bản ánh xạ đã tồn tại cho quy trình này",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_MAPPING_STATE_INVALID": {
+      "status": 409,
+      "title": "Mapping is not in a state that allows this decision",
+      "meaning": "Phiên bản ánh xạ không còn ở trạng thái chờ quyết định",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_MAPPING_NOT_APPROVED": {
+      "status": 409,
+      "title": "The mapping has not been approved by another person",
+      "meaning": "Ánh xạ chưa được người khác phê duyệt nên chưa được chạy",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_REJECT_STATE_INVALID": {
+      "status": 409,
+      "title": "Reject is already closed",
+      "meaning": "Bản ghi bị loại đã được xử lý xong",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_AGENT_CODE_TAKEN": {
+      "status": 409,
+      "title": "Collector agent code is already registered",
+      "meaning": "Mã tác tử thu thập đã được đăng ký",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_AGENT_RETIRED": {
+      "status": 409,
+      "title": "Collector agent is retired",
+      "meaning": "Tác tử thu thập đã ngừng sử dụng",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_PIPELINE_NOT_WIRED": {
+      "status": 409,
+      "title": "No executor is wired for this pipeline",
+      "meaning": "Quy trình chưa được nối với bộ thực thi nên chưa xử lý lại được",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_PROTOCOL_UNAVAILABLE": {
+      "status": 503,
+      "title": "Protocol adapter is not available",
+      "meaning": "Bộ chuyển giao thức chưa dùng được: chưa có ngoại lệ ra mạng được duyệt hoặc chưa có bộ chuyển",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "HUB_MANIFEST_INVALID": {
+      "status": 422,
+      "title": "Manifest file is malformed",
+      "meaning": "Tệp kê khai (manifest) sai định dạng",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
+    },
+    "WEBHOOK_SIGNATURE_INVALID": {
+      "status": 401,
+      "title": "Webhook signature or time is invalid",
+      "meaning": "Chữ ký hoặc thời điểm của lời gọi webhook không hợp lệ",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
     }
   }
 }

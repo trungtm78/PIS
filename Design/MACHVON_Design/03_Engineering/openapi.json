@@ -179428,6 +179428,2322 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/integration-hub/connectors": {
+      "get": {
+        "operationId": "listHubConnectors",
+        "summary": "Danh mục bộ kết nối của Trung tâm tích hợp dữ liệu kèm sức khỏe, độ mới và tuổi dữ liệu (HUB-01)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubConnectorList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      }
+    },
+    "/integration-hub/connectors/{code}": {
+      "get": {
+        "operationId": "getHubConnector",
+        "summary": "Chi tiết một bộ kết nối: tổng quan, giao thức, mẫu tệp và chính sách, quy trình ETL, ánh xạ, tác tử thu thập, lịch sử bật tắt (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubConnectorDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      }
+    },
+    "/integration-hub/connectors/{code}/runs": {
+      "get": {
+        "operationId": "listHubConnectorRuns",
+        "summary": "Lịch sử chạy của một bộ kết nối, gộp các lần nhập tệp và nhật ký chạy của trung tâm (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubRunPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      },
+      "post": {
+        "operationId": "recordHubRun",
+        "summary": "Ghi một lần chạy do bộ kết nối hoặc tài khoản máy báo về trung tâm (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.run.record",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubRunRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.run.recorded.v1"
+        ]
+      }
+    },
+    "/integration-hub/connectors/{code}/rejects": {
+      "get": {
+        "operationId": "listHubRejects",
+        "summary": "Danh sách bản ghi bị loại của các quy trình ETL của một bộ kết nối, kèm lý do (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubRejectPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      }
+    },
+    "/integration-hub/incidents": {
+      "get": {
+        "operationId": "listHubIncidents",
+        "summary": "Nhật ký sự cố của các bộ kết nối (HUB-03)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connector_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubIncidentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      },
+      "post": {
+        "operationId": "openHubIncident",
+        "summary": "Người dùng báo một sự cố của bộ kết nối (HUB-03)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.incident.manage",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubIncidentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.incident.opened.v1"
+        ]
+      }
+    },
+    "/integration-hub/health": {
+      "get": {
+        "operationId": "getHubHealthSummary",
+        "summary": "Bộ chỉ tiêu sức khỏe của trung tâm tích hợp: tỷ lệ bộ kết nối khỏe, tuổi dữ liệu cũ nhất, lần chạy lỗi, chênh lệch tồn đọng, ánh xạ chờ duyệt (HUB-01)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubHealthSummary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      }
+    },
+    "/integration-hub/agents": {
+      "get": {
+        "operationId": "listHubAgents",
+        "summary": "Tác tử thu thập đã đăng ký: nền tảng, phiên bản, nhịp tim, độ sâu hàng đợi (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.read",
+        "parameters": [
+          {
+            "name": "connector_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubAgentList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ]
+      },
+      "post": {
+        "operationId": "registerHubAgent",
+        "summary": "Đăng ký một tác tử thu thập: nền tảng hệ điều hành và kiến trúc CPU, phiên bản, các bộ kết nối phục vụ (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.agent.manage",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubAgentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "HUB_AGENT_CODE_TAKEN"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.agent.registered.v1"
+        ]
+      }
+    },
+    "/integration-hub/connectors/{code}/state": {
+      "post": {
+        "operationId": "setHubConnectorState",
+        "summary": "Bật hoặc tắt một bộ kết nối kèm lý do, chuyển cho lệnh riêng của bộ kết nối khi có (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.state.manage",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubConnectorStateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.connector.state_changed.v1"
+        ]
+      }
+    },
+    "/integration-hub/incidents/{id}/decision": {
+      "post": {
+        "operationId": "decideHubIncident",
+        "summary": "Nhận xử lý hoặc đóng một sự cố kèm lý do (HUB-03)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.incident.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubIncidentDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "VERSION_CONFLICT",
+          "HUB_INCIDENT_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.incident.acknowledged.v1",
+          "hub.incident.resolved.v1"
+        ]
+      }
+    },
+    "/integration-hub/snapshots": {
+      "post": {
+        "operationId": "captureHubSnapshot",
+        "summary": "Quét sức khỏe toàn trung tâm: chụp số liệu theo giờ và mở hoặc đóng sự cố tự động (HUB-01)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.snapshot.capture",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubSnapshotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HubSnapshotResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "GOVERNANCE_RULE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.snapshot.captured.v1",
+          "hub.incident.opened.v1",
+          "hub.incident.auto_resolved.v1"
+        ]
+      }
+    },
+    "/integration-hub/connectors/{code}/mappings": {
+      "post": {
+        "operationId": "proposeHubMapping",
+        "summary": "Đề xuất một phiên bản ánh xạ trường của quy trình ETL (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.mapping.propose",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubMappingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "HUB_MAPPING_VERSION_TAKEN"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.mapping.proposed.v1"
+        ]
+      }
+    },
+    "/integration-hub/mappings/{id}/decision": {
+      "post": {
+        "operationId": "decideHubMapping",
+        "summary": "Phê duyệt hoặc từ chối phiên bản ánh xạ do người khác đề xuất (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.mapping.approve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubMappingDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "HUB_MAPPING_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.mapping.approved.v1",
+          "hub.mapping.rejected.v1"
+        ]
+      }
+    },
+    "/integration-hub/rejects/{id}/decision": {
+      "post": {
+        "operationId": "decideHubReject",
+        "summary": "Xử lý lại hoặc bỏ một bản ghi bị loại kèm lý do (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.reject.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubRejectDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "VERSION_CONFLICT",
+          "HUB_REJECT_STATE_INVALID",
+          "HUB_PIPELINE_NOT_WIRED",
+          "HUB_MAPPING_NOT_APPROVED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.reject.reprocessed.v1",
+          "hub.reject.discarded.v1"
+        ]
+      }
+    },
+    "/integration-hub/agents/{code}/heartbeat": {
+      "post": {
+        "operationId": "heartbeatHubAgent",
+        "summary": "Tác tử thu thập báo nhịp tim, phiên bản và độ sâu hàng đợi (HUB-02)",
+        "tags": [
+          "HUB"
+        ],
+        "x-permission": "hub.agent.heartbeat",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 60
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HubAgentHeartbeat"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "HUB_AGENT_RETIRED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "hub.agent.heartbeat.v1"
+        ]
+      }
     }
   },
   "components": {
@@ -235279,6 +237595,2002 @@
             "type": "boolean"
           }
         }
+      },
+      "HubAlert": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "severity"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "URGENT",
+              "ACTION",
+              "WATCH"
+            ]
+          }
+        }
+      },
+      "HubScreenLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "route"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          }
+        }
+      },
+      "HubConnectorSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "direction",
+          "protocols",
+          "planned_protocols",
+          "acceptance",
+          "status",
+          "freshness",
+          "age_hours",
+          "enabled",
+          "last_success_at",
+          "last_run_at",
+          "last_run_outcome",
+          "alert",
+          "figures_blocked",
+          "failed_runs_7d",
+          "discrepancy_backlog",
+          "pending_mappings",
+          "consumers",
+          "owner_role",
+          "egress_policy",
+          "screens"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "INBOUND",
+              "OUTBOUND",
+              "BOTH"
+            ]
+          },
+          "protocols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "planned_protocols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "acceptance": {
+            "type": "string",
+            "enum": [
+              "PENDING_EXTERNAL",
+              "ACCEPTED",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "HEALTHY",
+              "STALE",
+              "FAILING",
+              "DISABLED",
+              "PENDING_EXTERNAL",
+              "NEVER_RUN"
+            ]
+          },
+          "freshness": {
+            "type": "string",
+            "enum": [
+              "FRESH",
+              "AGING",
+              "STALE",
+              "UNKNOWN"
+            ]
+          },
+          "age_hours": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "last_success_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_run_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_run_outcome": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "SUCCEEDED",
+              "PARTIAL",
+              "FAILED",
+              "RUNNING",
+              "SKIPPED",
+              null
+            ]
+          },
+          "alert": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HubAlert"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "figures_blocked": {
+            "type": "boolean"
+          },
+          "failed_runs_7d": {
+            "type": "integer"
+          },
+          "discrepancy_backlog": {
+            "type": "integer"
+          },
+          "pending_mappings": {
+            "type": "integer"
+          },
+          "consumers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "owner_role": {
+            "type": "string"
+          },
+          "egress_policy": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "DECLARED"
+            ]
+          },
+          "screens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubScreenLink"
+            }
+          }
+        }
+      },
+      "HubSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "total",
+          "monitored",
+          "healthy",
+          "counts",
+          "healthy_percent",
+          "oldest_data_age_hours",
+          "oldest_data_connector",
+          "failed_runs_7d",
+          "discrepancy_backlog",
+          "pending_mappings",
+          "hub_alert"
+        ],
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "monitored": {
+            "type": "integer"
+          },
+          "healthy": {
+            "type": "integer"
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "HEALTHY",
+              "STALE",
+              "FAILING",
+              "DISABLED",
+              "PENDING_EXTERNAL",
+              "NEVER_RUN"
+            ],
+            "properties": {
+              "HEALTHY": {
+                "type": "integer"
+              },
+              "STALE": {
+                "type": "integer"
+              },
+              "FAILING": {
+                "type": "integer"
+              },
+              "DISABLED": {
+                "type": "integer"
+              },
+              "PENDING_EXTERNAL": {
+                "type": "integer"
+              },
+              "NEVER_RUN": {
+                "type": "integer"
+              }
+            }
+          },
+          "healthy_percent": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "oldest_data_age_hours": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "oldest_data_connector": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "failed_runs_7d": {
+            "type": "integer"
+          },
+          "discrepancy_backlog": {
+            "type": "integer"
+          },
+          "pending_mappings": {
+            "type": "integer"
+          },
+          "hub_alert": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HubAlert"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "HubConnectorList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "summary",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubConnectorSummary"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/HubSummary"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubKpi": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "formula",
+          "numerator",
+          "denominator",
+          "exclusions",
+          "source",
+          "owner",
+          "unit",
+          "decimals",
+          "value",
+          "as_of",
+          "unverified",
+          "rule_version"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "numerator": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "denominator": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exclusions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "decimals": {
+            "type": "integer"
+          },
+          "value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "unverified": {
+            "type": "boolean"
+          },
+          "rule_version": {
+            "type": "integer"
+          }
+        }
+      },
+      "HubTrendPoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "at",
+          "status",
+          "age_hours",
+          "failed_runs_7d",
+          "discrepancy_backlog",
+          "pending_mappings",
+          "summary"
+        ],
+        "properties": {
+          "at": {
+            "type": "string"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "age_hours": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "failed_runs_7d": {
+            "type": "integer"
+          },
+          "discrepancy_backlog": {
+            "type": "integer"
+          },
+          "pending_mappings": {
+            "type": "integer"
+          },
+          "summary": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "HubPolicyView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "failing_after_runs",
+          "failing_severity",
+          "hub_stale_ratio_percent",
+          "hub_stale_min_connectors",
+          "hub_stale_severity",
+          "incident_auto_open",
+          "snapshot_retention_days",
+          "agent_stale_after_minutes",
+          "source",
+          "unverified"
+        ],
+        "properties": {
+          "failing_after_runs": {
+            "type": "integer"
+          },
+          "failing_severity": {
+            "type": "string",
+            "enum": [
+              "URGENT",
+              "ACTION",
+              "WATCH"
+            ]
+          },
+          "hub_stale_ratio_percent": {
+            "type": "integer"
+          },
+          "hub_stale_min_connectors": {
+            "type": "integer"
+          },
+          "hub_stale_severity": {
+            "type": "string",
+            "enum": [
+              "URGENT",
+              "ACTION",
+              "WATCH"
+            ]
+          },
+          "incident_auto_open": {
+            "type": "boolean"
+          },
+          "snapshot_retention_days": {
+            "type": "integer"
+          },
+          "agent_stale_after_minutes": {
+            "type": "integer"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT"
+            ]
+          },
+          "unverified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HubHealthSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "summary",
+          "kpis",
+          "trend",
+          "policy",
+          "as_of"
+        ],
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/HubSummary"
+          },
+          "kpis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubKpi"
+            }
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubTrendPoint"
+            }
+          },
+          "policy": {
+            "$ref": "#/components/schemas/HubPolicyView"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubLayout": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "version",
+          "acceptance",
+          "pending"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "acceptance": {
+            "type": "string",
+            "enum": [
+              "PENDING_EXTERNAL",
+              "ACCEPTED",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "pending": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HubFreshnessRule": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_code",
+          "source",
+          "version",
+          "unverified",
+          "formula",
+          "source_text",
+          "as_of",
+          "max_age_hours",
+          "warn_after_hours",
+          "stale_severity",
+          "figures_blocked_when_stale"
+        ],
+        "properties": {
+          "rule_code": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT",
+              "DESCRIPTOR"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "unverified": {
+            "type": "boolean"
+          },
+          "formula": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "max_age_hours": {
+            "type": "integer"
+          },
+          "warn_after_hours": {
+            "type": "integer"
+          },
+          "stale_severity": {
+            "type": "string",
+            "enum": [
+              "URGENT",
+              "ACTION",
+              "WATCH"
+            ]
+          },
+          "figures_blocked_when_stale": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HubProtocolView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "status",
+          "egress",
+          "auth",
+          "tls",
+          "signature",
+          "implementation",
+          "retry",
+          "delivery",
+          "formats"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "PLANNED"
+            ]
+          },
+          "egress": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "ALLOWLISTED_HOST",
+              "CUSTOMER_NETWORK"
+            ]
+          },
+          "auth": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tls": {
+            "type": "string",
+            "enum": [
+              "REQUIRED",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "signature": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "OPTIONAL",
+              "REQUIRED"
+            ]
+          },
+          "implementation": {
+            "type": "string",
+            "enum": [
+              "END_TO_END",
+              "PORT_ONLY"
+            ]
+          },
+          "retry": {
+            "type": "string"
+          },
+          "delivery": {
+            "type": "string"
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HubAlertType": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "owner",
+          "expected_action",
+          "consequence",
+          "response_hours",
+          "default_severity"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expected_action": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "consequence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "response_hours": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "default_severity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "HubPipelineSchedule": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "hours",
+          "at",
+          "working_days_only",
+          "backfill_window_days",
+          "max_concurrency",
+          "rate_per_minute",
+          "next_run_at"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "EVERY_HOURS",
+              "DAILY"
+            ]
+          },
+          "hours": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "working_days_only": {
+            "type": "boolean"
+          },
+          "backfill_window_days": {
+            "type": "integer"
+          },
+          "max_concurrency": {
+            "type": "integer"
+          },
+          "rate_per_minute": {
+            "type": "integer"
+          },
+          "next_run_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "HubPipelineView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "protocol",
+          "mode",
+          "layout_code",
+          "layout_version",
+          "target",
+          "stages",
+          "schedule",
+          "watermark",
+          "approved_mapping_version",
+          "pending_mapping_proposals",
+          "open_rejects",
+          "last_run"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "protocol": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "INCREMENTAL",
+              "FULL_SNAPSHOT",
+              "CHANGE_FEED"
+            ]
+          },
+          "layout_code": {
+            "type": "string"
+          },
+          "layout_version": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "EXTRACT",
+                "VALIDATE",
+                "TRANSFORM",
+                "LOAD"
+              ]
+            }
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/HubPipelineSchedule"
+          },
+          "watermark": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approved_mapping_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pending_mapping_proposals": {
+            "type": "integer"
+          },
+          "open_rejects": {
+            "type": "integer"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HubRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "HubRun": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "origin",
+          "kind",
+          "outcome",
+          "started_at",
+          "finished_at",
+          "layout_version",
+          "position",
+          "pipeline_code",
+          "rows_total",
+          "rows_applied",
+          "rows_rejected",
+          "error_code",
+          "source_ref",
+          "dry_run",
+          "stage_counts"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "FILE_IMPORT",
+              "HUB"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "SUCCEEDED",
+              "PARTIAL",
+              "FAILED",
+              "RUNNING",
+              "SKIPPED"
+            ]
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "layout_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "position": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pipeline_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rows_total": {
+            "type": "integer"
+          },
+          "rows_applied": {
+            "type": "integer"
+          },
+          "rows_rejected": {
+            "type": "integer"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "stage_counts": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "HubRunPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubRun"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubMapping": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "pipeline_code",
+          "mapping_version",
+          "fields",
+          "state",
+          "proposed_by",
+          "proposed_at",
+          "decided_by",
+          "decided_at",
+          "decision_reason",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pipeline_code": {
+            "type": "string"
+          },
+          "mapping_version": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "PROPOSED",
+              "APPROVED",
+              "REJECTED",
+              "RETIRED"
+            ]
+          },
+          "proposed_by": {
+            "type": "string"
+          },
+          "proposed_at": {
+            "type": "string"
+          },
+          "decided_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decision_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "HubAgent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "agent_code",
+          "os",
+          "cpu_arch",
+          "platform",
+          "agent_version",
+          "connectors",
+          "spool_depth",
+          "last_heartbeat_at",
+          "state",
+          "health",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "agent_code": {
+            "type": "string"
+          },
+          "os": {
+            "type": "string"
+          },
+          "cpu_arch": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "agent_version": {
+            "type": "string"
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "spool_depth": {
+            "type": "integer"
+          },
+          "last_heartbeat_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "RETIRED"
+            ]
+          },
+          "health": {
+            "type": "string",
+            "enum": [
+              "ONLINE",
+              "STALE",
+              "NEVER_SEEN",
+              "RETIRED"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "HubAgentList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "stale_after_minutes",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubAgent"
+            }
+          },
+          "stale_after_minutes": {
+            "type": "integer"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubStateEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "action",
+          "reason",
+          "actor_id",
+          "version",
+          "occurred_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "occurred_at": {
+            "type": "string"
+          }
+        }
+      },
+      "HubConnectorDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "summary",
+          "state",
+          "layouts",
+          "freshness_rule",
+          "protocol_details",
+          "credentials",
+          "egress",
+          "alert_types",
+          "pipelines",
+          "mappings",
+          "agents",
+          "state_events",
+          "trend",
+          "open_incidents",
+          "as_of"
+        ],
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/HubConnectorSummary"
+          },
+          "state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "enabled",
+              "version",
+              "reason",
+              "changed_at",
+              "owner"
+            ],
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "version": {
+                "type": "integer"
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "changed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "owner": {
+                "type": "string",
+                "enum": [
+                  "CONNECTOR",
+                  "HUB"
+                ]
+              }
+            }
+          },
+          "layouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubLayout"
+            }
+          },
+          "freshness_rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HubFreshnessRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "protocol_details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubProtocolView"
+            }
+          },
+          "credentials": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "scopes",
+              "secret_store"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "NONE",
+                  "VAULT_REFERENCE",
+                  "MACHINE_ACCOUNT"
+                ]
+              },
+              "scopes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "secret_store": {
+                "type": "string"
+              }
+            }
+          },
+          "egress": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "policy",
+              "hosts",
+              "reason"
+            ],
+            "properties": {
+              "policy": {
+                "type": "string",
+                "enum": [
+                  "NONE",
+                  "DECLARED"
+                ]
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "alert_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubAlertType"
+            }
+          },
+          "pipelines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubPipelineView"
+            }
+          },
+          "mappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubMapping"
+            }
+          },
+          "agents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubAgent"
+            }
+          },
+          "state_events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubStateEvent"
+            }
+          },
+          "trend": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubTrendPoint"
+            }
+          },
+          "open_incidents": {
+            "type": "integer"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubIncident": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "connector_code",
+          "kind",
+          "severity",
+          "state",
+          "summary",
+          "opened_by",
+          "opened_at",
+          "acknowledged_by",
+          "acknowledged_at",
+          "resolved_by",
+          "resolved_at",
+          "resolution",
+          "version",
+          "alert"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "connector_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "FAILING",
+              "STALE",
+              "HUB_STALE",
+              "MANUAL"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "URGENT",
+              "ACTION",
+              "WATCH"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "ACKNOWLEDGED",
+              "RESOLVED"
+            ]
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "opened_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "opened_at": {
+            "type": "string"
+          },
+          "acknowledged_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "acknowledged_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolution": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "alert": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HubAlertType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "HubIncidentPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubIncident"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubReject": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "pipeline_code",
+          "run_id",
+          "stage",
+          "reject_code",
+          "field",
+          "source_ref",
+          "record_key",
+          "line",
+          "record",
+          "state",
+          "resolved_by",
+          "resolved_at",
+          "resolution",
+          "version",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pipeline_code": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "VALIDATE",
+              "TRANSFORM",
+              "LOAD"
+            ]
+          },
+          "reject_code": {
+            "type": "string"
+          },
+          "field": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_ref": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "record": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "REPROCESSED",
+              "DISCARDED"
+            ]
+          },
+          "resolved_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolution": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "HubRejectPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "open_count",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HubReject"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "open_count": {
+            "type": "integer"
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "HubConnectorStateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enabled",
+          "reason"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000,
+            "description": "Why the connector is switched on or off; kept in the history"
+          }
+        }
+      },
+      "HubRunRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "outcome",
+          "started_at"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "PULL",
+              "PUSH",
+              "GENERATE",
+              "READ",
+              "CHECK"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "SUCCEEDED",
+              "PARTIAL",
+              "FAILED",
+              "RUNNING",
+              "SKIPPED"
+            ]
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "finished_at": {
+            "type": "string"
+          },
+          "layout_code": {
+            "type": "string"
+          },
+          "layout_version": {
+            "type": "string"
+          },
+          "rows_total": {
+            "type": "integer"
+          },
+          "rows_applied": {
+            "type": "integer"
+          },
+          "rows_rejected": {
+            "type": "integer"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "source_ref": {
+            "type": "string"
+          }
+        }
+      },
+      "HubIncidentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connector_code",
+          "summary"
+        ],
+        "properties": {
+          "connector_code": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "URGENT",
+              "ACTION",
+              "WATCH"
+            ]
+          }
+        }
+      },
+      "HubIncidentDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ACKNOWLEDGE",
+              "RESOLVE"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      },
+      "HubSnapshotResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "bucket",
+          "snapshots_written",
+          "incidents_opened",
+          "incidents_auto_resolved",
+          "summary"
+        ],
+        "properties": {
+          "bucket": {
+            "type": "string"
+          },
+          "snapshots_written": {
+            "type": "integer"
+          },
+          "incidents_opened": {
+            "type": "integer"
+          },
+          "incidents_auto_resolved": {
+            "type": "integer"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/HubSummary"
+          }
+        }
+      },
+      "HubMappingRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pipeline_code",
+          "mapping_version",
+          "fields"
+        ],
+        "properties": {
+          "pipeline_code": {
+            "type": "string"
+          },
+          "mapping_version": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      },
+      "HubMappingDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      },
+      "HubRejectDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "REPROCESS",
+              "DISCARD"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          },
+          "corrections": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "HubAgentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "agent_code",
+          "os",
+          "cpu_arch",
+          "agent_version",
+          "connectors"
+        ],
+        "properties": {
+          "agent_code": {
+            "type": "string"
+          },
+          "os": {
+            "type": "string",
+            "enum": [
+              "linux",
+              "windows",
+              "darwin",
+              "freebsd",
+              "other"
+            ]
+          },
+          "cpu_arch": {
+            "type": "string",
+            "enum": [
+              "amd64",
+              "arm64",
+              "arm",
+              "386",
+              "riscv64",
+              "ppc64le",
+              "s390x",
+              "other"
+            ]
+          },
+          "agent_version": {
+            "type": "string"
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HubAgentHeartbeat": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "agent_version",
+          "spool_depth"
+        ],
+        "properties": {
+          "agent_version": {
+            "type": "string"
+          },
+          "spool_depth": {
+            "type": "integer"
+          }
+        }
+      },
+      "HubSnapshotRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
       }
     }
   }
