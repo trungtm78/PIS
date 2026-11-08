@@ -63,7 +63,7 @@ export function parseLoudnorm(log) {
  * and the sum normalised to the loudness target. Inputs: 0 video, 1..N narration files, N+1 the music (when there is one).
  * `video` false makes an audio-only graph (the first pass that measures the loudness).
  */
-export function buildFilterGraph({ narration, totalMs, music, spec = loadSpec(), measured, subtitlesFile, fontsDir }) {
+export function buildFilterGraph({ narration, totalMs, music, spec = loadSpec(), measured, subtitlesFile, fontsDir, barInput, barY = 944 }) {
   const sr = spec.audio.sampleRate;
   const lines = [];
   narration.forEach((item, index) => lines.push(`[${index + 1}:a]aformat=sample_rates=${sr}:channel_layouts=stereo,adelay=${Math.round(item.startMs)}:all=1[v${index}]`));
@@ -81,7 +81,12 @@ export function buildFilterGraph({ narration, totalMs, music, spec = loadSpec(),
     lines.push('[voice]anull[premix]');
   }
   lines.push(`[premix]${loudnormFilter(spec, measured)},aresample=${sr}[aout]`);
-  if (subtitlesFile !== undefined) {
+  if (barInput !== undefined) {
+    // The subtitle bar: pictures of dark rounded bars (compose/render.mjs) laid over the film at the time of each cue; the soft subtitle track stays.
+    lines.push(`[0:v]fps=${spec.video.fps},scale=${spec.video.width}:${spec.video.height}:force_original_aspect_ratio=decrease,pad=${spec.video.width}:${spec.video.height}:(ow-iw)/2:(oh-ih)/2[base]`);
+    lines.push(`[${barInput}:v]fps=${spec.video.fps},format=rgba[bar]`);
+    lines.push(`[base][bar]overlay=0:${barY}:format=auto:eof_action=pass[vout]`);
+  } else if (subtitlesFile !== undefined) {
     const v = spec.video;
     const parts = [`fps=${v.fps}`, `scale=${v.width}:${v.height}:force_original_aspect_ratio=decrease`, `pad=${v.width}:${v.height}:(ow-iw)/2:(oh-ih)/2`, `subtitles=filename=${filterPath(subtitlesFile)}:fontsdir=${filterPath(fontsDir)}:force_style='${subtitleStyle(spec)}'`];
     lines.push(`[0:v]${parts.join(',')}[vout]`);
@@ -90,14 +95,15 @@ export function buildFilterGraph({ narration, totalMs, music, spec = loadSpec(),
 }
 
 /** The ffmpeg arguments of the final mix (video with burned-in subtitles, mixed audio, a soft subtitle track too). `graphFile` holds the filter graph. */
-export function buildMixArgs({ video, narration, music, subtitlesSrt, graphFile, out, totalMs, spec = loadSpec(), passOne = false }) {
+export function buildMixArgs({ video, narration, music, bar, subtitlesSrt, graphFile, out, totalMs, spec = loadSpec(), passOne = false }) {
   const args = ['-hide_banner', '-loglevel', passOne ? 'info' : 'error', '-y', '-i', video];
   for (const item of narration) args.push('-i', item.file);
   if (music) args.push('-stream_loop', '-1', '-i', music);
+  if (bar && !passOne) args.push('-f', 'concat', '-safe', '0', '-i', bar);
   if (!passOne) args.push('-i', subtitlesSrt);
   args.push('-/filter_complex', graphFile, '-t', (totalMs / 1000).toFixed(3));
   if (passOne) return [...args, '-map', '[aout]', '-vn', '-f', 'null', '-'];
-  const subtitleInput = 1 + narration.length + (music ? 1 : 0);
+  const subtitleInput = 1 + narration.length + (music ? 1 : 0) + (bar ? 1 : 0);
   const a = spec.audio;
   const v = spec.video;
   return [
@@ -113,7 +119,7 @@ export function buildMixArgs({ video, narration, music, subtitlesSrt, graphFile,
 const run = (args) => spawnSync(FFMPEG, args, { encoding: 'utf8', maxBuffer: 1 << 28 });
 
 /** The whole mix: measures the loudness, mixes with the exact normalisation, writes the sidecar subtitles and a small record of what was done. */
-export function mix({ video, timeline, audio, music, out, spec = loadSpec(), runner = run, log = console.log }) {
+export function mix({ video, timeline, audio, music, bar, out, spec = loadSpec(), runner = run, log = console.log }) {
   const totalMs = timeline.totalMs;
   const narration = timeline.scenes.map((scene) => {
     const file = audio[scene.id]?.wav;
@@ -127,9 +133,10 @@ export function mix({ video, timeline, audio, music, out, spec = loadSpec(), run
   writeFileSync(`${stem}.srt`, formatSrt(cues));
   writeFileSync(`${stem}.vtt`, formatVtt(cues));
   const fontsDir = isAbsolute(spec.subtitles.fontDir) ? spec.subtitles.fontDir : join(REPO_ROOT, spec.subtitles.fontDir);
-  const graphInput = { narration, totalMs, music, spec, subtitlesFile: `${stem}.srt`, fontsDir };
+  const barInput = bar === undefined ? undefined : 1 + narration.length + (music ? 1 : 0);
+  const graphInput = { narration, totalMs, music, spec, subtitlesFile: `${stem}.srt`, fontsDir, barInput };
   const graphOne = `${stem}.pass1.graph`;
-  writeFileSync(graphOne, buildFilterGraph({ ...graphInput, subtitlesFile: undefined }));
+  writeFileSync(graphOne, buildFilterGraph({ ...graphInput, subtitlesFile: undefined, barInput: undefined }));
   log('loudness pass');
   const first = runner(buildMixArgs({ video, narration, music, graphFile: graphOne, out, totalMs, spec, passOne: true }));
   if (first.status !== 0) throw new Error(`ffmpeg failed in the loudness pass: ${(first.stderr ?? '').split('\n').slice(-6).join(' ')}`);
@@ -137,7 +144,7 @@ export function mix({ video, timeline, audio, music, out, spec = loadSpec(), run
   const graphTwo = `${stem}.graph`;
   writeFileSync(graphTwo, buildFilterGraph({ ...graphInput, measured }));
   log('mix pass');
-  const second = runner(buildMixArgs({ video, narration, music, subtitlesSrt: `${stem}.srt`, graphFile: graphTwo, out, totalMs, spec }));
+  const second = runner(buildMixArgs({ video, narration, music, bar, subtitlesSrt: `${stem}.srt`, graphFile: graphTwo, out, totalMs, spec }));
   if (second.status !== 0) throw new Error(`ffmpeg failed in the mix pass: ${(second.stderr ?? '').split('\n').slice(-6).join(' ')}`);
   writeFileSync(`${stem}.clip.json`, `${JSON.stringify({ file: basename(out), burnedInSubtitles: true, softSubtitleTrack: true, sidecars: [basename(`${stem}.srt`), basename(`${stem}.vtt`)], music: music === undefined ? null : basename(music), measuredBefore: measured, durationSec: totalMs / 1000 }, null, 2)}\n`);
   return { out, measured };
@@ -154,11 +161,12 @@ function main(argv) {
     return done.status ?? 1;
   }
   if (video === undefined || timelinePath === undefined || audioPath === undefined || out === undefined) {
-    console.error('usage: node scripts/clips/mix.mjs --video <screen-video.mp4> --timeline <clip.cut.timeline.json> --audio <clip.audio.json> [--music <any audio file>] --out <final.mp4>');
+    console.error('usage: node scripts/clips/mix.mjs --video <screen-video.mp4> --timeline <clip.cut.timeline.json> --audio <clip.audio.json> [--music <any audio file>] [--bar <subtitle bar concat list>] --out <final.mp4>');
     return 2;
   }
   try {
-    const result = mix({ video, timeline: readJson(timelinePath), audio: JSON.parse(readFileSync(audioPath, 'utf8')).scenes, music: argument(argv, 'music'), out });
+    const bar = argument(argv, 'bar');
+    const result = mix({ video, timeline: readJson(timelinePath), audio: JSON.parse(readFileSync(audioPath, 'utf8')).scenes, music: argument(argv, 'music'), bar: bar !== undefined && existsSync(bar) ? bar : undefined, out });
     console.log(`written ${result.out}`);
     return 0;
   } catch (error) {
