@@ -66,7 +66,7 @@ async function seedArea(): Promise<string> {
 async function project(status: string): Promise<string> {
   counter += 1;
   const code = `G11-${counter}-${randomUUID().slice(0, 6)}`;
-  const created = await as((tx) => projects.create(tx, { code, name: `Project ${code}`, ownerUnitId: unitId(PROVINCE), areaMasterVersionId: areaVersion, totalInvestmentVnd: '500000000000' }, memberId(ACTOR)));
+  const created = await as((tx) => projects.create(tx, { code, name: `Project ${code}`, ownerUnitId: unitId(PROVINCE), areaMasterVersionId: areaVersion, totalInvestmentVnd: '500000000000' }, memberId(ACTOR), TODAY));
   await owner('update machvon.project set status = $2, project_group = $3, national_project_code = $4 where id = $1::uuid', [created.id, status, 'B', String(8000000 + counter)]);
   return created.id;
 }
