@@ -19,8 +19,8 @@ Branch `lane/ca3`, worktree `D:\PIS-ca3`. Migrations only in the free tail of bl
 - [x] api: the six reports on the report endpoint and its export, rating commands and reads, contract, authz, isolation cases
 - [x] web: report codes in the hub, record filters, related links, CTR-32 with the steps, i18n parts, tests
 - [x] docs (`docs/ctr-analytics-registers.md`), design rows
-- [ ] gates: API agreement test, isolation, command-conformance, outbox, dis-report, lint, typecheck
-- [ ] Codex review with dispositions
+- [x] own gates: kernel (34 new + related), registers API test 13/13, e-GP posting store 16/16, web analytics and routes 117/117, tsc of kernel, db, api and web, eslint of the lane files; shared suites (isolation, conformance, outbox, dis report, authz matrix) are run once by the lead on the merged tree
+- [x] Codex review: 2 findings, both valid and fixed with regression tests (ledger masking of the proposal reads; timeliness by the receipt day)
 
 ## Not done, on purpose
 
