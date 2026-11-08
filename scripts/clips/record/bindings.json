@@ -25,6 +25,24 @@
       "css:[role='dialog'] textarea",
       "css:[role='dialog'] input[type='text']",
       "css:[data-screen-id] textarea"
+    ],
+    "pwa.install.button": [
+      "css:[data-action='install']",
+      "role:button:Cài đặt ứng dụng|Cài đặt"
+    ],
+    "pwa.approvals.queue": [
+      "css:[data-screen-id='PWA-02'] ul",
+      "css:[data-screen-id='PWA-02'] section",
+      "css:[data-screen-id='PWA-02']"
+    ],
+    "pwa.dashboard.cards": [
+      "css:[data-screen-id='PWA-03'] section",
+      "css:[data-screen-id='PWA-03']"
+    ],
+    "pwa.directives.list": [
+      "css:[data-screen-id='PWA-04'] ul",
+      "css:[data-screen-id='PWA-04'] section",
+      "css:[data-screen-id='PWA-04']"
     ]
   },
   "tails": {

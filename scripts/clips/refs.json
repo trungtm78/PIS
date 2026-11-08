@@ -658,6 +658,22 @@
       "screen": "PRJ-16",
       "what": "risk / before after score (prj)"
     },
+    "pwa.approvals.queue": {
+      "screen": "PWA-02",
+      "what": "approvals / queue (pwa)"
+    },
+    "pwa.dashboard.cards": {
+      "screen": "PWA-03",
+      "what": "dashboard / cards (pwa)"
+    },
+    "pwa.directives.list": {
+      "screen": "PWA-04",
+      "what": "directives / list (pwa)"
+    },
+    "pwa.install.button": {
+      "screen": "PWA-01",
+      "what": "install / button of the install card (pwa)"
+    },
     "rpt.forms.demo-stamp": {
       "screen": "RPT-01",
       "what": "forms / demo stamp (rpt)"

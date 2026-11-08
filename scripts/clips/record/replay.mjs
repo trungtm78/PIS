@@ -233,6 +233,20 @@ export class ReplayUi extends Ui {
     await entry.click({ timeout: 4000 });
   }
 
+  /** Sends the event a Chromium browser sends when the application can be installed (a headless browser never does), so that the install button of the page shows. */
+  async fireInstallPrompt() {
+    await this.page.evaluate(() => {
+      const event = new globalThis.Event('beforeinstallprompt', { cancelable: true });
+      event.prompt = () => {
+        globalThis.setTimeout(() => globalThis.dispatchEvent(new globalThis.Event('appinstalled')), 900);
+        return Promise.resolve();
+      };
+      event.userChoice = Promise.resolve({ outcome: 'accepted' });
+      globalThis.dispatchEvent(event);
+    });
+    await this.page.waitForTimeout(500);
+  }
+
   /** What is on the screen now that should not be: see readScreenProblems. */
   async screenProblems() {
     return this.page.evaluate(readScreenProblems);
@@ -313,7 +327,7 @@ export async function replayStep(ui, step, { typed = {}, table = bindings(), avo
         avoid.push(found.box);
       }
     }
-    return finish(record(step, 'replayed', { via, fallback: source.includes('region') && !source.includes('ref') }));
+    return finish(record(step, 'replayed', { via, fallback: source.includes('region') && !source.includes('ref'), ...(step.do === 'spot' ? { box: found.box, startedAt: began } : {}) }));
   } catch (error) {
     const reason = String(error instanceof Error ? error.message : error).split('\n')[0].slice(0, 160);
     log(`  warning: step ${step.do} ${step.ref ?? ''} skipped: ${reason}`);
