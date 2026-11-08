@@ -98,8 +98,8 @@ export function createBiReaderChannel(options: BiReaderChannelOptions): Isolatio
         return { status: 200, body: JSON.stringify({ items: [{ answered: true }] }) };
       } catch (error) {
         const code = (error as { code?: string }).code;
-        // 42501 is "permission denied": the login was never granted it.
-        return { status: code === '42501' ? 403 : 500, body: JSON.stringify({ code }) };
+        // 42501 is "permission denied": the login was never granted it; 25006 is the read-only transaction every BI login runs in, which refuses a write before it asks for a right.
+        return { status: code === '42501' || code === '25006' ? 403 : 500, body: JSON.stringify({ code }) };
       }
     });
   }
