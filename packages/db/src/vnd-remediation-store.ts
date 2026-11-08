@@ -219,7 +219,7 @@ export class VendorRemediationStore {
 
   private async event(tx: TenantTx, plan: { id: string; contractorId: string }, actionId: string | null, move: string, from: string | null, to: string, actor: string, note: string | null): Promise<void> {
     await tx.query(
-      `insert into machvon.contractor_remediation_event (tenant_id, id, plan_id, contractor_id, action_id, move, from_status, to_status, actor_id, note) values (${TENANT}, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6, $7, $8::uuid, $9)`,
+      `insert into machvon.contractor_remediation_event (tenant_id, id, plan_id, contractor_id, action_id, move, from_status, to_status, actor_id, note, at) values (${TENANT}, $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6, $7, $8::uuid, $9, clock_timestamp())`,
       [randomUUID(), plan.id, plan.contractorId, actionId, move, from, to, actor, note],
     );
   }

@@ -221,7 +221,7 @@ export class VendorPortalStore {
 
   private async event(tx: TenantTx, request: { id: string; contractorId: string }, move: string, from: string | null, to: string, actor: string, note: string | null): Promise<void> {
     await tx.query(
-      `insert into machvon.contractor_portal_request_event (tenant_id, id, request_id, contractor_id, move, from_status, to_status, actor_id, note) values (${TENANT}, $1::uuid, $2::uuid, $3::uuid, $4, $5, $6, $7::uuid, $8)`,
+      `insert into machvon.contractor_portal_request_event (tenant_id, id, request_id, contractor_id, move, from_status, to_status, actor_id, note, at) values (${TENANT}, $1::uuid, $2::uuid, $3::uuid, $4, $5, $6, $7::uuid, $8, clock_timestamp())`,
       [randomUUID(), request.id, request.contractorId, move, from, to, actor, note],
     );
   }
