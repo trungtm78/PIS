@@ -104,7 +104,7 @@ const emptyScreens = new Set();
 const isEmptySelection = (text) => text.length < 700 && EMPTY_SELECTION.test(text);
 
 /** The internal links of the page now open (same origin, no query noise kept except what the app wrote). */
-const hrefsOf = (page) => page.$eval('[data-screen-id] a[href]', (anchors) => [...new Set(anchors.map((anchor) => anchor.getAttribute('href')))].filter((href) => href.startsWith('/')));
+const hrefsOf = (page) => page.$$eval('[data-screen-id] a[href]', (anchors) => [...new Set(anchors.map((anchor) => anchor.getAttribute('href')))].filter((href) => href.startsWith('/')));
 
 /**
  * A detail screen opened with no record says "choose one": find a link of another screen that opens it with a record (the app writes the id in the link) and
@@ -124,6 +124,7 @@ async function findContext(ui, page, target, persona, hints, log) {
     loads += 1;
     await ui.goto(path, persona).catch(() => undefined);
     await page.waitForTimeout(1800);
+    log(`  scanning ${path} for ${target}`);
     const links = await hrefsOf(page).catch(() => []);
     for (const href of links) if (/[?]([a-z_]+)=/u.test(href) && queries.length < 6) queries.push(href.slice(href.indexOf('?')));
     const hit = links.find((href) => href.startsWith(`${prefix}?`));
@@ -182,13 +183,10 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
     for (let index = 0; index < views.length; index += 1) {
       const view = views[index];
       const viewStart = Date.now();
-      await ui.goto(ROUTES[view.screen], view.persona);
-      const empty = isEmptySelection(await page.locator('[data-screen-id]').first().innerText().catch(() => ''));
-      if (empty) {
-        const address = contextLinks.get(view.screen);
-        if (address !== undefined) await ui.goto(address, view.persona);
-        else problems.push(`${view.screen}: no record to open it with`);
-      }
+      const address = contextLinks.get(view.screen) ?? ROUTES[view.screen];
+      // The same person goes on inside the application (no reload, so no blank picture between two screens); another person needs a new session.
+      if (index > 0 && views[index - 1].persona === view.persona) await ui.within(address, view.screen);
+      else await ui.goto(address, view.persona);
       if (index === 0) contentAt = Date.now() - started;
       const alert = await page.locator('[role="alert"]').first().textContent({ timeout: 500 }).catch(() => null);
       if (alert !== null && alert.trim() !== '') problems.push(`${view.screen}: ${alert.trim().slice(0, 80)}`);

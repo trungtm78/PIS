@@ -67,6 +67,17 @@ export class Ui {
     await this.wait(700);
   }
 
+  /** Goes to another screen of the application without loading it again (the router listens to the history), and waits until that screen has drawn. */
+  async within(path, screenId) {
+    await this.page.evaluate((target) => {
+      globalThis.history.pushState({}, '', target);
+      globalThis.dispatchEvent(new globalThis.PopStateEvent('popstate'));
+    }, path);
+    await this.page.waitForFunction((id) => globalThis.document.querySelector('[data-screen-id]')?.getAttribute('data-screen-id') === id, screenId, { timeout: 30_000 });
+    await this.page.waitForFunction(() => globalThis.document.querySelector('[aria-busy="true"]') === null, undefined, { timeout: 15_000 }).catch(() => undefined);
+    await this.wait(700);
+  }
+
   async point(locator) {
     await locator.scrollIntoViewIfNeeded();
     const box = await locator.boundingBox();

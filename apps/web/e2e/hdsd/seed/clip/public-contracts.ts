@@ -63,7 +63,17 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
     version = Number(existing.version);
   }
   if (spec.code === ADVANCE_PACKAGE) {
-    await ctx.attempt(MAKER, 'POST', `/contracts/${id}/parties`, { parties: [{ contractor_id: String(winner.id), role: 'LEAD', share_pct: '100', work_value_vnd: valueVnd }] }, { version });
+    // A joint venture has a lead and at least one more member: the runner-up of the tender is the partner (70 and 30 per cent of the work).
+    const partner = contractors.get(spec.bidders?.[1] ?? -1);
+    const leadValue = String(Math.round(Number(valueVnd) * 0.7));
+    const parties =
+      partner === undefined
+        ? [{ contractor_id: String(winner.id), role: 'LEAD', share_pct: '100', work_value_vnd: valueVnd }]
+        : [
+            { contractor_id: String(winner.id), role: 'LEAD', share_pct: '70', work_value_vnd: leadValue },
+            { contractor_id: String(partner.id), role: 'MEMBER', share_pct: '30', work_value_vnd: String(Number(valueVnd) - Number(leadValue)) },
+          ];
+    await ctx.attempt(MAKER, 'POST', `/contracts/${id}/parties`, { parties }, { version });
     version = Number((await ctx.get<Obj>(MAKER, `/resources/contract/${id}`)).version);
   }
   // The bill of quantities: one line that adds up to the value of the contract.
