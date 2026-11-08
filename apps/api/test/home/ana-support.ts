@@ -103,7 +103,7 @@ export function createAnaFixture(family: number, initialNow: Date): AnaFixture {
         return json.has(name) || (typeof value === 'object' && value !== null && !Array.isArray(value)) ? JSON.stringify(value) : value;
       });
       if (options.replica === true) await client.query('set session_replication_role = replica');
-      await client.query(`insert into machvon.${table} (${names.map((name) => `"${name}"`).join(', ')}) values (${names.map((_, index) => `${index + 1}`).join(', ')})`, params);
+      await client.query(`insert into machvon.${table} (${names.map((name) => `"${name}"`).join(', ')}) values (${names.map((_, index) => `$${index + 1}`).join(', ')})`, params);
       if (options.replica === true) await client.query('set session_replication_role = default');
     });
     return rowId;

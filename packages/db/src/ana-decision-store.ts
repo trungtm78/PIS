@@ -35,7 +35,7 @@ export interface NewDecision {
   decidedBy: string;
 }
 
-export interface DecisionRow {
+export interface AnalyticsDecisionRow {
   id: string;
   subjectKind: DecisionSubjectKind;
   metricCode: string | null;
@@ -122,7 +122,7 @@ const FROM = `machvon.analytics_decision d
   left join lateral (select o.outcome from machvon.analytics_decision_outcome o where o.tenant_id = d.tenant_id and o.decision_id = d.id order by o.created_at desc, o.id desc limit 1) lo on true
   left join lateral (select count(*) as n from machvon.analytics_decision_outcome o where o.tenant_id = d.tenant_id and o.decision_id = d.id) oc on true`;
 
-const toRow = (row: Sql): DecisionRow => ({
+const toRow = (row: Sql): AnalyticsDecisionRow => ({
   id: row.id,
   subjectKind: row.subject_kind,
   metricCode: row.metric_code,
@@ -203,13 +203,13 @@ export class AnaDecisionStore {
     };
   }
 
-  async find(tx: TenantTx, id: string, unitScope: ScopeBuilder, membershipId: string, wholeTenant: boolean): Promise<DecisionRow | undefined> {
+  async find(tx: TenantTx, id: string, unitScope: ScopeBuilder, membershipId: string, wholeTenant: boolean): Promise<AnalyticsDecisionRow | undefined> {
     const visible = this.visible(unitScope, membershipId, wholeTenant, 2);
     const [row] = await tx.query<Sql>(`select ${COLUMNS} from ${FROM} where d.id = $1::uuid and ${visible.sql}`, [id, ...visible.params]);
     return row === undefined ? undefined : toRow(row);
   }
 
-  async list(tx: TenantTx, filter: DecisionFilter, unitScope: ScopeBuilder, membershipId: string, wholeTenant: boolean, today: string): Promise<{ rows: DecisionRow[]; nextCursor: string | null }> {
+  async list(tx: TenantTx, filter: DecisionFilter, unitScope: ScopeBuilder, membershipId: string, wholeTenant: boolean, today: string): Promise<{ rows: AnalyticsDecisionRow[]; nextCursor: string | null }> {
     const visible = this.visible(unitScope, membershipId, wholeTenant, 12);
     const [cursorAt, cursorId] = filter.cursor === undefined ? [null, null] : filter.cursor.split('|');
     const rows = await tx.query<Sql>(

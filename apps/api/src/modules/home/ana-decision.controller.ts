@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE, HomeWorkStore, TenantDatabase } from '@machvon/db';
-import type { DecisionRow, OutcomeRow, TenantTx } from '@machvon/db';
+import type { AnalyticsDecisionRow, OutcomeRow, TenantTx } from '@machvon/db';
 import { DECISION_SUBJECT_KINDS, DomainError, checkDecision, checkOutcome, compareFigure, figuresDigest, followUpState, vietnamDateOf } from '@machvon/kernel';
 import type { DecisionDraft, DecisionSubjectKind, EffectiveAccess, FigureFact, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -37,7 +37,7 @@ const tileFact = (figure: Figure): Record<string, unknown> => ({
   flags: figure.flags,
 });
 
-function decisionView(row: DecisionRow, today: string): Record<string, unknown> {
+function decisionView(row: AnalyticsDecisionRow, today: string): Record<string, unknown> {
   const tile = row.subjectKind === 'KPI_TILE' ? (row.figures.figure as Record<string, unknown> | undefined) : undefined;
   return {
     id: row.id,

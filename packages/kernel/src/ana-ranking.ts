@@ -152,7 +152,7 @@ export interface MetricReading {
   underComplaint: boolean;
 }
 export type RankedNullReason = 'TOO_FEW_METRICS';
-export interface RankedUnit {
+export interface MultiRankedUnit {
   unitId: string;
   code: string;
   name: string;
@@ -218,7 +218,7 @@ export function pairOf(ratePct: number | null, rateReason: MetricNullReason | nu
 }
 
 export interface RankingResult {
-  units: RankedUnit[];
+  units: MultiRankedUnit[];
   bands: Array<{ code: string; units: number; thin: boolean }>;
 }
 
@@ -246,7 +246,7 @@ export function rankMultiMetric(model: RankingModel, units: readonly UnitMeasure
       lines.set(key, held === undefined ? { low: reading.value, high: reading.value } : { low: Math.min(held.low, reading.value), high: Math.max(held.high, reading.value) });
     }
   }
-  const ranked: RankedUnit[] = raw.map((one) => {
+  const ranked: MultiRankedUnit[] = raw.map((one) => {
     const metrics: MetricReading[] = one.readings.map((reading) => {
       const excluded = reading.value !== null && taken(one.unit.unitId, reading.rule.code) ? ('ANNOTATION' as const) : null;
       let score: number | null = null;

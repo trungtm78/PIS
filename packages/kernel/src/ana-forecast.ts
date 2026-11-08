@@ -21,7 +21,7 @@ export interface ForecastParams {
   attentionBelowPct: number;
 }
 
-export interface SeriesPoint {
+export interface OutlookPoint {
   /** The day the figure is as of (`YYYY-MM-DD`). */
   asOfDate: string;
   /** The Treasury disbursement of the year to that day, whole dong. */
@@ -94,8 +94,8 @@ export interface Outlook {
 
 export interface OutlookInput {
   planTotalVnd: string | null;
-  points: readonly SeriesPoint[];
-  priorPoints: readonly SeriesPoint[];
+  points: readonly OutlookPoint[];
+  priorPoints: readonly OutlookPoint[];
   planYearEnd: string;
   params: ForecastParams;
 }
@@ -121,8 +121,8 @@ function divRound(numerator: bigint, denominator: bigint): bigint {
   return negative ? -quotient : quotient;
 }
 
-const sortedDistinct = (points: readonly SeriesPoint[]): SeriesPoint[] => {
-  const byDay = new Map<string, SeriesPoint>();
+const sortedDistinct = (points: readonly OutlookPoint[]): OutlookPoint[] => {
+  const byDay = new Map<string, OutlookPoint>();
   for (const point of points) byDay.set(point.asOfDate, point);
   return [...byDay.values()].sort((left, right) => left.asOfDate.localeCompare(right.asOfDate));
 };
@@ -131,7 +131,7 @@ const sortedDistinct = (points: readonly SeriesPoint[]): SeriesPoint[] => {
  * The cumulative of a series on a day by straight-line interpolation between the two points around it; 1 January of the year has 0 (the year to date figure starts the year at 0). Null when the day
  * is after the last point or before 1 January of its year.
  */
-export function cumulativeAt(points: readonly SeriesPoint[], day: string): bigint | null {
+export function cumulativeAt(points: readonly OutlookPoint[], day: string): bigint | null {
   const year = day.slice(0, 4);
   const start = `${year}-01-01`;
   if (day < start) return null;
@@ -171,12 +171,12 @@ function ratiosOf(band: Band | null, plan: bigint | null): BandRatios | null {
 const noNeed = (nullReason: ForecastNullReason): NeededPerWeek => ({ status: 'NA', nullReason, remainingVnd: null, remainingDays: null, perWeekVnd: null, speedVnd: null, multiple: null, multipleNullReason: null });
 
 /** Whether the series of the year before can carry a seasonal reading: it must reach its own year end. */
-function priorUsable(prior: readonly SeriesPoint[], currentAsOf: string): SeasonalNullReason | null {
+function priorUsable(prior: readonly OutlookPoint[], currentAsOf: string): SeasonalNullReason | null {
   if (prior.length === 0) return 'NO_PRIOR_YEAR';
   const priorYear = Number(sameDayLastYear(currentAsOf).slice(0, 4));
   const inYear = prior.filter((point) => point.asOfDate.startsWith(`${priorYear}-`));
   if (inYear.length === 0) return 'NO_PRIOR_YEAR';
-  const last = inYear[inYear.length - 1] as SeriesPoint;
+  const last = inYear[inYear.length - 1] as OutlookPoint;
   return last.asOfDate >= `${priorYear}-12-31` || prior.some((point) => point.asOfDate > `${priorYear}-12-31`) ? null : 'PRIOR_YEAR_TOO_SHORT';
 }
 
@@ -221,7 +221,7 @@ export function outlookOf(input: OutlookInput): Outlook {
   const skipped: Outlook['skipped'] = [];
   for (let weeks = params.windowMinWeeks; weeks <= params.windowMaxWeeks; weeks += 1) {
     const wanted = dayAfter(last.asOfDate, -7 * weeks);
-    let start: SeriesPoint | undefined;
+    let start: OutlookPoint | undefined;
     for (const point of points) {
       const gap = Math.abs(days(point.asOfDate, wanted));
       if (point !== last && gap <= params.pointToleranceDays && (start === undefined || gap < Math.abs(days(start.asOfDate, wanted)))) start = point;

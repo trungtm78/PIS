@@ -1,11 +1,11 @@
 import { cumulativeAt, neededOf, outlookOf, sameDayLastYear } from '../src/ana-forecast';
-import type { ForecastParams, OutlookInput, SeriesPoint } from '../src/ana-forecast';
+import type { ForecastParams, OutlookInput, OutlookPoint } from '../src/ana-forecast';
 
 const M = 1_000_000;
 const params: ForecastParams = { windowMinWeeks: 4, windowMaxWeeks: 8, central: 'MEDIAN', seasonality: true, pointToleranceDays: 3, attentionBelowPct: 90 };
-const point = (asOfDate: string, millions: number): SeriesPoint => ({ asOfDate, cumulativeVnd: String(millions * M) });
+const point = (asOfDate: string, millions: number): OutlookPoint => ({ asOfDate, cumulativeVnd: String(millions * M) });
 const weeks = ['2027-09-05', '2027-09-12', '2027-09-19', '2027-09-26', '2027-10-03', '2027-10-10', '2027-10-17', '2027-10-24', '2027-10-31'];
-const series = (values: number[]): SeriesPoint[] => values.map((value, index) => point(weeks[index] as string, value));
+const series = (values: number[]): OutlookPoint[] => values.map((value, index) => point(weeks[index] as string, value));
 const STEADY = series([400, 410, 420, 430, 440, 450, 460, 470, 480]);
 const ACCELERATING = series([400, 405, 410, 415, 425, 435, 450, 470, 490]);
 const PRIOR = [point('2026-09-05', 300), point('2026-10-03', 380), point('2026-10-31', 460), point('2026-12-31', 1000)];
@@ -101,7 +101,7 @@ describe('the year-end outlook of the disbursement (G3-5)', () => {
   });
 
   it('uses the same answer whatever the order or duplicates of the points', () => {
-    const shuffled = [...STEADY].reverse().concat(STEADY[3] as SeriesPoint);
+    const shuffled = [...STEADY].reverse().concat(STEADY[3] as OutlookPoint);
     expect(outlookOf(input({ points: shuffled }))).toEqual(outlookOf(input()));
   });
 

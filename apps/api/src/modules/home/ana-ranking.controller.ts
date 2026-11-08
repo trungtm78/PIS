@@ -20,7 +20,7 @@ import {
   rankMultiMetric,
   vietnamDateOf,
 } from '@machvon/kernel';
-import type { ComplaintStatus, EffectiveAccess, RankedUnit, TenantContext } from '@machvon/kernel';
+import type { ComplaintStatus, EffectiveAccess, MultiRankedUnit, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -38,7 +38,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 const LIST_MAX = 100;
 const EVERYTHING: ScopeBuilder = () => ({ sql: 'true', params: [] });
 
-const unitView = (unit: RankedUnit): Record<string, unknown> => ({
+const unitView = (unit: MultiRankedUnit): Record<string, unknown> => ({
   unit_id: unit.unitId,
   code: unit.code,
   name: unit.name,

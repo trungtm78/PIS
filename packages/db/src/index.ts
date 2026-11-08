@@ -1669,6 +1669,7 @@ export type { AssistReadScopes, ReadableSource } from './ai-assist-source-store.
 export { LlmExternalExceptionStore } from './llm-external-exception-store.ts';
 export type { AiExceptionFilter, ExceptionRow, ExceptionUseRow } from './llm-external-exception-store.ts';
 export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
+=======
 export { CtrMoneyStore, EVM_SELECTION_CAP } from './ctr-money-store.ts';
 export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from './ctr-money-store.ts';
 // RPT-1, part 2: the report engine's layouts, files, drafts, issued copies and delivery log.
@@ -1798,13 +1799,15 @@ export { LESSON_RESOURCE, LESSON_WAIVER_RESOURCE, PrjLessonsStore } from './prj-
 export type { LessonRow, LessonsPolicyReading, LessonsView, WaiverRow as LessonWaiverRow } from './prj-lessons-store.ts';
 =======
 export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
+=======
+export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
 // FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
 export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore } from './fnd-figure-store.ts';
 export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
 export { AnaOutlookStore } from './ana-outlook-store.ts';
 export type { OutlookPlanBasis, OutlookPolicy, OutlookSeries } from './ana-outlook-store.ts';
 export { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE } from './ana-decision-store.ts';
-export type { DecisionFilter, DecisionPolicyReading, DecisionRow, NewDecision, OutcomeRow } from './ana-decision-store.ts';
+export type { AnalyticsDecisionRow, DecisionFilter, DecisionPolicyReading, NewDecision, OutcomeRow } from './ana-decision-store.ts';
 export { AnaTrustStore } from './ana-trust-store.ts';
 export type { DatasetTrust, ModuleScore, TrustPolicyInfo, UnitScore } from './ana-trust-store.ts';
 export { ANNOTATION_RESOURCE, AnaRankingStore, COMPLAINT_RESOURCE } from './ana-ranking-store.ts';

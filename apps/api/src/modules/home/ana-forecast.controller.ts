@@ -2,7 +2,7 @@ import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
 import { AnaOutlookStore, AnalyticsGovernanceStore, HomeStore, TenantDatabase, projectScope } from '@machvon/db';
 import type { OutlookSeries } from '@machvon/db';
 import { DomainError, FORECAST_RULE_TYPE, describeRuleType, leaderGate, vietnamDateOf } from '@machvon/kernel';
-import type { EffectiveAccess, Outlook, SeriesPoint, TenantContext } from '@machvon/kernel';
+import type { EffectiveAccess, Outlook, OutlookPoint, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -57,7 +57,7 @@ export function outlookView(outlook: Outlook, projects: number): Record<string, 
   };
 }
 
-const pointView = (point: SeriesPoint): Record<string, string> => ({ as_of_date: point.asOfDate, cumulative_vnd: point.cumulativeVnd });
+const pointView = (point: OutlookPoint): Record<string, string> => ({ as_of_date: point.asOfDate, cumulative_vnd: point.cumulativeVnd });
 
 /**
  * The year-end outlook of the disbursement (G3-5, BI and DIS): the weekly cumulative of the frozen snapshots of the year in the scope of the reader, the band from the speed of the last 4 to 8 weeks, the seasonal

@@ -1,5 +1,5 @@
 import { FORECAST_RULE_CODE, FORECAST_RULE_TYPE, forecastParamsOf, outlookOf } from '@machvon/kernel';
-import type { ForecastParams, Outlook, ResolvedGovernanceRule, SeriesPoint } from '@machvon/kernel';
+import type { ForecastParams, Outlook, ResolvedGovernanceRule, OutlookPoint } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { policyVersionOf } from './home-work-policy.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -13,7 +13,7 @@ export interface OutlookSeries {
   fundSourceVersionId: string | null;
   fundCode: string | null;
   fundLabel: string | null;
-  points: SeriesPoint[];
+  points: OutlookPoint[];
   planTotalVnd: string | null;
   /** The snapshot the plan was read from (the latest of the series). */
   planSnapshotId: string | null;
@@ -114,7 +114,7 @@ export class AnaOutlookStore {
   }
 
   /** The outlook of a series (this year's points against the plan and the points of the year before). */
-  outlook(series: Pick<OutlookSeries, 'points' | 'planTotalVnd'>, prior: readonly SeriesPoint[], year: number, params: ForecastParams): Outlook {
+  outlook(series: Pick<OutlookSeries, 'points' | 'planTotalVnd'>, prior: readonly OutlookPoint[], year: number, params: ForecastParams): Outlook {
     return outlookOf({ planTotalVnd: series.planTotalVnd === null || BigInt(series.planTotalVnd) === 0n ? null : series.planTotalVnd, points: series.points, priorPoints: prior, planYearEnd: `${year}-12-31`, params });
   }
 }
