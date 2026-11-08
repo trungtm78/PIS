@@ -252264,7 +252264,9 @@
               "SETTLEMENT_CLOCK",
               "CONTRACT_ADJUSTMENT",
               "LOOK_AHEAD",
-              "LESSONS_LEARNED"
+              "LESSONS_LEARNED",
+              "PROJECT_RISK",
+              "COMMITTEE"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -253633,7 +253635,9 @@
               "SETTLEMENT_CLOCK",
               "CONTRACT_ADJUSTMENT",
               "LOOK_AHEAD",
-              "LESSONS_LEARNED"
+              "LESSONS_LEARNED",
+              "PROJECT_RISK",
+              "COMMITTEE"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -253715,7 +253719,9 @@
               "SETTLEMENT_CLOCK",
               "CONTRACT_ADJUSTMENT",
               "LOOK_AHEAD",
-              "LESSONS_LEARNED"
+              "LESSONS_LEARNED",
+              "PROJECT_RISK",
+              "COMMITTEE"
             ],
             "description": "The kind of source the item comes from."
           },
