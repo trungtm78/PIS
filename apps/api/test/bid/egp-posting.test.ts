@@ -308,7 +308,7 @@ describe('the duties of posting to the national procurement network, the reconci
   });
 
   describe('the life of a duty: prepare, submit by another person, receipt', () => {
-    it('moves along the states with the audit row and the event of each move, refuses the same person twice and a stale version, takes the receipt once, and shows the figure "posted on time"', async () => {
+    it('UAT-PLAN-141: moves along the states with the audit row and the event of each move, refuses the same person twice and a stale version, takes the receipt once, and shows the figure "posted on time"', async () => {
       const subject = await seedPackage();
       const opened = await openNotice(subject.code, subject.projectCode, day(-1));
       const obligationId = opened.id as string;
@@ -461,7 +461,7 @@ describe('the duties of posting to the national procurement network, the reconci
       return { packageId: subject.packageId, code: subject.code, external };
     }
 
-    it('opens an item for each field that differs with an owner who is not a maker, once however often it runs, and the people who made the record cannot settle it', async () => {
+    it('UAT-PLAN-142: opens an item for each field that differs with an owner who is not a maker, once however often it runs, and the people who made the record cannot settle it', async () => {
       const one = await mapped('1000000000', '1200000000');
       const run = await call('POST', '/egp/reconciliation/run', { member: RECONCILER, body: { subject_type: 'PACKAGE' } });
       expect(run.status).toBe(200);

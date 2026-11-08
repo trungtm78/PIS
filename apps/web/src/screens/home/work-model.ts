@@ -44,6 +44,9 @@ export const WORK_KINDS = [
   'RESCHEDULE_COUNT',
   // The connection to the national procurement network is older than its rule allows (lane EGP-1).
   'CONNECTOR_STALE',
+  // The duties of posting to the national procurement network: one near its deadline, one past it (lane EGP-2).
+  'EGP_POSTING_DUE',
+  'EGP_POSTING_OVERDUE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
