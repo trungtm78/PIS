@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { GovernancePolicyPort } from '@machvon/db';
 import type { HubAgentRow, HubConnectorReading, HubIncidentRow, HubMappingRow, HubRejectRow, HubRunView, HubSnapshotRow, TenantTx } from '@machvon/db';
 import { connectorAlertTypes, connectorScreenRoute, nextRunAt, protocolDefinition } from '@machvon/kernel';
@@ -229,3 +230,9 @@ export function scheduleDto(spec: PipelineSpec, lastStartedAt: Date | null, now:
 }
 
 export const todayOf = (now: Date): string => vietnamDateOf(now);
+
+/** The id of a connector for the audit trail and the outbox, which key on a uuid: the same tenant and code always give the same id (a name-based uuid), and no other tenant gives it. */
+export function connectorResourceId(tenantId: string, code: string): string {
+  const hex = createHash('sha256').update(`hub_connector:${tenantId}:${code}`).digest('hex');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-5${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}

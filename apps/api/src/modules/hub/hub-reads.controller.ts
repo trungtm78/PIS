@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
+import { Controller, Get, Inject, Optional, Param, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { HubStore, TenantDatabase } from '@machvon/db';
 import type { HubRejectRow } from '@machvon/db';
@@ -10,6 +10,7 @@ import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
+import { HUB_CLOCK } from './tokens';
 import { agentDto, alertCodeOfIncident, alertTypeDto, alertTypesOf, connectorSummaryDto, incidentDto, mappingDto, policyDto, protocolViews, rejectDto, runDto, scheduleDto, summaryDto, trendDto } from './hub-view';
 
 const TREND_POINTS = 30;
@@ -36,8 +37,14 @@ function text(value: unknown, field: string, max = 100): string | undefined {
 @Controller()
 export class HubReadsController {
   private readonly hub = new HubStore();
+  private readonly clock: () => Date;
 
-  constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+  constructor(
+    @Inject(TenantDatabase) private readonly database: TenantDatabase,
+    @Optional() @Inject(HUB_CLOCK) clock?: () => Date,
+  ) {
+    this.clock = clock ?? ((): Date => new Date());
+  }
 
   private assertWhole(access: EffectiveAccess, permission: string): void {
     if (!holdsOnWholeTenant(access, permission)) throw new DomainError('SCOPE_DENIED', 403);
@@ -47,7 +54,7 @@ export class HubReadsController {
   @OperationId('listHubConnectors')
   async connectors(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess): Promise<Schemas['HubConnectorList']> {
     this.assertWhole(access, PERMISSIONS.listHubConnectors);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const { items, summary } = await this.hub.readings(tx, connectorDescriptors(), now);
       return { items: items.map(connectorSummaryDto), summary: summaryDto(summary), as_of: now.toISOString() };
@@ -59,7 +66,7 @@ export class HubReadsController {
   async connector(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('code') code: string): Promise<Schemas['HubConnectorDetail']> {
     this.assertWhole(access, PERMISSIONS.getHubConnector);
     const descriptor = descriptorOf(code);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const { policy } = await this.hub.policy(tx, now);
       const reading = await this.hub.reading(tx, descriptor, now, policy);
@@ -135,7 +142,7 @@ export class HubReadsController {
     this.assertWhole(access, PERMISSIONS.listHubConnectorRuns);
     const descriptor = descriptorOf(code);
     const page = parsePageRequest(query.limit, query.cursor);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const rows = await this.hub.listRuns(tx, descriptor, { limit: page.limit + 1, after: page.after === undefined ? undefined : { key: page.after.code, id: page.after.id } });
       const shown = rows.slice(0, page.limit);
@@ -152,7 +159,7 @@ export class HubReadsController {
     const state = text(query.state, 'state', 20);
     if (state !== undefined && !['OPEN', 'REPROCESSED', 'DISCARDED'].includes(state)) throw new DomainError('VALIDATION_FAILED', 422, 'state');
     const page = parsePageRequest(query.limit, query.cursor);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const rows = await this.hub.listRejects(tx, code, { state: state as HubRejectRow['state'] | undefined, limit: page.limit + 1, after: page.after === undefined ? undefined : { key: page.after.code, id: page.after.id } });
       const shown = rows.slice(0, page.limit);
@@ -174,7 +181,7 @@ export class HubReadsController {
     if (state !== undefined && !(INCIDENT_STATES as readonly string[]).includes(state)) throw new DomainError('VALIDATION_FAILED', 422, 'state');
     const connectorCode = text(query.connector_code, 'connector_code', 60);
     const page = parsePageRequest(query.limit, query.cursor);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const rows = await this.hub.listIncidents(tx, { state: state as IncidentState | undefined, connectorCode, limit: page.limit + 1, after: page.after === undefined ? undefined : { key: page.after.code, id: page.after.id } });
       const shown = rows.slice(0, page.limit);
@@ -192,7 +199,7 @@ export class HubReadsController {
   @OperationId('getHubHealthSummary')
   async health(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess): Promise<Schemas['HubHealthSummary']> {
     this.assertWhole(access, PERMISSIONS.getHubHealthSummary);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const { summary, policy } = await this.hub.readings(tx, connectorDescriptors(), now);
       const { rule } = await this.hub.policy(tx, now);
@@ -228,7 +235,7 @@ export class HubReadsController {
   async agents(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>): Promise<Schemas['HubAgentList']> {
     this.assertWhole(access, PERMISSIONS.listHubAgents);
     const connectorCode = text(query.connector_code, 'connector_code', 60);
-    const now = new Date();
+    const now = this.clock();
     return this.database.withTenant(tenant, async (tx) => {
       const { policy } = await this.hub.policy(tx, now);
       const rows = await this.hub.listAgents(tx, { connectorCode, now, staleAfterMinutes: policy.agentStaleAfterMinutes });

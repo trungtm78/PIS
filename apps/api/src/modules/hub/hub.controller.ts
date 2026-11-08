@@ -20,6 +20,7 @@ import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
+import { connectorResourceId } from './hub-view';
 import { HUB_CLOCK, HUB_PIPELINE_EXECUTORS } from './tokens';
 import type { HubPipelinePorts } from './tokens';
 
@@ -64,21 +65,21 @@ export class HubController {
     await scope.audit({
       action: 'hub.connector_switched',
       resourceType: 'hub_connector',
-      resourceId: code,
+      resourceId: connectorResourceId(scope.tenant.tenantId, code),
       classification: CLASSIFICATION,
       reason: done.after.reason ?? body.reason,
       diff: { connector_code: code, from_enabled: done.before.enabled, to_enabled: done.after.enabled, delegated_to_connector: done.delegated },
     });
     await scope.emit({
       aggregateType: 'hub_connector',
-      aggregateId: code,
+      aggregateId: connectorResourceId(scope.tenant.tenantId, code),
       aggregateVersion: done.after.version,
       type: 'hub.connector.state_changed.v1',
       schemaVersion: 1,
       payload: { tenant_id: scope.tenant.tenantId, connector_code: code, enabled: done.after.enabled, version: done.after.version, delegated: done.delegated, actor_id: scope.tenant.membershipId, occurred_at: this.clock().toISOString() },
       eventKey: `hub_connector:${code}:${done.after.version}:${done.after.enabled ? 'on' : 'off'}`,
     });
-    return commandResult(scope, done.after.enabled ? 'ENABLED' : 'DISABLED', done.after.version, code);
+    return commandResult(scope, done.after.enabled ? 'ENABLED' : 'DISABLED', done.after.version, connectorResourceId(scope.tenant.tenantId, code));
   }
 
   @Post('integration-hub/connectors/:code/runs')
@@ -196,7 +197,7 @@ export class HubController {
     await scope.audit({
       action: 'hub.snapshot_captured',
       resourceType: 'hub_snapshot',
-      resourceId: swept.bucket,
+      resourceId: scope.tenant.tenantId,
       classification: CLASSIFICATION,
       diff: { bucket: swept.bucket, snapshots_written: swept.snapshotsWritten, incidents_opened: swept.incidents.opened.length, incidents_auto_resolved: swept.incidents.autoResolved.length, healthy: swept.summary.healthy, monitored: swept.summary.monitored },
     });
