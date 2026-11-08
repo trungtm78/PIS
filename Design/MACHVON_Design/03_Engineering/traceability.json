@@ -11565,5 +11565,189 @@
     "test_ids": [
       "UI-PRJ-29"
     ]
+  },
+  {
+    "requirement": "FR-BI-21",
+    "screen": "BI-21",
+    "title": "Dự báo giải ngân cuối năm",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-5, G3-11); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 3 test",
+    "backlog_id": "BL-BI-21",
+    "test_ids": [
+      "UI-BI-21",
+      "UAT-PLAN-2580",
+      "UAT-PLAN-2581"
+    ]
+  },
+  {
+    "requirement": "FR-BI-22",
+    "screen": "BI-22",
+    "title": "Nhật ký quyết định",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-6); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 3 test",
+    "backlog_id": "BL-BI-22",
+    "test_ids": [
+      "UI-BI-22",
+      "UAT-PLAN-2582",
+      "UAT-PLAN-2583"
+    ]
+  },
+  {
+    "requirement": "FR-BI-23",
+    "screen": "BI-23",
+    "title": "Độ tươi và thẻ điểm chất lượng số liệu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-7); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 2 test",
+    "backlog_id": "BL-BI-23",
+    "test_ids": [
+      "UI-BI-23",
+      "UAT-PLAN-2584"
+    ]
+  },
+  {
+    "requirement": "FR-BI-24",
+    "screen": "BI-24",
+    "title": "Truy nguồn số liệu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-11); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 2 test",
+    "backlog_id": "BL-BI-24",
+    "test_ids": [
+      "UI-BI-24",
+      "UAT-PLAN-2585"
+    ]
+  },
+  {
+    "requirement": "FR-BI-25",
+    "screen": "BI-25",
+    "title": "Xếp hạng nhiều chỉ số",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-8); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 2 test",
+    "backlog_id": "BL-BI-25",
+    "test_ids": [
+      "UI-BI-25",
+      "UAT-PLAN-2586"
+    ]
+  },
+  {
+    "requirement": "FR-BI-26",
+    "screen": "BI-26",
+    "title": "Ghi chú và khiếu nại xếp hạng",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-8); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 3 test",
+    "backlog_id": "BL-BI-26",
+    "test_ids": [
+      "UI-BI-26",
+      "UAT-PLAN-2587",
+      "UAT-PLAN-2588"
+    ]
+  },
+  {
+    "requirement": "FR-BI-27",
+    "screen": "BI-27",
+    "title": "Điểm nghẽn",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-9); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 2 test",
+    "backlog_id": "BL-BI-27",
+    "test_ids": [
+      "UI-BI-27",
+      "UAT-PLAN-2589"
+    ]
+  },
+  {
+    "requirement": "FR-BI-28",
+    "screen": "BI-28",
+    "title": "Dự án dừng và kế hoạch khởi động lại",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-9); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 3 test",
+    "backlog_id": "BL-BI-28",
+    "test_ids": [
+      "UI-BI-28",
+      "UAT-PLAN-2590",
+      "UAT-PLAN-2591"
+    ]
+  },
+  {
+    "requirement": "FR-BI-29",
+    "screen": "BI-29",
+    "title": "Bản đồ nhiệt giải ngân",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-10); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 2 test",
+    "backlog_id": "BL-BI-29",
+    "test_ids": [
+      "UI-BI-29",
+      "UAT-PLAN-2592"
+    ]
+  },
+  {
+    "requirement": "FR-BI-30",
+    "screen": "BI-30",
+    "title": "Kiểm thử ngưỡng cảnh báo và xu hướng",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Lộ trình quản trị 10/10 (G3-11); thiết kế làn GOV-11b",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §14; 2 test",
+    "backlog_id": "BL-BI-30",
+    "test_ids": [
+      "UI-BI-30",
+      "UAT-PLAN-2593"
+    ]
   }
 ]

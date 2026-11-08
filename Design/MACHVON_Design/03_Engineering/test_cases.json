@@ -23920,5 +23920,444 @@
       "FR-PRJ-28",
       "FR-PRJ-29"
     ]
+  },
+  {
+    "id": "UI-BI-21",
+    "source": "FR-BI-21",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Dự báo giải ngân cuối năm; a user with the permission and a read-only user; route BI-21",
+    "steps": [
+      "Open BI-21 from the menu and by deep link; check the field labels: Lũy kế đã giải ngân, Kế hoạch năm, Dải dự báo cuối năm theo tốc độ 4-8 tuần, Dự báo theo mùa vụ năm trước, Cần mỗi tuần để đạt kế hoạch, Theo nguồn vốn",
+      "Do the main action by the rule: Dự báo là phép tính theo nhịp độ chứ không phải cam kết; mọi con số có i công thức, nguồn, ngày số liệu; thiếu dữ liệu là N/A kèm lý do; tham số lấy từ quy tắc quản trị, đánh dấu chưa xác nhận; lãnh đạo chỉ thấy khi định nghĩa tỷ lệ giải ngân đã chứng nhận",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-21"
+    ],
+    "expected": "Dự báo giải ngân cuối năm: shows all 6 fields, applies the rule \"Dự báo là phép tính theo nhịp độ chứ không phải cam kết; mọi con số có i công thức, nguồn, ngày số liệu; thiếu dữ liệu là N/A kèm lý do; tham số lấy từ quy tắc quản trị, đánh dấu chưa xác nhận; lãnh đạo chỉ thấy khi định nghĩa tỷ lệ giải ngân đã chứng nhận\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-21"
+    ]
+  },
+  {
+    "id": "UI-BI-22",
+    "source": "FR-BI-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Nhật ký quyết định; a user with the permission and a read-only user; route BI-22",
+    "steps": [
+      "Open BI-22 from the menu and by deep link; check the field labels: Ngày quyết định, Đối tượng (chỉ tiêu HOME-03, cảnh báo Khẩn, nội dung khác), Loại quyết định, Lý do, Số liệu chụp lúc quyết định, Số liệu hiện tại và chênh lệch, Ngày theo dõi và người phụ trách, Kết quả sau quyết định",
+      "Do the main action by the rule: Quyết định không sửa, không xóa; số liệu do máy chủ chụp tại lúc ghi kèm dấu kiểm; kết quả là các dòng thêm vào; người đọc chỉ thấy quyết định của mình, của đơn vị trong phạm vi và không thấy tên ngoài quyền",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-22"
+    ],
+    "expected": "Nhật ký quyết định: shows all 8 fields, applies the rule \"Quyết định không sửa, không xóa; số liệu do máy chủ chụp tại lúc ghi kèm dấu kiểm; kết quả là các dòng thêm vào; người đọc chỉ thấy quyết định của mình, của đơn vị trong phạm vi và không thấy tên ngoài quyền\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-22"
+    ]
+  },
+  {
+    "id": "UI-BI-23",
+    "source": "FR-BI-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Độ tươi và thẻ điểm chất lượng số liệu; a user with the permission and a read-only user; route BI-23",
+    "steps": [
+      "Open BI-23 from the menu and by deep link; check the field labels: Bộ dữ liệu, Trạng thái độ tươi (Mới, Sắp quá hạn, Số liệu cũ, Chưa có dữ liệu), Tuổi và SLA, Chất lượng lần dựng gần nhất, Chứng nhận, Thẻ điểm theo phân hệ, Thẻ điểm theo đơn vị",
+      "Do the main action by the rule: SLA độ tươi theo từng bộ dữ liệu là quy tắc quản trị (chưa xác nhận); quá SLA thì tự hiện Số liệu cũ; bộ dữ liệu chưa dựng lần nào là chưa có dữ liệu, không phải mới; thẻ điểm là trung bình có trọng số của các chiều có điểm, thiếu chiều thì N/A kèm lý do; đơn vị chỉ trong phạm vi của người đọc",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-23"
+    ],
+    "expected": "Độ tươi và thẻ điểm chất lượng số liệu: shows all 7 fields, applies the rule \"SLA độ tươi theo từng bộ dữ liệu là quy tắc quản trị (chưa xác nhận); quá SLA thì tự hiện Số liệu cũ; bộ dữ liệu chưa dựng lần nào là chưa có dữ liệu, không phải mới; thẻ điểm là trung bình có trọng số của các chiều có điểm, thiếu chiều thì N/A kèm lý do; đơn vị chỉ trong phạm vi của người đọc\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-23"
+    ]
+  },
+  {
+    "id": "UI-BI-24",
+    "source": "FR-BI-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Truy nguồn số liệu; a user with the permission and a read-only user; route BI-24",
+    "steps": [
+      "Open BI-24 from the menu and by deep link; check the field labels: Loại nút (chỉ tiêu, bộ dữ liệu, bảng, phân hệ), Nút xuất phát, Hướng (ngược lên nguồn, xuôi xuống), Độ sâu, Đường truy nguồn, Chỗ còn thiếu",
+      "Do the main action by the rule: Đường truy nguồn chỉ tiêu, bộ dữ liệu, bảng, phân hệ được dựng từ khai báo (công thức chỉ tiêu, trường bộ dữ liệu phục vụ, bảng nguồn, phân hệ sở hữu bảng) chứ không từ lần chạy; bảng chưa biết phân hệ và chỉ tiêu chưa có bộ dữ liệu được liệt kê, không giấu",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-24"
+    ],
+    "expected": "Truy nguồn số liệu: shows all 6 fields, applies the rule \"Đường truy nguồn chỉ tiêu, bộ dữ liệu, bảng, phân hệ được dựng từ khai báo (công thức chỉ tiêu, trường bộ dữ liệu phục vụ, bảng nguồn, phân hệ sở hữu bảng) chứ không từ lần chạy; bảng chưa biết phân hệ và chỉ tiêu chưa có bộ dữ liệu được liệt kê, không giấu\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-24"
+    ]
+  },
+  {
+    "id": "UI-BI-25",
+    "source": "FR-BI-25",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Xếp hạng nhiều chỉ số; a user with the permission and a read-only user; route BI-25",
+    "steps": [
+      "Open BI-25 from the menu and by deep link; check the field labels: Hạng trong nhóm quy mô, Đơn vị, Điểm tổng hợp, Tỷ lệ giải ngân, Tiến độ vật lý, Đủ số Kho bạc, Giải trình quá hạn, Cảnh báo nghiêm trọng, Cặp giải ngân và tiến độ vật lý, Ghi chú vướng ngoài kiểm soát, Số liệu đang khiếu nại",
+      "Do the main action by the rule: Chỉ số chuẩn hóa 0-100 trong nhóm quy mô cùng kế hoạch; đủ số chỉ số tối thiểu mới có điểm tổng hợp; thiếu chỉ số là N/A kèm lý do; ghi chú vướng ngoài kiểm soát do người khác duyệt và không sửa số liệu gốc; số liệu đang khiếu nại được đánh dấu; tỷ lệ giải ngân luôn đi cùng tiến độ vật lý; tham số là quy tắc quản trị chưa xác nhận",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-25"
+    ],
+    "expected": "Xếp hạng nhiều chỉ số: shows all 11 fields, applies the rule \"Chỉ số chuẩn hóa 0-100 trong nhóm quy mô cùng kế hoạch; đủ số chỉ số tối thiểu mới có điểm tổng hợp; thiếu chỉ số là N/A kèm lý do; ghi chú vướng ngoài kiểm soát do người khác duyệt và không sửa số liệu gốc; số liệu đang khiếu nại được đánh dấu; tỷ lệ giải ngân luôn đi cùng tiến độ vật lý; tham số là quy tắc quản trị chưa xác nhận\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-25"
+    ]
+  },
+  {
+    "id": "UI-BI-26",
+    "source": "FR-BI-26",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Ghi chú và khiếu nại xếp hạng; a user with the permission and a read-only user; route BI-26",
+    "steps": [
+      "Open BI-26 from the menu and by deep link; check the field labels: Đơn vị, Nguyên nhân và bằng chứng, Chỉ số bị ảnh hưởng, Hiệu lực, Trạng thái, Người đề xuất và người duyệt, Khiếu nại số liệu, Hạn trả lời, Câu trả lời",
+      "Do the main action by the rule: Người đề xuất ghi chú không tự duyệt; người trả lời khiếu nại không phải người khiếu nại; mọi quyết định có lời giải thích; hạn trả lời theo quy tắc; mọi bước có nhật ký và sự kiện",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-26"
+    ],
+    "expected": "Ghi chú và khiếu nại xếp hạng: shows all 9 fields, applies the rule \"Người đề xuất ghi chú không tự duyệt; người trả lời khiếu nại không phải người khiếu nại; mọi quyết định có lời giải thích; hạn trả lời theo quy tắc; mọi bước có nhật ký và sự kiện\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-26"
+    ]
+  },
+  {
+    "id": "UI-BI-27",
+    "source": "FR-BI-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Điểm nghẽn; a user with the permission and a read-only user; route BI-27",
+    "steps": [
+      "Open BI-27 from the menu and by deep link; check the field labels: Số tiền bị giữ, Nguyên nhân chuẩn và phân hệ chịu trách nhiệm, Tuổi nợ theo nhóm ngày, Người giữ, Danh sách khoản giữ theo số tiền nhân số ngày, Khoản không có số tiền, Liên kết tới bản ghi nguồn",
+      "Do the main action by the rule: Nguồn đề nghị thanh toán, bồi thường đến hạn chưa chi, vướng mắc chưa giải quyết và hồ sơ dừng; khoản do hai nguồn cùng mô tả chỉ tính một lần; khoản không có số tiền ghi N/A kèm lý do và tổng là cận dưới; nguyên nhân chuẩn và nhóm tuổi là quy tắc quản trị chưa xác nhận",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-27"
+    ],
+    "expected": "Điểm nghẽn: shows all 7 fields, applies the rule \"Nguồn đề nghị thanh toán, bồi thường đến hạn chưa chi, vướng mắc chưa giải quyết và hồ sơ dừng; khoản do hai nguồn cùng mô tả chỉ tính một lần; khoản không có số tiền ghi N/A kèm lý do và tổng là cận dưới; nguyên nhân chuẩn và nhóm tuổi là quy tắc quản trị chưa xác nhận\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-27"
+    ]
+  },
+  {
+    "id": "UI-BI-28",
+    "source": "FR-BI-28",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Dự án dừng và kế hoạch khởi động lại; a user with the permission and a read-only user; route BI-28",
+    "steps": [
+      "Open BI-28 from the menu and by deep link; check the field labels: Dự án, Nguyên nhân chuẩn, Lý do bằng lời, Dừng từ ngày, Quyết định dừng, Kế hoạch khởi động lại và các bước, Người lập và người duyệt kế hoạch, Dự án tạm dừng chưa có hồ sơ",
+      "Do the main action by the rule: Dự án dừng có hồ sơ lý do và kế hoạch khởi động lại; người lập kế hoạch không tự duyệt; chỉ ghi khởi động lại khi mọi bước đã làm hoặc bỏ có lời giải thích; dự án tạm dừng chưa có hồ sơ được liệt kê; mọi bước có nhật ký và sự kiện",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-28"
+    ],
+    "expected": "Dự án dừng và kế hoạch khởi động lại: shows all 8 fields, applies the rule \"Dự án dừng có hồ sơ lý do và kế hoạch khởi động lại; người lập kế hoạch không tự duyệt; chỉ ghi khởi động lại khi mọi bước đã làm hoặc bỏ có lời giải thích; dự án tạm dừng chưa có hồ sơ được liệt kê; mọi bước có nhật ký và sự kiện\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-28"
+    ]
+  },
+  {
+    "id": "UI-BI-29",
+    "source": "FR-BI-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Bản đồ nhiệt giải ngân; a user with the permission and a read-only user; route BI-29",
+    "steps": [
+      "Open BI-29 from the menu and by deep link; check the field labels: Góc nhìn (đơn vị theo nguồn vốn, nhà thầu theo đơn vị, nhà thầu theo nguồn vốn), Tỷ lệ của ô bằng số, chữ và dấu hiệu, Số dự án hoặc hợp đồng của ô, Ô quá nhỏ không hiển thị, Tổng hàng và tổng cột",
+      "Do the main action by the rule: Ô có quá ít dự án hoặc hợp đồng không hiển thị và tổng không tính ô đó; màu theo ngưỡng của quy tắc quản trị chưa xác nhận và luôn đi kèm chữ; thiếu số liệu là N/A kèm lý do; nhà thầu chỉ trong phạm vi dự án của người đọc",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-29"
+    ],
+    "expected": "Bản đồ nhiệt giải ngân: shows all 5 fields, applies the rule \"Ô có quá ít dự án hoặc hợp đồng không hiển thị và tổng không tính ô đó; màu theo ngưỡng của quy tắc quản trị chưa xác nhận và luôn đi kèm chữ; thiếu số liệu là N/A kèm lý do; nhà thầu chỉ trong phạm vi dự án của người đọc\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-29"
+    ]
+  },
+  {
+    "id": "UI-BI-30",
+    "source": "FR-BI-30",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Kiểm thử ngưỡng cảnh báo và xu hướng; a user with the permission and a read-only user; route BI-30",
+    "steps": [
+      "Open BI-30 from the menu and by deep link; check the field labels: Ngưỡng ứng viên, Báo đúng, báo sai, bỏ sót, Độ chính xác và độ phủ, Thời gian báo trước trung bình, Biểu đồ theo ngưỡng, Xếp hạng xu hướng cải thiện và xấu đi",
+      "Do the main action by the rule: Kiểm thử ngược là phát lại các tuần đã lưu, không phải lời hứa và không đổi ngưỡng đang áp dụng; đổi ngưỡng đi qua kho quy tắc quản trị; thiếu mẫu là N/A kèm lý do; xếp hạng xu hướng là thay đổi điểm chứ không phải mức điểm",
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the permission on BI-30"
+    ],
+    "expected": "Kiểm thử ngưỡng cảnh báo và xu hướng: shows all 6 fields, applies the rule \"Kiểm thử ngược là phát lại các tuần đã lưu, không phải lời hứa và không đổi ngưỡng đang áp dụng; đổi ngưỡng đi qua kho quy tắc quản trị; thiếu mẫu là N/A kèm lý do; xếp hạng xu hướng là thay đổi điểm chứ không phải mức điểm\"; no action beyond the permission; tokens and components as in the mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-30"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2580",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Snapshot of 2027-10-04 with a plan of 10,000 million and 6,000 million disbursed, weekly series for 8 weeks; one fund source with no plan.",
+    "steps": [
+      "getDisbursementOutlook for the whole tenant",
+      "Read the band, the seasonal projection and the amount needed per week",
+      "Read the fund source with no plan"
+    ],
+    "expected": "Step 1: 200 with the cumulative, the plan and the snapshot date; step 2: the band is computed from the 4 and the 8 week speed with the formula, source and date in the info; the needed amount per week is the plan less the cumulative over the weeks left, in whole dong as text; step 3: N/A with a reason code and no zero.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2581",
+    "source": "BI.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A with a snapshot and projects in two units; tenant B with none; a reader whose scope is one unit subtree.",
+    "steps": [
+      "getDisbursementOutlook as the unit reader",
+      "getDisbursementOutlook as a reader of tenant B",
+      "getDisbursementOutlook with no home read permission"
+    ],
+    "expected": "Step 1: only the figures of the unit subtree; step 2: reason NO_SNAPSHOT and no figure of tenant A; step 3: 403.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2582",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Command center tile \"Rate of disbursement\" showing 41.3 percent on 2027-10-04; a leader with the decision permission.",
+    "steps": [
+      "recordAnalyticsDecision from the tile with a reason and a follow-up date",
+      "getAnalyticsDecision",
+      "recordAnalyticsDecisionOutcome after the follow-up date",
+      "recordAnalyticsDecisionOutcome on a decision whose latest outcome is superseded"
+    ],
+    "expected": "Step 1: 201 and the figures are frozen with a digest; step 2: the frozen figures equal what the tile showed; step 3: the outcome compares the frozen and the later figure and the log keeps both entries; step 4: 409 ANALYTICS_DECISION_SUPERSEDED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2583",
+    "source": "BI.md",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Decisions of tenant A and tenant B; a reader without the decision permission.",
+    "steps": [
+      "listAnalyticsDecisions as tenant B",
+      "getAnalyticsDecision of tenant A by id as tenant B",
+      "recordAnalyticsDecision with no reason",
+      "recordAnalyticsDecision repeated with the same Idempotency-Key"
+    ],
+    "expected": "Step 1: an empty list; step 2: 404 with no trace of tenant A; step 3: 422 VALIDATION_FAILED; step 4: the same response and one log row.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2584",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Dataset DS-DISB built 3 hours ago with an SLA of 24 hours, dataset DS-CTR built 40 hours ago, a dataset never built.",
+    "steps": [
+      "getDataFreshness",
+      "Read the status of each dataset",
+      "getDataTrustScorecard"
+    ],
+    "expected": "Step 2: DS-DISB is fresh, DS-CTR is stale with the hours over the SLA, the unbuilt dataset is \"no data yet\" and not fresh; step 3: each module and unit has the score of each dimension, a dimension without data is N/A with a reason and a composite below the minimum of dimensions is N/A.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-23"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2585",
+    "source": "BI.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Metric files, dataset registry and the table owners of the modules.",
+    "steps": [
+      "getMetricLineageGraph up from a command center indicator",
+      "getMetricLineageGraph down from a table",
+      "getMetricLineageGraph for a metric whose field no dataset serves"
+    ],
+    "expected": "Step 1: the path indicator, dataset, table, module; step 2: every dataset and metric that stands on the table; step 3: the gap is listed as a missing node, never hidden.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2586",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Three units of different size classes with disbursement rate, physical progress and overdue explanations.",
+    "steps": [
+      "getMultiMetricRanking with the default model",
+      "Read the rank, the band and the pair of disbursement and progress",
+      "Read a unit with no physical progress"
+    ],
+    "expected": "Step 1: each unit is ranked inside its size class and the metric weights add up to the model; step 2: the pair shows both figures; step 3: N/A with a reason code and the unit is not penalised by an invented zero.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-25"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2587",
+    "source": "BI.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Unit U1 blocked by an outside cause; user A proposes an annotation, user B holds the approval permission.",
+    "steps": [
+      "proposeRankingAnnotation as A",
+      "decideRankingAnnotation approving as A",
+      "decideRankingAnnotation approving as B",
+      "decideRankingAnnotation again as B"
+    ],
+    "expected": "Step 2: 403 SELF_APPROVAL_DENIED; step 3: approved and shown next to the rank of U1; step 4: 409 RANKING_ANNOTATION_STATE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-26"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2588",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A published ranking and a unit that disputes its disbursement figure.",
+    "steps": [
+      "fileRankingComplaint with a reason",
+      "resolveRankingComplaint as the resolver",
+      "resolveRankingComplaint again",
+      "listRankingComplaints by the state"
+    ],
+    "expected": "Step 1: 201 with the figure disputed and the date; step 2: resolved with the resolver and the note on the log; step 3: 409 RANKING_COMPLAINT_STATE; step 4: the list shows the complaint with its whole history.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-26"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2589",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Projects with held amounts in three standard causes and debts of different age, held by two holders.",
+    "steps": [
+      "getBottleneckAnalysis",
+      "Read the held amount by cause, the age bands and the holders",
+      "Read a held amount with no standard cause"
+    ],
+    "expected": "Step 2: the amounts by cause add up to the total held, in whole dong as text, with the age band of the debt and the holder; step 3: shown as \"cause not recorded\" and counted, never dropped.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2590",
+    "source": "BI.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "A halted project with a restart plan of two steps; plan author A and approver B.",
+    "steps": [
+      "recordProjectHalt again for the same project",
+      "decideRestartPlan approving as A",
+      "decideRestartPlan approving as B",
+      "closeProjectHalt with a step open"
+    ],
+    "expected": "Step 1: 409 PROJECT_HALT_OPEN_EXISTS; step 2: 403 SELF_APPROVAL_DENIED; step 3: the plan is approved; step 4: 409 PROJECT_HALT_STEPS_OPEN.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-28"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2591",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An approved restart plan with two open steps.",
+    "steps": [
+      "closeRestartStep for step 1",
+      "closeRestartStep for step 2",
+      "closeProjectHalt",
+      "closeRestartStep on a halt that is closed"
+    ],
+    "expected": "Steps 1 and 2: each step is closed with who and when; step 3: the halt is closed; step 4: 409 PROJECT_HALT_STATE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-28"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2592",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Three projects of the state fund in unit North at 60 percent, three of the local fund in unit South at 30 percent, one of the local fund in North.",
+    "steps": [
+      "getAnalyticsHeatmap with the view unit by fund source",
+      "Read the cell of North in the local fund",
+      "getAnalyticsHeatmap with an unknown view"
+    ],
+    "expected": "Step 1: North and the state fund 60.0 and South and the local fund 30.0 in the red band, as text; step 2: no rate, no band, reason SMALL_CELL and the totals leave it out; step 3: 422 VALIDATION_FAILED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-2593",
+    "source": "BI.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Ten weekly early-warning scores for two units; a tenant with only five weeks.",
+    "steps": [
+      "getAnalyticsBacktest",
+      "getAnalyticsBacktest for the tenant with five weeks",
+      "getAnalyticsTrendRanking",
+      "getAnalyticsBacktest as a reader without the governance read permission"
+    ],
+    "expected": "Step 1: the candidate thresholds with true and false positives and precision; step 2: reason TOO_FEW_PAIRS and no precision; step 3: the units ranked by the change over four weeks, the most improving first; step 4: 403.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BI-30"
+    ]
   }
 ]

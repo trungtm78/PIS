@@ -259,3 +259,22 @@ Ma trận: positive (AC31, AC471, AC474), negative (AC472, AC476), boundary (AC3
 | UAT-AC33 | setup/steps: template 3 bước → cụ thể; expected: "người tenant A không thể sửa drill token để xem B." → giữ ý nghĩa, thêm giá trị quan sát được; covers: (không có) → FR-BI-09, FR-BI-08 | BRIEF: viết lại AC sở hữu bằng dữ liệu synthetic cụ thể, xóa test mồ côi |
 | UAT-AC34 | setup/steps: template 3 bước → cụ thể; expected: "stale cache bị phân biệt với nguồn mới; refresh tạo context mới có thông báo." → giữ ý nghĩa, thêm giá trị quan sát được; covers: (không có) → FR-BI-02, FR-BI-13 | BRIEF: viết lại AC sở hữu bằng dữ liệu synthetic cụ thể, xóa test mồ côi |
 | UAT-AC35 | setup/steps: template 3 bước → cụ thể; expected: "chia sẻ dashboard không tự cấp quyền dữ liệu." → giữ ý nghĩa, thêm giá trị quan sát được; covers: (không có) → FR-BI-01, FR-BI-17 | BRIEF: viết lại AC sở hữu bằng dữ liệu synthetic cụ thể, xóa test mồ côi |
+
+## 14. Phân tích điều hành G3-5 đến G3-11 (làn GOV-11b, màn BI-21 đến BI-30)
+
+Mười màn và 26 thao tác thuộc FT-BI-08 (ST-BI-013 đến ST-BI-018). Nguyên tắc chung: mỗi con số có "i" (công thức, nguồn, ngày số liệu); tiền là số đồng nguyên dạng chuỗi, làm tròn nửa lên; số không tính được là N/A kèm mã lý do, không bao giờ là 0 bịa; mọi tham số lấy từ kho quy tắc quản trị và đánh dấu chưa xác nhận [CXN] cho đến khi chủ nghiệp vụ xác nhận.
+
+| Màn | Thao tác | Quy tắc chính |
+|---|---|---|
+| BI-21 Dự báo giải ngân cuối năm | getDisbursementOutlook | Dải dự báo theo tốc độ 4 đến 8 tuần, đường mùa vụ năm trước, số cần mỗi tuần; là phép tính theo nhịp độ, không phải cam kết; thiếu kế hoạch hay lịch sử là N/A |
+| BI-22 Nhật ký quyết định | recordAnalyticsDecision, listAnalyticsDecisions, getAnalyticsDecision, recordAnalyticsDecisionOutcome | Ghi quyết định cùng số liệu đóng băng (có mã băm); kết quả là bản ghi nối thêm so sánh số lúc quyết định với số sau đó; không sửa tại chỗ |
+| BI-23 Độ tươi và thẻ điểm chất lượng | getDataFreshness, getDataTrustScorecard | SLA độ tươi theo bộ dữ liệu, cờ "dữ liệu cũ" tự hiện khi quá SLA; thẻ điểm theo mô-đun và đơn vị, chiều thiếu dữ liệu là N/A, điểm tổng cần đủ số chiều tối thiểu |
+| BI-24 Truy nguồn số liệu | getMetricLineageGraph | Chỉ tiêu, bộ dữ liệu, bảng, mô-đun; khai báo từ kho đăng ký chứ không quan sát; khoảng trống được liệt kê |
+| BI-25 Xếp hạng nhiều chỉ số | getMultiMetricRanking | Xếp trong nhóm quy mô, ghép tỷ lệ giải ngân với tiến độ vật lý; thiếu tiến độ vật lý là N/A |
+| BI-26 Ghi chú và khiếu nại xếp hạng | proposeRankingAnnotation, listRankingAnnotations, decideRankingAnnotation, fileRankingComplaint, listRankingComplaints, resolveRankingComplaint | Người đề xuất ghi chú không tự duyệt; khiếu nại có vòng đời và lịch sử đầy đủ |
+| BI-27 Điểm nghẽn | getBottleneckAnalysis | Số tiền bị giữ theo nguyên nhân chuẩn, tuổi nợ, bên giữ; khoản không có nguyên nhân hiện là "chưa ghi nguyên nhân" và vẫn được cộng |
+| BI-28 Dự án dừng và kế hoạch khởi động lại | recordProjectHalt, listHaltedProjects, getHaltedProject, saveRestartPlan, decideRestartPlan, closeRestartStep, closeProjectHalt | Mỗi dự án một hồ sơ dừng đang mở; kế hoạch do người khác tác giả duyệt; chỉ đóng hồ sơ khi mọi bước đã đóng |
+| BI-29 Bản đồ nhiệt giải ngân | getAnalyticsHeatmap | Đơn vị theo nguồn vốn; ô quá ít dự án không có tỷ lệ, không có dải màu và không vào tổng; chiều nhà thầu chờ dữ kiện hợp đồng |
+| BI-30 Kiểm thử ngưỡng cảnh báo và xu hướng | getAnalyticsBacktest, getAnalyticsTrendRanking | Phát lại các tuần đã lưu, không tính độ chính xác khi quá ít cặp; xếp hạng theo thay đổi điểm trong bốn tuần |
+
+Kiểm thử: UAT-PLAN-2580 đến UAT-PLAN-2593 và UI-BI-21 đến UI-BI-30. Các ngưỡng, trọng số, nhóm quy mô và SLA đều là quy tắc quản trị (ExecRuleType) chưa xác nhận.

@@ -20817,5 +20817,362 @@
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-BI-21",
+    "requirement": "FR-BI-21",
+    "screen": "BI-21",
+    "title": "Dự báo giải ngân cuối năm",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Lũy kế đã giải ngân",
+      "Kế hoạch năm",
+      "Dải dự báo cuối năm theo tốc độ 4-8 tuần",
+      "Dự báo theo mùa vụ năm trước",
+      "Cần mỗi tuần để đạt kế hoạch",
+      "Theo nguồn vốn"
+    ],
+    "rule": "Dự báo là phép tính theo nhịp độ chứ không phải cam kết; mọi con số có i công thức, nguồn, ngày số liệu; thiếu dữ liệu là N/A kèm lý do; tham số lấy từ quy tắc quản trị, đánh dấu chưa xác nhận; lãnh đạo chỉ thấy khi định nghĩa tỷ lệ giải ngân đã chứng nhận",
+    "test_ids": [
+      "UI-BI-21",
+      "UAT-PLAN-2580",
+      "UAT-PLAN-2581"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-013"
+    ]
+  },
+  {
+    "id": "BL-BI-22",
+    "requirement": "FR-BI-22",
+    "screen": "BI-22",
+    "title": "Nhật ký quyết định",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Ngày quyết định",
+      "Đối tượng (chỉ tiêu HOME-03, cảnh báo Khẩn, nội dung khác)",
+      "Loại quyết định",
+      "Lý do",
+      "Số liệu chụp lúc quyết định",
+      "Số liệu hiện tại và chênh lệch",
+      "Ngày theo dõi và người phụ trách",
+      "Kết quả sau quyết định"
+    ],
+    "rule": "Quyết định không sửa, không xóa; số liệu do máy chủ chụp tại lúc ghi kèm dấu kiểm; kết quả là các dòng thêm vào; người đọc chỉ thấy quyết định của mình, của đơn vị trong phạm vi và không thấy tên ngoài quyền",
+    "test_ids": [
+      "UI-BI-22",
+      "UAT-PLAN-2582",
+      "UAT-PLAN-2583"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-014"
+    ]
+  },
+  {
+    "id": "BL-BI-23",
+    "requirement": "FR-BI-23",
+    "screen": "BI-23",
+    "title": "Độ tươi và thẻ điểm chất lượng số liệu",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Bộ dữ liệu",
+      "Trạng thái độ tươi (Mới, Sắp quá hạn, Số liệu cũ, Chưa có dữ liệu)",
+      "Tuổi và SLA",
+      "Chất lượng lần dựng gần nhất",
+      "Chứng nhận",
+      "Thẻ điểm theo phân hệ",
+      "Thẻ điểm theo đơn vị"
+    ],
+    "rule": "SLA độ tươi theo từng bộ dữ liệu là quy tắc quản trị (chưa xác nhận); quá SLA thì tự hiện Số liệu cũ; bộ dữ liệu chưa dựng lần nào là chưa có dữ liệu, không phải mới; thẻ điểm là trung bình có trọng số của các chiều có điểm, thiếu chiều thì N/A kèm lý do; đơn vị chỉ trong phạm vi của người đọc",
+    "test_ids": [
+      "UI-BI-23",
+      "UAT-PLAN-2584"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-015"
+    ]
+  },
+  {
+    "id": "BL-BI-24",
+    "requirement": "FR-BI-24",
+    "screen": "BI-24",
+    "title": "Truy nguồn số liệu",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Loại nút (chỉ tiêu, bộ dữ liệu, bảng, phân hệ)",
+      "Nút xuất phát",
+      "Hướng (ngược lên nguồn, xuôi xuống)",
+      "Độ sâu",
+      "Đường truy nguồn",
+      "Chỗ còn thiếu"
+    ],
+    "rule": "Đường truy nguồn chỉ tiêu, bộ dữ liệu, bảng, phân hệ được dựng từ khai báo (công thức chỉ tiêu, trường bộ dữ liệu phục vụ, bảng nguồn, phân hệ sở hữu bảng) chứ không từ lần chạy; bảng chưa biết phân hệ và chỉ tiêu chưa có bộ dữ liệu được liệt kê, không giấu",
+    "test_ids": [
+      "UI-BI-24",
+      "UAT-PLAN-2585"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-015"
+    ]
+  },
+  {
+    "id": "BL-BI-25",
+    "requirement": "FR-BI-25",
+    "screen": "BI-25",
+    "title": "Xếp hạng nhiều chỉ số",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Hạng trong nhóm quy mô",
+      "Đơn vị",
+      "Điểm tổng hợp",
+      "Tỷ lệ giải ngân",
+      "Tiến độ vật lý",
+      "Đủ số Kho bạc",
+      "Giải trình quá hạn",
+      "Cảnh báo nghiêm trọng",
+      "Cặp giải ngân và tiến độ vật lý",
+      "Ghi chú vướng ngoài kiểm soát",
+      "Số liệu đang khiếu nại"
+    ],
+    "rule": "Chỉ số chuẩn hóa 0-100 trong nhóm quy mô cùng kế hoạch; đủ số chỉ số tối thiểu mới có điểm tổng hợp; thiếu chỉ số là N/A kèm lý do; ghi chú vướng ngoài kiểm soát do người khác duyệt và không sửa số liệu gốc; số liệu đang khiếu nại được đánh dấu; tỷ lệ giải ngân luôn đi cùng tiến độ vật lý; tham số là quy tắc quản trị chưa xác nhận",
+    "test_ids": [
+      "UI-BI-25",
+      "UAT-PLAN-2586"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-016"
+    ]
+  },
+  {
+    "id": "BL-BI-26",
+    "requirement": "FR-BI-26",
+    "screen": "BI-26",
+    "title": "Ghi chú và khiếu nại xếp hạng",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Đơn vị",
+      "Nguyên nhân và bằng chứng",
+      "Chỉ số bị ảnh hưởng",
+      "Hiệu lực",
+      "Trạng thái",
+      "Người đề xuất và người duyệt",
+      "Khiếu nại số liệu",
+      "Hạn trả lời",
+      "Câu trả lời"
+    ],
+    "rule": "Người đề xuất ghi chú không tự duyệt; người trả lời khiếu nại không phải người khiếu nại; mọi quyết định có lời giải thích; hạn trả lời theo quy tắc; mọi bước có nhật ký và sự kiện",
+    "test_ids": [
+      "UI-BI-26",
+      "UAT-PLAN-2587",
+      "UAT-PLAN-2588"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-016"
+    ]
+  },
+  {
+    "id": "BL-BI-27",
+    "requirement": "FR-BI-27",
+    "screen": "BI-27",
+    "title": "Điểm nghẽn",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Số tiền bị giữ",
+      "Nguyên nhân chuẩn và phân hệ chịu trách nhiệm",
+      "Tuổi nợ theo nhóm ngày",
+      "Người giữ",
+      "Danh sách khoản giữ theo số tiền nhân số ngày",
+      "Khoản không có số tiền",
+      "Liên kết tới bản ghi nguồn"
+    ],
+    "rule": "Nguồn đề nghị thanh toán, bồi thường đến hạn chưa chi, vướng mắc chưa giải quyết và hồ sơ dừng; khoản do hai nguồn cùng mô tả chỉ tính một lần; khoản không có số tiền ghi N/A kèm lý do và tổng là cận dưới; nguyên nhân chuẩn và nhóm tuổi là quy tắc quản trị chưa xác nhận",
+    "test_ids": [
+      "UI-BI-27",
+      "UAT-PLAN-2589"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-017"
+    ]
+  },
+  {
+    "id": "BL-BI-28",
+    "requirement": "FR-BI-28",
+    "screen": "BI-28",
+    "title": "Dự án dừng và kế hoạch khởi động lại",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Dự án",
+      "Nguyên nhân chuẩn",
+      "Lý do bằng lời",
+      "Dừng từ ngày",
+      "Quyết định dừng",
+      "Kế hoạch khởi động lại và các bước",
+      "Người lập và người duyệt kế hoạch",
+      "Dự án tạm dừng chưa có hồ sơ"
+    ],
+    "rule": "Dự án dừng có hồ sơ lý do và kế hoạch khởi động lại; người lập kế hoạch không tự duyệt; chỉ ghi khởi động lại khi mọi bước đã làm hoặc bỏ có lời giải thích; dự án tạm dừng chưa có hồ sơ được liệt kê; mọi bước có nhật ký và sự kiện",
+    "test_ids": [
+      "UI-BI-28",
+      "UAT-PLAN-2590",
+      "UAT-PLAN-2591"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-017"
+    ]
+  },
+  {
+    "id": "BL-BI-29",
+    "requirement": "FR-BI-29",
+    "screen": "BI-29",
+    "title": "Bản đồ nhiệt giải ngân",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Góc nhìn (đơn vị theo nguồn vốn, nhà thầu theo đơn vị, nhà thầu theo nguồn vốn)",
+      "Tỷ lệ của ô bằng số, chữ và dấu hiệu",
+      "Số dự án hoặc hợp đồng của ô",
+      "Ô quá nhỏ không hiển thị",
+      "Tổng hàng và tổng cột"
+    ],
+    "rule": "Ô có quá ít dự án hoặc hợp đồng không hiển thị và tổng không tính ô đó; màu theo ngưỡng của quy tắc quản trị chưa xác nhận và luôn đi kèm chữ; thiếu số liệu là N/A kèm lý do; nhà thầu chỉ trong phạm vi dự án của người đọc",
+    "test_ids": [
+      "UI-BI-29",
+      "UAT-PLAN-2592"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-018"
+    ]
+  },
+  {
+    "id": "BL-BI-30",
+    "requirement": "FR-BI-30",
+    "screen": "BI-30",
+    "title": "Kiểm thử ngưỡng cảnh báo và xu hướng",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV,HOME",
+    "fields": [
+      "Ngưỡng ứng viên",
+      "Báo đúng, báo sai, bỏ sót",
+      "Độ chính xác và độ phủ",
+      "Thời gian báo trước trung bình",
+      "Biểu đồ theo ngưỡng",
+      "Xếp hạng xu hướng cải thiện và xấu đi"
+    ],
+    "rule": "Kiểm thử ngược là phát lại các tuần đã lưu, không phải lời hứa và không đổi ngưỡng đang áp dụng; đổi ngưỡng đi qua kho quy tắc quản trị; thiếu mẫu là N/A kèm lý do; xếp hạng xu hướng là thay đổi điểm chứ không phải mức điểm",
+    "test_ids": [
+      "UI-BI-30",
+      "UAT-PLAN-2593"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BI-018"
+    ]
   }
 ]

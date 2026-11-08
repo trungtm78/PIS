@@ -1056,6 +1056,11 @@
       "id": "FT-PRJ-08",
       "epic": "EP-PRJ",
       "title": "Look-ahead and lessons learned"
+    },
+    {
+      "id": "FT-BI-08",
+      "epic": "EP-BI",
+      "title": "Executive analytics: forecast, decision log, data trust, ranking, bottlenecks and insight"
     }
   ],
   "stories": [
@@ -54534,6 +54539,696 @@
           "test_ids": [
             "UI-PRJ-28",
             "UI-PRJ-29"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BI-013",
+      "epic": "EP-BI",
+      "feature": "FT-BI-08",
+      "module": "BI",
+      "title": "Year-end disbursement outlook: a band from the 4 to 8 week speed, the seasonal curve of last year and the amount needed per week",
+      "narrative": "As a leader I can see where disbursement ends the year at the current pace, so that I know how much must be paid each remaining week to reach the plan.",
+      "release": "R2",
+      "screens": [
+        "BI-21"
+      ],
+      "operations": [
+        "getDisbursementOutlook"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BI-013-1",
+          "given": "Snapshot of 2027-10-04 with a plan of 10,000 million and 6,000 million disbursed, weekly series for 8 weeks; one fund source with no plan",
+          "when": "getDisbursementOutlook for the whole tenant; then Read the band, the seasonal projection and the amount needed per week; then Read the fund source with no plan",
+          "then": "Step 1: 200 with the cumulative, the plan and the snapshot date; step 2: the band is computed from the 4 and the 8 week speed with the formula, source and date in the info; the needed amount per week is the plan less the cumulative over the weeks left, in whole dong as text; step 3: N/A with a reason code and no zero",
+          "test_id": "UAT-PLAN-2580"
+        },
+        {
+          "id": "AC-ST-BI-013-2",
+          "given": "Tenant A with a snapshot and projects in two units; tenant B with none; a reader whose scope is one unit subtree",
+          "when": "getDisbursementOutlook as the unit reader; then getDisbursementOutlook as a reader of tenant B; then getDisbursementOutlook with no home read permission",
+          "then": "Step 1: only the figures of the unit subtree; step 2: reason NO_SNAPSHOT and no figure of tenant A; step 3: 403",
+          "test_id": "UAT-PLAN-2581"
+        },
+        {
+          "id": "AC-ST-BI-013-3",
+          "given": "BI-21 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-21"
+        }
+      ],
+      "dependencies": [
+        "ST-BI-011",
+        "ST-HOME-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "The outlook is arithmetic on the stored snapshot (speed band, last-year seasonal curve, needed per week), never a promise; every parameter is a governance rule flagged unverified; a missing input is N/A with a reason code."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-BI-013-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getDisbursementOutlook",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-013-2",
+          "kind": "web",
+          "title": "BI-21 screens built with the kit, the seven standard states, the info of formula, source and date on every figure and the FlowChart where a flow is shown",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-013-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BI-21; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-013-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-2580",
+            "UAT-PLAN-2581"
+          ]
+        },
+        {
+          "id": "TK-BI-013-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BI-21"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BI-014",
+      "epic": "EP-BI",
+      "feature": "FT-BI-08",
+      "module": "BI",
+      "title": "Decision log tied to the command center: the decision, the figures frozen at that time, the follow-up and the outcome",
+      "narrative": "As a leader I can record a decision with the figures that justified it, so that later the outcome can be compared with what was known then.",
+      "release": "R2",
+      "screens": [
+        "BI-22"
+      ],
+      "operations": [
+        "recordAnalyticsDecision",
+        "listAnalyticsDecisions",
+        "recordAnalyticsDecisionOutcome",
+        "getAnalyticsDecision"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BI-014-1",
+          "given": "Command center tile \"Rate of disbursement\" showing 41.3 percent on 2027-10-04; a leader with the decision permission",
+          "when": "recordAnalyticsDecision from the tile with a reason and a follow-up date; then getAnalyticsDecision; then recordAnalyticsDecisionOutcome after the follow-up date; then recordAnalyticsDecisionOutcome on a decision whose latest outcome is superseded",
+          "then": "Step 1: 201 and the figures are frozen with a digest; step 2: the frozen figures equal what the tile showed; step 3: the outcome compares the frozen and the later figure and the log keeps both entries; step 4: 409 ANALYTICS_DECISION_SUPERSEDED",
+          "test_id": "UAT-PLAN-2582"
+        },
+        {
+          "id": "AC-ST-BI-014-2",
+          "given": "Decisions of tenant A and tenant B; a reader without the decision permission",
+          "when": "listAnalyticsDecisions as tenant B; then getAnalyticsDecision of tenant A by id as tenant B; then recordAnalyticsDecision with no reason; then recordAnalyticsDecision repeated with the same Idempotency-Key",
+          "then": "Step 1: an empty list; step 2: 404 with no trace of tenant A; step 3: 422 VALIDATION_FAILED; step 4: the same response and one log row",
+          "test_id": "UAT-PLAN-2583"
+        },
+        {
+          "id": "AC-ST-BI-014-3",
+          "given": "BI-22 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-22"
+        }
+      ],
+      "dependencies": [
+        "ST-BI-011",
+        "ST-HOME-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 32,
+          "max": 64
+        },
+        "confidence": "medium",
+        "assumption": "The figures are frozen with a digest at the time of the decision; an outcome is a new append-only entry and compares the frozen figures with the later ones; nothing is edited in place."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-BI-014-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: recordAnalyticsDecision, listAnalyticsDecisions, recordAnalyticsDecisionOutcome, getAnalyticsDecision",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-014-2",
+          "kind": "web",
+          "title": "BI-22 screens built with the kit, the seven standard states, the info of formula, source and date on every figure and the FlowChart where a flow is shown",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-014-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BI-22; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-014-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-2582",
+            "UAT-PLAN-2583"
+          ]
+        },
+        {
+          "id": "TK-BI-014-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BI-22"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BI-015",
+      "epic": "EP-BI",
+      "feature": "FT-BI-08",
+      "module": "BI",
+      "title": "Trust in the figures: freshness against the SLA of each dataset, the quality scorecard per module and unit, and the lineage from metric to table",
+      "narrative": "As a leader and a data owner I can see which figures are fresh, which are stale and where each number comes from, so that I do not decide on stale data.",
+      "release": "R2",
+      "screens": [
+        "BI-23",
+        "BI-24"
+      ],
+      "operations": [
+        "getDataFreshness",
+        "getDataTrustScorecard",
+        "getMetricLineageGraph"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BI-015-1",
+          "given": "Dataset DS-DISB built 3 hours ago with an SLA of 24 hours, dataset DS-CTR built 40 hours ago, a dataset never built",
+          "when": "getDataFreshness; then Read the status of each dataset; then getDataTrustScorecard",
+          "then": "Step 2: DS-DISB is fresh, DS-CTR is stale with the hours over the SLA, the unbuilt dataset is \"no data yet\" and not fresh; step 3: each module and unit has the score of each dimension, a dimension without data is N/A with a reason and a composite below the minimum of dimensions is N/A",
+          "test_id": "UAT-PLAN-2584"
+        },
+        {
+          "id": "AC-ST-BI-015-2",
+          "given": "Metric files, dataset registry and the table owners of the modules",
+          "when": "getMetricLineageGraph up from a command center indicator; then getMetricLineageGraph down from a table; then getMetricLineageGraph for a metric whose field no dataset serves",
+          "then": "Step 1: the path indicator, dataset, table, module; step 2: every dataset and metric that stands on the table; step 3: the gap is listed as a missing node, never hidden",
+          "test_id": "UAT-PLAN-2585"
+        },
+        {
+          "id": "AC-ST-BI-015-3",
+          "given": "BI-23 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-23"
+        },
+        {
+          "id": "AC-ST-BI-015-4",
+          "given": "BI-24 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-24"
+        }
+      ],
+      "dependencies": [
+        "ST-BI-011",
+        "ST-HOME-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 28,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "The freshness SLA and the scorecard weights are governance rules flagged unverified; a dimension with no data is N/A with a reason and the composite needs a minimum number of dimensions; the lineage is declared from the registries, not observed."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-BI-015-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getDataFreshness, getDataTrustScorecard, getMetricLineageGraph",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-015-2",
+          "kind": "web",
+          "title": "BI-23, BI-24 screens built with the kit, the seven standard states, the info of formula, source and date on every figure and the FlowChart where a flow is shown",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-015-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BI-23, BI-24; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-015-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-2584",
+            "UAT-PLAN-2585"
+          ]
+        },
+        {
+          "id": "TK-BI-015-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BI-23",
+            "UI-BI-24"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BI-016",
+      "epic": "EP-BI",
+      "feature": "FT-BI-08",
+      "module": "BI",
+      "title": "Multi-metric ranking of units with size normalisation, approved annotations for outside causes and complaints about the figures",
+      "narrative": "As a leader I can rank units on several metrics fairly, and a unit can have an outside cause annotated and a figure disputed, with every step on record.",
+      "release": "R2",
+      "screens": [
+        "BI-25",
+        "BI-26"
+      ],
+      "operations": [
+        "getMultiMetricRanking",
+        "proposeRankingAnnotation",
+        "listRankingAnnotations",
+        "decideRankingAnnotation",
+        "fileRankingComplaint",
+        "listRankingComplaints",
+        "resolveRankingComplaint"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BI-016-1",
+          "given": "Three units of different size classes with disbursement rate, physical progress and overdue explanations",
+          "when": "getMultiMetricRanking with the default model; then Read the rank, the band and the pair of disbursement and progress; then Read a unit with no physical progress",
+          "then": "Step 1: each unit is ranked inside its size class and the metric weights add up to the model; step 2: the pair shows both figures; step 3: N/A with a reason code and the unit is not penalised by an invented zero",
+          "test_id": "UAT-PLAN-2586"
+        },
+        {
+          "id": "AC-ST-BI-016-2",
+          "given": "Unit U1 blocked by an outside cause; user A proposes an annotation, user B holds the approval permission",
+          "when": "proposeRankingAnnotation as A; then decideRankingAnnotation approving as A; then decideRankingAnnotation approving as B; then decideRankingAnnotation again as B",
+          "then": "Step 2: 403 SELF_APPROVAL_DENIED; step 3: approved and shown next to the rank of U1; step 4: 409 RANKING_ANNOTATION_STATE",
+          "test_id": "UAT-PLAN-2587"
+        },
+        {
+          "id": "AC-ST-BI-016-3",
+          "given": "A published ranking and a unit that disputes its disbursement figure",
+          "when": "fileRankingComplaint with a reason; then resolveRankingComplaint as the resolver; then resolveRankingComplaint again; then listRankingComplaints by the state",
+          "then": "Step 1: 201 with the figure disputed and the date; step 2: resolved with the resolver and the note on the log; step 3: 409 RANKING_COMPLAINT_STATE; step 4: the list shows the complaint with its whole history",
+          "test_id": "UAT-PLAN-2588"
+        },
+        {
+          "id": "AC-ST-BI-016-4",
+          "given": "BI-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-25"
+        },
+        {
+          "id": "AC-ST-BI-016-5",
+          "given": "BI-26 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-26"
+        }
+      ],
+      "dependencies": [
+        "ST-BI-011",
+        "ST-HOME-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 44,
+          "max": 88
+        },
+        "confidence": "medium",
+        "assumption": "The ranking model, the size classes and the pairing of the disbursement rate with physical progress are governance rules flagged unverified; physical progress that does not exist is N/A with a reason; an annotation is proposed by one person and decided by another."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-BI-016-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getMultiMetricRanking, proposeRankingAnnotation, listRankingAnnotations, decideRankingAnnotation, fileRankingComplaint, listRankingComplaints, resolveRankingComplaint",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-016-2",
+          "kind": "web",
+          "title": "BI-25, BI-26 screens built with the kit, the seven standard states, the info of formula, source and date on every figure and the FlowChart where a flow is shown",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-016-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BI-25, BI-26; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-016-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-2586",
+            "UAT-PLAN-2587",
+            "UAT-PLAN-2588"
+          ]
+        },
+        {
+          "id": "TK-BI-016-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BI-25",
+            "UI-BI-26"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BI-017",
+      "epic": "EP-BI",
+      "feature": "FT-BI-08",
+      "module": "BI",
+      "title": "Bottlenecks and halted projects: held amount by standard cause, age of the debt and holder, and the halt dossier with the restart plan",
+      "narrative": "As a leader I can see where the money is held and why, and follow each halted project from the reason on record to a restart plan approved and closed step by step.",
+      "release": "R2",
+      "screens": [
+        "BI-27",
+        "BI-28"
+      ],
+      "operations": [
+        "getBottleneckAnalysis",
+        "recordProjectHalt",
+        "listHaltedProjects",
+        "getHaltedProject",
+        "saveRestartPlan",
+        "decideRestartPlan",
+        "closeRestartStep",
+        "closeProjectHalt"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BI-017-1",
+          "given": "Projects with held amounts in three standard causes and debts of different age, held by two holders",
+          "when": "getBottleneckAnalysis; then Read the held amount by cause, the age bands and the holders; then Read a held amount with no standard cause",
+          "then": "Step 2: the amounts by cause add up to the total held, in whole dong as text, with the age band of the debt and the holder; step 3: shown as \"cause not recorded\" and counted, never dropped",
+          "test_id": "UAT-PLAN-2589"
+        },
+        {
+          "id": "AC-ST-BI-017-2",
+          "given": "A halted project with a restart plan of two steps; plan author A and approver B",
+          "when": "recordProjectHalt again for the same project; then decideRestartPlan approving as A; then decideRestartPlan approving as B; then closeProjectHalt with a step open",
+          "then": "Step 1: 409 PROJECT_HALT_OPEN_EXISTS; step 2: 403 SELF_APPROVAL_DENIED; step 3: the plan is approved; step 4: 409 PROJECT_HALT_STEPS_OPEN",
+          "test_id": "UAT-PLAN-2590"
+        },
+        {
+          "id": "AC-ST-BI-017-3",
+          "given": "An approved restart plan with two open steps",
+          "when": "closeRestartStep for step 1; then closeRestartStep for step 2; then closeProjectHalt; then closeRestartStep on a halt that is closed",
+          "then": "Steps 1 and 2: each step is closed with who and when; step 3: the halt is closed; step 4: 409 PROJECT_HALT_STATE",
+          "test_id": "UAT-PLAN-2591"
+        },
+        {
+          "id": "AC-ST-BI-017-4",
+          "given": "BI-27 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-27"
+        },
+        {
+          "id": "AC-ST-BI-017-5",
+          "given": "BI-28 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-28"
+        }
+      ],
+      "dependencies": [
+        "ST-BI-011",
+        "ST-HOME-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 48,
+          "max": 96
+        },
+        "confidence": "medium",
+        "assumption": "The causes are a standard list from governance rules flagged unverified; a halt has one open dossier per project; the plan is approved by someone other than its author; a halt closes only when every step is closed."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-BI-017-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getBottleneckAnalysis, recordProjectHalt, listHaltedProjects, getHaltedProject, saveRestartPlan, decideRestartPlan, closeRestartStep, closeProjectHalt",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-017-2",
+          "kind": "web",
+          "title": "BI-27, BI-28 screens built with the kit, the seven standard states, the info of formula, source and date on every figure and the FlowChart where a flow is shown",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-017-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BI-27, BI-28; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-017-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-2589",
+            "UAT-PLAN-2590",
+            "UAT-PLAN-2591"
+          ]
+        },
+        {
+          "id": "TK-BI-017-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BI-27",
+            "UI-BI-28"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BI-018",
+      "epic": "EP-BI",
+      "feature": "FT-BI-08",
+      "module": "BI",
+      "title": "Heat-map of disbursement, back-test of the early-warning thresholds and the trend ranking of units",
+      "narrative": "As a leader and a governance reader I can see pace by unit and fund source, test whether the warning thresholds would have predicted what followed, and see which units improve or worsen.",
+      "release": "R2",
+      "screens": [
+        "BI-29",
+        "BI-30"
+      ],
+      "operations": [
+        "getAnalyticsHeatmap",
+        "getAnalyticsBacktest",
+        "getAnalyticsTrendRanking"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-BI-018-1",
+          "given": "Three projects of the state fund in unit North at 60 percent, three of the local fund in unit South at 30 percent, one of the local fund in North",
+          "when": "getAnalyticsHeatmap with the view unit by fund source; then Read the cell of North in the local fund; then getAnalyticsHeatmap with an unknown view",
+          "then": "Step 1: North and the state fund 60.0 and South and the local fund 30.0 in the red band, as text; step 2: no rate, no band, reason SMALL_CELL and the totals leave it out; step 3: 422 VALIDATION_FAILED",
+          "test_id": "UAT-PLAN-2592"
+        },
+        {
+          "id": "AC-ST-BI-018-2",
+          "given": "Ten weekly early-warning scores for two units; a tenant with only five weeks",
+          "when": "getAnalyticsBacktest; then getAnalyticsBacktest for the tenant with five weeks; then getAnalyticsTrendRanking; then getAnalyticsBacktest as a reader without the governance read permission",
+          "then": "Step 1: the candidate thresholds with true and false positives and precision; step 2: reason TOO_FEW_PAIRS and no precision; step 3: the units ranked by the change over four weeks, the most improving first; step 4: 403",
+          "test_id": "UAT-PLAN-2593"
+        },
+        {
+          "id": "AC-ST-BI-018-3",
+          "given": "BI-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-29"
+        },
+        {
+          "id": "AC-ST-BI-018-4",
+          "given": "BI-30 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BI-30"
+        }
+      ],
+      "dependencies": [
+        "ST-BI-011",
+        "ST-HOME-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 28,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "A cell with too few projects shows no rate and no band and is left out of the totals; the back-test replays only the weeks stored and gives no precision under the minimum number of pairs; the thresholds under test are governance rules flagged unverified."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-BI-018-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getAnalyticsHeatmap, getAnalyticsBacktest, getAnalyticsTrendRanking",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-018-2",
+          "kind": "web",
+          "title": "BI-29, BI-30 screens built with the kit, the seven standard states, the info of formula, source and date on every figure and the FlowChart where a flow is shown",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-018-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BI-29, BI-30; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BI-018-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-2592",
+            "UAT-PLAN-2593"
+          ]
+        },
+        {
+          "id": "TK-BI-018-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BI-29",
+            "UI-BI-30"
           ]
         }
       ]
