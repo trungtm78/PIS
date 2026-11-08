@@ -232,7 +232,7 @@ describe('the claim register and its terms (G1-9)', () => {
         policy: { source: 'DEFAULT', unverified: true },
         allowed: { steps: ['NOTICE', 'WITHDRAWAL'], decide_settlement: false, declare_bar: false, link: true },
       });
-      expect((fresh.deadlines as Record<string, { state: string }>).PARTICULARS.state).toBe('NOT_STARTED');
+      expect((fresh.deadlines as Record<string, { state: string }>).PARTICULARS?.state).toBe('NOT_STARTED');
 
       const served = await step(OFFICER, id, 1, { kind: 'NOTICE', occurred_on: dayFromToday(-8), note: 'Notice served by registered letter.' });
       expect(served.json).toMatchObject({ status: 'NOTICE_SERVED', resource_version: 2 });
