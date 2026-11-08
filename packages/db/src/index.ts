@@ -1669,7 +1669,6 @@ export type { AssistReadScopes, ReadableSource } from './ai-assist-source-store.
 export { LlmExternalExceptionStore } from './llm-external-exception-store.ts';
 export type { AiExceptionFilter, ExceptionRow, ExceptionUseRow } from './llm-external-exception-store.ts';
 export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
-=======
 export { CtrMoneyStore, EVM_SELECTION_CAP } from './ctr-money-store.ts';
 export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from './ctr-money-store.ts';
 // RPT-1, part 2: the report engine's layouts, files, drafts, issued copies and delivery log.
@@ -1776,9 +1775,7 @@ export type { RegisterReaderContext } from './ctr-register-reader.ts';
 export { CtrRatingStore, RATING_NOTIFY_PERMISSION, RATING_PROPOSE_PERMISSION, RATING_READ_PERMISSION, RATING_RESPOND_PERMISSION } from './ctr-rating-store.ts';
 export type { RatingListFilter, RatingProposalRow, RatingRule } from './ctr-rating-store.ts';
 export { CapReallocationImpactStore, REALLOCATION_IMPACT_RESOURCE, reallocationImpactRecord, wholeScope } from './cap-reallocation-impact-store.ts';
-export type { CandidatesView, ImpactView, PlanLine, ReadPolicy } from './cap-reallocation-impact-store.ts';
-=======
-export type { CandidatesView, ImpactView, PlanLine as ReallocationPlanLine, ReadPolicy as ReallocationReadPolicy } from './cap-reallocation-impact-store.ts';
+export type { CandidatesView, ImpactView, PlanLine as ReallocationPlanLine, ReadPolicy, ReadPolicy as ReallocationReadPolicy } from './cap-reallocation-impact-store.ts';
 // GOV-11 DIS (G1-16): the milestone vintages, the board and the accuracy of the forecasts.
 export { DisMilestoneStore, MILESTONE_RECORDED_EVENT, MILESTONE_RESOURCE as DIS_MILESTONE_RESOURCE, lastFullMonth, milestoneRecord } from './dis-milestone-store.ts';
 export type { AccuracyUnit, AccuracyView, AlertMilestone, MilestoneBoard, MilestoneGroup, MilestoneUnitRow, RecordResult as MilestoneRecordResult, RuleReading as DisRuleReading } from './dis-milestone-store.ts';
@@ -1797,13 +1794,7 @@ export { LOOK_AHEAD_CONSTRAINT_RESOURCE, LOOK_AHEAD_ITEM_RESOURCE, LOOK_AHEAD_RE
 export type { ConstraintView as LookAheadConstraintView, ItemView as LookAheadItemView, LookAheadPolicyReading, LookAheadView, PlanView as LookAheadPlanView } from './prj-look-ahead-store.ts';
 export { LESSON_RESOURCE, LESSON_WAIVER_RESOURCE, PrjLessonsStore } from './prj-lessons-store.ts';
 export type { LessonRow, LessonsPolicyReading, LessonsView, WaiverRow as LessonWaiverRow } from './prj-lessons-store.ts';
-=======
-export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
-=======
-export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
 // FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
-export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore } from './fnd-figure-store.ts';
-export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
 export { AnaOutlookStore } from './ana-outlook-store.ts';
 export type { OutlookPlanBasis, OutlookPolicy, OutlookSeries } from './ana-outlook-store.ts';
 export { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE } from './ana-decision-store.ts';

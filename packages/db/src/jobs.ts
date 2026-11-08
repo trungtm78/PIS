@@ -1329,6 +1329,9 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await alertCoverage.run(workerContext(tenantId), now)));
+      },
+    });
+  }
   const settlementClocks = deps.contractSettlementClock;
   if (settlementClocks !== undefined) {
     handlers.push({

@@ -2403,8 +2403,6 @@ export type { ReportStepKind, ReportWorkflow, ReportWorkflowStep, WorkflowMode }
 export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } from './teams-channel.ts';
 export type { TeamsCard } from './teams-channel.ts';
 export {
-=======
-export {
   EGP_EXPORT_KINDS,
   EGP_OBLIGATION_FACTS,
   EGP_OPEN_STATES,
@@ -2425,8 +2423,6 @@ export {
   egpTriggerInstant,
 } from './egp-posting.ts';
 export type { EgpMilestoneDate, EgpMilestoneOutcome, EgpOnTime, EgpPostingFacet, EgpSeverityParams } from './egp-posting.ts';
-export {
-=======
 export {
   ACTUALS_PRECEDENCES,
   ACTUAL_SOURCES,
@@ -3012,9 +3008,7 @@ export {
   summariseClocks,
   workingMinutesPerDay,
 } from './pay-clock.ts';
-export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
-=======
-export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockParams as PayClockParams, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide } from './pay-clock.ts';
+export type { ClockBasis, ClockEnd, ClockFact, ClockSummary, PaymentClockInput, PaymentClockKind, PaymentClockReading, PaymentClockState, ReasonCatalogue, ReturnReasonCategory, ReturnReasonParams, ReturnReasonSide, PaymentClockParams as PayClockParams } from './pay-clock.ts';
 
 // GOV-11 CTR (G1-18): the settlement clock of a contract, its adjustment versions and the linkage of the contract to its project, package and contractor.
 export {
@@ -3057,7 +3051,7 @@ export {
   LESSONS_RULE_TYPE,
   LOOK_AHEAD_RULE_TYPE,
   POLICY_RULE_CODE as LOOK_AHEAD_RULE_CODE,
-  VARIANCE_REASONS,
+  VARIANCE_REASONS as LOOK_AHEAD_VARIANCE_REASONS,
   addDaysTo,
   assertConstraintKind,
   assertItems as assertLookAheadItems,
@@ -3080,13 +3074,13 @@ export {
 export type { ItemDraft as LookAheadItemDraft, ItemFacts as LookAheadItemFacts, ItemState as LookAheadItemState, LessonDraft, LessonsGateFacts, LessonsGateReading, LessonsGateReason, LessonsPolicy, LookAheadPolicy, Ppc } from './prj-look-ahead.ts';
 
 export { cumulativeAt, neededOf, outlookOf, sameDayLastYear } from './ana-forecast.ts';
-export type { Band, BandRatios, ForecastNullReason, ForecastParams, MultipleNullReason, NeededPerWeek, NeededStatus, Outlook, OutlookInput, SeasonalNullReason, OutlookPoint, SkippedWindowReason, WindowProjection } from './ana-forecast.ts';
+export type { Band, BandRatios, ForecastNullReason, ForecastParams, MultipleNullReason, NeededPerWeek, NeededStatus, Outlook, OutlookInput as ForecastOutlookInput, SeasonalNullReason, OutlookPoint, SkippedWindowReason, WindowProjection } from './ana-forecast.ts';
 export { EXEC_RULE_TYPES, FORECAST_RULE_CODE, FORECAST_RULE_TYPE, forecastParamsOf } from './ana-rules.ts';
 export type { ExecRuleType } from './ana-rules.ts';
 export { DECISION_OUTCOMES, DECISION_RULE_CODE, DECISION_RULE_TYPE, DECISION_SUBJECT_KINDS, FOLLOW_UP_SOON_DAYS, checkDecision, checkOutcome, compareFigure, decisionPolicyOf, figuresDigest, followUpState } from './ana-decision.ts';
 export type { DecisionDraft, DecisionOutcome, DecisionPolicy, DecisionSubject, DecisionSubjectKind, FigureCompareReason, FigureComparison, FigureFact, FollowUpState, OutcomeDraft } from './ana-decision.ts';
 export { FRESHNESS_DEFAULT_CODE, FRESHNESS_RULE_TYPE, SCORECARD_MODULE_RULE_TYPE, SCORECARD_RULE_CODE, SCORECARD_UNIT_RULE_TYPE, compositeOf, freshnessRuleCodeOf, freshnessSlaOf, judgeFreshness, moduleScorecard, moduleScorecardPolicyOf, unitScorecard, unitScorecardPolicyOf } from './ana-trust.ts';
-export type { CertificationLike, Dimension, FreshnessReading, FreshnessSla, FreshnessStatus, ModuleScorecardPolicy, QualityBadgeLike, ScoreBand, ScorecardRow, UnitScorecardPolicy } from './ana-trust.ts';
+export type { CertificationLike, Dimension as TrustDimension, FreshnessReading, FreshnessSla, FreshnessStatus, ModuleScorecardPolicy, QualityBadgeLike, ScoreBand, ScorecardRow, UnitScorecardPolicy } from './ana-trust.ts';
 export { KPI_SOURCE_TABLES, LINEAGE_KINDS, TABLE_OWNERS, TRACE_MAX_DEPTH, buildLineage, traceLineage } from './ana-lineage.ts';
 export type { DeclaredEdge, DeclaredLineage, DeclaredNode, DeclaredNodeKind, DeclaredRelation, LineageDataset, LineageKpi, LineageMetric, Trace, TraceDirection } from './ana-lineage.ts';
 export { ANNOTATION_DECISIONS, ANNOTATION_EFFECTS, ANNOTATION_STATUSES, COMPLAINT_ACTIONS, COMPLAINT_STATUSES, RANKING_RULE_CODE, RANKING_RULE_TYPE, RANK_DIRECTIONS, RANK_METRICS, annotationNext, assertAnnotationDecider, assertComplaintResolver, bandOf as rankingBandOf, checkAnnotation, checkAnnotationDecision, checkComplaint, checkComplaintResolution, complaintDueDay, complaintNext, measureValue, pairOf, rankMultiMetric, rankingModelOf } from './ana-ranking.ts';

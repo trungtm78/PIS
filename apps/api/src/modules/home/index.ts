@@ -6,9 +6,6 @@ import { AlertCoverController } from './alert-cover.controller';
 import { AlertEscalationController } from './alert-escalation.controller';
 import { AlertHealthController } from './alert-health.controller';
 import { AlertProfileController } from './alert-profile.controller';
-=======
-=======
-=======
 import { AnaBottleneckController } from './ana-bottleneck.controller';
 import { AnaDecisionController } from './ana-decision.controller';
 import { AnaForecastController } from './ana-forecast.controller';
@@ -36,19 +33,7 @@ import { HOME_CONTEXT_KEY } from './tokens';
  */
 export const homeModule = defineModule({
   code: 'HOME',
-  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController, AlertHealthController, AlertEscalationController, AlertProfileController, AlertCoverController, AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController, AlertLadderReadsController],
-=======
-  controllers: [AnaForecastController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
-=======
-  controllers: [AnaDecisionController, AnaForecastController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
-=======
-  controllers: [AnaDecisionController, AnaForecastController, AnaTrustController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
-=======
-  controllers: [AnaDecisionController, AnaForecastController, AnaRankingController, AnaTrustController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
-=======
-  controllers: [AnaBottleneckController, AnaDecisionController, AnaForecastController, AnaRankingController, AnaTrustController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
-=======
-  controllers: [AnaBottleneckController, AnaDecisionController, AnaForecastController, AnaInsightController, AnaRankingController, AnaTrustController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
+  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController, AlertHealthController, AlertEscalationController, AlertProfileController, AlertCoverController, AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController, AlertLadderReadsController, AnaForecastController, AnaDecisionController, AnaTrustController, AnaRankingController, AnaBottleneckController, AnaInsightController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,
