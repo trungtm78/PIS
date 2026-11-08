@@ -29021,7 +29021,8 @@
         },
         "x-error-codes": [
           "STAGE_TRANSITION_DENIED",
-          "OPEN_OBLIGATIONS_EXIST"
+          "OPEN_OBLIGATIONS_EXIST",
+          "LESSONS_LEARNED_REQUIRED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -199764,6 +199765,1552 @@
           "ctr.adjustment_reviewed.v1"
         ]
       }
+    },
+    "/projects/{id}/look-ahead-plans": {
+      "post": {
+        "operationId": "createLookAheadPlan",
+        "summary": "Make the look-ahead plan of a project for a week (2 to 6 weeks of work, as a draft)",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "look_ahead.write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLookAheadPlanCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "LOOK_AHEAD_WINDOW_INVALID",
+          "LOOK_AHEAD_PLAN_EXISTS",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.look_ahead_plan_created.v1"
+        ]
+      }
+    },
+    "/look-ahead-plans/{id}/publish": {
+      "post": {
+        "operationId": "publishLookAheadPlan",
+        "summary": "Publish a draft look-ahead plan; what it plans does not change afterwards",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "look_ahead.write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VERSION_CONFLICT",
+          "LOOK_AHEAD_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.look_ahead_plan_published.v1"
+        ]
+      }
+    },
+    "/look-ahead-items/{id}/constraints": {
+      "post": {
+        "operationId": "raiseLookAheadConstraint",
+        "summary": "Raise a constraint on an item of work: what has to be ready before it starts",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "look_ahead.write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLookAheadConstraintRaise"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "LOOK_AHEAD_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.look_ahead_constraint_raised.v1"
+        ]
+      }
+    },
+    "/look-ahead-constraints/{id}/clear": {
+      "post": {
+        "operationId": "clearLookAheadConstraint",
+        "summary": "Clear a constraint of an item of work",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "look_ahead.write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLookAheadConstraintClear"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VERSION_CONFLICT",
+          "LOOK_AHEAD_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.look_ahead_constraint_cleared.v1"
+        ]
+      }
+    },
+    "/look-ahead-items/{id}/outcome": {
+      "post": {
+        "operationId": "recordLookAheadOutcome",
+        "summary": "Record an item of the plan as done or not done, with a standard reason when it was not",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "look_ahead.write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLookAheadOutcome"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "LOOK_AHEAD_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.look_ahead_outcome_recorded.v1"
+        ]
+      }
+    },
+    "/projects/{id}/look-ahead": {
+      "get": {
+        "operationId": "getLookAhead",
+        "summary": "The look-ahead plan of a project, its items with their constraints, the PPC of the weeks before",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "look_ahead.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjLookAhead"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ]
+      }
+    },
+    "/projects/{id}/lessons": {
+      "post": {
+        "operationId": "proposeLesson",
+        "summary": "Propose a lesson learned of a project",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "lesson.propose",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLessonDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.lesson_proposed.v1"
+        ]
+      },
+      "get": {
+        "operationId": "listLessons",
+        "summary": "The lessons learned of a project, its waiver and the answer of the closing gate",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "lesson.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrjLessons"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ]
+      }
+    },
+    "/lessons/{id}/decision": {
+      "post": {
+        "operationId": "decideLesson",
+        "summary": "Approve or reject a lesson learned (not by who proposed it)",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "lesson.decide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLessonDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "LESSON_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.lesson_decided.v1"
+        ]
+      }
+    },
+    "/projects/{id}/lesson-waivers": {
+      "post": {
+        "operationId": "requestLessonWaiver",
+        "summary": "Ask for a waiver of the lessons learned at the closing gate, with the reason",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "lesson.propose",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLessonWaiverRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "LESSON_WAIVER_NOT_ALLOWED",
+          "LESSON_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.lesson_waiver_requested.v1"
+        ]
+      }
+    },
+    "/lesson-waivers/{id}/decision": {
+      "post": {
+        "operationId": "decideLessonWaiver",
+        "summary": "Approve or reject the waiver of the lessons learned (not by who asked)",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "lesson.decide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrjLessonDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SELF_APPROVAL_DENIED",
+          "LESSON_STATE_INVALID",
+          "RESOURCE_NOT_FOUND"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "project.lesson_waiver_decided.v1"
+        ]
+      }
     }
   },
   "components": {
@@ -270093,6 +271640,268 @@
         },
         "required": [
           "decision"
+        ]
+      },
+      "PrjLookAheadPlanCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "week_start": {
+            "type": "string",
+            "format": "date"
+          },
+          "horizon_weeks": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 26
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 500
+                },
+                "planned_start": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "planned_finish": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "responsible": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "description",
+                "planned_start",
+                "planned_finish"
+              ]
+            }
+          }
+        },
+        "required": [
+          "week_start",
+          "horizon_weeks",
+          "items"
+        ]
+      },
+      "PrjLookAheadConstraintRaise": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500
+          },
+          "owner_membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "due_on": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "kind",
+          "description"
+        ]
+      },
+      "PrjLookAheadConstraintClear": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      },
+      "PrjLookAheadOutcome": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "DONE",
+              "NOT_DONE"
+            ]
+          },
+          "reason_code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "PrjLookAhead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "project": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "plan": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "rule": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "project",
+          "plan",
+          "history",
+          "overdue",
+          "rule",
+          "as_of"
+        ]
+      },
+      "PrjLessonDraft": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "situation": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 4000
+          },
+          "recommendation": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 4000
+          }
+        },
+        "required": [
+          "category",
+          "title",
+          "situation",
+          "recommendation"
+        ]
+      },
+      "PrjLessonDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "PrjLessonWaiverRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "PrjLessons": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "project": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "waiver": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          },
+          "gate": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "rule": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "project",
+          "lessons",
+          "waiver",
+          "gate",
+          "rule",
+          "as_of"
         ]
       }
     }

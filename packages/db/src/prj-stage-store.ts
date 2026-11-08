@@ -3,6 +3,7 @@ import { MasterRules } from './master-rules.ts';
 import type { NationalCodeRule } from './master-rules.ts';
 import { LIST_COLUMNS, LIST_FROM, PROJECT_STATUSES, SCOPE_FROM } from './prj-project-store.ts';
 import type { ProjectClassification, ProjectListRow, ProjectStatus } from './prj-project-store.ts';
+import { PrjLessonsStore } from './prj-lessons-store.ts';
 import { PLAN_PUBLISHED_EVENT, STAGE_SEQUENCE, commandEdgesFrom, edgeBy } from './prj-stage-machine.ts';
 import type { StageCommand } from './prj-stage-machine.ts';
 import { effectiveDateOf, invalid, lockProject, projectInScope, reasonOf, recordStageChange, usableDocumentId } from './prj-stage-support.ts';
@@ -22,7 +23,7 @@ const HISTORY_LIMIT = 500;
 const SYSTEM_ACTOR_KIND = 'SYSTEM';
 const PROJECT_RESOURCE = 'project';
 
-export type GuardKey = 'DECISION_DOCUMENT' | 'INVESTMENT_DECISION_DOCUMENT' | 'NATIONAL_CODE' | 'OPEN_OBLIGATIONS';
+export type GuardKey = 'DECISION_DOCUMENT' | 'INVESTMENT_DECISION_DOCUMENT' | 'NATIONAL_CODE' | 'OPEN_OBLIGATIONS' | 'LESSONS_LEARNED';
 /** MET: satisfied. UNMET: the command is refused. WARNING: allowed, but the rule says to flag it. INPUT_REQUIRED: the caller supplies it with the command. */
 export type GuardState = 'MET' | 'UNMET' | 'WARNING' | 'INPUT_REQUIRED';
 
@@ -49,6 +50,8 @@ interface CommandGuards {
   nationalCode: boolean;
   /** Cancelling is refused while any capital was committed or paid; closing, while any is committed or reserved. */
   obligations: 'CANCEL' | 'CLOSE' | null;
+  /** The closing gate asks for the lessons learned of the project (G1-19): approved lessons, or an approved waiver, by the rule LESSONS_LEARNED_POLICY. */
+  lessons?: boolean;
 }
 
 const DECISION = (required: boolean): DocumentGuard => ({ field: 'decisionDocumentId', apiField: 'decision_document_id', key: 'DECISION_DOCUMENT', required });
@@ -60,7 +63,7 @@ const COMMAND_GUARDS: Readonly<Record<StageCommand, CommandGuards>> = {
   suspendProject: { documents: [DECISION(true)], nationalCode: false, obligations: null },
   resumeProject: { documents: [DECISION(false)], nationalCode: false, obligations: null },
   completeProject: { documents: [DECISION(true)], nationalCode: false, obligations: null },
-  closeProject: { documents: [DECISION(false)], nationalCode: false, obligations: 'CLOSE' },
+  closeProject: { documents: [DECISION(false)], nationalCode: false, obligations: 'CLOSE', lessons: true },
   cancelProject: { documents: [DECISION(true)], nationalCode: false, obligations: 'CANCEL' },
 };
 
@@ -247,6 +250,23 @@ function obligationsReading(kind: 'CANCEL' | 'CLOSE', open: OpenObligations): Gu
   return held ? { key: 'OPEN_OBLIGATIONS', state: 'UNMET', refusal: { code: 'OPEN_OBLIGATIONS_EXIST', status: 409 } } : { key: 'OPEN_OBLIGATIONS', state: 'MET' };
 }
 
+/** What the closing gate reads of the lessons learned of a project (G1-19). */
+export interface ProjectLessonsPort {
+  gate(tx: TenantTx, projectId: string, now: Date): Promise<{ met: boolean; reason: string; required: number; approved: number }>;
+}
+
+export class SqlProjectLessons implements ProjectLessonsPort {
+  private readonly lessons = new PrjLessonsStore();
+
+  gate(tx: TenantTx, projectId: string, now: Date): Promise<{ met: boolean; reason: string; required: number; approved: number }> {
+    return this.lessons.gate(tx, projectId, 'CLOSE', now);
+  }
+}
+
+function lessonsReading(reading: { met: boolean; reason: string }): GuardReading {
+  return reading.met ? { key: 'LESSONS_LEARNED', state: 'MET' } : { key: 'LESSONS_LEARNED', state: 'UNMET', refusal: { code: 'LESSONS_LEARNED_REQUIRED', status: 422, detail: reading.reason } };
+}
+
 function refuse(reading: GuardReading): never {
   const refusal = reading.refusal ?? { code: 'VALIDATION_FAILED', status: 422 };
   throw new DomainError(refusal.code, refusal.status, refusal.detail);
@@ -301,10 +321,12 @@ export function stageChangeRecord(change: StageChange, tenantId: string, occurre
 export class PrjStageStore {
   private readonly rules: MasterRules;
   private readonly obligations: ProjectObligationsPort;
+  private readonly lessons: ProjectLessonsPort;
 
-  constructor(rules: MasterRules = new MasterRules(), obligations: ProjectObligationsPort = new SqlProjectObligations()) {
+  constructor(rules: MasterRules = new MasterRules(), obligations: ProjectObligationsPort = new SqlProjectObligations(), lessons: ProjectLessonsPort = new SqlProjectLessons()) {
     this.rules = rules;
     this.obligations = obligations;
+    this.lessons = lessons;
   }
 
   /**
@@ -588,6 +610,7 @@ export class PrjStageStore {
     const readings: GuardReading[] = [];
     if (guards.nationalCode) readings.push(nationalCodeReading(known ?? (await this.rules.nationalCode(tx, today)), target, project.nationalProjectCode));
     if (guards.obligations !== null) readings.push(obligationsReading(guards.obligations, await this.obligations.openObligations(tx, project.id)));
+    if (guards.lessons === true) readings.push(lessonsReading(await this.lessons.gate(tx, project.id, new Date())));
     return readings;
   }
 }

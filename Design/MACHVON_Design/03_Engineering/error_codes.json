@@ -6859,6 +6859,54 @@
       "module": "CTR",
       "statusBasis": "spec",
       "source": "spec:CTR"
+    },
+    "LESSONS_LEARNED_REQUIRED": {
+      "status": 422,
+      "title": "Lessons learned required to close",
+      "meaning": "Dự án chưa có đủ bài học kinh nghiệm được duyệt hoặc miễn trừ được duyệt nên chưa thể đóng.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LESSON_STATE_INVALID": {
+      "status": 409,
+      "title": "Lesson or waiver already decided",
+      "meaning": "Bài học hoặc miễn trừ không ở trạng thái chờ quyết định.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LESSON_WAIVER_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Lessons waiver not allowed",
+      "meaning": "Quy tắc hiện hành không cho phép miễn trừ bài học kinh nghiệm.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LOOK_AHEAD_WINDOW_INVALID": {
+      "status": 422,
+      "title": "Look-ahead window outside the rule",
+      "meaning": "Kế hoạch nhìn trước phải phủ số tuần trong khoảng quy tắc cho phép.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LOOK_AHEAD_PLAN_EXISTS": {
+      "status": 409,
+      "title": "Look-ahead plan already exists for the week",
+      "meaning": "Dự án đã có kế hoạch nhìn trước cho tuần này.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LOOK_AHEAD_STATE_INVALID": {
+      "status": 409,
+      "title": "Look-ahead record is not in a state for this move",
+      "meaning": "Kế hoạch, hạng mục hoặc vướng mắc nhìn trước không ở trạng thái cho phép thao tác này.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
     }
   }
 }
