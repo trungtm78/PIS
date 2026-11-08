@@ -208,9 +208,13 @@ describe('the model of the payment request (PAY-01, PAY-02, PAY-03, CTR-13)', ()
     expect(verifyBody(EMPTY_VERIFY)).toEqual({});
     expect(verifyBody({ note: ' Complete ' })).toEqual({ note: 'Complete' });
     expect(validateReturn(EMPTY_RETURN)).toEqual({ reason: 'required' });
-    expect(validateReturn({ reason: 'x'.repeat(2001) })).toEqual({ reason: 'tooLong' });
-    expect(validateReturn({ reason: 'Wrong invoice' })).toEqual({});
-    expect(returnBody({ reason: ' Wrong invoice ' })).toEqual({ reason: 'Wrong invoice' });
+    expect(validateReturn({ ...EMPTY_RETURN, reason: 'x'.repeat(2001) })).toEqual({ reason: 'tooLong' });
+    expect(validateReturn({ ...EMPTY_RETURN, reason: 'Wrong invoice' })).toEqual({});
+    // The standard reason is asked for when the rule says so (G1-17), and sent with the words.
+    expect(validateReturn({ ...EMPTY_RETURN, reason: 'Wrong invoice' }, true)).toEqual({ reasonCode: 'required' });
+    expect(validateReturn({ reason: 'Wrong invoice', reasonCode: 'WRONG_AMOUNT' }, true)).toEqual({});
+    expect(returnBody({ reason: ' Wrong invoice ', reasonCode: '' })).toEqual({ reason: 'Wrong invoice' });
+    expect(returnBody({ reason: 'Wrong invoice', reasonCode: 'WRONG_AMOUNT' })).toEqual({ reason: 'Wrong invoice', reason_code: 'WRONG_AMOUNT' });
     const open = toPaymentRequest(payment(1, { status: 'SUBMITTED', actions: { revise: false, attach_document: false, cancel: false, override_duplicate: false, submit: true, verify: true, return: true } }))!;
     expect(open.actions).toMatchObject({ submit: true, verify: true, return: true });
     expect(toPaymentRequest(payment(1, { actions: null }))!.actions).toMatchObject({ submit: false, verify: false, return: false });
