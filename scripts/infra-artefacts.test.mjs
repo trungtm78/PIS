@@ -130,12 +130,12 @@ test('workflows: a docker image without a tag or digest and an action on a movin
 });
 
 test('compose: health checks, limits, hardening, ports and internal networks', () => {
-  found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/    healthcheck:\n      test: \["CMD", "node", "-e", "fetch\('http:\/\/127\.0\.0\.1:3000\/health\/ready'/, '    healthchecks:\n      test: ["CMD", "node", "-e", "fetch(\'http://127.0.0.1:3000/health/ready\''))), 'COMPOSE_HEALTHCHECK', /^infra\/onprem\/compose\/compose\.yaml api$/);
-  found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/          cpus: "\$\{API_CPUS\}"\n/, ''))), 'COMPOSE_LIMITS', /api/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/ {4}healthcheck:\n {6}test: \["CMD", "node", "-e", "fetch\('http:\/\/127\.0\.0\.1:3000\/health\/ready'/, '    healthchecks:\n      test: ["CMD", "node", "-e", "fetch(\'http://127.0.0.1:3000/health/ready\''))), 'COMPOSE_HEALTHCHECK', /^infra\/onprem\/compose\/compose\.yaml api$/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/ {10}cpus: "\$\{API_CPUS\}"\n/, ''))), 'COMPOSE_LIMITS', /api/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('x-hardening: &hardening\n  security_opt:\n    - no-new-privileges:true\n  cap_drop:\n    - ALL\n', 'x-hardening: &hardening\n  security_opt:\n    - seccomp:unconfined\n  cap_drop:\n    - NET_RAW\n'))), 'COMPOSE_HARDENING', /db/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('    networks: [data]\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]', '    networks: [data]\n    ports:\n      - "5432:5432"\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]'))), 'COMPOSE_PORTS', /db publishes a port/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('  data:\n    internal: true', '  data: {}'))), 'COMPOSE_PORTS', /network data/);
-  found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/    ports:\n      - "\$\{WEB_HTTP_PORT\}:8080"\n      - "\$\{WEB_HTTPS_PORT\}:8443"\n/, ''))), 'COMPOSE_PORTS', /web must publish/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/ {4}ports:\n {6}- "\$\{WEB_HTTP_PORT\}:8080"\n {6}- "\$\{WEB_HTTPS_PORT\}:8443"\n/, ''))), 'COMPOSE_PORTS', /web must publish/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('name: machvon\n', 'name: machvon\nservices: []\n'))), 'COMPOSE_INVALID');
 });
 
@@ -256,7 +256,7 @@ test('scanning workflows: CodeQL with the extended queries, a secret scan of the
   found(scratch((s) => s.text('.github/workflows/dast.yml', (t) => t.replace(/zap-api-scan\.py/g, 'echo'))), 'SCAN_WORKFLOW', /job api/);
   found(scratch((s) => s.text('.github/workflows/dast.yml', (t) => t.replace(/rules\.tsv/g, 'other.tsv'))), 'SCAN_WORKFLOW', /job baseline/);
   found(scratch((s) => s.remove('.github/workflows/security.yml')), 'ARTEFACT_MISSING', /security\.yml/);
-  found(scratch((s) => s.text('infra/scan/trivy.yaml', (t) => t.replace(/  - HIGH\n/, ''))), 'SCAN_WORKFLOW', /Trivy policy must fail/);
+  found(scratch((s) => s.text('infra/scan/trivy.yaml', (t) => t.replace(/ {2}- HIGH\n/, ''))), 'SCAN_WORKFLOW', /Trivy policy must fail/);
   found(scratch((s) => s.text('infra/scan/trivy.yaml', (t) => t.replace('exit-code: 1', 'exit-code: 0'))), 'SCAN_WORKFLOW', /Trivy policy must fail/);
   found(scratch((s) => s.json('supply-chain.json', (p) => { delete p.imageScan; })), 'SCAN_WORKFLOW', /imageScan/);
 });
@@ -274,7 +274,7 @@ test('infra:check reports the artefact findings in both languages, and every cod
     for (const code of ARTEFACT_FINDING_CODES) assert.ok(messages[`infra.${code}`], `${locale}: ${code}`);
   }
   assert.deepEqual(Object.keys(loadOnpremMessages('vi')).sort(), Object.keys(loadOnpremMessages('en')).sort());
-  const s = scratch((api) => api.text(COMPOSE, (t) => t.replace(/          cpus: "\$\{API_CPUS\}"\n/, '')));
+  const s = scratch((api) => api.text(COMPOSE, (t) => t.replace(/ {10}cpus: "\$\{API_CPUS\}"\n/, '')));
   assert.ok(infraCheck(s.root).findings.some((entry) => entry.code === 'COMPOSE_LIMITS'));
   for (const locale of ['en', 'vi']) {
     const lines = [];
@@ -288,7 +288,7 @@ function namedPaths(text) {
   const roots = ['apps/', 'packages/', 'scripts/', 'infra/', 'docs/', '.github/', 'Design/', '.zap/'];
   return [...text.matchAll(/`([^`\s]+)`/g)]
     .map((match) => match[1].replace(/[.,;:]+$/, ''))
-    .filter((token) => roots.some((root) => token.startsWith(root)) && !/[<>*${}|()\[\]]/.test(token) && !token.includes('://'));
+    .filter((token) => roots.some((root) => token.startsWith(root)) && !/[<>*${}|()[\]]/.test(token) && !token.includes('://'));
 }
 
 test('the paths named by the runbooks and the security documents exist', () => {

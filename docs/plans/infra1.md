@@ -29,21 +29,21 @@ Status legend: `[ ]` open, `[x]` done.
    Test: `npm run supply-chain:check -- --audit` shows no high advisory; lockfile in sync.
 3. [x] Native dependency check `scripts/native-deps-check.mjs` + test + policy (`infra/onprem/native-deps.json`): lists native and binary packages from the lockfile,
    flags those without a linux arm64 build, says that `embedded-postgres` is test-only. Test: fixtures with and without arm64 siblings, the real lockfile passes.
-4. [ ] Images and compose (`infra/onprem/`): Dockerfiles for api, web, workers and backup (pgBackRest), `.dockerignore`, `images.json` (every third-party image with
+4. [x] Images and compose (`infra/onprem/`): Dockerfiles for api, web, workers and backup (pgBackRest), `.dockerignore`, `images.json` (every third-party image with
    tag and digest slot, platforms amd64 + arm64), `compose.yaml` (pinned, health checks, limits, secrets as files, read-only roots), config templates with references only.
-5. [ ] Offline bundle `scripts/onprem-bundle.mjs` + test: `build` (buildx per image to OCI archives, SHA256SUMS, SBOM through `scripts/sbom.mjs`, manifest, install and rollback scripts),
+5. [x] Offline bundle `scripts/onprem-bundle.mjs` + test: `build` (buildx per image to OCI archives, SHA256SUMS, SBOM through `scripts/sbom.mjs`, manifest, install and rollback scripts),
    `verify` (checksums, manifest, arch coverage). Docker is injected, so tests use a fake runner.
-6. [ ] TLS and headers: nginx edge config (`infra/onprem/nginx/`) with TLS 1.2/1.3 only, HSTS, CSP, frame, referrer, permissions and nosniff headers; API header middleware
+6. [x] TLS and headers: nginx edge config (`infra/onprem/nginx/`) with TLS 1.2/1.3 only, HSTS, CSP, frame, referrer, permissions and nosniff headers; API header middleware
    in `apps/api` (minimal, anchored) so the API actually sends them; a test that boots the API handler and asserts the headers of a response, and that reads the nginx config.
-7. [ ] Identity: Keycloak realm export (LDAP/AD federation placeholders, mandatory TOTP or WebAuthn, brute force 5 failures / 15 minutes lock, session policy, AD group to role mapping,
+7. [x] Identity: Keycloak realm export (LDAP/AD federation placeholders, mandatory TOTP or WebAuthn, brute force 5 failures / 15 minutes lock, session policy, AD group to role mapping,
    `acr` mapping to `aal2`), `ad-group-role-map.json`, `docs/security/identity-test-plan.md`, runbook. Test: structural tests over the export and the mapping.
-8. [ ] Backups: `infra/backup/backup-policy.json` (schedule full/diff/incremental/WAL, retention, immutability, encryption, RPO/RTO), pgBackRest conf template, `scripts/backup-verify.mjs`
+8. [x] Backups: `infra/backup/backup-policy.json` (schedule full/diff/incremental/WAL, retention, immutability, encryption, RPO/RTO), pgBackRest conf template, `scripts/backup-verify.mjs`
    (offline policy verification and live object-lock verification through an injected S3 CLI), restore drill (`packages/db/src/restore-drill.ts` + CLI + runbook with checksum comparison).
-9. [ ] Security scanning workflows: `security.yml` (CodeQL, secret scanning, dependency review, filesystem scan), `images.yml` (multi-arch build without push, image scan, SBOM),
+9. [x] Security scanning workflows: `security.yml` (CodeQL, secret scanning, dependency review, filesystem scan), `images.yml` (multi-arch build without push, image scan, SBOM),
    `dast.yml` (ZAP baseline against `vars.DAST_TARGET_URL`, never run here), `.zap/rules.tsv`; `supply-chain.json` image scan policy; CI ARM leg (`ubuntu-24.04-arm`) in `ci.yml`.
-10. [ ] Pen-test readiness pack `docs/security/pentest-readiness.md` (scope, rules of engagement template, OWASP Top 10 / API Top 10 / ASVS L2 mapped to controls and tests) and runbooks
+10. [x] Pen-test readiness pack `docs/security/pentest-readiness.md` (scope, rules of engagement template, OWASP Top 10 / API Top 10 / ASVS L2 mapped to controls and tests) and runbooks
     (`docs/runbooks/infra/onprem-install.md`, `onprem-upgrade-rollback.md`, `backup-immutable.md`, `restore-drill.md`, `tls-headers.md`, `security-scanning.md`).
-11. [ ] `infra:check` extended (`scripts/infra-artefacts.mjs`, wired into `scripts/infra-check.mjs`) with tests: pinned versions, no latest tags, no secret literals, immutable-backup settings,
+11. [x] `infra:check` extended (`scripts/infra-artefacts.mjs`, wired into `scripts/infra-check.mjs`) with tests: pinned versions, no latest tags, no secret literals, immutable-backup settings,
     MFA policy, multi-arch, security workflows, ARM leg, headers. Messages in `scripts/messages/{vi,en}.json`.
 12. [ ] Gates: `npm run lint`, `npm run typecheck`, tests of what changed, `node scripts/edition-check.mjs`, scan-files self check; Codex review, triage of every finding, fixes with tests.
 
