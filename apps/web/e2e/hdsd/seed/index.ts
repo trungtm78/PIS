@@ -59,6 +59,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-ent-procurement', seed: seedClipProcurement },
   { name: 'clip-ent-contracts', seed: seedClipContracts },
   { name: 'clip-ent-workflow', seed: seedClipWorkflow },
+  { name: 'clip-ent-disbursement', seed: seedClipDisbursement },
   { name: 'clip-ent-bi', seed: seedClipEnterpriseBi },
 ];
 

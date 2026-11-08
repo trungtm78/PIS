@@ -609,5 +609,33 @@
     "capital-plan:title.024": "Quyết định về việc giao kế hoạch vốn đầu tư năm 2026 cho các đơn vị chủ đầu tư",
     "capital-plan:note.021": "Bố trí vốn năm 2026 cho các dự án chuyển tiếp và khởi công mới của Tổng công ty",
     "capital-plan:reason.022": "Phù hợp kế hoạch được giao và tiến độ thực hiện của các dự án"
+  },
+  "disbursement": {
+    "office": {
+      "key": "NH-DOI-TAC",
+      "name": "Ngân hàng thương mại đối tác (minh họa)",
+      "externalCode": "0021",
+      "province": "Bà Rịa - Vũng Tàu"
+    },
+    "decision": {
+      "symbol": "142/QĐ-HĐTV",
+      "title": "Quyết định về việc công bố danh mục ngân hàng giải ngân của Tổng công ty",
+      "sender": "Hội đồng thành viên Tổng công ty"
+    },
+    "reason": "Công bố danh mục theo quyết định của Hội đồng thành viên Tổng công ty",
+    "fiscalYear": 2026,
+    "lastMonth": 10,
+    "rateRange": [
+      8,
+      92
+    ],
+    "paymentsPerProject": [
+      2,
+      4
+    ],
+    "projectStages": [
+      "IMPLEMENTATION",
+      "BUDGETED"
+    ]
   }
 }

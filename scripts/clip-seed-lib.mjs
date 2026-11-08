@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, BI. */
-export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-workflow', 'clip-ent-bi'];
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-bi'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
@@ -39,7 +39,7 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts'] },
     // The package workflows are driven at seven clocks (each package has its own), so the process tree shows late steps beside the ones on time.
     ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-ent-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
-    { clockDays: 0, groups: ['clip-ent-bi'] },
+    { clockDays: 0, groups: ['clip-ent-disbursement', 'clip-ent-bi'] },
   ],
 };
 
@@ -485,6 +485,7 @@ export function buildPlan(dataset) {
       tenders,
       procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: workflowPlans },
       bi: dataset.bi,
+      disbursement: buildDisbursement(dataset, built.projects),
       expect: {
         packages: tenders.reduce((sum, plan) => sum + plan.packages.length, 0) + workflowPlans.reduce((sum, plan) => sum + plan.packages.length, 0),
         contractors: dataset.contractors.length,
