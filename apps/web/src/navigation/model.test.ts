@@ -15,6 +15,16 @@ describe('buildNavigation for the real architecture file', () => {
     expect(model.library.map((area) => area.id)).toEqual(['overview', 'investment', 'insights', 'engagement', 'data', 'admin']);
   });
 
+  it('lists every route of the table in the directory of its own module, in the group the table names', () => {
+    const listed = new Set<string>();
+    for (const route of WEB_ROUTES) {
+      const group = model.directory(route.module).find((entry) => entry.title === route.group);
+      expect(group, `${route.id} has no group '${route.group}' in ${route.module}`).toBeDefined();
+      if (group?.links.some((link) => link.id === route.id)) listed.add(route.id);
+    }
+    expect(WEB_ROUTES.filter((route) => !listed.has(route.id)).map((route) => route.id)).toEqual([]);
+  });
+
   it('gives the contextual shortcuts of PRJ in the architecture order, with their routes', () => {
     const shortcuts = model.shortcuts.get('PRJ') ?? [];
     expect(shortcuts.map((shortcut) => shortcut.id)).toEqual(['PRJ-07', 'PRJ-04', 'PRJ-09', 'PRJ-12']);
