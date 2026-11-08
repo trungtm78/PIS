@@ -93,7 +93,7 @@ export interface AiExceptionFilter {
 
 export class LlmExternalExceptionStore {
   async find(tx: TenantTx, id: string, lock = false): Promise<ExceptionRow | undefined> {
-    const rows = await tx.query<Sql>(`select ${COLUMNS} from ${FROM} where e.id = $1::uuid${lock ? ' for update of e' : ''}`, [id]);
+    const rows = await tx.query<Sql>(`select ${COLUMNS} from ${FROM} where e.id = $1::uuid${lock ? ' for no key update of e' : ''}`, [id]);
     return rows[0] === undefined ? undefined : toRow(rows[0]);
   }
 

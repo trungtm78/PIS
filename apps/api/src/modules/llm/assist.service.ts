@@ -105,7 +105,7 @@ export class AiAssistService {
       if (!wanted.some((other) => materialKey(other.kind, other.id) === materialKey(ref.kind, ref.id))) wanted.push(ref);
     };
     named.forEach(add);
-    if (wanted.length === 0) throw new DomainError('VALIDATION_FAILED', 422, 'sources');
+    if (wanted.length === 0 || wanted.length > MAX_SOURCES) throw new DomainError('VALIDATION_FAILED', 422, 'sources');
     // What belongs to the subject goes in with it: the contracts of a project, the project of a contract. A source that is only named brings nothing else.
     const related: SourceRef[] = [];
     for (const ref of input.subject === undefined ? [] : [input.subject]) {

@@ -212,6 +212,8 @@ export class AssistWorld {
       return modelId;
     };
     this.providers.domestic = await provider('VN-HOST', 'DOMESTIC_HOSTED', 'PERSONAL');
+    // Under a policy that asks for it an external provider is used only with its attestation on record.
+    await this.rows("update machvon.ai_provider set data_location_country = 'VN', no_training_attested = true, attestation_ref = 'DPA-2026-07', attested_by = $2::uuid, attested_at = now() where id = $1::uuid", [this.providers.domestic, worker]);
     this.domesticModel = await model(this.providers.domestic, 'dom-model', 'PERSONAL');
     const allowed = [this.domesticModel];
     if (options.withSelfHosted === true) {

@@ -1,7 +1,7 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { LlmEmergencyStore, LlmEvalStore, LlmExternalExceptionStore, LlmFinopsStore, LlmGatewayStore, LlmRegistryStore, TenantDatabase } from '@machvon/db';
 import type { AiRequestRow } from '@machvon/db';
-import { CLASSIFICATIONS, DomainError, GatewayFailure, MAX_CHECK_RETRIES, NOOP_METRICS, aiEditionPolicy, asUuid, classifySources, estimateVnd, externalVerdict, killedBy, planRoute, postCheck, unsupportedSchemaKeyword, vietnamDateOf } from '@machvon/kernel';
+import { CLASSIFICATIONS, DomainError, GatewayFailure, MAX_CHECK_RETRIES, NOOP_METRICS, aiEditionPolicy, asUuid, classifySources, estimateVnd, externalVerdict, isExternalRoute, killedBy, planRoute, postCheck, unsupportedSchemaKeyword, vietnamDateOf } from '@machvon/kernel';
 import type { AiGatewayPort, BudgetScope, Classification, MetricsSink, Price, RouteCandidate } from '@machvon/kernel';
 import type { CommandScope } from '../../command-scope';
 import { LLM_GATEWAY, LLM_METRICS } from './tokens';
@@ -124,7 +124,7 @@ export class LlmGatewayService {
         continue;
       }
       const verdict = externalVerdict(edition, { providerId: model.providerId, route: model.route, taskType: input.taskType, classification: classified.classification, now }, standing);
-      if (!verdict.allowed) {
+      if (!verdict.allowed || !(await this.attested(tx, edition.attestationRequired, model.providerId, model.route))) {
         withheldPool.push({ modelRefId: model.id, modelId: model.modelId, providerId: model.providerId, providerCode: model.providerCode, route: model.route, pricingVersionId: row.id });
         continue;
       }
@@ -210,7 +210,7 @@ export class LlmGatewayService {
         if (usedException !== undefined) {
           const moment = new Date();
           const verdict = externalVerdict(edition, { providerId: candidate.providerId, route: candidate.route, taskType: input.taskType, classification: classified.classification, now: moment }, await this.exceptions.standing(tx, moment));
-          if (!verdict.allowed) {
+          if (!verdict.allowed || !(await this.attested(tx, edition.attestationRequired, candidate.providerId, candidate.route))) {
             externalLapsed = true;
             break;
           }
@@ -341,6 +341,13 @@ export class LlmGatewayService {
     });
     this.count(scope, finished);
     return { request: finished, output: accepted?.output };
+  }
+
+  /** Where the edition asks for it, a provider outside the customer servers is used only while its data location and its no-training attestation are on record (R5): read at planning and again before each call. */
+  private async attested(tx: CommandScope['tx'], required: boolean, providerId: string, route: RouteCandidate['route']): Promise<boolean> {
+    if (!required || !isExternalRoute(route)) return true;
+    const provider = await this.registry.findProvider(tx, providerId);
+    return provider !== undefined && provider.dataLocationCountry !== null && provider.noTrainingAttested;
   }
 
   /** A request that the policy or the budget refuses is kept as such, with its audit, and the caller is told the refusal (the same key gets it again). */

@@ -158,6 +158,8 @@ describe('the AI assistant: answers with verified citations, review of a file, e
         { kind: 'QA', request_text: 'x'.repeat(4001), sources: [{ kind: 'PROJECT', id: records.projectId }] },
         { kind: 'QA', request_text: 'A checklist is for reviews.', sources: [{ kind: 'PROJECT', id: records.projectId }], checklist_id: randomUUID() },
         { kind: 'DOC_REVIEW', sources: [{ kind: 'DOCUMENT_VERSION', id: records.documentVersionId }] },
+        // twenty sources and a subject of its own make twenty-one: refused before anything is read or any model is called
+        { kind: 'QA', request_text: 'Too many.', sources: Array.from({ length: 20 }, () => ({ kind: 'PROJECT', id: randomUUID() })), subject: { kind: 'PROJECT', id: randomUUID() } },
       ]) {
         const reply = await ask(body);
         expect([400, 422]).toContain(reply.status);

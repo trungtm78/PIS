@@ -3,7 +3,6 @@ import { aiEditionPolicy, PUBLIC_AI_POLICY } from '@machvon/kernel';
 import { clearEnterpriseAiPolicy, registerEnterpriseAiPolicy } from '@machvon/edition-enterprise/src/server.ts';
 import { loadEnterpriseManifest } from '../../src/editions/load-enterprise';
 import { asObjects } from '../support/json';
-import { memberId } from '../../../../packages/db/test/support/authz-fixtures';
 import { ASKER, EXCEPTION_ASKER, EXCEPTION_DECIDER, PROVIDER_ADMIN, PROVIDER_APPROVER, TENANT_A, AssistWorld } from './assist-world';
 import type { Records, Reply } from './assist-world';
 
@@ -132,8 +131,9 @@ describe('the AI of the enterprise edition: external providers off by default, o
     world.gateway.script('dom-model', [
       async () => {
         // While the model works, the person with the right revokes the exception.
-        // Written straight into the table, as the revocation of another session would be: the command locks the row, which the call of the gateway holds a share of.
-        await world.rows("update machvon.ai_external_exception set status = 'REVOKED', revoked_by = $2::uuid, revoked_at = now(), revoke_reason = 'The provider changed its terms of use.', version = version + 1 where id = $1::uuid", [exceptionId, memberId(EXCEPTION_DECIDER)]);
+        // The revocation goes through the command while the call is pending: it is not held up by the use that the gateway logged.
+        const revoked = await world.call('POST', `/ai/external-exceptions/${exceptionId}/revocation`, { member: EXCEPTION_DECIDER, ifMatch: '"2"', body: { reason: 'The provider changed its terms of use.' } });
+        expect(revoked.status).toBe(200);
         return { providerRequestId: `mock-${randomUUID()}`, output: invalid, usage: { inputTotal: 10, cachedInput: 0, outputTotal: 5 }, latencyMs: 5 };
       },
       { output: invalid },
@@ -141,6 +141,13 @@ describe('the AI of the enterprise edition: external providers off by default, o
     const reply = await ask();
     expect(reply.json).toMatchObject({ status: 'FAILED' });
     expect(world.gateway.calls).toHaveLength(1);
+  });
+
+  it('does not use an external provider whose attestation is withdrawn, even with an approved exception', async () => {
+    await approved(world.providers.domestic);
+    await world.rows("update machvon.ai_provider set no_training_attested = false where id = $1::uuid", [world.providers.domestic]);
+    expect(await ask()).toMatchObject({ status: 422, json: { code: 'AI_EXTERNAL_EXCEPTION_REQUIRED' } });
+    expect(world.gateway.calls).toHaveLength(0);
   });
 
   it('asks two people, for a reason, for at most ninety days, and keeps the history', async () => {
