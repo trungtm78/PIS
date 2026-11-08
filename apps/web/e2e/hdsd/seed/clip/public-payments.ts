@@ -52,7 +52,7 @@ async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: st
   const evidence = await paper(ctx, { symbol: `NT-${tag}/2026`, title: `Measurement ${tag}`, docType: 'BB', sender: 'Supervisor', issuedOn: ctx.day(-3) });
   const measured = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contracts/${contractId}/measurements`, {
     contract_revision_id: String(revision.id),
-    boq_item_id: String(line.id),
+    boq_item_id: String(line.boq_item_id ?? line.id),
     period_id: periodId,
     quantity_period: '300',
     reference_no: `KL-${tag}`,

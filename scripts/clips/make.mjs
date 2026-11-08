@@ -98,6 +98,10 @@ const EMPTY_SELECTION = new RegExp(readJson(join(CLIPS_DIR, 'record', 'empty-sel
 /** Screens whose pages hold the links (with the id of a record) that open the detail screens, tried in this order. */
 const CONTEXT_HINTS = ['HOME-09', 'CTR-01', 'CTR-02', 'BID-01', 'BID-27', 'BID-28', 'BID-21', 'RPT-01', 'PRJ-27', 'HOME-02'];
 const contextLinks = new Map();
+/** Screens that stay empty without a record and for which none was found: they are left out of the film. */
+const emptyScreens = new Set();
+/** A detail screen that says "choose one" is a short page; a long page that happens to hold such words (a filter) is not empty. */
+const isEmptySelection = (text) => text.length < 700 && EMPTY_SELECTION.test(text);
 
 /** The internal links of the page now open (same origin, no query noise kept except what the app wrote). */
 const hrefsOf = (page) => page.$eval('[data-screen-id] a[href]', (anchors) => [...new Set(anchors.map((anchor) => anchor.getAttribute('href')))].filter((href) => href.startsWith('/')));
@@ -119,6 +123,7 @@ async function findContext(ui, page, target, persona, hints, log) {
     seen.add(path);
     loads += 1;
     await ui.goto(path, persona).catch(() => undefined);
+    await page.waitForTimeout(1800);
     const links = await hrefsOf(page).catch(() => []);
     for (const href of links) if (/[?]([a-z_]+)=/u.test(href) && queries.length < 6) queries.push(href.slice(href.indexOf('?')));
     const hit = links.find((href) => href.startsWith(`${prefix}?`));
@@ -144,7 +149,8 @@ async function findContext(ui, page, target, persona, hints, log) {
 }
 
 /** Records the views of a scene in an open browser for `durationMs` after the first screen has drawn; returns the file and the second the content begins at. */
-async function recordViews(browser, { views, durationMs, baseUrl, dir, log }) {
+async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, log }) {
+  let views = wanted;
   // The records that open the detail screens are looked for first, in a page that is not filmed.
   const scout = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1, locale: 'vi-VN' });
   try {
@@ -154,7 +160,10 @@ async function recordViews(browser, { views, durationMs, baseUrl, dir, log }) {
       if (contextLinks.has(view.screen)) continue;
       await scoutUi.goto(ROUTES[view.screen], view.persona).catch(() => undefined);
       const text = await scoutPage.locator('[data-screen-id]').first().innerText().catch(() => '');
-      if (EMPTY_SELECTION.test(text)) await findContext(scoutUi, scoutPage, view.screen, view.persona, views.map((other) => other.screen), log);
+      if (isEmptySelection(text)) {
+        const address = await findContext(scoutUi, scoutPage, view.screen, view.persona, views.map((other) => other.screen), log);
+        if (address === undefined) emptyScreens.add(view.screen);
+      }
     }
   } finally {
     await scout.close();
@@ -166,12 +175,15 @@ async function recordViews(browser, { views, durationMs, baseUrl, dir, log }) {
   const ui = new Ui(page, { baseUrl, slowMo: 1 });
   let contentAt = 0;
   const problems = [];
+  const shown = views.filter((view) => !emptyScreens.has(view.screen));
+  if (shown.length < views.length) log(`  left out (no record to open them): ${views.filter((view) => emptyScreens.has(view.screen)).map((view) => view.screen).join(' ')}`);
+  views = shown.length > 0 ? shown : views;
   try {
     for (let index = 0; index < views.length; index += 1) {
       const view = views[index];
       const viewStart = Date.now();
       await ui.goto(ROUTES[view.screen], view.persona);
-      const empty = EMPTY_SELECTION.test(await page.locator('[data-screen-id]').first().innerText().catch(() => ''));
+      const empty = isEmptySelection(await page.locator('[data-screen-id]').first().innerText().catch(() => ''));
       if (empty) {
         const address = contextLinks.get(view.screen);
         if (address !== undefined) await ui.goto(address, view.persona);
