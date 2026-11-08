@@ -52,6 +52,12 @@ import { TEXT as MR1_TEXT } from './messages/mr1-texts.ts';
 import { RISK_INDICATORS, RISK_SIGNAL_DEFAULTS, RISK_SIGNAL_KINDS, RISK_SIGNAL_RULE_CODE, RISK_SIGNAL_RULE_TYPE, parseRiskSignalPolicy, riskSignalParams } from './risk-signals.ts';
 import { CALENDAR_DEFAULTS, EFFECT_ANCHORS, EFFECT_CALENDAR_RULE_TYPE, EFFECT_EVALUATION_KINDS, EFFECT_POLICY_DEFAULTS, EFFECT_POLICY_RULE_CODE, EFFECT_POLICY_RULE_TYPE, EFFECT_PROJECT_GROUPS, calendarRuleCode, calendarRuleParams, effectPolicyParams, parseCalendarRule, parseEffectPolicy } from './effect-target.ts';
 import { gov12RuleTypes } from './gov12-rule-types.ts';
+import { VND3_TEXT } from './messages/vnd3-texts.ts';
+import { INVESTIGATION_POLICY_DEFAULTS, investigationPolicyOf } from './vnd-investigation.ts';
+import { LINK_KINDS, LINK_PARAM_DEFAULTS, linkPolicyOf } from './vnd-link-graph.ts';
+import { RIGGING_PARAM_DEFAULTS, RIGGING_SIGNAL_CODES, riggingPolicyOf } from './vnd-bid-rigging.ts';
+import { SCREENING_PARAM_DEFAULTS, screeningPolicyOf } from './vnd-screening.ts';
+import { OCDS_EXPORT_DEFAULTS, PORTAL_CLOCK_DEFAULTS, PORTAL_REQUEST_KINDS, REMEDIATION_POLICY_DEFAULTS, ocdsExportPolicyOf, portalClockPolicyOf, reconfirmationPolicyOf, remediationPolicyOf } from './vnd-portal.ts';
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -1700,6 +1706,162 @@ export const registerVendorControlsRules = (): void =>
     });
   });
 
+const VND3_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'VENDOR_LINK_LEAD', source: 'VENDOR', owner: 'AUDITOR', action: VND3_TEXT.alert.action.vendor_link_lead, consequence: VND3_TEXT.alert.consequence.vendor_link_lead, hours: 168, severity: 'WATCH', why: VND3_TEXT.alert.why.vendor_link_lead },
+  { code: 'VENDOR_SCREENING_HIT', source: 'VENDOR', owner: 'VENDOR_APPROVER', action: VND3_TEXT.alert.action.vendor_screening_hit, consequence: VND3_TEXT.alert.consequence.vendor_screening_hit, hours: 24, severity: 'URGENT', why: VND3_TEXT.alert.why.vendor_screening_hit },
+  { code: 'VENDOR_RECONFIRM_OVERDUE', source: 'VENDOR', owner: 'PROCUREMENT_OFFICER', action: VND3_TEXT.alert.action.vendor_reconfirm, consequence: VND3_TEXT.alert.consequence.vendor_reconfirm, hours: 336, severity: 'WATCH', why: VND3_TEXT.alert.why.vendor_reconfirm },
+  { code: 'VENDOR_PORTAL_REQUEST', source: 'VENDOR', owner: 'PROCUREMENT_OFFICER', action: VND3_TEXT.alert.action.vendor_portal_request, consequence: VND3_TEXT.alert.consequence.vendor_portal_request, hours: 48, severity: 'ACTION', why: VND3_TEXT.alert.why.vendor_portal_request },
+  { code: 'VENDOR_REMEDIATION_ACTION', source: 'VENDOR', owner: 'CONTRACT_MANAGER', action: VND3_TEXT.alert.action.vendor_remediation, consequence: VND3_TEXT.alert.consequence.vendor_remediation, hours: 72, severity: 'ACTION', why: VND3_TEXT.alert.why.vendor_remediation },
+];
+
+type Vnd3KpiKey = Exclude<keyof typeof VND3_TEXT.kpi, 'source'>;
+const vnd3Kpi = (key: Vnd3KpiKey, unit: 'PERCENT' | 'COUNT', owner: string): DefaultInput => {
+  const text = VND3_TEXT.kpi[key];
+  return rule(
+    { name: text.name, formula: text.formula, source: VND3_TEXT.kpi.source, unit, owner, decimals: unit === 'PERCENT' ? 1 : 0, refresh_hours: 24, numerator: text.numerator, denominator: text.denominator, period: 'AS_OF_NOW', allowed_lag_days: 1 },
+    'UNVERIFIED',
+    { formula: text.formula, source: VND3_TEXT.kpi.source },
+  );
+};
+
+/** The contractor investigation and the contractor portal (lane VND-3; packages/kernel/src/vnd-*.ts): the link graph and the screening of bid rigging for the auditors, the continuous screening against the lists of banned parties, the portal clocks, the annual re-confirmation, the remediation plan and the export of parties; their alert types and indicators. */
+export const registerVendor3Rules = (): void =>
+  once('vendor3', () => {
+    registerCoreRules();
+    registerIntegrationRules();
+    registerVendorRules();
+    const source = VND3_TEXT.rules_source;
+    const modules = ['BID', 'AUD', 'HOME'];
+    const weight = (): FieldSpec => int(0, 100);
+    registerRuleType({
+      type: 'VENDOR_LINK_RULE',
+      ownerModule: 'AUD',
+      modules: ['AUD', 'BID'],
+      formula: VND3_TEXT.formula.link_rule,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { ...Object.fromEntries(LINK_KINDS.map((kind) => [`weight_${kind.toLowerCase()}`, weight()])), link_from: int(1, 100), cluster_from: int(1, 100), max_group_size: int(2, 100) },
+      refine: refineWith(linkPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...LINK_PARAM_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_BID_RIGGING',
+      ownerModule: 'AUD',
+      modules: ['AUD', 'BID'],
+      formula: VND3_TEXT.formula.bid_rigging,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        ...Object.fromEntries(RIGGING_SIGNAL_CODES.map((code) => [`weight_${code.toLowerCase()}`, weight()])),
+        rotation_min_packages: int(2, 100),
+        rotation_max_outsider_pct: int(0, 100),
+        rotation_max_share_pct: int(1, 100),
+        cover_close_gap_bp: int(0, 10_000),
+        cover_far_gap_bp: int(1, 100_000),
+        cover_min_bidders: int(3, 50),
+        pattern_min_bids: int(3, 50),
+        pattern_step_tolerance_bp: int(0, 1000),
+        withdrawal_min_count: int(2, 100),
+        origin_window_minutes: int(1, 10_080),
+        lead_from: int(1, 100),
+      },
+      refine: refineWith(riggingPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...RIGGING_PARAM_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_INVESTIGATION',
+      ownerModule: 'AUD',
+      modules: ['AUD', 'HOME'],
+      formula: VND3_TEXT.formula.investigation,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { reopen_rise: int(1, 100), window_days: int(30, 3650), alert_from: int(1, 100) },
+      refine: refineWith(investigationPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...INVESTIGATION_POLICY_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_SCREENING',
+      ownerModule: 'BID',
+      modules,
+      formula: VND3_TEXT.formula.screening,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        weight_tax_code: weight(),
+        weight_tax_head: weight(),
+        weight_name: weight(),
+        name_similarity_from_pct: int(1, 100),
+        hit_from: int(1, 100),
+        hold_from: int(1, 100),
+        dismiss_valid_days: int(1, 3650),
+        hold_not_yet_in_force: bool,
+        decide_within_days: int(1, 90),
+      },
+      refine: refineWith(screeningPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...SCREENING_PARAM_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_PORTAL',
+      ownerModule: 'BID',
+      modules: ['BID', 'HOME'],
+      formula: VND3_TEXT.formula.portal,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { response_days: int(1, 365), day_unit: oneOf('CALENDAR_DAYS', 'WORKING_DAYS'), remind_before_days: int(0, 60) },
+      refine: refineWith(portalClockPolicyOf),
+      defaults: Object.fromEntries(PORTAL_REQUEST_KINDS.map((kind) => [kind, rule(plain({ ...PORTAL_CLOCK_DEFAULTS[kind] }))])),
+    });
+    registerRuleType({
+      type: 'VENDOR_RECONFIRMATION',
+      ownerModule: 'BID',
+      modules: ['BID', 'HOME'],
+      formula: VND3_TEXT.formula.reconfirmation,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { interval_months: int(1, 60), remind_days: int(0, 180), grace_days: int(0, 180), declaration_version: text(40), declaration_text: text(4000) },
+      refine: refineWith(reconfirmationPolicyOf),
+      defaults: { DEFAULT: rule({ interval_months: 12, remind_days: 30, grace_days: 30, declaration_version: 'V1', declaration_text: VND3_TEXT.declaration_default }) },
+    });
+    registerRuleType({
+      type: 'VENDOR_REMEDIATION',
+      ownerModule: 'BID',
+      modules: ['BID', 'CTR', 'HOME'],
+      formula: VND3_TEXT.formula.remediation,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { remind_before_days: int(0, 60), max_plan_days: int(7, 1095) },
+      refine: refineWith(remediationPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...REMEDIATION_POLICY_DEFAULTS })) },
+    });
+    registerRuleType({
+      type: 'VENDOR_OCDS_EXPORT',
+      ownerModule: 'AUD',
+      modules: ['AUD', 'BID'],
+      formula: VND3_TEXT.formula.ocds_export,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { include_owners: bool, include_contact: bool },
+      refine: refineWith(ocdsExportPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...OCDS_EXPORT_DEFAULTS })) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(VND3_ALERT_SEEDS, { source }));
+    registerRuleDefaults('KPI_DEFINITION', {
+      VENDOR_LEAD_PRECISION: vnd3Kpi('lead_precision', 'PERCENT', 'AUDIT_LEAD'),
+      VENDOR_LEADS_OPEN: vnd3Kpi('lead_open', 'COUNT', 'AUDIT_LEAD'),
+      VENDOR_SCREENING_IN_TIME: vnd3Kpi('screening_in_time', 'PERCENT', 'PROCUREMENT_MANAGER'),
+      VENDOR_PORTAL_RESPONSE_IN_TIME: vnd3Kpi('portal_response_in_time', 'PERCENT', 'PROCUREMENT_MANAGER'),
+      VENDOR_RECONFIRMATION_CURRENT: vnd3Kpi('reconfirmation_current', 'PERCENT', 'PROCUREMENT_MANAGER'),
+    });
+  });
+
 const CLAIM_ALERT_SEEDS: readonly AlertTypeSeed[] = [
   { code: 'CLAIM_LIMITATION_APPROACHING', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_approaching'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_approaching'), hours: 48, severity: 'ACTION', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_approaching') },
   { code: 'CLAIM_LIMITATION_MISSED', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_missed'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_missed'), hours: 24, severity: 'URGENT', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_missed') },
@@ -2343,6 +2505,7 @@ export function registerAllGovernanceRules(): void {
   registerApprovalWorkflowRules();
   registerVendorRules();
   registerVendorControlsRules();
+  registerVendor3Rules();
   registerClaimRules();
   registerAlertGovernanceRules();
   registerGov10Rules();

@@ -2560,6 +2560,14 @@ export * from './vendor-performance.ts';
 export { VND2A_TEXT } from './messages/vnd2a-texts.ts';
 export { VND2B_TEXT, vnd2bText } from './messages/vnd2b-texts.ts';
 export { VND2C_TEXT, vnd2cText } from './messages/vnd2c-texts.ts';
+// VND-3: the contractor investigation (link graph, bid rigging signals, leads), the screening against lists of banned parties and the contractor portal (docs/vendor-investigation.md).
+export * from './vnd-link-graph.ts';
+export * from './vnd-bid-rigging.ts';
+export * from './vnd-investigation.ts';
+export * from './vnd-screening.ts';
+export * from './vnd-portal.ts';
+export * from './vnd3-alerts.ts';
+export { VND3_TEXT, vnd3Fill } from './messages/vnd3-texts.ts';
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export * from './ctr-claim.ts';
 export * from './ctr-early-warning.ts';
