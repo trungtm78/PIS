@@ -106,6 +106,8 @@
     {"id":"PB-R010","operationId":"getDirectivesForReport","method":"GET","path":"/directives/for-report","permission":"directive.read","class":"REPORT","area":"DIR"},
     {"id":"PB-R011","operationId":"getMneReport","method":"GET","path":"/mne-reports/{id}","permission":"mne.read","class":"REPORT","area":"MNE","pathVars":{"id":"mneReportId"}},
     {"id":"PB-R012","operationId":"getEvaluationReport","method":"GET","path":"/evaluation-reports/{id}","permission":"bid.evaluate","class":"REPORT","area":"BID","pathVars":{"id":"evaluationReportId"}},
-    {"id":"PB-R013","operationId":"getAlertCoverageReport","method":"GET","path":"/home/alert-coverage","permission":"home.alert.health.read","class":"REPORT","area":"HOME"}
+    {"id":"PB-R013","operationId":"getAlertCoverageReport","method":"GET","path":"/home/alert-coverage","permission":"home.alert.health.read","class":"REPORT","area":"HOME"},
+    {"id":"PB-R014","operationId":"exportPortalOc4ids","method":"GET","path":"/portal/oc4ids","permission":"project.portal.read","class":"REPORT","area":"PRJ"},
+    {"id":"PB-R015","operationId":"exportVendorOcdsParties","method":"GET","path":"/vendor/ocds/parties","permission":"vnd.ocds.export","class":"REPORT","area":"VND"}
   ]
 }
