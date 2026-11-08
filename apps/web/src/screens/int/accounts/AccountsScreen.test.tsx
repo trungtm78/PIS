@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 const route = routeFor('INT-01', 'FR-INT-01');
-const SECRET = 'mvs_TopSecretValueShownOnceOnly0123456789abcd';
+const ONCE_VALUE = 'mvs_TopSecretValueShownOnceOnly0123456789abcd';
 
 function mountWith(items: unknown[] = [account(1), account(2, { status: 'SUSPENDED', status_reason: 'Khóa tạm để kiểm tra', actions: { update: true, decide: true, rotate: false } })], options: { page?: Record<string, unknown>; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; list?: unknown } = {}) {
   const h = clientFor({ listMachineAccounts: options.list ?? accountPage(items, options.page) }, options.command);
@@ -100,7 +100,7 @@ describe('AccountsScreen (INT-01): the machine accounts of the open API', () => 
   });
 
   it('opens an account: validates the form, sends the body, shows the secret once with a warning, and forgets it when the dialog is closed', async () => {
-    const command = vi.fn(() => ({ operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_id: 'r', account_id: 'r', credential_id: 'c', client_id: 'mvc_newclientidnewclientidnew', client_secret: SECRET, secret_hint: 'mvs_TopS', shown_once: true, token_url: '/open/v1/token' }));
+    const command = vi.fn(() => ({ operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_id: 'r', account_id: 'r', credential_id: 'c', client_id: 'mvc_newclientidnewclientidnew', client_secret: ONCE_VALUE, secret_hint: 'mvs_TopS', shown_once: true, token_url: '/open/v1/token' }));
     mountWith(undefined, { command });
     fireEvent.click(await screen.findByRole('button', { name: t('int.accounts.action.create') }));
     const dialog = await screen.findByRole('dialog', { name: t('int.accounts.create.title') });
@@ -115,10 +115,10 @@ describe('AccountsScreen (INT-01): the machine accounts of the open API', () => 
     const secretDialog = await screen.findByRole('dialog', { name: t('int.accounts.secret.created.title', { name: 'Power BI ministry' }) });
     expect(command).toHaveBeenCalledWith('createMachineAccount', expect.objectContaining({ body: { name: 'Power BI ministry', scopes: ['open.projects.read'], rate_limit_per_minute: 120 } }));
     expect(within(secretDialog).getByTestId('secret-warning').textContent).toBe(t('int.common.secret.warning'));
-    expect(within(secretDialog).getByTestId(`secret-${t('int.accounts.secret.clientSecret.label')}`).textContent).toBe(SECRET);
+    expect(within(secretDialog).getByTestId(`secret-${t('int.accounts.secret.clientSecret.label')}`).textContent).toBe(ONCE_VALUE);
     fireEvent.click(within(secretDialog).getByRole('button', { name: t('int.common.secret.close.action') }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(document.body.textContent).not.toContain(SECRET);
+    expect(document.body.textContent).not.toContain(ONCE_VALUE);
     expect(screen.getByTestId('receipt').textContent).toBe(t('int.accounts.success.created', { name: 'Power BI ministry' }));
     expect(window.localStorage.length + window.sessionStorage.length).toBe(0);
   });
@@ -154,7 +154,7 @@ describe('AccountsScreen (INT-01): the machine accounts of the open API', () => 
     const command = vi.fn((operation: string) => {
       if (operation === 'decideMachineAccount') return problem('VERSION_CONFLICT', 409, { current_version: 9 });
       calls += 1;
-      return { operation_id: 'o', status: 'ACTIVE', resource_version: 5, resource_id: 'r', account_id: 'r', credential_id: 'c', client_id: 'mvc_rotatedclientidrotatedcl', client_secret: SECRET, secret_hint: 'mvs_TopS', shown_once: true, token_url: '/open/v1/token' };
+      return { operation_id: 'o', status: 'ACTIVE', resource_version: 5, resource_id: 'r', account_id: 'r', credential_id: 'c', client_id: 'mvc_rotatedclientidrotatedcl', client_secret: ONCE_VALUE, secret_hint: 'mvs_TopS', shown_once: true, token_url: '/open/v1/token' };
     });
     mountWith(undefined, { command });
     await rowsShown();
@@ -175,7 +175,7 @@ describe('AccountsScreen (INT-01): the machine accounts of the open API', () => 
     fireEvent.click(within(rotate).getByRole('button', { name: t('int.accounts.rotate.confirm.action') }));
     const secretDialog = await screen.findByRole('dialog', { name: t('int.accounts.secret.rotated.title', { name: 'Lakehouse 1' }) });
     expect(calls).toBe(1);
-    expect(within(secretDialog).getByTestId(`secret-${t('int.accounts.secret.clientSecret.label')}`).textContent).toBe(SECRET);
+    expect(within(secretDialog).getByTestId(`secret-${t('int.accounts.secret.clientSecret.label')}`).textContent).toBe(ONCE_VALUE);
     expect(command).toHaveBeenCalledWith('rotateMachineCredential', expect.objectContaining({ body: { reason: 'Đổi khóa định kỳ hằng quý', grace_hours: 12 }, ifMatchVersion: 3 }));
   });
 

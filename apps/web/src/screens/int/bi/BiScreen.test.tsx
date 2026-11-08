@@ -11,7 +11,7 @@ afterEach(() => {
 
 const route = routeFor('INT-04', 'FR-INT-04');
 const REASON = 'Đổi mật khẩu định kỳ hằng quý';
-const PASSWORD = 'Zx9QpLmN2vBt7YcKd4WfRs8H';
+const ONCE_VALUE = 'Zx9QpLmN2vBt7YcKd4WfRs8H';
 
 function mountWith(options: { readers?: unknown; datasets?: unknown; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY' } = {}) {
   const h = clientFor(
@@ -75,7 +75,7 @@ describe('BiScreen (INT-04): certified datasets and the logins of BI tools', () 
   });
 
   it('makes a login, shows the password once with its warning and forgets it when the dialog is closed', async () => {
-    const command = vi.fn(() => ({ operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_id: 'r', reader_id: 'r', login_name: 'machvon_bi_abcdefabcdef', password: PASSWORD, shown_once: true, schema_name: 'machvon_bi' }));
+    const command = vi.fn(() => ({ operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_id: 'r', reader_id: 'r', login_name: 'machvon_bi_abcdefabcdef', password: ONCE_VALUE, shown_once: true, schema_name: 'machvon_bi' }));
     mountWith({ command });
     fireEvent.click(await screen.findByRole('button', { name: t('int.bi.action.create') }));
     const dialog = await screen.findByRole('dialog', { name: t('int.bi.create.title') });
@@ -87,10 +87,10 @@ describe('BiScreen (INT-04): certified datasets and the logins of BI tools', () 
     const secret = await screen.findByRole('dialog', { name: t('int.bi.secret.created.title', { name: 'Power BI Desktop' }) });
     expect(command).toHaveBeenCalledWith('createBiReader', expect.objectContaining({ body: { name: 'Power BI Desktop', connection_limit: 3 } }));
     expect(within(secret).getByTestId('secret-warning')).toBeTruthy();
-    expect(within(secret).getByTestId(`secret-${t('int.bi.secret.password.label')}`).textContent).toBe(PASSWORD);
+    expect(within(secret).getByTestId(`secret-${t('int.bi.secret.password.label')}`).textContent).toBe(ONCE_VALUE);
     fireEvent.click(within(secret).getByRole('button', { name: t('int.common.secret.close.action') }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(document.body.textContent).not.toContain(PASSWORD);
+    expect(document.body.textContent).not.toContain(ONCE_VALUE);
     expect(window.localStorage.length + window.sessionStorage.length).toBe(0);
   });
 
