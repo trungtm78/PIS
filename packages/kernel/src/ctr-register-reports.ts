@@ -664,9 +664,11 @@ const TEXT_KINDS: readonly ColumnKind[] = ['TEXT', 'DATE', 'RAG'];
 const WORDED = new Set(['claim_source', 'claim_kind', 'claim_status', 'limitation_status', 'severity', 'ncr_status', 'issue_status', 'source_module', 'rating_kind', 'proposed_rating', 'rating_status', 'official_rating', 'health', 'health_driver']);
 
 /** The word of a code in a file: a file is read by people who were not given the list of codes (a code with no word is written as it is). */
-function fileCell(column: RegisterColumn, value: CellValue): string {
+function fileCell(column: RegisterColumn, value: CellValue, inTotals = false): string {
   if (value === null) return '';
   const text = String(value);
+  // The total of a flag column is the percent of the rows that have it, not a yes or a no.
+  if (inTotals) return text;
   if (column.kind === 'FLAG') return text === '1' ? message('ctr.report.flag.yes') : message('ctr.report.flag.no');
   if (!WORDED.has(column.key)) return text;
   return messagesUnder(`ctr.report.value.${column.key}`)[text] ?? text;
@@ -678,7 +680,7 @@ export function registerDocumentOf(input: RegisterDocumentInput): ExportDocument
   const entry = (key: string, text: string): ExportHeaderEntry => ({ key, label: message(`ctr.report.header.${key}`), value: text });
   const exportColumns: ExportColumn[] = columns.map((column) => ({ key: column.key, label: message(`ctr.report.column.${column.key}`), numeric: !TEXT_KINDS.includes(column.kind) }));
   const rows = input.rows.map((row) => columns.map((column) => fileCell(column, row.cells[column.key] ?? null)));
-  rows.push(columns.map((column, index) => (index === 0 ? message('ctr.report.total_label') : column.total === null ? '' : fileCell(column, input.totals.cells[column.key] ?? null))));
+  rows.push(columns.map((column, index) => (index === 0 ? message('ctr.report.total_label') : column.total === null ? '' : fileCell(column, input.totals.cells[column.key] ?? null, true))));
   const title = message(`ctr.report.title.${input.code}`);
   return {
     title,

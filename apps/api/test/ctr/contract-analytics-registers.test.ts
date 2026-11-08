@@ -325,7 +325,8 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
       const head = table.find((row) => row.includes('ncr_no') || row.some((cell) => cell.includes('NCR')));
       expect(head).toBeDefined();
       const last = table[table.length - 1] as string[];
-      expect(last.some((cell) => cell === '50.00')).toBe(true);
+      // the totals row: the percent of the open defects that are overdue, as the page says it
+      expect(last.some((cell) => Number(cell) === 50)).toBe(true);
       expect(reply.json.row_count).toBe(4);
       expect(JSON.stringify(reply.json.context)).toContain('LIVE');
       const csv = await get('/contracts/analytics/reports/obstacles/export?format=csv');
@@ -354,7 +355,7 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
 
     it('proposes from the data, once per contract, kind and period', async () => {
       const made = await call('POST', `/contracts/${ids['R-1']}/rating-proposals`, { body: { period_label: '2026-Q4', note: 'Quarter four' } });
-      expect(made.status).toBe(200);
+      expect({ status: made.status, body: made.status === 200 ? null : made.json }).toEqual({ status: 200, body: null });
       proposalId = made.json.resource_id as string;
       const [row] = await rows<{ state: string; score_schedule: number; score_quality: number; overall_score: string | null; inputs_sha256: string; rule_source: string }>(
         'select state, score_schedule, score_quality, overall_score::text as overall_score, inputs_sha256, rule_source from machvon.contract_rating_proposal where id = $1::uuid',
