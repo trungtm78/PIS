@@ -409,7 +409,12 @@ export function rankAttention(facts: ProvinceFacts, policy: CommitteePolicy, opt
   }
   scored.sort((a, b) => b.scoreNumber - a.scoreNumber || (b.exposure > a.exposure ? 1 : b.exposure < a.exposure ? -1 : 0) || a.code.localeCompare(b.code, 'en'));
   const limit = options.all === true ? scored.length : policy.attentionTopN;
-  const items = scored.slice(0, limit).map(({ exposure: _exposure, scoreNumber: _score, ...item }, index): AttentionItem => ({ rank: index + 1, ...item }));
+  const items = scored.slice(0, limit).map((entry, index): AttentionItem => {
+    const { exposure, scoreNumber, ...item } = entry;
+    void exposure;
+    void scoreNumber;
+    return { rank: index + 1, ...item };
+  });
   return { items, total: scored.length };
 }
 

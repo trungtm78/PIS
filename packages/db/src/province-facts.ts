@@ -20,7 +20,10 @@ export const emptyProvinceFacts = (asOf: string): ProvinceFacts => ({ asOf, fisc
 
 /** Answers from facts it was given: for the tests of the workspace through the real stores and commands, where the rows of the core are not the subject. Each entry is the facts of one snapshot day. */
 export class MemoryProvinceFactsReader implements ProvinceFactsReader {
-  constructor(private readonly byDay: readonly ProvinceFacts[]) {
+  private readonly byDay: readonly ProvinceFacts[];
+
+  constructor(byDay: readonly ProvinceFacts[]) {
+    this.byDay = byDay;
     for (const facts of byDay) {
       const defects = factsDefects(facts);
       if (defects.length > 0) throw new Error(`province facts break the contract: ${defects[0]}`);

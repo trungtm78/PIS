@@ -5,7 +5,7 @@ import { COMMITTEE_PACK_CODE, COMMITTEE_PACK_LAYOUT, DomainError, defaultBasisOf
 import type { KpiDefinition, ReportFigure, ReportFillData, ReportIndicatorDefinition, SnapshotRevisionRef } from '@machvon/kernel';
 import type { ProviderContext, ProviderResult, ReportFigureProvider } from '../reports/figure-provider';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
-import { ReportFormRegistry } from '../reports/form-registry';
+import type { ReportFormRegistry } from '../reports/form-registry';
 import { buildBlankTemplate } from '../reports/blank-template';
 import { CommitteeWorkspaceService } from './committee-service';
 

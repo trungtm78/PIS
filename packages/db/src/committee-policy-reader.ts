@@ -5,7 +5,11 @@ import type { TenantTx } from './tenant-database.ts';
 
 /** The thresholds of the committee workspace as the rule `COMMITTEE_POLICY` gives them on a day: an approved version of the tenant, else the built-in default, which every screen then calls unverified. */
 export class CommitteePolicyReader {
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   async get(tx: TenantTx, day: string): Promise<CommitteePolicyReading> {
     const resolved = await this.port.get(tx, COMMITTEE_POLICY_RULE_TYPE, COMMITTEE_POLICY_CODE, day);
