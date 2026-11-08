@@ -366,7 +366,9 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
     });
 
     it('lets a newer revision replace an accepted period with the reopening and a correction approved by another person, uses the correction once, and refuses an older copy afterwards', async () => {
-      await accepted('2026-M01', 1);
+      const original = await report('rev,one,m01');
+      const first = pushOf(await push(PUSHER, original, '2026-M01', 1));
+      expect((await receipt(RECEIVER, first.id as string, first.version as number, { outcome: 'ACCEPTED', reference: 'HPM-M01-1' })).status).toBe(200);
       const reopenId = randomUUID();
       // The reopening is not in force yet: nothing can be proposed.
       const early = await propose(PROPOSER, '2026-M01', 1, reopenId);
@@ -413,7 +415,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       // The receiver accepts revision 2; revision 1 is now older than what it holds.
       const second = await receipt(RECEIVER, pushOf(sent).id as string, pushOf(again).version as number, { outcome: 'ACCEPTED', reference: 'HPM-M01-2' });
       expect(second.status).toBe(200);
-      const stale = await call('POST', '/hpm/pushes', { member: PUSHER, body: pushBody(await report('rev,one,m01'), '2026-M01', 1) });
+      const stale = await call('POST', '/hpm/pushes', { member: PUSHER, body: pushBody(original, '2026-M01', 1) });
       expect(stale.status).toBe(409);
       expect(stale.json).toMatchObject({ code: 'REPORT_OUT_OF_DATE', current_revision: 2 });
     });
