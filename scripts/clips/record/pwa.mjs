@@ -49,7 +49,7 @@ export async function recordPwa({ baseUrl, edition = 'enterprise', persona = 'ca
   const started = Date.now();
   let videoPath;
   try {
-    const context = await browser.newContext({ viewport: PWA_VIEWPORT, deviceScaleFactor: 1, isMobile: true, hasTouch: true, locale: 'vi-VN', recordVideo: { dir: raw, size: PWA_VIDEO } });
+    const context = await browser.newContext({ viewport: PWA_VIEWPORT, deviceScaleFactor: 1, isMobile: true, hasTouch: true, locale: 'vi-VN', recordVideo: { dir: raw, size: PWA_VIEWPORT } });
     await context.addInitScript(STANDALONE_SCRIPT);
     await context.addInitScript(CURSOR_SCRIPT);
     const page = await context.newPage();
