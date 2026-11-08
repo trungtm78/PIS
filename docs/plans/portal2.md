@@ -33,8 +33,29 @@ VND-23 (staff: portal access invitations), BID petition outcomes screen, the upl
 | 5 | [x] Contract (contract-patch), controllers, upload guard + scan port, jobs, authz | `apps/api/test/bid/portal2*.test.ts` |
 | 6 | [x] Web: VND-23, petition outcomes, upload control, i18n part, routes, nav | vitest of the screens |
 | 7 | [x] Design rows, docs, shared-suite entries | `check-cli`, `baseline-cli` |
-| 8 | [ ] Lint, typecheck, scans, Codex review and triage | `npm run lint`, `npm run typecheck` |
+| 8 | [x] Lint, typecheck, scans, Codex review and triage | `npm run lint`, `npm run typecheck` |
 
 ## Risks
 - Time (hard deadline 20:15) and memory: DB suites queue behind the pre-push gate lock; tests are batched.
 - Shared files are edited with small anchored appends and the generators; regenerated generated files are committed in their own commit.
+
+## Decisions (owner rule: deepest governance, best extensibility, no scope cut)
+- Contractor access is bound to the registry entry, never to a contract: the invitation names a VERIFIED, unrestricted contractor; the proof of the contact is the address on the entry (checked by the server) or a named paper that the second person reads; two persons (CHECK in the table); expiry of the proposal and of the access by the rule `VENDOR_PORTAL_ACCESS` (UNVERIFIED starting values); revocation at once with a reason; audit CONFIDENTIAL, no e-mail in audit or events.
+- The guest gets the new system role `PORTAL_CONTRACTOR` (portal rights only, no `contract.read`) on the unit of the proposer (`UNIT_ONLY`) so the account does not follow contracts (`GuestAccessStore` touches CONTRACT grants only; tested).
+- Outcome of a petition: UPHELD / REJECTED / WITHDRAWN with decision reference, maker-checker, re-judged against the petition status at confirmation; only confirmed outcomes feed the dispute figures; answered petitions without one are counted apart (`awaiting_outcome`).
+- Upload: scan hook port, fail-closed default (`MACHVON_PORTAL_SCAN=PIPELINE` is the explicit opt-in); files are registered as documents of the DOC framework and as `portal_attachment`; the register of documents is closed to the portal path and the portal commands accept only the caller's own attachments.
+- i18n words stay UNFOLDED in `apps/web/src/i18n/parts/portal2.{vi,en}.json` (the lead folds them at merge); `npm run lint` is green when they are folded (checked once, then restored).
+
+## Review ledger (Codex, model gpt-6-astra, per commit)
+| Commit | Finding | Disposition |
+|---|---|---|
+| 64e238f5 | P1 the document policy breaks the old document check of `respond` | valid; the check was replaced by the attachment check in the stores commit, with tests |
+| 64e238f5 | P2 `vnd.portal.upload` not in the generated catalogue | valid; added by the contract commit (generated permissions) |
+| 64e238f5 | P2 seed assertions expect 17 roles | valid; tests say 18 |
+| e64ea187 | P2 account limit not serialized | valid; the contractor row is locked first, test with two concurrent proposals |
+| e64ea187 | P2 outcome confirmation does not re-judge the petition status | valid; the petition is locked and the decision judged again, test |
+| df5bf167 | P2 idempotency of the upload ignores purpose and title | valid; `PortalUploadGuard` adds them to the fingerprint, test |
+| df5bf167 | P2 job fixture and timer expectations | valid; `jobs.test.ts`, `workers.test.ts` updated |
+| c2ec65c8 | P2 picker offers linked files; upload not retryable; command not blocked during upload | valid; fixed in 7e2f0f0c with tests |
+| a4283c8b | none | - |
+| 8b624294 | P1 the inherited guard returned a wrong type | valid; typed, `tsc` clean |
