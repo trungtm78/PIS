@@ -11,8 +11,8 @@ import { AnalyticsFilters, BreakdownBars, DefinitionsList, ExportBar, ReportCont
 import { usePortfolio, useReport, useScheduleCurve } from './hooks';
 import { EvmPanel, LadderPanel, RulesNote, TierSplitPanel } from './money-components';
 import { reportLead, reportTitle } from './labels';
-import { DEFAULT_QUERY, EMPTY_ANALYTICS_FILTER, PORTFOLIO_PERMISSION, REPORT_PERMISSION, bytesOfBase64, filterCount } from './model';
-import type { AnalyticsFilter, ReportCode, RowView } from './model';
+import { DEFAULT_QUERY, EMPTY_ANALYTICS_FILTER, PORTFOLIO_PERMISSION, REPORT_LINKS, REPORT_PERMISSION, bytesOfBase64, filterCount, isRegisterReport } from './model';
+import type { AnalyticsFilter, RegisterReportCode, ReportCode, RowView } from './model';
 import './analytics.css';
 
 export type TableReport = Exclude<ReportCode, 'contractor-concentration'>;
@@ -38,7 +38,40 @@ const SORTABLE = [
   'max_change_tier',
 ] as const;
 
-export const sortKeysOf = (columns: readonly string[]): string[] => SORTABLE.filter((key) => key === 'code' || columns.includes(key));
+/** The reports of the registers are read today only: they have no period and no past day. */
+const LIVE_ONLY: readonly string[] = ['claims-limitation', 'quality-defects', 'obstacles', 'audit-findings', 'performance-rating'];
+
+/** The words the severity and the state of a record are filtered by, for each register report (the filters the server judges). */
+const RECORD_WORDS: Readonly<Record<string, { severities: readonly string[]; states: readonly string[] }>> = {
+  'claims-limitation': { severities: [], states: ['OPEN', 'GRANTED', 'PARTLY_GRANTED', 'REJECTED', 'WITHDRAWN'] },
+  'quality-defects': { severities: ['CRITICAL', 'MAJOR', 'MINOR'], states: ['OPEN', 'ACTION_ASSIGNED', 'ACTION_SUBMITTED', 'VERIFIED', 'CLOSED', 'REOPENED'] },
+  obstacles: { severities: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'], states: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED', 'PENDING_VERIFICATION', 'CLOSED', 'REOPENED'] },
+  'audit-findings': { severities: ['CRITICAL', 'MAJOR', 'MINOR'], states: [] },
+  'performance-rating': { severities: [], states: ['NONE', 'PROPOSED', 'NOTIFIED', 'RESPONDED', 'ADOPTED'] },
+  'contract-health': { severities: [], states: [] },
+};
+
+/** The columns a report can be sorted by: the allowlist of the contracts for the first reports, every column of the table for a register report (the server judges the key). */
+export const sortKeysOf = (columns: readonly string[], code?: string): string[] => (code !== undefined && isRegisterReport(code) ? [...columns] : SORTABLE.filter((key) => key === 'code' || columns.includes(key)));
+
+const firstKey = (view: { columns: ReadonlyArray<{ key: string }> } | undefined): string => view?.columns[0]?.key ?? 'code';
+
+/** The screens that hold the detail behind a register report: the scorecard, the payment integrity findings, the settlement, the proposals of a rating. */
+function RelatedLinks({ code }: { code: RegisterReportCode }) {
+  const { t } = useTranslation();
+  const links = REPORT_LINKS[code];
+  if (links.length === 0) return null;
+  return (
+    <p className="sub" data-testid="related-links">
+      {t('ca3.related.title')}{' '}
+      {links.map((link) => (
+        <Link key={link.id} className="ca3-related" to={link.to}>
+          {t(`ca3.related.${link.id}`)}
+        </Link>
+      ))}
+    </p>
+  );
+}
 
 export interface ReportPageProps {
   route: WebRoute;
@@ -62,7 +95,7 @@ function ReportContent({ route, code }: ReportPageProps) {
   const required = code === 'portfolio-status' ? PORTFOLIO_PERMISSION : REPORT_PERMISSION;
   const allowed = permissions === undefined || permissions.includes(required);
   const [filter, setFilter] = useState<AnalyticsFilter>(EMPTY_ANALYTICS_FILTER);
-  const [sort, setSort] = useState('code');
+  const [sort, setSort] = useState(code === 'claims-limitation' ? 'claim_code' : code === 'quality-defects' ? 'ncr_no' : code === 'obstacles' ? 'issue_code' : code === 'audit-findings' ? 'finding_code' : 'code');
   const [direction, setDirection] = useState<'asc' | 'desc'>('asc');
   const [size, setSize] = useState(20);
   // The cursors of the pages seen: page n is read with the cursor the page before it gave.
@@ -89,7 +122,7 @@ function ReportContent({ route, code }: ReportPageProps) {
   const from = index * size + 1;
   const link = (row: RowView) => (
     <span data-contract-id={row.contractId}>
-      <Link to={`/ctr/ctr-03?id=${row.contractId}`}>{String(row.cells.code ?? row.contractId)}</Link>
+      <Link to={code === 'performance-rating' ? `/ctr/ctr-32?contract=${row.contractId}` : `/ctr/ctr-03?id=${row.contractId}`}>{String(row.cells.code ?? row.cells[firstKey(view)] ?? row.contractId)}</Link>
     </span>
   );
 
@@ -116,7 +149,9 @@ function ReportContent({ route, code }: ReportPageProps) {
           onChange={changeFilter}
           sort={sort}
           direction={direction}
-          sortKeys={sortKeysOf((view?.columns ?? []).map((column) => column.key))}
+          sortKeys={sortKeysOf((view?.columns ?? []).map((column) => column.key), code)}
+          showPeriod={!LIVE_ONLY.includes(code)}
+          {...(isRegisterReport(code) ? { record: RECORD_WORDS[code] as { severities: readonly string[]; states: readonly string[] } } : {})}
           onSort={(nextSort, nextDirection) => {
             setSort(nextSort);
             setDirection(nextDirection);
@@ -184,6 +219,12 @@ function ReportContent({ route, code }: ReportPageProps) {
                 {t('ca1.trend.note')} <Link to="/bi/bi-09">{t('ca1.trend.link')}</Link>
               </p>
             ) : null}
+            {typeof view.notes.unlinked_open_issues === 'number' && view.notes.unlinked_open_issues > 0 ? (
+              <p className="callout ca1-notice" role="status" data-testid="unlinked-note">
+                {t('ca3.notes.unlinked', { count: view.notes.unlinked_open_issues })}
+              </p>
+            ) : null}
+            {isRegisterReport(code) ? <RelatedLinks code={code} /> : null}
             <RulesNote rules={view.rules} />
             <DefinitionsList definitions={view.definitions} asOf={view.context.asOf} />
           </>

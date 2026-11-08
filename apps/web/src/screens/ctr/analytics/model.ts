@@ -3,7 +3,12 @@
  * read, never an empty table), and the words and figures a screen shows. Money is whole dong kept as text: nothing here turns it into a float, and no total is made in the browser (the server's totals row is shown).
  */
 
-export const REPORT_CODES = ['portfolio-status', 'bid-variance', 'schedule-delay', 'payment-three-way', 'advance-ageing', 'retention-guarantee', 'change-growth', 'contractor-concentration'] as const;
+/** The reports of the registers (CA-3): a row is a claim, a defect, an issue, a finding, or a contract rated or coloured. */
+export const REGISTER_REPORT_CODES = ['claims-limitation', 'quality-defects', 'obstacles', 'audit-findings', 'performance-rating', 'contract-health'] as const;
+export type RegisterReportCode = (typeof REGISTER_REPORT_CODES)[number];
+export const isRegisterReport = (value: unknown): value is RegisterReportCode => typeof value === 'string' && (REGISTER_REPORT_CODES as readonly string[]).includes(value);
+
+export const REPORT_CODES = ['portfolio-status', 'bid-variance', 'schedule-delay', 'payment-three-way', 'advance-ageing', 'retention-guarantee', 'change-growth', 'contractor-concentration', ...REGISTER_REPORT_CODES] as const;
 export type ReportCode = (typeof REPORT_CODES)[number];
 export const isReportCode = (value: unknown): value is ReportCode => typeof value === 'string' && (REPORT_CODES as readonly string[]).includes(value);
 
@@ -21,6 +26,30 @@ export const REPORT_PATHS: Readonly<Record<ReportCode, string>> = {
   'advance-ageing': '/ctr/ctr-28?report=advance-ageing',
   'retention-guarantee': '/ctr/ctr-28?report=retention-guarantee',
   'change-growth': '/ctr/ctr-28?report=change-growth',
+  'claims-limitation': '/ctr/ctr-28?report=claims-limitation',
+  'quality-defects': '/ctr/ctr-28?report=quality-defects',
+  obstacles: '/ctr/ctr-28?report=obstacles',
+  'audit-findings': '/ctr/ctr-28?report=audit-findings',
+  'performance-rating': '/ctr/ctr-28?report=performance-rating',
+  'contract-health': '/ctr/ctr-28?report=contract-health',
+};
+
+/** What each register report links to, besides itself: the screens that hold the detail (CTR-23 the scorecard, AUD-12 the payment integrity findings of G4-2, PAY-15 and PAY-16 the settlement). */
+export const REPORT_LINKS: Readonly<Record<RegisterReportCode, ReadonlyArray<{ id: string; to: string }>>> = {
+  'claims-limitation': [{ id: 'pay15', to: '/pay/pay-15' }],
+  'quality-defects': [],
+  obstacles: [],
+  'audit-findings': [{ id: 'aud12', to: '/aud/aud-12' }],
+  'performance-rating': [
+    { id: 'ctr23', to: '/ctr/ctr-23' },
+    { id: 'ctr32', to: '/ctr/ctr-32' },
+  ],
+  'contract-health': [
+    { id: 'ctr23', to: '/ctr/ctr-23' },
+    { id: 'aud12', to: '/aud/aud-12' },
+    { id: 'pay15', to: '/pay/pay-15' },
+    { id: 'pay16', to: '/pay/pay-16' },
+  ],
 };
 
 /** A catalogue word as the lower-camel segment of an i18n key (`TWO_THREE` is `twoThree`, `bid-variance` is `bidVariance`, `D91_180` is `d91180`). */
@@ -136,6 +165,8 @@ export interface Health {
 
 export interface RowView {
   contractId: string;
+  /** The id of the record of a register report (a claim, a defect, an issue, a finding); the contract for a report by contract. */
+  recordId: string;
   cells: Record<string, Cell>;
   na: Record<string, string>;
   health: Health | null;
@@ -242,6 +273,8 @@ export interface ReportView {
   tierSplit: TierSplitView | null;
   ladders: LadderView | null;
   paymentClock: { acceptanceToRequestDays: number; requestToTreasuryDays: number } | null;
+  /** The coverage notes of a register report (for example the open issues of the projects that name no contract). */
+  notes: Record<string, number | string>;
 }
 
 const cells = (raw: unknown): Record<string, Cell> => {
@@ -296,6 +329,7 @@ function toRow(raw: unknown): RowView[] {
   return [
     {
       contractId,
+      recordId: str(row.record_id) ?? contractId,
       cells: cells(row.cells),
       na: reasons(row.na),
       health: health === undefined ? null : { level: strOrNull(health.level), drivers: list(health.drivers).filter((item): item is string => typeof item === 'string') },
@@ -436,6 +470,12 @@ export function toCurveView(raw: unknown): CurveView | undefined {
 }
 
 /** The portfolio or a report R1 to R7; undefined when the body is not what the contract says (the screen shows the error state). */
+const toNotes = (raw: unknown): Record<string, number | string> => {
+  const out: Record<string, number | string> = {};
+  for (const [key, value] of Object.entries(asRecord(raw) ?? {})) if (typeof value === 'number' || typeof value === 'string') out[key] = value;
+  return out;
+};
+
 export function toReportView(raw: unknown): ReportView | undefined {
   const body = asRecord(raw);
   const context = toContext(body?.context);
@@ -462,6 +502,7 @@ export function toReportView(raw: unknown): ReportView | undefined {
     evm: toEvmView(body.evm),
     tierSplit: toTierSplit(body.tier_split),
     ladders: toLadders(body.ladders),
+    notes: toNotes(body.notes),
     paymentClock:
       clock === undefined || num(clock.acceptance_to_request_days) === undefined || num(clock.request_to_treasury_days) === undefined
         ? null
@@ -612,9 +653,12 @@ export interface AnalyticsFilter {
   q: string;
   asOf: string;
   period: string;
+  /** The severity and the state of the record: filters of the register reports. */
+  severity: string;
+  state: string;
 }
 
-export const EMPTY_ANALYTICS_FILTER: AnalyticsFilter = { unit: '', project: '', contractor: '', status: '', type: '', fund: '', q: '', asOf: '', period: '' };
+export const EMPTY_ANALYTICS_FILTER: AnalyticsFilter = { unit: '', project: '', contractor: '', status: '', type: '', fund: '', q: '', asOf: '', period: '', severity: '', state: '' };
 
 export interface AnalyticsQuery {
   filter: AnalyticsFilter;
@@ -632,6 +676,8 @@ export function queryParams(query: AnalyticsQuery, withPage = true): Record<stri
   const out: Record<string, string> = {};
   for (const key of ['unit', 'project', 'contractor', 'status', 'type', 'fund'] as const) if (filter[key] !== '') out[key] = filter[key];
   if (filter.q.trim() !== '') out.q = filter.q.trim();
+  if (filter.severity !== '') out.severity = filter.severity;
+  if (filter.state !== '') out.state = filter.state;
   if (filter.period !== '') out.period = filter.period;
   else if (filter.asOf !== '') out.as_of = filter.asOf;
   out.sort = query.sort;
@@ -688,6 +734,7 @@ export function breakdownPoints(view: ReportView, column: string, dimension?: st
   const breakdown = dimension === undefined ? view.breakdown : (view.breakdowns.find((one) => one.dimension === dimension) ?? null);
   if (breakdown === null) return [];
   return breakdown.groups.flatMap((group) => {
+    if (column === ROWS) return [{ key: group.key, value: group.totals.rows, text: String(group.totals.rows) }];
     const cell = group.totals.cells[column] ?? null;
     const value = cell === null ? Number.NaN : Number(cell);
     return Number.isFinite(value) ? [{ key: group.key, value, text: cell }] : [];
@@ -695,6 +742,8 @@ export function breakdownPoints(view: ReportView, column: string, dimension?: st
 }
 
 /** The column a breakdown of a report draws when the report says which one tells the story of its groups (the age of an advance is told by what is outstanding, not by what was lent). */
+/** The "column" of a chart of how many rows a group has (a count of the records, which no column of the table holds). */
+export const ROWS = '$rows';
 const CHART_COLUMN: Readonly<Record<string, string>> = {
   'schedule-delay:delay_band': 'earned_value_vnd',
   'payment-three-way:match_status': 'paid_vnd',
@@ -702,10 +751,24 @@ const CHART_COLUMN: Readonly<Record<string, string>> = {
   'advance-ageing:recovery_status': 'advance_recovery_shortfall_vnd',
   'retention-guarantee:contract_status': 'retention_held_vnd',
   'change-growth:change_tier': 'approved_change_delta_vnd',
+  'claims-limitation:claim_status': 'claimed_amount_vnd',
+  'claims-limitation:limitation_status': ROWS,
+  'quality-defects:severity': ROWS,
+  'quality-defects:ncr_status': ROWS,
+  'obstacles:severity': ROWS,
+  'obstacles:issue_status': ROWS,
+  'audit-findings:severity': 'recommended_vnd',
+  'audit-findings:finding_category': 'recommended_vnd',
+  'performance-rating:proposed_rating': ROWS,
+  'performance-rating:rating_status': ROWS,
+  'contract-health:health': ROWS,
+  'contract-health:contract_status': ROWS,
 };
 
 /** The column the breakdown chart draws for a report: the one the report names, else the first money column that sums, else the first count. */
 export function chartColumn(view: ReportView, dimension?: string): ColumnView | undefined {
-  const named = dimension === undefined ? undefined : view.columns.find((column) => column.key === CHART_COLUMN[`${view.code}:${dimension}`]);
+  const wanted = dimension === undefined ? undefined : CHART_COLUMN[`${view.code}:${dimension}`];
+  if (wanted === ROWS) return { key: ROWS, kind: 'COUNT', ledger: false, indicator: null, total: 'SUM' };
+  const named = view.columns.find((column) => column.key === wanted);
   return named ?? view.columns.find((column) => column.kind === 'MONEY' && column.total === 'SUM' && !column.ledger) ?? view.columns.find((column) => column.kind === 'MONEY' && column.total === 'SUM') ?? view.columns.find((column) => column.kind === 'COUNT' && column.total === 'SUM');
 }

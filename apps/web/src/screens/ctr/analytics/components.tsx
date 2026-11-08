@@ -14,7 +14,7 @@ import type { ContractStatus, ContractType } from '../model';
 import { useExportReport, useFactSnapshots } from './hooks';
 import type { ExportFormat } from './hooks';
 import { columnLabel, definitionText, groupLabel, indicatorName, infoLabels, levelLabel, reasonText } from './labels';
-import { barLength, breakdownPoints, camel, chartColumn, dateText, decimalText, filterCount, healthTone, moneyText, percentText } from './model';
+import { ROWS, barLength, breakdownPoints, camel, chartColumn, dateText, decimalText, filterCount, healthTone, isRegisterReport, moneyText, percentText } from './model';
 import type { AnalyticsContext, AnalyticsFilter, AnalyticsQuery, Cell, ColumnView, Definition, IndicatorValue, ReportCode, ReportFile, ReportView, RowView } from './model';
 import './analytics.css';
 
@@ -152,9 +152,13 @@ export function cellNode(t: Translate, locale: string, column: ColumnView, value
       if (column.key === 'match_status' || column.key === 'recovery_status') return groupLabel(t, column.key, String(value));
       if (column.key === 'payment_clock') return t(`ca1.clock.${camel(String(value))}`);
       if (column.key === 'age_bucket') return groupLabel(t, 'age_bucket', String(value));
+      if (WORDED_COLUMNS.has(column.key)) return groupLabel(t, column.key, String(value));
       return String(value);
   }
 }
+
+/** The columns of the register reports whose text is one of a closed list of words (the label is the group label of the word). */
+const WORDED_COLUMNS = new Set(['claim_source', 'claim_kind', 'claim_status', 'limitation_status', 'severity', 'ncr_status', 'issue_status', 'rating_kind', 'proposed_rating', 'rating_status', 'official_rating', 'health_driver']);
 
 const statusLabelOf = (t: Translate, status: string): string => ((CONTRACT_STATUSES as readonly string[]).includes(status) ? statusLabel(t, status as ContractStatus) : status);
 
@@ -191,7 +195,7 @@ export function ReportTable({ view, linkOf, page, caption }: ReportTableProps) {
       </span>
     );
   }
-  return <DataTable caption={caption} columns={columns} rows={view.items} rowKey={(row) => row.contractId} rowAttrs={(row) => ({ 'data-contract-id': row.contractId })} totalsLabel={t('ca1.table.totals')} totals={totals} page={page} />;
+  return <DataTable caption={caption} columns={columns} rows={view.items} rowKey={(row) => row.recordId} rowAttrs={(row) => ({ 'data-contract-id': row.contractId, 'data-record-id': row.recordId })} totalsLabel={t('ca1.table.totals')} totals={totals} page={page} />;
 }
 
 // ---- the figures above the table -----------------------------------------------------------------------------------------------------------------------
@@ -204,7 +208,7 @@ export function ReportKpis({ view }: { view: ReportView }) {
   const moneyValue = money === undefined ? null : (view.totals.cells[money.key] ?? null);
   return (
     <KpiStrip label={t('ca1.kpi.label')}>
-      <KpiTile label={t('ca1.kpi.contracts')} value={String(view.totals.rows)} />
+      <KpiTile label={isRegisterReport(view.code) && view.code !== 'performance-rating' && view.code !== 'contract-health' ? t('ca3.kpi.records') : t('ca1.kpi.contracts')} value={String(view.totals.rows)} />
       {money === undefined ? null : (
         <KpiTile
           label={columnLabel(t, money.key)}
@@ -254,7 +258,7 @@ function BreakdownChart({ view, dimension, testId }: { view: ReportView; dimensi
   if (points.length === 0) return null;
   const largest = Math.max(1, ...points.map((point) => Math.abs(barLength(String(point.text)))));
   return (
-    <SectionCard title={t('ca1.chart.title', { column: columnLabel(t, column.key) })}>
+    <SectionCard title={t('ca1.chart.title', { column: column.key === ROWS ? t('ca3.chart.rows') : columnLabel(t, column.key) })}>
       <ul className="ca1-bars" aria-labelledby={titleId} data-testid={testId}>
         <li id={titleId} className="ui-sr-only">
           {t('ca1.chart.caption', { dimension: t(`ca1.dimension.${camel(dimension)}`) })}
@@ -265,7 +269,7 @@ function BreakdownChart({ view, dimension, testId }: { view: ReportView; dimensi
             <span className="ca1-bars__track" aria-hidden="true">
               <span className="ca1-bars__bar" style={{ width: `${Math.round((Math.abs(point.value) / largest) * 100)}%` }} />
             </span>
-            <span className="ca1-bars__value">{moneyText(String(point.text), locale)}</span>
+            <span className="ca1-bars__value">{column.kind === 'MONEY' ? moneyText(String(point.text), locale) : String(point.text)}</span>
           </li>
         ))}
       </ul>
@@ -306,10 +310,12 @@ export interface FiltersProps {
   showSort?: boolean;
   updatedAt?: string;
   actions?: ReactNode;
+  /** The words the severity and the state of a record can be filtered by (the register reports; the server judges them). */
+  record?: { severities: readonly string[]; states: readonly string[] };
 }
 
 /** The filters of the portfolio and the reports: every one is sent to the server, none is applied to the rows in the browser. */
-export function AnalyticsFilters({ value, onChange, sort, direction, sortKeys, onSort, showPeriod = true, showSort = true, updatedAt, actions }: FiltersProps) {
+export function AnalyticsFilters({ value, onChange, sort, direction, sortKeys, onSort, showPeriod = true, showSort = true, updatedAt, actions, record }: FiltersProps) {
   const { t } = useTranslation();
   const units = useUnits(true);
   const projects = useProjectOptions(true);
@@ -384,6 +390,32 @@ export function AnalyticsFilters({ value, onChange, sort, direction, sortKeys, o
           <label htmlFor={`${id}-fund`}>{t('ca1.filter.fund')}</label>
           <input id={`${id}-fund`} value={value.fund} placeholder="00000000-0000-0000-0000-000000000000" onChange={(event) => set({ fund: event.target.value.trim() })} />
         </div>
+        {record !== undefined && record.severities.length > 0 ? (
+          <div className="field">
+            <label htmlFor={`${id}-severity`}>{t('ca3.filter.severity')}</label>
+            <select id={`${id}-severity`} value={value.severity} onChange={(event) => set({ severity: event.target.value })}>
+              <option value="">{t('ca1.filter.all')}</option>
+              {record.severities.map((word) => (
+                <option key={word} value={word}>
+                  {groupLabel(t, 'severity', word)}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+        {record !== undefined && record.states.length > 0 ? (
+          <div className="field">
+            <label htmlFor={`${id}-state`}>{t('ca3.filter.state')}</label>
+            <select id={`${id}-state`} value={value.state} onChange={(event) => set({ state: event.target.value })}>
+              <option value="">{t('ca1.filter.all')}</option>
+              {record.states.map((word) => (
+                <option key={word} value={word}>
+                  {groupLabel(t, 'state', word)}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         {showPeriod ? (
           <>
             <div className="field">
