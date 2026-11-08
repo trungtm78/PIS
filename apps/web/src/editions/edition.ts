@@ -3,7 +3,7 @@ import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
 import { translator } from '../i18n';
 import type { Catalogue, Locale } from '../i18n';
 import type { NavigationAccess } from '../navigation/model';
-import type { WebRoute } from '../routes/types';
+import type { ScreenLoader, WebRoute } from '../routes/types';
 
 /**
  * What the web build of one edition is made of (ENT-0): the manifest (names, module, screen and menu lists, rule packs) and the terminology
@@ -13,6 +13,11 @@ import type { WebRoute } from '../routes/types';
 export interface WebEditionBundle {
   readonly manifest: EditionManifest;
   readonly overlay?: Readonly<Record<Locale, Catalogue>>;
+  /**
+   * The screens the edition brings with it, by screen id (ENT-2): code that lives in the edition's own folder and reaches the application through this bundle only, so the table of screens of the
+   * public product names none of it. `resolveScreen` reads them after the screens of the table.
+   */
+  readonly screens?: Readonly<Record<string, ScreenLoader>>;
 }
 
 export const PUBLIC_BUNDLE: WebEditionBundle = { manifest: PUBLIC_EDITION_MANIFEST };

@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { routeInEdition } from '../editions/edition';
+import { getEdition, routeInEdition } from '../editions/edition';
 import { NotImplementedScreen } from './NotImplementedScreen';
 import { WEB_ROUTES } from './web-routes.ts';
 import { screenModules } from './screens/index';
@@ -36,6 +36,7 @@ function lazyScreen(loader: ScreenLoader): ScreenComponent {
  * screen module), otherwise the shared "not implemented yet" screen, so every route of the table can be opened.
  */
 export function resolveScreen(id: string, modules: Readonly<Record<string, ScreenLoader>> = screenModules): ScreenComponent {
-  const loader = modules[id];
+  // The screens of the table first, then the ones the edition in force brings with it (the enterprise connections).
+  const loader = modules[id] ?? getEdition().screens?.[id];
   return loader === undefined ? NotImplementedScreen : lazyScreen(loader);
 }

@@ -3,6 +3,8 @@ import { Suspense } from 'react';
 import { describe, expect, it } from 'vitest';
 import en from '../i18n/en.json';
 import vi from '../i18n/vi.json';
+import { PUBLIC_EDITION_MANIFEST } from '@machvon/kernel/src/edition.ts';
+import { installEdition, resetEdition } from '../editions/edition';
 import { NotFound } from './NotFound';
 import { resolveScreen, routeById, routeByPath } from './registry';
 import { screenModules } from './screens/index';
@@ -67,6 +69,28 @@ describe('resolveScreen', () => {
       </Suspense>,
     );
     expect(await screen.findByRole('heading', { name: `Implemented ${home().id}` })).toBeInTheDocument();
+  });
+
+  it('resolves a screen the edition in force brings with it, after the table, and forgets it with the edition', async () => {
+    const Brought = ({ route }: ScreenProps) => <h1>{`Brought ${route.id}`}</h1>;
+    const loader: ScreenLoader = () => Promise.resolve({ default: Brought });
+    installEdition({ manifest: PUBLIC_EDITION_MANIFEST, screens: { [home().id]: loader, 'ADM-01': loader } });
+    try {
+      const Screen = resolveScreen(home().id);
+      render(
+        <Suspense fallback={<p>waiting</p>}>
+          <Screen route={home()} />
+        </Suspense>,
+      );
+      expect(await screen.findByRole('heading', { name: `Brought ${home().id}` })).toBeInTheDocument();
+      // A screen of the table is never taken over by the edition.
+      expect(resolveScreen('ADM-01')).not.toBe(Screen);
+    } finally {
+      resetEdition();
+    }
+    const Gone = resolveScreen(home().id);
+    render(<Gone route={home()} />);
+    expect(screen.getAllByRole('status').some((node) => node.hasAttribute('data-not-implemented'))).toBe(true);
   });
 
   it('keeps the fallback for ids the registry does not hold', () => {

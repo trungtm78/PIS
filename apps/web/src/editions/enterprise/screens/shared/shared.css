@@ -1,0 +1,38 @@
+/* HPM and Oracle EBS screens of the enterprise edition (ENT-2). Tokens only; the kit (apps/web/src/ui) draws the cards, the tables, the pills and the dialog. */
+.ent2-page .ui-section { margin-bottom: var(--mv-space-16); }
+.ent2-facts { display: grid; gap: var(--mv-space-12); margin: 0; }
+.ent2-fact { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: var(--mv-space-4) var(--mv-space-16); align-items: baseline; padding-bottom: var(--mv-space-8); border-bottom: 1px solid var(--mv-color-border); }
+.ent2-fact dt { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.ent2-fact dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .ent2-fact { grid-template-columns: minmax(0, 1fr); }
+}
+.ent2-explain { margin: 0 0 var(--mv-space-12); font-weight: 600; }
+.ent2-explain[data-status='STALE'] { color: var(--mv-color-warning); }
+.ent2-note { margin: 0 0 var(--mv-space-8); color: var(--mv-color-text-secondary); font-size: 14px; }
+.ent2-none { margin: 0; color: var(--mv-color-text-secondary); }
+.ent2-actions { display: grid; gap: var(--mv-space-8); margin: 0; padding: 0; list-style: none; }
+.ent2-action { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.ent2-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-16) 0 0; padding: 0; list-style: none; }
+.ent2-pending { display: grid; gap: var(--mv-space-12); margin: 0; padding: 0; list-style: none; }
+.ent2-pending li { display: grid; gap: var(--mv-space-4); padding-bottom: var(--mv-space-8); border-bottom: 1px solid var(--mv-color-border); }
+.ent2-stack { display: inline-flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-4); }
+.ent2-key { overflow-wrap: anywhere; font-size: 12px; }
+.ent2-filter { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--mv-space-12); margin: var(--mv-space-12) 0; }
+.ent2-more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); margin: var(--mv-space-12) 0 0; }
+.ent2-row-actions { display: inline-flex; flex-wrap: wrap; gap: var(--mv-space-4); }
+.ent2-field { display: grid; gap: var(--mv-space-4); margin-bottom: var(--mv-space-12); }
+.ent2-field label { font-weight: 600; }
+.ent2-field input, .ent2-field select, .ent2-field textarea { min-height: 44px; padding: 0 var(--mv-space-8); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); color: inherit; font: inherit; }
+.ent2-field textarea { padding: var(--mv-space-8); }
+.ent2-field input:focus-visible, .ent2-field select:focus-visible, .ent2-field textarea:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.ent2-field[data-invalid='true'] input, .ent2-field[data-invalid='true'] textarea { border-color: var(--mv-color-danger); }
+.ent2-field__hint { color: var(--mv-color-text-secondary); font-size: 12px; }
+.ent2-field__problem { color: var(--mv-color-danger); font-size: 13px; }
+.ent2-choice { display: grid; gap: var(--mv-space-8); margin: 0 0 var(--mv-space-12); padding: 0; border: 0; }
+.ent2-choice legend { padding: 0; font-weight: 600; }
+.ent2-choice label { display: flex; align-items: center; gap: var(--mv-space-8); min-height: 44px; }
+.ent2-check { display: inline-flex; align-items: center; gap: var(--mv-space-8); min-height: 44px; }
+.ent2-columns { display: grid; gap: var(--mv-space-4); margin: 0; padding-left: var(--mv-space-16); }
+.ent2-flow { display: grid; gap: var(--mv-space-12); }
+.ent2-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }
