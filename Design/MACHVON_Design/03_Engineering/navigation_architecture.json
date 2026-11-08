@@ -72,7 +72,8 @@
         "HUB",
         "IND",
         "HPM",
-        "EBS"
+        "EBS",
+        "FEED"
       ]
     },
     {
@@ -84,49 +85,6 @@
         "LLM",
         "SAS",
         "INT"
-      ]
-    },
-    {
-      "id": "overview",
-      "name": "Điều hành",
-      "icon": "overview",
-      "modules": [
-        "HOME",
-        "DIR",
-        "IAM",
-        "DOC"
-      ]
-    },
-    {
-      "id": "insights",
-      "name": "Phân tích",
-      "icon": "insights",
-      "modules": [
-        "BID",
-        "BI",
-        "MNE",
-        "AUD",
-        "RPT"
-      ]
-    },
-    {
-      "id": "data",
-      "name": "Dữ liệu",
-      "icon": "data",
-      "modules": [
-        "MDM",
-        "DGV",
-        "FEED"
-      ]
-    },
-    {
-      "id": "admin",
-      "name": "Quản trị",
-      "icon": "admin",
-      "modules": [
-        "ADM",
-        "LLM",
-        "SAS"
       ]
     }
   ],
