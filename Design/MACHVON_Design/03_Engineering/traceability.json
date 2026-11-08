@@ -11839,5 +11839,43 @@
       "UI-FEED-05",
       "UAT-FEED-003"
     ]
+  },
+  {
+    "requirement": "FR-PRJ-28",
+    "screen": "PRJ-28",
+    "title": "Bảng rủi ro chấm từ tín hiệu và lịch sử điểm",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Hồ sơ khách hàng MR.02; lộ trình quản trị sâu 08/11/2026 (làn MR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "docs/prj-risk-signals.md; 3 test",
+    "backlog_id": "BL-PRJ-28",
+    "test_ids": [
+      "UI-PRJ-28",
+      "UAT-PLAN-1209",
+      "UAT-PLAN-1210"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-11",
+    "screen": "MNE-11",
+    "title": "Hiệu quả sau đầu tư: chỉ tiêu mục tiêu và thực tế",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Hồ sơ khách hàng MR.03; lộ trình quản trị sâu 08/11/2026 (G4-7, làn MR-1)",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "docs/prj-effectiveness.md; 3 test",
+    "backlog_id": "BL-MNE-11",
+    "test_ids": [
+      "UI-MNE-11",
+      "UAT-PLAN-1211",
+      "UAT-PLAN-1212"
+    ]
   }
 ]

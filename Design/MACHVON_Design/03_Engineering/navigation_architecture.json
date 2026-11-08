@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 536,
-    "webCatalog": 536,
+    "webRoutes": 538,
+    "webCatalog": 538,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -8321,6 +8321,26 @@
       "area": "data",
       "module": "FEED",
       "group": "Bộ sinh dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-28",
+      "title": "Bảng rủi ro chấm từ tín hiệu và lịch sử điểm",
+      "kind": "board",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-11",
+      "title": "Hiệu quả sau đầu tư: chỉ tiêu mục tiêu và thực tế",
+      "kind": "board",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Theo dõi & lịch sử",
       "role": "workspace",
       "parent": null
     }
