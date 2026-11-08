@@ -113,3 +113,14 @@ export function useRetireTemplate() {
     onError: (error) => attempts.current.ended(error),
   });
 }
+
+/** Drafts a new revision of a template: a body the form has checked; the server judges the legal side. One intention keeps one idempotency attempt. */
+export function useCreateTemplate() {
+  const client = useApiClient();
+  const { attempts, settled } = useCommandSupport();
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => client.command('createDocumentTemplateRevision', { body: body as never, attempt: attempts.current.forPayload(body) }),
+    onSuccess: settled,
+    onError: (error) => attempts.current.ended(error),
+  });
+}

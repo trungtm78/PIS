@@ -82,6 +82,8 @@ export interface SessionSignIn {
   loadCandidates?(): Promise<readonly TenantCandidate[]>;
   /** Chooses a membership: one intention keeps one idempotency key until the server gives a final answer. */
   selectTenant?(candidate: TenantCandidate): Promise<void>;
+  /** Accepts an invitation with its one-time token under the identity of the signed-in person (no tenant is chosen yet); one intention keeps one idempotency key until the server gives a final answer. */
+  acceptInvitation?(invitationId: string, token: string): Promise<void>;
 }
 
 /** The session of a visitor who has not signed in; it is what production builds provide until OIDC sign-in lands. */

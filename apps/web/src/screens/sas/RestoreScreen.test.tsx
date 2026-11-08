@@ -350,6 +350,7 @@ describe('SAS-21 the restore of a tenant (UI-SAS-21)', () => {
     let page = 0;
     const h = harness((operation, input) => {
       if (operation === 'listSystemTenants') return { items: [{ id: TENANT, code: 'minh-ha', name: 'Minh Hà' }], next_cursor: null };
+      if (operation === 'getMyFeatureFlags') return { items: [{ flag_key: 'sas.tenant_restore_in_place', enabled: true }] };
       page += 1;
       const first = (input as { query?: { cursor?: string } }).query?.cursor === undefined;
       return { tenant_status: 'Active', tenant_version: 1, recovery_window: WINDOW, rpo_target_seconds: 900, rto_target_seconds: 14_400, items: [first ? row(1) : row(2)], next_cursor: first ? 'next' : null };

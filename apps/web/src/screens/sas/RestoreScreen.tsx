@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
+import { ReleaseFlagNote } from '../../session/ReleaseFlagNote';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
@@ -174,6 +175,7 @@ function RestoreContent({ route }: ScreenProps) {
           <p>{t('sas.restore.page.subtitle')}</p>
         </div>
       </div>
+      <ReleaseFlagNote flagKey="sas.tenant_restore_in_place" />
       <TenantPicker id="restore-tenant" label={t('sas.restore.tenant.label')} moreLabel={t('sas.restore.tenant.more.action')} choice={{ ...choice, choose: pick }} />
       <StateBoundary state={state} onRetry={() => {
           choice.refetch();

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
+import { ReleaseFlagNote } from '../../session/ReleaseFlagNote';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
@@ -216,6 +217,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
           <p>{t('sas.promotion.page.subtitle')}</p>
         </div>
       </div>
+      <ReleaseFlagNote flagKey="sas.silo_promotion" />
       <TenantPicker id="promotion-tenant" label={t('sas.promotion.tenant.label')} moreLabel={t('sas.promotion.tenant.more.action')} choice={{ ...choice, choose: pick }} />
       {shownNotice === undefined ? null : (
         <p className="callout" role="status">

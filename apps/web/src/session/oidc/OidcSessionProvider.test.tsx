@@ -452,4 +452,38 @@ describe('OidcSessionProvider', () => {
     const url = new URL(redirected.at(-1) ?? 'https://x.test/');
     expect(url.searchParams.get('acr_values')).toBe('aal2');
   });
+
+  describe('accepting an invitation under the identity alone', () => {
+    const INVITATION = '00000000-0000-4000-8000-0000000000c1';
+    const TOKEN = 'a'.repeat(40);
+
+    it('sends the one-time token with the identity token of the person, before any tenant is chosen', async () => {
+      mount();
+      await signedIn();
+      selectBehaviour = () => json({ status: 'ACTIVE' });
+      await act(async () => {
+        await session.acceptInvitation?.(INVITATION, TOKEN);
+      });
+      const call = calls.find((each) => each.path === `/memberships/invitations/${INVITATION}/accept`);
+      expect(call).toMatchObject({ method: 'POST', body: { token: TOKEN } });
+      expect(call?.key).toBeTruthy();
+      expect(call?.authorization).toMatch(/^Bearer /);
+      expect(session.tenant).toBeUndefined();
+    });
+
+    it('keeps the idempotency key of a lost answer for the retry and takes a new one after a final refusal', async () => {
+      mount();
+      await signedIn();
+      let answers = 0;
+      selectBehaviour = () => (answers++ === 0 ? json({ code: 'DEPENDENCY_UNAVAILABLE' }, 503) : answers === 2 ? json({ code: 'INVITATION_EXPIRED' }, 409) : json({ status: 'ACTIVE' }));
+      const accept = () => act(async () => session.acceptInvitation?.(INVITATION, TOKEN).catch(() => undefined));
+      await accept();
+      await accept();
+      await accept();
+      const keys = calls.filter((each) => each.method === 'POST').map((each) => each.key);
+      expect(keys).toHaveLength(3);
+      expect(keys[1]).toBe(keys[0]);
+      expect(keys[2]).not.toBe(keys[1]);
+    });
+  });
 });

@@ -7,6 +7,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { CreateRevisionForm } from './templates/CreateRevisionForm';
 import { useConfirmTemplate, usePublishTemplate, useRetireTemplate, useTemplates } from './templates/hooks';
 import type { TemplateFilter } from './templates/hooks';
 import { fieldProblemMessage, groupLabel, problemMessage, statusLabel } from './templates/labels';
@@ -52,6 +53,8 @@ function DocumentTemplatesContent({ route }: ScreenProps) {
   const [reason, setReason] = useState('');
   const [reasonRefused, setReasonRefused] = useState(false);
   const [done, setDone] = useState<string | undefined>(undefined);
+  const [creating, setCreating] = useState(false);
+  const mayCreate = !frozen && (permissions === undefined || permissions.includes(MANAGE_TEMPLATES_PERMISSION));
   const list = useTemplates({ group: applied.group, status: applied.status, asOf: applied.asOf });
   const publish = usePublishTemplate();
   const confirm = useConfirmTemplate();
@@ -130,6 +133,13 @@ function DocumentTemplatesContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('doc.templates.page.title')}</h1>
           <p>{t('doc.templates.page.subtitle')}</p>
         </div>
+        {mayCreate && !creating ? (
+          <div className="actions">
+            <button type="button" className="primary" data-testid="template-create-open" onClick={() => { setDone(undefined); setCreating(true); }}>
+              {t('misc.tpl.open')}
+            </button>
+          </div>
+        ) : null}
       </div>
       <p className="callout">{t('doc.templates.rule.notice')}</p>
       {done === undefined ? null : (
@@ -137,6 +147,16 @@ function DocumentTemplatesContent({ route }: ScreenProps) {
           {done}
         </p>
       )}
+      {creating && mayCreate ? (
+        <CreateRevisionForm
+          asOf={new Date().toISOString().slice(0, 10)}
+          onCancel={() => setCreating(false)}
+          onCreated={(code) => {
+            setCreating(false);
+            setDone(t('misc.tpl.created', { code }));
+          }}
+        />
+      ) : null}
       <div className="card">
         <form className="filters" onSubmit={submitFilter} noValidate>
           <div>

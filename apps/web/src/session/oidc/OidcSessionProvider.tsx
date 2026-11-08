@@ -250,6 +250,24 @@ export default function OidcSessionProvider({
     return answer.items;
   }, [identityClient]);
 
+  const invitationAttempts = useRef(new Map<string, CommandAttempt>());
+  const acceptInvitation = useCallback(
+    async (invitationId: string, token: string): Promise<void> => {
+      if (identityRef.current === undefined) throw new OidcError('callback_invalid');
+      const key = `${invitationId}:${token}`;
+      const attempt = invitationAttempts.current.get(key) ?? newCommandAttempt();
+      invitationAttempts.current.set(key, attempt);
+      try {
+        await identityClient.command('acceptInvitation', { path: { invitationId }, body: { token }, attempt });
+        invitationAttempts.current.delete(key);
+      } catch (error) {
+        if (isDefinitive(error)) invitationAttempts.current.delete(key);
+        throw error;
+      }
+    },
+    [identityClient],
+  );
+
   const scheduleRenewal = useCallback(
     (expiresAt: number, renew: () => Promise<void>) => {
       clearRenewal();
@@ -359,8 +377,9 @@ export default function OidcSessionProvider({
       completeSignIn,
       loadCandidates,
       selectTenant,
+      acceptInvitation,
     }),
-    [tenant, tenants, user, switchTenant, getSession, requestStepUp, status, identity, assurance, tenantToken, mode, signIn, forgetEverything, completeSignIn, loadCandidates, selectTenant],
+    [tenant, tenants, user, switchTenant, getSession, requestStepUp, status, identity, assurance, tenantToken, mode, signIn, forgetEverything, completeSignIn, loadCandidates, selectTenant, acceptInvitation],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

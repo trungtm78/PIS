@@ -28,6 +28,8 @@ import { PublishedThemeProvider } from './theme/PublishedThemeProvider';
 
 // The public portal (GOV-12, PRJ-34) needs no session and no shell: it is read by anyone, so it is a route of its own outside the shell.
 const PublicPortalScreen = lazy(() => import('./screens/gov12/prj/PublicPortalScreen'));
+// The page an invited person opens from the email (IAM 3.3): the person has no tenant yet, so it is a route of its own outside the shell; it asks for the sign-in itself.
+const AcceptInvitationScreen = lazy(() => import('./screens/iam/AcceptInvitationScreen'));
 
 const HOME = 'HOME-01';
 const CHOOSER = 'IAM-04';
@@ -111,6 +113,14 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
           element={
             <Suspense fallback={<StateBoundary state="loading" />}>
               <PublicPortalScreen />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/invitations/:invitationId/accept"
+          element={
+            <Suspense fallback={<StateBoundary state="loading" />}>
+              <AcceptInvitationScreen />
             </Suspense>
           }
         />
