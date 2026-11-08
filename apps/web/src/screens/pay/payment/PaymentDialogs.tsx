@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n';
 import { useLineChoices } from '../../bid/plan-hooks';
 import { Field } from '../../ctr/components';
 import { CommandFrame } from '../../qms/CommandFrame';
-import { useAttachDocument, useCancelPayment, useReturnPayment, useRevisePayment, useSubmitPayment, useVerifyPayment } from './hooks';
+import { useAttachDocument, useCancelPayment, useReturnPayment, useReturnReasons, useRevisePayment, useSubmitPayment, useVerifyPayment } from './hooks';
 import { docKindLabel, formProblemMessage, problemMessage } from './labels';
 import {
   DOC_KINDS,
@@ -260,18 +260,47 @@ export function VerifyDialog({ request, onDone, onClose }: PaymentDialogProps) {
   );
 }
 
+/** The words of the standard reasons that the rule starts with; a reason a province added is shown by its code. */
+function reasonLabel(t: ReturnType<typeof useTranslation>['t'], code: string): string {
+  switch (code) {
+    case 'MISSING_DOCUMENT':
+      return t('pay.payment.returnReason.missingDocument');
+    case 'MISSING_SIGNATURE':
+      return t('pay.payment.returnReason.missingSignature');
+    case 'ACCEPTANCE_MISMATCH':
+      return t('pay.payment.returnReason.acceptanceMismatch');
+    case 'GUARANTEE_INVALID':
+      return t('pay.payment.returnReason.guaranteeInvalid');
+    case 'WRONG_AMOUNT':
+      return t('pay.payment.returnReason.wrongAmount');
+    case 'ADVANCE_NOT_RECOVERED':
+      return t('pay.payment.returnReason.advanceNotRecovered');
+    case 'NO_BUDGET_ROOM':
+      return t('pay.payment.returnReason.noBudgetRoom');
+    case 'WRONG_PAYEE_ACCOUNT':
+      return t('pay.payment.returnReason.wrongPayeeAccount');
+    case 'OTHER':
+      return t('pay.payment.returnReason.other');
+    default:
+      return code;
+  }
+}
+
 /** Giving a request back to its drafter with the reason; the claim, the retention and the recovery it took are given back by the server. */
 export function ReturnDialog({ request, onDone, onClose }: PaymentDialogProps) {
   const { t } = useTranslation();
   const words = useFrameWords();
   const giveBack = useReturnPayment();
+  const reasons = useReturnReasons();
   const [form, setForm] = useState<ReturnForm>(EMPTY_RETURN);
   const [sent, setSent] = useState(false);
-  const problems = validateReturn(form);
+  const codeRequired = reasons.data?.required === true;
+  const problems = validateReturn(form, codeRequired);
   const send = (event: FormEvent): void => {
     event.preventDefault();
     setSent(true);
-    if (giveBack.isPending || Object.keys(problems).length > 0) return;
+    // A return that needs a standard reason is not sent while the catalogue could not be read: the server would refuse it, and the person could not say which reason.
+    if (giveBack.isPending || reasons.isError || reasons.isLoading || Object.keys(problems).length > 0) return;
     giveBack.mutate({ id: request.id, version: request.version, body: returnBody(form) }, { onSuccess: onDone });
   };
   return (
@@ -284,6 +313,24 @@ export function ReturnDialog({ request, onDone, onClose }: PaymentDialogProps) {
       onSubmit={send}
       onClose={onClose}
     >
+      {reasons.isError && (
+        <p role="alert" data-testid="return-reasons-error">
+          {t('pay.payment.return.reasons.error')}{' '}
+          <button type="button" className="ui-button ui-button--outline" onClick={() => void reasons.refetch()}>
+            {t('gov11.common.retry')}
+          </button>
+        </p>
+      )}
+      <Field id="return-reason-code" label={t('pay.payment.field.returnReasonCode')} error={sent && problems.reasonCode !== undefined ? formProblemMessage(t, problems.reasonCode) : undefined}>
+        <select id="return-reason-code" value={form.reasonCode} disabled={reasons.isLoading} onChange={(event) => setForm({ ...form, reasonCode: event.target.value })}>
+          <option value="">{reasons.isLoading ? t('pay.payment.return.reasons.loading') : t('pay.payment.return.reasons.choose')}</option>
+          {(reasons.data?.items ?? []).map((item) => (
+            <option key={item.code} value={item.code}>
+              {reasonLabel(t, item.code)}
+            </option>
+          ))}
+        </select>
+      </Field>
       <Field id="return-reason" label={t('pay.payment.field.returnReason')} error={sent && problems.reason !== undefined ? formProblemMessage(t, problems.reason) : undefined}>
         <textarea id="return-reason" rows={3} value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} />
       </Field>

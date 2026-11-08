@@ -282,12 +282,16 @@ describe('PaymentDetailScreen (PAY-03): a payment request and its documents', ()
     await screen.findByTestId('request-no');
     fireEvent.click(action('return'));
     press(vi_['pay.payment.return.submit']);
-    expect(await within(dialog()).findByText(vi_['pay.payment.problem.required'])).toBeTruthy();
+    expect((await within(dialog()).findAllByText(vi_['pay.payment.problem.required'])).length).toBe(2);
     expect(commandsOf(h, 'returnPaymentRequest')).toEqual([]);
     type('return-reason', 'The invoice does not match the acceptance.');
     press(vi_['pay.payment.return.submit']);
+    // The standard reason is still missing: the rule PAYMENT_RETURN_REASON asks for one (G1-17), so nothing is sent.
+    expect(commandsOf(h, 'returnPaymentRequest')).toEqual([]);
+    fireEvent.change(within(dialog()).getByLabelText(vi_['pay.payment.field.returnReasonCode']), { target: { value: 'MISSING_DOCUMENT' } });
+    press(vi_['pay.payment.return.submit']);
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(commandsOf(h, 'returnPaymentRequest')[0]).toMatchObject({ path: { id: paymentId(1) }, ifMatchVersion: 1, body: { reason: 'The invoice does not match the acceptance.' } });
+    expect(commandsOf(h, 'returnPaymentRequest')[0]).toMatchObject({ path: { id: paymentId(1) }, ifMatchVersion: 1, body: { reason: 'The invoice does not match the acceptance.', reason_code: 'MISSING_DOCUMENT' } });
     expect(screen.getByTestId('done').textContent).toContain(vi_['pay.payment.done.returned']);
   });
 

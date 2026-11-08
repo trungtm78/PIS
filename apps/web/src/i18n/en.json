@@ -32198,5 +32198,18 @@
   "gov11.lessons.field.reason": "Why there is no lesson to record (at least 20 characters)",
   "gov11.lessons.submit": "Send the proposal",
   "gov11.lessons.waiver": "Waiver",
-  "gov11.lessons.askWaiver": "Ask for a waiver"
+  "gov11.lessons.askWaiver": "Ask for a waiver",
+  "pay.payment.field.returnReasonCode": "Standard reason of the return",
+  "pay.payment.return.reasons.choose": "Choose a standard reason",
+  "pay.payment.return.reasons.loading": "Loading the reasons…",
+  "pay.payment.return.reasons.error": "The standard reasons could not be read, so the dossier cannot be returned yet.",
+  "pay.payment.returnReason.missingDocument": "A document is missing from the dossier",
+  "pay.payment.returnReason.missingSignature": "A signature is missing",
+  "pay.payment.returnReason.acceptanceMismatch": "The dossier does not match the acceptance minutes",
+  "pay.payment.returnReason.guaranteeInvalid": "The guarantee is not valid",
+  "pay.payment.returnReason.wrongAmount": "The amount is wrong",
+  "pay.payment.returnReason.advanceNotRecovered": "The advance is not recovered",
+  "pay.payment.returnReason.noBudgetRoom": "No budget room to pay",
+  "pay.payment.returnReason.wrongPayeeAccount": "Wrong account of the payee",
+  "pay.payment.returnReason.other": "Another reason (must be explained)"
 }

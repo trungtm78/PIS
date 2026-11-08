@@ -32198,5 +32198,18 @@
   "gov11.lessons.field.reason": "Lý do không có bài học để ghi (ít nhất 20 ký tự)",
   "gov11.lessons.submit": "Gửi đề xuất",
   "gov11.lessons.waiver": "Miễn trừ",
-  "gov11.lessons.askWaiver": "Xin miễn trừ"
+  "gov11.lessons.askWaiver": "Xin miễn trừ",
+  "pay.payment.field.returnReasonCode": "Lý do chuẩn của việc trả lại",
+  "pay.payment.return.reasons.choose": "Chọn lý do chuẩn",
+  "pay.payment.return.reasons.loading": "Đang tải danh sách lý do…",
+  "pay.payment.return.reasons.error": "Không đọc được danh sách lý do chuẩn nên chưa thể trả lại hồ sơ.",
+  "pay.payment.returnReason.missingDocument": "Thiếu chứng từ trong hồ sơ",
+  "pay.payment.returnReason.missingSignature": "Thiếu chữ ký",
+  "pay.payment.returnReason.acceptanceMismatch": "Hồ sơ không khớp với biên bản nghiệm thu",
+  "pay.payment.returnReason.guaranteeInvalid": "Bảo lãnh không hợp lệ",
+  "pay.payment.returnReason.wrongAmount": "Số tiền sai",
+  "pay.payment.returnReason.advanceNotRecovered": "Tạm ứng chưa được thu hồi",
+  "pay.payment.returnReason.noBudgetRoom": "Không còn dự toán để chi",
+  "pay.payment.returnReason.wrongPayeeAccount": "Sai tài khoản thụ hưởng",
+  "pay.payment.returnReason.other": "Lý do khác (phải ghi rõ)"
 }

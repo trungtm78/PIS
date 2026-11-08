@@ -122,7 +122,27 @@ export function useVerifyPayment() {
   return useCommand<VerifyInput>((input, attempt) => client.command('verifyPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }
 
+export interface ReturnReasons {
+  items: Array<{ code: string; category: string; requiresNote: boolean }>;
+  required: boolean;
+}
+
+/** The standard reasons to return a request and whether a code is required (rule PAYMENT_RETURN_REASON); read when the dialog opens. */
+export function useReturnReasons(enabled = true) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<ReturnReasons>({
+    queryKey: [...key, 'return-reasons'],
+    queryFn: async () => {
+      const answer = (await client.read('listPaymentReturnReasons' as never)) as { items?: Array<{ code: string; category: string; requires_note: boolean; active: boolean }>; reason_code_required?: boolean };
+      return { items: (answer.items ?? []).filter((item) => item.active !== false).map((item) => ({ code: item.code, category: item.category, requiresNote: item.requires_note })), required: answer.reason_code_required === true };
+    },
+    enabled: enabled && key[1] !== undefined,
+    retry: false,
+  });
+}
+
 export function useReturnPayment() {
   const client = useApiClient();
-  return useCommand<CancelInput>((input, attempt) => client.command('returnPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
+  return useCommand<CancelInput & { body: { reason: string; reason_code?: string } }>((input, attempt) => client.command('returnPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }

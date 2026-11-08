@@ -489,16 +489,22 @@ export const verifyBody = (form: VerifyForm): { note?: string } => (form.note.tr
 
 export interface ReturnForm {
   reason: string;
+  /** The standard reason of the rule PAYMENT_RETURN_REASON (G1-17); empty until one is chosen. */
+  reasonCode: string;
 }
 
-export const EMPTY_RETURN: ReturnForm = { reason: '' };
+export const EMPTY_RETURN: ReturnForm = { reason: '', reasonCode: '' };
 
-export function validateReturn(form: ReturnForm): Partial<Record<keyof ReturnForm, FormProblem>> {
+/** The words are always required; the code is required when the rule says so (the catalogue answers it), and the person cannot send a return without one then. */
+export function validateReturn(form: ReturnForm, codeRequired = false): Partial<Record<keyof ReturnForm, FormProblem>> {
+  const problems: Partial<Record<keyof ReturnForm, FormProblem>> = {};
   const problem = requiredText(form.reason, MAX_TEXT);
-  return problem === undefined ? {} : { reason: problem };
+  if (problem !== undefined) problems.reason = problem;
+  if (codeRequired && form.reasonCode === '') problems.reasonCode = 'required';
+  return problems;
 }
 
-export const returnBody = (form: ReturnForm): { reason: string } => ({ reason: form.reason.trim() });
+export const returnBody = (form: ReturnForm): { reason: string; reason_code?: string } => ({ reason: form.reason.trim(), ...(form.reasonCode === '' ? {} : { reason_code: form.reasonCode }) });
 
 // ---- refusals ----------------------------------------------------------------------------------------------------------------
 

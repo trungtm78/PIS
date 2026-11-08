@@ -154,6 +154,7 @@ export function client(state: World, command: (operation: string, input: unknown
       const id = (input as { path?: { id?: string } } | undefined)?.path?.id;
       return state.payments.find((item) => item.id === id) ?? new Error('not found');
     }
+    if (operation === 'listPaymentReturnReasons') return { items: [{ code: 'MISSING_DOCUMENT', category: 'DOSSIER', requires_note: false, active: true }, { code: 'WRONG_AMOUNT', category: 'AMOUNT', requires_note: true, active: true }], reason_code_required: true, as_of: '2026-11-08' };
     return new Error(`unexpected read ${operation}`);
   }, command);
   (h.client as unknown as { readAll: (operation: string, input?: unknown) => Promise<unknown[]> }).readAll = vi.fn((operation: string, input?: unknown) => {
