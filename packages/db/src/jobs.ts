@@ -157,6 +157,8 @@ export const JOB_INTERVAL_SECONDS = {
   'vendor-link-scan': 86_400,
   // Every night: every contractor of the register is compared with the lists of parties that may not be dealt with; a new hit above the hold line holds the contractor until a person decides (VND-3, V14).
   'vendor-screening': 86_400,
+  // Every night: portal invitations nobody approved in time and portal accesses past their end become EXPIRED, and the guest of an expired access is ended (PORTAL-2).
+  'vendor-portal-invitation-expiry': 86_400,
   // Hourly: the latest frozen snapshot is read, and if the week it belongs to has no early-warning score yet, every unit is judged by the rules in force and one row with the breakdown is written for it, once for the week (G3-2); the pass is idempotent.
   'early-warning-score': 3600,
   // Every 3 hours: the risk lines of every project the rule scores are re-scored from the live signals (SPI and milestones, payment integrity, claims and early warnings, funding gap, procurement delay) by the rule RISK_SIGNAL_POLICY; a score that crosses a line of the rule raises an alert, once for a subject and a day (MR.02, G1-14); the pass is idempotent.
@@ -401,6 +403,7 @@ export interface StandardJobDeps {
   redFlagScan?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ flagged: number }> };
   vendorLinkScan?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ leadsNew: number }> };
   vendorScreening?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ hitsNew: number }> };
+  vendorPortalInvitationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ proposals: number; accesses: number }> };
   /** Scores every unit for the week of the latest frozen snapshot, once for the week, with the breakdown of the factors and the versions of the rules (G3-2); sets the gauge of the units scored. */
   earlyWarningScore?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ written: number }> };
   /** Re-scores the risk lines of the projects from the live signals and raises the alerts of the scores that crossed a line of the rule (MR.02); sets the gauge of the lines that moved. */
@@ -1239,6 +1242,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await vendorScreening.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const vendorPortalInvitationExpiry = deps.vendorPortalInvitationExpiry;
+  if (vendorPortalInvitationExpiry !== undefined) {
+    handlers.push({
+      name: 'vendor-portal-invitation-expiry',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await vendorPortalInvitationExpiry.run(workerContext(tenantId), now)));
       },
     });
   }

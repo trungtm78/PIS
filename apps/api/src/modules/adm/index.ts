@@ -12,6 +12,7 @@ import { DelegationCommandsController, DelegationReadsController } from './deleg
 import { DoaMatricesController, DoaMatrixReadsController } from './doa-matrix.controller';
 import { GovernanceRuleReadsController, GovernanceRulesController, AlertTypeReadsController } from './governance-rule.controller';
 import { GuestContractorController } from './guest-contractor.controller';
+import { PortalInvitationController, PortalInvitationReadsController } from './portal-invitation.controller';
 import { INVITATION_MAILER, MockInvitationMailer } from './invitation-mailer';
 import { IntegrationConnectorsController } from './integration-connector.controller';
 import { IntegrationInboxController } from './integration-inbox.controller';
@@ -50,6 +51,8 @@ export const admModule = defineModule({
     MigrationBatchesController,
     MigrationBatchReadsController,
     GuestContractorController,
+    PortalInvitationController,
+    PortalInvitationReadsController,
     SigningCertificatesController,
     SigningCertificateReadsController,
     SecurityPoliciesController,

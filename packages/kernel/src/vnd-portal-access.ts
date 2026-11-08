@@ -38,7 +38,7 @@ export function portalAccessPolicyOf(params: unknown): PortalAccessPolicy {
     proposal_days: whole('proposal_days', 1, 60),
     access_days: whole('access_days', 30, 730),
     max_live_accounts: whole('max_live_accounts', 1, 20),
-    max_upload_bytes: whole('max_upload_bytes', 100 * 1024, 25 * 1024 * 1024),
+    max_upload_bytes: whole('max_upload_bytes', 100 * 1024, 10 * 1024 * 1024),
   };
 }
 

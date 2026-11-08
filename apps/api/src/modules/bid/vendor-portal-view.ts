@@ -134,6 +134,7 @@ export const statsDto = (stats: DisputeStats): Record<string, unknown> => ({
   upheld: stats.upheld,
   rejected: stats.rejected,
   withdrawn: stats.withdrawn,
+  awaiting_outcome: stats.awaitingOutcome,
   upheld_pct: stats.upheldPct,
   mean_days_to_close: stats.meanDaysToClose,
 });
@@ -146,6 +147,8 @@ export const disputeLineDto = (row: DisputeRow): Record<string, unknown> => ({
   subject_code: row.subjectCode,
   outcome: row.outcome,
   source_status: row.sourceStatus,
+  awaiting_outcome: row.awaitingOutcome === true,
+  decision_ref: row.decisionRef,
   opened_on: row.openedOn,
   closed_on: row.closedOn,
 });

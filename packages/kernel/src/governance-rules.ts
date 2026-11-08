@@ -1877,7 +1877,7 @@ export const registerPortal2Rules = (): void =>
       source: PORTAL2_TEXT.rules_source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
-      schema: { proposal_days: int(1, 60), access_days: int(30, 730), max_live_accounts: int(1, 20), max_upload_bytes: int(100 * 1024, 25 * 1024 * 1024) },
+      schema: { proposal_days: int(1, 60), access_days: int(30, 730), max_live_accounts: int(1, 20), max_upload_bytes: int(100 * 1024, 10 * 1024 * 1024) },
       refine: refineWith(portalAccessPolicyOf),
       defaults: { DEFAULT: rule(plain({ ...PORTAL_ACCESS_DEFAULTS })) },
     });

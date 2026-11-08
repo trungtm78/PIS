@@ -17,6 +17,7 @@ export const PORTAL_SUBJECT_MODULE = 'VND_PORTAL';
 
 export interface PortalAttachmentRow {
   id: string;
+  contractorId: string;
   documentId: string;
   purpose: PortalUploadPurpose;
   title: string;
@@ -40,6 +41,7 @@ export interface NewPortalAttachment {
 
 interface Sql {
   id: string;
+  contractor_id: string;
   document_id: string;
   purpose: PortalUploadPurpose;
   title: string;
@@ -51,10 +53,11 @@ interface Sql {
   linked_id: string | null;
 }
 
-const SELECT = `select id, document_id, purpose, title, mime, size_bytes::text as size_bytes, sha256, ${timestampKey('uploaded_at')} as uploaded_at, linked_kind, linked_id from machvon.portal_attachment`;
+const SELECT = `select id, contractor_id, document_id, purpose, title, mime, size_bytes::text as size_bytes, sha256, ${timestampKey('uploaded_at')} as uploaded_at, linked_kind, linked_id from machvon.portal_attachment`;
 
 const toRow = (row: Sql): PortalAttachmentRow => ({
   id: row.id,
+  contractorId: row.contractor_id,
   documentId: row.document_id,
   purpose: row.purpose,
   title: row.title,
@@ -77,10 +80,16 @@ export class VendorPortalAttachmentStore {
   private readonly documents = new DocumentStore();
   private readonly contractors = new BidContractorStore();
 
-  /** Registers a clean, stored file as the document of the contractor the caller is bound to. It runs BEFORE the portal path is entered for the rest of the transaction because the register of documents is closed to that path. */
-  async register(tx: TenantTx, membershipId: string, input: NewPortalAttachment): Promise<PortalAttachmentRow> {
+  /** The contractor the membership is bound to, or 403 `PORTAL_CONTRACTOR_REQUIRED`; the upload asks it before a byte is stored. */
+  async callerOf(tx: TenantTx, membershipId: string): Promise<{ contractorId: string }> {
     const standing = await this.contractors.callerOf(tx, membershipId);
     if (!standing.guest || standing.contractorId === ZERO_CONTRACTOR) throw new DomainError('PORTAL_CONTRACTOR_REQUIRED', 403);
+    return { contractorId: standing.contractorId };
+  }
+
+  /** Registers a clean, stored file as the document of the contractor the caller is bound to. It runs BEFORE the portal path is entered for the rest of the transaction because the register of documents is closed to that path. */
+  async register(tx: TenantTx, membershipId: string, input: NewPortalAttachment): Promise<PortalAttachmentRow> {
+    const standing = await this.callerOf(tx, membershipId);
     const title = input.title.trim();
     if (title.length < 1 || title.length > 200) throw invalid('title');
     if (!(PORTAL_UPLOAD_MIMES as readonly string[]).includes(input.mime)) throw new DomainError('FILE_TYPE_NOT_ALLOWED', 422);

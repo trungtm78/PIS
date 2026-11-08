@@ -233,13 +233,13 @@ export class VendorPortalInvitationStore {
     return (await this.find(tx, id, now)) as PortalInvitationRow;
   }
 
-  private async endAccess(tx: TenantTx, membershipId: string, actor: string, now: Date, reason: string): Promise<void> {
+  private async endAccess(tx: TenantTx, membershipId: string, actor: string | null, now: Date, reason: string): Promise<void> {
     await tx.query(END_GRANTS_SQL, [membershipId, actor, now.toISOString()]);
     await tx.query(END_MEMBERSHIP_SQL, [membershipId, reason]);
   }
 
   /** The nightly job: proposals past their expiry and approved accesses past their end become EXPIRED, and the guest of an expired access is ended. Returns the counts. */
-  async expireDue(tx: TenantTx, actor: string, now: Date): Promise<{ proposals: number; accesses: number }> {
+  async expireDue(tx: TenantTx, now: Date): Promise<{ proposals: number; accesses: number }> {
     const proposals = await tx.query<{ id: string }>(
       `update machvon.contractor_portal_invitation set status = 'EXPIRED', expired_at = $1::timestamptz, version = version + 1 where status = 'PROPOSED' and proposal_expires_at <= $1::timestamptz returning id`,
       [now.toISOString()],
@@ -248,7 +248,7 @@ export class VendorPortalInvitationStore {
       `update machvon.contractor_portal_invitation set status = 'EXPIRED', expired_at = $1::timestamptz, version = version + 1 where status = 'APPROVED' and access_valid_until <= $1::timestamptz returning id, membership_id`,
       [now.toISOString()],
     );
-    for (const row of accesses) await this.endAccess(tx, row.membership_id, actor, now, 'portal access expired');
+    for (const row of accesses) await this.endAccess(tx, row.membership_id, null, now, 'portal access expired');
     return { proposals: proposals.length, accesses: accesses.length };
   }
 }
