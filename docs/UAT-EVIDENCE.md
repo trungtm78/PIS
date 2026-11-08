@@ -9,6 +9,8 @@ Screens complete: 63 of 528 (11.9 percent); screens with no test of the design: 
 Requirement rows complete: 63 of 528 (528 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 463, SKIPPED 0, FAIL 1, GAP 0.
 Screens complete: 63 of 527 (12.0 percent); screens with no test of the design: 0.
 Requirement rows complete: 63 of 527 (527 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 462, SKIPPED 0, FAIL 1, GAP 0.
+Screens complete: 63 of 529 (11.9 percent); screens with no test of the design: 0.
+Requirement rows complete: 63 of 529 (529 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 464, SKIPPED 0, FAIL 1, GAP 0.
 A row is PASS only when every test it names has a recorded PASS with its evidence (when it ran, the build, the schema version, the hash of the dataset, the request ids and a link to the evidence). FAIL, SKIPPED and NOT_RUN never count as PASS; a PASS without its evidence is UNPROVEN; a row without any known test is a GAP; WAIVED needs an approved waiver with an owner, a reason and an expiry that has not passed.
 
 ## Critical tests (money, isolation, restore)
@@ -599,6 +601,12 @@ Every screen names at least one test.
 | NOT-19 | NOT | NOT_RUN |
 | ADM-25 | ADM | NOT_RUN |
 | HOME-13 | HOME | NOT_RUN |
+| AUD-14 | AUD | NOT_RUN |
+| AUD-15 | AUD | NOT_RUN |
+| AUD-16 | AUD | NOT_RUN |
+| NOT-30 | NOT | NOT_RUN |
+| HOME-30 | HOME | NOT_RUN |
+| HOME-31 | HOME | NOT_RUN |
 
 ## Requirements
 
@@ -1145,3 +1153,9 @@ Every screen names at least one test.
 | FR-NOT-19 | NOT-19 | UI-NOT-19 NOT_RUN<br>UAT-PLAN-143 NOT_RUN<br>UAT-PLAN-144 NOT_RUN | NOT_RUN |
 | FR-NOT-18 | NOT-18 | UI-NOT-18 NOT_RUN<br>UAT-PLAN-145 NOT_RUN<br>UAT-PLAN-146 NOT_RUN | NOT_RUN |
 | FR-ADM-25 | ADM-25 | UI-ADM-25 NOT_RUN<br>UAT-PLAN-147 NOT_RUN<br>UAT-PLAN-148 NOT_RUN | NOT_RUN |
+| FR-AUD-14 | AUD-14 | UI-AUD-14 NOT_RUN<br>UAT-PLAN-141 NOT_RUN | NOT_RUN |
+| FR-AUD-15 | AUD-15 | UI-AUD-15 NOT_RUN<br>UAT-PLAN-141 NOT_RUN | NOT_RUN |
+| FR-AUD-16 | AUD-16 | UI-AUD-16 NOT_RUN<br>UAT-PLAN-141 NOT_RUN | NOT_RUN |
+| FR-NOT-20 | NOT-30 | UI-NOT-30 NOT_RUN<br>UAT-PLAN-142 NOT_RUN | NOT_RUN |
+| FR-HOME-14 | HOME-30 | UI-HOME-30 NOT_RUN<br>UAT-PLAN-143 NOT_RUN | NOT_RUN |
+| FR-HOME-15 | HOME-31 | UI-HOME-31 NOT_RUN<br>UAT-PLAN-143 NOT_RUN | NOT_RUN |
