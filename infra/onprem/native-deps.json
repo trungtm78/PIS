@@ -1,0 +1,34 @@
+{
+  "description": "Policy of scripts/native-deps-check.mjs: the product runs on linux/amd64 and linux/arm64. A native or binary npm package family that reaches production must have a linux arm64 build; a gap anywhere else must be acknowledged here with a reason.",
+  "requiredPlatform": {
+    "os": "linux",
+    "cpu": "arm64"
+  },
+  "testOnly": [
+    {
+      "package": "embedded-postgres",
+      "reason": "Test-only: it starts a throwaway PostgreSQL for the database test suites. It is declared in packages/db dependencies but only test-database.ts imports it, the production images are installed with --omit=dev --omit=optional (no server binary is shipped), and its linux arm64 build exists anyway.",
+      "allowedImporters": [
+        "packages/db/src/test-database.ts"
+      ]
+    }
+  ],
+  "acknowledged": [
+    {
+      "family": "@napi-rs/lzma",
+      "scope": "dev",
+      "reason": "Optional dependency of rollup (web build tool, development only) that ships a linux x64 binary only; rollup falls back to its own implementation, so the ARM leg of CI builds the web without it and no production artefact carries it."
+    }
+  ],
+  "installScripts": {
+    "acknowledged": [
+      "@swc/core",
+      "esbuild",
+      "@parcel/watcher",
+      "unrs-resolver",
+      "fsevents",
+      "embedded-postgres"
+    ],
+    "reason": "Each runs a script that selects the binary of the platform from its optional sibling packages; all of them have a linux arm64 sibling (checked above) and none is installed in a production image."
+  }
+}

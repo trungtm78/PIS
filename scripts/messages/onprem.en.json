@@ -1,0 +1,14 @@
+{
+  "nativeDeps.family": "family {family}: {members} package(s), linux arm64 {status}, {scope}",
+  "nativeDeps.testOnly": "test-only dependency: {package} (never installed in a production image)",
+  "nativeDeps.gap": "no linux arm64 build: {family} ({scope}, {state})",
+  "nativeDeps.code.NATIVE_POLICY_INVALID": "the native dependency policy is missing or malformed: {detail}",
+  "nativeDeps.code.NATIVE_LOCKFILE_MISSING": "{detail} is missing; the native dependencies cannot be listed",
+  "nativeDeps.code.NATIVE_NO_ARM64_PRODUCTION": "a native package family that reaches production has no linux arm64 build: {detail}",
+  "nativeDeps.code.NATIVE_NO_ARM64_UNACKNOWLEDGED": "a native package family has no linux arm64 build and no acknowledgement with a reason in infra/onprem/native-deps.json: {detail}",
+  "nativeDeps.code.NATIVE_INSTALL_SCRIPT_UNACKNOWLEDGED": "a package runs an install script and is not acknowledged in infra/onprem/native-deps.json: {detail}",
+  "nativeDeps.code.NATIVE_ACK_STALE": "an acknowledgement in infra/onprem/native-deps.json names a family that has no gap any more: {detail}",
+  "nativeDeps.summary.pass": "native dependencies: every production family has a linux arm64 build",
+  "nativeDeps.summary.fail": "{count} native dependency problem(s); see infra/onprem/native-deps.json",
+  "nativeDeps.code.NATIVE_TESTONLY_IMPORTED": "a test-only package is imported by product code: {detail}"
+}

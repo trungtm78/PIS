@@ -1,0 +1,14 @@
+{
+  "nativeDeps.family": "họ gói {family}: {members} gói, linux arm64 {status}, {scope}",
+  "nativeDeps.testOnly": "phụ thuộc chỉ dùng cho kiểm thử: {package} (không bao giờ cài vào image production)",
+  "nativeDeps.gap": "không có bản linux arm64: {family} ({scope}, {state})",
+  "nativeDeps.code.NATIVE_POLICY_INVALID": "chính sách phụ thuộc native thiếu hoặc sai dạng: {detail}",
+  "nativeDeps.code.NATIVE_LOCKFILE_MISSING": "thiếu {detail}; không liệt kê được các phụ thuộc native",
+  "nativeDeps.code.NATIVE_NO_ARM64_PRODUCTION": "họ gói native đi vào production không có bản linux arm64: {detail}",
+  "nativeDeps.code.NATIVE_NO_ARM64_UNACKNOWLEDGED": "họ gói native không có bản linux arm64 và chưa được ghi nhận kèm lý do trong infra/onprem/native-deps.json: {detail}",
+  "nativeDeps.code.NATIVE_INSTALL_SCRIPT_UNACKNOWLEDGED": "gói chạy script cài đặt nhưng chưa được ghi nhận trong infra/onprem/native-deps.json: {detail}",
+  "nativeDeps.code.NATIVE_ACK_STALE": "một ghi nhận trong infra/onprem/native-deps.json nêu họ gói không còn thiếu bản arm64: {detail}",
+  "nativeDeps.summary.pass": "phụ thuộc native: mọi họ gói đi vào production đều có bản linux arm64",
+  "nativeDeps.summary.fail": "{count} vấn đề phụ thuộc native; xem infra/onprem/native-deps.json",
+  "nativeDeps.code.NATIVE_TESTONLY_IMPORTED": "gói chỉ dùng cho kiểm thử bị mã sản phẩm nhập vào: {detail}"
+}

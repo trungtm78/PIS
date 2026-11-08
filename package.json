@@ -29,6 +29,7 @@
     "sbom": "node scripts/sbom.mjs",
     "supply-chain:check": "node scripts/supply-chain-check.mjs",
     "infra:check": "node scripts/infra-check.mjs",
+    "native-deps:check": "node scripts/native-deps-check.mjs",
     "alerts:check": "node scripts/alerts-check.mjs",
     "governance:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/governance-check.mjs",
     "bi:metrics:check": "node scripts/bi-metrics-bundle.mjs --check",
