@@ -71,6 +71,7 @@ import {
   PETITION_FIXTURES,
   CLARIFICATION_FIXTURES,
   REPORT_ENGINE_FIXTURES,
+  HUB_FIXTURES,
   INTEROP_FIXTURES,
   EVALUATION_REPORT_FIXTURES,
   PROJECT_FIXTURES,
@@ -703,6 +704,9 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'recordClarificationAnswer',
   'listBidClarifications',
   'getBidClarification',
+  'decideHubIncident',
+  'decideHubMapping',
+  'decideHubReject',
   'getReportDraft',
   'getReportDraftFile',
   'checkReport',
@@ -2050,6 +2054,18 @@ const INSERT_REPORT_ISSUE = `insert into machvon.report_issue
   (tenant_id, id, layout_id, layout_code, layout_version, period_code, period, revision, draft_id, sha256, xlsx_sha256, xlsx_name, data_source, form_status, counts_as_accepted, prepared_by, checked_by, approved_by, issued_by)
   values ($1, $2, $3, 'ISOLATION-FORM', '1', '2026-M02', '{"kind":"MONTH","year":2026,"index":2}'::jsonb, 1, $4, $5, $5, 'isolation.xlsx', 'LIVE', 'READY', true, $6, $7, $8, $8) on conflict do nothing`;
 
+const INSERT_HUB_RUN = `insert into machvon.hub_run_log (tenant_id, id, connector_code, run_kind, outcome, started_at, finished_at, recorded_by)
+  values ($1, $2, 'treasury.statement', 'IMPORT', 'SUCCEEDED', now() - interval '2 hours', now() - interval '1 hour', $3) on conflict do nothing`;
+
+const INSERT_HUB_INCIDENT = `insert into machvon.hub_incident (tenant_id, id, connector_code, kind, severity, summary, opened_by)
+  values ($1, $2, 'treasury.statement', 'MANUAL', 'ACTION', $3, $4) on conflict do nothing`;
+
+const INSERT_HUB_MAPPING = `insert into machvon.hub_pipeline_mapping (tenant_id, id, connector_code, pipeline_code, mapping_version, fields, proposed_by)
+  values ($1, $2, 'national.project_codes', 'PROJECT_CODES', 'ISOLATION', '[{"source":"code","target":"project_code","required":true,"transform":{"kind":"UPPER"}}]'::jsonb, $3) on conflict do nothing`;
+
+const INSERT_HUB_REJECT = `insert into machvon.hub_pipeline_reject (tenant_id, id, connector_code, pipeline_code, run_id, stage, reject_code, source_ref, record_key, line, record)
+  values ($1, $2, 'national.project_codes', 'PROJECT_CODES', $3, 'VALIDATE', 'CODE_REQUIRED', 'isolation#2', $4, 2, '{"code":""}'::jsonb) on conflict do nothing`;
+
 const CLOSE_REPORT_DRAFT = `update machvon.report_draft set state = 'ISSUED', issue_id = $2, version = version + 1 where id = $1 and state = 'APPROVED'`;
 
 const INSERT_CLARIFICATION = `insert into machvon.bid_clarification
@@ -2665,6 +2681,13 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
       await client.query(INSERT_REPORT_ISSUE, [tenantId, rptFixture.issueId, rptFixture.layoutId, rptFixture.issuedDraftId, rptFixture.sha256, ACTOR_ID, MEMBERSHIP_ID, APPROVER_ID]);
       await client.query(CLOSE_REPORT_DRAFT, [rptFixture.issuedDraftId, rptFixture.issueId]);
     }
+
+    // The Integration Hub: a run, a manual incident that waits for a person, a proposed mapping and an open reject, for the foreign-id cases of the decisions.
+    const hubFixture = HUB_FIXTURES[tenant];
+    await client.query(INSERT_HUB_RUN, [tenantId, hubFixture.runId, ACTOR_ID]);
+    await client.query(INSERT_HUB_INCIDENT, [tenantId, hubFixture.incidentId, hubFixture.incidentSummary, ACTOR_ID]);
+    await client.query(INSERT_HUB_MAPPING, [tenantId, hubFixture.mappingId, ACTOR_ID]);
+    await client.query(INSERT_HUB_REJECT, [tenantId, hubFixture.rejectId, hubFixture.runId, hubFixture.rejectKey]);
 
     // A file of the proposal and the page of it that waits for a person: the review command finds the page through the proposal.
     const ocr = OCR_FIXTURES[tenant];

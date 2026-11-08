@@ -628,6 +628,20 @@ export const REPORT_ENGINE_FIXTURES: Readonly<Record<TenantName, ReturnType<type
   'TNT-B': rptFixture('b', 'BETA'),
 };
 
+/** The Integration Hub of each tenant (HUB-1): a run, an open manual incident, a proposed mapping and an open reject; the words are distinctive (tenant confidential data). */
+const hubFixture = (letter: 'a' | 'b', word: string) => ({
+  runId: `00000000-0000-4000-${letter}0e2-000000000001`,
+  incidentId: `00000000-0000-4000-${letter}0e2-000000000002`,
+  mappingId: `00000000-0000-4000-${letter}0e2-000000000003`,
+  rejectId: `00000000-0000-4000-${letter}0e2-000000000004`,
+  incidentSummary: `${word} isolation hub incident: the file of the other side arrived with a changed layout.`,
+  rejectKey: `${word}-ISOLATION-REJECT-KEY`,
+});
+export const HUB_FIXTURES: Readonly<Record<TenantName, ReturnType<typeof hubFixture>>> = {
+  'TNT-A': hubFixture('a', 'ALPHA'),
+  'TNT-B': hubFixture('b', 'BETA'),
+};
+
 /** An evaluation report of the package of each tenant, a draft of the run with its decision (the conclusion is distinctive; tenant confidential data). */
 export const EVALUATION_REPORT_FIXTURES: Readonly<Record<TenantName, { id: string; conclusion: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bf-000000000001', conclusion: 'ALPHA isolation report: the team finds the bridge proposal acceptable.' },
@@ -1850,6 +1864,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'report draft id', value: REPORT_ENGINE_FIXTURES[tenant].draftId },
     { kind: 'report issue id', value: REPORT_ENGINE_FIXTURES[tenant].issueId },
     { kind: 'report layout name', value: REPORT_ENGINE_FIXTURES[tenant].layoutName },
+    { kind: 'hub incident id', value: HUB_FIXTURES[tenant].incidentId },
+    { kind: 'hub mapping id', value: HUB_FIXTURES[tenant].mappingId },
+    { kind: 'hub reject id', value: HUB_FIXTURES[tenant].rejectId },
+    { kind: 'hub incident summary', value: HUB_FIXTURES[tenant].incidentSummary },
+    { kind: 'hub reject key', value: HUB_FIXTURES[tenant].rejectKey },
     { kind: 'bid clarification question', value: CLARIFICATION_FIXTURES[tenant].question },
     { kind: 'interop message id', value: INTEROP_FIXTURES[tenant].id },
     { kind: 'interop message external id', value: INTEROP_FIXTURES[tenant].externalId },
