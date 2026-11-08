@@ -3,6 +3,7 @@ import type { ReportFormBundle } from '@machvon/kernel';
 import { buildBlankTemplate } from './blank-template';
 import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
 import type { ReportFigureProvider } from './figure-provider';
+import { registerCommitteeReportForm } from '../committee/pack-provider';
 
 /**
  * The forms a process offers and the providers of their figures (RPT-1 part 2). A form is a `ReportFormBundle`: the public edition's generic forms are registered by this module, the enterprise forms by the
@@ -69,4 +70,5 @@ export function registerPublicReportForms(registry: ReportFormRegistry = REPORT_
     provider: DIS_HOME_PROVIDER,
     templates: async () => ({ xlsx: await buildBlankTemplate(DIS_WEEKLY_LAYOUT), docx: null }),
   });
+  registerCommitteeReportForm(registry);
 }
