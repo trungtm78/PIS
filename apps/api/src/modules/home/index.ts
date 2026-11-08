@@ -8,6 +8,8 @@ import { AlertHealthController } from './alert-health.controller';
 import { AlertProfileController } from './alert-profile.controller';
 import { CommandCenterController } from './command-center.controller';
 import { ChannelHealthController } from './channel-health.controller';
+import { AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController } from './alert-ops.controller';
+import { AlertLadderReadsController } from './alert-ladder.controller';
 import { HomeChangesController } from './changes.controller';
 import { HomeDrillController } from './drill.controller';
 import { KpiRegisterController } from './kpi-register.controller';
@@ -26,6 +28,8 @@ import { HOME_CONTEXT_KEY } from './tokens';
 export const homeModule = defineModule({
   code: 'HOME',
   controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController, AlertHealthController, AlertEscalationController, AlertProfileController, AlertCoverController],
+=======
+  controllers: [AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController, AlertLadderReadsController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,

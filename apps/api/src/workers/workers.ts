@@ -11,6 +11,9 @@ import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
 import { runAlertCoverage } from '../modules/home/alert-coverage.job';
 import { runAlertEscalation } from '../modules/home/alert-escalation.job';
 import { runWorkReminders } from '../modules/home/work-reminder.job';
+import { runAlertLadders } from '../modules/home/alert-ladder.job';
+import { runAlertObservation } from '../modules/home/alert-observe.job';
+import { runRedFlagScan } from '../modules/aud/red-flag-scan.job';
 import { AdmMigrationJob } from '../modules/adm/migration.job';
 import { MockEmbeddingPort, OcrDocumentTextPort } from '../modules/llm/knowledge-ports';
 import type { AiEmbeddingPort } from '../modules/llm/knowledge-ports';
@@ -338,6 +341,9 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     workReminder: { run: (ctx, now) => runWorkReminders(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     alertEscalation: { run: (ctx, now) => runAlertEscalation(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     alertCoverage: { run: (ctx, now) => runAlertCoverage(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    alertObserve: { run: (ctx, now) => runAlertObservation(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    alertLadder: { run: (ctx, now) => runAlertLadders(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    redFlagScan: { run: (ctx, now) => runRedFlagScan(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     earlyWarningScore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => earlyWarningScore.run(tx, ctx.membershipId, now)) },
     diaryCoverage: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => diaryCoverage.run(tx, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },

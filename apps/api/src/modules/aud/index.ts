@@ -1,6 +1,7 @@
 import { defineModule } from '../module-descriptor';
 import { AuditConclusionController, AuditConclusionReadsController } from './conclusion.controller';
 import { AuditEngagementController, AuditEngagementReadsController } from './engagement.controller';
+import { RedFlagController, RedFlagReadsController } from './red-flag.controller';
 import { AuditRecommendationController, AuditRecommendationReadsController } from './recommendation.controller';
 import { AuditRecoveryController, AuditRecoveryReadsController } from './recovery.controller';
 import { AuditReportController, AuditReportReadsController } from './report.controller';
@@ -13,5 +14,5 @@ import { AuditReportController, AuditReportReadsController } from './report.cont
  */
 export const audModule = defineModule({
   code: 'AUD',
-  controllers: [AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController, AuditRecommendationController, AuditRecommendationReadsController, AuditRecoveryController, AuditRecoveryReadsController, AuditReportController, AuditReportReadsController],
+  controllers: [RedFlagController, RedFlagReadsController, AuditEngagementController, AuditEngagementReadsController, AuditConclusionController, AuditConclusionReadsController, AuditRecommendationController, AuditRecommendationReadsController, AuditRecoveryController, AuditRecoveryReadsController, AuditReportController, AuditReportReadsController],
 });
