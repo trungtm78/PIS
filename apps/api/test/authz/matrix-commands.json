@@ -697,7 +697,20 @@
     "proposeClearRedFlag",
     "confirmClearRedFlag",
     "rejectClearRedFlag",
-    "referRedFlag"
+    "referRedFlag",
+    "createMachineAccount",
+    "updateMachineAccount",
+    "decideMachineAccount",
+    "rotateMachineCredential",
+    "setExportDataset",
+    "createBiReader",
+    "rotateBiReaderPassword",
+    "decideBiReader",
+    "registerSourceSystem",
+    "retireSourceSystem",
+    "proposeProjectCode",
+    "decideProjectCode",
+    "retireProjectCode"
   ],
   "controlCommands": [
     "decideTenantRestore",
@@ -744,6 +757,7 @@
   ],
   "identityCommands": [
     "acceptInvitation",
+    "issueOpenApiToken",
     "receiveChannelWebhook",
     "receiveEInvoiceWebhook",
     "receivePaymentWebhook",
