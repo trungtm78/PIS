@@ -40,6 +40,7 @@ interface Receipt {
 
 function MyWorkContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const decide = useSession().permissions?.includes('home.decision.record') === true;
   const [view, setView] = useState<AlertView>('mine');
   const [filter, setFilter] = useState<Filter>('ALL');
   const [assigning, setAssigning] = useState<AlertItem | undefined>(undefined);

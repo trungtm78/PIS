@@ -2404,6 +2404,7 @@ export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } fro
 export type { TeamsCard } from './teams-channel.ts';
 export {
 =======
+export {
   EGP_EXPORT_KINDS,
   EGP_OBLIGATION_FACTS,
   EGP_OPEN_STATES,
@@ -2426,6 +2427,7 @@ export {
 export type { EgpMilestoneDate, EgpMilestoneOutcome, EgpOnTime, EgpPostingFacet, EgpSeverityParams } from './egp-posting.ts';
 export {
 =======
+export {
   ACTUALS_PRECEDENCES,
   ACTUAL_SOURCES,
   ENTRY_MODES,

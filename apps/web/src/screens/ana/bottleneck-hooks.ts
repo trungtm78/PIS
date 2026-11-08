@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toAnalysis, toDossier, toHaltedList } from './bottleneck-model';
+import { HALT_STATUSES, toAnalysis, toDossier, toHaltedList } from './bottleneck-model';
 import type { Analysis, Dossier, HaltedList } from './bottleneck-model';
 
 const root = (tenantId: string | undefined, membershipId: string | undefined) => ['ana', tenantId, membershipId, 'halt'] as const;
@@ -37,7 +37,8 @@ export function useHaltedProjects(status: string) {
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'list', status],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const result = toHaltedList(await client.read('listHaltedProjects', { query: status === '' ? {} : { status } }));
+      const known = HALT_STATUSES.find((one) => one === status);
+      const result = toHaltedList(await client.read('listHaltedProjects', { query: known === undefined ? {} : { status: known } }));
       if (result === undefined) throw new Error('the halted projects could not be read');
       return result;
     },

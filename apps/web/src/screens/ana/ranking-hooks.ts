@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toAnnotations, toComplaints, toRanking } from './ranking-model';
+import { ANNOTATION_STATUSES, COMPLAINT_STATUSES, toAnnotations, toComplaints, toRanking } from './ranking-model';
 import type { Annotation, Complaint, MetricCode, RankingReading } from './ranking-model';
 
 const root = (tenantId: string | undefined, membershipId: string | undefined) => ['ana', tenantId, membershipId, 'ranking'] as const;
@@ -31,7 +31,8 @@ export function useAnnotations(status: string) {
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'annotations', status],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const items = toAnnotations(await client.read('listRankingAnnotations', { query: status === '' ? {} : { status } }));
+      const known = ANNOTATION_STATUSES.find((one) => one === status);
+      const items = toAnnotations(await client.read('listRankingAnnotations', { query: known === undefined ? {} : { status: known } }));
       if (items === undefined) throw new Error('the notes could not be read');
       return items;
     },
@@ -47,7 +48,8 @@ export function useComplaints(status: string) {
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'complaints', status],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const items = toComplaints(await client.read('listRankingComplaints', { query: status === '' ? {} : { status } }));
+      const known = COMPLAINT_STATUSES.find((one) => one === status);
+      const items = toComplaints(await client.read('listRankingComplaints', { query: known === undefined ? {} : { status: known } }));
       if (items === undefined) throw new Error('the complaints could not be read');
       return items;
     },
