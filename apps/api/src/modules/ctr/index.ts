@@ -10,6 +10,7 @@ import { ContractLifecycleController } from './lifecycle.controller';
 import { MeasurementController, MeasurementReadsController } from './measurement.controller';
 import { RetentionController, RetentionReadsController } from './retention.controller';
 import { ContractorExportController, ContractorExportReadsController } from './export.controller';
+import { RatingController, RatingReadsController } from './rating.controller';
 import { ScorecardController, ScorecardReadsController } from './scorecard.controller';
 import { ExpiringGuaranteesController, GuaranteeController, GuaranteeReadsController } from './guarantee.controller';
 
@@ -48,6 +49,8 @@ export const ctrModule = defineModule({
     RetentionReadsController,
     ScorecardController,
     ScorecardReadsController,
+    RatingController,
+    RatingReadsController,
     ContractorExportController,
     ContractorExportReadsController,
     ContractAnalyticsController,

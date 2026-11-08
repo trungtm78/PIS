@@ -23,7 +23,7 @@ import type {
   RatingState,
 } from '@machvon/kernel';
 import { CtrContractStore, SCOPE_FROM } from './ctr-contract-store.ts';
-import type { ContractScopes } from './ctr-contract-store.ts';
+import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
 import { CtrFactStore } from './ctr-fact-store.ts';
 import type { FactQuery } from './ctr-fact-store.ts';
 import { CtrRegisterReader, ratingInputsOf } from './ctr-register-reader.ts';
@@ -227,6 +227,16 @@ export class CtrRatingStore {
   async find(tx: TenantTx, id: string, lock = false): Promise<RatingProposalRow | undefined> {
     const rows = await tx.query<Sql>(`${SELECT} where q.id = $1::uuid${lock ? ' for update of q' : ''}`, [id]);
     return rows[0] === undefined ? undefined : rowOf(rows[0]);
+  }
+
+  /** Where the contract of a proposal lies, so the controller can say which steps the caller may take now. */
+  async placeOf(tx: TenantTx, contractId: string): Promise<ContractPlace> {
+    const [row] = await tx.query<{ project_id: string; owner_unit_id: string; owner_unit_path: string; investor_unit_id: string | null; investor_unit_path: string | null }>(
+      `select c.project_id::text as project_id, ou.id::text as owner_unit_id, ou.path as owner_unit_path, iu.id::text as investor_unit_id, iu.path as investor_unit_path from ${SCOPE_FROM} where c.id = $1::uuid`,
+      [contractId],
+    );
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return { contractId, projectId: row.project_id, ownerUnit: { id: row.owner_unit_id, path: row.owner_unit_path }, investorUnit: row.investor_unit_id === null || row.investor_unit_path === null ? null : { id: row.investor_unit_id, path: row.investor_unit_path } };
   }
 
   /** One proposal the reader may see (404 for one outside its scope: the existence of a contract is not told to one who cannot read it). */
