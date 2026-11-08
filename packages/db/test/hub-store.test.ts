@@ -161,7 +161,7 @@ describe('the Integration Hub store (HUB-1)', () => {
 
     it('holds where the data comes in: a connector the hub switched off takes no file (409 HUB_CONNECTOR_DISABLED, nothing claimed), and takes it again once it is switched on', async () => {
       const adapter: FileImportAdapter<{ code: string }> = {
-        connectorCode: 'NATIONAL_PIM_FILE',
+        connectorCode: 'PROCUREMENT_FILE',
         formatVersion: 'TEST-1',
         parse: () => [{ line: 2, values: { code: 'P-1' } }],
         judge: (row) => accept({ businessKey: row.values.code as string, fields: { code: row.values.code as string }, record: { code: row.values.code as string } }),
@@ -169,12 +169,12 @@ describe('the Integration Hub store (HUB-1)', () => {
       };
       const bytes = new TextEncoder().encode('code\nP-1\n');
       const run = (): Promise<unknown> => as((tx) => new FileImportStore().run(tx, { adapter, bytes, fileObjectKey: `tenants/${TENANT_A}/import/${randomUUID()}`, importedBy: memberId(MAKER), fallbackOwnerId: memberId(MAKER), correlationId: randomUUID(), now: NOW }));
-      const before = await as((tx) => hub.reading(tx, descriptor('national.project_codes'), NOW));
-      await as((tx) => hub.setState(tx, 'national.project_codes', before.stateVersion, { enabled: false, reason: REASON }, memberId(CHECKER)), CHECKER);
+      const before = await as((tx) => hub.reading(tx, descriptor('procurement.milestones'), NOW));
+      await as((tx) => hub.setState(tx, 'procurement.milestones', before.stateVersion, { enabled: false, reason: REASON }, memberId(CHECKER)), CHECKER);
       expect(await refusal(run())).toMatchObject({ code: 'HUB_CONNECTOR_DISABLED', status: 409 });
       expect((await owner('select 1 from machvon.file_import where file_sha256 = $1', [createHash('sha256').update(bytes).digest('hex')])).length).toBe(0);
-      const off = await as((tx) => hub.reading(tx, descriptor('national.project_codes'), NOW));
-      await as((tx) => hub.setState(tx, 'national.project_codes', off.stateVersion, { enabled: true, reason: 'The sample file was checked' }, memberId(CHECKER)), CHECKER);
+      const off = await as((tx) => hub.reading(tx, descriptor('procurement.milestones'), NOW));
+      await as((tx) => hub.setState(tx, 'procurement.milestones', off.stateVersion, { enabled: true, reason: 'The sample file was checked' }, memberId(CHECKER)), CHECKER);
       expect(await run()).toMatchObject({ outcome: 'APPLIED' });
     });
 
