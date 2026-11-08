@@ -14,7 +14,7 @@ import { sentencesOf } from './text.mjs';
 import { analyzeVideo, findings } from './quality.mjs';
 import { Painter, brandFile, readBrand } from './compose/render.mjs';
 import { LOOP_SEC, brandOf, layouts, frames, headlineOf, keyTerm, layoutOf, mapBox, tickerOf } from './compose/design.mjs';
-import { cardArgs, chipsFor, segmentArgs } from './compose/plan.mjs';
+import { cardArgs, chipsFor, heroArgs, segmentArgs } from './compose/plan.mjs';
 import { buildTimeline, cuesOf, formatSrt, formatVtt, checkCues } from './subtitles.mjs';
 
 /**
@@ -308,7 +308,7 @@ async function main(argv) {
   const layoutSpec = layouts();
   const brandFor = (edition) => {
     const brand = brandOf(edition, brandSource?.raw, layoutSpec.productNames);
-    return { ...brand, tagline: brand.tagline || layoutSpec.taglines[edition], logo: brandFile(brandSource, brand.logo) };
+    return { ...brand, tagline: brand.tagline || layoutSpec.taglines[edition], logo: brandFile(brandSource, brand.logo), logoWide: brandFile(brandSource, brand.logoWide), hero: brandFile(brandSource, brand.hero) };
   };
   let painter;
   let barFile;
@@ -339,8 +339,15 @@ async function main(argv) {
       const phoneFile = phoneFootage(phoneDir, [scene.id, scene.showcase?.phone]);
       if (layout === 'title' && platform === 'title') {
         const data = JSON.parse(readFileSync(join(CLIPS_DIR, 'animatic', 'data', `${scene.screen.animatic}.json`), 'utf8'));
+        const brand = brandFor(scenario.edition);
+        if (brand.hero !== null && brand.hero !== undefined && existsSync(brand.hero) && /^title-/u.test(scene.screen.animatic)) {
+          ffmpeg(heroArgs({ hero: brand.hero, seconds, assFilter: assFilterOf(ass), out: file }).slice(4));
+          report.push({ id: entry.id, kind: 'brand-hero', seconds });
+          console.log(`segment ${entry.id} (hero) ${seconds.toFixed(1)} s`);
+          continue;
+        }
         const paint = await painterFor();
-        const png = await paint.card({ kicker: data.kicker, title: data.title, subtitle: data.subtitle, footer: data.footer, brand: brandFor(scenario.edition) }, join(dir, 'compose', `${entry.id}.card.png`));
+        const png = await paint.card({ kicker: data.kicker, title: data.title, subtitle: data.subtitle, footer: data.footer, brand }, join(dir, 'compose', `${entry.id}.card.png`));
         ffmpeg(cardArgs({ bg: { file: bgFile, offsetSec: (entry.startMs / 1000) % LOOP_SEC }, overlay: png, seconds, assFilter: assFilterOf(ass), out: file }).slice(4));
         report.push({ id: entry.id, kind: 'card', animatic: scene.screen.animatic, seconds });
       } else if (layout === null && (platform === 'title' || platform === 'animatic')) {

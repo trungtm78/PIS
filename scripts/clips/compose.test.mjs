@@ -134,3 +134,17 @@ test('no source file of the composition holds a Vietnamese letter, and the scena
     }
   }
 });
+
+test('the brand.json of the logo lane gives the name, tagline, accent and the logo files of the edition', async () => {
+  const raw = { editions: { enterprise: { productName: { vi: 'Phần mềm quản lý đầu tư xây dựng' }, tagline: { vi: 'Vốn đến đúng công trình, việc đúng tiến độ' }, colors: { onDark: { accent: '#F28C3A' } }, files: { icon: { png: 'logo-enterprise-icon.png' }, horizontalOnDark: { png: 'logo-enterprise-horizontal-ondark.png' }, hero: { png: 'logo-enterprise-hero.png' } } } } };
+  const brand = brandOf('enterprise', raw, spec.productNames);
+  assert.equal(brand.name, 'Phần mềm quản lý đầu tư xây dựng');
+  assert.match(brand.tagline, /công trình/u);
+  assert.equal(brand.logo, 'logo-enterprise-icon.png');
+  assert.equal(brand.logoWide, 'logo-enterprise-horizontal-ondark.png');
+  assert.equal(brand.hero, 'logo-enterprise-hero.png');
+  assert.equal(brand.accent, '#F28C3A');
+  const { heroArgs } = await import('./compose/plan.mjs');
+  const args = heroArgs({ hero: 'h.png', seconds: 5, out: 'o.mp4' });
+  assert.ok(args.includes('-loop') && args[args.indexOf('-vf') + 1].includes('fade=t=in'));
+});
