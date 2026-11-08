@@ -40,7 +40,7 @@ describe('the words of the catalogue', () => {
     expect(REPORT_PATHS['portfolio-status']).toBe('/ctr/ctr-29');
     expect(REPORT_PATHS['bid-variance']).toBe('/ctr/ctr-30');
     expect(REPORT_PATHS['contractor-concentration']).toBe('/ctr/ctr-31');
-    for (const code of ['schedule-delay', 'payment-three-way', 'advance-ageing', 'retention-guarantee', 'change-growth'] as const) expect(REPORT_PATHS[code]).toBe(`/ctr/ctr-28?report=${code}`);
+    for (const code of ['schedule-delay', 'payment-three-way', 'advance-ageing', 'retention-guarantee', 'change-growth', 'claims-limitation', 'quality-defects', 'obstacles', 'audit-findings', 'performance-rating', 'contract-health'] as const) expect(REPORT_PATHS[code]).toBe(`/ctr/ctr-28?report=${code}`);
   });
 });
 

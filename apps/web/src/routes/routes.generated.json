@@ -148,6 +148,7 @@
     {"id":"CTR-29","path":"/ctr/ctr-29","title":"Danh mục và trạng thái hợp đồng (phân tích)","kind":"table","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-29"},
     {"id":"CTR-30","path":"/ctr/ctr-30","title":"Chênh lệch giá trúng thầu và giá hợp đồng","kind":"table","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-30"},
     {"id":"CTR-31","path":"/ctr/ctr-31","title":"Tập trung và tải của nhà thầu","kind":"dashboard","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-31"},
+    {"id":"CTR-32","path":"/ctr/ctr-32","title":"Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu","kind":"detail","area":"investment","module":"CTR","group":"Phân tích hợp đồng","role":"detail","parent":"CTR-28","req":"FR-CTR-37"},
     {"id":"ISS-01","path":"/iss/iss-01","title":"Danh sách vướng mắc","kind":"kanban","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"workspace","parent":null,"req":"FR-ISS-01"},
     {"id":"ISS-02","path":"/iss/iss-02","title":"Ghi nhận vướng mắc","kind":"form","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"detail","parent":"ISS-01","req":"FR-ISS-02"},
     {"id":"ISS-03","path":"/iss/iss-03","title":"Không gian xử lý","kind":"detail","area":"investment","module":"ISS","group":"Tiếp nhận & xử lý","role":"detail","parent":"ISS-01","req":"FR-ISS-03"},
