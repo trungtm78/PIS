@@ -6,6 +6,8 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/widgets/figure_info.dart';
+import '../../directives/widgets/directive_widget.dart';
 import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
@@ -17,13 +19,17 @@ import '../alerts.dart';
 import '../command_center.dart';
 import '../home_data.dart';
 import '../widgets/alert_list.dart';
+import '../widgets/changes_block.dart';
+import '../widgets/rag_card.dart';
 
 /// MOB-07: the home of a leader, work before figures. From the top: one line of context (scope, closing day, freshness); the
 /// alerts "Needs action now" (the three most important of the scope, each with one primary action; the alerts of the person when the
 /// scope is refused); a compact command block (the amount, a small ring, the two rates with their denominators); the shortcuts of
 /// the role; and the summary of the figures. All figures are of one frozen snapshot and of the projects in the scope of the reader
 /// (the server decides the scope; nothing here adds a project). A rate that cannot be given says why and is never shown as zero.
-/// The alerts and the command center are read apart: one failing is named and leaves the other in place.
+/// The alerts and the command center are read apart: one failing is named and leaves the other in place. Beside the command center are the parts the web
+/// leader home has: what changed since last week, the colours of the units with the reason for each, and the steering directives; every figure carries its
+/// "i" (formula, source, day, owner, version), and each of those parts names its own failure with its own retry.
 Widget buildLeaderHomeScreen(BuildContext context, ScreenContext screen) => const LeaderHomeScreen();
 
 class LeaderHomeScreen extends ConsumerStatefulWidget {
@@ -85,6 +91,9 @@ class _HomeBody extends StatelessWidget {
           scopeRefused: home.scopeRefused,
         ),
         if (center != null) _CommandBlock(center: center, pair: pair) else _CommandBlockProblem(code: home.centerError ?? 'UNKNOWN', onRetry: onRetry),
+        ChangesBlock(changes: home.changes, errorCode: home.changesError, onRetry: onRetry),
+        RagCard(reading: home.rag, errorCode: home.ragError, onRetry: onRetry),
+        DirectiveWidgetCard(data: home.directives, errorCode: home.directivesError, onRetry: onRetry),
         SectionCard(
           title: context.t('mob.home.shortcuts.title'),
           children: <Widget>[
@@ -117,9 +126,9 @@ class _HomeBody extends StatelessWidget {
           SectionCard(
             title: context.t('mob.home.waiting.title'),
             children: <Widget>[
-              Text(context.t('mob.home.waiting.warnings', <String, Object>{'count': center.openWarnings})),
-              Text(context.t('mob.home.waiting.explanations', <String, Object>{'count': center.overdueExplanations})),
-              Text(context.t('mob.home.waiting.reallocations', <String, Object>{'count': center.pendingReallocations})),
+              _CountLine(text: context.t('mob.home.waiting.warnings', <String, Object>{'count': center.openWarnings}), figure: center.countOf(openWarningsMetric)),
+              _CountLine(text: context.t('mob.home.waiting.explanations', <String, Object>{'count': center.overdueExplanations}), figure: center.countOf(overdueExplanationsMetric)),
+              _CountLine(text: context.t('mob.home.waiting.reallocations', <String, Object>{'count': center.pendingReallocations}), figure: center.countOf(pendingReallocationsMetric)),
             ],
           ),
           _ContextCard(center: center),
@@ -213,6 +222,7 @@ class _CommandBlock extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (shownAmount?.info != null) FigureInfoButton(info: shownAmount!.info!),
                 if (ringValue != null && totalValue != null)
                   Semantics(
                     label: context.t('mob.home.command.ring.aria', <String, Object>{'value': context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(totalValue, language)})}),
@@ -241,7 +251,16 @@ class _CommandBlock extends StatelessWidget {
     final String line = tile.hasSums && tile.value != null
         ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': millionsLabel(context, tile.numerator), 'denominator': millionsLabel(context, tile.denominator)})
         : '$label: $value';
-    return Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(line, style: Theme.of(context).textTheme.bodySmall));
+    final FigureInfo? info = tile.info;
+    return Padding(
+      padding: const EdgeInsets.only(top: MachvonSpace.space4),
+      child: Row(
+        children: <Widget>[
+          Expanded(child: Text(line, style: Theme.of(context).textTheme.bodySmall)),
+          if (info != null) FigureInfoButton(info: info),
+        ],
+      ),
+    );
   }
 }
 
@@ -474,6 +493,7 @@ class MetricTileCard extends StatelessWidget {
     final String definition = tile.isSigned
         ? context.t('mob.home.tile.definition.signed')
         : context.t('mob.home.tile.definition.pending', <String, Object>{'ref': formulaReference});
+    final List<String> flags = _flagTexts(context, tile);
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: MachvonColors.border),
@@ -481,17 +501,35 @@ class MetricTileCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(MachvonSpace.space12),
-        child: MergeSemantics(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(label, style: theme.textTheme.bodySmall),
-              Text(value, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-              if (sums != null) Text(sums, style: theme.textTheme.bodySmall),
-              Text(context.t('mob.home.tile.formula', <String, Object>{'formula': tile.formula}), style: theme.textTheme.bodySmall),
-              Text(definition, style: theme.textTheme.bodySmall),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: MergeSemantics(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(label, style: theme.textTheme.bodySmall),
+                        Text(value, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                        if (sums != null) Text(sums, style: theme.textTheme.bodySmall),
+                        Text(context.t('mob.home.tile.formula', <String, Object>{'formula': tile.formula}), style: theme.textTheme.bodySmall),
+                        Text(definition, style: theme.textTheme.bodySmall),
+                      ],
+                    ),
+                  ),
+                ),
+                if (tile.info != null) FigureInfoButton(info: tile.info!),
+              ],
+            ),
+            if (flags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: MachvonSpace.space4),
+                child: Wrap(spacing: MachvonSpace.space8, runSpacing: MachvonSpace.space4, children: <Widget>[for (final String flag in flags) StatusPill(label: flag, warn: true)]),
+              ),
+          ],
         ),
       ),
     );
@@ -504,5 +542,40 @@ class MetricTileCard extends StatelessWidget {
       return context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? value, AppStrings.of(context).language)});
     }
     return millionsLabel(context, value);
+  }
+}
+
+/// The flags that sit on a figure, as words. A flag that only repeats what is said in place of the number (no data, not certified, obsolete) is not said twice.
+List<String> _flagTexts(BuildContext context, Tile tile) {
+  final List<String> words = <String>[];
+  for (final String flag in tile.flags) {
+    switch (flag) {
+      case 'STALE':
+        words.add(context.t('mob.home.flag.stale.text'));
+      case 'PARTIAL_COVERAGE':
+        words.add(context.t('mob.home.flag.partial.text'));
+      case 'UNVERIFIED_DEFINITION':
+        words.add(context.t('mob.home.flag.unverified.text'));
+    }
+  }
+  return words;
+}
+
+/// One count that waits for someone, with the "i" of its definition when the server gave one.
+class _CountLine extends StatelessWidget {
+  const _CountLine({required this.text, required this.figure});
+
+  final String text;
+  final CountFigure? figure;
+
+  @override
+  Widget build(BuildContext context) {
+    final FigureInfo? info = figure?.info;
+    return Row(
+      children: <Widget>[
+        Expanded(child: Text(text)),
+        if (info != null) FigureInfoButton(info: info),
+      ],
+    );
   }
 }

@@ -3,6 +3,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../l10n/app_strings.dart';
 import '../theme/machvon_semantic.dart';
+import 'figure_info.dart';
 import 'skeleton.dart';
 import 'status_pill.dart';
 
@@ -17,6 +18,7 @@ class KpiTile extends StatelessWidget {
     this.note,
     this.noteTone = MachvonTone.neutral,
     this.onTap,
+    this.info,
     super.key,
   });
 
@@ -31,6 +33,9 @@ class KpiTile extends StatelessWidget {
   final MachvonTone noteTone;
   final VoidCallback? onTap;
 
+  /// The definition the figure is made by: when there is one, the tile carries the "i" that opens it (a button of its own, beside the sentence of the tile).
+  final FigureInfo? info;
+
   @override
   Widget build(BuildContext context) {
     final TextTheme text = Theme.of(context).textTheme;
@@ -44,7 +49,7 @@ class KpiTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(label, style: text.bodySmall),
+          Padding(padding: EdgeInsetsDirectional.only(end: info == null ? 0 : MachvonTouch.androidDp - MachvonSpace.space16), child: Text(label, style: text.bodySmall)),
           const SizedBox(height: MachvonSpace.space8),
           if (loading)
             const SkeletonBar(width: 96, height: 32)
@@ -65,7 +70,7 @@ class KpiTile extends StatelessWidget {
       ),
     );
     final ShapeBorder shape = (Theme.of(context).cardTheme.shape ?? const RoundedRectangleBorder());
-    return Semantics(
+    final Widget tile = Semantics(
       container: true,
       button: onTap != null,
       label: spoken,
@@ -78,6 +83,14 @@ class KpiTile extends StatelessWidget {
             ? body
             : InkWell(onTap: onTap, child: ConstrainedBox(constraints: const BoxConstraints(minHeight: MachvonTouch.androidDp), child: body)),
       ),
+    );
+    if (info == null || loading) return tile;
+    // The "i" sits over the top end of the tile and outside its spoken sentence, so it is a button of its own for a screen reader.
+    return Stack(
+      children: <Widget>[
+        tile,
+        PositionedDirectional(top: 0, end: 0, child: FigureInfoButton(info: info!)),
+      ],
     );
   }
 }

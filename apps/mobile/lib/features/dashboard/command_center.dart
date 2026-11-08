@@ -1,3 +1,4 @@
+import '../../core/widgets/figure_info.dart';
 import '../read_support/wire.dart';
 
 /// The permission that opens the home reads; the server judges it again on every request.
@@ -26,6 +27,8 @@ final class Tile {
     this.numerator,
     this.denominator,
     this.nullReason,
+    this.info,
+    this.flags = const <String>[],
   });
 
   final String metricCode;
@@ -39,6 +42,12 @@ final class Tile {
   final TileUnit unit;
   final String formula;
   final String definitionStatus;
+
+  /// The definition of the register behind the figure (the "i"); null when the server sent none, and then the figure has no "i".
+  final FigureInfo? info;
+
+  /// The flags the server set on the figure (`UNVERIFIED_DEFINITION`, `STALE`, `PARTIAL_COVERAGE`, ...), in its order.
+  final List<String> flags;
 
   bool get hasSums => numerator != null && denominator != null;
 
@@ -61,6 +70,7 @@ final class CommandCenter {
     required this.pendingReallocations,
     required this.qualityBadge,
     this.scopeUnitId,
+    this.countTiles = const <CountFigure>[],
   });
 
   final String snapshotId;
@@ -78,6 +88,17 @@ final class CommandCenter {
   final int pendingReallocations;
   final QualityBadge qualityBadge;
 
+  /// The three counts that wait for someone, as figures of the register (each with its own "i"); empty for an older server.
+  final List<CountFigure> countTiles;
+
+  /// The count figure of a metric, or null.
+  CountFigure? countOf(String code) {
+    for (final CountFigure figure in countTiles) {
+      if (figure.metricCode == code) return figure;
+    }
+    return null;
+  }
+
   Tile? _tile(String code) {
     for (final Tile tile in tiles) {
       if (tile.metricCode == code) return tile;
@@ -94,6 +115,30 @@ final class CommandCenter {
 
   /// The tiles that are amounts, in the order the server gave them.
   List<Tile> get amountTiles => <Tile>[for (final Tile tile in tiles) if (tile.unit == TileUnit.vnd) tile];
+}
+
+/// A count that waits for someone (open warnings, overdue explanations, pending reallocations) with the definition behind it.
+final class CountFigure {
+  const CountFigure({required this.metricCode, required this.value, this.info});
+
+  final String metricCode;
+
+  /// The number as the server wrote it.
+  final int value;
+  final FigureInfo? info;
+}
+
+const String openWarningsMetric = 'OPEN_WARNINGS';
+const String overdueExplanationsMetric = 'OVERDUE_EXPLANATIONS';
+const String pendingReallocationsMetric = 'PENDING_REALLOCATIONS';
+
+CountFigure? _countFigure(Object? raw) {
+  final Json? row = asRecord(raw);
+  final String? metric = filled(row?['metric_code']);
+  final String? shown = text(row?['display_value']) ?? text(row?['value']);
+  final int? value = shown == null ? null : int.tryParse(shown);
+  if (row == null || metric == null || value == null || value < 0) return null;
+  return CountFigure(metricCode: metric, value: value, info: FigureInfo.parse(row['kpi']));
 }
 
 Tile? _tile(Object? raw) {
@@ -114,6 +159,8 @@ Tile? _tile(Object? raw) {
     numerator: text(row['numerator']),
     denominator: text(row['denominator']),
     nullReason: text(row['null_reason']),
+    info: FigureInfo.parse(row['kpi']),
+    flags: <String>[for (final Object? flag in listOf(row['flags'])) if (filled(flag) != null) flag! as String],
   );
 }
 
@@ -153,5 +200,6 @@ CommandCenter? parseCommandCenter(Object? raw) {
     overdueExplanations: count(row['overdue_explanations']),
     pendingReallocations: count(row['pending_reallocations']),
     qualityBadge: _badge(row['quality_badge']),
+    countTiles: <CountFigure>[for (final Object? tile in listOf(row['count_tiles'])) ?_countFigure(tile)],
   );
 }

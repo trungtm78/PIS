@@ -168,6 +168,58 @@ DirectiveSummary? parseDirectiveSummary(Object? raw) {
   );
 }
 
+/// The directives on a dashboard (`getDirectiveWidget`): the three counts a leader looks at first, the oldest overdue directives, and the words of how each
+/// count is made. Loading is never 0 and a failure is never "nothing is late": the dashboard says which.
+final class DirectiveWidgetData {
+  const DirectiveWidgetData({required this.overdue, required this.dueSoon, required this.escalated, required this.open, required this.items, required this.policy, required this.asOf, this.definitions = const <String, String>{}, this.truncated = false});
+
+  final int overdue;
+  final int dueSoon;
+  final int escalated;
+  final int open;
+
+  /// The oldest overdue directives, each opening the directive.
+  final List<DirectiveLine> items;
+  final DirectivePolicyNote policy;
+
+  /// The formula of each number (`overdue`, `due_soon`, `escalated`), in the words of the server.
+  final Map<String, String> definitions;
+  final bool truncated;
+
+  /// The instant the server counted at.
+  final String asOf;
+}
+
+/// The widget, or null when the answer is not one (the dashboard then shows a contract mismatch, never half a card).
+DirectiveWidgetData? parseDirectiveWidget(Object? raw) {
+  final Json? body = asRecord(raw);
+  final Json? counts = asRecord(body?['counts']);
+  final String? asOf = filled(body?['as_of']);
+  if (body == null || counts == null || asOf == null || whole(counts['overdue']) == null || whole(counts['due_soon']) == null || whole(counts['escalated']) == null || body['items'] is! List) return null;
+  final List<DirectiveLine> items = <DirectiveLine>[];
+  for (final Object? row in listOf(body['items'])) {
+    final DirectiveLine? line = parseDirectiveLine(row);
+    if (line == null) return null;
+    items.add(line);
+  }
+  final Json? definitions = asRecord(body['definitions']);
+  final Json? policy = asRecord(body['policy']);
+  return DirectiveWidgetData(
+    overdue: count(counts['overdue']),
+    dueSoon: count(counts['due_soon']),
+    escalated: count(counts['escalated']),
+    open: count(counts['open']),
+    items: items,
+    policy: DirectivePolicyNote(unverified: policy?['unverified'] != false),
+    definitions: <String, String>{
+      for (final String key in const <String>['overdue', 'due_soon', 'escalated'])
+        if (filled(definitions?[key]) != null) key: definitions![key]! as String,
+    },
+    truncated: body['truncated'] == true,
+    asOf: asOf,
+  );
+}
+
 /// What one read of the screen holds: the list, and the counts when they could be read (a refusal of the counts does not take the list down; a
 /// lost connection does).
 final class DirectiveList {
