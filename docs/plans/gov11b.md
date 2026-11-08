@@ -26,7 +26,7 @@ Branch `lane/gov11b`, migration block `GOVANA-1` = 2580 to 2599 (migration names
 - [x] 8. BI metric files: no new BI metric indicator (the screens read the stored snapshot and the governance rules); `npm run bi:metrics:check` is green
 - [x] 9. Integration: contracts regenerated, story and traceability rows, design pages, route table counts, UAT docs, isolation suite lists (foreign-id case per id-bearing operation; new GET without id in the implemented list and `LISTS_WITHOUT_ROWS`), command-conformance counts, outbox consumers, dis/report
 - [x] 10. Gate: lint chain, typecheck, tests of what changed, self-scan, design check and baseline
-- [ ] 11. Codex review (`codex review --base main`), triage of every finding, fixes with regression tests
+- [x] 11. Codex review (`codex review --base main`), triage of every finding, fixes with regression tests
 
 ## Tests per step
 
