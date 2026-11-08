@@ -14,11 +14,13 @@ import type { Classification, PublishedPolicy, Route } from './llm-registry.ts';
 export interface SourceClass {
   documentVersionId: string;
   classification: Classification;
+  /** Set for a source that is a record (a project, a contract) and not a document version: `documentVersionId` then holds the id of the record. */
+  kind?: string | undefined;
 }
 
 export interface Classified {
   classification: Classification;
-  basis: Array<{ document_version_id: string; classification: Classification }>;
+  basis: Array<{ document_version_id: string; classification: Classification } | { record_kind: string; record_id: string; classification: Classification }>;
 }
 
 /** BR-LLM-02: the highest class of the sources (public < internal < confidential < personal < important core; personal data is kept above confidential, which takes the same routes). */
@@ -32,7 +34,9 @@ export function classifySources(sources: readonly SourceClass[]): Classified {
   }
   return {
     classification: CLASSIFICATIONS[highest] as Classification,
-    basis: sources.map((source) => ({ document_version_id: source.documentVersionId, classification: source.classification })),
+    basis: sources.map((source) =>
+      source.kind === undefined ? { document_version_id: source.documentVersionId, classification: source.classification } : { record_kind: source.kind, record_id: source.documentVersionId, classification: source.classification },
+    ),
   };
 }
 
