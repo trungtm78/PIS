@@ -6,6 +6,7 @@ import { EGP_OPERATIONS, EGP_SNAPSHOT_TABLES, EGP_SPECS, seedEgp } from './egp';
 import { GOV11A_OPERATIONS, GOV11A_SNAPSHOT_TABLES, GOV11A_SPECS, seedGov11a } from './gov11a';
 import { GOVRULE_OPERATIONS, GOVRULE_SNAPSHOT_TABLES, GOVRULE_SPECS, seedGovrule } from './govrule';
 import { HOME_OPERATIONS, HOME_SNAPSHOT_TABLES, seedHome } from './home';
+import { MR1_OPERATIONS, MR1_SNAPSHOT_TABLES, MR1_SPECS, seedMr1 } from './mr1';
 import { PAYCTL_OPERATIONS, PAYCTL_SNAPSHOT_TABLES, PAYCTL_SPECS, seedPayctl } from './payctl';
 import { RATING_OPERATIONS, RATING_SNAPSHOT_TABLES, RATING_SPECS, seedRating } from './rating';
 import { RESERVE_OPERATIONS, RESERVE_SNAPSHOT_TABLES, RESERVE_SPECS, seedReserve } from './reserve';
@@ -23,6 +24,8 @@ export const GOVERNANCE_SPECS: readonly ForeignAttemptSpec[] = [
   ...RATING_SPECS,
   ...GOV11A_SPECS,
   ...ANALYTICS_SPECS,
+=======
+  ...MR1_SPECS,
 ];
 
 /** Every operation of these controllers: the test role of the suite holds the permission of each. */
@@ -37,6 +40,8 @@ export const GOVERNANCE_OPERATIONS: readonly string[] = [
   ...GOV11A_OPERATIONS,
   ...HOME_OPERATIONS,
   ...ANALYTICS_OPERATIONS,
+=======
+  ...MR1_OPERATIONS,
 ];
 
 /** The tables the seeds fill that the snapshot reads, so a foreign command that changed one of them is seen. */
@@ -52,6 +57,8 @@ export const GOVERNANCE_SNAPSHOT_TABLES: readonly string[] = [
     ...GOV11A_SNAPSHOT_TABLES,
     ...HOME_SNAPSHOT_TABLES,
     ...ANALYTICS_SNAPSHOT_TABLES,
+=======
+    ...MR1_SNAPSHOT_TABLES,
   ]),
 ];
 
@@ -67,4 +74,6 @@ export async function seedGovernance(client: Client, context: SeedContext): Prom
   await seedGov11a(client, context);
   await seedHome(client, context);
   await seedAnalytics(client, context);
+=======
+  await seedMr1(client, context);
 }

@@ -5,6 +5,7 @@ import { egpMarkers } from './egp.fixtures';
 import { gov11aMarkers } from './gov11a.fixtures';
 import { govruleMarkers } from './govrule.fixtures';
 import { homeMarkers } from './home.fixtures';
+import { mr1Markers } from './mr1.fixtures';
 import { payctlMarkers } from './payctl.fixtures';
 import { ratingMarkers } from './rating.fixtures';
 import { reserveMarkers } from './reserve.fixtures';
@@ -19,6 +20,7 @@ export function governanceMarkers(tenant: TenantName): Marker[] {
     ...gov11aMarkers(tenant),
     ...govruleMarkers(tenant),
     ...homeMarkers(tenant),
+    ...mr1Markers(tenant),
     ...payctlMarkers(tenant),
     ...ratingMarkers(tenant),
     ...reserveMarkers(tenant),
