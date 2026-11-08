@@ -13580,5 +13580,75 @@
     "platform": "mobile",
     "req": "FR-MOB-74",
     "source": "Kế hoạch VND-2, docs/vendor-controls.md; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "VND-23",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Lời mời vào cổng nhà thầu",
+    "kind": "table",
+    "fields": [
+      "Nhà thầu (mã số thuế)",
+      "Đầu mối (tên, thư điện tử)",
+      "Căn cứ đầu mối thuộc nhà thầu",
+      "Người đề xuất",
+      "Người phê duyệt",
+      "Hạn đề xuất",
+      "Quyền truy cập đến ngày",
+      "Trạng thái",
+      "Lý do thu hồi"
+    ],
+    "role": "Chuyên viên đấu thầu (đề xuất); người có quyền phê duyệt (khác người đề xuất); người thu hồi",
+    "rule": "Lời mời gắn với hồ sơ nhà thầu đã xác minh, không gắn với hợp đồng; hai người: người phê duyệt khác người đề xuất; đề xuất và quyền truy cập đều hết hạn theo quy tắc VENDOR_PORTAL_ACCESS; thu hồi có hiệu lực ngay và có lý do; mọi bước vào nhật ký kiểm toán, không ghi thư điện tử vào sự kiện",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-VND-23",
+    "source": "Phần việc còn lại của VND-3 (docs/plans/vnd3.md, Portal access hook); kế hoạch PORTAL-2"
+  },
+  {
+    "id": "VND-24",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Tệp đính kèm trên cổng nhà thầu",
+    "kind": "table",
+    "fields": [
+      "Tên tệp",
+      "Mục đích",
+      "Loại và dung lượng",
+      "Băm SHA-256",
+      "Thời điểm tải",
+      "Gắn với (yêu cầu, chứng chỉ, hành động khắc phục)",
+      "Tải tệp mới"
+    ],
+    "role": "Nhà thầu (tài khoản khách gắn với nhà thầu)",
+    "rule": "Nhà thầu chỉ thấy và chỉ gắn tệp của chính mình; tệp được kiểm tra theo nội dung (PDF, PNG, JPEG), giới hạn dung lượng theo quy tắc, quét mã độc và mặc định từ chối khi chưa quét được (SCAN_PENDING), tệp nhiễm bị từ chối (FILE_NOT_CLEAN)",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-VND-24",
+    "source": "Phần việc còn lại của VND-3; kế hoạch PORTAL-2"
+  },
+  {
+    "id": "BID-34",
+    "module": "BID",
+    "moduleName": "Nhà thầu và phân tích AI",
+    "title": "Kết quả giải quyết kiến nghị của nhà thầu",
+    "kind": "table",
+    "fields": [
+      "Gói thầu",
+      "Nhà thầu",
+      "Trạng thái kiến nghị",
+      "Kết quả (chấp nhận, bác bỏ, rút)",
+      "Số và ngày quyết định",
+      "Tài liệu quyết định",
+      "Người ghi",
+      "Người xác nhận",
+      "Lý do trả lại"
+    ],
+    "role": "Chuyên viên xử lý kiến nghị (ghi); người có quyền xác nhận (khác người ghi)",
+    "rule": "Kết quả do một người ghi và người khác xác nhận hoặc trả lại có lý do; kết quả đã xác nhận không đổi; chỉ kết quả đã xác nhận vào tỷ lệ kiến nghị được chấp nhận; xung đột lợi ích chặn cả hai người",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BID-34",
+    "source": "Phần việc còn lại của VND-3 (kiến nghị chưa có kết quả); kế hoạch PORTAL-2"
   }
 ]

@@ -7371,6 +7371,62 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "PORTAL_INVITATION_STATE_INVALID": {
+      "status": 409,
+      "title": "The portal invitation cannot make this move",
+      "meaning": "Lời mời vào cổng không chuyển được sang trạng thái này từ trạng thái hiện tại (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PORTAL_INVITATION_EXISTS": {
+      "status": 409,
+      "title": "A live invitation exists for this contact",
+      "meaning": "Nhà thầu đã có lời mời còn hiệu lực cho địa chỉ thư điện tử này (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PORTAL_CONTACT_UNPROVEN": {
+      "status": 422,
+      "title": "The contact is not proven to belong to the contractor",
+      "meaning": "Địa chỉ thư điện tử không trùng thư điện tử trong hồ sơ nhà thầu; hãy chọn căn cứ khác kèm số hiệu giấy tờ (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONTRACTOR_NOT_INVITABLE": {
+      "status": 422,
+      "title": "The contractor cannot be invited to the portal",
+      "meaning": "Chỉ mời được nhà thầu có hồ sơ đã xác minh và không bị hạn chế (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PORTAL_ACCESS_LIMIT": {
+      "status": 422,
+      "title": "The contractor has the most portal accounts the rule allows",
+      "meaning": "Nhà thầu đã đủ số tài khoản cổng còn hiệu lực theo quy tắc VENDOR_PORTAL_ACCESS (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PETITION_OUTCOME_STATE_INVALID": {
+      "status": 409,
+      "title": "The petition outcome cannot make this move",
+      "meaning": "Kết quả giải quyết kiến nghị đã được xác nhận hoặc trả lại nên không đổi được nữa; hoặc kiến nghị đã có kết quả đang hiệu lực (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PETITION_OUTCOME_NOT_ALLOWED": {
+      "status": 422,
+      "title": "This outcome is not possible for the petition as it stands",
+      "meaning": "Kiến nghị ở trạng thái hiện tại chưa thể ghi kết quả này (được chấp nhận hoặc bác bỏ cần kiến nghị đã trả lời hoặc đã chuyển cấp trên) (PORTAL-2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

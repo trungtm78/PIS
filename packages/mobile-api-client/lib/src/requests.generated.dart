@@ -1716,6 +1716,44 @@ final class BidOcrReview implements RequestModel {
       };
 }
 
+final class BidPetitionOutcomeRecord implements RequestModel {
+  const BidPetitionOutcomeRecord({
+    required this.outcome,
+    required this.decisionRef,
+    required this.decisionOn,
+    this.decisionDocumentId,
+    this.note,
+  });
+
+  final String outcome;
+  final String decisionRef;
+  final String decisionOn;
+  final String? decisionDocumentId;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'decision_ref': decisionRef,
+        'decision_on': decisionOn,
+        if (decisionDocumentId != null) 'decision_document_id': decisionDocumentId,
+        if (note != null) 'note': note,
+      };
+}
+
+final class BidPetitionOutcomeReturn implements RequestModel {
+  const BidPetitionOutcomeReturn({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class BidPetitionReceive implements RequestModel {
   const BidPetitionReceive({
     required this.packageId,
@@ -12058,6 +12096,57 @@ final class PortalActionDone implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'note': note,
         if (documentId != null) 'document_id': documentId,
+      };
+}
+
+final class PortalInvitationApprove implements RequestModel {
+  const PortalInvitationApprove({
+    this.note,
+  });
+
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+      };
+}
+
+final class PortalInvitationNew implements RequestModel {
+  const PortalInvitationNew({
+    required this.contractorId,
+    required this.contactEmail,
+    required this.contactName,
+    required this.contactBasis,
+    this.basisReference,
+  });
+
+  final String contractorId;
+  final String contactEmail;
+  final String contactName;
+  final String contactBasis;
+  final String? basisReference;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'contractor_id': contractorId,
+        'contact_email': contactEmail,
+        'contact_name': contactName,
+        'contact_basis': contactBasis,
+        if (basisReference != null) 'basis_reference': basisReference,
+      };
+}
+
+final class PortalInvitationReason implements RequestModel {
+  const PortalInvitationReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
       };
 }
 
