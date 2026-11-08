@@ -197,7 +197,7 @@ export function renderPlatform(data, t) {
     linkLabelOpacity: (link) => ramp(t, Math.max(byId.get(link.from)?.at ?? 0, byId.get(link.to)?.at ?? 0, link.at ?? 0) + 1000, 400),
   };
   const nodes = data.nodes.map((node) => nodeHtml(node, t, state)).join('');
-  return stage(data, t, heading(data, t) + linksSvg(data.links, byId, t, state) + nodes + legendHtml(data, t) + captionHtml(data.captions, t));
+  return stage(data, t, heading(data, t) + linksSvg(data.links, byId, t, state) + nodes + legendHtml(data, t) + captionHtml(data.hideCaptions === true ? [] : data.captions, t));
 }
 
 /** The service-flow scene: the diagram is there from the start and a request travels along the links in the order of `steps`. */
@@ -230,5 +230,5 @@ export function renderFlow(data, t) {
   const captions = live === undefined || live.caption === undefined ? data.captions : [{ from: live.at, to: live.at + live.dur + (live.holdMs ?? 700), text: live.caption }];
   const counter = (data.steps ?? []).findIndex((step) => step === live);
   const stepMark = live === undefined ? '' : el('div', 'stepmark', {}, `${GLYPH.arrow} ${counter + 1}/${data.steps.length}`);
-  return stage(data, t, heading(data, t) + linksSvg(data.links, byId, t, state) + nodes + packetsSvg(data, byId, t) + stepMark + captionHtml(captions, t));
+  return stage(data, t, heading(data, t) + linksSvg(data.links, byId, t, state) + nodes + packetsSvg(data, byId, t) + stepMark + captionHtml(data.hideCaptions === true ? [] : captions, t));
 }
