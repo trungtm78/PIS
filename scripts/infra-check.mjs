@@ -2,6 +2,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { checkArtefacts } from './infra-artefacts.mjs';
+import { loadOnpremMessages } from './onprem-messages.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
@@ -345,6 +347,8 @@ export function infraCheck(root, options = {}) {
   checkPipelines(files, operations, findings);
   checkPostgres(root, files, operations, findings);
   checkKeycloak(files, findings);
+  // The on-prem artefacts (INFRA-1): images, compose, TLS and headers, identity, backups, scanning workflows (scripts/infra-artefacts.mjs, rules in infra/policies/artefacts.json).
+  findings.push(...checkArtefacts(root).findings);
   const alertIds = checkAlerts(root, files, operations, findings);
   const plan = loadPlan(root, options.planPath);
   const { components, blockedStories } = checkComponents(root, files, operations, alertIds, plan, findings);
@@ -367,7 +371,7 @@ export function main(argv, { log = console.log } = {}) {
     log(loadMessages(DEFAULT_LOCALE)['infra.usage']);
     return 2;
   }
-  const messages = loadMessages(values.locale);
+  const messages = { ...loadMessages(values.locale), ...loadOnpremMessages(values.locale) };
   const result = infraCheck(resolve(values.root), { planPath: values.plan === undefined ? undefined : resolve(values.plan) });
   for (const entry of result.findings) log(`${entry.file}: ${format(messages[`infra.${entry.code}`], { detail: entry.detail })}`);
   for (const component of result.components.filter((item) => !item.entered)) {

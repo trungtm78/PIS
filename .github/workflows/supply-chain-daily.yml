@@ -55,7 +55,7 @@ jobs:
           if [ -z "$locks" ]; then echo "no pubspec.lock: nothing locked to audit" | tee pub.log; exit 0; fi
           args=""
           for lock in $locks; do args="$args --lockfile=$lock"; done
-          docker run --rm -v "$PWD:/src" -w /src ghcr.io/google/osv-scanner:v1.9.2 $args 2>&1 | tee pub.log
+          docker run --rm -v "$PWD:/src" -w /src ghcr.io/google/osv-scanner:v1.9.2@sha256:239d47ec1a70af430c3cd57524d18e8b2d2dc2f28869384217b64f409ab6650a $args 2>&1 | tee pub.log
 
       - name: Raise the finding with its owner
         if: steps.audit.outcome == 'failure' || steps.pub.outcome == 'failure'

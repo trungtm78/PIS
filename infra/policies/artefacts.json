@@ -1,0 +1,88 @@
+{
+  "description": "Rules of scripts/infra-artefacts.mjs (run by scripts/infra-check.mjs): the on-prem deployment set, the identity configuration, the backup configuration, TLS and headers, and the security scanning workflows. A rule is stated here as data; the check reads it, so a change of a rule is a reviewed change of this file.",
+  "required": [
+    "infra/onprem/images.json",
+    "infra/onprem/secrets.json",
+    "infra/onprem/native-deps.json",
+    "infra/onprem/compose/compose.yaml",
+    "infra/onprem/compose/env.template",
+    "infra/onprem/config/pgbackrest.conf",
+    "infra/onprem/docker/api.Dockerfile",
+    "infra/onprem/docker/workers.Dockerfile",
+    "infra/onprem/docker/web.Dockerfile",
+    "infra/onprem/docker/db.Dockerfile",
+    "infra/onprem/docker/secret-env.sh",
+    "infra/onprem/nginx/default.conf.template",
+    "infra/onprem/nginx/snippets/tls.conf",
+    "infra/onprem/nginx/snippets/security-headers.conf",
+    "infra/onprem/bundle/install.sh",
+    "infra/onprem/bundle/rollback.sh",
+    "infra/keycloak/onprem/machvon-realm.json",
+    "infra/keycloak/onprem/ad-group-role-map.json",
+    "infra/backup/backup-policy.json",
+    "infra/scan/trivy.yaml",
+    "docs/runbooks/infra/onprem-install.md",
+    "docs/runbooks/infra/onprem-upgrade-rollback.md",
+    "docs/runbooks/infra/backup-immutable.md",
+    "docs/runbooks/infra/restore-drill.md",
+    "docs/runbooks/infra/tls-headers.md",
+    "docs/runbooks/infra/security-scanning.md",
+    "docs/security/pentest-readiness.md",
+    "docs/security/identity-test-plan.md"
+  ],
+  "repositoryRequired": [
+    ".github/workflows/security.yml",
+    ".github/workflows/images.yml",
+    ".github/workflows/dast.yml",
+    ".zap/rules.tsv",
+    ".gitleaks.toml",
+    "scripts/onprem-bundle.mjs",
+    "scripts/backup-verify.mjs",
+    "scripts/restore-drill.mjs",
+    "scripts/native-deps-check.mjs",
+    "apps/api/src/security/security-headers.ts"
+  ],
+  "images": {
+    "platforms": ["linux/amd64", "linux/arm64"],
+    "floatingTags": ["latest", "stable", "edge", "main", "master", "dev", "develop", "nightly", "current"],
+    "productVersionVariable": "MACHVON_VERSION"
+  },
+  "compose": {
+    "file": "infra/onprem/compose/compose.yaml",
+    "publishingServices": ["web"],
+    "toolsProfile": "tools",
+    "secretNamePattern": "(PASSWORD|SECRET|TOKEN|PRIVATE_KEY|API_KEY|CREDENTIAL|CIPHER_PASS|ACCESS_KEY|_KEY)$"
+  },
+  "dockerfiles": {
+    "healthcheckRequired": ["api", "workers", "web", "db"],
+    "nonRootRequired": ["api", "workers"],
+    "productionInstall": ["api", "workers"]
+  },
+  "tls": {
+    "protocols": ["TLSv1.2", "TLSv1.3"],
+    "forbiddenCipherTokens": ["RC4", "3DES", "DES-CBC", "MD5", "NULL", "EXPORT", "aNULL", "eNULL", "-CBC-", "AES128-SHA", "AES256-SHA", "kRSA"],
+    "minHstsSeconds": 31536000
+  },
+  "headers": {
+    "web": ["Strict-Transport-Security", "Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"],
+    "contentSecurityPolicy": ["default-src", "object-src 'none'", "frame-ancestors 'none'", "base-uri"],
+    "api": ["x-content-type-options", "cache-control", "content-security-policy", "referrer-policy", "x-frame-options", "permissions-policy"]
+  },
+  "identity": {
+    "realmFile": "infra/keycloak/onprem/machvon-realm.json",
+    "roleMapFile": "infra/keycloak/onprem/ad-group-role-map.json",
+    "bruteForce": { "failureFactor": 5, "lockSeconds": 900 },
+    "otp": { "type": "totp", "digits": 6, "periodSeconds": 30 },
+    "webauthnMarkerRole": "mfa-webauthn-required",
+    "requiredAction": "CONFIGURE_TOTP",
+    "federationPlaceholders": ["connectionUrl", "usersDn", "bindDn", "bindCredential"]
+  },
+  "workflows": {
+    "codeql": { "file": ".github/workflows/security.yml", "job": "codeql", "queries": "security-extended" },
+    "secretScan": { "file": ".github/workflows/security.yml", "job": "secrets", "configFile": ".gitleaks.toml" },
+    "imageScan": { "file": ".github/workflows/images.yml", "job": "image", "policy": "infra/scan/trivy.yaml", "requiredRunners": ["ubuntu-24.04", "ubuntu-24.04-arm"] },
+    "dast": { "file": ".github/workflows/dast.yml", "jobs": { "baseline": "zap-baseline.py", "api": "zap-api-scan.py" }, "rules": ".zap/rules.tsv" },
+    "armLeg": { "file": ".github/workflows/ci.yml", "job": "arm64", "runner": "ubuntu-24.04-arm", "mustRun": ["native-deps:check", "npm test"] }
+  },
+  "trivy": { "severity": ["HIGH", "CRITICAL"], "exitCode": 1 }
+}

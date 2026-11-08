@@ -120,10 +120,10 @@ export function checkBackupPolicy(root) {
   const confText = readText(join(root, 'infra', 'onprem', 'config', 'pgbackrest.conf'));
   const conf2 = confText === undefined ? new Map() : parsePgbackrestConf(confText);
   const cipher = policy.encryption?.clientSide;
-  if (!/^aes-256-/.test(String(cipher?.cipher)) || conf2.get('global.repo1-cipher-type') !== cipher?.cipher || typeof cipher?.passphraseSecret !== 'string') findings.push(finding('BACKUP_ENCRYPTION', 'client-side AES-256 encryption must be configured in the policy and in pgbackrest.conf'));
+  if (!/^aes-256-/.test(String(cipher?.cipher)) || conf2.get('global.repo1-cipher-type') !== cipher?.cipher || typeof cipher?.passphraseFile !== 'string') findings.push(finding('BACKUP_ENCRYPTION', 'client-side AES-256 encryption must be configured in the policy and in pgbackrest.conf'));
   else {
     const compose = readText(join(root, 'infra', 'onprem', 'compose', 'compose.yaml')) ?? '';
-    if (!compose.includes(`/run/secrets/${cipher.passphraseSecret}`)) findings.push(finding('BACKUP_ENCRYPTION', `compose.yaml does not hand the secret ${cipher.passphraseSecret} to the database and backup services`));
+    if (!compose.includes(`/run/secrets/${cipher.passphraseFile}`)) findings.push(finding('BACKUP_ENCRYPTION', `compose.yaml does not hand the secret ${cipher.passphraseFile} to the database and backup services`));
   }
   if (!/TLS 1\.[23]/.test(String(policy.encryption?.transport))) findings.push(finding('BACKUP_ENCRYPTION', 'the transport to the object store must be TLS 1.2 or newer'));
   if (confText !== undefined && SECRET_OPTION.test(confText)) findings.push(finding('BACKUP_CONFIG_SECRET', 'pgbackrest.conf carries a secret option; use the PGBACKREST_REPO1_* environment through secret files'));

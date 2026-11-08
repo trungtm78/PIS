@@ -11,7 +11,7 @@
   "retention": { "fullDays": 35, "pitrDays": 35, "archiveDays": 35 },
   "targets": { "rpoMinutes": 15, "rtoHours": 4 },
   "encryption": {
-    "clientSide": { "cipher": "aes-256-cbc", "passphraseSecret": "pgbackrest_cipher_pass", "escrow": "offline, two custodians" },
+    "clientSide": { "cipher": "aes-256-cbc", "passphraseFile": "pgbackrest_cipher_pass", "escrow": "offline, two custodians" },
     "serverSide": { "algorithm": "AES256" },
     "transport": "TLS 1.2 or newer to the object store"
   },

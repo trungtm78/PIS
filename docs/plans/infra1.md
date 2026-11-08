@@ -25,7 +25,7 @@ Status legend: `[ ]` open, `[x]` done.
 ## Steps
 
 1. [x] Plan file (this file), committed first.
-2. [x] Dependency audit: upgrade `multer` to 2.5.0 through `overrides`, add `js-yaml` (exact) as a dev dependency for the YAML checks; lockfile regenerated with npm.
+2. [x] Dependency audit: upgrade `multer` to 2.5.0 through `overrides`, add `js-yaml` (exact) as a dev dependency for the YAML checks; the lockfile entry of `multer` and the root dev dependency edited by hand, because npm did not re-resolve under the junctioned `node_modules` (`npm audit` and the supply-chain check confirm the result).
    Test: `npm run supply-chain:check -- --audit` shows no high advisory; lockfile in sync.
 3. [x] Native dependency check `scripts/native-deps-check.mjs` + test + policy (`infra/onprem/native-deps.json`): lists native and binary packages from the lockfile,
    flags those without a linux arm64 build, says that `embedded-postgres` is test-only. Test: fixtures with and without arm64 siblings, the real lockfile passes.

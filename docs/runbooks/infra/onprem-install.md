@@ -13,7 +13,7 @@ One directory, built once per release and per customer host name on the vendor b
 | `manifest.json`, `VERSION` | version, edition, public host, build time, per-archive checksums and platforms, digests of the third-party images |
 | `SHA256SUMS` | checksum of every other file of the bundle, in `sha256sum --check` format |
 | `install.sh`, `rollback.sh` | the procedures below |
-| `infra/onprem/…`, `infra/keycloak/onprem/…`, `infra/backup/…` | compose set, nginx and pgBackRest configuration, systemd timers, secrets list, realm import, backup policy and bucket settings |
+| `infra/onprem/`, `infra/keycloak/onprem/`, `infra/backup/` | compose set, nginx and pgBackRest configuration, systemd timers, secrets list, realm import, backup policy and bucket settings |
 | `docs/runbooks/infra/` | these runbooks, so the customer's administrators have them offline |
 
 All versions are pinned: third-party images by tag and digest (`infra/onprem/images.json`), the images of the product by the release version. There is no `latest` anywhere (`npm run infra:check` fails on one).
