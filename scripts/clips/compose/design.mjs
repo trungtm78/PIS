@@ -216,7 +216,7 @@ export function cardHtml({ kicker, title, subtitle, footer, brand, fonts = '' })
 /** One subtitle cue: a dark rounded bar at the bottom of a 1920x124 transparent strip, the key term in the accent colour. */
 export function barHtml(text, { fonts = '', accent = PALETTE.gold } = {}) {
   const [before, key, after] = splitKey(text.replace(/\n/gu, ' '));
-  const css = `html,body{height:124px}.bar{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);max-width:1560px;padding:16px 38px;border-radius:30px;background:rgba(9,24,32,.90);box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:38px;line-height:1.3;font-weight:500;text-align:center}.bar em{font-style:normal;font-weight:700;color:${accent}}`;
+  const css = `html,body{height:190px}.bar{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);max-width:1500px;padding:16px 38px;border-radius:30px;background:rgba(9,24,32,.90);box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:34px;line-height:1.3;font-weight:500;text-align:center}.bar em{font-style:normal;font-weight:700;color:${accent}}`;
   const content = `${escapeHtml(before)}${key === '' ? '' : `<em>${escapeHtml(key)}</em>`}${escapeHtml(after)}`;
   return page(css, `<div class="bar">${content}</div>`, fonts);
 }

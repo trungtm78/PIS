@@ -116,7 +116,7 @@ test('the subtitle bar is one more picture input of the mix, and the soft subtit
   const narration = [{ file: 'a.wav', startMs: 0 }];
   const graph = buildFilterGraph({ narration, totalMs: 8000, music: 'm.ogg', barInput: 3 });
   assert.match(graph, /\[3:v\]fps=30,format=rgba\[bar\]/u);
-  assert.match(graph, /\[base\]\[bar\]overlay=0:944/u);
+  assert.match(graph, /\[base\]\[bar\]overlay=0:890/u);
   assert.doesNotMatch(graph, /subtitles=filename/u);
   const args = buildMixArgs({ video: 'v.mp4', narration, music: 'm.ogg', bar: 'bar.txt', subtitlesSrt: 's.srt', graphFile: 'g', out: 'o.mp4', totalMs: 8000 });
   assert.deepEqual(args.filter((word, index) => ['-i'].includes(args[index - 1])), ['v.mp4', 'a.wav', 'm.ogg', 'bar.txt', 's.srt']);
