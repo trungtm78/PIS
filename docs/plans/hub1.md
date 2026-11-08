@@ -22,3 +22,12 @@ Goal (owner, 2026-11-08): every external data connection (e-GP, Finance Departme
 - Thresholds only through the rule `INTEGRATION_HUB_POLICY` and `CONNECTOR_FRESHNESS`.
 - A protocol that reaches another host runs only behind a tenant-approved egress exception; real adapters are refusing stubs now. The store and commands of egress exceptions are a follow-up (HUB-2).
 - Adapters read the connector tables of other lanes; the hub never writes them. The hub keeps its own state only for connectors without a switch of their own.
+
+## Codex review (model gpt-6-astra, `codex review --base main`) and dispositions
+
+| Finding | Verdict | Disposition |
+|---|---|---|
+| P1 Hub-owned switches are not enforced in the import paths | Valid | `FileImportStore.run` refuses with 409 `HUB_CONNECTOR_DISABLED` before it claims a file for a connector whose switch the hub owns; error code registered; regression test in `hub-store.test.ts` (disabled: refused and nothing claimed; enabled again: applied) |
+| P2 Pagination cursors not consumed by the hub screens | Valid | runs, rejects and incidents are read page by page with the cursor of the server and a "load more" button; regression test in `HubScreens.test.tsx` |
+| P2 The flat XML reader skips unmatched content | Valid | `readFlatXml` accounts for every character: an unclosed element, stray text, a field holding elements, a repeated field or a second root is 422 `IMPORT_SCHEMA_INVALID`; regression test in `connector-protocols.test.ts` |
+| P2 Retiring a mapping overwrites its approval | Valid | retirement has its own columns (`retired_by`, `retired_at`, `retire_reason`); the trigger keeps the decision as made; regression assertions in `hub-store.test.ts` |
