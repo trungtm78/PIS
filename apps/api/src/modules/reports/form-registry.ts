@@ -1,7 +1,5 @@
-import { DIS_WEEKLY_LAYOUT, DomainError, validateLayout } from '@machvon/kernel';
-import type { EffectiveAccess, ReportFormBundle } from '@machvon/kernel';
 import { DIS_WEEKLY_LAYOUT, DomainError, MOF_LAYOUTS, MOF_RECEIVER, mofFormOf, validateLayout } from '@machvon/kernel';
-import type { ReportFormBundle } from '@machvon/kernel';
+import type { EffectiveAccess, ReportFormBundle } from '@machvon/kernel';
 import { buildBlankTemplate } from './blank-template';
 import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
@@ -80,6 +78,7 @@ export const layoutReadable = (access: EffectiveAccess, layoutCode: string): boo
 export function assertLayoutAccess(access: EffectiveAccess, layoutCode: string): void {
   if (!layoutReadable(access, layoutCode)) throw new DomainError('SCOPE_DENIED', 403);
 }
+
 /** The figures of the periodic forms for the Ministry: the snapshot that stood at the end of the period of the report. */
 export const MOF_PROVIDER = 'MOF_DIS';
 

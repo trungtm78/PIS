@@ -4462,7 +4462,7 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/effect-assessments/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
   },
-  },  // GOV-12: monitoring files, portal, transmittals, the anonymous channel, gifts, photo findings, period locks and signatures; a caller who is refused changes and reads nothing.
+  // GOV-12: monitoring files, portal, transmittals, the anonymous channel, gifts, photo findings, period locks and signatures; a caller who is refused changes and reads nothing.
   openMonitoringFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/monitoring-files', body: { project_id: '00000000-0000-4000-8000-0000000000f1' } }) },
   setMonitoringTrigger: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/monitoring-files/00000000-0000-4000-8000-0000000000f1/trigger', ifMatch: '"1"', body: { kind: 'WORKS_START', on: '2026-01-01' } }) },
   addMonitoringPackItem: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/monitoring-files/00000000-0000-4000-8000-0000000000f1/pack-items', body: { item: 'NOTICE_TEXT', document_id: '00000000-0000-4000-8000-0000000000f1', document_kind: 'DOCUMENT' } }) },
