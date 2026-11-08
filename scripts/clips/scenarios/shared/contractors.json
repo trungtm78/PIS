@@ -58,7 +58,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "bidManager"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -104,7 +104,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "bidManager"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -142,7 +142,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -159,7 +159,7 @@
         },
         {
           "do": "as",
-          "persona": "paymentApprover"
+          "persona": "capApprover"
         },
         {
           "do": "command",
@@ -223,7 +223,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "bidManager"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -328,7 +328,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -357,7 +357,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "projectManager"
         },
         {
           "do": "open",

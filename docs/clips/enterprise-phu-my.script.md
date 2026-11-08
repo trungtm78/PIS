@@ -39,7 +39,14 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-funding` | RUN_VERIFIED |
 | `clip-ent-directives` | RUN_VERIFIED |
 | `clip-ent-ebs` | RUN_VERIFIED |
-| `clip-ent-reports` | WRITTEN_NOT_RUN |
+| `clip-ent-reports` | RUN_VERIFIED |
+| `clip-ent-capital` | RUN_VERIFIED |
+| `clip-ent-documents` | RUN_VERIFIED |
+| `clip-ent-procurement` | RUN_VERIFIED |
+| `clip-ent-contracts` | RUN_VERIFIED |
+| `clip-ent-workflow` | RUN_VERIFIED |
+| `clip-ent-disbursement` | RUN_VERIFIED |
+| `clip-ent-bi` | RUN_VERIFIED |
 
 | Chương | Chương cần nhóm nào | Khoảng trống |
 |---|---|---|
@@ -59,7 +66,7 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `phone` | `clip-ent-projects`, `clip-ent-directives` | Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu. |
 | `close` | - | - |
 
-**Cảnh có nhóm dữ liệu chưa chạy trọn:** `reports-pvn`, `workflow`, `hpm-ebs`, `docs-ai`, `analytics`, `alerts`, `contractors`, `process-tree`, `phone`
+**Cảnh có nhóm dữ liệu chưa chạy trọn:** `reports-pvn`, `hpm-ebs`, `docs-ai`, `analytics`, `alerts`, `contractors`, `process-tree`, `phone`
 
 ## Bảng nhạc nền
 
@@ -1016,7 +1023,7 @@ Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `RPT-02` B
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=capApprover`
 - `do=open screen=RPT-02`
 - `do=spot ref=wf.period.step-deadlines`
 - `do=open screen=ADM-18`
@@ -1025,7 +1032,7 @@ Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `RPT-02` B
 
 - [ ] Màn ADM-18 "Theo dõi quy trình phê duyệt" mở được ở đường dẫn /adm/adm-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn RPT-02 "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành" mở được ở đường dẫn /rpt/rpt-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản capApprover
 - [ ] Khung vào phần wf.period.step-deadlines đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -1524,16 +1531,21 @@ Màn hình: `LLM-22` Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết
 
 **Các bước quay**
 
+- `do=as persona=projectManager`
 - `do=open screen=LLM-22`
 - `do=click ref=ai.assistant.ask`
 - `do=spot ref=ai.assistant.citations`
+- `do=as persona=owner`
+- `do=open screen=LLM-19`
 
 **Cần thấy trên hình**
 
 - [ ] Màn LLM-22 "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi" mở được ở đường dẫn /llm/llm-22, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn LLM-19 "Chính sách phân loại dữ liệu và định tuyến AI" mở được ở đường dẫn /llm/llm-19, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần ai.assistant.ask đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ai.assistant.citations đúng lúc giọng đọc nói tới
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `ai-review`
@@ -1559,12 +1571,14 @@ Màn hình: `LLM-22` Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết
 
 **Các bước quay**
 
+- `do=as persona=projectManager`
 - `do=open screen=LLM-22`
 - `do=click ref=ai.assistant.review-dossier`
 
 **Cần thấy trên hình**
 
 - [ ] Màn LLM-22 "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi" mở được ở đường dẫn /llm/llm-22, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần ai.assistant.review-dossier đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -2039,7 +2053,7 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ADM-04`
 - `do=spot ref=adm.delegation.coverage-check`
 - `do=open screen=HOME-06`
@@ -2049,7 +2063,7 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ
 
 - [ ] Màn ADM-04 "Ủy quyền có thời hạn" mở được ở đường dẫn /adm/adm-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-06 "Hồ sơ cảnh báo" mở được ở đường dẫn /home/home-06, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần adm.delegation.coverage-check đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.record.escalation-trail đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -2258,7 +2272,7 @@ Màn hình: `BID-01` Danh sách nhà thầu (/bid/bid-01); `BID-02` Hồ sơ nh�
 
 **Các bước quay**
 
-- `do=as persona=bidManager`
+- `do=as persona=projectManager`
 - `do=open screen=BID-01`
 - `do=click ref=bid.contractors.first-row`
 - `do=spot ref=bid.contractor.master-profile`
@@ -2270,7 +2284,7 @@ Màn hình: `BID-01` Danh sách nhà thầu (/bid/bid-01); `BID-02` Hồ sơ nh�
 - [ ] Màn BID-01 "Danh sách nhà thầu" mở được ở đường dẫn /bid/bid-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn BID-02 "Hồ sơ nhà thầu" mở được ở đường dẫn /bid/bid-02, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn VND-04 "Tài khoản nhận tiền của nhà thầu" mở được ở đường dẫn /vnd/vnd-04, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản bidManager
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần bid.contractors.first-row đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần bid.contractor.master-profile đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần vnd.bank-accounts.two-approvers đúng lúc giọng đọc nói tới
@@ -2299,7 +2313,7 @@ Màn hình: `BID-21` Hạn chế tham gia lựa chọn nhà thầu (/bid/bid-21)
 
 **Các bước quay**
 
-- `do=as persona=bidManager`
+- `do=as persona=projectManager`
 - `do=open screen=BID-21`
 - `do=click ref=bid.restrictions.new`
 - `do=type ref=bid.restrictions.reason textKey=restriction.reason`
@@ -2308,7 +2322,7 @@ Màn hình: `BID-21` Hạn chế tham gia lựa chọn nhà thầu (/bid/bid-21)
 **Cần thấy trên hình**
 
 - [ ] Màn BID-21 "Hạn chế tham gia lựa chọn nhà thầu" mở được ở đường dẫn /bid/bid-21, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản bidManager
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần bid.restrictions.new đúng lúc giọng đọc nói tới
 - [ ] Chạy thao tác thật recordContractorRestriction bằng tài khoản bidManager
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -2336,20 +2350,20 @@ Màn hình: `CTR-23` Bảng điểm nhà thầu và nhật ký vi phạm (/ctr/c
 
 **Các bước quay**
 
-- `do=as persona=ctrOfficer`
+- `do=as persona=projectManager`
 - `do=open screen=CTR-23`
 - `do=click ref=ctr.scorecard.new-evaluation`
 - `do=command operation=evaluateContractor as=ctrOfficer`
-- `do=as persona=paymentApprover`
+- `do=as persona=capApprover`
 - `do=command operation=approveContractorEvaluation as=paymentApprover`
 
 **Cần thấy trên hình**
 
 - [ ] Màn CTR-23 "Bảng điểm nhà thầu và nhật ký vi phạm" mở được ở đường dẫn /ctr/ctr-23, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản ctrOfficer
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần ctr.scorecard.new-evaluation đúng lúc giọng đọc nói tới
 - [ ] Chạy thao tác thật evaluateContractor bằng tài khoản ctrOfficer
-- [ ] Đăng nhập bằng tài khoản paymentApprover
+- [ ] Đăng nhập bằng tài khoản capApprover
 - [ ] Chạy thao tác thật approveContractorEvaluation bằng tài khoản paymentApprover
 - [ ] Chú thích "Người chấm ≠ người duyệt" hiện từ giây 3, kéo dài 5 giây
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -2418,7 +2432,7 @@ Màn hình: `BID-22` Kết nối hệ thống mạng đấu thầu quốc gia (/
 
 **Các bước quay**
 
-- `do=as persona=bidManager`
+- `do=as persona=projectManager`
 - `do=open screen=BID-22`
 - `do=spot ref=bid.egp.connection-card`
 
@@ -2426,7 +2440,7 @@ Màn hình: `BID-22` Kết nối hệ thống mạng đấu thầu quốc gia (/
 
 - [ ] Màn BID-22 "Kết nối hệ thống mạng đấu thầu quốc gia" mở được ở đường dẫn /bid/bid-22, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn BID-24 "Các lần nhập tệp từ hệ thống mạng đấu thầu quốc gia" mở được ở đường dẫn /bid/bid-24, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản bidManager
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần bid.egp.connection-card đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Chỉ nhập và xuất tệp, không quét trang web" hiện từ giây 3, kéo dài 5 giây
 - [ ] Chú thích "Mẫu tệp là giả định, chờ đặc tả chính thức" hiện từ giây 9, kéo dài 6 giây
@@ -2523,7 +2537,7 @@ Màn hình: `VND-10` Nhà thầu phụ của hợp đồng (/vnd/vnd-10); `CTR-2
 
 **Các bước quay**
 
-- `do=as persona=ctrOfficer`
+- `do=as persona=projectManager`
 - `do=open screen=VND-10`
 - `do=spot ref=vnd.subcontracts.paid-confirmation`
 
@@ -2531,7 +2545,7 @@ Màn hình: `VND-10` Nhà thầu phụ của hợp đồng (/vnd/vnd-10); `CTR-2
 
 - [ ] Màn VND-10 "Nhà thầu phụ của hợp đồng" mở được ở đường dẫn /vnd/vnd-10, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn CTR-25 "Thành viên liên danh và phạm vi" mở được ở đường dẫn /ctr/ctr-25, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản ctrOfficer
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần vnd.subcontracts.paid-confirmation đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -2558,7 +2572,7 @@ Màn hình: `CTR-05` Bảo lãnh và bảo hiểm (/ctr/ctr-05); `VND-08` Tài c
 
 **Các bước quay**
 
-- `do=as persona=ctrOfficer`
+- `do=as persona=projectManager`
 - `do=open screen=CTR-05`
 - `do=spot ref=ctr.guarantees.expiry-column`
 
@@ -2566,7 +2580,7 @@ Màn hình: `CTR-05` Bảo lãnh và bảo hiểm (/ctr/ctr-05); `VND-08` Tài c
 
 - [ ] Màn CTR-05 "Bảo lãnh và bảo hiểm" mở được ở đường dẫn /ctr/ctr-05, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn VND-08 "Tài chính và tải của nhà thầu" mở được ở đường dẫn /vnd/vnd-08, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản ctrOfficer
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần ctr.guarantees.expiry-column đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
