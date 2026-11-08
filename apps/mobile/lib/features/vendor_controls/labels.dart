@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../core/theme/machvon_semantic.dart';

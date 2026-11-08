@@ -4,7 +4,6 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../../core/widgets/status_pill.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/moment.dart';
