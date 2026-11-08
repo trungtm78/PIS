@@ -99,6 +99,7 @@ export const EGP_OBLIGATION_FACTS: ReadonlyArray<{ fact: string; kind: EgpPostin
   { fact: 'CONTRACT_SIGNED', kind: 'CONTRACT_INFO', day: 'the first instant (Vietnam) of the day the contract was signed' },
   { fact: 'EVALUATION_APPROVED', kind: 'CONTRACTOR_PERFORMANCE', day: 'the moment the completion evaluation of the contractor was approved' },
   { fact: 'VIOLATION_CONFIRMED', kind: 'VIOLATION', day: 'the first instant (Vietnam) of the day the violation occurred' },
+  { fact: 'CONTRACTOR_NOTIFIED', kind: 'CONTRACTOR_RESPONSE', day: 'the moment the contractor was told of the proposed rating of its performance (CA-3)' },
 ];
 
 /** The kinds whose posting is the file of the contractor export (CTR-24): its batch is the packet and its receipt is the receipt of the obligation. */

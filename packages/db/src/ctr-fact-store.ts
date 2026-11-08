@@ -20,6 +20,8 @@ export interface FactFilters {
   status?: string[] | undefined;
   type?: string[] | undefined;
   fund?: string[] | undefined;
+  /** Contracts by id: for a command that reads the fact of one contract (never from a caller's query string). */
+  ids?: string[] | undefined;
   /** A piece of the code, the title, the project or the contractor name (case does not matter). */
   text?: string | undefined;
 }
@@ -217,6 +219,8 @@ export function assemble(query: FactQuery, withLedger = true): Assembled {
   if (statuses !== undefined) where.push(`c.contract_status = any(${next(statuses)}::text[])`);
   const types = wordList(filters.type, 'type', CONTRACT_TYPE_VALUES);
   if (types !== undefined) where.push(`c.contract_type = any(${next(types)}::text[])`);
+  const ids = uuidList(filters.ids, 'ids');
+  if (ids !== undefined) where.push(`c.id = any(${next(ids)}::uuid[])`);
   const funds = uuidList(filters.fund, 'fund');
   if (funds !== undefined) where.push(`c.fund_source_version_id = any(${next(funds)}::uuid[])`);
   if (filters.text !== undefined) {

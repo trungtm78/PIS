@@ -85,7 +85,7 @@ describe('the figure "posted on time"', () => {
 
 describe('the facts that open an obligation', () => {
   it('names one kind for each fact, once', () => {
-    expect(EGP_OBLIGATION_FACTS.map((entry) => entry.kind)).toEqual(['PLAN', 'RESULT', 'CONTRACT_INFO', 'CONTRACTOR_PERFORMANCE', 'VIOLATION']);
+    expect(EGP_OBLIGATION_FACTS.map((entry) => entry.kind)).toEqual(['PLAN', 'RESULT', 'CONTRACT_INFO', 'CONTRACTOR_PERFORMANCE', 'VIOLATION', 'CONTRACTOR_RESPONSE']);
     expect(new Set(EGP_OBLIGATION_FACTS.map((entry) => entry.fact)).size).toBe(EGP_OBLIGATION_FACTS.length);
   });
 

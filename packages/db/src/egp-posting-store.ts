@@ -235,6 +235,9 @@ const FACT_QUERIES: Readonly<Record<string, string>> = {
   VIOLATION_CONFIRMED: `select v.id as source_ref, ct.id as subject_id, ct.tax_identifier as subject_code, to_char(${dayStart('v.occurred_on')} at time zone 'UTC', ${ISO}) as at
       from machvon.contractor_violation v join machvon.contractor ct on ct.tenant_id = v.tenant_id and ct.id = v.contractor_id
      where v.status = 'CONFIRMED' and v.occurred_on >= $1::date order by v.occurred_on, v.id limit $2`,
+  CONTRACTOR_NOTIFIED: `select q.id as source_ref, q.contractor_id as subject_id, coalesce(ct.tax_identifier, q.contractor_id::text) as subject_code, to_char(q.notified_at at time zone 'UTC', ${ISO}) as at
+      from machvon.contract_rating_proposal q join machvon.contractor ct on ct.tenant_id = q.tenant_id and ct.id = q.contractor_id
+     where q.notified_at is not null and (q.notified_at at time zone 'Asia/Ho_Chi_Minh')::date >= $1::date order by q.notified_at, q.id limit $2`,
 };
 
 /** The subject of each fact: what the obligation is about (see `EGP_POSTING_SUBJECTS`). */
