@@ -5,6 +5,9 @@ import '../../core/l10n/string_table.dart';
 const StringTable sessionStrings = StringTable(
   vi: <String, String>{
     'mob.signIn.title.text': 'Đăng nhập',
+    'mob.signIn.logo.label': 'Biểu tượng Mạch Vốn',
+    'mob.signIn.tagline.public.text': 'Mạch vốn thông suốt, đầu tư công minh bạch',
+    'mob.signIn.tagline.enterprise.text': 'Vốn đến đúng công trình, việc đúng tiến độ',
     'mob.signIn.body.text': 'Bạn đăng nhập trong trình duyệt của hệ thống. Ứng dụng không bao giờ nhìn thấy mật khẩu của bạn.',
     'mob.signIn.tenant.label': 'Tổ chức',
     'mob.signIn.tenantChange.action': 'Đổi tổ chức',
@@ -42,6 +45,9 @@ const StringTable sessionStrings = StringTable(
   },
   en: <String, String>{
     'mob.signIn.title.text': 'Sign in',
+    'mob.signIn.logo.label': 'Mạch Vốn logo',
+    'mob.signIn.tagline.public.text': 'Capital flowing freely, public investment in the open',
+    'mob.signIn.tagline.enterprise.text': 'Capital to the right site, work on schedule',
     'mob.signIn.body.text': 'You sign in in the system browser. The app never sees your password.',
     'mob.signIn.tenant.label': 'Organisation',
     'mob.signIn.tenantChange.action': 'Change organisation',

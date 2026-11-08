@@ -10,6 +10,7 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/widgets/brand_logo.dart';
 import '../auth/auth_service.dart';
 import '../auth/oidc_client.dart';
 import '../flow.dart';
@@ -102,6 +103,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
           children: <Widget>[
+            const BrandHeader(),
+            const SizedBox(height: MachvonSpace.space24),
             Semantics(header: true, child: Text(context.t('mob.signIn.title.text'), style: Theme.of(context).textTheme.headlineSmall)),
             const SizedBox(height: MachvonSpace.space12),
             Text(context.t('mob.signIn.body.text')),
