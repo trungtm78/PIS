@@ -50311,25 +50311,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-BID-016-1",
+          "id": "TK-RPT-001-1",
           "kind": "backend",
           "title": "Server-side read models and rules behind BID-22, BID-23, BID-24; no new command",
           "test_ids": []
         },
         {
-          "id": "TK-BID-016-2",
+          "id": "TK-RPT-001-2",
           "kind": "web",
           "title": "BID-22, BID-23, BID-24 screens built with the kit, the seven standard states and ContextBar on every number",
           "test_ids": []
         },
         {
-          "id": "TK-BID-016-3",
+          "id": "TK-RPT-001-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for BID-22, BID-23, BID-24; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-BID-016-4",
+          "id": "TK-RPT-001-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -50338,7 +50338,7 @@
           ]
         },
         {
-          "id": "TK-BID-016-5",
+          "id": "TK-RPT-001-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -50437,25 +50437,25 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-BID-016-1",
+          "id": "TK-BID-032-1",
           "kind": "backend",
           "title": "Server-side read models and rules behind BID-22, BID-23, BID-24; no new command",
           "test_ids": []
         },
         {
-          "id": "TK-BID-016-2",
+          "id": "TK-BID-032-2",
           "kind": "web",
           "title": "BID-22, BID-23, BID-24 screens built with the kit, the seven standard states and ContextBar on every number",
           "test_ids": []
         },
         {
-          "id": "TK-BID-016-3",
+          "id": "TK-BID-032-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for BID-22, BID-23, BID-24; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-BID-016-4",
+          "id": "TK-BID-032-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -50464,7 +50464,7 @@
           ]
         },
         {
-          "id": "TK-BID-016-5",
+          "id": "TK-BID-032-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
