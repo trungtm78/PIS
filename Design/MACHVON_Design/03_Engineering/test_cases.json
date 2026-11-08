@@ -20696,6 +20696,24 @@
     ]
   },
   {
+    "id": "UI-CTR-32",
+    "source": "FR-CTR-37",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu; user có quyền và user chỉ đọc; route CTR-32",
+    "steps": [
+      "Mở CTR-32 từ báo cáo xếp hạng và deep link; kiểm nhãn trường: Hợp đồng, Kỳ đánh giá, Điểm chất lượng, Điểm tiến độ, Điểm an toàn và môi trường, Điểm phối hợp, Điểm tài chính, Điểm tổng hợp, Xếp hạng đề xuất, Hạn phản hồi của nhà thầu, Phản hồi, Đánh giá chính thức",
+      "Thực hiện thao tác chính theo quy tắc: Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (chưa kiểm chứng); tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; thông báo mở nghĩa vụ đăng tải phản hồi của nhà thầu (CA-3, V4)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-32"
+    ],
+    "expected": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu: hiển thị đúng 12 trường, áp quy tắc \"Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (chưa kiểm chứng); tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; thông báo mở nghĩa vụ đăng tải phản hồi của nhà thầu (CA-3, V4)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-37"
+    ]
+  },
+  {
     "id": "UAT-PLAN-121",
     "source": "BID.md",
     "type": "business",

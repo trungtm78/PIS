@@ -48665,7 +48665,8 @@
       "release": "R2",
       "screens": [
         "CTR-30",
-        "CTR-31"
+        "CTR-31",
+        "CTR-32"
       ],
       "operations": [
         "getContractReport",
@@ -48714,6 +48715,13 @@
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
           "test_id": "UI-CTR-31"
+        },
+        {
+          "id": "AC-ST-CTR-020-5",
+          "given": "CTR-32 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-32"
         }
       ],
       "dependencies": [
@@ -48771,7 +48779,8 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-CTR-30",
-            "UI-CTR-31"
+            "UI-CTR-31",
+            "UI-CTR-32"
           ]
         }
       ]
