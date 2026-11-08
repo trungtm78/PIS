@@ -842,7 +842,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:egp-obligations"
+          "BID-32"
         ]
       },
       "steps": [
@@ -852,7 +852,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:egp-obligations"
+          "screen": "BID-32"
         },
         {
           "do": "spot",
@@ -883,7 +883,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:egp-reconciliation"
+          "BID-33"
         ]
       },
       "steps": [
@@ -893,7 +893,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:egp-reconciliation"
+          "screen": "BID-33"
         },
         {
           "do": "click",

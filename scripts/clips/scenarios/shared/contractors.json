@@ -52,7 +52,7 @@
         "screens": [
           "BID-01",
           "BID-02",
-          "planned:vendor-bank-accounts"
+          "VND-04"
         ]
       },
       "steps": [
@@ -74,7 +74,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:vendor-bank-accounts"
+          "screen": "VND-04"
         },
         {
           "do": "spot",
@@ -251,7 +251,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:red-flag-board"
+          "AUD-14"
         ]
       },
       "steps": [
@@ -261,7 +261,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:red-flag-board"
+          "screen": "AUD-14"
         },
         {
           "do": "spot",
@@ -285,7 +285,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:vendor-portal"
+          "VND-16"
         ]
       },
       "steps": [
@@ -295,7 +295,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:vendor-portal"
+          "screen": "VND-16"
         },
         {
           "do": "spot",
@@ -313,7 +313,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:vendor-subcontracts",
+          "VND-10",
           "CTR-25"
         ]
       },
@@ -324,7 +324,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:vendor-subcontracts"
+          "screen": "VND-10"
         },
         {
           "do": "spot",
@@ -343,7 +343,7 @@
         "platform": "web",
         "screens": [
           "CTR-05",
-          "planned:vendor-workload"
+          "VND-08"
         ]
       },
       "steps": [

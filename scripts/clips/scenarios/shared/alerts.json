@@ -173,7 +173,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:alert-health"
+          "HOME-13"
         ]
       },
       "steps": [
@@ -183,7 +183,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:alert-health"
+          "screen": "HOME-13"
         },
         {
           "do": "spot",

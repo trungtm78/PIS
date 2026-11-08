@@ -27,15 +27,15 @@
       "what": "security / sso mfa (adm)"
     },
     "ai.assistant.ask": {
-      "screen": "planned:ai-assistant",
+      "screen": "LLM-22",
       "what": "assistant / ask (ai)"
     },
     "ai.assistant.citations": {
-      "screen": "planned:ai-assistant",
+      "screen": "LLM-22",
       "what": "assistant / citations (ai)"
     },
     "ai.assistant.review-dossier": {
-      "screen": "planned:ai-assistant",
+      "screen": "LLM-22",
       "what": "assistant / review dossier (ai)"
     },
     "alerts.drawer.consequence-line": {
@@ -43,7 +43,7 @@
       "what": "drawer / consequence line (alerts)"
     },
     "alerts.health.kpi-grid": {
-      "screen": "planned:alert-health",
+      "screen": "HOME-13",
       "what": "health / kpi grid (alerts)"
     },
     "alerts.item.claim": {
@@ -87,7 +87,7 @@
       "what": "integrity / findings (aud)"
     },
     "aud.red-flags.indicator-list": {
-      "screen": "planned:red-flag-board",
+      "screen": "AUD-14",
       "what": "red flags / indicator list (aud)"
     },
     "bi.chart-builder.dataset": {
@@ -207,11 +207,11 @@
       "what": "egp / mapping / first suggestion (bid)"
     },
     "bid.egp.obligations.clock-column": {
-      "screen": "planned:egp-obligations",
+      "screen": "BID-32",
       "what": "egp / obligations / clock column (bid)"
     },
     "bid.egp.obligations.record-receipt": {
-      "screen": "planned:egp-obligations",
+      "screen": "BID-32",
       "what": "egp / obligations / record receipt (bid)"
     },
     "bid.egp.pending-external-list": {
@@ -219,11 +219,11 @@
       "what": "egp / pending external list (bid)"
     },
     "bid.egp.recon.first-item": {
-      "screen": "planned:egp-reconciliation",
+      "screen": "BID-33",
       "what": "egp / recon / first item (bid)"
     },
     "bid.egp.recon.resolution": {
-      "screen": "planned:egp-reconciliation",
+      "screen": "BID-33",
       "what": "egp / recon / resolution (bid)"
     },
     "bid.package.required-items": {
@@ -391,19 +391,19 @@
       "what": "warning rules / version column (dis)"
     },
     "doc.repo.first-file": {
-      "screen": "planned:doc-repository",
+      "screen": "DOC-24",
       "what": "repo / first file (doc)"
     },
     "doc.repo.ocr-citation": {
-      "screen": "planned:doc-repository",
+      "screen": "DOC-24",
       "what": "repo / ocr citation (doc)"
     },
     "doc.review.stage-bar": {
-      "screen": "planned:doc-repository",
+      "screen": "DOC-24",
       "what": "review / stage bar (doc)"
     },
     "ebs.reconcile.difference-rows": {
-      "screen": "planned:ebs-reconcile",
+      "screen": "EBS-02",
       "what": "reconcile / difference rows (ebs)"
     },
     "ent.capital.estimate-to-actual": {
@@ -415,11 +415,11 @@
       "what": "capital / structure bar (ent)"
     },
     "ent.dictionary.indicator-row": {
-      "screen": "planned:ent-indicator-dictionary",
+      "screen": "IND-01",
       "what": "dictionary / indicator row (ent)"
     },
     "ent.entry-rules.violation-hint": {
-      "screen": "planned:ent-indicator-dictionary",
+      "screen": "IND-01",
       "what": "entry rules / violation hint (ent)"
     },
     "ent.home.kpi-strip": {
@@ -467,19 +467,19 @@
       "what": "rate tiles / drill link (home)"
     },
     "hpm.push.idempotency-key": {
-      "screen": "planned:hpm-push",
+      "screen": "HPM-01",
       "what": "push / idempotency key (hpm)"
     },
     "hpm.push.retry": {
-      "screen": "planned:hpm-push",
+      "screen": "HPM-01",
       "what": "push / retry (hpm)"
     },
     "hpm.push.stale-refusal": {
-      "screen": "planned:hpm-push",
+      "screen": "HPM-01",
       "what": "push / stale refusal (hpm)"
     },
     "int.open-api.machine-accounts": {
-      "screen": "planned:open-api",
+      "screen": "INT-05",
       "what": "open api / machine accounts (int)"
     },
     "mdm.crosswalk.multi-system-codes": {
@@ -595,35 +595,35 @@
       "what": "risk / before after score (prj)"
     },
     "rpt.forms.demo-stamp": {
-      "screen": "planned:report-forms",
+      "screen": "RPT-01",
       "what": "forms / demo stamp (rpt)"
     },
     "rpt.forms.status-column": {
-      "screen": "planned:report-forms",
+      "screen": "RPT-01",
       "what": "forms / status column (rpt)"
     },
     "rpt.generate.fill-template": {
-      "screen": "planned:report-generate",
+      "screen": "RPT-01",
       "what": "generate / fill template (rpt)"
     },
     "rpt.generate.form": {
-      "screen": "planned:report-generate",
+      "screen": "RPT-01",
       "what": "generate / form (rpt)"
     },
     "rpt.generate.preview-sheet": {
-      "screen": "planned:report-generate",
+      "screen": "RPT-01",
       "what": "generate / preview sheet (rpt)"
     },
     "rpt.generate.word-narrative": {
-      "screen": "planned:report-generate",
+      "screen": "RPT-01",
       "what": "generate / word narrative (rpt)"
     },
     "rpt.issued.file-name": {
-      "screen": "planned:report-issued",
+      "screen": "RPT-03",
       "what": "issued / file name (rpt)"
     },
     "rpt.issued.three-roles": {
-      "screen": "planned:report-issued",
+      "screen": "RPT-03",
       "what": "issued / three roles (rpt)"
     },
     "shell.alert-bell": {
@@ -635,11 +635,11 @@
       "what": "bank accounts / two approvers (vnd)"
     },
     "vnd.portal.my-evaluations": {
-      "screen": "planned:vendor-portal",
+      "screen": "VND-16",
       "what": "portal / my evaluations (vnd)"
     },
     "vnd.subcontracts.paid-confirmation": {
-      "screen": "planned:vendor-subcontracts",
+      "screen": "VND-10",
       "what": "subcontracts / paid confirmation (vnd)"
     },
     "wf.period.step-deadlines": {
