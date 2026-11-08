@@ -367,8 +367,8 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
 
   describe('reconcileEbs and the differences (EBS-02)', () => {
     it('compares our figures with the statement by project code, opens an item for each difference with an owner who is not a maker, and says nothing of what agrees', async () => {
-      // Ours: 600 paid in October less a refund of 100 (so 500 net) and 9 000 committed by two contracts. EBS says 700 paid and 9 000 committed.
-      const project = await seedProject({ paid: ['600', '200'], refund: '100', contracts: ['4000', '5000'] });
+      // Ours: 800 paid in October less a refund of 200 (so 600 net) and 9 000 committed by two contracts. EBS says 700 paid and 9 000 committed.
+      const project = await seedProject({ paid: ['600', '200'], refund: '200', contracts: ['4000', '5000'] });
       const agreeing = await seedProject({ paid: ['50'], contracts: ['70'] });
       const door = await upload(file(`${project.code},2026-10,2026-11-05,700,9000`, `${agreeing.code},2026-10,2026-11-05,50,70`, 'GHOST-1,2026-10,2026-11-05,25,'));
       expect((await apply(ADMIN, door)).status).toBe(200);
