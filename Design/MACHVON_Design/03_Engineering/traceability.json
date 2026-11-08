@@ -11222,5 +11222,81 @@
       "UAT-BAN-001",
       "UAT-BAN-002"
     ]
+  },
+  {
+    "requirement": "FR-HPM-01",
+    "screen": "HPM-01",
+    "title": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "Kế hoạch ENT-2 (đẩy HPM và nhập Oracle EBS, đối chiếu theo mã dự án), eng-review R8, R17, R18",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HPM.md §10–§11; 3 test",
+    "backlog_id": "BL-HPM-01",
+    "test_ids": [
+      "UI-HPM-01",
+      "UAT-PLAN-143",
+      "UAT-PLAN-144"
+    ]
+  },
+  {
+    "requirement": "FR-HPM-02",
+    "screen": "HPM-02",
+    "title": "Đính chính kỳ báo cáo đã được HPM nhận",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "Kế hoạch ENT-2 (đẩy HPM và nhập Oracle EBS, đối chiếu theo mã dự án), eng-review R8, R17, R18",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HPM.md §10–§11; 3 test",
+    "backlog_id": "BL-HPM-02",
+    "test_ids": [
+      "UI-HPM-02",
+      "UAT-PLAN-145",
+      "UAT-PLAN-146"
+    ]
+  },
+  {
+    "requirement": "FR-EBS-01",
+    "screen": "EBS-01",
+    "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "Kế hoạch ENT-2 (đẩy HPM và nhập Oracle EBS, đối chiếu theo mã dự án), eng-review R8, R17, R18",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/EBS.md §10–§11; 3 test",
+    "backlog_id": "BL-EBS-01",
+    "test_ids": [
+      "UI-EBS-01",
+      "UAT-PLAN-147",
+      "UAT-PLAN-148"
+    ]
+  },
+  {
+    "requirement": "FR-EBS-02",
+    "screen": "EBS-02",
+    "title": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "Kế hoạch ENT-2 (đẩy HPM và nhập Oracle EBS, đối chiếu theo mã dự án), eng-review R8, R17, R18",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/EBS.md §10–§11; 3 test",
+    "backlog_id": "BL-EBS-02",
+    "test_ids": [
+      "UI-EBS-02",
+      "UAT-PLAN-149",
+      "UAT-PLAN-150"
+    ]
   }
 ]

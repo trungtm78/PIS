@@ -23131,5 +23131,225 @@
     "covers": [
       "FR-BAN-03"
     ]
+  },
+  {
+    "id": "UI-HPM-01",
+    "source": "FR-HPM-01",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, synthetic data of Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận; a user with the permission and a read-only user; route HPM-01",
+    "steps": [
+      "Open HPM-01 from the menu and by deep link; check the labelled fields: Kết nối HPM (bật/tắt, lý do, người đổi); Bộ ghi tệp thay HPM, mẫu gói giả định (PENDING-EXTERNAL); Độ mới của lần giao gần nhất và quy tắc HPM_PUSH_POLICY; Nhật ký đẩy (khóa chống trùng, kỳ, phiên bản, trạng thái, số lần thử, lỗi); Các kỳ đã được HPM nhận; Đẩy báo cáo đã phát hành, đẩy lại, ghi biên nhận",
+      "Do the main action under the rule: Mỗi lần đẩy có khóa chống trùng (tổ chức, kỳ, phiên bản báo cáo); đẩy lại gửi đúng khóa cũ; bản cũ hơn bản đã được nhận bị từ chối REPORT_OUT_OF_DATE; bản trùng nội dung là ALREADY_DELIVERED; người đẩy không ghi biên nhận của mình; bản dựng trên mẫu DEMO không bao giờ được ghi là đã nhận; bộ ghi tệp không gọi mạng nên PENDING-EXTERNAL",
+      "Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on HPM-01"
+    ],
+    "expected": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận: all 6 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-143",
+    "source": "HPM.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenant TNT-A with the connection on (story ST-HPM-001); an issued report and a file writer sink",
+    "steps": [
+      "ST-HPM-001 (submitHpmPush, retryHpmPush, recordHpmReceipt): Send the command",
+      "Send it again with the same key or file hash",
+      "Send a stale or conflicting request",
+      "Check the audit rows and the network log"
+    ],
+    "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-144",
+    "source": "HPM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-HPM-001",
+    "steps": [
+      "ST-HPM-001 (submitHpmPush, retryHpmPush, recordHpmReceipt): The maker tries to receive, approve or settle their own work",
+      "A member of TNT-B uses a record id of TNT-A",
+      "A reader sends a command"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UI-HPM-02",
+    "source": "FR-HPM-02",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, synthetic data of Đính chính kỳ báo cáo đã được HPM nhận; a user with the permission and a read-only user; route HPM-02",
+    "steps": [
+      "Open HPM-02 from the menu and by deep link; check the labelled fields: Kỳ, mẫu và phiên bản đã được nhận; Kỳ đã mở lại (yêu cầu mở lại của DIS); Lý do đính chính; Người đề nghị, người duyệt, trạng thái; Lần đẩy đã dùng đính chính",
+      "Do the main action under the rule: Thay kỳ đã được nhận cần kỳ đã mở lại và đính chính do người khác duyệt, ghi ADM-11; một đính chính chỉ dùng một lần; một đề nghị chờ cho một phiên bản tại một thời điểm",
+      "Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on HPM-02"
+    ],
+    "expected": "Đính chính kỳ báo cáo đã được HPM nhận: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-145",
+    "source": "HPM.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenant TNT-A with the connection on (story ST-HPM-002); an issued report and a file writer sink",
+    "steps": [
+      "ST-HPM-002 (proposeHpmCorrection, decideHpmCorrection): Send the command",
+      "Send it again with the same key or file hash",
+      "Send a stale or conflicting request",
+      "Check the audit rows and the network log"
+    ],
+    "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-146",
+    "source": "HPM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-HPM-002",
+    "steps": [
+      "ST-HPM-002 (proposeHpmCorrection, decideHpmCorrection): The maker tries to receive, approve or settle their own work",
+      "A member of TNT-B uses a record id of TNT-A",
+      "A reader sends a command"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UI-EBS-01",
+    "source": "FR-EBS-01",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, synthetic data of Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp; a user with the permission and a read-only user; route EBS-01",
+    "steps": [
+      "Open EBS-01 from the menu and by deep link; check the labelled fields: Kết nối Oracle EBS (bật/tắt, lý do); Phiên bản mẫu tệp giả định (PENDING-EXTERNAL) và cột bắt buộc; Độ mới của tệp gần nhất theo quy tắc CONNECTOR_FRESHNESS; Chọn tệp, chạy thử, áp dụng; Dòng hợp lệ, lỗi từng dòng, trùng và xung đột; Các lần nhập gần nhất",
+      "Do the main action under the rule: Chạy thử không ghi gì; áp dụng một lần theo băm tệp, nạp lại bị từ chối; dòng lỗi không làm hỏng cả tệp; mẫu tệp là giả định nên PENDING-EXTERNAL và chưa được nghiệm thu",
+      "Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on EBS-01"
+    ],
+    "expected": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp: all 6 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-147",
+    "source": "EBS.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenant TNT-A with the connection on (story ST-EBS-001); a file with 3 rows (1 invalid) and a project with Treasury payments",
+    "steps": [
+      "ST-EBS-001 (previewEbsFile, importEbsFile): Send the command",
+      "Send it again with the same key or file hash",
+      "Send a stale or conflicting request",
+      "Check the audit rows and the network log"
+    ],
+    "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-148",
+    "source": "EBS.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-EBS-001",
+    "steps": [
+      "ST-EBS-001 (previewEbsFile, importEbsFile): The maker tries to receive, approve or settle their own work",
+      "A member of TNT-B uses a record id of TNT-A",
+      "A reader sends a command"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UI-EBS-02",
+    "source": "FR-EBS-02",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, synthetic data of Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch; a user with the permission and a read-only user; route EBS-02",
+    "steps": [
+      "Open EBS-02 from the menu and by deep link; check the labelled fields: Mã dự án, kỳ, chỉ tiêu (giải ngân lũy kế, giá trị cam kết); Số của mình, số của EBS, chênh lệch; Chủ hạng mục, hạn xử lý, quá hạn; Giải trình (số của mình sai, EBS sai, lệch thời điểm, chấp nhận có lý do); Chạy đối chiếu, giao lại",
+      "Do the main action under the rule: Mỗi chênh lệch là một hạng mục có chủ và hạn; chủ hạng mục không phải người nạp tệp hay người chạy đối chiếu; giải trình có bằng chứng hoặc ngày xem lại, ghi ADM-11; mẫu tệp giả định nên PENDING-EXTERNAL",
+      "Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on EBS-02"
+    ],
+    "expected": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-149",
+    "source": "EBS.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenant TNT-A with the connection on (story ST-EBS-002); a file with 3 rows (1 invalid) and a project with Treasury payments",
+    "steps": [
+      "ST-EBS-002 (reconcileEbs, resolveEbsDifference, reassignEbsDifference): Send the command",
+      "Send it again with the same key or file hash",
+      "Send a stale or conflicting request",
+      "Check the audit rows and the network log"
+    ],
+    "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-150",
+    "source": "EBS.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-EBS-002",
+    "steps": [
+      "ST-EBS-002 (reconcileEbs, resolveEbsDifference, reassignEbsDifference): The maker tries to receive, approve or settle their own work",
+      "A member of TNT-B uses a record id of TNT-A",
+      "A reader sends a command"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
   }
 ]

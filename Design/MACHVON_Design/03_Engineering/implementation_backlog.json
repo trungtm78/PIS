@@ -20155,5 +20155,143 @@
     "stories": [
       "ST-BAN-001"
     ]
+  },
+  {
+    "id": "BL-HPM-01",
+    "requirement": "FR-HPM-01",
+    "screen": "HPM-01",
+    "title": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận",
+    "module": "HPM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Kết nối HPM (bật/tắt, lý do, người đổi)",
+      "Bộ ghi tệp thay HPM, mẫu gói giả định (PENDING-EXTERNAL)",
+      "Độ mới của lần giao gần nhất và quy tắc HPM_PUSH_POLICY",
+      "Nhật ký đẩy (khóa chống trùng, kỳ, phiên bản, trạng thái, số lần thử, lỗi)",
+      "Các kỳ đã được HPM nhận",
+      "Đẩy báo cáo đã phát hành, đẩy lại, ghi biên nhận"
+    ],
+    "rule": "Mỗi lần đẩy có khóa chống trùng (tổ chức, kỳ, phiên bản báo cáo); đẩy lại gửi đúng khóa cũ; bản cũ hơn bản đã được nhận bị từ chối REPORT_OUT_OF_DATE; bản trùng nội dung là ALREADY_DELIVERED; người đẩy không ghi biên nhận của mình; bản dựng trên mẫu DEMO không bao giờ được ghi là đã nhận; bộ ghi tệp không gọi mạng nên PENDING-EXTERNAL",
+    "test_ids": [
+      "UI-HPM-01",
+      "UAT-PLAN-143",
+      "UAT-PLAN-144"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-HPM-001"
+    ]
+  },
+  {
+    "id": "BL-HPM-02",
+    "requirement": "FR-HPM-02",
+    "screen": "HPM-02",
+    "title": "Đính chính kỳ báo cáo đã được HPM nhận",
+    "module": "HPM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Kỳ, mẫu và phiên bản đã được nhận",
+      "Kỳ đã mở lại (yêu cầu mở lại của DIS)",
+      "Lý do đính chính",
+      "Người đề nghị, người duyệt, trạng thái",
+      "Lần đẩy đã dùng đính chính"
+    ],
+    "rule": "Thay kỳ đã được nhận cần kỳ đã mở lại và đính chính do người khác duyệt, ghi ADM-11; một đính chính chỉ dùng một lần; một đề nghị chờ cho một phiên bản tại một thời điểm",
+    "test_ids": [
+      "UI-HPM-02",
+      "UAT-PLAN-145",
+      "UAT-PLAN-146"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-HPM-002"
+    ]
+  },
+  {
+    "id": "BL-EBS-01",
+    "requirement": "FR-EBS-01",
+    "screen": "EBS-01",
+    "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",
+    "module": "EBS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Kết nối Oracle EBS (bật/tắt, lý do)",
+      "Phiên bản mẫu tệp giả định (PENDING-EXTERNAL) và cột bắt buộc",
+      "Độ mới của tệp gần nhất theo quy tắc CONNECTOR_FRESHNESS",
+      "Chọn tệp, chạy thử, áp dụng",
+      "Dòng hợp lệ, lỗi từng dòng, trùng và xung đột",
+      "Các lần nhập gần nhất"
+    ],
+    "rule": "Chạy thử không ghi gì; áp dụng một lần theo băm tệp, nạp lại bị từ chối; dòng lỗi không làm hỏng cả tệp; mẫu tệp là giả định nên PENDING-EXTERNAL và chưa được nghiệm thu",
+    "test_ids": [
+      "UI-EBS-01",
+      "UAT-PLAN-147",
+      "UAT-PLAN-148"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-EBS-001"
+    ]
+  },
+  {
+    "id": "BL-EBS-02",
+    "requirement": "FR-EBS-02",
+    "screen": "EBS-02",
+    "title": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch",
+    "module": "EBS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Mã dự án, kỳ, chỉ tiêu (giải ngân lũy kế, giá trị cam kết)",
+      "Số của mình, số của EBS, chênh lệch",
+      "Chủ hạng mục, hạn xử lý, quá hạn",
+      "Giải trình (số của mình sai, EBS sai, lệch thời điểm, chấp nhận có lý do)",
+      "Chạy đối chiếu, giao lại"
+    ],
+    "rule": "Mỗi chênh lệch là một hạng mục có chủ và hạn; chủ hạng mục không phải người nạp tệp hay người chạy đối chiếu; giải trình có bằng chứng hoặc ngày xem lại, ghi ADM-11; mẫu tệp giả định nên PENDING-EXTERNAL",
+    "test_ids": [
+      "UI-EBS-02",
+      "UAT-PLAN-149",
+      "UAT-PLAN-150"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-EBS-002"
+    ]
   }
 ]

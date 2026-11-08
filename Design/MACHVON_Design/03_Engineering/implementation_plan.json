@@ -191,6 +191,18 @@
       "module": "BAN",
       "title": "Committee workspace: province-wide progress for the head of the steering committee",
       "goal": "Give the head of the provincial steering committee one traceable workspace: province-wide progress by sector, district, investor and funding source against the plan, last year and the curve of the year, the projects that need the head ranked by impact, the meeting pack, the overdue directives, four alerts, the roster and an audit of every view of a sensitive screen, all on the real core data and with no write right on financial data."
+    },
+    {
+      "id": "EP-HPM",
+      "module": "HPM",
+      "title": "Push of issued reports to HPM (enterprise edition)",
+      "goal": "Deliver issued reports to the reporting platform of the customer once per period and revision, never a stale one, never overwriting an accepted period without a reopened period and an approved correction; PENDING-EXTERNAL until HPM gives its interface."
+    },
+    {
+      "id": "EP-EBS",
+      "module": "EBS",
+      "title": "Oracle EBS import and reconciliation (enterprise edition)",
+      "goal": "Read files extracted from Oracle EBS and reconcile them with our figures by project code, each difference an item with an owner who is not a maker; PENDING-EXTERNAL until an official sample file exists."
     }
   ],
   "features": [
@@ -993,6 +1005,16 @@
       "id": "FT-BAN-01",
       "epic": "EP-BAN",
       "title": "Read the province, decide on what needs the head, hold the meeting, keep the roster and its audit"
+    },
+    {
+      "id": "FT-HPM-01",
+      "epic": "EP-HPM",
+      "title": "Keyed push, retry, receipt and correction"
+    },
+    {
+      "id": "FT-EBS-01",
+      "epic": "EP-EBS",
+      "title": "File import and reconciliation by project code"
     }
   ],
   "stories": [
@@ -53199,6 +53221,432 @@
             "UI-BAN-05",
             "UI-BAN-06",
             "UI-BAN-07"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-HPM-001",
+      "epic": "EP-HPM",
+      "feature": "FT-HPM-01",
+      "module": "HPM",
+      "title": "Push of issued reports to HPM by file: keyed pushes, retry under the same key, receipts and the connection state (PENDING-EXTERNAL)",
+      "narrative": "As an integration administrator and a report officer I can push an issued report to HPM once per period and revision, retry after a failure under the same key, and record the receiver receipt, without any call to HPM.",
+      "release": "R3",
+      "screens": [
+        "HPM-01"
+      ],
+      "operations": [
+        "getHpmConnection",
+        "setHpmConnectionState",
+        "listHpmPushes",
+        "submitHpmPush",
+        "retryHpmPush",
+        "recordHpmReceipt"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-HPM-001-1",
+          "given": "The enterprise edition with the connection on and an issued or imported file",
+          "when": "The command is sent twice with the same key or file hash",
+          "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
+          "test_id": "UAT-PLAN-143"
+        },
+        {
+          "id": "AC-ST-HPM-001-2",
+          "given": "A person who made the figures or pushed the report",
+          "when": "They try to settle, receive or approve their own work",
+          "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
+          "test_id": "UAT-PLAN-144"
+        },
+        {
+          "id": "AC-ST-HPM-001-HPM-01",
+          "given": "HPM-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, the PENDING-EXTERNAL band is shown, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-HPM-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The adapter stays PROPOSED and the interface or layout is a working assumption (PENDING-EXTERNAL); no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HPM-001-1",
+          "kind": "backend",
+          "title": "Rules, store, migrations, controllers and authorization for the operations of the story",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-2",
+          "kind": "web",
+          "title": "Screens built with the kit and the seven standard states in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the screens; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-143",
+            "UAT-PLAN-144"
+          ]
+        },
+        {
+          "id": "TK-HPM-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-HPM-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-HPM-002",
+      "epic": "EP-HPM",
+      "feature": "FT-HPM-01",
+      "module": "HPM",
+      "title": "Corrections that allow an accepted period to be replaced at HPM: proposed, approved by another person, used once",
+      "narrative": "As a report officer I can ask to replace a period HPM already accepted, and a colleague decides, so that nothing accepted is overwritten without a reopened period and a reason.",
+      "release": "R3",
+      "screens": [
+        "HPM-02"
+      ],
+      "operations": [
+        "listHpmCorrections",
+        "proposeHpmCorrection",
+        "decideHpmCorrection"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-HPM-002-1",
+          "given": "The enterprise edition with the connection on and an issued or imported file",
+          "when": "The command is sent twice with the same key or file hash",
+          "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
+          "test_id": "UAT-PLAN-145"
+        },
+        {
+          "id": "AC-ST-HPM-002-2",
+          "given": "A person who made the figures or pushed the report",
+          "when": "They try to settle, receive or approve their own work",
+          "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
+          "test_id": "UAT-PLAN-146"
+        },
+        {
+          "id": "AC-ST-HPM-002-HPM-02",
+          "given": "HPM-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, the PENDING-EXTERNAL band is shown, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-HPM-02"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The adapter stays PROPOSED and the interface or layout is a working assumption (PENDING-EXTERNAL); no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HPM-002-1",
+          "kind": "backend",
+          "title": "Rules, store, migrations, controllers and authorization for the operations of the story",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-002-2",
+          "kind": "web",
+          "title": "Screens built with the kit and the seven standard states in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-002-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the screens; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-002-4",
+          "kind": "qa",
+          "title": "Automated domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-145",
+            "UAT-PLAN-146"
+          ]
+        },
+        {
+          "id": "TK-HPM-002-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-HPM-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-EBS-001",
+      "epic": "EP-EBS",
+      "feature": "FT-EBS-01",
+      "module": "EBS",
+      "title": "Oracle EBS file import with dry run and apply once per hash, connection state and freshness (PENDING-EXTERNAL layout)",
+      "narrative": "As a finance officer I can hand over a file extracted from Oracle EBS, see a dry run, and apply it once, without any call to Oracle EBS.",
+      "release": "R3",
+      "screens": [
+        "EBS-01"
+      ],
+      "operations": [
+        "getEbsConnection",
+        "setEbsConnectionState",
+        "uploadEbsFile",
+        "previewEbsFile",
+        "importEbsFile"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-EBS-001-1",
+          "given": "The enterprise edition with the connection on and an issued or imported file",
+          "when": "The command is sent twice with the same key or file hash",
+          "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
+          "test_id": "UAT-PLAN-147"
+        },
+        {
+          "id": "AC-ST-EBS-001-2",
+          "given": "A person who made the figures or pushed the report",
+          "when": "They try to settle, receive or approve their own work",
+          "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
+          "test_id": "UAT-PLAN-148"
+        },
+        {
+          "id": "AC-ST-EBS-001-EBS-01",
+          "given": "EBS-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, the PENDING-EXTERNAL band is shown, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-EBS-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The adapter stays PROPOSED and the interface or layout is a working assumption (PENDING-EXTERNAL); no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-EBS-001-1",
+          "kind": "backend",
+          "title": "Rules, store, migrations, controllers and authorization for the operations of the story",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EBS-001-2",
+          "kind": "web",
+          "title": "Screens built with the kit and the seven standard states in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EBS-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the screens; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EBS-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-147",
+            "UAT-PLAN-148"
+          ]
+        },
+        {
+          "id": "TK-EBS-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-EBS-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-EBS-002",
+      "epic": "EP-EBS",
+      "feature": "FT-EBS-01",
+      "module": "EBS",
+      "title": "Reconciliation with Oracle EBS by project code: items with an owner who is not a maker and explained differences",
+      "narrative": "As a finance officer I can compare our figures with the statement of Oracle EBS by project code, and every difference has an owner, a due day and an explanation.",
+      "release": "R3",
+      "screens": [
+        "EBS-02"
+      ],
+      "operations": [
+        "reconcileEbs",
+        "listEbsDifferences",
+        "resolveEbsDifference",
+        "reassignEbsDifference"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-EBS-002-1",
+          "given": "The enterprise edition with the connection on and an issued or imported file",
+          "when": "The command is sent twice with the same key or file hash",
+          "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
+          "test_id": "UAT-PLAN-149"
+        },
+        {
+          "id": "AC-ST-EBS-002-2",
+          "given": "A person who made the figures or pushed the report",
+          "when": "They try to settle, receive or approve their own work",
+          "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
+          "test_id": "UAT-PLAN-150"
+        },
+        {
+          "id": "AC-ST-EBS-002-EBS-02",
+          "given": "EBS-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, the PENDING-EXTERNAL band is shown, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-EBS-02"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The adapter stays PROPOSED and the interface or layout is a working assumption (PENDING-EXTERNAL); no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-EBS-002-1",
+          "kind": "backend",
+          "title": "Rules, store, migrations, controllers and authorization for the operations of the story",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EBS-002-2",
+          "kind": "web",
+          "title": "Screens built with the kit and the seven standard states in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EBS-002-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the screens; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EBS-002-4",
+          "kind": "qa",
+          "title": "Automated domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-149",
+            "UAT-PLAN-150"
+          ]
+        },
+        {
+          "id": "TK-EBS-002-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-EBS-02"
           ]
         }
       ]
