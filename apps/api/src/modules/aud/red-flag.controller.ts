@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { RedFlagStore, TenantDatabase } from '@machvon/db';
-import type { FindingRow, ReviewRow } from '@machvon/db';
+import type { FindingRow, RedFlagReviewRow } from '@machvon/db';
 import { DomainError, RED_FLAG_STATUSES, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, RedFlagMove, RedFlagStatus, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -51,7 +51,7 @@ const view = (row: FindingRow): Record<string, unknown> => ({
   is_conclusion: false,
 });
 
-const detailView = (row: FindingRow, history: ReviewRow[]): Record<string, unknown> => ({
+const detailView = (row: FindingRow, history: RedFlagReviewRow[]): Record<string, unknown> => ({
   ...view(row),
   readings: row.readings.map((reading) => ({ code: reading.code, ocp_id: reading.ocpId, status: reading.status, value: reading.value, threshold: reading.threshold, weight: reading.weight, missing: reading.missing })),
   rule_versions: row.ruleVersions,

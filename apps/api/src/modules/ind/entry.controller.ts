@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Inject, Optional, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { BidWorkflowReads, DisPeriodStore, IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryRuleStore, IndFigureStore, figureFacts, projectScope } from '@machvon/db';
-import type { FigureRow } from '@machvon/db';
+import type { IndFigureRow as FigureRow } from '@machvon/db';
 import { DomainError, assertEntryAllowed, figureFitsUnit, isEnterable, vietnamDateOf, verdictTrail } from '@machvon/kernel';
 import type { EffectiveAccess, EntryFacts, IndicatorEntry } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';

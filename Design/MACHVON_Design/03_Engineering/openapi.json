@@ -234452,7 +234452,13 @@
               "CONTRACT_CLAIM",
               "CONTRACT_EARLY_WARNING",
               "ESCALATION",
-              "COVERAGE"
+              "COVERAGE",
+              "RED_FLAG",
+              "CONTRACT_CLOCK",
+              "DOC_REVIEW",
+              "DATA_FRESHNESS",
+              "ANOMALY",
+              "ALERT_FEEDBACK"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -235809,7 +235815,13 @@
               "CONTRACT_CLAIM",
               "CONTRACT_EARLY_WARNING",
               "ESCALATION",
-              "COVERAGE"
+              "COVERAGE",
+              "RED_FLAG",
+              "CONTRACT_CLOCK",
+              "DOC_REVIEW",
+              "DATA_FRESHNESS",
+              "ANOMALY",
+              "ALERT_FEEDBACK"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -235879,7 +235891,13 @@
               "CONTRACT_CLAIM",
               "CONTRACT_EARLY_WARNING",
               "ESCALATION",
-              "COVERAGE"
+              "COVERAGE",
+              "RED_FLAG",
+              "CONTRACT_CLOCK",
+              "DOC_REVIEW",
+              "DATA_FRESHNESS",
+              "ANOMALY",
+              "ALERT_FEEDBACK"
             ],
             "description": "The kind of source the item comes from."
           },

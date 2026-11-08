@@ -670,6 +670,7 @@ const hubFixture = (letter: 'a' | 'b', word: string) => ({
 export const HUB_FIXTURES: Readonly<Record<TenantName, ReturnType<typeof hubFixture>>> = {
   'TNT-A': hubFixture('a', 'ALPHA'),
   'TNT-B': hubFixture('b', 'BETA'),
+};
 /** The committee of each tenant (BAN-1): a committee with a place on it and an open alert; the words are distinctive (tenant confidential data). */
 const banFixture = (letter: 'a' | 'b', word: string) => ({
   committeeId: `00000000-0000-4000-${letter}0ba-000000000001`,
@@ -1011,6 +1012,7 @@ export const DELEGATION_FIXTURES: Readonly<Record<TenantName, { id: string; reas
 export const ALERT_GOVERNANCE_FIXTURES: Readonly<Record<TenantName, { escalationId: string; absenceId: string; coverId: string; itemTitle: string }>> = {
   'TNT-A': { escalationId: '00000000-0000-4000-a9a9-000000000001', absenceId: '00000000-0000-4000-a9a9-000000000002', coverId: '00000000-0000-4000-a9a9-000000000003', itemTitle: 'ALPHA-ALERT-ESCALATION-TITLE-0001' },
   'TNT-B': { escalationId: '00000000-0000-4000-b9a9-000000000001', absenceId: '00000000-0000-4000-b9a9-000000000002', coverId: '00000000-0000-4000-b9a9-000000000003', itemTitle: 'BETA-ALERT-ESCALATION-TITLE-0001' },
+};
 /** A request for a permanent delegation that waits for a decision in each tenant (its end condition is distinctive; tenant data, IAM-2). */
 export const STANDING_REQUEST_FIXTURES: Readonly<Record<TenantName, { id: string; endText: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a1b1-000000000001', endText: 'ALPHA-STANDING-END-CONDITION-0001' },

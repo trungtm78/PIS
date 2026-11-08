@@ -123,7 +123,6 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   // G1-3 (lane B1): a milestone or an end date moved as many times as the rule says goes to the auditors, who acknowledge it with a note: to be acted on.
   PROJECT_GOVERNANCE: { RESCHEDULE_COUNT: 'ACTION' },
   // EGP-1: a connection whose data is older than its rule allows (CONNECTOR_FRESHNESS); the severity is the `stale_severity` of that rule, so the facet is STALE_ plus the word (the tenant sets it on the rule, not here).
-  CONNECTOR: { STALE_URGENT: 'URGENT', STALE_ACTION: 'ACTION', STALE_WATCH: 'WATCH' },
   // EGP-2: a posting to the national procurement network by the time that is left (rule EGP_POSTING_SEVERITY): urgent when little time is left and once past the deadline, else to be acted on.
   EGP_POSTING: { DUE_SOON: 'ACTION', DUE_SOON_URGENT: 'URGENT', OVERDUE: 'URGENT' },
   // VND-1: the facet of an alert of the contractor register (the table of the kernel, VENDOR_FACET_SEVERITY); a tenant changes it on the alert type.

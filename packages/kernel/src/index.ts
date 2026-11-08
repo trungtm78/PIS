@@ -2864,7 +2864,7 @@ export type {
   ClaimState,
   DefectRecord,
   FindingRecord,
-  LimitationStatus,
+  LimitationStatus as RegisterLimitationStatus,
   ObstacleRecord,
   RatioPart,
   RegisterBreakdown,

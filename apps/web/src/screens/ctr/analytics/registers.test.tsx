@@ -1,8 +1,8 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import en from '../../../i18n/parts/ca3.en.json';
-import vi_ from '../../../i18n/parts/ca3.vi.json';
+import en from '../../../i18n/en.json';
+import vi_ from '../../../i18n/vi.json';
 import { harness } from '../../sas/test-support';
 import HubScreen from './HubScreen';
 import RatingScreen from './RatingScreen';

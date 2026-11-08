@@ -12,6 +12,7 @@ import { capModule } from './cap';
 import { ctrModule } from './ctr';
 import { dgvModule } from './dgv';
 import { dirModule } from './dir';
+import { indModule } from './ind';
 import { disModule } from './dis';
 import { docModule } from './doc';
 import { fndModule } from './fnd';

@@ -1,6 +1,6 @@
 import { isEnterable } from '@machvon/kernel';
 import type { EntryViolation, ImportMapping, IndicatorEntry, MappingProblem } from '@machvon/kernel';
-import type { EntryRuleView, FigureRow, IndDifferenceRow, IndRunRow, RuleVersionRow } from '@machvon/db';
+import type { EntryRuleView, IndFigureRow as FigureRow, IndDifferenceRow, IndRunRow, RuleVersionRow } from '@machvon/db';
 import type { QuarantinedRow } from '@machvon/db';
 
 /** The name of a person for a screen, or null when the directory does not know the membership. */

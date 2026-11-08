@@ -1,5 +1,5 @@
 export const DB_PACKAGE = '@machvon/db';
-export { TenantDatabase } from './tenant-database.ts';
+export { TenantDatabase, runInTransaction } from './tenant-database.ts';
 export type { TenantTx } from './tenant-database.ts';
 export { IdempotencyStore } from './idempotency-store.ts';
 export type { BeginInput, BeginResult, CompletedOutcome, FinishOutcome, StoredResponse } from './idempotency-store.ts';
@@ -47,7 +47,7 @@ export type {
   QuarantinedRow,
   RunFileImportInput,
 } from './file-import-store.ts';
-export { DEFAULT_ITEM_DUE_SECONDS, FileImportItemStore } from './file-import-item-store.ts';
+export { DEFAULT_ITEM_DUE_SECONDS, FileImportItemStore, isActiveMember, normalizeUuid } from './file-import-item-store.ts';
 export type { ListItemsRequest, ReconciliationItem } from './file-import-item-store.ts';
 export { AuditWriter, NIL_RESOURCE_ID } from './audit-writer.ts';
 export type { AuditClassification, AuditEntry, AuditOutcome } from './audit-writer.ts';
@@ -113,7 +113,6 @@ export { UserSessionStore } from './user-session-store.ts';
 export type { BoundSession, OpenSessionInput, SessionAssurance, SessionRecord } from './user-session-store.ts';
 export { DEFAULT_MFA_REQUIRED_ROLES, loadSelectionFacts } from './tenant-selection.ts';
 export type { SelectionFacts } from './tenant-selection.ts';
-export { runInTransaction } from './tenant-database.ts';
 export { DeviceRegistrationStore } from './device-registration-store.ts';
 export type { DeviceRegistrationRecord, RegisterDevice } from './device-registration-store.ts';
 export { MAX_TEST_RECIPIENTS, NotificationTemplateStore } from './notification-template-store.ts';
@@ -341,8 +340,7 @@ export { DocInteropStore } from './doc-interop-store.ts';
 export type { InteropFilters, InteropPageAnchor, InteropRecord, NewInboundMessage, NewOutboundMessage } from './doc-interop-store.ts';
 export { SecurityPolicyStore } from './security-policy-store.ts';
 export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';
-export { WorkCalendarStore } from './work-calendar-store.ts';
-export { calendarCursorKey } from './work-calendar-store.ts';
+export { WorkCalendarStore, calendarCursorKey } from './work-calendar-store.ts';
 export type { WorkCalendarAnchor, WorkCalendarRow, WorkCalendarStatus } from './work-calendar-store.ts';
 export { DoaMatrixStore } from './doa-matrix-store.ts';
 export type { DoaDecision, DoaDecisionResult, DoaMatrixInput, DoaMatrixRow, DoaMatrixStatus } from './doa-matrix-store.ts';
@@ -377,7 +375,7 @@ export type {
 export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, packDigest, sealPack } from './master-baseline.ts';
 export type { BaselineEntry, BaselinePack, BaselineResult } from './master-baseline.ts';
 export { MasterRules } from './master-rules.ts';
-export type { BoundPeriod, CalendarPeriods, NationalCodeRule, RuleReading, SuggestedGroup } from './master-rules.ts';
+export type { BoundPeriod, CalendarPeriods, NationalCodeRule, RuleReading, SuggestedGroup, AppraisalCriteriaSet, AppraisalCriterionRule } from './master-rules.ts';
 export { attributeReferencesTo, isRuleType, masterTypeDefinition, ruleTypes, validateMasterContent } from './master-types.ts';
 export type { EntryRef, MasterTypeDefinition, TypeLookup } from './master-types.ts';
 export { DEFAULT_CURSORS, IntegrationCursorStore } from './integration-cursor-store.ts';
@@ -855,7 +853,7 @@ export {
   stagesAfter,
 } from './prj-stage-machine.ts';
 export type { StageCommand, StageTransition } from './prj-stage-machine.ts';
-export { PRJ_STAGE_TRANSITION_METRIC, PrjStageStore, SqlProjectObligations, checkedPipelineFilter, stageChangeRecord } from './prj-stage-store.ts';
+export { PRJ_STAGE_TRANSITION_METRIC, PrjStageStore, SqlProjectObligations, checkedPipelineFilter, stageChangeRecord, PROJECT_GROUPS, nationalCodeReading } from './prj-stage-store.ts';
 export type {
   GuardKey,
   GuardReading,
@@ -873,7 +871,6 @@ export type {
   StageRequest,
   StageScopes,
 } from './prj-stage-store.ts';
-export { PROJECT_GROUPS, nationalCodeReading } from './prj-stage-store.ts';
 export { projectInScope } from './prj-stage-support.ts';
 export { DECIDE_OPERATION, PrjAppraisalStore, SUBMIT_OPERATION } from './prj-appraisal-store.ts';
 export type {
@@ -889,7 +886,6 @@ export type {
   SheetScore,
   SubmitRequest,
 } from './prj-appraisal-store.ts';
-export type { AppraisalCriteriaSet, AppraisalCriterionRule } from './master-rules.ts';
 export { NationalCodeGate, NationalCodeImportAdapter, PrjNationalCodeStore, hasCodeFormat, nationalCodeOf } from './prj-national-code-store.ts';
 export type { AssignedNationalCode, CodeGateReading, ImportOutcome, NationalCodeAssignRequest, NationalCodeImportContext } from './prj-national-code-store.ts';
 export { ACCOUNTABILITY_ROLES, LEADER_ASSIGNED_EVENT, LEADER_UNASSIGNED_EVENT, PrjAccountabilityStore, assignmentEndedRecord, assignmentMadeRecord } from './prj-accountability-store.ts';
@@ -1374,9 +1370,8 @@ export { HomeReadStore } from './home-reads-store.ts';
 export type { HomeExplanation, HomeLeader, HomeRankingRow, HomeRule } from './home-reads-store.ts';
 export { HomeWorkStore, WORK_SOURCE_LIMIT } from './home-work-store.ts';
 export type { WorkCollection, WorkInput, WorkRow, WorkView } from './home-work-store.ts';
-export { HomeWorkActionStore } from './home-work-action-store.ts';
+export { HomeWorkActionStore, actionKey, freshActionState } from './home-work-action-store.ts';
 export type { SnoozeDetail, WorkActionInput, WorkActionKind, WorkActionState } from './home-work-action-store.ts';
-export { actionKey, freshActionState } from './home-work-action-store.ts';
 // The clocks of the alert centre (lane GOV-2): the policies through the governance port, the native clocks and the calendars they count on, the reminders.
 export { WorkPolicyReader, policyVersionOf } from './home-work-policy.ts';
 export type { WorkPolicies } from './home-work-policy.ts';
@@ -1443,7 +1438,7 @@ export type {
   UnitFact,
 } from './unit-reorganization-store.ts';
 export { DELEGATION_ACTIVE_GAUGE, DELEGATION_PASS_LIMIT, DelegationStore } from './delegation-store.ts';
-export type { DelegationEndReason, DelegationPassResult, DelegationRecord as DelegationGrantRecord, DelegationStatus, NewDelegation } from './delegation-store.ts';
+export type { DelegationEndReason, DelegationPassResult, DelegationRecord as DelegationGrantRecord, DelegationStatus, NewDelegation, DelegationKind, NewStandingDelegation } from './delegation-store.ts';
 export { APPROVAL_OPEN_GAUGE, APPROVAL_OVERDUE_GAUGE, APPROVAL_SLA_BREACH_METRIC, ApprovalSlaJob } from './approval-sla-job.ts';
 export type {
   ApprovalEffects,
@@ -1626,7 +1621,7 @@ export type { AssignInput, CloseInput, DirectiveCommandResult, DirectiveCounts, 
 export { DirectivePolicyReader } from './dir-policy-reader.ts';
 export type { ApprovedDirectiveRuleSource } from './dir-policy-reader.ts';
 export { HomeDirectiveSources } from './home-directive-sources.ts';
-export { AUDIENCE_PERMISSIONS, HomeIntegritySources } from './home-integrity-sources.ts';
+export { AUDIENCE_PERMISSIONS, HomeIntegritySources, forAudience } from './home-integrity-sources.ts';
 // The separation of duties checked at commit (lane D, G4-1).
 export { SodGuard, SodRefusal, SodStore } from './gov-d-sod-store.ts';
 export type { SodApprovalRow, SodExceptionRow, SodListFilter, SodMatrixReading, SodPassed, SodRequestInput, SodSubjectKind, SodTake, SodUseRow } from './gov-d-sod-store.ts';
@@ -1666,7 +1661,6 @@ export { PayIntegrityAlertSource } from './gov-d-integrity-alerts.ts';
 export type { IntegrityAlertItem, IntegrityAlertType } from './gov-d-integrity-alerts.ts';
 // CA-1, part 2: the contract fact, its frozen snapshots and the reader of the portfolio and the reports.
 export { CONTRACT_STATUS_VALUES, CONTRACT_TYPE_VALUES, CtrFactStore, FACT_SORTS, linesOfContract } from './ctr-fact-store.ts';
-=======
 // AI-2: the AI assistant (runs, decisions, checklists, criteria), the readers of its sources and the exceptions to the routing of an edition.
 export { AiAssistStore } from './ai-assist-store.ts';
 export type { AssistDecisionRow, AssistRunRow, ChecklistRow, CriteriaSetRow, NewAssistRun, Page as AssistPage, RunFilter as AssistRunFilter } from './ai-assist-store.ts';
@@ -1680,20 +1674,14 @@ export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from '.
 // RPT-1, part 2: the report engine's layouts, files, drafts, issued copies and delivery log.
 export { ReportStore, copyRefOf } from './report-store.ts';
 export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';
-=======
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
 export { IND_FIGURE_RESOURCE, figureSetLockKey, IndDictionaryStore, IndEntryRuleStore, IndImportReads, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
 export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter as IndFigureFilter, FigureOutcome, FigureRow as IndFigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
 export type { IndImportDeps, IndImportWritten, IndRowOutcome } from './ind-import.ts';
-=======
-export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
-=======
 // FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
 export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore } from './fnd-figure-store.ts';
 export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
-=======
-export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
 // VND-1: the management of contractors and suppliers (docs/vendor-management.md).
 export * from './vendor-policy.ts';
 export * from './vendor-profile-store.ts';
@@ -1704,7 +1692,6 @@ export * from './vendor-venture-store.ts';
 export * from './vendor-reputation-store.ts';
 export * from './vendor-gate.ts';
 export { HomeVendorSources, VENDOR_AUDIENCE_PERMISSIONS } from './home-vendor-sources.ts';
-=======
 // The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
 export { CtrRegisterPolicy } from './ctr-register-policy.ts';
 export type { ClaimTermTemplate, PolicyBasis, PolicyReading } from './ctr-register-policy.ts';
@@ -1729,7 +1716,7 @@ export type { NoticeEntry, StoredAlertProfile } from './alert-profile-store.ts';
 export { COVERAGE_SCREEN, COVER_MANAGER_PERMISSION, HomeAlertSources, applyPromotions, overlayEscalation } from './home-alert-sources.ts';
 // GOV-10: red flags, the channel ladder, the closing, the feedback and the flood of alerts, and the new alert sources.
 export { RedFlagStore } from './red-flag-store.ts';
-export type { FindingFilter, FindingRow, RedFlagRules, ReviewRow, ScanReading, ScanResult, Subject as RedFlagSubject } from './red-flag-store.ts';
+export type { FindingFilter, FindingRow, RedFlagRules, ReviewRow as RedFlagReviewRow, ScanReading, ScanResult, Subject as RedFlagSubject } from './red-flag-store.ts';
 export { HomeRedFlagSources, RED_FLAG_READ_PERMISSION } from './home-red-flag-sources.ts';
 export { AlertLadderStore } from './alert-ladder-store.ts';
 export type { LadderKpi, LadderPolicyReading, RunRow as LadderRunRow, RunState as LadderRunState, RungRow as LadderRungRow } from './alert-ladder-store.ts';
@@ -1756,14 +1743,7 @@ export { ActingStore } from './iam-acting-store.ts';
 export type { ActingRecord, NewActing } from './iam-acting-store.ts';
 export { PeriodScopeStore } from './iam-period-scope-store.ts';
 export type { PeriodScopeRecord, PeriodScopeStatus } from './iam-period-scope-store.ts';
-export type { DelegationKind, NewStandingDelegation } from './delegation-store.ts';
 // AI-2: the AI assistant (runs, decisions, checklists, criteria), the readers of its sources and the exceptions to the routing of an edition.
-export { AiAssistStore } from './ai-assist-store.ts';
-export type { AssistDecisionRow, AssistRunRow, ChecklistRow, CriteriaSetRow, NewAssistRun, Page as AssistPage, RunFilter as AssistRunFilter } from './ai-assist-store.ts';
-export { AiAssistSourceStore } from './ai-assist-source-store.ts';
-export type { AssistReadScopes, ReadableSource } from './ai-assist-source-store.ts';
-export { LlmExternalExceptionStore } from './llm-external-exception-store.ts';
-export type { AiExceptionFilter, ExceptionRow, ExceptionUseRow } from './llm-external-exception-store.ts';
 // The Integration Hub (lane HUB-1): the read model over the connectors, the run log, incidents, snapshots, mappings, rejects, lineage and collector agents.
 export { HubStore } from './hub-store.ts';
 export type { HubAgentRow, HubConnectorReading, HubIncidentRow, HubKpiReading, HubMappingRow, HubRejectRow, HubRuleInfo, HubRunView, HubSnapshotRow, HubSweepChange } from './hub-store.ts';
@@ -1782,20 +1762,13 @@ export { DocumentCommentStore } from './doc-comment-store.ts';
 export type { CommentRow } from './doc-comment-store.ts';
 export { DocumentReviewStore } from './doc-review-store.ts';
 export type { Conclusion, ReviewEventRow, ReviewListFilter, ReviewListRow, ReviewRow } from './doc-review-store.ts';
-=======
 // ENT-2: what an edition that adds a connection needs of the alert centre and of the import framework (the connection readers of the source CONNECTOR, the work-source row, the audience filter, the id and member helpers).
 export { registerConnectorAlertReader } from './home-connector-sources.ts';
 export type { ConnectorAlertReader } from './home-connector-sources.ts';
-export { forAudience } from './home-integrity-sources.ts';
 export { base as workSourceBase } from './home-work-sources.ts';
 export type { SourceContext as WorkSourceContext, SourceRow as WorkSourceRow } from './home-work-sources.ts';
-export { isActiveMember, normalizeUuid } from './file-import-item-store.ts';
 export { timestampKey } from './keyset.ts';
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
-export { IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryRuleStore, IndImportReads, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
-export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter, FigureOutcome, FigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
-export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
-export type { IndImportDeps, IndImportWritten, IndRowOutcome } from './ind-import.ts';
 // CA-3: the registers of the contract reports and the proposals of a rating of the contractor (docs/ctr-analytics-registers.md).
 export { CtrRegisterReader, REGISTER_ROW_CAP, ratingInputsOf } from './ctr-register-reader.ts';
 export type { RegisterReaderContext } from './ctr-register-reader.ts';

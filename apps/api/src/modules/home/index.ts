@@ -27,9 +27,7 @@ import { HOME_CONTEXT_KEY } from './tokens';
  */
 export const homeModule = defineModule({
   code: 'HOME',
-  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController, AlertHealthController, AlertEscalationController, AlertProfileController, AlertCoverController],
-=======
-  controllers: [AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController, AlertLadderReadsController, ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
+  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController, AlertHealthController, AlertEscalationController, AlertProfileController, AlertCoverController, AlertClosureReadsController, AlertFeedbackController, AlertFeedbackReadsController, AlertFloodController, AlertLadderReadsController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,
