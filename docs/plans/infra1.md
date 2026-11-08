@@ -45,7 +45,7 @@ Status legend: `[ ]` open, `[x]` done.
     (`docs/runbooks/infra/onprem-install.md`, `onprem-upgrade-rollback.md`, `backup-immutable.md`, `restore-drill.md`, `tls-headers.md`, `security-scanning.md`).
 11. [x] `infra:check` extended (`scripts/infra-artefacts.mjs`, wired into `scripts/infra-check.mjs`) with tests: pinned versions, no latest tags, no secret literals, immutable-backup settings,
     MFA policy, multi-arch, security workflows, ARM leg, headers. Messages in `scripts/messages/{vi,en}.json`.
-12. [ ] Gates: `npm run lint`, `npm run typecheck`, tests of what changed, `node scripts/edition-check.mjs`, scan-files self check; Codex review, triage of every finding, fixes with tests.
+12. [x] Gates: `npm run lint`, `npm run typecheck`, tests of what changed, `node scripts/edition-check.mjs`, scan-files self check; Codex review, triage of every finding, fixes with tests.
 
 ## Tests per step
 
@@ -56,3 +56,13 @@ Every step ends with node tests (`node --test scripts/<name>.test.mjs`) and a ne
 - Keycloak realm JSON and compose YAML are validated structurally only; they were not imported or started. The report says so.
 - Image digests cannot be resolved offline: `images.json` carries tags and digest slots filled by the bundle build; the rule is "tag pinned to a full version, never latest, digest recorded in the bundle manifest".
 - `package-lock.json` and `package.json` are shared files: edits are small (one override, one dev dependency).
+
+## Codex review (model gpt-6-astra, three passes) and dispositions
+
+Pass 1 (whole branch), six P1 findings, all valid and fixed with a rule in `infra:check` and a test each: the TypeScript loader `@swc/core` was a dev dependency (now a dependency of `@machvon/api`, optional platform binaries kept, `embedded-postgres` deleted from the image); the migration job needs `schema_reference.sql` (copied, rule `requiredCopies`); the first migration creates `vector` (the db image installs `postgresql-18-pgvector`, rule `extensionPackages`); backups and the directory need a way out (an `egress` network with a fixed subnet for db, backup and keycloak only, host firewall script, rule on who may join it); nginx renders its template at start (tmpfs on `/etc/nginx/conf.d`); secret files must be readable by unprivileged container users (group `MACHVON_SECRETS_GID`, `group_add`, mode 0440, install script check).
+Pass 2 (fixes), two findings, valid and fixed: the firewall must allow traffic inside the egress network (Keycloak to the database); both destinations must resolve before any rule is written (tests with a fake `getent`).
+Pass 3: no actionable finding.
+
+## Not run (honest list)
+
+No docker, compose, helm, keycloak, nginx, PostgreSQL server of the product's version, pgBackRest, object store, ZAP, CodeQL or Trivy was started: images, compose set, nginx configuration, realm import, install and rollback scripts, bucket scripts and workflows are validated by static rules and unit tests only. The workflows were parsed as YAML but not run on GitHub.
