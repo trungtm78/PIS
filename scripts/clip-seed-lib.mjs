@@ -8,8 +8,8 @@ export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital'],
-  enterprise: [],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement'],
+  enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'],
 };
 
 /** A small deterministic generator (mulberry32): the same seed always gives the same sequence. */
@@ -148,6 +148,40 @@ export function buildPortfolio(dataset, baseRoom) {
   return { projects, lines, room };
 }
 
+/**
+ * The procurement plans of the first funded projects of the portfolio (stage in implementation or budgeted): each with its packages (budgets inside the biggest line of
+ * capital of the project) and the step of the package workflow the clip wants it to stand at, so the process tree shows a spread of states.
+ */
+export function buildProcurement(dataset, projects, lines) {
+  const config = dataset.procurement;
+  const rng = createRng(streamSeed(dataset.seed, 'procurement'));
+  const targets = rng.shuffle(config.workflowTargets);
+  const chosen = projects.filter((project) => project.target === 'IMPLEMENTATION' || project.target === 'BUDGETED').slice(0, config.projectsWithPlans);
+  let counter = 0;
+  return chosen.map((project) => {
+    const own = lines.filter((line) => line.project === project.code).sort((a, b) => b.billions - a.billions);
+    const room = Math.floor((own[0]?.billions ?? 0) * 1000 * 0.8);
+    return {
+      project: project.code,
+      title: config.planTitle.replace('{project}', project.name),
+      packages: config.packages.map((template) => {
+        const target = targets[counter % targets.length];
+        counter += 1;
+        return {
+          code: `${project.code.replace('DA-', '')}-${template.suffix}`,
+          title: template.title.replace('{project}', project.name),
+          millions: Math.max(50, Math.floor(room * template.share)),
+          method: template.method,
+          category: template.category,
+          period: template.period,
+          days: template.days,
+          target,
+        };
+      }),
+    };
+  });
+}
+
 /** The room the appropriations of the seed layer have for the extra projects: the amounts (after the overrides) less what its own lines draw. */
 export function baseRoomOf(dataset, base) {
   const room = {};
@@ -175,6 +209,52 @@ export const PUBLIC_BASE = {
   projectCount: 13,
 };
 
+/**
+ * The enterprise portfolio: investment and equipment-purchase projects, each with a year plan split into equity and loan, and the file of the accounting
+ * system that the reconciliation reads (some figures differ on purpose, so the differences have something to say).
+ */
+export function buildEnterprise(dataset) {
+  const rng = createRng(streamSeed(dataset.seed, 'enterprise'));
+  const projects = [];
+  let number = 100;
+  for (const [kind, config] of Object.entries(dataset.kinds)) {
+    const templates = rng.shuffle(config.templates);
+    for (let index = 0; index < dataset.projectsPerKind; index += 1) {
+      number += rng.int(3, 17);
+      const [low, high] = config.sizeBillions;
+      const totalBillions = rng.int(low, high);
+      const planBillions = Math.max(4, Math.round(totalBillions * (0.25 + rng.next() * 0.25)));
+      const [shareLow, shareHigh] = dataset.funding.equitySharePercent;
+      const equityBillions = Math.max(1, Math.round((planBillions * rng.int(shareLow, shareHigh)) / 100));
+      projects.push({
+        code: `DA-PM${kind === 'INVESTMENT' ? 'DT' : 'TB'}${number}`,
+        name: templates[index % templates.length].replace('{n}', `(${index + 1})`),
+        kind,
+        area: rng.pick(dataset.areas).key,
+        sector: config.sector,
+        type: config.type,
+        totalBillions,
+        startYear: dataset.planYear,
+        endYear: dataset.planYear + (kind === 'INVESTMENT' ? 3 : 1),
+        target: 'CONCEPT',
+        group: groupOf(totalBillions),
+        planBillions,
+        equityBillions,
+        loanBillions: planBillions - equityBillions,
+      });
+    }
+  }
+  const [diffLow, diffHigh] = dataset.ebs.differencePercent;
+  const ebsRows = [];
+  for (const period of dataset.ebs.periods) {
+    for (const project of projects.slice(0, dataset.ebs.projectsInFile)) {
+      const disbursed = Math.max(1, Math.round((project.planBillions * 1000) * (0.08 + rng.next() * 0.1)));
+      ebsRows.push({ project: project.code, period, disbursedMillions: disbursed + Math.round((disbursed * rng.int(diffLow, diffHigh)) / 100), committedMillions: Math.round(project.totalBillions * 1000 * 0.4) });
+    }
+  }
+  return { projects, ebsRows };
+}
+
 /** The whole plan of a dataset. */
 export function buildPlan(dataset) {
   if (dataset.dataset === 'public') {
@@ -190,7 +270,31 @@ export function buildPlan(dataset) {
       extraAppropriations: dataset.funding.extraAppropriations,
       projects: portfolio.projects,
       lines: portfolio.lines,
+      procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: buildProcurement(dataset, portfolio.projects, portfolio.lines) },
       expect: summarise(dataset, portfolio),
+    };
+  }
+  if (dataset.dataset === 'enterprise') {
+    const built = buildEnterprise(dataset);
+    return {
+      schema: 'clip-plan/1',
+      dataset: dataset.dataset,
+      edition: dataset.edition,
+      seed: dataset.seed,
+      planYear: dataset.planYear,
+      areas: dataset.areas,
+      areaDecision: dataset.areaDecision,
+      decisionType: dataset.decisionType,
+      projects: built.projects,
+      funding: dataset.funding,
+      meetings: dataset.meetings,
+      ebs: { note: dataset.ebs.layoutNote, rows: built.ebsRows },
+      expect: {
+        projectsTotal: built.projects.length,
+        fundingBatches: built.projects.length * 2,
+        directives: dataset.meetings.reduce((sum, meeting) => sum + meeting.directives.length, 0),
+        ebsRows: built.ebsRows.length,
+      },
     };
   }
   throw new Error(`no planner for the dataset ${dataset.dataset}`);
@@ -198,6 +302,7 @@ export function buildPlan(dataset) {
 
 /** What the plan promises, in the terms `verify` can read back. */
 function summarise(dataset, portfolio) {
+  const packages = buildProcurement(dataset, portfolio.projects, portfolio.lines).reduce((sum, plan) => sum + plan.packages.length, 0);
   const stageCounts = {};
   for (const project of portfolio.projects) stageCounts[project.target] = (stageCounts[project.target] ?? 0) + 1;
   return {
@@ -205,6 +310,7 @@ function summarise(dataset, portfolio) {
     extraProjects: portfolio.projects.length,
     extraStageCounts: stageCounts,
     sectors: [...new Set(portfolio.projects.map((project) => project.sector))].length,
+    packages,
     linesTotalBillions: portfolio.lines.reduce((sum, line) => sum + line.billions, 0),
   };
 }
@@ -224,6 +330,7 @@ export function checkPlan(plan) {
     if (FUNDED.has(project.target) && (project.national === undefined || project.planBillions === undefined)) problems.push(`${project.code} is funded but has no national code or plan`);
     if (project.endYear <= project.startYear) problems.push(`${project.code} ends before it starts`);
   }
+  if (plan.dataset !== 'public') return problems;
   const drawn = {};
   for (const line of plan.lines) {
     if (!codes.has(line.project)) problems.push(`line for an unknown project ${line.project}`);

@@ -9,6 +9,7 @@ import { verifyChecks } from './clip-seed-verify.mjs';
 import { loadDataset, main } from './clip-seed.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
+const enterpriseDataset = () => JSON.parse(readFileSync(join(HERE, 'fixtures', 'clip-data', 'enterprise.json'), 'utf8'));
 const publicDataset = () => JSON.parse(readFileSync(join(HERE, 'fixtures', 'clip-data', 'public.json'), 'utf8'));
 
 test('the generator gives the same sequence for the same seed and another one for another seed', () => {
@@ -177,4 +178,52 @@ test('the command line plans a dataset, refuses a missing api and prints the usa
 test('the dataset fixtures hold no key, token or password', () => {
   const text = readFileSync(join(HERE, 'fixtures', 'clip-data', 'public.json'), 'utf8');
   assert.doesNotMatch(text, /api[_-]?key|secret|password|bearer/iu);
+});
+
+test('the procurement plans cover forty packages inside the biggest line of each project, with a spread of workflow targets', () => {
+  const plan = buildPlan(publicDataset());
+  const packages = plan.procurement.plans.flatMap((entry) => entry.packages);
+  assert.ok(packages.length >= 40);
+  assert.equal(plan.expect.packages, packages.length);
+  const codes = packages.map((item) => item.code);
+  assert.equal(new Set(codes).size, codes.length);
+  for (const entry of plan.procurement.plans) {
+    const own = plan.lines.filter((line) => line.project === entry.project);
+    const biggest = Math.max(...own.map((line) => line.billions)) * 1000;
+    assert.ok(entry.packages.reduce((sum, item) => sum + item.millions, 0) <= biggest, entry.project);
+  }
+  const targets = new Set(packages.map((item) => item.target));
+  assert.ok(targets.size >= 6, 'the tree needs many different steps');
+  assert.ok([...targets].some((target) => target.startsWith('HOLD:')) || [...targets].includes('NOT_STARTED'));
+});
+
+test('the enterprise plan has investment and equipment projects with equity and loan that add up to the year plan', () => {
+  const dataset = enterpriseDataset();
+  const plan = buildPlan(dataset);
+  assert.equal(plan.projects.length, dataset.projectsPerKind * 2);
+  assert.deepEqual(new Set(plan.projects.map((project) => project.kind)), new Set(['INVESTMENT', 'EQUIPMENT']));
+  for (const project of plan.projects) {
+    assert.equal(project.equityBillions + project.loanBillions, project.planBillions, project.code);
+    assert.ok(project.equityBillions >= 1 && project.loanBillions >= 0);
+  }
+  assert.equal(new Set(plan.projects.map((project) => project.code)).size, plan.projects.length);
+  assert.equal(planDigest(plan), planDigest(buildPlan(dataset)));
+  assert.equal(plan.expect.directives, dataset.meetings.reduce((sum, meeting) => sum + meeting.directives.length, 0));
+});
+
+test('the accounting rows name projects of the plan, two periods, and differ from the plan figures', () => {
+  const plan = buildPlan(enterpriseDataset());
+  const codes = new Set(plan.projects.map((project) => project.code));
+  assert.ok(plan.ebs.rows.length >= 8);
+  for (const row of plan.ebs.rows) {
+    assert.ok(codes.has(row.project));
+    assert.match(row.period, /^2026-[0-9]{2}$/u);
+    assert.ok(row.disbursedMillions > 0);
+  }
+  assert.equal(checkPlan(plan).length, 0);
+});
+
+test('the enterprise dataset runs the four enterprise groups and no group of the public dataset', () => {
+  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs']);
+  assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
 });

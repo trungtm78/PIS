@@ -41,7 +41,7 @@ async function commandPlan(flags) {
   const plan = buildPlan(dataset);
   const problems = checkPlan(plan);
   process.stdout.write(`dataset ${plan.dataset} seed ${plan.seed} digest ${planDigest(plan)}\n`);
-  process.stdout.write(`projects ${plan.expect.projectsTotal} (${plan.expect.extraProjects} extra), lines of capital ${plan.lines.length} (${plan.expect.linesTotalBillions} billion dong)\n`);
+  process.stdout.write(`${Object.entries(plan.expect).map(([name, value]) => `${name}=${typeof value === 'object' ? JSON.stringify(value) : value}`).join(' ')}\n`);
   process.stdout.write(`groups: ${DATASET_GROUPS[plan.dataset].join(', ')}\n`);
   for (const problem of problems) process.stderr.write(`plan problem: ${problem}\n`);
   if (typeof flags.out === 'string') {

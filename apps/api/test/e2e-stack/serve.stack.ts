@@ -36,6 +36,7 @@ import type { SnapshotProject } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import { createAlertSink } from '../../src/alerts/alert-sinks';
 import { AppModule } from '../../src/app.module';
+import { loadEditionManifest, loadEditionModules } from '../../src/editions/load-edition';
 import { AuthGuard } from '../../src/auth/auth.guard';
 import type { AuthGuardOptions } from '../../src/auth/auth.guard';
 import { HttpJwksSource, discoverJwksUri } from '../../src/auth/jwks-source';
@@ -1858,6 +1859,8 @@ describe('e2e API stack', () => {
                 entitlements: { store: entitlementStore, control },
                 licenses: { store: licenseStore, keys: licenseKeys },
                 tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
+                // MACHVON_EDITION names the edition the stack serves (the clip dataset of the second edition needs its modules); unset or public leaves the stack as it always was.
+                ...(process.env.MACHVON_EDITION === 'enterprise' ? { edition: await loadEditionManifest('enterprise'), editionModules: await loadEditionModules('enterprise') } : {}),
               })],
             controllers: [HealthController, DevMailboxController, E2eProviderController],
             providers: [

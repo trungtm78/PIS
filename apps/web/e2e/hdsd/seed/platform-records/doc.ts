@@ -266,7 +266,7 @@ async function stage(ctx: SeedContext, plan: OutgoingPlan, name: string, previou
 }
 
 async function projectId(ctx: SeedContext, code: string): Promise<string | undefined> {
-  const project = await ctx.find(DRAFTER, '/projects', (row) => row.code === code || row.project_code === code);
+  const project = await ctx.find(DRAFTER, '/resources/project', (row) => row.code === code || row.project_code === code);
   return project?.id as string | undefined;
 }
 

@@ -4,6 +4,10 @@ import type { SeedContext } from './context.ts';
 import { seedFieldAssurance } from './field-assurance.ts';
 import { seedIntelligence } from './intelligence.ts';
 import { applyClipPlan } from './clip/plan.ts';
+import { ensureDoaMatrix } from './clip/doa.ts';
+import { seedClipEnterpriseDirectives, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
+import { seedClipProcurement } from './clip/public-procurement.ts';
+import { seedDoc } from './platform-records/doc.ts';
 import { seedProcurementFinance } from './procurement-finance.ts';
 
 /**
@@ -23,6 +27,12 @@ export const GROUPS: SeedGroup[] = [
   { name: 'field-assurance', seed: seedFieldAssurance },
   { name: 'procurement-finance', seed: seedProcurementFinance },
   { name: 'intelligence', seed: seedIntelligence },
+  { name: 'clip-public-documents', seed: async (ctx) => { await ctx.step('ADM', 'delegation of authority matrix', () => ensureDoaMatrix(ctx)); await seedDoc(ctx); } },
+  { name: 'clip-public-procurement', seed: seedClipProcurement },
+  { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
+  { name: 'clip-ent-funding', seed: seedClipEnterpriseFunding },
+  { name: 'clip-ent-directives', seed: seedClipEnterpriseDirectives },
+  { name: 'clip-ent-ebs', seed: seedClipEnterpriseEbs },
 ];
 
 export interface SeedSummary {
