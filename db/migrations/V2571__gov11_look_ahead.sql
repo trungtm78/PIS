@@ -96,6 +96,7 @@ CREATE TABLE machvon.look_ahead_constraint (
 CREATE INDEX look_ahead_constraint_item_idx ON machvon.look_ahead_constraint (tenant_id, item_id, status);
 CREATE INDEX look_ahead_constraint_plan_idx ON machvon.look_ahead_constraint (tenant_id, plan_id);
 CREATE INDEX look_ahead_constraint_project_idx ON machvon.look_ahead_constraint (tenant_id, project_id, status, due_on);
+CREATE INDEX look_ahead_constraint_owner_idx ON machvon.look_ahead_constraint (tenant_id, owner_membership_id, status, due_on);
 
 CREATE FUNCTION machvon.guard_look_ahead() RETURNS trigger
 LANGUAGE plpgsql
