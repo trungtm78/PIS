@@ -1,0 +1,696 @@
+{
+  "units": {
+    "public": "Cao Bằng",
+    "enterprise": "Đạm Phú Mỹ"
+  },
+  "scenes": {
+    "ph-home": {
+      "persona": "owner",
+      "headline": "Trang chủ lãnh đạo",
+      "minSec": 30,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Trang chủ"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "hold": 5000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        }
+      ]
+    },
+    "ph-inbox": {
+      "persona": "owner",
+      "headline": "Hộp thông báo",
+      "minSec": 28,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Trang chủ"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tab": "Thông báo"
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "tap": "^Đăng thông báo mời thầu|^Chỉ đạo quá hạn",
+          "optional": true
+        },
+        {
+          "hold": 6000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 4000
+        }
+      ]
+    },
+    "ph-approval": {
+      "persona": "capApprover",
+      "headline": "Phê duyệt trên điện thoại",
+      "minSec": 28,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Trang chủ"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tab": "Phê duyệt"
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "tap": "^Duyệt và ký văn bản",
+          "optional": true
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "tap": "^Văn bản đến cần xử lý",
+          "optional": true
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "tap": "^Duyệt nghiệm thu",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        }
+      ]
+    },
+    "ph-lists": {
+      "persona": "owner",
+      "headline": "Dự án và hợp đồng",
+      "minSec": 40,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Trang chủ"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tab": "Dự án"
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 3000
+        },
+        {
+          "tap": "^DA-"
+        },
+        {
+          "hold": 6000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "reset": true
+        },
+        {
+          "hold": 2000
+        },
+        {
+          "tap": "^Hợp đồng và nhật ký công trường",
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        }
+      ]
+    },
+    "ph-field": {
+      "persona": "projectManager",
+      "headline": "Nhật ký, khối lượng và ảnh hiện trường",
+      "minSec": 40,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Dự án"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tap": "^Hợp đồng và nhật ký công trường",
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "tap": "^Viết nhật ký công trường",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 1500
+        },
+        {
+          "tap": "^Ghi nhận khối lượng",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 1500
+        },
+        {
+          "tap": "^Chụp ảnh hiện trường",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 1500
+        },
+        {
+          "tap": "^Kiểm tra chất lượng",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "reset": true
+        }
+      ]
+    },
+    "tree-phone": {
+      "persona": "owner",
+      "headline": "Cây tiến độ gói thầu",
+      "minSec": 45,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Dự án"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tap": "^Gói thầu theo công đoạn",
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
+        },
+        {
+          "hold": 6000
+        },
+        {
+          "tap": "^Xem cây tiến độ",
+          "optional": true
+        },
+        {
+          "hold": 8000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "reset": true
+        },
+        {
+          "hold": 2000
+        },
+        {
+          "tap": ", (Đang thực hiện|Tạm dừng|Hoàn thành|Chưa bắt đầu)$",
+          "optional": true
+        },
+        {
+          "hold": 8000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 5000
+        }
+      ]
+    },
+    "ph-committee": {
+      "persona": "docHead",
+      "headline": "Bảng điều hành Ban chỉ đạo",
+      "minSec": 32,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Trang chủ"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "see": "^Cần xử lý ngay",
+          "optional": true
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "tap": "^Mở bảng điều hành đầy đủ",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 5000
+        }
+      ]
+    },
+    "ph-contractor": {
+      "persona": "docHead",
+      "headline": "Rủi ro nhà thầu",
+      "minSec": 32,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Dự án"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tap": "^Rủi ro nhà thầu",
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "tap": ", (Thấp|Trung bình|Cao|Nghiêm trọng)$",
+          "optional": true
+        },
+        {
+          "hold": 8000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 5000
+        }
+      ]
+    },
+    "ph-report": {
+      "persona": "projectManager",
+      "headline": "Báo cáo giải ngân trên điện thoại",
+      "minSec": 28,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Dự án"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tap": "^Báo cáo tháng",
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
+        },
+        {
+          "hold": 6000
+        },
+        {
+          "tap": "^Danh sách nháp",
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 3000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 3000
+        }
+      ]
+    },
+    "ph-ai": {
+      "persona": "owner",
+      "headline": "Hỏi đáp có nguồn",
+      "minSec": 28,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Dự án"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "tap": "^Hỏi đáp có nguồn về hồ sơ",
+          "open": "^Báo cáo và công việc hiện trường",
+          "scroll": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 2000
+        },
+        {
+          "tap": "^Phân tích nhà thầu",
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 3000
+        }
+      ]
+    },
+    "ph-offline": {
+      "persona": "owner",
+      "headline": "Làm việc ngoại tuyến",
+      "minSec": 28,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Cá nhân"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "hold": 4000
+        },
+        {
+          "tap": "^Làm việc ngoại tuyến",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 2000
+        },
+        {
+          "tap": "^Hàng đợi gửi",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 3000
+        }
+      ]
+    },
+    "ph-security": {
+      "persona": "owner",
+      "headline": "Tài khoản, thiết bị và bảo mật",
+      "minSec": 30,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Cá nhân"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "hold": 5000
+        },
+        {
+          "tap": "^Thiết bị và đăng xuất",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 7000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 2000
+        },
+        {
+          "tap": "^Thông báo đẩy",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 6000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 2000
+        },
+        {
+          "tap": "^Đổi tổ chức hoặc vai trò",
+          "scroll": true,
+          "optional": true
+        },
+        {
+          "hold": 5000
+        },
+        {
+          "back": true
+        },
+        {
+          "hold": 3000
+        }
+      ]
+    }
+  }
+}

@@ -42,7 +42,7 @@ async function settled(serial, pattern, { scroll = false, timeoutMs = SEE_TIMEOU
 }
 
 /** One operation of a step, done on the device the way a person does it. `recorder` is given while the film is made: it stops and starts the film. */
-async function operate(serial, op, log, recorder) {
+export async function operate(serial, op, log, recorder) {
   const name = opNameOf(op);
   if (name === 'clear') {
     adb(serial, 'shell', 'pm', 'clear', PACKAGE);
@@ -119,7 +119,7 @@ async function operate(serial, op, log, recorder) {
       const nodes = readScreen(serial);
       const chrome = nodes.find((node) => uiPattern('browserChrome').test(node.label));
       if (chrome !== undefined) tap(serial, ...centre(chrome));
-      if (findNode(nodes, uiPattern('unitChoice')) !== undefined) return;
+      if (findNode(nodes, uiPattern('unitChoice')) !== undefined || findNode(nodes, uiPattern('secondFactor')) !== undefined || nodes.some((node) => /Tab 1 trong tổng số/u.test(node.label))) return;
     }
     throw new Error('the sign-in did not reach the choice of the unit');
   } else if (name === 'unit') {
