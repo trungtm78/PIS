@@ -341,10 +341,9 @@ export class VendorIndependenceStore {
     const interests = await tx.query<{ id: string; membership_id: string; kind: InterestKind; related_name_key: string | null; related_identity_key: string | null; contractor_id: string | null; tax_head: string | null; share_pct: string | null; ended_on: string | null }>(
       `select i.id, i.membership_id, i.kind, i.related_name_key::text as related_name_key, i.related_identity_key::text as related_identity_key, i.contractor_id, coalesce(i.tax_head, left(regexp_replace(c.tax_identifier, '[^0-9]', '', 'g'), 10)) as tax_head, i.share_pct::text as share_pct, i.ended_on::text as ended_on
          from machvon.vendor_person_interest i left join machvon.contractor c on c.tenant_id = i.tenant_id and c.id = i.contractor_id
-        where i.membership_id = any($1::uuid[]) and (i.ended_on is null or i.kind = 'FORMER_EMPLOYMENT') order by i.id`,
-      [ids],
+        where i.membership_id = any($1::uuid[]) and (i.ended_on is null or i.ended_on > $2::date or i.kind = 'FORMER_EMPLOYMENT') order by i.id`,
+      [ids, today],
     );
-    void today;
     const nameOf = new Map(names.map((row) => [row.membership_id, row.display_name]));
     return ids.sort().map((membershipId): IndependencePerson => ({
       membershipId,

@@ -199,6 +199,17 @@ describe('the bid security register and the subcontracts (VND-2, V10 and V11)', 
       expect((await as((tx) => securities.list(tx, { packageId: bid.packageId, state: 'REJECTED' }, TODAY))).map((row) => row.id)).toEqual([rejected.id]);
     });
 
+    it('reads the live securities before the limit, so closed ones never hide them from the alerts', async () => {
+      const bid = await seedBidPackage(harness);
+      const firm = await contractor('Cty Security History');
+      const entry = (securityNo: string, validUntil: string) => ({ packageId: bid.packageId, contractorId: firm, kind: 'BANK_GUARANTEE' as const, issuer: 'Bank H', securityNo, amount: 100, issuedOn: '2026-11-01', validUntil });
+      const closed = await as((tx) => securities.receive(tx, entry('BH-1', '2026-12-01'), memberId(M1), NOW));
+      await as((tx) => securities.reject(tx, closed.id, 1, 'The letter does not match the bank records', memberId(M2), NOW), M2);
+      const live = await as((tx) => securities.receive(tx, entry('BH-2', '2027-03-01'), memberId(M1), NOW));
+      expect((await as((tx) => securities.list(tx, { packageId: bid.packageId, limit: 1 }, TODAY))).map((row) => row.id)).toEqual([closed.id]);
+      expect((await as((tx) => securities.list(tx, { packageId: bid.packageId, states: ['RECEIVED', 'CONFIRMED'], limit: 1 }, TODAY))).map((row) => row.id)).toEqual([live.id]);
+    });
+
     it('is invisible to another tenant', async () => {
       const bid = await seedBidPackage(harness);
       const firm = await contractor('Cty Security Tenant');
@@ -210,6 +221,21 @@ describe('the bid security register and the subcontracts (VND-2, V10 and V11)', 
   });
 
   describe('the subcontracts', () => {
+    it('takes two approvals on one contract one after the other, so that the limits are judged against the shares that stand', async () => {
+      const bid = await seedBidPackage(harness);
+      const prime = await contractor('Cty Prime Race');
+      const one = await contractor('Cty Sub Race One');
+      const two = await contractor('Cty Sub Race Two');
+      const contractId = await contract(bid.packageId, bid.projectId, prime);
+      await as((tx) => subcontracts.declare(tx, { packageId: bid.packageId, contractorId: prime, declaredSharePct: '60', subcontractorIds: [one, two] }, memberId(M1)));
+      const a = await as((tx) => subcontracts.propose(tx, { contractId, subcontractorId: one, scope: 'Earth works of the north wing', value: 3_000_000, sharePct: '30' }, memberId(M1)));
+      const b = await as((tx) => subcontracts.propose(tx, { contractId, subcontractorId: two, scope: 'Earth works of the south wing', value: 3_000_000, sharePct: '30' }, memberId(M1)));
+      const results = await Promise.allSettled([as((tx) => subcontracts.approve(tx, a.id, 1, undefined, memberId(M2), NOW), M2), as((tx) => subcontracts.approve(tx, b.id, 1, undefined, memberId(M3), NOW), M3)]);
+      expect(results.filter((one) => one.status === 'fulfilled')).toHaveLength(1);
+      const refused = results.find((one) => one.status === 'rejected') as PromiseRejectedResult;
+      expect((refused.reason as { code: string }).code).toBe('SUBCONTRACT_LIMIT_EXCEEDED');
+    });
+
     it('assesses a proposal against the declaration of the bid, approves by another person and asks an exception for what the bid did not name', async () => {
       const bid = await seedBidPackage(harness);
       const prime = await contractor('Cty Prime A');

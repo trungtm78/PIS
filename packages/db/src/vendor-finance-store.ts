@@ -117,7 +117,9 @@ export class VendorFinanceStore {
     if (active !== undefined) {
       const held = toPeriod(active);
       const same = held.revenue === input.revenue && held.totalAssets === input.totalAssets && held.currentAssets === input.currentAssets && held.currentLiabilities === input.currentLiabilities && held.totalDebt === input.totalDebt && held.equity === input.equity && held.ebit === input.ebit && held.interestExpense === input.interestExpense;
-      if (same) throw new DomainError('FINANCIAL_PERIOD_DUPLICATE', 409, 'fiscal_year');
+      // The same figures with the paper added to a year that had none are not a duplicate: the paper is what lets a second person verify the year.
+      const addsPaper = held.documentId === null && input.documentId !== undefined;
+      if (same && !addsPaper) throw new DomainError('FINANCIAL_PERIOD_DUPLICATE', 409, 'fiscal_year');
     }
     const id = randomUUID();
     // The year has one active row: the old one is marked superseded first (the reference to the new row is checked when the transaction ends), then the new row takes the year.

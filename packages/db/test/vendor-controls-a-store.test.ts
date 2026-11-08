@@ -205,6 +205,19 @@ describe('the controls of contractors: independence, finance and load (VND-2, al
   });
 
   describe('finance and load', () => {
+    it('accepts the same figures once more when they add the paper a year did not have, and refuses them a third time', async () => {
+      const id1 = await contractor('Cty Bo Sung Chung Tu');
+      const first = await as((tx) => finance.record(tx, id1, periodInput(2025), memberId(M1)));
+      expect(first.documentId).toBeNull();
+      const paper = await document();
+      const withPaper = await as((tx) => finance.record(tx, id1, periodInput(2025, { documentId: paper }), memberId(M1)));
+      expect(withPaper).toMatchObject({ documentId: paper, verified: false });
+      expect((await as((tx) => finance.periods(tx, id1))).filter((one) => one.year === 2025).map((one) => one.id)).toEqual([withPaper.id]);
+      expect((await refusal(as((tx) => finance.record(tx, id1, periodInput(2025, { documentId: paper }), memberId(M1))))).code).toBe('FINANCIAL_PERIOD_DUPLICATE');
+      const verified = await as((tx) => finance.verify(tx, withPaper.id, 1, memberId(M2)), M2);
+      expect(verified.verified).toBe(true);
+    });
+
     it('records a year, verifies it by another person with a paper, supersedes a corrected year and refuses a duplicate', async () => {
       const id1 = await contractor('Cty Tai Chinh');
       const paper = await document();

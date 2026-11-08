@@ -158,6 +158,17 @@ describe('independence (V5)', () => {
     expect(detectPersonLinks([ended], [bidder], policy, '2026-11-08')).toEqual([]);
   });
 
+  it('counts an interest that ends on a later day as holding today, and one that ended before as gone', () => {
+    const bidder = party('b', { taxHead: 'TAX-B' });
+    const interest = (kind: 'SHAREHOLDING' | 'ADVISORY' | 'FORMER_EMPLOYMENT' | 'RELATIVE', endedOn: string | null): IndependencePerson =>
+      person('e1', { interests: [{ id: 'i1', kind, relatedNameKey: null, relatedIdentityKey: null, contractorId: 'b', taxHead: null, sharePct: 10, endedOn }] });
+    for (const kind of ['SHAREHOLDING', 'ADVISORY', 'FORMER_EMPLOYMENT', 'RELATIVE'] as const) {
+      expect(detectPersonLinks([interest(kind, '2026-12-01')], [bidder], policy, '2026-11-08')).toHaveLength(1);
+    }
+    expect(detectPersonLinks([interest('SHAREHOLDING', '2026-11-08')], [bidder], policy, '2026-11-08')).toHaveLength(0);
+    expect(detectPersonLinks([interest('SHAREHOLDING', '2026-11-07')], [bidder], policy, '2026-11-08')).toHaveLength(0);
+  });
+
   it('merges the three detections without a repeated fingerprint and keeps the strongest', () => {
     const a = party('a', { taxHead: 'T', owners: [owner('p', { identityKey: 'id-1' })] });
     const b = party('b', { taxHead: 'T', owners: [owner('q', { identityKey: 'id-1' })] });
@@ -258,7 +269,8 @@ describe('finance (V7)', () => {
   });
 
   it('checks a period as it is entered', () => {
-    const { verified: _verified, ...entry } = period(2025);
+    const entry: Omit<FinancialPeriod, 'verified'> & { verified?: boolean } = period(2025);
+    delete entry.verified;
     expect(() => assertFinancialPeriod(entry)).not.toThrow();
     expect(refusal(() => assertFinancialPeriod({ ...entry, year: 1800 })).detail).toBe('fiscal_year');
     expect(refusal(() => assertFinancialPeriod({ ...entry, revenue: -1 })).detail).toBe('revenue');

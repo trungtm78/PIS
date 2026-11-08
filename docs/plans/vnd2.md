@@ -19,15 +19,15 @@ Branch `lane/vnd2`, worktree `D:\PIS-vnd2`, migration block 2420-2439 (registere
 
 | # | Step | Tests | State |
 |---|---|---|---|
-| 1 | Plan, block 2420, commit | `npm run migrations:check` | [ ] |
-| 2 | Kernel: `vendor-independence.ts`, `vendor-finance.ts`, `vendor-security.ts`, `vendor-subcontract.ts`, `vendor-risk.ts`, `vendor-performance.ts`, rule types, alert types, KPI, texts | golden tests `packages/kernel/test/vendor-controls.test.ts` | [ ] |
-| 3 | Migrations V2420-V2427 (tables, guards, RLS, tenant-leading indexes) | rls-catalog, migrations:check | [ ] |
-| 4 | Stores and policy reader methods, alert source extension | `packages/db/test/vendor-controls-store.test.ts` | [ ] |
-| 5 | Contract (operations, schemas, error codes, screens) through `scripts/contract-patch.mjs`, generated clients | `contracts:check`, `lint-error-codes` | [ ] |
-| 6 | API controllers, authz matrix, command registry, isolation entries and counts | `apps/api/test/bid/vendor-controls.test.ts` | [ ] |
-| 7 | Web screens VND-07 to VND-12, i18n parts `vnd2.{vi,en}.json`, routes | vitest of the screens | [ ] |
-| 8 | Design rows (story, backlog, traceability, test cases), module doc, `docs/vendor-controls.md`, UAT ids | `check-cli.mjs`, `baseline-cli.mjs` | [ ] |
-| 9 | Lint, typecheck, scan, Codex review and triage | whole chain | [ ] |
+| 1 | Plan, block 2420, commit | `npm run migrations:check` | [x] |
+| 2 | Kernel: `vendor-independence.ts`, `vendor-finance.ts`, `vendor-security.ts`, `vendor-subcontract.ts`, `vendor-risk.ts`, `vendor-performance.ts`, rule types, alert types, KPI, texts | golden tests `packages/kernel/test/vendor-controls.test.ts` | [x] |
+| 3 | Migrations V2420-V2427 (tables, guards, RLS, tenant-leading indexes) | rls-catalog, migrations:check | [x] |
+| 4 | Stores and policy reader methods, alert source extension | `packages/db/test/vendor-controls-store.test.ts` | [x] |
+| 5 | Contract (operations, schemas, error codes, screens) through `scripts/contract-patch.mjs`, generated clients | `contracts:check`, `lint-error-codes` | [x] |
+| 6 | API controllers, authz matrix, command registry, isolation entries and counts | `apps/api/test/bid/vendor-controls.test.ts` | [x] |
+| 7 | Web screens VND-07 to VND-12, i18n parts `vnd2.{vi,en}.json`, routes | vitest of the screens | [x] |
+| 8 | Design rows (story, backlog, traceability, test cases), module doc, `docs/vendor-controls.md`, UAT ids | `check-cli.mjs`, `baseline-cli.mjs` | [x] |
+| 9 | Lint, typecheck, scan, Codex review and triage | whole chain | [ ] see the final report |
 
 ## Risks
 

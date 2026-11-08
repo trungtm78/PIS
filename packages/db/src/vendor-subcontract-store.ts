@@ -280,6 +280,10 @@ export class VendorSubcontractStore {
 
   /** Approves a proposal: another person than the proposer; the assessment is run again, an exception needs its reason, a blocked one is 422 `SUBCONTRACT_LIMIT_EXCEEDED`, and the gate SUBCONTRACT of VND-1 is asked about the subcontractor. */
   async approve(tx: TenantTx, id: string, expectedVersion: number, exceptionReason: string | undefined, actor: string, now: Date): Promise<SubcontractRow> {
+    // Two approvals on one contract are taken one after the other: the contract is locked before the approved shares are read, so the limits are judged against the shares that really stand.
+    const [owner] = await tx.query<{ contract_id: string }>('select contract_id from machvon.vendor_subcontract where id = $1::uuid', [id]);
+    if (owner === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await tx.query('select 1 from machvon.contract where id = $1::uuid for update', [owner.contract_id]);
     const current = await this.locked(tx, id, expectedVersion);
     moveSubcontract(current.state, 'APPROVE', actor, current.proposedBy);
     const today = vietnamDateOf(now);

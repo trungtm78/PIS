@@ -80,6 +80,8 @@ export interface SecurityFilter {
   packageId?: string | undefined;
   contractorId?: string | undefined;
   state?: SecurityState | undefined;
+  /** Only these states (applied before the limit, so a long history of closed securities never hides a live one). */
+  states?: readonly SecurityState[] | undefined;
   limit?: number | undefined;
 }
 
@@ -206,9 +208,9 @@ export class VendorSecurityStore {
   async list(tx: TenantTx, filter: SecurityFilter, today: string): Promise<SecurityRow[]> {
     const policy = (await this.policies.bidSecurity(tx, today)).value;
     const rows = await tx.query<Sql>(
-      `${SELECT} where ($1::uuid is null or s.package_id = $1::uuid) and ($2::uuid is null or s.contractor_id = $2::uuid) and ($3::text is null or s.state = $3::text)
+      `${SELECT} where ($1::uuid is null or s.package_id = $1::uuid) and ($2::uuid is null or s.contractor_id = $2::uuid) and ($3::text is null or s.state = $3::text) and ($5::text[] is null or s.state = any($5::text[]))
         order by s.valid_until, s.id limit $4::int`,
-      [filter.packageId ?? null, filter.contractorId ?? null, filter.state ?? null, Math.min(filter.limit ?? 200, 500)],
+      [filter.packageId ?? null, filter.contractorId ?? null, filter.state ?? null, Math.min(filter.limit ?? 200, 500), filter.states === undefined ? null : [...filter.states]],
     );
     return rows.map((row) => toRow(row, today, policy));
   }
@@ -338,7 +340,7 @@ export class VendorSecurityStore {
 
   /** Securities that raise an alert on a day: received or confirmed and in a warning window or past the last day. */
   async alertable(tx: TenantTx, today: string): Promise<SecurityRow[]> {
-    const open = (await this.list(tx, { limit: 500 }, today)).filter((row) => row.state === 'CONFIRMED' || row.state === 'RECEIVED');
+    const open = await this.list(tx, { states: ['CONFIRMED', 'RECEIVED'], limit: 500 }, today);
     return open.filter((row) => row.expiryFacet !== null);
   }
 

@@ -217,6 +217,9 @@ const monthsBetween = (from: string, to: string): number => {
   return end.getUTCDate() < start.getUTCDate() ? months - 1 : months;
 };
 
+/** An interest that has not ended on `today` (one that ends on a later day still holds today). */
+const ongoing = (interest: InterestFacts, today: string): boolean => interest.endedOn === null || interest.endedOn > today;
+
 /**
  * The links between the people who evaluate (or staff the project) and the bidders: the person is a representative or an owner of a bidder (the name key alone is MEDIUM, with the identity key STRONG), a relative they
  * declared is one (MEDIUM by name, STRONG by identity), they hold shares, they left the bidder less than `former_official_months` before `today` (a former official), or they advise it. An interest that ended is not
@@ -240,13 +243,13 @@ export function detectPersonLinks(people: readonly IndependencePerson[], bidders
           const nameOwner = interest.relatedNameKey !== null && bidder.owners.some((owner) => owner.nameKey === interest.relatedNameKey);
           if (nameRep) out.push(finding('RELATIVE_REPRESENTS_BIDDER', 'MEDIUM', person(one), contractor(bidder), { interest: interest.id, by: 'NAME' }));
           if (identityRep || nameOwner) out.push(finding('RELATIVE_OWNS_BIDDER', identityRep ? 'STRONG' : 'MEDIUM', person(one), contractor(bidder), { interest: interest.id, by: identityRep ? 'IDENTITY' : 'NAME' }));
-          if (aboutBidder && interest.endedOn === null) out.push(finding('RELATIVE_OWNS_BIDDER', 'STRONG', person(one), contractor(bidder), { interest: interest.id, by: 'DECLARED_CONTRACTOR' }));
-        } else if (interest.kind === 'SHAREHOLDING' && aboutBidder && interest.endedOn === null && (interest.sharePct ?? 0) > 0) {
+          if (aboutBidder && ongoing(interest, today)) out.push(finding('RELATIVE_OWNS_BIDDER', 'STRONG', person(one), contractor(bidder), { interest: interest.id, by: 'DECLARED_CONTRACTOR' }));
+        } else if (interest.kind === 'SHAREHOLDING' && aboutBidder && ongoing(interest, today) && (interest.sharePct ?? 0) > 0) {
           out.push(finding('PERSON_HOLDS_SHARES_IN_BIDDER', 'STRONG', person(one), contractor(bidder), { interest: interest.id, share_pct: interest.sharePct }));
         } else if (interest.kind === 'FORMER_EMPLOYMENT' && aboutBidder) {
-          const within = interest.endedOn === null || (interest.endedOn <= today && monthsBetween(interest.endedOn, today) < policy.former_official_months);
+          const within = interest.endedOn === null || interest.endedOn > today || monthsBetween(interest.endedOn, today) < policy.former_official_months;
           if (within) out.push(finding('FORMER_OFFICIAL_OF_BIDDER', 'STRONG', person(one), contractor(bidder), { interest: interest.id, months_limit: policy.former_official_months }));
-        } else if (interest.kind === 'ADVISORY' && aboutBidder && interest.endedOn === null) {
+        } else if (interest.kind === 'ADVISORY' && aboutBidder && ongoing(interest, today)) {
           out.push(finding('ADVISER_OF_BIDDER', 'STRONG', person(one), contractor(bidder), { interest: interest.id }));
         }
       }

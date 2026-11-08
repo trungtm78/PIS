@@ -22,7 +22,7 @@ const risk = new VendorRiskStore({
   subcontractBreaches: async () => 0,
   securityForfeits: async () => 0,
 });
-const quietRisk = new VendorRiskStore();
+const quietRisk = new VendorRiskStore({});
 const performance = new VendorPerformanceStore();
 const work = new HomeWorkStore();
 
