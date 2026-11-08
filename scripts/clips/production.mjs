@@ -24,6 +24,28 @@ export function loadProduction() {
 const fill = (template, params) => template.replace(/\{(\w+)\}/gu, (_, key) => String(params[key]));
 
 /** Routes of the web app, the registered screen modules, the routes of the phone app and of the installed application. */
+let OPENAPI;
+/** The answer schema of an operation of the contract (the 200 response, references resolved), or undefined. */
+export function responseSchema(operationId) {
+  OPENAPI ??= readJson(join(REPO_ROOT, 'Design', 'MACHVON_Design', '03_Engineering', 'openapi.json'));
+  const resolve = (schema) => (schema?.$ref === undefined ? schema : resolve(OPENAPI.components.schemas[schema.$ref.split('/').pop()]));
+  for (const methods of Object.values(OPENAPI.paths)) {
+    for (const operation of Object.values(methods)) {
+      if (operation?.operationId === operationId) return resolve(operation.responses?.['200']?.content?.['application/json']?.schema);
+    }
+  }
+  return undefined;
+}
+
+/** The first field a figure selector reads, for example "counts" in "counts.open": the answer schema must declare it unless the schema is open. */
+export function selectorProblem(operationId, select) {
+  const schema = responseSchema(operationId);
+  if (schema === undefined || schema.properties === undefined) return null;
+  const first = select.split(/[.[]/u)[0];
+  if (schema.properties[first] !== undefined || schema.additionalProperties === true) return null;
+  return `reads "${first}", which the answer of ${operationId} does not have`;
+}
+
 export function loadRepoFacts() {
   const webRoutes = new Map(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path]));
   const registry = readFileSync(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'screens', 'index.ts'), 'utf8');
@@ -163,6 +185,11 @@ export function checkClip(clip, { context, facts, production, strict = false, st
   const { rules } = production;
   const edition = scenario.edition;
   for (const message of validateScenario(scenario, { ...context, strict }).problems) fail(message);
+
+  for (const [id, declaration] of Object.entries(scenario.figures)) {
+    const message = selectorProblem(declaration.source.operation, declaration.source.select);
+    if (message !== null) fail(`figure ${id} ${message}`);
+  }
 
   // Screens and routes: every id of a scene resolves to a route, and (strict) to a screen that exists in this build.
   const seenScreens = new Set();
@@ -306,6 +333,7 @@ export function buildBook(clip, { context, facts, production }) {
     const title = name === 'main' ? book.main : (scenario.chapters.find((chapter) => chapter.id === name)?.title ?? name);
     lines.push(`| ${title} (\`${name}\`) | ${selectScenes(scenario, name).length} | ${mmss(cutSeconds(scenario, name, options))} |`);
   }
+  const mainIds = new Set(selectScenes(scenario, 'main').map((scene) => scene.id));
   const readiness = production.readiness.datasets[scenario.data.dataset];
   lines.push('', `## ${book.data}`, '', `${book.dataset}: \`${scenario.data.dataset}\` (docs/clip-data.md)`, '', `| ${book.group} | ${book.proof} |`, '|---|---|');
   for (const [group, state] of Object.entries(readiness.groups)) lines.push(`| \`${group}\` | ${state.proof} |`);
@@ -329,7 +357,7 @@ export function buildBook(clip, { context, facts, production }) {
     for (const scene of selectScenes(scenario, chapter.id)) {
       const platform = scene.screen?.platform;
       const spoken = applyPhonetics(scene.narration, context.phonetics);
-      lines.push(`### \`${scene.id}\``, '', `${book.platform}: ${platform}; ${scene.expectedSec} ${book.seconds}; ${scene.main ? book.inMain : book.chapterOnly}`, '');
+      lines.push(`### \`${scene.id}\``, '', `${book.platform}: ${platform}; ${scene.expectedSec} ${book.seconds}; ${mainIds.has(scene.id) ? book.inMain : book.chapterOnly}`, '');
       const screens = (scene.screen?.screens ?? []).map((id) => screenFact(id, context, facts));
       if (screens.length > 0) lines.push(`${book.screens}: ${screens.map((fact) => `\`${fact.id}\` ${fact.title} (${fact.route ?? '-'})`).join('; ')}`, '');
       lines.push(`**${book.narration}**`, '', `> ${scene.narration}`, '', `**${book.voice}**`, '', `> ${spoken}`, '', `**${book.subtitles}**`, '');

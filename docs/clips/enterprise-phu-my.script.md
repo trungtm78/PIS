@@ -217,7 +217,7 @@ Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HO
 
 ### `home-drill`
 
-Nền tảng: web; 11.5 giây; có trong video chính
+Nền tảng: web; 11.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `HOME-10` Ngữ cảnh số liệu và truy nguồn (/home/home-10)
 
@@ -1223,7 +1223,7 @@ Màn hình: `EBS-02` Đối chiếu Oracle EBS theo mã dự án và giải trì
 - [ ] Khung vào phần ebs.reconcile.difference-rows đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Giả định tạm, chờ tài liệu chính thức của bên nhận" hiện từ giây 5, kéo dài 8 giây
 - [ ] Dấu bắt buộc hiện rõ trên hình: "Giả định tạm, chờ tài liệu chính thức của bên nhận"
-- [ ] Con số ent-ebs-differences đọc từ dữ liệu thật qua listEbsDifferences (meta.open_count); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-ebs-differences đọc từ dữ liệu thật qua listEbsDifferences (counts.open); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Chênh lệch theo mã dự án: số báo cáo, số kế toán, chênh lệch và người giải trình
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -2580,8 +2580,8 @@ Màn hình: `BID-27` Tiến độ theo quy trình (cây tiến độ) (/bid/bid-
 - [ ] Khung vào phần bid.tree.canvas đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần bid.tree.edge-label đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Cây tiến độ · số gói ở từng trạng thái" hiện từ giây 1.5, kéo dài 5 giây
-- [ ] Con số tree-packages-total đọc từ dữ liệu thật qua getPackageProcessTree (summary.total_packages); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số tree-packages-late đọc từ dữ liệu thật qua getPackageProcessTree (summary.late_packages); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số tree-packages-total đọc từ dữ liệu thật qua getPackageProcessTree (total.count); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số tree-packages-late đọc từ dữ liệu thật qua getPackageProcessTree (kpis.late); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Cây trạng thái có số gói ở từng nút
 - [ ] Có đồng thời nút trễ, nút tạm dừng và nút trả lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -2720,7 +2720,7 @@ Màn hình: `BID-30` Phân tích nút nghẽn và báo cáo tiến độ lựa c
 - [ ] Màn BID-30 "Phân tích nút nghẽn và báo cáo tiến độ lựa chọn nhà thầu" mở được ở đường dẫn /bid/bid-30, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Khung vào phần bid.bottleneck.step-medians đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần bid.bottleneck.export-xlsx đúng lúc giọng đọc nói tới
-- [ ] Con số tree-stuck-days đọc từ dữ liệu thật qua getPackageWorkflowStatistics (bottlenecks[0].longest_days); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số tree-stuck-days đọc từ dữ liệu thật qua getPackageWorkflowStatistics (stuck[0].days); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Bảng nút nghẽn xếp theo ngày trung vị
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -2970,7 +2970,7 @@ Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết
 - [ ] Màn MOB-24 "Chi tiết phê duyệt" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Màn MOB-25 "Xác nhận phê duyệt và ký" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Chú thích "Hình dựng lại: hệ điều hành chặn quay màn này" hiện từ giây 6, kéo dài 6 giây
-- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (meta.total); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (items.length); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 

@@ -87,7 +87,7 @@
       "description": "Open differences between reported and accounting figures after the accounting file import.",
       "source": {
         "operation": "listEbsDifferences",
-        "select": "meta.open_count"
+        "select": "counts.open"
       }
     }
   },

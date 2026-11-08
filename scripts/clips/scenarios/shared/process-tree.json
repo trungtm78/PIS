@@ -10,7 +10,7 @@
       "description": "All procurement packages in the scope of the reader, from the process tree.",
       "source": {
         "operation": "getPackageProcessTree",
-        "select": "summary.total_packages"
+        "select": "total.count"
       }
     },
     "tree-packages-late": {
@@ -19,7 +19,7 @@
       "description": "Packages whose current step is past its due day.",
       "source": {
         "operation": "getPackageProcessTree",
-        "select": "summary.late_packages"
+        "select": "kpis.late"
       }
     },
     "tree-median-days": {
@@ -37,7 +37,7 @@
       "description": "Days the longest stuck package has been in its step.",
       "source": {
         "operation": "getPackageWorkflowStatistics",
-        "select": "bottlenecks[0].longest_days"
+        "select": "stuck[0].days"
       }
     }
   },

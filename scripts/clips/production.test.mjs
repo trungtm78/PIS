@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { CLIPS_DIR } from './common.mjs';
-import { buildBook, bookPath, checkClip, checkFiles, dataRisks, isEnglishOnly, loadAll, musicTimeline, screenFact, secretHits, shotChecklist, subtitleCues } from './production.mjs';
+import { buildBook, bookPath, checkClip, checkFiles, dataRisks, isEnglishOnly, loadAll, musicTimeline, screenFact, secretHits, selectorProblem, shotChecklist, subtitleCues } from './production.mjs';
 import { loadScenario } from './scenario.mjs';
 import { checkCues } from './subtitles.mjs';
 
@@ -163,4 +163,21 @@ test('this tooling holds no Vietnamese letters in code (they live in JSON and ma
     const text = readFileSync(file, 'utf8');
     assert.ok([...text].every((char) => char.charCodeAt(0) < 128), file);
   }
+});
+
+test('a figure selector must read a field that the answer of its operation has', () => {
+  assert.equal(selectorProblem('listEbsDifferences', 'counts.open'), null);
+  assert.match(selectorProblem('listEbsDifferences', 'meta.open_count'), /does not have/u);
+  assert.equal(selectorProblem('noSuchOperation', 'x.y'), null);
+  assert.ok(check(({ scenario }) => (scenario.figures['committee-projects'].source.select = 'nowhere.projects')).problems.some((p) => /figure committee-projects reads "nowhere"/u.test(p)));
+  assert.equal(loadScenario('enterprise-phu-my').figures['ent-ebs-differences'].source.select, 'counts.open');
+});
+
+test('the book labels a scene as part of the main video only when this edition plays it there', () => {
+  const book = buildBook('enterprise-phu-my', shared);
+  const section = book.slice(book.indexOf('### `home-drill`'));
+  assert.match(section.slice(0, section.indexOf('**Lời đọc**')), /chỉ trong chương cắt riêng/u);
+  const publicBook = buildBook('public-investment', shared);
+  const publicSection = publicBook.slice(publicBook.indexOf('### `home-drill`'));
+  assert.match(publicSection.slice(0, publicSection.indexOf('**Lời đọc**')), /có trong video chính/u);
 });

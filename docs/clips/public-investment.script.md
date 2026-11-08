@@ -2613,8 +2613,8 @@ Màn hình: `BID-27` Tiến độ theo quy trình (cây tiến độ) (/bid/bid-
 - [ ] Khung vào phần bid.tree.canvas đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần bid.tree.edge-label đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Cây tiến độ · số gói ở từng trạng thái" hiện từ giây 1.5, kéo dài 5 giây
-- [ ] Con số tree-packages-total đọc từ dữ liệu thật qua getPackageProcessTree (summary.total_packages); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số tree-packages-late đọc từ dữ liệu thật qua getPackageProcessTree (summary.late_packages); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số tree-packages-total đọc từ dữ liệu thật qua getPackageProcessTree (total.count); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số tree-packages-late đọc từ dữ liệu thật qua getPackageProcessTree (kpis.late); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Cây trạng thái có số gói ở từng nút
 - [ ] Có đồng thời nút trễ, nút tạm dừng và nút trả lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -2753,7 +2753,7 @@ Màn hình: `BID-30` Phân tích nút nghẽn và báo cáo tiến độ lựa c
 - [ ] Màn BID-30 "Phân tích nút nghẽn và báo cáo tiến độ lựa chọn nhà thầu" mở được ở đường dẫn /bid/bid-30, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Khung vào phần bid.bottleneck.step-medians đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần bid.bottleneck.export-xlsx đúng lúc giọng đọc nói tới
-- [ ] Con số tree-stuck-days đọc từ dữ liệu thật qua getPackageWorkflowStatistics (bottlenecks[0].longest_days); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số tree-stuck-days đọc từ dữ liệu thật qua getPackageWorkflowStatistics (stuck[0].days); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Bảng nút nghẽn xếp theo ngày trung vị
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -3003,7 +3003,7 @@ Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết
 - [ ] Màn MOB-24 "Chi tiết phê duyệt" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Màn MOB-25 "Xác nhận phê duyệt và ký" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Chú thích "Hình dựng lại: hệ điều hành chặn quay màn này" hiện từ giây 6, kéo dài 6 giây
-- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (meta.total); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (items.length); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 

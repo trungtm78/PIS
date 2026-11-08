@@ -10,7 +10,7 @@
       "description": "Approval tasks waiting for the signed-in leader.",
       "source": {
         "operation": "get_resources_approval_task",
-        "select": "meta.total"
+        "select": "items.length"
       }
     }
   },
