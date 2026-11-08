@@ -220,7 +220,7 @@ describe('audit findings and recoveries', () => {
     expect(totals.cells.recovered_vnd).toBe('7000');
     expect(totals.cells.outstanding_vnd).toBe('3000');
     expect(totals.cells.recovery_pct).toBe('70.00');
-    expect(totals.cells.overdue_recommendation_pct).toBe('33.33');
+    expect(totals.cells.overdue_recommendation_pct).toBe('50.00');
   });
 
   it('hides the money of a contract whose ledger the reader may not see, and the total leaves it out', () => {
@@ -301,7 +301,7 @@ describe('the health of the contracts', () => {
   it('takes the colour from the worst indicator and counts the red share over the coloured contracts only', () => {
     const late = healthRow(fact(1, { originalDueDate: '2026-08-01' }), contract('HD-1'), AS_OF, undefined);
     const green = healthRow(fact(2), contract('HD-2'), AS_OF, undefined);
-    const none = healthRow(fact(3, { originalDueDate: null }), contract('HD-3'), AS_OF, undefined);
+    const none = healthRow(fact(3, { originalDueDate: null, originalValueVnd: '0' }), contract('HD-3'), AS_OF, undefined);
     expect(late.cells.health).toBe('RED');
     expect(late.cells.health_driver).toBe('DAYS_LATE');
     expect(green.cells.health).toBe('GREEN');

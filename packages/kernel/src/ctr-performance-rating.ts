@@ -451,7 +451,7 @@ export function ratingRow(contract: RegisterContract, inputs: RatingInputs, para
   putRegisterCell(row, 'response_due_on', latest?.responseDueAt === undefined || latest.responseDueAt === null ? null : latest.responseDueAt.slice(0, 10), latest === null ? 'NO_PROPOSAL' : 'NOT_NOTIFIED');
   const open = latest !== null && latest.state === 'NOTIFIED' && latest.responseDueAt !== null;
   const left = open ? Math.floor((Date.parse(latest.responseDueAt as string) - now.getTime()) / 86_400_000) : null;
-  putRegisterCell(row, 'response_days_left', left === null ? null : Math.max(0, left), latest === null ? 'NO_PROPOSAL' : 'NOT_OPEN');
+  putRegisterCell(row, 'response_days_left', left === null || left < 0 ? null : left, latest === null ? 'NO_PROPOSAL' : left !== null ? 'WINDOW_LAPSED' : 'NOT_OPEN');
   const judgedAnswer = latest !== null && latest.responseDueAt !== null && (latest.respondedAt !== null || now.getTime() > Date.parse(latest.responseDueAt));
   putRegisterFlag(row, 'responded_in_time', judgedAnswer ? latest.respondedAt !== null && Date.parse(latest.respondedAt) <= Date.parse(latest.responseDueAt as string) : null, latest === null ? 'NO_PROPOSAL' : 'WINDOW_RUNNING');
   putRegisterCell(row, 'official_rating', official?.rating ?? null, 'NO_PROPOSAL');

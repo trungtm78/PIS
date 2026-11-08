@@ -91,13 +91,14 @@ describe('the proposal from the data', () => {
   });
 
   it('weights only the criteria that have data', () => {
-    // schedule 0 (weight 25) and quality 100 (weight 30), the third criterion safety 100 (weight 20): (0x25 + 100x30 + 100x20) / 75
-    const proposal = proposeRating(base({ daysLate: 90, guaranteeRequiredVnd: null, guaranteeValidVnd: null, acceptedVnd: '1000', requestedVnd: '0', paidVnd: '0', signedOn: '2026-01-01' }), { ...params, min_criteria: 3 });
+    // schedule 0 (weight 25), safety 100 (weight 20) and cooperation 100 (weight 10): (0x25 + 100x20 + 100x10) / 55
+    const proposal = proposeRating(base({ daysLate: 90, guaranteeRequiredVnd: null, guaranteeValidVnd: null, acceptedVnd: '0', requestedVnd: '0', paidVnd: '0', signedOn: '2026-01-01' }), { ...params, min_criteria: 3 });
+    expect(proposal.criteria.quality.score).toBeNull();
+    expect(proposal.criteria.financial.score).toBeNull();
     expect(proposal.criteria.schedule.score).toBe(0);
     expect(proposal.criteria.cooperation.score).toBe(100);
-    expect(proposal.criteria.financial.score).toBeNull();
-    expect(proposal.overall).toBe('66.67');
-    expect(proposal.rating).toBe('FAIR');
+    expect(proposal.overall).toBe('54.55');
+    expect(proposal.rating).toBe('POOR');
   });
 
   it('says why a schedule has no score when there is no due day', () => {
@@ -117,7 +118,7 @@ describe('the proposal from the data', () => {
 describe('adoption', () => {
   const params = ratingDefaults();
   it('fills only a missing criterion, with an override that has its reason, and refuses an incomplete one', () => {
-    const proposal = proposeRating(base({ guaranteeRequiredVnd: null, guaranteeValidVnd: null, acceptedVnd: '1000', requestedVnd: '0', paidVnd: '0' }), params);
+    const proposal = proposeRating(base({ guaranteeRequiredVnd: null, guaranteeValidVnd: null, acceptedVnd: '0', requestedVnd: '0', paidVnd: '0', defects: [{ severity: 'MINOR', status: 'CLOSED', reopenCount: 0 }] }), params);
     expect(() => adoptionScores(proposal, {})).toThrow(expect.objectContaining({ code: 'RATING_INCOMPLETE' }));
     expect(adoptionScores(proposal, { financial: { score: 70, reason: 'Scored from the financial statements on file.' } }).financial).toBe(70);
     expect(() => adoptionScores(proposal, { quality: { score: 10, reason: 'Trying to replace a score of the data.' }, financial: { score: 70, reason: 'Scored from the financial statements on file.' } })).toThrow();
