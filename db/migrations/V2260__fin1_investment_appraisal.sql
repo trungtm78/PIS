@@ -232,3 +232,7 @@ COMMENT ON TABLE machvon.appraisal_assumption IS 'Who answers for each input of 
 COMMENT ON TABLE machvon.appraisal_scenario IS 'The scenarios of an appraisal as parameter deltas to its inputs.';
 COMMENT ON TABLE machvon.appraisal_criteria_score IS 'The scores (1 to 5, with evidence) of the non-financial criteria of an appraisal.';
 COMMENT ON TABLE machvon.appraisal_code_counter IS 'The last number of the code FIN-year-number of an appraisal in a year.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX appraisal_assumption_owner_idx ON machvon.appraisal_assumption (tenant_id, owner_id);
+CREATE INDEX investment_appraisal_supersedes_idx ON machvon.investment_appraisal (tenant_id, supersedes_id) WHERE supersedes_id IS NOT NULL;

@@ -73,6 +73,14 @@ export const LEDGER_TABLES: readonly LedgerDeclaration[] = [
     nonNegative: ['amount_vnd', 'outstanding_after_vnd'],
     businessKey: { columns: ['reversal_of_id'], partial: true },
   },
+  {
+    // The reserve of a project (contingency and management reserve): the balance sits on reserve_fund and the posting trigger moves it under the lock of the fund; an entry is a drawdown or a funding, one entry for each drawdown.
+    table: 'reserve_ledger_entry',
+    kind: 'ENTRY',
+    lockRank: 60,
+    nonNegative: ['amount_vnd', 'balance_after_vnd'],
+    businessKey: { columns: ['drawdown_id'], partial: true },
+  },
 ];
 
 const BY_TABLE = new Map(LEDGER_TABLES.map((declaration) => [declaration.table, declaration]));

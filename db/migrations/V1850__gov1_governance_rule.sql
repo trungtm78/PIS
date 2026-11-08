@@ -138,3 +138,6 @@ CREATE TRIGGER governance_rule_guard BEFORE UPDATE OR DELETE ON machvon.governan
   FOR EACH ROW EXECUTE FUNCTION machvon.guard_governance_rule();
 
 COMMENT ON TABLE machvon.governance_rule IS 'Versioned governance rules (G0-1): thresholds, definitions and policies as data; maker is not checker; a version never changes, a change is a new version.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX governance_rule_unit_idx ON machvon.governance_rule (tenant_id, unit_id) WHERE unit_id IS NOT NULL;

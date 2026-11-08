@@ -39,3 +39,8 @@ CREATE POLICY tenant_access ON machvon.sod_exception_use AS PERMISSIVE FOR ALL
 REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.sod_exception_use FROM machvon_app;
 
 COMMENT ON TABLE machvon.sod_exception_use IS 'Commands that met a conflict of the separation of duties: went through by an exception or a warning, or refused; append-only, read by the auditor.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX sod_exception_use_record_idx ON machvon.sod_exception_use (tenant_id, record_id);
+CREATE INDEX sod_exception_use_request_idx ON machvon.sod_exception_use (tenant_id, request_id) WHERE request_id IS NOT NULL;
+CREATE INDEX sod_exception_use_subject_idx ON machvon.sod_exception_use (tenant_id, subject_id);

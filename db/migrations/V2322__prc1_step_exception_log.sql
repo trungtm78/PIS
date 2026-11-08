@@ -121,3 +121,6 @@ COMMENT ON TABLE machvon.package_workflow_log IS 'Append-only log of the holds, 
 ALTER TABLE machvon.package_checklist_item
   ADD CONSTRAINT package_checklist_item_exception_fk FOREIGN KEY (tenant_id, waived_exception_id) REFERENCES machvon.package_step_exception (tenant_id, id);
 CREATE INDEX package_checklist_item_exception_idx ON machvon.package_checklist_item (tenant_id, waived_exception_id) WHERE waived_exception_id IS NOT NULL;
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX package_step_exception_package_idx ON machvon.package_step_exception (tenant_id, package_id);

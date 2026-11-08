@@ -135,3 +135,12 @@ REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.contract_fact_snapshot_line FRO
 COMMENT ON TABLE machvon.contract_fact_snapshot IS 'The contract fact frozen with a DIS close snapshot (CA-1): the DIS snapshot and period revision it belongs to, the common cut-off day, the hash of its lines, the one it replaces (R17); append-only.';
 COMMENT ON TABLE machvon.contract_fact_snapshot_contract IS 'The row of contract_fact of each contract at the cut-off day, whole (CA-1): what a frozen report is read from; append-only.';
 COMMENT ON TABLE machvon.contract_fact_snapshot_line IS 'One line per contract per active party (DS-CTR): money attributed to the party by the largest remainder; the flags and the days late on the lead line only; append-only.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX contract_fact_snapshot_supersedes_idx ON machvon.contract_fact_snapshot (tenant_id, supersedes_id) WHERE supersedes_id IS NOT NULL;
+CREATE INDEX contract_fact_snapshot_contract_contract_idx ON machvon.contract_fact_snapshot_contract (tenant_id, contract_id);
+CREATE INDEX contract_fact_snapshot_line_contract_idx ON machvon.contract_fact_snapshot_line (tenant_id, contract_id);
+CREATE INDEX contract_fact_snapshot_line_contractor_id_ix ON machvon.contract_fact_snapshot_line (tenant_id, contractor_id);
+CREATE INDEX contract_fact_snapshot_line_fund_source_version_idx ON machvon.contract_fact_snapshot_line (tenant_id, fund_source_version_id) WHERE fund_source_version_id IS NOT NULL;
+CREATE INDEX contract_fact_snapshot_line_investor_idx ON machvon.contract_fact_snapshot_line (tenant_id, investor_id) WHERE investor_id IS NOT NULL;
+CREATE INDEX contract_fact_snapshot_line_unit_idx ON machvon.contract_fact_snapshot_line (tenant_id, unit_id);

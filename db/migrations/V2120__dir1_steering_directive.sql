@@ -231,3 +231,16 @@ COMMENT ON TABLE machvon.directive IS 'A directive of a steering meeting: what i
 COMMENT ON TABLE machvon.directive_extension IS 'A request to move the due day of a directive, with a reason, decided by someone other than who asked.';
 COMMENT ON TABLE machvon.directive_event IS 'Append-only timeline of a directive: created, assigned, progress, extension asked and decided, closed, cancelled, reopened.';
 COMMENT ON TABLE machvon.directive_evidence IS 'Append-only evidence documents of a directive; closing needs at least one where the policy says so.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX directive_scope_unit_idx ON machvon.directive (tenant_id, scope_unit_id);
+CREATE INDEX directive_event_actor_idx ON machvon.directive_event (tenant_id, actor_id);
+CREATE INDEX directive_event_approver_idx ON machvon.directive_event (tenant_id, approver_id) WHERE approver_id IS NOT NULL;
+CREATE INDEX directive_event_extension_idx ON machvon.directive_event (tenant_id, extension_id) WHERE extension_id IS NOT NULL;
+CREATE INDEX directive_event_from_assignee_membership_idx ON machvon.directive_event (tenant_id, from_assignee_membership_id) WHERE from_assignee_membership_id IS NOT NULL;
+CREATE INDEX directive_event_from_assignee_unit_idx ON machvon.directive_event (tenant_id, from_assignee_unit_id) WHERE from_assignee_unit_id IS NOT NULL;
+CREATE INDEX directive_event_to_assignee_membership_idx ON machvon.directive_event (tenant_id, to_assignee_membership_id) WHERE to_assignee_membership_id IS NOT NULL;
+CREATE INDEX directive_event_to_assignee_unit_idx ON machvon.directive_event (tenant_id, to_assignee_unit_id) WHERE to_assignee_unit_id IS NOT NULL;
+CREATE INDEX directive_evidence_document_version_idx ON machvon.directive_evidence (tenant_id, document_version_id);
+CREATE INDEX directive_evidence_event_idx ON machvon.directive_evidence (tenant_id, event_id);
+CREATE INDEX steering_meeting_minutes_document_version_idx ON machvon.steering_meeting (tenant_id, minutes_document_version_id) WHERE minutes_document_version_id IS NOT NULL;

@@ -95,3 +95,6 @@ $rls$;
 
 COMMENT ON TABLE machvon.project_component_contract IS 'Which first-level work package a contract carries: the link the earned value of a package is measured through. Ended, never deleted.';
 COMMENT ON TABLE machvon.evm_frozen_result IS 'The earned value of a project as it stood when the snapshot of a closed period was frozen, with its own hash. Append-only.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX project_component_contract_component_idx ON machvon.project_component_contract (tenant_id, component_id);

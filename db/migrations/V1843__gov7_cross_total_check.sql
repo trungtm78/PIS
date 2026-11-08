@@ -45,3 +45,6 @@ CREATE POLICY tenant_access ON machvon.cross_total_check AS PERMISSIVE FOR ALL
 REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.cross_total_check FROM machvon_app;
 
 COMMENT ON TABLE machvon.cross_total_check IS 'Cross-total checks of a period snapshot (G4-5): unit = fund = project to the dong or the indicator is not published; append-only.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX cross_total_check_period_idx ON machvon.cross_total_check (tenant_id, period_id) WHERE period_id IS NOT NULL;

@@ -55,3 +55,7 @@ CREATE POLICY tenant_access ON machvon.change_adjustment_check AS PERMISSIVE FOR
   WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
 
 COMMENT ON TABLE machvon.change_adjustment_check IS 'The check of the project adjustment that a cumulative variation of a contract above the threshold forces before a change order may be approved.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX change_adjustment_check_contract_idx ON machvon.change_adjustment_check (tenant_id, contract_id);
+CREATE INDEX change_adjustment_check_decision_document_version_idx ON machvon.change_adjustment_check (tenant_id, decision_document_version_id) WHERE decision_document_version_id IS NOT NULL;

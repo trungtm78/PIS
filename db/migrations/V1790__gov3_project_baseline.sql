@@ -223,3 +223,11 @@ COMMENT ON TABLE machvon.project_baseline_line IS 'The budget, start and finish 
 COMMENT ON TABLE machvon.project_reschedule_event IS 'Each move of a date to a later day (a milestone delayed, an end year pushed back by an approved revision): the count of these is what the auditors are told about. Append-only.';
 COMMENT ON TABLE machvon.project_governance_alert IS 'An alert to an audience (AUD) raised by a rule of governance, one open at a time for the same subject; acknowledged by someone other than whoever raised it.';
 COMMENT ON TABLE machvon.project_reappraisal_request IS 'The request to appraise a project again when its deviation from baseline version 0 passes the thresholds of the rule; decided START or WAIVE by someone other than the maker of the change.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX project_baseline_source_revision_idx ON machvon.project_baseline (tenant_id, source_revision_id) WHERE source_revision_id IS NOT NULL;
+CREATE INDEX project_baseline_line_component_idx ON machvon.project_baseline_line (tenant_id, component_id);
+CREATE INDEX project_baseline_line_project_idx ON machvon.project_baseline_line (tenant_id, project_id);
+CREATE INDEX project_governance_alert_subject_idx ON machvon.project_governance_alert (tenant_id, subject_id) WHERE subject_id IS NOT NULL;
+CREATE INDEX project_reappraisal_request_baseline_idx ON machvon.project_reappraisal_request (tenant_id, baseline_id);
+CREATE INDEX project_reschedule_event_milestone_idx ON machvon.project_reschedule_event (tenant_id, milestone_id) WHERE milestone_id IS NOT NULL;

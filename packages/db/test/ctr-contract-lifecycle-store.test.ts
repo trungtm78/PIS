@@ -465,14 +465,15 @@ describe('the review, the signing and the activation of a contract (ST-CTR-004)'
   });
 
   describe('activateContract', () => {
-    const withGuarantee = (contractId: string, options: { status?: string; days?: number; kind?: string } = {}) =>
+    // `expiresOn` pins the end of the guarantee to a calendar day: the activation judges it against the date of effect, which the cases fix, so a guarantee that has to be expired is not measured from the clock of the day the case runs.
+    const withGuarantee = (contractId: string, options: { status?: string; days?: number; kind?: string; expiresOn?: string } = {}) =>
       seedAs(harness, [
         [
           `insert into machvon.guarantee
              (tenant_id, id, contract_id, kind, issuer, guarantee_no, amount_vnd, expires_at, verification_status, status, verified_by, verified_at, verification_method, verification_evidence_id, created_by)
-           values ($1, gen_random_uuid(), $2, $3, 'Bank of the Province', $4, 500000000, now() + make_interval(days => $5), $8, $6,
+           values ($1, gen_random_uuid(), $2, $3, 'Bank of the Province', $4, 500000000, coalesce($11::timestamptz, now() + make_interval(days => $5)), $8, $6,
                    case when $8 = 'VERIFIED' then $9::uuid end, case when $8 = 'VERIFIED' then now() end, case when $8 = 'VERIFIED' then 'ISSUER_CONFIRMATION' end, case when $8 = 'VERIFIED' then $10::uuid end, $7)`,
-          [TENANT_A, contractId, options.kind ?? 'PERFORMANCE', `BL-${randomUUID().slice(0, 8)}`, options.days ?? 365, options.status ?? 'ACTIVE', memberId(DRAFTER), (options.status ?? 'ACTIVE') === 'ACTIVE' ? 'VERIFIED' : 'UNVERIFIED', memberId(CHECKER), EVIDENCE],
+          [TENANT_A, contractId, options.kind ?? 'PERFORMANCE', `BL-${randomUUID().slice(0, 8)}`, options.days ?? 365, options.status ?? 'ACTIVE', memberId(DRAFTER), (options.status ?? 'ACTIVE') === 'ACTIVE' ? 'VERIFIED' : 'UNVERIFIED', memberId(CHECKER), EVIDENCE, options.expiresOn ?? null],
         ],
       ]);
     const seedRule = async (): Promise<string> => {
@@ -525,7 +526,7 @@ describe('the review, the signing and the activation of a contract (ST-CTR-004)'
       expect(await refusal(activate(seeded, 1, {}, CHECKER, h))).toMatchObject({ code: 'PERFORMANCE_GUARANTEE_MISSING', status: 422 });
       await withGuarantee(seeded.id, { status: 'PENDING_VERIFICATION' });
       expect(await refusal(activate(seeded, 1, {}, CHECKER, h))).toMatchObject({ code: 'PERFORMANCE_GUARANTEE_MISSING' });
-      await withGuarantee(seeded.id, { days: -5 });
+      await withGuarantee(seeded.id, { expiresOn: '2026-10-27T00:00:00+07:00' });
       expect(await refusal(activate(seeded, 1, {}, CHECKER, h))).toMatchObject({ code: 'PERFORMANCE_GUARANTEE_MISSING' });
       expect(h.commit).not.toHaveBeenCalled();
       // 2. A verified guarantee, but the gate of the permits is not passed: PERMIT_GATE_BLOCKED names the gate and the rule. A guarantee that ends before the contract begins does not count.

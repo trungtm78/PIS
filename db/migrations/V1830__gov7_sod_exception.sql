@@ -67,3 +67,6 @@ CREATE POLICY tenant_access ON machvon.sod_exception AS PERMISSIVE FOR ALL
 REVOKE DELETE, TRUNCATE ON TABLE machvon.sod_exception FROM machvon_app;
 
 COMMENT ON TABLE machvon.sod_exception IS 'Time-limited exceptions to the separation of duties (G4-1): one person, one pair of duties, one subject, days, a reason, and approvers who are neither the requester nor the person covered.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX sod_exception_subject_id_ix ON machvon.sod_exception (tenant_id, subject_id);

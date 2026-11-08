@@ -106,3 +106,7 @@ CREATE TRIGGER payment_integrity_finding_append_only BEFORE UPDATE OR DELETE ON 
 
 COMMENT ON TABLE machvon.payment_integrity_run IS 'One evaluation of a payment request against the rule PAYMENT_INTEGRITY (G4-2); append-only, read by the approver and the auditor.';
 COMMENT ON TABLE machvon.payment_integrity_finding IS 'What a run found: invariants block, signals warn; append-only.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX payment_integrity_finding_contract_idx ON machvon.payment_integrity_finding (tenant_id, contract_id);
+CREATE INDEX payment_integrity_run_project_idx ON machvon.payment_integrity_run (tenant_id, project_id);

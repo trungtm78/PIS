@@ -42,3 +42,6 @@ CREATE POLICY tenant_access ON machvon.work_reminder AS PERMISSIVE FOR ALL
 REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.work_reminder FROM machvon_app;
 
 COMMENT ON TABLE machvon.work_reminder IS 'Every reminder and notice to the next level about an item of the alert centre; append-only, one row per reminder of a series.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX work_reminder_action_idx ON machvon.work_reminder (tenant_id, action_id) WHERE action_id IS NOT NULL;

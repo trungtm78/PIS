@@ -129,3 +129,6 @@ REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.package_checklist_evidence FROM
 
 COMMENT ON TABLE machvon.package_checklist_item IS 'The checklist of a visit of a step (PRC-1): items copied from the frozen definition, done with evidence or waived by an approved exception.';
 COMMENT ON TABLE machvon.package_checklist_evidence IS 'Append-only evidence of a checklist item: a DOC paper, a milestone, an outside receipt or a note.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX package_checklist_item_package_idx ON machvon.package_checklist_item (tenant_id, package_id);

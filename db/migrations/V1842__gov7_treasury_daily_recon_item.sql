@@ -105,3 +105,10 @@ CREATE TRIGGER treasury_daily_recon_item_guard BEFORE UPDATE OR DELETE ON machvo
   FOR EACH ROW EXECUTE FUNCTION machvon.guard_treasury_daily_recon_item();
 
 COMMENT ON TABLE machvon.treasury_daily_recon_item IS 'Items of difference of the daily reconciliation (G4-4): one project, one fund, one day, with an owner and a due day; figures never change; write-off needs a checker who is not the owner, the explainer or the opener.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX treasury_daily_recon_item_approval_document_version_idx ON machvon.treasury_daily_recon_item (tenant_id, approval_document_version_id) WHERE approval_document_version_id IS NOT NULL;
+CREATE INDEX treasury_daily_recon_item_cleared_run_idx ON machvon.treasury_daily_recon_item (tenant_id, cleared_run_id) WHERE cleared_run_id IS NOT NULL;
+CREATE INDEX treasury_daily_recon_item_issue_idx ON machvon.treasury_daily_recon_item (tenant_id, issue_id) WHERE issue_id IS NOT NULL;
+CREATE INDEX treasury_daily_recon_item_last_run_idx ON machvon.treasury_daily_recon_item (tenant_id, last_run_id);
+CREATE INDEX treasury_daily_recon_item_opened_run_idx ON machvon.treasury_daily_recon_item (tenant_id, opened_run_id);

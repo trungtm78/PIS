@@ -67,7 +67,7 @@ CREATE TABLE machvon.reserve_ledger_entry (
   entry_kind text NOT NULL CHECK (entry_kind IN ('FUND', 'DRAWDOWN')),
   amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd > 0),
   -- Set by the database from the balance of the fund and the entry: never taken from the application.
-  balance_after_vnd numeric(24,0),
+  balance_after_vnd numeric(24,0) NOT NULL CHECK (balance_after_vnd >= 0),
   risk_id uuid,
   change_request_id uuid,
   drawdown_id uuid,
@@ -92,6 +92,8 @@ CREATE TABLE machvon.reserve_ledger_entry (
 );
 
 CREATE INDEX reserve_ledger_entry_fund_idx ON machvon.reserve_ledger_entry (tenant_id, fund_id, posted_at, id);
+-- A drawdown posts exactly one entry: the same decision cannot take the money out twice (the business key of this ledger, see ledger-registry.ts).
+CREATE UNIQUE INDEX reserve_ledger_entry_drawdown_uq ON machvon.reserve_ledger_entry (tenant_id, drawdown_id) WHERE drawdown_id IS NOT NULL;
 
 -- The balance is the database's: an entry takes the lock of its fund, moves the balance and keeps the balance it left; a drawdown that would take the balance below nothing is refused.
 CREATE FUNCTION machvon.post_reserve_ledger_entry() RETURNS trigger
@@ -195,3 +197,12 @@ COMMENT ON TABLE machvon.reserve_fund IS 'The contingency and the management res
 COMMENT ON TABLE machvon.reserve_ledger_entry IS 'Append-only ledger of a reserve fund: funding, drawdowns (each for one risk or one change order, with an approver who is not the requester).';
 COMMENT ON TABLE machvon.reserve_drawdown IS 'A request to draw on a reserve fund for one risk or one change order, decided by someone other than the requester.';
 COMMENT ON TABLE machvon.risk_exposure IS 'Probability and cost of a risk: the expected value of the open risks that the contingency is measured against.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX reserve_drawdown_ledger_entry_idx ON machvon.reserve_drawdown (tenant_id, ledger_entry_id) WHERE ledger_entry_id IS NOT NULL;
+CREATE INDEX reserve_drawdown_project_idx ON machvon.reserve_drawdown (tenant_id, project_id);
+CREATE INDEX reserve_ledger_entry_authority_document_version_idx ON machvon.reserve_ledger_entry (tenant_id, authority_document_version_id) WHERE authority_document_version_id IS NOT NULL;
+CREATE INDEX reserve_ledger_entry_change_request_idx ON machvon.reserve_ledger_entry (tenant_id, change_request_id) WHERE change_request_id IS NOT NULL;
+CREATE INDEX reserve_ledger_entry_drawdown_idx ON machvon.reserve_ledger_entry (tenant_id, drawdown_id) WHERE drawdown_id IS NOT NULL;
+CREATE INDEX reserve_ledger_entry_project_idx ON machvon.reserve_ledger_entry (tenant_id, project_id);
+CREATE INDEX reserve_ledger_entry_risk_idx ON machvon.reserve_ledger_entry (tenant_id, risk_id) WHERE risk_id IS NOT NULL;

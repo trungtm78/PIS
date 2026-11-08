@@ -28,3 +28,6 @@ CREATE POLICY tenant_access ON machvon.sod_exception_approval AS PERMISSIVE FOR 
 REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.sod_exception_approval FROM machvon_app;
 
 COMMENT ON TABLE machvon.sod_exception_approval IS 'Decisions of the approvers of an exception to the separation of duties; append-only.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX sod_exception_approval_approver_idx ON machvon.sod_exception_approval (tenant_id, approver_id);

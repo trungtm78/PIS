@@ -102,3 +102,9 @@ END $$;
 COMMENT ON TABLE machvon.analytics_certification IS 'The life of the certification of a KPI definition or a dataset (Nháp, Đã xác nhận, Đã chứng nhận, Lỗi thời); append-only, the latest line of a version decides.';
 COMMENT ON TABLE machvon.early_warning_score IS 'The early-warning score of a unit for a week with the breakdown of each factor and the rule versions that decided; written once for a week, never changed.';
 COMMENT ON TABLE machvon.rag_override IS 'A person''s override of the colour the rules gave a unit, with the reason and the last day; append-only, the latest line of a unit decides.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX analytics_certification_actor_membership_idx ON machvon.analytics_certification (tenant_id, actor_membership_id);
+CREATE INDEX analytics_certification_confirmed_by_membership_idx ON machvon.analytics_certification (tenant_id, confirmed_by_membership_id) WHERE confirmed_by_membership_id IS NOT NULL;
+CREATE INDEX early_warning_score_snapshot_idx ON machvon.early_warning_score (tenant_id, snapshot_id);
+CREATE INDEX rag_override_actor_membership_idx ON machvon.rag_override (tenant_id, actor_membership_id);

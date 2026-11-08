@@ -66,3 +66,6 @@ ALTER TABLE machvon.payment_integrity_finding
   ADD CONSTRAINT payment_integrity_finding_exception_fk FOREIGN KEY (tenant_id, exception_id) REFERENCES machvon.disbursement_exception (tenant_id, id);
 
 COMMENT ON TABLE machvon.disbursement_exception IS 'An approved, time-limited, single-use exception to a ceiling of disbursement (plan line or contract price); asked and decided by two different people (G4-2, G4-5).';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX disbursement_exception_project_idx ON machvon.disbursement_exception (tenant_id, project_id);

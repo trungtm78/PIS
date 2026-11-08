@@ -301,23 +301,22 @@ export class TenantRestoreStore {
    * depend on their order, and the total of every money column (a numeric column whose name ends in `_vnd`). The restore engines measure the same way, so that a copy and its backup can be compared.
    */
   async measure(tx: TenantTx): Promise<Measurement> {
-    const catalogue = await tx.query<{ relname: string }>(
-      `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    // One read of the catalogue gives the tables and their money columns together: asking information_schema for each table separately grows with the number of tables of the product and made the measure slower than the restore it checks.
+    const catalogue = await tx.query<{ relname: string; money: string[] }>(
+      `select c.relname,
+              coalesce(array(select a.attname::text from pg_attribute a where a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped and a.atttypid = 'numeric'::regtype and a.attname::text like '%\\_vnd' order by a.attname::text), array[]::text[]) as money
+         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname = 'machvon' and c.relkind in ('r', 'p') and c.relrowsecurity and has_table_privilege(c.oid, 'select')
           and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'tenant_id' and a.attnum > 0 and not a.attisdropped)
         order by c.relname`,
     );
+    const moneyOf = new Map(catalogue.map((entry) => [entry.relname, entry.money]));
     const tables: Record<string, TableMeasurement> = {};
     for (const table of tablesToExport(
       catalogue.map((entry) => entry.relname),
       'FULL',
     )) {
-      const moneyColumns = (
-        await tx.query<{ column_name: string }>(
-          "select column_name from information_schema.columns where table_schema = 'machvon' and table_name = $1 and data_type = 'numeric' and column_name like '%\\_vnd' order by column_name",
-          [table],
-        )
-      ).map((entry) => entry.column_name);
+      const moneyColumns = moneyOf.get(table) ?? [];
       const sums = moneyColumns.map((column, index) => `coalesce(sum(s.${quote(column)}), 0)::text as m${index}`).join(', ');
       const [row] = await tx.query<Record<string, string>>(
         `select count(*)::text as rows, md5(coalesce(string_agg(s.__row_hash, '' order by s.__row_hash), '')) as checksum${sums === '' ? '' : `, ${sums}`}

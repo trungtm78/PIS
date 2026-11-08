@@ -67,3 +67,9 @@ REVOKE UPDATE ON TABLE machvon.work_clock FROM machvon_app;
 GRANT UPDATE (status, ended_at, ended_by_membership_id, end_reason, version, owner_membership_id, owner_unit_id) ON TABLE machvon.work_clock TO machvon_app;
 
 COMMENT ON TABLE machvon.work_clock IS 'Native clocks of the alert centre: an obligation with a limit in working time, its owner, the action expected and the consequence; ended as MET or CANCELLED, never deleted.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX work_clock_ended_by_membership_idx ON machvon.work_clock (tenant_id, ended_by_membership_id) WHERE ended_by_membership_id IS NOT NULL;
+CREATE INDEX work_clock_project_idx ON machvon.work_clock (tenant_id, project_id) WHERE project_id IS NOT NULL;
+CREATE INDEX work_clock_subject_idx ON machvon.work_clock (tenant_id, subject_id);
+CREATE INDEX work_clock_target_idx ON machvon.work_clock (tenant_id, target_id);

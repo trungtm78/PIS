@@ -74,3 +74,6 @@ COMMENT ON COLUMN machvon.work_action.reason_code IS 'Why: a code of the snooze 
 COMMENT ON COLUMN machvon.work_action.allowed_by_membership_id IS 'PAUSE_CLOCK: the person who allowed the pause; never the person who paused.';
 COMMENT ON COLUMN machvon.work_action.snooze_ordinal IS 'SNOOZE: which one of the consecutive postponements this is (a claim or a handover starts the count again).';
 COMMENT ON COLUMN machvon.work_action.policy_version IS 'The version of the governance rule that decided, or builtin when it was the default of the platform.';
+
+-- Indexes that lead with the tenant under every foreign key and reference column, so the reads by that column and the checks of the foreign keys do not scan (rule ST-CTR-013, rls-catalog).
+CREATE INDEX work_action_allowed_by_membership_idx ON machvon.work_action (tenant_id, allowed_by_membership_id) WHERE allowed_by_membership_id IS NOT NULL;
