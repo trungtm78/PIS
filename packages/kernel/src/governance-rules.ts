@@ -2,6 +2,8 @@ import { DomainError } from './errors.ts';
 import { RAG_DIMENSIONS, contractHealthDefaults, contractHealthRagParams } from './ctr-analytics.ts';
 import { threeWayDefaults, threeWayParams } from './ctr-money-reports.ts';
 import { paymentClockDefaults, paymentClockParams } from './ctr-reports.ts';
+import { ratingDefaults, ratingParams } from './ctr-performance-rating.ts';
+import { claimLimitationDefaults, claimLimitationParams } from './ctr-register-reports.ts';
 import { FIN_CRITERIA_CATEGORIES, FIN_CRITERIA_DEFAULTS, assertCriteriaSet } from './fin-criteria.ts';
 import { KPI_HOME_DEFAULTS, RAG_EWS_DEFAULTS } from './analytics-rule-defaults.ts';
 import { DIRECTIVE_POLICY_DEFAULTS, parseDirectivePolicy } from './directive.ts';
@@ -1041,6 +1043,55 @@ export const registerContractRules = (): void =>
       schema: { tolerance_pct: num(0, 100), tolerance_vnd: int(0, 1_000_000_000_000) },
       refine: refineWith(threeWayParams),
       defaults: { DEFAULT: rule({ ...threeWayDefaults() }) },
+    });
+    registerRuleType({
+      type: 'CONTRACT_CLAIM_LIMITATION',
+      ownerModule: 'CTR',
+      modules: ['CTR', 'BI'],
+      formula: message('gov.rules.register_contract_rules.formula.contract_claim_limitation'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { decision_window_days: int(1, 3650), near_days: int(0, 365) },
+      refine: refineWith(claimLimitationParams),
+      defaults: { DEFAULT: rule({ ...claimLimitationDefaults() }) },
+    });
+    registerRuleType({
+      type: 'CONTRACT_PERFORMANCE_RATING',
+      ownerModule: 'CTR',
+      modules: ['CTR', 'BID', 'BI'],
+      formula: message('gov.rules.register_contract_rules.formula.contract_performance_rating'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        weight_quality_pct: int(0, 100),
+        weight_schedule_pct: int(0, 100),
+        weight_safety_env_pct: int(0, 100),
+        weight_cooperation_pct: int(0, 100),
+        weight_financial_pct: int(0, 100),
+        excellent_min: num(0, 100),
+        good_min: num(0, 100),
+        fair_min: num(0, 100),
+        min_criteria: int(1, 5),
+        min_observation_days: int(0, 3650),
+        quality_penalty_critical: int(0, 100),
+        quality_penalty_major: int(0, 100),
+        quality_penalty_minor: int(0, 100),
+        quality_penalty_reopen: int(0, 100),
+        quality_closed_weight_pct: int(0, 100),
+        schedule_zero_score_days_late: int(1, 3650),
+        safety_penalty_minor: int(0, 100),
+        safety_penalty_major: int(0, 100),
+        safety_penalty_critical: int(0, 100),
+        cooperation_penalty_overdue: int(0, 100),
+        cooperation_penalty_escalated: int(0, 100),
+        financial_guarantee_max_penalty: int(0, 100),
+        financial_overpaid_max_penalty: int(0, 100),
+        financial_audit_max_penalty: int(0, 100),
+      },
+      refine: refineWith(ratingParams),
+      defaults: { DEFAULT: rule({ ...ratingDefaults() }) },
     });
   });
 
