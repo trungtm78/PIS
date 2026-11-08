@@ -46,7 +46,7 @@ const RECORD_WORDS: Readonly<Record<string, { severities: readonly string[]; sta
   'claims-limitation': { severities: [], states: ['OPEN', 'GRANTED', 'PARTLY_GRANTED', 'REJECTED', 'WITHDRAWN'] },
   'quality-defects': { severities: ['CRITICAL', 'MAJOR', 'MINOR'], states: ['OPEN', 'ACTION_ASSIGNED', 'ACTION_SUBMITTED', 'VERIFIED', 'CLOSED', 'REOPENED'] },
   obstacles: { severities: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'], states: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED', 'PENDING_VERIFICATION', 'CLOSED', 'REOPENED'] },
-  'audit-findings': { severities: ['CRITICAL', 'MAJOR', 'MINOR'], states: [] },
+  'audit-findings': { severities: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'MAJOR', 'MINOR'], states: [] },
   'performance-rating': { severities: [], states: ['NONE', 'PROPOSED', 'NOTIFIED', 'RESPONDED', 'ADOPTED'] },
   'contract-health': { severities: [], states: [] },
 };

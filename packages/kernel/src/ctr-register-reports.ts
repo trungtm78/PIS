@@ -565,7 +565,7 @@ export interface RegisterBreakdown {
 const GROUP_ORDER: Readonly<Record<string, readonly string[]>> = {
   claim_status: ['OPEN', 'GRANTED', 'PARTLY_GRANTED', 'REJECTED', 'WITHDRAWN'],
   limitation_status: ['LAPSED', 'NEAR', 'RUNNING', 'OUT_OF_TIME', 'IN_TIME', 'NOT_JUDGED'],
-  severity: ['CRITICAL', 'MAJOR', 'MINOR', 'UNKNOWN'],
+  severity: ['CRITICAL', 'HIGH', 'MAJOR', 'MEDIUM', 'MINOR', 'LOW', 'UNKNOWN'],
   ncr_status: ['OPEN', 'REOPENED', 'ACTION_ASSIGNED', 'ACTION_SUBMITTED', 'VERIFIED', 'CLOSED'],
   proposed_rating: ['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'NONE'],
   rating_status: ['NONE', 'PROPOSED', 'NOTIFIED', 'RESPONDED', 'ADOPTED', 'WITHDRAWN'],
