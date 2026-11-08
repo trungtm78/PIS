@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { translator } from '../../i18n';
 import type { WebRoute } from '../../routes/types';
 import { harness, mount } from '../sas/test-support';
 import AccuracyScreen from './AccuracyScreen';
@@ -57,7 +58,7 @@ describe('DIS-27 the milestones (G1-16)', () => {
     expect(await screen.findByTestId('nothing-to-project')).toBeTruthy();
     cleanup();
     mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, harness(() => board({ snapshot: null, run: null, milestones: [] })), PERMISSIONS);
-    expect(await screen.findByText(/./, { selector: '[data-state="empty"], .state-card, [role="status"]' })).toBeTruthy();
+    expect(await screen.findByText(translator.t('states.empty.title'))).toBeTruthy();
   });
 
   it('shows a skeleton while loading, and an error with a retry that reads again', async () => {
