@@ -20582,5 +20582,240 @@
     "stories": [
       "ST-DOC-023"
     ]
+  },
+  {
+    "id": "BL-CAP-23",
+    "requirement": "FR-CAP-23",
+    "screen": "CAP-23",
+    "title": "Điều chuyển vốn theo hiệu suất và mô phỏng tác động",
+    "module": "CAP",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Dự án chậm (cho)",
+      "Dự án nhanh (nhận)",
+      "Tỷ lệ dự báo cuối năm",
+      "Số tiền đề xuất",
+      "Tỷ lệ giải ngân trước và sau (toàn tỉnh, đơn vị)",
+      "Dự báo cuối năm trước và sau",
+      "Cảnh báo của mô phỏng",
+      "Cấp duyệt theo ủy quyền"
+    ],
+    "rule": "Ứng viên chọn theo quy tắc REALLOCATION_POLICY (chưa kiểm chứng); mô phỏng dùng cùng công thức tỷ lệ của DIS; kết quả mô phỏng được ghi lại khi nộp và người duyệt đọc bản đã ghi; duyệt và áp dụng bị giới hạn theo ma trận ủy quyền CAP_REALLOCATION",
+    "test_ids": [
+      "UI-CAP-23"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-DIS-27",
+    "requirement": "FR-DIS-27",
+    "screen": "DIS-27",
+    "title": "Dự báo tới các mốc chỉ đạo của giải ngân",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Mốc và ngày",
+      "Mục tiêu (%)",
+      "Dự kiến (%)",
+      "Chênh lệch (điểm %)",
+      "Trạng thái",
+      "Chủ đầu tư",
+      "Mức đủ dữ liệu",
+      "Phiên bản quy tắc"
+    ],
+    "rule": "Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng",
+    "test_ids": [
+      "UI-DIS-27"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-DIS-28",
+    "requirement": "FR-DIS-28",
+    "screen": "DIS-28",
+    "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Chủ đầu tư",
+      "Số tháng đo",
+      "Dự báo",
+      "Thực chi",
+      "Sai số tuyệt đối có trọng số (WAPE)",
+      "Độ lệch (bias)",
+      "Hạng",
+      "Cờ lệch"
+    ],
+    "rule": "So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)",
+    "test_ids": [
+      "UI-DIS-28"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-PAY-22",
+    "requirement": "FR-PAY-22",
+    "screen": "PAY-22",
+    "title": "Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Hồ sơ",
+      "Hợp đồng",
+      "Chủ đầu tư",
+      "Loại đồng hồ",
+      "Bắt đầu",
+      "Hạn",
+      "Còn lại hoặc quá hạn",
+      "Trạng thái",
+      "Lý do trả lại chuẩn"
+    ],
+    "rule": "Hạn = lúc Kho bạc nhận hồ sơ đủ + số ngày làm việc của quy tắc PAYMENT_CLOCK (2 và 1, chưa kiểm chứng) đếm trên lịch làm việc đã công bố; năm không có lịch thì nói rõ, không đoán; trả lại phải chọn lý do chuẩn",
+    "test_ids": [
+      "UI-PAY-22"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-CTR-32",
+    "requirement": "FR-CTR-32",
+    "screen": "CTR-32",
+    "title": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Hợp đồng",
+      "Dự án",
+      "Nhóm dự án",
+      "Ngày hoàn thành",
+      "Số tháng cho phép",
+      "Hạn nộp hồ sơ quyết toán",
+      "Còn lại hoặc quá hạn",
+      "Trạng thái"
+    ],
+    "rule": "Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem",
+    "test_ids": [
+      "UI-CTR-32"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-CTR-33",
+    "requirement": "FR-CTR-33",
+    "screen": "CTR-33",
+    "title": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Dự án",
+      "Gói thầu",
+      "Kết quả trúng thầu",
+      "Nhà thầu và thành viên liên danh",
+      "Giá gốc so với giá trúng",
+      "Phát hiện của kiểm tra liên kết",
+      "Phiên bản điều chỉnh",
+      "Tác động lên đường cơ sở",
+      "Xem xét đường cơ sở"
+    ],
+    "rule": "Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét",
+    "test_ids": [
+      "UI-CTR-33"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-PRJ-28",
+    "requirement": "FR-PRJ-28",
+    "screen": "PRJ-28",
+    "title": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường",
+    "module": "PRJ",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Tuần bắt đầu",
+      "Hạng mục",
+      "Thời gian dự kiến",
+      "Đơn vị thực hiện",
+      "Vướng mắc chưa gỡ",
+      "Trạng thái sẵn sàng",
+      "Kết quả cuối tuần",
+      "Lý do không xong",
+      "PPC các tuần trước"
+    ],
+    "rule": "Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết",
+    "test_ids": [
+      "UI-PRJ-28"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-PRJ-29",
+    "requirement": "FR-PRJ-29",
+    "screen": "PRJ-29",
+    "title": "Bài học kinh nghiệm và cổng đóng dự án",
+    "module": "PRJ",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,HOME",
+    "fields": [
+      "Bài học",
+      "Nhóm",
+      "Tình huống",
+      "Khuyến nghị",
+      "Trạng thái",
+      "Người đề xuất và người duyệt",
+      "Miễn trừ và lý do",
+      "Kết quả cổng đóng"
+    ],
+    "rule": "Cổng đóng cần đủ số bài học đã duyệt hoặc một miễn trừ có lý do do người khác duyệt theo quy tắc LESSONS_LEARNED_POLICY (chưa kiểm chứng); người đề xuất không tự duyệt",
+    "test_ids": [
+      "UI-PRJ-29"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   }
 ]

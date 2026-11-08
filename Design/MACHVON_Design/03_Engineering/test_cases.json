@@ -23610,5 +23610,315 @@
       "FR-DOC-25",
       "FR-DOC-27"
     ]
+  },
+  {
+    "id": "UI-CAP-23",
+    "source": "FR-CAP-23",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Điều chuyển vốn theo hiệu suất và mô phỏng tác động; user có quyền và user không có quyền; route CAP-23",
+    "steps": [
+      "Mở CAP-23 từ menu và liên kết sâu; kiểm nhãn trường: Dự án chậm (cho), Dự án nhanh (nhận), Tỷ lệ dự báo cuối năm, Số tiền đề xuất, Tỷ lệ giải ngân trước và sau (toàn tỉnh, đơn vị), Dự báo cuối năm trước và sau, Cảnh báo của mô phỏng, Cấp duyệt theo ủy quyền",
+      "Thực hiện thao tác chính theo quy tắc: Ứng viên chọn theo quy tắc REALLOCATION_POLICY (chưa kiểm chứng); mô phỏng dùng cùng công thức tỷ lệ của DIS; kết quả mô phỏng được ghi lại khi nộp và người duyệt đọc bản đã ghi; duyệt và áp dụng bị giới hạn theo ma trận ủy quyền CAP_REALLOCATION",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CAP-23"
+    ],
+    "expected": "Điều chuyển vốn theo hiệu suất và mô phỏng tác động: hiển thị đủ các trường, áp quy tắc \"Ứng viên chọn theo quy tắc REALLOCATION_POLICY (chưa kiểm chứng); mô phỏng dùng cùng công thức tỷ lệ của DIS; kết quả mô phỏng được ghi lại khi nộp và người duyệt đọc bản đã ghi; duyệt và áp dụng bị giới hạn theo ma trận ủy quyền CAP_REALLOCATION\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-23"
+    ]
+  },
+  {
+    "id": "UI-DIS-27",
+    "source": "FR-DIS-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Dự báo tới các mốc chỉ đạo của giải ngân; user có quyền và user không có quyền; route DIS-27",
+    "steps": [
+      "Mở DIS-27 từ menu và liên kết sâu; kiểm nhãn trường: Mốc và ngày, Mục tiêu (%), Dự kiến (%), Chênh lệch (điểm %), Trạng thái, Chủ đầu tư, Mức đủ dữ liệu, Phiên bản quy tắc",
+      "Thực hiện thao tác chính theo quy tắc: Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-27"
+    ],
+    "expected": "Dự báo tới các mốc chỉ đạo của giải ngân: hiển thị đủ các trường, áp quy tắc \"Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-27"
+    ]
+  },
+  {
+    "id": "UI-DIS-28",
+    "source": "FR-DIS-28",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Độ chính xác dự báo giải ngân của từng chủ đầu tư; user có quyền và user không có quyền; route DIS-28",
+    "steps": [
+      "Mở DIS-28 từ menu và liên kết sâu; kiểm nhãn trường: Chủ đầu tư, Số tháng đo, Dự báo, Thực chi, Sai số tuyệt đối có trọng số (WAPE), Độ lệch (bias), Hạng, Cờ lệch",
+      "Thực hiện thao tác chính theo quy tắc: So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-28"
+    ],
+    "expected": "Độ chính xác dự báo giải ngân của từng chủ đầu tư: hiển thị đủ các trường, áp quy tắc \"So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-28"
+    ]
+  },
+  {
+    "id": "UI-PAY-22",
+    "source": "FR-PAY-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày; user có quyền và user không có quyền; route PAY-22",
+    "steps": [
+      "Mở PAY-22 từ menu và liên kết sâu; kiểm nhãn trường: Hồ sơ, Hợp đồng, Chủ đầu tư, Loại đồng hồ, Bắt đầu, Hạn, Còn lại hoặc quá hạn, Trạng thái, Lý do trả lại chuẩn",
+      "Thực hiện thao tác chính theo quy tắc: Hạn = lúc Kho bạc nhận hồ sơ đủ + số ngày làm việc của quy tắc PAYMENT_CLOCK (2 và 1, chưa kiểm chứng) đếm trên lịch làm việc đã công bố; năm không có lịch thì nói rõ, không đoán; trả lại phải chọn lý do chuẩn",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên PAY-22"
+    ],
+    "expected": "Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày: hiển thị đủ các trường, áp quy tắc \"Hạn = lúc Kho bạc nhận hồ sơ đủ + số ngày làm việc của quy tắc PAYMENT_CLOCK (2 và 1, chưa kiểm chứng) đếm trên lịch làm việc đã công bố; năm không có lịch thì nói rõ, không đoán; trả lại phải chọn lý do chuẩn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-22"
+    ]
+  },
+  {
+    "id": "UI-CTR-32",
+    "source": "FR-CTR-32",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng; user có quyền và user không có quyền; route CTR-32",
+    "steps": [
+      "Mở CTR-32 từ menu và liên kết sâu; kiểm nhãn trường: Hợp đồng, Dự án, Nhóm dự án, Ngày hoàn thành, Số tháng cho phép, Hạn nộp hồ sơ quyết toán, Còn lại hoặc quá hạn, Trạng thái",
+      "Thực hiện thao tác chính theo quy tắc: Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CTR-32"
+    ],
+    "expected": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng: hiển thị đủ các trường, áp quy tắc \"Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-32"
+    ]
+  },
+  {
+    "id": "UI-CTR-33",
+    "source": "FR-CTR-33",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh; user có quyền và user không có quyền; route CTR-33",
+    "steps": [
+      "Mở CTR-33 từ menu và liên kết sâu; kiểm nhãn trường: Dự án, Gói thầu, Kết quả trúng thầu, Nhà thầu và thành viên liên danh, Giá gốc so với giá trúng, Phát hiện của kiểm tra liên kết, Phiên bản điều chỉnh, Tác động lên đường cơ sở, Xem xét đường cơ sở",
+      "Thực hiện thao tác chính theo quy tắc: Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CTR-33"
+    ],
+    "expected": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh: hiển thị đủ các trường, áp quy tắc \"Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-33"
+    ]
+  },
+  {
+    "id": "UI-PRJ-28",
+    "source": "FR-PRJ-28",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kế hoạch nhìn trước 2 đến 6 tuần của công trường; user có quyền và user không có quyền; route PRJ-28",
+    "steps": [
+      "Mở PRJ-28 từ menu và liên kết sâu; kiểm nhãn trường: Tuần bắt đầu, Hạng mục, Thời gian dự kiến, Đơn vị thực hiện, Vướng mắc chưa gỡ, Trạng thái sẵn sàng, Kết quả cuối tuần, Lý do không xong, PPC các tuần trước",
+      "Thực hiện thao tác chính theo quy tắc: Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên PRJ-28"
+    ],
+    "expected": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường: hiển thị đủ các trường, áp quy tắc \"Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-28"
+    ]
+  },
+  {
+    "id": "UI-PRJ-29",
+    "source": "FR-PRJ-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bài học kinh nghiệm và cổng đóng dự án; user có quyền và user không có quyền; route PRJ-29",
+    "steps": [
+      "Mở PRJ-29 từ menu và liên kết sâu; kiểm nhãn trường: Bài học, Nhóm, Tình huống, Khuyến nghị, Trạng thái, Người đề xuất và người duyệt, Miễn trừ và lý do, Kết quả cổng đóng",
+      "Thực hiện thao tác chính theo quy tắc: Cổng đóng cần đủ số bài học đã duyệt hoặc một miễn trừ có lý do do người khác duyệt theo quy tắc LESSONS_LEARNED_POLICY (chưa kiểm chứng); người đề xuất không tự duyệt",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên PRJ-29"
+    ],
+    "expected": "Bài học kinh nghiệm và cổng đóng dự án: hiển thị đủ các trường, áp quy tắc \"Cổng đóng cần đủ số bài học đã duyệt hoặc một miễn trừ có lý do do người khác duyệt theo quy tắc LESSONS_LEARNED_POLICY (chưa kiểm chứng); người đề xuất không tự duyệt\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-29"
+    ]
+  },
+  {
+    "id": "UAT-CAP-G11A-1",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A frozen snapshot, a proposal with a move between two units and then with no move",
+    "steps": [
+      "The impact is simulated, the proposal is handed in and decided"
+    ],
+    "expected": "Without a move the rates before and after are the rates DIS shows; with the move only the two units change and the province rate on the whole plan does not; the impact recorded at submit is the one the approver reads; a decision without the record is 422 REALLOCATION_IMPACT_MISSING and one above the delegation band is 403 SCOPE_DENIED",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-23"
+    ]
+  },
+  {
+    "id": "UAT-CAP-G11A-2",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "CAP-23 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "steps": [
+      "each of the seven standard states is forced in turn"
+    ],
+    "expected": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-23"
+    ]
+  },
+  {
+    "id": "UAT-DIS-G11A-1",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A frozen snapshot with forecasts and registrations, and a month with no figure",
+    "steps": [
+      "The job reads the snapshot and the board is read"
+    ],
+    "expected": "One vintage for each snapshot, milestone and investor, append-only; a missing month makes the projection a lower bound and never an invented month; a snapshot that was not read is told apart from one with no milestone; the accuracy compares the last forecast before each month with what the Treasury paid",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-27",
+      "FR-DIS-28"
+    ]
+  },
+  {
+    "id": "UAT-DIS-G11A-2",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "DIS-27, DIS-28 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "steps": [
+      "each of the seven standard states is forced in turn"
+    ],
+    "expected": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-27",
+      "FR-DIS-28"
+    ]
+  },
+  {
+    "id": "UAT-PAY-G11A-1",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A request sent to the Treasury in a year with a published calendar and one in a year without",
+    "steps": [
+      "The clocks are read and the request is returned with and without a reason code"
+    ],
+    "expected": "Due time is the working days of the rule from the send, a year without a calendar says so and gives no time; a return without a valid reason code is 422 VALIDATION_FAILED; the reasons are counted by code",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-22"
+    ]
+  },
+  {
+    "id": "UAT-PAY-G11A-2",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "PAY-22 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "steps": [
+      "each of the seven standard states is forced in turn"
+    ],
+    "expected": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-22"
+    ]
+  },
+  {
+    "id": "UAT-CTR-G11A-1",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A completed contract of a project of group B and one of group C, and a change order over the threshold",
+    "steps": [
+      "The job runs, the change takes effect and the version is reviewed"
+    ],
+    "expected": "Due day is the completion plus 5 or 4 months and ends when the file is handed in; a version over the thresholds waits for a review by a person other than its maker (403 SELF_APPROVAL_DENIED) and is decided once (409 ADJUSTMENT_STATE_INVALID)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-32",
+      "FR-CTR-33"
+    ]
+  },
+  {
+    "id": "UAT-CTR-G11A-2",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "CTR-32, CTR-33 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "steps": [
+      "each of the seven standard states is forced in turn"
+    ],
+    "expected": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-32",
+      "FR-CTR-33"
+    ]
+  },
+  {
+    "id": "UAT-PRJ-G11A-1",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A settled project with no lesson, with a pending lesson, and with an approved one, and a plan with constraints",
+    "steps": [
+      "The project is closed and the week is recorded"
+    ],
+    "expected": "Closing is 422 LESSONS_LEARNED_REQUIRED until a second person approved a lesson or a waiver; a window outside 2 to 6 weeks is 422 LOOK_AHEAD_WINDOW_INVALID; an outcome is recorded once and a not-done item needs a standard reason; the PPC counts only recorded items",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-28",
+      "FR-PRJ-29"
+    ]
+  },
+  {
+    "id": "UAT-PRJ-G11A-2",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "PRJ-28, PRJ-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "steps": [
+      "each of the seven standard states is forced in turn"
+    ],
+    "expected": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-28",
+      "FR-PRJ-29"
+    ]
   }
 ]

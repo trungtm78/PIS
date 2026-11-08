@@ -11445,5 +11445,125 @@
       "UI-DOC-27",
       "UAT-PLAN-168"
     ]
+  },
+  {
+    "requirement": "FR-CAP-23",
+    "screen": "CAP-23",
+    "title": "Điều chuyển vốn theo hiệu suất và mô phỏng tác động",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-12; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-CAP-23",
+    "test_ids": [
+      "UI-CAP-23"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-27",
+    "screen": "DIS-27",
+    "title": "Dự báo tới các mốc chỉ đạo của giải ngân",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-16; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-27",
+    "test_ids": [
+      "UI-DIS-27"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-28",
+    "screen": "DIS-28",
+    "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-16; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-28",
+    "test_ids": [
+      "UI-DIS-28"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-22",
+    "screen": "PAY-22",
+    "title": "Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-17; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-PAY-22",
+    "test_ids": [
+      "UI-PAY-22"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-32",
+    "screen": "CTR-32",
+    "title": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-18; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-CTR-32",
+    "test_ids": [
+      "UI-CTR-32"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-33",
+    "screen": "CTR-33",
+    "title": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-18; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-CTR-33",
+    "test_ids": [
+      "UI-CTR-33"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-28",
+    "screen": "PRJ-28",
+    "title": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-19; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-PRJ-28",
+    "test_ids": [
+      "UI-PRJ-28"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-29",
+    "screen": "PRJ-29",
+    "title": "Bài học kinh nghiệm và cổng đóng dự án",
+    "use_cases": [],
+    "source": "docs/governance-roadmap-10of10.md G1-19; GOV-11a",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-PRJ-29",
+    "test_ids": [
+      "UI-PRJ-29"
+    ]
   }
 ]

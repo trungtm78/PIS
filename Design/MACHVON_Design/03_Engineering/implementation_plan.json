@@ -1031,6 +1031,31 @@
       "id": "FT-DOC-09",
       "epic": "EP-DOC",
       "title": "Project document repository: versions, citable text, comments and the multi-stage review"
+    },
+    {
+      "id": "FT-CAP-07",
+      "epic": "EP-CAP",
+      "title": "Reallocation by performance"
+    },
+    {
+      "id": "FT-DIS-09",
+      "epic": "EP-DIS",
+      "title": "Milestone forecast and forecast accuracy"
+    },
+    {
+      "id": "FT-PAY-08",
+      "epic": "EP-PAY",
+      "title": "Treasury clocks and standard return reasons"
+    },
+    {
+      "id": "FT-CTR-10",
+      "epic": "EP-CTR",
+      "title": "Linkage, adjustment versions and settlement clock"
+    },
+    {
+      "id": "FT-PRJ-08",
+      "epic": "EP-PRJ",
+      "title": "Look-ahead and lessons learned"
     }
   ],
   "stories": [
@@ -53898,6 +53923,617 @@
             "UI-DOC-25",
             "UI-DOC-26",
             "UI-DOC-27"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-CTR-020",
+      "epic": "EP-CTR",
+      "feature": "FT-CTR-09",
+      "module": "CTR",
+      "title": "Contract reports: award-to-contract price variance and contractor concentration with Excel, CSV and PDF export",
+      "narrative": "As a leader I read the price variance between award and signed contract and the concentration of contract value by contractor or investor, and export the report with its formula and source.",
+      "release": "R2",
+      "screens": [
+        "CTR-30",
+        "CTR-31"
+      ],
+      "operations": [
+        "getContractReport",
+        "exportContractReport",
+        "getContractScheduleSCurve"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PERFORMANCE-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-CTR-020-1",
+          "given": "Contracts with award 1,000 and signed 1,050 million VND, award 2,000 and signed 1,900, and one contract with no award price",
+          "when": "The bid-variance report is read",
+          "then": "Each variance is (signed minus award) over award, the total is the ratio of the sums over contracts that have an award price, and the contract without an award price shows no number and the reason",
+          "test_id": "UAT-PLAN-119"
+        },
+        {
+          "id": "AC-ST-CTR-020-2",
+          "given": "Contract value of 100 split between contractor A 60, B 25 and C 15 and a unit with fewer contracts than the minimum",
+          "when": "Concentration is read and the report is exported in three formats and above the row cap",
+          "then": "Top-N and HHI of 4,450 are shown against the rule threshold, the small unit shows \"not enough data\", each export carries the formula, source and hash, and an export above the cap returns 422 EXPORT_ROW_CAP_EXCEEDED",
+          "test_id": "UAT-PLAN-120"
+        },
+        {
+          "id": "AC-ST-CTR-020-3",
+          "given": "CTR-30 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-30"
+        },
+        {
+          "id": "AC-ST-CTR-020-4",
+          "given": "CTR-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-CTR-31"
+        }
+      ],
+      "dependencies": [
+        "ST-CTR-019"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "Concentration thresholds are the CONTRACT_CONCENTRATION rule with unverified defaults; a joint venture splits value by contribution share."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-CTR-020-1",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getContractReport, exportContractReport, getContractScheduleSCurve",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-020-2",
+          "kind": "web",
+          "title": "CTR-30, CTR-31 screens built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-020-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for CTR-30, CTR-31; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-020-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-119",
+            "UAT-PLAN-120"
+          ]
+        },
+        {
+          "id": "TK-CTR-020-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-CTR-30",
+            "UI-CTR-31"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-CAP-019",
+      "epic": "EP-CAP",
+      "feature": "FT-CAP-07",
+      "module": "CAP",
+      "title": "Reallocation of capital by performance with the simulated impact on the province rates and approval by delegation",
+      "narrative": "As a planner I can rank donors and recipients by projected performance, see the impact of a proposal on the rates of the province and of each unit before it is decided, and an approver is limited by the delegation matrix for its total.",
+      "release": "R2",
+      "screens": [
+        "CAP-23"
+      ],
+      "operations": [
+        "getReallocationImpact",
+        "listReallocationCandidates"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-CAP-019-1",
+          "given": "A frozen snapshot, a proposal with a move between two units and then with no move",
+          "when": "The impact is simulated, the proposal is handed in and decided",
+          "then": "Without a move the rates before and after are the rates DIS shows; with the move only the two units change and the province rate on the whole plan does not; the impact recorded at submit is the one the approver reads; a decision without the record is 422 REALLOCATION_IMPACT_MISSING and one above the delegation band is 403 SCOPE_DENIED",
+          "test_id": "UAT-CAP-G11A-1"
+        },
+        {
+          "id": "AC-ST-CAP-019-2",
+          "given": "CAP-23 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+          "test_id": "UAT-CAP-G11A-2"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The legal numbers of the item (days, months, targets, windows) are default rules flagged not confirmed until the tenant approves its own; nothing is hard-coded."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-CAP-019-1",
+          "kind": "backend",
+          "title": "Kernel rules, store, migration and API behind CAP-23",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CAP-019-2",
+          "kind": "web",
+          "title": "CAP-23 built with the kit, the seven standard states and an \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CAP-019-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for CAP-23; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CAP-019-4",
+          "kind": "qa",
+          "title": "Automated kernel, store, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-CAP-G11A-1",
+            "UAT-CAP-G11A-2"
+          ]
+        },
+        {
+          "id": "TK-CAP-019-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-CAP-23"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DIS-026",
+      "epic": "EP-DIS",
+      "feature": "FT-DIS-09",
+      "module": "DIS",
+      "title": "Forecast to the directive milestones and the accuracy of the forecast of each investor",
+      "narrative": "As a leader I can see where each investor will stand at each directive milestone, which are at risk, and how good the forecast of each investor has been.",
+      "release": "R2",
+      "screens": [
+        "DIS-27",
+        "DIS-28"
+      ],
+      "operations": [
+        "getDisbursementMilestones",
+        "getDisbursementForecastAccuracy"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-DIS-026-1",
+          "given": "A frozen snapshot with forecasts and registrations, and a month with no figure",
+          "when": "The job reads the snapshot and the board is read",
+          "then": "One vintage for each snapshot, milestone and investor, append-only; a missing month makes the projection a lower bound and never an invented month; a snapshot that was not read is told apart from one with no milestone; the accuracy compares the last forecast before each month with what the Treasury paid",
+          "test_id": "UAT-DIS-G11A-1"
+        },
+        {
+          "id": "AC-ST-DIS-026-2",
+          "given": "DIS-27, DIS-28 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+          "test_id": "UAT-DIS-G11A-2"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The legal numbers of the item (days, months, targets, windows) are default rules flagged not confirmed until the tenant approves its own; nothing is hard-coded."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DIS-026-1",
+          "kind": "backend",
+          "title": "Kernel rules, store, migration and API behind DIS-27, DIS-28",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-026-2",
+          "kind": "web",
+          "title": "DIS-27, DIS-28 built with the kit, the seven standard states and an \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-026-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DIS-27, DIS-28; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-026-4",
+          "kind": "qa",
+          "title": "Automated kernel, store, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-DIS-G11A-1",
+            "UAT-DIS-G11A-2"
+          ]
+        },
+        {
+          "id": "TK-DIS-026-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-DIS-27",
+            "UI-DIS-28"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PAY-018",
+      "epic": "EP-PAY",
+      "feature": "FT-PAY-08",
+      "module": "PAY",
+      "title": "Treasury clocks of 2 working days for a payment and 1 for an advance, with standard return reasons",
+      "narrative": "As an accountant I can see every dossier at the Treasury with its clock, and a returned dossier names one of the standard reasons.",
+      "release": "R2",
+      "screens": [
+        "PAY-22"
+      ],
+      "operations": [
+        "listPaymentClocks",
+        "listPaymentReturnReasons"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PAY-018-1",
+          "given": "A request sent to the Treasury in a year with a published calendar and one in a year without",
+          "when": "The clocks are read and the request is returned with and without a reason code",
+          "then": "Due time is the working days of the rule from the send, a year without a calendar says so and gives no time; a return without a valid reason code is 422 VALIDATION_FAILED; the reasons are counted by code",
+          "test_id": "UAT-PAY-G11A-1"
+        },
+        {
+          "id": "AC-ST-PAY-018-2",
+          "given": "PAY-22 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+          "test_id": "UAT-PAY-G11A-2"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The legal numbers of the item (days, months, targets, windows) are default rules flagged not confirmed until the tenant approves its own; nothing is hard-coded."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PAY-018-1",
+          "kind": "backend",
+          "title": "Kernel rules, store, migration and API behind PAY-22",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PAY-018-2",
+          "kind": "web",
+          "title": "PAY-22 built with the kit, the seven standard states and an \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PAY-018-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PAY-22; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PAY-018-4",
+          "kind": "qa",
+          "title": "Automated kernel, store, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PAY-G11A-1",
+            "UAT-PAY-G11A-2"
+          ]
+        },
+        {
+          "id": "TK-PAY-018-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PAY-22"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-CTR-021",
+      "epic": "EP-CTR",
+      "feature": "FT-CTR-10",
+      "module": "CTR",
+      "title": "Contract linkage, adjustment versions with their impact on the baseline, and the settlement clock of 5 and 4 months",
+      "narrative": "As a contract manager I can see that a contract still ties to its project, package and awarded contractor, what each adjustment version did to the baseline, and the last day for the settlement file.",
+      "release": "R2",
+      "screens": [
+        "CTR-32",
+        "CTR-33"
+      ],
+      "operations": [
+        "listContractSettlementClocks",
+        "getContractLinkage",
+        "listContractAdjustments",
+        "reviewContractAdjustment"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-CTR-021-1",
+          "given": "A completed contract of a project of group B and one of group C, and a change order over the threshold",
+          "when": "The job runs, the change takes effect and the version is reviewed",
+          "then": "Due day is the completion plus 5 or 4 months and ends when the file is handed in; a version over the thresholds waits for a review by a person other than its maker (403 SELF_APPROVAL_DENIED) and is decided once (409 ADJUSTMENT_STATE_INVALID)",
+          "test_id": "UAT-CTR-G11A-1"
+        },
+        {
+          "id": "AC-ST-CTR-021-2",
+          "given": "CTR-32, CTR-33 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+          "test_id": "UAT-CTR-G11A-2"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The legal numbers of the item (days, months, targets, windows) are default rules flagged not confirmed until the tenant approves its own; nothing is hard-coded."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-CTR-021-1",
+          "kind": "backend",
+          "title": "Kernel rules, store, migration and API behind CTR-32, CTR-33",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-021-2",
+          "kind": "web",
+          "title": "CTR-32, CTR-33 built with the kit, the seven standard states and an \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-021-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for CTR-32, CTR-33; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-CTR-021-4",
+          "kind": "qa",
+          "title": "Automated kernel, store, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-CTR-G11A-1",
+            "UAT-CTR-G11A-2"
+          ]
+        },
+        {
+          "id": "TK-CTR-021-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-CTR-32",
+            "UI-CTR-33"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PRJ-020",
+      "epic": "EP-PRJ",
+      "feature": "FT-PRJ-08",
+      "module": "PRJ",
+      "title": "Look-ahead plan of 2 to 6 weeks and lessons learned required at the closing gate",
+      "narrative": "As a site manager I plan the next weeks with their constraints and read the PPC; as an owner I cannot close a project without approved lessons or an approved waiver.",
+      "release": "R2",
+      "screens": [
+        "PRJ-28",
+        "PRJ-29"
+      ],
+      "operations": [
+        "createLookAheadPlan",
+        "publishLookAheadPlan",
+        "raiseLookAheadConstraint",
+        "clearLookAheadConstraint",
+        "recordLookAheadOutcome",
+        "getLookAhead",
+        "proposeLesson",
+        "decideLesson",
+        "requestLessonWaiver",
+        "decideLessonWaiver",
+        "listLessons"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PRJ-020-1",
+          "given": "A settled project with no lesson, with a pending lesson, and with an approved one, and a plan with constraints",
+          "when": "The project is closed and the week is recorded",
+          "then": "Closing is 422 LESSONS_LEARNED_REQUIRED until a second person approved a lesson or a waiver; a window outside 2 to 6 weeks is 422 LOOK_AHEAD_WINDOW_INVALID; an outcome is recorded once and a not-done item needs a standard reason; the PPC counts only recorded items",
+          "test_id": "UAT-PRJ-G11A-1"
+        },
+        {
+          "id": "AC-ST-PRJ-020-2",
+          "given": "PRJ-28, PRJ-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, every figure has its \"i\" with formula, source and as-of, and a rule that is a default nobody confirmed says so",
+          "test_id": "UAT-PRJ-G11A-2"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The legal numbers of the item (days, months, targets, windows) are default rules flagged not confirmed until the tenant approves its own; nothing is hard-coded."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PRJ-020-1",
+          "kind": "backend",
+          "title": "Kernel rules, store, migration and API behind PRJ-28, PRJ-29",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-020-2",
+          "kind": "web",
+          "title": "PRJ-28, PRJ-29 built with the kit, the seven standard states and an \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-020-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PRJ-28, PRJ-29; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PRJ-020-4",
+          "kind": "qa",
+          "title": "Automated kernel, store, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PRJ-G11A-1",
+            "UAT-PRJ-G11A-2"
+          ]
+        },
+        {
+          "id": "TK-PRJ-020-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PRJ-28",
+            "UI-PRJ-29"
           ]
         }
       ]
