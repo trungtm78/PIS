@@ -4,6 +4,7 @@ import 'response_model.dart';
 /// How to read the response of each operation that answers with JSON; throws a [ContractMismatch] naming the member that does not match the contract.
 final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>>{
   'abortPlacementMigration': CommandResultResponse.fromJson,
+  'acceptFundingFigures': CommandResultResponse.fromJson,
   'acceptInvitation': SessionContextResponse.fromJson,
   'acceptIssueEscalation': CommandResultResponse.fromJson,
   'acknowledgeAdvanceAlert': CommandResultResponse.fromJson,
@@ -515,6 +516,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getEgpImport': EgpImportDetailResponse.fromJson,
   'getEgpObligation': EgpObligationDetailResponse.fromJson,
   'getEvaluationReport': BidReportResponse.fromJson,
+  'getFundingFigureBatch': FundingFigureBatchResponse.fromJson,
+  'getFundingFigureBoard': FundingFigureBoardResponse.fromJson,
+  'getFundingFigureHistory': FundingFigureHistoryResponse.fromJson,
+  'getFundingTaxonomy': FundingTaxonomyResponse.fromJson,
   'getGovernanceRule': asObject,
   'getGovernanceRuleCatalog': asObject,
   'getGovernanceRuleDiff': asObject,
@@ -700,6 +705,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listExplanationRequests': asObject,
   'listFeatureFlags': FeatureFlagListResponse.fromJson,
   'listFiscalYears': FiscalYearListResponse.fromJson,
+  'listFundingFigureBatches': FundingFigureBatchListResponse.fromJson,
   'listFundReservations': CapReservationPageResponse.fromJson,
   'listGlossaryTerms': asObject,
   'listGovernanceAlerts': PrjGovernanceAlertListResponse.fromJson,
@@ -863,6 +869,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'promoteChangeRequest': CommandResultResponse.fromJson,
   'proposeDossierDisposal': CommandResultResponse.fromJson,
   'proposeEgpMapping': EgpMappingResponse.fromJson,
+  'proposeFundingFigures': CommandResultResponse.fromJson,
   'proposeGlossaryTerm': CommandResultResponse.fromJson,
   'proposeMasterRecord': CommandResultResponse.fromJson,
   'proposeProjectRevision': CommandResultResponse.fromJson,
@@ -1027,6 +1034,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'retryInteropMessage': CommandResultResponse.fromJson,
   'retryTenantProvisioning': TenantLifecycleResultResponse.fromJson,
   'returnContractDraft': CommandResultResponse.fromJson,
+  'returnFundingFigures': CommandResultResponse.fromJson,
   'returnInvestmentAppraisal': CommandResultResponse.fromJson,
   'returnOutgoingDocument': CommandResultResponse.fromJson,
   'returnPackageStep': CommandResultResponse.fromJson,
@@ -1118,6 +1126,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'submitDoaMatrix': CommandResultResponse.fromJson,
   'submitEgpObligation': CommandResultResponse.fromJson,
   'submitExplanation': CommandResultResponse.fromJson,
+  'submitFundingFigures': CommandResultResponse.fromJson,
   'submitGlossaryTerm': CommandResultResponse.fromJson,
   'submitGovernanceRule': CommandResultResponse.fromJson,
   'submitInvestmentAppraisal': CommandResultResponse.fromJson,
@@ -1191,6 +1200,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'waivePunchItem': CommandResultResponse.fromJson,
   'withdrawChangeRequest': CommandResultResponse.fromJson,
   'withdrawContactConsent': CommandResultResponse.fromJson,
+  'withdrawFundingFigures': CommandResultResponse.fromJson,
   'withdrawGovernanceRule': CommandResultResponse.fromJson,
   'withdrawMyConsent': CommandResultResponse.fromJson,
   'withdrawReport': CommandResultResponse.fromJson,
@@ -17186,6 +17196,372 @@ final class FiscalYearResponse implements ResponseModel {
         if (reopenedAt != null) 'reopened_at': reopenedAt,
         if (reopenedUntil != null) 'reopened_until': reopenedUntil,
         if (reopenApprovedBy != null) 'reopen_approved_by': reopenApprovedBy,
+        ...extra,
+      };
+}
+
+final class FundingFigureBatchListResponse implements ResponseModel {
+  const FundingFigureBatchListResponse({
+    required this.items,
+    required this.asOf,
+    this.truncated,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FundingFigureBatchListResponse.fromJson(Object? json, [String path = 'FundingFigureBatchListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FundingFigureBatchListResponse(
+      items: requiredField(map, path, 'items', asList(FundingFigureBatchResponse.fromJson)),
+      truncated: optionalField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'truncated', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<FundingFigureBatchResponse> items;
+  final bool? truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        if (truncated != null) 'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class FundingFigureBatchResponse implements ResponseModel {
+  const FundingFigureBatchResponse({
+    required this.batchId,
+    required this.projectId,
+    required this.projectCode,
+    required this.classCode,
+    required this.tierCode,
+    required this.measure,
+    required this.figureKind,
+    required this.periodGrain,
+    required this.planYear,
+    required this.basis,
+    required this.status,
+    required this.asOfDate,
+    required this.preparedByMe,
+    required this.version,
+    required this.entries,
+    this.explanation,
+    this.approvedAt,
+    this.createdAt,
+    this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FundingFigureBatchResponse.fromJson(Object? json, [String path = 'FundingFigureBatchResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FundingFigureBatchResponse(
+      batchId: requiredField(map, path, 'batch_id', asString),
+      projectId: requiredField(map, path, 'project_id', asString),
+      projectCode: requiredField(map, path, 'project_code', asString),
+      classCode: requiredField(map, path, 'class_code', asString),
+      tierCode: requiredField(map, path, 'tier_code', asString),
+      measure: requiredField(map, path, 'measure', asString),
+      figureKind: requiredField(map, path, 'figure_kind', asString),
+      periodGrain: requiredField(map, path, 'period_grain', asString),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      basis: requiredField(map, path, 'basis', asString),
+      status: requiredField(map, path, 'status', asString),
+      asOfDate: requiredField(map, path, 'as_of_date', asString),
+      explanation: optionalField(map, path, 'explanation', nullable(asString)),
+      preparedByMe: requiredField(map, path, 'prepared_by_me', asBool),
+      approvedAt: optionalField(map, path, 'approved_at', nullable(asString)),
+      createdAt: optionalField(map, path, 'created_at', asString),
+      version: requiredField(map, path, 'version', asInt),
+      entries: requiredField(map, path, 'entries', asList(asObject)),
+      actions: optionalField(map, path, 'actions', asObject),
+      extra: unknownFields(map, path, const <String>{'batch_id', 'project_id', 'project_code', 'class_code', 'tier_code', 'measure', 'figure_kind', 'period_grain', 'plan_year', 'basis', 'status', 'as_of_date', 'explanation', 'prepared_by_me', 'approved_at', 'created_at', 'version', 'entries', 'actions'}, strict: false),
+    );
+  }
+
+  final String batchId;
+  final String projectId;
+  final String projectCode;
+  final String classCode;
+  final String tierCode;
+  final String measure;
+  final String figureKind;
+  final String periodGrain;
+  final int planYear;
+  final String basis;
+  final String status;
+  final String asOfDate;
+  final String? explanation;
+  final bool preparedByMe;
+  final String? approvedAt;
+  final String? createdAt;
+  final int version;
+  final List<Map<String, Object?>> entries;
+  final Map<String, Object?>? actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'batch_id': batchId,
+        'project_id': projectId,
+        'project_code': projectCode,
+        'class_code': classCode,
+        'tier_code': tierCode,
+        'measure': measure,
+        'figure_kind': figureKind,
+        'period_grain': periodGrain,
+        'plan_year': planYear,
+        'basis': basis,
+        'status': status,
+        'as_of_date': asOfDate,
+        if (explanation != null) 'explanation': explanation,
+        'prepared_by_me': preparedByMe,
+        if (approvedAt != null) 'approved_at': approvedAt,
+        if (createdAt != null) 'created_at': createdAt,
+        'version': version,
+        'entries': entries,
+        if (actions != null) 'actions': actions,
+        ...extra,
+      };
+}
+
+final class FundingFigureBoardResponse implements ResponseModel {
+  const FundingFigureBoardResponse({
+    required this.packCode,
+    required this.version,
+    required this.unverified,
+    required this.planYear,
+    required this.period,
+    required this.asOf,
+    required this.measure,
+    required this.view,
+    required this.totals,
+    required this.projects,
+    required this.truncated,
+    this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FundingFigureBoardResponse.fromJson(Object? json, [String path = 'FundingFigureBoardResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FundingFigureBoardResponse(
+      packCode: requiredField(map, path, 'pack_code', asString),
+      version: requiredField(map, path, 'version', asInt),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      period: requiredField(map, path, 'period', asObject),
+      asOf: requiredField(map, path, 'as_of', asString),
+      measure: requiredField(map, path, 'measure', asString),
+      view: requiredField(map, path, 'view', asString),
+      totals: requiredField(map, path, 'totals', asObject),
+      projects: requiredField(map, path, 'projects', asList(asObject)),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      actions: optionalField(map, path, 'actions', asObject),
+      extra: unknownFields(map, path, const <String>{'pack_code', 'version', 'unverified', 'plan_year', 'period', 'as_of', 'measure', 'view', 'totals', 'projects', 'truncated', 'actions'}, strict: false),
+    );
+  }
+
+  final String packCode;
+  final int version;
+  final bool unverified;
+  final int planYear;
+  final Map<String, Object?> period;
+  final String asOf;
+  final String measure;
+  final String view;
+  final Map<String, Object?> totals;
+  final List<Map<String, Object?>> projects;
+  final bool truncated;
+  final Map<String, Object?>? actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'pack_code': packCode,
+        'version': version,
+        'unverified': unverified,
+        'plan_year': planYear,
+        'period': period,
+        'as_of': asOf,
+        'measure': measure,
+        'view': view,
+        'totals': totals,
+        'projects': projects,
+        'truncated': truncated,
+        if (actions != null) 'actions': actions,
+        ...extra,
+      };
+}
+
+final class FundingFigureHistoryResponse implements ResponseModel {
+  const FundingFigureHistoryResponse({
+    required this.projectId,
+    required this.projectCode,
+    required this.classCode,
+    required this.tierCode,
+    required this.measure,
+    required this.periodGrain,
+    required this.planYear,
+    required this.periodOrdinal,
+    required this.history,
+    required this.pending,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FundingFigureHistoryResponse.fromJson(Object? json, [String path = 'FundingFigureHistoryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FundingFigureHistoryResponse(
+      projectId: requiredField(map, path, 'project_id', asString),
+      projectCode: requiredField(map, path, 'project_code', asString),
+      classCode: requiredField(map, path, 'class_code', asString),
+      tierCode: requiredField(map, path, 'tier_code', asString),
+      measure: requiredField(map, path, 'measure', asString),
+      periodGrain: requiredField(map, path, 'period_grain', asString),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      periodOrdinal: requiredField(map, path, 'period_ordinal', asInt),
+      history: requiredField(map, path, 'history', asList(asObject)),
+      pending: requiredField(map, path, 'pending', asList(asObject)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'project_id', 'project_code', 'class_code', 'tier_code', 'measure', 'period_grain', 'plan_year', 'period_ordinal', 'history', 'pending', 'as_of'}, strict: false),
+    );
+  }
+
+  final String projectId;
+  final String projectCode;
+  final String classCode;
+  final String tierCode;
+  final String measure;
+  final String periodGrain;
+  final int planYear;
+  final int periodOrdinal;
+  final List<Map<String, Object?>> history;
+  final List<Map<String, Object?>> pending;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'project_code': projectCode,
+        'class_code': classCode,
+        'tier_code': tierCode,
+        'measure': measure,
+        'period_grain': periodGrain,
+        'plan_year': planYear,
+        'period_ordinal': periodOrdinal,
+        'history': history,
+        'pending': pending,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class FundingTaxonomyResponse implements ResponseModel {
+  const FundingTaxonomyResponse({
+    required this.packCode,
+    required this.packLabel,
+    required this.version,
+    required this.unverified,
+    required this.entryMode,
+    required this.measures,
+    required this.classes,
+    required this.tiers,
+    required this.ratios,
+    required this.provenance,
+    required this.asOf,
+    this.ruleId,
+    this.phasingMustSum,
+    this.actualsPrecedence,
+    this.varianceTolerance,
+    this.periodGrains,
+    this.subsets,
+    this.tags,
+    this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FundingTaxonomyResponse.fromJson(Object? json, [String path = 'FundingTaxonomyResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FundingTaxonomyResponse(
+      packCode: requiredField(map, path, 'pack_code', asString),
+      packLabel: requiredField(map, path, 'pack_label', asString),
+      version: requiredField(map, path, 'version', asInt),
+      ruleId: optionalField(map, path, 'rule_id', nullable(asString)),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      entryMode: requiredField(map, path, 'entry_mode', asString),
+      phasingMustSum: optionalField(map, path, 'phasing_must_sum', asBool),
+      actualsPrecedence: optionalField(map, path, 'actuals_precedence', asString),
+      varianceTolerance: optionalField(map, path, 'variance_tolerance', asObject),
+      measures: requiredField(map, path, 'measures', asList(asString)),
+      periodGrains: optionalField(map, path, 'period_grains', asList(asString)),
+      classes: requiredField(map, path, 'classes', asList(asObject)),
+      tiers: requiredField(map, path, 'tiers', asList(asObject)),
+      subsets: optionalField(map, path, 'subsets', asList(asObject)),
+      tags: optionalField(map, path, 'tags', asList(asObject)),
+      ratios: requiredField(map, path, 'ratios', asList(asObject)),
+      provenance: requiredField(map, path, 'provenance', asObject),
+      actions: optionalField(map, path, 'actions', asObject),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'pack_code', 'pack_label', 'version', 'rule_id', 'unverified', 'entry_mode', 'phasing_must_sum', 'actuals_precedence', 'variance_tolerance', 'measures', 'period_grains', 'classes', 'tiers', 'subsets', 'tags', 'ratios', 'provenance', 'actions', 'as_of'}, strict: false),
+    );
+  }
+
+  final String packCode;
+  final String packLabel;
+  final int version;
+  final String? ruleId;
+  final bool unverified;
+  final String entryMode;
+  final bool? phasingMustSum;
+  final String? actualsPrecedence;
+  final Map<String, Object?>? varianceTolerance;
+  final List<String> measures;
+  final List<String>? periodGrains;
+  final List<Map<String, Object?>> classes;
+  final List<Map<String, Object?>> tiers;
+  final List<Map<String, Object?>>? subsets;
+  final List<Map<String, Object?>>? tags;
+  final List<Map<String, Object?>> ratios;
+  final Map<String, Object?> provenance;
+  final Map<String, Object?>? actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'pack_code': packCode,
+        'pack_label': packLabel,
+        'version': version,
+        if (ruleId != null) 'rule_id': ruleId,
+        'unverified': unverified,
+        'entry_mode': entryMode,
+        if (phasingMustSum != null) 'phasing_must_sum': phasingMustSum,
+        if (actualsPrecedence != null) 'actuals_precedence': actualsPrecedence,
+        if (varianceTolerance != null) 'variance_tolerance': varianceTolerance,
+        'measures': measures,
+        if (periodGrains != null) 'period_grains': periodGrains,
+        'classes': classes,
+        'tiers': tiers,
+        if (subsets != null) 'subsets': subsets,
+        if (tags != null) 'tags': tags,
+        'ratios': ratios,
+        'provenance': provenance,
+        if (actions != null) 'actions': actions,
+        'as_of': asOf,
         ...extra,
       };
 }

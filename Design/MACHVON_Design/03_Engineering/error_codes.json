@@ -5888,6 +5888,94 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "TAXONOMY_PACK_LOCKED": {
+      "status": 409,
+      "title": "Taxonomy pack locked",
+      "meaning": "Không đổi được gói phân loại vốn của đơn vị khi đã có snapshot đã chốt; chỉ ra phiên bản mới của cùng một gói (FND-1, 4.3).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "FUNDING_CLASS_UNKNOWN": {
+      "status": 422,
+      "title": "Funding class unknown",
+      "meaning": "Nhóm vốn hoặc cấp ngân sách không thuộc gói phân loại vốn đang hiệu lực, hoặc phiên bản mới bỏ một nhóm mà thiếu bảng chuyển nhóm (FND-1, 4).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "FIGURE_PERIOD_LOCKED": {
+      "status": 409,
+      "title": "Figure period locked",
+      "meaning": "Kỳ báo cáo đã khóa: không nhận số ước hay số thực mới; chỉ qua cửa sổ mở lại hoặc điều chỉnh muộn ghi ở kỳ đang mở (FND-1, 8 I2).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "ESTIMATE_AFTER_ACTUAL": {
+      "status": 422,
+      "title": "Estimate after actual",
+      "meaning": "Không nhận số ước cho kỳ đã có số thực, hoặc số ước mới trong kỳ đã đóng mềm (FND-1, 8 I3).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "CUMULATIVE_IDENTITY_BROKEN": {
+      "status": 422,
+      "title": "Cumulative identity broken",
+      "meaning": "Lũy kế kỳ này không bằng lũy kế kỳ trước cộng số thực của kỳ (FND-1, 5.2 I-CUM).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "PHASING_SUM_MISMATCH": {
+      "status": 422,
+      "title": "Phasing does not add up",
+      "meaning": "Bốn quý không cộng bằng kế hoạch năm đang hiệu lực, hoặc kế hoạch năm chưa được phát hành (FND-1, 5.2).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "GRAIN_SUM_MISMATCH": {
+      "status": 422,
+      "title": "Months do not add up to the quarter",
+      "meaning": "Ba tháng của một quý không cộng bằng số của quý (FND-1, 5.2).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "ACTUALS_VARIANCE_UNEXPLAINED": {
+      "status": 422,
+      "title": "Variance unexplained",
+      "meaning": "Chênh lệch giữa số báo cáo và số sổ kế toán vượt ngưỡng mà chưa có giải trình 20 đến 2000 ký tự (FND-1, 6.4).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "YEAR_CLOSE_BLOCKED_BY_VARIANCE": {
+      "status": 409,
+      "title": "Year close blocked by variance",
+      "meaning": "Còn chênh lệch chưa giải quyết nên chưa đóng được năm (FND-1, 6.3).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "QUARTER_CONSISTENCY_BROKEN": {
+      "status": 422,
+      "title": "Quarter consistency broken",
+      "meaning": "Snapshot quý lệch với ba snapshot tháng mà không có điều chỉnh làm căn cứ (FND-1, 6.5).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "FIGURE_STATE_INVALID": {
+      "status": 409,
+      "title": "Figure state invalid",
+      "meaning": "Lô số liệu không ở trạng thái cho phép thao tác này (nháp, đã gửi, đã chấp nhận, đã bị thay thế hoặc đã rút).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
     }
   }
 }

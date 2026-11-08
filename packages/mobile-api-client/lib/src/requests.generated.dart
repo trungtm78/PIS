@@ -5779,6 +5779,90 @@ final class FeatureFlagUpdateRollout implements RequestModel {
       };
 }
 
+final class FundingFigureEntry implements RequestModel {
+  const FundingFigureEntry({
+    required this.periodOrdinal,
+    required this.amountVnd,
+  });
+
+  final int periodOrdinal;
+  final String amountVnd;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period_ordinal': periodOrdinal,
+        'amount_vnd': amountVnd,
+      };
+}
+
+final class FundingFigureProposal implements RequestModel {
+  const FundingFigureProposal({
+    required this.projectId,
+    required this.classCode,
+    required this.tierCode,
+    required this.measure,
+    required this.figureKind,
+    required this.periodGrain,
+    required this.planYear,
+    required this.asOfDate,
+    required this.entries,
+    this.basis,
+    this.explanation,
+    this.decisionDocumentId,
+    this.adjustsPlanYear,
+    this.adjustsPeriodOrdinal,
+    this.sourceReportRevisionId,
+  });
+
+  final String projectId;
+  final String classCode;
+  final String tierCode;
+  final String measure;
+  final String figureKind;
+  final String periodGrain;
+  final int planYear;
+  final String? basis;
+  final String asOfDate;
+  final List<FundingFigureEntry> entries;
+  final String? explanation;
+  final String? decisionDocumentId;
+  final int? adjustsPlanYear;
+  final int? adjustsPeriodOrdinal;
+  final String? sourceReportRevisionId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'class_code': classCode,
+        'tier_code': tierCode,
+        'measure': measure,
+        'figure_kind': figureKind,
+        'period_grain': periodGrain,
+        'plan_year': planYear,
+        if (basis != null) 'basis': basis,
+        'as_of_date': asOfDate,
+        'entries': entries,
+        if (explanation != null) 'explanation': explanation,
+        if (decisionDocumentId != null) 'decision_document_id': decisionDocumentId,
+        if (adjustsPlanYear != null) 'adjusts_plan_year': adjustsPlanYear,
+        if (adjustsPeriodOrdinal != null) 'adjusts_period_ordinal': adjustsPeriodOrdinal,
+        if (sourceReportRevisionId != null) 'source_report_revision_id': sourceReportRevisionId,
+      };
+}
+
+final class FundingFigureReason implements RequestModel {
+  const FundingFigureReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class FundingLine implements RequestModel {
   const FundingLine({
     required this.bucket,
