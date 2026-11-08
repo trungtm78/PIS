@@ -17,6 +17,9 @@ import './rptGov12.css';
 
 const LAYOUT = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,59}$/;
 
+/** The key of the word for a provider of signatures (camel case, as the keys of the catalogue are). */
+const providerWord = (provider: string): string => (provider === 'REMOTE_CA' ? 'remoteCa' : provider === 'LOCAL_AGENT' ? 'localAgent' : 'mock');
+
 function UnlockDialog({ lock, rule, onClose }: { lock: LockRow; rule: LockRule; onClose: () => void }) {
   const { t } = useTranslation();
   const unlock = useUnlock();
@@ -67,7 +70,7 @@ function SignatureDetail({ lock, onClose }: { lock: LockRow; onClose: () => void
                 items={[
                   { label: t('rpt.lock.detail.revision'), value: String(data.revision), testId: 'sig-revision' },
                   { label: t('rpt.lock.detail.digest'), value: <HashLine sha={data.digest_sha256} testId="sig-digest" /> },
-                  { label: t('rpt.lock.detail.provider'), value: data.signature === null ? dash : t(`rpt.lock.provider.${data.signature.provider.toLowerCase()}`), testId: 'sig-provider' },
+                  { label: t('rpt.lock.detail.provider'), value: data.signature === null ? dash : t(`rpt.lock.provider.${providerWord(data.signature.provider)}`), testId: 'sig-provider' },
                   { label: t('rpt.lock.detail.signer'), value: data.signature === null ? dash : shortId(data.signature.signer_id), testId: 'sig-signer' },
                   { label: t('rpt.lock.detail.fingerprint'), value: data.signature === null ? dash : <HashLine sha={data.signature.certificate_fingerprint} testId="sig-fingerprint" /> },
                   { label: t('rpt.lock.detail.cms'), value: data.signature === null ? dash : <HashLine sha={data.signature.cms_sha256} testId="sig-cms" /> },

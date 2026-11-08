@@ -137,7 +137,7 @@ describe('RPT-06, the period locks and the signatures', () => {
     expect(within(detail).getByTestId('sig-digest').textContent).toBe(sha('a'));
     expect(within(detail).getByTestId('sig-cms').textContent).toBe(sha('c'));
     expect(within(detail).getByTestId('sig-counts').textContent).toBe(word('rpt.lock.detail.counts.yes'));
-    expect(within(detail).getByTestId('sig-provider').textContent).toBe(word('rpt.lock.provider.remote_ca'));
+    expect(within(detail).getByTestId('sig-provider').textContent).toBe(word('rpt.lock.provider.remoteCa'));
     expect(within(detail).queryByTestId('test-signature')).toBeNull();
   });
 

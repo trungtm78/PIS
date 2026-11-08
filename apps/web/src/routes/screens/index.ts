@@ -559,4 +559,18 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   // The risk board scored from signals and the effectiveness after the investment (lane MR-1).
   'PRJ-28': () => import('../../screens/prj/risk-signals/RiskSignalBoardScreen'),
   'MNE-11': () => import('../../screens/mne/effect/EffectivenessScreen'),
+=======
+  'RPT-04': () => import('../../screens/rpt/DeliveryLogScreen'),  // Lane GOV-12: the forms for the Ministry and the period locks, community monitoring, the public portal, investor standing, the anonymous channel, gifts, transmittals and photo findings.
+  'RPT-05': () => import('../../screens/gov12/rpt/MofFormsScreen'),
+  'RPT-06': () => import('../../screens/gov12/rpt/PeriodLockScreen'),
+  'PRJ-30': () => import('../../screens/gov12/prj/MonitoringListScreen'),
+  'PRJ-31': () => import('../../screens/gov12/prj/MonitoringDetailScreen'),
+  'PRJ-32': () => import('../../screens/gov12/prj/PortalAdminScreen'),
+  'PRJ-33': () => import('../../screens/gov12/prj/PublicPortalScreen'),
+  'AUD-17': () => import('../../screens/gov12/aud/InvestorStandingScreen'),
+  'AUD-18': () => import('../../screens/gov12/aud/WhistleScreen'),
+  'AUD-19': () => import('../../screens/gov12/aud/GiftScreen'),
+  'DOC-28': () => import('../../screens/gov12/doc/ContainerScreen'),
+  'DOC-29': () => import('../../screens/gov12/doc/TransmittalScreen'),
+  'QMS-12': () => import('../../screens/gov12/qms/PhotoFindingScreen'),
 };
