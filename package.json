@@ -63,8 +63,12 @@
     "globals": "^17.0.0",
     "istanbul-lib-coverage": "3.2.2",
     "jest": "^30.0.0",
+    "js-yaml": "4.3.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.0"
+  },
+  "overrides": {
+    "multer": "2.5.0"
   },
   "allowScripts": {
     "@swc/core": true,
