@@ -7,7 +7,10 @@ import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
 import { Figure, Frame, PickId, UUID_PATTERN, UnverifiedNote, asList, asRecord, dayLabel, num, refusalCode, text, useGovCommand, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
+import { ConstraintFormBox, PlanCreateForm } from './LookAheadForms';
+import { defaultWeekStart, vietnamDay } from './lookahead-form';
 
+const WRITE_PERMISSION = 'look_ahead.write';
 type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 const TONE: Readonly<Record<string, Tone>> = { READY: 'success', CONSTRAINED: 'warning', NOT_READY: 'danger', DONE: 'success', NOT_DONE: 'danger' };
 const BAND_TONE: Readonly<Record<string, Tone>> = { ON_TARGET: 'success', BELOW_TARGET: 'warning', ALERT: 'danger', NO_DATA: 'neutral' };
@@ -22,7 +25,10 @@ export default function LookAheadScreen({ route }: ScreenProps) {
   const [search, setSearch] = useSearchParams();
   const raw = search.get('id') ?? '';
   const id = UUID_PATTERN.test(raw) ? raw : undefined;
-  const query = useGovRead('prj', 'getLookAhead', id === undefined ? undefined : { path: { id } }, id !== undefined);
+  const [created, setCreated] = useState(false);
+  const planRaw = search.get('plan') ?? '';
+  const planId = UUID_PATTERN.test(planRaw) ? planRaw : undefined;
+  const query = useGovRead('prj', 'getLookAhead', id === undefined ? undefined : { path: { id }, ...(planId === undefined ? {} : { query: { plan_id: planId } }) }, id !== undefined);
   if (id === undefined) return <PickId route={route} title={t('gov11.lookAhead.title')} subtitle={t('gov11.lookAhead.subtitle')} raw={raw} onPick={(picked) => setSearch({ id: picked })} />;
   return (
     <Frame
@@ -34,16 +40,94 @@ export default function LookAheadScreen({ route }: ScreenProps) {
         { label: t('gov11.lookAhead.project'), value: text(asRecord(query.data?.project).code) },
       ]}
       query={query}
-      isEmpty={(data) => data.plan === null}
-      notice={<UnverifiedNote rules={[asRecord(query.data?.rule) as unknown as RuleReading]} />}
+      notice={
+        <>
+          <UnverifiedNote rules={[asRecord(query.data?.rule) as unknown as RuleReading]} />
+          {created && (
+            <p className="callout" role="status" data-testid="created-receipt">
+              {t('gov11.lookAhead.form.created')}
+            </p>
+          )}
+        </>
+      }
     >
-      {(data) => <Plan data={data} />}
+      {(data) => <Plan data={data} projectId={id} onOpen={(opened) => setSearch(opened === undefined ? { id } : { id, plan: opened })} onCreated={(planId) => { setCreated(true); setSearch(planId === '' ? { id } : { id, plan: planId }); }} />}
     </Frame>
   );
 }
 
-function Plan({ data }: { data: Record<string, unknown> }) {
+interface PlanProps {
+  data: Record<string, unknown>;
+  projectId: string;
+  onOpen: (planId?: string) => void;
+  onCreated: (planId: string) => void;
+}
+
+/** The button that opens the creation form, and the form: a plan is made by a person who may write the look-ahead (the server decides again). */
+function NewPlan({ data, projectId, onCreated, onOpen, first }: { data: Record<string, unknown>; projectId: string; onCreated: (planId: string) => void; onOpen: (planId?: string) => void; first: boolean }) {
   const { t } = useTranslation();
+  const { permissions } = useSession();
+  const [open, setOpen] = useState(false);
+  if (permissions !== undefined && !permissions.includes(WRITE_PERMISSION)) return <p data-testid="no-create">{t('gov11.lookAhead.form.noRight')}</p>;
+  const today = vietnamDay(data.as_of) ?? '';
+  const existing = asList(data.history).map((week) => text(week.week_start, ''));
+  return (
+    <div className="gov11-grid">
+      {!open && (
+        <div className="gov11-row">
+          <button type="button" className={`ui-button ${first ? 'ui-button--primary' : 'ui-button--outline'}`} onClick={() => setOpen(true)} data-testid="new-plan">
+            {first ? t('gov11.lookAhead.empty.create') : t('gov11.lookAhead.form.open')}
+          </button>
+        </div>
+      )}
+      {open && (
+        <PlanCreateForm
+          projectId={projectId}
+          rule={asRecord(data.rule) as unknown as RuleReading}
+          asOf={dayLabel(today)}
+          existingWeeks={existing}
+          defaultWeekStart={defaultWeekStart(today, existing)}
+          onCancel={() => setOpen(false)}
+          onOpenPlan={(planId) => {
+            setOpen(false);
+            onOpen(planId);
+          }}
+          onDone={(planId) => {
+            setOpen(false);
+            onCreated(planId);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function Plan(props: PlanProps) {
+  const { t } = useTranslation();
+  if (props.data.plan === null) {
+    return (
+      <div className="gov11-grid" data-testid="no-plan">
+        <section aria-labelledby="empty-title">
+          <h2 id="empty-title">{t('gov11.lookAhead.empty.title')}</h2>
+          <p>{t('gov11.lookAhead.empty.body')}</p>
+          {props.data.overdue === true && (
+            <p className="callout" role="status" data-testid="overdue-note">
+              {t('gov11.lookAhead.overdue')}
+            </p>
+          )}
+        </section>
+        <NewPlan data={props.data} projectId={props.projectId} onCreated={props.onCreated} onOpen={props.onOpen} first />
+      </div>
+    );
+  }
+  return <PlanBoard {...props} />;
+}
+
+function PlanBoard({ data, projectId, onOpen, onCreated }: PlanProps) {
+  const { t } = useTranslation();
+  const { permissions } = useSession();
+  const mayWrite = permissions === undefined || permissions.includes(WRITE_PERMISSION);
+  const [raising, setRaising] = useState<string | undefined>(undefined);
   const rule = asRecord(data.rule) as unknown as RuleReading;
   const plan = asRecord(data.plan);
   const ppc = asRecord(plan.ppc);
@@ -111,6 +195,7 @@ function Plan({ data }: { data: Record<string, unknown> }) {
           </button>
         )}
       </div>
+      <NewPlan data={data} projectId={projectId} onCreated={onCreated} onOpen={onOpen} first={false} />
       <div className="gov11-scroll">
         <table className="gov11-table" data-testid="items-table">
           <caption>{t('gov11.lookAhead.caption', { week: dayLabel(plan.week_start) })}</caption>
@@ -160,6 +245,23 @@ function Plan({ data }: { data: Record<string, unknown> }) {
                       </ul>
                     )}
                     {open.length > 0 && <span className="gov11-open">{t('gov11.lookAhead.open', { count: open.length })}</span>}
+                    {item.outcome === 'PLANNED' && mayWrite && raising !== text(item.id) && (
+                      <button type="button" className="ui-button ui-button--outline" data-testid={`raise-${text(item.sequence)}`} onClick={() => setRaising(text(item.id))}>
+                        {t('gov11.lookAhead.constraint.open')}
+                      </button>
+                    )}
+                    {raising === text(item.id) && (
+                      <ConstraintFormBox
+                        itemId={text(item.id)}
+                        itemStart={text(item.planned_start, '')}
+                        rule={rule}
+                        onCancel={() => setRaising(undefined)}
+                        onDone={() => {
+                          setRaising(undefined);
+                          done(t('gov11.lookAhead.what.raised'));
+                        }}
+                      />
+                    )}
                   </td>
                   <td>
                     <StatusPill tone={TONE[state] ?? 'neutral'}>{stateLabel(state)}</StatusPill>
@@ -220,7 +322,16 @@ function Plan({ data }: { data: Record<string, unknown> }) {
         <ul>
           {history.map((week) => {
             const weekPpc = asRecord(week.ppc);
-            return <li key={text(week.id)}>{t('gov11.lookAhead.historyLine', { week: dayLabel(week.week_start), pct: weekPpc.pct === null ? '–' : `${text(weekPpc.pct)}%`, band: bandLabel(text(weekPpc.band, 'NO_DATA')) })}</li>;
+            return (
+              <li key={text(week.id)}>
+                {t('gov11.lookAhead.historyLine', { week: dayLabel(week.week_start), pct: weekPpc.pct === null ? '–' : `${text(weekPpc.pct)}%`, band: bandLabel(text(weekPpc.band, 'NO_DATA')) })}
+                {text(week.id) !== text(plan.id) && (
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`open-${text(week.id)}`} onClick={() => onOpen(text(week.id))}>
+                    {t('gov11.lookAhead.history.open')}
+                  </button>
+                )}
+              </li>
+            );
           })}
         </ul>
       </section>
