@@ -273,7 +273,7 @@ export interface GiftRow {
 
 const GIFT_COLUMNS = `id, recipient_membership_id, declared_by, giver_name, giver_kind, project_id, description, value_vnd::text as value_vnd, ${DAY('received_on')} as received_on, ${DAY('declared_on')} as declared_on, ${DAY('declare_due_on')} as declare_due_on, late, needs_review, may_be_kept,
   rule_version, status, reviewer_membership_id, outcome, outcome_note, ${DAY('closed_on')} as closed_on, version`;
-const toGift = (row: Raw, policy: GiftPolicy): GiftRow => {
+const toGift = (row: Raw): GiftRow => {
   const receivedOn = row.received_on as string;
   const declaredOn = row.declared_on as string;
   return {
@@ -328,18 +328,16 @@ export class GiftStore {
   }
 
   async find(tx: TenantTx, id: string, today: string, lock = false): Promise<GiftRow | undefined> {
-    const policy = (await this.policy(tx, today)).policy;
     const [row] = await tx.query<Raw>(`select ${GIFT_COLUMNS} from machvon.gift_register where id = $1::uuid${lock ? ' for update' : ''}`, [id]);
-    return row === undefined ? undefined : toGift(row, policy);
+    return row === undefined ? undefined : toGift(row);
   }
 
-  async list(tx: TenantTx, filter: { status?: GiftStatus | undefined; recipientId?: string | undefined; limit: number; offset: number }, today: string): Promise<GiftRow[]> {
-    const policy = (await this.policy(tx, today)).policy;
+  async list(tx: TenantTx, filter: { status?: GiftStatus | undefined; recipientId?: string | undefined; limit: number; offset: number }): Promise<GiftRow[]> {
     const rows = await tx.query<Raw>(
       `select ${GIFT_COLUMNS} from machvon.gift_register where ($1::text is null or status = $1) and ($2::uuid is null or recipient_membership_id = $2::uuid) order by declared_on desc, id limit $3 offset $4`,
       [filter.status ?? null, filter.recipientId ?? null, filter.limit, filter.offset],
     );
-    return rows.map((row) => toGift(row, policy));
+    return rows.map((row) => toGift(row));
   }
 
   /** A second person takes the review. */

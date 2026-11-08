@@ -444,7 +444,7 @@ describe('GOV-12 stores', () => {
       const closed = await as((tx) => gifts.close(tx, giftId, 2, 'RETURNED', 'Returned to the giver by registered post', memberId(SECOND), TODAY), TENANT_A, SECOND);
       expect(closed).toMatchObject({ status: 'CLOSED', outcome: 'RETURNED', closedOn: TODAY });
       await expect(admin([[`update machvon.gift_register set outcome = 'KEPT' where id = $1`, [giftId]]], true)).rejects.toThrow();
-      expect(await as((tx) => gifts.list(tx, { limit: 10, offset: 0 }, TODAY), TENANT_B)).toEqual([]);
+      expect(await as((tx) => gifts.list(tx, { limit: 10, offset: 0 }), TENANT_B)).toEqual([]);
     });
   });
 

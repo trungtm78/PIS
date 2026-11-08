@@ -21,7 +21,7 @@ Migration block GOV-12 2600-2619 (registered in db/migrations/blocks.json); V260
 - [x] API: controllers, contract-patch (operations, schemas, error codes, screens), authz matrix, command registry, API tests (apps/api/test/gov12), isolation entries (written, not run: the lead runs the shared suites).
 - [x] Web: 12 screens with the kit, states matrix, i18n parts gov12-prj, gov12-docaud, gov12-rpt (not folded: the lead folds), vitest.
 - [x] Docs and design rows: module specs, implementation_plan stories, traceability, backlog, test cases, navigation (docs/gov12.md).
-- [ ] Gates: lint, typecheck, tests of what I touched, Codex review, triage.
+- [x] Gates: eslint of the touched trees, typecheck of kernel, db, api, web, tests of what I touched, Codex review per commit with every finding triaged (see the final report). Not run by design: the shared suites (isolation, reachability, outbox consumers, negative authz matrix, workers) and the folding of the i18n parts, which the lead does.
 
 ## Steps and tests
 1. Plan and block (this file). Test: `npm run migrations:check`.

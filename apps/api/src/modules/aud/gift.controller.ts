@@ -104,7 +104,7 @@ export class GiftReadsController {
     const page = pageOf(limit, offset);
     const today = todayOf(new Date());
     const filter = { status: oneOfQuery<GiftStatus>(status, GIFT_STATUSES, 'status'), recipientId: uuidQuery(recipient, 'recipient_id') };
-    const found = await this.database.withTenant(tenant, async (tx) => ({ rows: await this.store.list(tx, { ...filter, limit: page.limit + 1, offset: page.offset }, today), policy: await this.store.policy(tx, today) }));
+    const found = await this.database.withTenant(tenant, async (tx) => ({ rows: await this.store.list(tx, { ...filter, limit: page.limit + 1, offset: page.offset }), policy: await this.store.policy(tx, today) }));
     return {
       as_of: today,
       items: found.rows.slice(0, page.limit).map(view),
