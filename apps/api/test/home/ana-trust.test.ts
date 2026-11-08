@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { AnaTrustController } from '../../src/modules/home/ana-trust.controller';
 import { MEMBERS, TENANT_B, UNITS, createAnaFixture, memberId, unitId } from './ana-support';
 
@@ -17,7 +18,7 @@ const person = memberId(MEMBERS.LEADER);
 async function dataset(code: string, builtHoursAgo: number | null, badge = 'PASSED'): Promise<string> {
   const id = await fx.insert('bi_dataset', { dataset_code: code, title: `${code} title`, source_kind: 'PERIOD_SNAPSHOT', grain: 'project', join_paths: {}, owner_user_id: person, created_by: person, updated_by: person });
   if (builtHoursAgo !== null) {
-    await fx.insert('bi_dataset_version', { dataset_id: id, as_of_period: 'W42', built_at: hoursAgo(builtHoursAgo), row_count: 10, checksum_sha256: 'a'.repeat(64), quality_badge: badge, status: 'FROZEN', created_by: person, updated_by: person });
+    await fx.insert('bi_dataset_version', { dataset_id: id, as_of_period: 'W42', built_at: hoursAgo(builtHoursAgo), row_count: 10, checksum_sha256: 'a'.repeat(64), quality_badge: badge, ...(badge === 'NOT_ASSESSED' ? {} : { quality_run_id: randomUUID() }), status: 'FROZEN', created_by: person, updated_by: person }, undefined, { replica: true });
   }
   return id;
 }
@@ -139,7 +140,7 @@ describe('what the leader can trust, over HTTP (G3-7, G3-11)', () => {
 
   it('puts a metric of the registry under the dataset that serves its fields', async () => {
     const reader = person;
-    await fx.insert('metric_definition', { code: 'ctr_paid_value', revision: 1, grain: 'contract_party', aggregation_type: 'ADDITIVE', expression_ast: { op: 'sum', args: [{ op: 'field', name: 'PAID' }] }, unit: 'vnd', owner_id: reader, status: 'ACTIVE' });
+    await fx.insert('metric_definition', { code: 'ctr_paid_value', revision: 1, grain: 'contract_party', aggregation_type: 'ADDITIVE', expression_ast: { op: 'sum', args: [{ op: 'field', name: 'PAID' }] }, unit: 'vnd', owner_id: reader, status: 'CERTIFIED', certified_by: reader });
     const up = await fx.get('/bi/lineage?node=METRIC:ctr_paid_value&direction=UPSTREAM');
     expect(up.status).toBe(200);
     const paths = (up.json.trace as { paths: string[][] }).paths;

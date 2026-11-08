@@ -105,7 +105,6 @@ function HeatmapContent({ route }: ScreenProps) {
   const map: Heatmap | undefined = query.data;
   const state = useScreenState({ isLoading: query.isLoading, error: map === undefined ? query.error : undefined, data: map, isEmpty: (data) => (data as Heatmap).nullReason === 'NO_SNAPSHOT' });
   const rows = new Map((map?.rows ?? []).map((label) => [label.key, label]));
-  const cols = new Map((map?.cols ?? []).map((label) => [label.key, label]));
   const byPair = new Map((map?.cells ?? []).map((cell) => [`${cell.rowKey}|${cell.colKey}`, cell]));
   const contextItems = [
     { label: t('ana.heat.context.asOf'), value: dayText(map?.asOfDate ?? null) },

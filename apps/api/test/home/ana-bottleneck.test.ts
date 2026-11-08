@@ -27,14 +27,14 @@ async function project(unit: number, status = 'IMPLEMENTATION'): Promise<string>
   return pid;
 }
 const payment = (pid: string, status: string, net: number, when: Record<string, unknown>): Promise<string> =>
-  fx.insert('payment_request', { project_id: pid, contract_id: randomUUID(), acceptance_id: randomUUID(), gross_vnd: net, advance_recovery_vnd: 0, retention_vnd: 0, tax_adjustment_vnd: 0, net_vnd: net, status, request_kind: 'INTERIM', version: 1, currency: 'VND', ...when }, TENANT_A, { replica: true });
+  fx.insert('payment_request', { project_id: pid, contract_id: randomUUID(), acceptance_id: randomUUID(), gross_vnd: net, advance_recovery_vnd: 0, retention_vnd: 0, tax_adjustment_vnd: 0, net_vnd: net, status, request_kind: 'INTERIM', ...(when.treasury_sent_at === undefined ? {} : { treasury_sent_by: memberId(MEMBERS.LEADER), treasury_submitted_on: String(when.treasury_sent_at).slice(0, 10) }), ...(status === 'SETTLED' ? { settled_transaction_id: randomUUID(), treasury_paid_on: '2027-01-05', settled_by: memberId(MEMBERS.LEADER), settled_at: '2027-01-05T03:00:00Z' } : {}), claims_acceptance: ['SUBMITTED', 'VERIFIED', 'SENT_TREASURY', 'SETTLED'].includes(status), version: 1, currency: 'VND', ...when }, TENANT_A, { replica: true });
 async function compensation(pid: string, unit: number, amounts: number[], due: string): Promise<string> {
-  const planId = await fx.insert('compensation_plan', { project_id: pid, status: 'PAYING', approved_on: '2027-01-01', payment_due_on: '2027-12-31', grand_total_vnd: amounts.reduce((sum, one) => sum + one, 0) }, TENANT_A, { replica: true });
+  const planId = await fx.insert('compensation_plan', { project_id: pid, status: 'PAYING', executor_kind: 'PROJECT_OWNER', approved_by: memberId(MEMBERS.LEADER), created_by: memberId(MEMBERS.BRANCH), approved_on: '2027-01-01', posting_place_text: 'Commune office', timer_rule_version_id: randomUUID(), posting_started_on: '2026-11-01', posting_ends_on: '2026-12-01', decision_document_version_id: randomUUID(), payment_due_on: '2027-12-31', total_compensation_vnd: amounts.reduce((sum, one) => sum + one, 0), total_support_vnd: 0, total_resettlement_vnd: 0 }, TENANT_A, { replica: true });
   for (const amount of amounts) await fx.insert('compensation_payment', { plan_id: planId, household_id: randomUUID(), owner_unit_id: unitId(unit), amount_vnd: amount, due_on: due, status: 'PENDING', payment_no: 1 }, TENANT_A, { replica: true });
   return planId;
 }
 const issue = (pid: string, unit: number, severity: string, opened: string, extra: Record<string, unknown> = {}): Promise<string> =>
-  fx.insert('issue', { project_id: pid, category_version_id: randomUUID(), severity, assignee_id: memberId(MEMBERS.LEADER), due_at: '2027-12-01T00:00:00Z', status: 'OPEN', version: 1, code: `ISS-${randomUUID().slice(0, 6)}`, title: 'Culvert blocked', owner_unit_id: unitId(unit), opened_at: opened, ...extra }, TENANT_A, { replica: true });
+  fx.insert('issue', { project_id: pid, category_version_id: randomUUID(), severity, assignee_id: memberId(MEMBERS.LEADER), due_at: '2027-12-01T00:00:00Z', status: 'OPEN', version: 1, code: `VM-2027-${String(Math.floor(Math.random() * 900_000) + 100_000)}`, title: 'Culvert blocked', description: 'The culvert under the access road is blocked.', sla_policy_id: randomUUID(), response_due_at: opened, reported_by: memberId(MEMBERS.LEADER), owner_unit_id: unitId(unit), opened_at: opened, ...extra }, TENANT_A, { replica: true });
 
 describe('the bottlenecks and the halted projects over HTTP (G3-9)', () => {
   beforeAll(async () => {

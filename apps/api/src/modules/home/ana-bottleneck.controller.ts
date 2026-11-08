@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { AnaBottleneckStore, HALT_RESOURCE, TenantDatabase, projectScope } from '@machvon/db';
-import type { BottleneckSourceRead, HaltDossierRow, HaltStepRow } from '@machvon/db';
+import { AnaBottleneckStore, HALT_RESOURCE, TenantDatabase, enterScope, householdScopeUnits, projectScope } from '@machvon/db';
+import type { BottleneckSourceRead, HaltDossierRow, HaltStepRow, TenantTx } from '@machvon/db';
 import {
   BOTTLENECK_RULE_TYPE,
   DomainError,
@@ -118,6 +118,12 @@ export class AnaBottleneckController {
     this.clock = clock ?? ((): Date => new Date());
   }
 
+  /** The compensation tables are kept by the unit of the household: the reader sees the units its grants reach, and the same reach narrows the projects. */
+  private async landRead(tx: TenantTx, access: EffectiveAccess, scope: ReturnType<typeof projectScope>, today: string, now: Date): Promise<BottleneckSourceRead> {
+    await enterScope(tx, await householdScopeUnits(tx, access, HOME_READ_PERMISSION, now));
+    return this.store.land(tx, scope, today);
+  }
+
   @Get('home/bottlenecks')
   @OperationId('getBottleneckAnalysis')
   async analysis(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query('cause') cause?: unknown, @Query('unit_id') unitId?: unknown, @Query('bucket') bucket?: unknown): Promise<Record<string, unknown>> {
@@ -132,7 +138,7 @@ export class AnaBottleneckController {
       const policy = await this.store.policy(tx, today);
       const sources: Array<[string, BottleneckSourceRead]> = [
         ['PAYMENT', await this.store.payments(tx, scope)],
-        ['LAND', await this.store.land(tx, scope, today)],
+        ['LAND', await this.landRead(tx, access, scope, today, now)],
         ['ISSUE', await this.store.issues(tx, scope, policy.model.issueMinSeverity)],
         ['HALT', await this.store.halts(tx, scope)],
       ];

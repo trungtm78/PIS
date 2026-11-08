@@ -43,7 +43,11 @@ interface Row {
  * which the Treasury booked nothing for the series gives no point (no data is not 0). It reads only; the arithmetic of the outlook is the kernel's.
  */
 export class AnaOutlookStore {
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   /** The parameters in force on a day: the approved rule of the tenant, else the built-in default, with the version that decided. */
   async policy(tx: TenantTx, asOf: string | Date): Promise<OutlookPolicy> {

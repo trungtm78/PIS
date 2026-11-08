@@ -75,7 +75,7 @@ describe('BI-22 decision log (G3-6)', () => {
     expect(rows[0]?.textContent).toContain(fill(tr('ana.decision.subject.tile'), { code: 'DISBURSEMENT_RATE_PM', unit: tr('ana.decision.subject.wholeScope') }));
     expect(rows[0]?.textContent).toContain('60,00');
     expect(rows[0]?.textContent).toContain(tr('ana.decision.followUp.dueSoon'));
-    expect(rows[0]?.textContent).toContain(tr('ana.decision.kind.DIRECT_ACTION'));
+    expect(rows[0]?.textContent).toContain(tr('ana.decision.kind.directAction'));
     expect(rows[1]?.textContent).toContain(tr('ana.decision.followUp.resolved'));
     expect(rows[0]?.textContent).toContain('Leader One');
     expect(screen.getByTestId('ana-unverified')).toBeTruthy();

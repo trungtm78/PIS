@@ -165,7 +165,11 @@ const toComplaint = (row: ComplaintSql): ComplaintRow => ({
 export class AnaRankingStore {
   private readonly rag = new AnalyticsRagStore();
 
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   async model(tx: TenantTx, asOf: string | Date): Promise<RankingModelReading> {
     const rule = await this.port.require(tx, RANKING_RULE_TYPE, RANKING_RULE_CODE, asOf);

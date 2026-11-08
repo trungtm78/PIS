@@ -116,6 +116,8 @@ export function createAnaFixture(family: number, initialNow: Date): AnaFixture {
     const snapshotId = randomUUID();
     const frozenAt = options.frozenAt ?? `${options.asOf}T03:00:00Z`;
     await admin(async (client) => {
+      // The calendar version is a master record that the analytics read never touches, so its row is not built.
+      await client.query('set session_replication_role = replica');
       await client.query(
         `insert into machvon.reporting_period (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
          values ($1, $2, $3, 1, $4::date, $4::date + 6, now(), 'DEFAULT', 'WEEK', 2027, 'OPEN', $5, $6, $6)`,
@@ -132,10 +134,11 @@ export function createAnaFixture(family: number, initialNow: Date): AnaFixture {
   async function project(snapshotId: string, unit: number, paid: string | null, options: { projectId?: string; fundSourceVersionId?: string; planPm?: string; planLocal?: string } = {}): Promise<string> {
     counter += 1;
     const pid = options.projectId ?? id(family, 500 + counter);
-    if (options.projectId === undefined) await insert('project', { id: pid, code: `ANA-${family}-${counter}`, name: `ANA-${family}-${counter}`, owner_unit_id: unitId(unit), classification: 'INTERNAL', total_investment_vnd: 1000, status: 'IMPLEMENTATION', version: 1, project_group: 'B' });
+    if (options.projectId === undefined) await insert('project', { id: pid, code: `ANA-${family}-${counter}`, name: `ANA-${family}-${counter}`, owner_unit_id: unitId(unit), classification: 'INTERNAL', total_investment_vnd: 1000, status: 'IMPLEMENTATION', version: 1, project_group: 'B' }, TENANT_A, { replica: true });
     const planPm = options.planPm ?? '1000000000000';
     const planLocal = options.planLocal ?? '250000000000';
     await admin(async (client) => {
+      await client.query('set session_replication_role = replica');
       await client.query(
         `insert into machvon.period_snapshot_line (tenant_id, id, snapshot_id, project_id, unit_id, fund_source_version_id, bucket, budget_level, plan_pm_assigned_vnd, plan_local_added_vnd, plan_total_vnd, disbursed_treasury_vnd, treasury_coverage)
          values ($1, gen_random_uuid(), $2, $3, $4, $5, 'CURRENT_YEAR', 'CENTRAL', $6::numeric, $7::numeric, $6::numeric + $7::numeric, $8::numeric, $9)`,
@@ -149,6 +152,8 @@ export function createAnaFixture(family: number, initialNow: Date): AnaFixture {
   }
   const wipe = (extra: string[] = []): Promise<void> =>
     admin(async (client) => {
+      // A frozen snapshot is kept by its guard; the fixture clears it with the guard off.
+      await client.query('set session_replication_role = replica');
       for (const table of [...extra, 'period_snapshot_line', 'period_snapshot', 'project']) await client.query(`delete from machvon.${table}`);
     });
 

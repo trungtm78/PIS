@@ -110,9 +110,9 @@ describe('BI-27 the bottlenecks (G3-9)', () => {
     expect(tiles.textContent).toContain(fill(tr('ana.bn.tile.lowerBound'), { count: 1 }));
     expect(within(tiles).getByTestId('bn-tile-merged').textContent).toBe('1');
     const causes = within(screen.getByTestId('bn-causes')).getAllByTestId('bn-cause');
-    expect(causes[0]?.textContent).toContain(tr('ana.bn.cause.PAYMENT_PENDING_TREASURY'));
+    expect(causes[0]?.textContent).toContain(tr('ana.bn.cause.paymentPendingTreasury'));
     expect(causes[0]?.textContent).toContain('PAY');
-    expect(causes[0]?.textContent).toContain(tr('ana.bn.action.PAYMENT_PENDING_TREASURY'));
+    expect(causes[0]?.textContent).toContain(tr('ana.bn.action.paymentPendingTreasury'));
     expect(causes[1]?.textContent).toContain(fill(tr('ana.bn.noAmountOf'), { count: 1 }));
     expect(screen.getByTestId('bn-buckets').textContent).toContain(tr('ana.bn.bucket.gt').replace('{days}', '90'));
     expect(screen.getByTestId('bn-holders').textContent).toContain(tr('ana.bn.holder.treasury'));
@@ -161,7 +161,7 @@ describe('BI-27 the bottlenecks (G3-9)', () => {
   });
 
   it('turns causes, buckets, holders and reasons into words and reads wrong answers as nothing', () => {
-    expect(causeLabel(translator.t, 'LAND_CLEARANCE')).toBe(tr('ana.bn.cause.LAND_CLEARANCE'));
+    expect(causeLabel(translator.t, 'LAND_CLEARANCE')).toBe(tr('ana.bn.cause.landClearance'));
     expect(causeLabel(translator.t, 'TENANT_CAUSE')).toBe('TENANT_CAUSE');
     expect(causeAction(translator.t, 'TENANT_CAUSE')).toBe(tr('ana.bn.action.default'));
     expect(bucketLabel(translator.t, 'LE_30')).toBe(fill(tr('ana.bn.bucket.le'), { days: 30 }));
@@ -183,7 +183,7 @@ describe('BI-28 the halted projects (G3-9)', () => {
   it('lists the dossiers with the cause, the days halted and the state of the plan, and the suspended project with no dossier', async () => {
     mount(<HaltedProjectsScreen route={ROUTE} />, client(), { permissions: READER });
     const row = await screen.findByTestId('halt-row');
-    expect(row.textContent).toContain(tr('ana.bn.cause.LAND_CLEARANCE'));
+    expect(row.textContent).toContain(tr('ana.bn.cause.landClearance'));
     expect(row.textContent).toContain(fill(tr('ana.bn.age.days'), { days: 49 }));
     expect(row.textContent).toContain(planLabel(translator.t, 'NO_PLAN'));
     expect(screen.getByTestId('halt-gap').textContent).toContain('P-9');

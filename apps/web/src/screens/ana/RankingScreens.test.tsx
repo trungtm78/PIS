@@ -96,7 +96,7 @@ describe('BI-25 the ranking on several measures (G3-8)', () => {
     mount(<MultiRankingScreen route={ROUTE} />, client(), { permissions: READER });
     await screen.findByTestId('rank-band-LARGE');
     const [, second, third] = screen.getAllByTestId('rank-row');
-    expect(within(second as HTMLElement).getByTestId('rank-annotation').textContent).toContain(tr('ana.rank.reason.LAND_CLEARANCE'));
+    expect(within(second as HTMLElement).getByTestId('rank-annotation').textContent).toContain(tr('ana.rank.reason.landClearance'));
     expect(within(second as HTMLElement).getByTestId('rank-annotation').textContent).toContain('31/12/2027');
     expect(within(second as HTMLElement).getByTestId('rank-pair').textContent).toContain(tr('ana.rank.na.noPhysical'));
     expect(within(third as HTMLElement).getByTestId('rank-disputed-RATE').textContent).toContain(tr('ana.rank.disputed'));
@@ -187,7 +187,7 @@ describe('BI-26 notes and complaints of the ranking (G3-8)', () => {
     const notes = await screen.findByTestId('annotation-table');
     const rows = within(notes).getAllByTestId('annotation-row');
     expect(rows[0]?.textContent).toContain(tr('ana.notes.annotation.status.proposed'));
-    expect(rows[0]?.textContent).toContain(tr('ana.rank.reason.LAND_CLEARANCE'));
+    expect(rows[0]?.textContent).toContain(tr('ana.rank.reason.landClearance'));
     expect(rows[0]?.textContent).toContain(fill(tr('ana.notes.proposedBy'), { name: 'Proposer' }));
     const complaints = within(screen.getByTestId('complaint-table')).getAllByTestId('complaint-row');
     expect(complaints[0]?.textContent).toContain(tr('ana.notes.complaint.status.filed'));

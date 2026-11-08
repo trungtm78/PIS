@@ -82,7 +82,11 @@ export class AnaTrustStore {
   private readonly snapshots = new DisSnapshotStore();
   private readonly metrics = new BiMetricStore();
 
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   /** The freshness of every registered dataset on a day; one with no catalogue row or no build has no data, said so. */
   async freshness(tx: TenantTx, now: Date, today: string): Promise<DatasetTrust[]> {

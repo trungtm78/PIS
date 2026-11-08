@@ -152,7 +152,11 @@ const toRow = (row: Sql): AnalyticsDecisionRow => ({
  * they made, the decisions about the units they may read, and (with a grant on the whole tenant) the decisions that name no unit; a person who may not read a decision gets no row, never a refusal that names it.
  */
 export class AnaDecisionStore {
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   async policy(tx: TenantTx, asOf: string | Date): Promise<DecisionPolicyReading> {
     const rule = await this.port.require(tx, DECISION_RULE_TYPE, DECISION_RULE_CODE, asOf);

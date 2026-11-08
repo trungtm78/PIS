@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, SectionCard } from '../../ui';
 import { useBottlenecks } from './bottleneck-hooks';
 import { HALTED_PATH, sourceLink } from './bottleneck-model';
 import type { Analysis, Holder, Item, Source } from './bottleneck-model';

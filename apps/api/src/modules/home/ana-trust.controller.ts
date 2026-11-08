@@ -10,7 +10,7 @@ import { HOME_CLOCK } from './tokens';
 import { workScopes } from './work-scope';
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
-const NODE = /^(MODULE|TABLE|DATASET|METRIC|KPI):[A-Za-z0-9_.\-]{1,100}$/;
+const NODE = /^(MODULE|TABLE|DATASET|METRIC|KPI):[A-Za-z0-9_.-]{1,100}$/;
 
 const infoOf = (type: string, version: string, unverified: boolean): Record<string, unknown> => {
   const rule = describeRuleType(type);

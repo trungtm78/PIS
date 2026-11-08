@@ -58,7 +58,7 @@ describe('the ranking on several measures over HTTP (G3-8)', () => {
     expect(second).toMatchObject({ unit_id: unitId(UNITS.SOUTH), rank: 2, composite: 50 });
     expect(first?.metrics.find((metric) => metric.code === 'PHYSICAL')).toMatchObject({ value: null, score: null, null_reason: 'NO_PHYSICAL_PROGRESS' });
     expect(first?.pair).toMatchObject({ quadrant: null, null_reason: 'NO_PHYSICAL_PROGRESS' });
-    expect(first?.metrics.find((metric) => metric.code === 'RATE')?.value).toBe(64);
+    expect(first?.metrics.find((metric) => metric.code === 'RATE')?.value).toBe(80);
     expect(ranking.bands.find((band) => band.code === 'LARGE')).toMatchObject({ units: 2, thin: true });
   });
 

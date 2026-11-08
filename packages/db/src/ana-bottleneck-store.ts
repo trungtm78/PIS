@@ -161,7 +161,11 @@ const toDossier = (row: DossierSql): DossierRow => ({
  * and not paid, issues not solved, open halt dossiers); a row that cannot be dated is counted as skipped and said. The arithmetic and the lifecycle are the kernel's.
  */
 export class AnaBottleneckStore {
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   async policy(tx: TenantTx, asOf: string | Date): Promise<BottleneckPolicyReading> {
     const rule = await this.port.require(tx, BOTTLENECK_RULE_TYPE, BOTTLENECK_RULE_CODE, asOf);

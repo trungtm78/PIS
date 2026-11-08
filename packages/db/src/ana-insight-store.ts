@@ -58,7 +58,11 @@ const labelsOf = (entries: Iterable<HeatLabel>): HeatLabel[] => [...new Map([...
 export class AnaInsightStore {
   private readonly rag = new AnalyticsRagStore();
 
-  constructor(private readonly port: GovernancePolicyPort = new GovernancePolicyPort()) {}
+  private readonly port: GovernancePolicyPort;
+
+  constructor(port: GovernancePolicyPort = new GovernancePolicyPort()) {
+    this.port = port;
+  }
 
   async policy(tx: TenantTx, asOf: string | Date): Promise<InsightPolicyReading> {
     const rule = await this.port.require(tx, INSIGHT_RULE_TYPE, INSIGHT_RULE_CODE, asOf);
