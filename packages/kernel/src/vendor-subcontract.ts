@@ -3,7 +3,7 @@ import { deadlineClock } from './vendor-restriction.ts';
 import type { DeadlineClockState } from './vendor-restriction.ts';
 
 /**
- * Subcontractors (VND-2, research V11; docs/vendor-controls.md section 6). The law forbids the prime contractor to hand over more than the part of the work it named in its bid (Điều 16 Luật Đấu thầu 22/2023, the
+ * Subcontractors (VND-2, research V11; docs/vendor-controls.md section 6). The law forbids the prime contractor to hand over more than the part of the work it named in its bid (Article 16 Procurement Law 22/2023, the
  * transfer beyond the subcontract part declared). A subcontract is **proposed**, **approved** by a person other than the proposer (the gate action SUBCONTRACT of VND-1 runs then: a subcontractor under a restriction or
  * without the certificate the package asks for is refused), and ends **terminated** or **rejected**. The sum of the shares of the approved subcontracts is judged against the share declared in the bid and the minimum the
  * prime keeps; a subcontractor the bid did not name, or a share over what the bid declared, needs an exception that the approver gives with a reason (or the rule blocks it). After each payment request of the prime the

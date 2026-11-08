@@ -2,7 +2,7 @@ import { DomainError } from './errors.ts';
 
 /**
  * Independence and conflict of interest between the bidders of a package, the panel that evaluates them, the project staff and the owner organisation (VND-2, research V5; docs/vendor-controls.md section 2).
- * The law asks a bidder to be independent in law and in finance from the investor and from the other bidders, and a person who evaluates not to be, or to be related to, a bidder (Điều 6 and 16 Luật Đấu thầu 22/2023;
+ * The law asks a bidder to be independent in law and in finance from the investor and from the other bidders, and a person who evaluates not to be, or to be related to, a bidder (Article 6 and 16 Procurement Law 22/2023;
  * the limits of cross ownership, 30 and 20 percent, are rule data flagged unverified). The detection here is pure: the facts are keys (hashes of the normal forms of an address, a telephone number, a name),
  * never the personal values, so that two records of one party are found by equality; **a signal is not a verdict**: a finding goes to a person who clears, recuses or blocks, and a name alone is never an identity.
  */

@@ -6,7 +6,7 @@ import { nextReviewOn } from './vendor-risk.ts';
  * and adopted by a second person by CA-3 (`ctr-performance-rating.ts`, table `contract_rating_proposal`; the window is the rule `EGP_POSTING_DEADLINES` code `CONTRACTOR_RESPONSE`, one source for the 20 days). This
  * module adds what the vendor side needs on top of it: the **publication** of an adopted rating on the national system no later than 6 months after the contract ends (the obligation `CONTRACTOR_PERFORMANCE` of
  * EGP-2 is the duty; the record here is the receipt, posted by somebody other than the person who adopted the rating), the time the investor has to examine an answer of the contractor and to update the rating when it
- * is right (Điều 20 NĐ 214/2025: the contractor answers in 20 days and a correct answer must be put into the data), the count of **consecutive poor ratings** (a plan to remedy at the second, a suggestion for the
+ * is right (Article 20 Decree 214/2025: the contractor answers in 20 days and a correct answer must be put into the data), the count of **consecutive poor ratings** (a plan to remedy at the second, a suggestion for the
  * debarment register at the third, never an action) and the window of past ratings a selection may look at. Rule `VENDOR_PERFORMANCE`, flagged unverified. Pure.
  */
 

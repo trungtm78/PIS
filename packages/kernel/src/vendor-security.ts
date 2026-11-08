@@ -5,7 +5,7 @@ import type { BidSecurityFactor, ReputationEventFacts, ReputationPolicy, Reputat
 /**
  * The bid security of a bidder (VND-2, research V10; docs/vendor-controls.md section 5): a guarantee letter, an insurance bond or a deposit that the bidder lodges with its bid. It is **received** by one person,
  * **confirmed with the issuer** by another (a letter that nobody confirmed with the bank counts for nothing), and ends **released** (the bid lost or the contract was signed), **expired**, or **forfeited**. A forfeiture is
- * proposed by one person and decided by another, on a decision paper, for one of the reasons the law names; it is the fact that the ledger of bid conduct of VND-1 looks at (Điều 20.2: withdrawing after closing, refusing
+ * proposed by one person and decided by another, on a decision paper, for one of the reasons the law names; it is the fact that the ledger of bid conduct of VND-1 looks at (Article 20.2: withdrawing after closing, refusing
  * to sign, no performance security). The amount a package asks is multiplied by the factor of VND-1 (3 times for a contractor with a posted event within the 2 years). Pure; the numbers are the rule `VENDOR_BID_SECURITY`.
  */
 
@@ -57,7 +57,7 @@ export const SECURITY_FINAL: readonly SecurityState[] = ['REJECTED', 'FORFEITED'
 
 export type SecurityMove = 'CONFIRM' | 'REJECT' | 'PROPOSE_FORFEIT' | 'WITHDRAW_FORFEIT' | 'DECIDE_FORFEIT' | 'RELEASE' | 'EXPIRE';
 
-/** Why a security is forfeited: each is a behaviour the law names (Điều 20 and the bidding documents); the last two words of the code map to the behaviour of the ledger of VND-1. */
+/** Why a security is forfeited: each is a behaviour the law names (Article 20 and the bidding documents); the last two words of the code map to the behaviour of the ledger of VND-1. */
 export const FORFEIT_REASONS = ['WITHDREW_AFTER_CLOSING', 'WITHDREW_BEFORE_VALIDITY_END', 'REFUSED_TO_SIGN', 'NO_PERFORMANCE_SECURITY', 'FALSE_DECLARATION', 'OTHER_BY_BIDDING_DOCUMENT'] as const;
 export type ForfeitReason = (typeof FORFEIT_REASONS)[number];
 
