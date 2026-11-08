@@ -208,7 +208,7 @@ describe('ADM-03 states (AC-ST-ADM-005-7)', () => {
 });
 
 // These tests mount the matrix of several hundred checkboxes, which is slow under coverage instrumentation.
-const HEAVY_DOM_TIMEOUT_MS = 30_000;
+const HEAVY_DOM_TIMEOUT_MS = 90_000;
 
 describe('the role editor', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
   it('shows a system role read-only with its note and never lists system permissions', async () => {
