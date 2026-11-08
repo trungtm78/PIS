@@ -10,7 +10,7 @@ import { DocumentReviewStore } from '../src/doc-review-store';
 import { DocumentTextStore } from '../src/doc-text-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
-import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, roleId, unitId } from './support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
 import { seedAs, seedBidPackage } from './support/bid-proposal-fixtures';
 
 const harness = new AuthzHarness();

@@ -94,7 +94,7 @@ describe('ReviewBoardScreen (DOC-26): the reviews of the documents and the board
   });
 
   it('asks a reason of ten characters for a supplement request and for a rejection, and says a conflict with a way to read again', async () => {
-    const command = vi.fn((operation: string) => (command.mock.calls.length === 1 ? problem('VERSION_CONFLICT', 409) : { operation_id: 'o', status: 'RETURNED', resource_version: 5, resource_id: uuid(11, 2) }));
+    const command = vi.fn(() => (command.mock.calls.length === 1 ? problem('VERSION_CONFLICT', 409) : { operation_id: 'o', status: 'RETURNED', resource_version: 5, resource_id: uuid(11, 2) }));
     const { h } = open({}, { path: `/?review=${REVIEW}` }, command);
     await screen.findByTestId('stages');
     fireEvent.click(document.querySelector('[data-decide="return"]') as HTMLElement);

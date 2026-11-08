@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Inject, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { DocumentCommentStore, DocumentRepositoryStore, projectScope } from '@machvon/db';
 import { DomainError, commentInputOf } from '@machvon/kernel';
