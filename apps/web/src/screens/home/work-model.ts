@@ -63,6 +63,14 @@ export const WORK_KINDS = [
   // The governance of the alert system (lane GOV-9a): an item sent up to the person by the chain of escalation, and a gap in the coverage of the receivers of alerts.
   'ESCALATED_ITEM',
   'COVERAGE_GAP',
+  // GOV-10: the clocks of a contract, a document review, a dataset that is not fresh, an anomaly, a red flag (auditors only) and a report that an alert was wrong.
+  'CONTRACT_END_NEAR',
+  'CONTRACT_PAYMENT_UNREQUESTED',
+  'DOC_REVIEW_OVERDUE',
+  'DATA_STALE',
+  'ANOMALY_SIGNAL',
+  'RED_FLAG_NEW',
+  'ALERT_FEEDBACK_REVIEW',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
@@ -161,6 +169,21 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
       return `/vnd/vnd-03?case=${item.target.id}`;
     case 'VND-06':
       return `/vnd/vnd-06?event=${item.target.id}`;
+    // GOV-10: the red flag of procurement (auditors), the report that an alert was wrong, and the sources that name the contract, the document, the dataset, the advance or the adjustment.
+    case 'AUD-15':
+      return `/aud/aud-15?finding=${item.target.id}`;
+    case 'HOME-30':
+      return `/home/home-30?report=${item.target.id}`;
+    case 'CTR-03':
+      return `/ctr/ctr-03?contract=${item.target.id}`;
+    case 'DOC-02':
+      return `/doc/doc-02?document=${item.target.id}`;
+    case 'DGV-04':
+      return `/dgv/dgv-04?dataset=${item.target.id}`;
+    case 'PAY-12':
+      return `/pay/pay-12?advance=${item.target.id}`;
+    case 'CAP-07':
+      return `/cap/cap-07?proposal=${item.target.id}`;
     default:
       return undefined;
   }

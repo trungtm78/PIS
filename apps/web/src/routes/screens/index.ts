@@ -492,4 +492,12 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'NOT-18': () => import('../../screens/alertgov/ProfileScreen'),
   'NOT-19': () => import('../../screens/alertgov/EscalationScreen'),
   'ADM-25': () => import('../../screens/alertgov/CoverScreen'),
+=======
+  // GOV-10: the red flags of procurement, the channel ladder, the reports that an alert was wrong, and the closing and the storms of alerts.
+  'AUD-14': () => import('../../screens/gov10/RedFlagListScreen'),
+  'AUD-15': () => import('../../screens/gov10/RedFlagDetailScreen'),
+  'AUD-16': () => import('../../screens/gov10/RedFlagRegistryScreen'),
+  'NOT-30': () => import('../../screens/gov10/AlertLadderScreen'),
+  'HOME-30': () => import('../../screens/gov10/AlertFeedbackQueueScreen'),
+  'HOME-31': () => import('../../screens/gov10/AlertClosuresScreen'),
 };

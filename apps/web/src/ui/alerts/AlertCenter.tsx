@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { AlertActions } from './AlertActions';
+import { FeedbackAction } from './FeedbackAction';
 import { AlertRow, sourceLabel } from './AlertRow';
 import { clock, clockAndDay, dayMonth, severitySuffix, todayOf } from './format';
 import { useFocusTrap } from './focus';
@@ -391,7 +392,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
                   }
                   actions={
                     held === undefined ? (
-                      <AlertActions item={item} can={{ claim: true, assign: true, snooze: true, pause: true }} busy={busyId === item.id} onClaim={() => startClaim(item)} onAssign={() => setAssigning(item)} onSnooze={() => openSnooze(item)} onPause={() => openPause(item)} onResume={() => resumeItem(item)} />
+                      <><AlertActions item={item} can={{ claim: true, assign: true, snooze: true, pause: true }} busy={busyId === item.id} onClaim={() => startClaim(item)} onAssign={() => setAssigning(item)} onSnooze={() => openSnooze(item)} onPause={() => openPause(item)} onResume={() => resumeItem(item)} /><FeedbackAction item={item} /></>
                     ) : null
                   }
                 />
