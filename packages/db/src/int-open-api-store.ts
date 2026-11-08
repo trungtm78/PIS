@@ -512,9 +512,10 @@ export class ExportDatasetStore {
    * judged here by the kernel (422 `OPEN_DATASET_NOT_CERTIFIED`); switching off needs only the reason.
    */
   async set(tx: TenantTx, datasetCode: OpenDatasetCode, expectedVersion: number, change: { enabled: boolean; productId: string | null; reason: string }, actor: string, now: Date): Promise<{ before: ExportDatasetRow; row: ExportDatasetRow }> {
+    // The row is locked BEFORE its version is read: two commands that carry the same version take turns, and the second one finds the new version and is refused.
+    await tx.query('select id from machvon.int_export_dataset where dataset_code = $1 for update', [datasetCode]);
     const states = await this.state(tx, now);
     const before = states.find((state) => state.datasetCode === datasetCode) as ExportDatasetRow;
-    if (before.id !== null) await tx.query('select id from machvon.int_export_dataset where id = $1::uuid for update', [before.id]);
     if (before.version !== expectedVersion) throw versionConflict(before.version);
     const productId = change.productId ?? before.productId;
     if (productId === null) throw new DomainError('VALIDATION_FAILED', 422, 'product_id');
@@ -523,11 +524,14 @@ export class ExportDatasetStore {
     if (product === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'product_id');
     if (change.enabled) assertDatasetOpen({ enabled: true, certification: product.certification_status, expiresOn: product.certification_expires_on, today: vietnamDateOf(now) }, 422);
     if (before.id === null) {
-      await tx.query(
+      const made = await tx.query<{ id: string }>(
         `insert into machvon.int_export_dataset (tenant_id, id, dataset_code, product_id, enabled, state_reason, state_changed_by, state_changed_at, created_by, updated_by)
-         values (${TENANT}, $1::uuid, $2, $3::uuid, $4, $5, $6::uuid, $7::timestamptz, $6::uuid, $6::uuid)`,
+         values (${TENANT}, $1::uuid, $2, $3::uuid, $4, $5, $6::uuid, $7::timestamptz, $6::uuid, $6::uuid)
+         on conflict (tenant_id, dataset_code) do nothing returning id`,
         [randomUUID(), datasetCode, productId, change.enabled, change.reason, actor, now.toISOString()],
       );
+      // Another command configured the dataset first: this one was written against a version that no longer is.
+      if (made.length === 0) throw versionConflict(1);
     } else {
       await tx.query(
         `update machvon.int_export_dataset set product_id = $2::uuid, enabled = $3, state_reason = $4, state_changed_by = $5::uuid, state_changed_at = $6::timestamptz, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,

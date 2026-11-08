@@ -36,6 +36,7 @@ export const OPEN_API_CLOCK = Symbol('OPEN_API_CLOCK');
 export const MACHINE_REQUEST_KEY = 'machineContext';
 
 const CLOCK_SKEW_SECONDS = 30;
+const FOREIGN_KEY_VIOLATION = '23503';
 /** Failed and successful exchanges of one client id per minute: a guess of a secret is slow, and a stolen id cannot be used to flood the endpoint. */
 export const TOKEN_ATTEMPTS_PER_MINUTE = 20;
 /** The answer of a hash that exists for no one: an unknown client id costs the same work as a wrong secret. */
@@ -174,7 +175,11 @@ export class OpenApiService {
       const runtime = await tx.query<{ access_policy: string }>('select access_policy from machvon.tenant_runtime($1::uuid)', [tenantId]);
       return { found, tenantOpen: runtime[0]?.access_policy !== 'NO_ACCESS' };
     });
-    if (account.found === undefined || !account.tenantOpen || !account.found.credentialLive || !machineAccountLive({ status: account.found.status, expiresOn: account.found.expiresOn }, vietnamDateOf(now))) throw invalidClient();
+    if (account.found === undefined || !account.tenantOpen || !account.found.credentialLive || !machineAccountLive({ status: account.found.status, expiresOn: account.found.expiresOn }, vietnamDateOf(now))) {
+      // The token is genuine and names an account and a credential of the tenant: the refusal is a row of the log (an unknown account has no row to belong to).
+      if (account.found !== undefined) await this.logDeniedKnown({ tenantId, accountId }, credentialId, { path: pathOf(request), queryKeys: queryKeysOf(request.query ?? {}), correlationId });
+      throw invalidClient();
+    }
     // What the token says is narrowed by what the account holds now: a scope taken away from the account stops working at once.
     const scopes = scp.filter((scope) => account.found?.scopes.includes(scope) === true);
     const machine: MachineContext = { tenant, accountId, credentialId, scopes, ratePerMinute: account.found.ratePerMinute };
@@ -219,6 +224,15 @@ export class OpenApiService {
         else if (error.status === 400 || error.status === 422) await this.deny(context, call, 'INVALID_REQUEST', error.status);
       }
       throw error;
+    }
+  }
+
+  /** Logs the refusal of a genuine token; a credential that is not one of the account (a forged pair of ids in a genuine token cannot occur, but the log must never turn a refusal into a failure) leaves no row. */
+  private async logDeniedKnown(who: { tenantId: string; accountId: string }, credentialId: string, context: { path: string; queryKeys: string[]; correlationId: string }): Promise<void> {
+    try {
+      await this.logDenied(who, credentialId, 'authenticate', null, 'DENIED_CLIENT', 401, context);
+    } catch (error) {
+      if ((error as { code?: string }).code !== FOREIGN_KEY_VIOLATION) throw error;
     }
   }
 

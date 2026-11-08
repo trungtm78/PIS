@@ -6,6 +6,8 @@
 --     The state of a dataset is the SQL twin of the kernel rule `datasetGate`: the tenant switched it on (`int_export_dataset`), its data product is CERTIFIED, and the certification has not run out.
 --   * the views of `machvon_bi` are `security_invoker`: they run with the rights and the row-level security of the login. They show FROZEN snapshots only (immutable), a dataset that is not open yields no row at
 --     all, and the tenant of every row is the one of the binding of the login.
+--   * (Codex review) the policy is also the gate of the dataset and, for the disbursement tables, the frozen filter of the views, so a login cannot read the granted columns directly while the dataset is closed.
+--     The tables of the contract fact are gated by the dataset and the tenant; the views narrow them to the FROZEN close snapshots, a direct read sees every revision that was frozen once.
 --   * the base tables the views read carry ONE more RESTRICTIVE policy, `bi_reader_boundary`, for the group role `machvon_bi_reader` alone: tenant_id = the tenant of the binding. So a login that sets `app.tenant_id`
 --     to another tenant reads nothing, from the views AND from the granted columns of the tables themselves. The group role is granted only the columns the views use; no other table, and no write.
 --
@@ -84,10 +86,10 @@ GRANT SELECT (tenant_id, id, period_snapshot_id, period_id, revision, cutoff_dat
 GRANT SELECT (tenant_id, snapshot_id, contract_id, contractor_id, is_lead, share_pct, project_id, unit_id, contract_status, contract_type, contract_value_vnd, active_value_vnd, paid_vnd)
   ON machvon.contract_fact_snapshot_line TO machvon_bi_reader;
 
-CREATE POLICY bi_reader_boundary ON machvon.period_snapshot AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)));
-CREATE POLICY bi_reader_boundary ON machvon.period_snapshot_line AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)));
-CREATE POLICY bi_reader_boundary ON machvon.contract_fact_snapshot AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)));
-CREATE POLICY bi_reader_boundary ON machvon.contract_fact_snapshot_line AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)));
+CREATE POLICY bi_reader_boundary ON machvon.period_snapshot AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)) AND (SELECT d.is_open FROM machvon_bi.dataset_state(current_user::text, 'DS-DISB') d) AND status = 'FROZEN' AND snapshot_kind = 'PERIOD_CLOSE');
+CREATE POLICY bi_reader_boundary ON machvon.period_snapshot_line AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)) AND (SELECT d.is_open FROM machvon_bi.dataset_state(current_user::text, 'DS-DISB') d) AND EXISTS (SELECT 1 FROM machvon.period_snapshot p WHERE p.tenant_id = period_snapshot_line.tenant_id AND p.id = period_snapshot_line.snapshot_id AND p.status = 'FROZEN' AND p.snapshot_kind = 'PERIOD_CLOSE'));
+CREATE POLICY bi_reader_boundary ON machvon.contract_fact_snapshot AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)) AND (SELECT d.is_open FROM machvon_bi.dataset_state(current_user::text, 'DS-CTR') d));
+CREATE POLICY bi_reader_boundary ON machvon.contract_fact_snapshot_line AS RESTRICTIVE FOR SELECT TO machvon_bi_reader USING (tenant_id = (SELECT machvon_bi.tenant_of(current_user::text)) AND (SELECT d.is_open FROM machvon_bi.dataset_state(current_user::text, 'DS-CTR') d));
 
 -- DS-DISB: one row per line of a FROZEN close snapshot of a reporting period (the figures of the disbursement of public investment, by project, unit, fund source version and bucket).
 CREATE VIEW machvon_bi.v_disbursement_lines WITH (security_invoker = true) AS

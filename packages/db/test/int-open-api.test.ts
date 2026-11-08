@@ -330,6 +330,21 @@ describe('the open interface: systems, codes, machine accounts, certified datase
       expect((await as((tx) => datasets.state(tx, NOW))).find((row) => row.datasetCode === 'DS-DISB')?.gate).toEqual({ open: false, reason: 'NOT_CERTIFIED' });
       expect(datasetGate({ enabled: true, certification: 'REVOKED', expiresOn: null, today: '2026-11-08' })).toEqual({ open: false, reason: 'NOT_CERTIFIED' });
     });
+
+    it('takes turns: two commands that carry the same version of a dataset do not both succeed', async () => {
+      const first = await seedProduct(TENANT_A, 'DP-RACE-1');
+      const attempt = (): Promise<{ ok: boolean; code?: string }> =>
+        as((tx) => datasets.set(tx, 'DS-CTR', 1, { enabled: true, productId: first, reason: REASON }, memberId(MAKER), NOW)).then(
+          () => ({ ok: true }),
+          (error: { code?: string }) => ({ ok: false, ...(error.code === undefined ? {} : { code: error.code }) }),
+        );
+      const results = await Promise.all([attempt(), attempt()]);
+      expect(results.filter((result) => result.ok)).toHaveLength(1);
+      expect(results.filter((result) => !result.ok).map((result) => result.code)).toEqual(['VERSION_CONFLICT']);
+      // Version 1 is taken: the same version again is refused, now that the row exists.
+      expect(await refusal(as((tx) => datasets.set(tx, 'DS-CTR', 1, { enabled: false, productId: null, reason: REASON }, memberId(MAKER), NOW)))).toMatchObject({ code: 'VERSION_CONFLICT' });
+      await as((tx) => datasets.set(tx, 'DS-CTR', 2, { enabled: false, productId: null, reason: REASON }, memberId(MAKER), NOW));
+    });
   });
 
   describe('the read-only logins of BI tools: one login per tenant, bound by its own name', () => {
@@ -412,6 +427,10 @@ describe('the open interface: systems, codes, machine accounts, certified datase
       ]);
       expect(await rowsOf(client, 'select * from v_disbursement_lines')).toEqual([]);
       expect(await rowsOf(client, 'select * from v_contract_lines')).toEqual([]);
+      // The granted columns of the tables are closed with the dataset: a closed gate is not a thing a login walks around by reading the tables.
+      for (const sql of ['select tenant_id, id from machvon.period_snapshot_line', 'select tenant_id, id from machvon.period_snapshot', 'select tenant_id, snapshot_id from machvon.contract_fact_snapshot_line', 'select tenant_id, id from machvon.contract_fact_snapshot']) {
+        expect([sql, await rowsOf(client, sql)]).toEqual([sql, []]);
+      }
     });
 
     describe('with both datasets switched on', () => {
@@ -514,13 +533,19 @@ describe('the open interface: systems, codes, machine accounts, certified datase
       it('closes when the certification is revoked or runs out, and reopens when the product is certified again', async () => {
         const a = await connect(readerA);
         expect(await rowsOf(a, 'select 1 from v_disbursement_lines')).toHaveLength(2);
+        const direct = 'select tenant_id, id from machvon.period_snapshot_line';
+        expect(await rowsOf(a, direct)).toHaveLength(2);
         await owner("update machvon.data_product set certification_expires_on = (now() at time zone 'Asia/Ho_Chi_Minh')::date where id = $1", [productA]);
         expect(await rowsOf(a, 'select 1 from v_disbursement_lines')).toEqual([]);
+        expect(await rowsOf(a, direct)).toEqual([]);
         expect((await rowsOf(a, "select reason from v_dataset_catalogue where dataset_code = 'DS-DISB'"))[0]).toEqual({ reason: 'EXPIRED' });
         await owner("update machvon.data_product set certification_expires_on = (now() at time zone 'Asia/Ho_Chi_Minh')::date + 30 where id = $1", [productA]);
         expect(await rowsOf(a, 'select 1 from v_disbursement_lines')).toHaveLength(2);
+        expect(await rowsOf(a, direct)).toHaveLength(2);
         await owner("update machvon.data_product set certification_status = 'REVOKED', revoke_reason = 'Revoked in the test for the gate' where id = $1", [productA]);
         expect(await rowsOf(a, 'select 1 from v_disbursement_lines')).toEqual([]);
+        expect(await rowsOf(a, direct)).toEqual([]);
+        expect(await rowsOf(a, 'select tenant_id, snapshot_id from machvon.contract_fact_snapshot_line')).toEqual([]);
         expect((await rowsOf(a, "select reason from v_dataset_catalogue where dataset_code = 'DS-CTR'"))[0]).toEqual({ reason: 'NOT_CERTIFIED' });
         // The other tenant is not affected by the revocation of this tenant's product.
         expect(await rowsOf(await connect(readerB), 'select 1 from v_disbursement_lines')).toHaveLength(3);
@@ -534,6 +559,9 @@ describe('the open interface: systems, codes, machine accounts, certified datase
         await seedSnapshot(harness, TENANT_B, MAKER, { lines: [{}], status: 'BUILDING' });
         expect(await rowsOf(b, 'select 1 from v_disbursement_lines')).toHaveLength(3);
         expect(await rowsOf(b, 'select 1 from v_contract_lines')).toHaveLength(1);
+        // The granted columns of the tables show the same frozen snapshots and no other.
+        expect(await rowsOf(b, 'select id from machvon.period_snapshot')).toHaveLength(1);
+        expect(await rowsOf(b, 'select id from machvon.period_snapshot_line')).toHaveLength(3);
       });
     });
 

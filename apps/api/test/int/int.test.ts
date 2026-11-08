@@ -341,6 +341,8 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect((await open('GET', '/open/v1/projects', { bearer: account.token })).status).toBe(200);
       await call('POST', `/int/machine-accounts/${account.id}/decision`, { member: ADMIN, ifMatch: etag(account.version), body: { decision: 'SUSPEND', reason: REASON } });
       expect((await open('GET', '/open/v1/projects', { bearer: account.token })).json.code).toBe('OPEN_CLIENT_INVALID');
+      // The refusal of a genuine token is a row of the log, for the account it names.
+      expect((await logOf(account.id)).filter((entry) => entry.operation === 'authenticate')).toEqual([expect.objectContaining({ outcome: 'DENIED_CLIENT', status: 401, path: '/open/v1/projects' })]);
       expect((await exchange(account.clientId, account.secret)).status).toBe(401);
       await call('POST', `/int/machine-accounts/${account.id}/decision`, { member: ADMIN, ifMatch: etag(account.version + 1), body: { decision: 'REACTIVATE', reason: REASON } });
       expect((await open('GET', '/open/v1/projects', { bearer: account.token })).status).toBe(200);
