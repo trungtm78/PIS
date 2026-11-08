@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
+import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
+import { recordLink } from '../ana/decision-model';
 import { formatVnd } from '../dis/report/money';
 import '../dis/dis.css';
 import { FigureInfo, FlagPills, figureShown, noneText } from './figure-components';
@@ -35,6 +37,7 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
   const { t } = useTranslation();
   const label = metricLabel(t, tile.metricCode);
   const showSums = tile.numerator !== null && tile.denominator !== null;
+  const decide = useSession().permissions?.includes('home.decision.record') === true;
   return (
     <div className="dis-rate-tile" data-metric={tile.metricCode} {...(rate === undefined ? {} : { 'data-rate': rate })} title={t('home.tile.formula.title', { formula: tile.formula, ref: FORMULA_REFERENCE })}>
       <span className="sub">{label}</span>
@@ -65,6 +68,11 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
       <Link to={drillPathOf(tile)} aria-label={t('home.tile.drill', { label })}>
         {t('home.tile.drill.link')}
       </Link>
+      {decide ? (
+        <Link to={recordLink({ kind: 'KPI_TILE', metricCode: tile.metricCode })} data-testid={`tile-decide-${tile.metricCode}`}>
+          {t('ana.decision.link.record')}
+        </Link>
+      ) : null}
     </div>
   );
 }

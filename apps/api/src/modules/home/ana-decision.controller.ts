@@ -201,8 +201,9 @@ export class AnaDecisionController {
     const now = this.clock();
     const today = vietnamDateOf(now);
     const scopes = workScopes(access, now);
-    const page = await this.database.withTenant(tenant, (tx) =>
-      this.decisions.list(
+    const read = await this.database.withTenant(tenant, async (tx) => ({
+      policy: await this.decisions.policy(tx, today),
+      page: await this.decisions.list(
         tx,
         {
           subjectKind: subjectKind as DecisionSubjectKind | undefined,
@@ -220,8 +221,14 @@ export class AnaDecisionController {
         scopes.holds(HOME_READ_PERMISSION, true),
         today,
       ),
-    );
-    return { items: page.rows.map((row) => decisionView(row, today)), next_cursor: page.nextCursor, as_of: today };
+    }));
+    const { policy } = read;
+    return {
+      items: read.page.rows.map((row) => decisionView(row, today)),
+      next_cursor: read.page.nextCursor,
+      as_of: today,
+      policy: { kinds: policy.policy.kinds, reason_min: policy.policy.reasonMin, reason_max: policy.policy.reasonMax, follow_up_max_days: policy.policy.followUpMaxDays, outcome_note_min: policy.policy.outcomeNoteMin, rule_version: policy.version, unverified: policy.unverified },
+    };
   }
 
   @Get('home/decisions/:id')

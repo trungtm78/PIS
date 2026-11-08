@@ -18,6 +18,7 @@ import { SEVERITIES } from '../../ui/alerts/types';
 import type { AlertItem, AlertView, Severity } from '../../ui/alerts/types';
 import '../dis/dis.css';
 import './home.css';
+import { recordLink } from '../ana/decision-model';
 import { ofSeverity, useAlertSource } from './alert-source';
 
 type Filter = Severity | 'ALL';
@@ -208,7 +209,7 @@ function MyWorkContent({ route }: ScreenProps) {
               item={item}
               today={today}
               detailed
-              actions={<AlertActions item={item} can={{ claim: true, assign: true, snooze: true, pause: true }} busy={busyId === item.id} onClaim={() => claimItem(item)} onAssign={() => setAssigning(item)} onSnooze={() => openSnooze(item)} onPause={() => openPause(item)} onResume={() => resumeItem(item)} />}
+              actions={<><AlertActions item={item} can={{ claim: true, assign: true, snooze: true, pause: true }} busy={busyId === item.id} onClaim={() => claimItem(item)} onAssign={() => setAssigning(item)} onSnooze={() => openSnooze(item)} onPause={() => openPause(item)} onResume={() => resumeItem(item)} />{decide && item.severity === 'URGENT' ? <Link className="mv-alert-link" to={recordLink({ kind: 'URGENT_ALERT', source: String(item.source), sourceId: item.id })} data-testid={`decide-${item.id}`}>{t('ana.decision.link.record')}</Link> : null}</>}
             />
           ))}
         </ul>

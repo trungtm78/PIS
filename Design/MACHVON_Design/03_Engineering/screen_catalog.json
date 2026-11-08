@@ -12568,5 +12568,28 @@
     "platform": "web",
     "req": "FR-BI-21",
     "source": "Lộ trình quản trị 10/10 (G3-5, G3-11); thiết kế làn GOV-11b"
+  },
+  {
+    "id": "BI-22",
+    "module": "BI",
+    "moduleName": "BI và dashboard động",
+    "title": "Nhật ký quyết định",
+    "kind": "list",
+    "fields": [
+      "Ngày quyết định",
+      "Đối tượng (chỉ tiêu HOME-03, cảnh báo Khẩn, nội dung khác)",
+      "Loại quyết định",
+      "Lý do",
+      "Số liệu chụp lúc quyết định",
+      "Số liệu hiện tại và chênh lệch",
+      "Ngày theo dõi và người phụ trách",
+      "Kết quả sau quyết định"
+    ],
+    "role": "Lãnh đạo, thư ký lãnh đạo, kiểm toán",
+    "rule": "Quyết định không sửa, không xóa; số liệu do máy chủ chụp tại lúc ghi kèm dấu kiểm; kết quả là các dòng thêm vào; người đọc chỉ thấy quyết định của mình, của đơn vị trong phạm vi và không thấy tên ngoài quyền",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-BI-22",
+    "source": "Lộ trình quản trị 10/10 (G3-6); thiết kế làn GOV-11b"
   }
 ]

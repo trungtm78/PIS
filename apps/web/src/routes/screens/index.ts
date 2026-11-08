@@ -358,6 +358,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'BI-20': () => import('../../screens/bi/KpiRegisterScreen'),
   // Executive analytics (GOV-11b, G3-5 to G3-11).
   'BI-21': () => import('../../screens/ana/OutlookScreen'),
+  'BI-22': () => import('../../screens/ana/DecisionLogScreen'),
   'LLM-01': () => import('../../screens/llm/RequestsScreen'),
   'LLM-02': () => import('../../screens/llm/ProvidersScreen'),
   'LLM-03': () => import('../../screens/llm/ModelsScreen'),
