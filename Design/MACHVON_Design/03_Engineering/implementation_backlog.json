@@ -19910,5 +19910,250 @@
     "stories": [
       "ST-HUB-001"
     ]
+  },
+  {
+    "id": "BL-BAN-01",
+    "requirement": "FR-BAN-01",
+    "screen": "BAN-01",
+    "title": "Bảng điều hành Ban chỉ đạo",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Kế hoạch, đã giải ngân, cùng kỳ năm trước",
+      "Dải dự báo cuối năm",
+      "Theo ngành, địa bàn, chủ đầu tư, nguồn vốn",
+      "Dự án cần quan tâm",
+      "Đơn vị không báo cáo",
+      "Cảnh báo",
+      "Thay đổi từ tuần trước",
+      "Nút i công thức, nguồn, thời điểm"
+    ],
+    "rule": "Mọi con số có công thức, nguồn, thời điểm và nút i; số không có thì ghi chưa có chứ không phải 0; mỗi lượt xem được ghi nhật ký người xem, màn hình, bộ lọc và nguồn; không có quyền ghi dữ liệu tài chính",
+    "test_ids": [
+      "UI-BAN-01",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
+  },
+  {
+    "id": "BL-BAN-02",
+    "requirement": "FR-BAN-02",
+    "screen": "BAN-02",
+    "title": "Dự án cần Trưởng ban quan tâm",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Hạng và điểm tác động",
+      "Dự án, ngành, địa bàn, chủ đầu tư",
+      "Lý do (chậm tiến độ, vướng thủ tục, nguy cơ vượt dự toán, giải ngân thấp, đơn vị không báo cáo)",
+      "Kế hoạch, đã giải ngân, tỷ lệ so với đường kỳ vọng",
+      "Số tiền đang bị đe dọa",
+      "Quyết định của Ban",
+      "Ra chỉ đạo từ dòng dự án"
+    ],
+    "rule": "Xếp theo điểm tác động (trọng số từng lý do và số tiền đang bị đe dọa là quy tắc COMMITTEE_POLICY chưa kiểm chứng); dự án hoãn ẩn đến ngày hoãn; ra chỉ đạo dùng lệnh của DIR rồi ghi quyết định đã ra chỉ đạo",
+    "test_ids": [
+      "UI-BAN-02",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
+  },
+  {
+    "id": "BL-BAN-03",
+    "requirement": "FR-BAN-03",
+    "screen": "BAN-03",
+    "title": "Hồ sơ họp Ban chỉ đạo",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Kỳ và ngày số liệu",
+      "Nội dung từng phần của hồ sơ",
+      "Lập hồ sơ (Word và Excel) qua bộ sinh báo cáo",
+      "Các bản nháp và bản đã phát hành",
+      "Người lập, người kiểm, người duyệt"
+    ],
+    "rule": "Tệp do bộ sinh báo cáo lập, ba người khác nhau; số trong tệp là số của màn hình điều hành cùng một bộ đọc; ô không có số để trống, không là 0",
+    "test_ids": [
+      "UI-BAN-03",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
+  },
+  {
+    "id": "BL-BAN-04",
+    "requirement": "FR-BAN-04",
+    "screen": "BAN-04",
+    "title": "Theo dõi chỉ đạo của Ban chỉ đạo",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Đơn vị: số chỉ đạo đang mở, quá hạn, đã leo thang",
+      "Chỉ đạo quá hạn lâu nhất",
+      "Danh sách chỉ đạo quá hạn",
+      "Mở chi tiết chỉ đạo (DIR-04)"
+    ],
+    "rule": "Quá hạn và leo thang tính theo ngày bằng quy tắc DIRECTIVE_POLICY; không lưu trạng thái quá hạn",
+    "test_ids": [
+      "UI-BAN-04",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
+  },
+  {
+    "id": "BL-BAN-05",
+    "requirement": "FR-BAN-05",
+    "screen": "BAN-05",
+    "title": "Cảnh báo của Ban chỉ đạo",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Loại cảnh báo (toàn tỉnh chậm, ngành chậm, đơn vị không báo cáo, chỉ đạo quá hạn)",
+      "Chủ sở hữu, việc cần làm, hậu quả, thời hạn phản hồi",
+      "Giá trị so với ngưỡng",
+      "Xác nhận đã nhận kèm ghi chú",
+      "Đánh giá lại"
+    ],
+    "rule": "Mỗi loại cảnh báo có ALERT_TYPE; ngưỡng là quy tắc COMMITTEE_POLICY chưa kiểm chứng; mỗi điều kiện một dòng mở, hết đúng thì tự đóng",
+    "test_ids": [
+      "UI-BAN-05",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
+  },
+  {
+    "id": "BL-BAN-06",
+    "requirement": "FR-BAN-06",
+    "screen": "BAN-06",
+    "title": "Danh sách Ban chỉ đạo và vị trí",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Ban chỉ đạo (mã, tên, căn cứ)",
+      "Vị trí: Trưởng ban, Phó ban, thành viên, thư ký",
+      "Cơ quan của người giữ vị trí (ví dụ PA05 Công an tỉnh)",
+      "Quyết định bổ nhiệm",
+      "Ngày hiệu lực",
+      "Yêu cầu xác thực hai yếu tố",
+      "Đã cấp vai trò hay chưa"
+    ],
+    "rule": "Một Trưởng ban đang hiệu lực; không tự bổ nhiệm; vị trí kết thúc có lý do và không xóa; quyền thực tế do vai trò IAM cấp trên toàn tenant, danh sách chỉ cảnh báo khi chưa cấp",
+    "test_ids": [
+      "UI-BAN-06",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
+  },
+  {
+    "id": "BL-BAN-07",
+    "requirement": "FR-BAN-07",
+    "screen": "BAN-07",
+    "title": "Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo",
+    "module": "BAN",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,DIR,HOME,RPT",
+    "fields": [
+      "Người xem, vị trí trong Ban",
+      "Màn hình",
+      "Bộ lọc",
+      "Ngày số liệu và nguồn",
+      "Mức xác thực của phiên",
+      "Thời điểm"
+    ],
+    "rule": "Chỉ đọc, chỉ thêm: không sửa, không xóa; không chứa số liệu, chỉ đếm và bộ lọc; không có lượt xem nặc danh",
+    "test_ids": [
+      "UI-BAN-07",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BAN.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BAN-001"
+    ]
   }
 ]

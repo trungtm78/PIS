@@ -11089,5 +11089,138 @@
       "UI-HUB-03",
       "UAT-HUB-003"
     ]
+  },
+  {
+    "requirement": "FR-BAN-01",
+    "screen": "BAN-01",
+    "title": "Bảng điều hành Ban chỉ đạo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-01",
+    "test_ids": [
+      "UI-BAN-01",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
+  },
+  {
+    "requirement": "FR-BAN-02",
+    "screen": "BAN-02",
+    "title": "Dự án cần Trưởng ban quan tâm",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-02",
+    "test_ids": [
+      "UI-BAN-02",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
+  },
+  {
+    "requirement": "FR-BAN-03",
+    "screen": "BAN-03",
+    "title": "Hồ sơ họp Ban chỉ đạo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-03",
+    "test_ids": [
+      "UI-BAN-03",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
+  },
+  {
+    "requirement": "FR-BAN-04",
+    "screen": "BAN-04",
+    "title": "Theo dõi chỉ đạo của Ban chỉ đạo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-04",
+    "test_ids": [
+      "UI-BAN-04",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
+  },
+  {
+    "requirement": "FR-BAN-05",
+    "screen": "BAN-05",
+    "title": "Cảnh báo của Ban chỉ đạo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-05",
+    "test_ids": [
+      "UI-BAN-05",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
+  },
+  {
+    "requirement": "FR-BAN-06",
+    "screen": "BAN-06",
+    "title": "Danh sách Ban chỉ đạo và vị trí",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-06",
+    "test_ids": [
+      "UI-BAN-06",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
+  },
+  {
+    "requirement": "FR-BAN-07",
+    "screen": "BAN-07",
+    "title": "Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1 (yêu cầu của chủ sở hữu 08/11/2026) và docs/committee-workspace.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BAN.md §10–§11; 3 test",
+    "backlog_id": "BL-BAN-07",
+    "test_ids": [
+      "UI-BAN-07",
+      "UAT-BAN-001",
+      "UAT-BAN-002"
+    ]
   }
 ]

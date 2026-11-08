@@ -22895,5 +22895,241 @@
     "covers": [
       "FR-HUB-02"
     ]
+  },
+  {
+    "id": "UI-BAN-01",
+    "source": "FR-BAN-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bảng điều hành Ban chỉ đạo; user có quyền và user chỉ đọc; route BAN-01",
+    "steps": [
+      "Mở BAN-01 từ menu và deep link; kiểm nhãn trường: Kế hoạch, đã giải ngân, cùng kỳ năm trước, Dải dự báo cuối năm, Theo ngành, địa bàn, chủ đầu tư, nguồn vốn, Dự án cần quan tâm, Đơn vị không báo cáo, Cảnh báo, Thay đổi từ tuần trước, Nút i công thức, nguồn, thời điểm",
+      "Thực hiện thao tác chính theo quy tắc: Mọi con số có công thức, nguồn, thời điểm và nút i; số không có thì ghi chưa có chứ không phải 0; mỗi lượt xem được ghi nhật ký người xem, màn hình, bộ lọc và nguồn; không có quyền ghi dữ liệu tài chính",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-01"
+    ],
+    "expected": "Bảng điều hành Ban chỉ đạo: hiển thị đúng 8 trường, áp quy tắc \"Mọi con số có công thức, nguồn, thời điểm và nút i; số không có thì ghi chưa có chứ không phải 0; mỗi lượt xem được ghi nhật ký người xem, màn hình, bộ lọc và nguồn; không có quyền ghi dữ liệu tài chính\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-01"
+    ]
+  },
+  {
+    "id": "UI-BAN-02",
+    "source": "FR-BAN-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Dự án cần Trưởng ban quan tâm; user có quyền và user chỉ đọc; route BAN-02",
+    "steps": [
+      "Mở BAN-02 từ menu và deep link; kiểm nhãn trường: Hạng và điểm tác động, Dự án, ngành, địa bàn, chủ đầu tư, Lý do (chậm tiến độ, vướng thủ tục, nguy cơ vượt dự toán, giải ngân thấp, đơn vị không báo cáo), Kế hoạch, đã giải ngân, tỷ lệ so với đường kỳ vọng, Số tiền đang bị đe dọa, Quyết định của Ban, Ra chỉ đạo từ dòng dự án",
+      "Thực hiện thao tác chính theo quy tắc: Xếp theo điểm tác động (trọng số từng lý do và số tiền đang bị đe dọa là quy tắc COMMITTEE_POLICY chưa kiểm chứng); dự án hoãn ẩn đến ngày hoãn; ra chỉ đạo dùng lệnh của DIR rồi ghi quyết định đã ra chỉ đạo",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-02"
+    ],
+    "expected": "Dự án cần Trưởng ban quan tâm: hiển thị đúng 7 trường, áp quy tắc \"Xếp theo điểm tác động (trọng số từng lý do và số tiền đang bị đe dọa là quy tắc COMMITTEE_POLICY chưa kiểm chứng); dự án hoãn ẩn đến ngày hoãn; ra chỉ đạo dùng lệnh của DIR rồi ghi quyết định đã ra chỉ đạo\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-02"
+    ]
+  },
+  {
+    "id": "UI-BAN-03",
+    "source": "FR-BAN-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ họp Ban chỉ đạo; user có quyền và user chỉ đọc; route BAN-03",
+    "steps": [
+      "Mở BAN-03 từ menu và deep link; kiểm nhãn trường: Kỳ và ngày số liệu, Nội dung từng phần của hồ sơ, Lập hồ sơ (Word và Excel) qua bộ sinh báo cáo, Các bản nháp và bản đã phát hành, Người lập, người kiểm, người duyệt",
+      "Thực hiện thao tác chính theo quy tắc: Tệp do bộ sinh báo cáo lập, ba người khác nhau; số trong tệp là số của màn hình điều hành cùng một bộ đọc; ô không có số để trống, không là 0",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-03"
+    ],
+    "expected": "Hồ sơ họp Ban chỉ đạo: hiển thị đúng 5 trường, áp quy tắc \"Tệp do bộ sinh báo cáo lập, ba người khác nhau; số trong tệp là số của màn hình điều hành cùng một bộ đọc; ô không có số để trống, không là 0\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-03"
+    ]
+  },
+  {
+    "id": "UI-BAN-04",
+    "source": "FR-BAN-04",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Theo dõi chỉ đạo của Ban chỉ đạo; user có quyền và user chỉ đọc; route BAN-04",
+    "steps": [
+      "Mở BAN-04 từ menu và deep link; kiểm nhãn trường: Đơn vị: số chỉ đạo đang mở, quá hạn, đã leo thang, Chỉ đạo quá hạn lâu nhất, Danh sách chỉ đạo quá hạn, Mở chi tiết chỉ đạo (DIR-04)",
+      "Thực hiện thao tác chính theo quy tắc: Quá hạn và leo thang tính theo ngày bằng quy tắc DIRECTIVE_POLICY; không lưu trạng thái quá hạn",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-04"
+    ],
+    "expected": "Theo dõi chỉ đạo của Ban chỉ đạo: hiển thị đúng 4 trường, áp quy tắc \"Quá hạn và leo thang tính theo ngày bằng quy tắc DIRECTIVE_POLICY; không lưu trạng thái quá hạn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-04"
+    ]
+  },
+  {
+    "id": "UI-BAN-05",
+    "source": "FR-BAN-05",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cảnh báo của Ban chỉ đạo; user có quyền và user chỉ đọc; route BAN-05",
+    "steps": [
+      "Mở BAN-05 từ menu và deep link; kiểm nhãn trường: Loại cảnh báo (toàn tỉnh chậm, ngành chậm, đơn vị không báo cáo, chỉ đạo quá hạn), Chủ sở hữu, việc cần làm, hậu quả, thời hạn phản hồi, Giá trị so với ngưỡng, Xác nhận đã nhận kèm ghi chú, Đánh giá lại",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi loại cảnh báo có ALERT_TYPE; ngưỡng là quy tắc COMMITTEE_POLICY chưa kiểm chứng; mỗi điều kiện một dòng mở, hết đúng thì tự đóng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-05"
+    ],
+    "expected": "Cảnh báo của Ban chỉ đạo: hiển thị đúng 5 trường, áp quy tắc \"Mỗi loại cảnh báo có ALERT_TYPE; ngưỡng là quy tắc COMMITTEE_POLICY chưa kiểm chứng; mỗi điều kiện một dòng mở, hết đúng thì tự đóng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-05"
+    ]
+  },
+  {
+    "id": "UI-BAN-06",
+    "source": "FR-BAN-06",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Danh sách Ban chỉ đạo và vị trí; user có quyền và user chỉ đọc; route BAN-06",
+    "steps": [
+      "Mở BAN-06 từ menu và deep link; kiểm nhãn trường: Ban chỉ đạo (mã, tên, căn cứ), Vị trí: Trưởng ban, Phó ban, thành viên, thư ký, Cơ quan của người giữ vị trí (ví dụ PA05 Công an tỉnh), Quyết định bổ nhiệm, Ngày hiệu lực, Yêu cầu xác thực hai yếu tố, Đã cấp vai trò hay chưa",
+      "Thực hiện thao tác chính theo quy tắc: Một Trưởng ban đang hiệu lực; không tự bổ nhiệm; vị trí kết thúc có lý do và không xóa; quyền thực tế do vai trò IAM cấp trên toàn tenant, danh sách chỉ cảnh báo khi chưa cấp",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-06"
+    ],
+    "expected": "Danh sách Ban chỉ đạo và vị trí: hiển thị đúng 7 trường, áp quy tắc \"Một Trưởng ban đang hiệu lực; không tự bổ nhiệm; vị trí kết thúc có lý do và không xóa; quyền thực tế do vai trò IAM cấp trên toàn tenant, danh sách chỉ cảnh báo khi chưa cấp\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-06"
+    ]
+  },
+  {
+    "id": "UI-BAN-07",
+    "source": "FR-BAN-07",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo; user có quyền và user chỉ đọc; route BAN-07",
+    "steps": [
+      "Mở BAN-07 từ menu và deep link; kiểm nhãn trường: Người xem, vị trí trong Ban, Màn hình, Bộ lọc, Ngày số liệu và nguồn, Mức xác thực của phiên, Thời điểm",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ đọc, chỉ thêm: không sửa, không xóa; không chứa số liệu, chỉ đếm và bộ lọc; không có lượt xem nặc danh",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BAN-07"
+    ],
+    "expected": "Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo: hiển thị đúng 6 trường, áp quy tắc \"Chỉ đọc, chỉ thêm: không sửa, không xóa; không chứa số liệu, chỉ đếm và bộ lọc; không có lượt xem nặc danh\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-07"
+    ]
+  },
+  {
+    "id": "UAT-BAN-001",
+    "source": "BAN.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Read the province: the head and a member read, a person with no right or one unit only is refused. Tenant TNT-A with a frozen snapshot of the day and of last year, three projects, a head, a member, a secretariat and an auditor.",
+    "steps": [
+      "Open the workspace as the head, a member, a person with no right and a person with the right over one unit only",
+      "Compare the figures with the rows of the snapshot",
+      "Open the i of the rate"
+    ],
+    "expected": "Head and member: the figures of the snapshot with plan, disbursed, rate, last year, gap and the year-end band; the others: 403 SCOPE_DENIED and no audit row of a view; the i holds formula, source and as-of.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-01"
+    ]
+  },
+  {
+    "id": "UAT-BAN-002",
+    "source": "BAN.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Every view of a sensitive screen is audited and the audit cannot be changed. Tenant TNT-A with a frozen snapshot of the day and of last year, three projects, a head, a member, a secretariat and an auditor.",
+    "steps": [
+      "View the workspace, the attention list, the pack and the roster",
+      "Read the audit as the auditor",
+      "Try to change and to delete a row"
+    ],
+    "expected": "One row per view with person, role, screen, filters and feed and no figure; the change and the removal are refused by the database; reading the audit is audited too.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-01",
+      "FR-BAN-07"
+    ]
+  },
+  {
+    "id": "UAT-BAN-003",
+    "source": "BAN.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The attention list ranks by impact and the head decides. Tenant TNT-A with a frozen snapshot of the day and of last year, three projects, a head, a member, a secretariat and an auditor.",
+    "steps": [
+      "Open the attention list",
+      "Defer one project and direct another through a directive",
+      "Reopen the list"
+    ],
+    "expected": "Ranked with reasons and exposure; the deferred project is hidden until its day; the directive of another project is refused; the same key writes one decision.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-02"
+    ]
+  },
+  {
+    "id": "UAT-BAN-004",
+    "source": "BAN.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The four alerts open, stay, resolve and are acknowledged. Tenant TNT-A with a frozen snapshot of the day and of last year, three projects, a head, a member, a secretariat and an auditor.",
+    "steps": [
+      "Evaluate the alerts twice",
+      "Acknowledge one as the head with a note",
+      "Let the province catch up and evaluate again"
+    ],
+    "expected": "Four alerts with owner, action and consequence; kept on the second run; acknowledged once; the ones whose condition stopped are resolved and final.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-05"
+    ]
+  },
+  {
+    "id": "UAT-BAN-005",
+    "source": "BAN.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The roster keeps one head and no self-appointment, and its audit is for the security people. Tenant TNT-A with a frozen snapshot of the day and of last year, three projects, a head, a member, a secretariat and an auditor.",
+    "steps": [
+      "Register the committee and appoint a head, then a second head, then the secretary of the committee as herself",
+      "End a place without a reason and twice",
+      "Read the audit as the head"
+    ],
+    "expected": "Second head 409, self-appointment 422, ending without a reason 422, ending twice 409; the audit of views is 403 for the head.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-06",
+      "FR-BAN-07"
+    ]
+  },
+  {
+    "id": "UAT-BAN-006",
+    "source": "BAN.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The meeting pack is made by three people from the figures of the screen. Tenant TNT-A with a frozen snapshot of the day and of last year, three projects, a head, a member, a secretariat and an auditor.",
+    "steps": [
+      "Generate the pack as the secretariat",
+      "Check it as a member, approve it as the head, issue it as the secretariat",
+      "Compare the cells with the screen"
+    ],
+    "expected": "The cells hold the figures of the screen; three different people issue it.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BAN-03"
+    ]
   }
 ]

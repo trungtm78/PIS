@@ -185,6 +185,12 @@
       "module": "HUB",
       "title": "Integration Hub: one place that manages every connection to an outside system",
       "goal": "Register every connector by a descriptor, show its health, freshness, runs and incidents the same way, switch it on and off with a reason, run its data through an ETL pipeline (extract, validate, transform, load) with approved mappings, rejects, lineage and a watermark that moves only after a successful load, and register collector agents of any platform; no connector opens a network connection without a declared egress."
+    },
+    {
+      "id": "EP-BAN",
+      "module": "BAN",
+      "title": "Committee workspace: province-wide progress for the head of the steering committee",
+      "goal": "Give the head of the provincial steering committee one traceable workspace: province-wide progress by sector, district, investor and funding source against the plan, last year and the curve of the year, the projects that need the head ranked by impact, the meeting pack, the overdue directives, four alerts, the roster and an audit of every view of a sensitive screen, all on the real core data and with no write right on financial data."
     }
   ],
   "features": [
@@ -982,6 +988,11 @@
       "id": "FT-HUB-01",
       "epic": "EP-HUB",
       "title": "Catalogue, health, incidents, pipelines, mappings and agents of the connectors"
+    },
+    {
+      "id": "FT-BAN-01",
+      "epic": "EP-BAN",
+      "title": "Read the province, decide on what needs the head, hold the meeting, keep the roster and its audit"
     }
   ],
   "stories": [
@@ -53025,6 +53036,169 @@
             "UI-HUB-01",
             "UI-HUB-02",
             "UI-HUB-03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-BAN-001",
+      "epic": "EP-BAN",
+      "feature": "FT-BAN-01",
+      "module": "BAN",
+      "title": "Run the investment progress of the province from the committee workspace",
+      "narrative": "As the head of the steering committee (or a member or the secretariat) I can read the progress of the whole province by sector, district, investor and funding source with the formula and source of every figure, see which projects need me and decide on them, issue a directive from a project, prepare the meeting pack, follow the overdue directives and the alerts, and the secretariat can keep the roster; every view of a sensitive screen is recorded.",
+      "release": "R2",
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "acceptance": [
+        {
+          "id": "AC-ST-BAN-001-1",
+          "given": "A province with three projects, a frozen snapshot of the day and one of last year, read by the head, a member, a person with no right and a person whose right covers one unit only",
+          "when": "Each opens the workspace",
+          "then": "The head and the member get the province figures by sector, district, investor and funding source with plan, disbursed, rate, last year, the gap to the curve and the year-end band, each with its formula behind the i; the other two get 403 SCOPE_DENIED and no audit row of a view",
+          "test_id": "UAT-BAN-001"
+        },
+        {
+          "id": "AC-ST-BAN-001-2",
+          "given": "Any view of the workspace, the attention list, the pack, the tracker, the alerts, the roster or the audit",
+          "when": "It is answered",
+          "then": "One append-only row of the audit of views names the person, committee role, screen, filters, day, feed and the assurance level of the session, and holds no figure; a change or removal of the row is refused by the database",
+          "test_id": "UAT-BAN-002"
+        },
+        {
+          "id": "AC-ST-BAN-001-3",
+          "given": "A project behind its baseline, one with a stalled procurement step and an overrun, and a head who defers one and directs another",
+          "when": "The attention list is read and the decisions are recorded",
+          "then": "The projects are ranked by impact with their reasons and exposure; a deferred project leaves the list until its day; a directive of another project cannot be linked; the same key writes one decision",
+          "test_id": "UAT-BAN-003"
+        },
+        {
+          "id": "AC-ST-BAN-001-4",
+          "given": "A province behind the curve, a sector far behind, a unit that never reported and an escalated directive",
+          "when": "The secretariat evaluates the alerts, twice, and the province later catches up",
+          "then": "Four alerts open with owner, expected action and consequence; the second evaluation keeps them; the head acknowledges one with a note once; the alerts whose condition stopped are resolved and final",
+          "test_id": "UAT-BAN-004"
+        },
+        {
+          "id": "AC-ST-BAN-001-5",
+          "given": "A roster with a head, a deputy and a secretariat",
+          "when": "A second head, a self-appointment, an ending without a reason and an ending of an ended place are tried",
+          "then": "They are refused (409 COMMITTEE_ROLE_TAKEN, 422, 422, 409 COMMITTEE_STATE_INVALID); the roster says whether each member holds the matching IAM role; nobody but the security administrator and the auditor reads the audit of views",
+          "test_id": "UAT-BAN-005"
+        },
+        {
+          "id": "AC-ST-BAN-001-6",
+          "given": "The meeting pack form of the report engine and the workspace of the day",
+          "when": "The secretariat generates it, a member checks, the head approves and the secretariat issues",
+          "then": "The cells of the file hold the figures of the screen; three different people issue it",
+          "test_id": "UAT-BAN-006"
+        },
+        {
+          "id": "AC-ST-BAN-001-7",
+          "given": "Each screen BAN-01 to BAN-07 at 1440 px and 390 px by a reader with the right and one without",
+          "when": "Each of the seven standard states is forced in turn",
+          "then": "Loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-BAN-01"
+        }
+      ],
+      "dependencies": [
+        "ST-HOME-001",
+        "ST-DIR-001",
+        "ST-RPT-001"
+      ],
+      "effort": {
+        "agent_hours": {
+          "min": 80,
+          "max": 160
+        },
+        "confidence": "low",
+        "assumption": "The thresholds of COMMITTEE_POLICY are starting values of the research and stay unverified until the committee and the Finance Department confirm them; the figures stand on the frozen snapshots of the Disbursement module."
+      },
+      "screens": [
+        "BAN-01",
+        "BAN-02",
+        "BAN-03",
+        "BAN-04",
+        "BAN-05",
+        "BAN-06",
+        "BAN-07"
+      ],
+      "operations": [
+        "getCommitteeWorkspace",
+        "listCommitteeAttention",
+        "getCommitteeDirectiveTracker",
+        "getCommitteeMeetingPack",
+        "listCommitteeAlerts",
+        "getCommitteeRoster",
+        "listCommitteeViewAudit",
+        "registerCommittee",
+        "appointCommitteeMember",
+        "endCommitteeMember",
+        "recordAttentionDecision",
+        "evaluateCommitteeAlerts",
+        "acknowledgeCommitteeAlert"
+      ],
+      "tables": [],
+      "cxn": [],
+      "spikes": [],
+      "review": {
+        "required": [
+          "authorization",
+          "privacy",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 3,
+          "max": 6
+        }
+      },
+      "mobile": "card",
+      "tasks": [
+        {
+          "id": "TK-BAN-001-1",
+          "kind": "backend",
+          "title": "Rules, port, tables, stores and API behind BAN-01 to BAN-07",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BAN-001-2",
+          "kind": "web",
+          "title": "BAN-01 to BAN-07 screens built with the kit, the seven standard states and the i on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BAN-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for BAN-01 to BAN-07; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-BAN-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization, isolation and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-BAN-001",
+            "UAT-BAN-002",
+            "UAT-BAN-003",
+            "UAT-BAN-004",
+            "UAT-BAN-005",
+            "UAT-BAN-006"
+          ]
+        },
+        {
+          "id": "TK-BAN-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-BAN-01",
+            "UI-BAN-02",
+            "UI-BAN-03",
+            "UI-BAN-04",
+            "UI-BAN-05",
+            "UI-BAN-06",
+            "UI-BAN-07"
           ]
         }
       ]
