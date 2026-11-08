@@ -14,6 +14,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'acknowledgeEvaluationTrigger': CommandResultResponse.fromJson,
   'acknowledgeGovernanceAlert': CommandResultResponse.fromJson,
   'acknowledgeNotification': CommandResultResponse.fromJson,
+  'acknowledgeProjectRiskAlert': CommandResultResponse.fromJson,
   'acknowledgeWarrantyClaim': CommandResultResponse.fromJson,
   'activateAiProvider': CommandResultResponse.fromJson,
   'addCompensationPlanItems': CommandResultResponse.fromJson,
@@ -258,6 +259,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideDirectiveExtension': CommandResultResponse.fromJson,
   'decideDoaMatrix': CommandResultResponse.fromJson,
   'decideDossierDisposal': CommandResultResponse.fromJson,
+  'decideEffectAssessment': CommandResultResponse.fromJson,
   'decideEgpMapping': CommandResultResponse.fromJson,
   'decideEntitlementOverride': CommandResultResponse.fromJson,
   'decideFinanceFeedMapping': CommandResultResponse.fromJson,
@@ -346,8 +348,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'fileLandComplaint': CommandResultResponse.fromJson,
   'fileRankingComplaint': CommandResultResponse.fromJson,
   'fileWarrantyClaim': CommandResultResponse.fromJson,
+  'fixEffectTargets': CommandResultResponse.fromJson,
   'freezePeriodSnapshot': CommandResultResponse.fromJson,
   'fundProjectReserve': CommandResultResponse.fromJson,
+  'generateEffectCalendar': CommandResultResponse.fromJson,
   'generateMneExportPackage': CommandResultResponse.fromJson,
   'generateMneObligations': CommandResultResponse.fromJson,
   'generatePaymentForms': PayGeneratedPaymentFormsResponse.fromJson,
@@ -697,9 +701,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getProjectDocumentVersion': ProjectDocumentVersionDetailResponse.fromJson,
   'getProjectDocumentVersionDownload': DocumentFileDownloadResponse.fromJson,
   'getProjectEacControl': CapProjectEacControlResponse.fromJson,
+  'getProjectEffectiveness': MneProjectEffectivenessResponse.fromJson,
   'getProjectEvm': PrjProjectEvmResponse.fromJson,
   'getProjectLifecycle': asObject,
   'getProjectReserve': PrjProjectReserveResponse.fromJson,
+  'getProjectRiskSignals': PrjProjectRiskSignalsResponse.fromJson,
   'getProjectSCurve': PrjProjectSCurveResponse.fromJson,
   'getProjectTransferImpact': PrjTransferImpactResponse.fromJson,
   'getQualityAcceptance': QmsAcceptanceLineResponse.fromJson,
@@ -718,6 +724,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getReportIssueFile': RptFileContentResponse.fromJson,
   'getReportRevision': asObject,
   'getReportWorkflow': DisReportWorkflowResponse.fromJson,
+  'getRiskSignalBoard': PrjRiskSignalBoardResponse.fromJson,
   'getSitePhotoChecks': asObject,
   'getSnoozedWork': asObject,
   'getSodException': asObject,
@@ -975,6 +982,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProjectMilestones': PrjMilestoneListResponse.fromJson,
   'listProjectPipeline': asObject,
   'listProjectRevisions': PrjRevisionListResponse.fromJson,
+  'listProjectRiskAlerts': PrjRiskAlertListResponse.fromJson,
   'listProjectRisks': PrjRiskRegisterResponse.fromJson,
   'listProjectTransfers': PrjProjectTransferPageResponse.fromJson,
   'listProposalOcrPages': BidOcrPageListResponse.fromJson,
@@ -1178,6 +1186,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'recordContractSigning': CommandResultResponse.fromJson,
   'recordDirectiveProgress': CommandResultResponse.fromJson,
   'recordDistributionAcknowledgement': CommandResultResponse.fromJson,
+  'recordEffectMeasurement': CommandResultResponse.fromJson,
   'recordHpmReceipt': CommandResultResponse.fromJson,
   'recordHubRun': CommandResultResponse.fromJson,
   'recordInspectionResult': CommandResultResponse.fromJson,
@@ -1373,6 +1382,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'runReconciliation': CommandResultResponse.fromJson,
   'runTreasuryDailyRecon': TreasuryDailyReconRunResultResponse.fromJson,
   'saveDashboardVersion': CommandResultResponse.fromJson,
+  'saveEffectTargetDraft': CommandResultResponse.fromJson,
   'saveRestartPlan': CommandResultResponse.fromJson,
   'saveSiteDiaryDraft': CommandResultResponse.fromJson,
   'scanRedFlags': CommandResultResponse.fromJson,
@@ -1429,6 +1439,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'submitCorrectiveEvidence': CommandResultResponse.fromJson,
   'submitDoaMatrix': CommandResultResponse.fromJson,
   'submitDocumentForReview': CommandResultResponse.fromJson,
+  'submitEffectAssessment': CommandResultResponse.fromJson,
   'submitEgpObligation': CommandResultResponse.fromJson,
   'submitExplanation': CommandResultResponse.fromJson,
   'submitFundingFigures': CommandResultResponse.fromJson,
@@ -42364,6 +42375,72 @@ final class MneObligationStatusResponseItemsItem implements ResponseModel {
       };
 }
 
+final class MneProjectEffectivenessResponse implements ResponseModel {
+  const MneProjectEffectivenessResponse({
+    required this.project,
+    required this.policy,
+    required this.fixed,
+    required this.draft,
+    required this.superseded,
+    required this.measurements,
+    required this.calendar,
+    required this.assessments,
+    required this.suggestedConclusion,
+    required this.can,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory MneProjectEffectivenessResponse.fromJson(Object? json, [String path = 'MneProjectEffectivenessResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return MneProjectEffectivenessResponse(
+      project: requiredField(map, path, 'project', asObject),
+      policy: requiredField(map, path, 'policy', asObject),
+      fixed: requiredField(map, path, 'fixed', nullable(asObject)),
+      draft: requiredField(map, path, 'draft', nullable(asObject)),
+      superseded: requiredField(map, path, 'superseded', asList(asObject)),
+      measurements: requiredField(map, path, 'measurements', asList(asObject)),
+      calendar: requiredField(map, path, 'calendar', asList(asObject)),
+      assessments: requiredField(map, path, 'assessments', asList(asObject)),
+      suggestedConclusion: requiredField(map, path, 'suggested_conclusion', nullable(asString)),
+      can: requiredField(map, path, 'can', asObject),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'project', 'policy', 'fixed', 'draft', 'superseded', 'measurements', 'calendar', 'assessments', 'suggested_conclusion', 'can', 'as_of'}, strict: false),
+    );
+  }
+
+  final Map<String, Object?> project;
+  final Map<String, Object?> policy;
+  final Map<String, Object?>? fixed;
+  final Map<String, Object?>? draft;
+  final List<Map<String, Object?>> superseded;
+  final List<Map<String, Object?>> measurements;
+  final List<Map<String, Object?>> calendar;
+  final List<Map<String, Object?>> assessments;
+  final String? suggestedConclusion;
+  final Map<String, Object?> can;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project': project,
+        'policy': policy,
+        'fixed': fixed,
+        'draft': draft,
+        'superseded': superseded,
+        'measurements': measurements,
+        'calendar': calendar,
+        'assessments': assessments,
+        'suggested_conclusion': suggestedConclusion,
+        'can': can,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
 final class MyFeatureFlagsResponse implements ResponseModel {
   const MyFeatureFlagsResponse({
     required this.items,
@@ -51768,6 +51845,56 @@ final class PrjProjectReserveResponse implements ResponseModel {
       };
 }
 
+final class PrjProjectRiskSignalsResponse implements ResponseModel {
+  const PrjProjectRiskSignalsResponse({
+    required this.project,
+    required this.lines,
+    required this.history,
+    required this.alerts,
+    required this.policy,
+    required this.can,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjProjectRiskSignalsResponse.fromJson(Object? json, [String path = 'PrjProjectRiskSignalsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjProjectRiskSignalsResponse(
+      project: requiredField(map, path, 'project', asObject),
+      lines: requiredField(map, path, 'lines', asList(asObject)),
+      history: requiredField(map, path, 'history', asList(asObject)),
+      alerts: requiredField(map, path, 'alerts', asList(asObject)),
+      policy: requiredField(map, path, 'policy', asObject),
+      can: requiredField(map, path, 'can', asObject),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'project', 'lines', 'history', 'alerts', 'policy', 'can', 'as_of'}, strict: false),
+    );
+  }
+
+  final Map<String, Object?> project;
+  final List<Map<String, Object?>> lines;
+  final List<Map<String, Object?>> history;
+  final List<Map<String, Object?>> alerts;
+  final Map<String, Object?> policy;
+  final Map<String, Object?> can;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project': project,
+        'lines': lines,
+        'history': history,
+        'alerts': alerts,
+        'policy': policy,
+        'can': can,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
 final class PrjProjectSCurveResponse implements ResponseModel {
   const PrjProjectSCurveResponse({
     required this.projectId,
@@ -52282,6 +52409,36 @@ final class PrjRevisionListResponse implements ResponseModel {
       };
 }
 
+final class PrjRiskAlertListResponse implements ResponseModel {
+  const PrjRiskAlertListResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskAlertListResponse.fromJson(Object? json, [String path = 'PrjRiskAlertListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskAlertListResponse(
+      items: requiredField(map, path, 'items', asList(asObject)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
 final class PrjRiskLineResponse implements ResponseModel {
   const PrjRiskLineResponse({
     required this.id,
@@ -52498,6 +52655,90 @@ final class PrjRiskRegisterResponseMatrixItem implements ResponseModel {
         'count': count,
         'score': score,
         'level': level,
+        ...extra,
+      };
+}
+
+final class PrjRiskSignalBoardResponse implements ResponseModel {
+  const PrjRiskSignalBoardResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.counts,
+    required this.policy,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskSignalBoardResponse.fromJson(Object? json, [String path = 'PrjRiskSignalBoardResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskSignalBoardResponse(
+      items: requiredField(map, path, 'items', asList(asObject)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      counts: requiredField(map, path, 'counts', PrjRiskSignalBoardResponseCounts.fromJson),
+      policy: requiredField(map, path, 'policy', asObject),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'policy', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<Map<String, Object?>> items;
+  final String? nextCursor;
+  final PrjRiskSignalBoardResponseCounts counts;
+  final Map<String, Object?> policy;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items,
+        'next_cursor': nextCursor,
+        'counts': counts.toJson(),
+        'policy': policy,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PrjRiskSignalBoardResponseCounts implements ResponseModel {
+  const PrjRiskSignalBoardResponseCounts({
+    required this.total,
+    required this.critical,
+    required this.medium,
+    required this.low,
+    required this.openAlerts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PrjRiskSignalBoardResponseCounts.fromJson(Object? json, [String path = 'PrjRiskSignalBoardResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PrjRiskSignalBoardResponseCounts(
+      total: requiredField(map, path, 'total', asInt),
+      critical: requiredField(map, path, 'critical', asInt),
+      medium: requiredField(map, path, 'medium', asInt),
+      low: requiredField(map, path, 'low', asInt),
+      openAlerts: requiredField(map, path, 'open_alerts', asInt),
+      extra: unknownFields(map, path, const <String>{'total', 'critical', 'medium', 'low', 'open_alerts'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int critical;
+  final int medium;
+  final int low;
+  final int openAlerts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'critical': critical,
+        'medium': medium,
+        'low': low,
+        'open_alerts': openAlerts,
         ...extra,
       };
 }

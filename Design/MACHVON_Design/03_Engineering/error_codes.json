@@ -7003,6 +7003,46 @@
       "module": "FEED",
       "statusBasis": "spec",
       "source": "spec:FEED"
+    },
+    "RISK_ALERT_STATE_INVALID": {
+      "status": 409,
+      "title": "Risk alert state invalid",
+      "meaning": "cảnh báo rủi ro đã được xác nhận hoặc đã kết thúc → 409 RISK_ALERT_STATE_INVALID.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "EFFECT_TARGET_STATE_INVALID": {
+      "status": 409,
+      "title": "Effect target state invalid",
+      "meaning": "bộ chỉ tiêu mục tiêu đã chốt hoặc bản nháp của người khác → 409 EFFECT_TARGET_STATE_INVALID.",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "EFFECT_TARGETS_NOT_FIXED": {
+      "status": 409,
+      "title": "Effect targets not fixed",
+      "meaning": "dự án chưa có bộ chỉ tiêu mục tiêu đã chốt nên chưa ghi nhận số đo hay đánh giá → 409 EFFECT_TARGETS_NOT_FIXED.",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "EFFECT_MEASUREMENT_DUPLICATE": {
+      "status": 409,
+      "title": "Effect measurement duplicate",
+      "meaning": "chỉ tiêu đã có số đo trong ngày này hoặc dòng đã được hiệu chỉnh → 409 EFFECT_MEASUREMENT_DUPLICATE.",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "EFFECT_ASSESSMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Effect assessment state invalid",
+      "meaning": "đánh giá đã được quyết định, đang chờ quyết định hoặc loại đánh giá này đã được duyệt → 409 EFFECT_ASSESSMENT_STATE_INVALID.",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
     }
   }
 }

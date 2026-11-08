@@ -843,7 +843,14 @@
     "saveRestartPlan",
     "decideRestartPlan",
     "closeRestartStep",
-    "closeProjectHalt"
+    "closeProjectHalt",
+    "acknowledgeProjectRiskAlert",
+    "saveEffectTargetDraft",
+    "fixEffectTargets",
+    "recordEffectMeasurement",
+    "generateEffectCalendar",
+    "submitEffectAssessment",
+    "decideEffectAssessment"
   ],
   "identityCommands": [
     "acceptInvitation",

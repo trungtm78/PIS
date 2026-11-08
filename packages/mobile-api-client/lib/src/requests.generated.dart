@@ -10065,6 +10065,134 @@ final class MneDecision implements RequestModel {
       };
 }
 
+final class MneEffectAssessmentDecision implements RequestModel {
+  const MneEffectAssessmentDecision({
+    required this.decision,
+    this.reason,
+  });
+
+  final String decision;
+  final Object? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class MneEffectAssessmentSubmit implements RequestModel {
+  const MneEffectAssessmentSubmit({
+    required this.kind,
+    required this.conclusion,
+    required this.summary,
+  });
+
+  final String kind;
+  final String conclusion;
+  final String summary;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'conclusion': conclusion,
+        'summary': summary,
+      };
+}
+
+final class MneEffectIndicatorInput implements RequestModel {
+  const MneEffectIndicatorInput({
+    required this.code,
+    required this.name,
+    required this.unit,
+    required this.direction,
+    required this.targetValue,
+    required this.dataSource,
+    required this.formula,
+    this.baselineValue,
+    this.baselineOn,
+    this.measureAfterMonths,
+  });
+
+  final String code;
+  final String name;
+  final String unit;
+  final String direction;
+  final Object? baselineValue;
+  final Object? baselineOn;
+  final String targetValue;
+  final Object? measureAfterMonths;
+  final String dataSource;
+  final String formula;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'unit': unit,
+        'direction': direction,
+        if (baselineValue != null) 'baseline_value': baselineValue,
+        if (baselineOn != null) 'baseline_on': baselineOn,
+        'target_value': targetValue,
+        if (measureAfterMonths != null) 'measure_after_months': measureAfterMonths,
+        'data_source': dataSource,
+        'formula': formula,
+      };
+}
+
+final class MneEffectMeasurement implements RequestModel {
+  const MneEffectMeasurement({
+    required this.indicatorCode,
+    required this.measuredOn,
+    required this.value,
+    required this.methodNote,
+    this.evidenceDocumentId,
+    this.correctsId,
+    this.correctionReason,
+  });
+
+  final String indicatorCode;
+  final String measuredOn;
+  final String value;
+  final String methodNote;
+  final Object? evidenceDocumentId;
+  final Object? correctsId;
+  final Object? correctionReason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'indicator_code': indicatorCode,
+        'measured_on': measuredOn,
+        'value': value,
+        'method_note': methodNote,
+        if (evidenceDocumentId != null) 'evidence_document_id': evidenceDocumentId,
+        if (correctsId != null) 'corrects_id': correctsId,
+        if (correctionReason != null) 'correction_reason': correctionReason,
+      };
+}
+
+final class MneEffectTargetDraft implements RequestModel {
+  const MneEffectTargetDraft({
+    required this.basis,
+    required this.indicators,
+    this.basisDocumentId,
+    this.supersedeReason,
+  });
+
+  final String basis;
+  final Object? basisDocumentId;
+  final Object? supersedeReason;
+  final List<MneEffectIndicatorInput> indicators;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'basis': basis,
+        if (basisDocumentId != null) 'basis_document_id': basisDocumentId,
+        if (supersedeReason != null) 'supersede_reason': supersedeReason,
+        'indicators': indicators,
+      };
+}
+
 final class MneEvaluationInput implements RequestModel {
   const MneEvaluationInput({
     required this.projectId,
@@ -12653,6 +12781,19 @@ final class PrjRevisionProposal implements RequestModel {
         'after': after,
         if (totalInvestmentVnd != null) 'total_investment_vnd': totalInvestmentVnd,
         'reason': reason,
+      };
+}
+
+final class PrjRiskAlertAck implements RequestModel {
+  const PrjRiskAlertAck({
+    required this.note,
+  });
+
+  final String note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'note': note,
       };
 }
 

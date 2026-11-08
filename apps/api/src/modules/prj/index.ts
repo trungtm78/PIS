@@ -14,6 +14,7 @@ import { ProjectController, ProjectReadsController } from './project.controller'
 import { ProjectReserveController, ProjectReserveReadsController } from './reserve.controller';
 import { ProjectRevisionController, ProjectRevisionReadsController } from './revision.controller';
 import { ProjectRiskController, ProjectRiskReadsController } from './risk.controller';
+import { ProjectRiskAlertController, ProjectRiskSignalReadsController } from './risk-signal.controller';
 import { ProjectLifecycleReadsController, ProjectStageController } from './stage.controller';
 import { TaskForceController } from './task-force.controller';
 import { TransferController } from './transfer.controller';
@@ -30,4 +31,6 @@ import { ProjectWbsController, ProjectWbsReadsController } from './wbs.controlle
 export const prjModule = defineModule({
   code: 'PRJ',
   controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectAppraisalController, NationalCodeController, NationalCodeFileController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController, ExplanationController, TransferController, ProjectRiskController, ProjectRiskReadsController, ProjectRevisionController, ProjectRevisionReadsController, ProjectWbsController, ProjectWbsReadsController, ProjectReserveController, ProjectReserveReadsController, ProjectBaselineController, ProjectBaselineReadsController, ProjectEvmController, ProjectEvmReadsController, InvestmentAppraisalController, InvestmentAppraisalReadsController, LookAheadController, LessonsController],
+=======
+  controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectAppraisalController, NationalCodeController, NationalCodeFileController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController, ExplanationController, TransferController, ProjectRiskController, ProjectRiskReadsController, ProjectRevisionController, ProjectRevisionReadsController, ProjectWbsController, ProjectWbsReadsController, ProjectReserveController, ProjectReserveReadsController, ProjectBaselineController, ProjectBaselineReadsController, ProjectEvmController, ProjectEvmReadsController, InvestmentAppraisalController, InvestmentAppraisalReadsController, ProjectRiskAlertController, ProjectRiskSignalReadsController],
 });

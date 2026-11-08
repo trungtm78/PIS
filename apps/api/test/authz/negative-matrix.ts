@@ -4427,6 +4427,39 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   reopenDocumentComment: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/document-comments/00000000-0000-4000-8000-0000000000f1/reopen', body: {} }) },
   submitDocumentForReview: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-documents/00000000-0000-4000-8000-0000000000f1/reviews', body: { version_id: '00000000-0000-4000-8000-0000000000f1' } }) },
   withdrawDocumentReview: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/document-reviews/00000000-0000-4000-8000-0000000000f1/withdraw', ifMatch: '"1"', body: { reason: REASON } }) },
+  // The risk register scored from signals and the effectiveness after the investment (lane MR-1): a caller that is refused acknowledges, drafts, fixes, measures, generates, assesses and decides nothing.
+  acknowledgeProjectRiskAlert: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-risk-alerts/${t.legalHoldId}/acknowledgement`, ifMatch: '"1"', body: { note: REASON } }),
+  },
+  saveEffectTargetDraft: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/projects/${t.projectId}/effect-targets`,
+      body: { basis: 'Decision 1/QD of 2026-01-01', indicators: [{ code: 'OUTPUT', name: 'Yearly output', unit: 'MWh', direction: 'HIGHER_IS_BETTER', target_value: '1000', data_source: 'Meter readings', formula: 'Sum of monthly readings' }] },
+    }),
+  },
+  fixEffectTargets: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/effect-target-sets/${t.legalHoldId}/fix`, ifMatch: '"1"', body: {} }),
+  },
+  recordEffectMeasurement: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/effect-measurements`, body: { indicator_code: 'OUTPUT', measured_on: '2026-01-31', value: '800', method_note: 'Meter readings' } }),
+  },
+  generateEffectCalendar: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/effect-calendar`, body: {} }),
+  },
+  submitEffectAssessment: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/effect-assessments`, body: { kind: 'FINAL', conclusion: 'SATISFACTORY', summary: 'The plant reached its target.' } }),
+  },
+  decideEffectAssessment: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/effect-assessments/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
+  },
 };
 
 export type MatrixCaseKind = 'role' | 'wrong-tenant' | 'control-plane';

@@ -12893,5 +12893,47 @@
     "platform": "web",
     "req": "FR-FEED-05",
     "source": "Kế hoạch FEED-1 và docs/finance-feed.md; yêu cầu của chủ đầu tư 08/11/2026"
+  },
+  {
+    "id": "PRJ-28",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Bảng rủi ro chấm từ tín hiệu và lịch sử điểm",
+    "kind": "board",
+    "fields": [
+      "Điểm, mức và xu hướng của từng dòng",
+      "Loại tín hiệu và bằng chứng (con số, đơn vị, ngày)",
+      "Rủi ro người nhập trong sổ PRJ-16",
+      "Lịch sử điểm theo ngày",
+      "Cảnh báo đang đứng và xác nhận",
+      "Ngưỡng và phiên bản quy tắc RISK_SIGNAL_POLICY (chưa kiểm chứng)"
+    ],
+    "role": "Lãnh đạo, ban quản lý dự án, kiểm toán nội bộ",
+    "rule": "Job chấm lại các dòng rủi ro từ tín hiệu thật (tiến độ theo SPI và mốc, toàn vẹn thanh toán, khiếu nại và cảnh báo sớm, thiếu vốn, chậm đấu thầu); ngưỡng, tác động và đường mở dòng đọc từ quy tắc quản trị RISK_SIGNAL_POLICY; điểm vượt ngưỡng nghiêm trọng hoặc tăng nhanh thì phát cảnh báo RISK_SCORE_CRITICAL hoặc RISK_SCORE_JUMP; chỉ báo không biết được không bao giờ tính là 0 (MR.02, G1-14)",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PRJ-28",
+    "source": "Hồ sơ khách hàng MR.02; lộ trình quản trị sâu 08/11/2026 (làn MR-1)"
+  },
+  {
+    "id": "MNE-11",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Hiệu quả sau đầu tư: chỉ tiêu mục tiêu và thực tế",
+    "kind": "board",
+    "fields": [
+      "Chỉ tiêu mục tiêu đã chốt khi phê duyệt",
+      "Số đo thực tế và ngày đo",
+      "Chênh lệch, mức đạt và xếp loại",
+      "Lịch đánh giá Điều 76-77 (chưa kiểm chứng)",
+      "Hồ sơ đánh giá và người duyệt",
+      "Bản nháp và lịch sử thay thế"
+    ],
+    "role": "Ban quản lý dự án, cơ quan đánh giá, cấp quyết định đầu tư",
+    "rule": "Chỉ tiêu mục tiêu chốt một lần khi phê duyệt (người lập khác người chốt); số đo thực tế chỉ thêm, sửa bằng dòng hiệu chỉnh có lý do; chênh lệch tính trong lõi bằng số thập phân chính xác; lịch đánh giá đọc từ quy tắc EFFECT_EVALUATION_CALENDAR (Điều 76-77, chưa kiểm chứng) và ngày mốc; hồ sơ đánh giá đóng băng chênh lệch theo ngày, người duyệt khác người trình (MR.03, G4-7)",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-MNE-11",
+    "source": "Hồ sơ khách hàng MR.03; lộ trình quản trị sâu 08/11/2026 (G4-7, làn MR-1)"
   }
 ]
