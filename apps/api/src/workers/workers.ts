@@ -14,6 +14,8 @@ import { runWorkReminders } from '../modules/home/work-reminder.job';
 import { runAlertLadders } from '../modules/home/alert-ladder.job';
 import { runAlertObservation } from '../modules/home/alert-observe.job';
 import { runRedFlagScan } from '../modules/aud/red-flag-scan.job';
+import { runVendorLinkScan } from '../modules/bid/vendor-link-scan.job';
+import { runVendorScreening } from '../modules/bid/vendor-screening.job';
 import { AdmMigrationJob } from '../modules/adm/migration.job';
 import { MockEmbeddingPort, OcrDocumentTextPort } from '../modules/llm/knowledge-ports';
 import type { AiEmbeddingPort } from '../modules/llm/knowledge-ports';
@@ -349,6 +351,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     alertObserve: { run: (ctx, now) => runAlertObservation(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     alertLadder: { run: (ctx, now) => runAlertLadders(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     redFlagScan: { run: (ctx, now) => runRedFlagScan(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    vendorLinkScan: { run: (ctx, now) => runVendorLinkScan(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    vendorScreening: { run: (ctx, now) => runVendorScreening(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
     earlyWarningScore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => earlyWarningScore.run(tx, ctx.membershipId, now)) },
     riskRescore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => riskRescore.run(tx, ctx.membershipId, now)) },
     diaryCoverage: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => diaryCoverage.run(tx, now)) },

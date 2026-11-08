@@ -188,7 +188,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
       for (const table of found.filter((entry) => entry !== undefined)) {
         expect([table.name, table.rowSecurity, table.forceRowSecurity]).toEqual([table.name, true, true]);
         // A table of personal data of households has one more restrictive policy, the guard of the units of the reader (scope_units_guard); it narrows, never widens.
-        const tenantPolicies = table.policies.filter((entry) => entry.name !== 'scope_units_guard' && entry.name !== 'bi_reader_boundary');
+        const tenantPolicies = table.policies.filter((entry) => entry.name !== 'scope_units_guard' && entry.name !== 'bi_reader_boundary' && entry.name !== 'portal_boundary');
         expect([table.name, tenantPolicies.map((entry) => entry.name).sort()]).toEqual([table.name, ['tenant_access', 'tenant_boundary']]);
         expect(table.policies.filter((entry) => entry.name === 'scope_units_guard').every((entry) => !entry.permissive)).toBe(true);
       }

@@ -153,6 +153,10 @@ export const JOB_INTERVAL_SECONDS = {
   'alert-ladder': 300,
   // Every 6 hours: the twelve indicators of the OCP catalogue judge every approved package and every contract with no package, and the findings that have a score are written for the auditors (G4-3); the scan of a six-hour slot is recorded once.
   'red-flag-scan': 21_600,
+  // Every night: the related-party links are recomputed and the closed packages are screened for signs of bid rigging; findings become leads for the auditors (VND-3, V6).
+  'vendor-link-scan': 86_400,
+  // Every night: every contractor of the register is compared with the lists of parties that may not be dealt with; a new hit above the hold line holds the contractor until a person decides (VND-3, V14).
+  'vendor-screening': 86_400,
   // Hourly: the latest frozen snapshot is read, and if the week it belongs to has no early-warning score yet, every unit is judged by the rules in force and one row with the breakdown is written for it, once for the week (G3-2); the pass is idempotent.
   'early-warning-score': 3600,
   // Every 3 hours: the risk lines of every project the rule scores are re-scored from the live signals (SPI and milestones, payment integrity, claims and early warnings, funding gap, procurement delay) by the rule RISK_SIGNAL_POLICY; a score that crosses a line of the rule raises an alert, once for a subject and a day (MR.02, G1-14); the pass is idempotent.
@@ -395,6 +399,8 @@ export interface StandardJobDeps {
   alertLadder?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ sent: number; escalated: number; failed: number }> };
   /** The red flags of procurement (G4-3): evaluates the twelve indicators and writes the findings for the auditors. */
   redFlagScan?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ flagged: number }> };
+  vendorLinkScan?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ leadsNew: number }> };
+  vendorScreening?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ hitsNew: number }> };
   /** Scores every unit for the week of the latest frozen snapshot, once for the week, with the breakdown of the factors and the versions of the rules (G3-2); sets the gauge of the units scored. */
   earlyWarningScore?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ written: number }> };
   /** Re-scores the risk lines of the projects from the live signals and raises the alerts of the scores that crossed a line of the rule (MR.02); sets the gauge of the lines that moved. */
@@ -1213,6 +1219,26 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await redFlagScan.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const vendorLinkScan = deps.vendorLinkScan;
+  if (vendorLinkScan !== undefined) {
+    handlers.push({
+      name: 'vendor-link-scan',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await vendorLinkScan.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const vendorScreening = deps.vendorScreening;
+  if (vendorScreening !== undefined) {
+    handlers.push({
+      name: 'vendor-screening',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await vendorScreening.run(workerContext(tenantId), now)));
       },
     });
   }
