@@ -1,5 +1,6 @@
 import { DECISION_DEFAULTS, DECISION_RULE_CODE, DECISION_RULE_TYPE, decisionPolicyOf } from './ana-decision.ts';
 import type { ForecastParams } from './ana-forecast.ts';
+import { FRESHNESS_DEFAULTS, FRESHNESS_RULE_TYPE, SCORECARD_MODULE_DEFAULTS, SCORECARD_MODULE_RULE_TYPE, SCORECARD_RULE_CODE, SCORECARD_UNIT_DEFAULTS, SCORECARD_UNIT_RULE_TYPE, moduleScorecardPolicyOf, unitScorecardPolicyOf } from './ana-trust.ts';
 import { DomainError } from './errors.ts';
 import type { FieldSpec, RuleParams } from './governance-rules.ts';
 import { message } from './messages.ts';
@@ -101,5 +102,49 @@ const DECISION: ExecRuleType = {
   defaults: { [DECISION_RULE_CODE]: DECISION_DEFAULTS as RuleParams },
 };
 
+/** Judges the params with the parser of the lane: whatever the parser refuses, the registry refuses too, naming the field. */
+const refineWith =
+  (parse: (params: RuleParams) => unknown): ((params: Record<string, unknown>) => string | undefined) =>
+  (params) => {
+    try {
+      parse(params);
+      return undefined;
+    } catch (failure) {
+      return failure instanceof DomainError ? (failure.detail ?? 'params') : 'params';
+    }
+  };
+
+const FRESHNESS: ExecRuleType = {
+  type: FRESHNESS_RULE_TYPE,
+  ownerModule: 'BI',
+  modules: ['BI', 'DGV', 'HOME'],
+  formula: message('ana.rules.freshness.formula'),
+  source: message('ana.rules.source'),
+  schema: { sla_hours: int(1, 8760), due_after_pct: int(1, 100) },
+  defaults: Object.fromEntries(Object.entries(FRESHNESS_DEFAULTS).map(([code, params]) => [code, params as RuleParams])),
+};
+
+const w = int(0, 100);
+const SCORECARD_MODULE: ExecRuleType = {
+  type: SCORECARD_MODULE_RULE_TYPE,
+  ownerModule: 'BI',
+  modules: ['BI', 'DGV'],
+  formula: message('ana.rules.scorecard_module.formula'),
+  source: message('ana.rules.source'),
+  schema: { w_freshness: w, w_quality: w, w_certification: w, due_score: w, warning_score: w, confirmed_score: w, draft_score: w, min_dimensions: int(1, 3), good_from: int(1, 100), fair_from: int(0, 99) },
+  refine: refineWith(moduleScorecardPolicyOf),
+  defaults: { [SCORECARD_RULE_CODE]: SCORECARD_MODULE_DEFAULTS as RuleParams },
+};
+const SCORECARD_UNIT: ExecRuleType = {
+  type: SCORECARD_UNIT_RULE_TYPE,
+  ownerModule: 'BI',
+  modules: ['BI', 'DGV', 'HOME'],
+  formula: message('ana.rules.scorecard_unit.formula'),
+  source: message('ana.rules.source'),
+  schema: { w_completeness: w, w_coverage: w, w_timeliness: w, overdue_penalty: w, min_dimensions: int(1, 3), good_from: int(1, 100), fair_from: int(0, 99) },
+  refine: refineWith(unitScorecardPolicyOf),
+  defaults: { [SCORECARD_RULE_CODE]: SCORECARD_UNIT_DEFAULTS as RuleParams },
+};
+
 /** Every rule type of the lane, in the order they are registered. */
-export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION];
+export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT];

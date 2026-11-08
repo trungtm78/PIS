@@ -1543,5 +1543,8 @@
   "prj.look_ahead.refusal.window": "Kế hoạch nhìn trước phải phủ từ {min} đến {max} tuần.",
   "ana.rules.source": "Phân tích điều hành (G3-5 đến G3-11 của lộ trình quản trị): giá trị khởi điểm của nghiên cứu, cần xác nhận với khách hàng và kiểm toán",
   "ana.rules.forecast.formula": "Tốc độ giải ngân mỗi tuần đo trên các cửa sổ từ 4 đến 8 tuần; dự báo cuối năm = lũy kế hiện tại + tốc độ × số ngày còn lại / 7; dải từ cửa sổ chậm nhất đến nhanh nhất; mùa vụ nhân phần còn lại của năm trước với tỷ lệ nhịp độ",
-  "ana.rules.decision.formula": "Nhật ký quyết định: loại quyết định thuộc danh sách đóng, lý do bằng lời tối thiểu và tối đa số ký tự quy định, ngày theo dõi nằm sau ngày quyết định và không quá số ngày tối đa; số liệu được chụp lại tại thời điểm quyết định"
+  "ana.rules.decision.formula": "Nhật ký quyết định: loại quyết định thuộc danh sách đóng, lý do bằng lời tối thiểu và tối đa số ký tự quy định, ngày theo dõi nằm sau ngày quyết định và không quá số ngày tối đa; số liệu được chụp lại tại thời điểm quyết định",
+  "ana.rules.freshness.formula": "Tuổi của bộ dữ liệu = giờ từ lần dựng thành công gần nhất; Mới khi không quá tỷ lệ phần trăm đầu của SLA, Sắp quá hạn khi không quá SLA, Số liệu cũ khi vượt SLA; chưa dựng lần nào là chưa có dữ liệu",
+  "ana.rules.scorecard_module.formula": "Điểm của một phân hệ là trung bình có trọng số của các chiều có điểm (độ tươi, chất lượng của lần dựng gần nhất, chứng nhận); thiếu chiều thì chiều đó không tính; dưới số chiều tối thiểu thì không có điểm tổng hợp",
+  "ana.rules.scorecard_unit.formula": "Điểm của một đơn vị là trung bình có trọng số của các chiều có điểm (tỷ lệ dự án có số Kho bạc, độ bao phủ dữ liệu của điểm cảnh báo sớm, trừ điểm cho mỗi giải trình quá hạn); thiếu chiều thì chiều đó không tính"
 }

@@ -3083,3 +3083,7 @@ export { EXEC_RULE_TYPES, FORECAST_RULE_CODE, FORECAST_RULE_TYPE, forecastParams
 export type { ExecRuleType } from './ana-rules.ts';
 export { DECISION_OUTCOMES, DECISION_RULE_CODE, DECISION_RULE_TYPE, DECISION_SUBJECT_KINDS, FOLLOW_UP_SOON_DAYS, checkDecision, checkOutcome, compareFigure, decisionPolicyOf, figuresDigest, followUpState } from './ana-decision.ts';
 export type { DecisionDraft, DecisionOutcome, DecisionPolicy, DecisionSubject, DecisionSubjectKind, FigureCompareReason, FigureComparison, FigureFact, FollowUpState, OutcomeDraft } from './ana-decision.ts';
+export { FRESHNESS_DEFAULT_CODE, FRESHNESS_RULE_TYPE, SCORECARD_MODULE_RULE_TYPE, SCORECARD_RULE_CODE, SCORECARD_UNIT_RULE_TYPE, compositeOf, freshnessRuleCodeOf, freshnessSlaOf, judgeFreshness, moduleScorecard, moduleScorecardPolicyOf, unitScorecard, unitScorecardPolicyOf } from './ana-trust.ts';
+export type { CertificationLike, Dimension, FreshnessReading, FreshnessSla, FreshnessStatus, ModuleScorecardPolicy, QualityBadgeLike, ScoreBand, ScorecardRow, UnitScorecardPolicy } from './ana-trust.ts';
+export { KPI_SOURCE_TABLES, LINEAGE_KINDS, TABLE_OWNERS, TRACE_MAX_DEPTH, buildLineage, traceLineage } from './ana-lineage.ts';
+export type { DeclaredEdge, DeclaredLineage, DeclaredNode, DeclaredNodeKind, DeclaredRelation, LineageDataset, LineageKpi, LineageMetric, Trace, TraceDirection } from './ana-lineage.ts';
