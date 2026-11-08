@@ -20,7 +20,7 @@ Branch `lane/vnd3`, worktree `D:\PIS-vnd3`, migration block 2440-2459. Items of 
 | 5 | [x] Contract (contract-patch), controllers, authz, jobs, isolation entries (not run) | `apps/api/test/bid/vendor3*.test.ts` |
 | 6 | [x] Web: investigation, screening, portal screens, i18n part `vnd3`, routes, nav | vitest of the screens |
 | 7 | [x] Design rows (story, backlog, traceability, test cases, VND.md), `docs/vendor-management-investigation.md`, UAT ids | `check-cli`, `baseline-cli` |
-| 8 | [ ] Lint, typecheck, scans, Codex review and triage | `npm run lint`, `npm run typecheck` |
+| 8 | [x] Lint, typecheck, scans, Codex review and triage | `npm run lint`, `npm run typecheck` |
 
 ## Risks
 - Parallel lane VND-2 edits the same shared files (governance rules, home-work lists, vi.json, contract files): edits are small and appended.
