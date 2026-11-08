@@ -127,3 +127,20 @@ R2 (làn VND-1): toàn bộ nội dung trên. Hạng mục bắt buộc có ngư
 | Chủ sở hữu hưởng lợi: ngưỡng 25% hoặc quyền kiểm soát theo văn bản chống rửa tiền (có nguồn nhắc NĐ 168/2025, NĐ 296/2026) | Pháp chế | Xác nhận văn bản hiện hành |
 | Đăng sự kiện lên mạng đấu thầu quốc gia là thao tác tay đến khi có đặc tả | Đơn vị vận hành mạng | Đặc tả giao diện (EGP-2) |
 | Mặc định cổng cảnh báo thay vì chặn với hồ sơ và chứng chỉ | Trưởng ban đấu thầu | Đơn vị hoàn tất hồ sơ rồi duyệt quy tắc `VENDOR_GATE` mức BLOCK |
+
+## 14. Làn VND-2: các kiểm soát nhà thầu và nhà cung cấp (V4, V5, V7, V9, V10, V11, V13)
+
+Mô tả đầy đủ ở `docs/vendor-controls.md` (mục lục) và ba tài liệu con. Mọi con số là quy tắc `governance_rule` (loại `VENDOR_INDEPENDENCE`, `VENDOR_FINANCE`, `VENDOR_CAPACITY`, `VENDOR_BID_SECURITY`, `VENDOR_SUBCONTRACT`, `VENDOR_RISK`, `VENDOR_PERFORMANCE`) có công thức, nguồn, ngày và cờ chưa kiểm chứng; tín hiệu không phải kết luận, người quyết định luôn là người khác người lập.
+
+| Màn hình | Nội dung | Story | Test |
+|---|---|---|---|
+| VND-07 | Kiểm tra độc lập của nhà thầu, tổ chuyên gia, nhân sự dự án và chủ đầu tư; quyết định từng phát hiện; cổng trao kết quả; khai báo lợi ích; yêu cầu bảo đảm và tài chính của gói | ST-VND-006 | UAT-VND2-01, UI-VND-07 |
+| VND-08 | Báo cáo tài chính theo năm do người khác xác minh, chỉ tiêu so với quy tắc và yêu cầu của gói, tải đồng thời | ST-VND-007 | UAT-VND2-02, UI-VND-08 |
+| VND-09 | Sổ bảo đảm dự thầu: nhận, xác nhận với tổ chức phát hành, hệ số uy tín, tịch thu hai người | ST-VND-008 | UAT-VND2-03, UI-VND-09 |
+| VND-10 | Nhà thầu phụ: phần đã nêu trong hồ sơ dự thầu, chấp thuận qua cổng SUBCONTRACT, ngoại lệ có lý do, số đã trả sau mỗi kỳ thanh toán | ST-VND-009 | UAT-VND2-04, UI-VND-10 |
+| VND-11 | Hạng rủi ro có giải thích từng yếu tố, xác nhận kép từ hạng HIGH, ngày xem lại | ST-VND-010 | UAT-VND2-05, UI-VND-11 |
+| VND-12 | Kết quả thực hiện hợp đồng: hạn công khai 6 tháng và biên nhận, phản hồi của nhà thầu và hạn xem xét, chuỗi đánh giá kém liên tiếp | ST-VND-011 | UAT-VND2-06, UI-VND-12 |
+
+Cảnh báo (nguồn `VENDOR`): `VENDOR_INDEPENDENCE_FINDING` (V-A4), `VENDOR_SECURITY_EXPIRY` (V-A7), `VENDOR_SUBCONTRACT_BREACH` và `VENDOR_SUB_PAYMENT_CONFIRM` (V-A9), `VENDOR_PERFORMANCE_PUBLISH` (V-A10), `VENDOR_PERFORMANCE_RESPONSE` (V-A11), `VENDOR_POOR_STREAK` (V-A12), `VENDOR_CAPACITY_FINANCE` (V-A13), `VENDOR_RISK_REVIEW`; mỗi loại có chủ, hành động mong đợi và hậu quả. Bảy chỉ số vào sổ KPI (`VENDOR_INDEPENDENCE_CHECKED`, `VENDOR_RISK_REVIEW_IN_TIME`, `VENDOR_HIGH_RISK_CONTRACTORS`, `VENDOR_PERFORMANCE_PUBLISHED_IN_TIME`, `VENDOR_RESPONSE_REVIEWED_IN_TIME`, `VENDOR_SECURITY_CONFIRMED`, `VENDOR_SUB_PAYMENT_CONFIRMED`), đọc qua `GET /vendor/control-figures`.
+
+Cổng: `VendorIndependenceGate` và `VendorSecurityGate` được gọi khi ghi kết quả trúng thầu (`BidResultStore`): một gói chưa chạy kiểm tra độc lập hoặc chưa đặt yêu cầu bảo đảm thì không bị chặn (chỉ số đo việc chạy kiểm tra); cổng SUBCONTRACT của VND-1 chạy khi chấp thuận thầu phụ.

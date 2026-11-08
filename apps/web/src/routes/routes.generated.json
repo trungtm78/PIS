@@ -468,6 +468,8 @@
     {"id":"VND-04","path":"/vnd/vnd-04","title":"Tài khoản nhận tiền của nhà thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-04"},
     {"id":"VND-05","path":"/vnd/vnd-05","title":"Chứng chỉ và nhân sự chủ chốt","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-05"},
     {"id":"VND-06","path":"/vnd/vnd-06","title":"Sự kiện uy tín dự thầu và liên danh","kind":"table","area":"insights","module":"VND","group":"Chứng chỉ và uy tín","role":"workspace","parent":null,"req":"FR-VND-06"},
+    {"id":"VND-07","path":"/vnd/vnd-07","title":"Kiểm soát gói thầu: độc lập, bảo đảm, tài chính","kind":"detail","area":"insights","module":"VND","group":"Kiểm soát gói thầu và tài chính nhà thầu","role":"workspace","parent":null,"req":"FR-VND-07"},
+    {"id":"VND-08","path":"/vnd/vnd-08","title":"Tài chính và tải của nhà thầu","kind":"detail","area":"insights","module":"VND","group":"Kiểm soát gói thầu và tài chính nhà thầu","role":"workspace","parent":null,"req":"FR-VND-08"},
     {"id":"VND-09","path":"/vnd/vnd-09","title":"Sổ bảo đảm dự thầu","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-09"},
     {"id":"VND-10","path":"/vnd/vnd-10","title":"Nhà thầu phụ của hợp đồng","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-10"},
     {"id":"VND-11","path":"/vnd/vnd-11","title":"Hạng rủi ro nhà thầu","kind":"table","area":"insights","module":"VND","group":"Hạng rủi ro và kết quả thực hiện","role":"workspace","parent":null,"req":"FR-VND-11"},

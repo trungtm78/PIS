@@ -56304,6 +56304,696 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-VND-006",
+      "epic": "EP-VND",
+      "feature": "FT-VND-02",
+      "module": "VND",
+      "title": "Independence check of bidders, panel and owner with decisions of a second person and an award gate",
+      "narrative": "As the chair of the evaluation panel I run the check of independence for a package and decide every finding with another person than the one who ran it, so that a bidder related to the owner, to another bidder or to a member of the panel cannot be awarded unnoticed.",
+      "release": "R3",
+      "screens": [
+        "VND-07"
+      ],
+      "operations": [
+        "listVendorPersonInterests",
+        "declareVendorPersonInterest",
+        "endVendorPersonInterest",
+        "getVendorIndependence",
+        "runVendorIndependenceCheck",
+        "decideVendorIndependenceFinding",
+        "getVendorPackageControls",
+        "setVendorPackageControls"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-006-1",
+          "given": "A package with two bidders that share a tax head and a panel member who declared a relative as the representative of one bidder",
+          "when": "The check is run",
+          "then": "A STRONG finding for the tax head and a finding for the relative are listed with their evidence as codes, never as personal values, and the gate of the award is closed",
+          "test_id": "UAT-VND2-01"
+        },
+        {
+          "id": "AC-ST-VND-006-2",
+          "given": "A finding and a second person with the right to decide",
+          "when": "The person who ran the check decides it, then the other person decides with a reason of 20 characters",
+          "then": "The first is 403 SELF_APPROVAL_DENIED, the second is recorded once and a decision that does not fit the kind (a bidder recused) is 422 INDEPENDENCE_DECISION_INVALID",
+          "test_id": "UAT-VND2-01"
+        },
+        {
+          "id": "AC-ST-VND-006-3",
+          "given": "A result of award for a package whose gate is closed",
+          "when": "The result is submitted",
+          "then": "422 INDEPENDENCE_FINDING_OPEN; a package that was never checked is not blocked",
+          "test_id": "UAT-VND2-01"
+        },
+        {
+          "id": "AC-ST-VND-006-4",
+          "given": "VND-07 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-07"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-005"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every legal number (time limits, ban periods, thresholds, posting days) is a rule of governance flagged unverified until the legal staff confirm it against the Gazette; the check digit of the tax code is a signal, not a refusal."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-VND-005-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-2",
+          "kind": "web",
+          "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-VND-005-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-VND-007",
+      "epic": "EP-VND",
+      "feature": "FT-VND-02",
+      "module": "VND",
+      "title": "Verified financial statements, ratios against the rule and the package, and the concurrent load of a contractor",
+      "narrative": "As a member of the evaluation panel I read the ratios of a contractor from statements that a second person verified and its load against its revenue, with the formula and the source of every figure, so that an evaluation does not rest on unchecked numbers.",
+      "release": "R3",
+      "screens": [
+        "VND-08"
+      ],
+      "operations": [
+        "getVendorFinance",
+        "recordVendorFinancialPeriod",
+        "verifyVendorFinancialPeriod",
+        "getVendorCapacity"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-007-1",
+          "given": "Two verified years and one year not verified",
+          "when": "The finance of the contractor is read for a package",
+          "then": "Only verified years count, each ratio carries its formula, source, as-of and the unverified flag, and a year with too little data is INSUFFICIENT_DATA, never a pass",
+          "test_id": "UAT-VND2-02"
+        },
+        {
+          "id": "AC-ST-VND-007-2",
+          "given": "A statement entered by a person",
+          "when": "The same person verifies it",
+          "then": "403 SELF_APPROVAL_DENIED; another person with a paper verifies it once",
+          "test_id": "UAT-VND2-02"
+        },
+        {
+          "id": "AC-ST-VND-007-3",
+          "given": "A contractor with open contracts, a late contract and an award not signed",
+          "when": "The capacity is read",
+          "then": "The load is the open value plus the weighted award, the multiple of the average revenue is shown against the limit of the rule and the signals say what is over",
+          "test_id": "UAT-VND2-02"
+        },
+        {
+          "id": "AC-ST-VND-007-4",
+          "given": "VND-08 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-08"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-005"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every legal number (time limits, ban periods, thresholds, posting days) is a rule of governance flagged unverified until the legal staff confirm it against the Gazette; the check digit of the tax code is a signal, not a refusal."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-VND-005-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-2",
+          "kind": "web",
+          "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-VND-005-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-VND-008",
+      "epic": "EP-VND",
+      "feature": "FT-VND-02",
+      "module": "VND",
+      "title": "Bid security register with confirmation with the issuer, the factor of the reputation ledger and a two-person forfeiture",
+      "narrative": "As a procurement officer I record the bid security of a bidder, another person confirms it with the issuer, and a forfeiture is proposed by one person and decided by another on a decision paper, so that a letter nobody checked counts for nothing.",
+      "release": "R3",
+      "screens": [
+        "VND-09"
+      ],
+      "operations": [
+        "listVendorBidSecurities",
+        "getVendorBidSecurity",
+        "receiveVendorBidSecurity",
+        "confirmVendorBidSecurity",
+        "rejectVendorBidSecurity",
+        "proposeVendorBidSecurityForfeiture",
+        "withdrawVendorBidSecurityForfeiture",
+        "decideVendorBidSecurityForfeiture",
+        "releaseVendorBidSecurity"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-008-1",
+          "given": "A bidder with a posted event of bid conduct inside the two years and a package that asks 1000",
+          "when": "The required security is read",
+          "then": "The amount is 3000 with the factor and the events that gave it, and a security of 1000 is below it",
+          "test_id": "UAT-VND2-03"
+        },
+        {
+          "id": "AC-ST-VND-008-2",
+          "given": "A security that its receiver confirms",
+          "when": "The receiver confirms, then another person confirms with the reference of the issuer",
+          "then": "403 SELF_APPROVAL_DENIED, then CONFIRMED with a ledger event",
+          "test_id": "UAT-VND2-03"
+        },
+        {
+          "id": "AC-ST-VND-008-3",
+          "given": "A confirmed security",
+          "when": "A forfeiture is proposed and the proposer decides it, then another person decides with a paper",
+          "then": "403 SELF_APPROVAL_DENIED, then FORFEITED; a package that asks a security and a winner without a valid one is 422 BID_SECURITY_NOT_VALID at the result",
+          "test_id": "UAT-VND2-03"
+        },
+        {
+          "id": "AC-ST-VND-008-4",
+          "given": "VND-09 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-09"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-005"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every legal number (time limits, ban periods, thresholds, posting days) is a rule of governance flagged unverified until the legal staff confirm it against the Gazette; the check digit of the tax code is a signal, not a refusal."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-VND-005-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-2",
+          "kind": "web",
+          "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-VND-005-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-VND-009",
+      "epic": "EP-VND",
+      "feature": "FT-VND-02",
+      "module": "VND",
+      "title": "Subcontracts with the declared share, the gate of VND-1, reasoned exceptions and the record of what the prime paid",
+      "narrative": "As a contract manager I propose a subcontractor, another person approves it after the gate and the limits of the rule, and after each payment I record what the prime paid the subcontractor, so that the part the bid declared is not exceeded unnoticed.",
+      "release": "R3",
+      "screens": [
+        "VND-10"
+      ],
+      "operations": [
+        "listVendorSubcontracts",
+        "declareVendorBidSubcontracting",
+        "proposeVendorSubcontract",
+        "approveVendorSubcontract",
+        "rejectVendorSubcontract",
+        "terminateVendorSubcontract",
+        "recordVendorSubcontractPayment"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-009-1",
+          "given": "A bid that declared 30 percent for two named subcontractors",
+          "when": "A third subcontractor is proposed for 10 percent",
+          "then": "The assessment says it is not named in the bid and goes over the declared share; the approval needs an exception reason of 20 characters or is refused by the rule",
+          "test_id": "UAT-VND2-04"
+        },
+        {
+          "id": "AC-ST-VND-009-2",
+          "given": "A subcontractor under a restriction in force",
+          "when": "It is proposed and approved",
+          "then": "422 CONTRACTOR_RESTRICTED from the gate action SUBCONTRACT and nothing is approved",
+          "test_id": "UAT-VND2-04"
+        },
+        {
+          "id": "AC-ST-VND-009-3",
+          "given": "An approved subcontract and a payment request paid",
+          "when": "The prime records what it paid and the clock runs",
+          "then": "The record is append-only, the clock is DUE_SOON then OVERDUE by the rule, and a sum above the subcontract value is a signal",
+          "test_id": "UAT-VND2-04"
+        },
+        {
+          "id": "AC-ST-VND-009-4",
+          "given": "VND-10 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-10"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-005"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every legal number (time limits, ban periods, thresholds, posting days) is a rule of governance flagged unverified until the legal staff confirm it against the Gazette; the check digit of the tax code is a signal, not a refusal."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-VND-005-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-2",
+          "kind": "web",
+          "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-VND-005-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-VND-010",
+      "epic": "EP-VND",
+      "feature": "FT-VND-02",
+      "module": "VND",
+      "title": "Risk grade of a contractor with the points of every factor, the main reason, a dual check from HIGH and a review date",
+      "narrative": "As a procurement manager I read the risk grade of a contractor with the points of each factor and confirm a high grade with a second person, so that the depth of checking follows the risk and the grade never decides alone who may bid.",
+      "release": "R3",
+      "screens": [
+        "VND-11"
+      ],
+      "operations": [
+        "getVendorRiskGrade",
+        "listVendorRiskGrades",
+        "assessVendorRisk",
+        "decideVendorRiskGrade",
+        "getVendorControlFigures"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-010-1",
+          "given": "A contractor with a restriction in force and a clean profile",
+          "when": "The grade is assessed",
+          "then": "The tier is at least the floor of the rule whatever the score and the reasons list the restriction first",
+          "test_id": "UAT-VND2-05"
+        },
+        {
+          "id": "AC-ST-VND-010-2",
+          "given": "A grade of HIGH assessed by a person",
+          "when": "The same person confirms it, then another person",
+          "then": "403 SELF_APPROVAL_DENIED, then CONFIRMED, the previous grade is superseded and the contractor carries the tier and the next review day",
+          "test_id": "UAT-VND2-05"
+        },
+        {
+          "id": "AC-ST-VND-010-3",
+          "given": "The seven indicators of the controls",
+          "when": "The figures are read",
+          "then": "Each has its numerator, denominator, formula, source and the unverified flag",
+          "test_id": "UAT-VND2-05"
+        },
+        {
+          "id": "AC-ST-VND-010-4",
+          "given": "VND-11 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-11"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-005"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every legal number (time limits, ban periods, thresholds, posting days) is a rule of governance flagged unverified until the legal staff confirm it against the Gazette; the check digit of the tax code is a signal, not a refusal."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-VND-005-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-2",
+          "kind": "web",
+          "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-VND-005-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-VND-011",
+      "epic": "EP-VND",
+      "feature": "FT-VND-02",
+      "module": "VND",
+      "title": "Contract performance of a contractor with the publication within six months, the review of its answer and the streak of poor ratings",
+      "narrative": "As an investor representative I see the adopted ratings of a contractor with the days left to publish them on the national system and to examine its answer, and a streak of poor ratings is suggested to the debarment register without opening a case.",
+      "release": "R3",
+      "screens": [
+        "VND-12"
+      ],
+      "operations": [
+        "getVendorPerformance",
+        "listVendorPerformancePublications",
+        "postVendorPerformance"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-VND-011-1",
+          "given": "A rating adopted for a contract that ended on 31 March",
+          "when": "The publication clock is read on 1 October",
+          "then": "The due day is 30 September by the rule and the clock is OVERDUE; posted on the due day it is MET",
+          "test_id": "UAT-VND2-06"
+        },
+        {
+          "id": "AC-ST-VND-011-2",
+          "given": "An adopted rating",
+          "when": "The person who adopted it posts it, then another person with a receipt",
+          "then": "403 SELF_APPROVAL_DENIED, then POSTED once; a second initial posting is 409 PERFORMANCE_PUBLICATION_DUPLICATE",
+          "test_id": "UAT-VND2-06"
+        },
+        {
+          "id": "AC-ST-VND-011-3",
+          "given": "Three poor ratings in a row",
+          "when": "The performance is read",
+          "then": "The suggestion is a case for the debarment register, shown as a suggestion and never opened by the system",
+          "test_id": "UAT-VND2-06"
+        },
+        {
+          "id": "AC-ST-VND-011-4",
+          "given": "VND-12 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-VND-12"
+        }
+      ],
+      "dependencies": [
+        "ST-VND-005"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every legal number (time limits, ban periods, thresholds, posting days) is a rule of governance flagged unverified until the legal staff confirm it against the Gazette; the check digit of the tax code is a signal, not a refusal."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-VND-005-1",
+          "kind": "backend",
+          "title": "Kernel rules, migrations, stores and commands behind VND-06",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-2",
+          "kind": "web",
+          "title": "VND-06 built with the kit, the seven standard states and an information mark on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for VND-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-VND-005-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-145"
+          ]
+        },
+        {
+          "id": "TK-VND-005-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-VND-06"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -24979,5 +24979,221 @@
     "covers": [
       "FR-QMS-12"
     ]
+  },
+  {
+    "id": "UAT-VND2-01",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data for Kiểm soát gói thầu: độc lập, bảo đảm, tài chính; two people with the rights of the maker and the checker; rules VENDOR_* at their built-in defaults (unverified).",
+    "steps": [
+      "A package with two bidders that share a tax head and a panel member who declared a relative as the representative of one bidder: The check is run",
+      "A finding and a second person with the right to decide: The person who ran the check decides it, then the other person decides with a reason of 20 characters",
+      "A result of award for a package whose gate is closed: The result is submitted"
+    ],
+    "expected": "Step 1: A STRONG finding for the tax head and a finding for the relative are listed with their evidence as codes, never as personal values, and the gate of the award is closed; Step 2: The first is 403 SELF_APPROVAL_DENIED, the second is recorded once and a decision that does not fit the kind (a bidder recused) is 422 INDEPENDENCE_DECISION_INVALID; Step 3: 422 INDEPENDENCE_FINDING_OPEN; a package that was never checked is not blocked",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-07"
+    ]
+  },
+  {
+    "id": "UI-VND-07",
+    "source": "FR-VND-07",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Kiểm soát gói thầu: độc lập, bảo đảm, tài chính; a user with the rights and a read-only user; route VND-07",
+    "steps": [
+      "Open VND-07 from the menu and by deep link; check the labels of the fields: Kết quả kiểm tra tính độc lập: phát hiện, độ mạnh, bên liên quan, bằng chứng; Quyết định từng phát hiện (bỏ qua, rút khỏi tổ, chặn) và người quyết định; Cổng trao kết quả (mở hoặc đóng và lý do); Khai báo lợi ích của thành viên tổ và nhân sự dự án; Bảo đảm dự thầu của từng nhà thầu so với mức yêu cầu; Chỉ tiêu tài chính và tải của từng nhà thầu trong gói",
+      "Do the main action under the rule: Đọc vnd.independence.read; quyết định cần người khác người chạy kiểm tra; tín hiệu không phải kết luận; mọi con số có công thức, nguồn và ngày; ngưỡng pháp lý ghi chưa kiểm chứng",
+      "Check the seven states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the right on VND-07"
+    ],
+    "expected": "Kiểm soát gói thầu: độc lập, bảo đảm, tài chính: every field is shown, the rule is applied, no action outside the right; tokens and components as the mockup",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-07"
+    ]
+  },
+  {
+    "id": "UAT-VND2-02",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data for Tài chính và tải của nhà thầu; two people with the rights of the maker and the checker; rules VENDOR_* at their built-in defaults (unverified).",
+    "steps": [
+      "Two verified years and one year not verified: The finance of the contractor is read for a package",
+      "A statement entered by a person: The same person verifies it",
+      "A contractor with open contracts, a late contract and an award not signed: The capacity is read"
+    ],
+    "expected": "Step 1: Only verified years count, each ratio carries its formula, source, as-of and the unverified flag, and a year with too little data is INSUFFICIENT_DATA, never a pass; Step 2: 403 SELF_APPROVAL_DENIED; another person with a paper verifies it once; Step 3: The load is the open value plus the weighted award, the multiple of the average revenue is shown against the limit of the rule and the signals say what is over",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-08"
+    ]
+  },
+  {
+    "id": "UI-VND-08",
+    "source": "FR-VND-08",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Tài chính và tải của nhà thầu; a user with the rights and a read-only user; route VND-08",
+    "steps": [
+      "Open VND-08 from the menu and by deep link; check the labels of the fields: Báo cáo tài chính theo năm và người xác minh; Thanh khoản, nợ trên tài sản, khả năng trả lãi, doanh thu bình quân; So với yêu cầu của gói và ngưỡng của quy tắc; Tải đồng thời: hợp đồng đang làm, hợp đồng trễ, gói trúng chưa ký, so với doanh thu",
+      "Do the main action under the rule: Đọc vnd.read; báo cáo do người khác xác minh mới được tính; thiếu dữ liệu không bao giờ là đạt; mọi con số có công thức, nguồn và ngày",
+      "Check the seven states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the right on VND-08"
+    ],
+    "expected": "Tài chính và tải của nhà thầu: every field is shown, the rule is applied, no action outside the right; tokens and components as the mockup",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-08"
+    ]
+  },
+  {
+    "id": "UAT-VND2-03",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data for Sổ bảo đảm dự thầu; two people with the rights of the maker and the checker; rules VENDOR_* at their built-in defaults (unverified).",
+    "steps": [
+      "A bidder with a posted event of bid conduct inside the two years and a package that asks 1000: The required security is read",
+      "A security that its receiver confirms: The receiver confirms, then another person confirms with the reference of the issuer",
+      "A confirmed security: A forfeiture is proposed and the proposer decides it, then another person decides with a paper"
+    ],
+    "expected": "Step 1: The amount is 3000 with the factor and the events that gave it, and a security of 1000 is below it; Step 2: 403 SELF_APPROVAL_DENIED, then CONFIRMED with a ledger event; Step 3: 403 SELF_APPROVAL_DENIED, then FORFEITED; a package that asks a security and a winner without a valid one is 422 BID_SECURITY_NOT_VALID at the result",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-09"
+    ]
+  },
+  {
+    "id": "UI-VND-09",
+    "source": "FR-VND-09",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Sổ bảo đảm dự thầu; a user with the rights and a read-only user; route VND-09",
+    "steps": [
+      "Open VND-09 from the menu and by deep link; check the labels of the fields: Gói, nhà thầu, loại, tổ chức phát hành, số, số tiền, hiệu lực; Mức yêu cầu (đã nhân hệ số uy tín) và chênh lệch; Trạng thái: đã nhận, đã xác nhận, đề nghị tịch thu, đã tịch thu, giải tỏa, hết hạn; Đề nghị và quyết định tịch thu kèm văn bản",
+      "Do the main action under the rule: Đọc vnd.read; xác nhận và quyết định tịch thu cần người khác người nhận hoặc người đề nghị; hệ số theo sổ sự kiện uy tín của VND-1",
+      "Check the seven states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the right on VND-09"
+    ],
+    "expected": "Sổ bảo đảm dự thầu: every field is shown, the rule is applied, no action outside the right; tokens and components as the mockup",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-09"
+    ]
+  },
+  {
+    "id": "UAT-VND2-04",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data for Nhà thầu phụ của hợp đồng; two people with the rights of the maker and the checker; rules VENDOR_* at their built-in defaults (unverified).",
+    "steps": [
+      "A bid that declared 30 percent for two named subcontractors: A third subcontractor is proposed for 10 percent",
+      "A subcontractor under a restriction in force: It is proposed and approved",
+      "An approved subcontract and a payment request paid: The prime records what it paid and the clock runs"
+    ],
+    "expected": "Step 1: The assessment says it is not named in the bid and goes over the declared share; the approval needs an exception reason of 20 characters or is refused by the rule; Step 2: 422 CONTRACTOR_RESTRICTED from the gate action SUBCONTRACT and nothing is approved; Step 3: The record is append-only, the clock is DUE_SOON then OVERDUE by the rule, and a sum above the subcontract value is a signal",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-10"
+    ]
+  },
+  {
+    "id": "UI-VND-10",
+    "source": "FR-VND-10",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Nhà thầu phụ của hợp đồng; a user with the rights and a read-only user; route VND-10",
+    "steps": [
+      "Open VND-10 from the menu and by deep link; check the labels of the fields: Nhà thầu phụ, phạm vi, giá trị, tỷ lệ, có nêu trong hồ sơ dự thầu không; Tổng tỷ lệ thầu phụ so với phần đã nêu và mức nhà thầu chính phải giữ; Chấp thuận, ngoại lệ có lý do, chấm dứt; Xác nhận đã trả thầu phụ sau từng kỳ thanh toán",
+      "Do the main action under the rule: Đọc vnd.read; chấp thuận cần người khác người đề nghị và chạy cổng SUBCONTRACT của VND-1; vượt phần đã nêu cần ngoại lệ có lý do hoặc bị chặn theo quy tắc",
+      "Check the seven states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the right on VND-10"
+    ],
+    "expected": "Nhà thầu phụ của hợp đồng: every field is shown, the rule is applied, no action outside the right; tokens and components as the mockup",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-10"
+    ]
+  },
+  {
+    "id": "UAT-VND2-05",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data for Hạng rủi ro nhà thầu; two people with the rights of the maker and the checker; rules VENDOR_* at their built-in defaults (unverified).",
+    "steps": [
+      "A contractor with a restriction in force and a clean profile: The grade is assessed",
+      "A grade of HIGH assessed by a person: The same person confirms it, then another person",
+      "The seven indicators of the controls: The figures are read"
+    ],
+    "expected": "Step 1: The tier is at least the floor of the rule whatever the score and the reasons list the restriction first; Step 2: 403 SELF_APPROVAL_DENIED, then CONFIRMED, the previous grade is superseded and the contractor carries the tier and the next review day; Step 3: Each has its numerator, denominator, formula, source and the unverified flag",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-11"
+    ]
+  },
+  {
+    "id": "UI-VND-11",
+    "source": "FR-VND-11",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Hạng rủi ro nhà thầu; a user with the rights and a read-only user; route VND-11",
+    "steps": [
+      "Open VND-11 from the menu and by deep link; check the labels of the fields: Hạng, điểm và ngày xem lại của từng nhà thầu; Giải thích: điểm từng yếu tố và lý do chính; Hạng đề xuất chờ xác nhận và người xác nhận; Lịch sử các lần chấm và phiên bản quy tắc",
+      "Do the main action under the rule: Đọc vnd.read; hạng cao cần người thứ hai xác nhận; hạng không quyết định nhà thầu có được dự thầu hay không; điểm và giải thích tính từ quy tắc VENDOR_RISK, chưa kiểm chứng",
+      "Check the seven states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the right on VND-11"
+    ],
+    "expected": "Hạng rủi ro nhà thầu: every field is shown, the rule is applied, no action outside the right; tokens and components as the mockup",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-11"
+    ]
+  },
+  {
+    "id": "UAT-VND2-06",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data for Kết quả thực hiện hợp đồng và công khai; two people with the rights of the maker and the checker; rules VENDOR_* at their built-in defaults (unverified).",
+    "steps": [
+      "A rating adopted for a contract that ended on 31 March: The publication clock is read on 1 October",
+      "An adopted rating: The person who adopted it posts it, then another person with a receipt",
+      "Three poor ratings in a row: The performance is read"
+    ],
+    "expected": "Step 1: The due day is 30 September by the rule and the clock is OVERDUE; posted on the due day it is MET; Step 2: 403 SELF_APPROVAL_DENIED, then POSTED once; a second initial posting is 409 PERFORMANCE_PUBLICATION_DUPLICATE; Step 3: The suggestion is a case for the debarment register, shown as a suggestion and never opened by the system",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-12"
+    ]
+  },
+  {
+    "id": "UI-VND-12",
+    "source": "FR-VND-12",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A with synthetic data of Kết quả thực hiện hợp đồng và công khai; a user with the rights and a read-only user; route VND-12",
+    "steps": [
+      "Open VND-12 from the menu and by deep link; check the labels of the fields: Lịch sử đánh giá của nhà thầu: xếp hạng, điểm, ngày chốt; Hạn công khai 6 tháng và biên nhận; Phản hồi của nhà thầu và hạn xem xét; Chuỗi đánh giá kém liên tiếp và gợi ý (kế hoạch khắc phục, hồ sơ hạn chế)",
+      "Do the main action under the rule: Đọc vnd.read; đăng công khai cần người khác người chốt đánh giá; gợi ý không tự mở hồ sơ hạn chế; hạn lấy từ quy tắc VENDOR_PERFORMANCE và EGP_POSTING_DEADLINES, chưa kiểm chứng",
+      "Check the seven states (loading, populated, empty, validation error, service error, permission denied, stale) and that actions are hidden without the right on VND-12"
+    ],
+    "expected": "Kết quả thực hiện hợp đồng và công khai: every field is shown, the rule is applied, no action outside the right; tokens and components as the mockup",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-12"
+    ]
   }
 ]

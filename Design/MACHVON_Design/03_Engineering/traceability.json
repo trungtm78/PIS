@@ -12093,5 +12093,113 @@
       "UI-QMS-12",
       "UAT-PLAN-3007"
     ]
+  },
+  {
+    "requirement": "FR-VND-07",
+    "screen": "VND-07",
+    "title": "Kiểm soát gói thầu: độc lập, bảo đảm, tài chính",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4, V5, V7, V9, V10, V11, V13), docs/vendor-controls.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-07",
+    "test_ids": [
+      "UI-VND-07",
+      "UAT-VND2-01"
+    ]
+  },
+  {
+    "requirement": "FR-VND-08",
+    "screen": "VND-08",
+    "title": "Tài chính và tải của nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4, V5, V7, V9, V10, V11, V13), docs/vendor-controls.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-08",
+    "test_ids": [
+      "UI-VND-08",
+      "UAT-VND2-02"
+    ]
+  },
+  {
+    "requirement": "FR-VND-09",
+    "screen": "VND-09",
+    "title": "Sổ bảo đảm dự thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4, V5, V7, V9, V10, V11, V13), docs/vendor-controls.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-09",
+    "test_ids": [
+      "UI-VND-09",
+      "UAT-VND2-03"
+    ]
+  },
+  {
+    "requirement": "FR-VND-10",
+    "screen": "VND-10",
+    "title": "Nhà thầu phụ của hợp đồng",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4, V5, V7, V9, V10, V11, V13), docs/vendor-controls.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-10",
+    "test_ids": [
+      "UI-VND-10",
+      "UAT-VND2-04"
+    ]
+  },
+  {
+    "requirement": "FR-VND-11",
+    "screen": "VND-11",
+    "title": "Hạng rủi ro nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4, V5, V7, V9, V10, V11, V13), docs/vendor-controls.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-11",
+    "test_ids": [
+      "UI-VND-11",
+      "UAT-VND2-05"
+    ]
+  },
+  {
+    "requirement": "FR-VND-12",
+    "screen": "VND-12",
+    "title": "Kết quả thực hiện hợp đồng và công khai",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4, V5, V7, V9, V10, V11, V13), docs/vendor-controls.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-12",
+    "test_ids": [
+      "UI-VND-12",
+      "UAT-VND2-06"
+    ]
   }
 ]

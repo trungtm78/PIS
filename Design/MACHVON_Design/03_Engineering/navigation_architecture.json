@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 566,
-    "webCatalog": 566,
+    "webRoutes": 568,
+    "webCatalog": 568,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -2082,6 +2082,19 @@
           "primary": [
             5,
             6
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Kiểm soát gói thầu và tài chính nhà thầu",
+          "description": "Kiểm tra tính độc lập của nhà thầu, tổ chuyên gia và chủ đầu tư, bảo đảm, báo cáo tài chính và tải của nhà thầu",
+          "ids": [
+            7,
+            8
+          ],
+          "primary": [
+            7,
+            8
           ],
           "parents": {}
         },
@@ -8607,6 +8620,26 @@
       "area": "insights",
       "module": "VND",
       "group": "Hạng rủi ro và kết quả thực hiện",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-07",
+      "title": "Kiểm soát gói thầu: độc lập, bảo đảm, tài chính",
+      "kind": "detail",
+      "area": "insights",
+      "module": "VND",
+      "group": "Kiểm soát gói thầu và tài chính nhà thầu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-08",
+      "title": "Tài chính và tải của nhà thầu",
+      "kind": "detail",
+      "area": "insights",
+      "module": "VND",
+      "group": "Kiểm soát gói thầu và tài chính nhà thầu",
       "role": "workspace",
       "parent": null
     }
