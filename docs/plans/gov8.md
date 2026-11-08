@@ -18,4 +18,5 @@ Branch `lane/gov8`, migration block 1980-1999 (V1980-V1985). Owner rule of 2026-
 - [x] Contract (20 operations, 6 error codes, screens CTR-32..CTR-36) through contract-patch; generated files.
 - [x] API controllers, authz matrix, isolation cases, API tests.
 - [x] Web screens, i18n parts, routes; docs and design rows.
-- [ ] Codex review triage and the cross-cutting API suites on the merged main (lead).
+- [x] Codex review round 1 (4 findings, all valid, fixed with regression tests): response clock restarts when particulars answer a request for more information (same-day case); term approval locks the contract first so a concurrent registration cannot miss the term; actions left open on a withdrawn or materialised warning can be ended and raise no alert; the rhythm alert query applies visibility before the limit.
+- [ ] Codex review round 2 (queued in the heavy lane) and the cross-cutting API suites on the merged main (lead).
