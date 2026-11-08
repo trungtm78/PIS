@@ -348,6 +348,7 @@
   "prj.public.oc4ids.section": "OC4IDS open data",
   "prj.public.oc4ids.text": "Download all published projects in the open data standard for infrastructure (OC4IDS).",
   "prj.public.oc4ids.prepare": "Prepare the file",
+  "prj.public.oc4ids.incomplete": "The export is incomplete: the server did not give every page, so no file is offered; try again later.",
   "prj.public.oc4ids.download": "Download the OC4IDS file",
   "prj.public.report.section": "Anonymous report",
   "prj.public.report.closed": "This portal does not take anonymous reports.",

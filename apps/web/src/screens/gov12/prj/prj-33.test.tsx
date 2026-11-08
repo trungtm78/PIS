@@ -115,6 +115,30 @@ describe('PRJ-33, the public portal', () => {
     expect((JSON.parse(text) as { projects: unknown[] }).projects).toHaveLength(2);
   });
 
+  it('follows every page of the export, more than twenty of them, into one package with one envelope', async () => {
+    const PAGES = 25;
+    const { calls } = open((method, url) => {
+      if (!url.includes('/oc4ids')) return normal(method, url, undefined);
+      const match = /after=P(\d+)/.exec(url);
+      const index = match === null ? 0 : Number(match[1]) + 1;
+      return { status: 200, body: { as_of: '2027-03-10', package: { version: '0.9', publisher: { name: 'Provincial Board' }, projects: [{ id: `VN-CB-P${index}` }] }, next_after: index + 1 < PAGES ? `P${index}` : null } };
+    });
+    fireEvent.click(await screen.findByTestId('oc4ids-prepare'));
+    const link = await screen.findByTestId('oc4ids-download');
+    const file = JSON.parse(decodeURIComponent((link.getAttribute('href') ?? '').replace('data:application/json;charset=utf-8,', ''))) as { projects: Array<{ id: string }>; publisher: { name: string } };
+    expect(file.projects).toHaveLength(PAGES);
+    expect(file.projects[PAGES - 1]?.id).toBe(`VN-CB-P${PAGES - 1}`);
+    expect(file.publisher.name).toBe('Provincial Board');
+    expect(calls.filter((call) => call.url.includes('/oc4ids'))).toHaveLength(PAGES);
+  });
+
+  it('ends in the incomplete state, with no file offered, when the cursor of the export never ends', async () => {
+    open((method, url) => (url.includes('/oc4ids') ? { status: 200, body: { as_of: '2027-03-10', package: { version: '0.9', projects: [{ id: 'VN-CB-P0' }] }, next_after: 'STUCK' } } : normal(method, url, undefined)));
+    fireEvent.click(await screen.findByTestId('oc4ids-prepare'));
+    expect((await screen.findByTestId('oc4ids-error')).textContent).toBe(word('prj.public.oc4ids.incomplete'));
+    expect(screen.queryByTestId('oc4ids-download')).toBeNull();
+  });
+
   it('promises that no identity is kept, takes a report, and shows the access code once with the days it was given', async () => {
     const { calls } = open((method, url, body) => {
       if (method === 'POST' && url.endsWith('/reports')) return { status: 200, body: { access_code: 'ABCDEFGH23456789ABCDEFGH23456789', received_on: '2027-03-10', acknowledge_due_on: '2027-03-17', resolve_due_on: '2027-06-08', shown_once: true, echo: body } };

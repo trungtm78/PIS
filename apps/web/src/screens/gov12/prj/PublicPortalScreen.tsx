@@ -15,7 +15,8 @@ import './prj.css';
 const TEXT_MIN = 20;
 const TEXT_MAX = 8000;
 const PAGE = 50;
-const OC4IDS_PAGE_CAP = 20;
+/** A safety stop for a cursor that never ends: reaching it is an incomplete export, never a finished one. */
+const OC4IDS_PAGE_CAP = 5000;
 
 export type Fetcher = (input: string, init?: { method?: string; headers?: Record<string, string>; body?: string }) => Promise<{ status: number; ok: boolean; headers: { get(name: string): string | null }; json(): Promise<unknown> }>;
 
@@ -279,10 +280,13 @@ function Oc4idsSection({ slug, fetcher }: { slug: string; fetcher: Fetcher }) {
   const prepare = async (): Promise<void> => {
     setBusy(true);
     setError(undefined);
+    setHref(undefined);
     try {
       let after: string | null = null;
       let first: Record<string, unknown> | undefined;
       const projects: unknown[] = [];
+      const seen = new Set<string>();
+      let complete = false;
       for (let page = 0; page < OC4IDS_PAGE_CAP; page += 1) {
         const answer: Answer<PublicOc4ids> = await call<PublicOc4ids>(fetcher, 'GET', `${base()}/public/portals/${encodeURIComponent(slug)}/oc4ids?limit=500${after === null ? '' : `&after=${encodeURIComponent(after)}`}`);
         if (answer.body === undefined) {
@@ -293,7 +297,17 @@ function Oc4idsSection({ slug, fetcher }: { slug: string; fetcher: Fetcher }) {
         const list = answer.body.package.projects;
         if (Array.isArray(list)) projects.push(...(list as unknown[]));
         after = answer.body.next_after;
-        if (after === null) break;
+        if (after === null) {
+          complete = true;
+          break;
+        }
+        // A cursor that comes back again would never end: the file would be a subset that looks whole.
+        if (seen.has(after)) break;
+        seen.add(after);
+      }
+      if (!complete) {
+        setError(t('prj.public.oc4ids.incomplete'));
+        return;
       }
       setHref(`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify({ ...(first ?? {}), projects }, null, 2))}`);
     } catch {

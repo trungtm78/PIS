@@ -348,6 +348,7 @@
   "prj.public.oc4ids.section": "Dữ liệu mở OC4IDS",
   "prj.public.oc4ids.text": "Tải toàn bộ dự án đã công bố theo chuẩn dữ liệu mở cho hạ tầng (OC4IDS).",
   "prj.public.oc4ids.prepare": "Chuẩn bị tệp",
+  "prj.public.oc4ids.incomplete": "Bản xuất chưa đầy đủ: máy chủ chưa trả hết các trang nên tệp không được cung cấp; thử lại sau.",
   "prj.public.oc4ids.download": "Tải tệp OC4IDS",
   "prj.public.report.section": "Tố giác ẩn danh",
   "prj.public.report.closed": "Cổng này không nhận tố giác ẩn danh.",
