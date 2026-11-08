@@ -2646,3 +2646,10 @@ export { BUILT_IN_OCP_IDS, BUILT_IN_RED_FLAG_CODES, RED_FLAG_STATUSES, RED_FLAG_
 export type { RedFlagMove, RedFlagStatus, IndicatorParams, IndicatorReading, IndicatorStatus, RankingParams, RedFlagBand, RedFlagFacts, RedFlagIndicator, RedFlagSubjectType, Score as RedFlagScore } from './red-flags.ts';
 export { FEEDBACK_RULE_TYPE } from './gov10-rule-types.ts';
 export { GOV10_SCREENS } from './gov10-screens.ts';
+export { validateDelegationContent } from './adm-delegation.ts';
+export { END_CONDITION_KINDS, END_CONDITION_TEXT_MAX, END_CONDITION_TEXT_MIN, STANDING_END_MAX_DAYS, STANDING_REVIEW_MAX_DAYS, STANDING_REVIEW_WARNING_DAYS, assertNoDelegationCycle, assertValidReview, assertValidStandingDelegation, findDelegationCycle, reviewDueSoon, standingEndReason, validateReview, validateStandingDelegation } from './iam-standing-delegation.ts';
+export type { DelegationEdge, EndConditionKind, StandingDelegationDefect, StandingDelegationRequest, StandingEndReason } from './iam-standing-delegation.ts';
+export { ACTING_DECISION_VERBS, ACTING_MAX_HOURS, ACTING_REASON_MAX, ACTING_REASON_MIN, ACTING_REQUEST_TTL_HOURS, actingAllowsPermission, actingPhase, actingWindow, assertActingApprover, assertActingParties, assertValidActingRequest, restrictAccessForActing, validateActingRequest } from './iam-acting.ts';
+export type { ActingDefect, ActingParties, ActingPhase, ActingRequest, ActingStatus } from './iam-acting.ts';
+export { MAX_PERIOD_SCOPE_CODES, assertPeriodAllowed, assertPeriodAllowedForDays, assertValidPeriodCodes, intersectPeriodCodes, isReportPeriodCode, isScopePeriodCode, normalisePeriodCodes, periodAllowed, periodAllowedForDays, periodCovered, periodCoveredByDays, validatePeriodCodes } from './iam-period-scope.ts';
+export type { PeriodScopeDefect } from './iam-period-scope.ts';

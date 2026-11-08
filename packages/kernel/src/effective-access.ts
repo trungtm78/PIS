@@ -11,6 +11,8 @@ export interface GrantView {
   status: string;
   effectiveFrom: Date;
   effectiveUntil: Date | null;
+  /** The report periods the grant is limited to (IAM-2); absent or null when it is not limited. */
+  periodCodes?: readonly string[] | null | undefined;
 }
 
 export interface EffectiveAccess {

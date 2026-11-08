@@ -49,6 +49,14 @@ export function validateDelegation(request: DelegationRequest, now: Date): Deleg
   if (until <= from) add('valid_until', 'BEFORE_START');
   else if (until - from > MAX_DELEGATION_DAYS * DAY_MS) add('valid_until', 'TOO_LONG');
   else if (until <= now.getTime()) add('valid_until', 'ALREADY_ENDED');
+  defects.push(...validateDelegationContent(request));
+  return defects;
+}
+
+/** The defects of what a delegation hands over, whatever its duration: the permissions and the scope. The time-boxed and the permanent delegation share it. */
+export function validateDelegationContent(request: Pick<DelegationRequest, 'permissions' | 'scopeKind' | 'scopeRefIds'>): DelegationDefect[] {
+  const defects: DelegationDefect[] = [];
+  const add = (field: string, code: DelegationDefect['code']): void => void defects.push({ field, code });
   if (request.permissions.length === 0) add('permissions', 'REQUIRED');
   const seen = new Set<string>();
   request.permissions.forEach((permission, index) => {
