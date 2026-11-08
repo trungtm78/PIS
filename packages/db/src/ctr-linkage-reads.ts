@@ -42,7 +42,7 @@ export class CtrLinkageReads {
       effective_changes: string;
     }>(
       `select c.id, c.code, c.status, c.project_id, c.package_id, c.contractor_id, c.is_joint_venture, c.contract_value_vnd::text as current_value, p.code as project_code, p.name as project_name, p.project_group,
-              kt.name as contractor_name,
+              kt.legal_name as contractor_name,
               (select r.amount_vnd::text from machvon.contract_revision r where r.tenant_id = c.tenant_id and r.contract_id = c.id and r.revision = 1) as original_value,
               (select count(*)::text from machvon.contract_revision r where r.tenant_id = c.tenant_id and r.contract_id = c.id) as revisions,
               (select count(*)::text from machvon.contract_revision r where r.tenant_id = c.tenant_id and r.contract_id = c.id and r.revision > 1 and r.status in ('EFFECTIVE', 'SUPERSEDED')) as effective_changes
@@ -56,9 +56,9 @@ export class CtrLinkageReads {
     const facts = await this.source.packageFacts(tx, row.package_id);
     const packageRow = (await tx.query<{ id: string; code: string; project_id: string }>('select id, code, project_id from machvon.procurement_package where id = $1::uuid', [row.package_id]))[0];
     const parties = await tx.query<{ contractor_id: string; name: string | null; lead: boolean; share_pct: string | null }>(
-      `select cp.contractor_id, k.name, (cp.role in ('SOLE', 'LEAD')) as lead, cp.share_pct::text as share_pct
+      `select cp.contractor_id, k.legal_name as name, (cp.role in ('SOLE', 'LEAD')) as lead, cp.share_pct::text as share_pct
          from machvon.contract_party cp left join machvon.contractor k on k.tenant_id = cp.tenant_id and k.id = cp.contractor_id
-        where cp.contract_id = $1::uuid and cp.status = 'ACTIVE' order by (cp.role in ('SOLE', 'LEAD')) desc, k.name nulls last, cp.contractor_id`,
+        where cp.contract_id = $1::uuid and cp.status = 'ACTIVE' order by (cp.role in ('SOLE', 'LEAD')) desc, k.legal_name nulls last, cp.contractor_id`,
       [contractId],
     );
     const original = row.original_value ?? row.current_value;

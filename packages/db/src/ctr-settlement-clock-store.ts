@@ -192,7 +192,7 @@ export class CtrSettlementClockStore {
     const visible = scope(2);
     if (filter.unitId !== undefined && !/^[0-9a-f-]{36}$/i.test(filter.unitId)) throw new DomainError('VALIDATION_FAILED', 422, 'unit_id');
     const rows = await tx.query<ClockSql>(
-      `select k.id, c.id as contract_id, c.code as contract_code, c.status as contract_status, p.id as project_id, p.code as project_code, p.name as project_name, c.contractor_id, kt.name as contractor_name,
+      `select k.id, c.id as contract_id, c.code as contract_code, c.status as contract_status, p.id as project_id, p.code as project_code, p.name as project_name, c.contractor_id, kt.legal_name as contractor_name,
               k.project_group, k.started_on::text as started_on, k.months_allowed, k.due_on::text as due_on, k.near_days, k.policy_version, k.state, k.met_on::text as met_on, k.settlement_id
          from ${CONTRACT_SCOPE_FROM}
          join machvon.contract_settlement_clock k on k.tenant_id = c.tenant_id and k.contract_id = c.id

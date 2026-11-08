@@ -184,6 +184,21 @@ describe('GOV-11a DIS and CAP stores (G1-16, G1-12)', () => {
       expect(alerts.every((row) => row.status === 'AT_RISK' || row.status === 'OFF_TRACK')).toBe(true);
     });
 
+    it('shows an investor to a caller only when the caller sees every project of it, so a partial scope reads no aggregate of projects it may not see', async () => {
+      const w = await world([
+        { tag: 'S1', plan: '1000000000', payments: [[3, '100000000']], forecasts: [[11, '100000000']] },
+        { tag: 'S2', plan: '1000000000', payments: [[3, '100000000']], forecasts: [[11, '100000000']] },
+      ]);
+      await as((tx) => milestones.record(tx, w.snapshotId, WORKER, NOW));
+      const codes = (await owner<{ code: string }>('select code from machvon.project where id = any($1::uuid[]) order by code', [w.projects.map((project) => project.id)])).map((row) => row.code);
+      const only = (code: string) => (first: number) => ({ sql: `p.code = ${first}`, params: [code] });
+      const partial = await as((tx) => milestones.board(tx, only(codes[0] as string), { snapshotId: w.snapshotId }, NOW));
+      expect(partial.milestones).toEqual([]);
+      expect(await as((tx) => milestones.atRisk(tx, only(codes[0] as string)))).toEqual([]);
+      const both = await as((tx) => milestones.board(tx, (first: number) => ({ sql: `p.code = any(${first}::text[])`, params: [codes] }), { snapshotId: w.snapshotId }, NOW));
+      expect(both.milestones).toHaveLength(3);
+    });
+
     it('measures the accuracy of the forecast made before each month against what the Treasury paid, and gives no band for too few months', async () => {
       const w = await world([{ tag: 'ACC', unit: HERE, plan: '5000000000', payments: [[3, '100000000'], [6, '200000000'], [10, '100000000']], forecasts: [[3, '100000000'], [6, '250000000'], [10, '100000000']] }]);
       const view = await as((tx) => milestones.accuracy(tx, wholeScope, { planYear: 2027 }, NOW));

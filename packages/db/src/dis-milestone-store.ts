@@ -332,6 +332,8 @@ export class DisMilestoneStore {
         where m.snapshot_id = $1::uuid and ($2::uuid is null or m.unit_id = $2::uuid)
           and exists (select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
                        where l.snapshot_id = m.snapshot_id and coalesce(p.investor_unit_id, l.unit_id) = m.unit_id and ${visible.sql})
+          and not exists (select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
+                           where l.snapshot_id = m.snapshot_id and coalesce(p.investor_unit_id, l.unit_id) = m.unit_id and not (${visible.sql}))
         order by m.milestone_date, u.code nulls last, m.unit_id`,
       [snapshot.id, filter.unitId ?? null, ...visible.params],
     );
@@ -417,6 +419,8 @@ export class DisMilestoneStore {
         where m.snapshot_id = $1::uuid and m.status in ('AT_RISK', 'OFF_TRACK') and m.milestone_date >= $2::date
           and exists (select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
                        where l.snapshot_id = m.snapshot_id and coalesce(p.investor_unit_id, l.unit_id) = m.unit_id and ${visible.sql})
+          and not exists (select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
+                           where l.snapshot_id = m.snapshot_id and coalesce(p.investor_unit_id, l.unit_id) = m.unit_id and not (${visible.sql}))
         order by m.milestone_date, m.unit_id
         limit ${limit}`,
       [latest.id, latest.treasuryCutoffDate, ...visible.params],

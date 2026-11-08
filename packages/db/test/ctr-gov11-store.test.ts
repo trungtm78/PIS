@@ -73,6 +73,7 @@ describe('the settlement clock, the adjustment versions and the linkage of a con
       await as((tx) => clocks.sync(tx, memberId(CREATOR), noAudit, collect, NOW));
       const board = await as((tx) => clocks.board(tx, scope, {}, NOW));
       const byContract = new Map(board.all.map((row) => [row.contract.id, row]));
+      expect(byContract.get(contractB)?.contractor?.name).toBeTruthy();
       expect(byContract.get(contractB)).toMatchObject({ monthsAllowed: 5, dueOn: '2026-11-15', state: 'NEAR', daysLeft: 5 });
       expect(byContract.get(contractC)).toMatchObject({ monthsAllowed: 4, dueOn: '2026-10-15', state: 'OVERDUE', daysLeft: -26 });
       expect(board.rule).toMatchObject({ source: 'DEFAULT', unverified: true });
@@ -162,6 +163,8 @@ describe('the settlement clock, the adjustment versions and the linkage of a con
       const read = await as((tx) => linkage.read(tx, scope, contract.contractId));
       expect(read?.contract).toMatchObject({ originalValueVnd: '9000000000', revisions: 1 });
       expect(read?.package?.code).toBeDefined();
+      expect(read?.contractor?.name).toBeTruthy();
+      expect(read?.parties.every((party) => party.name !== '')).toBe(true);
       expect(read?.reading.findings.map((finding) => finding.code)).toContain('PACKAGE_NOT_AWARDED');
       expect(read?.reading.ok).toBe(false);
       expect(await as((tx) => linkage.read(tx, none, contract.contractId))).toBeUndefined();
