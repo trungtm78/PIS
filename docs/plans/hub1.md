@@ -7,13 +7,13 @@ Goal (owner, 2026-11-08): every external data connection (e-GP, Finance Departme
 ## Steps and status
 
 1. Kernel: descriptor, open registry, health, summary, runs, incidents, snapshots (`connector-hub.ts`), built-in descriptors, rule defaults (`INTEGRATION_HUB_POLICY`, alert types, KPI definitions) - DONE.
-2. Kernel: transport protocol registry and ports (`connector-protocols.ts`), ETL model and runner (`etl-pipeline.ts`), conformance helper (`connector-conformance.ts`) - DONE, tests in progress.
-3. Kernel tests: hub, protocols, ETL runner (partial failure, retry idempotency, replay, watermark after load, reject reprocess), conformance of the built-ins.
-4. DB: migrations V2540 to V2545 (state, run log with stage counts, incidents, snapshots, mapping versions and watermark, rejects and lineage, alert source), `HubStore`, file framework adapter, EGP adapter, conformance helper, tests through the db lane.
-5. API: contract-patch operations, controllers, authz matrix, command registry, error codes, isolation (foreign-id) cases, API tests.
-6. Web: HUB-01 catalogue, HUB-02 connector detail with tabs (overview, runs, pipeline, mapping, differences, credentials, layouts and policy), HUB-03 incident log; i18n parts; design rows.
-7. Docs: `docs/integration-hub.md` (descriptor contract, protocols, ETL, no-egress rule, health model, 30-line connector recipe, reading of "CTL" as ETL), module spec HUB.md, design JSON rows.
-8. Gates: lint, typecheck, tests of what changed, isolation, command-conformance, outbox-consumers, dis/report; Codex review `codex review --base main -c 'model="gpt-6-astra"' ...`, triage, fixes with regression tests.
+2. Kernel: transport protocol registry and ports (`connector-protocols.ts`), ETL model and runner (`etl-pipeline.ts`), conformance helper (`connector-conformance.ts`), collector agent rules - DONE with tests.
+3. DB: migrations V2540 to V2545, `HubStore`, adapters (e-GP switch), tests through the db lane - DONE (test run result in the report).
+4. API: contract-patch operations (17), controllers, authz matrix, isolation (foreign-id) cases, error codes, API tests - DONE.
+5. Web: HUB-01 catalogue, HUB-02 connector detail with seven tabs, HUB-03 incident log, i18n, routes, navigation, design rows, tests - DONE.
+6. Docs: `docs/integration-hub.md`, `HUB.md`, design JSON rows, rebuilt pages - DONE.
+7. Gates: lint, typecheck, tests of what changed, isolation, command-conformance, outbox-consumers, dis-report; Codex review with triage - see the report.
+8. Follow-ups (HUB-2): egress exception store and commands; the stage runner as the implementation of the existing imports; `HomeConnectorSources` over every connector; ADM working calendar for the schedule; real protocol adapters.
 
 ## Decisions
 
