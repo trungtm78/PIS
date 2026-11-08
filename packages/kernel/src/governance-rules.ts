@@ -16,11 +16,19 @@ import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
 import { ACTUALS_PRECEDENCES, ACTUAL_SOURCES, ENTRY_MODES, FUNDING_TAXONOMY_RULE_TYPE, MEASURES, PERIOD_GRAINS, RATIO_BASES, RATIO_TERMS, enterprisePackParams, publicPackParams, refineFundingPack } from './fnd-taxonomy.ts';
 import { message } from './messages.ts';
+<<<<<<< HEAD
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
 import { EXPIRY_WARNING_DEFAULTS, expiryPolicyOf } from './vendor-qualification.ts';
 import { DEBARMENT_POLICY_DEFAULTS, GATE_POLICY_DEFAULTS, REPUTATION_POLICY_DEFAULTS, debarmentPeriodOf, debarmentPolicyOf, gatePolicyOf, reputationPolicyOf } from './vendor-restriction.ts';
 import { DEBARMENT_PERIOD_DEFAULTS, DUPLICATE_PARAM_DEFAULTS, VENDOR_PROFILE_DEFAULTS, duplicateWeightsOf, vendorProfilePolicyOf } from './vendor-defaults.ts';
+=======
+import { ABSENCE_RULE_TYPE, absencePolicyDefaults, absencePolicyOf } from './alert-coverage.ts';
+import { ESCALATION_RULE_TYPE, ESCALATION_TRIGGERS, escalationPolicyDefaults, escalationPolicyOf } from './alert-escalation.ts';
+import { HEALTH_RULE_TYPE, healthTargetDefaults, healthTargetsOf } from './alert-health.ts';
+import { ALERT_CHANNELS, NOTIFY_RULE_TYPE, alertNotifyDefaults, alertNotifyPolicyOf } from './alert-notify.ts';
+import { ALERT_GOV_TEXT } from './messages/alert-gov-texts.ts';
+>>>>>>> d4193e0b (feat(kernel): alert escalation, absence cover, notification profile and health rules for GOV-9a)
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -434,6 +442,8 @@ export const registerCoreRules = (): void =>
         reason_to_exist: text(500),
         review_on: { kind: 'date' },
         enabled: bool,
+        // G2-5: an urgent alert of this type may break the quiet hours of a person once nobody took it up in time (off unless the tenant approves a rule that sets it).
+        quiet_bypass: optionally(bool),
       },
       // A type with no expected action can only be watched (G0-3).
       refine: (params) => ((params.expected_action === undefined || params.expected_action === '') && params.default_severity !== 'WATCH' ? 'default_severity' : undefined),
@@ -1283,6 +1293,7 @@ export const registerProcurementWorkflowRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(PROCUREMENT_WORKFLOW_ALERT_SEEDS, { source: message('gov.rules.register_procurement_workflow_rules.source') }));
   });
 
+<<<<<<< HEAD
 /** The steps of an approval workflow as data (lane WF-1): one code per business type the ADM engine runs for a module; the built-in default of the weekly report is the single decision it has always been. */
 export const registerApprovalWorkflowRules = (): void =>
   once('approval-workflow', () => {
@@ -1374,10 +1385,48 @@ export const registerVendorRules = (): void =>
       ownerModule: 'BID',
       modules: ['BID', 'AUD'],
       formula: message('gov.rules.register_vendor_rules.formula.vendor_duplicate_signals'),
+=======
+const ALERT_GOVERNANCE_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  {
+    code: 'ESCALATED_ITEM',
+    source: 'ESCALATION',
+    owner: 'ESCALATION_RECIPIENT',
+    action: ALERT_GOV_TEXT.alert_types.escalated_item.action,
+    consequence: ALERT_GOV_TEXT.alert_types.escalated_item.consequence,
+    hours: 24,
+    severity: 'ACTION',
+    why: ALERT_GOV_TEXT.alert_types.escalated_item.why,
+  },
+  {
+    code: 'COVERAGE_GAP',
+    source: 'COVERAGE',
+    owner: 'ALERT_COVER_MANAGER',
+    action: ALERT_GOV_TEXT.alert_types.coverage_gap.action,
+    consequence: ALERT_GOV_TEXT.alert_types.coverage_gap.consequence,
+    hours: 8,
+    severity: 'ACTION',
+    why: ALERT_GOV_TEXT.alert_types.coverage_gap.why,
+  },
+];
+
+/** The governance of the alert system itself (lane GOV-9a: G2-3 escalation, G2-5 notification, G2-7 absence and coverage, G2-10 health; docs/alert-governance.md). The code that applies to everybody is `DEFAULT`. */
+export const registerAlertGovernanceRules = (): void =>
+  once('alert-governance', () => {
+    registerCoreRules();
+    registerWorkClockRules();
+    const source = ALERT_GOV_TEXT.rules.source;
+    const step = shape({ kind: oneOf('FUNCTIONAL', 'HIERARCHICAL'), after_working_hours: int(0, 720), levels_up: optionally(int(1, 5)), function_role: optionally(codeText()) });
+    registerRuleType({
+      type: ESCALATION_RULE_TYPE,
+      ownerModule: 'NOT',
+      modules: ['NOT', 'HOME', 'ADM'],
+      formula: ALERT_GOV_TEXT.rules.escalation_formula,
+>>>>>>> d4193e0b (feat(kernel): alert escalation, absence cover, notification profile and health rules for GOV-9a)
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
+<<<<<<< HEAD
         weight_tax_head: weight(),
         weight_address: weight(),
         weight_phone: weight(),
@@ -1421,10 +1470,29 @@ export const registerVendorRules = (): void =>
       ownerModule: 'BID',
       modules,
       formula: message('gov.rules.register_vendor_rules.formula.vendor_debarment'),
+=======
+        steps: shape({ URGENT: list(step, 5, 1), ACTION: list(step, 5, 1), WATCH: list(step, 0, 0) }),
+        triggers: list(oneOf(...ESCALATION_TRIGGERS), 3, 1),
+        hold_after_acknowledge_working_hours: perSeverity(0, 720),
+        orphan_step: step,
+        watch_promotion: shape({ enabled: bool, after_working_days: int(1, 365) }),
+        leader_min_rank: int(1, 89),
+        admin_fallback_min_rank: int(1, 99),
+      },
+      refine: refineWith(escalationPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...escalationPolicyDefaults() })) },
+    });
+    registerRuleType({
+      type: ABSENCE_RULE_TYPE,
+      ownerModule: 'IAM',
+      modules: ['IAM', 'NOT', 'ADM'],
+      formula: ALERT_GOV_TEXT.rules.absence_formula,
+>>>>>>> d4193e0b (feat(kernel): alert escalation, absence cover, notification profile and health rules for GOV-9a)
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
+<<<<<<< HEAD
         decide_within_days: int(1, 365),
         decide_day_unit: oneOf('CALENDAR_DAYS', 'WORKING_DAYS'),
         response_days: int(1, 90),
@@ -1564,6 +1632,78 @@ export const registerClaimRules = (): void =>
     });
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(CLAIM_ALERT_SEEDS, { source: message('gov.rules.register_claim_rules.source.claim_alerts') }));
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(EARLY_WARNING_ALERT_SEEDS, { source: message('gov.rules.register_claim_rules.source.early_warning_alerts') }));
+=======
+        max_absence_days: int(1, 730),
+        max_cover_days: int(1, 730),
+        max_chain_depth: int(1, 5),
+        uncovered_after_working_hours: int(1, 240),
+        warn_before_days: int(0, 30),
+        deputy_rank_rule: oneOf('AT_LEAST_PEER', 'ANY'),
+        min_role_holders: int(1, 10),
+        position_min_rank: int(1, 99),
+      },
+      refine: refineWith(absencePolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...absencePolicyDefaults() })) },
+    });
+    const channels = list(oneOf(...ALERT_CHANNELS), ALERT_CHANNELS.length, 1);
+    registerRuleType({
+      type: NOTIFY_RULE_TYPE,
+      ownerModule: 'NOT',
+      modules: ['NOT', 'IAM', 'HOME'],
+      formula: ALERT_GOV_TEXT.rules.notify_formula,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        quiet_from: { kind: 'time' },
+        quiet_to: { kind: 'time' },
+        quiet_weekends: bool,
+        time_zone: word(),
+        digest_at: { kind: 'time' },
+        push_cap_per_day: int(0, 100),
+        urgent_group_after_per_hour: int(1, 20),
+        push_min_severity_floor: oneOf('URGENT', 'ACTION'),
+        default_channels: shape({ URGENT: channels, ACTION: channels, WATCH: channels }),
+        group_same_root: bool,
+        digest_max_lines: int(5, 50),
+        digest_lookahead_days: int(1, 14),
+      },
+      refine: refineWith(alertNotifyPolicyOf),
+      defaults: { DEFAULT: rule(plain({ ...alertNotifyDefaults() })) },
+    });
+    const bySeverity = shape({ URGENT: num(0.5, 720), ACTION: num(0.5, 720), WATCH: num(0.5, 720) });
+    registerRuleType({
+      type: HEALTH_RULE_TYPE,
+      ownerModule: 'HOME',
+      modules: ['HOME', 'BI', 'NOT'],
+      formula: ALERT_GOV_TEXT.rules.health_formula,
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        mtta_working_hours: bySeverity,
+        on_time_min_pct: num(0, 100),
+        escalated_max_pct: num(0, 100),
+        last_level_max_pct: num(0, 100),
+        alerts_per_person_day_max: shape({ URGENT: num(0, 500), TOTAL: num(0, 500) }),
+        pushes_per_person_day_max: num(0, 100),
+        off_hours_unjustified_max: int(0, 100_000),
+        stale_after_days: shape({ first: int(1, 365), second: int(1, 730) }),
+        stale_max_pct: num(0, 100),
+        top10_share_max_pct: num(0, 100),
+        snooze_rate_max_pct: num(0, 100),
+        orphan_max: int(0, 100_000),
+        reroute_max_hours: num(0.1, 720),
+        urgent_delivery_min_pct: num(0, 100),
+        urgent_delivery_minutes: int(1, 1440),
+        delegation_coverage_min_pct: num(0, 100),
+        min_sample: int(1, 1000),
+      },
+      refine: refineWith(healthTargetsOf),
+      defaults: { DEFAULT: rule(plain({ ...healthTargetDefaults() })) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(ALERT_GOVERNANCE_ALERT_SEEDS, { source }));
+>>>>>>> d4193e0b (feat(kernel): alert escalation, absence cover, notification profile and health rules for GOV-9a)
   });
 
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
@@ -1580,9 +1720,13 @@ export function registerAllGovernanceRules(): void {
   registerEnterpriseRules();
   registerFinanceRules();
   registerProcurementWorkflowRules();
+<<<<<<< HEAD
   registerApprovalWorkflowRules();
   registerVendorRules();
   registerClaimRules();
+=======
+  registerAlertGovernanceRules();
+>>>>>>> d4193e0b (feat(kernel): alert escalation, absence cover, notification profile and health rules for GOV-9a)
 }
 
 registerAllGovernanceRules();
