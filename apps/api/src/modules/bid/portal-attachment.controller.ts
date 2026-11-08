@@ -28,7 +28,7 @@ const DOCUMENT_PURPOSE = 'document';
  * the same key with the same file but another purpose or title is an idempotency conflict, not a replay of the first attachment.
  */
 @Injectable()
-class PortalUploadGuard extends (ImportFileUploadGuard as new () => CanActivate) {
+class PortalUploadGuard extends (ImportFileUploadGuard as unknown as new () => { canActivate(context: ExecutionContext): Promise<boolean> }) implements CanActivate {
   override async canActivate(context: ExecutionContext): Promise<boolean> {
     const allowed = await super.canActivate(context);
     const request = context.switchToHttp().getRequest<{ body?: Record<string, unknown>; query?: Record<string, unknown> }>();
