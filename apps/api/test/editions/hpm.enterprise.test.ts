@@ -5,16 +5,17 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { strFromU8, unzipSync } from 'fflate';
 import { APP_FILTER } from '@nestjs/core';
+import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
-import { HpmFileWriter } from '@machvon/edition-enterprise/src/server.ts';
+import { HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
 import type { PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { hpmModule } from '../../src/editions/enterprise';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from '../../src/editions/enterprise/hpm.controller';
-import { HPM_PERIOD_REOPEN, HPM_PORT } from '../../src/editions/enterprise/tokens';
+import { HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from '../../src/editions/enterprise/tokens';
 import { FileService } from '../../src/modules/files/file.service';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
 import { MockScanPort } from '../../src/modules/files/mock-scan';
@@ -164,6 +165,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
         { provide: FileService, useValue: files },
         { provide: HPM_PORT, useValue: writer },
         { provide: HPM_PERIOD_REOPEN, useValue: reopen },
+        { provide: HPM_ISSUED_REPORTS, useValue: new ReportStoreIssuedReports() },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });
@@ -476,6 +478,101 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       expect(refused.json.code).toBe('TEMPLATE_UNCONFIRMED');
       const rows_ = await rows<{ status: string }>("select status from machvon.hpm_push where id = $1", [sent.id]);
       expect(rows_[0]?.status).toBe('WRITTEN');
+    });
+  });
+
+  describe('an issued copy of the report engine (RPT-1c)', () => {
+    let seeded = 0;
+    /** An issued copy as the report engine keeps it: the workbook in its content-addressed store and the row of the copy. */
+    async function seedIssue(period: string, revision: number, options: { tenantId?: string; formStatus?: string; snapshot?: boolean } = {}): Promise<{ id: string; sha: string; xlsx: Uint8Array }> {
+      seeded += 1;
+      const tenantId = options.tenantId ?? TENANT_A;
+      const xlsx = new TextEncoder().encode(`workbook ${period} r${revision} #${seeded}`);
+      const hash = shaOf(xlsx);
+      const id = randomUUID();
+      const demo = options.formStatus === 'DEMO';
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        await client.query('set session_replication_role = replica');
+        await client.query("insert into machvon.report_output_file (tenant_id, sha256, format, size_bytes, content, created_by) values ($1, $2, 'XLSX', $3, $4, $5)", [tenantId, hash, xlsx.length, Buffer.from(xlsx), memberId(ADMIN)]);
+        await client.query(
+          `insert into machvon.report_issue (tenant_id, id, layout_id, layout_code, layout_version, period_code, period, revision, supersedes_id, reason, draft_id, sha256, xlsx_sha256, xlsx_name, data_source, snapshot_ref, form_status, demo_mark, counts_as_accepted, prepared_by, checked_by, approved_by, issued_by)
+           values ($1, $2, $3, $4, '1', $5, '{"kind":"MONTH","year":2026,"index":1}'::jsonb, $6, $7, $8, $9, $10, $10, $11, 'LIVE', $12::jsonb, $13, $14, $15, $16, $17, $18, $18)`,
+          [
+            tenantId,
+            id,
+            randomUUID(),
+            LAYOUT,
+            period,
+            revision,
+            null,
+            revision === 1 ? null : 'A correction after a late invoice',
+            randomUUID(),
+            hash,
+            `HPM_${period}_r${revision}.xlsx`,
+            options.snapshot === true ? JSON.stringify({ snapshotId: randomUUID(), revision: 3, cutoff: '2026-10-31' }) : null,
+            options.formStatus ?? 'READY',
+            demo ? 'DEMO MARK' : null,
+            !demo,
+            memberId(ADMIN),
+            memberId(PUSHER),
+            memberId(RECEIVER),
+          ],
+        );
+      } finally {
+        await client.end();
+      }
+      return { id, sha: hash, xlsx };
+    }
+    const byIssue = (issue: { id: string; sha: string }, period: string, revision: number, extra: Record<string, unknown> = {}): Promise<Reply> =>
+      call('POST', '/hpm/pushes', { member: PUSHER, body: { layout_code: LAYOUT, period, revision, sha256: issue.sha, issue_id: issue.id, ...extra } });
+    const deliveries = (issueId: string) => rows<{ event: string; channel: string; receiver: string; reference: string | null; recorded_by: string }>('select event, channel, receiver, reference, recorded_by from machvon.report_delivery where issue_id = $1 order by occurred_at, id', [issueId]);
+
+    it('takes the file, the snapshot and the marks from the copy, and writes the delivery and the answer into the delivery log of the engine', async () => {
+      const issue = await seedIssue('2024-M01', 1, { snapshot: true });
+      const sent = await byIssue(issue, '2024-M01', 1);
+      expect(sent.status).toBe(200);
+      const row = pushOf(sent);
+      expect(row).toMatchObject({ status: 'WRITTEN', snapshot: { revision: 3, cutoff: '2026-10-31' }, form_status: 'READY' });
+      const package_ = written.find((entry) => entry.name === `HPM-${LAYOUT}-2024-M01-r1.zip`);
+      const unpacked = unzipSync(package_?.bytes as Uint8Array);
+      expect(unpacked['report/HPM_2024-M01_r1.xlsx']).toEqual(issue.xlsx);
+      expect((await deliveries(issue.id)).map((entry) => [entry.event, entry.channel, entry.receiver, entry.recorded_by])).toEqual([['DELIVERED', 'HPM_PUSH', 'HPM', memberId(PUSHER)]]);
+      // The same push again is the repeat of the ledger and writes no second delivery.
+      expect((await byIssue(issue, '2024-M01', 1)).json.status).toBe('ALREADY_DELIVERED');
+      const done = await receipt(RECEIVER, row.id as string, row.version as number, { outcome: 'ACCEPTED', reference: 'HPM-2024-01' });
+      expect(done.status).toBe(200);
+      expect((await deliveries(issue.id)).map((entry) => [entry.event, entry.reference])).toEqual([['DELIVERED', row.key], ['ACCEPTED', 'HPM-2024-01']]);
+    });
+
+    it('refuses what the caller says about a copy when it is not the copy (422), and a copy that does not exist or belongs to another tenant (404)', async () => {
+      const issue = await seedIssue('2024-M02', 1);
+      const wrongHash = await call('POST', '/hpm/pushes', { member: PUSHER, body: { layout_code: LAYOUT, period: '2024-M02', revision: 1, sha256: 'f'.repeat(64), issue_id: issue.id } });
+      expect(wrongHash.status).toBe(422);
+      expect(wrongHash.json.code).toBe('VALIDATION_FAILED');
+      expect((await byIssue(issue, '2024-M03', 1)).status).toBe(422);
+      expect((await byIssue(issue, '2024-M02', 2)).status).toBe(422);
+      expect((await byIssue({ id: randomUUID(), sha: issue.sha }, '2024-M02', 1)).status).toBe(404);
+      const foreign = await seedIssue('2024-M02', 1, { tenantId: TENANT_B });
+      expect((await byIssue(foreign, '2024-M02', 1)).status).toBe(404);
+      expect(await rows('select 1 from machvon.hpm_push where period = $1', ['2024-M02'])).toHaveLength(0);
+    });
+
+    it('judges staleness against the newest revision the engine issued, even when this ledger never saw it', async () => {
+      const first = await seedIssue('2024-M04', 1);
+      await seedIssue('2024-M04', 2);
+      const stale = await byIssue(first, '2024-M04', 1);
+      expect(stale.status).toBe(409);
+      expect(stale.json).toMatchObject({ code: 'REPORT_OUT_OF_DATE', current_revision: 2 });
+    });
+
+    it('never records the receipt of a copy made on a DEMO form as accepted, in the ledger or in the log of the engine', async () => {
+      const issue = await seedIssue('2024-M05', 1, { formStatus: 'DEMO' });
+      const sent = pushOf(await byIssue(issue, '2024-M05', 1));
+      expect(sent).toMatchObject({ form_status: 'DEMO', demo_mark: 'DEMO MARK' });
+      expect((await receipt(RECEIVER, sent.id as string, sent.version as number, { outcome: 'ACCEPTED', reference: 'HPM-D' })).json.code).toBe('TEMPLATE_UNCONFIRMED');
+      expect((await deliveries(issue.id)).map((entry) => entry.event)).toEqual(['DELIVERED']);
     });
   });
 
