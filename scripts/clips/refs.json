@@ -658,6 +658,22 @@
       "screen": "PRJ-16",
       "what": "risk / before after score (prj)"
     },
+    "pwa.approvals.queue": {
+      "screen": "PWA-02",
+      "what": "approvals / queue (pwa)"
+    },
+    "pwa.dashboard.cards": {
+      "screen": "PWA-03",
+      "what": "dashboard / cards (pwa)"
+    },
+    "pwa.directives.list": {
+      "screen": "PWA-04",
+      "what": "directives / list (pwa)"
+    },
+    "pwa.install.button": {
+      "screen": "PWA-01",
+      "what": "install / button of the install card (pwa)"
+    },
     "rpt.forms.demo-stamp": {
       "screen": "RPT-01",
       "what": "forms / demo stamp (rpt)"
@@ -709,6 +725,14 @@
     "wf.period.step-deadlines": {
       "screen": "ADM-18",
       "what": "period / step deadlines (wf)"
+    },
+    "ctr.scorecard.contractor": {
+      "screen": "CTR-23",
+      "what": "scorecard / contractor list (ctr)"
+    },
+    "ctr.scorecard.view": {
+      "screen": "CTR-23",
+      "what": "scorecard / show (ctr)"
     }
   }
 }

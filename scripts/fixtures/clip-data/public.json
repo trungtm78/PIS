@@ -288,6 +288,7 @@
     "guarantee.issuer": "Ngân hàng thương mại cổ phần",
     "guarantee.method": "Đã xác nhận với ngân hàng phát hành bảo lãnh",
     "contract.review": "Trình ký hợp đồng",
+    "extras.delegationReason": "Ủy quyền duyệt kế hoạch vốn trong thời gian đi công tác",
     "contract.signedPaper": "Bản hợp đồng đã ký {0}",
     "contract.activate": "Kích hoạt sau khi ký hợp đồng và có bảo lãnh thực hiện",
     "claim.title": "Đề nghị gia hạn thời gian do thời tiết xấu",

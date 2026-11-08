@@ -132,7 +132,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -164,7 +164,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "BI-02",
+          "BI-01",
           "BI-04"
         ]
       },
@@ -175,7 +175,7 @@
         },
         {
           "do": "open",
-          "screen": "BI-02"
+          "screen": "BI-01"
         },
         {
           "do": "click",
@@ -214,7 +214,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -247,7 +247,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -280,7 +280,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -313,7 +313,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",

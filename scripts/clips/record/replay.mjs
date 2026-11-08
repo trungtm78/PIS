@@ -221,7 +221,10 @@ export class ReplayUi extends Ui {
         if (values.length === 0) throw new Error('the list has no option to choose');
         await locator.selectOption(values[0]);
       } else {
-        await locator.selectOption({ label: option });
+        // The label may carry a count after the name ("Name (2 hợp đồng)"): the first option whose text holds the words is the one.
+        const value = await locator.evaluate((element, text) => Array.from(element.options).find((entry) => entry.label === text || (entry.textContent ?? '').includes(text))?.value, option);
+        if (value === undefined) throw new Error('the list has no option named ' + option);
+        await locator.selectOption(value);
       }
       return;
     }
@@ -231,6 +234,20 @@ export class ReplayUi extends Ui {
     const entry = option === 'first' || option === undefined ? options.first() : options.filter({ hasText: option }).first();
     await this.glideTo(...(await centre(entry)));
     await entry.click({ timeout: 4000 });
+  }
+
+  /** Sends the event a Chromium browser sends when the application can be installed (a headless browser never does), so that the install button of the page shows. */
+  async fireInstallPrompt() {
+    await this.page.evaluate(() => {
+      const event = new globalThis.Event('beforeinstallprompt', { cancelable: true });
+      event.prompt = () => {
+        globalThis.setTimeout(() => globalThis.dispatchEvent(new globalThis.Event('appinstalled')), 900);
+        return Promise.resolve();
+      };
+      event.userChoice = Promise.resolve({ outcome: 'accepted' });
+      globalThis.dispatchEvent(event);
+    });
+    await this.page.waitForTimeout(500);
   }
 
   /** What is on the screen now that should not be: see readScreenProblems. */

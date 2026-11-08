@@ -67,6 +67,7 @@ const LAYOUT = {
   legal_basis: tx('legal_basis.006'),
   effective_from: '2026-01-01',
 };
+/** The layout the DEMO payment forms stand on: the same legal ranges, a code of its own (confirmed by the stack in place of the legal officer). */const DEMO_LAYOUT = { ...LAYOUT, profile_code: 'DEMO_PAY_FORMS_A4' };
 
 /** The document types of the office. QD (decision) is declared by the base group (clip 02); a type that exists answers DOC_TYPE_RANGE_OVERLAP and is skipped. */
 const DOC_TYPES = [
@@ -447,14 +448,14 @@ async function distributionVersion(ctx: SeedContext, outgoingId: string, distrib
 
 // ---- the setup: layout, types, registers, templates, retention rules ---------------------------------------------------------------------
 
-async function layoutProfile(ctx: SeedContext): Promise<string> {
-  const published = await ctx.find(DRAFTER, '/document-layout-profiles', (row) => row.profile_code === LAYOUT.profile_code && row.status === 'PUBLISHED');
+async function layoutProfile(ctx: SeedContext, layout: typeof LAYOUT = LAYOUT): Promise<string> {
+  const published = await ctx.find(DRAFTER, '/document-layout-profiles', (row) => row.profile_code === layout.profile_code && row.status === 'PUBLISHED');
   if (published !== undefined) return String(published.id);
-  const draft = await ctx.find(DRAFTER, '/document-layout-profiles', (row) => row.profile_code === LAYOUT.profile_code && row.status === 'DRAFT');
-  const created = draft === undefined ? await ctx.command(DRAFTER, '/document-layout-profiles', LAYOUT) : { resource_id: String(draft.id), resource_version: Number(draft.version) };
+  const draft = await ctx.find(DRAFTER, '/document-layout-profiles', (row) => row.profile_code === layout.profile_code && row.status === 'DRAFT');
+  const created = draft === undefined ? await ctx.command(DRAFTER, '/document-layout-profiles', layout) : { resource_id: String(draft.id), resource_version: Number(draft.version) };
   // The leader publishes what the clerk drafted (four eyes).
   await ctx.command(LEADER, `/document-layout-profiles/${created.resource_id}/publish`, {}, { version: created.resource_version });
-  made(ctx, 'DOC', 'layout-profile', LAYOUT.profile_code, 'published, waiting for legal confirmation', { id: created.resource_id, screen: 'DOC-16' });
+  made(ctx, 'DOC', 'layout-profile', layout.profile_code, 'published, waiting for legal confirmation', { id: created.resource_id, screen: 'DOC-16' });
   return created.resource_id;
 }
 
@@ -493,7 +494,7 @@ async function registers(ctx: SeedContext): Promise<{ outgoing: string; incoming
 }
 
 /** The 25 templates of the platform pack: drafted by the project board, published by the leader, and the main ones confirmed by the owner with an evidence document. */
-async function templates(ctx: SeedContext, layoutId: string, evidenceDocument: string): Promise<void> {
+async function templates(ctx: SeedContext, layoutId: string, evidenceDocument: string, demoLayoutId: string): Promise<void> {
   for (const template of readPack().templates) {
     await once(ctx, `doc.template.${template.template_code}`, async () => {
       const existing = await ctx.find(DRAFTER, '/document-templates', (row) => row.template_code === template.template_code);
@@ -508,7 +509,7 @@ async function templates(ctx: SeedContext, layoutId: string, evidenceDocument: s
           ...(template.form_code === null ? {} : { form_code: template.form_code }),
           title: template.title,
           ...(template.source_module === null ? {} : { source_module: template.source_module }),
-          layout_profile_id: layoutId,
+          layout_profile_id: DEMO_FORM_CODES.includes(template.template_code) ? demoLayoutId : layoutId,
           body_blocks: { blocks: template.body_blocks },
           placeholder_schema: template.placeholder_schema,
           legal_basis: template.legal_basis,
@@ -735,6 +736,13 @@ async function dossierVersion(ctx: SeedContext, id: string): Promise<number> {
 
 export async function seedDoc(ctx: SeedContext): Promise<void> {
   const layoutId = await ctx.step('DOC', 'layout profile of Decree 30/2020', () => layoutProfile(ctx));
+  // The Treasury forms are DEMO forms: they stand on a layout profile of their own, confirmed by the stack in place of the legal officer (an act outside the product), so that the
+  // layout of the guide (Decree 30/2020) keeps waiting for its confirmation.
+  const demoLayoutId = await ctx.step('DOC', 'layout profile of the demo payment forms', async () => {
+    const id = await layoutProfile(ctx, DEMO_LAYOUT);
+    if (!(await ctx.confirmLayout(DEMO_LAYOUT.profile_code, DEMO_LEGAL_REF))) ctx.warn('the stack did not confirm the layout of the demo payment forms: the Treasury forms cannot be drawn');
+    return id;
+  });
   await ctx.step('DOC', 'document types', () => documentTypes(ctx));
   const regs = await ctx.step('DOC', 'number registers', () => registers(ctx));
 
@@ -743,7 +751,7 @@ export async function seedDoc(ctx: SeedContext): Promise<void> {
   if (evidence === undefined) throw new Error(tx('seedDoc.149'));
   const evidenceDocument = String(evidence.document_id);
 
-  await ctx.step('DOC', 'template library (platform pack)', () => templates(ctx, layoutId, evidenceDocument));
+  await ctx.step('DOC', 'template library (platform pack)', () => templates(ctx, layoutId, evidenceDocument, demoLayoutId));
   await ctx.step('DOC', 'retention rules', () => retentionRules(ctx, evidenceDocument));
 
   const issued = new Map<string, State>();

@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `public-investment`
 - Bản: public
-- Video chính: 10:47 (47 cảnh)
+- Video chính: 11:26 (48 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,8 +12,8 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 47 | 10:47 |
-| Giới thiệu hệ thống (`intro`) | 4 | 0:57 |
+| Video chính (`main`) | 48 | 11:26 |
+| Giới thiệu hệ thống (`intro`) | 5 | 1:20 |
 | Tổng quan điều hành (`leader-home`) | 7 | 1:36 |
 | Giải ngân và kế hoạch vốn (`disbursement`) | 7 | 1:35 |
 | Quản lý hợp đồng (`contracts`) | 5 | 1:10 |
@@ -23,8 +23,8 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Quản lý kết nối muasamcong (`egp`) | 11 | 2:54 |
 | Ban chỉ đạo cấp tỉnh (`province-committee`) | 9 | 2:26 |
 | Cây tiến độ (`process-tree`) | 9 | 2:09 |
-| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:28 |
-| Tin cậy và kết thúc (`close`) | 2 | 0:24 |
+| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:40 |
+| Tin cậy và kết thúc (`close`) | 2 | 0:29 |
 
 ## Dữ liệu và độ sẵn sàng
 
@@ -70,36 +70,38 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 
 | Bản nhạc | Giấy phép | Duyệt |
 |---|---|---|
-| track-1: Classical Pop (Instrumental) (Pro Sensory) * | CC0, https://opengameart.org/content/classical-pop-instrumental | PENDING_OWNER |
+| track-0: Calm Track (loop version) (pmiller) * | CC0, https://opengameart.org/content/calm-track | PROPOSED |
+| track-1: Classical Pop (Instrumental) (Pro Sensory) | CC0, https://opengameart.org/content/classical-pop-instrumental | PENDING_OWNER |
 | track-2: Chill Beats Collection (Holizna) | CC0, https://opengameart.org/content/chill-beats-collection | PENDING_OWNER |
 | track-3: Music for the background (ghi trên trang) | CC0, https://opengameart.org/content/music-for-the-background | PENDING_OWNER |
 
 | Điểm nhạc | Chương | Bắt đầu | Mức so với nền | Tính chất |
 |---|---|---|---|---|
 | `pub-open` | `intro` | 0:00 | 0 dB | Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán. |
-| `pub-overview` | `leader-home`, `disbursement`, `contracts` | 0:57 | 0 dB | Phần điều hành, vốn và hợp đồng: nền ổn định. |
-| `pub-numbers` | `analytics`, `alerts`, `contractors` | 2:53 | -3 dB | Lời đọc dày chỉ tiêu và thuật ngữ: nhạc lùi. |
-| `pub-egp` | `egp`, `province-committee` | 5:41 | -3 dB | Hai chương nhiều quy trình và số liệu: nhạc lùi. |
-| `pub-tree-phone` | `process-tree`, `phone` | 8:15 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `pub-close` | `close` | 10:22 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `pub-overview` | `leader-home`, `disbursement`, `contracts` | 1:20 | 0 dB | Phần điều hành, vốn và hợp đồng: nền ổn định. |
+| `pub-numbers` | `analytics`, `alerts`, `contractors` | 3:16 | -3 dB | Lời đọc dày chỉ tiêu và thuật ngữ: nhạc lùi. |
+| `pub-egp` | `egp`, `province-committee` | 6:04 | -3 dB | Hai chương nhiều quy trình và số liệu: nhạc lùi. |
+| `pub-tree-phone` | `process-tree`, `phone` | 8:38 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
+| `pub-close` | `close` | 10:58 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu hệ thống (`intro`)
 
 ### `intro-title`
 
-Nền tảng: title; 10.5 giây; có trong video chính
+Nền tảng: title; 14.5 giây; có trong video chính
 
 **Lời đọc**
 
-> Hệ thống quản lý đầu tư công theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.
+> Hệ thống quản lý đầu tư công, gồm nền tảng web, ứng dụng di động và PWA, theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Hệ thống quản lý đầu tư công theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.
+> Hệ thống quản lý đầu tư công, gồm nền tảng quép, ứng dụng di động và pê-đắp-liu-a, theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.
 
 **Phụ đề**
 
-- Hệ thống quản lý đầu tư công theo dõi / một khoản vốn từ kế hoạch đến quyết toán.
+- Hệ thống quản lý đầu tư công, / gồm nền tảng web, ứng dụng di
+- động và PWA, theo dõi một khoản / vốn từ kế hoạch đến quyết toán.
 - Dữ liệu trong đoạn phim là / dữ liệu minh họa cấp tỉnh.
 
 **Các bước quay**
@@ -111,6 +113,34 @@ Nền tảng: title; 10.5 giây; có trong video chính
 - [ ] Thẻ tiêu đề title-public có tên sản phẩm và dòng dữ liệu minh họa
 - [ ] Chú thích "Dữ liệu minh họa" hiện từ giây 1, kéo dài 6 giây
 - [ ] Dấu bắt buộc hiện rõ trên hình: "Dữ liệu minh họa"
+- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
+
+### `intro-web-phone`
+
+Nền tảng: animatic; 19.1 giây; có trong video chính
+
+**Lời đọc**
+
+> Hệ thống gồm ba kênh dùng chung một nguồn số liệu và một bộ quyền. Nền tảng web chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường. PWA là ứng dụng web cài vào màn hình chính cho lãnh đạo.
+
+**Lời gửi cho giọng đọc (đã phiên âm)**
+
+> Hệ thống gồm ba kênh dùng chung một nguồn số liệu và một bộ quyền. Nền tảng quép chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường. pê-đắp-liu-a là ứng dụng quép cài vào màn hình chính cho lãnh đạo.
+
+**Phụ đề**
+
+- Hệ thống gồm ba kênh dùng chung / một nguồn số liệu và một bộ quyền.
+- Nền tảng web chạy trên trình / duyệt cho người điều hành.
+- Ứng dụng di động chạy trên điện / thoại cho người làm ở hiện trường.
+- PWA là ứng dụng web cài vào / màn hình chính cho lãnh đạo.
+
+**Các bước quay**
+
+- `do=animatic id=platform-map`
+
+**Cần thấy trên hình**
+
+- [ ] Hoạt cảnh platform-map chạy hết thời lượng của lời đọc, chữ trên hình là tiếng Việt
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `intro-problem`
@@ -3046,31 +3076,37 @@ Màn hình: `MOB-28` Ghi nhận vướng mắc (tab projects); `MOB-29` Chụp �
 
 ### `ph-pwa`
 
-Nền tảng: pwa; 14.5 giây; có trong video chính
+Nền tảng: pwa; 26.7 giây; có trong video chính
 
 Màn hình: `PWA-01` PWA-01 (/m); `PWA-02` PWA-02 (/m/approvals); `PWA-03` PWA-03 (/m/dashboard); `PWA-04` PWA-04 (/m/directives)
 
 **Lời đọc**
 
-> Người không cài ứng dụng dùng PWA trên trình duyệt: hàng đợi phê duyệt, dashboard điều hành, theo dõi chỉ đạo. PWA chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
+> Người không cài ứng dụng dùng PWA, ứng dụng web cài thẳng vào màn hình chính. Chạm Cài đặt ứng dụng, rồi mở như một ứng dụng thật, không có thanh địa chỉ. Thông báo đẩy chỉ mang đường dẫn, không mang số liệu. Bên trong có hàng đợi phê duyệt, bảng điều hành và theo dõi chỉ đạo. PWA chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Người không cài ứng dụng dùng pê-đắp-liu-a trên trình duyệt: hàng đợi phê duyệt, đát-bo điều hành, theo dõi chỉ đạo. pê-đắp-liu-a chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
+> Người không cài ứng dụng dùng pê-đắp-liu-a, ứng dụng quép cài thẳng vào màn hình chính. Chạm Cài đặt ứng dụng, rồi mở như một ứng dụng thật, không có thanh địa chỉ. Thông báo đẩy chỉ mang đường dẫn, không mang số liệu. Bên trong có hàng đợi phê duyệt, bảng điều hành và theo dõi chỉ đạo. pê-đắp-liu-a chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
 
 **Phụ đề**
 
-- Người không cài ứng dụng / dùng PWA trên trình duyệt:
-- hàng đợi phê duyệt, dashboard / điều hành, theo dõi chỉ đạo.
+- Người không cài ứng dụng dùng PWA, ứng / dụng web cài thẳng vào màn hình chính.
+- Chạm Cài đặt ứng dụng, rồi mở như một / ứng dụng thật, không có thanh địa chỉ.
+- Thông báo đẩy chỉ mang đường / dẫn, không mang số liệu.
+- Bên trong có hàng đợi phê duyệt, / bảng điều hành và theo dõi chỉ đạo.
 - PWA chỉ lưu vỏ ứng dụng, không lưu / dữ liệu, đăng xuất là xóa sạch.
 
 **Các bước quay**
 
 - `do=as persona=owner`
 - `do=open screen=PWA-01`
+- `do=click ref=pwa.install.button`
 - `do=open screen=PWA-02`
+- `do=spot ref=pwa.approvals.queue`
 - `do=open screen=PWA-03`
+- `do=spot ref=pwa.dashboard.cards`
 - `do=open screen=PWA-04`
+- `do=spot ref=pwa.directives.list`
 
 **Cần thấy trên hình**
 
@@ -3079,6 +3115,10 @@ Màn hình: `PWA-01` PWA-01 (/m); `PWA-02` PWA-02 (/m/approvals); `PWA-03` PWA-0
 - [ ] Màn PWA-03 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/dashboard, trong khung điện thoại
 - [ ] Màn PWA-04 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/directives, trong khung điện thoại
 - [ ] Đăng nhập bằng tài khoản owner
+- [ ] Khung vào phần pwa.install.button đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần pwa.approvals.queue đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần pwa.dashboard.cards đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần pwa.directives.list đúng lúc giọng đọc nói tới
 - [ ] Chú thích "PWA: chỉ lưu vỏ ứng dụng, không lưu dữ liệu" hiện từ giây 4, kéo dài 6 giây
 - [ ] Ứng dụng cài đặt chạy trong khung điện thoại, không thấy thanh địa chỉ của trình duyệt
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -3294,19 +3334,20 @@ Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `ADM-19` Kho quy t�
 
 ### `close-outro`
 
-Nền tảng: title; 10.2 giây; có trong video chính
+Nền tảng: title; 14.5 giây; có trong video chính
 
 **Lời đọc**
 
-> Một nền tảng, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.
+> Một nền tảng với ba kênh là web, ứng dụng di động và PWA, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Một nền tảng, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.
+> Một nền tảng với ba kênh là quép, ứng dụng di động và pê-đắp-liu-a, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.
 
 **Phụ đề**
 
-- Một nền tảng, một bộ số / liệu, mỗi con số có nguồn.
+- Một nền tảng với ba kênh là / web, ứng dụng di động và PWA,
+- một bộ số liệu, mỗi con số có nguồn.
 - Lãnh đạo thấy sớm, người làm đỡ chép số, / kiểm toán dựng lại được từng quyết định.
 
 **Các bước quay**

@@ -26,7 +26,9 @@ import { buildTimeline, cuesOf, formatSrt, formatVtt, checkCues } from './subtit
  * subtitles and the loudness (mix.mjs). The words come from the scenario; this file holds none.
  */
 const VIEWPORT = { width: 1920, height: 1080 };
-const ROUTES = Object.fromEntries(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path]));
+/** The screens of the installed web application for leaders (apps/web/src/pwa/PwaRoutes.tsx): they are not in the generated route list. */
+const PWA_ROUTES = { 'PWA-01': '/m', 'PWA-02': '/m/approvals', 'PWA-03': '/m/dashboard', 'PWA-04': '/m/directives' };
+const ROUTES = { ...Object.fromEntries(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path])), ...PWA_ROUTES };
 const ANIMATIC_ALIASES = { 'platform-map': 'platform-public', 'service-flow': 'service-flow-public' };
 /** The people the development session of the clip stack knows (apps/web/e2e/support/docs-people.json). */
 const KNOWN_PERSONAS = new Set(readJson(join(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'docs-people.json')).map((person) => person.key));
@@ -110,6 +112,22 @@ const isEmptySelection = (text) => text.length < 700 && EMPTY_SELECTION.test(tex
 /** The internal links of the page now open (same origin, no query noise kept except what the app wrote). */
 const hrefsOf = (page) => page.$$eval('[data-screen-id] a[href]', (anchors) => [...new Set(anchors.map((anchor) => anchor.getAttribute('href')))].filter((href) => href.startsWith('/')));
 
+
+/** The id of the first warning a person sees (GET /home/warnings through the web proxy, signed as the development session of the clip stack). */
+async function firstWarningId(page, persona) {
+  const key = process.env.E2E_SESSION_KEY;
+  const infoPath = process.env.E2E_STACK_INFO;
+  if (key === undefined || infoPath === undefined) return undefined;
+  const { sessionToken, membershipOfPerson } = await import('../clip-seed-client.mjs');
+  const info = JSON.parse(readFileSync(infoPath, 'utf8'));
+  const token = sessionToken({ key, tenantId: info.tenants.A, membershipId: membershipOfPerson(join(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'e2e-fixtures.json'), persona) });
+  const base = new URL(page.url()).origin;
+  const reply = await fetch(`${base}/api/home/warnings?limit=1`, { headers: { authorization: `Bearer ${token}`, accept: 'application/json' } });
+  const body = await reply.json();
+  const first = Array.isArray(body.items) ? body.items[0] : undefined;
+  return typeof first?.id === 'string' ? first.id : undefined;
+}
+
 /**
  * A detail screen opened with no record says "choose one": find a link of another screen that opens it with a record (the app writes the id in the link) and
  * return that address. Pages are searched breadth first, two levels deep, at most 12 pages.
@@ -117,6 +135,14 @@ const hrefsOf = (page) => page.$$eval('[data-screen-id] a[href]', (anchors) => [
 async function findContext(ui, page, target, persona, hints, log) {
   const prefix = ROUTES[target];
   if (contextLinks.has(target)) return contextLinks.get(target);
+  // The profile of a warning is opened with the id of one in the address (?warning=): the first one the person sees is read from the API.
+  if (target === 'HOME-06') {
+    const id = await firstWarningId(page, persona).catch(() => undefined);
+    if (id !== undefined) {
+      contextLinks.set(target, `${prefix}?warning=${id}`);
+      return contextLinks.get(target);
+    }
+  }
   const queue = [...hints.filter((id) => id !== target), ...CONTEXT_HINTS].map((id) => ROUTES[id]).filter((path) => path !== undefined && path !== prefix);
   const seen = new Set();
   const queries = [];
@@ -197,6 +223,8 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
       if (index > 0 && views[index - 1].persona === view.persona) await ui.within(address, view.screen);
       else await ui.goto(address, view.persona);
       if (index === 0) contentAt = Date.now() - started;
+      // The browser of the recording does not offer the install by itself: the event it would send is sent here, so that the button of the start page shows.
+      if (view.screen === 'PWA-01') await ui.fireInstallPrompt().catch(() => undefined);
       const alert = await page.locator('[role="alert"]').first().textContent({ timeout: 500 }).catch(() => null);
       if (alert !== null && alert.trim() !== '') problems.push(`${view.screen}: ${alert.trim().slice(0, 80)}`);
       allotted += shares[index];
@@ -242,10 +270,10 @@ function phoneCard(scene, out, dir) {
 /** The quoted subtitles filter of the on-screen stamps of a scene (null-safe: undefined when there is no caption file). */
 const assFilterOf = (ass) => (ass === null ? undefined : `subtitles=filename=${filterPath(ass)}:fontsdir=${filterPath(fontsDir)}`);
 
-/** The footage of a phone scene made on an emulator (REC4): <phone-dir>/<name>.mp4 or .webm; undefined when there is none. */
-function phoneFootage(phoneDir, names) {
+/** The footage of a phone scene made on an emulator (REC4) or of the PWA (pwa.mjs): <phone-dir>/<name>.mp4 or .webm, or <name>.<edition>.mp4 as the index of the phone footage names it; undefined when there is none. */
+function phoneFootage(phoneDir, names, edition) {
   if (phoneDir === undefined) return undefined;
-  for (const name of names.filter(Boolean)) for (const extension of ['mp4', 'webm']) if (existsSync(join(phoneDir, `${name}.${extension}`))) return join(phoneDir, `${name}.${extension}`);
+  for (const name of names.filter(Boolean)) for (const base of edition === undefined ? [name] : [name, `${name}.${edition}`]) for (const extension of ['mp4', 'webm']) if (existsSync(join(phoneDir, `${base}.${extension}`))) return join(phoneDir, `${base}.${extension}`);
   return undefined;
 }
 
@@ -277,6 +305,12 @@ async function composeSegment({ painter, work, bg, brand, scenario, scenes, scen
   if (geometry.chips && geometry.web !== undefined && web !== undefined) {
     const placed = chipsFor({ spots: spots.map((spot) => ({ ...spot, box: mapBox(spot.box, { x: 0, y: 0, width: geometry.web.hole.width, height: geometry.web.hole.height }) })), labels, hole: geometry.web.hole, seconds });
     for (const [index, chip] of placed.entries()) chips.push({ ...chip, png: await painter.chip({ x: chip.x, y: chip.y, label: chip.label, accent: brand.accent }, join(work, `${scene.id}.chip${index}.png`)) });
+  }
+  for (const [index, callout] of (scene.callouts ?? []).entries()) {
+    const hole = (callout.anchor === 'phone' ? geometry.phone : geometry.web)?.hole;
+    if (hole === undefined) continue;
+    const png = await painter.chip({ x: Math.round(hole.x + (callout.x ?? 0.5) * hole.width), y: Math.round(hole.y + (callout.y ?? 0.5) * hole.height), label: callout.text, accent: brand.accent }, join(work, `${scene.id}.callout${index}.png`));
+    chips.push({ png, fromSec: callout.atSec, toSec: Math.min(seconds - 0.2, callout.atSec + callout.forSec) });
   }
   const args = segmentArgs({ layout, bg: { file: bg, offsetSec: (entry.startMs / 1000) % LOOP_SEC }, web, phone, overlay, chips: chips.map((chip) => ({ png: chip.png, fromSec: chip.fromSec, toSec: chip.toSec })), seconds, assFilter: assFilterOf(ass), out, spec });
   ffmpeg(args.slice(4));
@@ -340,10 +374,12 @@ async function main(argv) {
       const ass = captionsAss(entry.captions, entry.startMs, join(dir, 'seg', `${entry.id}.ass`));
       const platform = scene.screen.platform;
       const stamp = Date.now();
-      const layout = compose ? layoutOf(scene) : null;
       const bgFile = join(dir, 'compose', 'bg.mp4');
+      const phoneFile = phoneFootage(phoneDir, [`${scene.id}.${scenario.edition}`, scene.id, scene.showcase?.phone], scenario.edition);
+      // The PWA scene shows the installed application on a phone when its film exists (pwa.mjs), else the screens in the browser frame.
+      const pwaOnPhone = platform === 'pwa' && phoneFile !== undefined;
+      const layout = compose ? (pwaOnPhone ? 'phone-right' : layoutOf(scene)) : null;
       const showcase = layout !== null && platform === 'animatic' && scene.showcase !== undefined;
-      const phoneFile = phoneFootage(phoneDir, [`${scene.id}.${scenario.edition}`, scene.id, scene.showcase?.phone]);
       if (layout === 'title' && platform === 'title') {
         const data = JSON.parse(readFileSync(join(CLIPS_DIR, 'animatic', 'data', `${scene.screen.animatic}.json`), 'utf8'));
         const brand = brandFor(scenario.edition);
@@ -364,8 +400,8 @@ async function main(argv) {
         if (!existsSync(raw)) renderAnimatic(scene.screen.animatic, raw, { hideCaptions: compose });
         finishSegment({ input: raw, seconds, ass, out: file, hold: true });
         report.push({ id: entry.id, kind: 'animatic', animatic: scene.screen.animatic, seconds });
-      } else if (layout !== null && (((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) || showcase || (platform === 'phone' && phoneFile !== undefined))) {
-        const views = showcase ? showcaseViews(scene) : platform === 'phone' ? [] : viewsOf(scene);
+      } else if (layout !== null && (((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) || showcase || ((platform === 'phone' || pwaOnPhone) && phoneFile !== undefined))) {
+        const views = showcase ? showcaseViews(scene) : platform === 'phone' || pwaOnPhone ? [] : viewsOf(scene);
         if (views.length > 0 && (webUrl === undefined || flag(argv, 'no-web'))) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
         if (views.length > 0 && freemem() < 1.5 * 1024 ** 3) throw new Error('less than 1.5 GB of memory is free: wait before the browser starts');
         if (views.length > 0 && browser === undefined) {
@@ -375,12 +411,15 @@ async function main(argv) {
         const rawDir = join(dir, 'seg', `${entry.id}.raw`);
         rmSync(rawDir, { recursive: true, force: true });
         const wide = layout === 'split' || layout === 'phone-right';
+        const pwaPhone = platform === 'pwa' && layout === 'phone-right';
         const recorded = views.length === 0 || layout === 'phone-right' ? undefined : await recordViews(browser, { views, durationMs: seconds * 1000, baseUrl: webUrl, dir: rawDir, log: console.log, scene, typed: scenario.typed, replay: showcase ? false : !flag(argv, 'no-steps') });
         let phone = phoneFile === undefined ? undefined : { file: phoneFile, startSec: 0, durationSec: durationOf(phoneFile) };
         let phoneSource = phone === undefined ? null : 'emulator';
+        let phoneRecord;
         if (phone === undefined && wide && views.length > 0) {
           // No emulator film: the real web app at the size of a phone (responsive view), named as such in the report.
-          const preview = await recordViews(browser, { views: views.slice(0, 1), durationMs: seconds * 1000, baseUrl: webUrl, dir: join(rawDir, 'phone'), log: console.log, scene, replay: false, viewport: { width: 380, height: 820 }, mobile: true });
+          const preview = await recordViews(browser, { views: pwaPhone ? views : views.slice(0, 1), durationMs: seconds * 1000, baseUrl: webUrl, dir: join(rawDir, 'phone'), log: console.log, scene, typed: scenario.typed, replay: pwaPhone && !flag(argv, 'no-steps'), viewport: { width: 380, height: 820 }, mobile: true });
+          phoneRecord = preview;
           phone = { file: preview.path, startSec: preview.contentAt / 1000 };
           phoneSource = 'responsive-web-preview';
         }
@@ -388,9 +427,10 @@ async function main(argv) {
         const spots = recorded === undefined ? [] : recorded.replay.filter((line) => line.do === 'spot' && line.status === 'replayed' && line.box !== undefined).map((line) => ({ atSec: (line.startedAt - recorded.startedAt - recorded.contentAt) / 1000, holdSec: line.ms / 1000, box: line.box }));
         const composed = await composeSegment({ painter: paint, work: join(dir, 'compose'), bg: bgFile, brand: brandFor(scenario.edition), scenario, scenes, scene, entry, layout, web: recorded === undefined ? undefined : { file: recorded.path, startSec: recorded.contentAt / 1000 }, phone, spots, ass, out: file, seconds });
         rmSync(rawDir, { recursive: true, force: true });
-        const replaySummary = summariseReplay(recorded?.replay ?? []);
+        const shown = recorded ?? phoneRecord;
+        const replaySummary = summariseReplay(shown?.replay ?? []);
         console.log(`  steps of ${entry.id}: ${replaySummary.replayed} replayed, ${replaySummary.skipped} skipped (${replaySummary.offScreen} not clicks); layout ${layout}, ${composed.chips} chips`);
-        report.push({ id: entry.id, kind: 'composed', layout, phoneSource, screens: views.map((view) => view.screen), seconds, problems: recorded?.problems ?? [], steps: { ...replaySummary, lines: recorded?.replay ?? [] } });
+        report.push({ id: entry.id, kind: 'composed', layout, phoneSource, screens: views.map((view) => view.screen), seconds, problems: shown?.problems ?? [], steps: { ...replaySummary, lines: shown?.replay ?? [] } });
       } else if ((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) {
         const views = viewsOf(scene);
         if (webUrl === undefined || views.length === 0 || flag(argv, 'no-web')) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
