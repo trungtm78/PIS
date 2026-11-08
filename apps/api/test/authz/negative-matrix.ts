@@ -3380,6 +3380,17 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       body: { owner_membership_id: t.paymentRequestId, due_at: '2030-01-01T00:00:00Z' },
     }),
   },
+  // HUB-1: the Integration Hub; a caller who is refused switches nothing, records no run, opens or closes no incident, writes no snapshot, mapping, reject or agent.
+  setHubConnectorState: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/connectors/treasury.statement/state', ifMatch: '"1"', body: { enabled: false, reason: REASON } }) },
+  recordHubRun: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/connectors/treasury.statement/runs', body: { kind: 'IMPORT', outcome: 'SUCCEEDED', started_at: '2026-11-08T02:00:00Z', finished_at: '2026-11-08T02:01:00Z' } }) },
+  openHubIncident: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/incidents', body: { connector_code: 'treasury.statement', summary: REASON } }) },
+  decideHubIncident: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/integration-hub/incidents/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'ACKNOWLEDGE', reason: REASON } }) },
+  captureHubSnapshot: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/snapshots', body: {} }) },
+  proposeHubMapping: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/connectors/national.project_codes/mappings', body: { pipeline_code: 'PROJECT_CODES', mapping_version: 'M1', fields: [{ source: 'code', target: 'project_code', required: true, transform: { kind: 'UPPER' } }] } }) },
+  decideHubMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/integration-hub/mappings/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'APPROVE', reason: REASON } }) },
+  decideHubReject: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/integration-hub/rejects/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'DISCARD', reason: REASON } }) },
+  registerHubAgent: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/agents', body: { agent_code: 'matrix-agent-01', os: 'linux', cpu_arch: 'arm64', agent_version: '1.0.0', connectors: ['treasury.statement'] } }) },
+  heartbeatHubAgent: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/integration-hub/agents/matrix-agent-01/heartbeat', body: { agent_version: '1.0.0', spool_depth: 0 } }) },
   resolveReconciliationItem: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reconciliation-items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
