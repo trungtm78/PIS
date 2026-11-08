@@ -107,7 +107,7 @@ export function taxHeadOf(code: string | null): string | null {
 
 /** The phrases and the words that a company form adds to a name and that say nothing about who it is. A phrase is taken out whole (`cong ty` is a form, but `cong` alone is a word of many names). */
 const FORM_PHRASES = ['cong ty', 'co phan', 'trach nhiem huu han', 'mot thanh vien', 'doanh nghiep tu nhan', 'tu nhan', 'joint stock company', 'limited company', 'one member'];
-const FORM_WORDS = new Set(['tnhh', 'mtv', 'cp', 'jsc', 'ltd', 'llc', 'inc', 'corp', 'company', 'limited']);
+const FORM_WORDS = new Set(['tnhh', 'mtv', 'cp', 'cty', 'ct', 'dntn', 'dn', 'jsc', 'ltd', 'llc', 'inc', 'corp', 'company', 'limited']);
 
 /** A name folded for comparison with the words of the company form taken out, so that "Cong ty TNHH ABC" and "ABC" are alike. */
 export const matchNameOf = (name: string): string => {

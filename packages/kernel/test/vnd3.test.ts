@@ -278,6 +278,9 @@ describe('screening (V14)', () => {
     expect(isHit(fuzzy, SCREEN)).toBe(true);
     expect(fuzzy.hold).toBe(false);
     expect(matchNameOf('Cong ty Co phan ABC')).toBe('abc');
+    expect(matchNameOf('Cty TNHH ABC')).toBe('abc');
+    expect(matchNameOf('CT CP ABC')).toBe('abc');
+    expect(matchNameOf('Cong Thanh Xay dung')).toBe('cong thanh xay dung');
   });
   it('an entry not yet in force alerts but does not hold, unless the rule says so', () => {
     const future = entry({ taxCode: '0312345678', validFrom: '2027-01-01' });

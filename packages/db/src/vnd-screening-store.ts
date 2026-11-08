@@ -204,6 +204,8 @@ export class VendorScreeningStore {
   async importList(tx: TenantTx, input: ListImportInput, actor: string): Promise<{ importId: string; entries: number; withdrawn: number; replayed: boolean }> {
     if (!SCREENING_SOURCES.includes(input.source) || input.source === 'NATIONAL_DEBARMENT') throw invalid('source');
     if (input.entries.length > 5000) throw invalid('entries');
+    // Two imports of one source never run side by side: the replay check and the withdrawals read the latest import.
+    await tx.query("select pg_advisory_xact_lock(hashtextextended(coalesce(current_setting('app.tenant_id', true), '') || ':screening-import:' || $1::text, 0))", [input.source]);
     const seen = new Set<string>();
     const prepared = input.entries.map((entry) => {
       const ref = entry.ref.trim();
