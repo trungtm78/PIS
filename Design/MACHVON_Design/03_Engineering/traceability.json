@@ -9925,7 +9925,7 @@
   },
   {
     "requirement": "FR-CTR-37",
-    "screen": "CTR-32",
+    "screen": "CTR-37",
     "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
     "use_cases": [
       "UC15"
@@ -9935,9 +9935,9 @@
     "design_status": "module-spec-m1",
     "implementation_status": "not-built",
     "verification": "05_modules/CTR.md §10–§11; 3 test",
-    "backlog_id": "BL-CTR-32",
+    "backlog_id": "BL-CTR-37",
     "test_ids": [
-      "UI-CTR-32",
+      "UI-CTR-37",
       "UAT-PLAN-119",
       "UAT-PLAN-120"
     ]
@@ -10442,7 +10442,7 @@
     "backlog_id": "BL-VND-01",
     "test_ids": [
       "UI-VND-01",
-      "UAT-PLAN-141"
+      "UAT-PLAN-151"
     ]
   },
   {
@@ -10460,7 +10460,7 @@
     "backlog_id": "BL-VND-02",
     "test_ids": [
       "UI-VND-02",
-      "UAT-PLAN-141"
+      "UAT-PLAN-151"
     ]
   },
   {
@@ -10478,7 +10478,7 @@
     "backlog_id": "BL-VND-03",
     "test_ids": [
       "UI-VND-03",
-      "UAT-PLAN-142"
+      "UAT-PLAN-152"
     ]
   },
   {
@@ -10550,8 +10550,8 @@
     "backlog_id": "BL-CTR-32",
     "test_ids": [
       "UI-CTR-32",
-      "UAT-PLAN-141",
-      "UAT-PLAN-142"
+      "UAT-PLAN-153",
+      "UAT-PLAN-154"
     ]
   },
   {
@@ -10569,8 +10569,8 @@
     "backlog_id": "BL-CTR-33",
     "test_ids": [
       "UI-CTR-33",
-      "UAT-PLAN-142",
-      "UAT-PLAN-143"
+      "UAT-PLAN-154",
+      "UAT-PLAN-155"
     ]
   },
   {
@@ -10588,7 +10588,7 @@
     "backlog_id": "BL-CTR-34",
     "test_ids": [
       "UI-CTR-34",
-      "UAT-PLAN-141"
+      "UAT-PLAN-153"
     ]
   },
   {
@@ -10606,8 +10606,8 @@
     "backlog_id": "BL-CTR-35",
     "test_ids": [
       "UI-CTR-35",
-      "UAT-PLAN-144",
-      "UAT-PLAN-145"
+      "UAT-PLAN-156",
+      "UAT-PLAN-157"
     ]
   },
   {
@@ -10625,7 +10625,7 @@
     "backlog_id": "BL-CTR-36",
     "test_ids": [
       "UI-CTR-36",
-      "UAT-PLAN-144"
+      "UAT-PLAN-156"
     ]
   },
   {
@@ -10643,8 +10643,8 @@
     "backlog_id": "BL-HOME-13",
     "test_ids": [
       "UI-HOME-13",
-      "UAT-PLAN-141",
-      "UAT-PLAN-142"
+      "UAT-PLAN-158",
+      "UAT-PLAN-159"
     ]
   },
   {
@@ -10662,8 +10662,8 @@
     "backlog_id": "BL-NOT-19",
     "test_ids": [
       "UI-NOT-19",
-      "UAT-PLAN-143",
-      "UAT-PLAN-144"
+      "UAT-PLAN-160",
+      "UAT-PLAN-161"
     ]
   },
   {
@@ -10681,13 +10681,13 @@
     "backlog_id": "BL-NOT-18",
     "test_ids": [
       "UI-NOT-18",
-      "UAT-PLAN-145",
+      "UAT-PLAN-162",
       "UAT-PLAN-146"
     ]
   },
   {
-    "requirement": "FR-ADM-25",
-    "screen": "ADM-25",
+    "requirement": "FR-ADM-28",
+    "screen": "ADM-28",
     "title": "Vắng mặt, người thay và độ phủ người nhận cảnh báo",
     "use_cases": [
       "UC06"
@@ -10697,9 +10697,9 @@
     "design_status": "module-spec-m1",
     "implementation_status": "not-built",
     "verification": "05_modules/ADM.md; 3 test",
-    "backlog_id": "BL-ADM-25",
+    "backlog_id": "BL-ADM-28",
     "test_ids": [
-      "UI-ADM-25",
+      "UI-ADM-28",
       "UAT-PLAN-147",
       "UAT-PLAN-148"
     ]
@@ -10719,7 +10719,7 @@
     "backlog_id": "BL-AUD-14",
     "test_ids": [
       "UI-AUD-14",
-      "UAT-PLAN-141"
+      "UAT-PLAN-163"
     ]
   },
   {
@@ -10737,7 +10737,7 @@
     "backlog_id": "BL-AUD-15",
     "test_ids": [
       "UI-AUD-15",
-      "UAT-PLAN-141"
+      "UAT-PLAN-163"
     ]
   },
   {
@@ -10755,7 +10755,7 @@
     "backlog_id": "BL-AUD-16",
     "test_ids": [
       "UI-AUD-16",
-      "UAT-PLAN-141"
+      "UAT-PLAN-163"
     ]
   },
   {
@@ -10773,7 +10773,7 @@
     "backlog_id": "BL-NOT-30",
     "test_ids": [
       "UI-NOT-30",
-      "UAT-PLAN-142"
+      "UAT-PLAN-164"
     ]
   },
   {
@@ -10791,7 +10791,7 @@
     "backlog_id": "BL-HOME-30",
     "test_ids": [
       "UI-HOME-30",
-      "UAT-PLAN-143"
+      "UAT-PLAN-165"
     ]
   },
   {
@@ -10809,7 +10809,7 @@
     "backlog_id": "BL-HOME-31",
     "test_ids": [
       "UI-HOME-31",
-      "UAT-PLAN-143"
+      "UAT-PLAN-165"
     ]
   },
   {
@@ -11257,8 +11257,8 @@
     "backlog_id": "BL-HPM-01",
     "test_ids": [
       "UI-HPM-01",
-      "UAT-PLAN-143",
-      "UAT-PLAN-144"
+      "UAT-PLAN-169",
+      "UAT-PLAN-170"
     ]
   },
   {
@@ -11276,8 +11276,8 @@
     "backlog_id": "BL-HPM-02",
     "test_ids": [
       "UI-HPM-02",
-      "UAT-PLAN-145",
-      "UAT-PLAN-146"
+      "UAT-PLAN-171",
+      "UAT-PLAN-172"
     ]
   },
   {
@@ -11295,8 +11295,8 @@
     "backlog_id": "BL-EBS-01",
     "test_ids": [
       "UI-EBS-01",
-      "UAT-PLAN-147",
-      "UAT-PLAN-148"
+      "UAT-PLAN-173",
+      "UAT-PLAN-174"
     ]
   },
   {
@@ -11372,6 +11372,78 @@
     "test_ids": [
       "UI-IND-03",
       "UAT-PLAN-IND-3"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-24",
+    "screen": "DOC-24",
+    "title": "Kho hồ sơ dự án",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "PD.01, PD.02 hồ sơ khách hàng; kế hoạch Đợt 3 mục 7; docs/doc-repository.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-24",
+    "test_ids": [
+      "UI-DOC-24",
+      "UAT-PLAN-166"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-25",
+    "screen": "DOC-25",
+    "title": "Hồ sơ và trình xem có dẫn nguồn",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "PD.01, PD.02 hồ sơ khách hàng; kế hoạch Đợt 3 mục 7; docs/doc-repository.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-25",
+    "test_ids": [
+      "UI-DOC-25",
+      "UAT-PLAN-166"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-26",
+    "screen": "DOC-26",
+    "title": "Bảng luồng duyệt hồ sơ",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "PD.01, PD.02 hồ sơ khách hàng; kế hoạch Đợt 3 mục 7; docs/doc-repository.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-26",
+    "test_ids": [
+      "UI-DOC-26",
+      "UAT-PLAN-167"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-27",
+    "screen": "DOC-27",
+    "title": "So sánh hai phiên bản hồ sơ",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "PD.01, PD.02 hồ sơ khách hàng; kế hoạch Đợt 3 mục 7; docs/doc-repository.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-27",
+    "test_ids": [
+      "UI-DOC-27",
+      "UAT-PLAN-168"
     ]
   }
 ]

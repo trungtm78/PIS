@@ -1026,6 +1026,11 @@
       "id": "FT-IND-01",
       "epic": "EP-IND",
       "title": "Dictionary, entry rules, figures and form import"
+    },
+    {
+      "id": "FT-DOC-09",
+      "epic": "EP-DOC",
+      "title": "Project document repository: versions, citable text, comments and the multi-stage review"
     }
   ],
   "stories": [
@@ -48666,7 +48671,7 @@
       "screens": [
         "CTR-30",
         "CTR-31",
-        "CTR-32"
+        "CTR-37"
       ],
       "operations": [
         "getContractReport",
@@ -48718,10 +48723,10 @@
         },
         {
           "id": "AC-ST-CTR-020-5",
-          "given": "CTR-32 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "given": "CTR-37 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-CTR-32"
+          "test_id": "UI-CTR-37"
         }
       ],
       "dependencies": [
@@ -48780,7 +48785,7 @@
           "test_ids": [
             "UI-CTR-30",
             "UI-CTR-31",
-            "UI-CTR-32"
+            "UI-CTR-37"
           ]
         }
       ]
@@ -50422,246 +50427,6 @@
       ]
     },
     {
-      "id": "ST-DIS-006",
-      "epic": "EP-DIS",
-      "feature": "FT-DIS-03",
-      "module": "DIS",
-      "title": "Reviewer decision, return, amendment request and correction chain",
-      "narrative": "As a reviewer I can accept, return or request amendment of a report with required items and deadline, and the maker corrects it through a new revision, so that submitted numbers are never edited silently and the accepted revision is always unambiguous.",
-      "release": "R1",
-      "screens": [
-        "DIS-08",
-        "DIS-11"
-      ],
-      "operations": [
-        "post_reports_id_decision",
-        "post_reports_id_corrections"
-      ],
-      "tables": [],
-      "nfr": [
-        "NFR-TENANCY-01",
-        "NFR-TENANCY-02",
-        "NFR-SECURITY-04",
-        "NFR-SECURITY-05",
-        "NFR-SECURITY-11",
-        "NFR-OPERABILITY-05"
-      ],
-      "cxn": [],
-      "spikes": [],
-      "acceptance": [
-        {
-          "id": "AC-ST-DIS-006-1",
-          "given": "A-maker submitted R5 and also holds report.review in a tenant with maker-checker on",
-          "when": "A-maker approves R5, then A-reviewer approves",
-          "then": "403 SELF_APPROVAL_DENIED with an audited denied attempt and R5 stays SUBMITTED; reviewer gets 200, ACCEPTED, accepted_by differs from submitted_by",
-          "test_id": "UAT-AC05"
-        },
-        {
-          "id": "AC-ST-DIS-006-2",
-          "given": "R10 rev1 is SUBMITTED",
-          "when": "The maker edits a source cell, the reviewer returns, the maker creates a revision and submits without then with amendment_reason",
-          "then": "409 REVISION_IMMUTABLE; RETURNED; rev2 DRAFT with supersedes_id; 422 CORRECTION_REASON_REQUIRED then rev2 SUBMITTED while rev1 keeps its old payload_hash",
-          "test_id": "UAT-AC247"
-        },
-        {
-          "id": "AC-ST-DIS-006-3",
-          "given": "R15 is SUBMITTED",
-          "when": "The reviewer returns without return_items, then with items and a due date",
-          "then": "422 VALIDATION_FAILED on return_items, then RETURNED and the maker is notified with items and deadline",
-          "test_id": "UAT-AC260"
-        },
-        {
-          "id": "AC-ST-DIS-006-4",
-          "given": "DIS-11 compares rev1 and rev2",
-          "when": "The page opens",
-          "then": "Differences per cell are shown with signs and the accepted revision is marked is_current",
-          "test_id": "UI-DIS-11"
-        }
-      ],
-      "dependencies": [
-        "ST-DIS-005",
-        "ST-KERNEL-111"
-      ],
-      "review": {
-        "required": [
-          "authorization"
-        ],
-        "hours": {
-          "min": 1,
-          "max": 2
-        }
-      },
-      "effort": {
-        "agent_hours": {
-          "min": 24,
-          "max": 48
-        },
-        "confidence": "medium",
-        "assumption": "Revision state chain follows the DIS state machine; UNDER_REVIEW is set when a reviewer opens the report."
-      },
-      "mobile": "none",
-      "cross_group_requests": [],
-      "tasks": [
-        {
-          "id": "TK-DIS-006-1",
-          "kind": "backend",
-          "title": "post_reports_id_decision (approve to ACCEPTED and previous ACCEPTED to SUPERSEDED, return needs return_items and due_at, request_amendment from ACCEPTED), post_reports_id_corrections (new DRAFT revision, amendment_reason, REVISION_PENDING_EXISTS); events report.accepted.v1, report.returned.v1, report.correction_started.v1",
-          "test_ids": []
-        },
-        {
-          "id": "TK-DIS-006-2",
-          "kind": "web",
-          "title": "DIS-08 correction editor with Sua va bo sung, DIS-07 reviewer actions, DIS-11 revision history and comparison",
-          "test_ids": []
-        },
-        {
-          "id": "TK-DIS-006-3",
-          "kind": "i18n",
-          "title": "Message keys dis.<screen>.<action>.<state> in vi and en for DIS-08, DIS-11; no hard-coded display strings",
-          "test_ids": []
-        },
-        {
-          "id": "TK-DIS-006-4",
-          "kind": "security",
-          "title": "Maker-checker matrix tests for every decision",
-          "test_ids": []
-        },
-        {
-          "id": "TK-DIS-006-5",
-          "kind": "qa",
-          "title": "Decision, correction and SoD tests",
-          "test_ids": [
-            "UAT-AC05",
-            "UAT-AC247",
-            "UAT-AC260",
-            "UI-DIS-11"
-          ]
-        },
-        {
-          "id": "TK-DIS-006-6",
-          "kind": "qa",
-          "title": "Screen-contract tests",
-          "test_ids": [
-            "UI-DIS-08",
-            "UI-DIS-11"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ST-CTR-020",
-      "epic": "EP-CTR",
-      "feature": "FT-CTR-09",
-      "module": "CTR",
-      "title": "Contract reports: award-to-contract price variance and contractor concentration with Excel, CSV and PDF export",
-      "narrative": "As a leader I read the price variance between award and signed contract and the concentration of contract value by contractor or investor, and export the report with its formula and source.",
-      "release": "R2",
-      "screens": [
-        "CTR-30",
-        "CTR-31"
-      ],
-      "operations": [
-        "getContractReport",
-        "exportContractReport"
-      ],
-      "tables": [],
-      "nfr": [
-        "NFR-TENANCY-01",
-        "NFR-PERFORMANCE-01"
-      ],
-      "cxn": [],
-      "spikes": [],
-      "acceptance": [
-        {
-          "id": "AC-ST-CTR-020-1",
-          "given": "Contracts with award 1,000 and signed 1,050 million VND, award 2,000 and signed 1,900, and one contract with no award price",
-          "when": "The bid-variance report is read",
-          "then": "Each variance is (signed minus award) over award, the total is the ratio of the sums over contracts that have an award price, and the contract without an award price shows no number and the reason",
-          "test_id": "UAT-PLAN-119"
-        },
-        {
-          "id": "AC-ST-CTR-020-2",
-          "given": "Contract value of 100 split between contractor A 60, B 25 and C 15 and a unit with fewer contracts than the minimum",
-          "when": "Concentration is read and the report is exported in three formats and above the row cap",
-          "then": "Top-N and HHI of 4,450 are shown against the rule threshold, the small unit shows \"not enough data\", each export carries the formula, source and hash, and an export above the cap returns 422 EXPORT_ROW_CAP_EXCEEDED",
-          "test_id": "UAT-PLAN-120"
-        },
-        {
-          "id": "AC-ST-CTR-020-3",
-          "given": "CTR-30 opened at 1440 px and 390 px by a reader with the read permission and one without",
-          "when": "each of the seven standard states is forced in turn",
-          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-CTR-30"
-        },
-        {
-          "id": "AC-ST-CTR-020-4",
-          "given": "CTR-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
-          "when": "each of the seven standard states is forced in turn",
-          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-CTR-31"
-        }
-      ],
-      "dependencies": [
-        "ST-CTR-019"
-      ],
-      "review": {
-        "required": [
-          "authorization"
-        ],
-        "hours": {
-          "min": 1,
-          "max": 2
-        }
-      },
-      "effort": {
-        "agent_hours": {
-          "min": 24,
-          "max": 56
-        },
-        "confidence": "medium",
-        "assumption": "Concentration thresholds are the CONTRACT_CONCENTRATION rule with unverified defaults; a joint venture splits value by contribution share."
-      },
-      "mobile": "none",
-      "tasks": [
-        {
-          "id": "TK-CTR-020-1",
-          "kind": "backend",
-          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: getContractReport, exportContractReport",
-          "test_ids": []
-        },
-        {
-          "id": "TK-CTR-020-2",
-          "kind": "web",
-          "title": "CTR-30, CTR-31 screens built with the kit, the seven standard states and ContextBar on every number",
-          "test_ids": []
-        },
-        {
-          "id": "TK-CTR-020-3",
-          "kind": "i18n",
-          "title": "Message keys in vi and en for CTR-30, CTR-31; no hard-coded display strings",
-          "test_ids": []
-        },
-        {
-          "id": "TK-CTR-020-4",
-          "kind": "qa",
-          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
-          "test_ids": [
-            "UAT-PLAN-119",
-            "UAT-PLAN-120"
-          ]
-        },
-        {
-          "id": "TK-CTR-020-5",
-          "kind": "qa",
-          "title": "Screen-contract tests for the seven standard UI states and accessibility",
-          "test_ids": [
-            "UI-CTR-30",
-            "UI-CTR-31"
-          ]
-        }
-      ]
-    },
-    {
       "id": "ST-VND-001",
       "epic": "EP-VND",
       "feature": "FT-VND-01",
@@ -50699,21 +50464,21 @@
           "given": "A verified contractor with no representative, address, contact or owner, and the rule VENDOR_PROFILE with its default fields",
           "when": "The profile is read, completed and read again",
           "then": "The coverage goes from 0 to 100 percent field by field, the keys of the normal forms are kept (never the values), an owner is ended and never rewritten, and a stale version is 409 VERSION_CONFLICT",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-151"
         },
         {
           "id": "AC-ST-VND-001-2",
           "given": "Two contractors with the same address and telephone number and one with only the same address",
           "when": "The duplicate scan runs and a person decides",
           "then": "Only the pair over the line is suggested, a dismissal holds until the score rises, a merge request is an event for master data, and nothing is merged",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-151"
         },
         {
           "id": "AC-ST-VND-001-3",
           "given": "A contractor with an incomplete profile and a tenant rule that says BLOCK for the profile",
           "when": "The gate is asked for a bid submission",
           "then": "The answer is 422 CONTRACTOR_PROFILE_INCOMPLETE naming the missing fields; under the default rule it is a warning",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-151"
         },
         {
           "id": "AC-ST-VND-001-4",
@@ -50777,7 +50542,7 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-141"
+            "UAT-PLAN-151"
           ]
         },
         {
@@ -50825,21 +50590,21 @@
           "given": "A proposal received on a Monday and the published working calendar",
           "when": "The case is opened, answered, decided by a second person and put into effect",
           "then": "The decision limit is counted on the calendar, the proposer cannot decide (403 SELF_APPROVAL_DENIED), a ban outside the range of its groups is 422 RESTRICTION_BAN_PERIOD_INVALID, and the restriction row is written only on a decision paper in force",
-          "test_id": "UAT-PLAN-142"
+          "test_id": "UAT-PLAN-152"
         },
         {
           "id": "AC-ST-VND-002-2",
           "given": "A restriction in force on one member of a joint venture",
           "when": "The venture bids, a result is posted, a contract is activated and a payment is built",
           "then": "Each step is refused with 422 CONTRACTOR_RESTRICTED (via JOINT_VENTURE_MEMBER) and a ban on the venture reaches every member",
-          "test_id": "UAT-PLAN-142"
+          "test_id": "UAT-PLAN-152"
         },
         {
           "id": "AC-ST-VND-002-3",
           "given": "A restriction record imported from the national network",
           "when": "A person opens a case from it and the case is decided and lifted on appeal",
           "then": "Nothing is written to the register until the decision takes effect, and a lifted restriction never blocks again, even on its first day",
-          "test_id": "UAT-PLAN-142"
+          "test_id": "UAT-PLAN-152"
         },
         {
           "id": "AC-ST-VND-002-4",
@@ -50896,7 +50661,7 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-142"
+            "UAT-PLAN-152"
           ]
         },
         {
@@ -51300,21 +51065,21 @@
           "given": "A contract with no approved term, then a term proposed by one person from clause 20.1 and approved by the same person and by another",
           "when": "A claim is registered and the term is proposed and decided",
           "then": "The claim of a contract with no term has no limitation clock and says NO_TERM (no number is borrowed from an international form), the proposer cannot approve (403 SELF_APPROVAL_DENIED), the approval supersedes the earlier term and binds the open claims that had none, with a step each",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-153"
         },
         {
           "id": "AC-ST-CTR-021-2",
           "given": "A claim whose awareness day is 5 June with a notice limit of 28 days, read on days before, on and after 3 July, and a term whose clause does not say a late notice bars the claim",
           "when": "The notice is served late, and a bar is declared by the registrant, by another person, and under a term without a bar effect",
           "then": "The limit ends on 3 July (day 0 is the awareness day) and is missed only after that day, a late notice is MET_LATE by the day it was served, a bar is refused by the registrant (SELF_APPROVAL_DENIED) and when the term says nothing of the effect (409 CLAIM_BAR_NOT_DUE), and allowed once the day passed under a term that bars the claim",
-          "test_id": "UAT-PLAN-142"
+          "test_id": "UAT-PLAN-154"
         },
         {
           "id": "AC-ST-CTR-021-3",
           "given": "A claim that was responded to with acceptance and a settlement proposed by one person",
           "when": "The proposer approves it, then another person approves it, and a settlement above the claim is proposed",
           "then": "The proposer is refused (SELF_APPROVAL_DENIED), the other person settles the claim and nothing moves it afterwards, a settlement above the claimed amount or days is 422 CLAIM_SETTLEMENT_EXCEEDS_CLAIM, and the timeline of the claim is append-only",
-          "test_id": "UAT-PLAN-143"
+          "test_id": "UAT-PLAN-155"
         },
         {
           "id": "AC-ST-CTR-021-4",
@@ -51384,9 +51149,9 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-141",
-            "UAT-PLAN-142",
-            "UAT-PLAN-143"
+            "UAT-PLAN-153",
+            "UAT-PLAN-154",
+            "UAT-PLAN-155"
           ]
         },
         {
@@ -51438,14 +51203,14 @@
           "given": "A warning raised by the contractor, assessed with an owner, a likelihood and an impact, and one mitigation action",
           "when": "The warning is assessed without an impact figure, an action is added to a raised warning, and the owner closes it as resolved",
           "then": "An assessment without a time or cost figure or an explicit no-impact statement is 422, an action on a raised warning is 409 EARLY_WARNING_STATE_INVALID, a warning with an open action cannot be resolved (409 EARLY_WARNING_ACTIONS_OPEN) and the person who answers for it cannot close it (403 SELF_APPROVAL_DENIED)",
-          "test_id": "UAT-PLAN-144"
+          "test_id": "UAT-PLAN-156"
         },
         {
           "id": "AC-ST-CTR-022-2",
           "given": "A contract in force since 1 June with the rhythm of the default policy (first issue within 7 days, a meeting every 14 days, a re-issue within 7 days after a meeting)",
           "when": "The register is read on 5 June, on 20 June without any issue, and after a meeting on 12 June",
           "then": "The first issue is due 8 June (approaching, then missed), the meeting is due 14 days after the start or the last meeting, the re-issue is due 7 days after the meeting, a meeting must conclude on every open warning, an issue keeps a snapshot and a hash, and each late clock is an item of the alert centre with its type, severity and consequence",
-          "test_id": "UAT-PLAN-145"
+          "test_id": "UAT-PLAN-157"
         },
         {
           "id": "AC-ST-CTR-022-3",
@@ -51508,8 +51273,8 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-144",
-            "UAT-PLAN-145"
+            "UAT-PLAN-156",
+            "UAT-PLAN-157"
           ]
         },
         {
@@ -51551,14 +51316,14 @@
           "given": "Items of the alert centre taken up, escalated, put off and closed by several people in two units, and a reader of one unit",
           "when": "The health is read for 28 days, then for a unit outside the reader scope",
           "then": "Fourteen indicators with formula, source and status computed from the trace in working hours, the reader sees only their units, the other unit is refused with 403 SCOPE_DENIED, and a figure with no records is NO_DATA or NO_SOURCE with its reason and never 0",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-158"
         },
         {
           "id": "AC-ST-HOME-011-2",
           "given": "The recording job last ran more than two passes ago, and the rule ALERT_HEALTH_TARGETS left at its built-in default",
           "when": "The health is read",
           "then": "The page says the figures are old and every target is labelled as an unverified default with its version and source",
-          "test_id": "UAT-PLAN-142"
+          "test_id": "UAT-PLAN-159"
         },
         {
           "id": "AC-ST-HOME-011-3",
@@ -51613,8 +51378,8 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-141",
-            "UAT-PLAN-142"
+            "UAT-PLAN-158",
+            "UAT-PLAN-159"
           ]
         },
         {
@@ -51655,14 +51420,14 @@
           "given": "An urgent item not taken up past its claim time, a functional level that names a function nobody holds, and an item only to be watched that aged untouched",
           "when": "The job alert-escalation runs twice",
           "then": "The first level goes to the nearest leadership tier above the owner, the second after its working hours to the holders of the function (a vacant function falls to the leadership and opens a gap), each row is recorded once with its event, the item to be watched is raised one step with the reason WATCH_AGED, and no event carries a word of the item",
-          "test_id": "UAT-PLAN-143"
+          "test_id": "UAT-PLAN-160"
         },
         {
           "id": "AC-ST-NOT-012-2",
           "given": "A level received by a leader, who acknowledges it once, and another person who tries",
           "when": "Both acknowledge, and the item is then resolved in its module",
           "then": "The recipient acknowledges once and the later levels are held for the hours of the policy, another person is answered 404, a second acknowledgement is 409 ALERT_ESCALATION_STATE_INVALID, and the levels close with the item as SOURCE_CLEARED",
-          "test_id": "UAT-PLAN-144"
+          "test_id": "UAT-PLAN-161"
         },
         {
           "id": "AC-ST-NOT-012-3",
@@ -51717,8 +51482,8 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-143",
-            "UAT-PLAN-144"
+            "UAT-PLAN-160",
+            "UAT-PLAN-161"
           ]
         },
         {
@@ -51760,7 +51525,7 @@
           "given": "A person with no saved profile, and one who saves a profile that takes the bell out, pushes an item to be watched or raises the cap above the policy",
           "when": "Both read and save",
           "then": "The first reads the policy values labelled as defaults and saves under version 0, the second is refused with 422 ALERT_PROFILE_INVALID naming the field and every defect, a stale version is 409 VERSION_CONFLICT, and the bell is always on",
-          "test_id": "UAT-PLAN-145"
+          "test_id": "UAT-PLAN-162"
         },
         {
           "id": "AC-ST-NOT-013-2",
@@ -51822,7 +51587,7 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-145",
+            "UAT-PLAN-162",
             "UAT-PLAN-146"
           ]
         },
@@ -51845,7 +51610,7 @@
       "narrative": "As a person who will be away, or as the leader of one, I declare the absence and a deputy takes over the alerts for a period, allowed by a third person; as an administrator I see where an alert has nobody to receive it and the positions with a single holder or none.",
       "release": "R2",
       "screens": [
-        "ADM-25"
+        "ADM-28"
       ],
       "operations": [
         "listAlertAbsences",
@@ -51879,10 +51644,10 @@
         },
         {
           "id": "AC-ST-ADM-026-3",
-          "given": "ADM-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "given": "ADM-28 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-ADM-25"
+          "test_id": "UI-ADM-28"
         }
       ],
       "dependencies": [
@@ -51916,13 +51681,13 @@
         {
           "id": "TK-ADM-026-2",
           "kind": "web",
-          "title": "ADM-25 built with the kit, the seven standard states and ContextBar on every number",
+          "title": "ADM-28 built with the kit, the seven standard states and ContextBar on every number",
           "test_ids": []
         },
         {
           "id": "TK-ADM-026-3",
           "kind": "i18n",
-          "title": "Message keys in vi and en for ADM-25; no hard-coded display strings",
+          "title": "Message keys in vi and en for ADM-28; no hard-coded display strings",
           "test_ids": []
         },
         {
@@ -51939,7 +51704,7 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
-            "UI-ADM-25"
+            "UI-ADM-28"
           ]
         }
       ]
@@ -51982,14 +51747,14 @@
           "given": "A package with one bidder and a short period, and the user who drafted it",
           "when": "The scan runs and the list is read",
           "then": "The package is flagged with a score, indicators without input say not computable, and the drafter sees nothing, not even a count",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-163"
         },
         {
           "id": "AC-ST-AUD-010-2",
           "given": "A signal proposed for clearing by an auditor",
           "when": "The same auditor confirms it, then a different one does",
           "then": "The first is refused as self approval and the second clears it",
-          "test_id": "UAT-PLAN-141"
+          "test_id": "UAT-PLAN-163"
         }
       ],
       "dependencies": [],
@@ -52036,7 +51801,7 @@
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-141"
+            "UAT-PLAN-163"
           ]
         },
         {
@@ -52052,7 +51817,7 @@
       ]
     },
     {
-      "id": "ST-NOT-012",
+      "id": "ST-NOT-014",
       "epic": "EP-NOT",
       "feature": "FT-NOT-05",
       "module": "NOT",
@@ -52077,11 +51842,11 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-NOT-012-1",
+          "id": "AC-ST-NOT-014-1",
           "given": "An urgent alert nobody has seen",
           "when": "The rungs go up with the waits of the ladder",
           "then": "A rung is satisfied by a receipt not by a send, a rung that cannot carry the message gives way at once, and the end hands the alert to the escalation",
-          "test_id": "UAT-PLAN-142"
+          "test_id": "UAT-PLAN-164"
         }
       ],
       "dependencies": [],
@@ -52106,33 +51871,33 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-NOT-012-1",
+          "id": "TK-NOT-014-1",
           "kind": "backend",
           "title": "Server-side read models, rules and commands behind NOT-30",
           "test_ids": []
         },
         {
-          "id": "TK-NOT-012-2",
+          "id": "TK-NOT-014-2",
           "kind": "web",
           "title": "NOT-30 screens built with the kit, the seven standard states and the \"i\" on every figure",
           "test_ids": []
         },
         {
-          "id": "TK-NOT-012-3",
+          "id": "TK-NOT-014-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for NOT-30; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-NOT-012-4",
+          "id": "TK-NOT-014-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-142"
+            "UAT-PLAN-164"
           ]
         },
         {
-          "id": "TK-NOT-012-5",
+          "id": "TK-NOT-014-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -52142,7 +51907,7 @@
       ]
     },
     {
-      "id": "ST-HOME-011",
+      "id": "ST-HOME-012",
       "epic": "EP-HOME",
       "feature": "FT-HOME-04",
       "module": "HOME",
@@ -52174,18 +51939,18 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-HOME-011-1",
+          "id": "AC-ST-HOME-012-1",
           "given": "A source that fails in a pass",
           "when": "The pass runs",
           "then": "Nothing of that source is closed and the source is named as unavailable",
-          "test_id": "UAT-PLAN-143"
+          "test_id": "UAT-PLAN-165"
         },
         {
-          "id": "AC-ST-HOME-011-2",
+          "id": "AC-ST-HOME-012-2",
           "given": "A report that an alert is wrong",
           "when": "The reporter reviews it, then somebody else does",
           "then": "The first is refused, the second decides, and the alert is never hidden",
-          "test_id": "UAT-PLAN-143"
+          "test_id": "UAT-PLAN-165"
         }
       ],
       "dependencies": [],
@@ -52210,33 +51975,33 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-HOME-011-1",
+          "id": "TK-HOME-012-1",
           "kind": "backend",
           "title": "Server-side read models, rules and commands behind HOME-30, HOME-31",
           "test_ids": []
         },
         {
-          "id": "TK-HOME-011-2",
+          "id": "TK-HOME-012-2",
           "kind": "web",
           "title": "HOME-30, HOME-31 screens built with the kit, the seven standard states and the \"i\" on every figure",
           "test_ids": []
         },
         {
-          "id": "TK-HOME-011-3",
+          "id": "TK-HOME-012-3",
           "kind": "i18n",
           "title": "Message keys in vi and en for HOME-30, HOME-31; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-HOME-011-4",
+          "id": "TK-HOME-012-4",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
-            "UAT-PLAN-143"
+            "UAT-PLAN-165"
           ]
         },
         {
-          "id": "TK-HOME-011-5",
+          "id": "TK-HOME-012-5",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -52423,7 +52188,7 @@
       ]
     },
     {
-      "id": "ST-ADM-026",
+      "id": "ST-ADM-029",
       "epic": "EP-ADM",
       "feature": "FT-ADM-03",
       "module": "ADM",
@@ -52452,14 +52217,14 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-ST-ADM-026-1",
+          "id": "AC-ST-ADM-029-1",
           "given": "A request for a permanent delegation with an end condition and a review date 180 days ahead, and a second person who is neither the delegator nor the delegate",
           "when": "The delegator and the delegate try to approve it, the second person approves, the delegate decides a task, the review date passes without a review, and a delegation that would close a loop is requested",
           "then": "403 SELF_APPROVAL_DENIED for both parties; after the approval the delegate decides with on_behalf_of recorded in the audit row; at the review date the delegation stops at once (Ended REVIEW_LAPSED) and the next decision is refused; 403 DELEGATION_CYCLE_DENIED for the loop",
           "test_id": "UAT-IAM2-01"
         },
         {
-          "id": "AC-ST-ADM-026-2",
+          "id": "AC-ST-ADM-029-2",
           "given": "ADM-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry and permission denied all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
@@ -52490,37 +52255,37 @@
       "mobile": "none",
       "tasks": [
         {
-          "id": "TK-ADM-026-1",
+          "id": "TK-ADM-029-1",
           "kind": "db",
           "title": "Migration for delegation_grant kind, review and end-condition columns and the standing_delegation_request table with RLS, tenant-leading indexes and guards",
           "test_ids": []
         },
         {
-          "id": "TK-ADM-026-2",
+          "id": "TK-ADM-029-2",
           "kind": "backend",
           "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: createStandingDelegationRequest, decideStandingDelegationRequest, cancelStandingDelegationRequest, reviewDelegation, get_resources_standing_delegation_request, get_resources_standing_delegation_request_id",
           "test_ids": []
         },
         {
-          "id": "TK-ADM-026-3",
+          "id": "TK-ADM-029-3",
           "kind": "web",
           "title": "ADM-25 screens built with the kit and the seven standard states",
           "test_ids": []
         },
         {
-          "id": "TK-ADM-026-4",
+          "id": "TK-ADM-029-4",
           "kind": "i18n",
           "title": "Message keys in vi and en for ADM-25; no hard-coded display strings",
           "test_ids": []
         },
         {
-          "id": "TK-ADM-026-5",
+          "id": "TK-ADM-029-5",
           "kind": "security",
           "title": "Negative matrix for the four commands and a loop-detection test over both kinds of delegation",
           "test_ids": []
         },
         {
-          "id": "TK-ADM-026-6",
+          "id": "TK-ADM-029-6",
           "kind": "qa",
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
@@ -52528,7 +52293,7 @@
           ]
         },
         {
-          "id": "TK-ADM-026-7",
+          "id": "TK-ADM-029-7",
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
@@ -53284,14 +53049,14 @@
           "given": "The enterprise edition with the connection on and an issued or imported file",
           "when": "The command is sent twice with the same key or file hash",
           "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
-          "test_id": "UAT-PLAN-143"
+          "test_id": "UAT-PLAN-169"
         },
         {
           "id": "AC-ST-HPM-001-2",
           "given": "A person who made the figures or pushed the report",
           "when": "They try to settle, receive or approve their own work",
           "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
-          "test_id": "UAT-PLAN-144"
+          "test_id": "UAT-PLAN-170"
         },
         {
           "id": "AC-ST-HPM-001-HPM-01",
@@ -53346,8 +53111,8 @@
           "kind": "qa",
           "title": "Automated domain, API, isolation and authorization tests",
           "test_ids": [
-            "UAT-PLAN-143",
-            "UAT-PLAN-144"
+            "UAT-PLAN-169",
+            "UAT-PLAN-170"
           ]
         },
         {
@@ -53389,14 +53154,14 @@
           "given": "The enterprise edition with the connection on and an issued or imported file",
           "when": "The command is sent twice with the same key or file hash",
           "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
-          "test_id": "UAT-PLAN-145"
+          "test_id": "UAT-PLAN-171"
         },
         {
           "id": "AC-ST-HPM-002-2",
           "given": "A person who made the figures or pushed the report",
           "when": "They try to settle, receive or approve their own work",
           "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
-          "test_id": "UAT-PLAN-146"
+          "test_id": "UAT-PLAN-172"
         },
         {
           "id": "AC-ST-HPM-002-HPM-02",
@@ -53451,8 +53216,8 @@
           "kind": "qa",
           "title": "Automated domain, API, isolation and authorization tests",
           "test_ids": [
-            "UAT-PLAN-145",
-            "UAT-PLAN-146"
+            "UAT-PLAN-171",
+            "UAT-PLAN-172"
           ]
         },
         {
@@ -53496,14 +53261,14 @@
           "given": "The enterprise edition with the connection on and an issued or imported file",
           "when": "The command is sent twice with the same key or file hash",
           "then": "The second answer repeats the first and writes nothing new; a stale or conflicting request is refused with its code",
-          "test_id": "UAT-PLAN-147"
+          "test_id": "UAT-PLAN-173"
         },
         {
           "id": "AC-ST-EBS-001-2",
           "given": "A person who made the figures or pushed the report",
           "when": "They try to settle, receive or approve their own work",
           "then": "The answer is 403 SELF_APPROVAL_DENIED or SCOPE_DENIED and nothing changes; the audit row of ADM-11 names the actor of every success",
-          "test_id": "UAT-PLAN-148"
+          "test_id": "UAT-PLAN-174"
         },
         {
           "id": "AC-ST-EBS-001-EBS-01",
@@ -53558,8 +53323,8 @@
           "kind": "qa",
           "title": "Automated domain, API, isolation and authorization tests",
           "test_ids": [
-            "UAT-PLAN-147",
-            "UAT-PLAN-148"
+            "UAT-PLAN-173",
+            "UAT-PLAN-174"
           ]
         },
         {
@@ -53972,6 +53737,167 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-IND-03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DOC-023",
+      "epic": "EP-DOC",
+      "feature": "FT-DOC-09",
+      "module": "DOC",
+      "title": "Project document repository with citable text, version comments, comparison and the multi-stage review",
+      "narrative": "As a project officer I keep the files of a project (PDF, Word, Excel) with their class, effective period and links to the project, contract and package, send a version through staged review with parallel reviewers, answer a request for a supplement with a new version, and rely on an approved version being locked; as a reviewer or another feature I cite an exact page, paragraph or cell by a stable citation.",
+      "release": "R3",
+      "screens": [
+        "DOC-24",
+        "DOC-25",
+        "DOC-26",
+        "DOC-27"
+      ],
+      "operations": [
+        "listProjectDocuments",
+        "getProjectDocument",
+        "getProjectDocumentVersion",
+        "listDocumentTextUnits",
+        "resolveDocumentCitation",
+        "listDocumentComments",
+        "compareDocumentVersions",
+        "listDocumentReviews",
+        "getDocumentReview",
+        "getProjectDocumentVersionDownload",
+        "uploadProjectDocumentFile",
+        "createProjectDocument",
+        "updateProjectDocument",
+        "addProjectDocumentVersion",
+        "archiveProjectDocument",
+        "restoreProjectDocument",
+        "rerunDocumentExtraction",
+        "addDocumentComment",
+        "resolveDocumentComment",
+        "reopenDocumentComment",
+        "submitDocumentForReview",
+        "withdrawDocumentReview"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-DOC-023-1",
+          "given": "A project with a contract and a package, a second project with its own contract, and a PDF, a Word file and a workbook",
+          "when": "A document is created linked to the other project contract, then correctly, then the same reference is filed again",
+          "then": "422 DOC_LINK_MISMATCH for the foreign contract, 409 DOC_DUPLICATE_REFERENCE for the same reference in the same class, and every paragraph, table cell and sheet cell of each file has a stable citation that a second reading reproduces",
+          "test_id": "UAT-PLAN-166"
+        },
+        {
+          "id": "AC-ST-DOC-023-2",
+          "given": "A published document.review workflow of two stages, the first with three parallel reviewers of whom two must approve",
+          "when": "A version is sent, two reviewers approve, the legal reviewer asks for a supplement, a newer version is sent and approved",
+          "then": "round 1 ends SUPPLEMENT_REQUESTED, the third reviewer of stage one is not needed, round 2 ends APPROVED with the version locked, and the database refuses any later change to the locked version",
+          "test_id": "UAT-PLAN-167"
+        },
+        {
+          "id": "AC-ST-DOC-023-3",
+          "given": "Two versions of a Word contract and two versions of a workbook, and a locked version",
+          "when": "The versions are compared and a comment is added to a paragraph of the locked version and resolved",
+          "then": "changed paragraphs show the words that changed, a workbook shows only the cells that changed, the comment is kept as said and only its state moves",
+          "test_id": "UAT-PLAN-168"
+        },
+        {
+          "id": "AC-ST-DOC-023-4",
+          "given": "DOC-24 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DOC-24"
+        },
+        {
+          "id": "AC-ST-DOC-023-5",
+          "given": "DOC-25 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DOC-25"
+        },
+        {
+          "id": "AC-ST-DOC-023-6",
+          "given": "DOC-26 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DOC-26"
+        },
+        {
+          "id": "AC-ST-DOC-023-7",
+          "given": "DOC-27 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DOC-27"
+        }
+      ],
+      "dependencies": [
+        "ST-DOC-001",
+        "ST-ADM-012"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "medium",
+        "assumption": "The text is read by the local reader (Word, Excel and the text layer of a PDF); an OCR engine for scans is bound later behind the same port, so a scanned PDF reads as no text until then."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DOC-023-1",
+          "kind": "backend",
+          "title": "Kernel rules, tables, stores, the reader of text behind its port and the endpoints with the review bound to the approval engine",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DOC-023-2",
+          "kind": "web",
+          "title": "DOC-24 to DOC-27 screens built with the kit, the seven standard states and ContextBar on every number",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DOC-023-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DOC-24 to DOC-27; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DOC-023-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-166",
+            "UAT-PLAN-167",
+            "UAT-PLAN-168"
+          ]
+        },
+        {
+          "id": "TK-DOC-023-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-DOC-24",
+            "UI-DOC-25",
+            "UI-DOC-26",
+            "UI-DOC-27"
           ]
         }
       ]

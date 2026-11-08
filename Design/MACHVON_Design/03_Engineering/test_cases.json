@@ -20696,15 +20696,15 @@
     ]
   },
   {
-    "id": "UI-CTR-32",
+    "id": "UI-CTR-37",
     "source": "FR-CTR-37",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu; user có quyền và user chỉ đọc; route CTR-32",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu; user có quyền và user chỉ đọc; route CTR-37",
     "steps": [
-      "Mở CTR-32 từ báo cáo xếp hạng và deep link; kiểm nhãn trường: Hợp đồng, Kỳ đánh giá, Điểm chất lượng, Điểm tiến độ, Điểm an toàn và môi trường, Điểm phối hợp, Điểm tài chính, Điểm tổng hợp, Xếp hạng đề xuất, Hạn phản hồi của nhà thầu, Phản hồi, Đánh giá chính thức",
+      "Mở CTR-37 từ báo cáo xếp hạng và deep link; kiểm nhãn trường: Hợp đồng, Kỳ đánh giá, Điểm chất lượng, Điểm tiến độ, Điểm an toàn và môi trường, Điểm phối hợp, Điểm tài chính, Điểm tổng hợp, Xếp hạng đề xuất, Hạn phản hồi của nhà thầu, Phản hồi, Đánh giá chính thức",
       "Thực hiện thao tác chính theo quy tắc: Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (chưa kiểm chứng); tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; thông báo mở nghĩa vụ đăng tải phản hồi của nhà thầu (CA-3, V4)",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-32"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-37"
     ],
     "expected": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu: hiển thị đúng 12 trường, áp quy tắc \"Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (chưa kiểm chứng); tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; thông báo mở nghĩa vụ đăng tải phản hồi của nhà thầu (CA-3, V4)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
@@ -21663,7 +21663,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-141",
+    "id": "UAT-PLAN-151",
     "source": "VND.md",
     "type": "business",
     "priority": "P1",
@@ -21683,7 +21683,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-142",
+    "id": "UAT-PLAN-152",
     "source": "VND.md",
     "type": "business",
     "priority": "P1",
@@ -21956,7 +21956,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-141",
+    "id": "UAT-PLAN-153",
     "source": "CTR.md",
     "type": "business",
     "priority": "P0",
@@ -21976,7 +21976,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-142",
+    "id": "UAT-PLAN-154",
     "source": "CTR.md",
     "type": "business",
     "priority": "P0",
@@ -21996,7 +21996,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-143",
+    "id": "UAT-PLAN-155",
     "source": "CTR.md",
     "type": "business",
     "priority": "P0",
@@ -22016,7 +22016,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-144",
+    "id": "UAT-PLAN-156",
     "source": "CTR.md",
     "type": "business",
     "priority": "P0",
@@ -22037,7 +22037,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-145",
+    "id": "UAT-PLAN-157",
     "source": "CTR.md",
     "type": "business",
     "priority": "P0",
@@ -22056,7 +22056,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-141",
+    "id": "UAT-PLAN-158",
     "source": "HOME.md",
     "type": "integration",
     "priority": "P0",
@@ -22072,7 +22072,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-142",
+    "id": "UAT-PLAN-159",
     "source": "HOME.md",
     "type": "integration",
     "priority": "P0",
@@ -22106,7 +22106,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-143",
+    "id": "UAT-PLAN-160",
     "source": "NOT.md",
     "type": "integration",
     "priority": "P0",
@@ -22122,7 +22122,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-144",
+    "id": "UAT-PLAN-161",
     "source": "NOT.md",
     "type": "integration",
     "priority": "P0",
@@ -22156,7 +22156,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-145",
+    "id": "UAT-PLAN-162",
     "source": "NOT.md",
     "type": "integration",
     "priority": "P0",
@@ -22218,7 +22218,7 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-ADM-25"
+      "FR-ADM-28"
     ]
   },
   {
@@ -22234,25 +22234,25 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-ADM-25"
+      "FR-ADM-28"
     ]
   },
   {
-    "id": "UI-ADM-25",
-    "source": "FR-ADM-25",
+    "id": "UI-ADM-28",
+    "source": "FR-ADM-28",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A with synthetic data of Vắng mặt, người thay và độ phủ người nhận cảnh báo; a user with the permission and a read-only user; route ADM-25",
+    "setup": "Tenant TNT-A with synthetic data of Vắng mặt, người thay và độ phủ người nhận cảnh báo; a user with the permission and a read-only user; route ADM-28",
     "steps": [
-      "Open ADM-25 from the menu and by deep link; check the field labels: Người vắng mặt, Loại và khoảng ngày vắng, Người thay, Phạm vi thay (mọi nguồn hoặc theo nguồn), Trạng thái đề nghị thay, Người cho phép, Tình trạng độ phủ (đủ, một phần, chưa có), Chức danh chỉ có một người hoặc không ai, Khoảng trống đang mở",
+      "Open ADM-28 from the menu and by deep link; check the field labels: Người vắng mặt, Loại và khoảng ngày vắng, Người thay, Phạm vi thay (mọi nguồn hoặc theo nguồn), Trạng thái đề nghị thay, Người cho phép, Tình trạng độ phủ (đủ, một phần, chưa có), Chức danh chỉ có một người hoặc không ai, Khoảng trống đang mở",
       "Do the main action by the rule: Người thay có thời hạn không quá max_cover_days của ABSENCE_POLICY, không vòng, không sâu quá max_chain_depth, hạng không thấp hơn người vắng; người cho phép là người thứ ba (không phải người đề nghị, người vắng hay người thay); người thay chỉ nhận cảnh báo, không nhận thẩm quyền (quyền duyệt đi qua ủy quyền ADM); người vắng không có người thay quá số giờ làm việc thì thành khoảng trống, cảnh báo của họ rơi lên lãnh đạo trực tiếp và vào chỉ số cảnh báo mồ côi; mọi thay đổi ghi nhật ký ADM-11 (G2-7)",
-      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and the actions hidden without the permission on ADM-25"
+      "Check the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and the actions hidden without the permission on ADM-28"
     ],
     "expected": "Vắng mặt, người thay và độ phủ người nhận cảnh báo: shows exactly 9 fields, applies the rule; no action beyond the permission; tokens and components as in the mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-ADM-25"
+      "FR-ADM-28"
     ]
   },
   {
@@ -22364,7 +22364,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-141",
+    "id": "UAT-PLAN-163",
     "source": "GOV-10",
     "type": "business",
     "priority": "P1",
@@ -22384,7 +22384,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-142",
+    "id": "UAT-PLAN-164",
     "source": "GOV-10",
     "type": "business",
     "priority": "P1",
@@ -22401,7 +22401,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-143",
+    "id": "UAT-PLAN-165",
     "source": "GOV-10",
     "type": "business",
     "priority": "P1",
@@ -23169,7 +23169,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-143",
+    "id": "UAT-PLAN-169",
     "source": "HPM.md",
     "type": "integration",
     "priority": "P0",
@@ -23188,7 +23188,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-144",
+    "id": "UAT-PLAN-170",
     "source": "HPM.md",
     "type": "security",
     "priority": "P0",
@@ -23224,7 +23224,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-145",
+    "id": "UAT-PLAN-171",
     "source": "HPM.md",
     "type": "integration",
     "priority": "P0",
@@ -23243,7 +23243,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-146",
+    "id": "UAT-PLAN-172",
     "source": "HPM.md",
     "type": "security",
     "priority": "P0",
@@ -23279,7 +23279,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-147",
+    "id": "UAT-PLAN-173",
     "source": "EBS.md",
     "type": "integration",
     "priority": "P0",
@@ -23298,7 +23298,7 @@
     ]
   },
   {
-    "id": "UAT-PLAN-148",
+    "id": "UAT-PLAN-174",
     "source": "EBS.md",
     "type": "security",
     "priority": "P0",
@@ -23480,6 +23480,135 @@
     "evidence": null,
     "covers": [
       "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UI-DOC-24",
+    "source": "FR-DOC-24",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kho hồ sơ dự án; user có quyền và user chỉ đọc; route DOC-24",
+    "steps": [
+      "Mở DOC-24 từ menu và deep link; kiểm nhãn trường: Dự án, Hợp đồng, Gói thầu, Phân loại, Số hiệu, Tiêu đề, Hiệu lực, Phiên bản, Tình trạng duyệt, Tải lên PDF/Word/Excel",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi hồ sơ thuộc một dự án; hợp đồng và gói thầu nối vào phải cùng dự án; cùng loại và cùng số hiệu chỉ một hồ sơ đang dùng; tệp quét mã độc, ở lại kho của đơn vị",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-24"
+    ],
+    "expected": "Kho hồ sơ dự án: hiển thị đúng 10 trường, áp quy tắc \"Mỗi hồ sơ thuộc một dự án; hợp đồng và gói thầu nối vào phải cùng dự án; cùng loại và cùng số hiệu chỉ một hồ sơ đang dùng; tệp quét mã độc, ở lại kho của đơn vị\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-24"
+    ]
+  },
+  {
+    "id": "UI-DOC-25",
+    "source": "FR-DOC-25",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ và trình xem có dẫn nguồn; user có quyền và user chỉ đọc; route DOC-25",
+    "steps": [
+      "Mở DOC-25 từ menu và deep link; kiểm nhãn trường: Mô tả và hiệu lực, Các phiên bản, Trang, đoạn, ô có mã dẫn nguồn, Góp ý theo đoạn, Trạng thái đọc văn bản, Trình duyệt, rút, bổ sung",
+      "Thực hiện thao tác chính theo quy tắc: Bản đã duyệt bị khóa, không sửa; góp ý không đổi nội dung đã nói; mã dẫn nguồn lấy từ tệp và vị trí nên không đổi khi đọc lại",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-25"
+    ],
+    "expected": "Hồ sơ và trình xem có dẫn nguồn: hiển thị đúng 6 trường, áp quy tắc \"Bản đã duyệt bị khóa, không sửa; góp ý không đổi nội dung đã nói; mã dẫn nguồn lấy từ tệp và vị trí nên không đổi khi đọc lại\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-25"
+    ]
+  },
+  {
+    "id": "UI-DOC-26",
+    "source": "FR-DOC-26",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bảng luồng duyệt hồ sơ; user có quyền và user chỉ đọc; route DOC-26",
+    "steps": [
+      "Mở DOC-26 từ menu và deep link; kiểm nhãn trường: Giai đoạn, Người duyệt song song, Quyết định và lý do, Hạn từng người, Vòng duyệt, Lịch sử, Rút vòng duyệt",
+      "Thực hiện thao tác chính theo quy tắc: Giai đoạn và số người duyệt tối thiểu lấy từ quy trình đã công bố; người trình không tự duyệt; yêu cầu bổ sung là một phiên bản mới ở vòng sau",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-26"
+    ],
+    "expected": "Bảng luồng duyệt hồ sơ: hiển thị đúng 7 trường, áp quy tắc \"Giai đoạn và số người duyệt tối thiểu lấy từ quy trình đã công bố; người trình không tự duyệt; yêu cầu bổ sung là một phiên bản mới ở vòng sau\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-26"
+    ]
+  },
+  {
+    "id": "UI-DOC-27",
+    "source": "FR-DOC-27",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của So sánh hai phiên bản hồ sơ; user có quyền và user chỉ đọc; route DOC-27",
+    "steps": [
+      "Mở DOC-27 từ menu và deep link; kiểm nhãn trường: Phiên bản trước, Phiên bản sau, Đoạn thêm, Đoạn bớt, Đoạn đổi (từng từ), Ô thay đổi của bảng tính",
+      "Thực hiện thao tác chính theo quy tắc: So sánh trên văn bản trích xuất, không so tệp nhị phân; bảng tính so theo ô; so sánh quá lớn bị từ chối rõ ràng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-27"
+    ],
+    "expected": "So sánh hai phiên bản hồ sơ: hiển thị đúng 6 trường, áp quy tắc \"So sánh trên văn bản trích xuất, không so tệp nhị phân; bảng tính so theo ô; so sánh quá lớn bị từ chối rõ ràng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-166",
+    "source": "DOC.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Dự án P-1 có hợp đồng C-1 và gói thầu G-1; dự án P-2 có hợp đồng C-2; một tệp Word, một bảng tính Excel và một PDF có lớp chữ.",
+    "steps": [
+      "Tải lên bản PDF làm hồ sơ loại thiết kế của P-1, nối với C-2",
+      "Nối đúng với C-1 và G-1, rồi tải lên lần nữa cùng số hiệu",
+      "Mở trang 2 đoạn 3 của PDF và ô B7 của bảng tính, xem mã dẫn nguồn"
+    ],
+    "expected": "Bước 1: 422 DOC_LINK_MISMATCH; bước 2: lần hai 409 DOC_DUPLICATE_REFERENCE; bước 3: mỗi đoạn và ô có mã cit_ ổn định, đọc lại tệp cho cùng mã.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-24",
+      "FR-DOC-25"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-167",
+    "source": "DOC.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Quy trình document.review công bố hai giai đoạn: kỹ thuật (3 người duyệt song song, cần 2) rồi pháp lý (1 người); phiên bản 1 của hồ sơ ở trạng thái nháp.",
+    "steps": [
+      "Người lập trình duyệt phiên bản 1; hai trong ba người kỹ thuật duyệt; người pháp lý yêu cầu bổ sung kèm lý do",
+      "Thêm phiên bản 2 và trình lại; cả hai giai đoạn duyệt",
+      "Thử sửa phiên bản 2 và gỡ liên kết bản đã duyệt"
+    ],
+    "expected": "Bước 1: vòng 1 kết thúc SUPPLEMENT_REQUESTED, người kỹ thuật thứ ba không cần duyệt; bước 2: vòng 2 APPROVED, phiên bản 2 bị khóa; bước 3: 409 DOC_VERSION_LOCKED, cơ sở dữ liệu từ chối mọi sửa.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-25",
+      "FR-DOC-26"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-168",
+    "source": "DOC.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Hai phiên bản của một hợp đồng Word khác nhau ở một số từ và một đoạn mới; hai phiên bản của một dự toán Excel khác nhau ở hai ô.",
+    "steps": [
+      "So sánh phiên bản 1 với 2 của hợp đồng",
+      "So sánh hai phiên bản dự toán",
+      "Góp ý vào một đoạn của phiên bản đã khóa rồi đánh dấu đã xử lý"
+    ],
+    "expected": "Bước 1: đoạn đổi hiện từng từ thêm/bớt, đoạn mới là thêm; bước 2: chỉ hai ô đổi; bước 3: góp ý được ghi, nội dung không đổi được, trạng thái chuyển OPEN sang RESOLVED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DOC-25",
+      "FR-DOC-27"
     ]
   }
 ]

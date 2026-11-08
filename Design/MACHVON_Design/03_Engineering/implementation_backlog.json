@@ -17707,9 +17707,9 @@
     ]
   },
   {
-    "id": "BL-CTR-32",
+    "id": "BL-CTR-37",
     "requirement": "FR-CTR-37",
-    "screen": "CTR-32",
+    "screen": "CTR-37",
     "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
     "module": "CTR",
     "platform": "web",
@@ -17726,7 +17726,7 @@
     ],
     "rule": "Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (chưa kiểm chứng); tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; thông báo mở nghĩa vụ đăng tải phản hồi của nhà thầu (CA-3, V4)",
     "test_ids": [
-      "UI-CTR-32",
+      "UI-CTR-37",
       "UAT-PLAN-119",
       "UAT-PLAN-120"
     ],
@@ -18701,7 +18701,7 @@
     "rule": "Đọc quyền vnd.read; độ phủ tính theo quy tắc VENDOR_PROFILE; mọi con số có công thức, nguồn và ngày; ngưỡng pháp lý ghi chưa kiểm chứng",
     "test_ids": [
       "UI-VND-01",
-      "UAT-PLAN-141"
+      "UAT-PLAN-151"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -18736,7 +18736,7 @@
     "rule": "Hồ sơ bắt buộc trước khi nộp thầu theo quy tắc VENDOR_PROFILE và VENDOR_GATE (cảnh báo hoặc chặn do đơn vị chọn); trùng chỉ là gợi ý, hợp nhất ở dữ liệu chủ, không hợp nhất theo tên",
     "test_ids": [
       "UI-VND-02",
-      "UAT-PLAN-141"
+      "UAT-PLAN-151"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -18771,7 +18771,7 @@
     "rule": "Điều 133 NĐ 214/2025: quyết định trong 15 ngày kể từ khi nhận đề nghị, thời gian cấm theo nhóm hành vi, liên danh cấm mọi thành viên; số và thời hạn là quy tắc cấu hình ghi chưa kiểm chứng; hạn chế chỉ ghi khi quyết định có hiệu lực",
     "test_ids": [
       "UI-VND-03",
-      "UAT-PLAN-142"
+      "UAT-PLAN-152"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -18909,8 +18909,8 @@
     "rule": "Mốc thời hiệu do máy chủ tính từ điều khoản của chính hợp đồng đã được duyệt; hợp đồng chưa có điều khoản thì ghi chưa có thời hiệu, không gán số của mẫu quốc tế; số mặc định ghi chưa kiểm chứng; tổng do máy chủ cộng",
     "test_ids": [
       "UI-CTR-32",
-      "UAT-PLAN-141",
-      "UAT-PLAN-142"
+      "UAT-PLAN-153",
+      "UAT-PLAN-154"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -18944,8 +18944,8 @@
     "rule": "Mỗi bước ghi theo ngày xảy ra; quyết toán do người khác người đề xuất duyệt; tuyên bố hết thời hiệu chỉ khi đã qua mốc, điều khoản nêu mất quyền và do người khác người ghi sổ xác nhận; nhật ký chỉ thêm",
     "test_ids": [
       "UI-CTR-33",
-      "UAT-PLAN-142",
-      "UAT-PLAN-143"
+      "UAT-PLAN-154",
+      "UAT-PLAN-155"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -18983,7 +18983,7 @@
     "rule": "Điều khoản nhập từ hợp đồng đã ký, một người đề xuất và người khác duyệt; mẫu FIDIC và NEC chỉ là ví dụ chưa kiểm chứng, không tự áp cho hợp đồng nào",
     "test_ids": [
       "UI-CTR-34",
-      "UAT-PLAN-141"
+      "UAT-PLAN-153"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -19022,8 +19022,8 @@
     "rule": "Nhịp phát hành lần đầu, họp và phát hành lại lấy từ quy tắc EARLY_WARNING_POLICY (chưa kiểm chứng); tách khỏi cảnh báo giải ngân của DIS; cuộc họp phải kết luận mọi cảnh báo đang mở",
     "test_ids": [
       "UI-CTR-35",
-      "UAT-PLAN-144",
-      "UAT-PLAN-145"
+      "UAT-PLAN-156",
+      "UAT-PLAN-157"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -19056,7 +19056,7 @@
     "rule": "Cảnh báo chỉ đánh giá khi nêu rõ tác động hoặc không có tác động; đóng là đã xử lý khi hết biện pháp mở và không do người phụ trách tự đóng; đã xảy ra thì nêu thay đổi hoặc claim đã phát sinh",
     "test_ids": [
       "UI-CTR-36",
-      "UAT-PLAN-144"
+      "UAT-PLAN-156"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -19098,8 +19098,8 @@
     "rule": "Mười bốn chỉ số của chính hệ thống cảnh báo, mỗi chỉ số một công thức và một nguồn, có nút i mở công thức, nguồn, thời điểm cập nhật; mục tiêu đọc từ ALERT_HEALTH_TARGETS, là giá trị khởi điểm chưa kiểm chứng để hiệu chỉnh sau 4 đến 6 tuần dữ liệu thật; số không tính được hiện là không có dữ liệu hoặc chưa có nguồn kèm lý do, không bao giờ hiện 0; job ghi số liệu cũ quá hai lượt chạy thì trang ghi số liệu cũ (G2-10)",
     "test_ids": [
       "UI-HOME-13",
-      "UAT-PLAN-141",
-      "UAT-PLAN-142"
+      "UAT-PLAN-158",
+      "UAT-PLAN-159"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -19136,8 +19136,8 @@
     "rule": "Việc không ai nhận, nhận rồi im lặng hoặc quá hạn leo theo chuỗi ESCALATION_POLICY với đồng hồ giờ làm việc của bộ máy đồng hồ; mỗi cấp được đánh dấu chức năng hoặc thứ bậc; chức năng không ai giữ thì rơi về lãnh đạo và ghi khoảng trống; người nhận xác nhận thì giữ các cấp sau theo chính sách; việc Theo dõi không leo tới người mà được nâng một bậc kèm lý do WATCH_AGED sau số ngày làm việc không ai động tới (G2-3)",
     "test_ids": [
       "UI-NOT-19",
-      "UAT-PLAN-143",
-      "UAT-PLAN-144"
+      "UAT-PLAN-160",
+      "UAT-PLAN-161"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -19173,7 +19173,7 @@
     "rule": "Chuông trong ứng dụng luôn nói thật: không thể tắt và không bị giờ yên tĩnh hay trần che; kênh gián đoạn chỉ cho Khẩn và Cần xử lý, giữ giờ yên tĩnh trừ Khẩn đã quá hạn nhận của loại cảnh báo được phép xuyên; việc Theo dõi chỉ vào bản tin; người dùng chỉ hạ được trần đẩy chứ không nâng quá chính sách; thông báo đẩy không có số tiền hay tên, chỉ có liên kết (R7); mọi giá trị mặc định ghi rõ chưa kiểm chứng (G2-5)",
     "test_ids": [
       "UI-NOT-18",
-      "UAT-PLAN-145",
+      "UAT-PLAN-162",
       "UAT-PLAN-146"
     ],
     "status": "NOT_BUILT",
@@ -19188,9 +19188,9 @@
     ]
   },
   {
-    "id": "BL-ADM-25",
-    "requirement": "FR-ADM-25",
-    "screen": "ADM-25",
+    "id": "BL-ADM-28",
+    "requirement": "FR-ADM-28",
+    "screen": "ADM-28",
     "title": "Vắng mặt, người thay và độ phủ người nhận cảnh báo",
     "module": "ADM",
     "platform": "web",
@@ -19210,7 +19210,7 @@
     ],
     "rule": "Người thay có thời hạn không quá max_cover_days của ABSENCE_POLICY, không vòng, không sâu quá max_chain_depth, hạng không thấp hơn người vắng; người cho phép là người thứ ba (không phải người đề nghị, người vắng hay người thay); người thay chỉ nhận cảnh báo, không nhận thẩm quyền (quyền duyệt đi qua ủy quyền ADM); người vắng không có người thay quá số giờ làm việc thì thành khoảng trống, cảnh báo của họ rơi lên lãnh đạo trực tiếp và vào chỉ số cảnh báo mồ côi; mọi thay đổi ghi nhật ký ADM-11 (G2-7)",
     "test_ids": [
-      "UI-ADM-25",
+      "UI-ADM-28",
       "UAT-PLAN-147",
       "UAT-PLAN-148"
     ],
@@ -20212,8 +20212,8 @@
     "rule": "Mỗi lần đẩy có khóa chống trùng (tổ chức, kỳ, phiên bản báo cáo); đẩy lại gửi đúng khóa cũ; bản cũ hơn bản đã được nhận bị từ chối REPORT_OUT_OF_DATE; bản trùng nội dung là ALREADY_DELIVERED; người đẩy không ghi biên nhận của mình; bản dựng trên mẫu DEMO không bao giờ được ghi là đã nhận; bộ ghi tệp không gọi mạng nên PENDING-EXTERNAL",
     "test_ids": [
       "UI-HPM-01",
-      "UAT-PLAN-143",
-      "UAT-PLAN-144"
+      "UAT-PLAN-169",
+      "UAT-PLAN-170"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20246,8 +20246,8 @@
     "rule": "Thay kỳ đã được nhận cần kỳ đã mở lại và đính chính do người khác duyệt, ghi ADM-11; một đính chính chỉ dùng một lần; một đề nghị chờ cho một phiên bản tại một thời điểm",
     "test_ids": [
       "UI-HPM-02",
-      "UAT-PLAN-145",
-      "UAT-PLAN-146"
+      "UAT-PLAN-171",
+      "UAT-PLAN-172"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20281,8 +20281,8 @@
     "rule": "Chạy thử không ghi gì; áp dụng một lần theo băm tệp, nạp lại bị từ chối; dòng lỗi không làm hỏng cả tệp; mẫu tệp là giả định nên PENDING-EXTERNAL và chưa được nghiệm thu",
     "test_ids": [
       "UI-EBS-01",
-      "UAT-PLAN-147",
-      "UAT-PLAN-148"
+      "UAT-PLAN-173",
+      "UAT-PLAN-174"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20440,6 +20440,147 @@
     "release": "R2",
     "stories": [
       "ST-IND-003"
+    ]
+  },
+  {
+    "id": "BL-DOC-24",
+    "requirement": "FR-DOC-24",
+    "screen": "DOC-24",
+    "title": "Kho hồ sơ dự án",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,PRJ,CTR",
+    "fields": [
+      "Dự án",
+      "Hợp đồng",
+      "Gói thầu",
+      "Phân loại",
+      "Số hiệu",
+      "Tiêu đề",
+      "Hiệu lực",
+      "Phiên bản",
+      "Tình trạng duyệt",
+      "Tải lên PDF/Word/Excel"
+    ],
+    "rule": "Mỗi hồ sơ thuộc một dự án; hợp đồng và gói thầu nối vào phải cùng dự án; cùng loại và cùng số hiệu chỉ một hồ sơ đang dùng; tệp quét mã độc, ở lại kho của đơn vị",
+    "test_ids": [
+      "UI-DOC-24",
+      "UAT-PLAN-166"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-DOC-023"
+    ]
+  },
+  {
+    "id": "BL-DOC-25",
+    "requirement": "FR-DOC-25",
+    "screen": "DOC-25",
+    "title": "Hồ sơ và trình xem có dẫn nguồn",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,PRJ,CTR",
+    "fields": [
+      "Mô tả và hiệu lực",
+      "Các phiên bản",
+      "Trang, đoạn, ô có mã dẫn nguồn",
+      "Góp ý theo đoạn",
+      "Trạng thái đọc văn bản",
+      "Trình duyệt, rút, bổ sung"
+    ],
+    "rule": "Bản đã duyệt bị khóa, không sửa; góp ý không đổi nội dung đã nói; mã dẫn nguồn lấy từ tệp và vị trí nên không đổi khi đọc lại",
+    "test_ids": [
+      "UI-DOC-25",
+      "UAT-PLAN-166"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-DOC-023"
+    ]
+  },
+  {
+    "id": "BL-DOC-26",
+    "requirement": "FR-DOC-26",
+    "screen": "DOC-26",
+    "title": "Bảng luồng duyệt hồ sơ",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,PRJ,CTR",
+    "fields": [
+      "Giai đoạn",
+      "Người duyệt song song",
+      "Quyết định và lý do",
+      "Hạn từng người",
+      "Vòng duyệt",
+      "Lịch sử",
+      "Rút vòng duyệt"
+    ],
+    "rule": "Giai đoạn và số người duyệt tối thiểu lấy từ quy trình đã công bố; người trình không tự duyệt; yêu cầu bổ sung là một phiên bản mới ở vòng sau",
+    "test_ids": [
+      "UI-DOC-26",
+      "UAT-PLAN-167"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-DOC-023"
+    ]
+  },
+  {
+    "id": "BL-DOC-27",
+    "requirement": "FR-DOC-27",
+    "screen": "DOC-27",
+    "title": "So sánh hai phiên bản hồ sơ",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,PRJ,CTR",
+    "fields": [
+      "Phiên bản trước",
+      "Phiên bản sau",
+      "Đoạn thêm",
+      "Đoạn bớt",
+      "Đoạn đổi (từng từ)",
+      "Ô thay đổi của bảng tính"
+    ],
+    "rule": "So sánh trên văn bản trích xuất, không so tệp nhị phân; bảng tính so theo ô; so sánh quá lớn bị từ chối rõ ràng",
+    "test_ids": [
+      "UI-DOC-27",
+      "UAT-PLAN-168"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-DOC-023"
     ]
   }
 ]

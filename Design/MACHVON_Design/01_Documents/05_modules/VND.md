@@ -100,8 +100,8 @@ Sự kiện (ids và mã, không có lời của người dùng, không có số
 
 | ID | Loại | Nội dung |
 |---|---|---|
-| UAT-PLAN-141 | nghiệp vụ | hồ sơ, độ phủ, chủ sở hữu, gợi ý trùng, xem trước cổng |
-| UAT-PLAN-142 | nghiệp vụ | hồ sơ cấm đủ bước, liên danh, hiệu lực và gỡ |
+| UAT-PLAN-151 | nghiệp vụ | hồ sơ, độ phủ, chủ sở hữu, gợi ý trùng, xem trước cổng |
+| UAT-PLAN-152 | nghiệp vụ | hồ sơ cấm đủ bước, liên danh, hiệu lực và gỡ |
 | UAT-PLAN-143 | nghiệp vụ | đổi tài khoản hai người duyệt, gọi lại, thời gian chờ, chặn thanh toán |
 | UAT-PLAN-144 | nghiệp vụ | chứng chỉ, nhân sự, cảnh báo hết hạn, yêu cầu của gói |
 | UAT-PLAN-145 | nghiệp vụ | sổ sự kiện uy tín, hạn 7 ngày làm việc, hệ số bảo đảm, liên danh |
