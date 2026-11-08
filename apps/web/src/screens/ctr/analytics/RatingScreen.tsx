@@ -22,8 +22,8 @@ const todayText = (): string => new Date().toISOString().slice(0, 10);
 function refusalText(t: ReturnType<typeof useTranslation>['t'], error: unknown): string | undefined {
   if (error === null || error === undefined) return undefined;
   const code = error instanceof ApiError ? error.code : undefined;
-  const key = code === undefined ? undefined : `ca3.rating.error.${camel(code)}`;
-  return key !== undefined && hasMessage(key) ? t(key) : t('ca3.rating.error.generic');
+  if (code === undefined) return t('ca3.rating.error.generic');
+  return hasMessage(`ca3.rating.error.${camel(code)}`) ? t(`ca3.rating.error.${camel(code)}`) : t('ca3.rating.error.generic');
 }
 
 /**
