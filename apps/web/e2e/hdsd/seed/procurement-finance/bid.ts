@@ -299,7 +299,8 @@ async function runTender(ctx: SeedContext, spec: PackageSpec): Promise<void> {
   if (pack === undefined) return;
   const asked = await milestonesOf(ctx, String(pack.id));
   const has = (kind: string): boolean => asked.some((row) => row.milestone_kind === kind);
-  const base = spec.awardedDaysAgo === undefined ? 14 : spec.awardedDaysAgo + 38;
+  // The invitation comes before the clarification deadline (nine days before the opening): a tender whose opening is long past was invited earlier still.
+  const base = spec.awardedDaysAgo === undefined ? (spec.fate === 'RESULT_PENDING' ? 14 + 20 : 14) : spec.awardedDaysAgo + 38;
   const opened = spec.fate === 'EVALUATING' || spec.fate === 'RESULT_PENDING' || spec.fate === 'AWARDED';
   const openingAgo = spec.fate === 'AWARDED' ? (spec.awardedDaysAgo ?? 30) + 12 : spec.fate === 'RESULT_PENDING' ? 14 : spec.fate === 'EVALUATING' ? 3 : -4;
 
