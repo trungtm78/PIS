@@ -385,6 +385,7 @@ export const OPERATIONS = {
   "getReportExportDownload": { method: "get", path: "/report-exports/{id}/download", versioned: false, stepUp: null, permission: "report.export" },
   "getReportImport": { method: "get", path: "/report-imports/{id}", versioned: false, stepUp: null, permission: "report.import" },
   "getReportRevision": { method: "get", path: "/reports/{id}", versioned: false, stepUp: null, permission: "report.read" },
+  "getReportWorkflow": { method: "get", path: "/reports/{id}/workflow", versioned: false, stepUp: null, permission: "report.read" },
   "getSitePhotoChecks": { method: "get", path: "/site-photos/{id}/checks", versioned: false, stepUp: null, permission: "photo.read" },
   "getSnoozedWork": { method: "get", path: "/home/work-actions/snoozed", versioned: false, stepUp: null, permission: "home.read" },
   "getSodException": { method: "get", path: "/sod-exceptions/{id}", versioned: false, stepUp: null, permission: "adm.sod.read" },

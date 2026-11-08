@@ -387,6 +387,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getReportExportDownload': OperationDescriptor(method: 'GET', path: '/report-exports/{id}/download', versioned: false, stepUp: null, permission: 'report.export'),
   'getReportImport': OperationDescriptor(method: 'GET', path: '/report-imports/{id}', versioned: false, stepUp: null, permission: 'report.import'),
   'getReportRevision': OperationDescriptor(method: 'GET', path: '/reports/{id}', versioned: false, stepUp: null, permission: 'report.read'),
+  'getReportWorkflow': OperationDescriptor(method: 'GET', path: '/reports/{id}/workflow', versioned: false, stepUp: null, permission: 'report.read'),
   'getSitePhotoChecks': OperationDescriptor(method: 'GET', path: '/site-photos/{id}/checks', versioned: false, stepUp: null, permission: 'photo.read'),
   'getSnoozedWork': OperationDescriptor(method: 'GET', path: '/home/work-actions/snoozed', versioned: false, stepUp: null, permission: 'home.read'),
   'getSodException': OperationDescriptor(method: 'GET', path: '/sod-exceptions/{id}', versioned: false, stepUp: null, permission: 'adm.sod.read'),

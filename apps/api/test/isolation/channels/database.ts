@@ -486,6 +486,7 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'listWeeklyDisbursementPlans',
   'uploadReportFile',
   'getReportRevision',
+  'getReportWorkflow',
   'getReportImport',
   'get_resources_report_revision',
   'get_resources_report_revision_id',

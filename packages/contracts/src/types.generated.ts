@@ -18123,6 +18123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/{id}/workflow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các bước duyệt của báo cáo tuần: bước, hạn, người được giao, trạng thái (DTO) */
+        get: operations["getReportWorkflow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -20117,7 +20134,7 @@ export interface components {
         TemplateRevisionCreate: {
             code: string;
             /** @enum {string} */
-            channel: "IN_APP" | "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_ZNS" | "ZALO_OA" | "WHATSAPP";
+            channel: "IN_APP" | "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_ZNS" | "ZALO_OA" | "WHATSAPP" | "TEAMS";
             /** @enum {string} */
             locale: "vi-VN" | "en-US";
             purpose: string;
@@ -20198,7 +20215,7 @@ export interface components {
         };
         ChannelAccountConnect: {
             /** @enum {string} */
-            channel: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP";
+            channel: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP" | "TEAMS";
             external_account_id: string;
             display_name: string;
             credential_secret_ref: string;
@@ -25706,7 +25723,7 @@ export interface components {
             id: string;
             code: string;
             /** @enum {string} */
-            channel: "IN_APP" | "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_ZNS" | "ZALO_OA" | "WHATSAPP";
+            channel: "IN_APP" | "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_ZNS" | "ZALO_OA" | "WHATSAPP" | "TEAMS";
             locale: string;
             revision: number;
             purpose: string;
@@ -25772,7 +25789,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            channel: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP";
+            channel: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP" | "TEAMS";
             external_account_id: string;
             display_name: string;
             /** @enum {string} */
@@ -29781,6 +29798,62 @@ export interface components {
                     ac_vnd?: string | null;
                 }[];
             };
+        };
+        DisReportWorkflow: {
+            /**
+             * @description SINGLE_DECISION is the one decision of the unit reviewer (the default); STAGED runs the steps below on the approval engine.
+             * @enum {string}
+             */
+            mode: "SINGLE_DECISION" | "STAGED";
+            /** @description The version of the governance rule APPROVAL_WORKFLOW_DEFINITION/REPORT_ACCEPT that decided (0 for the built-in default). */
+            rule_version: number;
+            /** @enum {string} */
+            rule_source: "RULE" | "DEFAULT";
+            instance?: {
+                /** Format: uuid */
+                id?: string;
+                /** @enum {string} */
+                status?: "Running" | "Completed" | "Cancelled" | "Failed";
+                outcome?: string | null;
+                current_step?: number;
+                /** Format: date-time */
+                started_at?: string;
+                /** Format: date-time */
+                ended_at?: string | null;
+            } | null;
+            steps: {
+                id: string;
+                /** @enum {string} */
+                kind: "UNIT_APPROVER" | "PLANNING_REVIEW" | "PERIOD_CLOSE" | "PUSH";
+                name: string;
+                /** @enum {string} */
+                status: "WAITING" | "CURRENT" | "DONE" | "CANCELLED";
+                sla_working_hours: number;
+                /** Format: date-time */
+                due_at?: string | null;
+                overdue?: boolean;
+                tasks: {
+                    /** Format: uuid */
+                    task_id?: string;
+                    assignee?: {
+                        /** Format: uuid */
+                        id?: string;
+                        name?: string | null;
+                    };
+                    /** @enum {string} */
+                    status?: "Pending" | "Decided" | "Reassigned" | "Cancelled" | "Expired";
+                    decision?: string | null;
+                    /** Format: date-time */
+                    decided_at?: string | null;
+                    /** Format: date-time */
+                    due_at?: string;
+                    overdue_reminders?: number;
+                    /** Format: date-time */
+                    escalated_at?: string | null;
+                }[];
+            }[];
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -45127,7 +45200,7 @@ export interface operations {
         parameters: {
             query?: {
                 status?: "PendingVerification" | "Active" | "Disabled" | "CredentialExpired";
-                channel?: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP";
+                channel?: "EMAIL" | "SMS" | "PUSH_FCM" | "PUSH_APNS" | "ZALO_OA" | "ZALO_ZNS" | "WHATSAPP" | "TEAMS";
                 cursor?: string;
                 limit?: number;
             };
@@ -140109,6 +140182,100 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CtrScheduleSCurve"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getReportWorkflow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisReportWorkflow"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

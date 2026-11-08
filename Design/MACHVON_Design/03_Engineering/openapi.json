@@ -449,7 +449,10 @@
           "IDEMPOTENCY_CONFLICT",
           "VALIDATION_FAILED",
           "REVISION_IMMUTABLE",
-          "PLAN_VERSION_NOT_EFFECTIVE"
+          "PLAN_VERSION_NOT_EFFECTIVE",
+          "WORKFLOW_NOT_CONFIGURED",
+          "NO_ELIGIBLE_APPROVER",
+          "DOA_RULE_NOT_FOUND"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -590,7 +593,8 @@
           "SELF_APPROVAL_DENIED",
           "REPORT_STATE_INVALID",
           "VERSION_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "APPROVER_NOT_AUTHORIZED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -22367,7 +22371,8 @@
                 "PUSH_APNS",
                 "ZALO_OA",
                 "ZALO_ZNS",
-                "WHATSAPP"
+                "WHATSAPP",
+                "TEAMS"
               ]
             }
           },
@@ -159005,6 +159010,125 @@
           "REPORT_SELECTION_TOO_LARGE"
         ]
       }
+    },
+    "/reports/{id}/workflow": {
+      "get": {
+        "operationId": "getReportWorkflow",
+        "summary": "Các bước duyệt của báo cáo tuần: bước, hạn, người được giao, trạng thái (DTO)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "report.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisReportWorkflow"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -166838,7 +166962,8 @@
               "PUSH_APNS",
               "ZALO_ZNS",
               "ZALO_OA",
-              "WHATSAPP"
+              "WHATSAPP",
+              "TEAMS"
             ]
           },
           "locale": {
@@ -167136,7 +167261,8 @@
               "PUSH_APNS",
               "ZALO_OA",
               "ZALO_ZNS",
-              "WHATSAPP"
+              "WHATSAPP",
+              "TEAMS"
             ]
           },
           "external_account_id": {
@@ -187141,7 +187267,8 @@
               "PUSH_APNS",
               "ZALO_ZNS",
               "ZALO_OA",
-              "WHATSAPP"
+              "WHATSAPP",
+              "TEAMS"
             ]
           },
           "locale": {
@@ -187381,7 +187508,8 @@
               "PUSH_APNS",
               "ZALO_OA",
               "ZALO_ZNS",
-              "WHATSAPP"
+              "WHATSAPP",
+              "TEAMS"
             ]
           },
           "external_account_id": {
@@ -202223,6 +202351,183 @@
                 }
               }
             }
+          }
+        }
+      },
+      "DisReportWorkflow": {
+        "type": "object",
+        "required": [
+          "mode",
+          "rule_version",
+          "rule_source",
+          "steps",
+          "as_of"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "SINGLE_DECISION",
+              "STAGED"
+            ],
+            "description": "SINGLE_DECISION is the one decision of the unit reviewer (the default); STAGED runs the steps below on the approval engine."
+          },
+          "rule_version": {
+            "type": "integer",
+            "description": "The version of the governance rule APPROVAL_WORKFLOW_DEFINITION/REPORT_ACCEPT that decided (0 for the built-in default)."
+          },
+          "rule_source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "DEFAULT"
+            ]
+          },
+          "instance": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "Running",
+                  "Completed",
+                  "Cancelled",
+                  "Failed"
+                ]
+              },
+              "outcome": {
+                "type": "string",
+                "nullable": true
+              },
+              "current_step": {
+                "type": "integer"
+              },
+              "started_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "ended_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "kind",
+                "name",
+                "status",
+                "sla_working_hours",
+                "tasks"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "UNIT_APPROVER",
+                    "PLANNING_REVIEW",
+                    "PERIOD_CLOSE",
+                    "PUSH"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "WAITING",
+                    "CURRENT",
+                    "DONE",
+                    "CANCELLED"
+                  ]
+                },
+                "sla_working_hours": {
+                  "type": "number"
+                },
+                "due_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "overdue": {
+                  "type": "boolean"
+                },
+                "tasks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "task_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "assignee": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "Pending",
+                          "Decided",
+                          "Reassigned",
+                          "Cancelled",
+                          "Expired"
+                        ]
+                      },
+                      "decision": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "decided_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "due_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "overdue_reminders": {
+                        "type": "integer"
+                      },
+                      "escalated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

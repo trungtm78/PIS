@@ -566,6 +566,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
   'getReportImport': DisReportImportResponse.fromJson,
   'getReportRevision': asObject,
+  'getReportWorkflow': DisReportWorkflowResponse.fromJson,
   'getSitePhotoChecks': asObject,
   'getSnoozedWork': asObject,
   'getSodException': asObject,
@@ -13183,6 +13184,236 @@ final class DisReportSubmitResultResponseWarningsItem implements ResponseModel {
         'code': code,
         'field': field,
         'values': values,
+        ...extra,
+      };
+}
+
+final class DisReportWorkflowResponse implements ResponseModel {
+  const DisReportWorkflowResponse({
+    required this.mode,
+    required this.ruleVersion,
+    required this.ruleSource,
+    required this.steps,
+    required this.asOf,
+    this.instance,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportWorkflowResponse.fromJson(Object? json, [String path = 'DisReportWorkflowResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportWorkflowResponse(
+      mode: requiredField(map, path, 'mode', asString),
+      ruleVersion: requiredField(map, path, 'rule_version', asInt),
+      ruleSource: requiredField(map, path, 'rule_source', asString),
+      instance: optionalField(map, path, 'instance', nullable(DisReportWorkflowResponseInstance.fromJson)),
+      steps: requiredField(map, path, 'steps', asList(DisReportWorkflowResponseStepsItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'mode', 'rule_version', 'rule_source', 'instance', 'steps', 'as_of'}, strict: false),
+    );
+  }
+
+  final String mode;
+  final int ruleVersion;
+  final String ruleSource;
+  final DisReportWorkflowResponseInstance? instance;
+  final List<DisReportWorkflowResponseStepsItem> steps;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'mode': mode,
+        'rule_version': ruleVersion,
+        'rule_source': ruleSource,
+        if (instance != null) 'instance': instance!.toJson(),
+        'steps': steps.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DisReportWorkflowResponseInstance implements ResponseModel {
+  const DisReportWorkflowResponseInstance({
+    this.id,
+    this.status,
+    this.outcome,
+    this.currentStep,
+    this.startedAt,
+    this.endedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportWorkflowResponseInstance.fromJson(Object? json, [String path = 'DisReportWorkflowResponseInstance']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportWorkflowResponseInstance(
+      id: optionalField(map, path, 'id', asString),
+      status: optionalField(map, path, 'status', asString),
+      outcome: optionalField(map, path, 'outcome', nullable(asString)),
+      currentStep: optionalField(map, path, 'current_step', asInt),
+      startedAt: optionalField(map, path, 'started_at', asString),
+      endedAt: optionalField(map, path, 'ended_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'status', 'outcome', 'current_step', 'started_at', 'ended_at'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? status;
+  final String? outcome;
+  final int? currentStep;
+  final String? startedAt;
+  final String? endedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (status != null) 'status': status,
+        if (outcome != null) 'outcome': outcome,
+        if (currentStep != null) 'current_step': currentStep,
+        if (startedAt != null) 'started_at': startedAt,
+        if (endedAt != null) 'ended_at': endedAt,
+        ...extra,
+      };
+}
+
+final class DisReportWorkflowResponseStepsItem implements ResponseModel {
+  const DisReportWorkflowResponseStepsItem({
+    required this.id,
+    required this.kind,
+    required this.name,
+    required this.status,
+    required this.slaWorkingHours,
+    required this.tasks,
+    this.dueAt,
+    this.overdue,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportWorkflowResponseStepsItem.fromJson(Object? json, [String path = 'DisReportWorkflowResponseStepsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportWorkflowResponseStepsItem(
+      id: requiredField(map, path, 'id', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      name: requiredField(map, path, 'name', asString),
+      status: requiredField(map, path, 'status', asString),
+      slaWorkingHours: requiredField(map, path, 'sla_working_hours', asNum),
+      dueAt: optionalField(map, path, 'due_at', nullable(asString)),
+      overdue: optionalField(map, path, 'overdue', asBool),
+      tasks: requiredField(map, path, 'tasks', asList(DisReportWorkflowResponseStepsItemTasksItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'name', 'status', 'sla_working_hours', 'due_at', 'overdue', 'tasks'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String kind;
+  final String name;
+  final String status;
+  final num slaWorkingHours;
+  final String? dueAt;
+  final bool? overdue;
+  final List<DisReportWorkflowResponseStepsItemTasksItem> tasks;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'kind': kind,
+        'name': name,
+        'status': status,
+        'sla_working_hours': slaWorkingHours,
+        if (dueAt != null) 'due_at': dueAt,
+        if (overdue != null) 'overdue': overdue,
+        'tasks': tasks.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class DisReportWorkflowResponseStepsItemTasksItem implements ResponseModel {
+  const DisReportWorkflowResponseStepsItemTasksItem({
+    this.taskId,
+    this.assignee,
+    this.status,
+    this.decision,
+    this.decidedAt,
+    this.dueAt,
+    this.overdueReminders,
+    this.escalatedAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportWorkflowResponseStepsItemTasksItem.fromJson(Object? json, [String path = 'DisReportWorkflowResponseStepsItemTasksItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportWorkflowResponseStepsItemTasksItem(
+      taskId: optionalField(map, path, 'task_id', asString),
+      assignee: optionalField(map, path, 'assignee', DisReportWorkflowResponseStepsItemTasksItemAssignee.fromJson),
+      status: optionalField(map, path, 'status', asString),
+      decision: optionalField(map, path, 'decision', nullable(asString)),
+      decidedAt: optionalField(map, path, 'decided_at', nullable(asString)),
+      dueAt: optionalField(map, path, 'due_at', asString),
+      overdueReminders: optionalField(map, path, 'overdue_reminders', asInt),
+      escalatedAt: optionalField(map, path, 'escalated_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'assignee', 'status', 'decision', 'decided_at', 'due_at', 'overdue_reminders', 'escalated_at'}, strict: false),
+    );
+  }
+
+  final String? taskId;
+  final DisReportWorkflowResponseStepsItemTasksItemAssignee? assignee;
+  final String? status;
+  final String? decision;
+  final String? decidedAt;
+  final String? dueAt;
+  final int? overdueReminders;
+  final String? escalatedAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (taskId != null) 'task_id': taskId,
+        if (assignee != null) 'assignee': assignee!.toJson(),
+        if (status != null) 'status': status,
+        if (decision != null) 'decision': decision,
+        if (decidedAt != null) 'decided_at': decidedAt,
+        if (dueAt != null) 'due_at': dueAt,
+        if (overdueReminders != null) 'overdue_reminders': overdueReminders,
+        if (escalatedAt != null) 'escalated_at': escalatedAt,
+        ...extra,
+      };
+}
+
+final class DisReportWorkflowResponseStepsItemTasksItemAssignee implements ResponseModel {
+  const DisReportWorkflowResponseStepsItemTasksItemAssignee({
+    this.id,
+    this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportWorkflowResponseStepsItemTasksItemAssignee.fromJson(Object? json, [String path = 'DisReportWorkflowResponseStepsItemTasksItemAssignee']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportWorkflowResponseStepsItemTasksItemAssignee(
+      id: optionalField(map, path, 'id', asString),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'name'}, strict: false),
+    );
+  }
+
+  final String? id;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (id != null) 'id': id,
+        if (name != null) 'name': name,
         ...extra,
       };
 }

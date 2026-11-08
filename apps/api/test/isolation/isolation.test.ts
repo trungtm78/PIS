@@ -473,6 +473,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'listWeeklyDisbursementPlans',
         'uploadReportFile',
         'getReportRevision',
+        'getReportWorkflow',
         'getReportImport',
         'get_resources_report_revision',
         'get_resources_report_revision_id',

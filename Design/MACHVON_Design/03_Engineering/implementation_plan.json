@@ -41440,7 +41440,8 @@
       ],
       "operations": [
         "post_reports_id_decision",
-        "post_reports_id_corrections"
+        "post_reports_id_corrections",
+        "getReportWorkflow"
       ],
       "tables": [],
       "nfr": [

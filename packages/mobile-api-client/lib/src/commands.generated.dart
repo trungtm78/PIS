@@ -1159,6 +1159,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getReportRevision({required String id, Map<String, Object?>? query}) =>
       execute('getReportRevision', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getReportWorkflow({required String id, Map<String, Object?>? query}) =>
+      execute('getReportWorkflow', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getSitePhotoChecks({required String id, Map<String, Object?>? query}) =>
       execute('getSitePhotoChecks', path: <String, Object?>{'id': id}, query: query);
 
