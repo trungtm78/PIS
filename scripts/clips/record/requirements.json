@@ -1,0 +1,21 @@
+{
+  "note": "The lists a seeded tenant must have rows in before a clip is recorded (the owner requires real data in every clip). count: a path into the answer ('items.length', 'total', 'counts.total') or 'auto' (the first list of the answer, or its 'total').",
+  "public": [
+    { "id": "projects", "label": "Projects", "path": "/resources/project", "count": "items.length", "min": 5 },
+    { "id": "contracts", "label": "Contracts", "path": "/resources/contract", "count": "items.length", "min": 3 },
+    { "id": "contractors", "label": "Contractors", "path": "/resources/contractor", "count": "items.length", "min": 3 },
+    { "id": "payments", "label": "Payment requests", "path": "/resources/payment_request", "count": "items.length", "min": 3 },
+    { "id": "packages", "label": "Procurement packages in the progress tree", "path": "/package-workflows/summary", "count": "total", "min": 5 },
+    { "id": "alerts", "label": "Alerts in the alert centre", "path": "/home/my-work/counts", "count": "counts.total", "min": 1 },
+    { "id": "dashboards", "label": "BI dashboards", "path": "/bi/dashboards", "count": "auto", "min": 1 }
+  ],
+  "enterprise": [
+    { "id": "projects", "label": "Projects", "path": "/resources/project", "count": "items.length", "min": 5 },
+    { "id": "contracts", "label": "Contracts", "path": "/resources/contract", "count": "items.length", "min": 3 },
+    { "id": "payments", "label": "Payment requests", "path": "/resources/payment_request", "count": "items.length", "min": 3 },
+    { "id": "packages", "label": "Procurement packages in the progress tree", "path": "/package-workflows/summary", "count": "total", "min": 3 },
+    { "id": "alerts", "label": "Alerts in the alert centre", "path": "/home/my-work/counts", "count": "counts.total", "min": 1 },
+    { "id": "directives", "label": "Directives of the meeting", "path": "/directives/summary", "count": "total", "min": 1 },
+    { "id": "dashboards", "label": "BI dashboards", "path": "/bi/dashboards", "count": "auto", "min": 1 }
+  ]
+}

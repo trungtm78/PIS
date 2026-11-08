@@ -1,0 +1,29 @@
+{
+  "id": "example-progress-tree-web",
+  "platform": "web",
+  "edition": "public",
+  "persona": "projectManager",
+  "steps": [
+    {
+      "id": "open-tree",
+      "heading": "Mở cây tiến độ",
+      "screens": ["BID-27"],
+      "minMs": 3000,
+      "actions": [
+        { "do": "goto", "path": "/bid/bid-27" },
+        { "do": "expect", "target": "css:[data-screen-id]" },
+        { "do": "wait", "ms": 1200 }
+      ]
+    },
+    {
+      "id": "open-node",
+      "heading": "Bấm vào một bước để xem các gói",
+      "screens": ["BID-27"],
+      "actions": [
+        { "do": "click", "target": "css:.ui-process-tree__node" },
+        { "do": "wait", "ms": 1500 },
+        { "do": "scroll", "ms": 3000 }
+      ]
+    }
+  ]
+}
