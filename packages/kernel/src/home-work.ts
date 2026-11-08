@@ -52,6 +52,14 @@ export const WORK_KINDS = [
   'VENDOR_DEBARMENT_DECISION',
   'VENDOR_PAYEE_ACCOUNT',
   'VENDOR_QUALIFICATION_EXPIRY',
+  // The claim register and the early-warning register of a contract (lane GOV-8): a limitation day, a response or a settlement of a claim, and the rhythm and the actions of the early-warning register.
+  'CLAIM_LIMITATION_APPROACHING',
+  'CLAIM_LIMITATION_MISSED',
+  'CLAIM_RESPONSE_DUE',
+  'CLAIM_SETTLEMENT_OVERDUE',
+  'EW_REGISTER_OVERDUE',
+  'EW_MEETING_OVERDUE',
+  'EW_ACTION_OVERDUE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -100,6 +108,13 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   VENDOR_DEBARMENT_DECISION: 37,
   VENDOR_PAYEE_ACCOUNT: 38,
   VENDOR_QUALIFICATION_EXPIRY: 39,
+  CLAIM_LIMITATION_APPROACHING: 40,
+  CLAIM_LIMITATION_MISSED: 41,
+  CLAIM_RESPONSE_DUE: 42,
+  CLAIM_SETTLEMENT_OVERDUE: 43,
+  EW_REGISTER_OVERDUE: 44,
+  EW_MEETING_OVERDUE: 45,
+  EW_ACTION_OVERDUE: 46,
 };
 
 export interface WorkItem {

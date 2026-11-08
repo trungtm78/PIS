@@ -5,6 +5,8 @@ import { paymentClockDefaults, paymentClockParams } from './ctr-reports.ts';
 import { FIN_CRITERIA_CATEGORIES, FIN_CRITERIA_DEFAULTS, assertCriteriaSet } from './fin-criteria.ts';
 import { KPI_HOME_DEFAULTS, RAG_EWS_DEFAULTS } from './analytics-rule-defaults.ts';
 import { DIRECTIVE_POLICY_DEFAULTS, parseDirectivePolicy } from './directive.ts';
+import { CLAIM_POLICY_DEFAULTS, parseClaimPolicy } from './ctr-claim.ts';
+import { EARLY_WARNING_POLICY_DEFAULTS, parseEarlyWarningPolicy } from './ctr-early-warning.ts';
 import { B1_DEFAULTS, EAC_METHODS } from './gov-b1-policy.ts';
 import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_SOURCE, WORKFLOW_METHODS, WORKFLOW_RULE_TYPE, defaultWorkflowParams, parseWorkflowDefinition } from './bid-workflow.ts';
 import { MILESTONE_KINDS } from './procurement-file.ts';
@@ -1481,6 +1483,89 @@ export const registerVendorRules = (): void =>
     });
   });
 
+const CLAIM_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'CLAIM_LIMITATION_APPROACHING', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_approaching'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_approaching'), hours: 48, severity: 'ACTION', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_approaching') },
+  { code: 'CLAIM_LIMITATION_MISSED', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_limitation_missed'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_limitation_missed'), hours: 24, severity: 'URGENT', why: message('gov.rules.claim_alert_seeds.why.claim_limitation_missed') },
+  { code: 'CLAIM_RESPONSE_DUE', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_response_due'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_response_due'), hours: 48, severity: 'ACTION', why: message('gov.rules.claim_alert_seeds.why.claim_response_due') },
+  { code: 'CLAIM_SETTLEMENT_OVERDUE', source: 'CONTRACT_CLAIM', owner: 'CONTRACT_MANAGER', action: message('gov.rules.claim_alert_seeds.action.claim_settlement_overdue'), consequence: message('gov.rules.claim_alert_seeds.consequence.claim_settlement_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.claim_alert_seeds.why.claim_settlement_overdue') },
+];
+
+const EARLY_WARNING_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'EW_REGISTER_OVERDUE', source: 'CONTRACT_EARLY_WARNING', owner: 'CONTRACT_MANAGER', action: message('gov.rules.early_warning_alert_seeds.action.ew_register_overdue'), consequence: message('gov.rules.early_warning_alert_seeds.consequence.ew_register_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.early_warning_alert_seeds.why.ew_register_overdue') },
+  { code: 'EW_MEETING_OVERDUE', source: 'CONTRACT_EARLY_WARNING', owner: 'CONTRACT_MANAGER', action: message('gov.rules.early_warning_alert_seeds.action.ew_meeting_overdue'), consequence: message('gov.rules.early_warning_alert_seeds.consequence.ew_meeting_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.early_warning_alert_seeds.why.ew_meeting_overdue') },
+  { code: 'EW_ACTION_OVERDUE', source: 'CONTRACT_EARLY_WARNING', owner: 'EARLY_WARNING_ACTION_OWNER', action: message('gov.rules.early_warning_alert_seeds.action.ew_action_overdue'), consequence: message('gov.rules.early_warning_alert_seeds.consequence.ew_action_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.early_warning_alert_seeds.why.ew_action_overdue') },
+];
+
+const CLAIM_BASES = ['CALENDAR_DAYS', 'WORKING_DAYS'] as const;
+const CLAIM_BAR_EFFECTS = ['BARS_CLAIM', 'REDUCES_RELIEF', 'NONE', 'NOT_STATED'] as const;
+
+/**
+ * The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15; `docs/ctr-claims.md`, `docs/ctr-early-warning.md`). The register keeps no period of any contract in code: the limits of a
+ * claim come from the term of its own contract (approved by a second person), and the starting numbers of the international forms are only templates a person may copy into a proposal (never applied by themselves,
+ * never to a domestic contract that does not say so). The policies here are the working numbers of the registers themselves, flagged unverified until the tenant approves its own.
+ */
+export const registerClaimRules = (): void =>
+  once('claim', () => {
+    registerCoreRules();
+    registerRuleType({
+      type: 'CLAIM_POLICY',
+      ownerModule: 'CTR',
+      modules: ['CTR', 'HOME'],
+      formula: message('gov.rules.register_claim_rules.formula.claim_policy'),
+      source: message('gov.rules.register_claim_rules.source.claim_policy'),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { approach_days: int(1, 90), response_approach_days: int(1, 90) },
+      refine: refineWith(parseClaimPolicy),
+      defaults: { DEFAULT: rule({ approach_days: CLAIM_POLICY_DEFAULTS.approachDays, response_approach_days: CLAIM_POLICY_DEFAULTS.responseApproachDays }) },
+    });
+    registerRuleType({
+      type: 'CLAIM_TERM_TEMPLATE',
+      ownerModule: 'CTR',
+      modules: ['CTR'],
+      formula: message('gov.rules.register_claim_rules.formula.claim_term_template'),
+      source: message('gov.rules.register_claim_rules.source.claim_term_template'),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        notice_days: int(1, 3650, true),
+        particulars_days: int(1, 3650, true),
+        response_days: int(1, 3650, true),
+        settlement_days: int(1, 3650, true),
+        basis: oneOf(...CLAIM_BASES),
+        particulars_from: oneOf('AWARENESS', 'NOTICE'),
+        bar_effect: oneOf(...CLAIM_BAR_EFFECTS),
+      },
+      // A template is a starting point for a proposal: the clause of the contract and the approval of a second person still decide, and the register never applies one to a contract by itself.
+      defaults: {
+        FIDIC_2017_EXAMPLE: rule({ notice_days: 28, particulars_days: 84, response_days: 42, basis: 'CALENDAR_DAYS', particulars_from: 'AWARENESS', bar_effect: 'BARS_CLAIM' }, undefined, { formula: message('gov.rules.claim_term_template.fidic_2017_example.formula') }),
+        NEC4_EXAMPLE: rule({ notice_days: 56, response_days: 14, basis: 'CALENDAR_DAYS', particulars_from: 'NOTICE', bar_effect: 'BARS_CLAIM' }, undefined, { formula: message('gov.rules.claim_term_template.nec4_example.formula') }),
+      },
+    });
+    registerRuleType({
+      type: 'EARLY_WARNING_POLICY',
+      ownerModule: 'CTR',
+      modules: ['CTR', 'HOME'],
+      formula: message('gov.rules.register_claim_rules.formula.early_warning_policy'),
+      source: message('gov.rules.register_claim_rules.source.early_warning_policy'),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { initial_issue_within_days: int(1, 90), meeting_every_days: int(1, 180), reissue_within_days_after_meeting: int(1, 90), approach_days: int(1, 30), basis: oneOf(...CLAIM_BASES) },
+      refine: refineWith(parseEarlyWarningPolicy),
+      defaults: {
+        DEFAULT: rule({
+          initial_issue_within_days: EARLY_WARNING_POLICY_DEFAULTS.initialIssueWithinDays,
+          meeting_every_days: EARLY_WARNING_POLICY_DEFAULTS.meetingEveryDays,
+          reissue_within_days_after_meeting: EARLY_WARNING_POLICY_DEFAULTS.reissueWithinDaysAfterMeeting,
+          approach_days: EARLY_WARNING_POLICY_DEFAULTS.approachDays,
+          basis: EARLY_WARNING_POLICY_DEFAULTS.basis,
+        }),
+      },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(CLAIM_ALERT_SEEDS, { source: message('gov.rules.register_claim_rules.source.claim_alerts') }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(EARLY_WARNING_ALERT_SEEDS, { source: message('gov.rules.register_claim_rules.source.early_warning_alerts') }));
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -1497,6 +1582,7 @@ export function registerAllGovernanceRules(): void {
   registerProcurementWorkflowRules();
   registerApprovalWorkflowRules();
   registerVendorRules();
+  registerClaimRules();
 }
 
 registerAllGovernanceRules();

@@ -1687,3 +1687,14 @@ export * from './vendor-venture-store.ts';
 export * from './vendor-reputation-store.ts';
 export * from './vendor-gate.ts';
 export { HomeVendorSources, VENDOR_AUDIENCE_PERMISSIONS } from './home-vendor-sources.ts';
+=======
+// The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
+export { CtrRegisterPolicy } from './ctr-register-policy.ts';
+export type { ClaimTermTemplate, PolicyBasis, PolicyReading } from './ctr-register-policy.ts';
+export { CtrClaimTermStore } from './ctr-claim-term-store.ts';
+export type { ClaimTermMove, ClaimTermProposal, ClaimTermRow } from './ctr-claim-term-store.ts';
+export { CLAIM_REGISTER_LIMIT, CtrClaimStore, claimViewOf, factsOf as claimFactsOf } from './ctr-claim-store.ts';
+export type { ClaimDetail, ClaimFilter, ClaimMove, ClaimRegisterPage, ClaimRow, ClaimStepRow, ClaimView } from './ctr-claim-store.ts';
+export { CtrEarlyWarningStore, WARNING_REGISTER_LIMIT, warningFactsOf } from './ctr-early-warning-store.ts';
+export type { EarlyWarningActionMove, EarlyWarningActionRow, EarlyWarningIssueMove, EarlyWarningIssueRow, EarlyWarningMeetingMove, EarlyWarningMeetingRow, EarlyWarningRegisterView, EarlyWarningWarningDetail, EarlyWarningWarningFilter, EarlyWarningWarningMove, EarlyWarningWarningPage, EarlyWarningWarningRow } from './ctr-early-warning-store.ts';
+export { HomeContractRegisterSources, topClaimAlert } from './home-contract-register-sources.ts';

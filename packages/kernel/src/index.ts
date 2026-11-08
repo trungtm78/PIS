@@ -2533,3 +2533,8 @@ export * from './vendor-payee.ts';
 export * from './vendor-qualification.ts';
 export * from './vendor-restriction.ts';
 export * from './vendor-defaults.ts';
+=======
+// The claim register and the early-warning register of a contract (lane GOV-8: G1-9, G1-15).
+export * from './ctr-claim.ts';
+export * from './ctr-early-warning.ts';
+export { registerClaimRules } from './governance-rules.ts';

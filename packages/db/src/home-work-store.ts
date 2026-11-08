@@ -11,6 +11,7 @@ import type { SeverityRules, WorkEscalation, WorkLifecycle, WorkSeverity, WorkSo
 import { HomeConnectorSources } from './home-connector-sources.ts';
 import { HomeEgpPostingSources } from './home-egp-posting-sources.ts';
 import { HomeVendorSources } from './home-vendor-sources.ts';
+import { HomeContractRegisterSources } from './home-contract-register-sources.ts';
 import { HomeDirectiveSources } from './home-directive-sources.ts';
 import { HomeIntegritySources } from './home-integrity-sources.ts';
 import { HomePrcSources } from './home-prc-sources.ts';
@@ -141,6 +142,7 @@ export class HomeWorkStore {
   private readonly connectors = new HomeConnectorSources();
   private readonly egpPostings = new HomeEgpPostingSources();
   private readonly vendors = new HomeVendorSources();
+  private readonly contractRegisters = new HomeContractRegisterSources();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -186,6 +188,8 @@ export class HomeWorkStore {
       ['CONNECTOR', () => this.connectors.items(context)],
       ['EGP_POSTING', () => this.egpPostings.items(context)],
       ['VENDOR', () => this.vendors.items(context)],
+      ['CONTRACT_CLAIM', () => this.contractRegisters.claims(context)],
+      ['CONTRACT_EARLY_WARNING', () => this.contractRegisters.earlyWarnings(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];
