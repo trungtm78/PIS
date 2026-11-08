@@ -159,7 +159,7 @@ export class ReportController {
       snapshotRef: snapshot,
       marks,
       gridIssues: rendered.issues,
-      preview: rendered.preview,
+      preview: { columns: rendered.preview.columns, rows: rendered.preview.rows, row_count: rendered.preview.rowCount, truncated: rendered.preview.truncated, narrative: rendered.preview.narrative, stamp: rendered.preview.stamp },
       preparedBy: by,
     });
     await this.announceDraft(scope, draft, 'rpt.report_generated', 'rpt.report.generated.v1', { data_source: draft.dataSource, issue_count: rendered.issues.length, base_revision: draft.baseRevision, snapshot_id: snapshot?.snapshotId ?? null, snapshot_revision: snapshot?.revision ?? null });

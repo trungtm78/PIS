@@ -212,7 +212,7 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect(again.json).toMatchObject({ outcome: 'EXISTING', draft_id: draftId });
   });
 
-  it('keeps preparer, checker and approver three different people, in order, and the approver issues', async () => {
+  it('AC-ST-RPT-001-1 / UAT-RPT-001: keeps preparer, checker and approver three different people, in order, and the approver issues', async () => {
     const made = await generate(PREPARER);
     const draftId = made.json.draft_id as string;
     // Out of order: nobody approves or issues what was not checked.
@@ -257,7 +257,7 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect((await call('GET', `/report-engine/issues/${issueId}`, { member: B_ADMIN, tenantId: TENANT_B })).status).toBe(404);
   });
 
-  it('knows a repeat of the same bytes (DUPLICATE) and makes a correction a new revision that needs a reason and names the copy it replaces', async () => {
+  it('AC-ST-RPT-001-2 / UAT-RPT-002: knows a repeat of the same bytes (DUPLICATE) and makes a correction a new revision that needs a reason and names the copy it replaces', async () => {
     // The head of the series is revision 1 from the test before: the same figures give the same bytes.
     const same = await generate(PREPARER);
     expect(same.json).toMatchObject({ outcome: 'DUPLICATE', draft_id: null, revision: 1 });

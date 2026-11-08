@@ -2427,15 +2427,19 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CLARIFICATION, [tenantId, CLARIFICATION_FIXTURES[tenant].id, pack.id, proposal.id, CLARIFICATION_FIXTURES[tenant].question, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
     // The report engine: a layout with its template and file, an open draft and a copy that was issued from an approved draft by three different people.
-    const report = REPORT_ENGINE_FIXTURES[tenant];
-    const reportBytes = Buffer.from(report.content);
-    await client.query(INSERT_REPORT_TEMPLATE, [tenantId, report.sha256, reportBytes.length, reportBytes, ACTOR_ID]);
-    await client.query(INSERT_REPORT_FILE, [tenantId, report.sha256, reportBytes.length, reportBytes, ACTOR_ID]);
-    await client.query(INSERT_REPORT_LAYOUT, [tenantId, report.layoutId, report.layoutName, report.sha256, ACTOR_ID]);
-    await client.query(INSERT_REPORT_DRAFT, [tenantId, report.draftId, report.layoutId, '2026-M01', 'DRAFT', report.sha256, ACTOR_ID, null, null, null, null]);
-    await client.query(INSERT_REPORT_DRAFT, [tenantId, report.issuedDraftId, report.layoutId, '2026-M02', 'APPROVED', report.sha256, ACTOR_ID, MEMBERSHIP_ID, '2026-02-01T03:00:00Z', APPROVER_ID, '2026-02-02T03:00:00Z']);
-    await client.query(INSERT_REPORT_ISSUE, [tenantId, report.issueId, report.layoutId, report.issuedDraftId, report.sha256, ACTOR_ID, MEMBERSHIP_ID, APPROVER_ID]);
-    await client.query(CLOSE_REPORT_DRAFT, [report.issuedDraftId, report.issueId]);
+    const rptFixture = REPORT_ENGINE_FIXTURES[tenant];
+    const reportBytes = Buffer.from(rptFixture.content);
+    await client.query(INSERT_REPORT_TEMPLATE, [tenantId, rptFixture.sha256, reportBytes.length, reportBytes, ACTOR_ID]);
+    await client.query(INSERT_REPORT_FILE, [tenantId, rptFixture.sha256, reportBytes.length, reportBytes, ACTOR_ID]);
+    await client.query(INSERT_REPORT_LAYOUT, [tenantId, rptFixture.layoutId, rptFixture.layoutName, rptFixture.sha256, ACTOR_ID]);
+    await client.query(INSERT_REPORT_DRAFT, [tenantId, rptFixture.draftId, rptFixture.layoutId, '2026-M01', 'DRAFT', rptFixture.sha256, ACTOR_ID, null, null, null, null]);
+    await client.query(INSERT_REPORT_DRAFT, [tenantId, rptFixture.issuedDraftId, rptFixture.layoutId, '2026-M02', 'APPROVED', rptFixture.sha256, ACTOR_ID, MEMBERSHIP_ID, '2026-02-01T03:00:00Z', APPROVER_ID, '2026-02-02T03:00:00Z']);
+    // The seed may run again: a copy that exists is not issued twice (the trigger of the copy refuses a draft that is not APPROVED any more).
+    const issued = await client.query('select 1 from machvon.report_issue where id = $1', [rptFixture.issueId]);
+    if (issued.rowCount === 0) {
+      await client.query(INSERT_REPORT_ISSUE, [tenantId, rptFixture.issueId, rptFixture.layoutId, rptFixture.issuedDraftId, rptFixture.sha256, ACTOR_ID, MEMBERSHIP_ID, APPROVER_ID]);
+      await client.query(CLOSE_REPORT_DRAFT, [rptFixture.issuedDraftId, rptFixture.issueId]);
+    }
 
     // A file of the proposal and the page of it that waits for a person: the review command finds the page through the proposal.
     const ocr = OCR_FIXTURES[tenant];

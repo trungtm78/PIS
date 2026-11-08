@@ -154,7 +154,7 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     }
   });
 
-  it('issues a demo copy with its mark, never counts it as accepted, delivers it, and refuses the receiver acceptance of it, in the database as well', async () => {
+  it('AC-ST-RPT-001-3 / UAT-RPT-003: issues a demo copy with its mark, never counts it as accepted, delivers it, and refuses the receiver acceptance of it, in the database as well', async () => {
     process.env.DEMO_FORMS = 'true';
     const draftId = await approvedDraft('HPM-MONTHLY');
     const issued = await step(APPROVER, draftId, 3, 'issue');
