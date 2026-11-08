@@ -1,5 +1,5 @@
-import { DomainError, PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, clockDueAt, clockKindOf, judgePaymentClock, paymentClockParams, returnReasonParams, summariseClocks } from '@machvon/kernel';
-import type { ClockBasis, ClockEnd, ClockSummary, PaymentClockKind, PaymentClockParams, PaymentClockState, Provenance, ReasonCatalogue, ReturnReasonParams, WorkCalendarSource } from '@machvon/kernel';
+import { DomainError, PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, clockDueAt, clockKindOf, judgePaymentClock, payClockParams, returnReasonParams, summariseClocks } from '@machvon/kernel';
+import type { ClockBasis, ClockEnd, ClockSummary, PaymentClockKind, PayClockParams, PaymentClockState, Provenance, ReasonCatalogue, ReturnReasonParams, WorkCalendarSource } from '@machvon/kernel';
 import { SCOPE_FROM as CONTRACT_SCOPE_FROM } from './ctr-contract-store.ts';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
@@ -92,7 +92,7 @@ export interface ClockBoard {
 
 export interface ClockRuleReading {
   kind: PaymentClockKind;
-  params: PaymentClockParams;
+  params: PayClockParams;
   version: number;
   source: 'RULE' | 'DEFAULT';
   unverified: boolean;
@@ -164,7 +164,7 @@ export class PayClockStore {
   /** The rule of a clock kind in force on a day, read through the governance port (the approved rule of the tenant, else the built-in default). */
   async rule(tx: TenantTx, kind: PaymentClockKind, today: string): Promise<ClockRuleReading> {
     const resolved = await this.policy.require(tx, PAYMENT_CLOCK_RULE_TYPE, kind, today);
-    return { kind, params: paymentClockParams(resolved.params), version: resolved.version, source: resolved.source, unverified: resolved.unverified, provenance: resolved.provenance };
+    return { kind, params: payClockParams(resolved.params), version: resolved.version, source: resolved.source, unverified: resolved.unverified, provenance: resolved.provenance };
   }
 
   /** The standard reasons in force on a day (a code a tenant retired is `active: false` and still read on old returns); sorted by code. */

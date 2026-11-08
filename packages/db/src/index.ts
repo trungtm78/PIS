@@ -1776,3 +1776,5 @@ export { CtrRatingStore, RATING_NOTIFY_PERMISSION, RATING_PROPOSE_PERMISSION, RA
 export type { RatingListFilter, RatingProposalRow, RatingRule } from './ctr-rating-store.ts';
 export { CapReallocationImpactStore, REALLOCATION_IMPACT_RESOURCE, reallocationImpactRecord, wholeScope } from './cap-reallocation-impact-store.ts';
 export type { CandidatesView, ImpactView, PlanLine, ReadPolicy } from './cap-reallocation-impact-store.ts';
+=======
+export type { CandidatesView, ImpactView, PlanLine as ReallocationPlanLine, ReadPolicy as ReallocationReadPolicy } from './cap-reallocation-impact-store.ts';
