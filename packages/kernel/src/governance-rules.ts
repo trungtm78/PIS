@@ -25,6 +25,7 @@ import { PAYMENT_CLOCK_RULE_TYPE, PAYMENT_RETURN_REASON_RULE_TYPE, RETURN_REASON
 import { ACCURACY_RULE_CODE, ACCURACY_RULE_TYPE, MILESTONE_RULE_CODE, MILESTONE_RULE_TYPE, MONTH_DAY_PATTERN, accuracyDefaults, accuracyPolicyOf, milestoneDefaults, milestonePolicyOf } from './dis-milestone-forecast.ts';
 import { BASELINE_IMPACT_RULE_CODE, BASELINE_IMPACT_RULE_TYPE, baselineImpactDefaults, baselineImpactOf } from './ctr-adjustment.ts';
 import { CONTRACT_SETTLEMENT_RULE_TYPE, SETTLEMENT_CLOCK_STARTS, settlementDeadlineDefaults, settlementDeadlineParams } from './ctr-settlement-clock.ts';
+import { LESSONS_RULE_TYPE, LOOK_AHEAD_RULE_TYPE, POLICY_RULE_CODE, lessonsDefaults, lessonsPolicyOf, lookAheadDefaults, lookAheadPolicyOf } from './prj-look-ahead.ts';
 import { message } from './messages.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
@@ -2048,9 +2049,51 @@ export const registerSettlementClockRules = (): void =>
   });
 
 /** The look-ahead window and the lessons learned at the closing gate (G1-19). */
+const LOOK_AHEAD_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'LOOK_AHEAD_NOT_READY', source: 'LOOK_AHEAD', owner: 'SITE_MANAGER', action: message('gov.rules.look_ahead_alert_seeds.action.look_ahead_not_ready'), consequence: message('gov.rules.look_ahead_alert_seeds.consequence.look_ahead_not_ready'), hours: 48, severity: 'ACTION', why: message('gov.rules.look_ahead_alert_seeds.why.look_ahead_not_ready') },
+  { code: 'LOOK_AHEAD_MISSING', source: 'LOOK_AHEAD', owner: 'SITE_MANAGER', action: message('gov.rules.look_ahead_alert_seeds.action.look_ahead_missing'), consequence: message('gov.rules.look_ahead_alert_seeds.consequence.look_ahead_missing'), hours: 72, severity: 'WATCH', why: message('gov.rules.look_ahead_alert_seeds.why.look_ahead_missing') },
+  { code: 'LESSONS_LEARNED_MISSING', source: 'LESSONS_LEARNED', owner: 'PROJECT_OWNER', action: message('gov.rules.look_ahead_alert_seeds.action.lessons_learned_missing'), consequence: message('gov.rules.look_ahead_alert_seeds.consequence.lessons_learned_missing'), hours: 168, severity: 'WATCH', why: message('gov.rules.look_ahead_alert_seeds.why.lessons_learned_missing') },
+];
+
 export const registerLookAheadRules = (): void =>
   once('gov11-look-ahead', () => {
     registerCoreRules();
+    const source = message('gov.rules.register_look_ahead_rules.source');
+    registerRuleType({
+      type: LOOK_AHEAD_RULE_TYPE,
+      ownerModule: 'PRJ',
+      modules: ['PRJ', 'QMS', 'HOME'],
+      formula: message('gov.rules.register_look_ahead_rules.formula.look_ahead_policy'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        min_weeks: int(1, 12),
+        max_weeks: int(1, 26),
+        default_weeks: int(1, 26),
+        cadence_days: int(1, 31),
+        ready_lead_days: int(0, 60),
+        ppc_target_pct: num(0, 100),
+        ppc_alert_below_pct: num(0, 100),
+        constraint_kinds: list(codeText(), 40, 1),
+        variance_reasons: list(codeText(), 40, 1),
+      },
+      refine: refineWith(lookAheadPolicyOf),
+      defaults: { [POLICY_RULE_CODE]: rule(lookAheadDefaults()) },
+    });
+    registerRuleType({
+      type: LESSONS_RULE_TYPE,
+      ownerModule: 'PRJ',
+      modules: ['PRJ', 'MNE', 'HOME'],
+      formula: message('gov.rules.register_look_ahead_rules.formula.lessons_learned_policy'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { required_at: list(oneOf('CLOSE'), 4), min_approved: int(0, 20), allow_waiver: bool, min_text_length: int(5, 500), categories: list(codeText(), 40, 1) },
+      refine: refineWith(lessonsPolicyOf),
+      defaults: { [POLICY_RULE_CODE]: rule(lessonsDefaults()) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(LOOK_AHEAD_ALERT_SEEDS, { source: message('gov.rules.register_look_ahead_rules.source_2') }));
   });
 
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */

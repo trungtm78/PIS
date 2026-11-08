@@ -3043,3 +3043,34 @@ export {
 export type { AdjustmentClass, AdjustmentImpact, AdjustmentInput, AdjustmentReviewDecision, BaselineImpactPolicy } from './ctr-adjustment.ts';
 export { LINKAGE_CODES, judgeLinkage } from './ctr-linkage.ts';
 export type { LinkageCode, LinkageFacts, LinkageFinding, LinkageReading } from './ctr-linkage.ts';
+
+// GOV-11 PRJ (G1-19): the look-ahead plan of 2 to 6 weeks, the PPC and the lessons learned at the closing gate.
+export {
+  CONSTRAINT_KINDS,
+  ITEM_STATES,
+  LESSON_CATEGORIES,
+  LESSON_GATES,
+  LESSONS_RULE_TYPE,
+  LOOK_AHEAD_RULE_TYPE,
+  POLICY_RULE_CODE as LOOK_AHEAD_RULE_CODE,
+  VARIANCE_REASONS,
+  addDaysTo,
+  assertConstraintKind,
+  assertItems as assertLookAheadItems,
+  assertLesson,
+  assertOutcome as assertLookAheadOutcome,
+  assertWindow as assertLookAheadWindow,
+  daysBetweenDays as daysBetweenCalendarDays,
+  isMonday,
+  itemState as lookAheadItemState,
+  lessonsDefaults,
+  lessonsGate,
+  lessonsPolicyOf,
+  lookAheadDefaults,
+  lookAheadPolicyOf,
+  mondayOf,
+  planOverdue as lookAheadPlanOverdue,
+  ppcOf,
+  windowEnd as lookAheadWindowEnd,
+} from './prj-look-ahead.ts';
+export type { ItemDraft as LookAheadItemDraft, ItemFacts as LookAheadItemFacts, ItemState as LookAheadItemState, LessonDraft, LessonsGateFacts, LessonsGateReading, LessonsGateReason, LessonsPolicy, LookAheadPolicy, Ppc } from './prj-look-ahead.ts';
