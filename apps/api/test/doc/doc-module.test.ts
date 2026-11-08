@@ -8,6 +8,7 @@ import { DocInteropService } from '../../src/modules/doc/interop.service';
 import { UnconfiguredInteropTransport } from '../../src/modules/doc/interop-port';
 import type { DocumentFilePort } from '../../src/modules/doc/file-port';
 import { DOC_INTEROP_TRANSPORT, DOC_STATE_TEXT, PDF_RENDERER } from '../../src/modules/doc/tokens';
+import { APPROVAL_FINAL_COMMANDS, FinalCommandRegistry } from '../../src/modules/adm/approval.service';
 import { FileService } from '../../src/modules/files';
 import { WEBHOOK_SECRETS } from '../../src/notifications/delivery/webhook-support';
 import { MODULES } from '../../src/modules/registry';
@@ -17,14 +18,15 @@ import { sampleRequest } from './render-fixture';
 const OUTSIDE = [
   { provide: TenantDatabase, useValue: {} },
   { provide: FileService, useValue: {} },
+  { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
   { provide: WEBHOOK_SECRETS, useValue: { resolve: () => Promise.resolve([]) } },
 ];
 
 describe('docModule', () => {
-  it('is registered under the code DOC with its nineteen controllers', () => {
+  it('is registered under the code DOC with its twenty-five controllers', () => {
     expect(MODULES).toContain(docModule);
     expect(docModule.code).toBe('DOC');
-    expect(docModule.controllers.map((controller) => controller.name)).toEqual(['IncomingController', 'IncomingReadsController', 'DossiersController', 'DossierReadsController', 'RetentionRulesController', 'DocumentOverviewController', 'DocumentsController', 'DocumentVersionReadsController', 'OutgoingController', 'OutgoingDraftsController', 'IssueRequestsController', 'SignedDocumentsController', 'DocumentFilesController', 'RegistersController', 'SignaturesController', 'DocumentTemplatesController', 'LayoutProfilesController', 'OutgoingIssuanceController', 'DocumentDistributionsController', 'DocInteropController', 'OutgoingRecallController', 'OutgoingSupersessionController']);
+    expect(docModule.controllers.map((controller) => controller.name)).toEqual(['IncomingController', 'IncomingReadsController', 'DossiersController', 'DossierReadsController', 'RetentionRulesController', 'DocumentOverviewController', 'DocumentsController', 'DocumentVersionReadsController', 'OutgoingController', 'OutgoingDraftsController', 'IssueRequestsController', 'SignedDocumentsController', 'DocumentFilesController', 'RegistersController', 'SignaturesController', 'DocumentTemplatesController', 'LayoutProfilesController', 'OutgoingIssuanceController', 'DocumentDistributionsController', 'DocInteropController', 'OutgoingRecallController', 'OutgoingSupersessionController', 'ProjectDocumentFilesController', 'ProjectDocumentsController', 'ProjectDocumentReadsController', 'DocumentCommentsController', 'DocumentReviewsController', 'DocumentReviewReadsController']);
   });
 
   it('wires a renderer that draws with the vendored fonts, the fixed texts and an in-memory file port', async () => {
