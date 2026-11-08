@@ -1540,7 +1540,7 @@ async function seedPlacement(database: TestDatabase): Promise<void> {
     );
     // Tenant A is already a registered, Active tenant of the control plane, so the registry and the entitlement view have a row to show.
     await client.query(
-      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', 'Cao Bằng', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
+      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', '" + (ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng') + "', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
       [fixtures.tenants.A, PLACEMENT_NORTH],
     );
     // The tenant chooser lists the registered tenants a person belongs to: B is Active, C is suspended for non-payment (a read-only session).
