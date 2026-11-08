@@ -227,7 +227,7 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
         }
       }
       // The morning card: the person's own work, and what they hold as a deputy.
-      const covered = await coveredWork(tx, work, { deputyId: member.id, now, today, edges, spans, unitScope: scopes.unitScope, projectScope: scopes.projectScope, holds: scopes.holds, mode: 'rows' });
+      const covered = await coveredWork(tx, work, { deputyId: member.id, now, today, edges, spans, unitScope: scopes.unitScope, projectScope: scopes.projectScope, holds: scopes.holds, mode: 'rows', maxDepth: policies.absence.max_chain_depth });
       const digest = await notifier.digestIfDue(member.id, digestRowsOf([...collected.rows, ...covered.rows], firstSeen), today);
       if (digest !== null) result.digests += 1;
       readers.push({ membershipId: member.id, unavailable: collected.unavailableSources });
