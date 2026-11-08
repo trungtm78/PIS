@@ -94,6 +94,7 @@ import {
   LEDGER_FIXTURES,
   MEASUREMENT_FIXTURES,
   SCORECARD_FIXTURES,
+  EGP_FIXTURES,
   NONCONFORMANCE_FIXTURES,
   PAYMENT_FIXTURES,
   RECONCILIATION_FIXTURES,
@@ -1670,6 +1671,15 @@ const INSERT_EXPORT_BATCH = `insert into machvon.contractor_export_batch
   (tenant_id, id, scope, period_from, period_to, format, file_sha256, file_object_key, row_count, contract_ids, status, created_by)
   values ($1, $2, 'BOTH', date '2026-07-01', date '2026-09-30', 'CSV', $3, $4, 2, $6::uuid[], 'GENERATED', $5) on conflict do nothing`;
 
+/** A duty of posting to the national procurement network, DUE, and a difference of the reconciliation, OPEN (EGP-2). */
+const INSERT_EGP_OBLIGATION = `insert into machvon.egp_posting_obligation
+  (tenant_id, id, kind, subject_type, subject_id, subject_code, source_ref, trigger_event, triggered_at, due_at, rule_code, rule_version, rule_source, remind_before_days, legal_status, state, owner_id, created_by, updated_by)
+  values ($1, $2, 'NOTICE', 'NOTICE', $3, $4, $3, 'DECISION_APPROVED', timestamptz '2026-11-02T03:00:00Z', timestamptz '2026-11-09T10:00:00Z', 'NOTICE', 0, 'DEFAULT', 2, 'UNVERIFIED', 'DUE', $5, $6, $6) on conflict do nothing`;
+
+const INSERT_EGP_ITEM = `insert into machvon.egp_reconciliation_item
+  (tenant_id, id, subject_type, subject_id, subject_code, external_code, field, difference_kind, ours, theirs, delta, fingerprint, state, owner_id, maker_ids, opened_by, opened_at, due_at)
+  values ($1, $2, 'PACKAGE', $3, $4, 'PK-ISOLATION', 'estimated_price', 'VALUE_MISMATCH', '1000', '1200', '200', $5, 'OPEN', $6, array[$7]::uuid[], $7, timestamptz '2026-11-02T03:00:00Z', timestamptz '2026-11-16T10:00:00Z') on conflict do nothing`;
+
 const INSERT_MEASUREMENT = `insert into machvon.measurement
   (tenant_id, id, contract_id, contract_revision_id, boq_line_id, boq_item_id, period_id, quantity_period, quantity_cumulative, revision, status, evidence_refs, reference_no, submitted_by, submitted_at, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, $6, $7, 1, 0, 1, 'SUBMITTED', jsonb_build_array(jsonb_build_object('document_version_id', $8::text)), $9, $10, now(), $10, $10, 1) on conflict do nothing`;
@@ -2512,6 +2522,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_EVALUATION, [tenantId, scorecard.evaluationId, draft.id, contractor.id, scorecard.remarks, ACTOR_ID]);
     await client.query(INSERT_VIOLATION, [tenantId, scorecard.violationId, draft.id, contractor.id, scorecard.description, ACTOR_ID]);
     await client.query(INSERT_EXPORT_BATCH, [tenantId, scorecard.exportId, scorecard.exportSha256, `tenants/${tenantId}/contractor_export/${scorecard.exportSha256}`, MEMBERSHIP_ID, [draft.id]]);
+    const egp = EGP_FIXTURES[tenant];
+    await client.query(INSERT_EGP_OBLIGATION, [tenantId, egp.obligationId, project.id, egp.subjectCode, MEMBERSHIP_ID, ACTOR_ID]);
+    await client.query(INSERT_EGP_ITEM, [tenantId, egp.itemId, project.id, egp.itemSubjectCode, egp.itemId.replace(/-/g, '').repeat(2), MEMBERSHIP_ID, ACTOR_ID]);
     const workAcceptance = WORK_ACCEPTANCE_FIXTURES[tenant];
     await client.query(INSERT_WORK_ACCEPTANCE, [tenantId, workAcceptance.id, draft.id, measurement.id, documents.versionId, workAcceptance.acceptanceNo, period.id, ACTOR_ID]);
     await client.query(INSERT_WORK_ACCEPTANCE_LINE, [tenantId, workAcceptance.id, measurement.id, boq.itemId, draft.revisionId, ACTOR_ID]);

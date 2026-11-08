@@ -2852,6 +2852,17 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   issueReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/issue', ifMatch: '"1"', body: {} }) },
   deliverReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/deliveries', body: { receiver: 'MOF', channel: 'MANUAL' } }) },
   answerReportDelivery: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/answers', body: { receiver: 'MOF', outcome: 'ACCEPTED' } }) },
+=======
+  // EGP-2: the duties of posting to the national procurement network and the reconciliation of the fields; a caller who is refused opens, moves and settles nothing.
+  openEgpObligation: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/obligations', body: { kind: 'NOTICE', our_code: 'GT-0001', triggered_on: '2026-11-02' } }) },
+  sweepEgpObligations: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/obligations/sweep', body: {} }) },
+  prepareEgpObligation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/obligations/00000000-0000-4000-8000-0000000000f1/prepare', ifMatch: '"1"', body: { fields: { plan_name: 'Plan' } } }) },
+  submitEgpObligation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/obligations/00000000-0000-4000-8000-0000000000f1/submit', ifMatch: '"1"', body: {} }) },
+  receiptEgpObligation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/obligations/00000000-0000-4000-8000-0000000000f1/receipt', ifMatch: '"1"', body: { receipt_ref: 'BN-1' } }) },
+  rejectEgpObligation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/obligations/00000000-0000-4000-8000-0000000000f1/reject', ifMatch: '"1"', body: { reason: REASON } }) },
+  cancelEgpObligation: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/obligations/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  runEgpReconciliation: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/reconciliation/run', body: {} }) },
+  resolveEgpReconciliationItem: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/reconciliation/items/00000000-0000-4000-8000-0000000000f1/resolution', ifMatch: '"1"', body: { kind: 'ACCEPT_EXTERNAL', reason: REASON } }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),

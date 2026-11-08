@@ -2398,6 +2398,7 @@ export type { TeamsCard } from './teams-channel.ts';
   egpDifferenceFingerprint,
   egpNoticeMilestones,
   egpOnTime,
+  egpOnTimeOf,
   egpPostingFacet,
   egpReconcileParamsOf,
   egpResultMilestones,

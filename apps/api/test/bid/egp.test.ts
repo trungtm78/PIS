@@ -345,14 +345,14 @@ describe('the connection to the national procurement network, its files and its 
     });
 
     it('the module that serves the lane imports no client of the network (the dependency assertion beside the behavioural one)', async () => {
-      for (const name of ['egp.controller.ts', 'egp-reads.controller.ts', 'egp-view.ts']) {
+      for (const name of ['egp.controller.ts', 'egp-reads.controller.ts', 'egp-view.ts', 'egp-posting.controller.ts', 'egp-posting-view.ts', 'egp-milestone.consumer.ts']) {
         const source = await readFile(join(__dirname, '..', '..', 'src', 'modules', 'bid', name), 'utf8');
         const imported = [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1] as string);
         for (const specifier of imported) expect(specifier).not.toMatch(/^(node:)?(net|tls|http|https|http2|dns|dgram|child_process|cluster|worker_threads)$|^(axios|got|undici|node-fetch|superagent)$/);
         expect(source).not.toMatch(/\bfetch\s*\(/);
         expect(source).not.toMatch(/muasamcong\.mof\.gov\.vn/);
       }
-      for (const name of ['egp-store.ts', 'egp-import.ts']) {
+      for (const name of ['egp-store.ts', 'egp-import.ts', 'egp-posting-store.ts', 'egp-reconciliation-store.ts', 'egp-milestone-hook.ts', 'home-egp-posting-sources.ts']) {
         const source = await readFile(join(__dirname, '..', '..', '..', '..', 'packages', 'db', 'src', name), 'utf8');
         const imported = [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1] as string);
         for (const specifier of imported) expect(specifier).not.toMatch(/^(node:)?(net|tls|http|https|http2|dns|dgram|child_process|cluster|worker_threads)$|^(axios|got|undici|node-fetch|superagent)$/);

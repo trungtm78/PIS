@@ -19,6 +19,7 @@ import { ADM_GUEST_CONTRACT_CONSUMER, GuestContractClosedConsumer } from '../mod
 import { AUD_PAY_RECOVERY_CONSUMER, PayRecoveryConsumer } from '../modules/aud/pay-recovery.consumer';
 import { AUD_REPORT_CONSUMER, ReportConsumer } from '../modules/aud/report.consumer';
 import { BID_REPORT_CONSUMER, BidReportConsumer } from '../modules/bid/report.consumer';
+import { BID_EGP_MILESTONE_CONSUMER, EgpMilestoneConsumer } from '../modules/bid/egp-milestone.consumer';
 import { MNE_REPORT_CONSUMER, MneReportConsumer } from '../modules/mne/report.consumer';
 import { CacheTenantStateEffects } from '../modules/sas/tenant-state-effects';
 import { NOTIFICATION_CONSUMER, NotificationConsumer } from '../notifications/consumer';
@@ -104,6 +105,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   const auditReports = new ReportConsumer({ database: tenants, security });
   const mneReports = new MneReportConsumer({ database: tenants, security });
   const bidReports = new BidReportConsumer({ database: tenants, security });
+  const egpMilestones = new EgpMilestoneConsumer({ database: tenants, security });
   return [
     { name: PROVISIONING_CONSUMER, handle: (delivery) => deps.provisioning.handle(delivery) },
     { name: ENTITLEMENT_CONSUMER, handle: (delivery) => entitlements.handle(delivery) },
@@ -124,6 +126,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: AUD_REPORT_CONSUMER, handle: (delivery) => auditReports.handle(delivery) },
     { name: MNE_REPORT_CONSUMER, handle: (delivery) => mneReports.handle(delivery) },
     { name: BID_REPORT_CONSUMER, handle: (delivery) => bidReports.handle(delivery) },
+    { name: BID_EGP_MILESTONE_CONSUMER, handle: (delivery) => egpMilestones.handle(delivery) },
     ...(deps.docIssue === undefined ? [] : [deps.docIssue]),
     ...(deps.silentPush === undefined ? [] : [{ name: SILENT_PUSH_CONSUMER, handle: (delivery: Parameters<SilentPushConsumer['handle']>[0]) => new SilentPushConsumer({ ...deps.silentPush, database: tenants, security } as SilentPushDeps).handle(delivery) }]),
     ...(deps.channelVerification === undefined

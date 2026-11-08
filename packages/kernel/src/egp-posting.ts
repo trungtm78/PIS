@@ -79,8 +79,13 @@ export function egpOnTime(clocks: ReadonlyArray<Pick<EgpClock, 'status'>>): EgpO
     else if (clock.status === 'MET_LATE') metLate += 1;
     else if (clock.status === 'OVERDUE') overdue += 1;
   }
-  const judged = met + metLate + overdue;
-  return { met, metLate, overdue, rateBp: judged === 0 ? null : Math.floor((met * 10_000) / judged) };
+  return egpOnTimeOf({ met, metLate, overdue });
+}
+
+/** The same figure from counts (a database that counted the rows by clock). */
+export function egpOnTimeOf(counts: { met: number; metLate: number; overdue: number }): EgpOnTime {
+  const judged = counts.met + counts.metLate + counts.overdue;
+  return { ...counts, rateBp: judged === 0 ? null : Math.floor((counts.met * 10_000) / judged) };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

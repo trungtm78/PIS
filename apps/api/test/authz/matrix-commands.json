@@ -623,7 +623,16 @@
     "post_support_access_id_approve",
     "revokeSupportAccess",
     "submitMneEvaluation",
-    "post_tenants_id_export"
+    "post_tenants_id_export",
+    "openEgpObligation",
+    "sweepEgpObligations",
+    "prepareEgpObligation",
+    "submitEgpObligation",
+    "receiptEgpObligation",
+    "rejectEgpObligation",
+    "cancelEgpObligation",
+    "runEgpReconciliation",
+    "resolveEgpReconciliationItem"
   ],
   "controlCommands": [
     "decideTenantRestore",

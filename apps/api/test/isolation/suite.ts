@@ -662,6 +662,12 @@ export const SCORECARD_FIXTURES: Readonly<Record<TenantName, { evaluationId: str
   },
 };
 
+/** A duty of posting to the national procurement network and a difference of the reconciliation of each tenant (EGP-2): the codes are distinctive; tenant data about a package. */
+export const EGP_FIXTURES: Readonly<Record<TenantName, { obligationId: string; subjectCode: string; itemId: string; itemSubjectCode: string }>> = {
+  'TNT-A': { obligationId: '00000000-0000-4000-a0e5-000000000001', subjectCode: 'ALPHA-EGP-POSTING-0001', itemId: '00000000-0000-4000-a0e5-000000000002', itemSubjectCode: 'ALPHA-EGP-DIFFERENCE-0001' },
+  'TNT-B': { obligationId: '00000000-0000-4000-b0e5-000000000001', subjectCode: 'BETA-EGP-POSTING-0001', itemId: '00000000-0000-4000-b0e5-000000000002', itemSubjectCode: 'BETA-EGP-DIFFERENCE-0001' },
+};
+
 /**
  * A BOQ line of each tenant under that draft revision with its stable item, and two guarantees of the contract (a PENDING_VERIFICATION one and an
  * ACTIVE one), each with a distinctive key, wording, number and issuer (tenant financial data).
@@ -1770,6 +1776,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'contractor violation description', value: SCORECARD_FIXTURES[tenant].description },
     { kind: 'contractor export id', value: SCORECARD_FIXTURES[tenant].exportId },
     { kind: 'contractor export hash', value: SCORECARD_FIXTURES[tenant].exportSha256 },
+    { kind: 'egp posting obligation id', value: EGP_FIXTURES[tenant].obligationId },
+    { kind: 'egp posting subject code', value: EGP_FIXTURES[tenant].subjectCode },
+    { kind: 'egp reconciliation item id', value: EGP_FIXTURES[tenant].itemId },
+    { kind: 'egp reconciliation subject code', value: EGP_FIXTURES[tenant].itemSubjectCode },
     { kind: 'work acceptance id', value: WORK_ACCEPTANCE_FIXTURES[tenant].id },
     { kind: 'work acceptance number', value: WORK_ACCEPTANCE_FIXTURES[tenant].acceptanceNo },
     { kind: 'payment request id', value: PAYMENT_FIXTURES[tenant].id },

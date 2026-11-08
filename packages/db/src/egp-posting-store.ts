@@ -224,7 +224,7 @@ const FACT_QUERIES: Readonly<Record<string, string>> = {
   PLAN_APPROVED: `select pl.id as source_ref, pl.id as subject_id, left(p.code || '-R' || pl.revision::text, 100) as subject_code, to_char(pl.approved_at at time zone 'UTC', ${ISO}) as at
       from machvon.procurement_plan pl join machvon.project p on p.tenant_id = pl.tenant_id and p.id = pl.project_id
      where pl.status in ('APPROVED', 'SUPERSEDED') and pl.approved_at is not null and (pl.approved_at at time zone 'Asia/Ho_Chi_Minh')::date >= $1::date order by pl.approved_at, pl.id limit $2`,
-  RESULT_APPROVED: `select r.id as source_ref, r.id as subject_id, k.code as subject_code, to_char(r.approved_at at time zone 'UTC', ${ISO}) as at
+  RESULT_APPROVED: `select r.id as source_ref, r.package_id as subject_id, k.code as subject_code, to_char(r.approved_at at time zone 'UTC', ${ISO}) as at
       from machvon.procurement_result r join machvon.procurement_package k on k.tenant_id = r.tenant_id and k.id = r.package_id
      where r.status = 'APPROVED' and r.outcome <> 'CANCELLED' and r.approved_at is not null and (r.approved_at at time zone 'Asia/Ho_Chi_Minh')::date >= $1::date order by r.approved_at, r.id limit $2`,
   CONTRACT_SIGNED: `select c.id as source_ref, c.id as subject_id, c.code as subject_code, to_char(${dayStart('c.signed_on')} at time zone 'UTC', ${ISO}) as at
@@ -330,10 +330,10 @@ export class EgpObligationStore {
    */
   async open(tx: TenantTx, input: EgpOpenInput, context: EgpOpenContext, actor: string): Promise<{ row: EgpObligationRow; created: boolean }> {
     if (SUBJECT_OF_KIND[input.kind] !== input.subjectType) throw new DomainError('VALIDATION_FAILED', 422, 'subject_type');
-    const earlier = await this.findByFact(tx, input.kind, input.sourceRef, input.triggeredAt);
-    if (earlier !== undefined) return { row: earlier, created: false };
     const members = await tx.query<{ id: string }>('select id from machvon.membership where id = $1::uuid', [input.ownerId]);
     if (members[0] === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'owner_id');
+    const earlier = await this.findByFact(tx, input.kind, input.sourceRef, input.triggeredAt);
+    if (earlier !== undefined) return { row: earlier, created: false };
     const planned = openObligation({ kind: input.kind, subjectId: input.subjectId, triggeredAt: input.triggeredAt, ownerId: input.ownerId, rule: context.rule, calendars: context.calendars });
     const inserted = await tx.query<{ id: string }>(
       `insert into machvon.egp_posting_obligation
