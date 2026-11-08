@@ -54,9 +54,13 @@ export type HpmFileSink = (tenantId: string, name: string, bytes: Uint8Array) =>
 
 const SAFE = /[^A-Za-z0-9._-]+/g;
 
-/** The name of the package: layout, period and revision, so a person can tell a correction from the first copy at a glance. */
-export function hpmPackageName(copy: Pick<HpmDeliveryRequest['copy'], 'layoutCode' | 'period' | 'revision'>): string {
-  return `HPM-${copy.layoutCode}-${copy.period}-r${copy.revision}.zip`.replace(SAFE, '_');
+/**
+ * The name of the package: layout, period and revision, so a person can tell a correction from the first copy at a glance, and a short tag of the organisation (the key of the push tells
+ * organisations apart, so the name must too: two organisations of one tenant never write over each other's package).
+ */
+export function hpmPackageName(copy: Pick<HpmDeliveryRequest['copy'], 'orgId' | 'layoutCode' | 'period' | 'revision'>): string {
+  const org = createHash('sha256').update(copy.orgId.toLowerCase()).digest('hex').slice(0, 10);
+  return `HPM-${copy.layoutCode}-${copy.period}-r${copy.revision}-${org}.zip`.replace(SAFE, '_');
 }
 
 /** The manifest inside the package: what the receiver needs to recognise the copy, and the words that tell it this is a working assumption. */

@@ -189,9 +189,12 @@ describe('the item of a difference: owner, makers, explanation', () => {
   const mismatch = { measure: 'DISBURSED_VND' as const, kind: 'AMOUNT_MISMATCH' as const, ours: '1000', theirs: '1200', delta: '200' };
   const open = (): EbsItem => openEbsItems({ projectCode: 'P1', period: '2026-10', differences: [mismatch], ownerId: 'owner', makerIds: ['loader', 'runner'], openedAt: NOW, dueAt: DUE })[0] as EbsItem;
 
-  it('picks the person asked for unless they are a maker, then the first candidate who is not, else nobody', () => {
-    expect(pickEbsOwner(['a', 'b'], ['x'], 'asked')).toBe('asked');
-    expect(pickEbsOwner(['a', 'b'], ['x', 'asked'], 'asked')).toBe('a');
+  it('picks the person asked for if they are a candidate and not a maker, then the first candidate who is not, else nobody', () => {
+    expect(pickEbsOwner(['a', 'asked'], ['x'], 'asked')).toBe('asked');
+    expect(pickEbsOwner(['a', 'asked'], ['x', 'asked'], 'asked')).toBe('a');
+    // A person who is not a candidate (not an active holder of the right) is never taken, however they were named.
+    expect(pickEbsOwner(['a', 'b'], ['x'], 'stranger')).toBe('a');
+    expect(pickEbsOwner(['x'], ['x'], 'stranger')).toBeUndefined();
     expect(pickEbsOwner(['x', 'b'], ['x'])).toBe('b');
     expect(pickEbsOwner(['x'], ['x'])).toBeUndefined();
   });

@@ -66,6 +66,31 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const isHpmPeriod = (value: unknown): value is string => typeof value === 'string' && PERIOD.test(value);
 
+const lastDayOf = (year: number, month: number): number => new Date(Date.UTC(year, month, 0)).getUTCDate();
+const dayText = (year: number, month: number, day: number): string => `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+/** The first and last day a report period covers (`2026-M10` is October, `2026-Q3` July to September, `2026-H1` January to June, `2026` the year, a day is the year to that day); undefined for a text that is not a period. */
+export function hpmPeriodRange(period: string): { from: string; to: string } | undefined {
+  const match = PERIOD.exec(period);
+  if (match === null) return undefined;
+  const year = Number(match[1]);
+  const suffix = period.slice(5);
+  if (suffix === '') return { from: dayText(year, 1, 1), to: dayText(year, 12, 31) };
+  if (match[2] !== undefined) return { from: dayText(year, Number(match[2]), 1), to: dayText(year, Number(match[2]), lastDayOf(year, Number(match[2]))) };
+  if (suffix.startsWith('Q')) {
+    const first = (Number(suffix.slice(1)) - 1) * 3 + 1;
+    return { from: dayText(year, first, 1), to: dayText(year, first + 2, lastDayOf(year, first + 2)) };
+  }
+  if (suffix.startsWith('H')) {
+    const first = (Number(suffix.slice(1)) - 1) * 6 + 1;
+    return { from: dayText(year, first, 1), to: dayText(year, first + 5, lastDayOf(year, first + 5)) };
+  }
+  return { from: dayText(year, 1, 1), to: period };
+}
+
+/** Whether a reopened range of days touches the days a report period covers (a reopened week inside the month is the month being reopened for correction). */
+export const hpmRangesTouch = (a: { from: string; to: string }, b: { from: string; to: string }): boolean => a.from <= b.to && b.from <= a.to;
+
 /** What a person (or the issued-report source of RPT-1) says about the report to push. The bytes are the file in the object store whose hash is `sha256`. */
 export interface HpmCopyRequest {
   orgId: string;

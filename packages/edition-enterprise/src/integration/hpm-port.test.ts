@@ -26,8 +26,19 @@ const request = (patch: Partial<HpmDeliveryRequest> = {}): HpmDeliveryRequest =>
 
 describe('the delivery package of the file writer', () => {
   it('names the package after the layout, the period and the revision, with nothing a file system dislikes', () => {
-    expect(hpmPackageName({ layoutCode: 'HPM-MONTHLY', period: '2026-M10', revision: 2 })).toBe('HPM-HPM-MONTHLY-2026-M10-r2.zip');
-    expect(hpmPackageName({ layoutCode: 'A B/C', period: '2026', revision: 1 })).toBe('HPM-A_B_C-2026-r1.zip');
+    const org = '11111111-1111-4111-8111-111111111111';
+    const tag = createHash('sha256').update(org).digest('hex').slice(0, 10);
+    expect(hpmPackageName({ orgId: org, layoutCode: 'HPM-MONTHLY', period: '2026-M10', revision: 2 })).toBe(`HPM-HPM-MONTHLY-2026-M10-r2-${tag}.zip`);
+    expect(hpmPackageName({ orgId: org, layoutCode: 'A B/C', period: '2026', revision: 1 })).toBe(`HPM-A_B_C-2026-r1-${tag}.zip`);
+  });
+
+  it('gives two organisations of one tenant two packages for the same layout, period and revision, and the same organisation the same one every time', () => {
+    const same = { layoutCode: 'HPM-MONTHLY', period: '2026-M10', revision: 1 };
+    const first = hpmPackageName({ ...same, orgId: '11111111-1111-4111-8111-111111111111' });
+    const second = hpmPackageName({ ...same, orgId: '11111111-1111-4111-8111-111111111112' });
+    expect(first).not.toBe(second);
+    expect(hpmPackageName({ ...same, orgId: '11111111-1111-4111-8111-111111111111' })).toBe(first);
+    expect(hpmPackageName({ ...same, orgId: '11111111-1111-4111-8111-111111111111'.toUpperCase() })).toBe(first);
   });
 
   it('carries the manifest and the report byte for byte, and says it is a working assumption', () => {
@@ -74,7 +85,7 @@ describe('the file writer (PENDING-EXTERNAL: it stands for HPM and never calls i
     expect(writer.adapterStatus).toBe(HPM_ADAPTER_STATUS);
     expect(writer.packageFormat).toBe(HPM_PACKAGE_FORMAT);
     expect(written).toHaveLength(1);
-    expect(answer).toMatchObject({ mode: 'FILE', location: `${request().tenantId}/HPM-HPM-MONTHLY-2026-M10-r2.zip`, receiver: 'AWAITING_RECEIPT', acceptance: 'PENDING_EXTERNAL', packageFormat: HPM_PACKAGE_FORMAT });
+    expect(answer).toMatchObject({ mode: 'FILE', location: `${request().tenantId}/${hpmPackageName(request().copy)}`, receiver: 'AWAITING_RECEIPT', acceptance: 'PENDING_EXTERNAL', packageFormat: HPM_PACKAGE_FORMAT });
     expect(answer.packageSha256).toBe(createHash('sha256').update(written[0]?.bytes as Uint8Array).digest('hex'));
     expect(answer.packageSize).toBe(written[0]?.bytes.length);
   });

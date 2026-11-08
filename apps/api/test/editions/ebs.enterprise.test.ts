@@ -35,6 +35,7 @@ const READER = 4; // ebs.read
 const UNIT_ADMIN = 5; // every EBS permission over the unit tree of the department only
 const NOBODY = 6;
 const OWNER = 7; // ebs.read, ebs.reconcile: the person the differences are given to
+const ALT = 8; // ebs.read, ebs.reconcile: the next person when the owner is a maker
 const B_ADMIN = 1; // of tenant B
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -152,7 +153,7 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
         { n: DEPARTMENT, path: `/${unitId(ROOT)}/${unitId(DEPARTMENT)}/`, parent: ROOT },
       ]);
     }
-    for (const n of [ADMIN, RECONCILER, PREVIEWER, READER, UNIT_ADMIN, NOBODY, OWNER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [ADMIN, RECONCILER, PREVIEWER, READER, UNIT_ADMIN, NOBODY, OWNER, ALT]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_ADMIN, ROOT);
     await harness.seedRole(TENANT_A, 1, 'EBS_ADMIN', EBS_ALL, 50);
     await harness.seedRole(TENANT_A, 2, 'EBS_RECONCILER', ['ebs.read', 'ebs.reconcile'], 30);
@@ -166,6 +167,7 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
       { n: 4, member: READER, role: 4, kind: 'TENANT' },
       { n: 5, member: UNIT_ADMIN, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
       { n: 6, member: OWNER, role: 2, kind: 'TENANT' },
+      { n: 7, member: ALT, role: 2, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_ADMIN, role: 1, kind: 'TENANT' }]);
     // Tenant A has the published working calendar of three years; tenant B has none.
@@ -491,6 +493,38 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
       const now = await call('GET', `/ebs/differences?project_code=${project.code}`, { member: ADMIN });
       expect(now.json.items as unknown[]).toHaveLength(1);
       expect((now.json.items as Array<Record<string, unknown>>)[0]).toMatchObject({ id: item.id, theirs: '1300', delta: '300' });
+    });
+
+    it('adds the people who made a later reading to the makers of an open item, and hands the item to a holder who is not one of them when its owner is', async () => {
+      const project = await seedProject({ paid: ['1000'] });
+      expect((await apply(ADMIN, await upload(file(`${project.code},2026-07,2026-08-02,1200,`)))).status).toBe(200);
+      const opened = await reconcile(RECONCILER, { period: '2026-07', owner_id: memberId(OWNER) });
+      const item = itemsOf(opened).find((candidate) => candidate.project_code === project.code) as Record<string, unknown>;
+      expect(item).toMatchObject({ owner_id: memberId(OWNER) });
+      // The owner runs the comparison on a newer extract: they now made the figures the item shows.
+      expect((await apply(ADMIN, await upload(file(`${project.code},2026-07,2026-08-09,1300,`)))).status).toBe(200);
+      const refreshed = await reconcile(OWNER, { period: '2026-07' });
+      expect(refreshed.status).toBe(200);
+      expect(refreshed.json).toMatchObject({ no_owner: 0 });
+      const after = itemsOf(refreshed).find((candidate) => candidate.project_code === project.code) as Record<string, unknown>;
+      expect(after).toMatchObject({ id: item.id, theirs: '1300', delta: '300', owner_id: memberId(ALT) });
+      const stored = await rows<{ owner_id: string; maker_ids: string[] }>('select owner_id, maker_ids from machvon.ebs_reconciliation_item where id = $1', [item.id]);
+      expect([...(stored[0]?.maker_ids ?? [])].sort()).toEqual([memberId(ADMIN), memberId(RECONCILER), memberId(OWNER)].sort());
+      expect(stored[0]?.maker_ids).not.toContain(stored[0]?.owner_id);
+      // The people who made the reading cannot settle it; the new owner can.
+      const body = { kind: 'WAIVED', reason: 'Accepted by the finance office for now', review_on: '2999-01-01' };
+      expect((await resolve(OWNER, item.id as string, after.version as number, body)).status).toBe(403);
+      expect((await resolve(ALT, item.id as string, after.version as number, body)).status).toBe(200);
+    });
+
+    it('does not make a person the owner of a difference by naming them: a stranger, a member without the right and an unknown id are refused as they are asked for', async () => {
+      const before = await rows('select 1 from machvon.ebs_reconciliation_item');
+      for (const owner of [memberId(NOBODY), memberId(READER), randomUUID()]) {
+        const refused = await reconcile(RECONCILER, { period: '2026-10', owner_id: owner });
+        expect(refused.status).toBe(422);
+        expect(refused.json).toMatchObject({ code: 'VALIDATION_FAILED' });
+      }
+      expect(await rows('select 1 from machvon.ebs_reconciliation_item')).toHaveLength(before.length);
     });
 
     it('needs the published calendar to give the items a due time, and a period written as YYYY-MM', async () => {

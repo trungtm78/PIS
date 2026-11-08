@@ -1,6 +1,6 @@
 -- Authored by hand (not generated): the differences between our figures and the statement of Oracle EBS, by project code (ENT-2, docs/ebs-connector.md). Each difference is an item with an owner who is not one of the people who
 -- made the figures compared (the person who loaded the file, the person who ran the comparison), a due time from the rule EBS_RECONCILE_POLICY and, once settled, an explanation of one of four kinds with the audit of ADM-11
--- written by the command. One item is open at a time for a measure of a project in a period; a settled difference comes back only when a figure moved (the fingerprint of both values changes) or a timing difference or a waiver
+-- written by the command. The makers of an open item only grow (a later reading adds the people who made it); the owner is never one of them. One item is open at a time for a measure of a project in a period; a settled difference comes back only when a figure moved (the fingerprint of both values changes) or a timing difference or a waiver
 -- reaches the day it is looked at again. The table never edits another module's record: a resolution says that ours or EBS is wrong, and the owner of that record corrects it through its own command.
 
 CREATE TABLE machvon.ebs_reconciliation_item (
@@ -68,7 +68,11 @@ LANGUAGE plpgsql
 AS $fn$
 BEGIN
   IF NEW.project_code IS DISTINCT FROM OLD.project_code OR NEW.period IS DISTINCT FROM OLD.period OR NEW.measure IS DISTINCT FROM OLD.measure
-     OR NEW.maker_ids IS DISTINCT FROM OLD.maker_ids OR NEW.opened_by IS DISTINCT FROM OLD.opened_by OR NEW.opened_at IS DISTINCT FROM OLD.opened_at OR NEW.due_at IS DISTINCT FROM OLD.due_at THEN
+     OR NEW.opened_by IS DISTINCT FROM OLD.opened_by OR NEW.opened_at IS DISTINCT FROM OLD.opened_at OR NEW.due_at IS DISTINCT FROM OLD.due_at THEN
+    RAISE EXCEPTION 'an item keeps the project, the period, the measure, its makers and its time' USING ERRCODE = '23514';
+  END IF;
+  -- The makers of an item never shrink, and a settled item keeps them as they were.
+  IF NOT (NEW.maker_ids @> OLD.maker_ids) OR (OLD.state = 'RESOLVED' AND NEW.maker_ids IS DISTINCT FROM OLD.maker_ids) THEN
     RAISE EXCEPTION 'an item keeps the project, the period, the measure, its makers and its time' USING ERRCODE = '23514';
   END IF;
   -- The figures of an open item are refreshed when a later reading moves them (the item always shows the latest comparison); a settled item keeps what it was settled on.

@@ -424,7 +424,7 @@ export class EbsReconciliationController {
     if (!holdsOnWholeTenant(access, PERMISSIONS.reconcileEbs)) throw new DomainError('SCOPE_DENIED', 403);
     const now = new Date();
     const holders = await this.items.holdersOf(scope.tx, RECONCILE_PERMISSION, now);
-    const done = await this.items.reconcile(scope.tx, { period: body.period, ownerId: body.owner_id ?? scope.tenant.membershipId, holders }, scope.tenant.membershipId, now);
+    const done = await this.items.reconcile(scope.tx, { period: body.period, ownerId: body.owner_id, holders }, scope.tenant.membershipId, now);
     await scope.audit({
       action: 'ebs.reconciliation_run',
       resourceType: ITEM_RESOURCE,

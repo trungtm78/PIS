@@ -11,7 +11,9 @@ import {
   hpmCorrectionRequestOf,
   hpmHealthOf,
   hpmKeyOf,
+  hpmPeriodRange,
   hpmPolicyParamsOf,
+  hpmRangesTouch,
   hpmReasonOf,
   hpmReceiptMove,
   hpmReferenceOf,
@@ -76,6 +78,27 @@ describe('the request of a push', () => {
   it('recognises the periods the kernel writes', () => {
     for (const period of ['2026', '2026-Q3', '2026-H2', '2026-M01', '2026-10-31']) expect(isHpmPeriod(period)).toBe(true);
     for (const period of ['26', '2026-M13', '2026-Q5', '2026-H3', '2026-13-01', 7]) expect(isHpmPeriod(period)).toBe(false);
+  });
+
+  it('says which days a period covers, leap years included', () => {
+    expect(hpmPeriodRange('2026-M10')).toEqual({ from: '2026-10-01', to: '2026-10-31' });
+    expect(hpmPeriodRange('2024-M02')).toEqual({ from: '2024-02-01', to: '2024-02-29' });
+    expect(hpmPeriodRange('2026-M02')).toEqual({ from: '2026-02-01', to: '2026-02-28' });
+    expect(hpmPeriodRange('2026-Q3')).toEqual({ from: '2026-07-01', to: '2026-09-30' });
+    expect(hpmPeriodRange('2026-H1')).toEqual({ from: '2026-01-01', to: '2026-06-30' });
+    expect(hpmPeriodRange('2026-H2')).toEqual({ from: '2026-07-01', to: '2026-12-31' });
+    expect(hpmPeriodRange('2026')).toEqual({ from: '2026-01-01', to: '2026-12-31' });
+    expect(hpmPeriodRange('2026-10-31')).toEqual({ from: '2026-01-01', to: '2026-10-31' });
+    expect(hpmPeriodRange('nonsense')).toBeUndefined();
+  });
+
+  it('tells whether a reopened range touches the days of a report period', () => {
+    const october = { from: '2026-10-01', to: '2026-10-31' };
+    expect(hpmRangesTouch({ from: '2026-10-10', to: '2026-10-16' }, october)).toBe(true);
+    expect(hpmRangesTouch({ from: '2026-09-28', to: '2026-10-04' }, october)).toBe(true);
+    expect(hpmRangesTouch({ from: '2026-10-31', to: '2026-11-06' }, october)).toBe(true);
+    expect(hpmRangesTouch({ from: '2026-09-01', to: '2026-09-30' }, october)).toBe(false);
+    expect(hpmRangesTouch({ from: '2026-11-01', to: '2026-11-07' }, october)).toBe(false);
   });
 });
 

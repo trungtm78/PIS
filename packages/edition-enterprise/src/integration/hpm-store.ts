@@ -2,7 +2,7 @@ import { DomainError, versionConflict } from '@machvon/kernel';
 import type { IssuedCopyMarks, IssuedCopyRef } from '@machvon/kernel';
 import { GovernancePolicyPort, timestampKey } from '@machvon/db';
 import type { TenantTx } from '@machvon/db';
-import { HPM_PACKAGE_FORMAT, copyRefOf, decideHpmPush, hpmCopyRequestOf, hpmCorrectionDecision, hpmCorrectionRequestOf, hpmHealthOf, hpmKeyOf, hpmPolicyParamsOf, hpmReceiptMove, hpmRequestHash } from './hpm-rules.ts';
+import { HPM_PACKAGE_FORMAT, copyRefOf, decideHpmPush, hpmCopyRequestOf, hpmCorrectionDecision, hpmCorrectionRequestOf, hpmHealthOf, hpmKeyOf, hpmPolicyParamsOf, hpmPeriodRange, hpmRangesTouch, hpmReceiptMove, hpmRequestHash } from './hpm-rules.ts';
 import type { HpmCopyRequest, HpmCorrectionState, HpmHealth, HpmPolicyParams, HpmPushState } from './hpm-rules.ts';
 import type { HpmPort } from './hpm-port.ts';
 
@@ -16,17 +16,29 @@ const ATTEMPTS_SHOWN = 10;
 
 // ---- the period of DIS, behind a small port ----------------------------------------------------------------------------------------------------------
 
-/** Whether the reopening of a period that a correction names is in force: approved, and its window not over. The port is the only thing the push knows of the reopening of DIS (the tables of another lane are not read here). */
+/** What a reopening answers for the report period a correction names: nothing of that id, in force for that period, not in force (not approved or its window is over), or it is the reopening of another period or of some projects only. */
+export type PeriodReopenStatus = 'MISSING' | 'OPEN' | 'CLOSED' | 'OTHER_PERIOD';
+
+/**
+ * Whether the reopening a correction names is in force for the period of the report being corrected: approved, its window not over, covering the whole period (not some projects), and a period of
+ * DIS that falls within the days the report covers. The port is the only thing the push knows of the reopening of DIS (the tables of another lane are not read here).
+ */
 export interface PeriodReopenPort {
-  status(tx: TenantTx, reopenId: string, now: Date): Promise<'MISSING' | 'OPEN' | 'CLOSED'>;
+  status(tx: TenantTx, reopenId: string, reportPeriod: string, now: Date): Promise<PeriodReopenStatus>;
 }
 
-/** The reopening of DIS (`period_reopen`): approved and inside its window. */
+/** The reopening of DIS (`period_reopen` and its `reporting_period`): approved, inside its window, for the whole period, and touching the days of the report period. */
 export class DisPeriodReopenPort implements PeriodReopenPort {
-  async status(tx: TenantTx, reopenId: string, now: Date): Promise<'MISSING' | 'OPEN' | 'CLOSED'> {
-    const rows = await tx.query<{ status: string; window_until: string | null }>('select status, window_until::text as window_until from machvon.period_reopen where id = $1::uuid', [reopenId]);
+  async status(tx: TenantTx, reopenId: string, reportPeriod: string, now: Date): Promise<PeriodReopenStatus> {
+    const rows = await tx.query<{ status: string; window_until: string | null; scope_kind: string; start_date: string; end_date: string }>(
+      `select r.status, r.window_until::text as window_until, r.scope_kind, p.start_date::text as start_date, p.end_date::text as end_date
+         from machvon.period_reopen r join machvon.reporting_period p on p.tenant_id = r.tenant_id and p.id = r.period_id where r.id = $1::uuid`,
+      [reopenId],
+    );
     const row = rows[0];
     if (row === undefined) return 'MISSING';
+    const range = hpmPeriodRange(reportPeriod);
+    if (row.scope_kind !== 'PERIOD' || range === undefined || !hpmRangesTouch({ from: row.start_date, to: row.end_date }, range)) return 'OTHER_PERIOD';
     return row.status === 'APPROVED' && row.window_until !== null && Date.parse(row.window_until) > now.getTime() ? 'OPEN' : 'CLOSED';
   }
 }
@@ -348,7 +360,7 @@ export class HpmPushStore {
       const matches = correction !== undefined && correction.layoutCode === request.layoutCode && correction.period === request.period && correction.fromRevision === accepted.revision;
       if (matches && (correction.state === 'APPROVED' || correction.state === 'PROPOSED')) {
         // A proposal that waits for its decision still says whether the period is reopened: what is missing is told as it is.
-        overwrite = { periodReopened: (await input.reopen.status(tx, correction.periodReopenId, input.now)) === 'OPEN', correctionApproved: correction.state === 'APPROVED' };
+        overwrite = { periodReopened: (await input.reopen.status(tx, correction.periodReopenId, request.period, input.now)) === 'OPEN', correctionApproved: correction.state === 'APPROVED' };
         if (correction.state === 'APPROVED') consumed = correction;
       } else if (matches && correction.state === 'CONSUMED' && existing !== undefined && correction.consumedByPushId === existing.id) {
         // The push that consumed the correction is being retried: what was authorised once stays authorised for the same key.
@@ -545,7 +557,7 @@ export class HpmCorrectionStore {
     const request = hpmCorrectionRequestOf(body);
     const accepted = await tx.query<{ id: string }>(`select id from machvon.hpm_push where layout_code = $1 and period = $2 and revision = $3 and status = 'ACCEPTED' limit 1`, [request.layoutCode, request.period, request.fromRevision]);
     if (accepted[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'from_revision');
-    if ((await reopen.status(tx, request.periodReopenId, now)) !== 'OPEN') throw new DomainError('HPM_OVERWRITE_NOT_AUTHORISED', 409, 'overwrite', { extensions: { missing: ['PERIOD_REOPENED'], accepted_revision: request.fromRevision } });
+    if ((await reopen.status(tx, request.periodReopenId, request.period, now)) !== 'OPEN') throw new DomainError('HPM_OVERWRITE_NOT_AUTHORISED', 409, 'overwrite', { extensions: { missing: ['PERIOD_REOPENED'], accepted_revision: request.fromRevision } });
     try {
       const rows = await tx.query<CorrectionSql>(
         `with inserted as (
@@ -567,7 +579,7 @@ export class HpmCorrectionStore {
     if (before === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (before.version !== expectedVersion) throw versionConflict(before.version);
     const decided = hpmCorrectionDecision(before, { ...step, actorId: actor });
-    if (decided.to === 'APPROVED' && (await reopen.status(tx, before.periodReopenId, now)) !== 'OPEN') throw new DomainError('HPM_OVERWRITE_NOT_AUTHORISED', 409, 'overwrite', { extensions: { missing: ['PERIOD_REOPENED'], accepted_revision: before.fromRevision } });
+    if (decided.to === 'APPROVED' && (await reopen.status(tx, before.periodReopenId, before.period, now)) !== 'OPEN') throw new DomainError('HPM_OVERWRITE_NOT_AUTHORISED', 409, 'overwrite', { extensions: { missing: ['PERIOD_REOPENED'], accepted_revision: before.fromRevision } });
     await tx.query(
       `update machvon.hpm_correction set state = $2, decided_by = $3::uuid, decided_at = $4::timestamptz, decision_reason = $5, version = version + 1, updated_at = $4::timestamptz, updated_by = $3::uuid where id = $1::uuid`,
       [id, decided.to, actor, now.toISOString(), decided.reason],

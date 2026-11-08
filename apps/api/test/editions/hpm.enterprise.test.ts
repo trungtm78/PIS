@@ -9,7 +9,7 @@ import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { registerEnterpriseIntegrationRules } from '@machvon/edition-enterprise/src/server.ts';
-import { HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
+import { HpmFileWriter, ReportStoreIssuedReports, hpmPackageName } from '@machvon/edition-enterprise/src/server.ts';
 import type { PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
@@ -63,9 +63,12 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
   /** What the sink received, by package name; `failNext` makes the next writes fail (a disk that is full). */
   const written: Array<{ tenantId: string; name: string; bytes: Uint8Array }> = [];
   let failNext = 0;
-  /** The reopenings of DIS that are in force, by id. */
-  const reopened = new Set<string>();
-  const reopen: PeriodReopenPort = { status: (_tx, id) => Promise.resolve(reopened.has(id) ? 'OPEN' : 'MISSING') };
+  /** The reopenings of DIS that are in force, by id, with the report period each one reopens: another period is another answer. */
+  const reopened = new Map<string, string>();
+  const reopen: PeriodReopenPort = { status: (_tx, id, period) => Promise.resolve(!reopened.has(id) ? 'MISSING' : reopened.get(id) === period ? 'OPEN' : 'OTHER_PERIOD') };
+
+  /** The name of the package the file writer gives a push of the root organisation (the tag of the organisation is part of it). */
+  const packageName = (period: string, revision: number): string => hpmPackageName({ orgId: TENANT_A, layoutCode: LAYOUT, period, revision });
 
   const tokenOf = (member: number, tenantId = TENANT_A): string => signTenantContext({ tenantId, membershipId: memberId(member), scopeVersion: 1 }, SIGNING_KEY);
 
@@ -239,12 +242,12 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
         acceptance: 'PENDING_EXTERNAL',
         pushed_by: memberId(PUSHER),
         receipt: null,
-        response: { mode: 'FILE', receiver: 'AWAITING_RECEIPT', acceptance: 'PENDING_EXTERNAL', package_name: `HPM-${LAYOUT}-2026-M10-r1.zip` },
+        response: { mode: 'FILE', receiver: 'AWAITING_RECEIPT', acceptance: 'PENDING_EXTERNAL', package_name: packageName('2026-M10', 1) },
         actions: { may_retry: true, may_record_receipt: false },
       });
       expect((row.attempt_log as Array<{ attempt_no: number; outcome: string }>).map((attempt) => [attempt.attempt_no, attempt.outcome])).toEqual([[1, 'WRITTEN']]);
       // The package carries the report byte for byte and the key.
-      const package_ = written.find((entry) => entry.name === `HPM-${LAYOUT}-2026-M10-r1.zip`);
+      const package_ = written.find((entry) => entry.name === packageName('2026-M10', 1));
       expect(package_?.tenantId).toBe(TENANT_A);
       const unpacked = unzipSync(package_?.bytes as Uint8Array);
       const manifest = JSON.parse(strFromU8(unpacked['manifest.json'] as Uint8Array)) as Record<string, unknown>;
@@ -311,7 +314,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       expect((pushOf(retried).attempt_log as Array<{ attempt_no: number; outcome: string; error_code: string | null }>).map((attempt) => [attempt.attempt_no, attempt.outcome, attempt.error_code])).toEqual([[2, 'WRITTEN', null], [1, 'FAILED', 'HPM_DELIVERY_FAILED']]);
       expect(await rows('select 1 from machvon.hpm_push where period = $1', ['2026-M07'])).toHaveLength(1);
       // The re-sent package carries the same key as the first try.
-      const resent = written.filter((entry) => entry.name === `HPM-${LAYOUT}-2026-M07-r1.zip`);
+      const resent = written.filter((entry) => entry.name === packageName('2026-M07', 1));
       expect(resent).toHaveLength(1);
       expect(JSON.parse(strFromU8(unzipSync(resent[0]?.bytes as Uint8Array)['manifest.json'] as Uint8Array))).toMatchObject({ key: row.key, attempt: 2 });
       expect((await call('GET', '/hpm/connection', { member: READER })).json).toMatchObject({ health: { failed_pushes: 0, alert: null } });
@@ -374,7 +377,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       const early = await propose(PROPOSER, '2026-M01', 1, reopenId);
       expect(early.status).toBe(409);
       expect(early.json).toMatchObject({ code: 'HPM_OVERWRITE_NOT_AUTHORISED', missing: ['PERIOD_REOPENED'] });
-      reopened.add(reopenId);
+      reopened.set(reopenId, '2026-M01');
       const proposed = await propose(PROPOSER, '2026-M01', 1, reopenId);
       expect(proposed.status).toBe(200);
       expect(proposed.json).toMatchObject({ state: 'PROPOSED', from_revision: 1, period_reopen_id: reopenId, proposed_by: memberId(PROPOSER), actions: { may_decide: false } });
@@ -423,7 +426,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
     it('lets the decider reject a correction and refuses a decision on one that was decided', async () => {
       await accepted('2025-M12', 1);
       const reopenId = randomUUID();
-      reopened.add(reopenId);
+      reopened.set(reopenId, '2025-M12');
       const proposed = await propose(PROPOSER, '2025-M12', 1, reopenId);
       const rejected = await decide(DECIDER, proposed.json.id as string, 1, 'REJECT', 'The period stays as it was accepted');
       expect(rejected.status).toBe(200);
@@ -435,10 +438,30 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       expect((listed.json.items as Array<{ id: string }>).map((item) => item.id)).toContain(proposed.json.id);
     });
 
+    it('does not take the reopening of another period for the reopening of the period of the report: October reopened does not let a correction of September be proposed, approved or used', async () => {
+      await accepted('2024-M09', 1);
+      const reopenId = randomUUID();
+      reopened.set(reopenId, '2024-M10');
+      const refused = await propose(PROPOSER, '2024-M09', 1, reopenId);
+      expect(refused.status).toBe(409);
+      expect(refused.json).toMatchObject({ code: 'HPM_OVERWRITE_NOT_AUTHORISED', missing: ['PERIOD_REOPENED'] });
+      // Proposed while the reopening was right; the reopening then moved away from the period: the approval and the push both say the period is not reopened.
+      reopened.set(reopenId, '2024-M09');
+      const proposed = await propose(PROPOSER, '2024-M09', 1, reopenId);
+      expect(proposed.status).toBe(200);
+      reopened.set(reopenId, '2024-M10');
+      const approval = await decide(DECIDER, proposed.json.id as string, 1, 'APPROVE');
+      expect(approval.status).toBe(409);
+      expect(approval.json).toMatchObject({ code: 'HPM_OVERWRITE_NOT_AUTHORISED', missing: ['PERIOD_REOPENED'] });
+      const replacement = await push(PUSHER, await report('rev,two,m0924'), '2024-M09', 2, { correction_id: proposed.json.id });
+      expect(replacement.status).toBe(409);
+      expect(replacement.json).toMatchObject({ code: 'HPM_OVERWRITE_NOT_AUTHORISED', missing: expect.arrayContaining(['PERIOD_REOPENED']) });
+    });
+
     it('refuses a correction for a revision the receiver never accepted', async () => {
       await push(PUSHER, await report('written,only'), '2025-M11', 1);
       const reopenId = randomUUID();
-      reopened.add(reopenId);
+      reopened.set(reopenId, '2025-M11');
       expect((await propose(PROPOSER, '2025-M11', 1, reopenId)).status).toBe(404);
     });
   });
@@ -628,7 +651,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
 
     it('does not let the proposer decide, nor the decider propose', async () => {
       const reopenId = randomUUID();
-      reopened.add(reopenId);
+      reopened.set(reopenId, '2025-M05');
       await accepted('2025-M05', 1);
       expect((await propose(DECIDER, '2025-M05', 1, reopenId)).status).toBe(403);
       const proposed = await propose(PROPOSER, '2025-M05', 1, reopenId);

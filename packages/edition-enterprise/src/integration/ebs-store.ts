@@ -301,7 +301,9 @@ export class EbsReconciliationStore {
     const rows = await tx.query<{ membership_id: string }>(
       `select distinct g.membership_id from machvon.role_grant g join machvon.role_definition d on d.tenant_id = g.tenant_id and d.id = g.role_id
         where d.permissions && $2::text[] and d.status = 'Active' and g.scope_kind = 'TENANT' and g.status = 'Active' and g.effective_from <= $1::timestamptz
-          and (g.effective_until is null or g.effective_until > $1::timestamptz) and g.revoked_at is null order by g.membership_id`,
+          and (g.effective_until is null or g.effective_until > $1::timestamptz) and g.revoked_at is null
+          and exists (select 1 from machvon.membership m where m.id = g.membership_id and m.status = 'Active' and (m.valid_until is null or m.valid_until > $1::timestamptz))
+        order by g.membership_id`,
       [now.toISOString(), [permission, ...family, '*']],
     );
     return rows.map((row) => row.membership_id);
@@ -343,8 +345,11 @@ export class EbsReconciliationStore {
    * not a maker of the figures, else the first holder of the right to reconcile on the whole tenant who is not (`pickEbsOwner`); with nobody left the difference is counted as `noOwner` and opens nothing (a difference that
    * nobody may answer for is a finding for the data steward, not an item its makers could settle themselves). An open item whose figures moved is refreshed, never duplicated.
    */
-  async reconcile(tx: TenantTx, request: { period?: string | undefined; ownerId: string; holders: readonly string[] }, actor: string, now: Date): Promise<EbsReconcileOutcome> {
+  async reconcile(tx: TenantTx, request: { period?: string | undefined; ownerId?: string | undefined; holders: readonly string[] }, actor: string, now: Date): Promise<EbsReconcileOutcome> {
     if (request.period !== undefined && !isEbsPeriod(request.period)) throw new DomainError('VALIDATION_FAILED', 422, 'period');
+    // The person asked for must be an active holder of the right to reconcile: nobody else can be made the owner of a difference by naming them.
+    const asked = request.ownerId === undefined ? undefined : normalizeUuid(request.ownerId, 'owner_id');
+    if (asked !== undefined && !request.holders.includes(asked)) throw new DomainError('VALIDATION_FAILED', 422, 'owner_id');
     const due = await this.dueRule(tx, now);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
     if (calendars === undefined) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'year');
@@ -366,8 +371,8 @@ export class EbsReconciliationStore {
       const makers = [...new Set([record.applied_by, actor])];
       for (const difference of differences) {
         const fingerprint = ebsFingerprint({ projectCode: record.project_code, period: record.period, measure: difference.measure, ours: difference.ours, theirs: difference.theirs });
-        const [open] = await tx.query<{ id: string; fingerprint: string }>(
-          "select id, fingerprint from machvon.ebs_reconciliation_item where project_code = $1 and period = $2 and measure = $3 and state = 'OPEN' for update",
+        const [open] = await tx.query<{ id: string; fingerprint: string; owner_id: string; maker_ids: string[] }>(
+          "select id, fingerprint, owner_id, maker_ids from machvon.ebs_reconciliation_item where project_code = $1 and period = $2 and measure = $3 and state = 'OPEN' for update",
           [record.project_code, record.period, difference.measure],
         );
         if (open !== undefined) {
@@ -375,10 +380,19 @@ export class EbsReconciliationStore {
             outcome.unchanged += 1;
             continue;
           }
+          // The people who made the new reading join the makers of the item (the makers only grow): the owner of an item cannot settle a difference made of a file they loaded. When the owner
+          // is among them now, the item passes to a holder who is not; when nobody is left, the item keeps the reading it has and says so in the counts.
+          const refreshedMakers = [...new Set([...open.maker_ids, ...makers])];
+          const refreshedOwner = refreshedMakers.includes(open.owner_id) ? pickEbsOwner(request.holders, refreshedMakers, asked) : open.owner_id;
+          if (refreshedOwner === undefined) {
+            outcome.noOwner += 1;
+            continue;
+          }
           await tx.query(
-            `update machvon.ebs_reconciliation_item set difference_kind = $2, ours = $3::numeric, theirs = $4::numeric, delta = $5::numeric, fingerprint = $6, source_record_id = $7::uuid, import_id = $8::uuid, version = version + 1, updated_at = $9::timestamptz
+            `update machvon.ebs_reconciliation_item set difference_kind = $2, ours = $3::numeric, theirs = $4::numeric, delta = $5::numeric, fingerprint = $6, source_record_id = $7::uuid, import_id = $8::uuid,
+                    maker_ids = $10::uuid[], owner_id = $11::uuid, version = version + 1, updated_at = $9::timestamptz
               where id = $1::uuid`,
-            [open.id, difference.kind, difference.ours, difference.theirs, difference.delta, fingerprint, record.id, record.import_id, now.toISOString()],
+            [open.id, difference.kind, difference.ours, difference.theirs, difference.delta, fingerprint, record.id, record.import_id, now.toISOString(), refreshedMakers, refreshedOwner],
           );
           outcome.refreshed += 1;
           outcome.rows.push((await this.find(tx, open.id)) as EbsItemRow);
@@ -390,7 +404,7 @@ export class EbsReconciliationStore {
           outcome.settledAlready += 1;
           continue;
         }
-        const owner = pickEbsOwner(request.holders, makers, request.ownerId);
+        const owner = pickEbsOwner(request.holders, makers, asked);
         if (owner === undefined) {
           outcome.noOwner += 1;
           continue;

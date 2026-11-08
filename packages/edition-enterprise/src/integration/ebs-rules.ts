@@ -290,9 +290,12 @@ export interface EbsItem {
   resolution: EbsResolution | null;
 }
 
-/** The owner of a new item: the person asked for if they are not a maker, else the first candidate who is not; undefined when nobody is left (a difference that nobody may answer for is not opened). */
+/**
+ * The owner of a new item: the person asked for if they are one of the candidates (active holders of the right to reconcile) and not a maker, else the first candidate who is not a maker;
+ * undefined when nobody is left (a difference that nobody may answer for is not opened). A person who is not a candidate never becomes an owner, however they were named.
+ */
 export function pickEbsOwner(candidates: readonly string[], makerIds: readonly string[], preferred?: string): string | undefined {
-  if (preferred !== undefined && !makerIds.includes(preferred)) return preferred;
+  if (preferred !== undefined && candidates.includes(preferred) && !makerIds.includes(preferred)) return preferred;
   return candidates.find((candidate) => !makerIds.includes(candidate));
 }
 
