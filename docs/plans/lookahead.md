@@ -11,11 +11,11 @@ Branch `lane/lookahead` (worktree `D:\PIS-lookahead`), deadline: everything comm
 
 ## Steps
 
-- [ ] 1. This plan committed first.
-- [ ] 2. Look-ahead: model (pure validation, Monday rule, window, item rows) with unit tests; creation form (items table, week start, horizon) on the look-ahead screen; raise-constraint form per item; refusal words; states (loading, empty with the "create the first plan" action, error); the "i" with formula and source; i18n part `lookahead.{vi,en}.json`; vitest.
-- [ ] 3. A11y: `ProcessTree.tsx` row becomes a real button with keyboard support; the a11y-lint baseline shrinks by the finding; vitest.
-- [ ] 4. Classification of the uncalled operations (table in `docs/lookahead.md`); screen actions for the user-facing ones in their owning screens, each with a test; design rows (catalogue, navigation, route registry, backlog, traceability, test cases) only for a new screen id, through the design tooling.
-- [ ] 5. Gates: web `tsc`, `eslint`, `i18n:check` on a scratch copy of the folded catalogues (folded files are not committed), `routes:check`, architecture, design `check-cli` and `baseline-cli` to 0 errors, repo `npm run lint` / `typecheck`.
+- [x] 1. This plan committed first.
+- [x] 2. Look-ahead: model (pure validation, Monday rule, window, item rows) with unit tests; creation form (items table, week start, horizon) on the look-ahead screen; raise-constraint form per item; refusal words; states (loading, empty with the "create the first plan" action, error); the "i" with formula and source; i18n part `lookahead.{vi,en}.json`; vitest.
+- [x] 3. A11y: `ProcessTree.tsx` row becomes a real button with keyboard support; the a11y-lint baseline shrinks by the finding; vitest.
+- [x] 4. Classification of the uncalled operations (table in `docs/lookahead.md`); screen actions for the user-facing ones in their owning screens, each with a test; design rows (catalogue, navigation, route registry, backlog, traceability, test cases) only for a new screen id, through the design tooling.
+- [x] 5. Gates: web `tsc`, `eslint`, `i18n:check` on a scratch copy of the folded catalogues (folded files are not committed), `routes:check`, architecture, design `check-cli` and `baseline-cli` to 0 errors, repo `npm run lint` / `typecheck`.
 - [ ] 6. Codex review (`gpt-6-astra`), every finding triaged, valid ones fixed with a test.
 
 ## Tests per step
