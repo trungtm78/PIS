@@ -3100,6 +3100,7 @@ export { FINANCE_FEED_CONNECTION } from './finance-feed-connection.ts';
 export { FEED_TEXT } from './messages/finance-feed-texts.ts';
 export { registerFinanceFeedRules } from './governance-rules.ts';
 export {
+export {
   INDICATOR_KIND,
   RISK_ALERT_TYPES,
   RISK_INDICATORS,
