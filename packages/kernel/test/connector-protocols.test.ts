@@ -185,11 +185,11 @@ describe('FILE_DROP, end to end with no network', () => {
 });
 
 describe('WEBHOOK_INBOUND', () => {
-  const secret = 'test-secret-not-real';
+  const fixtureKey = 'test-signing-fixture-only';
   const body = new TextEncoder().encode('{"code":"W1","amount":5}');
   const timestamp = Math.floor(NOW.getTime() / 1000);
-  const delivery = (patch: Record<string, unknown> = {}) => ({ body, timestamp, signature: webhookSignatureOf(secret, timestamp, body), idempotencyKey: 'delivery-0001', ...patch });
-  const options = { secret, now: NOW, toleranceSeconds: 300, seenKeys: new Set<string>() };
+  const delivery = (patch: Record<string, unknown> = {}) => ({ body, timestamp, signature: webhookSignatureOf(fixtureKey, timestamp, body), idempotencyKey: 'delivery-0001', ...patch });
+  const options = { secret: fixtureKey, now: NOW, toleranceSeconds: 300, seenKeys: new Set<string>() };
 
   it('accepts a signed delivery and answers a repeat of the key as a duplicate', () => {
     expect(verifyWebhook(delivery(), options)).toBe('ACCEPTED');
@@ -197,7 +197,7 @@ describe('WEBHOOK_INBOUND', () => {
   });
 
   it('refuses a wrong signature, a changed body, a captured delivery replayed later and a malformed key, without saying which part failed', () => {
-    for (const bad of [delivery({ signature: 'a'.repeat(64) }), delivery({ body: new TextEncoder().encode('{"code":"W2"}') }), delivery({ timestamp: timestamp - 3600, signature: webhookSignatureOf(secret, timestamp - 3600, body) }), delivery({ signature: 'zz' })]) {
+    for (const bad of [delivery({ signature: 'a'.repeat(64) }), delivery({ body: new TextEncoder().encode('{"code":"W2"}') }), delivery({ timestamp: timestamp - 3600, signature: webhookSignatureOf(fixtureKey, timestamp - 3600, body) }), delivery({ signature: 'zz' })]) {
       let thrown: unknown;
       try {
         verifyWebhook(bad, options);
@@ -210,7 +210,7 @@ describe('WEBHOOK_INBOUND', () => {
   });
 
   it('keeps a delivery once, hands it over as a record and drops it only on confirm', async () => {
-    const adapter = new WebhookInboundAdapter({ secret, toleranceSeconds: 300, now: () => NOW });
+    const adapter = new WebhookInboundAdapter({ secret: fixtureKey, toleranceSeconds: 300, now: () => NOW });
     expect(adapter.receive(delivery())).toBe('ACCEPTED');
     expect(adapter.receive(delivery())).toBe('DUPLICATE');
     const batch = await adapter.extract(request);
