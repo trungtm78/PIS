@@ -18641,5 +18641,212 @@
     "stories": [
       "ST-DIS-026"
     ]
+  },
+  {
+    "id": "BL-VND-01",
+    "requirement": "FR-VND-01",
+    "screen": "VND-01",
+    "title": "Sổ nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,CTR,PAY",
+    "fields": [
+      "Tên pháp lý",
+      "Mã số thuế và kết quả kiểm",
+      "Trạng thái xác minh",
+      "Độ phủ hồ sơ (đại diện, địa chỉ, liên hệ, chủ sở hữu)",
+      "Hạn chế còn hiệu lực",
+      "Hồ sơ cấm đang mở",
+      "Tài khoản nhận tiền",
+      "Chứng chỉ sắp hết hạn",
+      "Chỉ số của sổ (độ phủ, quyết định cấm đúng hạn, đăng sự kiện đúng hạn, đổi tài khoản)"
+    ],
+    "rule": "Đọc quyền vnd.read; độ phủ tính theo quy tắc VENDOR_PROFILE; mọi con số có công thức, nguồn và ngày; ngưỡng pháp lý ghi chưa kiểm chứng",
+    "test_ids": [
+      "UI-VND-01",
+      "UAT-PLAN-141"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/DIR.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIR-005"
+    ]
+  },
+  {
+    "id": "BL-VND-02",
+    "requirement": "FR-VND-02",
+    "screen": "VND-02",
+    "title": "Hồ sơ nhà thầu chủ",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,CTR,PAY",
+    "fields": [
+      "Người đại diện, địa chỉ, điện thoại, thư điện tử, số đăng ký kinh doanh",
+      "Chủ sở hữu và chủ sở hữu hưởng lợi (tỷ lệ, cơ sở kiểm soát, lịch sử)",
+      "Kiểm mã số thuế (dạng và chữ số kiểm)",
+      "Gợi ý hợp nhất nhà thầu trùng",
+      "Hạn chế, hồ sơ cấm, sự kiện uy tín, hệ số bảo đảm dự thầu",
+      "Liên danh",
+      "Kết quả kiểm cổng chặn theo từng bước"
+    ],
+    "rule": "Hồ sơ bắt buộc trước khi nộp thầu theo quy tắc VENDOR_PROFILE và VENDOR_GATE (cảnh báo hoặc chặn do đơn vị chọn); trùng chỉ là gợi ý, hợp nhất ở dữ liệu chủ, không hợp nhất theo tên",
+    "test_ids": [
+      "UI-VND-02",
+      "UAT-PLAN-141"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/DIR.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIR-005"
+    ]
+  },
+  {
+    "id": "BL-VND-03",
+    "requirement": "FR-VND-03",
+    "screen": "VND-03",
+    "title": "Hồ sơ cấm tham gia đấu thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,CTR,PAY",
+    "fields": [
+      "Số hồ sơ, đối tượng (nhà thầu hoặc liên danh), nhóm hành vi, ngày vi phạm",
+      "Đề nghị, thông báo, phản hồi, quyết định, hiệu lực, hết hạn hoặc gỡ",
+      "Hạn quyết định 15 ngày và đồng hồ",
+      "Số quyết định còn hiệu lực và gợi ý cấm cấp tỉnh hoặc toàn quốc",
+      "Thành viên liên danh bị ảnh hưởng",
+      "Văn bản quyết định và lý do",
+      "Nhập từ bản ghi mạng đấu thầu quốc gia"
+    ],
+    "rule": "Điều 133 NĐ 214/2025: quyết định trong 15 ngày kể từ khi nhận đề nghị, thời gian cấm theo nhóm hành vi, liên danh cấm mọi thành viên; số và thời hạn là quy tắc cấu hình ghi chưa kiểm chứng; hạn chế chỉ ghi khi quyết định có hiệu lực",
+    "test_ids": [
+      "UI-VND-03",
+      "UAT-PLAN-142"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/DIR.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIR-005"
+    ]
+  },
+  {
+    "id": "BL-VND-04",
+    "requirement": "FR-VND-04",
+    "screen": "VND-04",
+    "title": "Tài khoản nhận tiền của nhà thầu",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,CTR,PAY",
+    "fields": [
+      "Tài khoản đang hiệu lực (che số) và thời gian chờ",
+      "Đề nghị đổi: thư của nhà thầu, tên chủ tài khoản khớp tên pháp lý",
+      "Hai người duyệt tách vai (khớp hợp đồng, khớp tài khoản)",
+      "Gọi lại bằng số trong hồ sơ gốc",
+      "Nhật ký đủ chuỗi",
+      "Thanh toán bị chặn khi tài khoản không hiệu lực"
+    ],
+    "rule": "Đổi tài khoản cần hai người duyệt khác người đề nghị và gọi lại; số tài khoản mã hóa và chỉ hiện dạng che; thanh toán bị chặn trong thời gian chờ theo quy tắc VENDOR_PAYEE_ACCOUNT",
+    "test_ids": [
+      "UI-VND-04",
+      "UAT-PLAN-143"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/DIR.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIR-005"
+    ]
+  },
+  {
+    "id": "BL-VND-05",
+    "requirement": "FR-VND-05",
+    "screen": "VND-05",
+    "title": "Chứng chỉ và nhân sự chủ chốt",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,CTR,PAY",
+    "fields": [
+      "Loại, số, hạng, phạm vi, nơi cấp",
+      "Ngày cấp và ngày hết hạn, trạng thái cảnh báo 60 và 30 ngày",
+      "Đối chiếu bản gốc (người khác người nhập)",
+      "Nhân sự chủ chốt và chứng chỉ của họ",
+      "Yêu cầu chứng chỉ của gói thầu và khoảng thiếu"
+    ],
+    "rule": "Chứng chỉ chưa đối chiếu không đáp ứng yêu cầu; kiểm khi xét thầu và kích hoạt hợp đồng; cảnh báo hết hạn theo quy tắc VENDOR_EXPIRY_WARNING",
+    "test_ids": [
+      "UI-VND-05",
+      "UAT-PLAN-144"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/DIR.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIR-005"
+    ]
+  },
+  {
+    "id": "BL-VND-06",
+    "requirement": "FR-VND-06",
+    "screen": "VND-06",
+    "title": "Sự kiện uy tín dự thầu và liên danh",
+    "module": "VND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,BID,CTR,PAY",
+    "fields": [
+      "Hành vi (Điều 20 NĐ 214/2025), ngày xảy ra, gói thầu, bằng chứng",
+      "Hạn đăng 7 ngày làm việc và đồng hồ",
+      "Đăng bởi người khác người ghi, số biên nhận",
+      "Hệ số bảo đảm dự thầu và thời hạn",
+      "Liên danh: trưởng liên danh, thành viên, tỷ lệ góp"
+    ],
+    "rule": "Sự kiện đăng trong 7 ngày làm việc (quy tắc EGP_POSTING_DEADLINES, chưa kiểm chứng); đã đăng thì nhà thầu nộp bảo đảm dự thầu gấp 3 lần trong 2 năm; liên danh tổng tỷ lệ góp bằng 100",
+    "test_ids": [
+      "UI-VND-06",
+      "UAT-PLAN-145"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/DIR.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-DIR-005"
+    ]
   }
 ]

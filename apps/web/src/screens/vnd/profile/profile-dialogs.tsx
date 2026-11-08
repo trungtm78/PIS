@@ -106,7 +106,7 @@ export function EndOwnerDialog({ view, owner, onClose, onDone }: DialogProps & {
       confirmLabel={t('vnd.owners.end.confirm')}
       danger
       fields={[reasonField(t, 5)]}
-      run={(values) => command.mutateAsync({ path: { id: view.profile.contractor_id, owner_id: owner.id }, body: { reason: text(values.reason) } })}
+      run={(values) => command.mutateAsync({ path: { id: owner.id }, body: { reason: text(values.reason) } })}
       onClose={onClose}
       onDone={onDone}
     />

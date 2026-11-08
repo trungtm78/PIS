@@ -75,7 +75,7 @@ describe('the commands of the module on the wire', () => {
     expect(JSON.parse(post.body ?? '{}')).toEqual({ role: 'CONTRACT_MATCH' });
   });
 
-  it('sends the check of a certificate with no body, and the route of its subject', async () => {
+  it('sends the check of a certificate with no body, on the route of its own kind', async () => {
     const { harness, sent } = wire(profileView({ qualifications: [qualification(2, { verified_at: null, verified_by_name: null, may_verify: true })], key_staff: [] }));
     mount(<CertificatesScreen route={routeOf('VND-05', 'FR-VND-05')} />, harness, { permissions: ALL, path: `/vnd/vnd-05?contractor=${CONTRACTOR}` });
     fireEvent.click(await screen.findByTestId('verify'));
@@ -83,7 +83,7 @@ describe('the commands of the module on the wire', () => {
     fireEvent.click(within(form).getByRole('button', { name: word('vnd.certs.verify.confirm') }));
     await waitFor(() => expect(sent.some((entry) => entry.method === 'POST')).toBe(true));
     const post = sent.find((entry) => entry.method === 'POST') as Sent;
-    expect(post.url).toBe(`http://api.test/vendor/certificates/qualification/${uuid('0006', 2)}/verification`);
+    expect(post.url).toBe(`http://api.test/vendor/qualifications/${uuid('0006', 2)}/verification`);
     expect(post.body).toBeUndefined();
     expect(post.headers.get('content-type')).toBeNull();
     expect(post.headers.get('if-match')).toBe('"2"');

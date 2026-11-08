@@ -299,7 +299,7 @@ describe('ProfileScreen (VND-02): the contractor profile', () => {
       expect(confirm.disabled).toBe(true);
       type(form, labelOf(word('vnd.field.reason.label')), 'Chuyển nhượng vốn');
       fireEvent.click(confirm);
-      await waitFor(() => expect(h.command).toHaveBeenCalledWith('endVendorOwner', { path: { id: CONTRACTOR, owner_id: uuid('0002', 1) }, body: { reason: 'Chuyển nhượng vốn' }, attempt: { key: expect.any(String) } }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledWith('endVendorOwner', { path: { id: uuid('0002', 1) }, body: { reason: 'Chuyển nhượng vốn' }, attempt: { key: expect.any(String) } }));
     });
 
     it('declares that no owner is above the threshold under the version of the profile', async () => {

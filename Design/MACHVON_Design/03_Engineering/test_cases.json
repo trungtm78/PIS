@@ -21643,5 +21643,208 @@
     "covers": [
       "FR-DIS-29"
     ]
+  },
+  {
+    "id": "UAT-PLAN-141",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Verified contractor 0600000001 without profile fields; contractor pair with the same address and telephone number; rule VENDOR_GATE default and one approved BLOCK version.",
+    "steps": [
+      "Update the profile and read the coverage",
+      "Add two owners whose shares exceed 100 percent, then a valid pair, then end one",
+      "Run the duplicate scan and dismiss, then change the address and scan again",
+      "Ask the gate for a bid submission under WARN and under BLOCK"
+    ],
+    "expected": "Step 1: coverage rises and a stale version is refused; step 2: 422 owners.share_pct, then listed, the ended owner kept; step 3: the pair is suggested, the dismissal holds until the score rises; step 4: a warning, then 422 CONTRACTOR_PROFILE_INCOMPLETE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-01",
+      "FR-VND-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-142",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contractor and a two-member joint venture; working calendar of 2026; decision paper in force; egp_record of kind RESTRICTION for the tax code of the contractor.",
+    "steps": [
+      "Open a case, send the notice, record the response",
+      "Decide as the proposer, then as another person with 3 and with 24 months",
+      "Put the decision into effect and try a bid, a payment and a contract activation",
+      "Lift the case on appeal and try the bid again"
+    ],
+    "expected": "Step 2: 403, then 422 with the range, then DECIDED; step 3: the restriction row exists and each step is 422 CONTRACTOR_RESTRICTED; step 4: the gates open at once and the case is LIFTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-03"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-143",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Verified contractor with a telephone number on file for 30 days; four members with the bank permissions; rule VENDOR_PAYEE_ACCOUNT default.",
+    "steps": [
+      "Request a change with the letter of the contractor",
+      "Approve the contract match and the account match by two other people",
+      "Call back on the number on file and confirm",
+      "Build a payment at once and again after 72 hours"
+    ],
+    "expected": "Step 3: ACTIVATED with the effective day 72 hours later; step 4: 422 PAYEE_ACCOUNT_NOT_VALID, then allowed; the number never appears in clear.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-144",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contractor with certificates ending in 55, 25 and 0 days; a package with two requirements; rule VENDOR_EXPIRY_WARNING default.",
+    "steps": [
+      "Enter a certificate and try to verify it as the enterer, then as another person",
+      "Read the expiry watch on three days",
+      "Set the requirements of a package and ask the gate for a contract activation"
+    ],
+    "expected": "Step 1: 403, then verified once; step 2: three states and three severities; step 3: the gaps are listed.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-05"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-145",
+    "source": "VND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Contractor; working calendar of 2026; two members of the venture; rules EGP_POSTING_DEADLINES and VENDOR_REPUTATION default.",
+    "steps": [
+      "Record an event and read its deadline",
+      "Post it as the recorder and as another person",
+      "Read the bid security factor today and in two years",
+      "Create a venture with shares 60 and 30, then 60 and 40"
+    ],
+    "expected": "Step 1: due at 17:00 of the 7th working day; step 2: 403, then POSTED; step 3: factor 3, then 1; step 4: 422, then created.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-06"
+    ]
+  },
+  {
+    "id": "UI-VND-01",
+    "source": "FR-VND-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ nhà thầu; user có quyền và user chỉ đọc; route VND-01",
+    "steps": [
+      "Mở VND-01 từ menu và deep link; kiểm nhãn trường: Tên pháp lý, Mã số thuế và kết quả kiểm, Trạng thái xác minh, Độ phủ hồ sơ (đại diện, địa chỉ, liên hệ, chủ sở hữu), Hạn chế còn hiệu lực, Hồ sơ cấm đang mở, Tài khoản nhận tiền, Chứng chỉ sắp hết hạn, Chỉ số của sổ (độ phủ, quyết định cấm đúng hạn, đăng sự kiện đúng hạn, đổi tài khoản)",
+      "Thực hiện thao tác chính theo quy tắc: Đọc quyền vnd.read; độ phủ tính theo quy tắc VENDOR_PROFILE; mọi con số có công thức, nguồn và ngày; ngưỡng pháp lý ghi chưa kiểm chứng",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-01"
+    ],
+    "expected": "Sổ nhà thầu: hiển thị đúng 9 trường, áp quy tắc \"Đọc quyền vnd.read; độ phủ tính theo quy tắc VENDOR_PROFILE; mọi con số có công thức, nguồn và ngày; ngưỡng pháp lý ghi chưa kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-01"
+    ]
+  },
+  {
+    "id": "UI-VND-02",
+    "source": "FR-VND-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ nhà thầu chủ; user có quyền và user chỉ đọc; route VND-02",
+    "steps": [
+      "Mở VND-02 từ menu và deep link; kiểm nhãn trường: Người đại diện, địa chỉ, điện thoại, thư điện tử, số đăng ký kinh doanh, Chủ sở hữu và chủ sở hữu hưởng lợi (tỷ lệ, cơ sở kiểm soát, lịch sử), Kiểm mã số thuế (dạng và chữ số kiểm), Gợi ý hợp nhất nhà thầu trùng, Hạn chế, hồ sơ cấm, sự kiện uy tín, hệ số bảo đảm dự thầu, Liên danh, Kết quả kiểm cổng chặn theo từng bước",
+      "Thực hiện thao tác chính theo quy tắc: Hồ sơ bắt buộc trước khi nộp thầu theo quy tắc VENDOR_PROFILE và VENDOR_GATE (cảnh báo hoặc chặn do đơn vị chọn); trùng chỉ là gợi ý, hợp nhất ở dữ liệu chủ, không hợp nhất theo tên",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-02"
+    ],
+    "expected": "Hồ sơ nhà thầu chủ: hiển thị đúng 7 trường, áp quy tắc \"Hồ sơ bắt buộc trước khi nộp thầu theo quy tắc VENDOR_PROFILE và VENDOR_GATE (cảnh báo hoặc chặn do đơn vị chọn); trùng chỉ là gợi ý, hợp nhất ở dữ liệu chủ, không hợp nhất theo tên\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-02"
+    ]
+  },
+  {
+    "id": "UI-VND-03",
+    "source": "FR-VND-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ cấm tham gia đấu thầu; user có quyền và user chỉ đọc; route VND-03",
+    "steps": [
+      "Mở VND-03 từ menu và deep link; kiểm nhãn trường: Số hồ sơ, đối tượng (nhà thầu hoặc liên danh), nhóm hành vi, ngày vi phạm, Đề nghị, thông báo, phản hồi, quyết định, hiệu lực, hết hạn hoặc gỡ, Hạn quyết định 15 ngày và đồng hồ, Số quyết định còn hiệu lực và gợi ý cấm cấp tỉnh hoặc toàn quốc, Thành viên liên danh bị ảnh hưởng, Văn bản quyết định và lý do, Nhập từ bản ghi mạng đấu thầu quốc gia",
+      "Thực hiện thao tác chính theo quy tắc: Điều 133 NĐ 214/2025: quyết định trong 15 ngày kể từ khi nhận đề nghị, thời gian cấm theo nhóm hành vi, liên danh cấm mọi thành viên; số và thời hạn là quy tắc cấu hình ghi chưa kiểm chứng; hạn chế chỉ ghi khi quyết định có hiệu lực",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-03"
+    ],
+    "expected": "Hồ sơ cấm tham gia đấu thầu: hiển thị đúng 7 trường, áp quy tắc \"Điều 133 NĐ 214/2025: quyết định trong 15 ngày kể từ khi nhận đề nghị, thời gian cấm theo nhóm hành vi, liên danh cấm mọi thành viên; số và thời hạn là quy tắc cấu hình ghi chưa kiểm chứng; hạn chế chỉ ghi khi quyết định có hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-03"
+    ]
+  },
+  {
+    "id": "UI-VND-04",
+    "source": "FR-VND-04",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tài khoản nhận tiền của nhà thầu; user có quyền và user chỉ đọc; route VND-04",
+    "steps": [
+      "Mở VND-04 từ menu và deep link; kiểm nhãn trường: Tài khoản đang hiệu lực (che số) và thời gian chờ, Đề nghị đổi: thư của nhà thầu, tên chủ tài khoản khớp tên pháp lý, Hai người duyệt tách vai (khớp hợp đồng, khớp tài khoản), Gọi lại bằng số trong hồ sơ gốc, Nhật ký đủ chuỗi, Thanh toán bị chặn khi tài khoản không hiệu lực",
+      "Thực hiện thao tác chính theo quy tắc: Đổi tài khoản cần hai người duyệt khác người đề nghị và gọi lại; số tài khoản mã hóa và chỉ hiện dạng che; thanh toán bị chặn trong thời gian chờ theo quy tắc VENDOR_PAYEE_ACCOUNT",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-04"
+    ],
+    "expected": "Tài khoản nhận tiền của nhà thầu: hiển thị đúng 6 trường, áp quy tắc \"Đổi tài khoản cần hai người duyệt khác người đề nghị và gọi lại; số tài khoản mã hóa và chỉ hiện dạng che; thanh toán bị chặn trong thời gian chờ theo quy tắc VENDOR_PAYEE_ACCOUNT\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-04"
+    ]
+  },
+  {
+    "id": "UI-VND-05",
+    "source": "FR-VND-05",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chứng chỉ và nhân sự chủ chốt; user có quyền và user chỉ đọc; route VND-05",
+    "steps": [
+      "Mở VND-05 từ menu và deep link; kiểm nhãn trường: Loại, số, hạng, phạm vi, nơi cấp, Ngày cấp và ngày hết hạn, trạng thái cảnh báo 60 và 30 ngày, Đối chiếu bản gốc (người khác người nhập), Nhân sự chủ chốt và chứng chỉ của họ, Yêu cầu chứng chỉ của gói thầu và khoảng thiếu",
+      "Thực hiện thao tác chính theo quy tắc: Chứng chỉ chưa đối chiếu không đáp ứng yêu cầu; kiểm khi xét thầu và kích hoạt hợp đồng; cảnh báo hết hạn theo quy tắc VENDOR_EXPIRY_WARNING",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-05"
+    ],
+    "expected": "Chứng chỉ và nhân sự chủ chốt: hiển thị đúng 5 trường, áp quy tắc \"Chứng chỉ chưa đối chiếu không đáp ứng yêu cầu; kiểm khi xét thầu và kích hoạt hợp đồng; cảnh báo hết hạn theo quy tắc VENDOR_EXPIRY_WARNING\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-05"
+    ]
+  },
+  {
+    "id": "UI-VND-06",
+    "source": "FR-VND-06",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sự kiện uy tín dự thầu và liên danh; user có quyền và user chỉ đọc; route VND-06",
+    "steps": [
+      "Mở VND-06 từ menu và deep link; kiểm nhãn trường: Hành vi (Điều 20 NĐ 214/2025), ngày xảy ra, gói thầu, bằng chứng, Hạn đăng 7 ngày làm việc và đồng hồ, Đăng bởi người khác người ghi, số biên nhận, Hệ số bảo đảm dự thầu và thời hạn, Liên danh: trưởng liên danh, thành viên, tỷ lệ góp",
+      "Thực hiện thao tác chính theo quy tắc: Sự kiện đăng trong 7 ngày làm việc (quy tắc EGP_POSTING_DEADLINES, chưa kiểm chứng); đã đăng thì nhà thầu nộp bảo đảm dự thầu gấp 3 lần trong 2 năm; liên danh tổng tỷ lệ góp bằng 100",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên VND-06"
+    ],
+    "expected": "Sự kiện uy tín dự thầu và liên danh: hiển thị đúng 5 trường, áp quy tắc \"Sự kiện đăng trong 7 ngày làm việc (quy tắc EGP_POSTING_DEADLINES, chưa kiểm chứng); đã đăng thì nhà thầu nộp bảo đảm dự thầu gấp 3 lần trong 2 năm; liên danh tổng tỷ lệ góp bằng 100\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-VND-06"
+    ]
   }
 ]

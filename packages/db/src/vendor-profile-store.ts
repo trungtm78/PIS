@@ -23,7 +23,7 @@ const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
 const SCAN_CAP = 1000;
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
-export interface ProfileRow {
+export interface VendorProfileRow {
   contractorId: string;
   taxIdentifier: string;
   legalName: string;
@@ -104,7 +104,7 @@ export interface RegisterFilter {
 }
 
 export interface RegisterRow {
-  profile: ProfileRow;
+  profile: VendorProfileRow;
   coverage: ProfileCoverage;
   restricted: boolean;
   openCases: number;
@@ -136,7 +136,7 @@ const PROFILE_SELECT = `select c.id, c.tax_identifier, c.legal_name, c.verificat
   c.email, c.business_registration_no, c.ownership_declaration, ${timestampKey('c.profile_reviewed_at')} as profile_reviewed_at, c.next_review_due::text as next_review_due,
   (select count(*) from machvon.contractor_owner o where o.tenant_id = c.tenant_id and o.contractor_id = c.id and o.ended_on is null)::int as owner_count, c.version::text as version`;
 
-const toProfile = (row: ProfileSql): ProfileRow => ({
+const toProfile = (row: ProfileSql): VendorProfileRow => ({
   contractorId: row.id,
   taxIdentifier: row.tax_identifier,
   legalName: row.legal_name,
@@ -156,7 +156,7 @@ const toProfile = (row: ProfileSql): ProfileRow => ({
 });
 
 /** The facts the completeness of a profile is judged on. */
-export const factsOfProfile = (row: ProfileRow): ProfileFacts => ({
+export const factsOfProfile = (row: VendorProfileRow): ProfileFacts => ({
   legalRepName: row.legalRepName,
   registeredAddress: row.registeredAddress,
   phone: row.phone,
@@ -185,12 +185,12 @@ const addMonths = (day: string, months: number): string => {
  * owner is never rewritten: it ends and a new one is added. The suggestions of duplicates are for a person to dismiss or to send to the merge of master data; nothing here merges.
  */
 export class VendorProfileStore {
-  async find(tx: TenantTx, contractorId: string, lock = false): Promise<ProfileRow | undefined> {
+  async find(tx: TenantTx, contractorId: string, lock = false): Promise<VendorProfileRow | undefined> {
     const rows = await tx.query<ProfileSql>(`${PROFILE_SELECT} from machvon.contractor c where c.id = $1::uuid${lock ? ' for update of c' : ''}`, [contractorId]);
     return rows[0] === undefined ? undefined : toProfile(rows[0]);
   }
 
-  async require(tx: TenantTx, contractorId: string, lock = false): Promise<ProfileRow> {
+  async require(tx: TenantTx, contractorId: string, lock = false): Promise<VendorProfileRow> {
     const row = await this.find(tx, contractorId, lock);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return row;
@@ -278,7 +278,7 @@ export class VendorProfileStore {
    * Sets the profile fields that are given (a field left out is unchanged, `null` clears it). The tax id, the legal name and the verification are not here (BID owns them). The keys of the address, the telephone number,
    * the e-mail address and the representative are made again; the day the telephone number was put on file moves only when the number changes. The next review is `review_months` after today. 409 `VERSION_CONFLICT`.
    */
-  async update(tx: TenantTx, contractorId: string, expectedVersion: number, input: ProfileInput, actor: string, today: string, reviewMonths: number): Promise<ProfileRow> {
+  async update(tx: TenantTx, contractorId: string, expectedVersion: number, input: ProfileInput, actor: string, today: string, reviewMonths: number): Promise<VendorProfileRow> {
     const current = await this.require(tx, contractorId, true);
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     const set: string[] = [];
@@ -321,7 +321,7 @@ export class VendorProfileStore {
   }
 
   /** The contractor says nobody holds more than the threshold (with the person who declared it); allowed only while no owner is listed. */
-  async declareNoOwnerAboveThreshold(tx: TenantTx, contractorId: string, expectedVersion: number, actor: string): Promise<ProfileRow> {
+  async declareNoOwnerAboveThreshold(tx: TenantTx, contractorId: string, expectedVersion: number, actor: string): Promise<VendorProfileRow> {
     const current = await this.require(tx, contractorId, true);
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     if (current.ownerCount > 0) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'ownership_declaration');
@@ -358,9 +358,12 @@ export class VendorProfileStore {
     return added as OwnerRow;
   }
 
-  /** Ends an owner with a reason; the row stays as the history of ownership at the date of a bid. 404 for an owner of another contractor, 409 for one that has ended. */
-  async endOwner(tx: TenantTx, contractorId: string, ownerId: string, reason: string, actor: string, today: string): Promise<OwnerRow> {
+  /** Ends an owner with a reason; the row stays as the history of ownership at the date of a bid. 404 for an owner that is not in the tenant, 409 for one that has ended. */
+  async endOwner(tx: TenantTx, ownerId: string, reason: string, actor: string, today: string): Promise<OwnerRow> {
     const why = textOf(reason, 'reason', 5, 500);
+    const [held] = await tx.query<{ contractor_id: string }>('select contractor_id from machvon.contractor_owner where id = $1::uuid', [ownerId]);
+    if (held === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const contractorId = held.contractor_id;
     const found = (await this.owners(tx, contractorId)).find((owner) => owner.id === ownerId);
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (found.endedOn !== null) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'ended_on');

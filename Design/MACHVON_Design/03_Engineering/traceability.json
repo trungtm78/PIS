@@ -10407,5 +10407,113 @@
       "UI-DIS-29",
       "UAT-PLAN-93"
     ]
+  },
+  {
+    "requirement": "FR-VND-01",
+    "screen": "VND-01",
+    "title": "Sổ nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-01",
+    "test_ids": [
+      "UI-VND-01",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-VND-02",
+    "screen": "VND-02",
+    "title": "Hồ sơ nhà thầu chủ",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-02",
+    "test_ids": [
+      "UI-VND-02",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-VND-03",
+    "screen": "VND-03",
+    "title": "Hồ sơ cấm tham gia đấu thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-03",
+    "test_ids": [
+      "UI-VND-03",
+      "UAT-PLAN-142"
+    ]
+  },
+  {
+    "requirement": "FR-VND-04",
+    "screen": "VND-04",
+    "title": "Tài khoản nhận tiền của nhà thầu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-04",
+    "test_ids": [
+      "UI-VND-04",
+      "UAT-PLAN-143"
+    ]
+  },
+  {
+    "requirement": "FR-VND-05",
+    "screen": "VND-05",
+    "title": "Chứng chỉ và nhân sự chủ chốt",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-05",
+    "test_ids": [
+      "UI-VND-05",
+      "UAT-PLAN-144"
+    ]
+  },
+  {
+    "requirement": "FR-VND-06",
+    "screen": "VND-06",
+    "title": "Sự kiện uy tín dự thầu và liên danh",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-1 (nghiên cứu quản trị nhà thầu V1, V2, V3, V8, V12), docs/vendor-management.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/VND.md; 2 test",
+    "backlog_id": "BL-VND-06",
+    "test_ids": [
+      "UI-VND-06",
+      "UAT-PLAN-145"
+    ]
   }
 ]

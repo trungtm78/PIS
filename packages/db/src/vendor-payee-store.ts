@@ -28,7 +28,7 @@ export interface AccountRow {
   version: number;
 }
 
-export interface ChangeRequestRow {
+export interface PayeeChangeRow {
   id: string;
   contractorId: string;
   contractorName: string;
@@ -127,7 +127,7 @@ const REQUEST_SELECT = `select r.id, r.contractor_id, c.legal_name as contractor
   r.closed_by, ${timestampKey('r.closed_at')} as closed_at, r.closed_reason, r.resulting_account_id, r.version::text as version
   from machvon.contractor_bank_change_request r join machvon.contractor c on c.tenant_id = r.tenant_id and c.id = r.contractor_id`;
 
-const toRequest = (row: RequestSql): ChangeRequestRow => ({
+const toRequest = (row: RequestSql): PayeeChangeRow => ({
   id: row.id,
   contractorId: row.contractor_id,
   contractorName: row.contractor_name,
@@ -239,12 +239,12 @@ export class VendorPayeeStore {
     return rows.map((row) => toAccount(row, now));
   }
 
-  async requests(tx: TenantTx, filter: { contractorId?: string | undefined; status?: BankChangeState | undefined; limit?: number | undefined }): Promise<ChangeRequestRow[]> {
+  async requests(tx: TenantTx, filter: { contractorId?: string | undefined; status?: BankChangeState | undefined; limit?: number | undefined }): Promise<PayeeChangeRow[]> {
     const rows = await tx.query<RequestSql>(`${REQUEST_SELECT} where ($1::uuid is null or r.contractor_id = $1::uuid) and ($2::text is null or r.status = $2) order by r.requested_at desc, r.id desc limit $3`, [filter.contractorId ?? null, filter.status ?? null, filter.limit ?? 200]);
     return rows.map(toRequest);
   }
 
-  async findRequest(tx: TenantTx, id: string, lock = false): Promise<ChangeRequestRow | undefined> {
+  async findRequest(tx: TenantTx, id: string, lock = false): Promise<PayeeChangeRow | undefined> {
     const rows = await tx.query<RequestSql>(`${REQUEST_SELECT} where r.id = $1::uuid${lock ? ' for update of r' : ''}`, [id]);
     return rows[0] === undefined ? undefined : toRequest(rows[0]);
   }
@@ -262,7 +262,7 @@ export class VendorPayeeStore {
    * `BANK_CHANGE_CALLBACK_INVALID`, reason NO_NUMBER_ON_FILE); the holder must be the legal name of the contractor when the policy says REQUIRE (422 `PAYEE_ACCOUNT_NAME_MISMATCH`); the letter of the contractor is the evidence
    * (a document of the tenant); one request is open for a contractor at a time (409 `BANK_CHANGE_STATE_INVALID`).
    */
-  async request(tx: TenantTx, contractorId: string, input: NewChangeRequest, actor: string, now: Date): Promise<ChangeRequestRow> {
+  async request(tx: TenantTx, contractorId: string, input: NewChangeRequest, actor: string, now: Date): Promise<PayeeChangeRow> {
     const today = vietnamDateOf(now);
     const policy = (await this.policies.payee(tx, today)).value;
     const [contractor] = await tx.query<{ legal_name: string; verification_status: string; phone_key: string | null }>('select legal_name, verification_status, phone_key from machvon.contractor where id = $1::uuid for update', [contractorId]);
@@ -290,10 +290,10 @@ export class VendorPayeeStore {
       [id, contractorId, bankName, holder, matches, sealed, maskTail(number, 4), key, reason, input.evidenceDocumentId, actor, now.toISOString(), expires.toISOString(), contractor.phone_key],
     );
     await this.event(tx, contractorId, id, null, 'REQUESTED', actor, reason);
-    return (await this.findRequest(tx, id)) as ChangeRequestRow;
+    return (await this.findRequest(tx, id)) as PayeeChangeRow;
   }
 
-  private factsOf(row: ChangeRequestRow): BankChangeFacts {
+  private factsOf(row: PayeeChangeRow): BankChangeFacts {
     return {
       state: row.status,
       requestedBy: row.requestedBy,
@@ -307,7 +307,7 @@ export class VendorPayeeStore {
     };
   }
 
-  private async locked(tx: TenantTx, id: string, expectedVersion: number): Promise<ChangeRequestRow> {
+  private async locked(tx: TenantTx, id: string, expectedVersion: number): Promise<PayeeChangeRow> {
     const row = await this.findRequest(tx, id, true);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (row.version !== expectedVersion) throw versionConflict(row.version);
@@ -315,7 +315,7 @@ export class VendorPayeeStore {
   }
 
   /** One of the two approvals. The second approver is another person than the first and than the requester (403 `SELF_APPROVAL_DENIED`). When it completes the change the new account is activated here. */
-  async approve(tx: TenantTx, id: string, expectedVersion: number, role: BankApprovalRole, note: string | undefined, actor: string, now: Date): Promise<{ request: ChangeRequestRow; account: AccountRow | null }> {
+  async approve(tx: TenantTx, id: string, expectedVersion: number, role: BankApprovalRole, note: string | undefined, actor: string, now: Date): Promise<{ request: PayeeChangeRow; account: AccountRow | null }> {
     const current = await this.locked(tx, id, expectedVersion);
     const policy = (await this.policies.payee(tx, vietnamDateOf(now))).value;
     const why = note === undefined ? null : textOf(note, 'note', 1, 500);
@@ -324,14 +324,14 @@ export class VendorPayeeStore {
     await tx.query(`update machvon.contractor_bank_change_request set ${column}_by = $2::uuid, ${column}_at = $3::timestamptz, ${column}_note = $4, version = version + 1 where id = $1::uuid`, [id, actor, now.toISOString(), why]);
     await this.event(tx, current.contractorId, id, null, role === 'CONTRACT_MATCH' ? 'CONTRACT_MATCHED' : 'ACCOUNT_MATCHED', actor, why);
     const account = effect.activated ? await this.activate(tx, current, actor, now, policy) : null;
-    return { request: (await this.findRequest(tx, id)) as ChangeRequestRow, account };
+    return { request: (await this.findRequest(tx, id)) as PayeeChangeRow, account };
   }
 
   /**
    * The call to the contractor. It is valid only when the person says the number called is the one on file, the number dialled is the number the profile holds now and held when the request was made, and the number has been on
    * file long enough (422 `BANK_CHANGE_CALLBACK_INVALID`). A call that does not confirm rejects the request at once; one that does is recorded and, when it completes the change, activates the account.
    */
-  async callback(tx: TenantTx, id: string, expectedVersion: number, input: CallbackInput, actor: string, now: Date): Promise<{ request: ChangeRequestRow; account: AccountRow | null }> {
+  async callback(tx: TenantTx, id: string, expectedVersion: number, input: CallbackInput, actor: string, now: Date): Promise<{ request: PayeeChangeRow; account: AccountRow | null }> {
     const current = await this.locked(tx, id, expectedVersion);
     const policy = (await this.policies.payee(tx, vietnamDateOf(now))).value;
     const note = input.note === undefined ? null : textOf(input.note, 'note', 1, 500);
@@ -356,18 +356,18 @@ export class VendorPayeeStore {
     );
     await this.event(tx, current.contractorId, id, null, input.outcome === 'CONFIRMED' ? 'CALLBACK_CONFIRMED' : 'CALLBACK_FAILED', actor, note);
     const account = effect.activated ? await this.activate(tx, current, actor, now, policy) : null;
-    return { request: (await this.findRequest(tx, id)) as ChangeRequestRow, account };
+    return { request: (await this.findRequest(tx, id)) as PayeeChangeRow, account };
   }
 
   /** Rejects (anybody but the requester, with a reason) or cancels (the requester only) an open request. */
-  async close(tx: TenantTx, id: string, expectedVersion: number, kind: 'REJECT' | 'CANCEL', reason: string, actor: string, now: Date): Promise<ChangeRequestRow> {
+  async close(tx: TenantTx, id: string, expectedVersion: number, kind: 'REJECT' | 'CANCEL', reason: string, actor: string, now: Date): Promise<PayeeChangeRow> {
     const current = await this.locked(tx, id, expectedVersion);
     const policy = (await this.policies.payee(tx, vietnamDateOf(now))).value;
     const why = textOf(reason, 'reason', 5, 500);
     const effect = moveBankChange(this.factsOf(current), kind === 'REJECT' ? { move: 'REJECT', by: actor, at: now, reason: why } : { move: 'CANCEL', by: actor, at: now, reason: why }, policy);
     await tx.query("update machvon.contractor_bank_change_request set status = $2, closed_by = $3::uuid, closed_at = $4::timestamptz, closed_reason = $5, version = version + 1 where id = $1::uuid", [id, effect.facts.state, actor, now.toISOString(), why]);
     await this.event(tx, current.contractorId, id, null, kind === 'REJECT' ? 'REJECTED' : 'CANCELLED', actor, why);
-    return (await this.findRequest(tx, id)) as ChangeRequestRow;
+    return (await this.findRequest(tx, id)) as PayeeChangeRow;
   }
 
   /** The job: requests that ran out are closed as EXPIRED (by the system actor given). Returns how many. */
@@ -393,7 +393,7 @@ export class VendorPayeeStore {
     return toAccount(after as AccountSql, now);
   }
 
-  private async activate(tx: TenantTx, request: ChangeRequestRow, actor: string, now: Date, policy: PayeeAccountPolicy): Promise<AccountRow> {
+  private async activate(tx: TenantTx, request: PayeeChangeRow, actor: string, now: Date, policy: PayeeAccountPolicy): Promise<AccountRow> {
     const tenantId = await this.tenantOf(tx);
     const [sealed] = await tx.query<{ account_no_enc: Buffer; account_no_key: string }>('select account_no_enc, account_no_key from machvon.contractor_bank_change_request where id = $1::uuid', [request.id]);
     const number = this.cipher.open({ tenantId, table: REQUEST_TABLE, column: 'account_no_enc', rowId: request.id }, (sealed as { account_no_enc: Buffer }).account_no_enc);

@@ -105,7 +105,8 @@ export function AddKeyStaffDialog({ view, onClose, onDone }: DialogProps & { vie
 /** The check of a certificate or a person against the original. Another person than the one who entered it does this; the server refuses the same person (403 SELF_APPROVAL_DENIED), and an unchecked certificate does not meet a requirement. */
 export function VerifyDialog({ target, onClose, onDone }: DialogProps & { target: CertificateSubject }) {
   const { t } = useTranslation();
-  const command = useVendorCommand('verifyVendorCertificate');
+  const verifyQualification = useVendorCommand('verifyVendorQualification');
+  const verifyKeyStaff = useVendorCommand('verifyVendorKeyStaff');
   return (
     <CommandDialog
       title={t('vnd.certs.verify.title')}
@@ -116,7 +117,7 @@ export function VerifyDialog({ target, onClose, onDone }: DialogProps & { target
       note={<p className="vnd-note">{t('vnd.certs.verify.note')}</p>}
       confirmLabel={t('vnd.certs.verify.confirm')}
       fields={[]}
-      run={() => command.mutateAsync({ path: { subject: target.subject, id: target.item.id }, ifMatchVersion: target.item.version })}
+      run={() => (target.subject === 'qualification' ? verifyQualification : verifyKeyStaff).mutateAsync({ path: { id: target.item.id }, ifMatchVersion: target.item.version })}
       onClose={onClose}
       onDone={onDone}
     />
@@ -125,7 +126,8 @@ export function VerifyDialog({ target, onClose, onDone }: DialogProps & { target
 
 export function RevokeDialog({ target, onClose, onDone }: DialogProps & { target: CertificateSubject }) {
   const { t } = useTranslation();
-  const command = useVendorCommand('revokeVendorCertificate');
+  const revokeQualification = useVendorCommand('revokeVendorQualification');
+  const revokeKeyStaff = useVendorCommand('revokeVendorKeyStaff');
   return (
     <CommandDialog
       title={t('vnd.certs.revoke.title')}
@@ -137,7 +139,7 @@ export function RevokeDialog({ target, onClose, onDone }: DialogProps & { target
       confirmLabel={t('vnd.certs.revoke.confirm')}
       danger
       fields={[reasonField(t, 5)]}
-      run={(values) => command.mutateAsync({ path: { subject: target.subject, id: target.item.id }, ifMatchVersion: target.item.version, body: { reason: text(values.reason) } })}
+      run={(values) => (target.subject === 'qualification' ? revokeQualification : revokeKeyStaff).mutateAsync({ path: { id: target.item.id }, ifMatchVersion: target.item.version, body: { reason: text(values.reason) } })}
       onClose={onClose}
       onDone={onDone}
     />

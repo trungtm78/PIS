@@ -799,8 +799,8 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> endVendorJointVenture(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('endVendorJointVenture', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> endVendorOwner(VendorReason body, {required String id, required String ownerId, CommandAttempt? attempt}) =>
-      execute('endVendorOwner', path: <String, Object?>{'id': id, 'owner_id': ownerId}, body: body, attempt: attempt);
+  Future<Object?> endVendorOwner(VendorReason body, {required String id, CommandAttempt? attempt}) =>
+      execute('endVendorOwner', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
   Future<Object?> engageAiKillSwitch(LlmKillSwitch body, {CommandAttempt? attempt}) =>
       execute('engageAiKillSwitch', body: body, attempt: attempt);
@@ -3304,8 +3304,11 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> revokeSupportAccess(ReasonOnly body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('revokeSupportAccess', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> revokeVendorCertificate(VendorReason body, {required String subject, required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
-      execute('revokeVendorCertificate', path: <String, Object?>{'subject': subject, 'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+  Future<Object?> revokeVendorKeyStaff(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('revokeVendorKeyStaff', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> revokeVendorQualification(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('revokeVendorQualification', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> rollbackMigrationBatch(ReasonOnly body, {required String batchId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('rollbackMigrationBatch', path: <String, Object?>{'batchId': batchId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -3658,8 +3661,11 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> verifyTenantDomain(ReasonOnly body, {required String domainId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('verifyTenantDomain', path: <String, Object?>{'domainId': domainId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> verifyVendorCertificate({required String subject, required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
-      execute('verifyVendorCertificate', path: <String, Object?>{'subject': subject, 'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+  Future<Object?> verifyVendorKeyStaff({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('verifyVendorKeyStaff', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> verifyVendorQualification({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('verifyVendorQualification', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> verifyWarrantyClaim(AstVerifyWarrantyClaim body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('verifyWarrantyClaim', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

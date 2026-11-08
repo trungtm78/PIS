@@ -142,7 +142,7 @@ describe('CertificatesScreen (VND-05): the certificates and key staff of one con
       expect(form.textContent).toContain('ATLD-2');
       expect(form.textContent).toContain(word('vnd.certs.verify.note'));
       fireEvent.click(within(form).getByRole('button', { name: word('vnd.certs.verify.confirm') }));
-      await waitFor(() => expect(h.command).toHaveBeenCalledWith('verifyVendorCertificate', { path: { subject: 'qualification', id: uuid('0006', 2) }, ifMatchVersion: 2, attempt: { key: expect.any(String) } }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledWith('verifyVendorQualification', { path: { id: uuid('0006', 2) }, ifMatchVersion: 2, attempt: { key: expect.any(String) } }));
       expect((await screen.findByTestId('receipt')).textContent).toContain(word('vnd.certs.verify.title'));
     });
 
@@ -152,7 +152,7 @@ describe('CertificatesScreen (VND-05): the certificates and key staff of one con
       fireEvent.click(screen.getByTestId('verify-staff'));
       const form = dialog(word('vnd.certs.verify.title'));
       fireEvent.click(within(form).getByRole('button', { name: word('vnd.certs.verify.confirm') }));
-      await waitFor(() => expect(h.command).toHaveBeenCalledWith('verifyVendorCertificate', { path: { subject: 'key-staff', id: uuid('0007', 1) }, ifMatchVersion: 1, attempt: { key: expect.any(String) } }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledWith('verifyVendorKeyStaff', { path: { id: uuid('0007', 1) }, ifMatchVersion: 1, attempt: { key: expect.any(String) } }));
     });
 
     it('says in the dialog that another person has to check it when the server refuses the person who entered it', async () => {
@@ -188,7 +188,7 @@ describe('CertificatesScreen (VND-05): the certificates and key staff of one con
       expect(send.disabled).toBe(true);
       type(form, word('vnd.field.reason.label'), 'Chứng chỉ bị cơ quan cấp thu hồi');
       fireEvent.click(send);
-      await waitFor(() => expect(h.command).toHaveBeenCalledWith('revokeVendorCertificate', { path: { subject: 'qualification', id: uuid('0006', 1) }, ifMatchVersion: 2, body: { reason: 'Chứng chỉ bị cơ quan cấp thu hồi' }, attempt: { key: expect.any(String) } }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledWith('revokeVendorQualification', { path: { id: uuid('0006', 1) }, ifMatchVersion: 2, body: { reason: 'Chứng chỉ bị cơ quan cấp thu hồi' }, attempt: { key: expect.any(String) } }));
     });
 
     it('does not offer to revoke what is already revoked, nor without the right to manage', async () => {

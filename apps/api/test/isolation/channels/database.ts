@@ -46,6 +46,7 @@ import {
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
+import { seedVendorFixtures } from './vendor-fixtures';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
@@ -2439,6 +2440,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CRITERIA, [tenantId, criteria.draftId, procurement.packageId, 2, criteria.criterionName, criteria.legalBasis, ACTOR_ID]);
     const contractor = CONTRACTOR_FIXTURES[tenant];
     await client.query(INSERT_CONTRACTOR, [tenantId, contractor.id, contractor.taxIdentifier, contractor.legalName, documents.documentId, ACTOR_ID]);
+    await seedVendorFixtures(client, tenant, { tenantId, contractorId: contractor.id, actorId: ACTOR_ID, membershipId: MEMBERSHIP_ID, documentId: documents.documentId });
     const proposal = PROPOSAL_FIXTURES[tenant];
     await client.query(INSERT_PROPOSAL, [tenantId, proposal.id, project.id, pack.id, contractor.id, proposal.bidPrice, ACTOR_ID]);
     await client.query(INSERT_CONFLICT, [tenantId, proposal.declarationId, pack.id, ACTOR_ID, proposal.relation]);

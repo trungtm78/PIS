@@ -118,11 +118,11 @@ describe('the management of contractors (VND-1)', () => {
       expect(await refusal(as((tx) => profiles.addOwner(tx, id, { ownerKind: 'PERSON', ownerName: 'Le C', sharePct: '45', beneficialOwner: false }, memberId(M1), key)))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'owners.share_pct' });
       await as((tx) => profiles.addOwner(tx, id, { ownerKind: 'ORGANISATION', ownerName: 'Holding D', sharePct: '40', beneficialOwner: false }, memberId(M1), key));
       expect((await as((tx) => profiles.require(tx, id))).ownershipDeclaration).toBe('OWNERS_LISTED');
-      const ended = await as((tx) => profiles.endOwner(tx, id, a.id, 'sold the whole holding', memberId(M1), '2026-11-09'));
+      const ended = await as((tx) => profiles.endOwner(tx, a.id, 'sold the whole holding', memberId(M1), '2026-11-09'));
       expect(ended.endedOn).toBe('2026-11-09');
       expect((await as((tx) => profiles.owners(tx, id))).length).toBe(2);
       expect((await as((tx) => profiles.owners(tx, id, false))).length).toBe(1);
-      expect((await refusal(as((tx) => profiles.endOwner(tx, id, a.id, 'again for no reason', memberId(M1), '2026-11-09')))).code).toBe('STAGE_TRANSITION_DENIED');
+      expect((await refusal(as((tx) => profiles.endOwner(tx, a.id, 'again for no reason', memberId(M1), '2026-11-09')))).code).toBe('STAGE_TRANSITION_DENIED');
       expect(await databaseRefusal(owner('update machvon.contractor_owner set share_pct = 10 where id = $1', [a.id]))).toMatch(/not rewritten/);
       expect(await databaseRefusal(owner('delete from machvon.contractor_owner where id = $1', [a.id]))).toMatch(/never deleted/);
     });

@@ -518,6 +518,17 @@ export class RestrictionCaseStore {
     return ended;
   }
 
+  /** Every restriction row of a contractor, the latest start first, with the case it came from and whether it is in force on the day (a lifted one never is). */
+  async restrictionLines(tx: TenantTx, contractorId: string, today: string): Promise<Array<{ id: string; kind: string; source: string; effectiveFrom: string; effectiveUntil: string | null; decisionDocumentId: string | null; caseId: string | null; lifted: boolean; inForce: boolean }>> {
+    const rows = await tx.query<{ id: string; kind: string; source: string; effective_from: string; effective_until: string | null; decision_document_id: string | null; case_id: string | null; lifted: boolean; in_force: boolean }>(
+      `select id, kind, source, effective_from::text as effective_from, effective_until::text as effective_until, decision_document_id, case_id, lifted_at is not null as lifted,
+              (lifted_at is null and effective_from <= $2::date and (effective_until is null or effective_until >= $2::date)) as in_force
+         from machvon.contractor_restriction where contractor_id = $1::uuid order by effective_from desc, created_at desc, id desc`,
+      [contractorId, today],
+    );
+    return rows.map((row) => ({ id: row.id, kind: row.kind, source: row.source, effectiveFrom: row.effective_from, effectiveUntil: row.effective_until, decisionDocumentId: row.decision_document_id, caseId: row.case_id, lifted: row.lifted, inForce: row.in_force }));
+  }
+
   /** How many bans in force a contractor holds and the wider ban that suggests (Điều 133): the suggestion is for the authority and decides nothing. */
   async escalation(tx: TenantTx, contractorId: string, now: Date): Promise<{ decisionsInForce: number; suggestion: EscalationSuggestion }> {
     const today = vietnamDateOf(now);

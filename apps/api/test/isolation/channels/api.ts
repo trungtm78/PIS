@@ -69,6 +69,7 @@ import {
   SECTION_FIXTURES,
 } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
+import { VENDOR_FIXTURES } from './vendor-fixtures';
 import {
   ACCEPTANCE_FIXTURES,
   ADVANCE_FIXTURES,
@@ -1611,6 +1612,36 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'endMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign end attempt' } },
   // The governance deepening: the objects of the rules, the reserves, the appraisals, the directives, the checks of payments, the workflows of packages and the e-GP mappings.
   ...GOVERNANCE_SPECS,
+  // VND-1: the management of contractors; each case names a real object of TNT-B.
+  { operation: 'getVendorContractor', method: 'GET', id: CONTRACTOR_FIXTURES['TNT-B'].id },
+  { operation: 'updateVendorProfile', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, versioned: true, body: { legal_rep_name: 'Isolation foreign representative' } },
+  { operation: 'declareVendorNoOwnerAboveThreshold', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, versioned: true, body: {} },
+  { operation: 'addVendorOwner', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: { owner_kind: 'PERSON', owner_name: 'Isolation foreign owner', share_pct: '5', beneficial_owner: false } },
+  { operation: 'endVendorOwner', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].ownerId, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  { operation: 'scanVendorDuplicates', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: {} },
+  { operation: 'decideVendorDuplicate', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].duplicateId, versioned: true, body: { decision: 'DISMISSED', reason: 'Isolation foreign attempt to dismiss' } },
+  { operation: 'requestVendorPayeeChange', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: { bank_name: 'Isolation bank', account_holder: 'Isolation holder', account_number: '123456789', reason: 'Isolation foreign change of account', evidence_document_id: DOCUMENT_FIXTURES['TNT-B'].documentId } },
+  { operation: 'approveVendorPayeeChange', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].bankChangeId, versioned: true, body: { role: 'CONTRACT_MATCH' } },
+  { operation: 'recordVendorPayeeCallback', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].bankChangeId, versioned: true, body: { outcome: 'CONFIRMED', called_number: '0912000111', used_number_on_file: true } },
+  { operation: 'cancelVendorPayeeChange', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].bankChangeId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  { operation: 'rejectVendorPayeeChange', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].bankChangeId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  { operation: 'closeVendorPayeeAccount', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].bankAccountId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  { operation: 'addVendorQualification', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: { kind: 'CONSTRUCTION_ACTIVITY', certificate_no: 'ISO-FOREIGN', issuer: 'Isolation issuer', issued_on: '2026-01-01' } },
+  { operation: 'addVendorKeyStaff', method: 'POST', id: CONTRACTOR_FIXTURES['TNT-B'].id, body: { staff_role: 'PROJECT_MANAGER', person_name: 'Isolation foreign person', qualification_title: 'Isolation title', issued_on: '2026-01-01' } },
+  { operation: 'verifyVendorQualification', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].qualificationId, versioned: true, body: {} },
+  { operation: 'verifyVendorKeyStaff', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].keyStaffId, versioned: true, body: {} },
+  { operation: 'revokeVendorQualification', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].qualificationId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  { operation: 'revokeVendorKeyStaff', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].keyStaffId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
+  { operation: 'setVendorPackageRequirements', method: 'POST', id: PACKAGE_FIXTURES['TNT-B'].id, body: { requirements: [] } },
+  { operation: 'getVendorPackageRequirements', method: 'GET', id: PACKAGE_FIXTURES['TNT-B'].id },
+  { operation: 'getVendorRestrictionCase', method: 'GET', id: VENDOR_FIXTURES['TNT-B'].caseId },
+  { operation: 'advanceVendorRestrictionCase', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].caseId, versioned: true, body: { move: 'SEND_NOTICE' } },
+  { operation: 'decideVendorRestrictionCase', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].caseId, versioned: true, body: { decision: 'DISMISS', reason: 'Isolation foreign attempt to decide' } },
+  { operation: 'putVendorRestrictionIntoEffect', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].caseId, versioned: true, body: {} },
+  { operation: 'liftVendorRestrictionCase', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].caseId, versioned: true, body: { reason: 'Isolation foreign attempt to lift' } },
+  { operation: 'postVendorReputationEvent', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].eventId, versioned: true, body: { receipt: 'ISO-FOREIGN' } },
+  { operation: 'retractVendorReputationEvent', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].eventId, versioned: true, body: { reason: 'Isolation foreign attempt to retract an event' } },
+  { operation: 'endVendorJointVenture', method: 'POST', id: VENDOR_FIXTURES['TNT-B'].ventureId, versioned: true, body: { reason: 'Isolation foreign attempt of a vendor command' } },
 ];
 
 /** Operations that this channel exercises with a foreign id (the registered foreign-id cases). */
