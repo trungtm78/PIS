@@ -1795,3 +1795,8 @@ export { IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryRuleStore, IndImportRe
 export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter, FigureOutcome, FigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
 export type { IndImportDeps, IndImportWritten, IndRowOutcome } from './ind-import.ts';
+// CA-3: the registers of the contract reports and the proposals of a rating of the contractor (docs/ctr-analytics-registers.md).
+export { CtrRegisterReader, REGISTER_ROW_CAP, ratingInputsOf } from './ctr-register-reader.ts';
+export type { RegisterReaderContext } from './ctr-register-reader.ts';
+export { CtrRatingStore, RATING_NOTIFY_PERMISSION, RATING_PROPOSE_PERMISSION, RATING_READ_PERMISSION, RATING_RESPOND_PERMISSION } from './ctr-rating-store.ts';
+export type { RatingListFilter, RatingProposalRow, RatingRule } from './ctr-rating-store.ts';

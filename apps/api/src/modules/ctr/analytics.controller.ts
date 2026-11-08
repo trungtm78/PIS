@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
-import { AuditWriter, BidContractorStore, CtrFactStore, CtrMoneyStore, FACT_SORTS, GovernancePolicyPort, MoneyPolicyReader, TenantDatabase, contractScope, projectScope } from '@machvon/db';
+import { PERMISSIONS } from '@machvon/contracts';
+import { AuditWriter, BidContractorStore, CtrFactStore, CtrMoneyStore, CtrRegisterReader, FACT_SORTS, GovernancePolicyPort, MoneyPolicyReader, REGISTER_ROW_CAP, TenantDatabase, contractScope, engagementScope, projectScope, ratingInputsOf } from '@machvon/db';
 import type { BreakdownContext, CtrEvmRead, FactCursor, FactFilters, FactQuery, FactSnapshotRow, ScopeBuilder, TenantTx } from '@machvon/db';
 import {
   BI_EXPORT_ROW_CAP,
@@ -10,6 +11,8 @@ import {
   DomainError,
   PDF_ROW_CAP,
   REPORT_CATALOGUE,
+  REGISTER_CATALOGUE,
+  REGISTER_COLUMNS,
   REPORT_COLUMNS,
   asUuid,
   concentrationDefaults,
@@ -17,8 +20,30 @@ import {
   concentrationReport,
   contractHealthDefaults,
   contractHealthRagParams,
+  claimLimitationDefaults,
+  claimLimitationParams,
+  claimRow,
   contractorLoadOf,
   csvOf,
+  cursorValueOf,
+  daysLateOfFact,
+  defectRow,
+  filterRegisterRows,
+  findingRow,
+  healthRow,
+  isRatableStatus,
+  isRegisterReportCode,
+  LIVE_ONLY_REPORTS,
+  obstacleRow,
+  ratingDefaults,
+  ratingParams,
+  ratingRow,
+  registerBreakdowns,
+  registerDocumentOf,
+  registerPage,
+  registerSortKeys,
+  registerTotals,
+  sortRegisterRows,
   hasControlChar,
   isCalendarDate,
   isCtrReportCode,
@@ -37,6 +62,9 @@ import {
 import type {
   ConcentrationParams,
   ContractFact,
+  RegisterContract,
+  RegisterReportCode,
+  RegisterRow,
   ContractHealthRagParams,
   CtrReportCode,
   CtrReportTotals,
@@ -92,10 +120,13 @@ export interface AnalyticsRequest {
   direction: 'asc' | 'desc';
   limit: number;
   cursor: FactCursor | undefined;
+  /** The severity and the state of the record: filters of the register reports (CA-3). */
+  severity: string[] | undefined;
+  state: string[] | undefined;
 }
 
 /** The query of the portfolio and the reports, judged: every list, the day, the snapshot, the sort and the page; anything outside what a query takes names the field. */
-export function analyticsRequestOf(raw: Raw, today: string, defaults: { sort: string } = { sort: 'code' }): AnalyticsRequest {
+export function analyticsRequestOf(raw: Raw, today: string, defaults: { sort: string } = { sort: 'code' }, sorts?: readonly string[]): AnalyticsRequest {
   const text = (value: unknown, field: string, max = 100): string | undefined => {
     if (value === undefined) return undefined;
     if (typeof value !== 'string' || value.trim() === '' || value.length > max || hasControlChar(value)) throw bad(field);
@@ -116,7 +147,9 @@ export function analyticsRequestOf(raw: Raw, today: string, defaults: { sort: st
   if (snapshotId !== undefined && period !== undefined) throw bad('period');
   if ((snapshotId !== undefined || period !== undefined) && asOf !== undefined) throw bad('as_of');
   const sort = text(raw.sort, 'sort', 40) ?? defaults.sort;
-  if (FACT_SORTS[sort] === undefined) throw bad('sort');
+  if (sorts === undefined ? FACT_SORTS[sort] === undefined : !sorts.includes(sort)) throw bad('sort');
+  const severity = list(raw.severity, 'severity');
+  const state = list(raw.state, 'state');
   const dir = raw.dir === undefined ? 'asc' : raw.dir;
   if (dir !== 'asc' && dir !== 'desc') throw bad('dir');
   let limit = DEFAULT_PAGE;
@@ -124,7 +157,7 @@ export function analyticsRequestOf(raw: Raw, today: string, defaults: { sort: st
     if (typeof raw.limit !== 'string' || !/^[1-9][0-9]{0,2}$/.test(raw.limit) || Number(raw.limit) > MAX_PAGE) throw bad('limit');
     limit = Number(raw.limit);
   }
-  return { filters, asOf, snapshotId: snapshotId?.toLowerCase(), period, sort, direction: dir, limit, cursor: raw.cursor === undefined ? undefined : decodeCursor(raw.cursor, sort, dir) };
+  return { filters, asOf, snapshotId: snapshotId?.toLowerCase(), period, sort, direction: dir, limit, cursor: raw.cursor === undefined ? undefined : decodeCursor(raw.cursor, sort, dir), severity, state };
 }
 
 export function encodeFactCursor(cursor: FactCursor): string {
@@ -225,6 +258,7 @@ export class ContractAnalyticsController {
   private readonly money = new CtrMoneyStore();
   private readonly moneyRules = new MoneyPolicyReader();
   private readonly contractors = new BidContractorStore();
+  private readonly registers = new CtrRegisterReader();
   private readonly policy = new GovernancePolicyPort();
   private readonly audit: AuditWriter;
 
@@ -384,12 +418,14 @@ export class ContractAnalyticsController {
   @Get('reports/:code')
   @OperationId('getContractReport')
   async report(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('code') code: string, @Query() raw: Raw): Promise<Record<string, unknown>> {
-    if (!isCtrReportCode(code)) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const register = isRegisterReportCode(code);
+    if (!isCtrReportCode(code) && !register) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const now = new Date();
-    const request = analyticsRequestOf(raw, vietnamDateOf(now));
+    const request = register ? registerRequestOf(raw, code as RegisterReportCode, vietnamDateOf(now)) : analyticsRequestOf(raw, vietnamDateOf(now));
     return this.database.withTenant(tenant, async (tx) => {
       const prepared = await this.prepare(tx, tenant, access, request, ANALYTICS_PERMISSION, now);
-      return code === 'contractor-concentration' ? this.concentrationBody(tx, prepared, now) : this.reportBody(tx, prepared, code, now);
+      if (register) return this.registerBody(tx, prepared, code as RegisterReportCode, access, now);
+      return code === 'contractor-concentration' ? this.concentrationBody(tx, prepared, now) : this.reportBody(tx, prepared, code as Exclude<CtrReportCode, 'contractor-concentration'>, now);
     });
   }
 
@@ -416,17 +452,18 @@ export class ContractAnalyticsController {
     @Query('format') format: unknown,
     @Query() raw: Raw,
   ): Promise<Record<string, unknown>> {
-    if (!isCtrReportCode(code)) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const register = isRegisterReportCode(code);
+    if (!isCtrReportCode(code) && !register) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (typeof format !== 'string' || !(FORMATS as readonly string[]).includes(format)) throw bad('format');
     const chosen = format as Format;
     const now = new Date();
-    const request = analyticsRequestOf({ ...raw, format: undefined, limit: undefined, cursor: undefined }, vietnamDateOf(now));
+    const request = register ? registerRequestOf({ ...raw, format: undefined, limit: undefined, cursor: undefined }, code as RegisterReportCode, vietnamDateOf(now)) : analyticsRequestOf({ ...raw, format: undefined, limit: undefined, cursor: undefined }, vietnamDateOf(now));
     // A page of Word weighs like a page of PDF: the same cap.
     const cap = chosen === 'pdf' || chosen === 'docx' ? PDF_ROW_CAP : BI_EXPORT_ROW_CAP;
     return this.database.withTenant(tenant, async (tx) => {
       const prepared = await this.prepare(tx, tenant, access, request, ANALYTICS_PERMISSION, now);
       const scopeText = reportScopeDescription(prepared.province);
-      const filterText = reportFilterText({ ...request.filters, sort: `${request.sort} ${request.direction}` });
+      const filterText = reportFilterText({ ...request.filters, severity: request.severity, state: request.state, sort: `${request.sort} ${request.direction}` });
       const header = {
         scopeDescription: scopeText,
         periodLabel: prepared.snapshot?.periodCode ?? prepared.query.asOf,
@@ -440,21 +477,27 @@ export class ContractAnalyticsController {
       };
       let document;
       let rowCount: number;
-      if (code === 'contractor-concentration') {
+      if (register) {
+        const built = await this.registerBuild(tx, prepared, code as RegisterReportCode, access, now);
+        if (built.sorted.length > cap) throw new DomainError('EXPORT_ROW_CAP_EXCEEDED', 422, 'rows', { extensions: { cap, format: chosen } });
+        document = registerDocumentOf({ ...header, code: code as RegisterReportCode, rows: built.sorted, totals: built.totals });
+        rowCount = built.sorted.length;
+      } else if (code === 'contractor-concentration') {
         const found = await this.concentrationOf(tx, prepared);
         const names = await this.facts.namesOf(tx, found.report.dimensions.flatMap((dimension) => dimension.groups.map((group) => group.key)));
         document = concentrationDocumentOf(found.report, header, names);
         rowCount = document.rows.length;
       } else {
-        const rules = await this.rulesOf(tx, code, prepared.today);
+        const rules = await this.rulesOf(tx, code as Exclude<CtrReportCode, 'contractor-concentration'>, prepared.today);
         const page = await this.facts.page(tx, prepared.query, { sort: request.sort, direction: request.direction, limit: cap + 1 });
         // Over the cap the file is refused, never cut: the BI export of the series over DS-CTR (BiExportRunner) is the road for what is larger.
         if (page.facts.length > cap) throw new DomainError('EXPORT_ROW_CAP_EXCEEDED', 422, 'rows', { extensions: { cap, format: chosen } });
-        const extras = await this.extrasOf(tx, prepared, code, rules, page.facts.map((fact) => fact.id));
-        const rows = page.facts.map((fact) => reportRowOf(code, fact, { asOf: prepared.query.asOf, clock: rules.clock, ragParams: rules.ragParams, money: extras.money }));
-        const sums = await this.facts.reportSums(tx, prepared.query, code, undefined, this.breakdownContext(rules));
-        const totals = totalsOfSums(code, sums.total, { extras: extras.total, frozen: prepared.snapshot !== undefined });
-        document = reportDocumentOf({ ...header, code, columns: REPORT_COLUMNS[code], rows, totals });
+        const money = code as Exclude<CtrReportCode, 'contractor-concentration'>;
+        const extras = await this.extrasOf(tx, prepared, money, rules, page.facts.map((fact) => fact.id));
+        const rows = page.facts.map((fact) => reportRowOf(money, fact, { asOf: prepared.query.asOf, clock: rules.clock, ragParams: rules.ragParams, money: extras.money }));
+        const sums = await this.facts.reportSums(tx, prepared.query, money, undefined, this.breakdownContext(rules));
+        const totals = totalsOfSums(money, sums.total, { extras: extras.total, frozen: prepared.snapshot !== undefined });
+        document = reportDocumentOf({ ...header, code: money, columns: REPORT_COLUMNS[money], rows, totals });
         rowCount = rows.length;
       }
       const bytes: Uint8Array = chosen === 'csv' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : chosen === 'xlsx' ? xlsxOf(document) : chosen === 'docx' ? await docxOf(document) : await pdfOf(document, { stamp: now, wrap: true });
@@ -481,6 +524,118 @@ export class ContractAnalyticsController {
         content_base64: Buffer.from(bytes).toString('base64'),
       };
     });
+  }
+
+  /**
+   * The rows of a register report (CA-3): the records of the register for the selection of the query, one row each, filtered by severity and state, sorted by the column asked, with the totals and the breakdowns made from the
+   * very same rows. A register keeps no frozen copy: the reports of them read today (`snapshot_id`, `period` and a past day are refused by the request); the health of the contract reads the fact, frozen or live.
+   */
+  private async registerBuild(
+    tx: TenantTx,
+    prepared: Prepared,
+    code: RegisterReportCode,
+    access: EffectiveAccess,
+    now: Date,
+  ): Promise<{ all: RegisterRow[]; sorted: RegisterRow[]; totals: ReturnType<typeof registerTotals>; rules: Array<Record<string, unknown>>; notes: Record<string, unknown> }> {
+    const { request, query } = prepared;
+    const asOf = query.asOf;
+    const rules: Array<Record<string, unknown>> = [];
+    const notes: Record<string, unknown> = {};
+    let rows: RegisterRow[];
+    switch (code) {
+      case 'claims-limitation': {
+        const rule = await this.policy.get(tx, 'CONTRACT_CLAIM_LIMITATION', 'DEFAULT', prepared.today);
+        const params = rule === undefined ? claimLimitationDefaults() : claimLimitationParams(rule.params);
+        rules.push(ruleView('CONTRACT_CLAIM_LIMITATION', rule, params));
+        rows = (await this.registers.claims(tx, query)).map((record) => claimRow(record, asOf, params));
+        break;
+      }
+      case 'quality-defects':
+        rows = (await this.registers.defects(tx, query)).map((record) => defectRow(record, asOf));
+        break;
+      case 'obstacles':
+        rows = (await this.registers.obstacles(tx, query)).map((record) => obstacleRow(record, asOf));
+        notes.unlinked_open_issues = await this.registers.unlinkedIssues(tx, query);
+        break;
+      case 'audit-findings':
+        rows = (await this.registers.findings(tx, query, { engagements: engagementScope(access, PERMISSIONS.listAuditEngagements, now) })).map((record) => findingRow(record));
+        break;
+      case 'performance-rating': {
+        const rule = await this.policy.get(tx, 'CONTRACT_PERFORMANCE_RATING', 'DEFAULT', prepared.today);
+        const params = rule === undefined ? ratingDefaults() : ratingParams(rule.params);
+        rules.push(ruleView('CONTRACT_PERFORMANCE_RATING', rule, params));
+        const facts = (await this.allFacts(tx, query)).filter((fact) => isRatableStatus(fact.contractStatus));
+        const [defects, obstacles, violations, findings, state] = [
+          await this.registers.defects(tx, query),
+          await this.registers.obstacles(tx, query),
+          await this.registers.violations(tx, query),
+          await this.registers.findings(tx, query, { engagements: engagementScope(access, PERMISSIONS.listAuditEngagements, now) }),
+          await this.registers.ratingState(tx, query),
+        ];
+        const by = <T extends { contract: RegisterContract }>(list: readonly T[]): Map<string, T[]> => {
+          const grouped = new Map<string, T[]>();
+          for (const one of list) grouped.set(one.contract.id, [...(grouped.get(one.contract.id) ?? []), one]);
+          return grouped;
+        };
+        const defectsBy = by(defects);
+        const obstaclesBy = by(obstacles);
+        const findingsBy = by(findings);
+        rows = facts.map((fact) => {
+          const inputs = ratingInputsOf({ asOf, fact, daysLate: daysLateOfFact(fact, asOf), defects: defectsBy.get(fact.id) ?? [], obstacles: obstaclesBy.get(fact.id) ?? [], violations: violations.get(fact.id) ?? [], findings: findingsBy.get(fact.id) ?? [] });
+          const latest = state.proposals.get(fact.id);
+          const official = state.official.get(fact.id);
+          return ratingRow(registerContractOf(fact), inputs, params, latest === undefined ? null : { id: latest.id, state: latest.state as never, kind: latest.kind as never, periodLabel: latest.periodLabel, responseDueAt: latest.responseDueAt, respondedAt: latest.respondedAt }, official === undefined ? null : { rating: official.rating as never, overallScore: official.overallScore }, now);
+        });
+        break;
+      }
+      case 'contract-health': {
+        const rule = await this.policy.get(tx, 'CONTRACT_HEALTH_RAG', 'DEFAULT', prepared.today);
+        const params = rule === undefined ? contractHealthDefaults() : contractHealthRagParams(rule.params);
+        rules.push(ruleView('CONTRACT_HEALTH_RAG', rule, params));
+        rows = (await this.allFacts(tx, query)).map((fact) => healthRow(fact, registerContractOf(fact), asOf, params));
+        break;
+      }
+    }
+    const filtered = filterRegisterRows(code, rows, { severity: request.severity, state: request.state });
+    const sorted = sortRegisterRows(code, filtered, request.sort, request.direction);
+    return { all: filtered, sorted, totals: registerTotals(code, filtered), rules, notes };
+  }
+
+  /** Every fact of the selection, up to the cap of the registers: a selection above it is refused, never cut. */
+  private async allFacts(tx: TenantTx, query: FactQuery): Promise<ContractFact[]> {
+    const page = await this.facts.page(tx, query, { sort: 'code', direction: 'asc', limit: REGISTER_ROW_CAP + 1 });
+    if (page.facts.length > REGISTER_ROW_CAP) throw new DomainError('REPORT_SELECTION_TOO_LARGE', 422, 'rows', { extensions: { cap: REGISTER_ROW_CAP } });
+    return page.facts;
+  }
+
+  private async registerBody(tx: TenantTx, prepared: Prepared, code: RegisterReportCode, access: EffectiveAccess, now: Date): Promise<Record<string, unknown>> {
+    const { request } = prepared;
+    const built = await this.registerBuild(tx, prepared, code, access, now);
+    const catalogue = REGISTER_CATALOGUE[code];
+    const page = registerPage(code, built.sorted, { sort: request.sort, direction: request.direction, limit: request.limit, after: request.cursor === undefined ? undefined : { value: request.cursor.value, id: request.cursor.id } });
+    const last = page.items[page.items.length - 1];
+    const breakdowns = registerBreakdowns(code, built.all).map((breakdown) => ({ dimension: breakdown.dimension, groups: breakdown.groups.map((group) => ({ key: group.key, totals: totalsView(group.totals) })) }));
+    return {
+      code,
+      ref: catalogue.ref,
+      as_of: now.toISOString(),
+      context: this.contextOf(prepared, built.totals),
+      columns: REGISTER_COLUMNS[code].map((column) => ({ key: column.key, kind: column.kind, ledger: column.ledger, indicator: column.indicator, total: column.total })),
+      items: page.items.map((row) => ({
+        contract_id: row.contractId,
+        record_id: row.id,
+        cells: row.cells,
+        na: row.na,
+        ...(row.health === undefined ? {} : { health: { level: row.health.level, drivers: row.health.drivers, rule_code: row.health.ruleCode, readings: row.health.readings } }),
+      })),
+      totals: totalsView(built.totals),
+      breakdown: breakdowns[0] ?? null,
+      breakdowns,
+      rules: built.rules,
+      definitions: catalogue.indicators.map((indicator) => definitionView(indicator)),
+      next_cursor: page.more && last !== undefined ? encodeFactCursor({ sort: request.sort, direction: request.direction, value: cursorValueOf(last, request.sort), id: last.id }) : null,
+      ...(Object.keys(built.notes).length === 0 ? {} : { notes: built.notes }),
+    };
   }
 
   private async reportBody(tx: TenantTx, prepared: Prepared, code: Exclude<CtrReportCode, 'contractor-concentration'>, now: Date): Promise<Record<string, unknown>> {
@@ -606,6 +761,20 @@ function tierSplitView(split: TierSplit): Record<string, unknown> {
     groups: split.groups.map((group) => ({ key: group.key, count: group.count, delta_vnd: group.deltaVnd, growth: indicatorView(group.growth), share_of_growth_pct: group.shareOfGrowthPct, max_cumulative_variation_pct: group.maxCumulativePct })),
   };
 }
+
+/** The request of a register report: its own sorts, the severity and state lists; the registers are read today only (a register keeps no frozen copy), except the health of the contracts, which reads the fact. */
+export function registerRequestOf(raw: Raw, code: RegisterReportCode, today: string): AnalyticsRequest {
+  const request = analyticsRequestOf(raw, today, { sort: REGISTER_CATALOGUE[code].idColumn }, registerSortKeys(code));
+  if ((LIVE_ONLY_REPORTS as readonly string[]).includes(code)) {
+    if (request.snapshotId !== undefined) throw bad('snapshot_id');
+    if (request.period !== undefined) throw bad('period');
+    if (request.asOf !== undefined && request.asOf !== today) throw bad('as_of');
+  }
+  return request;
+}
+
+/** The contract of a fact as a register row names it. */
+const registerContractOf = (fact: ContractFact): RegisterContract => ({ id: fact.id, code: fact.code, title: fact.title, projectCode: fact.projectCode, contractorName: fact.contractorName, unitName: fact.unitName, status: fact.contractStatus, ledgerOk: fact.ledgerOk });
 
 const NIL_ID = '00000000-0000-4000-8000-000000000000';
 /** The reports of the catalogue, for the screens and the tests. */

@@ -447,6 +447,12 @@ export function ratingRow(contract: RegisterContract, inputs: RatingInputs, para
   putRegisterCell(row, 'proposed_rating', proposal.rating, proposal.overallReason);
   putRegisterCell(row, 'criteria_covered', proposal.covered);
   putRegisterFlag(row, 'scored', proposal.overall !== null, 'NOT_ENOUGH_CRITERIA');
+  // The financial criterion is made of the ledger: a reader who may not see the ledger of the contract is shown no financial score and no overall score or rating (they would be made of it), and the contract is not counted as scored.
+  if (!contract.ledgerOk) {
+    for (const key of ['score_financial', 'overall_score', 'proposed_rating']) putRegisterCell(row, key, null, 'LEDGER_DENIED');
+    putRegisterFlag(row, 'scored', null, 'LEDGER_DENIED');
+    delete row.parts.scored;
+  }
   putRegisterCell(row, 'rating_status', latest?.state ?? 'NONE');
   putRegisterCell(row, 'response_due_on', latest?.responseDueAt === undefined || latest.responseDueAt === null ? null : latest.responseDueAt.slice(0, 10), latest === null ? 'NO_PROPOSAL' : 'NOT_NOTIFIED');
   const open = latest !== null && latest.state === 'NOTIFIED' && latest.responseDueAt !== null;
@@ -456,7 +462,7 @@ export function ratingRow(contract: RegisterContract, inputs: RatingInputs, para
   putRegisterFlag(row, 'responded_in_time', judgedAnswer ? latest.respondedAt !== null && Date.parse(latest.respondedAt) <= Date.parse(latest.responseDueAt as string) : null, latest === null ? 'NO_PROPOSAL' : 'WINDOW_RUNNING');
   putRegisterCell(row, 'official_rating', official?.rating ?? null, 'NO_PROPOSAL');
   putRegisterCell(row, 'official_score', official?.overallScore ?? null, 'NO_PROPOSAL');
-  row.groups.proposed_rating = proposal.rating ?? 'NONE';
+  row.groups.proposed_rating = contract.ledgerOk ? (proposal.rating ?? 'NONE') : 'NONE';
   row.groups.rating_status = latest?.state ?? 'NONE';
   return row;
 }
