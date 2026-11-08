@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 474,
-    "webCatalog": 474,
+    "webRoutes": 480,
+    "webCatalog": 480,
     "webModules": 26,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -1038,7 +1038,8 @@
             5,
             6,
             19,
-            21
+            21,
+            27
           ],
           "primary": [
             2,
@@ -1047,7 +1048,8 @@
             5,
             6,
             19,
-            21
+            21,
+            27
           ],
           "parents": {}
         },
@@ -1090,6 +1092,26 @@
             20
           ],
           "parents": {}
+        },
+        {
+          "title": "Trợ lý AI",
+          "description": "Hỏi đáp, rà soát hồ sơ, đề xuất đánh giá và danh mục",
+          "ids": [
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "primary": [
+            22,
+            24,
+            25,
+            26
+          ],
+          "parents": {
+            "23": 22
+          }
         }
       ]
     },
@@ -7554,6 +7576,66 @@
       "role": "workspace",
       "parent": null,
       "req": "FR-INT-05"
+    },
+    {
+      "id": "LLM-22",
+      "title": "Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi",
+      "kind": "ai",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Trợ lý AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-23",
+      "title": "Chi tiết lượt hỏi của trợ lý AI và quyết định của người",
+      "kind": "detail",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Trợ lý AI",
+      "role": "detail",
+      "parent": "LLM-22"
+    },
+    {
+      "id": "LLM-24",
+      "title": "Rà soát hồ sơ trước khi trình",
+      "kind": "ai",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Trợ lý AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-25",
+      "title": "Đề xuất đánh giá thực hiện hợp đồng",
+      "kind": "ai",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Trợ lý AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-26",
+      "title": "Danh mục rà soát và bộ tiêu chí đánh giá",
+      "kind": "table",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Trợ lý AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-27",
+      "title": "Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu",
+      "kind": "table",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
     }
   ],
   "mobileRoutes": [

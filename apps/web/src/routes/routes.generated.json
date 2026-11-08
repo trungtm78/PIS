@@ -455,6 +455,7 @@
     {"id":"DIR-05","path":"/dir/dir-05","title":"Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau","kind":"table","area":"overview","module":"DIR","group":"Theo dõi chỉ đạo","role":"workspace","parent":null,"req":"FR-DIR-05"},
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     {"id":"RPT-01","path":"/rpt/rpt-01","title":"Danh mục biểu mẫu báo cáo và lập báo cáo","kind":"table","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-01"},
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
@@ -492,5 +493,13 @@
     {"id":"INT-04","path":"/int/int-04","title":"Tài khoản BI và tập dữ liệu chứng nhận","kind":"table","area":"admin","module":"INT","group":"Dữ liệu cho hệ thống khác","role":"workspace","parent":null,"req":"FR-INT-04"},
     {"id":"INT-05","path":"/int/int-05","title":"Nhật ký truy cập API mở","kind":"table","area":"admin","module":"INT","group":"Tài khoản máy và API mở","role":"workspace","parent":null,"req":"FR-INT-05"}
 >>>>>>> df5e14ef (feat(web): INT-01 to INT-05 screens for machine accounts, keys, project codes, BI logins and the access log)
+=======
+    {"id":"LLM-22","path":"/llm/llm-22","title":"Trợ lý AI: hỏi đáp, tóm tắt, dự thảo thuyết minh, khả thi","kind":"ai","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-22"},
+    {"id":"LLM-23","path":"/llm/llm-23","title":"Chi tiết lượt hỏi của trợ lý AI và quyết định của người","kind":"detail","area":"admin","module":"LLM","group":"Trợ lý AI","role":"detail","parent":"LLM-22","req":"FR-LLM-23"},
+    {"id":"LLM-24","path":"/llm/llm-24","title":"Rà soát hồ sơ trước khi trình","kind":"ai","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-24"},
+    {"id":"LLM-25","path":"/llm/llm-25","title":"Đề xuất đánh giá thực hiện hợp đồng","kind":"ai","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-25"},
+    {"id":"LLM-26","path":"/llm/llm-26","title":"Danh mục rà soát và bộ tiêu chí đánh giá","kind":"table","area":"admin","module":"LLM","group":"Trợ lý AI","role":"workspace","parent":null,"req":"FR-LLM-26"},
+    {"id":"LLM-27","path":"/llm/llm-27","title":"Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu","kind":"table","area":"admin","module":"LLM","group":"Model & định tuyến","role":"workspace","parent":null,"req":"FR-LLM-27"}
+>>>>>>> 105b2273 (feat(web): AI assistant screens LLM-22 to LLM-27 with model, labels and strings)
   ]
 }

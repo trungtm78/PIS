@@ -25,14 +25,14 @@ const known: ScreenCatalogue = [{ id: 'A-01', req: 'FR-A-01' }, { id: 'A-02' }, 
 describe('buildRoutes on the real design files', () => {
   const routes = buildRoutes(architecture, catalogue);
 
-  it('builds the 467 web routes of the navigation architecture, in file order', () => {
-    expect(routes).toHaveLength(467);
+  it('builds the 491 web routes of the navigation architecture, in file order', () => {
+    expect(routes).toHaveLength(491);
     expect(routes.map((entry) => entry.id)).toEqual(architecture.webRoutes.map((entry) => entry.id));
   });
 
   it('gives every route a unique id and a unique lower-case path of the form /module/id', () => {
-    expect(new Set(routes.map((entry) => entry.id)).size).toBe(467);
-    expect(new Set(routes.map((entry) => entry.path)).size).toBe(467);
+    expect(new Set(routes.map((entry) => entry.id)).size).toBe(491);
+    expect(new Set(routes.map((entry) => entry.path)).size).toBe(491);
     for (const entry of routes) expect(entry.path).toBe(`/${entry.module.toLowerCase()}/${entry.id.toLowerCase()}`);
   });
 
