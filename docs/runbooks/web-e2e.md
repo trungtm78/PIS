@@ -278,6 +278,8 @@ The baselines were rendered by Chrome on Windows. A text region can differ on Li
 the first run decides. A red case is read from its diff image and handled as `docs/runbooks/release-checklist.md` says; the target ratio and the regions
 are never edited to turn it green.
 
+Firefox and WebKit run a smoke subset in their own workflow (`browsers.yml`, selected by `E2E_BROWSERS`); `browser-differences.md` says what runs where and what is known to differ.
+
 ## Screen contract checks (`UI-<screen>`)
 
 The acceptance criteria of ADM-004, ADM-005 and eleven more stories end with "the screen contract checks of UI-<screen> report 0 failures". `UI-<screen>`

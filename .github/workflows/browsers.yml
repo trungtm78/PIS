@@ -1,0 +1,56 @@
+name: Browsers
+
+# The cross-browser leg of the browser checks: the smoke subset of the web flows (the real sign-in with its redirects, a list
+# and form screen of the administration, a project screen, the accessibility check) on Firefox and WebKit. Chromium is the
+# engine of browser.yml, which runs the whole suite (the route walk and the pixel baselines are for that engine only).
+# apps/web/e2e/support/browsers.ts says which specs run where; docs/runbooks/browser-differences.md lists what is known to
+# differ between the engines. One engine for each runner, because the flows write to the database of the API stack they start.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browsers-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Smoke on ${{ matrix.engine }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [firefox, webkit]
+    env:
+      E2E_BROWSERS: ${{ matrix.engine }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install the browser and its system libraries
+        run: npx playwright install --with-deps ${{ matrix.engine }}
+
+      - name: Smoke flows
+        run: npm run e2e:smoke -w @machvon/web
+
+      - name: Upload the traces of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-smoke-${{ matrix.engine }}
+          path: apps/web/e2e/test-results/
+          if-no-files-found: ignore

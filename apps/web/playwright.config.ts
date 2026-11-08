@@ -4,6 +4,7 @@ import { createServer } from 'node:net';
 import type { AddressInfo } from 'node:net';
 import { defineConfig } from '@playwright/test';
 import { browserChannel } from './e2e/support/browser-channel.ts';
+import { browserProjects } from './e2e/support/browsers.ts';
 import { STACK_INFO_PATH } from './e2e/support/stack-paths.ts';
 
 function freePort(): Promise<number> {
@@ -35,6 +36,8 @@ process.env.E2E_SESSION_KEY = sessionKey;
 process.env.E2E_STACK_INFO = STACK_INFO_PATH;
 const fixtureUsers: unknown = (JSON.parse(readFileSync(new URL('./e2e/support/e2e-fixtures.json', import.meta.url), 'utf8')) as { users: unknown }).users;
 const channel = browserChannel();
+// E2E_BROWSERS (chromium, firefox, webkit) makes one project per engine; without it there are none and the run is the single default one.
+const projects = browserProjects(process.env, channel);
 
 export default defineConfig({
   testDir: './e2e',
@@ -47,10 +50,12 @@ export default defineConfig({
   outputDir: './e2e/test-results',
   use: {
     baseURL: `http://127.0.0.1:${port}`,
-    ...(channel === undefined ? {} : { channel }),
+    // With projects the channel belongs to the Chromium project: another engine cannot take one.
+    ...(channel === undefined || projects.length > 0 ? {} : { channel }),
     deviceScaleFactor: 1,
     locale: 'vi-VN',
   },
+  ...(projects.length > 0 ? { projects } : {}),
   globalTeardown: './e2e/support/global-teardown.ts',
   webServer: [
     {
