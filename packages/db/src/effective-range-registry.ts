@@ -69,6 +69,7 @@ export const EFFECTIVE_RANGE_TABLES: readonly RangeDeclaration[] = [
   validity('project_accountability', 'the period a person answers for a project; several people may at once'),
   validity('project_component', 'the period a component of a project exists'),
   validity('role_grant', 'the period a role is granted to a membership; a person may hold several'),
+  validity('screening_list_entry', 'the period an entry of a list of parties that may not be dealt with stands, as the list states it; it is a fact of the entry, not a version of a rule, and a later import withdraws the entry'),
   validity('signing_certificate', 'the period a certificate is valid; a holder may have several'),
   validity('sync_membership_scope', 'the period of a data scope synced to a device'),
   validity('task_force', 'the period a task force exists'),
