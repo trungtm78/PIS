@@ -289,10 +289,12 @@ export class VendorRemediationStore {
   /** The contractor reports an action done, with a note and optionally a paper; only while the plan is in progress. */
   async markDone(tx: TenantTx, caller: PortalCaller, actionId: string, expectedVersion: number, input: { note: string; documentId?: string | undefined }, now: Date): Promise<RemediationActionRow> {
     const today = vietnamDateOf(now);
+    const peek = await this.findAction(tx, actionId, today);
+    if (peek === undefined || peek.contractorId !== caller.contractorId) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const plan = (await this.findPlan(tx, peek.planId, today, true)) as RemediationPlanRow;
     const action = await this.findAction(tx, actionId, today, true);
-    if (action === undefined || action.contractorId !== caller.contractorId) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (action === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (action.version !== expectedVersion) throw versionConflict(action.version);
-    const plan = (await this.findPlan(tx, action.planId, today)) as RemediationPlanRow;
     if (plan.status !== 'IN_PROGRESS' || action.status !== 'OPEN') throw new DomainError('REMEDIATION_STATE_INVALID', 409, 'status');
     const note = textOf(input.note, 'note', 1, 2000);
     if (input.documentId !== undefined && (await tx.query('select 1 from machvon.document where id = $1::uuid', [input.documentId])).length === 0) throw invalid('document_id');
@@ -307,12 +309,14 @@ export class VendorRemediationStore {
   /** Staff verify an action that was done (never the person who marked it: 403 `SELF_APPROVAL_DENIED`), or open it again with a note for the contractor. */
   async verify(tx: TenantTx, actionId: string, expectedVersion: number, outcome: 'VERIFIED' | 'REOPEN', note: string | undefined, actor: string, now: Date): Promise<RemediationActionRow> {
     const today = vietnamDateOf(now);
+    const peek = await this.findAction(tx, actionId, today);
+    if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const plan = (await this.findPlan(tx, peek.planId, today, true)) as RemediationPlanRow;
     const action = await this.findAction(tx, actionId, today, true);
     if (action === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (action.version !== expectedVersion) throw versionConflict(action.version);
-    if (action.status !== 'DONE') throw new DomainError('REMEDIATION_STATE_INVALID', 409, 'status');
+    if (action.status !== 'DONE' || plan.status !== 'IN_PROGRESS') throw new DomainError('REMEDIATION_STATE_INVALID', 409, 'status');
     if (action.doneBy === actor) throw new DomainError('SELF_APPROVAL_DENIED', 403);
-    const plan = (await this.findPlan(tx, action.planId, today)) as RemediationPlanRow;
     const text = note === undefined ? null : textOf(note, 'note', 1, 2000);
     if (outcome === 'REOPEN' && text === null) throw invalid('note');
     if (outcome === 'VERIFIED') {

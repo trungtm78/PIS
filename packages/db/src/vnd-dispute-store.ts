@@ -93,6 +93,9 @@ export class VendorOcdsReader {
                or exists (select 1 from machvon.contract_party cp join machvon.contract k on k.tenant_id = cp.tenant_id and k.id = cp.contract_id where cp.tenant_id = c.tenant_id and cp.contractor_id = c.id and ($2::uuid is null or k.package_id = $2::uuid))) as supplies
          from machvon.contractor c
         where c.verification_status = 'VERIFIED' and ($1::uuid is null or c.id = $1::uuid)
+          and (exists (select 1 from machvon.proposal pr where pr.tenant_id = c.tenant_id and pr.contractor_id = c.id and ($2::uuid is null or pr.package_id = $2::uuid))
+               or exists (select 1 from machvon.contract k where k.tenant_id = c.tenant_id and k.contractor_id = c.id and ($2::uuid is null or k.package_id = $2::uuid))
+               or exists (select 1 from machvon.contract_party cp join machvon.contract k on k.tenant_id = cp.tenant_id and k.id = cp.contract_id where cp.tenant_id = c.tenant_id and cp.contractor_id = c.id and ($2::uuid is null or k.package_id = $2::uuid)))
         order by c.tax_identifier, c.id limit 2000`,
       [filter.contractorId ?? null, filter.packageId ?? null],
     );

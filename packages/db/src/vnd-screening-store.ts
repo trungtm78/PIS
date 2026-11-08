@@ -203,7 +203,7 @@ export class VendorScreeningStore {
    */
   async importList(tx: TenantTx, input: ListImportInput, actor: string): Promise<{ importId: string; entries: number; withdrawn: number; replayed: boolean }> {
     if (!SCREENING_SOURCES.includes(input.source) || input.source === 'NATIONAL_DEBARMENT') throw invalid('source');
-    if (input.entries.length === 0 || input.entries.length > 5000) throw invalid('entries');
+    if (input.entries.length > 5000) throw invalid('entries');
     const seen = new Set<string>();
     const prepared = input.entries.map((entry) => {
       const ref = entry.ref.trim();
@@ -268,7 +268,7 @@ export class VendorScreeningStore {
         else if (hit.status === 'DISMISSED') {
           const expired = dismissalExpired({ rowHash: hit.decided_row_hash ?? hit.entry_row_hash, decidedOn: (hit.decided_at ?? hit.last_seen_at).slice(0, 10) }, entry.rowHash, today, rules.dismiss_valid_days);
           plan.push({ type: expired ? 'reopen' : 'touch', hit, entry: row, match });
-        } else if (hit.status === 'RESOLVED') plan.push(hit.entry_row_hash !== entry.rowHash ? { type: 'reopen', hit, entry: row, match } : { type: 'touch', hit, entry: row, match });
+        } else if (hit.status === 'RESOLVED') plan.push(hit.case_id === null || hit.entry_row_hash !== entry.rowHash ? { type: 'reopen', hit, entry: row, match } : { type: 'touch', hit, entry: row, match });
         else plan.push({ type: 'rescore', hit, entry: row, match });
       }
     }
@@ -322,7 +322,7 @@ export class VendorScreeningStore {
     const params = [hit.id, runId, entry.rowHash, entry.name, entry.taxCode, entry.validFrom, entry.validUntil, match.score, match.basis, match.similarity, match.hold, at];
     if (item.type === 'reopen') {
       nextHitStatus(hit.status, 'REOPEN');
-      await tx.query(`update machvon.screening_hit set ${refresh}, status = 'PENDING', reopened_count = reopened_count + 1, version = version + 1 where id = $1::uuid`, params);
+      await tx.query(`update machvon.screening_hit set ${refresh}, status = 'PENDING', decided_by = null, decided_at = null, decision_reason = null, reopened_count = reopened_count + 1, version = version + 1 where id = $1::uuid`, params);
       await this.event(tx, hit.id, 'REOPEN', hit.status, 'PENDING', null, 'the dismissal ran out or the entry changed', match.score, now);
     } else if (item.type === 'rescore') {
       const changed = hit.score !== match.score || hit.hold !== match.hold || hit.entry_row_hash !== entry.rowHash;

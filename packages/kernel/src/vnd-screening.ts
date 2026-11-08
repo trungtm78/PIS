@@ -64,7 +64,7 @@ export const SCREENING_PARAM_DEFAULTS = {
   weight_tax_head: 90,
   weight_name: 60,
   name_similarity_from_pct: 80,
-  hit_from: 60,
+  hit_from: 45,
   hold_from: 90,
   dismiss_valid_days: 365,
   hold_not_yet_in_force: false,
@@ -105,15 +105,19 @@ export function taxHeadOf(code: string | null): string | null {
   return match === null ? null : (match[1] as string);
 }
 
-/** The words that a company type adds to a name and that say nothing about who it is. */
-const FORM_WORDS = new Set(['cong', 'ty', 'tnhh', 'cp', 'co', 'phan', 'trach', 'nhiem', 'huu', 'han', 'mtv', 'tu', 'nhan', 'dn', 'doanh', 'nghiep', 'jsc', 'ltd', 'llc', 'inc', 'corp', 'company', 'limited', 'joint', 'stock', 'one', 'member']);
+/** The phrases and the words that a company form adds to a name and that say nothing about who it is. A phrase is taken out whole (`cong ty` is a form, but `cong` alone is a word of many names). */
+const FORM_PHRASES = ['cong ty', 'co phan', 'trach nhiem huu han', 'mot thanh vien', 'doanh nghiep tu nhan', 'tu nhan', 'joint stock company', 'limited company', 'one member'];
+const FORM_WORDS = new Set(['tnhh', 'mtv', 'cp', 'jsc', 'ltd', 'llc', 'inc', 'corp', 'company', 'limited']);
 
 /** A name folded for comparison with the words of the company form taken out, so that "Cong ty TNHH ABC" and "ABC" are alike. */
-export const matchNameOf = (name: string): string =>
-  foldForMatch(name)
+export const matchNameOf = (name: string): string => {
+  let folded = ` ${foldForMatch(name)} `;
+  for (const phrase of FORM_PHRASES) folded = folded.split(` ${phrase} `).join(' ');
+  return folded
     .split(' ')
     .filter((word) => word !== '' && !FORM_WORDS.has(word))
     .join(' ');
+};
 
 /** The match of a contractor against an entry of a list, on a day: the score and why. Never null; a score of 0 is no match. */
 export function matchEntry(contractor: ScreenedContractor, entry: ListEntry, today: string, policy: ScreeningPolicy): ScreeningMatch {
@@ -137,7 +141,9 @@ export function matchEntry(contractor: ScreenedContractor, entry: ListEntry, tod
     }
   }
   const inForce = (entry.validFrom === null || entry.validFrom <= today) && (entry.validUntil === null || entry.validUntil >= today);
-  return { score, basis, similarity, inForce, hold: score >= policy.hold_from && (inForce || policy.hold_not_yet_in_force) };
+  // An entry that has ended never holds; one that has not started holds only when the rule says so.
+  const notYetInForce = entry.validFrom !== null && entry.validFrom > today;
+  return { score, basis, similarity, inForce, hold: score >= policy.hold_from && (inForce || (policy.hold_not_yet_in_force && notYetInForce)) };
 }
 
 /** Whether a match is a hit at all: at or over the line that is worth a person's time. */

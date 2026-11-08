@@ -440,7 +440,7 @@ export class VendorPortalStore {
 
   /** The requests that raise an alert now: answered and waiting for review, due soon, overdue. */
   async alertable(tx: TenantTx, now: Date): Promise<PortalRequestRow[]> {
-    const rows = await this.list(tx, { limit: 500 }, now);
-    return rows.filter((row) => (row.status === 'RESPONDED') || (row.status === 'OPEN' && (row.clock === 'DUE_SOON' || row.clock === 'OVERDUE')));
+    const rows = await tx.query<RequestSql>(`${SELECT} where r.status in ('OPEN', 'RESPONDED') order by r.due_at, r.id limit 2000`);
+    return rows.map((row) => this.rowOf(row, now)).filter((row) => row.status === 'RESPONDED' || row.clock === 'DUE_SOON' || row.clock === 'OVERDUE');
   }
 }

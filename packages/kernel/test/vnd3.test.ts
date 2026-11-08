@@ -272,6 +272,11 @@ describe('screening (V14)', () => {
     expect(match.hold).toBe(false);
     expect(isHit(match, SCREEN)).toBe(true);
     expect(matchEntry(contractor, entry({ name: 'Xay dung Hoa Binh' }), today, SCREEN).score).toBe(0);
+    // A fuzzy name (four of five words) is a hit worth a look, below the hold line.
+    const fuzzy = matchEntry(contractor, entry({ name: 'Xay dung Thanh Cong Hai' }), today, SCREEN);
+    expect(fuzzy.score).toBe(48);
+    expect(isHit(fuzzy, SCREEN)).toBe(true);
+    expect(fuzzy.hold).toBe(false);
     expect(matchNameOf('Cong ty Co phan ABC')).toBe('abc');
   });
   it('an entry not yet in force alerts but does not hold, unless the rule says so', () => {
@@ -280,6 +285,7 @@ describe('screening (V14)', () => {
     const strict = screeningPolicyOf({ ...SCREENING_PARAM_DEFAULTS, hold_not_yet_in_force: true });
     expect(matchEntry(contractor, future, today, strict).hold).toBe(true);
     expect(matchEntry(contractor, entry({ taxCode: '0312345678', validUntil: '2026-11-07' }), today, SCREEN).hold).toBe(false);
+    expect(matchEntry(contractor, entry({ taxCode: '0312345678', validUntil: '2026-11-07' }), today, strict).hold).toBe(false);
   });
   it('screenContractor lists the hits strongest first', () => {
     const hits = screenContractor(contractor, [entry({ ref: 'n', name: 'Xay dung Thanh Cong' }), entry({ ref: 't', taxCode: '0312345678' }), entry({ ref: 'x', taxCode: '0999999999', name: 'Other' })], today, SCREEN);

@@ -342,7 +342,6 @@ export class VendorLeadStore {
    */
   private async deriveInvolved(tx: TenantTx, leadId: string, candidate: Candidate): Promise<void> {
     const wide = candidate.kind === 'LINK_CLUSTER' || candidate.kind === 'RESTRICTED_AFFILIATE';
-    await tx.query('delete from machvon.vendor_lead_involved where lead_id = $1::uuid', [leadId]);
     await tx.query(
       `insert into machvon.vendor_lead_involved (tenant_id, lead_id, membership_id, role)
        select distinct ${TENANT}, $1::uuid, x.member, x.role
@@ -360,7 +359,8 @@ export class VendorLeadStore {
            union all select pr.created_by, 'RECEIVER' from machvon.proposal pr where pr.package_id in (select id from pk) and pr.contractor_id = any($3::uuid[])
            union all select t.recorded_by, 'RECEIVER' from machvon.proposal_submission_trace t where t.package_id in (select id from pk)
          ) x join machvon.membership m on m.tenant_id = ${TENANT} and m.id = x.member
-        where x.member is not null`,
+        where x.member is not null
+       on conflict do nothing`,
       [leadId, candidate.packageIds, candidate.contractorIds, wide],
     );
   }

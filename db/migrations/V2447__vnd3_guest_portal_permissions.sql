@@ -18,3 +18,19 @@ BEGIN
   END LOOP;
 END
 $vnd3$;
+
+-- The auditors read and review the leads of the investigation (VND-3, V6: auditors only) and read the screening; the same rule: a right already held is left alone.
+DO $vnd3a$
+DECLARE
+  granted text;
+BEGIN
+  FOREACH granted IN ARRAY ARRAY['vnd.read', 'vnd.lead.read', 'vnd.lead.review', 'vnd.lead.confirm', 'vnd.lead.scan', 'vnd.screening.read'] LOOP
+    UPDATE machvon.role_definition
+       SET permissions = array_append(permissions, granted),
+           version = version + 1
+     WHERE code = 'AUDITOR'
+       AND is_system
+       AND NOT (granted = ANY (permissions));
+  END LOOP;
+END
+$vnd3a$;

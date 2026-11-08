@@ -345,6 +345,9 @@ describe('the contractor portal, the re-confirmation, the plans of remediation, 
       expect((await refusal(as((tx) => remediation.close(tx, plan.id, plan.version, 'CANCELLED', 'no', staff, NOW)))).code).toBe('VALIDATION_FAILED');
       const closed = await as((tx) => remediation.close(tx, plan.id, plan.version, 'CANCELLED', 'The evaluation was withdrawn', staff, later(1)));
       expect(closed).toMatchObject({ status: 'CANCELLED', closedReason: 'The evaluation was withdrawn' });
+      // An action of a plan that is closed changes no more (codex review): the contractor cannot report it done and staff cannot verify it.
+      const [orphan] = await as((tx) => remediation.actions(tx, plan.id, TODAY));
+      expect((await refusal(as(async (tx) => remediation.markDone(tx, await portal.enter(tx, memberId(GUEST_A)), (orphan as { id: string }).id, 1, { note: 'Done after the plan closed' }, later(2)), GUEST_A))).code).toBe('REMEDIATION_STATE_INVALID');
     });
 
     it('lists the plans of the contractor with their actions and raises the alert for an action that is due or late', async () => {

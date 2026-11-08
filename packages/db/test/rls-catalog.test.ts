@@ -281,6 +281,10 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
       ['a BI table whose policy ignores the binding', goodTable('period_snapshot_line', { policies: [...goodTable('x').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['machvon_bi_reader'], using: 'true', withCheck: null })] }), 'bi_exception_wrong'],
       ['a BI table the group role may write', goodTable('period_snapshot_line', { biPrivileges: { ...NO_PRIVILEGES, select: true, update: true }, policies: [...goodTable('x').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['machvon_bi_reader'], using: '(tenant_id = ( SELECT machvon_bi.tenant_of((CURRENT_USER)::text) AS tenant_of))', withCheck: null })] }), 'bi_exception_wrong'],
       ['relay policy on an ordinary table', goodTable('t', { policies: [...goodTable('t').policies, policy({ name: 'outbox_relay_access', permissive: true, roles: ['machvon_outbox_relay'], using: 'true', withCheck: 'true' })] }), 'relay_exception_wrong'],
+      ['a portal policy on an ordinary table', goodTable('t', { policies: [...goodTable('t').policies, policy({ name: 'portal_boundary', permissive: false, using: "(NULLIF(current_setting('app.portal_contractor_id'::text, true), ''::text) IS NULL)", withCheck: "(NULLIF(current_setting('app.portal_contractor_id'::text, true), ''::text) IS NULL)" })] }), 'portal_exception_wrong'],
+      ['a table of the investigation without the portal policy', goodTable('screening_hit'), 'portal_exception_wrong'],
+      ['a table of one contractor without the portal policy', goodTable('contractor_portal_request'), 'portal_exception_wrong'],
+      ['a portal policy that ignores the setting', goodTable('screening_hit', { policies: [...goodTable('t').policies, policy({ name: 'portal_boundary', permissive: false, using: 'true', withCheck: 'true' })] }), 'portal_exception_wrong'],
     ])('reports %s', (_label, table, reason) => {
       expect(reasonsOf(snapshotOf([table]))).toContain(reason);
     });

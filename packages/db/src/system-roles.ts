@@ -58,7 +58,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   // PENDING SIGN-OFF: "create/edit/submit records (maker)" names no permission.
   { code: 'INVESTOR_OFFICER', name: key('INVESTOR_OFFICER'), rank: 30, permissions: [], guestAllowed: false },
   // PENDING SIGN-OFF: "read/export" names no permission besides audit.read.
-  { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read', 'committee.audit.read'], guestAllowed: false },
+  { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read', 'committee.audit.read', 'vnd.read', 'vnd.lead.read', 'vnd.lead.review', 'vnd.lead.confirm', 'vnd.lead.scan', 'vnd.screening.read'], guestAllowed: false },
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
   // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
   { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read', 'vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation'], guestAllowed: true },
