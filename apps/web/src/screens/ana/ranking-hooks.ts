@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -29,6 +29,7 @@ export function useAnnotations(status: string) {
   const { tenant } = useSession();
   return useQuery<Annotation[]>({
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'annotations', status],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const items = toAnnotations(await client.read('listRankingAnnotations', { query: status === '' ? {} : { status } }));
       if (items === undefined) throw new Error('the notes could not be read');
@@ -44,6 +45,7 @@ export function useComplaints(status: string) {
   const { tenant } = useSession();
   return useQuery<Complaint[]>({
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'complaints', status],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const items = toComplaints(await client.read('listRankingComplaints', { query: status === '' ? {} : { status } }));
       if (items === undefined) throw new Error('the complaints could not be read');

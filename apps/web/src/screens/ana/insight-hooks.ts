@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../api/ApiClientContext';
 import { useSession } from '../../session/SessionContext';
 import { toBacktest, toHeatmap, toTrend } from './insight-model';
@@ -11,6 +11,7 @@ export function useHeatmap(view: HeatView) {
   const { tenant } = useSession();
   return useQuery<Heatmap>({
     queryKey: ['ana', tenant?.id, tenant?.membershipId, 'heatmap', view],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const map = toHeatmap(await client.read('getAnalyticsHeatmap', { query: { view } }));
       if (map === undefined) throw new Error('the heat-map could not be read');

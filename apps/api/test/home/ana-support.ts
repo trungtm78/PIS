@@ -32,7 +32,8 @@ export interface AnaFixture {
   post: (url: string, body: unknown, member?: number, key?: string) => Promise<Reply>;
   admin: (work: (client: Client) => Promise<void>) => Promise<void>;
   rows: <R extends object>(sql: string, params?: unknown[], tenant?: string) => Promise<R[]>;
-  insert: (table: string, values: Record<string, unknown>, tenant?: string) => Promise<string>;
+  /** Inserts a row, filling the not-null columns the test does not name; `replica` skips the foreign keys and triggers for a row whose parents the test does not build. */
+  insert: (table: string, values: Record<string, unknown>, tenant?: string, options?: { replica?: boolean }) => Promise<string>;
   /** A frozen weekly snapshot as of a day. */
   snapshot: (options: { asOf: string; frozenAt?: string }) => Promise<string>;
   /** A project of a unit with a line in a snapshot (the fund source optional), plan 1000 + 250 (in billions), `paid` whole dong paid by the Treasury, null when the Treasury booked nothing. */
@@ -68,7 +69,7 @@ export function createAnaFixture(family: number, initialNow: Date): AnaFixture {
       await client.end();
     }
   }
-  async function insert(table: string, values: Record<string, unknown>, tenant = TENANT_A): Promise<string> {
+  async function insert(table: string, values: Record<string, unknown>, tenant = TENANT_A, options: { replica?: boolean } = {}): Promise<string> {
     const rowId = (values.id as string | undefined) ?? randomUUID();
     await admin(async (client) => {
       const columns = (
@@ -101,7 +102,9 @@ export function createAnaFixture(family: number, initialNow: Date): AnaFixture {
         const value = all[name];
         return json.has(name) || (typeof value === 'object' && value !== null && !Array.isArray(value)) ? JSON.stringify(value) : value;
       });
-      await client.query(`insert into machvon.${table} (${names.map((name) => `"${name}"`).join(', ')}) values (${names.map((_, index) => `$${index + 1}`).join(', ')})`, params);
+      if (options.replica === true) await client.query('set session_replication_role = replica');
+      await client.query(`insert into machvon.${table} (${names.map((name) => `"${name}"`).join(', ')}) values (${names.map((_, index) => `${index + 1}`).join(', ')})`, params);
+      if (options.replica === true) await client.query('set session_replication_role = default');
     });
     return rowId;
   }

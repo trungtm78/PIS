@@ -51,6 +51,7 @@
   "ana.trust.unit.unit": "Unit",
   "ana.trust.unit.none": "There is no frozen snapshot yet, or no unit in your scope.",
   "ana.trust.composite": "Composite score",
+  "ana.trust.scorecard.loading": "Reading the quality scorecard.",
   "ana.trust.scorecard.error": "The scorecard could not be read; the freshness is still shown.",
   "ana.trust.link.lineage": "Trace the figures",
   "ana.trust.link.back": "Back to the command center",

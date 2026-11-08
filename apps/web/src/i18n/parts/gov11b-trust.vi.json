@@ -51,6 +51,7 @@
   "ana.trust.unit.unit": "Đơn vị",
   "ana.trust.unit.none": "Chưa có ảnh chụp số liệu đã chốt hoặc không có đơn vị trong phạm vi của bạn.",
   "ana.trust.composite": "Điểm tổng hợp",
+  "ana.trust.scorecard.loading": "Đang đọc thẻ điểm chất lượng.",
   "ana.trust.scorecard.error": "Không đọc được thẻ điểm; độ tươi vẫn hiển thị.",
   "ana.trust.link.lineage": "Truy nguồn số liệu",
   "ana.trust.link.back": "Về trung tâm chỉ huy",

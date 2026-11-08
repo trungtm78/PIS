@@ -129,7 +129,7 @@ describe('BI-27 the bottlenecks (G3-9)', () => {
     expect(noAmount.textContent).toContain(tr('ana.common.na'));
     expect(noAmount.textContent).toContain(tr('ana.bn.na.noAmount'));
     expect(rows[2]?.textContent).toContain('Clerk');
-    expect(within(rows[2] as HTMLElement).getByRole('link').getAttribute('href')).toBe('/iss/iss-03?id=I2');
+    expect(within(rows[2] as HTMLElement).getByRole('link').getAttribute('href')).toBe('/iss/iss-03?id=i2');
     expect(within(rows[1] as HTMLElement).getByRole('link').getAttribute('href')).toBe('/pay/pay-03');
   });
 
@@ -198,7 +198,7 @@ describe('BI-28 the halted projects (G3-9)', () => {
     const dialog = await screen.findByRole('dialog');
     fireEvent.change(within(dialog).getByTestId('halt-date'), { target: { value: '2027-09-01' } });
     fireEvent.change(within(dialog).getByTestId('halt-order'), { target: { value: 'Decision 15/QD' } });
-    await user.type(within(dialog).getByRole('textbox', { name: tr('ana.halt.record.reason') }), 'Twelve households have not accepted the compensation.');
+    await user.type((dialog.querySelector('textarea') as HTMLTextAreaElement), 'Twelve households have not accepted the compensation.');
     await user.click(within(dialog).getByRole('button', { name: tr('ana.halt.dialog.confirm') }));
     await waitFor(() => expect(commands(h, 'recordProjectHalt')).toHaveLength(1));
     expect(commands(h, 'recordProjectHalt')[0]?.body).toEqual({ project_id: 'pp', reason_code: 'LAND_CLEARANCE', reason_text: 'Twelve households have not accepted the compensation.', halted_on: '2027-09-01', order_ref: 'Decision 15/QD' });

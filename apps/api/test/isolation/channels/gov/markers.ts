@@ -1,4 +1,5 @@
 import type { TenantName } from '../../suite';
+import { analyticsMarkers } from './analytics.fixtures';
 import { directiveMarkers } from './directive.fixtures';
 import { egpMarkers } from './egp.fixtures';
 import { gov11aMarkers } from './gov11a.fixtures';
@@ -22,5 +23,6 @@ export function governanceMarkers(tenant: TenantName): Marker[] {
     ...ratingMarkers(tenant),
     ...reserveMarkers(tenant),
     ...workflowMarkers(tenant),
+    ...analyticsMarkers(tenant),
   ];
 }

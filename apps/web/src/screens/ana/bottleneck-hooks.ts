@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -19,6 +19,7 @@ export function useBottlenecks(filter: BottleneckFilter) {
   const { tenant } = useSession();
   return useQuery<Analysis>({
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'analysis', filter.cause, filter.bucket],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const analysis = toAnalysis(await client.read('getBottleneckAnalysis', { query: { ...(filter.cause === '' ? {} : { cause: filter.cause }), ...(filter.bucket === '' ? {} : { bucket: filter.bucket }) } }));
       if (analysis === undefined) throw new Error('the bottlenecks could not be read');
@@ -34,6 +35,7 @@ export function useHaltedProjects(status: string) {
   const { tenant } = useSession();
   return useQuery<HaltedList>({
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'list', status],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const result = toHaltedList(await client.read('listHaltedProjects', { query: status === '' ? {} : { status } }));
       if (result === undefined) throw new Error('the halted projects could not be read');

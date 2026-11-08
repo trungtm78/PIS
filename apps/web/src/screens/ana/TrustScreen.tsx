@@ -179,9 +179,8 @@ function TrustContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const freshness = useFreshness();
   const card = useScorecard();
-  const loading = freshness.isLoading || card.isLoading;
-  const failed = freshness.data === undefined && freshness.error !== null ? freshness.error : card.data === undefined && card.error !== null ? card.error : undefined;
-  const state = useScreenState({ isLoading: loading, error: failed ?? undefined, data: freshness.data, isEmpty: (data) => (data as { datasets: unknown[] }).datasets.length === 0 });
+  const failed = freshness.data === undefined && freshness.error !== null ? freshness.error : undefined;
+  const state = useScreenState({ isLoading: freshness.isLoading, error: failed, data: freshness.data, isEmpty: (data) => (data as { datasets: unknown[] }).datasets.length === 0 });
   const stale = freshness.data !== undefined && freshness.data.staleCount > 0;
   const contextItems = [
     { label: t('ana.trust.context.asOf'), value: dayText(freshness.data?.asOf.slice(0, 10) ?? null) },
@@ -213,6 +212,11 @@ function TrustContent({ route }: ScreenProps) {
             <SectionCard title={t('ana.trust.fresh.title')} status={<AnaFigureInfo name={t('ana.trust.fresh.title')} info={data.info} />}>
               <FreshnessTable datasets={data.datasets} />
             </SectionCard>
+            {card.isLoading ? (
+              <p role="status" data-testid="scorecard-loading">
+                {t('ana.trust.scorecard.loading')}
+              </p>
+            ) : null}
             {card.isError ? (
               <p role="alert" data-testid="scorecard-error">
                 {t('ana.trust.scorecard.error')}

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../api/ApiClientContext';
 import { useSession } from '../../session/SessionContext';
 import { toFreshness, toLineage, toScorecard } from './trust-model';
@@ -47,6 +47,7 @@ export function useLineage(query: LineageQuery) {
   const { tenant } = useSession();
   return useQuery<LineageView>({
     queryKey: ['ana', tenant?.id, tenant?.membershipId, 'lineage', query.node, query.direction, query.depth],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const view = toLineage(await client.read('getMetricLineageGraph', { query: query.node === '' ? {} : { node: query.node, direction: query.direction, depth: query.depth } }));
       if (view === undefined) throw new Error('the lineage could not be read');

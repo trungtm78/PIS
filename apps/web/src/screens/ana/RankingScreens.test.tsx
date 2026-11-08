@@ -123,7 +123,7 @@ describe('BI-25 the ranking on several measures (G3-8)', () => {
     fireEvent.change(within(dialog).getByTestId('annotate-reason'), { target: { value: 'FORCE_MAJEURE' } });
     fireEvent.click(within(dialog).getByTestId('annotate-metric-PHYSICAL'));
     fireEvent.change(within(dialog).getByTestId('annotate-until'), { target: { value: '2027-12-01' } });
-    await user.type(within(dialog).getByRole('textbox', { name: /./ }), 'A storm closed the site for three weeks.');
+    await user.type((dialog.querySelector('textarea') as HTMLTextAreaElement), 'A storm closed the site for three weeks.');
     await user.click(within(dialog).getByRole('button', { name: tr('ana.rank.annotate.confirm') }));
     await waitFor(() => expect(commands(h, 'proposeRankingAnnotation')).toHaveLength(1));
     expect(commands(h, 'proposeRankingAnnotation')[0]?.body).toEqual({ unit_id: U1, reason_code: 'FORCE_MAJEURE', metric_codes: ['RATE', 'PHYSICAL'], evidence: 'A storm closed the site for three weeks.', valid_to: '2027-12-01' });
@@ -137,7 +137,7 @@ describe('BI-25 the ranking on several measures (G3-8)', () => {
     fireEvent.click(await screen.findByTestId(`rank-complain-${U1}-RATE`));
     const dialog = await screen.findByRole('dialog');
     fireEvent.change(within(dialog).getByTestId('complain-claimed'), { target: { value: '62.5' } });
-    await user.type(within(dialog).getByRole('textbox', { name: /./ }), 'The Treasury paid 3 billion more on 9 October.');
+    await user.type((dialog.querySelector('textarea') as HTMLTextAreaElement), 'The Treasury paid 3 billion more on 9 October.');
     await user.click(within(dialog).getByRole('button', { name: tr('ana.rank.complain.confirm') }));
     await waitFor(() => expect(commands(h, 'fileRankingComplaint')).toHaveLength(1));
     expect(commands(h, 'fileRankingComplaint')[0]?.body).toEqual({ unit_id: U1, metric_code: 'RATE', as_of_date: '2027-10-12', claim: 'The Treasury paid 3 billion more on 9 October.', claimed_value: '62.5' });
@@ -150,7 +150,7 @@ describe('BI-25 the ranking on several measures (G3-8)', () => {
     fireEvent.click(await screen.findByTestId(`rank-annotate-${U1}`));
     const dialog = await screen.findByRole('dialog');
     fireEvent.change(within(dialog).getByTestId('annotate-until'), { target: { value: '2027-12-01' } });
-    await user.type(within(dialog).getByRole('textbox', { name: /./ }), 'A storm closed the site for three weeks.');
+    await user.type((dialog.querySelector('textarea') as HTMLTextAreaElement), 'A storm closed the site for three weeks.');
     await user.click(within(dialog).getByRole('button', { name: tr('ana.rank.annotate.confirm') }));
     expect((await within(dialog).findByRole('alert')).textContent).toContain(tr('ana.rank.problem.denied'));
   });

@@ -1,5 +1,6 @@
 import type { Client } from 'pg';
 import type { ForeignAttemptSpec } from '../api';
+import { ANALYTICS_OPERATIONS, ANALYTICS_SNAPSHOT_TABLES, ANALYTICS_SPECS, seedAnalytics } from './analytics';
 import { DIRECTIVE_OPERATIONS, DIRECTIVE_SNAPSHOT_TABLES, DIRECTIVE_SPECS, seedDirective } from './directive';
 import { EGP_OPERATIONS, EGP_SNAPSHOT_TABLES, EGP_SPECS, seedEgp } from './egp';
 import { GOV11A_OPERATIONS, GOV11A_SNAPSHOT_TABLES, GOV11A_SPECS, seedGov11a } from './gov11a';
@@ -22,6 +23,8 @@ export const GOVERNANCE_SPECS: readonly ForeignAttemptSpec[] = [
   ...RATING_SPECS,
 =======
   ...GOV11A_SPECS,
+=======
+  ...ANALYTICS_SPECS,
 ];
 
 /** Every operation of these controllers: the test role of the suite holds the permission of each. */
@@ -36,6 +39,7 @@ export const GOVERNANCE_OPERATIONS: readonly string[] = [
 =======
   ...GOV11A_OPERATIONS,
   ...HOME_OPERATIONS,
+  ...ANALYTICS_OPERATIONS,
 ];
 
 /** The tables the seeds fill that the snapshot reads, so a foreign command that changed one of them is seen. */
@@ -51,6 +55,7 @@ export const GOVERNANCE_SNAPSHOT_TABLES: readonly string[] = [
 =======
     ...GOV11A_SNAPSHOT_TABLES,
     ...HOME_SNAPSHOT_TABLES,
+    ...ANALYTICS_SNAPSHOT_TABLES,
   ]),
 ];
 
@@ -66,4 +71,5 @@ export async function seedGovernance(client: Client, context: SeedContext): Prom
 =======
   await seedGov11a(client, context);
   await seedHome(client, context);
+  await seedAnalytics(client, context);
 }

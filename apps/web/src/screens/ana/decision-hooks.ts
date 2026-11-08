@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -19,6 +19,7 @@ export function useDecisions(filters: DecisionFilters) {
   const { tenant } = useSession();
   return useQuery<DecisionPage>({
     queryKey: [...root(tenant?.id, tenant?.membershipId), 'list', filters.subjectKind, filters.openFollowUp, filters.cursor],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const page = toDecisionPage(
         await client.read('listAnalyticsDecisions', {
