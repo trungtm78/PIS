@@ -379,6 +379,28 @@ describe('the post-investment effectiveness of a project (MR.03, G4-7)', () => {
       expect(await submit(projectId, { kind: 'IMPACT' })).toMatchObject({ status: 'SUBMITTED' });
     });
 
+    it('takes up an assessment that was answered before the calendar was generated: an approved one closes the new entry, a submitted one is linked and closes it later', async () => {
+      const early = await fixedProject();
+      await stageChange(early.projectId, 'COMPLETED', '2026-06-30', 2);
+      await measure(early.projectId, { value: '900' });
+      const approvedFirst = await submit(early.projectId);
+      expect(approvedFirst.calendarEntryId).toBeNull();
+      await decide(approvedFirst.id, 1, { decision: 'APPROVE' });
+      await as((tx) => effects.generateCalendar(tx, { projectId: early.projectId, actor: memberId(MAKER), scopes, now: NOW }));
+      const closed = (await view(early.projectId)).calendar.find((row) => row.kind === 'FINAL');
+      expect(closed).toMatchObject({ status: 'DONE', state: 'DONE', assessmentId: approvedFirst.id });
+
+      const waiting = await fixedProject();
+      await stageChange(waiting.projectId, 'COMPLETED', '2026-06-30', 2);
+      await measure(waiting.projectId, { value: '900' });
+      const sent = await submit(waiting.projectId);
+      await as((tx) => effects.generateCalendar(tx, { projectId: waiting.projectId, actor: memberId(MAKER), scopes, now: NOW }));
+      const linked = await owner<{ calendar_entry_id: string | null }>('select calendar_entry_id from machvon.effect_assessment where id = $1', [sent.id]);
+      expect(linked[0]?.calendar_entry_id).not.toBeNull();
+      expect(await decide(sent.id, 1, { decision: 'APPROVE' })).toMatchObject({ closedCalendar: true });
+      expect((await view(waiting.projectId)).calendar.find((row) => row.kind === 'FINAL')).toMatchObject({ status: 'DONE', assessmentId: sent.id });
+    });
+
     it('needs fixed targets, a project in a status that has them, and a scope', async () => {
       const bare = await seedProject({ status: 'COMPLETED' });
       expect(await refusal(submit(bare))).toMatchObject({ code: 'EFFECT_TARGETS_NOT_FIXED' });

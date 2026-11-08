@@ -17,8 +17,8 @@ export const RISK_ALERT_RESOLVED_EVENT = 'project.risk_alert_resolved.v1';
 export const RISK_RESCORE_METRIC = 'prj_risk_signal_changed';
 export const RISK_ALERT_METRIC = 'prj_risk_alert_raised_total';
 const PAGE = 200;
-/** The most projects one pass reads, in the order of their code: a bound against a pass that never ends. */
-const MAX_PROJECTS = 5000;
+/** The most projects one pass reads, in the order of their code: a bound against a pass that never ends, far above the volume the design is sized for. A tenant beyond it is told (`truncated`) and never silently left out. */
+const MAX_PROJECTS = 100_000;
 const MAX_REGISTER_ALERTS = 500;
 
 export interface RiskRescoreResult {
@@ -28,6 +28,8 @@ export interface RiskRescoreResult {
   cleared: number;
   /** Kinds of a project whose indicators could not be read at all: the line (if any) was left as it was. */
   unavailable: number;
+  /** The pass stopped at the bound before the last project: the tenant has more projects than one pass reads. */
+  truncated: boolean;
   alertsRaised: number;
   alertsResolved: number;
   ruleVersion: string;
@@ -64,7 +66,7 @@ export class RiskRescoreJob {
   async run(tx: TenantTx, actor: string, now: Date): Promise<RiskRescoreResult> {
     const today = vietnamDateOf(now);
     const { policy, version, unverified } = await this.policyOf(tx, today);
-    const result: RiskRescoreResult = { projects: 0, opened: 0, rescored: 0, cleared: 0, unavailable: 0, alertsRaised: 0, alertsResolved: 0, ruleVersion: version, ruleUnverified: unverified };
+    const result: RiskRescoreResult = { projects: 0, opened: 0, rescored: 0, cleared: 0, unavailable: 0, truncated: false, alertsRaised: 0, alertsResolved: 0, ruleVersion: version, ruleUnverified: unverified };
     let after: string | undefined;
     while (result.projects < MAX_PROJECTS) {
       const page = await this.reader.projects(tx, policy.scoredStatuses, PAGE, after);
@@ -73,6 +75,7 @@ export class RiskRescoreJob {
       result.projects += page.length;
       after = page[page.length - 1]?.code;
       if (page.length < PAGE) break;
+      if (result.projects >= MAX_PROJECTS) result.truncated = true;
     }
     await this.registerAlerts(tx, { policy, version, unverified, today, actor, now }, result);
     const resolved = await this.store.resolveEnded(tx, policy.criticalScore, today);

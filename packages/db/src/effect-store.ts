@@ -417,9 +417,25 @@ export class EffectStore {
          values (${TENANT}, $1::uuid, $2, $3, $4::date, $5, $6, $7::date, $8, $9, $10, $11, $12::uuid) on conflict do nothing returning id`,
         [project.id, entry.kind, entry.anchor, entry.anchorOn, entry.anchorSource, entry.months, entry.dueOn, entry.required, resolved.code, resolved.version, resolved.unverified, request.actor],
       );
-      if (rows[0] !== undefined) created.push({ id: rows[0].id, kind: entry.kind, dueOn: entry.dueOn, anchor: entry.anchor, anchorOn: entry.anchorOn });
+      if (rows[0] !== undefined) {
+        created.push({ id: rows[0].id, kind: entry.kind, dueOn: entry.dueOn, anchor: entry.anchor, anchorOn: entry.anchorOn });
+        await this.reconcile(tx, project.id, rows[0].id, entry.kind);
+      }
     }
     return { projectId: project.id, projectCode: project.code, classification: project.classification, created, waiting: derived.waiting, existing: held.map((row) => row.kind), ruleCode: resolved.code, ruleVersion: resolved.version, ruleUnverified: resolved.unverified };
+  }
+
+  /**
+   * An assessment of a kind may have been submitted or approved before the calendar was generated: the new entry takes it up, so that nothing stays outstanding that was answered. A submitted one is linked (its approval
+   * will close the entry); an approved one closes the entry now.
+   */
+  private async reconcile(tx: TenantTx, projectId: string, entryId: string, kind: EffectEvaluationKind): Promise<void> {
+    const approved = await tx.query<{ id: string }>(`select id from machvon.effect_assessment where project_id = $1::uuid and kind = $2 and status = 'APPROVED' order by submitted_at desc limit 1`, [projectId, kind]);
+    if (approved[0] !== undefined) {
+      await tx.query(`update machvon.effect_calendar_entry set status = 'DONE', assessment_id = $2::uuid, closed_at = now(), row_version = row_version + 1 where id = $1::uuid and status = 'PLANNED'`, [entryId, approved[0].id]);
+      return;
+    }
+    await tx.query(`update machvon.effect_assessment set calendar_entry_id = $2::uuid where project_id = $1::uuid and kind = $3 and status = 'SUBMITTED' and calendar_entry_id is null`, [projectId, entryId, kind]);
   }
 
   // ---- the assessments ---------------------------------------------------------------------------------------------------------------------------------------------------------
