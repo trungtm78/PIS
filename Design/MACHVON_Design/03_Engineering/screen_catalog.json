@@ -10984,7 +10984,7 @@
     "rule": "Hạn lấy từ quy tắc EGP_POSTING_DEADLINES (chưa kiểm chứng); người gửi khác người chuẩn bị; biên nhận đóng cảnh báo EGP_POSTING_DUE và EGP_POSTING_OVERDUE; tệp xuất hồ sơ nhà thầu của CTR-24 là gói đăng của đánh giá và vi phạm",
     "phase": "P2",
     "platform": "web",
-    "req": "FR-BID-22",
+    "req": "FR-BID-32",
     "source": "Kế hoạch EGP-2, docs/egp-connector.md mục 7 và 12"
   },
   {
@@ -11007,7 +11007,7 @@
     "rule": "Mỗi chênh lệch có người xử lý khác người lập và một trong bốn kết quả: chấp nhận số ngoài, sửa số của mình, tranh chấp, miễn; ghi ADM-11; mẫu tệp là giả định (PENDING-EXTERNAL)",
     "phase": "P2",
     "platform": "web",
-    "req": "FR-BID-23",
+    "req": "FR-BID-33",
     "source": "Kế hoạch EGP-2, docs/egp-connector.md mục 6 và 12"
   }
 ]

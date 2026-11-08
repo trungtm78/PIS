@@ -10317,5 +10317,41 @@
       "UAT-RPT-002",
       "UAT-RPT-003"
     ]
+  },
+  {
+    "requirement": "FR-BID-32",
+    "screen": "BID-32",
+    "title": "Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch EGP-2 (nghĩa vụ đăng tải có hạn, cảnh báo, biên nhận; chuyển xuất hồ sơ nhà thầu của CTR-24 vào đây) và docs/egp-connector.md mục 7 và 12",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-32",
+    "test_ids": [
+      "UI-BID-32",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-BID-33",
+    "screen": "BID-33",
+    "title": "Đối chiếu từng trường với hệ thống mạng đấu thầu quốc gia",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch EGP-2 (đối chiếu từng trường, người xử lý khác người lập, ghi ADM-11; mốc nhập từ mạng thành mốc của gói thầu) và docs/egp-connector.md mục 6 và 12",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 3 test",
+    "backlog_id": "BL-BID-33",
+    "test_ids": [
+      "UI-BID-33",
+      "UAT-PLAN-142"
+    ]
   }
 ]

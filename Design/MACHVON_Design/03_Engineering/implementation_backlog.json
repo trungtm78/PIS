@@ -18452,5 +18452,81 @@
     "stories": [
       "ST-RPT-001"
     ]
+  },
+  {
+    "id": "BL-BID-32",
+    "requirement": "FR-BID-32",
+    "screen": "BID-32",
+    "title": "Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia",
+    "module": "BID",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,CTR",
+    "fields": [
+      "Loại nghĩa vụ",
+      "Đối tượng",
+      "Hạn đăng (kèm quy tắc, chưa kiểm chứng)",
+      "Đồng hồ",
+      "Trạng thái",
+      "Người phụ trách",
+      "Người chuẩn bị và người gửi",
+      "Gói đăng và băm",
+      "Biên nhận",
+      "Tỷ lệ đăng đúng hạn"
+    ],
+    "rule": "Hạn lấy từ quy tắc EGP_POSTING_DEADLINES (chưa kiểm chứng) trên lịch làm việc đã công bố; người gửi khác người chuẩn bị; biên nhận đóng nghĩa vụ và cảnh báo EGP_POSTING_DUE và EGP_POSTING_OVERDUE; tệp xuất hồ sơ nhà thầu của CTR-24 là gói đăng của đánh giá và vi phạm; hệ thống không đăng, người đăng ghi biên nhận",
+    "test_ids": [
+      "UI-BID-32",
+      "UAT-PLAN-141"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BID-032"
+    ]
+  },
+  {
+    "id": "BL-BID-33",
+    "requirement": "FR-BID-33",
+    "screen": "BID-33",
+    "title": "Đối chiếu từng trường với hệ thống mạng đấu thầu quốc gia",
+    "module": "BID",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,CTR",
+    "fields": [
+      "Đối tượng và mã trên mạng",
+      "Trường",
+      "Số của đơn vị",
+      "Số trên mạng",
+      "Chênh lệch",
+      "Người xử lý",
+      "Hạn xử lý (kèm quy tắc, chưa kiểm chứng)",
+      "Kết quả xử lý (chấp nhận số ngoài, sửa số của mình, tranh chấp, miễn)",
+      "Lý do và bằng chứng",
+      "Ngày xem lại của lần miễn"
+    ],
+    "rule": "Mỗi chênh lệch có người xử lý khác người lập bản ghi và người nạp tệp, hạn theo quy tắc EGP_RECONCILIATION_POLICY (chưa kiểm chứng) và một trong bốn kết quả xử lý, ghi ADM-11; chạy lại không mở thêm; chênh lệch đã xử lý chỉ quay lại khi số đổi hoặc đến ngày xem lại; mẫu tệp là giả định nên PENDING-EXTERNAL",
+    "test_ids": [
+      "UI-BID-33",
+      "UAT-PLAN-142"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-BID-032"
+    ]
   }
 ]

@@ -1,5 +1,7 @@
 # The export of the records of the contractors for the national database (ST-CTR-015, CTR 3.6, CTR-24, CXN-EXE-01)
 
+> Moved into lane EGP-2 for the posting: the file of a batch is the packet of the posting obligations `CONTRACTOR_PERFORMANCE` and `VIOLATION` (BID-32, `docs/egp-connector.md` section 12), whose receipt is also the receipt of the batch. The export, its file, its tests and the screen CTR-24 are unchanged; marking a batch as submitted on CTR-24 still works and is what the obligation finds when its receipt arrives.
+
 A legal owner exports the approved evaluations and the confirmed violations of a period as one file, whose SHA-256 names the batch, and writes down by hand the receipt number of the submission. There is no interface to the national system: the adapter is **PROPOSED** and its API **MISSING** (CXN-EXE-01), and the screen says so.
 
 ## The file

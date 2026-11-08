@@ -198713,7 +198713,8 @@
               "PAYMENT_INTEGRITY",
               "DISBURSEMENT_EXCEPTION",
               "PROJECT_GOVERNANCE",
-              "CONNECTOR"
+              "CONNECTOR",
+              "EGP_POSTING"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -200064,7 +200065,8 @@
               "PAYMENT_INTEGRITY",
               "DISBURSEMENT_EXCEPTION",
               "PROJECT_GOVERNANCE",
-              "CONNECTOR"
+              "CONNECTOR",
+              "EGP_POSTING"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -200128,7 +200130,8 @@
               "PAYMENT_INTEGRITY",
               "DISBURSEMENT_EXCEPTION",
               "PROJECT_GOVERNANCE",
-              "CONNECTOR"
+              "CONNECTOR",
+              "EGP_POSTING"
             ],
             "description": "The kind of source the item comes from."
           },

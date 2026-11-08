@@ -21515,5 +21515,79 @@
       "FR-RPT-03",
       "FR-RPT-04"
     ]
+  },
+  {
+    "id": "UI-BID-32",
+    "source": "FR-BID-32",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia; user có quyền và user chỉ đọc; route BID-32",
+    "steps": [
+      "Mở BID-32 từ menu và deep link; kiểm nhãn trường: Loại nghĩa vụ, Đối tượng, Hạn đăng (kèm quy tắc, chưa kiểm chứng), Đồng hồ, Trạng thái, Người phụ trách, Người chuẩn bị và người gửi, Gói đăng và băm, Biên nhận, Tỷ lệ đăng đúng hạn",
+      "Thực hiện thao tác chính theo quy tắc: Hạn lấy từ quy tắc EGP_POSTING_DEADLINES (chưa kiểm chứng) trên lịch làm việc đã công bố; người gửi khác người chuẩn bị; biên nhận đóng nghĩa vụ và cảnh báo EGP_POSTING_DUE và EGP_POSTING_OVERDUE; tệp xuất hồ sơ nhà thầu của CTR-24 là gói đăng của đánh giá và vi phạm; hệ thống không đăng, người đăng ghi biên nhận",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-32"
+    ],
+    "expected": "Nghĩa vụ đăng tải lên hệ thống mạng đấu thầu quốc gia: hiển thị đúng 10 trường, áp quy tắc \"Hạn lấy từ quy tắc EGP_POSTING_DEADLINES (chưa kiểm chứng) trên lịch làm việc đã công bố; người gửi khác người chuẩn bị; biên nhận đóng nghĩa vụ và cảnh báo EGP_POSTING_DUE và EGP_POSTING_OVERDUE; tệp xuất hồ sơ nhà thầu của CTR-24 là gói đăng của đánh giá và vi phạm; hệ thống không đăng, người đăng ghi biên nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-32"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-141",
+    "source": "BID.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Kế hoạch được duyệt, gói thầu, lịch làm việc đã công bố, hai người có quyền chuẩn bị và gửi; quy tắc hạn là mặc định chưa kiểm chứng.",
+    "steps": [
+      "Mở nghĩa vụ đăng từ sự kiện đã có và bằng tay",
+      "Chuẩn bị, gửi bằng người khác, ghi biên nhận; ghi biên nhận trùng",
+      "Ghi từ chối, chuẩn bị lại, hủy",
+      "Kiểm nhật ký mạng của phiên"
+    ],
+    "expected": "Bước 1: mở một lần, hạn theo quy tắc; bước 2: người chuẩn bị tự gửi bị 403, biên nhận đóng cảnh báo, số tham chiếu trùng bị 409; bước 3: đồng hồ chạy lại sau từ chối, hủy cần lý do; bước 4: không có kết nối ra ngoài.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-32"
+    ]
+  },
+  {
+    "id": "UI-BID-33",
+    "source": "FR-BID-33",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đối chiếu từng trường với hệ thống mạng đấu thầu quốc gia; user có quyền và user chỉ đọc; route BID-33",
+    "steps": [
+      "Mở BID-33 từ menu và deep link; kiểm nhãn trường: Đối tượng và mã trên mạng, Trường, Số của đơn vị, Số trên mạng, Chênh lệch, Người xử lý, Hạn xử lý (kèm quy tắc, chưa kiểm chứng), Kết quả xử lý (chấp nhận số ngoài, sửa số của mình, tranh chấp, miễn), Lý do và bằng chứng, Ngày xem lại của lần miễn",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi chênh lệch có người xử lý khác người lập bản ghi và người nạp tệp, hạn theo quy tắc EGP_RECONCILIATION_POLICY (chưa kiểm chứng) và một trong bốn kết quả xử lý, ghi ADM-11; chạy lại không mở thêm; chênh lệch đã xử lý chỉ quay lại khi số đổi hoặc đến ngày xem lại; mẫu tệp là giả định nên PENDING-EXTERNAL",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-33"
+    ],
+    "expected": "Đối chiếu từng trường với hệ thống mạng đấu thầu quốc gia: hiển thị đúng 10 trường, áp quy tắc \"Mỗi chênh lệch có người xử lý khác người lập bản ghi và người nạp tệp, hạn theo quy tắc EGP_RECONCILIATION_POLICY (chưa kiểm chứng) và một trong bốn kết quả xử lý, ghi ADM-11; chạy lại không mở thêm; chênh lệch đã xử lý chỉ quay lại khi số đổi hoặc đến ngày xem lại; mẫu tệp là giả định nên PENDING-EXTERNAL\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-33"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-142",
+    "source": "BID.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Hai gói thầu với giá và tên khác tệp, tệp KHLCNT và TBMT mẫu giả định (PENDING-EXTERNAL), một người lập gói thầu và nạp tệp, một người xử lý khác.",
+    "steps": [
+      "Nạp tệp kế hoạch có giá khác số của đơn vị, duyệt ánh xạ, chạy đối chiếu",
+      "Chạy đối chiếu lần nữa",
+      "Người lập bản ghi xử lý chênh lệch, rồi người khác xử lý bằng từng kết quả",
+      "Nạp tệp thông báo mời thầu, duyệt ánh xạ"
+    ],
+    "expected": "Bước 1: một mục cho mỗi trường khác, người xử lý không phải người lập; bước 2: không mở thêm; bước 3: người lập bị 403 SELF_APPROVAL_DENIED, người khác xử lý được, tranh chấp cần bằng chứng, miễn cần ngày xem lại; bước 4: mốc của gói thầu lấy ngày từ tệp, nguồn IMPORT, không ghi đè ngày của người.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-33"
+    ]
   }
 ]
