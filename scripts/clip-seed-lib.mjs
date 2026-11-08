@@ -8,8 +8,8 @@ export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-directives', 'clip-public-committee'],
-  enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-directives', 'clip-public-committee'],
+  enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports'],
 };
 
 /**
@@ -26,9 +26,9 @@ export const DATASET_PHASES = {
     { clockDays: -80, groups: ['base', 'capital'] },
     { clockDays: 0, groups: ['clip-public-documents', 'clip-public-procurement'] },
     ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-public-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
-    { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-directives', 'clip-public-committee'] },
+    { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-directives', 'clip-public-committee'] },
   ],
-  enterprise: [{ clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'] }],
+  enterprise: [{ clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports'] }],
 };
 
 /** The phases cut down to the groups asked for (all when none is asked), dropping the empty ones. */
@@ -348,12 +348,14 @@ export function buildPlan(dataset) {
       projects: built.projects,
       funding: dataset.funding,
       meetings: dataset.meetings,
+      reports: dataset.reports,
       ebs: { note: dataset.ebs.layoutNote, rows: built.ebsRows },
       expect: {
         projectsTotal: built.projects.length,
         fundingBatches: built.projects.length * 2,
         directives: dataset.meetings.reduce((sum, meeting) => sum + meeting.directives.length, 0),
         ebsRows: built.ebsRows.length,
+        reportIssues: dataset.reports.reports.length,
       },
     };
   }

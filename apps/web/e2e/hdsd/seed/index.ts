@@ -5,6 +5,8 @@ import { seedFieldAssurance } from './field-assurance.ts';
 import { seedIntelligence } from './intelligence.ts';
 import { applyClipPlan } from './clip/plan.ts';
 import { ensureDoaMatrix } from './clip/doa.ts';
+import { seedClipFeed } from './clip/public-feed.ts';
+import { seedClipEnterpriseReports } from './clip/enterprise-reports.ts';
 import { seedClipAlerts } from './clip/public-alerts.ts';
 import { seedClipEnterpriseDirectives, seedMeetings, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
 import { seedClipDisbursement } from './clip/public-dis.ts';
@@ -37,12 +39,14 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-alerts', seed: seedClipAlerts },
   { name: 'clip-public-egp', seed: seedClipEgp },
   { name: 'clip-public-disbursement', seed: seedClipDisbursement },
+  { name: 'clip-public-feed', seed: seedClipFeed },
   { name: 'clip-public-directives', seed: seedMeetings },
   { name: 'clip-public-committee', seed: seedClipCommittee },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
   { name: 'clip-ent-funding', seed: seedClipEnterpriseFunding },
   { name: 'clip-ent-directives', seed: seedClipEnterpriseDirectives },
   { name: 'clip-ent-ebs', seed: seedClipEnterpriseEbs },
+  { name: 'clip-ent-reports', seed: seedClipEnterpriseReports },
 ];
 
 export interface SeedSummary {

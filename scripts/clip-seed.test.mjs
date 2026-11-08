@@ -129,28 +129,62 @@ test('the session token is a signed payload that carries the tenant, the members
   assert.deepEqual(JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')), { tenantId: 't1', membershipId: 'm1', scopeVersion: 1, exp: 1300 });
 });
 
-function stubReader(rowsByPath) {
-  return { calls: 0, async list(_person, path) { return rowsByPath[path]; }, async get() { return { ok: true, json: {} }; } };
-}
-
-test('verify passes when the register holds every planned project and fails when one stage is short', async () => {
-  const plan = buildPlan(publicDataset());
+/** The answers of a fully seeded public stack: lists by path and single reads by path. */
+function seededPublic(plan) {
   const base = { IMPLEMENTATION: 3, BUDGETED: 2, SUSPENDED: 1, COMPLETED: 1, APPRAISAL: 2, PIPELINE: 2, REJECTED: 1, CONCEPT: 1 };
   const rows = [];
   for (const [stage, count] of Object.entries(base)) for (let index = 0; index < count; index += 1) rows.push({ status: stage, national_project_code: index === 0 ? '1' : null });
   for (const project of plan.projects) rows.push({ status: project.target, national_project_code: project.national ?? null });
-  const procurement = {
-    '/procurement-plans': plan.procurement.plans.map(() => ({ status: 'IN_REVIEW' })),
-    '/resources/procurement_package': plan.procurement.plans.flatMap((entry) => entry.packages),
+  const packages = plan.procurement.plans.flatMap((entry) => entry.packages);
+  const lists = {
+    '/resources/project': rows,
+    '/procurement-plans': plan.procurement.plans.map(() => ({ status: 'APPROVED' })),
+    '/resources/procurement_package': packages,
     '/resources/contractor': Array.from({ length: 16 }, (_, index) => ({ id: index })),
+    '/early-warning-rules': plan.alerts.rules.map((rule) => ({ rule_code: rule.rule_code, status: 'PUBLISHED' })),
+    '/home/warnings': [{ severity: 'INFO' }, { severity: 'WARNING' }, { severity: 'CRITICAL' }],
+    '/period-snapshots': [{ status: 'FROZEN' }, { status: 'FROZEN' }],
+    '/directives': plan.meetings.flatMap((meeting) => meeting.directives),
   };
-  const egp = { async get(_person, path) { return { ok: true, json: ({ '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } }, '/egp/obligations': { counts: { overdue: 3, due_soon: 1, met: 2 } }, '/egp/mappings': { counts: { ACTIVE: 9, PROPOSED: 2 } }, '/egp/reconciliation/items': { counts: { open: 4, resolved: 3 } } })[path] }; } };
-  const full = (extra) => ({ ...stubReader({ '/resources/project': rows, ...procurement, ...extra }), get: egp.get });
-  assert.equal(judgeAll(await verifyChecks(plan, full({}))).ok, true);
-  const short = rows.filter((row, index) => !(row.status === 'IMPLEMENTATION' && index > 4));
-  const verdict = judgeAll(await verifyChecks(plan, full({ '/resources/project': short })));
-  assert.equal(verdict.ok, false);
-  assert.ok(verdict.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
+  const gets = {
+    '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } },
+    '/egp/obligations': { counts: { overdue: 3, due_soon: 1, met: 2 } },
+    '/egp/mappings': { counts: { ACTIVE: 9, PROPOSED: 2 } },
+    '/egp/reconciliation/items': { counts: { open: 4, resolved: 3 } },
+    '/package-workflows/summary': { total: packages.length, not_started: 2, late: 20, on_hold: 2 },
+    '/package-workflows/process-tree': { nodes: Array.from({ length: 30 }, (_, index) => ({ id: index })), total: { count: packages.length } },
+    '/home/command-center': [{ metric_code: 'DISBURSED_TREASURY', value: '175760000000' }, { metric_code: 'DISBURSEMENT_RATE_TOTAL', value: '41.2' }],
+    '/finance-feed/connection': { record_counts: { PROJECT: 20, PLAN: 20, DISBURSEMENT: 60 } },
+    '/committee/workspace': { feed: { empty: false, projects: 18 } },
+    '/committee/roster': { committees: [{ members: [{ committee_role: 'HEAD' }, { committee_role: 'DEPUTY' }, { committee_role: 'MEMBER' }, { committee_role: 'SECRETARIAT' }] }] },
+    '/directives/summary': { by_status: { OVERDUE: 2 } },
+  };
+  return { lists, gets };
+}
+
+function readerOf({ lists, gets }) {
+  return {
+    async list(_person, path) { return lists[path]; },
+    async get(_person, path) { return gets[path] === undefined ? { ok: false } : { ok: true, json: gets[path] }; },
+  };
+}
+
+test('verify passes on a fully seeded stack and fails, naming the check, when one thing is short', async () => {
+  const plan = buildPlan(publicDataset());
+  const seeded = seededPublic(plan);
+  const verdict = judgeAll(await verifyChecks(plan, readerOf(seeded)));
+  assert.deepEqual(verdict.results.filter((result) => !result.ok), []);
+  assert.equal(verdict.ok, true);
+  const short = { ...seeded, lists: { ...seeded.lists, '/resources/project': seeded.lists['/resources/project'].filter((row, index) => !(row.status === 'IMPLEMENTATION' && index > 4)) } };
+  const projects = judgeAll(await verifyChecks(plan, readerOf(short)));
+  assert.equal(projects.ok, false);
+  assert.ok(projects.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
+  const noCritical = { ...seeded, lists: { ...seeded.lists, '/home/warnings': [{ severity: 'INFO' }, { severity: 'WARNING' }] } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(noCritical))).results.some((result) => !result.ok && result.name === 'warnings CRITICAL'));
+  const noWorkflowLate = { ...seeded, gets: { ...seeded.gets, '/package-workflows/summary': { total: 42, not_started: 2, late: 0, on_hold: 2 } } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(noWorkflowLate))).results.some((result) => !result.ok && result.name === 'workflows late'));
+  const emptyCommittee = { ...seeded, gets: { ...seeded.gets, '/committee/workspace': { feed: { empty: true, projects: 0 } } } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(emptyCommittee))).results.some((result) => !result.ok && result.name === 'committee workspace has data'));
 });
 
 test('verify fails (and does not throw) when the register cannot be read', async () => {
@@ -231,7 +265,7 @@ test('the accounting rows name projects of the plan, two periods, and differ fro
 });
 
 test('the enterprise dataset runs the four enterprise groups and no group of the public dataset', () => {
-  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs']);
+  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports']);
   assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
 });
 
@@ -246,11 +280,16 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
   const projects = plan.projects.map((project, index) => ({ code: project.code, id: `p${index}` }));
   const batches = projects.flatMap((project) => [{ project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'EQUITY', status: 'ACCEPTED' }, { project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'LOAN', status: 'ACCEPTED' }]);
   const directives = Array.from({ length: plan.expect.directives }, (_, index) => ({ id: index }));
-  const rows = { '/resources/project': projects, '/funding-figures/batches': batches, '/directives': directives, '/ebs/differences': [{ id: 1 }] };
-  assert.equal(judgeAll(await verifyChecks(plan, { async list(_person, path) { return rows[path]; } })).ok, true);
+  const issues = Array.from({ length: plan.expect.reportIssues }, (_, index) => ({ id: index, form_status: 'DEMO' }));
+  const lists = { '/resources/project': projects, '/funding-figures/batches': batches, '/directives': directives, '/ebs/differences': [{ id: 1 }], '/report-engine/issues': issues };
+  const gets = { '/hpm/connection': { counts: { pushes: 2, written: 1, rejected: 1, accepted: 0 } } };
+  assert.equal(judgeAll(await verifyChecks(plan, readerOf({ lists, gets }))).ok, true);
   // Two batches of one project do not stand in for the missing batches of the others.
-  const doubled = { ...rows, '/funding-figures/batches': batches.filter((batch) => batch.project_id === 'p0').concat(batches.filter((batch) => batch.project_id === 'p0')) };
-  assert.equal(judgeAll(await verifyChecks(plan, { async list(_person, path) { return doubled[path]; } })).ok, false);
+  const doubled = { ...lists, '/funding-figures/batches': batches.filter((batch) => batch.project_id === 'p0').concat(batches.filter((batch) => batch.project_id === 'p0')) };
+  assert.equal(judgeAll(await verifyChecks(plan, readerOf({ lists: doubled, gets }))).ok, false);
+  // A copy that is not marked as a demo form fails: the forms of the clip are always stamped.
+  const unmarked = { ...lists, '/report-engine/issues': issues.map((row) => ({ ...row, form_status: 'OFFICIAL' })) };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf({ lists: unmarked, gets }))).results.some((result) => !result.ok && result.name.includes('demo')));
 });
 
 test('the phases cover every group of a dataset once, keep the order, and cut down to the groups asked for', () => {

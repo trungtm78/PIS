@@ -7,55 +7,186 @@
   "seed": 20261109,
   "planYear": 2026,
   "areas": [
-    { "key": "PM-KCN-PHU-MY", "name": "Khu công nghiệp Phú Mỹ" },
-    { "key": "PM-NHA-MAY-DAM", "name": "Khu nhà máy Đạm Phú Mỹ" },
-    { "key": "PM-KHO-CANG", "name": "Khu kho cảng Cái Mép" }
+    {
+      "key": "PM-KCN-PHU-MY",
+      "name": "Khu công nghiệp Phú Mỹ"
+    },
+    {
+      "key": "PM-NHA-MAY-DAM",
+      "name": "Khu nhà máy Đạm Phú Mỹ"
+    },
+    {
+      "key": "PM-KHO-CANG",
+      "name": "Khu kho cảng Cái Mép"
+    }
   ],
-  "areaDecision": { "symbol": "88/QĐ-HĐTV", "title": "Quyết định về việc công bố danh mục khu vực đầu tư của Tổng công ty", "sender": "Hội đồng thành viên Tổng công ty" },
-  "decisionType": { "name": "Quyết định", "abbreviation": "QĐ", "legalBasis": "Quy chế quản lý văn bản của Tổng công ty" },
+  "areaDecision": {
+    "symbol": "88/QĐ-HĐTV",
+    "title": "Quyết định về việc công bố danh mục khu vực đầu tư của Tổng công ty",
+    "sender": "Hội đồng thành viên Tổng công ty"
+  },
+  "decisionType": {
+    "name": "Quyết định",
+    "abbreviation": "QĐ",
+    "legalBasis": "Quy chế quản lý văn bản của Tổng công ty"
+  },
   "projectsPerKind": 6,
   "kinds": {
     "INVESTMENT": {
       "sector": "ENVIRONMENT",
       "type": "NEW_BUILD",
-      "sizeBillions": [120, 900],
-      "templates": ["Cải tạo dây chuyền sản xuất amoniac {n}", "Xây dựng kho chứa sản phẩm {n}", "Nâng công suất hệ thống nước làm mát {n}", "Hệ thống xử lý khí thải {n}", "Mở rộng khu đóng bao {n}", "Hạ tầng điện và tự động hóa {n}"]
+      "sizeBillions": [
+        120,
+        900
+      ],
+      "templates": [
+        "Cải tạo dây chuyền sản xuất amoniac {n}",
+        "Xây dựng kho chứa sản phẩm {n}",
+        "Nâng công suất hệ thống nước làm mát {n}",
+        "Hệ thống xử lý khí thải {n}",
+        "Mở rộng khu đóng bao {n}",
+        "Hạ tầng điện và tự động hóa {n}"
+      ]
     },
     "EQUIPMENT": {
       "sector": "ICT",
       "type": "PROCUREMENT",
-      "sizeBillions": [20, 300],
-      "templates": ["Mua sắm máy nén khí {n}", "Mua sắm thiết bị đo lường và điều khiển {n}", "Mua sắm xe nâng và thiết bị bốc xếp {n}", "Mua sắm bơm công nghệ {n}", "Mua sắm thiết bị phòng thí nghiệm {n}", "Mua sắm máy biến áp {n}"]
+      "sizeBillions": [
+        20,
+        300
+      ],
+      "templates": [
+        "Mua sắm máy nén khí {n}",
+        "Mua sắm thiết bị đo lường và điều khiển {n}",
+        "Mua sắm xe nâng và thiết bị bốc xếp {n}",
+        "Mua sắm bơm công nghệ {n}",
+        "Mua sắm thiết bị phòng thí nghiệm {n}",
+        "Mua sắm máy biến áp {n}"
+      ]
     }
   },
   "funding": {
-    "equitySharePercent": [30, 70],
+    "equitySharePercent": [
+      30,
+      70
+    ],
     "note": "Kế hoạch năm theo cơ cấu vốn chủ sở hữu và vốn vay",
     "explanation": "Số liệu minh họa theo kế hoạch đầu tư của Tổng công ty"
   },
   "meetings": [
-    { "ago": 60, "type": "MONTHLY", "title": "Giao ban đầu tư tháng trước", "directives": [
-      { "text": "Hoàn thiện hồ sơ thiết kế kỹ thuật và trình thẩm định trong tháng", "dueIn": -20 },
-      { "text": "Báo cáo phương án vay vốn thương mại cho dự án mở rộng", "dueIn": 10 }
-    ] },
-    { "ago": 30, "type": "MONTHLY", "title": "Giao ban đầu tư tháng này", "directives": [
-      { "text": "Đẩy nhanh giải ngân vốn chủ sở hữu của các dự án chậm tiến độ", "dueIn": 15 },
-      { "text": "Rà soát hợp đồng mua sắm thiết bị và báo cáo vướng mắc", "dueIn": 25 },
-      { "text": "Đối chiếu số liệu giải ngân với hệ thống kế toán trước kỳ báo cáo", "dueIn": -3 }
-    ] },
-    { "ago": 7, "type": "EXTRAORDINARY", "title": "Họp bất thường về tiến độ nhà máy", "directives": [
-      { "text": "Báo cáo Tập đoàn về phương án xử lý chậm tiến độ gói thầu thiết bị chính", "dueIn": 12 }
-    ] }
+    {
+      "ago": 60,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư tháng trước",
+      "directives": [
+        {
+          "text": "Hoàn thiện hồ sơ thiết kế kỹ thuật và trình thẩm định trong tháng",
+          "dueIn": -20
+        },
+        {
+          "text": "Báo cáo phương án vay vốn thương mại cho dự án mở rộng",
+          "dueIn": 10
+        }
+      ]
+    },
+    {
+      "ago": 30,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư tháng này",
+      "directives": [
+        {
+          "text": "Đẩy nhanh giải ngân vốn chủ sở hữu của các dự án chậm tiến độ",
+          "dueIn": 15
+        },
+        {
+          "text": "Rà soát hợp đồng mua sắm thiết bị và báo cáo vướng mắc",
+          "dueIn": 25
+        },
+        {
+          "text": "Đối chiếu số liệu giải ngân với hệ thống kế toán trước kỳ báo cáo",
+          "dueIn": -3
+        }
+      ]
+    },
+    {
+      "ago": 7,
+      "type": "EXTRAORDINARY",
+      "title": "Họp bất thường về tiến độ nhà máy",
+      "directives": [
+        {
+          "text": "Báo cáo Tập đoàn về phương án xử lý chậm tiến độ gói thầu thiết bị chính",
+          "dueIn": 12
+        }
+      ]
+    }
   ],
   "ebs": {
     "layoutNote": "Mẫu tệp đối chiếu là giả định, chờ đặc tả chính thức",
-    "periods": ["2026-08", "2026-09"],
+    "periods": [
+      "2026-08",
+      "2026-09"
+    ],
     "projectsInFile": 8,
-    "differencePercent": [4, 18]
+    "differencePercent": [
+      4,
+      18
+    ]
   },
   "expect": {
-    "projects": { "min": 12 },
-    "fundingClasses": ["EQUITY", "LOAN"],
-    "directives": { "min": 6 }
+    "projects": {
+      "min": 12
+    },
+    "fundingClasses": [
+      "EQUITY",
+      "LOAN"
+    ],
+    "directives": {
+      "min": 6
+    },
+    "reportIssues": {
+      "min": 5
+    }
+  },
+  "reports": {
+    "year": 2026,
+    "rejectionNote": "Mẫu demo, chờ mẫu chính thức nên chưa thể ghi nhận là đã được chấp nhận",
+    "reports": [
+      {
+        "layout": "PVN-MONTHLY",
+        "kind": "MONTH",
+        "index": 10,
+        "push": "NONE"
+      },
+      {
+        "layout": "PVN-QUARTERLY-F2",
+        "kind": "QUARTER",
+        "index": 3,
+        "push": "NONE"
+      },
+      {
+        "layout": "HPM-MONTHLY",
+        "kind": "MONTH",
+        "index": 9,
+        "push": "ANSWERED"
+      },
+      {
+        "layout": "HPM-MONTHLY",
+        "kind": "MONTH",
+        "index": 10,
+        "push": "WRITTEN"
+      },
+      {
+        "layout": "INVEST-STEERING",
+        "kind": "MONTH",
+        "index": 10,
+        "push": "NONE"
+      },
+      {
+        "layout": "PLANT-PHU-MY",
+        "kind": "MONTH",
+        "index": 10,
+        "push": "NONE"
+      }
+    ]
   }
 }
