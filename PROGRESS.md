@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-BƯỚC TIẾP THEO: (1) lần push đầu 18:00 không đạt cổng (quét protocol, test thiết kế, vài test sản phẩm, registry mobile); GATEFIX và hai agent INTEG3 đang sửa; (2) khi xong chạy lại cổng từ worktree D:PIS-push1 (khoảng 75 phút); (3) REC1 dựng dữ liệu và quay hai clip chỉ tiếng Việt, hạn 21:00, đầu ra ở D:PIS-clips-out; (4) mọi làn chức năng đã gộp vào main.
+BƯỚC TIẾP THEO: (1) cổng pre-push lần 5 chỉ còn lỗi hiệu năng/độ trễ: test R12 contract-fact (p95 > 800 ms), template-database, vài test web timeout, một suite api chưa rõ; hai agent PERF và GATEFIX4 đang sửa; (2) chạy lại cổng từ worktree LF D:PIS-push3 (sau khi dọn tiến trình postgres/stack thừa) rồi push; (3) clip tiếng Việt đã dựng ở D:PIS-clips-out (còn thiếu giọng VieNeuTTS vì chưa có khóa, nhạc chờ duyệt, một số cảnh điện thoại); (4) UAT cuối trên bản cài và hạ tầng sau khi push.
 Cập nhật: 2026-11-08 | Đã hợp nhất đợt 1 của hai sản phẩm (nền quản trị, đồng hồ, kiểm soát tiền, toàn vẹn, phân tích hợp đồng, chỉ đạo, theo dõi mua sắm theo luồng, bộ máy báo cáo, cơ chế bản doanh nghiệp, PWA); trước đó 2026-11-05T17:30+07:00 | Milestone: M3/6 | Task: OMNI-1 xong ST-OMNI-001, 002, 003; NOT-1 xong 007, 009, 010; còn R2: OMNI-004..007, MOB-007, CTR/PAY/ISS/QMS/LND/AST/DOC/BID/LLM/BI/DGV/ADM/SAS/MDM/PRJ/CAP/MNE
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
