@@ -86,6 +86,13 @@ export class SignerAuthority {
     await this.checkDelegation(tx, check, undefined);
   }
 
+  /** The delegator behind a delegation, for the audit rows of a document signed under it (ADM-11: both identities); undefined without a delegation. */
+  async delegatorOf(tx: TenantTx, delegationId: string | null): Promise<string | undefined> {
+    if (delegationId === null) return undefined;
+    const [row] = await tx.query<{ delegator_membership_id: string }>('select delegator_membership_id from machvon.delegation_grant where id = $1::uuid', [delegationId]);
+    return row?.delegator_membership_id;
+  }
+
   private async checkDelegation(tx: TenantTx, check: SignerCheck, threshold: Record<string, unknown> | undefined): Promise<{ id: string; delegatorMembershipId: string }> {
     const extra = threshold === undefined ? {} : { threshold };
     if (check.delegationId === null) throw refused('DELEGATION_MISSING', extra);

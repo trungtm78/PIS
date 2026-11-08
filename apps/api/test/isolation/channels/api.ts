@@ -97,6 +97,7 @@ import {
 } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
+import { ACTING_FIXTURES, PERIOD_SCOPE_FIXTURES, STANDING_REQUEST_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
@@ -698,6 +699,17 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'proposeAlertCover', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].absenceId, body: { deputy_id: MEMBERSHIP_FIXTURES['TNT-B'].id, valid_from: '2999-01-01T00:00:00.000Z', valid_until: '2999-01-03T00:00:00.000Z', scope_kind: 'ALL' } },
   { operation: 'decideAlertCover', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].coverId, versioned: true, body: { decision: 'APPROVE', note: 'Isolation probe of the decision' } },
   { operation: 'revokeAlertCover', method: 'POST', id: ALERT_GOVERNANCE_FIXTURES['TNT-B'].coverId, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
+  // IAM-2: a foreign request, acting grant or period limit is as absent as a foreign delegation.
+  { operation: 'reviewDelegation', method: 'POST', id: DELEGATION_FIXTURES['TNT-B'].id, versioned: true, body: { review_due_at: '2099-01-01T00:00:00Z' } },
+  { operation: 'get_resources_standing_delegation_request_id', method: 'GET', id: STANDING_REQUEST_FIXTURES['TNT-B'].id },
+  { operation: 'decideStandingDelegationRequest', method: 'POST', id: STANDING_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation probe of the decision' } },
+  { operation: 'cancelStandingDelegationRequest', method: 'POST', id: STANDING_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the withdrawal' } },
+  { operation: 'get_resources_acting_grant_id', method: 'GET', id: ACTING_FIXTURES['TNT-B'].id },
+  { operation: 'decideActingRequest', method: 'POST', id: ACTING_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation probe of the decision' } },
+  { operation: 'cancelActingRequest', method: 'POST', id: ACTING_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the withdrawal' } },
+  { operation: 'revokeActing', method: 'POST', id: ACTING_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
+  { operation: 'get_resources_period_scope_id', method: 'GET', id: PERIOD_SCOPE_FIXTURES['TNT-B'].id },
+  { operation: 'liftPeriodScope', method: 'POST', id: PERIOD_SCOPE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the lifting' } },
   { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
   { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },
   { operation: 'decideApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { decision: 'approve' } },

@@ -406,10 +406,13 @@ export class OutgoingController {
       adapter: request.adapter_code,
       now,
     });
+    // A document signed under a delegation names both identities in the trail: the signer is the actor, the delegator is the person it is signed for (ADM-11).
+    const delegator = await this.authority.delegatorOf(scope.tx, document.signingMode === 'DIRECT' ? null : document.delegationId);
     await scope.audit({
       action: 'outgoing_document.leader_signing.start',
       resourceType: OUTGOING_TYPE,
       resourceId: document.id,
+      ...(delegator === undefined ? {} : { onBehalfOfId: delegator }),
       diff: { session_id: prepared.id, certificate_id: certificate.id, adapter_code: prepared.adapterCode, expires_at: prepared.expiresAt.toISOString() },
     });
     await scope.emit({
@@ -499,10 +502,12 @@ export class OutgoingController {
       occurredAt: now,
       details: { version_id: stored.id, session_id: session.id },
     });
+    const signedFor = sealed || document.signingMode === 'DIRECT' ? undefined : await this.authority.delegatorOf(scope.tx, document.delegationId);
     await scope.audit({
       action: sealed ? 'outgoing_document.organization_seal.complete' : 'outgoing_document.leader_signing.complete',
       resourceType: OUTGOING_TYPE,
       resourceId: document.id,
+      ...(signedFor === undefined ? {} : { onBehalfOfId: signedFor }),
       diff: { session_id: session.id, version_id: stored.id, certificate_id: certificate.id, overall: report.overall, signature_status: mine.status },
     });
     await scope.emit({

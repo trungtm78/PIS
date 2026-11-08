@@ -11,6 +11,7 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { assertPeriodReach } from './period-gate';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
@@ -106,6 +107,7 @@ export class ReportImportController {
     const period = await this.periods.find(scope.tx, body.period_id, 'share');
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'period_id');
     if (period.periodType !== WEEK) throw new DomainError('VALIDATION_FAILED', 422, 'period_id');
+    await assertPeriodReach(scope.tx, this.periods, period.id, access, IMPORT_PERMISSION, now);
     const applied = await this.imports.appliedFor(scope.tx, period.id, body.file_sha256);
     if (applied !== undefined) throw new DomainError('IMPORT_FILE_ALREADY_APPLIED', 409, 'file_sha256', { extensions: { import_id: applied.id } });
     const bytes = await this.bytesOf(scope.tenant, body.file_object_key, body.file_sha256);
@@ -138,6 +140,7 @@ export class ReportImportController {
     const batch = await this.imports.lockForApply(scope.tx, id, scope.expectedVersion ?? 0, scope.tenant.membershipId);
     const period = await this.periods.find(scope.tx, batch.periodId, 'share');
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'period_id');
+    await assertPeriodReach(scope.tx, this.periods, period.id, access, IMPORT_PERMISSION, now);
     const bytes = await this.bytesOf(scope.tenant, batch.fileObjectKey, batch.fileSha256);
     const parsed = parseReportImport(batch.mappingVersion, readTabularFile(bytes));
     const context = { scope: projectScope(access, IMPORT_PERMISSION, now), actor: scope.tenant.membershipId, now };

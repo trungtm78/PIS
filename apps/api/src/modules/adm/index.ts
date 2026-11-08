@@ -1,5 +1,8 @@
 import { InboxHandlerRegistry, IntegrationInboxProcessor, TenantDatabase } from '@machvon/db';
 import { defineModule } from '../module-descriptor';
+import { ActingCommandsController, ActingReadsController } from './acting.controller';
+import { PeriodScopeCommandsController, PeriodScopeReadsController } from './period-scope.controller';
+import { StandingDelegationCommandsController, StandingDelegationReadsController } from './standing-delegation.controller';
 import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
 import { APPROVAL_FINAL_COMMANDS, ApprovalBootGuard, ApprovalService, FinalCommandRegistry } from './approval.service';
 import { AuditEventsController } from './audit-events.controller';
@@ -69,6 +72,12 @@ export const admModule = defineModule({
     DelegationReadsController,
     UnitReorganizationCommandsController,
     UnitReorganizationReadsController,
+    StandingDelegationCommandsController,
+    StandingDelegationReadsController,
+    ActingCommandsController,
+    ActingReadsController,
+    PeriodScopeCommandsController,
+    PeriodScopeReadsController,
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [

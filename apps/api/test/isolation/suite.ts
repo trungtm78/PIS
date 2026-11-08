@@ -956,6 +956,22 @@ export const DELEGATION_FIXTURES: Readonly<Record<TenantName, { id: string; reas
 export const ALERT_GOVERNANCE_FIXTURES: Readonly<Record<TenantName, { escalationId: string; absenceId: string; coverId: string; itemTitle: string }>> = {
   'TNT-A': { escalationId: '00000000-0000-4000-a9a9-000000000001', absenceId: '00000000-0000-4000-a9a9-000000000002', coverId: '00000000-0000-4000-a9a9-000000000003', itemTitle: 'ALPHA-ALERT-ESCALATION-TITLE-0001' },
   'TNT-B': { escalationId: '00000000-0000-4000-b9a9-000000000001', absenceId: '00000000-0000-4000-b9a9-000000000002', coverId: '00000000-0000-4000-b9a9-000000000003', itemTitle: 'BETA-ALERT-ESCALATION-TITLE-0001' },
+/** A request for a permanent delegation that waits for a decision in each tenant (its end condition is distinctive; tenant data, IAM-2). */
+export const STANDING_REQUEST_FIXTURES: Readonly<Record<TenantName, { id: string; endText: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a1b1-000000000001', endText: 'ALPHA-STANDING-END-CONDITION-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b1b1-000000000001', endText: 'BETA-STANDING-END-CONDITION-0001' },
+};
+
+/** An acting request that waits for a decision in each tenant (its reason is distinctive; tenant data, IAM-2). */
+export const ACTING_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a1b2-000000000001', reason: 'ALPHA-ACTING-REASON-0001 the reporter is away' },
+  'TNT-B': { id: '00000000-0000-4000-b1b2-000000000001', reason: 'BETA-ACTING-REASON-0001 the reporter is away' },
+};
+
+/** A period limit on the fixture role grant of each tenant (its reason is distinctive; tenant data, IAM-2). */
+export const PERIOD_SCOPE_FIXTURES: Readonly<Record<TenantName, { id: string; grantId: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a1b3-000000000001', grantId: '00000000-0000-4000-a1b4-000000000001', reason: 'ALPHA-PERIOD-SCOPE-REASON-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b1b3-000000000001', grantId: '00000000-0000-4000-b1b4-000000000001', reason: 'BETA-PERIOD-SCOPE-REASON-0001' },
 };
 
 /** A reorganisation of units that waits for approval in each tenant (its legal basis is distinctive; tenant data). */
@@ -2003,6 +2019,12 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'alert absence id', value: ALERT_GOVERNANCE_FIXTURES[tenant].absenceId },
     { kind: 'alert cover id', value: ALERT_GOVERNANCE_FIXTURES[tenant].coverId },
     { kind: 'alert escalation item title', value: ALERT_GOVERNANCE_FIXTURES[tenant].itemTitle },
+    { kind: 'standing request id', value: STANDING_REQUEST_FIXTURES[tenant].id },
+    { kind: 'standing request end condition', value: STANDING_REQUEST_FIXTURES[tenant].endText },
+    { kind: 'acting grant id', value: ACTING_FIXTURES[tenant].id },
+    { kind: 'acting grant reason', value: ACTING_FIXTURES[tenant].reason },
+    { kind: 'period scope id', value: PERIOD_SCOPE_FIXTURES[tenant].id },
+    { kind: 'period scope reason', value: PERIOD_SCOPE_FIXTURES[tenant].reason },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

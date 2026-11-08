@@ -27,6 +27,8 @@ interface CommandRequest {
   body: unknown;
   tenantContext?: unknown;
   principal?: { support?: { operatorId?: string } };
+  /** Set by the policy guard when the request is made under an acting grant (IAM-2). */
+  acting?: { grantId: string; subjectId: string };
   [COMMAND_SCOPE_KEY]?: CommandScope;
 }
 
@@ -94,6 +96,8 @@ export class CommandInterceptor implements NestInterceptor {
     const tenant = tenantContextOf(request);
     // A command run under a support access grant is audited as an impersonation, with the operator it was given to (ST-SAS-015).
     const impersonatorId = request.principal?.support?.operatorId;
+    // A command run under an acting grant is audited with both identities: the administrator is the actor, the person acted for is on_behalf_of_id, and the grant is named in the diff (IAM-2).
+    const acting = request.acting;
     const key = parseIdempotencyKey(request.headers['idempotency-key']);
     const ifMatchHeader = options.versioned === true ? request.headers['if-match'] : undefined;
     const expectedVersion = options.versioned === true ? parseIfMatch(ifMatchHeader) : null;
@@ -158,7 +162,8 @@ export class CommandInterceptor implements NestInterceptor {
           audit: async (entry) => {
             audited += 1;
             if (entry.resourceId !== NIL_RESOURCE_ID) touched.push({ type: entry.resourceType, id: entry.resourceId });
-            return this.audit.recordInTx(tx, tenant.membershipId, { ...entry, correlationId, requestId, ...(impersonatorId === undefined ? {} : { impersonatorId }) });
+            const actingEntry = acting === undefined ? {} : { onBehalfOfId: entry.onBehalfOfId ?? acting.subjectId, diff: { ...entry.diff, acting_as: { grant_id: acting.grantId, subject_membership_id: acting.subjectId } } };
+            return this.audit.recordInTx(tx, tenant.membershipId, { ...entry, ...actingEntry, correlationId, requestId, ...(impersonatorId === undefined ? {} : { impersonatorId }) });
           },
           emit: (event) => enqueueOutbox(tx, { ...event, correlationId }),
           afterCommit: (callback) => {

@@ -208,7 +208,9 @@ export class ApprovalCommandsController {
       resourceType: TASK_RESOURCE,
       resourceId: result.task.id,
       ...(body.reason === undefined ? {} : { reason: body.reason }),
-      diff: { decision, step_id: result.task.stepId, step: result.step, outcome: result.outcome, final_command: result.finalCommand, instance_id: result.instance.id },
+      // A decision taken under a delegation names both: the actor is the delegate, the person it is taken for is the delegator (ADM-11).
+      ...(result.delegationId === null || result.task.delegatedFromId === null ? {} : { onBehalfOfId: result.task.delegatedFromId }),
+      diff: { decision, step_id: result.task.stepId, step: result.step, outcome: result.outcome, final_command: result.finalCommand, instance_id: result.instance.id, ...(result.delegationId === null ? {} : { delegation_id: result.delegationId }) },
     });
     if (result.outcome === 'GUARD_REJECTED') this.metrics.increment(GUARD_REJECTED_METRIC, { business_type: result.instance.businessType });
     return commandResult(scope, result.instance.status === 'Running' ? 'DECIDED' : (result.outcome ?? 'DECIDED'), result.task.version, result.task.id);

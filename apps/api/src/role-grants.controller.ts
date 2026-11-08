@@ -79,12 +79,12 @@ export interface AuthorisedScope {
  * away, and is bounded by the rank rule of the revoke command (the actor must outrank everything the member holds,
  * judged on the scope that authorised the revoke).
  */
-function authoriseRevoke(access: EffectiveAccess, recipientMembershipId: string, resolved: ResolvedScope): AuthorisedScope {
+export function authoriseRevoke(access: EffectiveAccess, recipientMembershipId: string, resolved: ResolvedScope): AuthorisedScope {
   return authorise(access, recipientMembershipId, { rank: 0, permissions: [] }, resolved);
 }
 
 /** What the caller may read of other members' grants (BR-IAM-04): the scopes they hold `iam.role.grant` on; undefined is tenant-wide. */
-function reachOf(access: EffectiveAccess, tenant: TenantContext): GrantReach | undefined {
+export function reachOf(access: EffectiveAccess, tenant: TenantContext): GrantReach | undefined {
   const reach = { ownMembershipId: tenant.membershipId, subtreePaths: [] as string[], unitOnlyPaths: [] as string[], projectIds: [] as string[], contractIds: [] as string[] };
   for (const grant of activeGrants(access, new Date())) {
     if (!holdsPermission(new Set(grant.permissions), GRANT_PERMISSION)) continue;

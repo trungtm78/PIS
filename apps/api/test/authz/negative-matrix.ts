@@ -2783,6 +2783,37 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/delegations/${t.delegationId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  // IAM-2: the permanent delegation, acting on behalf of a person and the period limit of a role; a caller who is refused changes nothing.
+  createStandingDelegationRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/standing-delegation-requests',
+      body: {
+        delegate_membership_id: t.recipientMembershipId,
+        permissions: ['approval.decide'],
+        scope_kind: 'UNIT_SUBTREE',
+        scope_ref_ids: ['00000000-0000-4000-8000-0000000000d1'],
+        valid_from: '2099-01-01T00:00:00Z',
+        review_due_at: '2099-06-01T00:00:00Z',
+        end_condition_kind: 'UNTIL_EVENT',
+        end_condition_text: 'Until the deputy director is appointed.',
+        reason: REASON,
+      },
+    }),
+  },
+  decideStandingDelegationRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/standing-delegation-requests/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'approve' } }) },
+  cancelStandingDelegationRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/standing-delegation-requests/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  reviewDelegation: { referencesTenantIds: true, build: (t) => ({ method: 'POST', path: `/delegations/${t.delegationId}/review`, ifMatch: '"1"', body: { review_due_at: '2099-06-01T00:00:00Z' } }) },
+  requestActing: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/acting-requests', body: { subject_membership_id: t.recipientMembershipId, permissions: ['dis.report.submit'], hours: 4, reason: 'The reporter is away and the report is due today.' } }),
+  },
+  decideActingRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/acting-requests/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'approve' } }) },
+  cancelActingRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/acting-requests/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  revokeActing: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/acting-requests/00000000-0000-4000-8000-0000000000f1/revoke', ifMatch: '"1"', body: { reason: REASON } }) },
+  createPeriodScope: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/period-scopes', body: { role_grant_id: '00000000-0000-4000-8000-0000000000f1', period_codes: ['2026-Q3'], reason: REASON } }) },
+  liftPeriodScope: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/period-scopes/00000000-0000-4000-8000-0000000000f1/lift', ifMatch: '"1"', body: { reason: REASON } }) },
   reassignApprovalTask: {
     referencesTenantIds: true,
     build: (t) => ({

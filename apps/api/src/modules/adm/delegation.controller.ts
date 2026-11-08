@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { DelegationStore, RoleStore, TenantDatabase, bumpScopeVersion, loadAccessIn } from '@machvon/db';
 import type { DelegationGrantRecord, ResolvedScope, ScopeKind } from '@machvon/db';
-import { DomainError, assertValidDelegation, delegatorHolds, permissionCovered } from '@machvon/kernel';
+import { DomainError, assertNoDelegationCycle, assertValidDelegation, assertValidPeriodCodes, delegatorHolds, normalisePeriodCodes, permissionCovered, reviewDueSoon } from '@machvon/kernel';
 import type { DelegationRequest, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -18,6 +18,7 @@ const CREATE_PERMISSION = 'iam.delegation.create';
 const READ_PERMISSION = 'iam.delegation.read';
 const STATUSES: readonly string[] = ['Scheduled', 'Active', 'Ended', 'Revoked'];
 const ROLES: readonly string[] = ['given', 'received'];
+const KINDS: readonly string[] = ['TIMEBOXED', 'PERMANENT'];
 
 function oneOf(list: readonly string[], value: unknown, name: string): string | undefined {
   if (value === undefined) return undefined;
@@ -43,17 +44,30 @@ export async function delegatorStillHolds(
 }
 
 /** Who runs the delegations of the whole tenant: holds the right to make them and to read them all, both on the whole tenant. */
-function mayRunAll(access: EffectiveAccess): boolean {
+export function mayRunAll(access: EffectiveAccess): boolean {
   return holdsOnWholeTenant(access, CREATE_PERMISSION) && holdsOnWholeTenant(access, READ_PERMISSION);
 }
 
-function holdsOver(access: EffectiveAccess, permissions: readonly string[], resolved: ResolvedScope, now: Date): boolean {
+export function holdsOver(access: EffectiveAccess, permissions: readonly string[], resolved: ResolvedScope, now: Date): boolean {
   return [resolved.scope, resolved.ownerUnitScope].some((scope) => scope !== undefined && delegatorHolds(access, permissions, scope, now));
 }
 
 function view(row: DelegationGrantRecord, membershipId: string, mayRevokeAny: boolean): Record<string, unknown> {
+  const permanent = row.kind === 'PERMANENT';
+  const working = row.status === 'Scheduled' || row.status === 'Active';
   return {
     id: row.id,
+    kind: row.kind,
+    period_codes: row.periodCodes,
+    // A permanent delegation works until its review date: the date is what the screen shows as the review, and the same instant as valid_until.
+    review_due_at: permanent ? row.validUntil : null,
+    review_due_soon: permanent && working && reviewDueSoon(new Date(row.validUntil), new Date()),
+    last_reviewed_at: row.lastReviewedAt,
+    review_count: row.reviewCount,
+    end_condition_kind: row.endConditionKind,
+    end_condition_text: row.endConditionText,
+    end_on: row.endOn,
+    request_id: row.requestId,
     delegator: { id: row.delegatorId, name: row.delegatorName },
     delegate: { id: row.delegateId, name: row.delegateName },
     permissions: row.permissions,
@@ -71,7 +85,7 @@ function view(row: DelegationGrantRecord, membershipId: string, mayRevokeAny: bo
     created_at: row.createdAt,
     version: row.version,
     // The server judges again: this only says whether the screen should offer it.
-    actions: { revoke: (row.status === 'Scheduled' || row.status === 'Active') && (row.delegatorId === membershipId || mayRevokeAny) },
+    actions: { revoke: working && (row.delegatorId === membershipId || mayRevokeAny), review: permanent && working && row.delegatorId === membershipId },
   };
 }
 
@@ -93,6 +107,8 @@ export class DelegationCommandsController {
     const delegator = scope.tenant.membershipId;
     const delegate = body.delegate_membership_id.toLowerCase();
     if (delegate === delegator) throw new DomainError('SELF_GRANT_DENIED', 403, 'delegate_membership_id');
+    const periodCodes = body.period_codes === undefined ? undefined : normalisePeriodCodes(body.period_codes);
+    if (periodCodes !== undefined) assertValidPeriodCodes(periodCodes);
     const request: DelegationRequest = { permissions: body.permissions, scopeKind: body.scope_kind, scopeRefIds: body.scope_ref_ids.map((id) => id.toLowerCase()), validFrom: new Date(body.valid_from), validUntil: new Date(body.valid_until) };
     assertValidDelegation(request, now);
     // The delegate is locked first, so that two delegations to one member and a change of their membership serialise; a member of another tenant is not there (404).
@@ -108,6 +124,9 @@ export class DelegationCommandsController {
       const throughDelegation = body.permissions.some((permission) => permissionCovered(received, permission));
       throw new DomainError(throughDelegation ? 'DELEGATION_CHAIN_DENIED' : 'ROLE_ESCALATION_DENIED', 403, 'permissions');
     }
+    // Authority that goes round is authority nobody holds: a delegation that closes a loop of delegations (also through other persons) is refused.
+    const users = await this.store.usersOf(scope.tx, [delegator, delegate]);
+    assertNoDelegationCycle(await this.store.edges(scope.tx, now), { delegatorUser: users.get(delegator) ?? delegator, delegateUser: users.get(delegate) ?? delegate, permissions: body.permissions });
     const created = await this.store.insert(scope.tx, {
       delegatorId: delegator,
       delegateId: delegate,
@@ -118,6 +137,7 @@ export class DelegationCommandsController {
       validUntil: request.validUntil,
       reason: body.reason.trim(),
       legalBasisRef: body.legal_basis_ref,
+      periodCodes,
       now,
     });
     await this.announce(scope, created, 'iam.delegation.created.v1', 'created');
@@ -126,7 +146,7 @@ export class DelegationCommandsController {
       resourceType: 'delegation_grant',
       resourceId: created.id,
       reason: created.reason,
-      diff: { delegate_membership_id: delegate, permissions: created.permissions, scope_kind: created.scopeKind, scope_ref_ids: created.scopeRefIds, valid_from: created.validFrom, valid_until: created.validUntil },
+      diff: { delegate_membership_id: delegate, permissions: created.permissions, scope_kind: created.scopeKind, scope_ref_ids: created.scopeRefIds, valid_from: created.validFrom, valid_until: created.validUntil, ...(created.periodCodes === null ? {} : { period_codes: created.periodCodes }) },
     });
     return commandResult(scope, created.status.toUpperCase(), created.version, created.id);
   }
@@ -201,9 +221,9 @@ export class DelegationReadsController {
 
   @Get()
   @OperationId('get_resources_delegation_grant')
-  async list(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query('status') status?: unknown, @Query('role') role?: unknown, @Query('limit') limit?: unknown, @Query('cursor') cursor?: unknown) {
+  async list(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query('status') status?: unknown, @Query('role') role?: unknown, @Query('kind') kind?: unknown, @Query('limit') limit?: unknown, @Query('cursor') cursor?: unknown) {
     const request = parsePageRequest(limit, cursor);
-    const filters = { status: oneOf(STATUSES, status, 'status'), role: oneOf(ROLES, role, 'role') as 'given' | 'received' | undefined };
+    const filters = { status: oneOf(STATUSES, status, 'status'), role: oneOf(ROLES, role, 'role') as 'given' | 'received' | undefined, kind: oneOf(KINDS, kind, 'kind') as 'TIMEBOXED' | 'PERMANENT' | undefined };
     const all = holdsOnWholeTenant(access, READ_PERMISSION);
     const rows = await this.database.withTenant(tenant, (tx) => this.store.list(tx, { membershipId: tenant.membershipId, all }, filters, { limit: request.limit + 1, after: request.after }));
     const mayRevokeAny = mayRunAll(access);

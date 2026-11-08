@@ -10,6 +10,7 @@ import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
+import { assertPeriodReach } from './period-gate';
 import { OperationId } from '../../operation-id.decorator';
 import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
 import type { FinalCommandRegistry } from '../adm/approval.service';
@@ -117,6 +118,7 @@ export class ReportDecisionController {
     const head = await this.reports.lock(scope.tx, id, seen, projectScope(access, DECISION_PERMISSION, now), scope.expectedVersion ?? 0);
     const detail = await this.reports.find(scope.tx, id, seen);
     if (detail === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await assertPeriodReach(scope.tx, this.periods, head.periodId, access, DECISION_PERMISSION, now);
     const effects = decisionEffectsOf(scope);
     // A report with a running instance (the tenant runs the staged approval) is decided through the steps of the instance; one without is decided as it always was.
     const instance = await this.flow.runningFor(scope.tx, id);

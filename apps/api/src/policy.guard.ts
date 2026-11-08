@@ -8,6 +8,8 @@ import type { AuditWriter, EffectiveAccessStore } from '@machvon/db';
 import { DomainError, asUuid, controlAccessOf, decide, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, Plane } from '@machvon/kernel';
 import { COMMAND_METADATA_KEY } from './command.decorator';
+import { ACTING_HEADER, ACTING_REQUEST_KEY, actingIdOf } from './acting-door';
+import type { ActingClaim, ActingDoor, ActingOpening } from './acting-door';
 import { DELEGABLE_OPERATIONS, withDelegatedPermission } from './delegated-door';
 import type { DelegationDoor } from './delegated-door';
 import { operationIdOf } from './operation-id.decorator';
@@ -42,6 +44,8 @@ export interface PolicyOptions {
   entitlements?: EntitlementGate;
   /** Lets a delegate through the door of the operations in DELEGABLE_OPERATIONS; the command narrows it. */
   delegations?: DelegationDoor;
+  /** The door of the acting grants (IAM-2): a request that names one in `X-Acting-As` is judged on the access of the person it acts for; without it such a request is refused. */
+  acting?: ActingDoor;
   /** The door of the support tokens (ST-SAS-015): without it a support token is refused. */
   support?: SupportGate;
   now?: () => Date;
@@ -70,6 +74,7 @@ interface PolicyRequest {
   url?: string;
   originalUrl?: string;
   [ACCESS_REQUEST_KEY]?: EffectiveAccess;
+  [ACTING_REQUEST_KEY]?: ActingClaim;
 }
 
 /**
@@ -126,13 +131,16 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     const controlRoles = policy.plane === 'control' ? (principal.roles ?? []) : undefined;
     // A support token is judged on its grant, on every request, and on nothing else: the operator has no membership and no grant of roles in the tenant.
     const door = principal.support === undefined ? undefined : await this.supportDoor(request, principal, operationId);
-    const [access, sessionRevoked] = await Promise.all([
+    const [own, sessionRevoked] = await Promise.all([
       door !== undefined ? door.access : controlRoles === undefined ? this.options.access.load(principal.tenant) : controlAccessOf(controlRoles, principal.tenant.membershipId),
       this.options.denyList.isRevoked(principal.sessionId),
     ]);
+    // A request made under an acting grant is judged on the access of the person, narrowed to what the grant lists, and on nothing else; a header that names a grant that is not in force is refused.
+    const acting = await this.actingOpening(request, principal, own, operationId, now);
+    const access = acting?.access ?? own;
     // A delegate reaches the operations that can be delegated with the delegation alone; the command judges the rest.
     let decided = access;
-    if (DELEGABLE_OPERATIONS.has(operationId) && principal.audience === 'tenant' && this.options.delegations !== undefined && !holdsPermission(effectivePermissions(access, now), policy.permission)) {
+    if (acting === undefined && DELEGABLE_OPERATIONS.has(operationId) && principal.audience === 'tenant' && this.options.delegations !== undefined && !holdsPermission(effectivePermissions(access, now), policy.permission)) {
       if (await this.options.delegations.holds(principal.tenant, policy.permission, now)) decided = withDelegatedPermission(access, policy.permission);
     }
     const { entitled, entitlements } = this.options;
@@ -163,6 +171,8 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
       request[ACCESS_REQUEST_KEY] = access;
       // Every request of an operator inside a grant is a trace of its own; if it cannot be written the request does not go on.
       if (door !== undefined && principal.support !== undefined) await this.recordSupportUse(principal.tenant, principal.support, door, operationId, request);
+      // Every request made under an acting grant is a trace of its own too, naming both: the administrator as the actor and the person acted for.
+      if (acting !== undefined) await this.recordActingUse(principal.tenant, acting, operationId, request);
       return true;
     }
     const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
@@ -170,10 +180,45 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     request.headers['x-correlation-id'] = correlationId;
     // A refused command is audited; so is a call of the wrong plane, whatever it asks: an operator of the platform who reaches for the business data of a tenant leaves a trace even when it only reads (IAM 3.6, NFR-PRIVACY-02).
     if (decision.status === 403 && (Reflect.getMetadata(COMMAND_METADATA_KEY, handler) !== undefined || decision.reason === 'PLANE')) {
-      await this.recordDenied(principal.tenant, operationId, decision.reason, correlationId, principal.support?.operatorId);
+      await this.recordDenied(principal.tenant, operationId, decision.reason, correlationId, principal.support?.operatorId, acting?.grant.subjectId);
     }
     // The reason of an entitlement denial (FEATURE_OFF, LICENSE_GRACE, ...) is safe to show: it names no data of anyone.
     throw new DomainError(decision.code, decision.status, decision.reason === 'ENTITLEMENT' ? verdict?.reason : undefined);
+  }
+
+  /**
+   * The acting grant a request is made under, when it names one (`X-Acting-As`): the door lets it through only when the grant is in force now and is the caller's. Otherwise the answer is 403 `ACTING_NOT_LIVE` with a
+   * denied audit row, and the request does not go on as the administrator's own: a header that cannot be honoured never falls back to the caller's rights.
+   */
+  private async actingOpening(request: PolicyRequest, principal: Principal, own: EffectiveAccess, operationId: string, now: Date): Promise<ActingOpening | undefined> {
+    if (principal.audience !== 'tenant' || principal.support !== undefined) return undefined;
+    const id = actingIdOf(request.headers[ACTING_HEADER]);
+    if (id === undefined) return undefined;
+    const opening = id === null || this.options.acting === undefined ? undefined : await this.options.acting.open(principal.tenant, id, own, now);
+    if (opening !== undefined) {
+      request[ACTING_REQUEST_KEY] = { grantId: opening.grant.id, subjectId: opening.grant.subjectId };
+      return opening;
+    }
+    const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
+    request.headers['x-correlation-id'] = correlationId;
+    this.options.metrics?.increment('authz_decision_total', { outcome: 'deny', reason: 'ACTING_GRANT' });
+    await this.recordDenied(principal.tenant, operationId, 'ACTING_GRANT', correlationId);
+    throw new DomainError('ACTING_NOT_LIVE', 403);
+  }
+
+  private async recordActingUse(tenant: Principal['tenant'], opening: ActingOpening, operationId: string, request: PolicyRequest): Promise<void> {
+    const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
+    request.headers['x-correlation-id'] = correlationId;
+    await this.options.audit.record(tenant, {
+      action: 'acting.used',
+      resourceType: 'acting_grant',
+      resourceId: opening.grant.id,
+      diff: { operation: operationId, method: request.method, acting_as: { grant_id: opening.grant.id, subject_membership_id: opening.grant.subjectId } },
+      classification: 'CONFIDENTIAL',
+      correlationId,
+      requestId: randomUUID(),
+      onBehalfOfId: opening.grant.subjectId,
+    });
   }
 
   /**
@@ -208,7 +253,7 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
   }
 
   // The denial answer is what matters to the caller; a failed audit write is logged and does not hide it.
-  private async recordDenied(tenant: Parameters<AuditWriter['recordDenied']>[0], operationId: string, reason: string, correlationId: string, impersonatorId?: string): Promise<void> {
+  private async recordDenied(tenant: Parameters<AuditWriter['recordDenied']>[0], operationId: string, reason: string, correlationId: string, impersonatorId?: string, onBehalfOfId?: string): Promise<void> {
     try {
       await this.options.audit.recordDenied(tenant, {
         action: `authz.denied:${operationId}`,
@@ -218,6 +263,7 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
         correlationId,
         requestId: randomUUID(),
         ...(impersonatorId === undefined ? {} : { impersonatorId }),
+        ...(onBehalfOfId === undefined ? {} : { onBehalfOfId }),
       });
     } catch (error) {
       this.logger.error(error, correlationId);

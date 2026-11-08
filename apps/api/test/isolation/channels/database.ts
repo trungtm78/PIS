@@ -45,6 +45,7 @@ INT_FIXTURES,
   UNIT_FIXTURES,
 } from '../suite';
 import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
+import { ACTING_FIXTURES, PERIOD_SCOPE_FIXTURES, STANDING_REQUEST_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -955,6 +956,22 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'revokeDelegation',
   'get_resources_delegation_grant',
   'get_resources_delegation_grant_id',
+  'createStandingDelegationRequest',
+  'decideStandingDelegationRequest',
+  'cancelStandingDelegationRequest',
+  'reviewDelegation',
+  'get_resources_standing_delegation_request',
+  'get_resources_standing_delegation_request_id',
+  'requestActing',
+  'decideActingRequest',
+  'cancelActingRequest',
+  'revokeActing',
+  'get_resources_acting_grant',
+  'get_resources_acting_grant_id',
+  'createPeriodScope',
+  'liftPeriodScope',
+  'get_resources_period_scope',
+  'get_resources_period_scope_id',
   'get_resources_quality_incident',
   'get_resources_quality_incident_id',
   'get_resources_quality_exception',
@@ -1736,6 +1753,16 @@ const INSERT_ALERT_ABSENCE = `insert into machvon.alert_absence (tenant_id, id, 
 
 const INSERT_ALERT_COVER = `insert into machvon.alert_absence_cover (tenant_id, id, absence_id, absent_membership_id, deputy_membership_id, valid_from, valid_until, scope_kind, requested_by)
   values ($1, $2, $3, $4, $5, now() + interval '10 days', now() + interval '15 days', 'ALL', $4) on conflict do nothing`;
+// IAM-2: the request for a permanent delegation, the acting request and the period limit of a role grant (tenant data with a distinctive text each).
+const INSERT_STANDING_REQUEST = `insert into machvon.standing_delegation_request
+  (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, starts_at, review_due_at, end_condition_kind, end_condition_text, reason)
+  values ($1, $2, $3, $4, '{approval.decide}', '{"kind":"UNIT_SUBTREE","ref_ids":[]}'::jsonb, now(), now() + interval '180 days', 'UNTIL_EVENT', $5, 'Isolation fixture of a standing request') on conflict do nothing`;
+
+const INSERT_ACTING = `insert into machvon.acting_grant (tenant_id, id, requester_membership_id, subject_membership_id, permissions, hours, reason)
+  values ($1, $2, $3, $4, '{dis.report.submit}', 4, $5) on conflict do nothing`;
+
+const INSERT_PERIOD_SCOPE = `insert into machvon.role_grant_period_scope (tenant_id, id, role_grant_id, period_codes, reason, set_by)
+  values ($1, $2, $3, '{2026-Q3}', $4, $5) on conflict do nothing`;
 
 const INSERT_APPROVAL_TASK = `insert into machvon.approval_task
   (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status)
@@ -2520,6 +2547,13 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_ALERT_ESCALATION, [tenantId, alerts.escalationId, MEMBERSHIP_ID, member.id, alerts.itemTitle, `ESCALATION:isolation:${tenant}`]);
     await client.query(INSERT_ALERT_ABSENCE, [tenantId, alerts.absenceId, MEMBERSHIP_ID]);
     await client.query(INSERT_ALERT_COVER, [tenantId, alerts.coverId, alerts.absenceId, MEMBERSHIP_ID, member.id]);
+    const standing = STANDING_REQUEST_FIXTURES[tenant];
+    await client.query(INSERT_STANDING_REQUEST, [tenantId, standing.id, MEMBERSHIP_ID, member.id, standing.endText]);
+    const acting = ACTING_FIXTURES[tenant];
+    await client.query(INSERT_ACTING, [tenantId, acting.id, MEMBERSHIP_ID, member.id, acting.reason]);
+    const periodScope = PERIOD_SCOPE_FIXTURES[tenant];
+    await client.query(INSERT_GRANT, [tenantId, periodScope.grantId, member.id, role.id, ACTOR_ID]);
+    await client.query(INSERT_PERIOD_SCOPE, [tenantId, periodScope.id, periodScope.grantId, periodScope.reason, MEMBERSHIP_ID]);
     const reorganization = REORGANIZATION_FIXTURES[tenant];
     await client.query(INSERT_REORGANIZATION, [tenantId, reorganization.id, reorganization.legalBasis, member.id]);
     const term = GLOSSARY_FIXTURES[tenant];
