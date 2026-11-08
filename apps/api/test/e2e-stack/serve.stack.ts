@@ -1804,9 +1804,12 @@ describe('e2e API stack', () => {
       const client = new Client({ connectionString: database.adminUrl });
       await client.connect();
       try {
-        // The layout guard lets the owner role of the schema through (the legal confirmation is made outside the product, as the tests of the payment forms do).
-        await client.query('set role machvon_owner');
+        // The guard of the layout profile fixes the content of a revision; the legal confirmation is an act made outside the product, so the stack lifts the guard for this one statement.
+        await client.query('begin');
+        await client.query('alter table machvon.document_layout_profile disable trigger user');
         const done = await client.query("update machvon.document_layout_profile set confirmation_status = 'CONFIRMED', legal_confirmation_ref = $2 where profile_code = $1 and status = 'PUBLISHED'", [profileCode, reference]);
+        await client.query('alter table machvon.document_layout_profile enable trigger user');
+        await client.query('commit');
         return done.rowCount ?? 0;
       } finally {
         await client.end();
@@ -2015,6 +2018,8 @@ describe('e2e API stack', () => {
             'issue-sla': 2,
             'outbox-relay': 1,
             'dis-period-autoclose': 86_400,
+            // The sweep that raises the alert levels of the advances over their recovery deadline (the clip data makes one) runs within seconds here.
+            'advance-overdue': 20,
             'dgv-quality-run': 2,
             // The sends that are due go out within seconds, and a send whose result was lost is asked about at its provider soon after (the application does both every 5 seconds and 5 minutes).
             'notification-dispatch': 2,
