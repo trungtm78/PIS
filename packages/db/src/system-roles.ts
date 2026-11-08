@@ -15,20 +15,19 @@ export interface SystemRole {
 // TENANT_OWNER holds "all tenant-plane permissions"; system-roles.test.ts proves the list covers the whole catalogue.
 const TENANT_PLANE_PREFIXES: readonly string[] = [
   'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'alert', 'allocation_line', 'analysis_finding', 'analysis_run', 'analytics',
-  'approval', 'approval_task', 'asset', 'asset_record', 'aud', 'audit', 'audit_event', 'bi', 'bid', 'boq', 'boq_line', 'budget_reservation',
-  'capital', 'change', 'change_request', 'channel_account', 'channel_message', 'committee', 'contact', 'contact_consent', 'contract', 'contract_revision',
-  'contractor', 'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract',
-  'delivery_attempt', 'device_registration', 'diary', 'directive', 'disbursement', 'doc', 'document_version', 'drill_context', 'evaluation', 'explanation',
-  'funding', 'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'inspection', 'int', 'integration', 'integration_cursor', 'internal', 'invitation', 'hub',
-  'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'ind', 'inspection', 'integration', 'integration_cursor', 'internal', 'invitation',
-  'invoice_line', 'issue', 'land', 'ledger', 'legal_hold', 'license_revision', 'llm', 'llm_attempt', 'lnd', 'master', 'master_record_version',
-  'material', 'maturity_assessment', 'maturity_evidence', 'measurement', 'membership', 'metric_definition', 'mne', 'model_profile_version',
-  'ncr', 'notification', 'notification_instance', 'notification_template_version', 'omni', 'open', 'organization_unit', 'outbox_event', 'payment',
-  'payment_request', 'period', 'permit', 'photo', 'plan', 'plan_version', 'procurement_package', 'profile', 'progress_snapshot', 'project',
-  'proposal', 'qacceptance', 'quality_exception', 'quality_incident', 'quality_nonconformance', 'quality_rule_version', 'quality_run',
-  'reconciliation', 'report', 'report_revision', 'reporting_period', 'retention', 'role_grant', 'rpt', 'search', 'session', 'settlement',
-  'settlement_revision', 'site_diary', 'snapshot', 'subscription', 'support', 'support_access_grant', 'sync', 'taskforce', 'tenant',
-  'treasury', 'treasury_transaction', 'usage_meter_event', 'warning', 'warranty', 'workflow_instance', 'workflow_version',
+  'approval', 'approval_task', 'asset', 'asset_record', 'aud', 'audit', 'audit_event', 'bi', 'bid', 'boq', 'boq_line', 'budget_reservation', 'capital', 'change',
+  'change_request', 'channel_account', 'channel_message', 'claim', 'committee', 'contact', 'contact_consent', 'contract', 'contract_revision', 'contractor',
+  'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract', 'delivery_attempt', 'device_registration', 'diary',
+  'directive', 'disbursement', 'doc', 'document_version', 'drill_context', 'early_warning', 'ebs', 'effect', 'evaluation', 'explanation', 'fin', 'funding',
+  'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'hpm', 'hub', 'iam', 'ind', 'inspection', 'int', 'integration', 'integration_cursor',
+  'internal', 'invitation', 'invoice_line', 'issue', 'land', 'ledger', 'legal_hold', 'lesson', 'license_revision', 'llm', 'llm_attempt', 'lnd', 'look_ahead',
+  'master', 'master_record_version', 'material', 'maturity_assessment', 'maturity_evidence', 'measurement', 'membership', 'metric_definition', 'mne',
+  'model_profile_version', 'ncr', 'notification', 'notification_instance', 'notification_template_version', 'omni', 'open', 'organization_unit', 'outbox_event',
+  'payment', 'payment_request', 'period', 'permit', 'photo', 'plan', 'plan_version', 'procurement_package', 'profile', 'progress_snapshot', 'project', 'proposal',
+  'qacceptance', 'quality_exception', 'quality_incident', 'quality_nonconformance', 'quality_rule_version', 'quality_run', 'reconciliation', 'report',
+  'report_revision', 'reporting_period', 'retention', 'role_grant', 'rpt', 'search', 'session', 'settlement', 'settlement_revision', 'site_diary', 'snapshot',
+  'subscription', 'support', 'support_access_grant', 'sync', 'taskforce', 'tenant', 'treasury', 'treasury_transaction', 'usage_meter_event', 'vnd', 'warning',
+  'warranty', 'workflow_instance', 'workflow_version',
 ];
 
 const key = (code: string): string => `iam.role.${code}.name`;

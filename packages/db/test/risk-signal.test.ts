@@ -224,7 +224,7 @@ describe('the risk register scored from live signals (MR.02, G1-14)', () => {
     expect(raised.map((alert) => alert.status)).toEqual(['RESOLVED', 'OPEN']);
   });
 
-  it('never turns what it could not know into a zero: no milestone, no baseline and no schedule give no line, and a tenant without the claim register has no count of claims', async () => {
+  it('never turns what it could not know into a zero: no milestone, no baseline and no schedule give no line, and a project without a contract has no open claim: the register of claims exists, so its count is zero and says so', async () => {
     const seeded = await seedBidPackage(harness);
     await rescore();
     expect(await lineOf(seeded.projectId, 'SCHEDULE_DELAY')).toBeUndefined();
@@ -238,7 +238,8 @@ describe('the risk register scored from live signals (MR.02, G1-14)', () => {
     expect(readings?.PROCUREMENT_SLIP_DAYS).toBeNull();
     expect(readings?.PAYMENT_BLOCKED_DRAFTS).toBe(0);
     expect(readings?.EARLY_WARNINGS_HIGH).toBe(0);
-    expect(read.get(seeded.projectId)?.facts).toMatchObject({ claim_register: false });
+    expect(readings?.OPEN_CLAIMS).toBe(0);
+    expect(read.get(seeded.projectId)?.facts).toMatchObject({ claim_register: true, open_claims: 0 });
   });
 
   it('scores the delay of the procurement milestones of the packages of the project', async () => {
