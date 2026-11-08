@@ -1,0 +1,107 @@
+{
+  "illustrativeSuffix": " (minh họa)",
+  "names": {
+    "dtxdcb": [
+      "Cải tạo hệ thống làm mát khu vực A",
+      "Xây dựng kho chứa vật tư số 2",
+      "Nâng cấp trạm biến áp 110kV",
+      "Lắp đặt hệ thống xử lý nước thải giai đoạn 2",
+      "Xây dựng nhà điều hành trung tâm",
+      "Cải tạo đường nội bộ khu vực B",
+      "Hệ thống phòng cháy chữa cháy khu kho",
+      "Xây dựng bể chứa nguyên liệu số 3",
+      "Nâng cấp hệ thống điều khiển phân tán",
+      "Lắp đặt hệ thống camera giám sát",
+      "Xây dựng nhà xưởng bảo dưỡng cơ khí",
+      "Cải tạo hệ thống cấp nước sinh hoạt",
+      "Xây dựng cầu cảng nhập nguyên liệu số 2",
+      "Nâng cấp hệ thống băng tải",
+      "Xây dựng trạm cân điện tử",
+      "Cải tạo mái và vách nhà kho thành phẩm",
+      "Xây dựng hệ thống thu hồi nhiệt thải",
+      "Nâng cấp phòng thí nghiệm trung tâm",
+      "Xây dựng hạ tầng công nghệ thông tin dùng chung",
+      "Cải tạo hệ thống chiếu sáng toàn khu",
+      "Xây dựng khu lưu trữ chất thải công nghiệp",
+      "Hoàn thiện hệ thống thoát nước mưa"
+    ],
+    "mstb": ["Mua sắm thiết bị đo lường và kiểm định"],
+    "mstscd": [
+      "Mua xe nâng hàng 5 tấn",
+      "Mua máy phát điện dự phòng",
+      "Mua hệ thống máy chủ trung tâm dữ liệu",
+      "Mua cẩu bánh lốp 25 tấn",
+      "Mua máy bơm công suất lớn",
+      "Mua thiết bị phân tích khí",
+      "Mua xe chuyên dùng chữa cháy",
+      "Mua máy nén khí trục vít",
+      "Mua thiết bị an ninh kiểm soát ra vào"
+    ],
+    "scl": [
+      "Sửa chữa lớn hệ thống nén khí",
+      "Sửa chữa lớn lò gia nhiệt số 1",
+      "Sửa chữa lớn tuabin hơi phụ",
+      "Sửa chữa lớn hệ thống làm lạnh",
+      "Sửa chữa lớn bồn chứa thành phẩm",
+      "Sửa chữa lớn hệ thống điện trung thế"
+    ],
+    "plantDtxdcb": [
+      "Cải tạo hệ thống xử lý khí thải",
+      "Nâng cấp hệ thống điều khiển an toàn",
+      "Xây dựng nhà kho hóa chất",
+      "Lắp đặt hệ thống thu hồi hơi nước",
+      "Cải tạo hệ thống chiếu sáng khu sản xuất",
+      "Xây dựng khu bảo dưỡng thiết bị quay"
+    ],
+    "plantScl": [
+      "Sửa chữa lớn máy nén khí tổng hợp",
+      "Sửa chữa lớn lò reforming",
+      "Sửa chữa lớn tháp tổng hợp",
+      "Sửa chữa lớn hệ thống làm mát tuần hoàn",
+      "Sửa chữa lớn hệ thống tạo hạt"
+    ]
+  },
+  "kindLabels": {
+    "dtxdcb": "ĐTXDCB",
+    "mstb": "Mua sắm tài sản",
+    "mstscd": "Mua sắm tài sản cố định",
+    "scl": "Sửa chữa lớn"
+  },
+  "units": ["Phòng Kỹ thuật", "Ban Quản lý dự án", "Phân xưởng Amoniac", "Phân xưởng Urê", "Phòng Cơ điện"],
+  "schedules": ["Đúng tiến độ", "Đúng tiến độ", "Chậm tiến độ", "Vượt tiến độ", "Đúng tiến độ", "Chậm tiến độ"],
+  "delayedSchedule": "Chậm tiến độ",
+  "statuses": [
+    "Đang thi công, khối lượng đạt theo kế hoạch",
+    "Đang lựa chọn nhà thầu",
+    "Đang thi công, thiếu một phần vật tư",
+    "Đã hoàn thành lắp đặt, chờ nghiệm thu",
+    "Đang thương thảo hợp đồng",
+    "Đang chuẩn bị đầu tư"
+  ],
+  "causes": ["Thời tiết ảnh hưởng thi công", "Chờ phê duyệt điều chỉnh thiết kế", "Nhà thầu chậm cung cấp thiết bị", null, "Thủ tục thanh toán kéo dài", null],
+  "issues": [
+    "Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới",
+    null,
+    "Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao",
+    "Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá",
+    null,
+    "Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt"
+  ],
+  "nexts": [
+    "Hoàn thành hạng mục chính và nghiệm thu giai đoạn",
+    "Ký hợp đồng và triển khai thi công",
+    "Giải ngân theo tiến độ hợp đồng",
+    "Nghiệm thu và quyết toán hạng mục",
+    null,
+    "Hoàn thiện hồ sơ thanh toán"
+  ],
+  "proposals": [null, "Đề nghị xem xét điều chỉnh kế hoạch vốn năm", null, "Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt", null, null],
+  "meta": {
+    "PARENT_NAME": "TẬP ĐOÀN MẪU",
+    "ORG_NAME": "TỔNG CÔNG TY MẪU (số liệu minh họa)",
+    "REPORT_DATE_LINE": "Hà Nội, ngày {day} tháng {month} năm {year}",
+    "SIGN_PREPARER": "Nguyễn Văn Mẫu",
+    "SIGN_CHECKER": "Trần Thị Kiểm",
+    "SIGN_APPROVER": "Lê Văn Duyệt"
+  }
+}

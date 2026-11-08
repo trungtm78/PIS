@@ -1,8 +1,9 @@
 import { ALLOW_ALL, defineEditionManifest } from '@machvon/kernel/src/edition.ts';
 import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
+import { PRODUCT_NAME_VI } from './messages/manifest-texts.ts';
 
 /**
- * The manifest of the enterprise edition: "Phần mềm quản lý đầu tư xây dựng", the product of a state enterprise.
+ * The manifest of the enterprise edition: "Construction Investment Management Software", the product of a state enterprise (its Vietnamese name is in `messages/manifest-texts.ts`).
  *
  * ENT-0 gives the mechanism, so the enterprise edition starts from the whole module set and the whole menu; a lane that decides
  * a module does not belong to an enterprise (ENT-1, ENT-2) adds it to `deny` here, and the API mounting, the web routes and the
@@ -12,7 +13,7 @@ import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
  */
 export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifest({
   edition: 'enterprise',
-  productName: { vi: 'Phần mềm quản lý đầu tư xây dựng', en: 'Construction Investment Management Software' },
+  productName: { vi: PRODUCT_NAME_VI, en: 'Construction Investment Management Software' },
   brand: { mark: { vi: 'XD', en: 'CI' }, themeColor: '#0F3B57' },
   modules: ALLOW_ALL,
   screens: ALLOW_ALL,

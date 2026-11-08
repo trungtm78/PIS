@@ -5,10 +5,11 @@ import { unzipSync, zipSync } from 'fflate';
 import type { Zippable } from 'fflate';
 import { DEMO_MARK, cellRef, columnLetters, fillGrid, headerRowsOf, numFmtOf, unitLine } from '@machvon/kernel/src/report-layout.ts';
 import type { FilledGrid, LayoutRow, NarrativeBlock, ReportLayout } from '@machvon/kernel/src/report-layout.ts';
-import { rowRolesOf } from './common.ts';
+import { formTexts, rowRolesOf } from './common.ts';
 import type { DemoFormSpec, RowRole } from './common.ts';
 import { DEMO_FORMS } from './forms.ts';
 import { ENTERPRISE_KPI_SEEDS } from './rules.ts';
+import { fillText, textsOf } from './texts.ts';
 
 /**
  * Builds the demo templates of the six forms (RPT-1): an .xlsx TEMPLATE for each, written from the layout itself with ExcelJS (so the template and the layout cannot drift apart), and a .docx narrative skeleton
@@ -16,6 +17,16 @@ import { ENTERPRISE_KPI_SEEDS } from './rules.ts';
  * page wide, the header rows repeated, a print area) and the demo mark in the header and the footer and in a visible row. The bytes are deterministic: fixed dates and a normalised zip, so the same layout gives the same
  * file and `scripts/build-demo-templates.mjs --check` can tell when a committed template is stale. These files are TEMPLATES (no figures): the report writer fills them from a `FilledGrid`.
  */
+
+/** The words the builder writes into the properties of a document and the page footer, from `messages/templates.vi.json`. */
+interface TemplateTexts {
+  creator: string;
+  xlsxDescription: string;
+  docxTitle: string;
+  docxDescription: string;
+  pageWord: string;
+}
+const TEXTS = textsOf<TemplateTexts>('templates');
 
 const FONT = 'Times New Roman';
 const THIN = { style: 'thin', color: { argb: 'FF000000' } } as const;
@@ -107,7 +118,7 @@ const CENTERED_KEYS = new Set(['stt', 'code', 'grp', 'schedule']);
 /** The Excel print header: the demo mark in red and bold, centred. */
 export const stampHeader = (stamp: string): string => `&C&"${FONT},Bold"&KC00000${stamp}`;
 /** The Excel print footer: the demo mark at the left, the page number at the right. */
-export const stampFooter = (stamp: string): string => `&L&"${FONT},Italic"&KC00000${stamp}&R&"${FONT},Regular"Trang &P / &N`;
+export const stampFooter = (stamp: string): string => `&L&"${FONT},Italic"&KC00000${stamp}&R&"${FONT},Regular"${TEXTS.pageWord} &P / &N`;
 
 const PAPER_SIZE = { A3: 8, A4: 9 } as const;
 
@@ -129,13 +140,13 @@ export async function buildXlsxTemplate(form: DemoFormSpec): Promise<Uint8Array>
   const lastRow = grid.rows.length;
 
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Hệ thống (mẫu demo)';
-  workbook.lastModifiedBy = 'Hệ thống (mẫu demo)';
+  workbook.creator = TEXTS.creator;
+  workbook.lastModifiedBy = TEXTS.creator;
   workbook.created = TEMPLATE_DATE;
   workbook.modified = TEMPLATE_DATE;
   workbook.title = layout.name;
   workbook.subject = DEMO_MARK;
-  workbook.description = `${DEMO_MARK}. Mẫu do hệ thống thiết kế (${layout.code}), chưa phải mẫu chính thức.`;
+  workbook.description = fillText(TEXTS.xlsxDescription, { mark: DEMO_MARK, code: layout.code });
   const sheet = workbook.addWorksheet(layout.sheetName, { views: [{ showGridLines: false }] });
   for (const { col, width } of grid.columnWidths) sheet.getColumn(col).width = width;
 
@@ -295,7 +306,7 @@ function blocksOf(blocks: readonly NarrativeBlock[]): Array<Paragraph | Table> {
                       borders: { top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: NO_BORDER },
                       children: [
                         new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: slot.role, bold: true })] }),
-                        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: '(Ký, ghi rõ họ tên)', italics: true, size: 22 })] }),
+                        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: formTexts().layout.signHint, italics: true, size: 22 })] }),
                         new Paragraph({ children: [new TextRun({ text: '' })], spacing: { before: 900 } }),
                         new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: slot.name ?? '', bold: true })] }),
                       ],
@@ -320,11 +331,11 @@ export async function buildDocxSkeleton(form: DemoFormSpec): Promise<Uint8Array>
   if (form.narrative === null) throw new Error(`demo form ${form.layout.code} has no narrative part`);
   const footer: ParagraphChild[] = [new TextRun({ text: `${DEMO_MARK} — `, size: 20, color: 'C00000' }), new TextRun({ children: [PageNumber.CURRENT, ' / ', PageNumber.TOTAL_PAGES], size: 20 })];
   const document = new Document({
-    creator: 'Hệ thống (mẫu demo)',
-    lastModifiedBy: 'Hệ thống (mẫu demo)',
-    title: `${form.layout.name} - thuyết minh`,
+    creator: TEXTS.creator,
+    lastModifiedBy: TEXTS.creator,
+    title: fillText(TEXTS.docxTitle, { name: form.layout.name }),
     subject: DEMO_MARK,
-    description: `${DEMO_MARK}. Khung thuyết minh của biểu ${form.layout.code}.`,
+    description: fillText(TEXTS.docxDescription, { mark: DEMO_MARK, code: form.layout.code }),
     styles: {
       default: { document: { run: { font: FONT, size: 26 }, paragraph: { spacing: { line: 312 } } } },
       paragraphStyles: [1, 2, 3].map((level) => ({ id: `Heading${level}`, name: `heading ${level}`, basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { font: FONT, size: 26 + (level === 1 ? 4 : level === 2 ? 2 : 0), bold: true } })),

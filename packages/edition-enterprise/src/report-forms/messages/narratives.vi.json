@@ -1,0 +1,57 @@
+{
+  "figures": {
+    "heading1": "1. Tình hình thực hiện kế hoạch",
+    "planParagraph": "Kế hoạch vốn năm hiện hành là {{indicator:ENT_PLAN_IN_FORCE@FULL_YEAR}} triệu đồng cho {{indicator:ENT_PROJECTS_TOTAL@AS_OF_END}} dự án và hạng mục. Trong kỳ, giá trị thực hiện đạt {{indicator:ENT_EXECUTED_PERIOD@IN_PERIOD}} triệu đồng, giải ngân {{indicator:ENT_DISBURSED_PERIOD@IN_PERIOD}} triệu đồng.",
+    "cumulativeParagraph": "Lũy kế từ đầu năm, giá trị thực hiện đạt {{indicator:ENT_EXECUTED_YTD@YEAR_TO_DATE}} triệu đồng ({{indicator:ENT_RATE_EXECUTED_YTD@YEAR_TO_DATE}}% kế hoạch năm), giải ngân {{indicator:ENT_DISBURSED_YTD@YEAR_TO_DATE}} triệu đồng ({{indicator:ENT_RATE_DISBURSED_YTD@YEAR_TO_DATE}}% kế hoạch năm). Lũy kế từ khởi công, giá trị thực hiện đạt {{indicator:ENT_EXECUTED_SINCE_START@AS_OF_END}} triệu đồng, giải ngân {{indicator:ENT_DISBURSED_SINCE_START@AS_OF_END}} triệu đồng ({{indicator:ENT_RATE_SINCE_START@AS_OF_END}}% tổng mức đầu tư).",
+    "heading2": "2. Cơ cấu vốn kế hoạch năm",
+    "capitalHeader": ["Nguồn vốn", "Kế hoạch năm (triệu đồng)", "Tỷ trọng (%)"],
+    "capitalLabels": ["Vốn chủ sở hữu", "Vốn vay", "Khác"],
+    "heading3": "3. Đánh giá tiến độ",
+    "scheduleParagraph": "Trong {{indicator:ENT_PROJECTS_TOTAL@AS_OF_END}} dự án và hạng mục có {{indicator:ENT_PROJECTS_ON_TRACK@AS_OF_END}} dự án đúng hoặc vượt tiến độ và {{indicator:ENT_PROJECTS_DELAYED@AS_OF_END}} dự án chậm tiến độ."
+  },
+  "lists": {
+    "difficulties": ["[Khó khăn, vướng mắc thứ nhất và giải pháp]", "[Khó khăn, vướng mắc thứ hai và giải pháp]"],
+    "steeringRequests": ["[Dự án, vấn đề, đề nghị chỉ đạo thứ nhất]", "[Dự án, vấn đề, đề nghị chỉ đạo thứ hai]"]
+  },
+  "forms": {
+    "PVN-QUARTERLY-F2": {
+      "title": "THUYẾT MINH BIỂU 2 - TÌNH HÌNH THỰC HIỆN KẾ HOẠCH ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ MUA SẮM TRANG THIẾT BỊ",
+      "afterFigures": ["Ước thực hiện cả năm là {{indicator:ENT_OUTLOOK_YEAR@FULL_YEAR}} triệu đồng, bằng {{indicator:ENT_RATE_OUTLOOK_YEAR@FULL_YEAR}}% kế hoạch vốn năm hiện hành."],
+      "sections": [
+        { "heading": "4. Nguyên nhân", "hint": "Nêu nguyên nhân chính của các dự án chậm tiến độ hoặc giải ngân thấp" },
+        { "heading": "5. Khó khăn, vướng mắc và giải pháp", "list": "difficulties" },
+        { "heading": "6. Kế hoạch quý tới", "hint": "Nêu khối lượng và giải ngân dự kiến của quý tới" },
+        { "heading": "7. Kiến nghị", "hint": "Nêu kiến nghị đối với Tập đoàn" }
+      ]
+    },
+    "COMMITTEE-PERIODIC": {
+      "title": "BÁO CÁO ĐỊNH KỲ GỬI ỦY BAN ĐẦU TƯ PHÁT TRIỂN VÀ KHOA HỌC CÔNG NGHỆ",
+      "addressee": "Kính gửi: Ủy ban Đầu tư phát triển và Khoa học công nghệ.",
+      "sections": [
+        { "heading": "4. Đánh giá chung", "hint": "Đánh giá chung về việc thực hiện kế hoạch đầu tư trong kỳ so với kế hoạch năm" },
+        { "heading": "5. Nguyên nhân", "hint": "Nêu nguyên nhân của các chênh lệch lớn so với kế hoạch" },
+        { "heading": "6. Khó khăn, vướng mắc và giải pháp", "list": "difficulties" },
+        { "heading": "7. Kế hoạch kỳ tới", "hint": "Nêu các việc chính và mục tiêu thực hiện, giải ngân của kỳ tới" },
+        { "heading": "8. Kiến nghị, đề xuất với Ủy ban", "hint": "Nêu các vấn đề đề nghị Ủy ban cho ý kiến hoặc chỉ đạo" }
+      ]
+    },
+    "INVEST-STEERING": {
+      "title": "BÁO CÁO GIAO BAN ĐẦU TƯ",
+      "sections": [
+        { "heading": "4. Các dự án cần lãnh đạo chỉ đạo", "list": "steeringRequests" },
+        { "heading": "5. Kết quả thực hiện các nội dung chỉ đạo của kỳ trước", "hint": "Nêu kết quả thực hiện các chỉ đạo của cuộc giao ban trước" },
+        { "heading": "6. Kế hoạch tháng tới", "hint": "Nêu các việc chính của tháng tới" }
+      ]
+    },
+    "PLANT-PHU-MY": {
+      "title": "BÁO CÁO NHÀ MÁY ĐẠM PHÚ MỸ - ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ SỬA CHỮA LỚN",
+      "sections": [
+        { "heading": "4. Tình hình các hạng mục sửa chữa lớn", "hint": "Nêu tiến độ các hạng mục sửa chữa lớn, thời gian dừng máy và việc nghiệm thu" },
+        { "heading": "5. Nguyên nhân", "hint": "Nêu nguyên nhân của các hạng mục chậm tiến độ" },
+        { "heading": "6. Khó khăn, vướng mắc và giải pháp", "list": "difficulties" },
+        { "heading": "7. Kế hoạch kỳ tới", "hint": "Nêu kế hoạch đầu tư và sửa chữa lớn của kỳ tới" },
+        { "heading": "8. Kiến nghị", "hint": "Nêu kiến nghị đối với Tổng công ty" }
+      ]
+    }
+  }
+}

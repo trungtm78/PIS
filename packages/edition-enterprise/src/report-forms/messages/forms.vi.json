@@ -1,0 +1,86 @@
+{
+  "period": {
+    "MONTH": "tháng",
+    "QUARTER": "quý"
+  },
+  "columns": {
+    "stt": ["STT"],
+    "code": ["Mã dự án"],
+    "name": ["Tên dự án, hạng mục"],
+    "grp": ["Nhóm"],
+    "kind": ["Loại hình"],
+    "owner_unit": ["Đơn vị chủ trì"],
+    "tmdt": ["Tổng mức đầu tư"],
+    "plan_year": ["Kế hoạch vốn năm", "Giao đầu năm"],
+    "plan_force": ["Kế hoạch vốn năm", "Hiện hành"],
+    "est_p": ["Ước thực hiện {period}"],
+    "exec_p": ["Thực hiện trong {period}", "Giá trị thực hiện"],
+    "disb_p": ["Thực hiện trong {period}", "Giải ngân"],
+    "exec_ytd": ["Lũy kế từ đầu năm", "Giá trị thực hiện"],
+    "disb_ytd": ["Lũy kế từ đầu năm", "Giải ngân"],
+    "exec_start": ["Lũy kế từ khởi công", "Giá trị thực hiện"],
+    "disb_start": ["Lũy kế từ khởi công", "Giải ngân"],
+    "outlook": ["Ước thực hiện cả năm"],
+    "rate_exec": ["Tỷ lệ % so kế hoạch năm", "Thực hiện"],
+    "rate_disb": ["Tỷ lệ % so kế hoạch năm", "Giải ngân"],
+    "rate_outlook": ["Tỷ lệ % ước cả năm so kế hoạch"],
+    "cap_equity": ["Cơ cấu vốn kế hoạch năm", "Vốn chủ sở hữu"],
+    "cap_debt": ["Cơ cấu vốn kế hoạch năm", "Vốn vay"],
+    "cap_other": ["Cơ cấu vốn kế hoạch năm", "Khác"],
+    "status": ["Tình hình thực hiện"],
+    "schedule": ["Đánh giá tiến độ"],
+    "cause": ["Nguyên nhân"],
+    "issues": ["Khó khăn, vướng mắc và giải pháp"],
+    "next": ["Kế hoạch {period} tới"],
+    "proposal": ["Kiến nghị, đề xuất"]
+  },
+  "groups": {
+    "dtxdcb": "ĐẦU TƯ XÂY DỰNG CƠ BẢN",
+    "mstb": "MUA SẮM TÀI SẢN, TRANG THIẾT BỊ",
+    "mstscd": "MUA SẮM TÀI SẢN CỐ ĐỊNH",
+    "scl": "SỬA CHỮA LỚN",
+    "items": "DANH MỤC DỰ ÁN VÀ HẠNG MỤC"
+  },
+  "layout": {
+    "formNo": "Biểu: {formNo}",
+    "subtotal": "Cộng {numeral}",
+    "grandFlat": "TỔNG CỘNG",
+    "grand": "TỔNG CỘNG ({sum})",
+    "signRoles": ["NGƯỜI LẬP BIỂU", "NGƯỜI KIỂM TRA", "NGƯỜI PHÊ DUYỆT"],
+    "signHint": "(Ký, ghi rõ họ tên)"
+  },
+  "strip": {
+    "planInForce": "Kế hoạch vốn năm hiện hành (triệu đồng)",
+    "executedMonth": "Thực hiện trong tháng (triệu đồng)",
+    "executedQuarter": "Thực hiện trong quý (triệu đồng)",
+    "disbursedMonth": "Giải ngân trong tháng (triệu đồng)",
+    "disbursedQuarter": "Giải ngân trong quý (triệu đồng)",
+    "executedYtd": "Thực hiện lũy kế từ đầu năm (triệu đồng)",
+    "disbursedYtd": "Giải ngân lũy kế từ đầu năm (triệu đồng)",
+    "executedSinceStart": "Thực hiện lũy kế từ khởi công (triệu đồng)",
+    "outlookYear": "Ước thực hiện cả năm (triệu đồng)",
+    "rateOutlookYear": "Tỷ lệ ước cả năm so kế hoạch (%)",
+    "rateExecutedYtd": "Tỷ lệ thực hiện lũy kế (%)",
+    "rateDisbursedYtd": "Tỷ lệ giải ngân lũy kế (%)",
+    "rateSinceStart": "Tỷ lệ thực hiện so tổng mức đầu tư (%)",
+    "projectsTotal": "Số dự án và hạng mục",
+    "projectsOnTrack": "Đúng hoặc vượt tiến độ",
+    "projectsDelayed": "Chậm tiến độ"
+  },
+  "notes": {
+    "rate": "Ghi chú: Tỷ lệ % = giá trị lũy kế từ đầu năm chia cho kế hoạch vốn năm hiện hành, nhân 100; ô tỷ lệ là công thức, tự tính lại khi sửa số.",
+    "capital": "Cơ cấu vốn là kế hoạch vốn năm hiện hành chia theo nguồn: vốn chủ sở hữu, vốn vay và khác; tổng ba nguồn bằng kế hoạch vốn năm hiện hành.",
+    "schedule": "Đánh giá tiến độ: đúng tiến độ, vượt tiến độ hoặc chậm tiến độ so với tiến độ trong hợp đồng và kế hoạch được duyệt.",
+    "demo": "Biểu do hệ thống thiết kế cho giai đoạn demo, chưa phải mẫu chính thức; khi có mẫu chính thức, bố cục và tên cột sẽ theo mẫu đó.",
+    "quarterEstimate": "Ước thực hiện quý là số ước của cả quý đã đưa vào báo cáo; ước thực hiện cả năm gồm số thực hiện các tháng đã chốt và số ước của các tháng còn lại.",
+    "hpmKind": "Cột Loại hình ghi một trong ba loại: ĐTXDCB, Mua sắm tài sản, Mua sắm tài sản cố định, để hệ thống HPM đọc từng dòng; mỗi dòng là một dự án hoặc hạng mục."
+  },
+  "titles": {
+    "PVN-MONTHLY": "BÁO CÁO TÌNH HÌNH THỰC HIỆN KẾ HOẠCH ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ MUA SẮM TRANG THIẾT BỊ",
+    "PVN-QUARTERLY-F2": "BIỂU 2 - BÁO CÁO TÌNH HÌNH THỰC HIỆN KẾ HOẠCH ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ MUA SẮM TRANG THIẾT BỊ THEO QUÝ",
+    "HPM-MONTHLY": "BÁO CÁO THÁNG THEO ĐỊNH DẠNG HỆ THỐNG HPM - KẾ HOẠCH ĐẦU TƯ VÀ MUA SẮM",
+    "COMMITTEE-PERIODIC": "BÁO CÁO ĐỊNH KỲ GỬI ỦY BAN ĐẦU TƯ PHÁT TRIỂN VÀ KHOA HỌC CÔNG NGHỆ",
+    "INVEST-STEERING": "BÁO CÁO GIAO BAN ĐẦU TƯ",
+    "PLANT-PHU-MY": "BÁO CÁO ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ SỬA CHỮA LỚN CỦA NHÀ MÁY ĐẠM PHÚ MỸ"
+  }
+}

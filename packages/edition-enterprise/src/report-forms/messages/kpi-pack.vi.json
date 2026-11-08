@@ -1,0 +1,122 @@
+{
+  "source": "Phân hệ giải ngân (DIS) theo mô hình vốn doanh nghiệp FND-1 (docs/fnd-funding-model.md, bản đề xuất chưa duyệt); số liệu mẫu biểu báo cáo sáu biểu mẫu demo (RPT-1)",
+  "parameterSource": "Phân hệ giải ngân (DIS), mô hình vốn doanh nghiệp FND-1 (bản đề xuất chưa duyệt)",
+  "definitionSource": "Phân hệ giải ngân (DIS), mô hình vốn FND-1 (bản đề xuất)",
+  "reportFormMode": {
+    "formula": "demo_forms là true thì được phát hành các biểu mẫu demo do hệ thống thiết kế (mỗi bản ra đều đóng dấu MẪU DEMO); là false thì chỉ phát hành mẫu chính thức đã xác nhận; biến môi trường DEMO_FORMS ghi đè giá trị này",
+    "source": "Quyết định của chủ sở hữu ngày 2026-11-08: giai đoạn demo, hệ thống tự thiết kế sáu biểu mẫu báo cáo trong lúc chờ mẫu chính thức (RPT-1)",
+    "defaultFormula": "Mặc định tắt: chỉ biểu mẫu chính thức đã xác nhận được phát hành; bật bằng quy tắc đã duyệt của đơn vị hoặc biến môi trường DEMO_FORMS=true"
+  },
+  "kpis": {
+    "ENT_TOTAL_INVESTMENT": {
+      "name": "Tổng mức đầu tư đang hiệu lực",
+      "formula": "Tổng của tổng mức đầu tư đã được phê duyệt đang hiệu lực của các dự án trong phạm vi báo cáo, tính đến ngày chốt"
+    },
+    "ENT_PLAN_YEAR": {
+      "name": "Kế hoạch vốn năm giao đầu năm",
+      "formula": "Tổng kế hoạch vốn năm theo quyết định giao lần đầu của các dự án trong phạm vi báo cáo (FND-1: PLAN_YEAR)"
+    },
+    "ENT_PLAN_IN_FORCE": {
+      "name": "Kế hoạch vốn năm hiện hành",
+      "formula": "Tổng kế hoạch vốn năm đang hiệu lực sau các lần điều chỉnh, tính đến ngày chốt (FND-1: PLAN_IN_FORCE)"
+    },
+    "ENT_EXECUTED_PERIOD": {
+      "name": "Giá trị thực hiện trong kỳ",
+      "formula": "Tổng giá trị khối lượng thực hiện được ghi nhận trong kỳ báo cáo (FND-1: ACTUAL của đại lượng EXECUTED)"
+    },
+    "ENT_DISBURSED_PERIOD": {
+      "name": "Giá trị giải ngân trong kỳ",
+      "formula": "Tổng số đã thanh toán, giải ngân trong kỳ báo cáo (FND-1: ACTUAL của đại lượng DISBURSED)"
+    },
+    "ENT_ESTIMATE_PERIOD": {
+      "name": "Ước thực hiện của kỳ",
+      "formula": "Tổng số ước thực hiện của cả kỳ đã đưa vào báo cáo của kỳ (FND-1: ESTIMATE_AS_REPORTED)"
+    },
+    "ENT_EXECUTED_YTD": {
+      "name": "Giá trị thực hiện lũy kế từ đầu năm",
+      "formula": "Tổng giá trị thực hiện các tháng của năm kế hoạch đến hết kỳ báo cáo (FND-1: CUMULATIVE_YTD, đại lượng EXECUTED)"
+    },
+    "ENT_DISBURSED_YTD": {
+      "name": "Giá trị giải ngân lũy kế từ đầu năm",
+      "formula": "Tổng số giải ngân các tháng của năm kế hoạch đến hết kỳ báo cáo (FND-1: CUMULATIVE_YTD, đại lượng DISBURSED)"
+    },
+    "ENT_EXECUTED_SINCE_START": {
+      "name": "Giá trị thực hiện lũy kế từ khởi công",
+      "formula": "Số dư đầu kỳ đưa vào hệ thống cộng giá trị thực hiện các tháng đến hết kỳ báo cáo (FND-1: CUMULATIVE_SINCE_START, đại lượng EXECUTED)"
+    },
+    "ENT_DISBURSED_SINCE_START": {
+      "name": "Giá trị giải ngân lũy kế từ khởi công",
+      "formula": "Số dư đầu kỳ đưa vào hệ thống cộng số giải ngân các tháng đến hết kỳ báo cáo (FND-1: CUMULATIVE_SINCE_START, đại lượng DISBURSED)"
+    },
+    "ENT_OUTLOOK_YEAR": {
+      "name": "Ước thực hiện cả năm",
+      "formula": "Số thực hiện các tháng đã chốt cộng số ước (hoặc kế hoạch tháng nếu chưa có ước) của các tháng còn lại; không có số cho một tháng thì không tính (FND-1: ESTIMATE_YEAR)"
+    },
+    "ENT_CAPITAL_EQUITY": {
+      "name": "Kế hoạch vốn năm: vốn chủ sở hữu",
+      "formula": "Phần kế hoạch vốn năm hiện hành do vốn chủ sở hữu bố trí (FND-1: nhóm EQUITY của FUNDING_TAXONOMY)"
+    },
+    "ENT_CAPITAL_DEBT": {
+      "name": "Kế hoạch vốn năm: vốn vay",
+      "formula": "Phần kế hoạch vốn năm hiện hành do vốn vay bố trí (FND-1: nhóm DEBT của FUNDING_TAXONOMY)"
+    },
+    "ENT_CAPITAL_OTHER": {
+      "name": "Kế hoạch vốn năm: vốn khác",
+      "formula": "Phần kế hoạch vốn năm hiện hành do các nguồn khác bố trí (FND-1: nhóm OTHER của FUNDING_TAXONOMY)"
+    },
+    "ENT_RATE_EXECUTED_YTD": {
+      "name": "Tỷ lệ thực hiện lũy kế so kế hoạch năm",
+      "formula": "Giá trị thực hiện lũy kế từ đầu năm chia cho kế hoạch vốn năm hiện hành, nhân 100 (FND-1: RATE_YEAR_IN_FORCE, đại lượng EXECUTED)",
+      "numerator": "Giá trị thực hiện lũy kế từ đầu năm đến hết kỳ báo cáo",
+      "denominator": "Kế hoạch vốn năm hiện hành"
+    },
+    "ENT_RATE_DISBURSED_YTD": {
+      "name": "Tỷ lệ giải ngân lũy kế so kế hoạch năm",
+      "formula": "Giá trị giải ngân lũy kế từ đầu năm chia cho kế hoạch vốn năm hiện hành, nhân 100 (FND-1: RATE_YEAR_IN_FORCE, đại lượng DISBURSED)",
+      "numerator": "Giá trị giải ngân lũy kế từ đầu năm đến hết kỳ báo cáo",
+      "denominator": "Kế hoạch vốn năm hiện hành"
+    },
+    "ENT_RATE_SINCE_START": {
+      "name": "Tỷ lệ thực hiện lũy kế từ khởi công so tổng mức đầu tư",
+      "formula": "Giá trị thực hiện lũy kế từ khởi công chia cho tổng mức đầu tư đang hiệu lực, nhân 100 (FND-1: RATE_SINCE_START)",
+      "numerator": "Giá trị thực hiện lũy kế từ khởi công",
+      "denominator": "Tổng mức đầu tư đang hiệu lực"
+    },
+    "ENT_RATE_OUTLOOK_YEAR": {
+      "name": "Tỷ lệ ước thực hiện cả năm so kế hoạch",
+      "formula": "Ước thực hiện cả năm chia cho kế hoạch vốn năm hiện hành, nhân 100 (FND-1: RATE_OUTLOOK_YEAR)",
+      "numerator": "Ước thực hiện cả năm",
+      "denominator": "Kế hoạch vốn năm hiện hành"
+    },
+    "ENT_SHARE_EQUITY": {
+      "name": "Cơ cấu vốn: tỷ trọng vốn chủ sở hữu",
+      "formula": "Vốn chủ sở hữu chia cho tổng ba nhóm vốn của kế hoạch năm hiện hành, nhân 100 (FND-1: STRUCTURE_SHARE)",
+      "numerator": "Kế hoạch vốn năm từ vốn chủ sở hữu",
+      "denominator": "Tổng kế hoạch vốn năm của ba nhóm vốn"
+    },
+    "ENT_SHARE_DEBT": {
+      "name": "Cơ cấu vốn: tỷ trọng vốn vay",
+      "formula": "Vốn vay chia cho tổng ba nhóm vốn của kế hoạch năm hiện hành, nhân 100 (FND-1: STRUCTURE_SHARE)",
+      "numerator": "Kế hoạch vốn năm từ vốn vay",
+      "denominator": "Tổng kế hoạch vốn năm của ba nhóm vốn"
+    },
+    "ENT_SHARE_OTHER": {
+      "name": "Cơ cấu vốn: tỷ trọng vốn khác",
+      "formula": "Vốn khác chia cho tổng ba nhóm vốn của kế hoạch năm hiện hành, nhân 100 (FND-1: STRUCTURE_SHARE)",
+      "numerator": "Kế hoạch vốn năm từ các nguồn khác",
+      "denominator": "Tổng kế hoạch vốn năm của ba nhóm vốn"
+    },
+    "ENT_PROJECTS_TOTAL": {
+      "name": "Số dự án và hạng mục trong báo cáo",
+      "formula": "Số dự án đầu tư xây dựng, mua sắm và sửa chữa lớn có kế hoạch vốn trong năm, tính đến ngày chốt"
+    },
+    "ENT_PROJECTS_ON_TRACK": {
+      "name": "Số dự án đúng hoặc vượt tiến độ",
+      "formula": "Số dự án có đánh giá tiến độ là đúng tiến độ hoặc vượt tiến độ tại ngày chốt"
+    },
+    "ENT_PROJECTS_DELAYED": {
+      "name": "Số dự án chậm tiến độ",
+      "formula": "Số dự án có đánh giá tiến độ là chậm tiến độ tại ngày chốt"
+    }
+  }
+}

@@ -1,77 +1,47 @@
 import { periodRange } from '@machvon/kernel/src/report-layout.ts';
 import type { FormPeriod, ReportFigure, ReportFillData, ReportIndicatorDefinition, ReportScalar } from '@machvon/kernel/src/report-layout.ts';
 import type { KpiPeriod, KpiUnit } from '@machvon/kernel/src/kpi-register.ts';
-import { ENTERPRISE_KPI_SEEDS } from './rules.ts';
+import { ENTERPRISE_KPI_SEEDS, kpiPackTexts } from './rules.ts';
+import { fillText, textsOf } from './texts.ts';
 import { DEMO_FORMS } from './forms.ts';
 import type { DemoFormSpec } from './common.ts';
 
 /**
- * Illustrative data for the demo forms (RPT-1): projects, amounts and names that are INVENTED, labelled "(minh họa)" in the names and in the organisation, so a demo, a clip or a golden test can fill a form without
- * the customer's numbers. The set the demo uses has 22 ĐTXDCB projects, 1 purchase of assets and 9 purchases of fixed assets, plus 6 major repairs for the forms that have that group (the plant form has its own
+ * Illustrative data for the demo forms (RPT-1): projects, amounts and names that are INVENTED, labelled "(illustrative)" in the names (the Vietnamese words are in `messages/illustrative.vi.json`) and in the organisation, so a demo, a clip or a golden test can fill a form without
+ * the customer's numbers. The set the demo uses has 22 capital construction projects, 1 purchase of assets and 9 purchases of fixed assets, plus 6 major repairs for the forms that have that group (the plant form has its own
  * 6 construction projects and 5 major repairs). Deterministic: the same call gives the same records and figures. All amounts are whole millions of dong (written in whole dong), so a scaled sum has no rounding
  * drift; the indicator figures are summed from the records, so the strip of headline figures and the table of a form agree.
  */
 
 export const ILLUSTRATIVE_COUNTS = Object.freeze({ dtxdcb: 22, mstb: 1, mstscd: 9, scl: 6, plantDtxdcb: 6, plantScl: 5 });
 
-const NAMES = {
-  dtxdcb: [
-    'Cải tạo hệ thống làm mát khu vực A',
-    'Xây dựng kho chứa vật tư số 2',
-    'Nâng cấp trạm biến áp 110kV',
-    'Lắp đặt hệ thống xử lý nước thải giai đoạn 2',
-    'Xây dựng nhà điều hành trung tâm',
-    'Cải tạo đường nội bộ khu vực B',
-    'Hệ thống phòng cháy chữa cháy khu kho',
-    'Xây dựng bể chứa nguyên liệu số 3',
-    'Nâng cấp hệ thống điều khiển phân tán',
-    'Lắp đặt hệ thống camera giám sát',
-    'Xây dựng nhà xưởng bảo dưỡng cơ khí',
-    'Cải tạo hệ thống cấp nước sinh hoạt',
-    'Xây dựng cầu cảng nhập nguyên liệu số 2',
-    'Nâng cấp hệ thống băng tải',
-    'Xây dựng trạm cân điện tử',
-    'Cải tạo mái và vách nhà kho thành phẩm',
-    'Xây dựng hệ thống thu hồi nhiệt thải',
-    'Nâng cấp phòng thí nghiệm trung tâm',
-    'Xây dựng hạ tầng công nghệ thông tin dùng chung',
-    'Cải tạo hệ thống chiếu sáng toàn khu',
-    'Xây dựng khu lưu trữ chất thải công nghiệp',
-    'Hoàn thiện hệ thống thoát nước mưa',
-  ],
-  mstb: ['Mua sắm thiết bị đo lường và kiểm định'],
-  mstscd: [
-    'Mua xe nâng hàng 5 tấn',
-    'Mua máy phát điện dự phòng',
-    'Mua hệ thống máy chủ trung tâm dữ liệu',
-    'Mua cẩu bánh lốp 25 tấn',
-    'Mua máy bơm công suất lớn',
-    'Mua thiết bị phân tích khí',
-    'Mua xe chuyên dùng chữa cháy',
-    'Mua máy nén khí trục vít',
-    'Mua thiết bị an ninh kiểm soát ra vào',
-  ],
-  scl: ['Sửa chữa lớn hệ thống nén khí', 'Sửa chữa lớn lò gia nhiệt số 1', 'Sửa chữa lớn tuabin hơi phụ', 'Sửa chữa lớn hệ thống làm lạnh', 'Sửa chữa lớn bồn chứa thành phẩm', 'Sửa chữa lớn hệ thống điện trung thế'],
-  plantDtxdcb: ['Cải tạo hệ thống xử lý khí thải', 'Nâng cấp hệ thống điều khiển an toàn', 'Xây dựng nhà kho hóa chất', 'Lắp đặt hệ thống thu hồi hơi nước', 'Cải tạo hệ thống chiếu sáng khu sản xuất', 'Xây dựng khu bảo dưỡng thiết bị quay'],
-  plantScl: ['Sửa chữa lớn máy nén khí tổng hợp', 'Sửa chữa lớn lò reforming', 'Sửa chữa lớn tháp tổng hợp', 'Sửa chữa lớn hệ thống làm mát tuần hoàn', 'Sửa chữa lớn hệ thống tạo hạt'],
-} as const;
+/** The invented words of the sample data, from `messages/illustrative.vi.json`: the names of the projects, the kinds, units, schedule assessments, statuses, causes, issues, plans and proposals, the facts of the title block. */
+interface IllustrativeTexts {
+  illustrativeSuffix: string;
+  names: Readonly<Record<'dtxdcb' | 'mstb' | 'mstscd' | 'scl' | 'plantDtxdcb' | 'plantScl', readonly string[]>>;
+  kindLabels: Readonly<Record<'dtxdcb' | 'mstb' | 'mstscd' | 'scl', string>>;
+  units: readonly string[];
+  schedules: readonly string[];
+  delayedSchedule: string;
+  statuses: readonly string[];
+  causes: ReadonlyArray<string | null>;
+  issues: ReadonlyArray<string | null>;
+  nexts: ReadonlyArray<string | null>;
+  proposals: ReadonlyArray<string | null>;
+  meta: Readonly<Record<'PARENT_NAME' | 'ORG_NAME' | 'REPORT_DATE_LINE' | 'SIGN_PREPARER' | 'SIGN_CHECKER' | 'SIGN_APPROVER', string>>;
+}
 
-const KIND_LABEL = { dtxdcb: 'ĐTXDCB', mstb: 'Mua sắm tài sản', mstscd: 'Mua sắm tài sản cố định', scl: 'Sửa chữa lớn' } as const;
+const TEXTS = textsOf<IllustrativeTexts>('illustrative');
+const NAMES = TEXTS.names;
+const KIND_LABEL = TEXTS.kindLabels;
 type Kind = keyof typeof KIND_LABEL;
-const UNITS = ['Phòng Kỹ thuật', 'Ban Quản lý dự án', 'Phân xưởng Amoniac', 'Phân xưởng Urê', 'Phòng Cơ điện'];
-const SCHEDULES = ['Đúng tiến độ', 'Đúng tiến độ', 'Chậm tiến độ', 'Vượt tiến độ', 'Đúng tiến độ', 'Chậm tiến độ'];
-const STATUSES = ['Đang thi công, khối lượng đạt theo kế hoạch', 'Đang lựa chọn nhà thầu', 'Đang thi công, thiếu một phần vật tư', 'Đã hoàn thành lắp đặt, chờ nghiệm thu', 'Đang thương thảo hợp đồng', 'Đang chuẩn bị đầu tư'];
-const CAUSES = ['Thời tiết ảnh hưởng thi công', 'Chờ phê duyệt điều chỉnh thiết kế', 'Nhà thầu chậm cung cấp thiết bị', null, 'Thủ tục thanh toán kéo dài', null];
-const ISSUES = [
-  'Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới',
-  null,
-  'Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao',
-  'Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá',
-  null,
-  'Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt',
-];
-const NEXTS = ['Hoàn thành hạng mục chính và nghiệm thu giai đoạn', 'Ký hợp đồng và triển khai thi công', 'Giải ngân theo tiến độ hợp đồng', 'Nghiệm thu và quyết toán hạng mục', null, 'Hoàn thiện hồ sơ thanh toán'];
-const PROPOSALS = [null, 'Đề nghị xem xét điều chỉnh kế hoạch vốn năm', null, 'Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt', null, null];
+const UNITS = TEXTS.units;
+const SCHEDULES = TEXTS.schedules;
+const STATUSES = TEXTS.statuses;
+const CAUSES = TEXTS.causes;
+const ISSUES = TEXTS.issues;
+const NEXTS = TEXTS.nexts;
+const PROPOSALS = TEXTS.proposals;
 
 const pad = (value: number): string => String(value).padStart(2, '0');
 const pick = <T>(list: readonly T[], index: number): T => list[index % list.length] as T;
@@ -101,7 +71,7 @@ function records(kind: Kind, names: readonly string[], prefix: string, offset: n
     const other = planForce - equity - debt;
     return {
       code: `${prefix}-${pad(i + 1)}`,
-      name: `${name} (minh họa)`,
+      name: `${name}${TEXTS.illustrativeSuffix}`,
       grp: pick(['A', 'B', 'C'], k),
       kind: KIND_LABEL[kind],
       owner_unit: pick(UNITS, k),
@@ -143,7 +113,7 @@ const DEFINITIONS: Readonly<{ [code: string]: ReportIndicatorDefinition }> = Obj
   Object.fromEntries(
     ENTERPRISE_KPI_SEEDS.map((seed) => [
       seed.code,
-      { code: seed.code, name: seed.name, unit: seed.unit as KpiUnit, decimals: seed.decimals, period: seed.period as KpiPeriod, version: 0, formula: seed.formula, source: 'Phân hệ giải ngân (DIS), mô hình vốn FND-1 (bản đề xuất)', unverified: true } satisfies ReportIndicatorDefinition,
+      { code: seed.code, name: seed.name, unit: seed.unit as KpiUnit, decimals: seed.decimals, period: seed.period as KpiPeriod, version: 0, formula: seed.formula, source: kpiPackTexts().definitionSource, unverified: true } satisfies ReportIndicatorDefinition,
     ]),
   ),
 );
@@ -158,7 +128,7 @@ export function illustrativeFigures(rows: readonly Row[], asOf: string): ReportF
   const debt = sumOf(rows, 'cap_debt');
   const other = sumOf(rows, 'cap_other');
   const capital = equity + debt + other;
-  const delayed = rows.filter((row) => row.schedule === 'Chậm tiến độ').length;
+  const delayed = rows.filter((row) => row.schedule === TEXTS.delayedSchedule).length;
   const figure = (code: string, basis: ReportFigure['basis'], value: ReportScalar): ReportFigure => ({ code, basis, value, asOf });
   return [
     figure('ENT_TOTAL_INVESTMENT', 'AS_OF_END', sumOf(rows, 'tmdt').toString()),
@@ -188,15 +158,16 @@ export function illustrativeFigures(rows: readonly Row[], asOf: string): ReportF
   ];
 }
 
-const VIETNAMESE_MONTH_DAY = (day: string, add: number): string => {
+/** The date line of the signature block: the place, then the day `add` days after `day` as the Vietnamese form writes it (day, month, year in words). */
+const reportDateLine = (day: string, add: number): string => {
   const [year, month, date] = day.split('-').map(Number) as [number, number, number];
   const moved = new Date(Date.UTC(year, month - 1, date + add));
-  return `ngày ${pad(moved.getUTCDate())} tháng ${pad(moved.getUTCMonth() + 1)} năm ${moved.getUTCFullYear()}`;
+  return fillText(TEXTS.meta.REPORT_DATE_LINE, { day: pad(moved.getUTCDate()), month: pad(moved.getUTCMonth() + 1), year: moved.getUTCFullYear() });
 };
 
 /**
  * The data a demo form is filled with for `period`: the datasets the form names (invented projects), the figures summed from them, the definitions of the enterprise indicator pack and the facts of the title block
- * and the signatures (invented names, "(số liệu minh họa)").
+ * and the signatures (invented names, marked as illustrative figures).
  */
 export function illustrativeFillData(form: DemoFormSpec, period: FormPeriod): ReportFillData {
   const quarter = period.kind === 'QUARTER';
@@ -215,12 +186,12 @@ export function illustrativeFillData(form: DemoFormSpec, period: FormPeriod): Re
   return {
     period,
     meta: {
-      PARENT_NAME: 'TẬP ĐOÀN MẪU',
-      ORG_NAME: 'TỔNG CÔNG TY MẪU (số liệu minh họa)',
-      REPORT_DATE_LINE: `Hà Nội, ${VIETNAMESE_MONTH_DAY(day, 5)}`,
-      SIGN_PREPARER: 'Nguyễn Văn Mẫu',
-      SIGN_CHECKER: 'Trần Thị Kiểm',
-      SIGN_APPROVER: 'Lê Văn Duyệt',
+      PARENT_NAME: TEXTS.meta.PARENT_NAME,
+      ORG_NAME: TEXTS.meta.ORG_NAME,
+      REPORT_DATE_LINE: reportDateLine(day, 5),
+      SIGN_PREPARER: TEXTS.meta.SIGN_PREPARER,
+      SIGN_CHECKER: TEXTS.meta.SIGN_CHECKER,
+      SIGN_APPROVER: TEXTS.meta.SIGN_APPROVER,
     },
     definitions: DEFINITIONS,
     figures: illustrativeFigures(reported, day),

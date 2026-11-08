@@ -1,5 +1,5 @@
 // Builds the demo templates of the six report forms (RPT-1, owner decision of 2026-11-08): the .xlsx template of each form and the .docx narrative skeleton of the forms that have a narrative part, written into
-// packages/edition-enterprise/templates/demo/. The forms are designed by the system (status DEMO, "mẫu demo do hệ thống thiết kế, chưa phải mẫu chính thức"); the bytes are deterministic, so
+// packages/edition-enterprise/templates/demo/. The forms are designed by the system (status DEMO: demo forms designed by the system, not the official forms); the bytes are deterministic, so
 //   node packages/edition-enterprise/scripts/build-demo-templates.mjs            writes the files;
 //   node packages/edition-enterprise/scripts/build-demo-templates.mjs --check    exits 1 when a committed file differs from what the layouts give (or a file is missing or unknown);
 //   node packages/edition-enterprise/scripts/build-demo-templates.mjs --out <dir> writes into another folder.
