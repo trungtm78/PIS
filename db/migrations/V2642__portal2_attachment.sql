@@ -21,6 +21,8 @@ CREATE TABLE machvon.portal_attachment (
   linked_id uuid,
   PRIMARY KEY (tenant_id, id),
   FOREIGN KEY (tenant_id, contractor_id) REFERENCES machvon.contractor (tenant_id, id),
+  FOREIGN KEY (tenant_id, document_id) REFERENCES machvon.document (tenant_id, id),
+  FOREIGN KEY (tenant_id, document_version_id) REFERENCES machvon.document_version (tenant_id, id),
   FOREIGN KEY (tenant_id, uploaded_by) REFERENCES machvon.membership (tenant_id, id),
   CONSTRAINT portal_attachment_link_chk CHECK ((linked_kind IS NULL) = (linked_id IS NULL))
 );

@@ -373,7 +373,7 @@ describe('the contractor portal, the re-confirmation, the plans of remediation, 
       expect(CLAIM_OUTCOMES.TIME_BARRED).toBe('REJECTED');
       expect(CLAIM_OUTCOMES.REFERRED).toBe('OPEN');
       const report = await as((tx) => disputes.report(tx, a));
-      expect(report.stats).toEqual({ total: 0, open: 0, upheld: 0, rejected: 0, withdrawn: 0, upheldPct: null, meanDaysToClose: null });
+      expect(report.stats).toEqual({ total: 0, open: 0, upheld: 0, rejected: 0, withdrawn: 0, awaitingOutcome: 0, upheldPct: null, meanDaysToClose: null });
       expect(report.portfolio.total).toBe(0);
     });
 

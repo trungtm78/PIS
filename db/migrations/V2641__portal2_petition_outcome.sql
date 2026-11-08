@@ -21,6 +21,7 @@ CREATE TABLE machvon.procurement_petition_outcome (
   version bigint NOT NULL DEFAULT 1,
   PRIMARY KEY (tenant_id, id),
   FOREIGN KEY (tenant_id, petition_id) REFERENCES machvon.procurement_petition (tenant_id, id),
+  FOREIGN KEY (tenant_id, decision_document_id) REFERENCES machvon.document (tenant_id, id),
   FOREIGN KEY (tenant_id, recorded_by) REFERENCES machvon.membership (tenant_id, id),
   FOREIGN KEY (tenant_id, checked_by) REFERENCES machvon.membership (tenant_id, id),
   CONSTRAINT petition_outcome_sod_chk CHECK (checked_by IS NULL OR checked_by <> recorded_by),
