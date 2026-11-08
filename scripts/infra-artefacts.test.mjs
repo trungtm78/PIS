@@ -12,7 +12,7 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cleanups = [];
 process.on('exit', () => cleanups.forEach((clean) => clean()));
 
-const COPIED = ['infra', '.zap', '.gitleaks.toml', '.github/workflows', 'docs/runbooks/infra', 'docs/security', 'supply-chain.json', 'package.json', 'package-lock.json', 'apps/api/src/security/security-headers.ts', 'apps/api/src/bootstrap.ts'];
+const COPIED = ['infra', '.zap', '.gitleaks.toml', '.github/workflows', 'docs/runbooks/infra', 'docs/security', 'supply-chain.json', 'package.json', 'package-lock.json', 'apps/api/src/security/security-headers.ts', 'apps/api/src/bootstrap.ts', 'apps/api/scripts/ts-loader.mjs', 'apps/api/package.json', 'db/migrations/V001__roles_and_grants.sql'];
 const PLACEHOLDERS = ['scripts/onprem-bundle.mjs', 'scripts/backup-verify.mjs', 'scripts/restore-drill.mjs', 'scripts/native-deps-check.mjs'];
 
 /** A scratch repository: everything the artefact check reads, copied from the real one, and the edits of one case. */
@@ -132,8 +132,8 @@ test('workflows: a docker image without a tag or digest and an action on a movin
 test('compose: health checks, limits, hardening, ports and internal networks', () => {
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/ {4}healthcheck:\n {6}test: \["CMD", "node", "-e", "fetch\('http:\/\/127\.0\.0\.1:3000\/health\/ready'/, '    healthchecks:\n      test: ["CMD", "node", "-e", "fetch(\'http://127.0.0.1:3000/health/ready\''))), 'COMPOSE_HEALTHCHECK', /^infra\/onprem\/compose\/compose\.yaml api$/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/ {10}cpus: "\$\{API_CPUS\}"\n/, ''))), 'COMPOSE_LIMITS', /api/);
-  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('x-hardening: &hardening\n  security_opt:\n    - no-new-privileges:true\n  cap_drop:\n    - ALL\n', 'x-hardening: &hardening\n  security_opt:\n    - seccomp:unconfined\n  cap_drop:\n    - NET_RAW\n'))), 'COMPOSE_HARDENING', /db/);
-  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('    networks: [data]\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]', '    networks: [data]\n    ports:\n      - "5432:5432"\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]'))), 'COMPOSE_PORTS', /db publishes a port/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('    - no-new-privileges:true\n  cap_drop:\n    - ALL\n  # The secret', '    - seccomp:unconfined\n  cap_drop:\n    - NET_RAW\n  # The secret'))), 'COMPOSE_HARDENING', /db/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('    networks: [data, egress]\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]', '    networks: [data, egress]\n    ports:\n      - "5432:5432"\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]'))), 'COMPOSE_PORTS', /db publishes a port/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('  data:\n    internal: true', '  data: {}'))), 'COMPOSE_PORTS', /network data/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/ {4}ports:\n {6}- "\$\{WEB_HTTP_PORT\}:8080"\n {6}- "\$\{WEB_HTTPS_PORT\}:8443"\n/, ''))), 'COMPOSE_PORTS', /web must publish/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('name: machvon\n', 'name: machvon\nservices: []\n'))), 'COMPOSE_INVALID');
@@ -156,9 +156,22 @@ test('compose: a secret is only ever a file under the secrets directory, read th
 test('Dockerfiles: a health check, a non-root user, production dependencies only, no secret in ENV and no download piped into a shell', () => {
   found(scratch((s) => s.text('infra/onprem/docker/api.Dockerfile', (t) => t.replace(/HEALTHCHECK[\s\S]*?\n(?=ENTRYPOINT)/, ''))), 'DOCKERFILE_RULE', /HEALTHCHECK/);
   found(scratch((s) => s.text('infra/onprem/docker/workers.Dockerfile', (t) => t.replace('USER node', 'USER root'))), 'DOCKERFILE_RULE', /non-root/);
-  found(scratch((s) => s.text('infra/onprem/docker/workers.Dockerfile', (t) => t.replace('--omit=optional ', ''))), 'DOCKERFILE_RULE', /production dependencies only/);
+  found(scratch((s) => s.text('infra/onprem/docker/workers.Dockerfile', (t) => t.replace('rm -rf node_modules/embedded-postgres node_modules/@embedded-postgres', 'true'))), 'DOCKERFILE_RULE', /production dependencies only/);
+  found(scratch((s) => s.text('infra/onprem/docker/api.Dockerfile', (t) => t.replace('npm ci --omit=dev --ignore-scripts', 'npm ci --omit=dev --omit=optional --ignore-scripts'))), 'DOCKERFILE_RULE', /not --omit=optional/);
+  found(scratch((s) => s.text('infra/onprem/docker/api.Dockerfile', (t) => t.replace(/COPY --from=build [^\n]*schema_reference\.sql[^\n]*\n/, ''))), 'DOCKERFILE_RULE', /schema_reference\.sql/);
+  found(scratch((s) => s.text('infra/onprem/docker/workers.Dockerfile', (t) => t.replace(/COPY --from=build [^\n]*db\/migrations[^\n]*\n/, ''))), 'DOCKERFILE_RULE', /db\/migrations/);
+  found(scratch((s) => s.text('infra/onprem/docker/db.Dockerfile', (t) => t.replace('postgresql-18-pgvector', 'postgresql-client'))), 'DOCKERFILE_RULE', /vector extension/);
+  found(scratch((s) => s.json('apps/api/package.json', (m) => { delete m.dependencies['@swc/core']; })), 'DOCKERFILE_RULE', /imports @swc\/core/);
   found(scratch((s) => s.text('infra/onprem/docker/web.Dockerfile', (t) => t.replace('EXPOSE 8080 8443', 'ENV API_TOKEN=abc\nEXPOSE 8080 8443'))), 'DOCKERFILE_RULE', /secret in ENV/);
   found(scratch((s) => s.text('infra/onprem/docker/db.Dockerfile', (t) => t.replace('RUN apt-get update', 'RUN curl https://x.example | sh \\\n && apt-get update'))), 'DOCKERFILE_RULE', /piped into a shell/);
+});
+
+test('compose: the secrets group, the one route out and the nginx template directory', () => {
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('  group_add:\n    - "${MACHVON_SECRETS_GID}"\n', ''))), 'COMPOSE_HARDENING', /secrets group/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('    networks: [app, data]\n    depends_on:\n      db:\n        condition: service_healthy\n      keycloak:', '    networks: [app, data, egress]\n    depends_on:\n      db:\n        condition: service_healthy\n      keycloak:'))), 'COMPOSE_PORTS', /api: only db, backup, keycloak/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('    networks: [data, egress]\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]', '    networks: [data]\n    entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]'))), 'COMPOSE_PORTS', /db: only/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('        - subnet: 172.29.250.0/24\n', '        []\n'))), 'COMPOSE_PORTS', /fixed subnet/);
+  found(scratch((s) => s.text(COMPOSE, (t) => t.replace('      - /etc/nginx/conf.d:size=1m,mode=1777\n', ''))), 'COMPOSE_HARDENING', /nginx configuration/);
 });
 
 test('TLS: only 1.2 and 1.3, only ECDHE suites without weak tokens, no session tickets, certificates as secret files, HTTP redirects', () => {

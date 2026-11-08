@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1.7
-# MACHVON database image, linux/amd64 and linux/arm64: PostgreSQL 18 with pgBackRest, so that archive_command (continuous WAL archive) and the backup runs
+# MACHVON database image, linux/amd64 and linux/arm64: PostgreSQL 18 with pgBackRest and pgvector (V001 of the migrations creates the vector and btree_gist extensions; btree_gist ships with PostgreSQL), so that archive_command (continuous WAL archive) and the backup runs
 # use the same binary version. The same image runs the backup commands as a one-shot service (infra/onprem/compose/compose.yaml, profile "tools").
 # It needs the network at BUILD time on the vendor build host only (apt); the customer installs the exported image from the offline bundle.
 FROM postgres:18.3-bookworm@sha256:80630f83606d8db77d30b3851b16a9f78be2d0d4dda6f7b82a1fdca5ebe3acba
 LABEL org.opencontainers.image.title="machvon-db" \
-      org.opencontainers.image.description="PostgreSQL 18 with pgBackRest" \
+      org.opencontainers.image.description="PostgreSQL 18 with pgBackRest and pgvector" \
       org.opencontainers.image.source="https://github.com/trungtm78/PIS"
 RUN apt-get update \
- && apt-get install -y --no-install-recommends pgbackrest \
+ && apt-get install -y --no-install-recommends pgbackrest postgresql-18-pgvector \
  && rm -rf /var/lib/apt/lists/* \
  && mkdir -p /etc/pgbackrest /var/log/pgbackrest /var/lib/pgbackrest /var/spool/pgbackrest \
  && chown -R postgres:postgres /etc/pgbackrest /var/log/pgbackrest /var/lib/pgbackrest /var/spool/pgbackrest

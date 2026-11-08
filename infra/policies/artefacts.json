@@ -28,7 +28,8 @@
     "docs/runbooks/infra/tls-headers.md",
     "docs/runbooks/infra/security-scanning.md",
     "docs/security/pentest-readiness.md",
-    "docs/security/identity-test-plan.md"
+    "docs/security/identity-test-plan.md",
+    "infra/onprem/config/egress-firewall.sh"
   ],
   "repositoryRequired": [
     ".github/workflows/security.yml",
@@ -43,46 +44,196 @@
     "apps/api/src/security/security-headers.ts"
   ],
   "images": {
-    "platforms": ["linux/amd64", "linux/arm64"],
-    "floatingTags": ["latest", "stable", "edge", "main", "master", "dev", "develop", "nightly", "current"],
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "floatingTags": [
+      "latest",
+      "stable",
+      "edge",
+      "main",
+      "master",
+      "dev",
+      "develop",
+      "nightly",
+      "current"
+    ],
     "productVersionVariable": "MACHVON_VERSION"
   },
   "compose": {
     "file": "infra/onprem/compose/compose.yaml",
-    "publishingServices": ["web"],
+    "publishingServices": [
+      "web"
+    ],
     "toolsProfile": "tools",
-    "secretNamePattern": "(PASSWORD|SECRET|TOKEN|PRIVATE_KEY|API_KEY|CREDENTIAL|CIPHER_PASS|ACCESS_KEY|_KEY)$"
+    "secretNamePattern": "(PASSWORD|SECRET|TOKEN|PRIVATE_KEY|API_KEY|CREDENTIAL|CIPHER_PASS|ACCESS_KEY|_KEY)$",
+    "secretsGroupVariable": "MACHVON_SECRETS_GID",
+    "egress": {
+      "network": "egress",
+      "services": [
+        "db",
+        "backup",
+        "keycloak"
+      ]
+    },
+    "webTemplateDirectory": "/etc/nginx/conf.d"
   },
   "dockerfiles": {
-    "healthcheckRequired": ["api", "workers", "web", "db"],
-    "nonRootRequired": ["api", "workers"],
-    "productionInstall": ["api", "workers"]
+    "healthcheckRequired": [
+      "api",
+      "workers",
+      "web",
+      "db"
+    ],
+    "nonRootRequired": [
+      "api",
+      "workers"
+    ],
+    "productionInstall": {
+      "images": [
+        "api",
+        "workers"
+      ],
+      "mustContain": [
+        "--omit=dev",
+        "rm -rf node_modules/embedded-postgres node_modules/@embedded-postgres"
+      ]
+    },
+    "requiredCopies": {
+      "api": [
+        "Design/MACHVON_Design/03_Engineering/error_codes.json",
+        "Design/MACHVON_Design/03_Engineering/schema_reference.sql",
+        "db/migrations"
+      ],
+      "workers": [
+        "Design/MACHVON_Design/03_Engineering/error_codes.json",
+        "Design/MACHVON_Design/03_Engineering/schema_reference.sql",
+        "db/migrations"
+      ]
+    },
+    "extensionPackages": {
+      "vector": "postgresql-18-pgvector"
+    },
+    "runtimeDependencies": [
+      {
+        "loader": "apps/api/scripts/ts-loader.mjs",
+        "manifest": "apps/api/package.json",
+        "imports": [
+          "@swc/core"
+        ]
+      }
+    ]
   },
   "tls": {
-    "protocols": ["TLSv1.2", "TLSv1.3"],
-    "forbiddenCipherTokens": ["RC4", "3DES", "DES-CBC", "MD5", "NULL", "EXPORT", "aNULL", "eNULL", "-CBC-", "AES128-SHA", "AES256-SHA", "kRSA"],
+    "protocols": [
+      "TLSv1.2",
+      "TLSv1.3"
+    ],
+    "forbiddenCipherTokens": [
+      "RC4",
+      "3DES",
+      "DES-CBC",
+      "MD5",
+      "NULL",
+      "EXPORT",
+      "aNULL",
+      "eNULL",
+      "-CBC-",
+      "AES128-SHA",
+      "AES256-SHA",
+      "kRSA"
+    ],
     "minHstsSeconds": 31536000
   },
   "headers": {
-    "web": ["Strict-Transport-Security", "Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"],
-    "contentSecurityPolicy": ["default-src", "object-src 'none'", "frame-ancestors 'none'", "base-uri"],
-    "api": ["x-content-type-options", "cache-control", "content-security-policy", "referrer-policy", "x-frame-options", "permissions-policy"]
+    "web": [
+      "Strict-Transport-Security",
+      "Content-Security-Policy",
+      "X-Content-Type-Options",
+      "X-Frame-Options",
+      "Referrer-Policy",
+      "Permissions-Policy"
+    ],
+    "contentSecurityPolicy": [
+      "default-src",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "base-uri"
+    ],
+    "api": [
+      "x-content-type-options",
+      "cache-control",
+      "content-security-policy",
+      "referrer-policy",
+      "x-frame-options",
+      "permissions-policy"
+    ]
   },
   "identity": {
     "realmFile": "infra/keycloak/onprem/machvon-realm.json",
     "roleMapFile": "infra/keycloak/onprem/ad-group-role-map.json",
-    "bruteForce": { "failureFactor": 5, "lockSeconds": 900 },
-    "otp": { "type": "totp", "digits": 6, "periodSeconds": 30 },
+    "bruteForce": {
+      "failureFactor": 5,
+      "lockSeconds": 900
+    },
+    "otp": {
+      "type": "totp",
+      "digits": 6,
+      "periodSeconds": 30
+    },
     "webauthnMarkerRole": "mfa-webauthn-required",
     "requiredAction": "CONFIGURE_TOTP",
-    "federationPlaceholders": ["connectionUrl", "usersDn", "bindDn", "bindCredential"]
+    "federationPlaceholders": [
+      "connectionUrl",
+      "usersDn",
+      "bindDn",
+      "bindCredential"
+    ]
   },
   "workflows": {
-    "codeql": { "file": ".github/workflows/security.yml", "job": "codeql", "queries": "security-extended" },
-    "secretScan": { "file": ".github/workflows/security.yml", "job": "secrets", "configFile": ".gitleaks.toml" },
-    "imageScan": { "file": ".github/workflows/images.yml", "job": "image", "policy": "infra/scan/trivy.yaml", "requiredRunners": ["ubuntu-24.04", "ubuntu-24.04-arm"] },
-    "dast": { "file": ".github/workflows/dast.yml", "jobs": { "baseline": "zap-baseline.py", "api": "zap-api-scan.py" }, "rules": ".zap/rules.tsv" },
-    "armLeg": { "file": ".github/workflows/ci.yml", "job": "arm64", "runner": "ubuntu-24.04-arm", "mustRun": ["native-deps:check", "npm test"] }
+    "codeql": {
+      "file": ".github/workflows/security.yml",
+      "job": "codeql",
+      "queries": "security-extended"
+    },
+    "secretScan": {
+      "file": ".github/workflows/security.yml",
+      "job": "secrets",
+      "configFile": ".gitleaks.toml"
+    },
+    "imageScan": {
+      "file": ".github/workflows/images.yml",
+      "job": "image",
+      "policy": "infra/scan/trivy.yaml",
+      "requiredRunners": [
+        "ubuntu-24.04",
+        "ubuntu-24.04-arm"
+      ]
+    },
+    "dast": {
+      "file": ".github/workflows/dast.yml",
+      "jobs": {
+        "baseline": "zap-baseline.py",
+        "api": "zap-api-scan.py"
+      },
+      "rules": ".zap/rules.tsv"
+    },
+    "armLeg": {
+      "file": ".github/workflows/ci.yml",
+      "job": "arm64",
+      "runner": "ubuntu-24.04-arm",
+      "mustRun": [
+        "native-deps:check",
+        "npm test"
+      ]
+    }
   },
-  "trivy": { "severity": ["HIGH", "CRITICAL"], "exitCode": 1 }
+  "trivy": {
+    "severity": [
+      "HIGH",
+      "CRITICAL"
+    ],
+    "exitCode": 1
+  }
 }

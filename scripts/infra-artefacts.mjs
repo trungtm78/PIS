@@ -228,11 +228,18 @@ function checkCompose(root, policy, yaml, findings) {
     const limits = definition.deploy?.resources?.limits;
     if (!isObject(limits) || limits.cpus === undefined || limits.memory === undefined) findings.push(finding('COMPOSE_LIMITS', file, service));
     if (!(definition.security_opt ?? []).includes('no-new-privileges:true') || !(definition.cap_drop ?? []).includes('ALL')) findings.push(finding('COMPOSE_HARDENING', file, service));
+    const groupVariable = `\${${policy.compose.secretsGroupVariable}}`;
+    if ((definition.secrets ?? []).length > 0 && !(definition.group_add ?? []).map(String).includes(groupVariable)) findings.push(finding('COMPOSE_HARDENING', file, `${service} reads secret files but does not join the secrets group (group_add ${groupVariable}): its user cannot read them`));
+    const egress = policy.compose.egress;
+    if ((definition.networks ?? []).includes(egress.network) !== egress.services.includes(service)) findings.push(finding('COMPOSE_PORTS', file, `${service}: only ${egress.services.join(', ')} may join the ${egress.network} network (the one route out)`));
+    if (service === 'web' && definition.read_only === true && !(definition.tmpfs ?? []).some((entry) => String(entry).startsWith(`${policy.compose.webTemplateDirectory}:`))) findings.push(finding('COMPOSE_HARDENING', file, `web renders its nginx configuration at start: ${policy.compose.webTemplateDirectory} must be a tmpfs when the root is read-only`));
     const publishes = Array.isArray(definition.ports) && definition.ports.length > 0;
     if (publishes && !policy.compose.publishingServices.includes(service)) findings.push(finding('COMPOSE_PORTS', file, `${service} publishes a port`));
     if (!publishes && policy.compose.publishingServices.includes(service)) findings.push(finding('COMPOSE_PORTS', file, `${service} must publish the edge ports`));
   }
   for (const name of ['app', 'data']) if (compose.networks?.[name]?.internal !== true) findings.push(finding('COMPOSE_PORTS', file, `network ${name} must be internal`));
+  const egressNetwork = compose.networks?.[policy.compose.egress.network];
+  if (egressNetwork === undefined || egressNetwork.internal === true || !(egressNetwork.ipam?.config ?? []).some((entry) => /^\d+\.\d+\.\d+\.\d+\/\d+$/.test(String(entry.subnet)))) findings.push(finding('COMPOSE_PORTS', file, `network ${policy.compose.egress.network} must exist with a fixed subnet so that the host firewall can limit it (infra/onprem/config/egress-firewall.sh)`));
   for (const name of secrets) if (!used.has(name) && !Object.values(compose.services).some((service) => (service.secrets ?? []).includes(name))) findings.push(finding('SECRET_LIST_DRIFT', file, `${name} is declared but no service uses it`));
 
   const env = readText(root, 'infra/onprem/compose/env.template');
@@ -259,9 +266,32 @@ function checkDockerfiles(root, policy, findings) {
       const users = [...text.matchAll(/^USER\s+(\S+)/gm)].map((match) => match[1]);
       if (users.length === 0 || ['root', '0'].includes(users[users.length - 1])) findings.push(finding('DOCKERFILE_RULE', file, 'the image must run as a non-root user'));
     }
-    if (policy.dockerfiles.productionInstall.includes(name) && !/npm ci[^\n\\]*--omit=dev[^\n\\]*--omit=optional|npm ci[^\n\\]*--omit=optional[^\n\\]*--omit=dev/.test(text.replace(/\\\r?\n/g, ' '))) {
-      findings.push(finding('DOCKERFILE_RULE', file, 'production dependencies only: npm ci --omit=dev --omit=optional (the test-only embedded-postgres never ships)'));
+    const flat = text.replace(/\\\r?\n/g, ' ');
+    if (policy.dockerfiles.productionInstall.images.includes(name)) {
+      const missing = policy.dockerfiles.productionInstall.mustContain.filter((needle) => !flat.includes(needle));
+      if (missing.length > 0 || /--omit=optional/.test(flat)) findings.push(finding('DOCKERFILE_RULE', file, `production dependencies only, with the optional platform binaries kept (@swc/core needs one): ${policy.dockerfiles.productionInstall.mustContain.join(' and ')}; not --omit=optional`));
     }
+    const copies = flat.split('\n').filter((line) => /^\s*COPY\s/.test(line));
+    for (const needle of policy.dockerfiles.requiredCopies[name] ?? []) if (!copies.some((line) => line.includes(needle))) findings.push(finding('DOCKERFILE_RULE', file, `the image must carry ${needle} (the migration job and the API read it)`));
+  }
+}
+
+/** What the images need beyond their files: a PostgreSQL package for each extension the migrations create, and the runtime dependencies of the loader that starts the API. */
+function checkRuntimeNeeds(root, policy, findings) {
+  const migration = readText(root, 'db/migrations/V001__roles_and_grants.sql');
+  const database = readText(root, 'infra/onprem/docker/db.Dockerfile');
+  if (migration !== undefined && database !== undefined) {
+    for (const match of migration.matchAll(/CREATE EXTENSION IF NOT EXISTS (\w+)/g)) {
+      const needed = policy.dockerfiles.extensionPackages[match[1]];
+      const installs = database.replace(/\\\r?\n/g, ' ').split('\n').filter((line) => /apt-get install/.test(line));
+      if (needed !== undefined && !installs.some((line) => line.includes(needed))) findings.push(finding('DOCKERFILE_RULE', 'infra/onprem/docker/db.Dockerfile', `the migrations create the ${match[1]} extension: the image must install ${needed}`));
+    }
+  }
+  for (const rule of policy.dockerfiles.runtimeDependencies) {
+    const loader = readText(root, rule.loader);
+    const manifest = readJson(root, rule.manifest);
+    if (loader === undefined || manifest === undefined) continue;
+    for (const name of rule.imports) if (loader.includes(`'${name}'`) && manifest.dependencies?.[name] === undefined) findings.push(finding('DOCKERFILE_RULE', rule.manifest, `${rule.loader} imports ${name} at start: it must be a dependency, not a dev dependency, or the production image cannot start`));
   }
 }
 
@@ -479,6 +509,7 @@ export function checkArtefacts(root, options = {}) {
   checkImages(root, policy, yaml, findings);
   checkCompose(root, policy, yaml, findings);
   checkDockerfiles(root, policy, findings);
+  checkRuntimeNeeds(root, policy, findings);
   checkEdge(root, policy, findings);
   checkApiHeaders(root, policy, findings);
   checkIdentity(root, policy, findings);

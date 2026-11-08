@@ -7,7 +7,7 @@
   "testOnly": [
     {
       "package": "embedded-postgres",
-      "reason": "Test-only: it starts a throwaway PostgreSQL for the database test suites. It is declared in packages/db dependencies but only test-database.ts imports it, the production images are installed with --omit=dev --omit=optional (no server binary is shipped), and its linux arm64 build exists anyway.",
+      "reason": "Test-only: it starts a throwaway PostgreSQL for the database test suites. It is declared in packages/db dependencies but only test-database.ts imports it, the production images are installed with --omit=dev and the embedded-postgres packages are deleted from them (no server binary is shipped), and its linux arm64 build exists anyway.",
       "allowedImporters": [
         "packages/db/src/test-database.ts"
       ]
@@ -29,6 +29,6 @@
       "fsevents",
       "embedded-postgres"
     ],
-    "reason": "Each runs a script that selects the binary of the platform from its optional sibling packages; all of them have a linux arm64 sibling (checked above) and none is installed in a production image."
+    "reason": "Each runs a script that selects the binary of the platform from its optional sibling packages; all of them have a linux arm64 sibling (checked above) and none of them except @swc/core (the TypeScript loader of the API, which has a linux arm64 binary) is installed in a production image."
   }
 }

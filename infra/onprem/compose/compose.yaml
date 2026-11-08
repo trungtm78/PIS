@@ -4,7 +4,8 @@
 #   - every image has a pinned tag: third-party images carry tag and digest, the images of the product carry ${MACHVON_VERSION} (required, no default, never "latest");
 #   - every secret is a file under ${MACHVON_SECRETS_DIR} mounted at /run/secrets (compose `secrets`), read through NAME_FILE variables; no secret value is written here;
 #   - every long-running service has a health check, resource limits, no-new-privileges and dropped capabilities;
-#   - only the web edge publishes ports (80 and 443); the data network has no route to the outside.
+#   - only the web edge publishes ports (80 and 443); the app and data networks have no route out; the database, the backup runs and Keycloak also join the `egress`
+#     network (fixed subnet) that the host firewall limits to the object store and the directory.
 # Multi-arch: all images are built and exported for linux/amd64 and linux/arm64 (infra/onprem/images.json); docker pulls the platform of the host from the loaded index.
 name: machvon
 
@@ -13,6 +14,9 @@ x-hardening: &hardening
     - no-new-privileges:true
   cap_drop:
     - ALL
+  # The secret files are root:<this group>, mode 0440 (docs/runbooks/infra/onprem-install.md): a service reads them through this supplementary group.
+  group_add:
+    - "${MACHVON_SECRETS_GID}"
   restart: unless-stopped
   logging:
     driver: json-file
@@ -67,7 +71,7 @@ services:
       - FOWNER
       - SETGID
       - SETUID
-    networks: [data]
+    networks: [data, egress]
     entrypoint: ["/usr/local/bin/secret-env", "docker-entrypoint.sh"]
     environment:
       <<: *backup-environment
@@ -123,7 +127,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2@sha256:fb31a59deb46f746f2aaa25adc5da39ceccac4fd22d36a519562b0bf02e8df20
     <<: *hardening
-    networks: [app, data]
+    networks: [app, data, egress]
     depends_on:
       db:
         condition: service_healthy
@@ -248,6 +252,7 @@ services:
     tmpfs:
       - /tmp:size=32m,mode=1777
       - /var/cache/nginx:size=64m,mode=1777
+      - /etc/nginx/conf.d:size=1m,mode=1777
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST}
       API_UPSTREAM: api:3000
@@ -281,6 +286,8 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    group_add:
+      - "${MACHVON_SECRETS_GID}"
     restart: "no"
     networks: [data]
     depends_on:
@@ -309,9 +316,11 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    group_add:
+      - "${MACHVON_SECRETS_GID}"
     restart: "no"
     user: postgres
-    networks: [data]
+    networks: [data, egress]
     depends_on:
       db:
         condition: service_healthy
@@ -340,6 +349,12 @@ networks:
     internal: true
   data:
     internal: true
+  # The only way out of the host for the database (WAL archive to the second site), the backup runs and Keycloak (the directory). The subnet is fixed so that the host
+  # firewall can allow it to those destinations only (infra/onprem/config/egress-firewall.sh); nothing else is attached to it.
+  egress:
+    ipam:
+      config:
+        - subnet: 172.29.250.0/24
 
 volumes:
   pgdata: {}

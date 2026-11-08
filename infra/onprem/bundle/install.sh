@@ -59,6 +59,20 @@ for name in $(sed -n 's/.*"name": *"\([a-z0-9_]*\)",$/\1/p' infra/onprem/secrets
   [ -s "${SECRETS_DIR}/${name}" ] || { say "missing or empty secret file: ${name}"; missing=1; }
 done
 [ "${missing}" -eq 0 ] || fail "create the secret files listed above (see infra/onprem/secrets.json)"
+SECRETS_GID=$(sed -n 's/^MACHVON_SECRETS_GID=//p' "${ENV_FILE}" | tail -n 1)
+[ -n "${SECRETS_GID}" ] || fail "MACHVON_SECRETS_GID is not set in the environment file"
+unreadable=0
+for name in $(sed -n 's/.*"name": *"\([a-z0-9_]*\)",$/\1/p' infra/onprem/secrets.json); do
+  group=$(stat -c '%g' "${SECRETS_DIR}/${name}")
+  mode=$(stat -c '%a' "${SECRETS_DIR}/${name}")
+  # Group readable, nothing for others: containers read the file through the group, nobody else may read it.
+  case "${mode}" in
+    [0-7][4-7]0) ;;
+    *) say "secret ${name}: mode ${mode} must be 440 (group readable, nothing for others)"; unreadable=1 ;;
+  esac
+  [ "${group}" = "${SECRETS_GID}" ] || { say "secret ${name}: group ${group} must be ${SECRETS_GID} (MACHVON_SECRETS_GID)"; unreadable=1; }
+done
+[ "${unreadable}" -eq 0 ] || fail "fix the ownership of the secret files (docs/runbooks/infra/onprem-install.md, Secrets)"
 ${COMPOSE} config --quiet || fail "the compose file does not accept this environment"
 
 UPGRADE=0

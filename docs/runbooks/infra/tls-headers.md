@@ -14,7 +14,7 @@ Standard for every installation. Configuration: `infra/onprem/nginx/` (edge: TLS
 | Certificates | from the customer's authority, mounted as secret files `tls_cert` and `tls_key`; chain included; renewed before expiry (alert in the monitoring of the customer) | |
 | HTTP | port 80 only redirects (301) to HTTPS and answers `/healthz` | |
 | HSTS | `max-age=63072000; includeSubDomains` on every edge response | two years, as in the Mozilla guidance |
-| Inside the host | the data and app networks are internal (no route out); the edge talks to the API and Keycloak over the app network in clear text because nothing else can see that network; move them to TLS if the database host is separate | |
+| Inside the host | the data and app networks are internal (no route out); only the database, the backup runs and Keycloak join the `egress` network, which the host firewall limits to the object store and the directory (`infra/onprem/config/egress-firewall.sh`); the edge talks to the API and Keycloak over the app network in clear text because nothing else can see that network; move them to TLS if the database host is separate | |
 
 ## Header standard
 

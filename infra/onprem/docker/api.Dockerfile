@@ -1,12 +1,14 @@
 # syntax=docker/dockerfile:1.7
 # MACHVON api image, linux/amd64 and linux/arm64 (build: docker buildx build --platform linux/amd64,linux/arm64 -f infra/onprem/docker/api.Dockerfile .).
 # The request-serving process: it publishes port 3000 to the edge only and does not run the background jobs (WORKERS_ENABLED=false).
-# The API runs the TypeScript sources of the workspace (apps/api/scripts/ts-register.mjs), so the image carries the sources and the
-# production dependencies only: no dev dependency and no optional platform binary (embedded-postgres and the build tools never ship).
+# The API runs the TypeScript sources of the workspace through the @swc/core loader of apps/api/scripts (a runtime dependency of the API: its platform binary is an
+# optional package, so optional packages are kept), so the image carries the sources and the production dependencies: no dev dependency, and the test-only
+# embedded-postgres (declared in packages/db, imported by test-database.ts only) is deleted after the install.
 FROM node:24.14.0-bookworm-slim@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8 AS build
 WORKDIR /app
 COPY . .
-RUN npm ci --omit=dev --omit=optional --ignore-scripts --workspace @machvon/api --include-workspace-root=false \
+RUN npm ci --omit=dev --ignore-scripts --workspace @machvon/api --include-workspace-root=false \
+ && rm -rf node_modules/embedded-postgres node_modules/@embedded-postgres \
  && npm cache clean --force
 
 FROM node:24.14.0-bookworm-slim@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8 AS runtime
@@ -24,7 +26,9 @@ COPY --from=build --chown=node:node /app/package.json ./package.json
 COPY --from=build --chown=node:node /app/apps/api ./apps/api
 COPY --from=build --chown=node:node /app/packages ./packages
 COPY --from=build --chown=node:node /app/db/migrations ./db/migrations
+# The migration job (packages/db/src/cli.ts migrate) first checks the committed migrations against their source, the design schema.
 COPY --from=build --chown=node:node /app/Design/MACHVON_Design/03_Engineering/error_codes.json ./Design/MACHVON_Design/03_Engineering/error_codes.json
+COPY --from=build --chown=node:node /app/Design/MACHVON_Design/03_Engineering/schema_reference.sql ./Design/MACHVON_Design/03_Engineering/schema_reference.sql
 COPY --chmod=0755 infra/onprem/docker/secret-env.sh /usr/local/bin/secret-env
 USER node
 WORKDIR /app/apps/api

@@ -35,7 +35,7 @@ Needs Docker with buildx (and QEMU, or both architectures' runners) and `skopeo`
 | Operating system | Linux, amd64 or arm64 (the same bundle installs on both) |
 | Docker | Docker Engine 28 or newer with the containerd image store (loads multi-platform archives and keeps digests), Compose v2.24 or newer. Without it, `skopeo` loads the archives for the host's architecture |
 | Reference size, one host | 8 vCPU, 24 GB memory, 500 GB SSD for PostgreSQL and its WAL; the limits in `compose/env.template` are the starting point |
-| Network | inbound 80 and 443 to the web edge only; outbound only to the directory (LDAPS), the object store of the second site, the customer's mail relay; the data network has no route out |
+| Network | inbound 80 and 443 to the web edge only; outbound only to the directory (LDAPS) and the object store of the second site (the `egress` network, limited by `egress-firewall.sh`); the app and data networks have no route out |
 | Time | NTP synchronised (tokens, TOTP and the 15-minute lock depend on it) |
 | Names | DNS for `PUBLIC_HOST` and `CONTROL_HOST`; a certificate from the customer's authority valid for both |
 | Directory | LDAPS reachable, a read-only service account, the groups `MACHVON-*` created by the directory team (`infra/keycloak/onprem/ad-group-role-map.json`) |
@@ -45,16 +45,27 @@ Data residency: the installation, the backups and the logs stay on the customer'
 
 ## Secrets
 
-Create each file named in `infra/onprem/secrets.json` under `MACHVON_SECRETS_DIR` (owner root, directory 0700, files 0400). The file lists who reads each secret, how to generate it and its rotation period. Nothing secret is written into the compose file, the environment file or an image: services read `NAME_FILE` variables through `secret-env`. Escrow `pgbackrest_cipher_pass` offline with two custodians before the first backup: without it no backup can be read.
+Create each file named in `infra/onprem/secrets.json` under `MACHVON_SECRETS_DIR`. Compose mounts a secret file as it is on the host, and the services run as unprivileged users (`node`, `postgres`, `nginx`, `keycloak`), so the files are owned by root with the group `MACHVON_SECRETS_GID` (1900 by default, set in the `.env`), mode 0440, and the directory 0750; every service joins that group (`group_add`). Create the group and apply the ownership as root:
+
+```
+groupadd --gid 1900 machvon-secrets
+chgrp -R 1900 "$MACHVON_SECRETS_DIR" && chmod 0750 "$MACHVON_SECRETS_DIR" && chmod 0440 "$MACHVON_SECRETS_DIR"/*
+chown 999 "$MACHVON_SECRETS_DIR/keycloak_db_password"     # the database init script reads it as the postgres user (uid 999)
+```
+
+`install.sh` refuses to start when a file has another group, is not group-readable or is readable by others. The file lists who reads each secret, how to generate it and its rotation period. Nothing secret is written into the compose file, the environment file or an image: services read `NAME_FILE` variables through `secret-env`. Escrow `pgbackrest_cipher_pass` offline with two custodians before the first backup: without it no backup can be read.
+
+The images carry what the migrations and the API need and nothing else: the database image is PostgreSQL 18 with pgBackRest and **pgvector** (the first migration creates the `vector` extension), the API and workers images carry the production dependencies **including `@swc/core`** (the loader that runs the TypeScript sources) and the design schema file that the migration job checks the migrations against, and the web image renders its nginx configuration into a memory file system at start (the root file system is read-only).
 
 ## Install
 
 1. Verify the signature of `SHA256SUMS` and run `sha256sum --check SHA256SUMS` in the bundle directory.
 2. Copy `infra/onprem/compose/env.template` to `infra/onprem/compose/.env` and fill it in (host names, directory settings, backup bucket, sizing). `MACHVON_VERSION` is overwritten by the script from `VERSION`.
 3. Create the secret files.
-4. Create the backup bucket (`infra/backup/bucket/create-bucket.sh`) as the object store administrator; create the writer identity with `writer-policy.json`.
-5. `sh install.sh`. It checks the bundle again, loads the images, checks the secret files and the compose file, starts the database, creates the pgBackRest stanza, runs the migrations, sets the passwords of the database roles from the secret files, starts every service and waits for all health checks.
-6. Install the systemd units from `infra/onprem/systemd/` (`machvon-backup-full.timer`, `machvon-backup-incr.timer`, `machvon-backup-verify.timer`) and enable the timers. The backup commands use `/etc/machvon/compose.env` (a copy of the `.env`) and `/opt/machvon/current` (a link to the installed bundle).
+4. Limit the way out: the database (WAL archive and backups), the backup runs and Keycloak (the directory) are the only services with a route out of the host, through the `egress` network (fixed subnet 172.29.250.0/24); the app and data networks have none. Apply the host firewall rules that allow that subnet to the object store and the directory only: `sh infra/onprem/config/egress-firewall.sh <object store host> <port> <directory host> <port> --apply` (without `--apply` it prints the rules for review).
+5. Create the backup bucket (`infra/backup/bucket/create-bucket.sh`) as the object store administrator; create the writer identity with `writer-policy.json`.
+6. `sh install.sh`. It checks the bundle again, loads the images, checks the secret files and the compose file, starts the database, creates the pgBackRest stanza, runs the migrations, sets the passwords of the database roles from the secret files, starts every service and waits for all health checks.
+7. Install the systemd units from `infra/onprem/systemd/` (`machvon-backup-full.timer`, `machvon-backup-incr.timer`, `machvon-backup-verify.timer`) and enable the timers. The backup commands use `/etc/machvon/compose.env` (a copy of the `.env`) and `/opt/machvon/current` (a link to the installed bundle).
 
 ## After the install
 

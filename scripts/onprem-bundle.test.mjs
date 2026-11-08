@@ -247,6 +247,7 @@ test('the install and rollback scripts check the bundle before they load anythin
   }
   assert.match(install, /\*\[!A-Za-z0-9_.~-\]\*\)/, 'a role password is checked before it goes into a statement');
   assert.ok(install.indexOf('*[!A-Za-z0-9_.~-]*)') < install.indexOf('ALTER ROLE'));
+  assert.ok(install.indexOf("stat -c '%g'") > 0 && install.indexOf("stat -c '%g'") < install.indexOf('up --detach'), 'the ownership of the secret files is checked before anything starts');
   assert.match(install, /stanza-create/);
   assert.match(install, /backup --type=full/);
   assert.match(rollback, /schema is NOT rolled back/);
@@ -255,7 +256,7 @@ test('the install and rollback scripts check the bundle before they load anythin
 test('the shell scripts are syntactically valid when a POSIX shell is available', (context) => {
   const probe = spawnSync('sh', ['-c', 'exit 0']);
   if (probe.error !== undefined || probe.status !== 0) return context.skip('no POSIX shell on this host');
-  for (const file of ['bundle/install.sh', 'bundle/rollback.sh', 'docker/secret-env.sh', 'config/db-init/10-keycloak.sh']) {
+  for (const file of ['bundle/install.sh', 'bundle/rollback.sh', 'docker/secret-env.sh', 'config/db-init/10-keycloak.sh', 'config/egress-firewall.sh']) {
     const result = spawnSync('sh', ['-n', join(REPO_ROOT, 'infra', 'onprem', file)], { encoding: 'utf8' });
     assert.equal(result.status, 0, `${file}: ${result.stderr}`);
   }
@@ -282,4 +283,18 @@ test('every finding code has a message in both languages and both catalogues hav
   }
   assert.deepEqual(Object.keys(loadOnpremMessages('vi')).sort(), Object.keys(loadOnpremMessages('en')).sort());
   assert.ok(readdirSync(join(REPO_ROOT, 'infra', 'onprem', 'bundle')).includes('install.sh'));
+});
+
+test('the egress firewall script prints rules that allow the object store and the directory and drop the rest of the egress network (no change without --apply)', (context) => {
+  const probe = spawnSync('sh', ['-c', 'command -v getent >/dev/null']);
+  if (probe.error !== undefined || probe.status !== 0) return context.skip('no getent on this host');
+  const script = join(REPO_ROOT, 'infra', 'onprem', 'config', 'egress-firewall.sh');
+  const printed = spawnSync('sh', [script, 'localhost', '443', 'localhost', '636'], { encoding: 'utf8' });
+  assert.equal(printed.status, 0, printed.stderr);
+  assert.match(printed.stdout, /iptables -A MACHVON-EGRESS -d 127\.0\.0\.1 -p tcp --dport 443 -j ACCEPT/);
+  assert.match(printed.stdout, /--dport 636 -j ACCEPT/);
+  assert.match(printed.stdout, /MACHVON-EGRESS -j DROP/);
+  assert.match(printed.stdout, /DOCKER-USER[^\n]*172\.29\.250\.0\/24/);
+  assert.equal(spawnSync('sh', [script, 'only', 'three'], { encoding: 'utf8' }).status, 2);
+  assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'compose', 'compose.yaml'), 'utf8'), /172\.29\.250\.0\/24/, 'the subnet of the script is the one of the compose file');
 });
