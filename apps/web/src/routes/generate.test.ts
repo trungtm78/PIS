@@ -31,13 +31,8 @@ describe('buildRoutes on the real design files', () => {
   });
 
   it('gives every route a unique id and a unique lower-case path of the form /module/id', () => {
-<<<<<<< HEAD
-    expect(new Set(routes.map((entry) => entry.id)).size).toBe(451);
-    expect(new Set(routes.map((entry) => entry.path)).size).toBe(451);
-=======
-    expect(new Set(routes.map((entry) => entry.id)).size).toBe(450);
-    expect(new Set(routes.map((entry) => entry.path)).size).toBe(450);
->>>>>>> 5a500d3b (chore(web): route table and counts include DIS-27 to DIS-29)
+    expect(new Set(routes.map((entry) => entry.id)).size).toBe(456);
+    expect(new Set(routes.map((entry) => entry.path)).size).toBe(456);
     for (const entry of routes) expect(entry.path).toBe(`/${entry.module.toLowerCase()}/${entry.id.toLowerCase()}`);
   });
 
