@@ -51,7 +51,7 @@ export function portalClockPolicyOf(params: unknown): PortalClockPolicy {
   return { response_days: whole('response_days', 1, 365), day_unit: record.day_unit, remind_before_days: whole('remind_before_days', 0, 60) };
 }
 
-/** Starting values: the research reads the 20 days of Điều 20 NĐ 214/2025 for the answer to an evaluation; the others are our own choice. All flagged unverified. */
+/** Starting values: the research reads the 20 days of Article 20 Decree 214/2025 for the answer to an evaluation; the others are our own choice. All flagged unverified. */
 export const PORTAL_CLOCK_DEFAULTS: Readonly<Record<PortalRequestKind, PortalClockPolicy>> = {
   EVALUATION_RESPONSE: { response_days: 20, day_unit: 'CALENDAR_DAYS', remind_before_days: 5 },
   CERTIFICATE_UPLOAD: { response_days: 15, day_unit: 'CALENDAR_DAYS', remind_before_days: 3 },

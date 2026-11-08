@@ -51,7 +51,7 @@ export function foldForMatch(value: string): string {
   return value
     .normalize('NFD')
     .replace(/\p{M}/gu, '')
-    .replace(/đ/gi, 'd')
+    .replace(/\u0111/gi, 'd')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();

@@ -529,7 +529,7 @@ export class RestrictionCaseStore {
     return rows.map((row) => ({ id: row.id, kind: row.kind, source: row.source, effectiveFrom: row.effective_from, effectiveUntil: row.effective_until, decisionDocumentId: row.decision_document_id, caseId: row.case_id, lifted: row.lifted, inForce: row.in_force }));
   }
 
-  /** How many bans in force a contractor holds and the wider ban that suggests (Điều 133): the suggestion is for the authority and decides nothing. */
+  /** How many bans in force a contractor holds and the wider ban that suggests (Article 133): the suggestion is for the authority and decides nothing. */
   async escalation(tx: TenantTx, contractorId: string, now: Date): Promise<{ decisionsInForce: number; suggestion: EscalationSuggestion }> {
     const today = vietnamDateOf(now);
     const policy = (await this.policies.debarment(tx, today)).value;

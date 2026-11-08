@@ -3,7 +3,7 @@ import { DomainError } from './errors.ts';
 /**
  * The certificates and the key staff of a contractor (VND-1, research V8; docs/vendor-management.md section 4). A certificate has a kind, a number, a grade, a scope and a period; a member of the key staff has a role,
  * a qualification and a period of their own. Both are checked when a package is evaluated and when a contract is activated, and both warn before they expire (60, then 30 days, then the day itself). The grades
- * and the kinds of certificate are not confirmed against the construction decrees (NĐ 175/2024: the competent body of each grade and the date grade III stops being issued are reported differently), so the
+ * and the kinds of certificate are not confirmed against the construction decrees (Decree 175/2024: the competent body of each grade and the date grade III stops being issued are reported differently), so the
  * list of kinds is data a tenant can widen and the order of grades is the one the certificate states.
  */
 

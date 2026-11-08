@@ -81,7 +81,7 @@ function textOf(value: string, field: string, min: number, max: number): string 
 }
 
 /**
- * The ledger of events of bid conduct (VND-1, V3; Điều 20 NĐ 214/2025). An event is recorded with the day it happened and the day its posting on the national system falls due (7 working days by the rule
+ * The ledger of events of bid conduct (VND-1, V3; Article 20 Decree 214/2025). An event is recorded with the day it happened and the day its posting on the national system falls due (7 working days by the rule
  * EGP_POSTING_DEADLINES code REPUTATION_EVENT, counted on the published working calendar); somebody other than the person who recorded it posts it and keeps the receipt, or retracts it with a reason. A posted event raises
  * the factor on the bid security of the contractor for the years the rule `VENDOR_REPUTATION` says. Nothing about what happened is rewritten.
  */

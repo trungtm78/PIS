@@ -68,7 +68,7 @@ const sum = (values: Iterable<string>): bigint => {
   return total;
 };
 
-/** `Σ months of a quarter = the quarter` when both exist (422 `GRAIN_SUM_MISMATCH` naming `quarter_vnd`); a quarter with fewer than three months entered is not judged. */
+/** `sum of the months of a quarter = the quarter` when both exist (422 `GRAIN_SUM_MISMATCH` naming `quarter_vnd`); a quarter with fewer than three months entered is not judged. */
 export function assertGrainSum(input: { quarterVnd: string | null; monthVnds: ReadonlyArray<string | null> }): void {
   if (input.quarterVnd === null) return;
   const months = input.monthVnds.filter((one): one is string => one !== null);
@@ -85,7 +85,7 @@ export interface Phasing {
 }
 
 /**
- * With `phasing_must_sum`, `Σ_q PLAN_QUARTER = PLAN_IN_FORCE` for the same class, tier and measure when the four quarters exist (422 `PHASING_SUM_MISMATCH` naming `quarters`), and the months of a quarter add up to
+ * With `phasing_must_sum`, `the sum over the quarters q of PLAN_QUARTER = PLAN_IN_FORCE` for the same class, tier and measure when the four quarters exist (422 `PHASING_SUM_MISMATCH` naming `quarters`), and the months of a quarter add up to
  * the quarter when both exist (422 `GRAIN_SUM_MISMATCH` naming `months`). A year plan nobody published cannot be phased (422 `PHASING_SUM_MISMATCH`). Without the rule nothing is judged (the public pack: the registration of
  * a month is the project's own).
  */

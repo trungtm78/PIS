@@ -6,7 +6,7 @@ import type { WorkCalendarContent, WorkCalendarSource, WorkingInterval } from '.
 
 /**
  * The debarment register, the joint ventures and the ledger of bid-conduct events (VND-1, research V2 and V3; docs/vendor-management.md sections 5 to 7). A restriction on a contractor is the end of a case with a
- * workflow of its own: a proposal, a notice to the contractor, the contractor's answer, a decision of the person with authority within the time the law gives (15 days from the proposal; Điều 133 NĐ 214/2025), the
+ * workflow of its own: a proposal, a notice to the contractor, the contractor's answer, a decision of the person with authority within the time the law gives (15 days from the proposal; Article 133 Decree 214/2025), the
  * decision put into effect, and its end (it runs out, or it is lifted on an appeal). Every number here is a rule of governance (`VENDOR_DEBARMENT`, `VENDOR_DEBARMENT_PERIOD`, `VENDOR_REPUTATION`) flagged unverified until the
  * legal staff of the tenant confirm it against the Gazette; every time limit is counted by the working-time engine on the published calendar. Pure: the facts, the policy and the calendars come in as arguments.
  */
@@ -44,7 +44,7 @@ export const RESTRICTION_TRIGGERS = ['INVESTOR_PROPOSAL', 'INSPECTION_CONCLUSION
 export type RestrictionTrigger = (typeof RESTRICTION_TRIGGERS)[number];
 export const RESTRICTION_DECISIONS = ['BAN', 'DISMISS'] as const;
 export type RestrictionDecision = (typeof RESTRICTION_DECISIONS)[number];
-/** How far a ban reaches: this tenant's own procurement, one province, the whole country (the counts of Điều 133 suggest the wider two; the decision and its scope are the authority's, never computed). */
+/** How far a ban reaches: this tenant's own procurement, one province, the whole country (the counts of Article 133 suggest the wider two; the decision and its scope are the authority's, never computed). */
 export const RESTRICTION_SCOPES = ['TENANT', 'PROVINCE', 'NATIONWIDE'] as const;
 export type RestrictionScope = (typeof RESTRICTION_SCOPES)[number];
 export const RESPONSE_OUTCOMES = ['RESPONDED', 'NO_RESPONSE'] as const;
@@ -59,7 +59,7 @@ export interface DebarmentPolicy {
   response_days: number;
   /** The decision clock warns this many days before its end. */
   remind_before_days: number;
-  /** The number of decisions in force at which a ban by the province, and by the minister, may be proposed (Điều 133). */
+  /** The number of decisions in force at which a ban by the province, and by the minister, may be proposed (Article 133). */
   province_threshold: number;
   national_threshold: number;
   /** Bans that add up are capped at this many months. */
@@ -204,7 +204,7 @@ export interface JointVentureMemberFacts {
 }
 
 /**
- * The members a case against a joint venture reaches. Every member is banned (Điều 133); when every violation group of the case is one the policy lists as an exception, only the members named as having committed it.
+ * The members a case against a joint venture reaches. Every member is banned (Article 133); when every violation group of the case is one the policy lists as an exception, only the members named as having committed it.
  * An exception with nobody named is refused (422 `VALIDATION_FAILED`, `culpable_member_ids`): the register never guesses who is not to blame.
  */
 export function ventureMembersReached(members: readonly JointVentureMemberFacts[], groups: readonly string[], culpableIds: readonly string[], policy: Pick<DebarmentPolicy, 'jv_exception_groups'>): string[] {
@@ -274,7 +274,7 @@ export function debarmentPeriodOf(params: unknown): DebarmentPeriod {
   return period;
 }
 
-/** Starting values of the rule `VENDOR_DEBARMENT` (Điều 133 NĐ 214/2025, read from a summary and not checked against the Gazette; the response window is our own choice). */
+/** Starting values of the rule `VENDOR_DEBARMENT` (Article 133 Decree 214/2025, read from a summary and not checked against the Gazette; the response window is our own choice). */
 export const DEBARMENT_POLICY_DEFAULTS: DebarmentPolicy = {
   decide_within_days: 15,
   decide_day_unit: 'CALENDAR_DAYS',
@@ -292,7 +292,7 @@ export type DebarmentGroup = (typeof DEBARMENT_GROUPS)[number];
 
 // -- The ledger of events of bid conduct (V3) -------------------------------------------------------------------------------------------------------------------------------------------------------
 
-/** The behaviours that harm the reputation of a bidder (Điều 20.1-2 NĐ 214/2025, as read in the research): eight named and a ninth the law may add. */
+/** The behaviours that harm the reputation of a bidder (Article 20.1-2 Decree 214/2025, as read in the research): eight named and a ninth the law may add. */
 export const REPUTATION_BEHAVIOURS = ['NOT_COMPARING_DOCUMENTS', 'NOT_NEGOTIATING', 'WINNING_WITHOUT_SIGNING', 'WITHDRAWING_AFTER_CLOSING', 'NO_BID_SECURITY', 'NO_PERFORMANCE_SECURITY', 'NO_AWARD_CONFIRMATION', 'NO_KEY_RESOURCES', 'OTHER_BY_LAW'] as const;
 export type ReputationBehaviour = (typeof REPUTATION_BEHAVIOURS)[number];
 export const REPUTATION_EVENT_STATES = ['RECORDED', 'POSTED', 'RETRACTED'] as const;
@@ -363,7 +363,7 @@ export function reputationPolicyOf(params: unknown): ReputationPolicy {
   return { bid_security_multiplier: read('bid_security_multiplier', 1, 20), multiplier_years: read('multiplier_years', 1, 20), award_confirmation_working_days: read('award_confirmation_working_days', 1, 30) };
 }
 
-/** Starting values (Điều 20 NĐ 214/2025: three times the bid security for two years; three working days to confirm an award), read from a summary and flagged unverified. */
+/** Starting values (Article 20 Decree 214/2025: three times the bid security for two years; three working days to confirm an award), read from a summary and flagged unverified. */
 export const REPUTATION_POLICY_DEFAULTS: ReputationPolicy = { bid_security_multiplier: 3, multiplier_years: 2, award_confirmation_working_days: 3 };
 
 // -- The gates (V2: blocked at a bid, a result, the activation of a contract, a subcontract and a payment) -------------------------------------------------------------------------------
