@@ -11294,6 +11294,91 @@ final class RoutingRule implements RequestModel {
       };
 }
 
+final class RptAnswer implements RequestModel {
+  const RptAnswer({
+    required this.receiver,
+    required this.outcome,
+    this.reference,
+    this.note,
+  });
+
+  final String receiver;
+  final String outcome;
+  final String? reference;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'receiver': receiver,
+        'outcome': outcome,
+        if (reference != null) 'reference': reference,
+        if (note != null) 'note': note,
+      };
+}
+
+final class RptDeliver implements RequestModel {
+  const RptDeliver({
+    required this.receiver,
+    required this.channel,
+    this.reference,
+    this.note,
+  });
+
+  final String receiver;
+  final String channel;
+  final String? reference;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'receiver': receiver,
+        'channel': channel,
+        if (reference != null) 'reference': reference,
+        if (note != null) 'note': note,
+      };
+}
+
+final class RptGenerate implements RequestModel {
+  const RptGenerate({
+    required this.layoutCode,
+    required this.period,
+    this.reason,
+  });
+
+  final String layoutCode;
+  final RptPeriod period;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'layout_code': layoutCode,
+        'period': period,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class RptPeriod implements RequestModel {
+  const RptPeriod({
+    required this.kind,
+    required this.year,
+    this.index,
+    this.day,
+  });
+
+  final String kind;
+  final int year;
+  final int? index;
+  final String? day;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'year': year,
+        if (index != null) 'index': index,
+        if (day != null) 'day': day,
+      };
+}
+
 final class SecurityPolicyDraft implements RequestModel {
   const SecurityPolicyDraft({
     required this.mfaRequiredRoles,

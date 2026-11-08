@@ -1662,3 +1662,6 @@ export { CONTRACT_STATUS_VALUES, CONTRACT_TYPE_VALUES, CtrFactStore, FACT_SORTS,
 export type { BreakdownContext, FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
 export { CtrMoneyStore, EVM_SELECTION_CAP } from './ctr-money-store.ts';
 export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from './ctr-money-store.ts';
+// RPT-1, part 2: the report engine's layouts, files, drafts, issued copies and delivery log.
+export { ReportStore, copyRefOf } from './report-store.ts';
+export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';

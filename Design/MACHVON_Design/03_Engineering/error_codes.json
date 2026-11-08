@@ -5872,6 +5872,14 @@
       "module": "CTR",
       "statusBasis": "spec",
       "source": "spec:CTR"
+    },
+    "ALREADY_DELIVERED": {
+      "status": 409,
+      "title": "Report already delivered",
+      "meaning": "409 ALREADY_DELIVERED: bản phát hành này đã được giao cho đúng bên nhận này; đẩy lại cùng nội dung không tạo bản giao mới (RPT-1, R17)",
+      "module": "RPT",
+      "statusBasis": "convention",
+      "source": "story:ST-RPT-001"
     }
   }
 }

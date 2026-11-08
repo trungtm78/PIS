@@ -1,0 +1,72 @@
+import { DIS_WEEKLY_LAYOUT, DomainError, validateLayout } from '@machvon/kernel';
+import type { ReportFormBundle } from '@machvon/kernel';
+import { buildBlankTemplate } from './blank-template';
+import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
+import type { ReportFigureProvider } from './figure-provider';
+
+/**
+ * The forms a process offers and the providers of their figures (RPT-1 part 2). A form is a `ReportFormBundle`: the public edition's generic forms are registered by this module, the enterprise forms by the
+ * server entry of the enterprise package through the enterprise seam of the API (`editions/load-enterprise.ts`), so a public process never holds an enterprise form (`npm run edition:check`).
+ * A registered form is copied into the tenant's own rows when someone first generates it (`report_layout`), so what was issued stays reproducible even if the bundle changes in a later release.
+ */
+export class ReportFormRegistry {
+  private readonly forms = new Map<string, ReportFormBundle>();
+  private readonly providers = new Map<string, ReportFigureProvider>();
+
+  /** Adds a form. A code is registered once with one layout version; a DEMO form must be illustrative, a form with live figures names a provider the process has. */
+  register(bundle: ReportFormBundle): void {
+    validateLayout(bundle.layout);
+    const code = bundle.layout.code;
+    const known = this.forms.get(code);
+    if (known !== undefined) {
+      if (known.layout.version === bundle.layout.version && known.edition === bundle.edition) return;
+      throw new DomainError('VALIDATION_FAILED', 422, 'report_form_registered_twice');
+    }
+    if (bundle.layout.status === 'DEMO' && (bundle.dataSource !== 'ILLUSTRATIVE' || bundle.illustrative === undefined)) throw new DomainError('VALIDATION_FAILED', 422, 'demo_form_data');
+    if (bundle.dataSource === 'ILLUSTRATIVE' && bundle.layout.status !== 'DEMO') throw new DomainError('VALIDATION_FAILED', 422, 'illustrative_not_demo');
+    if (bundle.dataSource === 'LIVE' && (bundle.provider === null || bundle.illustrative !== undefined)) throw new DomainError('VALIDATION_FAILED', 422, 'live_form_provider');
+    this.forms.set(code, bundle);
+  }
+
+  registerProvider(provider: ReportFigureProvider): void {
+    // A provider id is registered once: a second registration of the same id (the process loading twice) keeps the first.
+    if (!this.providers.has(provider.id)) this.providers.set(provider.id, provider);
+  }
+
+  get(code: string): ReportFormBundle | undefined {
+    return this.forms.get(code);
+  }
+
+  provider(id: string): ReportFigureProvider | undefined {
+    return this.providers.get(id);
+  }
+
+  /** The forms in the order of their codes. */
+  list(): ReportFormBundle[] {
+    return [...this.forms.values()].sort((a, b) => a.layout.code.localeCompare(b.layout.code));
+  }
+
+  /** Only for tests: forgets every form and provider. */
+  clear(): void {
+    this.forms.clear();
+    this.providers.clear();
+  }
+}
+
+/** The registry of the process. */
+export const REPORT_FORMS = new ReportFormRegistry();
+
+/** The generic forms of the public edition: the weekly disbursement report, read from the command center through its provider. Calling it again changes nothing. */
+export function registerPublicReportForms(registry: ReportFormRegistry = REPORT_FORMS): void {
+  registry.registerProvider(new DisHomeProvider());
+  registry.register({
+    edition: 'public',
+    layout: DIS_WEEKLY_LAYOUT,
+    narrative: null,
+    receiver: 'INTERNAL',
+    periodKind: 'AS_OF',
+    dataSource: 'LIVE',
+    provider: DIS_HOME_PROVIDER,
+    templates: async () => ({ xlsx: await buildBlankTemplate(DIS_WEEKLY_LAYOUT), docx: null }),
+  });
+}

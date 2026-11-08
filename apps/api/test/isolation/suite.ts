@@ -573,6 +573,21 @@ export const CLARIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; q
   'TNT-B': { id: '00000000-0000-4000-b0bd-000000000001', question: 'BETA isolation clarification: explain the unit price of the viaduct deck.' },
 };
 
+/** The report engine of each tenant (RPT-1): one layout, an open draft (DRAFT) and an issued copy with the draft it came from; the words of the files are distinctive (tenant confidential data). */
+const rptFixture = (letter: 'a' | 'b', word: string) => ({
+  layoutId: `00000000-0000-4000-${letter}0d1-000000000001`,
+  draftId: `00000000-0000-4000-${letter}0d1-000000000002`,
+  issuedDraftId: `00000000-0000-4000-${letter}0d1-000000000003`,
+  issueId: `00000000-0000-4000-${letter}0d1-000000000004`,
+  layoutName: `${word} isolation report form`,
+  content: `${word} isolation report file`,
+  sha256: createHash('sha256').update(`${word} isolation report file`).digest('hex'),
+});
+export const REPORT_ENGINE_FIXTURES: Readonly<Record<TenantName, ReturnType<typeof rptFixture>>> = {
+  'TNT-A': rptFixture('a', 'ALPHA'),
+  'TNT-B': rptFixture('b', 'BETA'),
+};
+
 /** An evaluation report of the package of each tenant, a draft of the run with its decision (the conclusion is distinctive; tenant confidential data). */
 export const EVALUATION_REPORT_FIXTURES: Readonly<Record<TenantName, { id: string; conclusion: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bf-000000000001', conclusion: 'ALPHA isolation report: the team finds the bridge proposal acceptable.' },
@@ -1713,6 +1728,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'procurement result id', value: RESULT_FIXTURES[tenant].id },
     { kind: 'procurement petition id', value: PETITION_FIXTURES[tenant].id },
     { kind: 'bid clarification id', value: CLARIFICATION_FIXTURES[tenant].id },
+    { kind: 'report draft id', value: REPORT_ENGINE_FIXTURES[tenant].draftId },
+    { kind: 'report issue id', value: REPORT_ENGINE_FIXTURES[tenant].issueId },
+    { kind: 'report layout name', value: REPORT_ENGINE_FIXTURES[tenant].layoutName },
     { kind: 'bid clarification question', value: CLARIFICATION_FIXTURES[tenant].question },
     { kind: 'interop message id', value: INTEROP_FIXTURES[tenant].id },
     { kind: 'interop message external id', value: INTEROP_FIXTURES[tenant].externalId },

@@ -66,6 +66,7 @@ import {
   PARCEL_FIXTURES,
   PETITION_FIXTURES,
   CLARIFICATION_FIXTURES,
+  REPORT_ENGINE_FIXTURES,
   INTEROP_FIXTURES,
   EVALUATION_REPORT_FIXTURES,
   PROJECT_FIXTURES,
@@ -658,6 +659,15 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'recordClarificationAnswer',
   'listBidClarifications',
   'getBidClarification',
+  'getReportDraft',
+  'getReportDraftFile',
+  'checkReport',
+  'approveReport',
+  'issueReport',
+  'getReportIssue',
+  'getReportIssueFile',
+  'deliverReport',
+  'answerReportDelivery',
   'receiveInteropMessage',
   'retryInteropMessage',
   'listInteropMessages',
@@ -1830,6 +1840,24 @@ const INSERT_RESULT = `insert into machvon.procurement_result
   (tenant_id, id, package_id, winner_contractor_id, award_price_vnd, evaluation_minutes_document_id, outcome, status, submitted_by, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5::numeric, $6, 'AWARDED', 'SUBMITTED', $7, $7, $7, 1) on conflict do nothing`;
 
+const INSERT_REPORT_FILE = `insert into machvon.report_output_file (tenant_id, sha256, format, size_bytes, content, created_by) values ($1, $2, 'XLSX', $3, $4, $5) on conflict do nothing`;
+
+const INSERT_REPORT_TEMPLATE = `insert into machvon.report_template_file (tenant_id, sha256, format, size_bytes, content, created_by) values ($1, $2, 'XLSX', $3, $4, $5) on conflict do nothing`;
+
+const INSERT_REPORT_LAYOUT = `insert into machvon.report_layout
+  (tenant_id, id, code, version, name, status, edition, form_ref, receiver, period_kind, data_source, layout, template_sha256, registered_by)
+  values ($1, $2, 'ISOLATION-FORM', '1', $3, 'READY', 'public', 'isolation', 'INTERNAL', 'MONTH', 'LIVE', '{}'::jsonb, $4, $5) on conflict do nothing`;
+
+const INSERT_REPORT_DRAFT = `insert into machvon.report_draft
+  (tenant_id, id, layout_id, layout_code, layout_version, period_code, period, state, base_revision, xlsx_sha256, package_sha256, data_source, marks, preview, prepared_by, checked_by, checked_at, approved_by, approved_at)
+  values ($1, $2, $3, 'ISOLATION-FORM', '1', $4, '{"kind":"MONTH","year":2026,"index":1}'::jsonb, $5, 0, $6, $6, 'LIVE', '{"formStatus":"READY","demoMark":null}'::jsonb, '{}'::jsonb, $7, $8, $9::timestamptz, $10, $11::timestamptz) on conflict do nothing`;
+
+const INSERT_REPORT_ISSUE = `insert into machvon.report_issue
+  (tenant_id, id, layout_id, layout_code, layout_version, period_code, period, revision, draft_id, sha256, xlsx_sha256, xlsx_name, data_source, form_status, counts_as_accepted, prepared_by, checked_by, approved_by, issued_by)
+  values ($1, $2, $3, 'ISOLATION-FORM', '1', '2026-M02', '{"kind":"MONTH","year":2026,"index":2}'::jsonb, 1, $4, $5, $5, 'isolation.xlsx', 'LIVE', 'READY', true, $6, $7, $8, $8) on conflict do nothing`;
+
+const CLOSE_REPORT_DRAFT = `update machvon.report_draft set state = 'ISSUED', issue_id = $2, version = version + 1 where id = $1 and state = 'APPROVED'`;
+
 const INSERT_CLARIFICATION = `insert into machvon.bid_clarification
   (tenant_id, id, package_id, proposal_id, question, due_at, status, sent_document_id, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, now() + interval '30 days', 'SENT', $6, $7, $7, 1) on conflict do nothing`;
@@ -2398,6 +2426,17 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_INTEROP, [tenantId, INTEROP_FIXTURES[tenant].id, INTEROP_FIXTURES[tenant].externalId, INTEROP_FIXTURES[tenant].sender, INTEROP_FIXTURES[tenant].digest, `tenants/${tenantId}/interop-envelope/isolation`, ACTOR_ID]);
     await client.query(INSERT_CLARIFICATION, [tenantId, CLARIFICATION_FIXTURES[tenant].id, pack.id, proposal.id, CLARIFICATION_FIXTURES[tenant].question, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
+    // The report engine: a layout with its template and file, an open draft and a copy that was issued from an approved draft by three different people.
+    const report = REPORT_ENGINE_FIXTURES[tenant];
+    const reportBytes = Buffer.from(report.content);
+    await client.query(INSERT_REPORT_TEMPLATE, [tenantId, report.sha256, reportBytes.length, reportBytes, ACTOR_ID]);
+    await client.query(INSERT_REPORT_FILE, [tenantId, report.sha256, reportBytes.length, reportBytes, ACTOR_ID]);
+    await client.query(INSERT_REPORT_LAYOUT, [tenantId, report.layoutId, report.layoutName, report.sha256, ACTOR_ID]);
+    await client.query(INSERT_REPORT_DRAFT, [tenantId, report.draftId, report.layoutId, '2026-M01', 'DRAFT', report.sha256, ACTOR_ID, null, null, null, null]);
+    await client.query(INSERT_REPORT_DRAFT, [tenantId, report.issuedDraftId, report.layoutId, '2026-M02', 'APPROVED', report.sha256, ACTOR_ID, MEMBERSHIP_ID, '2026-02-01T03:00:00Z', APPROVER_ID, '2026-02-02T03:00:00Z']);
+    await client.query(INSERT_REPORT_ISSUE, [tenantId, report.issueId, report.layoutId, report.issuedDraftId, report.sha256, ACTOR_ID, MEMBERSHIP_ID, APPROVER_ID]);
+    await client.query(CLOSE_REPORT_DRAFT, [report.issuedDraftId, report.issueId]);
+
     // A file of the proposal and the page of it that waits for a person: the review command finds the page through the proposal.
     const ocr = OCR_FIXTURES[tenant];
     await client.query(INSERT_OCR_DOCUMENT, [tenantId, ocr.documentId, proposal.id, ACTOR_ID]);

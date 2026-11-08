@@ -6,6 +6,7 @@ export { ENTERPRISE_KPI_AS_OF, ENTERPRISE_KPI_CODES, ENTERPRISE_KPI_SEEDS, ENTER
 export { ILLUSTRATIVE_COUNTS, illustrativeFigures, illustrativeFillData, illustrativeFillDataFor } from './illustrative-data.ts';
 export { TEMPLATE_DATE, buildDemoTemplates, buildDocxSkeleton, buildXlsxTemplate, stampFooter, stampHeader, templateFileName } from './template-builder.ts';
 export type { TemplateFile } from './template-builder.ts';
+export { enterpriseReportBundles, templatesFolder } from './bundles.ts';
 
 import { DEMO_FORMS } from './forms.ts';
 import type { DemoFormSpec } from './common.ts';

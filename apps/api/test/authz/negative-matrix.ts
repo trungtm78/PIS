@@ -2845,6 +2845,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   proposeEgpMapping: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/mappings', body: { subject_type: 'PACKAGE', our_code: 'GT-0001', external_code: 'PK-0001', reason: REASON } }) },
   decideEgpMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/mappings/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'APPROVE', reason: REASON } }) },
   retireEgpMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/mappings/00000000-0000-4000-8000-0000000000f1/retire', ifMatch: '"1"', body: { reason: REASON } }) },
+  // RPT-1: the report engine; a caller who is refused makes no draft, signs no step, issues nothing and records no delivery.
+  generateReport: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/report-engine/drafts', body: { layout_code: 'DIS-WEEKLY', period: { kind: 'AS_OF', year: 2026, day: '2026-10-18' } } }) },
+  checkReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/check', ifMatch: '"1"', body: {} }) },
+  approveReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/approve', ifMatch: '"1"', body: {} }) },
+  issueReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/issue', ifMatch: '"1"', body: {} }) },
+  deliverReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/deliveries', body: { receiver: 'MOF', channel: 'MANUAL' } }) },
+  answerReportDelivery: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/answers', body: { receiver: 'MOF', outcome: 'ACCEPTED' } }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),

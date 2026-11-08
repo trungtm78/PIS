@@ -27,6 +27,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'advanceEnforcement': CommandResultResponse.fromJson,
   'advancePackageStep': CommandResultResponse.fromJson,
   'allocateResettlement': CommandResultResponse.fromJson,
+  'answerReportDelivery': RptDeliveryResponse.fromJson,
   'applyMasterImport': CommandResultResponse.fromJson,
   'applyMigrationBatch': CommandResultResponse.fromJson,
   'applyReallocationProposal': CommandResultResponse.fromJson,
@@ -41,6 +42,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'approveInvestmentAppraisal': CommandResultResponse.fromJson,
   'approvePlacementCutover': CommandResultResponse.fromJson,
   'approveQualityRuleVersion': CommandResultResponse.fromJson,
+  'approveReport': CommandResultResponse.fromJson,
   'approveRetroactiveAdjustment': CommandResultResponse.fromJson,
   'approveSettlementException': CommandResultResponse.fromJson,
   'approveSodException': CommandResultResponse.fromJson,
@@ -86,6 +88,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'changeSubscriptionPlan': CommandResultResponse.fromJson,
   'checkPaymentIntegrity': PayIntegrityCheckResultResponse.fromJson,
   'checkProjectDisbursement': PayDisbursementCheckResponse.fromJson,
+  'checkReport': CommandResultResponse.fromJson,
   'claimWork': asObject,
   'clearChangeAdjustmentCheck': CommandResultResponse.fromJson,
   'closeAuditEngagement': CommandResultResponse.fromJson,
@@ -234,6 +237,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'declarePermitExemption': CommandResultResponse.fromJson,
   'defineDocumentType': CommandResultResponse.fromJson,
   'deleteDraftReport': CommandResultResponse.fromJson,
+  'deliverReport': RptDeliveryResponse.fromJson,
   'depositCompensationPayment': CommandResultResponse.fromJson,
   'disableChannelAccount': CommandResultResponse.fromJson,
   'dismissEarlyWarning': CommandResultResponse.fromJson,
@@ -274,6 +278,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'generateMneExportPackage': CommandResultResponse.fromJson,
   'generateMneObligations': CommandResultResponse.fromJson,
   'generatePaymentForms': PayGeneratedPaymentFormsResponse.fromJson,
+  'generateReport': RptGeneratedResponse.fromJson,
   'generateReportingPeriods': CommandResultResponse.fromJson,
   'generateSettlementForms': PayGeneratedSettlementFormsResponse.fromJson,
   'get_resources_acceptance': CtrAcceptancePageResponse.fromJson,
@@ -563,8 +568,12 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getRagReading': asObject,
   'getReconciliation': asObject,
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
+  'getReportDraft': RptDraftResponse.fromJson,
+  'getReportDraftFile': RptFileContentResponse.fromJson,
   'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
   'getReportImport': DisReportImportResponse.fromJson,
+  'getReportIssue': RptIssueResponse.fromJson,
+  'getReportIssueFile': RptFileContentResponse.fromJson,
   'getReportRevision': asObject,
   'getReportWorkflow': DisReportWorkflowResponse.fromJson,
   'getSitePhotoChecks': asObject,
@@ -603,6 +612,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'inviteMember': CommandResultResponse.fromJson,
   'issueEInvoice': CommandResultResponse.fromJson,
   'issueOutgoingDocument': CommandResultResponse.fromJson,
+  'issueReport': CommandResultResponse.fromJson,
   'issueSupportAccessToken': SupportTokenResponse.fromJson,
   'linkAuditRecovery': CommandResultResponse.fromJson,
   'linkContractComponent': CommandResultResponse.fromJson,
@@ -755,6 +765,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listReallocationProposals': asObject,
   'listReconciliationItems': PayReconciliationItemPageResponse.fromJson,
   'listReconciliations': ListReconciliationsResponse.fromJson,
+  'listReportCatalogue': RptCatalogueResponse.fromJson,
+  'listReportDeliveries': RptDeliveryPageResponse.fromJson,
+  'listReportDrafts': RptDraftPageResponse.fromJson,
+  'listReportIssues': RptIssuePageResponse.fromJson,
   'listResettlementAllocations': LndResettlementPageResponse.fromJson,
   'listResettlementCandidates': LndResettlementCandidatesResponse.fromJson,
   'listRetentionHolds': PayCumulativeLedgerResponse.fromJson,
@@ -34356,6 +34370,822 @@ final class RoutingRuleResponse implements ResponseModel {
         if (keywords != null) 'keywords': keywords,
         'queue_unit_id': queueUnitId,
         if (priority != null) 'priority': priority,
+        ...extra,
+      };
+}
+
+final class RptCatalogueEntryResponse implements ResponseModel {
+  const RptCatalogueEntryResponse({
+    required this.code,
+    required this.name,
+    required this.version,
+    required this.edition,
+    required this.status,
+    required this.official,
+    required this.formRef,
+    required this.receiver,
+    required this.periodKind,
+    required this.hasNarrative,
+    required this.dataSource,
+    required this.demoMark,
+    required this.registered,
+    required this.issuable,
+    required this.wholeTenant,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCatalogueEntryResponse.fromJson(Object? json, [String path = 'RptCatalogueEntryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCatalogueEntryResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      version: requiredField(map, path, 'version', asString),
+      edition: requiredField(map, path, 'edition', asString),
+      status: requiredField(map, path, 'status', asString),
+      official: requiredField(map, path, 'official', asString),
+      formRef: requiredField(map, path, 'form_ref', nullable(asString)),
+      receiver: requiredField(map, path, 'receiver', asString),
+      periodKind: requiredField(map, path, 'period_kind', asString),
+      hasNarrative: requiredField(map, path, 'has_narrative', asBool),
+      dataSource: requiredField(map, path, 'data_source', asString),
+      demoMark: requiredField(map, path, 'demo_mark', nullable(asString)),
+      registered: requiredField(map, path, 'registered', asBool),
+      issuable: requiredField(map, path, 'issuable', asBool),
+      wholeTenant: requiredField(map, path, 'whole_tenant', asBool),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'version', 'edition', 'status', 'official', 'form_ref', 'receiver', 'period_kind', 'has_narrative', 'data_source', 'demo_mark', 'registered', 'issuable', 'whole_tenant'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String version;
+  final String edition;
+  final String status;
+  final String official;
+  final String? formRef;
+  final String receiver;
+  final String periodKind;
+  final bool hasNarrative;
+  final String dataSource;
+  final String? demoMark;
+  final bool registered;
+  final bool issuable;
+  final bool wholeTenant;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'version': version,
+        'edition': edition,
+        'status': status,
+        'official': official,
+        'form_ref': formRef,
+        'receiver': receiver,
+        'period_kind': periodKind,
+        'has_narrative': hasNarrative,
+        'data_source': dataSource,
+        'demo_mark': demoMark,
+        'registered': registered,
+        'issuable': issuable,
+        'whole_tenant': wholeTenant,
+        ...extra,
+      };
+}
+
+final class RptCatalogueResponse implements ResponseModel {
+  const RptCatalogueResponse({
+    required this.items,
+    required this.demoMode,
+    required this.asOf,
+    required this.canGenerate,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCatalogueResponse.fromJson(Object? json, [String path = 'RptCatalogueResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCatalogueResponse(
+      items: requiredField(map, path, 'items', asList(RptCatalogueEntryResponse.fromJson)),
+      demoMode: requiredField(map, path, 'demo_mode', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      canGenerate: requiredField(map, path, 'can_generate', asBool),
+      extra: unknownFields(map, path, const <String>{'items', 'demo_mode', 'as_of', 'can_generate'}, strict: true),
+    );
+  }
+
+  final List<RptCatalogueEntryResponse> items;
+  final bool demoMode;
+  final String asOf;
+  final bool canGenerate;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'demo_mode': demoMode,
+        'as_of': asOf,
+        'can_generate': canGenerate,
+        ...extra,
+      };
+}
+
+final class RptChainLinkResponse implements ResponseModel {
+  const RptChainLinkResponse({
+    required this.id,
+    required this.revision,
+    required this.sha256,
+    required this.issuedAt,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptChainLinkResponse.fromJson(Object? json, [String path = 'RptChainLinkResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptChainLinkResponse(
+      id: requiredField(map, path, 'id', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      issuedAt: requiredField(map, path, 'issued_at', asString),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'revision', 'sha256', 'issued_at', 'reason'}, strict: true),
+    );
+  }
+
+  final String id;
+  final int revision;
+  final String sha256;
+  final String issuedAt;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'revision': revision,
+        'sha256': sha256,
+        'issued_at': issuedAt,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class RptDeliveryPageResponse implements ResponseModel {
+  const RptDeliveryPageResponse({
+    required this.items,
+    required this.truncated,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptDeliveryPageResponse.fromJson(Object? json, [String path = 'RptDeliveryPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptDeliveryPageResponse(
+      items: requiredField(map, path, 'items', asList(RptDeliveryResponse.fromJson)),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'truncated', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<RptDeliveryResponse> items;
+  final bool truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RptDeliveryResponse implements ResponseModel {
+  const RptDeliveryResponse({
+    required this.id,
+    required this.issueId,
+    required this.layoutCode,
+    required this.periodCode,
+    required this.revision,
+    required this.sha256,
+    required this.receiver,
+    required this.channel,
+    required this.event,
+    required this.reference,
+    required this.note,
+    required this.countsAsAccepted,
+    required this.recordedByName,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptDeliveryResponse.fromJson(Object? json, [String path = 'RptDeliveryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptDeliveryResponse(
+      id: requiredField(map, path, 'id', asString),
+      issueId: requiredField(map, path, 'issue_id', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      receiver: requiredField(map, path, 'receiver', asString),
+      channel: requiredField(map, path, 'channel', asString),
+      event: requiredField(map, path, 'event', asString),
+      reference: requiredField(map, path, 'reference', nullable(asString)),
+      note: requiredField(map, path, 'note', nullable(asString)),
+      countsAsAccepted: requiredField(map, path, 'counts_as_accepted', asBool),
+      recordedByName: requiredField(map, path, 'recorded_by_name', nullable(asString)),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'issue_id', 'layout_code', 'period_code', 'revision', 'sha256', 'receiver', 'channel', 'event', 'reference', 'note', 'counts_as_accepted', 'recorded_by_name', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String issueId;
+  final String layoutCode;
+  final String periodCode;
+  final int revision;
+  final String sha256;
+  final String receiver;
+  final String channel;
+  final String event;
+  final String? reference;
+  final String? note;
+  final bool countsAsAccepted;
+  final String? recordedByName;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'issue_id': issueId,
+        'layout_code': layoutCode,
+        'period_code': periodCode,
+        'revision': revision,
+        'sha256': sha256,
+        'receiver': receiver,
+        'channel': channel,
+        'event': event,
+        'reference': reference,
+        'note': note,
+        'counts_as_accepted': countsAsAccepted,
+        'recorded_by_name': recordedByName,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class RptDraftPageResponse implements ResponseModel {
+  const RptDraftPageResponse({
+    required this.items,
+    required this.truncated,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptDraftPageResponse.fromJson(Object? json, [String path = 'RptDraftPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptDraftPageResponse(
+      items: requiredField(map, path, 'items', asList(RptDraftResponse.fromJson)),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'truncated', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<RptDraftResponse> items;
+  final bool truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RptDraftResponse implements ResponseModel {
+  const RptDraftResponse({
+    required this.id,
+    required this.layoutCode,
+    required this.layoutVersion,
+    required this.layoutName,
+    required this.periodCode,
+    required this.period,
+    required this.state,
+    required this.baseRevision,
+    required this.reason,
+    required this.packageSha256,
+    required this.files,
+    required this.dataSource,
+    required this.formStatus,
+    required this.demoMark,
+    required this.snapshot,
+    required this.issueCount,
+    required this.preparedBy,
+    required this.preparedByName,
+    required this.checkedByName,
+    required this.approvedByName,
+    required this.issueId,
+    required this.version,
+    required this.createdAt,
+    required this.canCheck,
+    required this.canApprove,
+    required this.canIssue,
+    required this.demoFormsOff,
+    required this.preview,
+    required this.issues,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptDraftResponse.fromJson(Object? json, [String path = 'RptDraftResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptDraftResponse(
+      id: requiredField(map, path, 'id', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      layoutName: requiredField(map, path, 'layout_name', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      period: requiredField(map, path, 'period', RptPeriodResponse.fromJson),
+      state: requiredField(map, path, 'state', asString),
+      baseRevision: requiredField(map, path, 'base_revision', asInt),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      packageSha256: requiredField(map, path, 'package_sha256', asString),
+      files: requiredField(map, path, 'files', asList(RptFileInfoResponse.fromJson)),
+      dataSource: requiredField(map, path, 'data_source', asString),
+      formStatus: requiredField(map, path, 'form_status', asString),
+      demoMark: requiredField(map, path, 'demo_mark', nullable(asString)),
+      snapshot: requiredField(map, path, 'snapshot', asAny),
+      issueCount: requiredField(map, path, 'issue_count', asInt),
+      preparedBy: requiredField(map, path, 'prepared_by', asString),
+      preparedByName: requiredField(map, path, 'prepared_by_name', nullable(asString)),
+      checkedByName: requiredField(map, path, 'checked_by_name', nullable(asString)),
+      approvedByName: requiredField(map, path, 'approved_by_name', nullable(asString)),
+      issueId: requiredField(map, path, 'issue_id', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      canCheck: requiredField(map, path, 'can_check', asBool),
+      canApprove: requiredField(map, path, 'can_approve', asBool),
+      canIssue: requiredField(map, path, 'can_issue', asBool),
+      demoFormsOff: requiredField(map, path, 'demo_forms_off', asBool),
+      preview: requiredField(map, path, 'preview', asAny),
+      issues: requiredField(map, path, 'issues', asList(RptGridIssueResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'layout_version', 'layout_name', 'period_code', 'period', 'state', 'base_revision', 'reason', 'package_sha256', 'files', 'data_source', 'form_status', 'demo_mark', 'snapshot', 'issue_count', 'prepared_by', 'prepared_by_name', 'checked_by_name', 'approved_by_name', 'issue_id', 'version', 'created_at', 'can_check', 'can_approve', 'can_issue', 'demo_forms_off', 'preview', 'issues'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String layoutCode;
+  final String layoutVersion;
+  final String layoutName;
+  final String periodCode;
+  final RptPeriodResponse period;
+  final String state;
+  final int baseRevision;
+  final String? reason;
+  final String packageSha256;
+  final List<RptFileInfoResponse> files;
+  final String dataSource;
+  final String formStatus;
+  final String? demoMark;
+  final Object? snapshot;
+  final int issueCount;
+  final String preparedBy;
+  final String? preparedByName;
+  final String? checkedByName;
+  final String? approvedByName;
+  final String? issueId;
+  final int version;
+  final String createdAt;
+  final bool canCheck;
+  final bool canApprove;
+  final bool canIssue;
+  final bool demoFormsOff;
+  final Object? preview;
+  final List<RptGridIssueResponse> issues;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'layout_code': layoutCode,
+        'layout_version': layoutVersion,
+        'layout_name': layoutName,
+        'period_code': periodCode,
+        'period': period.toJson(),
+        'state': state,
+        'base_revision': baseRevision,
+        'reason': reason,
+        'package_sha256': packageSha256,
+        'files': files.map((e0) => e0.toJson()).toList(),
+        'data_source': dataSource,
+        'form_status': formStatus,
+        'demo_mark': demoMark,
+        'snapshot': snapshot,
+        'issue_count': issueCount,
+        'prepared_by': preparedBy,
+        'prepared_by_name': preparedByName,
+        'checked_by_name': checkedByName,
+        'approved_by_name': approvedByName,
+        'issue_id': issueId,
+        'version': version,
+        'created_at': createdAt,
+        'can_check': canCheck,
+        'can_approve': canApprove,
+        'can_issue': canIssue,
+        'demo_forms_off': demoFormsOff,
+        'preview': preview,
+        'issues': issues.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class RptFileContentResponse implements ResponseModel {
+  const RptFileContentResponse({
+    required this.format,
+    required this.sha256,
+    required this.name,
+    required this.sizeBytes,
+    required this.contentBase64,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptFileContentResponse.fromJson(Object? json, [String path = 'RptFileContentResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptFileContentResponse(
+      format: requiredField(map, path, 'format', asString),
+      sha256: requiredField(map, path, 'sha256', asString),
+      name: requiredField(map, path, 'name', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      contentBase64: requiredField(map, path, 'content_base64', asString),
+      extra: unknownFields(map, path, const <String>{'format', 'sha256', 'name', 'size_bytes', 'content_base64'}, strict: true),
+    );
+  }
+
+  final String format;
+  final String sha256;
+  final String name;
+  final int sizeBytes;
+  final String contentBase64;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'format': format,
+        'sha256': sha256,
+        'name': name,
+        'size_bytes': sizeBytes,
+        'content_base64': contentBase64,
+        ...extra,
+      };
+}
+
+final class RptFileInfoResponse implements ResponseModel {
+  const RptFileInfoResponse({
+    required this.format,
+    required this.sha256,
+    required this.name,
+    required this.sizeBytes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptFileInfoResponse.fromJson(Object? json, [String path = 'RptFileInfoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptFileInfoResponse(
+      format: requiredField(map, path, 'format', asString),
+      sha256: requiredField(map, path, 'sha256', asString),
+      name: requiredField(map, path, 'name', nullable(asString)),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      extra: unknownFields(map, path, const <String>{'format', 'sha256', 'name', 'size_bytes'}, strict: true),
+    );
+  }
+
+  final String format;
+  final String sha256;
+  final String? name;
+  final int sizeBytes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'format': format,
+        'sha256': sha256,
+        'name': name,
+        'size_bytes': sizeBytes,
+        ...extra,
+      };
+}
+
+final class RptGeneratedResponse implements ResponseModel {
+  const RptGeneratedResponse({
+    required this.outcome,
+    required this.draftId,
+    required this.issueId,
+    required this.revision,
+    required this.packageSha256,
+    required this.issueCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptGeneratedResponse.fromJson(Object? json, [String path = 'RptGeneratedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptGeneratedResponse(
+      outcome: requiredField(map, path, 'outcome', asString),
+      draftId: requiredField(map, path, 'draft_id', nullable(asString)),
+      issueId: requiredField(map, path, 'issue_id', nullable(asString)),
+      revision: requiredField(map, path, 'revision', asInt),
+      packageSha256: requiredField(map, path, 'package_sha256', asString),
+      issueCount: requiredField(map, path, 'issue_count', asInt),
+      extra: unknownFields(map, path, const <String>{'outcome', 'draft_id', 'issue_id', 'revision', 'package_sha256', 'issue_count'}, strict: true),
+    );
+  }
+
+  final String outcome;
+  final String? draftId;
+  final String? issueId;
+  final int revision;
+  final String packageSha256;
+  final int issueCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'draft_id': draftId,
+        'issue_id': issueId,
+        'revision': revision,
+        'package_sha256': packageSha256,
+        'issue_count': issueCount,
+        ...extra,
+      };
+}
+
+final class RptGridIssueResponse implements ResponseModel {
+  const RptGridIssueResponse({
+    required this.ref,
+    required this.code,
+    required this.detail,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptGridIssueResponse.fromJson(Object? json, [String path = 'RptGridIssueResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptGridIssueResponse(
+      ref: requiredField(map, path, 'ref', asString),
+      code: requiredField(map, path, 'code', asString),
+      detail: requiredField(map, path, 'detail', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'ref', 'code', 'detail'}, strict: true),
+    );
+  }
+
+  final String ref;
+  final String code;
+  final String? detail;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'ref': ref,
+        'code': code,
+        'detail': detail,
+        ...extra,
+      };
+}
+
+final class RptIssuePageResponse implements ResponseModel {
+  const RptIssuePageResponse({
+    required this.items,
+    required this.truncated,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptIssuePageResponse.fromJson(Object? json, [String path = 'RptIssuePageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptIssuePageResponse(
+      items: requiredField(map, path, 'items', asList(RptIssueResponse.fromJson)),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'truncated', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<RptIssueResponse> items;
+  final bool truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RptIssueResponse implements ResponseModel {
+  const RptIssueResponse({
+    required this.id,
+    required this.layoutCode,
+    required this.layoutVersion,
+    required this.layoutName,
+    required this.periodCode,
+    required this.period,
+    required this.revision,
+    required this.supersedesId,
+    required this.reason,
+    required this.sha256,
+    required this.files,
+    required this.dataSource,
+    required this.formStatus,
+    required this.demoMark,
+    required this.countsAsAccepted,
+    required this.snapshot,
+    required this.issueCount,
+    required this.preparedByName,
+    required this.checkedByName,
+    required this.approvedByName,
+    required this.issuedByName,
+    required this.issuedAt,
+    required this.isCurrent,
+    required this.currentRevision,
+    required this.chain,
+    required this.deliveries,
+    required this.issues,
+    required this.canDeliver,
+    required this.canAnswer,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptIssueResponse.fromJson(Object? json, [String path = 'RptIssueResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptIssueResponse(
+      id: requiredField(map, path, 'id', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      layoutName: requiredField(map, path, 'layout_name', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      period: requiredField(map, path, 'period', RptPeriodResponse.fromJson),
+      revision: requiredField(map, path, 'revision', asInt),
+      supersedesId: requiredField(map, path, 'supersedes_id', nullable(asString)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      sha256: requiredField(map, path, 'sha256', asString),
+      files: requiredField(map, path, 'files', asList(RptFileInfoResponse.fromJson)),
+      dataSource: requiredField(map, path, 'data_source', asString),
+      formStatus: requiredField(map, path, 'form_status', asString),
+      demoMark: requiredField(map, path, 'demo_mark', nullable(asString)),
+      countsAsAccepted: requiredField(map, path, 'counts_as_accepted', asBool),
+      snapshot: requiredField(map, path, 'snapshot', asAny),
+      issueCount: requiredField(map, path, 'issue_count', asInt),
+      preparedByName: requiredField(map, path, 'prepared_by_name', nullable(asString)),
+      checkedByName: requiredField(map, path, 'checked_by_name', nullable(asString)),
+      approvedByName: requiredField(map, path, 'approved_by_name', nullable(asString)),
+      issuedByName: requiredField(map, path, 'issued_by_name', nullable(asString)),
+      issuedAt: requiredField(map, path, 'issued_at', asString),
+      isCurrent: requiredField(map, path, 'is_current', asBool),
+      currentRevision: requiredField(map, path, 'current_revision', asInt),
+      chain: requiredField(map, path, 'chain', asList(RptChainLinkResponse.fromJson)),
+      deliveries: requiredField(map, path, 'deliveries', asList(RptDeliveryResponse.fromJson)),
+      issues: requiredField(map, path, 'issues', asList(RptGridIssueResponse.fromJson)),
+      canDeliver: requiredField(map, path, 'can_deliver', asBool),
+      canAnswer: requiredField(map, path, 'can_answer', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'layout_version', 'layout_name', 'period_code', 'period', 'revision', 'supersedes_id', 'reason', 'sha256', 'files', 'data_source', 'form_status', 'demo_mark', 'counts_as_accepted', 'snapshot', 'issue_count', 'prepared_by_name', 'checked_by_name', 'approved_by_name', 'issued_by_name', 'issued_at', 'is_current', 'current_revision', 'chain', 'deliveries', 'issues', 'can_deliver', 'can_answer'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String layoutCode;
+  final String layoutVersion;
+  final String layoutName;
+  final String periodCode;
+  final RptPeriodResponse period;
+  final int revision;
+  final String? supersedesId;
+  final String? reason;
+  final String sha256;
+  final List<RptFileInfoResponse> files;
+  final String dataSource;
+  final String formStatus;
+  final String? demoMark;
+  final bool countsAsAccepted;
+  final Object? snapshot;
+  final int issueCount;
+  final String? preparedByName;
+  final String? checkedByName;
+  final String? approvedByName;
+  final String? issuedByName;
+  final String issuedAt;
+  final bool isCurrent;
+  final int currentRevision;
+  final List<RptChainLinkResponse> chain;
+  final List<RptDeliveryResponse> deliveries;
+  final List<RptGridIssueResponse> issues;
+  final bool canDeliver;
+  final bool canAnswer;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'layout_code': layoutCode,
+        'layout_version': layoutVersion,
+        'layout_name': layoutName,
+        'period_code': periodCode,
+        'period': period.toJson(),
+        'revision': revision,
+        'supersedes_id': supersedesId,
+        'reason': reason,
+        'sha256': sha256,
+        'files': files.map((e0) => e0.toJson()).toList(),
+        'data_source': dataSource,
+        'form_status': formStatus,
+        'demo_mark': demoMark,
+        'counts_as_accepted': countsAsAccepted,
+        'snapshot': snapshot,
+        'issue_count': issueCount,
+        'prepared_by_name': preparedByName,
+        'checked_by_name': checkedByName,
+        'approved_by_name': approvedByName,
+        'issued_by_name': issuedByName,
+        'issued_at': issuedAt,
+        'is_current': isCurrent,
+        'current_revision': currentRevision,
+        'chain': chain.map((e0) => e0.toJson()).toList(),
+        'deliveries': deliveries.map((e0) => e0.toJson()).toList(),
+        'issues': issues.map((e0) => e0.toJson()).toList(),
+        'can_deliver': canDeliver,
+        'can_answer': canAnswer,
+        ...extra,
+      };
+}
+
+final class RptPeriodResponse implements ResponseModel {
+  const RptPeriodResponse({
+    required this.kind,
+    required this.year,
+    this.index,
+    this.day,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptPeriodResponse.fromJson(Object? json, [String path = 'RptPeriodResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptPeriodResponse(
+      kind: requiredField(map, path, 'kind', asString),
+      year: requiredField(map, path, 'year', asInt),
+      index: optionalField(map, path, 'index', asInt),
+      day: optionalField(map, path, 'day', asString),
+      extra: unknownFields(map, path, const <String>{'kind', 'year', 'index', 'day'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final int year;
+  final int? index;
+  final String? day;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'year': year,
+        if (index != null) 'index': index,
+        if (day != null) 'day': day,
         ...extra,
       };
 }
