@@ -33,8 +33,8 @@ describe('the words of the catalogue', () => {
     expect([camel('TWO_THREE'), camel('bid-variance'), camel('D91_180'), camel('LATE_1_30'), camel('contract_status'), camel('ONE'), camel('portfolio-status')]).toEqual(['twoThree', 'bidVariance', 'd91180', 'late130', 'contractStatus', 'one', 'portfolioStatus']);
   });
 
-  it('knows the eight reports and gives each a path: three screens of their own, five opened in the hub by name', () => {
-    expect(REPORT_CODES).toHaveLength(8);
+  it('knows the fourteen reports and gives each a path: three screens of their own, the others opened in the hub by name', () => {
+    expect(REPORT_CODES).toHaveLength(14);
     expect(REPORT_CODES.every(isReportCode)).toBe(true);
     expect(isReportCode('nope')).toBe(false);
     expect(REPORT_PATHS['portfolio-status']).toBe('/ctr/ctr-29');
