@@ -35,6 +35,7 @@ interface Reply {
 
 /** Red flags of procurement, the report that an alert is wrong, the closing and the storms of alerts, and the ladder, over HTTP (lane GOV-10). */
 describe('GOV-10 over HTTP', () => {
+  let findingId = '';
   const harness = new AuthzHarness();
   let app: RunningApp;
   const tokenOf = (member: number, tenantId = TENANT_A): string => signTenantContext({ tenantId, membershipId: memberId(member), scopeVersion: 1 }, SIGNING_KEY);
@@ -111,7 +112,6 @@ describe('GOV-10 over HTTP', () => {
   });
 
   describe('red flags (G4-3)', () => {
-    let findingId = '';
 
     it('refuses a scan to a caller without the right, scans once for a key, and flags the package for the auditor as a signal and never a conclusion', async () => {
       expect((await call('POST', '/red-flags/scan', { member: NOBODY })).status).toBe(403);
@@ -142,21 +142,9 @@ describe('GOV-10 over HTTP', () => {
       expect((await call('GET', `/red-flags/${findingId}`, { member: DRAFTER })).status).toBe(404);
       expect((await call('POST', `/red-flags/${findingId}/take`, { member: DRAFTER, ifMatch: '"1"' })).status).toBe(404);
       expect((await call('GET', `/red-flags/${findingId}`, { member: B_AUDITOR, tenantId: TENANT_B })).status).toBe(404);
-      expect(items(await call('GET', '/red-flags', { member: NOBODY }))).toEqual([]);
+      expect((await call('GET', '/red-flags', { member: NOBODY })).status).toBe(403);
     });
 
-    it('clears only in two steps: a proposal with a reason, then a different auditor', async () => {
-      expect((await call('POST', `/red-flags/${findingId}/take`, { member: AUDITOR, ifMatch: '"1"' })).json.status).toBe('IN_REVIEW');
-      expect((await call('POST', `/red-flags/${findingId}/propose-clear`, { member: AUDITOR, ifMatch: '"2"', body: { reason: 'ok' } })).status).toBe(422);
-      expect((await call('POST', `/red-flags/${findingId}/propose-clear`, { member: AUDITOR, ifMatch: '"1"', body: { reason: 'The single bid is justified' } })).status).toBe(409);
-      expect((await call('POST', `/red-flags/${findingId}/propose-clear`, { member: AUDITOR, ifMatch: '"2"', body: { reason: 'The single bid is justified' } })).json.status).toBe('CLEAR_PROPOSED');
-      // The proposer holds no right to clear; the checker is a different person.
-      expect((await call('POST', `/red-flags/${findingId}/confirm-clear`, { member: AUDITOR, ifMatch: '"3"' })).status).toBe(403);
-      const cleared = await call('POST', `/red-flags/${findingId}/confirm-clear`, { member: SECOND, ifMatch: '"3"' });
-      expect(cleared.json.status).toBe('CLEARED');
-      const events = await harness.owner<{ type: string }>(TENANT_A, [["select type from machvon.outbox_event where type like 'aud.red_flag.%' order by created_at", []]]);
-      expect(events.map((event) => event.type)).toEqual(expect.arrayContaining(['aud.red_flag.taken.v1', 'aud.red_flag.clear_proposed.v1', 'aud.red_flag.cleared.v1']));
-    });
   });
 
   describe('the report that an alert is wrong, the closing and the storms (G2-8, G2-9, G2-11)', () => {
@@ -183,7 +171,7 @@ describe('GOV-10 over HTTP', () => {
     it('is reviewed by somebody else, with the version and a reason for a rejection, and by nobody without the right', async () => {
       const queue = await call('GET', '/home/alert-feedback?status=PENDING', { member: AUDITOR });
       expect(items(queue)).toHaveLength(1);
-      expect(items(await call('GET', '/home/alert-feedback', { member: NOBODY }))).toEqual([]);
+      expect((await call('GET', '/home/alert-feedback', { member: NOBODY })).status).toBe(403);
       expect((await call('POST', `/home/alert-feedback/${reportId}/review`, { member: AUDITOR, ifMatch: '"1"', body: { move: 'ACCEPT_FOR_TUNING', proposal_note: 'raise the line' } })).status).toBe(403);
       expect((await call('POST', `/home/alert-feedback/${reportId}/review`, { member: NOBODY, ifMatch: '"1"', body: { move: 'REJECT', review_note: 'no' } })).status).toBe(403);
     });
@@ -196,8 +184,8 @@ describe('GOV-10 over HTTP', () => {
 
     it('reads the closing report and the storms for the right holder, and the flood state of one own list', async () => {
       expect((await call('GET', '/home/alert-closures', { member: AUDITOR })).status).toBe(200);
-      expect(items(await call('GET', '/home/alert-closures', { member: NOBODY }))).toEqual([]);
-      expect((await call('GET', '/home/alert-closures/summary', { member: NOBODY })).json.denied).toBe(true);
+      expect((await call('GET', '/home/alert-closures', { member: NOBODY })).status).toBe(403);
+      expect((await call('GET', '/home/alert-closures/summary', { member: NOBODY })).status).toBe(403);
       expect((await call('GET', '/home/alert-closures/summary', { member: AUDITOR })).json).toMatchObject({ closed_by_system: 0, open_now: 0 });
       expect((await call('GET', '/home/alert-storms', { member: AUDITOR })).json.items).toEqual([]);
       const flood = await call('GET', '/home/work/flood', { member: AUDITOR });
@@ -215,12 +203,27 @@ describe('GOV-10 over HTTP', () => {
       const ladders = policy.json.ladders as Array<Record<string, unknown>>;
       expect(ladders.map((ladder) => ladder.severity)).toEqual(['URGENT', 'ACTION', 'WATCH']);
       expect(ladders[0]).toMatchObject({ version: 'builtin', unverified: true, hand_off: 'ESCALATE' });
-      expect((await call('GET', '/home/alert-ladder/policy', { member: NOBODY })).json.denied).toBe(true);
-      expect(items(await call('GET', '/home/alert-ladder/runs', { member: NOBODY }))).toEqual([]);
+      expect((await call('GET', '/home/alert-ladder/policy', { member: NOBODY })).status).toBe(403);
+      expect((await call('GET', '/home/alert-ladder/runs', { member: NOBODY })).status).toBe(403);
       expect((await call('GET', '/home/alert-ladder/runs?state=NOPE', { member: AUDITOR })).status).toBe(422);
       expect((await call('GET', '/home/alert-ladder/item?source=RED_FLAG&source_id=x', { member: AUDITOR })).json.items).toEqual([]);
       const kpi = await call('GET', '/home/alert-ladder/kpi', { member: AUDITOR });
       expect(kpi.json).toMatchObject({ runs: 0, unverified: true });
+    });
+  });
+
+  describe('the review of a red flag after the alerts', () => {
+    it('clears only in two steps: a proposal with a reason, then a different auditor', async () => {
+      expect((await call('POST', `/red-flags/${findingId}/take`, { member: AUDITOR, ifMatch: '"1"' })).json.status).toBe('IN_REVIEW');
+      expect((await call('POST', `/red-flags/${findingId}/propose-clear`, { member: AUDITOR, ifMatch: '"2"', body: { reason: 'ok' } })).status).toBe(422);
+      expect((await call('POST', `/red-flags/${findingId}/propose-clear`, { member: AUDITOR, ifMatch: '"1"', body: { reason: 'The single bid is justified' } })).status).toBe(409);
+      expect((await call('POST', `/red-flags/${findingId}/propose-clear`, { member: AUDITOR, ifMatch: '"2"', body: { reason: 'The single bid is justified' } })).json.status).toBe('CLEAR_PROPOSED');
+      // The proposer holds no right to clear; the checker is a different person.
+      expect((await call('POST', `/red-flags/${findingId}/confirm-clear`, { member: AUDITOR, ifMatch: '"3"' })).status).toBe(403);
+      const cleared = await call('POST', `/red-flags/${findingId}/confirm-clear`, { member: SECOND, ifMatch: '"3"' });
+      expect(cleared.json.status).toBe('CLEARED');
+      const events = await harness.owner<{ type: string }>(TENANT_A, [["select type from machvon.outbox_event where type like 'aud.red_flag.%' order by created_at", []]]);
+      expect(events.map((event) => event.type)).toEqual(expect.arrayContaining(['aud.red_flag.taken.v1', 'aud.red_flag.clear_proposed.v1', 'aud.red_flag.cleared.v1']));
     });
   });
 });
