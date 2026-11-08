@@ -12,9 +12,15 @@ Nothing in `infra/` provisions anything: it states what a provisioner must creat
 | `infra/secrets/` | `secret://` references with owner and rotation days; never a value |
 | `infra/pipelines/` | CI, staging and production pipelines (approval, canary by cohort, rollback) |
 | `infra/postgres/`, `infra/keycloak/` | the PostgreSQL configuration template and backup targets; the realm template |
+| `infra/onprem/` | the on-prem deployment: Dockerfiles (api, workers, web, db), the compose set, the nginx edge, systemd backup timers, images and secrets lists, the offline bundle scripts |
+| `infra/keycloak/onprem/` | the Keycloak realm import (AD federation, mandatory MFA, lockout) and the AD group to role mapping |
+| `infra/backup/` | the backup policy (schedule, retention, RPO/RTO, encryption, immutability) and the object-lock bucket settings |
+| `infra/scan/`, `.zap/`, `.gitleaks.toml` | the policies of the image and filesystem scans, the ZAP rules, the secret scan rules |
 
 Environment guide: [environments.md](environments.md). Rotation: [secrets-rotation.md](secrets-rotation.md).
 Releases: [rollback.md](rollback.md).
+On-prem: [onprem-install.md](onprem-install.md), [onprem-upgrade-rollback.md](onprem-upgrade-rollback.md). Backups: [backup-immutable.md](backup-immutable.md), [restore-drill.md](restore-drill.md).
+Security: [tls-headers.md](tls-headers.md), [security-scanning.md](security-scanning.md), `docs/security/pentest-readiness.md`, `docs/security/identity-test-plan.md`.
 
 ## The entry gate (ST-KERNEL-015)
 
