@@ -8,8 +8,8 @@ import { CLIPS_DIR, REPO_ROOT, argument, flag, loadSpec, positionals, readJson }
 import { loadScenario, selectScenes } from './scenario.mjs';
 import { assColour } from './mix.mjs';
 import { CURSOR_SCRIPT } from './record/cursor.mjs';
-import { withPersona } from './record/scene.mjs';
 import { Ui } from './record/ui.mjs';
+import { ReplayUi, groupSteps, replayView, summariseReplay, viewShares } from './record/replay.mjs';
 import { sentencesOf } from './text.mjs';
 import { buildTimeline, cuesOf, formatSrt, formatVtt, checkCues } from './subtitles.mjs';
 
@@ -150,7 +150,7 @@ async function findContext(ui, page, target, persona, hints, log) {
 }
 
 /** Records the views of a scene in an open browser for `durationMs` after the first screen has drawn; returns the file and the second the content begins at. */
-async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, log }) {
+async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, log, scene, typed = {}, replay = true }) {
   let views = wanted;
   // The records that open the detail screens are looked for first, in a page that is not filmed.
   const scout = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1, locale: 'vi-VN' });
@@ -173,12 +173,17 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
   await context.addInitScript(CURSOR_SCRIPT);
   const page = await context.newPage();
   const started = Date.now();
-  const ui = new Ui(page, { baseUrl, slowMo: 1 });
+  const ui = new ReplayUi(page, { baseUrl, slowMo: 1 });
   let contentAt = 0;
   const problems = [];
+  const replayLines = [];
+  const spans = [];
   const shown = views.filter((view) => !emptyScreens.has(view.screen));
   if (shown.length < views.length) log(`  left out (no record to open them): ${views.filter((view) => emptyScreens.has(view.screen)).map((view) => view.screen).join(' ')}`);
   views = shown.length > 0 ? shown : views;
+  const groups = replay ? groupSteps(scene, views) : views.map(() => []);
+  const shares = viewShares(groups, durationMs);
+  let allotted = 0;
   try {
     for (let index = 0; index < views.length; index += 1) {
       const view = views[index];
@@ -190,12 +195,25 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
       if (index === 0) contentAt = Date.now() - started;
       const alert = await page.locator('[role="alert"]').first().textContent({ timeout: 500 }).catch(() => null);
       if (alert !== null && alert.trim() !== '') problems.push(`${view.screen}: ${alert.trim().slice(0, 80)}`);
-      const share = durationMs / views.length;
-      const target = index === 0 ? contentAt + share : contentAt + share * (index + 1);
-      const remaining = Math.max(2000, target - (Date.now() - started) - 0);
-      const row = page.locator('[data-screen-id] table tbody tr, [data-screen-id] [role="row"], [data-screen-id] article, [data-screen-id] [class*="card"]').first();
-      if ((await row.count()) > 0) await ui.hover(row).catch(() => undefined);
-      await ui.scrollThrough(Math.max(1500, remaining - 700));
+      allotted += shares[index];
+      const target = contentAt + allotted;
+      let scrolled = false;
+      if (groups[index].length > 0) {
+        const budget = Math.max(2500, target - (Date.now() - started));
+        const done = await replayView(ui, groups[index], { budgetMs: budget, typed, log });
+        replayLines.push(...done.lines.map((line) => ({ ...line, screen: view.screen })));
+        scrolled = done.scrolled;
+      } else {
+        const row = page.locator('[data-screen-id] table tbody tr, [data-screen-id] [role="row"], [data-screen-id] article, [data-screen-id] [class*="card"]').first();
+        if ((await row.count()) > 0) await ui.hover(row).catch(() => undefined);
+      }
+      const remaining = Math.max(1200, target - (Date.now() - started));
+      if (!scrolled) await ui.scrollThrough(Math.max(1000, remaining - 700));
+      const found = await ui.screenProblems().catch(() => null);
+      if (found !== null && (found.alerts.length > 0 || found.busy > 0 || found.loadingText || found.blank)) {
+        problems.push(`${view.screen}: ${[...found.alerts.map((text) => `banner "${text}"`), found.busy > 0 ? 'loading indicator still shown' : '', found.loadingText ? 'loading text' : '', found.blank ? 'blank screen' : ''].filter(Boolean).join(', ')}`);
+      }
+      spans.push({ screen: view.screen, fromMs: viewStart - started - contentAt, toMs: Date.now() - started - contentAt });
       log(`  view ${view.screen} as ${view.persona}: ${Date.now() - viewStart} ms`);
     }
     const left = contentAt + durationMs - (Date.now() - started);
@@ -205,7 +223,7 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
   }
   const video = page.video();
   const path = await video.path();
-  return { path, contentAt, problems };
+  return { path, contentAt, problems, replay: replayLines, spans };
 }
 
 /** The phone scenes. The emulator is used when `--serial` is given (scripts/clips/record/phone.mjs); without one the scene is shown as a card (animatic) that names the phone screens. */
@@ -223,7 +241,7 @@ async function main(argv) {
   const manifestPath = argument(argv, 'manifest');
   const out = argument(argv, 'out');
   if (clip === undefined || audioPath === undefined || manifestPath === undefined || out === undefined) {
-    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web]');
+    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps]');
     return 2;
   }
   const scenario = loadScenario(clip);
@@ -273,10 +291,12 @@ async function main(argv) {
         }
         const rawDir = join(dir, 'seg', `${entry.id}.raw`);
         rmSync(rawDir, { recursive: true, force: true });
-        const recorded = await recordViews(browser, { views, durationMs: seconds * 1000, baseUrl: webUrl, dir: rawDir, log: console.log });
+        const recorded = await recordViews(browser, { views, durationMs: seconds * 1000, baseUrl: webUrl, dir: rawDir, log: console.log, scene, typed: scenario.typed, replay: !flag(argv, 'no-steps') });
         finishSegment({ input: recorded.path, startSec: recorded.contentAt / 1000, seconds, ass, out: file, hold: true });
         rmSync(rawDir, { recursive: true, force: true });
-        report.push({ id: entry.id, kind: 'web', screens: views.map((view) => view.screen), seconds, problems: recorded.problems });
+        const replaySummary = summariseReplay(recorded.replay);
+        console.log(`  steps of ${entry.id}: ${replaySummary.replayed} replayed, ${replaySummary.skipped} skipped (${replaySummary.offScreen} not clicks)`);
+        report.push({ id: entry.id, kind: 'web', screens: views.map((view) => view.screen), seconds, problems: recorded.problems, steps: { ...replaySummary, lines: recorded.replay } });
       } else {
         const raw = join(dir, 'seg', `${entry.id}.raw.mp4`);
         const sentences = sentencesOf(entry.subtitles.map((cue) => cue.text).join(' '));
