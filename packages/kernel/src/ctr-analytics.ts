@@ -39,6 +39,19 @@ export const INDICATOR_CODES = [
   'ADVANCE_RECOVERY_SHORTFALL',
   'GUARANTEE_EXPOSURE',
   'CHANGE_TIER_GROWTH',
+  // CA-3, the registers: claims and limitation, defects, obstacles, audit findings and recoveries, the rating of the contractor, the colour of the contract.
+  'CLAIM_SETTLEMENT_RATE',
+  'CLAIM_LIMITATION_RISK',
+  'DEFECT_CLOSURE_RATE',
+  'DEFECT_OVERDUE_RATE',
+  'DEFECT_REOPEN_RATE',
+  'OBSTACLE_OVERDUE_RATE',
+  'OBSTACLE_ESCALATION_RATE',
+  'AUDIT_RECOVERY_RATE',
+  'AUDIT_OVERDUE_RECOMMENDATION_RATE',
+  'RATING_COVERAGE',
+  'RATING_RESPONSE_RATE',
+  'CONTRACT_RED_SHARE',
 ] as const;
 export type IndicatorCode = (typeof INDICATOR_CODES)[number];
 
@@ -261,6 +274,126 @@ export const CTR_INDICATORS: Readonly<Record<IndicatorCode, IndicatorDefinition>
     sourceTables: ['contract', 'contract_revision', 'contract_change'],
     nullPolicy: `${NULL_POLICY_RATIO}; a tier with no approved change has no figure, which is not a growth of zero`,
   },
+  CLAIM_SETTLEMENT_RATE: {
+    code: 'CLAIM_SETTLEMENT_RATE',
+    name: 'Claimed money granted',
+    formula: 'sum(amount granted) / sum(amount claimed) x 100, over the claims that were decided',
+    numerator: 'sum(amount granted of the decided claims; a rejected claim grants nothing)',
+    denominator: 'sum(amount claimed of the decided claims)',
+    unit: 'PERCENT',
+    sourceTables: ['change_request', 'warranty_claim'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a claim that is still open or was withdrawn is left out of both sums, and a claim that states no amount is not a claim of zero`,
+  },
+  CLAIM_LIMITATION_RISK: {
+    code: 'CLAIM_LIMITATION_RISK',
+    name: 'Open claims near or past their limitation day',
+    formula: 'open claims whose limitation day is past or within the warning days / open claims that have a limitation day x 100',
+    numerator: 'count(open claims whose limitation day is past, or within the near days of the rule CONTRACT_CLAIM_LIMITATION)',
+    denominator: 'count(open claims that have a limitation day)',
+    unit: 'PERCENT',
+    sourceTables: ['change_request', 'warranty_claim', 'warranty_obligation'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a claim with no limitation term on record is not judged, and the report says so for that row`,
+  },
+  DEFECT_CLOSURE_RATE: {
+    code: 'DEFECT_CLOSURE_RATE',
+    name: 'Defects verified and closed',
+    formula: 'defects verified or closed / defects recorded x 100',
+    numerator: 'count(non-conformances whose status is VERIFIED or CLOSED)',
+    denominator: 'count(non-conformances recorded)',
+    unit: 'PERCENT',
+    sourceTables: ['quality_nonconformance'],
+    nullPolicy: NULL_POLICY_RATIO,
+  },
+  DEFECT_OVERDUE_RATE: {
+    code: 'DEFECT_OVERDUE_RATE',
+    name: 'Open defects past their due day',
+    formula: 'open defects past their due day / open defects x 100',
+    numerator: 'count(open non-conformances whose due day is before the as-of day)',
+    denominator: 'count(open non-conformances)',
+    unit: 'PERCENT',
+    sourceTables: ['quality_nonconformance'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a defect that is already verified or closed is not open and is left out of both counts`,
+  },
+  DEFECT_REOPEN_RATE: {
+    code: 'DEFECT_REOPEN_RATE',
+    name: 'Defects reopened after closing',
+    formula: 'defects reopened at least once / defects recorded x 100',
+    numerator: 'count(non-conformances with reopen count above zero)',
+    denominator: 'count(non-conformances recorded)',
+    unit: 'PERCENT',
+    sourceTables: ['quality_nonconformance'],
+    nullPolicy: NULL_POLICY_RATIO,
+  },
+  OBSTACLE_OVERDUE_RATE: {
+    code: 'OBSTACLE_OVERDUE_RATE',
+    name: 'Open obstacles past their due day',
+    formula: 'open obstacles past their due day / open obstacles x 100',
+    numerator: 'count(open issues linked to a contract whose due day is before the as-of day)',
+    denominator: 'count(open issues linked to a contract)',
+    unit: 'PERCENT',
+    sourceTables: ['issue'],
+    nullPolicy: `${NULL_POLICY_RATIO}; an issue that is resolved or closed is left out, and an issue of the project that is not linked to a contract is not in this report`,
+  },
+  OBSTACLE_ESCALATION_RATE: {
+    code: 'OBSTACLE_ESCALATION_RATE',
+    name: 'Open obstacles escalated',
+    formula: 'open obstacles escalated above the first level / open obstacles x 100',
+    numerator: 'count(open issues linked to a contract whose escalation level is above zero)',
+    denominator: 'count(open issues linked to a contract)',
+    unit: 'PERCENT',
+    sourceTables: ['issue'],
+    nullPolicy: NULL_POLICY_RATIO,
+  },
+  AUDIT_RECOVERY_RATE: {
+    code: 'AUDIT_RECOVERY_RATE',
+    name: 'Audit amounts recovered',
+    formula: 'sum(recovered) / sum(amount recommended to recover) x 100, over the financial recommendations of the findings',
+    numerator: 'sum(recovered of the financial recommendations)',
+    denominator: 'sum(amount of the financial recommendations)',
+    unit: 'PERCENT',
+    sourceTables: ['audit_finding', 'audit_recommendation', 'audit_recovery_link'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a finding with no financial recommendation has no figure, which is not a recovery of zero`,
+  },
+  AUDIT_OVERDUE_RECOMMENDATION_RATE: {
+    code: 'AUDIT_OVERDUE_RECOMMENDATION_RATE',
+    name: 'Audit recommendations past their due day',
+    formula: 'open recommendations past their due day / open recommendations x 100',
+    numerator: 'count(open recommendations of the findings flagged overdue)',
+    denominator: 'count(open recommendations of the findings)',
+    unit: 'PERCENT',
+    sourceTables: ['audit_finding', 'audit_recommendation'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a recommendation that is verified or closed is not open`,
+  },
+  RATING_COVERAGE: {
+    code: 'RATING_COVERAGE',
+    name: 'Contracts with a proposed rating',
+    formula: 'contracts for which a score could be proposed / contracts that can be rated x 100',
+    numerator: 'count(contracts that can be rated whose criteria with data are enough, by the rule CONTRACT_PERFORMANCE_RATING, to propose an overall score)',
+    denominator: 'count(contracts in force or ended)',
+    unit: 'PERCENT',
+    sourceTables: ['contract', 'quality_nonconformance', 'issue', 'contractor_violation', 'audit_finding'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a criterion with no data has no score and is never filled with zero`,
+  },
+  RATING_RESPONSE_RATE: {
+    code: 'RATING_RESPONSE_RATE',
+    name: 'Contractors that answered a rating within the window',
+    formula: 'responses recorded inside the response window / ratings notified whose window is over or answered x 100',
+    numerator: 'count(proposals answered on or before their response day)',
+    denominator: 'count(proposals notified that were answered, or whose response day has passed)',
+    unit: 'PERCENT',
+    sourceTables: ['contract_rating_proposal'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a proposal whose window is still running and has no answer is not judged`,
+  },
+  CONTRACT_RED_SHARE: {
+    code: 'CONTRACT_RED_SHARE',
+    name: 'Contracts that are red',
+    formula: 'contracts coloured red / contracts that could be coloured x 100; the colour is the worst of the indicators that apply',
+    numerator: 'count(contracts whose worst indicator is red by the rule CONTRACT_HEALTH_RAG)',
+    denominator: 'count(contracts that have at least one indicator to judge)',
+    unit: 'PERCENT',
+    sourceTables: ['contract_fact'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a contract with no indicator to judge has no colour and is not counted as green`,
+  },
 });
 
 // ---- the result every indicator gives ----------------------------------------------------------------------------------------------------------------------
@@ -284,7 +417,20 @@ export type NotApplicableReason =
   | 'AC_ZERO'
   | 'NO_PAYMENT_JUDGED'
   | 'NO_MEASURED_WORK'
-  | 'NO_CHANGE';
+  | 'NO_CHANGE'
+  // CA-3
+  | 'NO_DECIDED_CLAIM'
+  | 'NO_LIMITATION_TERM'
+  | 'NO_OPEN_CLAIM'
+  | 'NO_DEFECT'
+  | 'NO_OPEN_DEFECT'
+  | 'NO_OBSTACLE'
+  | 'NO_OPEN_OBSTACLE'
+  | 'NO_FINANCIAL_RECOMMENDATION'
+  | 'NO_OPEN_RECOMMENDATION'
+  | 'NO_RATABLE_CONTRACT'
+  | 'NO_RESPONSE_JUDGED'
+  | 'NO_COLOURED_CONTRACT';
 
 export interface IndicatorResult {
   code: IndicatorCode;
