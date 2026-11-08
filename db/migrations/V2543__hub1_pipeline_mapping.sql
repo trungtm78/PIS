@@ -16,6 +16,9 @@ CREATE TABLE machvon.hub_pipeline_mapping (
   decided_by uuid,
   decided_at timestamptz,
   decision_reason text,
+  retired_by uuid,
+  retired_at timestamptz,
+  retire_reason text,
   version bigint NOT NULL DEFAULT 1,
   PRIMARY KEY (tenant_id, id),
   CONSTRAINT hub_pipeline_mapping_code_chk CHECK (connector_code ~ '^[a-z0-9_.-]{3,60}$' AND pipeline_code ~ '^[A-Z][A-Z0-9_]{0,59}$'),
@@ -23,7 +26,8 @@ CREATE TABLE machvon.hub_pipeline_mapping (
   CONSTRAINT hub_pipeline_mapping_fields_chk CHECK (jsonb_typeof(fields) = 'array' AND jsonb_array_length(fields) BETWEEN 1 AND 200),
   CONSTRAINT hub_pipeline_mapping_state_chk CHECK (state IN ('PROPOSED', 'APPROVED', 'REJECTED', 'RETIRED')),
   CONSTRAINT hub_pipeline_mapping_decision_chk CHECK ((state = 'PROPOSED') = (decided_by IS NULL AND decided_at IS NULL) AND (state = 'PROPOSED' OR decision_reason IS NOT NULL)),
-  CONSTRAINT hub_pipeline_mapping_checker_chk CHECK (decided_by IS NULL OR decided_by <> proposed_by OR state = 'RETIRED'),
+  CONSTRAINT hub_pipeline_mapping_checker_chk CHECK (decided_by IS NULL OR decided_by <> proposed_by),
+  CONSTRAINT hub_pipeline_mapping_retired_chk CHECK ((state = 'RETIRED') = (retired_by IS NOT NULL AND retired_at IS NOT NULL AND retire_reason IS NOT NULL) AND (retire_reason IS NULL OR (retire_reason = btrim(retire_reason) AND char_length(retire_reason) BETWEEN 4 AND 2000))),
   CONSTRAINT hub_pipeline_mapping_reason_chk CHECK (decision_reason IS NULL OR (decision_reason = btrim(decision_reason) AND char_length(decision_reason) BETWEEN 4 AND 2000)),
   CONSTRAINT hub_pipeline_mapping_row_version_chk CHECK (version >= 1),
   CONSTRAINT hub_pipeline_mapping_version_uq UNIQUE (tenant_id, connector_code, pipeline_code, mapping_version)
@@ -39,6 +43,9 @@ BEGIN
   IF NEW.connector_code IS DISTINCT FROM OLD.connector_code OR NEW.pipeline_code IS DISTINCT FROM OLD.pipeline_code OR NEW.mapping_version IS DISTINCT FROM OLD.mapping_version
      OR NEW.fields IS DISTINCT FROM OLD.fields OR NEW.proposed_by IS DISTINCT FROM OLD.proposed_by OR NEW.proposed_at IS DISTINCT FROM OLD.proposed_at THEN
     RAISE EXCEPTION 'a mapping version keeps its fields and its proposer' USING ERRCODE = '23514';
+  END IF;
+  IF OLD.state <> 'PROPOSED' AND (NEW.decided_by IS DISTINCT FROM OLD.decided_by OR NEW.decided_at IS DISTINCT FROM OLD.decided_at OR NEW.decision_reason IS DISTINCT FROM OLD.decision_reason) THEN
+    RAISE EXCEPTION 'the decision on a mapping version is kept as it was made' USING ERRCODE = '23514';
   END IF;
   IF NOT ((OLD.state = 'PROPOSED' AND NEW.state IN ('APPROVED', 'REJECTED')) OR (OLD.state = 'APPROVED' AND NEW.state = 'RETIRED')) THEN
     RAISE EXCEPTION 'a mapping moves from proposed to approved or rejected, and from approved to retired' USING ERRCODE = '23514';

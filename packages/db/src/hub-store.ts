@@ -199,6 +199,10 @@ export interface HubMappingRow {
   decidedBy: string | null;
   decidedAt: string | null;
   decisionReason: string | null;
+  /** Who retired the version, when and why: kept apart from the decision that approved it. */
+  retiredBy: string | null;
+  retiredAt: string | null;
+  retireReason: string | null;
   version: number;
 }
 
@@ -214,10 +218,13 @@ interface MappingSql {
   decided_by: string | null;
   decided_at: string | null;
   decision_reason: string | null;
+  retired_by: string | null;
+  retired_at: string | null;
+  retire_reason: string | null;
   version: string;
 }
 
-const MAPPING_SELECT = `select id, connector_code, pipeline_code, mapping_version, fields, state, proposed_by, ${iso('proposed_at')} as proposed_at, decided_by, ${iso('decided_at')} as decided_at, decision_reason, version::text as version from machvon.hub_pipeline_mapping`;
+const MAPPING_SELECT = `select id, connector_code, pipeline_code, mapping_version, fields, state, proposed_by, ${iso('proposed_at')} as proposed_at, decided_by, ${iso('decided_at')} as decided_at, decision_reason, retired_by, ${iso('retired_at')} as retired_at, retire_reason, version::text as version from machvon.hub_pipeline_mapping`;
 
 const mappingOf = (row: MappingSql): HubMappingRow => ({
   id: row.id,
@@ -231,6 +238,9 @@ const mappingOf = (row: MappingSql): HubMappingRow => ({
   decidedBy: row.decided_by,
   decidedAt: row.decided_at,
   decisionReason: row.decision_reason,
+  retiredBy: row.retired_by,
+  retiredAt: row.retired_at,
+  retireReason: row.retire_reason,
   version: Number(row.version),
 });
 
@@ -804,7 +814,7 @@ export class HubStore {
     if (decision === 'APPROVE') {
       const current = await tx.query<MappingSql>(`${MAPPING_SELECT} where connector_code = $1 and pipeline_code = $2 and state = 'APPROVED' for update`, [before.connectorCode, before.pipelineCode]);
       if (current[0] !== undefined) {
-        await tx.query(`update machvon.hub_pipeline_mapping set state = 'RETIRED', decided_by = $2::uuid, decided_at = clock_timestamp(), decision_reason = $3, version = version + 1 where id = $1::uuid`, [current[0].id, actor, `Replaced by ${before.mappingVersion}`]);
+        await tx.query(`update machvon.hub_pipeline_mapping set state = 'RETIRED', retired_by = $2::uuid, retired_at = clock_timestamp(), retire_reason = $3, version = version + 1 where id = $1::uuid`, [current[0].id, actor, `Replaced by ${before.mappingVersion}`]);
         retired = await this.findMapping(tx, current[0].id);
       }
     }

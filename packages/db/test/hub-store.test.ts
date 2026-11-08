@@ -230,7 +230,9 @@ describe('the Integration Hub store (HUB-1)', () => {
       expect(await as((tx) => hub.approvedMapping(tx, 'national.project_codes', 'PROJECT_CODES'))).toMatchObject({ version: 'M1', approvedBy: memberId(CHECKER) });
       const second = await as((tx) => hub.proposeMapping(tx, 'national.project_codes', 'PROJECT_CODES', 'M2', FIELDS, memberId(MAKER)));
       const replaced = await as((tx) => hub.decideMapping(tx, second.id, 1, 'APPROVE', 'Adds the upper case rule', memberId(CHECKER)), CHECKER);
-      expect(replaced.retired).toMatchObject({ mappingVersion: 'M1', state: 'RETIRED' });
+      // The retired version keeps the approval it was given; the retirement is recorded apart from it.
+      expect(replaced.retired).toMatchObject({ mappingVersion: 'M1', state: 'RETIRED', decidedBy: memberId(CHECKER), decisionReason: 'The columns match the register', retiredBy: memberId(CHECKER), retireReason: 'Replaced by M2' });
+      expect(replaced.retired?.retiredAt).not.toBeNull();
       expect((await as((tx) => hub.approvedMapping(tx, 'national.project_codes', 'PROJECT_CODES')))?.version).toBe('M2');
       expect(await refusal(as((tx) => hub.decideMapping(tx, mappingId, 3, 'REJECT', 'It was replaced already', memberId(CHECKER)), CHECKER))).toMatchObject({ code: 'HUB_MAPPING_STATE_INVALID' });
       expect(await databaseRefusal(owner('update machvon.hub_pipeline_mapping set fields = \'[{"x":1}]\'::jsonb, version = version + 1 where id = $1', [mappingId]))).toContain('keeps its fields');
