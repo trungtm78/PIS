@@ -7235,6 +7235,70 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "BID_SECURITY_NOT_VALID": {
+      "status": 422,
+      "title": "Bid security does not meet the package",
+      "meaning": "Bảo đảm dự thầu của nhà thầu chưa đáp ứng gói: thiếu, chưa xác nhận, thiếu tiền, hết hạn sớm hoặc đã bị tịch thu (VND-2, V10).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "SUBCONTRACT_STATE_INVALID": {
+      "status": 409,
+      "title": "Subcontract is not in the state the move needs",
+      "meaning": "Thầu phụ không ở trạng thái mà thao tác cần: chỉ thầu phụ đã chấp thuận mới ghi được số đã trả (VND-2, V11).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "INDEPENDENCE_FINDING_OPEN": {
+      "status": 422,
+      "title": "Independence finding is open",
+      "meaning": "Gói còn phát hiện về tính độc lập chưa quyết định hoặc đã bị chặn nên chưa thể trao kết quả (VND-2, V5).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "INDEPENDENCE_DECISION_INVALID": {
+      "status": 422,
+      "title": "Decision does not fit the finding",
+      "meaning": "Quyết định không phù hợp với phát hiện: rút khỏi tổ chỉ áp dụng cho người, chặn chỉ áp dụng cho nhà thầu hoặc chủ đầu tư (VND-2, V5).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "FINANCIAL_PERIOD_DUPLICATE": {
+      "status": 409,
+      "title": "Financial period already recorded",
+      "meaning": "Năm tài chính này đã có số liệu giống hệt (VND-2, V7).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RISK_ASSESSMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Risk assessment is not in the state the move needs",
+      "meaning": "Đã có một hạng rủi ro đang chờ quyết định của nhà thầu này nên chưa chấm thêm được (VND-2, V13).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PERFORMANCE_PUBLICATION_DUPLICATE": {
+      "status": 409,
+      "title": "The rating is already published",
+      "meaning": "Đánh giá thực hiện hợp đồng này đã được ghi nhận công khai lần đầu; thay đổi sau đó là bản cập nhật (VND-2, V4).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RATING_NOT_ADOPTED": {
+      "status": 409,
+      "title": "The rating is not adopted",
+      "meaning": "Đánh giá chưa được chốt nên chưa công khai được (VND-2, V4).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

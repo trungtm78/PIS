@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 562,
-    "webCatalog": 562,
+    "webRoutes": 566,
+    "webCatalog": 566,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -2082,6 +2082,32 @@
           "primary": [
             5,
             6
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Bảo đảm dự thầu và thầu phụ",
+          "description": "Sổ bảo đảm dự thầu với xác nhận và tịch thu, thầu phụ của hợp đồng với số đã trả",
+          "ids": [
+            9,
+            10
+          ],
+          "primary": [
+            9,
+            10
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Hạng rủi ro và kết quả thực hiện",
+          "description": "Hạng rủi ro của nhà thầu có giải thích từng yếu tố, kết quả thực hiện hợp đồng, hạn công khai và chuỗi đánh giá kém",
+          "ids": [
+            11,
+            12
+          ],
+          "primary": [
+            11,
+            12
           ],
           "parents": {}
         }
@@ -8541,6 +8567,46 @@
       "area": "investment",
       "module": "QMS",
       "group": "Chất lượng thi công",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-09",
+      "title": "Sổ bảo đảm dự thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Bảo đảm dự thầu và thầu phụ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-10",
+      "title": "Nhà thầu phụ của hợp đồng",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Bảo đảm dự thầu và thầu phụ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-11",
+      "title": "Hạng rủi ro nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Hạng rủi ro và kết quả thực hiện",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "VND-12",
+      "title": "Kết quả thực hiện hợp đồng và công khai",
+      "kind": "table",
+      "area": "insights",
+      "module": "VND",
+      "group": "Hạng rủi ro và kết quả thực hiện",
       "role": "workspace",
       "parent": null
     }
