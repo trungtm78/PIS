@@ -1,4 +1,5 @@
 import { DECISION_DEFAULTS, DECISION_RULE_CODE, DECISION_RULE_TYPE, decisionPolicyOf } from './ana-decision.ts';
+import { BOTTLENECK_DEFAULTS, BOTTLENECK_RULE_CODE, BOTTLENECK_RULE_TYPE, bottleneckModelOf } from './ana-bottleneck.ts';
 import type { ForecastParams } from './ana-forecast.ts';
 import { RANKING_DEFAULTS, RANKING_RULE_CODE, RANKING_RULE_TYPE, rankingModelOf } from './ana-ranking.ts';
 import { FRESHNESS_DEFAULTS, FRESHNESS_RULE_TYPE, SCORECARD_MODULE_DEFAULTS, SCORECARD_MODULE_RULE_TYPE, SCORECARD_RULE_CODE, SCORECARD_UNIT_DEFAULTS, SCORECARD_UNIT_RULE_TYPE, moduleScorecardPolicyOf, unitScorecardPolicyOf } from './ana-trust.ts';
@@ -174,5 +175,21 @@ const RANKING: ExecRuleType = {
   defaults: { [RANKING_RULE_CODE]: RANKING_DEFAULTS as RuleParams },
 };
 
+const BOTTLENECK: ExecRuleType = {
+  type: BOTTLENECK_RULE_TYPE,
+  ownerModule: 'HOME',
+  modules: ['HOME', 'ISS', 'LND', 'PAY'],
+  formula: message('ana.rules.bottleneck.formula'),
+  source: message('ana.rules.source'),
+  schema: {
+    causes: { kind: 'list', of: { kind: 'object', fields: { code: { kind: 'text', max: 40, pattern: '^[A-Z][A-Z0-9_]{1,39}$' }, owner_module: { kind: 'text', max: 8, pattern: '^[A-Z][A-Z0-9]{1,7}$' } } }, min: 5, max: 30 },
+    age_buckets_days: { kind: 'list', of: int(1, 3650), min: 1, max: 6 },
+    issue_min_severity: oneOf('LOW', 'MEDIUM', 'HIGH', 'CRITICAL'),
+    plan_min_steps: int(1, 20),
+  },
+  refine: refineWith(bottleneckModelOf),
+  defaults: { [BOTTLENECK_RULE_CODE]: BOTTLENECK_DEFAULTS as RuleParams },
+};
+
 /** Every rule type of the lane, in the order they are registered. */
-export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT, RANKING];
+export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT, RANKING, BOTTLENECK];
