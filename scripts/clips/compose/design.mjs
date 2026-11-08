@@ -109,6 +109,18 @@ export function brandOf(edition, raw, names = {}) {
   if (raw === undefined || raw === null) return base;
   const pick = raw.editions?.[edition] ?? raw[edition] ?? raw.files?.[edition] ?? {};
   const taglines = raw.taglines ?? {};
+  const files = pick.files;
+  // The shape the logo lane writes (brand.json, version 1): productName.vi, tagline.vi, colors.onDark.accent, files.<kind>.png.
+  if (files !== undefined) {
+    return {
+      name: pick.productName?.vi ?? base.name,
+      tagline: pick.tagline?.vi ?? '',
+      logo: files.icon?.png ?? null,
+      logoWide: files.horizontalOnDark?.png ?? null,
+      hero: files.hero?.png ?? null,
+      accent: pick.colors?.onDark?.accent ?? base.accent,
+    };
+  }
   const logo = pick.logo ?? pick.logoFile ?? pick.file ?? raw.logo ?? null;
   return { name: pick.name ?? raw.name ?? base.name, tagline: pick.tagline ?? taglines[edition] ?? raw.tagline ?? '', logo, accent: raw.colours?.accent ?? raw.colors?.accent ?? base.accent };
 }
@@ -169,7 +181,7 @@ const FRAME_CSS = `
 .head h1{font-size:56px;line-height:1.16;font-weight:700;text-wrap:balance}
 .head hr{width:120px;height:6px;border:0;border-radius:3px;background:${PALETTE.gold};margin-top:28px}
 .brand{position:absolute;left:56px;bottom:26px;display:flex;align-items:center;gap:12px;font-size:20px;font-weight:600;color:${PALETTE.muted}}
-.brand .logo{height:36px}.mark{width:36px;height:36px;border-radius:10px;background:${PALETTE.primary};display:flex;align-items:center;justify-content:center;font-weight:700}
+.brand .logo{height:36px}.brand .logo.wide{height:40px}.mark{width:36px;height:36px;border-radius:10px;background:${PALETTE.primary};display:flex;align-items:center;justify-content:center;font-weight:700}
 `;
 
 /** The transparent layer over the footage: ticker, frames with holes where the footage shows, the headline, the brand. Holes are cut by a huge shadow clipped to the frame. */
@@ -188,7 +200,7 @@ export function overlayHtml({ layout, headline, kicker, ticker, brand, spec = la
     const place = geometry.headline;
     body += `<div class="head" style="left:${place.x}px;top:${place.y}px;width:${place.width}px">${kicker ? `<small>${escapeHtml(kicker)}</small>` : ''}<h1>${escapeHtml(headline)}</h1><hr></div>`;
   }
-  body += `<div class="brand">${logoMark(brand)}<span>${escapeHtml(brand.name)}</span></div>`;
+  body += brand.logoWide ? `<div class="brand"><img class="logo wide" src="file:///${String(brand.logoWide).replace(/\\/gu, '/')}"></div>` : `<div class="brand">${logoMark(brand)}<span>${escapeHtml(brand.name)}</span></div>`;
   return page(FRAME_CSS, body, fonts);
 }
 
@@ -204,7 +216,7 @@ export function cardHtml({ kicker, title, subtitle, footer, brand, fonts = '' })
 /** One subtitle cue: a dark rounded bar at the bottom of a 1920x124 transparent strip, the key term in the accent colour. */
 export function barHtml(text, { fonts = '', accent = PALETTE.gold } = {}) {
   const [before, key, after] = splitKey(text.replace(/\n/gu, ' '));
-  const css = `html,body{height:124px}.bar{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);max-width:1560px;padding:16px 38px;border-radius:30px;background:rgba(9,24,32,.90);box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:38px;line-height:1.3;font-weight:500;text-align:center}.bar em{font-style:normal;font-weight:700;color:${accent}}`;
+  const css = `html,body{height:190px}.bar{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);max-width:1500px;padding:16px 38px;border-radius:30px;background:rgba(9,24,32,.90);box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:34px;line-height:1.3;font-weight:500;text-align:center}.bar em{font-style:normal;font-weight:700;color:${accent}}`;
   const content = `${escapeHtml(before)}${key === '' ? '' : `<em>${escapeHtml(key)}</em>`}${escapeHtml(after)}`;
   return page(css, `<div class="bar">${content}</div>`, fonts);
 }

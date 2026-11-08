@@ -116,7 +116,7 @@ test('the subtitle bar is one more picture input of the mix, and the soft subtit
   const narration = [{ file: 'a.wav', startMs: 0 }];
   const graph = buildFilterGraph({ narration, totalMs: 8000, music: 'm.ogg', barInput: 3 });
   assert.match(graph, /\[3:v\]fps=30,format=rgba\[bar\]/u);
-  assert.match(graph, /\[base\]\[bar\]overlay=0:944/u);
+  assert.match(graph, /\[base\]\[bar\]overlay=0:890/u);
   assert.doesNotMatch(graph, /subtitles=filename/u);
   const args = buildMixArgs({ video: 'v.mp4', narration, music: 'm.ogg', bar: 'bar.txt', subtitlesSrt: 's.srt', graphFile: 'g', out: 'o.mp4', totalMs: 8000 });
   assert.deepEqual(args.filter((word, index) => ['-i'].includes(args[index - 1])), ['v.mp4', 'a.wav', 'm.ogg', 'bar.txt', 's.srt']);
@@ -133,4 +133,18 @@ test('no source file of the composition holds a Vietnamese letter, and the scena
       if (scene.layout !== undefined) assert.ok(LAYOUT_NAMES.includes(scene.layout), `${clip} ${scene.id}: layout ${scene.layout}`);
     }
   }
+});
+
+test('the brand.json of the logo lane gives the name, tagline, accent and the logo files of the edition', async () => {
+  const raw = { editions: { enterprise: { productName: { vi: 'Phần mềm quản lý đầu tư xây dựng' }, tagline: { vi: 'Vốn đến đúng công trình, việc đúng tiến độ' }, colors: { onDark: { accent: '#F28C3A' } }, files: { icon: { png: 'logo-enterprise-icon.png' }, horizontalOnDark: { png: 'logo-enterprise-horizontal-ondark.png' }, hero: { png: 'logo-enterprise-hero.png' } } } } };
+  const brand = brandOf('enterprise', raw, spec.productNames);
+  assert.equal(brand.name, 'Phần mềm quản lý đầu tư xây dựng');
+  assert.match(brand.tagline, /công trình/u);
+  assert.equal(brand.logo, 'logo-enterprise-icon.png');
+  assert.equal(brand.logoWide, 'logo-enterprise-horizontal-ondark.png');
+  assert.equal(brand.hero, 'logo-enterprise-hero.png');
+  assert.equal(brand.accent, '#F28C3A');
+  const { heroArgs } = await import('./compose/plan.mjs');
+  const args = heroArgs({ hero: 'h.png', seconds: 5, out: 'o.mp4' });
+  assert.ok(args.includes('-loop') && args[args.indexOf('-vf') + 1].includes('fade=t=in'));
 });

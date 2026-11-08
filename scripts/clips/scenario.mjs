@@ -2,6 +2,7 @@ import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CLIPS_DIR, clock, flag, positionals, loadNumerals, loadPhonetics, loadSpec, loadVoices, readJson, REPO_ROOT } from './common.mjs';
+import { LAYOUT_NAMES } from './compose/design.mjs';
 import { FIGURE_KINDS, figureIds } from './figures.mjs';
 import { uncoveredTerms } from './phonetics.mjs';
 import { displayText, estimateVoiceMs, sceneMsFromVoice, speechText } from './text.mjs';
@@ -216,6 +217,8 @@ export function validateScenario(scenario, context) {
     }
 
     const screen = scene.screen ?? {};
+    if (scene.layout !== undefined && !LAYOUT_NAMES.includes(scene.layout)) fail(`${where}: layout ${scene.layout} is not one of ${LAYOUT_NAMES.join(', ')}`);
+    for (const [index, callout] of (scene.callouts ?? []).entries()) if (typeof callout.text !== 'string' || !(callout.atSec >= 0) || !(callout.forSec > 0)) fail(`${where}: callout ${index + 1} needs text, atSec and forSec`);
     if (!PLATFORMS.includes(screen.platform)) fail(`${where}: screen.platform must be one of ${PLATFORMS.join(', ')}`);
     problems.push(...screenProblems(screen.screens ?? [], where, context));
     for (const id of screen.screens ?? []) {

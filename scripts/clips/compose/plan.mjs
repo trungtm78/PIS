@@ -72,6 +72,19 @@ export function segmentArgs({ layout, bg, web, phone, overlay, chips = [], secon
   return args;
 }
 
+/** The still of the brand (logo, name, tagline on the rings) as a card: slow zoom, fade in and out. */
+export function heroArgs({ hero, seconds, out, assFilter, preset = 'veryfast' }) {
+  const d = num(seconds);
+  const chain = [
+    'scale=1920:1080:flags=lanczos',
+    `scale=w='trunc(1920*(1+0.05*t/${d})/2)*2':h='trunc(1080*(1+0.05*t/${d})/2)*2':eval=frame`,
+    'crop=1920:1080', 'setsar=1', 'format=yuv420p',
+    `fade=t=in:st=0:d=0.8`, `fade=t=out:st=${num(Math.max(0, seconds - 0.5))}:d=0.5`,
+  ];
+  if (assFilter !== undefined) chain.push(assFilter);
+  return ['-hide_banner', '-loglevel', 'error', '-y', '-loop', '1', '-framerate', String(FPS), '-i', hero, '-vf', chain.join(','), '-t', d, '-r', String(FPS), '-an', '-c:v', 'libx264', '-preset', preset, '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out];
+}
+
 /** A card (title, chapter, outro): background plus the card layer, fading in and out. */
 export function cardArgs({ bg, overlay, seconds, assFilter, out, preset = 'veryfast' }) {
   const filters = [
