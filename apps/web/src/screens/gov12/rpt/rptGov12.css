@@ -1,0 +1,7 @@
+.rpt-g12-rule { display: flex; flex-wrap: wrap; gap: var(--space-4, 16px); margin: var(--space-3, 12px) 0; }
+.rpt-g12-rule__item { display: inline-flex; align-items: center; gap: var(--space-2, 8px); }
+.rpt-g12-pending { margin: 4px 0 0; color: var(--text-muted, #5b6770); font-size: 0.875rem; }
+.rpt-g12-sign { display: grid; gap: var(--space-3, 12px); }
+.rpt-g12-sign label { display: flex; flex-direction: column; gap: 4px; }
+.rpt-g12-facts code { overflow-wrap: anywhere; word-break: break-all; }
+@media (max-width: 640px) { .rpt-g12-rule { flex-direction: column; } }
