@@ -32,6 +32,24 @@ export function portalErrorText(t: T, error: unknown): string {
       return t('vnp.error.notBound.text');
     case 'CALENDAR_NOT_EFFECTIVE':
       return t('vnp.error.calendar.text');
+    case 'PORTAL_INVITATION_STATE_INVALID':
+      return t('po2.error.invitationState.text');
+    case 'PORTAL_INVITATION_EXISTS':
+      return t('po2.error.invitationExists.text');
+    case 'PORTAL_CONTACT_UNPROVEN':
+      return t('po2.error.contactUnproven.text');
+    case 'CONTRACTOR_NOT_INVITABLE':
+      return t('po2.error.notInvitable.text');
+    case 'PORTAL_ACCESS_LIMIT':
+      return t('po2.error.accessLimit.text');
+    case 'FILE_NOT_CLEAN':
+      return t('po2.error.fileNotClean.text');
+    case 'SCAN_PENDING':
+      return t('po2.error.scanPending.text');
+    case 'PAYLOAD_TOO_LARGE':
+      return t('po2.error.tooLarge.text');
+    case 'FILE_TYPE_NOT_ALLOWED':
+      return t('po2.error.fileType.text');
     default:
       return errorText(t, error);
   }

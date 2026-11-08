@@ -86,6 +86,10 @@ function StatsCard({ kind, title, stats, asOf }: { kind: string; title: string; 
           <dd data-testid={`${kind}-decided`}>{t('vnd3.disputes.fact.decided.text', { upheld: stats.upheld, rejected: stats.rejected, withdrawn: stats.withdrawn })}</dd>
         </div>
         <div className="vnd-fact">
+          <dt>{t('po2.disputes.fact.awaiting.label')}</dt>
+          <dd data-testid={`${kind}-awaiting`}>{numberText(stats.awaiting_outcome, locale)}</dd>
+        </div>
+        <div className="vnd-fact">
           <dt>{t('vnd3.disputes.fact.upheld.label')}</dt>
           <dd className="vnd-row">
             <strong data-testid={`${kind}-upheld-pct`}>{percentText(stats.upheld_pct, locale)}</strong>
@@ -130,6 +134,8 @@ function ItemsSection({ data, contractor }: { data: Disputes; contractor: string
               <span className="vnd-stack">
                 <StatusPill tone={outcomeTone(row.outcome)}>{disputeOutcomeLabel(t, row.outcome)}</StatusPill>
                 <span className="vnd-days">{row.source_status}</span>
+                {row.awaiting_outcome === true && <span className="vnd-days" data-testid="awaiting-outcome">{t('po2.disputes.awaiting.text')}</span>}
+                {row.decision_ref !== null && row.decision_ref !== undefined && <span className="vnd-days" data-testid="decision-ref">{t('po2.disputes.decisionRef.text', { ref: row.decision_ref })}</span>}
               </span>
             ),
           },

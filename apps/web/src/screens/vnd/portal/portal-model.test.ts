@@ -96,8 +96,8 @@ describe('the rules of a request', () => {
     expect(planClosed('IN_PROGRESS')).toBe(false);
   });
 
-  it('the navigation of the portal lists four destinations and nothing of the staff shell', () => {
-    expect(PORTAL_DESTINATIONS.map((entry) => entry.id)).toEqual(['VND-16', 'VND-17', 'VND-18', 'VND-19']);
+  it('the navigation of the portal lists five destinations and nothing of the staff shell', () => {
+    expect(PORTAL_DESTINATIONS.map((entry) => entry.id)).toEqual(['VND-16', 'VND-17', 'VND-18', 'VND-19', 'VND-24']);
   });
 });
 

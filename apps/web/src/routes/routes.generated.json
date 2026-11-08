@@ -566,6 +566,9 @@
     {"id":"VND-19","path":"/vnd/vnd-19","title":"Cổng nhà thầu: đánh giá và kế hoạch khắc phục","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"detail","parent":"VND-16","req":"FR-VND-19"},
     {"id":"VND-20","path":"/vnd/vnd-20","title":"Quản lý cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-20"},
     {"id":"VND-21","path":"/vnd/vnd-21","title":"Kế hoạch khắc phục của nhà thầu","kind":"record","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-21"},
-    {"id":"VND-22","path":"/vnd/vnd-22","title":"Kiến nghị, claim và xuất OCDS của nhà thầu","kind":"dashboard","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"detail","parent":null,"req":"FR-VND-22"}
+    {"id":"VND-22","path":"/vnd/vnd-22","title":"Kiến nghị, claim và xuất OCDS của nhà thầu","kind":"dashboard","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"detail","parent":null,"req":"FR-VND-22"},
+    {"id":"VND-23","path":"/vnd/vnd-23","title":"Lời mời vào cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-23"},
+    {"id":"VND-24","path":"/vnd/vnd-24","title":"Tệp đính kèm trên cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"detail","parent":"VND-16","req":"FR-VND-24"},
+    {"id":"BID-34","path":"/bid/bid-34","title":"Kết quả giải quyết kiến nghị của nhà thầu","kind":"table","area":"insights","module":"BID","group":"Nhà thầu & lựa chọn","role":"detail","parent":"BID-20","req":"FR-BID-34"}
   ]
 }

@@ -255,3 +255,24 @@ export const registerChoices = () => ({
   next_cursor: null,
   as_of: AS_OF,
 });
+
+/** What the guest role holds after migration V2644: the portal rights and the right to upload. */
+export const GUEST_UPLOAD = [...GUEST, 'vnd.portal.upload'];
+
+export const ATTACHMENT_LIMITS = { max_bytes: 10 * 1024 * 1024, mimes: ['application/pdf', 'image/png', 'image/jpeg'] };
+
+export const portalAttachment = (n: number, over: Record<string, unknown> = {}) => ({
+  id: uuid('0050', n),
+  document_id: uuid('0051', n),
+  purpose: 'REQUEST_RESPONSE',
+  title: `Bao cao tai chinh ${n}`,
+  mime: 'application/pdf',
+  size_bytes: 204800,
+  sha256: 'a'.repeat(64),
+  uploaded_at: '2026-11-05T02:00:00.000Z',
+  linked_kind: null,
+  linked_id: null,
+  ...over,
+});
+
+export const attachmentPage = (items: Array<Record<string, unknown>> = [], over: Record<string, unknown> = {}) => ({ items, limits: ATTACHMENT_LIMITS, as_of: AS_OF, ...over });

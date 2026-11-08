@@ -40,3 +40,5 @@
 .portal-late { color: var(--mv-color-warning); font-weight: 600; }
 .portal-plan + .portal-plan { margin-top: var(--mv-space-16); }
 .portal-timeline { margin: 0; padding-left: var(--mv-space-16); display: grid; gap: var(--mv-space-4); }
+.portal-upload { display: grid; gap: var(--mv-space-8); margin-top: var(--mv-space-8); padding: var(--mv-space-8); border: 1px dashed var(--mv-color-border); border-radius: var(--mv-radius-sm); }
+.portal-upload label { display: grid; gap: var(--mv-space-4); }

@@ -148,6 +148,7 @@ export const PORTAL_DESTINATIONS = [
   { id: 'VND-17', path: '/vnd/vnd-17' },
   { id: 'VND-18', path: '/vnd/vnd-18' },
   { id: 'VND-19', path: '/vnd/vnd-19' },
+  { id: 'VND-24', path: '/vnd/vnd-24' },
 ] as const;
 export type PortalDestination = (typeof PORTAL_DESTINATIONS)[number]['id'];
 

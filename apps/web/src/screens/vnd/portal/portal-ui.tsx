@@ -81,6 +81,8 @@ function destinationLabel(t: ReturnType<typeof useTranslation>['t'], id: PortalD
       return t('vnp.nav.certificates.label');
     case 'VND-19':
       return t('vnp.nav.evaluations.label');
+    case 'VND-24':
+      return t('po2.nav.files.label');
   }
 }
 

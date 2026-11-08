@@ -7,6 +7,7 @@ import { useScopeKey } from '../shared/vnd-hooks';
 import { gradeLabel, kindLabel } from '../shared/vnd-labels';
 import { CERTIFICATE_KINDS, GRADES, failureCode, isDay, vietnamStamp } from '../shared/vnd-model';
 import type { CertificateKind, Grade } from '../shared/vnd-model';
+import { attachmentField } from './portal2-files';
 import { useContractorChoices, usePortalCommand } from './portal-hooks';
 import { actionStatusLabel, portalErrorText, requestKindLabel, subjectTypeLabel, triggerKindLabel } from './portal-labels';
 import { REQUEST_KINDS, SUBJECT_TYPES, TRIGGER_KINDS } from './portal-model';
@@ -34,7 +35,7 @@ export function AnswerRequestDialog({ request, onClose, onDone }: DialogProps & 
   const late = request.clock === 'OVERDUE';
   const fields: FieldSpec[] = [
     { name: 'text', label: t('vnp.answer.field.text.label'), kind: 'textarea', required: true, min: 1, max: 4000 },
-    { name: 'document_id', label: t('vnp.answer.field.document.label'), kind: 'uuid', hint: t('vnp.answer.field.document.hint') },
+    attachmentField(t, 'document_id', t('vnp.answer.field.document.label'), 'REQUEST_RESPONSE'),
   ];
   return (
     <CommandDialog
@@ -107,7 +108,7 @@ export function SubmitCertificateDialog({ requestId, onClose, onDone }: DialogPr
     { name: 'issuer', label: t('vnd.certs.field.issuer.label'), kind: 'text', required: true, min: 2, max: 300 },
     { name: 'issued_on', label: t('vnd.certs.field.issued.label'), kind: 'date', required: true },
     { name: 'expires_on', label: t('vnd.certs.field.expires.label'), kind: 'date', hint: t('vnd.certs.field.expires.hint') },
-    { name: 'document_id', label: t('vnd.certs.field.document.label'), kind: 'uuid', hint: t('vnd.certs.field.document.hint') },
+    attachmentField(t, 'document_id', t('vnd.certs.field.document.label'), 'CERTIFICATE'),
   ];
   return (
     <CommandDialog
@@ -163,7 +164,7 @@ export function ActionDoneDialog({ action, onClose, onDone }: DialogProps & { ac
   const command = usePortalCommand('markPortalRemediationActionDone');
   const fields: FieldSpec[] = [
     { name: 'note', label: t('vnp.plan.done.field.label'), kind: 'textarea', required: true, min: 1, max: 2000 },
-    { name: 'document_id', label: t('vnp.answer.field.document.label'), kind: 'uuid', hint: t('vnp.answer.field.document.hint') },
+    attachmentField(t, 'document_id', t('vnp.answer.field.document.label'), 'REMEDIATION_EVIDENCE'),
   ];
   return (
     <CommandDialog
@@ -204,7 +205,7 @@ function ContractorPicker({ value, set, id }: { value: string; set: (value: stri
   );
 }
 
-const contractorField = (t: ReturnType<typeof useTranslation>['t'], initial: string): FieldSpec => ({
+export const contractorField = (t: ReturnType<typeof useTranslation>['t'], initial: string): FieldSpec => ({
   name: 'contractor_id',
   label: t('vnp.picker.field.label'),
   kind: 'custom',

@@ -22,9 +22,11 @@ import {
   GUEST,
   GUEST_READER,
   POISON,
+  attachmentPage,
   client,
   mount,
   portalAction,
+  portalAttachment,
   portalEvaluation,
   portalHome,
   portalPlan,
@@ -70,7 +72,7 @@ function open(screenElement: ReactElement, answers: World['answers'], options: O
 const HOME_ANSWERS = (over: Record<string, unknown> = {}) => ({ getPortalHome: portalHome(over) });
 
 describe('the layout of the portal (layout rules 1 to 3)', () => {
-  it('shows the name and tax code of the contractor, the one navigation of four destinations, and the scope line', async () => {
+  it('shows the name and tax code of the contractor, the one navigation of five destinations, and the scope line', async () => {
     open(<PortalHomeScreen route={routeOf('VND-16', 'FR-VND-16')} />, HOME_ANSWERS());
     const identity = await screen.findByTestId('portal-identity');
     await waitFor(() => expect(identity.textContent).toContain('Công ty nhà thầu 1'));
@@ -78,7 +80,7 @@ describe('the layout of the portal (layout rules 1 to 3)', () => {
     expect(screen.getByTestId('portal-scope').textContent).toBe(word('vnp.layout.scope.text'));
     const nav = screen.getByTestId('portal-nav');
     const links = within(nav).getAllByRole('link');
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/vnd/vnd-16', '/vnd/vnd-17', '/vnd/vnd-18', '/vnd/vnd-19']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/vnd/vnd-16', '/vnd/vnd-17', '/vnd/vnd-18', '/vnd/vnd-19', '/vnd/vnd-24']);
     expect(links[0]?.getAttribute('aria-current')).toBe('page');
     expect(links[1]?.getAttribute('aria-current')).toBeNull();
   });
@@ -197,7 +199,7 @@ describe('PortalHomeScreen (VND-16)', () => {
 
 describe('PortalRequestsScreen (VND-17)', () => {
   const route = routeOf('VND-17', 'FR-VND-17');
-  const answers = (items: Array<Record<string, unknown>>) => ({ ...HOME_ANSWERS(), listPortalRequests: requestPage(items) });
+  const answers = (items: Array<Record<string, unknown>>) => ({ ...HOME_ANSWERS(), listPortalRequests: requestPage(items), listPortalAttachments: attachmentPage([portalAttachment(1, { document_id: DOCUMENT })]) });
 
   it('shows the kind, the body, the time limit with the clock and the status of each request', async () => {
     open(<PortalRequestsScreen route={route} />, answers([portalRequest(1), portalRequest(2, { kind: 'EVALUATION_RESPONSE', clock: 'OVERDUE', due_at: '2026-11-05T02:00:00.000Z' })]));
@@ -220,6 +222,7 @@ describe('PortalRequestsScreen (VND-17)', () => {
     const confirm = within(box).getByRole('button', { name: word('vnp.answer.confirm.action') }) as HTMLButtonElement;
     expect(confirm.disabled).toBe(true);
     type(box, word('vnp.answer.field.text.label'), 'Đính kèm báo cáo năm 2025');
+    await waitFor(() => expect(within(box).getByRole('option', { name: /Bao cao tai chinh 1/ })).toBeTruthy());
     type(box, word('vnp.answer.field.document.label'), DOCUMENT);
     fireEvent.click(confirm);
     await waitFor(() =>

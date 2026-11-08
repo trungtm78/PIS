@@ -176,7 +176,7 @@ export const hitDetail = (n = 1, over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
-const stats = (over: Record<string, unknown> = {}) => ({ total: 4, open: 1, upheld: 1, rejected: 2, withdrawn: 0, upheld_pct: 33, mean_days_to_close: 6.5, ...over });
+const stats = (over: Record<string, unknown> = {}) => ({ total: 4, open: 1, upheld: 1, rejected: 2, withdrawn: 0, awaiting_outcome: 0, upheld_pct: 33, mean_days_to_close: 6.5, ...over });
 
 export const disputes = (over: Record<string, unknown> = {}) => ({
   items: [

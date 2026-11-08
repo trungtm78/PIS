@@ -74,6 +74,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'BID-31': () => import('../../screens/bid/workflow/DefinitionScreen'),
   'BID-32': () => import('../../screens/bid/egp/PostingScreen'),
   'BID-33': () => import('../../screens/bid/egp/ReconciliationScreen'),
+  'BID-34': () => import('../../screens/bid/outcome/PetitionOutcomesScreen'),
   'BID-21': () => import('../../screens/bid/history/RestrictionsScreen'),
   'CAP-01': () => import('../../screens/cap/PlanListScreen'),
   'CAP-02': () => import('../../screens/cap/AllocationProposalScreen'),
@@ -517,6 +518,9 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'VND-14': () => import('../../screens/vnd/investigation/LeadDetailScreen'),
   'VND-15': () => import('../../screens/vnd/investigation/ScreeningScreen'),
   'VND-22': () => import('../../screens/vnd/investigation/DisputesScreen'),
+  // The portal access through the registry, the files of the contractor on the portal (lane PORTAL-2).
+  'VND-23': () => import('../../screens/vnd/portal/PortalInvitationsScreen'),
+  'VND-24': () => import('../../screens/vnd/portal/PortalFilesScreen'),
   // The claim register and the early-warning register of a contract (lane GOV-8).
   'CTR-32': () => import('../../screens/ctr/claims/ClaimRegisterScreen'),
   'CTR-33': () => import('../../screens/ctr/claims/ClaimRecordScreen'),
