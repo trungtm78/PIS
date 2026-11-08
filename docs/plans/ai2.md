@@ -29,3 +29,17 @@ Branch `lane/ai2`, migration block 2180-2199, requirements AI.01, AI.02, AI.04, 
 - WF-1 may read the review verdict as an advisory input to a step; nothing blocks sending a file.
 - Word export of an accepted note (IAM-2 / DOC-2).
 - Real LiteLLM adapter behind `LLM_GATEWAY` on the customer servers (deployment).
+
+## Review
+
+Codex review (`codex review --base main`, model gpt-6-astra, read-only) of the branch before the merge of main; three findings, all valid and fixed with regression tests:
+
+| Finding | Disposition | Test |
+|---|---|---|
+| P1 an external exception that ends while a call is pending still covers the retries and the fallbacks | The gateway reads the standing exceptions again before every call, retries included; a lapsed one ends the call chain (reject code `AI_EXTERNAL_EXCEPTION_REQUIRED` when nothing else was served) | `ai-external.enterprise.test.ts`, "reads the exception again before each call" |
+| P1 a published PATTERN item can backtrack without end and block the event loop | The pattern runs in a VM context with a timeout of 100 ms; a pattern that cannot be run in time does not pass (`PATTERN_TIMEOUT`) | `packages/kernel/test/ai-assist.test.ts`, "cuts off a pattern that backtracks without end" |
+| P2 the stored score proposals of an evaluation stay evidence-backed after the reader loses the source | `view()` computes the proposals again from the re-verified statements and the criteria | `ai-assist.test.ts`, "withholds the score again when the reader loses the source" |
+
+## Verification
+
+Kernel, db and API typecheck; API suites through the db lane: `llm/ai-assist`, `llm/ai-external.enterprise`, isolation, conformance, outbox consumers, DIS report, authz matrices; web: `src/screens/llm/assist` and `src/routes`; `edition:check`, `i18n-lint`, `commands:check`, `lint-error-codes`, `migrations:check`, `contracts:check`, design `check-cli` at zero errors.
