@@ -1,13 +1,17 @@
 import { expect, test } from '@playwright/test';
 import vi from '../../src/i18n/vi.json' with { type: 'json' };
 import { Clip, loadFlow } from './recorder.ts';
+import TEXTS from './data/03-tao-du-an.hdsd.json' with { type: 'json' };
+import { textsOf } from '../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Clip 03 of the user guide: a project manager makes a new project in the stage CONCEPT. Everything is done through the screens, against the real API and
  * database: the project exists afterwards because the form made it, not because a script wrote it.
  */
 const CODE = 'DA-DT205';
-const NAME = 'Cải tạo, nâng cấp đường tỉnh 205, đoạn Km0 - Km12';
+const NAME = tx('NAME.001');
 const TOTAL = '150000000000';
 
 test('clip 03: create a project, read the suggested group, find it and open its workspace', async ({ browser }) => {
@@ -39,11 +43,11 @@ test('clip 03: create a project, read the suggested group, find it and open its 
     await ui.type(field(vi['prj.form.code.label']), CODE);
     await ui.type(field(vi['prj.form.name.label']), NAME);
     await ui.point(field(vi['prj.form.owner.label']));
-    await field(vi['prj.form.owner.label']).selectOption({ label: 'CB-SKHDT-QLDA · Ban Quản lý dự án' });
+    await field(vi['prj.form.owner.label']).selectOption({ label: tx('label.002') });
     await ui.point(field(vi['prj.form.area.label']));
-    await field(vi['prj.form.area.label']).selectOption({ label: 'CB-THUC-PHAN · Phường Thục Phán' });
+    await field(vi['prj.form.area.label']).selectOption({ label: tx('label.003') });
     await ui.point(field(vi['prj.form.sector.label']));
-    await field(vi['prj.form.sector.label']).selectOption({ label: 'TRANSPORT · Giao thông' });
+    await field(vi['prj.form.sector.label']).selectOption({ label: tx('label.004') });
     await ui.type(field(vi['prj.form.total.label']), TOTAL);
   });
 
@@ -58,15 +62,15 @@ test('clip 03: create a project, read the suggested group, find it and open its 
 
   await clip.step('them-du-an-khac', async () => {
     const more = [
-      { code: 'DA-TH012', name: 'Xây dựng Trường Tiểu học phường Nùng Trí Cao', area: 'CB-NUNG-TRI-CAO · Phường Nùng Trí Cao', sector: 'EDUCATION · Giáo dục và đào tạo', total: '45000000000' },
-      { code: 'DA-YT007', name: 'Nâng cấp Trạm y tế phường Tân Giang', area: 'CB-TAN-GIANG · Phường Tân Giang', sector: 'HEALTH · Y tế', total: '12000000000' },
+      { code: 'DA-TH012', name: tx('name.005'), area: tx('area.006'), sector: tx('sector.007'), total: '45000000000' },
+      { code: 'DA-YT007', name: tx('name.008'), area: tx('area.009'), sector: tx('sector.010'), total: '12000000000' },
     ];
     for (const project of more) {
       await page.goto('/prj/prj-02?devUser=projectManager');
       await expect(page.getByRole('heading', { level: 1, name: vi['prj.create.page.title'] })).toBeVisible();
       await field(vi['prj.form.code.label']).fill(project.code);
       await field(vi['prj.form.name.label']).fill(project.name);
-      await field(vi['prj.form.owner.label']).selectOption({ label: 'CB-SKHDT-QLDA · Ban Quản lý dự án' });
+      await field(vi['prj.form.owner.label']).selectOption({ label: tx('label.002') });
       await field(vi['prj.form.area.label']).selectOption({ label: project.area });
       await field(vi['prj.form.sector.label']).selectOption({ label: project.sector });
       await field(vi['prj.form.total.label']).fill(project.total);

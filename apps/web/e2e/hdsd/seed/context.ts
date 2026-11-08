@@ -5,6 +5,10 @@ import fixtures from '../../support/e2e-fixtures.json' with { type: 'json' };
 import people from '../../support/docs-people.json' with { type: 'json' };
 import { STACK_DIR, STACK_INFO_PATH } from '../../support/stack-paths.ts';
 import { pdfWithText } from '../pdf.ts';
+import TEXTS from './data/context.json' with { type: 'json' };
+import { textsOf } from '../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * The shared client and helpers of the seeds of the guide (e2e/hdsd/seed/*.ts).
@@ -21,8 +25,7 @@ import { pdfWithText } from '../pdf.ts';
 
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 /** The body of any JSON answer; the seeds name the fields they read. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Obj = Record<string, any>;
+export type Obj = Record<string, unknown>;
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 /** A person of the guide: `key` is what `call` takes (owner, unitAdmin, projectManager, capApprover, treasuryMaker, auditor, nobody, plus any added). */
@@ -100,14 +103,26 @@ export class SeedError extends Error {
   }
 }
 
+/** A nested part of a loose body as a body: an empty one when the part is missing or is not an object (so a field can be read off it safely). */
+export function asObj(value: unknown): Obj {
+  return typeof value === 'object' && value !== null ? (value as Obj) : {};
+}
+
+/** The version of a row read from a loose body, as a command takes it: a number, or a numeric string; anything else is no version. */
+export function asVersion(value: unknown): number | undefined {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))) return Number(value);
+  return undefined;
+}
+
 // ---- pure helpers (unit tested: context.test.ts) -----------------------------------------------------------------------------------
 
 /** Vietnamese text without its marks, upper-cased and joined by hyphens: a business code from a name. */
 export function codeOf(text: string): string {
   return text
     .normalize('NFD')
-    .replace(/[̀-ͯ]/gu, '')
-    .replace(/[đĐ]/gu, 'D')
+    .replace(/[\u0300-\u036f]/gu, '')
+    .replace(/[\u0111\u0110]/gu, 'D')
     .toUpperCase()
     .replace(/[^A-Z0-9]+/gu, '-')
     .replace(/^-+|-+$/gu, '');
@@ -129,7 +144,7 @@ export function vndMillions(millions: number): string {
   return String(Math.round(millions * 1_000_000));
 }
 
-/** A ten-digit tax code of a firm, stable for a number (the first two digits follow the province code of Cao Bằng, 04). */
+/** A ten-digit tax code of a firm, stable for a number (the first two digits follow the province code of Cao Bang, 04). */
 export function taxCode(n: number): string {
   const digest = createHash('sha256').update(`mst-${n}`).digest();
   const tail = Array.from(digest.subarray(0, 8), (byte) => byte % 10).join('');
@@ -399,7 +414,7 @@ export class SeedContext {
       file_sha256: file.file_sha256,
       original_symbol: spec.symbol,
       original_issued_on: spec.issuedOn ?? this.day(-30),
-      sender_name: spec.sender ?? 'Ủy ban nhân dân tỉnh Cao Bằng',
+      sender_name: spec.sender ?? tx('sender_name.001'),
       ...(spec.urgency === undefined ? {} : { urgency: spec.urgency }),
     });
     const made = { documentId: received.document_id, incomingId: received.resource_id };

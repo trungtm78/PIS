@@ -7,6 +7,10 @@ import { narration, voice } from './bridge.ts';
 import type { CatalogueScreen, Facts, TourChapter } from './bridge.ts';
 import { Clip } from './recorder.ts';
 import type { Ui } from './recorder.ts';
+import TEXTS from './data/tours.hdsd.json' with { type: 'json' };
+import { textsOf } from '../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * The tours of the guide: one clip for each group of screens of a module. For each chapter the screens are opened first (to see what is really on them
@@ -49,7 +53,7 @@ async function settle(page: Page): Promise<void> {
 }
 
 /**
- * A screen that waits for a choice (a project, a period: the box shows a dash or "Chọn ...") is opened the way a person opens it: the first real
+ * A screen that waits for a choice (a project, a period: the box shows a dash or the Vietnamese "choose ..." prompt) is opened the way a person opens it: the first real
  * choice is made, and the screen shows its data. A filter that already says "all" is left alone.
  */
 async function choose(page: Page, ui?: Ui): Promise<void> {
@@ -61,7 +65,7 @@ async function choose(page: Page, ui?: Ui): Promise<void> {
       const box = boxes.nth(index);
       const shown = (await box.evaluate((element) => (element as HTMLSelectElement).selectedOptions[0]?.textContent ?? '')).trim();
       const options = await box.locator('option').count();
-      if (options > 1 && (shown === '' || shown === '—' || shown === '-' || /^chọn/i.test(shown))) {
+      if (options > 1 && (shown === '' || shown === '—' || shown === '-' || new RegExp(tx('choose.001'), 'i').test(shown))) {
         if (ui !== undefined) await ui.point(box);
         await box.selectOption({ index: 1 });
         await page.waitForTimeout(900);
@@ -93,9 +97,9 @@ async function probe(page: Page): Promise<Facts> {
       labels,
       buttons,
       rows,
-      empty: /chưa có dữ liệu|không có dữ liệu/i.test(text),
-      denied: /không đủ quyền|không có quyền|bị từ chối/i.test(alert),
-      needsRecord: /chưa chọn|hãy mở .* từ danh sách|không tìm thấy/i.test(text),
+      empty: new RegExp(tx('empty.002'), 'i').test(text),
+      denied: new RegExp(tx('denied.003'), 'i').test(alert),
+      needsRecord: new RegExp(tx('needsRecord.004'), 'i').test(text),
     };
   });
 }

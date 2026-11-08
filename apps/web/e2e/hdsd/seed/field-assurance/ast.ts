@@ -2,6 +2,11 @@ import type { SeedContext } from '../context.ts';
 import type { Obj } from '../context.ts';
 import { vnd, vndMillions } from '../context.ts';
 import { CHECKER, MAKER, OWNER, activeContracts, asString, paper, tolerate } from './shared.ts';
+import { asObj } from '../context.ts';
+import TEXTS from './data/ast.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * AST: what is handed over and what stands behind it. The story: three handovers of works. The health station's refurbishment is handed over and accepted (its
@@ -40,16 +45,16 @@ const HANDOVERS: HandoverSpec[] = [
     plannedIn: -12,
     to: 'ACCEPTED',
     punch: [
-      { description: 'Vết nứt chân tường phòng khám số 2 chưa trát lại', severity: 'MAJOR', location: 'Phòng khám số 2', dueIn: -6, state: 'VERIFIED' },
-      { description: 'Cửa sổ phòng xét nghiệm đóng không khít', severity: 'MINOR', location: 'Phòng xét nghiệm', dueIn: -4, state: 'VERIFIED' },
-      { description: 'Biển chỉ dẫn lối thoát hiểm chưa lắp đủ', severity: 'MINOR', location: 'Hành lang tầng 1', dueIn: -2, state: 'WAIVED' },
+      { description: tx('description.001'), severity: 'MAJOR', location: tx('location.002'), dueIn: -6, state: 'VERIFIED' },
+      { description: tx('description.003'), severity: 'MINOR', location: tx('location.004'), dueIn: -4, state: 'VERIFIED' },
+      { description: tx('description.005'), severity: 'MINOR', location: tx('location.006'), dueIn: -2, state: 'WAIVED' },
     ],
     assets: [
-      { code: 'TS-YT007-01', name: 'Nhà khám bệnh sau cải tạo (178 m2)', billions: 7.8, basis: 'SETTLED_VALUE', warrantyMonths: 24 },
-      { code: 'TS-YT007-02', name: 'Hệ thống điện, nước và thoát nước của trạm', billions: 1.4, basis: 'CONTRACT_VALUE', warrantyMonths: 24 },
-      { code: 'TS-YT007-03', name: 'Hệ thống phòng cháy chữa cháy của trạm', billions: 0.9, basis: 'CONTRACT_VALUE', warrantyMonths: 12 },
+      { code: 'TS-YT007-01', name: tx('name.007'), billions: 7.8, basis: 'SETTLED_VALUE', warrantyMonths: 24 },
+      { code: 'TS-YT007-02', name: tx('name.008'), billions: 1.4, basis: 'CONTRACT_VALUE', warrantyMonths: 24 },
+      { code: 'TS-YT007-03', name: tx('name.009'), billions: 0.9, basis: 'CONTRACT_VALUE', warrantyMonths: 12 },
     ],
-    warranty: { scope: 'Bảo hành phần xây dựng và hệ thống kỹ thuật của trạm y tế', months: 24, retentionMillions: 390 },
+    warranty: { scope: tx('scope.010'), months: 24, retentionMillions: 390 },
   },
   {
     no: 'BBBG-DT205-01',
@@ -58,13 +63,13 @@ const HANDOVERS: HandoverSpec[] = [
     unit: 'CB-STC',
     plannedIn: -8,
     to: 'ACCEPTED',
-    punch: [{ description: 'Sơn vạch phân làn đoạn Km2+400 - Km2+800 bị mờ', severity: 'MINOR', location: 'Km2+400 - Km2+800', dueIn: -3, state: 'VERIFIED' }],
+    punch: [{ description: tx('description.011'), severity: 'MINOR', location: 'Km2+400 - Km2+800', dueIn: -3, state: 'VERIFIED' }],
     assets: [
-      { code: 'TS-DT205-01', name: 'Mặt đường bê tông nhựa Km0 - Km3', billions: 31.2, basis: 'SETTLED_VALUE', warrantyMonths: 24 },
-      { code: 'TS-DT205-02', name: 'Hệ thống cống thoát nước Km0 - Km3', billions: 6.4, basis: 'CONTRACT_VALUE', warrantyMonths: 24 },
-      { code: 'TS-DT205-03', name: 'Biển báo và hộ lan an toàn giao thông Km0 - Km3', billions: 1.7, basis: 'CONTRACT_VALUE', warrantyMonths: 12 },
+      { code: 'TS-DT205-01', name: tx('name.012'), billions: 31.2, basis: 'SETTLED_VALUE', warrantyMonths: 24 },
+      { code: 'TS-DT205-02', name: tx('name.013'), billions: 6.4, basis: 'CONTRACT_VALUE', warrantyMonths: 24 },
+      { code: 'TS-DT205-03', name: tx('name.014'), billions: 1.7, basis: 'CONTRACT_VALUE', warrantyMonths: 12 },
     ],
-    warranty: { scope: 'Bảo hành mặt đường và hệ thống thoát nước đoạn Km0 - Km3', months: 24, retentionMillions: 1900 },
+    warranty: { scope: tx('scope.015'), months: 24, retentionMillions: 1900 },
   },
   {
     no: 'BBBG-DT205-02',
@@ -74,19 +79,19 @@ const HANDOVERS: HandoverSpec[] = [
     plannedIn: 10,
     to: 'PUNCH',
     punch: [
-      { description: 'Lún cục bộ mặt đường tại Km4+120, sâu khoảng 3 cm', severity: 'CRITICAL', location: 'Km4+120', dueIn: 5, state: 'OPEN' },
-      { description: 'Rãnh dọc bên phải Km4+500 - Km4+700 chưa hoàn thiện mặt rãnh', severity: 'MAJOR', location: 'Km4+500 - Km4+700', dueIn: 9, state: 'FIXED' },
-      { description: 'Thiếu cột Km và biển tên cầu tại Km5', severity: 'MINOR', location: 'Km5', dueIn: 12, state: 'OPEN' },
-      { description: 'Lề đường chưa lu lèn đủ độ chặt tại Km5+300', severity: 'MAJOR', location: 'Km5+300', dueIn: -2, state: 'OPEN' },
+      { description: tx('description.016'), severity: 'CRITICAL', location: 'Km4+120', dueIn: 5, state: 'OPEN' },
+      { description: tx('description.017'), severity: 'MAJOR', location: 'Km4+500 - Km4+700', dueIn: 9, state: 'FIXED' },
+      { description: tx('description.018'), severity: 'MINOR', location: 'Km5', dueIn: 12, state: 'OPEN' },
+      { description: tx('description.019'), severity: 'MAJOR', location: 'Km5+300', dueIn: -2, state: 'OPEN' },
     ],
   },
   { no: 'BBBG-DT205-03', project: 'DA-DT205', kind: 'ASSET_TRANSFER', unit: 'CB-STC', plannedIn: 40, to: 'DRAFT', punch: [] },
 ];
 
 const CLAIMS: Array<{ project: string; no: string; defect: string; severity: 'CRITICAL' | 'MAJOR' | 'MINOR'; location: string; ago: number; to: 'FILED' | 'ACKNOWLEDGED' | 'FIXED' | 'VERIFIED' }> = [
-  { project: 'DA-YT007', no: 'BH-YT007-01', defect: 'Mái khu khám bệnh thấm nước tại góc phòng tiêm chủng khi mưa lớn', severity: 'MAJOR', location: 'Phòng tiêm chủng', ago: 6, to: 'VERIFIED' },
-  { project: 'DA-YT007', no: 'BH-YT007-02', defect: 'Vòi nước chậu rửa tay phòng khám số 1 bị rò rỉ', severity: 'MINOR', location: 'Phòng khám số 1', ago: 3, to: 'ACKNOWLEDGED' },
-  { project: 'DA-DT205', no: 'BH-DT205-01', defect: 'Nứt dọc mặt đường dài khoảng 14 m tại Km1+250', severity: 'MAJOR', location: 'Km1+250', ago: 2, to: 'FILED' },
+  { project: 'DA-YT007', no: 'BH-YT007-01', defect: tx('defect.020'), severity: 'MAJOR', location: tx('location.021'), ago: 6, to: 'VERIFIED' },
+  { project: 'DA-YT007', no: 'BH-YT007-02', defect: tx('defect.022'), severity: 'MINOR', location: tx('location.023'), ago: 3, to: 'ACKNOWLEDGED' },
+  { project: 'DA-DT205', no: 'BH-DT205-01', defect: tx('defect.024'), severity: 'MAJOR', location: 'Km1+250', ago: 2, to: 'FILED' },
 ];
 
 async function handoverSpec(ctx: SeedContext, spec: HandoverSpec, contractOf: (project: string) => Obj | undefined, projectIdOf: (project: string) => string | undefined): Promise<Obj | undefined> {
@@ -99,7 +104,7 @@ async function handoverSpec(ctx: SeedContext, spec: HandoverSpec, contractOf: (p
   const existing = await ctx.find(MAKER, '/resources/handover', (row) => row.handover_no === spec.no);
   let handoverId = asString(existing?.id);
   if (existing === undefined) {
-    const minutes = await paper(ctx, { symbol: `BB-${spec.no}`, title: `Biên bản bàn giao ${spec.no}`, type: 'BB', sender: 'Ban Quản lý dự án', issuedOn: ctx.day(spec.plannedIn < 0 ? spec.plannedIn - 3 : -2) });
+    const minutes = await paper(ctx, { symbol: `BB-${spec.no}`, title: tx('title.025', spec.no), type: 'BB', sender: tx('sender.026'), issuedOn: ctx.day(spec.plannedIn < 0 ? spec.plannedIn - 3 : -2) });
     const made = await ctx.command(MAKER, '/handovers', {
       project_id: projectId,
       contract_id: asString(contract.id),
@@ -125,20 +130,20 @@ async function handoverSpec(ctx: SeedContext, spec: HandoverSpec, contractOf: (p
   for (const [index, item] of items().entries()) {
     const spec_ = spec.punch[index];
     if (spec_ === undefined) continue;
-    const proof = (): Promise<Awaited<ReturnType<typeof paper>>> => paper(ctx, { symbol: `KP-${spec.no}-${index + 1}`, title: `Biên bản khắc phục hạng mục tồn tại ${index + 1} của ${spec.no}`, type: 'BB', sender: 'Nhà thầu thi công', issuedOn: ctx.day(-1) });
+    const proof = (): Promise<Awaited<ReturnType<typeof paper>>> => paper(ctx, { symbol: `KP-${spec.no}-${index + 1}`, title: tx('title.027', index + 1, spec.no), type: 'BB', sender: tx('sender.028'), issuedOn: ctx.day(-1) });
     if (asString(item.status) === 'OPEN' && ['FIXED', 'VERIFIED'].includes(spec_.state)) {
       const doc = await proof();
-      await tolerate(ctx, `fix punch item ${index + 1} of ${spec.no}`, () => ctx.command(MAKER, `/punch-items/${asString(item.id)}/fixed`, { evidence_document_version_id: doc.versionId, note: 'Nhà thầu đã khắc phục xong, gửi hình ảnh và biên bản kiểm tra' }));
+      await tolerate(ctx, `fix punch item ${index + 1} of ${spec.no}`, () => ctx.command(MAKER, `/punch-items/${asString(item.id)}/fixed`, { evidence_document_version_id: doc.versionId, note: tx('note.029') }));
     }
-    if (spec_.state === 'VERIFIED') await tolerate(ctx, `verify punch item ${index + 1} of ${spec.no}`, () => ctx.command(CHECKER, `/punch-items/${asString(item.id)}/verify`, { outcome: 'VERIFIED', note: 'Đã kiểm tra thực tế, đạt yêu cầu' }));
-    if (spec_.state === 'WAIVED' && asString(item.status) === 'OPEN') await tolerate(ctx, `waive punch item ${index + 1} of ${spec.no}`, () => ctx.command(OWNER, `/punch-items/${asString(item.id)}/waive`, { waiver_reason: 'Hạng mục không ảnh hưởng đến công năng, nhà thầu cam kết lắp bổ sung trong thời gian bảo hành' }));
+    if (spec_.state === 'VERIFIED') await tolerate(ctx, `verify punch item ${index + 1} of ${spec.no}`, () => ctx.command(CHECKER, `/punch-items/${asString(item.id)}/verify`, { outcome: 'VERIFIED', note: tx('note.030') }));
+    if (spec_.state === 'WAIVED' && asString(item.status) === 'OPEN') await tolerate(ctx, `waive punch item ${index + 1} of ${spec.no}`, () => ctx.command(OWNER, `/punch-items/${asString(item.id)}/waive`, { waiver_reason: tx('waiver_reason.031') }));
   }
   detail = await read();
   if (spec.to === 'ACCEPTED' && asString(detail.status) !== 'ACCEPTED') {
-    const asBuilt = await paper(ctx, { symbol: `HSHC-${spec.no}`, title: `Hồ sơ hoàn công ${spec.no}`, type: 'BC', sender: 'Nhà thầu thi công', issuedOn: ctx.day(-4) });
-    const manual = await paper(ctx, { symbol: `HDVH-${spec.no}`, title: `Hướng dẫn vận hành, bảo trì ${spec.no}`, type: 'BC', sender: 'Nhà thầu thi công', issuedOn: ctx.day(-4) });
+    const asBuilt = await paper(ctx, { symbol: `HSHC-${spec.no}`, title: tx('title.032', spec.no), type: 'BC', sender: tx('sender.028'), issuedOn: ctx.day(-4) });
+    const manual = await paper(ctx, { symbol: `HDVH-${spec.no}`, title: tx('title.033', spec.no), type: 'BC', sender: tx('sender.028'), issuedOn: ctx.day(-4) });
     await tolerate(ctx, `accept ${spec.no}`, () =>
-      ctx.command(CHECKER, `/handovers/${handoverId}/decision`, { decision: 'approve', reason: 'Đã kiểm tra hiện trường và hồ sơ, các tồn tại đã được khắc phục hoặc chấp thuận', evidence_ids: [], as_built_document_version_id: asBuilt.versionId, om_manual_document_version_id: manual.versionId }, { version: Number(detail.version) }),
+      ctx.command(CHECKER, `/handovers/${handoverId}/decision`, { decision: 'approve', reason: tx('reason.034'), evidence_ids: [], as_built_document_version_id: asBuilt.versionId, om_manual_document_version_id: manual.versionId }, { version: Number(detail.version) }),
     );
     detail = await read();
   }
@@ -166,7 +171,7 @@ async function assetsAndWarranty(ctx: SeedContext, handover: Obj): Promise<void>
           recipient_unit_id: ctx.unitId(spec.unit),
           value_vnd: vnd(asset.billions),
           value_basis: asset.basis,
-          funding_origin: 'Ngân sách địa phương giao hằng năm',
+          funding_origin: tx('funding_origin.035'),
           warranty_until: ctx.day(asset.warrantyMonths * 30),
         }),
       );
@@ -181,18 +186,18 @@ async function assetsAndWarranty(ctx: SeedContext, handover: Obj): Promise<void>
   if (first !== undefined) {
     const detail = await ctx.get(MAKER, `/resources/asset_record/${first}`);
     if (!detail.transferred_on && !detail.commissioning_document_version_id) {
-      const commissioning = await paper(ctx, { symbol: `BBDVSD-${spec.no}`, title: `Biên bản đưa vào sử dụng ${spec.no}`, type: 'BB', sender: 'Đơn vị tiếp nhận', issuedOn: ctx.day(-1) });
+      const commissioning = await paper(ctx, { symbol: `BBDVSD-${spec.no}`, title: tx('title.036', spec.no), type: 'BB', sender: tx('sender.037'), issuedOn: ctx.day(-1) });
       await tolerate(ctx, `transfer the asset of ${spec.no}`, () => ctx.command(MAKER, `/asset-records/${first}/transfer`, { transferred_on: ctx.today, commissioning_document_version_id: commissioning.versionId }, { version: Number(detail.version) }));
     }
     const link = await ctx.get(MAKER, `/resources/asset_record/${first}`);
     if (link.om === undefined || link.om === null) {
-      const plan = await paper(ctx, { symbol: `KHBT-${spec.no}`, title: `Kế hoạch vận hành, bảo trì tài sản ${spec.no}`, type: 'BC', sender: 'Đơn vị vận hành', issuedOn: ctx.day(-1) });
+      const plan = await paper(ctx, { symbol: `KHBT-${spec.no}`, title: tx('title.038', spec.no), type: 'BC', sender: tx('sender.039'), issuedOn: ctx.day(-1) });
       await tolerate(ctx, `maintenance plan of ${spec.no}`, () => ctx.command(MAKER, `/asset-records/${first}/om-link`, { operator_unit_id: ctx.unitId(spec.unit), om_plan_document_version_id: plan.versionId, maintenance_cycle_months: 6, next_maintenance_due: ctx.day(120) }));
     }
   }
   if (spec.warranty !== undefined) {
     const existing = await ctx.list(MAKER, '/warranty-obligations');
-    if (!existing.some((row) => asString(row.handover_id ?? row.handover?.id) === handoverId)) {
+    if (!existing.some((row) => asString(row.handover_id ?? asObj(row.handover).id) === handoverId)) {
       const obligation = await tolerate(ctx, `warranty of ${spec.no}`, () =>
         ctx.command(MAKER, '/warranty-obligations', {
           contract_id: asString(contract.id),
@@ -215,11 +220,11 @@ async function claims(ctx: SeedContext, contractOf: (project: string) => Obj | u
   const existing = await ctx.list(MAKER, '/warranty-claims');
   for (const claim of CLAIMS) {
     const contract = contractOf(claim.project);
-    const obligation = obligations.find((row) => asString(row.contract_id ?? row.contract?.id) === asString(contract?.id) && asString(row.status) !== 'CLOSED');
+    const obligation = obligations.find((row) => asString(row.contract_id ?? asObj(row.contract).id) === asString(contract?.id) && asString(row.status) !== 'CLOSED');
     if (contract === undefined || obligation === undefined) continue;
     let row = existing.find((candidate) => candidate.claim_no === claim.no);
     if (row === undefined) {
-      const proof = await paper(ctx, { symbol: `BBKT-${claim.no}`, title: `Biên bản kiểm tra khuyết tật ${claim.no}`, type: 'BB', sender: 'Đơn vị vận hành', issuedOn: ctx.day(-claim.ago) });
+      const proof = await paper(ctx, { symbol: `BBKT-${claim.no}`, title: tx('title.040', claim.no), type: 'BB', sender: tx('sender.039'), issuedOn: ctx.day(-claim.ago) });
       const filed = await tolerate(ctx, `claim ${claim.no}`, () =>
         ctx.command(MAKER, `/warranty-obligations/${asString(obligation.id)}/claims`, { claim_no: claim.no, reported_on: ctx.day(-claim.ago), defect_description: claim.defect, severity: claim.severity, location_text: claim.location, evidence_document_version_id: proof.versionId, responder_contractor_id: asString(contract.contractor_id) }),
       );
@@ -231,16 +236,16 @@ async function claims(ctx: SeedContext, contractOf: (project: string) => Obj | u
     const status = async (): Promise<Obj> => (await ctx.list(MAKER, '/warranty-claims')).find((candidate) => candidate.id === id) ?? row;
     let current = await status();
     if (asString(current.status) === 'FILED' && ['ACKNOWLEDGED', 'FIXED', 'VERIFIED'].includes(claim.to)) {
-      await tolerate(ctx, `acknowledge ${claim.no}`, () => ctx.command(MAKER, `/warranty-claims/${id}/acknowledge`, { committed_fix_on: ctx.day(claim.to === 'ACKNOWLEDGED' ? 6 : -1), note: 'Nhà thầu xác nhận và cam kết sửa chữa' }, { version: Number(current.version) }));
+      await tolerate(ctx, `acknowledge ${claim.no}`, () => ctx.command(MAKER, `/warranty-claims/${id}/acknowledge`, { committed_fix_on: ctx.day(claim.to === 'ACKNOWLEDGED' ? 6 : -1), note: tx('note.041') }, { version: Number(current.version) }));
       current = await status();
     }
     if (['ACKNOWLEDGED'].includes(asString(current.status)) && ['FIXED', 'VERIFIED'].includes(claim.to)) {
-      const proof = await paper(ctx, { symbol: `BBSC-${claim.no}`, title: `Biên bản sửa chữa ${claim.no}`, type: 'BB', sender: 'Nhà thầu thi công', issuedOn: ctx.day(-1) });
-      await tolerate(ctx, `fix ${claim.no}`, () => ctx.command(MAKER, `/warranty-claims/${id}/fixed`, { fixed_on: ctx.day(-1), evidence_document_version_id: proof.versionId, note: 'Đã sửa chữa xong và vệ sinh hiện trường' }, { version: Number(current.version) }));
+      const proof = await paper(ctx, { symbol: `BBSC-${claim.no}`, title: tx('title.042', claim.no), type: 'BB', sender: tx('sender.028'), issuedOn: ctx.day(-1) });
+      await tolerate(ctx, `fix ${claim.no}`, () => ctx.command(MAKER, `/warranty-claims/${id}/fixed`, { fixed_on: ctx.day(-1), evidence_document_version_id: proof.versionId, note: tx('note.043') }, { version: Number(current.version) }));
       current = await status();
     }
     if (asString(current.status) === 'FIXED' && claim.to === 'VERIFIED') {
-      await tolerate(ctx, `verify ${claim.no}`, () => ctx.command(CHECKER, `/warranty-claims/${id}/verify`, { outcome: 'VERIFIED', cost_borne_by: 'CONTRACTOR', note: 'Đã kiểm tra, khuyết tật được khắc phục, chi phí do nhà thầu chịu' }, { version: Number(current.version) }));
+      await tolerate(ctx, `verify ${claim.no}`, () => ctx.command(CHECKER, `/warranty-claims/${id}/verify`, { outcome: 'VERIFIED', cost_borne_by: 'CONTRACTOR', note: tx('note.044') }, { version: Number(current.version) }));
     }
   }
 }
@@ -250,7 +255,7 @@ async function evaluation(ctx: SeedContext, handovers: Obj[], projectIdOf: (proj
   if (accepted === undefined) return;
   const projectId = projectIdOf('DA-YT007');
   const existing = await ctx.list(MAKER, '/evaluation-triggers');
-  if (projectId === undefined || existing.some((row) => asString(row.project_id ?? row.project?.id) === projectId)) return;
+  if (projectId === undefined || existing.some((row) => asString(row.project_id ?? asObj(row.project).id) === projectId)) return;
   await tolerate(ctx, 'evaluation trigger after the handover', () => ctx.command(MAKER, `/projects/${projectId}/evaluation-triggers`, { trigger_kind: 'POST_HANDOVER_12M', source_handover_id: asString(accepted.id), due_on: ctx.day(365) }));
 }
 

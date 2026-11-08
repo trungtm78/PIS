@@ -1,6 +1,10 @@
 import type { SeedContext } from '../context.ts';
 import type { Obj } from '../context.ts';
 import { made, once } from './shared.ts';
+import TEXTS from './data/iam.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * IAM for the guide: what a person of the provincial tenant does for themselves. The first step is a plain fact of the product, not a story: every
@@ -36,44 +40,44 @@ const TICKETS: Array<{ person: string; category: 'ACCESS' | 'DATA' | 'BILLING' |
   {
     person: 'nobody',
     category: 'ACCESS',
-    subject: 'Không vào được màn hình Báo cáo giải ngân tuần',
-    description: 'Từ sáng thứ Hai tôi mở mục Báo cáo giải ngân thì hệ thống báo không đủ quyền, trong khi tuần trước vẫn xem được. Nhờ kiểm tra lại phạm vi quyền của tài khoản Đỗ Thị Hà, Văn phòng Sở Kế hoạch và Đầu tư.',
+    subject: tx('subject.001'),
+    description: tx('description.002'),
   },
   {
     person: 'projectManager',
     category: 'HOWTO',
-    subject: 'Hướng dẫn nhập hàng loạt danh mục địa bàn từ tệp Excel',
-    description: 'Ban Quản lý dự án cần nhập thêm 14 xã thuộc huyện Hà Quảng từ tệp của Sở Nội vụ. Nhờ hướng dẫn mẫu tệp và các cột bắt buộc để lô nhập không bị từ chối.',
+    subject: tx('subject.003'),
+    description: tx('description.004'),
   },
   {
     person: 'treasuryMaker',
     category: 'DATA',
-    subject: 'Số liệu giải ngân tháng 10 chưa khớp với sao kê Kho bạc',
-    description: 'Tổng giải ngân tháng 10 trên hệ thống thấp hơn sao kê Kho bạc Nhà nước Cao Bằng khoảng 2,4 tỷ đồng. Đề nghị kiểm tra lô đối soát nhập ngày 28/10 và cho biết dòng nào chưa được ghép.',
+    subject: tx('subject.005'),
+    description: tx('description.006'),
   },
   {
     person: 'capApprover',
     category: 'INCIDENT',
-    subject: 'Ký số văn bản bị treo ở bước chờ xác nhận OTP',
-    description: 'Sáng nay lãnh đạo Sở ký quyết định giao kế hoạch vốn nhưng màn hình dừng ở bước nhập mã OTP, không có tin nhắn gửi về điện thoại. Cần xử lý gấp vì quyết định phải ban hành trong ngày.',
+    subject: tx('subject.007'),
+    description: tx('description.008'),
   },
   {
     person: 'unitAdmin',
     category: 'BILLING',
-    subject: 'Đề nghị xuất hóa đơn điện tử quý III cho Sở Kế hoạch và Đầu tư',
-    description: 'Phòng Kế hoạch - Tài chính của Sở cần hóa đơn điện tử cho kỳ thanh toán quý III với đúng mã số thuế đơn vị. Nhờ kiểm tra thông tin người mua trên hóa đơn.',
+    subject: tx('subject.009'),
+    description: tx('description.010'),
   },
   {
     person: 'auditor',
     category: 'OTHER',
-    subject: 'Đề nghị cấp quyền xuất nhật ký kiểm toán cho đoàn kiểm toán nhà nước',
-    description: 'Đoàn kiểm toán dự kiến làm việc từ tuần sau, cần xuất nhật ký kiểm toán giai đoạn 01/2026 đến 10/2026. Đề nghị hướng dẫn thủ tục và thời hạn xử lý yêu cầu.',
+    subject: tx('subject.011'),
+    description: tx('description.012'),
   },
   {
     person: 'owner',
     category: 'ACCESS',
-    subject: 'Thêm cán bộ mới của Ban Quản lý dự án vào hệ thống',
-    description: 'Ban Quản lý dự án vừa tiếp nhận hai cán bộ theo quyết định điều động. Nhờ hướng dẫn quy trình mời thành viên và gán vai trò cho đúng phạm vi đơn vị.',
+    subject: tx('subject.013'),
+    description: tx('description.014'),
   },
 ];
 
@@ -92,7 +96,7 @@ export async function grantMemberRoles(ctx: SeedContext): Promise<void> {
         membership_id: person.membershipId,
         role_id: member.id,
         scope_kind: 'TENANT',
-        reason: `Cán bộ ${person.name} là thành viên của hệ thống: cần hộp thông báo, hồ sơ cá nhân và yêu cầu hỗ trợ`,
+        reason: tx('reason.015', person.name),
       });
       granted += 1;
     }

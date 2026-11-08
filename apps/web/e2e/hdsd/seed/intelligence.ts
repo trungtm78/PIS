@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto';
 import { vnd } from './context.ts';
 import type { SeedContext } from './context.ts';
+import TEXTS from './data/intelligence.json' with { type: 'json' };
+import { textsOf } from '../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Group `intelligence`: the data of the modules that read, govern and report on what the others made: BI (metrics, datasets, dashboards, exports),
@@ -8,7 +12,7 @@ import type { SeedContext } from './context.ts';
  * models, routing, budgets, usage). Everything goes through the commands of the product as one of the seven people of the guide; nothing is written
  * to the database. The group builds on `base` and `capital` by QUERYING what exists (projects, units, snapshots of the periods).
  *
- * The story, in the words of the Department of Planning and Investment of Cao Bằng:
+ * The story, in the words of the Department of Planning and Investment of Cao Bang:
  *  - the AI board of the Department (the project manager as administrator, the leader as approver) opens the use of language models: a provider in the
  *    country, a self-hosted server of the Department and an international service for public data only; the classification policy decides which data
  *    may go where; each model is approved and priced; prompts are approved, evaluated on synthetic cases and signed; profiles are published; budgets
@@ -20,7 +24,7 @@ import type { SeedContext } from './context.ts';
 /** The roles of the AI board: the units of a tenant do not hold the permissions of LLM, so the owner makes two roles and grants them (IAM commands). */
 const AI_ADMIN_ROLE = {
   code: 'QUAN_TRI_AI',
-  name: 'Quản trị mô hình AI',
+  name: tx('name.001'),
   rank: 44,
   permissions: [
     'llm.provider.manage', 'llm.provider.read', 'llm.policy.manage', 'llm.policy.read', 'llm.finops', 'llm.eval.manage', 'llm.eval.read',
@@ -30,7 +34,7 @@ const AI_ADMIN_ROLE = {
 };
 const AI_APPROVER_ROLE = {
   code: 'DUYET_AI',
-  name: 'Phê duyệt mô hình và phát hành AI',
+  name: tx('name.002'),
   rank: 64,
   permissions: [
     'llm.provider.approve', 'llm.provider.read', 'llm.policy.approve', 'llm.policy.read', 'llm.prompt.approve', 'llm.prompt.read', 'llm.eval.sign',
@@ -59,8 +63,8 @@ async function ensureGrant(ctx: SeedContext, person: string, roleId: string, rea
 async function setUpAiBoard(ctx: SeedContext): Promise<void> {
   const admin = await ensureRole(ctx, AI_ADMIN_ROLE);
   const approver = await ensureRole(ctx, AI_APPROVER_ROLE);
-  await ensureGrant(ctx, 'projectManager', admin, 'Phụ trách vận hành mô hình AI của Sở');
-  await ensureGrant(ctx, 'capApprover', approver, 'Lãnh đạo Sở phê duyệt nhà cung cấp, mô hình và phát hành AI');
+  await ensureGrant(ctx, 'projectManager', admin, tx('setUpAiBoard.003'));
+  await ensureGrant(ctx, 'capApprover', approver, tx('setUpAiBoard.004'));
 }
 
 // ---- small helpers -------------------------------------------------------------------------------------------------------------------

@@ -1,6 +1,11 @@
 import type { SeedContext } from '../context.ts';
 import type { Obj } from '../context.ts';
 import { CHECKER, MAKER, OWNER, asString, paper, projectOf, tolerate } from './shared.ts';
+import { asObj } from '../context.ts';
+import TEXTS from './data/pmt.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * PMT: the permits a public investment project must hold before a milestone. The story of the department: the catalogue of the eight permit types the
@@ -22,14 +27,14 @@ interface TypeSpec {
 }
 
 const TYPES: TypeSpec[] = [
-  { code: 'GPXD', name: 'Giấy phép xây dựng', category: 'CONSTRUCTION_PERMIT', authority: 'Sở Xây dựng tỉnh Cao Bằng', basis: 'Luật Xây dựng số 50/2014/QH13 (sửa đổi, bổ sung năm 2020), Điều 89 và Điều 95', validityMonths: 24, processingDays: 20, exemptionAllowed: true, appliesTo: { work_types: ['EDUCATION', 'HEALTH'] } },
-  { code: 'DTM', name: 'Quyết định phê duyệt báo cáo đánh giá tác động môi trường', category: 'ENVIRONMENT', authority: 'Sở Tài nguyên và Môi trường tỉnh Cao Bằng', basis: 'Luật Bảo vệ môi trường số 72/2020/QH14, Điều 34', processingDays: 45, appliesTo: { min_total_investment_vnd: '100000000000' } },
-  { code: 'GPMT', name: 'Giấy phép môi trường', category: 'ENVIRONMENT', authority: 'Sở Tài nguyên và Môi trường tỉnh Cao Bằng', basis: 'Luật Bảo vệ môi trường số 72/2020/QH14, Điều 39', validityMonths: 84, processingDays: 30, appliesTo: { min_total_investment_vnd: '40000000000' } },
-  { code: 'PCCC', name: 'Văn bản thẩm duyệt thiết kế phòng cháy và chữa cháy', category: 'FIRE_SAFETY', authority: 'Phòng Cảnh sát phòng cháy, chữa cháy và cứu nạn, cứu hộ - Công an tỉnh Cao Bằng', basis: 'Luật Phòng cháy, chữa cháy số 27/2001/QH10 (sửa đổi năm 2013), Nghị định số 136/2020/NĐ-CP, Điều 13', processingDays: 15, appliesTo: { work_types: ['EDUCATION', 'HEALTH'] } },
-  { code: 'TKXD', name: 'Văn bản thẩm định thiết kế xây dựng', category: 'DESIGN_APPRAISAL', authority: 'Sở Xây dựng tỉnh Cao Bằng', basis: 'Nghị định số 15/2021/NĐ-CP về quản lý dự án đầu tư xây dựng, Điều 11', processingDays: 30, appliesTo: {} },
-  { code: 'GPTC', name: 'Giấy phép thi công trong phạm vi bảo vệ đường bộ', category: 'TRAFFIC', authority: 'Sở Giao thông vận tải tỉnh Cao Bằng', basis: 'Luật Đường bộ số 35/2024/QH15, Điều 45', validityMonths: 12, processingDays: 10, appliesTo: { work_types: ['TRANSPORT'] } },
-  { code: 'QDGD', name: 'Quyết định giao đất, cho thuê đất', category: 'LAND', authority: 'Ủy ban nhân dân tỉnh Cao Bằng', basis: 'Luật Đất đai số 31/2024/QH15, Điều 116', processingDays: 40, appliesTo: {} },
-  { code: 'GPNM', name: 'Giấy phép khai thác, sử dụng nước mặt', category: 'WATER_RESOURCES', authority: 'Sở Tài nguyên và Môi trường tỉnh Cao Bằng', basis: 'Luật Tài nguyên nước số 28/2023/QH15, Điều 44', validityMonths: 60, processingDays: 30, appliesTo: { work_types: ['TRANSPORT'] } },
+  { code: 'GPXD', name: tx('name.001'), category: 'CONSTRUCTION_PERMIT', authority: tx('authority.002'), basis: tx('basis.003'), validityMonths: 24, processingDays: 20, exemptionAllowed: true, appliesTo: { work_types: ['EDUCATION', 'HEALTH'] } },
+  { code: 'DTM', name: tx('name.004'), category: 'ENVIRONMENT', authority: tx('authority.005'), basis: tx('basis.006'), processingDays: 45, appliesTo: { min_total_investment_vnd: '100000000000' } },
+  { code: 'GPMT', name: tx('name.007'), category: 'ENVIRONMENT', authority: tx('authority.005'), basis: tx('basis.008'), validityMonths: 84, processingDays: 30, appliesTo: { min_total_investment_vnd: '40000000000' } },
+  { code: 'PCCC', name: tx('name.009'), category: 'FIRE_SAFETY', authority: tx('authority.010'), basis: tx('basis.011'), processingDays: 15, appliesTo: { work_types: ['EDUCATION', 'HEALTH'] } },
+  { code: 'TKXD', name: tx('name.012'), category: 'DESIGN_APPRAISAL', authority: tx('authority.002'), basis: tx('basis.013'), processingDays: 30, appliesTo: {} },
+  { code: 'GPTC', name: tx('name.014'), category: 'TRAFFIC', authority: tx('authority.015'), basis: tx('basis.016'), validityMonths: 12, processingDays: 10, appliesTo: { work_types: ['TRANSPORT'] } },
+  { code: 'QDGD', name: tx('name.017'), category: 'LAND', authority: tx('authority.018'), basis: tx('basis.019'), processingDays: 40, appliesTo: {} },
+  { code: 'GPNM', name: tx('name.020'), category: 'WATER_RESOURCES', authority: tx('authority.005'), basis: tx('basis.021'), validityMonths: 60, processingDays: 30, appliesTo: { work_types: ['TRANSPORT'] } },
 ];
 
 /** How far a permit goes in the story: the state it is left in, and the days (before today) of its steps. */
@@ -50,22 +55,22 @@ const DOSSIERS: Record<string, { owner: string; plans: Plan[] }> = {
   'DA-DT205': {
     owner: 'CB-SKHDT-QLDA',
     plans: [
-      { type: 'DTM', to: 'ISSUED', submitted: 210, issued: 160, no: '1843/QĐ-UBND', note: 'Hồ sơ đánh giá tác động môi trường đã được thẩm định' },
+      { type: 'DTM', to: 'ISSUED', submitted: 210, issued: 160, no: tx('no.022'), note: tx('note.023') },
       { type: 'GPMT', to: 'ISSUED', submitted: 330, issued: 300, no: '07/GPMT-STNMT', endsIn: 24 },
-      { type: 'TKXD', to: 'ISSUED', submitted: 120, issued: 90, no: '212/TĐ-SXD' },
+      { type: 'TKXD', to: 'ISSUED', submitted: 120, issued: 90, no: tx('no.024') },
       { type: 'GPTC', to: 'ISSUED', submitted: 430, issued: 400, no: '56/GP-SGTVT', endsIn: -35 },
       { type: 'GPNM', to: 'ISSUED', submitted: 80, issued: 60, no: '14/GP-STNMT', endsIn: 9 },
-      { type: 'QDGD', to: 'IN_APPRAISAL', submitted: 38, note: 'Chờ hội đồng thẩm định quỹ đất của tỉnh' },
+      { type: 'QDGD', to: 'IN_APPRAISAL', submitted: 38, note: tx('note.025') },
     ],
   },
   'DA-TH012': {
     owner: 'CB-SKHDT-QLDA',
     plans: [
-      { type: 'GPXD', to: 'SUPPLEMENT_REQUESTED', submitted: 26, note: 'Cơ quan cấp phép yêu cầu bổ sung bản vẽ thoát nước mái' },
+      { type: 'GPXD', to: 'SUPPLEMENT_REQUESTED', submitted: 26, note: tx('note.026') },
       { type: 'GPMT', to: 'SUBMITTED', submitted: 6 },
-      { type: 'PCCC', to: 'REJECTED_THEN_FILED', submitted: 75, note: 'Thiết kế lối thoát nạn chưa đạt quy chuẩn' },
-      { type: 'TKXD', to: 'ISSUED', submitted: 100, issued: 70, no: '188/TĐ-SXD' },
-      { type: 'QDGD', to: 'ISSUED', submitted: 200, issued: 150, no: '2210/QĐ-UBND' },
+      { type: 'PCCC', to: 'REJECTED_THEN_FILED', submitted: 75, note: tx('note.027') },
+      { type: 'TKXD', to: 'ISSUED', submitted: 100, issued: 70, no: tx('no.028') },
+      { type: 'QDGD', to: 'ISSUED', submitted: 200, issued: 150, no: tx('no.029') },
     ],
   },
   'DA-YT007': {
@@ -73,7 +78,7 @@ const DOSSIERS: Record<string, { owner: string; plans: Plan[] }> = {
     plans: [
       { type: 'GPXD', to: 'EXEMPTED' },
       { type: 'PCCC', to: 'ISSUED', submitted: 90, issued: 62, no: '41/TD-PCCC' },
-      { type: 'TKXD', to: 'ISSUED', submitted: 110, issued: 84, no: '176/TĐ-SXD' },
+      { type: 'TKXD', to: 'ISSUED', submitted: 110, issued: 84, no: tx('no.030') },
       { type: 'QDGD', to: 'IN_APPRAISAL', submitted: 21 },
     ],
   },
@@ -133,17 +138,17 @@ async function milestone(ctx: SeedContext, permitId: string, step: string, body:
 
 /** The application goes in and the authority acknowledges it: the permit is in appraisal. */
 async function submitAndAcknowledge(ctx: SeedContext, permitId: string, submittedAgo: number, supplier: string): Promise<void> {
-  const first = await paper(ctx, { symbol: `HS-${supplier}/${ctx.year}`, title: `Hồ sơ đề nghị cấp phép ${supplier}`, type: 'CV', sender: 'Ban Quản lý dự án', issuedOn: ctx.day(-submittedAgo) });
-  await milestone(ctx, permitId, 'SUBMITTED', { actual_on: ctx.day(-submittedAgo), note: 'Nộp hồ sơ trực tiếp tại bộ phận một cửa', document_version_id: first.versionId });
-  await milestone(ctx, permitId, 'ACKNOWLEDGED', { actual_on: ctx.day(-Math.max(submittedAgo - 2, 0)), note: 'Cơ quan cấp phép đã tiếp nhận và hẹn lịch thẩm định' });
+  const first = await paper(ctx, { symbol: `HS-${supplier}/${ctx.year}`, title: tx('title.031', supplier), type: 'CV', sender: tx('sender.032'), issuedOn: ctx.day(-submittedAgo) });
+  await milestone(ctx, permitId, 'SUBMITTED', { actual_on: ctx.day(-submittedAgo), note: tx('note.033'), document_version_id: first.versionId });
+  await milestone(ctx, permitId, 'ACKNOWLEDGED', { actual_on: ctx.day(-Math.max(submittedAgo - 2, 0)), note: tx('note.034') });
 }
 
 async function issue(ctx: SeedContext, permitId: string, projectCode: string, plan: Plan): Promise<void> {
   const licence = await paper(ctx, {
     symbol: `${plan.no ?? 'GP'}/${projectCode}/${plan.type}`,
-    title: `${plan.type} ${plan.no ?? ''} của dự án ${projectCode}`,
+    title: tx('title.035', plan.type, plan.no ?? '', projectCode),
     type: 'GP',
-    sender: 'Cơ quan cấp phép',
+    sender: tx('sender.036'),
     issuedOn: ctx.day(-(plan.issued ?? 30)),
   });
   const issuedOn = ctx.day(-(plan.issued ?? 30));
@@ -180,9 +185,9 @@ async function workPermit(ctx: SeedContext, projectCode: string, dossierId: stri
   if (plan.to === 'PLANNED') return record(planned, 'planned');
   if (plan.to === 'EXEMPTED') {
     if (planned === undefined) return record(present(['EXEMPTED']), 'existing');
-    const decision = await paper(ctx, { symbol: `${projectCode}/MT-GPXD`, title: `Quyết định miễn giấy phép xây dựng của dự án ${projectCode}`, type: 'QD', sender: 'Sở Xây dựng tỉnh Cao Bằng', issuedOn: ctx.day(-40) });
+    const decision = await paper(ctx, { symbol: `${projectCode}/MT-GPXD`, title: tx('title.037', projectCode), type: 'QD', sender: tx('authority.002'), issuedOn: ctx.day(-40) });
     // The person who declares the exemption is not the one who opened the dossier and planned the permit.
-    await ctx.command(OWNER, `/permits/${asString(planned.id)}/exempt`, { exemption_basis: 'Công trình sửa chữa, cải tạo không làm thay đổi kết cấu chịu lực và công năng sử dụng (Luật Xây dựng, Điều 89, khoản 2)', exemption_decision_document_version_id: decision.versionId }, { version: Number(planned.version) });
+    await ctx.command(OWNER, `/permits/${asString(planned.id)}/exempt`, { exemption_basis: tx('exemption_basis.038'), exemption_decision_document_version_id: decision.versionId }, { version: Number(planned.version) });
     return record(planned, 'exempted');
   }
   if (plan.to === 'REJECTED_THEN_FILED') {
@@ -190,7 +195,7 @@ async function workPermit(ctx: SeedContext, projectCode: string, dossierId: stri
     if (planned !== undefined) {
       await submitAndAcknowledge(ctx, asString(planned.id), plan.submitted ?? 60, `${tag}-L1`);
       const current = await permitDetail(ctx, asString(planned.id));
-      await ctx.command(MAKER, `/permits/${asString(planned.id)}/decision`, { outcome: 'REJECTED', reason: plan.note ?? 'Hồ sơ chưa đạt yêu cầu' }, { version: Number(current.version) });
+      await ctx.command(MAKER, `/permits/${asString(planned.id)}/decision`, { outcome: 'REJECTED', reason: plan.note ?? tx('reason.039') }, { version: Number(current.version) });
       first = planned;
     }
     dossier = await dossierDetail(ctx, dossierId);
@@ -206,17 +211,17 @@ async function workPermit(ctx: SeedContext, projectCode: string, dossierId: stri
   if (permit === undefined) return record(present(['IN_APPRAISAL', 'SUBMITTED', 'SUPPLEMENT_REQUESTED', 'ISSUED']), 'existing');
   const id = asString(permit.id);
   if (plan.to === 'SUBMITTED') {
-    const first = await paper(ctx, { symbol: `HS-${tag}/${ctx.year}`, title: `Hồ sơ đề nghị cấp phép ${tag}`, type: 'CV', sender: 'Ban Quản lý dự án', issuedOn: ctx.day(-(plan.submitted ?? 5)) });
-    await milestone(ctx, id, 'SUBMITTED', { actual_on: ctx.day(-(plan.submitted ?? 5)), note: 'Nộp hồ sơ qua cổng dịch vụ công của tỉnh', document_version_id: first.versionId });
+    const first = await paper(ctx, { symbol: `HS-${tag}/${ctx.year}`, title: tx('title.031', tag), type: 'CV', sender: tx('sender.032'), issuedOn: ctx.day(-(plan.submitted ?? 5)) });
+    await milestone(ctx, id, 'SUBMITTED', { actual_on: ctx.day(-(plan.submitted ?? 5)), note: tx('note.040'), document_version_id: first.versionId });
     return record(permit, 'submitted');
   }
   await submitAndAcknowledge(ctx, id, plan.submitted ?? 30, tag);
   if (plan.to === 'IN_APPRAISAL') {
-    await milestone(ctx, id, 'APPRAISAL_MEETING', { planned_on: ctx.day(6), note: plan.note ?? 'Họp thẩm định hồ sơ' });
+    await milestone(ctx, id, 'APPRAISAL_MEETING', { planned_on: ctx.day(6), note: plan.note ?? tx('note.041') });
     return record(permit, 'in appraisal');
   }
   if (plan.to === 'SUPPLEMENT_REQUESTED') {
-    await milestone(ctx, id, 'SUPPLEMENT_REQUESTED', { actual_on: ctx.day(-Math.max((plan.submitted ?? 30) - 14, 1)), note: plan.note ?? 'Yêu cầu bổ sung hồ sơ' });
+    await milestone(ctx, id, 'SUPPLEMENT_REQUESTED', { actual_on: ctx.day(-Math.max((plan.submitted ?? 30) - 14, 1)), note: plan.note ?? tx('note.042') });
     return record(permit, 'supplement requested');
   }
   await issue(ctx, id, projectCode, plan);
@@ -228,14 +233,14 @@ async function publishGates(ctx: SeedContext): Promise<void> {
   const types = await permitTypes(ctx);
   const rules = await ctx.list(MAKER, '/resources/permit_gate_rule');
   const wanted = [
-    { gate: 'START_CONSTRUCTION', type: 'GPXD', requirement: 'VALID_OR_EXEMPT', appliesTo: { work_types: ['EDUCATION', 'HEALTH'] }, basis: 'Luật Xây dựng 2014 (sửa đổi 2020), Điều 107: chỉ khởi công khi đã có giấy phép xây dựng hoặc được miễn' },
-    { gate: 'ACCEPTANCE_COMPLETION', type: 'PCCC', requirement: 'VALID_PERMIT', appliesTo: { work_types: ['EDUCATION', 'HEALTH'] }, basis: 'Nghị định số 136/2020/NĐ-CP, Điều 15: nghiệm thu về phòng cháy trước khi đưa vào sử dụng' },
-    { gate: 'HANDOVER', type: 'TKXD', requirement: 'VALID_PERMIT', appliesTo: {}, basis: 'Nghị định số 15/2021/NĐ-CP, Điều 31: bàn giao công trình theo thiết kế đã được thẩm định' },
+    { gate: 'START_CONSTRUCTION', type: 'GPXD', requirement: 'VALID_OR_EXEMPT', appliesTo: { work_types: ['EDUCATION', 'HEALTH'] }, basis: tx('basis.043') },
+    { gate: 'ACCEPTANCE_COMPLETION', type: 'PCCC', requirement: 'VALID_PERMIT', appliesTo: { work_types: ['EDUCATION', 'HEALTH'] }, basis: tx('basis.044') },
+    { gate: 'HANDOVER', type: 'TKXD', requirement: 'VALID_PERMIT', appliesTo: {}, basis: tx('basis.045') },
   ];
   for (const rule of wanted) {
     const type = types.get(rule.type);
     if (type === undefined) throw new Error(`the permit type ${rule.type} is not published`);
-    const exists = rules.some((row) => row.gate_code === rule.gate && asString(row.permit_type_code ?? row.permit_type?.code) === rule.type);
+    const exists = rules.some((row) => row.gate_code === rule.gate && asString(row.permit_type_code ?? asObj(row.permit_type).code) === rule.type);
     if (exists) continue;
     const made = await ctx.command(MAKER, '/permit-gate-rules', {
       gate_code: rule.gate,
@@ -255,14 +260,14 @@ async function grantWaiver(ctx: SeedContext): Promise<void> {
   const types = await permitTypes(ctx);
   const type = types.get('PCCC');
   const existing = await ctx.list(MAKER, '/resources/permit_gate_waiver');
-  if (existing.some((row) => asString(row.project?.id) === project.id)) return;
-  const decision = await paper(ctx, { symbol: '312/QĐ-UBND-MT', title: 'Quyết định cho phép nghiệm thu có điều kiện về phòng cháy chữa cháy của Trường Tiểu học phường Nùng Trí Cao', type: 'QD', issuedOn: ctx.day(-10) });
+  if (existing.some((row) => asString(asObj(row.project).id) === project.id)) return;
+  const decision = await paper(ctx, { symbol: tx('symbol.046'), title: tx('title.047'), type: 'QD', issuedOn: ctx.day(-10) });
   const made = await tolerate(ctx, 'waive the gate ACCEPTANCE_COMPLETION of DA-TH012', () =>
     ctx.command(OWNER, '/permit-gate-waivers', {
       project_id: project.id,
       gate_code: 'ACCEPTANCE_COMPLETION',
       permit_type_id: asString(type?.id),
-      reason: 'Cho phép nghiệm thu giai đoạn trong thời gian chờ thẩm duyệt lại thiết kế phòng cháy chữa cháy',
+      reason: tx('reason.048'),
       decision_document_version_id: decision.versionId,
       valid_until: ctx.day(45),
     }),

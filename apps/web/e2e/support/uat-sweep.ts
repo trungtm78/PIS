@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import TEXTS from './data/uat-sweep.json' with { type: 'json' };
+import { textsOf } from './texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * What the operation sweep of the isolation UAT needs (apps/web/e2e/uat/isolation-api.uat.spec.ts): the operations of the design
@@ -171,7 +175,7 @@ export function instanceOf(document: OpenApiDocument, source: OpenApiSchema, dep
       }
       // A field the design says is required by the command (and the schema leaves optional) is given too.
       for (const [name, property] of Object.entries(schema.properties ?? {})) {
-        if (result[name] === undefined && /(?<!not )(?<!never )\brequired\b|bắt buộc/i.test(property.description ?? '')) result[name] = instanceOf(document, property, depth + 1, name);
+        if (result[name] === undefined && new RegExp(tx('instanceOf.001'), 'i').test(property.description ?? '')) result[name] = instanceOf(document, property, depth + 1, name);
       }
       return result;
     }

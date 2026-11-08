@@ -2,6 +2,11 @@ import { randomUUID } from 'node:crypto';
 import type { SeedContext } from '../context.ts';
 import type { Obj } from '../context.ts';
 import { CHECKER, MAKER, OWNER, activeContracts, asString, paper, tolerate } from './shared.ts';
+import { asObj } from '../context.ts';
+import TEXTS from './data/qms.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * QMS: the quality of what is built. The story, for the contract of the road 205 (the busiest) and one of the health station: the site diaries of the last
@@ -34,26 +39,26 @@ interface InspectionSpec {
 }
 
 const ROAD_INSPECTIONS: InspectionSpec[] = [
-  { title: 'Nghiệm thu cốt thép móng cống hộp Km7+120', type: 'CONCEALED_WORK', location: 'Cống hộp Km7+120', requestedAgo: 21, to: 'PASS', note: 'Cốt thép đúng bản vẽ thi công, khoảng cách và chiều dày lớp bảo vệ đạt' },
-  { title: 'Nghiệm thu nền đường lớp đất đắp K98 đoạn Km5 - Km6', type: 'CONSTRUCTION_STAGE', location: 'Km5 - Km6', requestedAgo: 16, to: 'PASS', note: 'Độ chặt đạt K98 theo kết quả thí nghiệm rót cát' },
-  { title: 'Nghiệm thu nhập vật liệu: đá dăm loại 1 lô 14', type: 'MATERIAL_ENTRY', location: 'Bãi tập kết Km4', requestedAgo: 12, to: 'FAIL', note: 'Hàm lượng thoi dẹt vượt giới hạn, yêu cầu đưa vật liệu ra khỏi công trường' },
-  { title: 'Kiểm tra an toàn lao động khu vực thi công taluy Km9', type: 'SAFETY', location: 'Taluy dương Km9+600', requestedAgo: 9, to: 'CONDITIONAL', note: 'Cần bổ sung rào chắn và lưới an toàn trước khi thi công tiếp' },
-  { title: 'Nghiệm thu giai đoạn lớp móng cấp phối đá dăm Km0 - Km3', type: 'PART_ACCEPTANCE', location: 'Km0 - Km3', requestedAgo: 6, to: 'SCHEDULED' },
-  { title: 'Nghiệm thu cốt thép dầm cầu nhỏ Km10+300', type: 'CONCEALED_WORK', location: 'Cầu nhỏ Km10+300', requestedAgo: 3, to: 'REQUESTED' },
-  { title: 'Nghiệm thu nhập vật liệu: thép D20 lô 03', type: 'MATERIAL_ENTRY', location: 'Kho vật tư công trường', requestedAgo: 25, to: 'CANCELLED', note: 'Nhà thầu đổi lô thép nên hủy đề nghị cũ' },
+  { title: tx('title.001'), type: 'CONCEALED_WORK', location: tx('location.002'), requestedAgo: 21, to: 'PASS', note: tx('note.003') },
+  { title: tx('title.004'), type: 'CONSTRUCTION_STAGE', location: 'Km5 - Km6', requestedAgo: 16, to: 'PASS', note: tx('note.005') },
+  { title: tx('title.006'), type: 'MATERIAL_ENTRY', location: tx('location.007'), requestedAgo: 12, to: 'FAIL', note: tx('note.008') },
+  { title: tx('title.009'), type: 'SAFETY', location: tx('location.010'), requestedAgo: 9, to: 'CONDITIONAL', note: tx('note.011') },
+  { title: tx('title.012'), type: 'PART_ACCEPTANCE', location: 'Km0 - Km3', requestedAgo: 6, to: 'SCHEDULED' },
+  { title: tx('title.013'), type: 'CONCEALED_WORK', location: tx('location.014'), requestedAgo: 3, to: 'REQUESTED' },
+  { title: tx('title.015'), type: 'MATERIAL_ENTRY', location: tx('location.016'), requestedAgo: 25, to: 'CANCELLED', note: tx('note.017') },
 ];
 
 const STATION_INSPECTIONS: InspectionSpec[] = [
-  { title: 'Nghiệm thu chống thấm mái khu khám bệnh', type: 'CONCEALED_WORK', location: 'Mái khu khám bệnh', requestedAgo: 10, to: 'PASS', note: 'Lớp chống thấm đạt, thử ngập nước 24 giờ không thấm' },
-  { title: 'Kiểm tra an toàn thi công trên cao tại trạm y tế', type: 'SAFETY', location: 'Khu vực giàn giáo phía Đông', requestedAgo: 4, to: 'SCHEDULED' },
+  { title: tx('title.018'), type: 'CONCEALED_WORK', location: tx('location.019'), requestedAgo: 10, to: 'PASS', note: tx('note.020') },
+  { title: tx('title.021'), type: 'SAFETY', location: tx('location.022'), requestedAgo: 4, to: 'SCHEDULED' },
 ];
 
 const MATERIALS = [
-  { sample: 'MAU-BT-0712', kind: 'Bê tông M30 cống hộp Km7+120', lab: 'Trung tâm kiểm định chất lượng xây dựng Cao Bằng', standard: 'TCVN 3118:2022', ago: 33, result: 'FAIL' as const },
-  { sample: 'MAU-BT-0725', kind: 'Bê tông M30 (khoan lấy lõi) cống hộp Km7+120', lab: 'Trung tâm kiểm định chất lượng xây dựng Cao Bằng', standard: 'TCVN 12252:2020', ago: 12, result: 'PASS' as const },
-  { sample: 'MAU-DA-0409', kind: 'Đá dăm loại 1 lô 14', lab: 'Phòng thí nghiệm LAS-XD 112 - Công ty Kiểm định Việt Bắc', standard: 'TCVN 7570:2006', ago: 14, result: 'FAIL' as const },
-  { sample: 'MAU-TH-0318', kind: 'Thép D20 lô 03', lab: 'Phòng thí nghiệm LAS-XD 112 - Công ty Kiểm định Việt Bắc', standard: 'TCVN 1651-2:2018', ago: 8, result: 'PASS' as const },
-  { sample: 'MAU-DT-0221', kind: 'Đất đắp nền K98 đoạn Km5 - Km6', lab: 'Phòng thí nghiệm LAS-XD 112 - Công ty Kiểm định Việt Bắc', standard: 'TCVN 4201:2012', ago: 18, result: undefined },
+  { sample: 'MAU-BT-0712', kind: tx('kind.023'), lab: tx('lab.024'), standard: 'TCVN 3118:2022', ago: 33, result: 'FAIL' as const },
+  { sample: 'MAU-BT-0725', kind: tx('kind.025'), lab: tx('lab.024'), standard: 'TCVN 12252:2020', ago: 12, result: 'PASS' as const },
+  { sample: 'MAU-DA-0409', kind: tx('kind.026'), lab: tx('lab.027'), standard: 'TCVN 7570:2006', ago: 14, result: 'FAIL' as const },
+  { sample: 'MAU-TH-0318', kind: tx('kind.028'), lab: tx('lab.027'), standard: 'TCVN 1651-2:2018', ago: 8, result: 'PASS' as const },
+  { sample: 'MAU-DT-0221', kind: tx('kind.029'), lab: tx('lab.027'), standard: 'TCVN 4201:2012', ago: 18, result: undefined },
 ];
 
 interface NcrSpec {
@@ -68,23 +73,23 @@ interface NcrSpec {
 }
 
 const NCRS: NcrSpec[] = [
-  { title: 'Cường độ bê tông cống hộp Km7+120 không đạt mác thiết kế', description: 'Mẫu nén 28 ngày đạt 24,1 MPa so với 30 MPa yêu cầu. Cần khoan lấy lõi kiểm tra và xử lý nếu không đạt.', severity: 'MAJOR', source: 'MATERIAL_TEST', owner: 'projectManager', dueIn: -2, to: 'CLOSED', action: 'Khoan lấy lõi ba vị trí và thí nghiệm lại tại phòng thí nghiệm độc lập' },
-  { title: 'Lớp bê tông bảo vệ cốt thép dầm cầu nhỏ Km10+300 mỏng hơn thiết kế', description: 'Đo kiểm tra tại sáu vị trí, lớp bảo vệ 15 - 18 mm so với 30 mm.', severity: 'MAJOR', source: 'SUPERVISOR_REMARK', owner: 'owner', dueIn: 6, to: 'EVIDENCE', action: 'Đục sửa, phun vữa polyme và nộp biên bản đo lại' },
-  { title: 'Đá dăm lô 14 không đạt tiêu chuẩn hàm lượng thoi dẹt', description: 'Kết quả thí nghiệm 21,4% thoi dẹt, vượt giới hạn 15%.', severity: 'MINOR', source: 'MATERIAL_TEST', owner: 'projectManager', dueIn: 4, to: 'ACTION', action: 'Đưa lô đá ra khỏi công trường và nhập lô thay thế có chứng nhận' },
-  { title: 'Thiếu rào chắn và biển báo tại vị trí sạt taluy Km9+600', description: 'Khu vực sạt chưa có rào chắn, người dân và xe thô sơ vẫn qua lại sát mép sạt.', severity: 'CRITICAL', source: 'INSPECTION', owner: 'owner', dueIn: 1, to: 'OPEN', action: 'Lắp rào chắn, biển báo và bố trí người điều tiết giao thông' },
+  { title: tx('title.030'), description: tx('description.031'), severity: 'MAJOR', source: 'MATERIAL_TEST', owner: 'projectManager', dueIn: -2, to: 'CLOSED', action: tx('action.032') },
+  { title: tx('title.033'), description: tx('description.034'), severity: 'MAJOR', source: 'SUPERVISOR_REMARK', owner: 'owner', dueIn: 6, to: 'EVIDENCE', action: tx('action.035') },
+  { title: tx('title.036'), description: tx('description.037'), severity: 'MINOR', source: 'MATERIAL_TEST', owner: 'projectManager', dueIn: 4, to: 'ACTION', action: tx('action.038') },
+  { title: tx('title.039'), description: tx('description.040'), severity: 'CRITICAL', source: 'INSPECTION', owner: 'owner', dueIn: 1, to: 'OPEN', action: tx('action.041') },
 ];
 
 // ---- diaries ------------------------------------------------------------------------------------------------------------------------
 
 const WEATHER = ['NANG', 'NANG', 'MAY', 'MUA_NHO', 'NANG', 'MUA_LON', 'MAY'];
 const WORK = [
-  'Đào và đắp nền đường đoạn Km5+200 - Km5+450; lu lèn lớp K98 đến chiều dày 30 cm.',
-  'Thi công cống hộp Km7+120: lắp ván khuôn thành, buộc thép lớp trên.',
-  'Vận chuyển và rải cấp phối đá dăm lớp dưới móng đoạn Km1 - Km2.',
-  'Đổ bê tông bản đáy cống hộp Km7+120 và bảo dưỡng.',
-  'Gia cố mái taluy Km9+300 bằng lưới thép và phun vữa.',
-  'Mưa nhỏ buổi sáng, thi công buổi chiều: đắp đất đoạn Km4 - Km4+200.',
-  'Thi công rãnh dọc bê tông M20 bên trái tuyến Km3 - Km3+300.',
+  tx('WORK.042'),
+  tx('WORK.043'),
+  tx('WORK.044'),
+  tx('WORK.045'),
+  tx('WORK.046'),
+  tx('WORK.047'),
+  tx('WORK.048'),
 ];
 
 async function diaries(ctx: SeedContext, contract: Obj, label: string, spec: { daysBack: number; skipRecent: number; keepEvery: number }): Promise<void> {
@@ -105,8 +110,8 @@ async function diaries(ctx: SeedContext, contract: Obj, label: string, spec: { d
           weather_code: WEATHER[index % WEATHER.length],
           workforce_count: 38 + (index % 6) * 4,
           work_done: WORK[index % WORK.length],
-          equipment: 'Máy xúc 2 chiếc, máy lu 2 chiếc, ô tô tự đổ 6 chiếc',
-          issues: index % 5 === 0 ? 'Mưa làm gián đoạn thi công hai giờ buổi chiều' : 'Không có',
+          equipment: tx('equipment.049'),
+          issues: index % 5 === 0 ? tx('issues.050') : tx('issues.051'),
         },
       }),
     );
@@ -144,14 +149,14 @@ async function inspections(ctx: SeedContext, contract: Obj, list: InspectionSpec
         ctx.command(
           MAKER,
           `/inspections/${id}/result`,
-          { result: spec.to, result_note: spec.note ?? 'Đã kiểm tra', checklist: CHECKLIST_CODES[spec.type].map((code, index) => ({ code, outcome: spec.to === 'PASS' || index > 0 ? 'PASS' : outcome, note: spec.to === 'PASS' ? 'Đạt yêu cầu' : index === 0 ? spec.note : 'Đạt yêu cầu' })) },
+          { result: spec.to, result_note: spec.note ?? tx('result_note.052'), checklist: CHECKLIST_CODES[spec.type].map((code, index) => ({ code, outcome: spec.to === 'PASS' || index > 0 ? 'PASS' : outcome, note: spec.to === 'PASS' ? tx('note.053') : index === 0 ? spec.note : tx('note.053') })) },
           { version: Number(detail.version) },
         ),
       );
       detail = await read();
     }
     if (spec.to === 'CANCELLED' && !['CANCELLED'].includes(asString(detail.status))) {
-      await tolerate(ctx, `cancel ${spec.title}`, () => ctx.command(MAKER, `/inspections/${id}/cancel`, { reason: spec.note ?? 'Nhà thầu rút đề nghị' }, { version: Number(detail.version) }));
+      await tolerate(ctx, `cancel ${spec.title}`, () => ctx.command(MAKER, `/inspections/${id}/cancel`, { reason: spec.note ?? tx('reason.054') }, { version: Number(detail.version) }));
       detail = await read();
     }
     results.push(detail);
@@ -166,9 +171,9 @@ async function acceptances(ctx: SeedContext, passed: Obj[]): Promise<void> {
   for (const [index, inspection] of passed.entries()) {
     if (index >= 2) break;
     const id = asString(inspection.id);
-    if (existing.some((row) => asString(row.inspection_id ?? row.inspection?.id) === id)) continue;
+    if (existing.some((row) => asString(row.inspection_id ?? asObj(row.inspection).id) === id)) continue;
     n += 1;
-    const minutes = await paper(ctx, { symbol: `BB-NTCL-${String(n).padStart(3, '0')}`, title: `Biên bản nghiệm thu chất lượng: ${asString(inspection.title)}`, type: 'BB', sender: 'Ban Quản lý dự án', issuedOn: ctx.day(-5) });
+    const minutes = await paper(ctx, { symbol: `BB-NTCL-${String(n).padStart(3, '0')}`, title: tx('title.055', asString(inspection.title)), type: 'BB', sender: tx('sender.056'), issuedOn: ctx.day(-5) });
     const made = await tolerate(ctx, `acceptance minutes for ${asString(inspection.title)}`, () =>
       ctx.command(MAKER, `/inspections/${id}/quality-acceptances`, { acceptance_scope: asString(inspection.inspection_type) === 'CONSTRUCTION_STAGE' ? 'STAGE' : 'WORK_ITEM', record_no: `BB-NTCL-${ctx.year}-${String(n).padStart(3, '0')}`, document_version_id: minutes.versionId }),
     );
@@ -198,12 +203,12 @@ async function materials(ctx: SeedContext, contract: Obj): Promise<void> {
       ctx.record({ module: 'QMS', screen: 'QMS-06', kind: 'material-test', id: made.resource_id, code: material.sample, note: material.result ?? 'waiting for the laboratory' });
     }
     if (material.result !== undefined && !['PASS', 'FAIL'].includes(asString(row.result ?? row.status))) {
-      const report = await paper(ctx, { symbol: `KQTN-${material.sample}`, title: `Kết quả thí nghiệm mẫu ${material.sample}`, type: 'BC', sender: material.lab, issuedOn: ctx.day(-(material.ago - 5)) });
+      const report = await paper(ctx, { symbol: `KQTN-${material.sample}`, title: tx('title.057', material.sample), type: 'BC', sender: material.lab, issuedOn: ctx.day(-(material.ago - 5)) });
       await tolerate(ctx, `result of ${material.sample}`, () =>
         ctx.command(MAKER, `/material-tests/${asString(row?.id)}/result`, {
           result: material.result,
           tested_on: ctx.day(-(material.ago - 5)),
-          result_values: material.result === 'PASS' ? { ket_qua: 'Đạt yêu cầu theo tiêu chuẩn áp dụng' } : { ket_qua: 'Không đạt yêu cầu theo tiêu chuẩn áp dụng' },
+          result_values: material.result === 'PASS' ? { ket_qua: tx('ket_qua.058') } : { ket_qua: tx('ket_qua.059') },
           report_document_version_id: report.versionId,
         }),
       );
@@ -242,17 +247,17 @@ async function nonconformances(ctx: SeedContext, contract: Obj): Promise<void> {
     }
     const action = actions()[0];
     if (['EVIDENCE', 'CLOSED'].includes(spec.to) && action !== undefined && ['OPEN', 'ASSIGNED', 'PENDING'].includes(asString(action.status))) {
-      const proof = await paper(ctx, { symbol: `KP-${id.slice(0, 8)}`, title: `Biên bản khắc phục: ${spec.title}`, type: 'BB', sender: 'Nhà thầu thi công', issuedOn: ctx.day(-2) });
-      await tolerate(ctx, `evidence of ${spec.title}`, () => ctx.command(spec.owner, `/corrective-actions/${asString(action.id)}/evidence`, { evidence_document_version_id: proof.versionId, note: 'Đã khắc phục theo yêu cầu, gửi biên bản và kết quả kiểm tra' }));
+      const proof = await paper(ctx, { symbol: `KP-${id.slice(0, 8)}`, title: tx('title.060', spec.title), type: 'BB', sender: tx('sender.061'), issuedOn: ctx.day(-2) });
+      await tolerate(ctx, `evidence of ${spec.title}`, () => ctx.command(spec.owner, `/corrective-actions/${asString(action.id)}/evidence`, { evidence_document_version_id: proof.versionId, note: tx('note.062') }));
       detail = await read();
     }
     const after = actions()[0];
     if (spec.to === 'CLOSED' && after !== undefined && asString(after.status) !== 'VERIFIED') {
-      await tolerate(ctx, `verify ${spec.title}`, () => ctx.command(CHECKER, `/corrective-actions/${asString(after.id)}/verify`, { outcome: 'VERIFIED', verification_note: 'Đã kiểm tra thực tế, kết quả đạt yêu cầu' }));
+      await tolerate(ctx, `verify ${spec.title}`, () => ctx.command(CHECKER, `/corrective-actions/${asString(after.id)}/verify`, { outcome: 'VERIFIED', verification_note: tx('verification_note.063') }));
       detail = await read();
     }
     if (spec.to === 'CLOSED' && asString(detail.status) !== 'CLOSED') {
-      await tolerate(ctx, `close ${spec.title}`, () => ctx.command(MAKER, `/nonconformances/${id}/close`, { closure_note: 'Đã khắc phục và được xác minh, đóng hồ sơ không phù hợp' }));
+      await tolerate(ctx, `close ${spec.title}`, () => ctx.command(MAKER, `/nonconformances/${id}/close`, { closure_note: tx('closure_note.064') }));
     }
   }
 }

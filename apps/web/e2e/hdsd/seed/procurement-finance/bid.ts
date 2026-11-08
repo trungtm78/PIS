@@ -1,6 +1,11 @@
 import { vndMillions } from '../context.ts';
 import type { CommandReply, Obj , SeedContext} from '../context.ts';
 import { CHECKER, LEADER, MAKER, contractorsByNumber, decisionInForce, paper } from './shared.ts';
+import { asObj } from '../context.ts';
+import TEXTS from './data/bid.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Module BID: the plans that choose the contractors of the funded projects, and what comes of them. The planner of the board drafts the plan of each
@@ -44,58 +49,58 @@ export interface PlanSpec {
   packages: PackageSpec[];
 }
 
-const LAW = 'Luật Đấu thầu số 22/2023/QH15; Nghị định số 24/2024/NĐ-CP ngày 27 tháng 02 năm 2024 của Chính phủ';
+const LAW = tx('LAW.001');
 
 export const PLANS: PlanSpec[] = [
   {
     project: 'DA-DT205',
-    title: 'Kế hoạch lựa chọn nhà thầu dự án Cải tạo, nâng cấp đường tỉnh 205, đoạn Km0 - Km12 (giai đoạn 2026)',
+    title: tx('title.002'),
     fate: 'APPROVED',
     packages: [
-      { code: 'DT205-XL01', title: 'Gói thầu số 01: Thi công xây dựng nền, mặt đường đoạn Km0 - Km6', millions: 38500, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 540, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [3, 2, 4, 8], awardMillions: 38120, contract: 'ACTIVE', awardedDaysAgo: 70 },
-      { code: 'DT205-XL02', title: 'Gói thầu số 02: Thi công xây dựng nền, mặt đường đoạn Km6 - Km12', millions: 26200, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 540, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [2, 9, 3], awardMillions: 25940, contract: 'ACTIVE', awardedDaysAgo: 68 },
-      { code: 'DT205-TV01', title: 'Gói thầu số 03: Tư vấn giám sát thi công xây dựng công trình', millions: 2400, method: 'LIMITED_BIDDING', line: 1, period: '2026-Q3', days: 570, category: 'CONSULTING', fate: 'AWARDED', bidders: [5, 15, 16], awardMillions: 2352, contract: 'ACTIVE', awardedDaysAgo: 66 },
-      { code: 'DT205-TB01', title: 'Gói thầu số 04: Cung cấp, lắp đặt biển báo, hộ lan tôn sóng và cọc tiêu', millions: 7900, method: 'OPEN_BIDDING', line: 1, period: '2026-Q4', days: 150, category: 'EQUIPMENT', fate: 'RESULT_PENDING', bidders: [8, 4, 11], awardMillions: 7780 },
-      { code: 'DT205-KS01', title: 'Gói thầu số 05: Khảo sát bổ sung địa chất đoạn qua suối Khuổi Kép', millions: 950, method: 'COMPETITIVE_QUOTATION', line: 1, period: '2026-Q4', days: 60, category: 'CONSULTING', fate: 'AWARDED', bidders: [15, 16], awardMillions: 936, contract: 'DRAFT', awardedDaysAgo: 12 },
+      { code: 'DT205-XL01', title: tx('title.003'), millions: 38500, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 540, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [3, 2, 4, 8], awardMillions: 38120, contract: 'ACTIVE', awardedDaysAgo: 70 },
+      { code: 'DT205-XL02', title: tx('title.004'), millions: 26200, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 540, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [2, 9, 3], awardMillions: 25940, contract: 'ACTIVE', awardedDaysAgo: 68 },
+      { code: 'DT205-TV01', title: tx('title.005'), millions: 2400, method: 'LIMITED_BIDDING', line: 1, period: '2026-Q3', days: 570, category: 'CONSULTING', fate: 'AWARDED', bidders: [5, 15, 16], awardMillions: 2352, contract: 'ACTIVE', awardedDaysAgo: 66 },
+      { code: 'DT205-TB01', title: tx('title.006'), millions: 7900, method: 'OPEN_BIDDING', line: 1, period: '2026-Q4', days: 150, category: 'EQUIPMENT', fate: 'RESULT_PENDING', bidders: [8, 4, 11], awardMillions: 7780 },
+      { code: 'DT205-KS01', title: tx('title.007'), millions: 950, method: 'COMPETITIVE_QUOTATION', line: 1, period: '2026-Q4', days: 60, category: 'CONSULTING', fate: 'AWARDED', bidders: [15, 16], awardMillions: 936, contract: 'DRAFT', awardedDaysAgo: 12 },
     ],
   },
   {
     project: 'DA-TH012',
-    title: 'Kế hoạch lựa chọn nhà thầu dự án Xây dựng Trường Tiểu học phường Nùng Trí Cao',
+    title: tx('title.008'),
     fate: 'APPROVED',
     packages: [
-      { code: 'TH012-XL01', title: 'Gói thầu số 01: Thi công xây dựng và lắp đặt thiết bị công trình', millions: 21600, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 420, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [1, 9, 4], awardMillions: 21150, contract: 'ACTIVE', awardedDaysAgo: 52 },
-      { code: 'TH012-TB01', title: 'Gói thầu số 02: Cung cấp thiết bị dạy học, bàn ghế và thiết bị phòng chức năng', millions: 5200, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 120, category: 'EQUIPMENT', fate: 'AWARDED', bidders: [7, 4], awardMillions: 5090, contract: 'SIGNED', awardedDaysAgo: 25 },
-      { code: 'TH012-TV01', title: 'Gói thầu số 03: Tư vấn giám sát thi công xây dựng', millions: 580, method: 'COMPETITIVE_QUOTATION', line: 0, period: '2026-Q3', days: 450, category: 'CONSULTING', fate: 'AWARDED', bidders: [15, 16], awardMillions: 565, contract: 'IN_REVIEW', awardedDaysAgo: 20 },
+      { code: 'TH012-XL01', title: tx('title.009'), millions: 21600, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 420, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [1, 9, 4], awardMillions: 21150, contract: 'ACTIVE', awardedDaysAgo: 52 },
+      { code: 'TH012-TB01', title: tx('title.010'), millions: 5200, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 120, category: 'EQUIPMENT', fate: 'AWARDED', bidders: [7, 4], awardMillions: 5090, contract: 'SIGNED', awardedDaysAgo: 25 },
+      { code: 'TH012-TV01', title: tx('title.011'), millions: 580, method: 'COMPETITIVE_QUOTATION', line: 0, period: '2026-Q3', days: 450, category: 'CONSULTING', fate: 'AWARDED', bidders: [15, 16], awardMillions: 565, contract: 'IN_REVIEW', awardedDaysAgo: 20 },
     ],
   },
   {
     project: 'DA-NN031',
-    title: 'Kế hoạch lựa chọn nhà thầu dự án Cải tạo hệ thống thủy lợi Nà Rạc, xã Quảng Hòa',
+    title: tx('title.012'),
     fate: 'APPROVED',
     packages: [
-      { code: 'NN031-XL01', title: 'Gói thầu số 01: Thi công kênh chính và công trình trên kênh', millions: 27400, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 480, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [10, 3, 11], awardMillions: 26880, contract: 'ACTIVE', awardedDaysAgo: 48 },
-      { code: 'NN031-XL02', title: 'Gói thầu số 02: Thi công cống đầu mối và đường quản lý', millions: 6100, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 240, category: 'CONSTRUCTION', fate: 'EVALUATING', bidders: [11, 8, 9] },
-      { code: 'NN031-TV01', title: 'Gói thầu số 03: Tư vấn giám sát thi công xây dựng', millions: 880, method: 'LIMITED_BIDDING', line: 0, period: '2026-Q4', days: 500, category: 'CONSULTING', fate: 'SEALED', bidders: [5, 16] },
+      { code: 'NN031-XL01', title: tx('title.013'), millions: 27400, method: 'OPEN_BIDDING', line: 0, period: '2026-Q3', days: 480, category: 'CONSTRUCTION', fate: 'AWARDED', bidders: [10, 3, 11], awardMillions: 26880, contract: 'ACTIVE', awardedDaysAgo: 48 },
+      { code: 'NN031-XL02', title: tx('title.014'), millions: 6100, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 240, category: 'CONSTRUCTION', fate: 'EVALUATING', bidders: [11, 8, 9] },
+      { code: 'NN031-TV01', title: tx('title.011'), millions: 880, method: 'LIMITED_BIDDING', line: 0, period: '2026-Q4', days: 500, category: 'CONSULTING', fate: 'SEALED', bidders: [5, 16] },
     ],
   },
   {
     project: 'DA-YT007',
-    title: 'Kế hoạch lựa chọn nhà thầu dự án Nâng cấp Trạm y tế phường Tân Giang',
+    title: tx('title.015'),
     fate: 'APPROVED',
     packages: [
-      { code: 'YT007-XL01', title: 'Gói thầu số 01: Thi công xây dựng cải tạo, nâng cấp Trạm y tế', millions: 5600, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 300, category: 'CONSTRUCTION', fate: 'SEALED', bidders: [1, 9, 4] },
-      { code: 'YT007-TB01', title: 'Gói thầu số 02: Cung cấp trang thiết bị y tế', millions: 1700, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 90, category: 'EQUIPMENT', fate: 'INVITED' },
-      { code: 'YT007-TV01', title: 'Gói thầu số 03: Tư vấn giám sát thi công xây dựng', millions: 260, method: 'DIRECT_APPOINTMENT', line: 0, period: '2027-Q1', days: 330, category: 'CONSULTING', fate: 'PLANNED' },
+      { code: 'YT007-XL01', title: tx('title.016'), millions: 5600, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 300, category: 'CONSTRUCTION', fate: 'SEALED', bidders: [1, 9, 4] },
+      { code: 'YT007-TB01', title: tx('title.017'), millions: 1700, method: 'OPEN_BIDDING', line: 0, period: '2026-Q4', days: 90, category: 'EQUIPMENT', fate: 'INVITED' },
+      { code: 'YT007-TV01', title: tx('title.011'), millions: 260, method: 'DIRECT_APPOINTMENT', line: 0, period: '2027-Q1', days: 330, category: 'CONSULTING', fate: 'PLANNED' },
     ],
   },
   {
     project: 'DA-VH044',
-    title: 'Kế hoạch lựa chọn nhà thầu dự án Tu bổ, tôn tạo Khu di tích lịch sử Rừng Trần Hưng Đạo',
+    title: tx('title.018'),
     fate: 'RETURNED_THEN_IN_REVIEW',
     packages: [
-      { code: 'VH044-XL01', title: 'Gói thầu số 01: Tu bổ, tôn tạo các hạng mục di tích', millions: 14200, method: 'OPEN_BIDDING', line: 0, period: '2027-Q1', days: 450, category: 'CONSTRUCTION', fate: 'PLANNED' },
-      { code: 'VH044-TV01', title: 'Gói thầu số 02: Tư vấn giám sát thi công tu bổ', millions: 550, method: 'LIMITED_BIDDING', line: 0, period: '2027-Q1', days: 480, category: 'CONSULTING', fate: 'PLANNED' },
+      { code: 'VH044-XL01', title: tx('title.019'), millions: 14200, method: 'OPEN_BIDDING', line: 0, period: '2027-Q1', days: 450, category: 'CONSTRUCTION', fate: 'PLANNED' },
+      { code: 'VH044-TV01', title: tx('title.020'), millions: 550, method: 'LIMITED_BIDDING', line: 0, period: '2027-Q1', days: 480, category: 'CONSULTING', fate: 'PLANNED' },
     ],
   },
 ];
@@ -114,7 +119,7 @@ export async function projectOf(ctx: SeedContext, code: string): Promise<Obj | u
 /** The lines of capital of a project in the published plan of the year, the biggest first. */
 export async function linesOf(ctx: SeedContext, projectId: string): Promise<Obj[]> {
   const rows = await ctx.list<Obj>(MAKER, '/resources/allocation_line');
-  return rows.filter((row) => String(row.project_id ?? row.project?.id) === projectId).sort((a, b) => Number(b.amount_vnd) - Number(a.amount_vnd));
+  return rows.filter((row) => String(row.project_id ?? asObj(row.project).id) === projectId).sort((a, b) => Number(b.amount_vnd) - Number(a.amount_vnd));
 }
 
 export async function packageOf(ctx: SeedContext, code: string): Promise<Obj | undefined> {
@@ -168,7 +173,7 @@ async function seedPlan(ctx: SeedContext, plan: PlanSpec, index: number): Promis
     // The first draft is given back by the leader with the words; the planner draws it up again and sends it.
     const first = await draftPlan(ctx, plan, projectId, lines);
     const sentFirst = await ctx.command(MAKER, `/procurement-plans/${first.resource_id}/submit`, {}, { version: first });
-    await ctx.command(LEADER, `/procurement-plans/${first.resource_id}/decision`, { decision: 'RETURN', comment: 'Đề nghị tách gói tư vấn giám sát khỏi gói thi công và bổ sung căn cứ pháp lý về quản lý di tích.' }, { version: sentFirst });
+    await ctx.command(LEADER, `/procurement-plans/${first.resource_id}/decision`, { decision: 'RETURN', comment: tx('comment.021') }, { version: sentFirst });
   }
   const made = await draftPlan(ctx, plan, projectId, lines);
   const sent = await ctx.command(MAKER, `/procurement-plans/${made.resource_id}/submit`, {}, { version: made });
@@ -177,7 +182,7 @@ async function seedPlan(ctx: SeedContext, plan: PlanSpec, index: number): Promis
     if (decision === undefined) {
       ctx.warn('no decision is in force yet (DOC has issued none): the plan stays in review');
     } else {
-      await ctx.command(LEADER, `/procurement-plans/${made.resource_id}/decision`, { decision: 'APPROVE', decision_document_id: decision, comment: 'Phê duyệt kế hoạch lựa chọn nhà thầu theo quyết định của Ủy ban nhân dân tỉnh.' }, { version: sent });
+      await ctx.command(LEADER, `/procurement-plans/${made.resource_id}/decision`, { decision: 'APPROVE', decision_document_id: decision, comment: tx('comment.022') }, { version: sent });
     }
   }
   ctx.record({ module: 'BID', screen: 'BID-15', kind: 'procurement-plan', id: made.resource_id, code: plan.project, note: plan.fate });
@@ -208,39 +213,39 @@ async function milestone(ctx: SeedContext, packageId: string, kind: string, date
 
 const CRITERIA: Record<PackageSpec['category'], Array<Record<string, unknown>>> = {
   CONSTRUCTION: [
-    { code: 'HL', name: 'Tính hợp lệ của hồ sơ dự thầu', kind: 'PASS_FAIL', mandatory: true, required_evidence: ['Đơn dự thầu', 'Bảo đảm dự thầu'] },
-    { code: 'KN', name: 'Kinh nghiệm thi công công trình tương tự', kind: 'SCORED', weight: 25, max_score: 10, threshold: 5, mandatory: true, required_evidence: ['Hợp đồng tương tự', 'Biên bản nghiệm thu'] },
-    { code: 'TC', name: 'Năng lực tài chính và nguồn lực', kind: 'SCORED', weight: 20, max_score: 10, threshold: 5, mandatory: false, required_evidence: ['Báo cáo tài chính 3 năm gần nhất'] },
-    { code: 'BP', name: 'Biện pháp tổ chức thi công và bảo đảm chất lượng', kind: 'SCORED', weight: 35, max_score: 10, threshold: 6, mandatory: false, required_evidence: ['Thuyết minh biện pháp thi công'] },
-    { code: 'TD', name: 'Tiến độ thực hiện hợp đồng', kind: 'SCORED', weight: 20, max_score: 10, threshold: null, mandatory: false, required_evidence: ['Bảng tiến độ thi công'] },
+    { code: 'HL', name: tx('name.023'), kind: 'PASS_FAIL', mandatory: true, required_evidence: [tx('required_evidence.024'), tx('required_evidence.025')] },
+    { code: 'KN', name: tx('name.026'), kind: 'SCORED', weight: 25, max_score: 10, threshold: 5, mandatory: true, required_evidence: [tx('required_evidence.027'), tx('required_evidence.028')] },
+    { code: 'TC', name: tx('name.029'), kind: 'SCORED', weight: 20, max_score: 10, threshold: 5, mandatory: false, required_evidence: [tx('required_evidence.030')] },
+    { code: 'BP', name: tx('name.031'), kind: 'SCORED', weight: 35, max_score: 10, threshold: 6, mandatory: false, required_evidence: [tx('required_evidence.032')] },
+    { code: 'TD', name: tx('name.033'), kind: 'SCORED', weight: 20, max_score: 10, threshold: null, mandatory: false, required_evidence: [tx('required_evidence.034')] },
   ],
   EQUIPMENT: [
-    { code: 'HL', name: 'Tính hợp lệ của hồ sơ dự thầu', kind: 'PASS_FAIL', mandatory: true, required_evidence: ['Đơn dự thầu'] },
-    { code: 'KT', name: 'Đặc tính kỹ thuật và xuất xứ hàng hóa', kind: 'SCORED', weight: 50, max_score: 10, threshold: 6, mandatory: true, required_evidence: ['Catalogue', 'Chứng nhận chất lượng'] },
-    { code: 'BH', name: 'Bảo hành, lắp đặt và đào tạo sử dụng', kind: 'SCORED', weight: 30, max_score: 10, threshold: 5, mandatory: false, required_evidence: ['Cam kết bảo hành'] },
-    { code: 'TD', name: 'Tiến độ giao hàng', kind: 'SCORED', weight: 20, max_score: 10, threshold: null, mandatory: false, required_evidence: [] },
+    { code: 'HL', name: tx('name.023'), kind: 'PASS_FAIL', mandatory: true, required_evidence: [tx('required_evidence.024')] },
+    { code: 'KT', name: tx('name.035'), kind: 'SCORED', weight: 50, max_score: 10, threshold: 6, mandatory: true, required_evidence: ['Catalogue', tx('required_evidence.036')] },
+    { code: 'BH', name: tx('name.037'), kind: 'SCORED', weight: 30, max_score: 10, threshold: 5, mandatory: false, required_evidence: [tx('required_evidence.038')] },
+    { code: 'TD', name: tx('name.039'), kind: 'SCORED', weight: 20, max_score: 10, threshold: null, mandatory: false, required_evidence: [] },
   ],
   CONSULTING: [
-    { code: 'HL', name: 'Tính hợp lệ của hồ sơ đề xuất', kind: 'PASS_FAIL', mandatory: true, required_evidence: ['Đơn đề xuất'] },
-    { code: 'KN', name: 'Kinh nghiệm của nhà thầu tư vấn', kind: 'SCORED', weight: 30, max_score: 10, threshold: 6, mandatory: true, required_evidence: ['Hợp đồng tư vấn tương tự'] },
-    { code: 'NS', name: 'Nhân sự chủ chốt: tổng giám sát, giám sát viên', kind: 'SCORED', weight: 50, max_score: 10, threshold: 6, mandatory: true, required_evidence: ['Chứng chỉ hành nghề giám sát', 'Hợp đồng lao động'] },
-    { code: 'PA', name: 'Phương pháp luận và kế hoạch giám sát', kind: 'SCORED', weight: 20, max_score: 10, threshold: null, mandatory: false, required_evidence: [] },
+    { code: 'HL', name: tx('name.040'), kind: 'PASS_FAIL', mandatory: true, required_evidence: [tx('required_evidence.041')] },
+    { code: 'KN', name: tx('name.042'), kind: 'SCORED', weight: 30, max_score: 10, threshold: 6, mandatory: true, required_evidence: [tx('required_evidence.043')] },
+    { code: 'NS', name: tx('name.044'), kind: 'SCORED', weight: 50, max_score: 10, threshold: 6, mandatory: true, required_evidence: [tx('required_evidence.045'), tx('required_evidence.046')] },
+    { code: 'PA', name: tx('name.047'), kind: 'SCORED', weight: 20, max_score: 10, threshold: null, mandatory: false, required_evidence: [] },
   ],
-  OTHER: [{ code: 'HL', name: 'Tính hợp lệ của hồ sơ', kind: 'PASS_FAIL', mandatory: true, required_evidence: [] }, { code: 'KN', name: 'Kinh nghiệm', kind: 'SCORED', weight: 100, max_score: 10, threshold: null, mandatory: false, required_evidence: [] }],
+  OTHER: [{ code: 'HL', name: tx('name.048'), kind: 'PASS_FAIL', mandatory: true, required_evidence: [] }, { code: 'KN', name: tx('name.049'), kind: 'SCORED', weight: 100, max_score: 10, threshold: null, mandatory: false, required_evidence: [] }],
 };
 
 /** The criteria of the evaluation: drafted by the planner, approved (and so locked) by the leader. */
 async function approveCriteria(ctx: SeedContext, spec: PackageSpec, pack: Obj): Promise<void> {
-  const existing = (await ctx.list<Obj>(MAKER, '/resources/criteria_version')).find((row) => String(row.package_id ?? row.package?.id) === String(pack.id));
+  const existing = (await ctx.list<Obj>(MAKER, '/resources/criteria_version')).find((row) => String(row.package_id ?? asObj(row.package).id) === String(pack.id));
   if (existing !== undefined) return;
-  const made = await ctx.command(MAKER, '/criteria-versions', { package_id: pack.id, criteria_json: { criteria: CRITERIA[spec.category] }, legal_basis: 'Điều 35 Luật Đấu thầu số 22/2023/QH15 và hồ sơ mời thầu được phê duyệt' });
+  const made = await ctx.command(MAKER, '/criteria-versions', { package_id: pack.id, criteria_json: { criteria: CRITERIA[spec.category] }, legal_basis: tx('legal_basis.050') });
   await ctx.command(LEADER, `/criteria-versions/${made.resource_id}/approval`, {}, { version: made });
   ctx.record({ module: 'BID', screen: 'BID-04', kind: 'criteria-version', id: made.resource_id, code: spec.code, note: 'approved' });
 }
 
 /** A short PDF of a bid volume: the words are plain (the file is read by the upload door, not by a person). */
 function volume(ctx: SeedContext, spec: PackageSpec, bidder: string, part: string): Buffer {
-  return ctx.pdf(`HO SO DU THAU ${spec.code}`, bidder.normalize('NFD').replace(/[̀-ͯ]/gu, '').replace(/[đĐ]/gu, 'd').toUpperCase(), part);
+  return ctx.pdf(`HO SO DU THAU ${spec.code}`, bidder.normalize('NFD').replace(/[\u0300-\u036f]/gu, '').replace(/[\u0111\u0110]/gu, 'd').toUpperCase(), part);
 }
 
 interface Handed {
@@ -257,14 +262,14 @@ async function receiveProposals(ctx: SeedContext, spec: PackageSpec, pack: Obj, 
   for (const [rank, number] of (spec.bidders ?? []).entries()) {
     const contractor = contractors.get(number);
     if (contractor === undefined) throw new Error(`contractor ${number} is not registered`);
-    const done = have.find((row) => String(row.contractor_id ?? row.contractor?.id) === String(contractor.id));
+    const done = have.find((row) => String(row.contractor_id ?? asObj(row.contractor).id) === String(contractor.id));
     if (done !== undefined) {
       out.push({ proposalId: String(done.id), contractorNumber: number, contractorId: String(contractor.id) });
       continue;
     }
     const name = String(contractor.legal_name);
     const documents: Obj[] = [];
-    for (const [part, title] of [['TECHNICAL', 'Hồ sơ đề xuất kỹ thuật'], ['FINANCIAL', 'Hồ sơ đề xuất tài chính']] as const) {
+    for (const [part, title] of [['TECHNICAL', tx('receiveProposals.051')], ['FINANCIAL', tx('receiveProposals.052')]] as const) {
       const uploaded = ctx.expectOk(await ctx.upload<{ file_object_key: string; file_sha256: string }>(MAKER, '/proposals/files', { filename: `${spec.code}-${number}-${part.toLowerCase()}.pdf`, buffer: volume(ctx, spec, name, `${title} ${spec.code}`) }), `upload the ${part} volume`).json;
       documents.push({ part, title: `${title} - ${name}`, file_object_key: uploaded.file_object_key, file_sha256: uploaded.file_sha256 });
     }
@@ -340,10 +345,10 @@ async function declareConflicts(ctx: SeedContext, spec: PackageSpec, pack: Obj, 
   if (spec.code === 'NN031-XL02' && rival !== undefined) {
     const declared = await ctx.command(CHECKER, `/procurement-packages/${String(pack.id)}/conflict-declarations`, {
       has_conflict: true,
-      relation_text: 'Em ruột của giám đốc công ty dự thầu hiện là cổ đông sáng lập của nhà thầu này.',
+      relation_text: tx('relation_text.053'),
       contractor_id: rival.contractorId,
     });
-    await ctx.command(LEADER, `/bid-conflict-declarations/${declared.resource_id}/decision`, { decision: 'RECUSED', decision_reason: 'Có quan hệ thân thích với người đại diện của nhà thầu; rút khỏi tổ chuyên gia chấm hồ sơ của nhà thầu này.' }, { version: declared });
+    await ctx.command(LEADER, `/bid-conflict-declarations/${declared.resource_id}/decision`, { decision: 'RECUSED', decision_reason: tx('decision_reason.054') }, { version: declared });
   } else {
     await ctx.command(CHECKER, `/procurement-packages/${String(pack.id)}/conflict-declarations`, { has_conflict: false });
   }
@@ -354,7 +359,7 @@ async function decideResult(ctx: SeedContext, spec: PackageSpec, pack: Obj, hand
   const winner = handed[0];
   if (winner === undefined) return;
   const results = await ctx.list<Obj>(MAKER, '/procurement-results', { package_id: String(pack.id) });
-  if (results.some((row) => String(row.package_id ?? row.package?.id) === String(pack.id) && row.status !== 'REJECTED')) return;
+  if (results.some((row) => String(row.package_id ?? asObj(row.package).id) === String(pack.id) && row.status !== 'REJECTED')) return;
   const minutes = await decisionInForce(ctx, 7);
   if (minutes === undefined) {
     ctx.warn('no document is in force yet (DOC has issued none): the result of the package is not submitted');
@@ -365,7 +370,7 @@ async function decideResult(ctx: SeedContext, spec: PackageSpec, pack: Obj, hand
   if (spec.code === 'DT205-TB01') {
     // The first result is turned down with the reason; the proposer submits it again after the clarification.
     const first = await submit();
-    await ctx.command(LEADER, `/procurement-results/${first.resource_id}/decision`, { decision: 'REJECT', comment: 'Đề nghị làm rõ năng lực tài chính và hợp đồng tương tự của nhà thầu đề nghị trúng thầu trước khi trình lại.' }, { version: first });
+    await ctx.command(LEADER, `/procurement-results/${first.resource_id}/decision`, { decision: 'REJECT', comment: tx('comment.055') }, { version: first });
   }
   const result = await submit();
   await milestone(ctx, String(pack.id), 'EVALUATION_DONE', { actualAt: at(ctx, Math.max(openingAgo - 6, 1), 16) });
@@ -374,7 +379,7 @@ async function decideResult(ctx: SeedContext, spec: PackageSpec, pack: Obj, hand
     return;
   }
   const decision = await decisionInForce(ctx, 11);
-  await ctx.command(LEADER, `/procurement-results/${result.resource_id}/decision`, { decision: 'APPROVE', decision_document_id: decision, comment: 'Phê duyệt kết quả lựa chọn nhà thầu theo đề nghị của Ban Quản lý dự án.' }, { version: result });
+  await ctx.command(LEADER, `/procurement-results/${result.resource_id}/decision`, { decision: 'APPROVE', decision_document_id: decision, comment: tx('comment.056') }, { version: result });
   const ago = spec.awardedDaysAgo ?? 30;
   await milestone(ctx, String(pack.id), 'RESULT_APPROVED', { actualAt: at(ctx, ago, 10) });
   await milestone(ctx, String(pack.id), 'RESULT_PUBLISHED', { actualAt: at(ctx, ago - 1, 10) });

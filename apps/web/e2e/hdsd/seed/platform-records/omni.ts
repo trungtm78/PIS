@@ -4,9 +4,13 @@ import type { SeedContext } from '../context.ts';
 import type { Obj } from '../context.ts';
 import { STACK_INFO_PATH } from '../../../support/stack-paths.ts';
 import { made, once } from './shared.ts';
+import TEXTS from './data/omni.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
- * OMNI for the guide. The story: the Department of Planning and Investment of Cao Bằng receives questions about its projects by e-mail, Zalo and
+ * OMNI for the guide. The story: the Department of Planning and Investment of Cao Bang receives questions about its projects by e-mail, Zalo and
  * text message, from citizens, from the staff of contractors and from the communes. The channel accounts are connected and verified, the routing
  * policy sends what is about compensation to the project board and what is about payment to the Department of Finance, and the conversations
  * arrive the way they do in life: the provider of the channel calls the webhook of the platform with a signed message. The agents then assign,
@@ -16,18 +20,18 @@ import { made, once } from './shared.ts';
 const AGENT = 'projectManager';
 const SUPERVISOR = 'projectManager';
 
-const MAIL = { channel: 'EMAIL', externalId: 'tiepnhan@skhdt.caobang.gov.vn', name: 'Hộp thư tiếp nhận ý kiến của Sở Kế hoạch và Đầu tư', credential: 'secret://caobang/mail-tiepnhan' } as const;
+const MAIL = { channel: 'EMAIL', externalId: 'tiepnhan@skhdt.caobang.gov.vn', name: tx('name.001'), credential: 'secret://caobang/mail-tiepnhan' } as const;
 /** The signing secret of the provider's webhook is the one of the stack (the mock relay); the account names it through the same reference as the relay of the stack. */
 const WEBHOOK_REF = 'secret://e2e/uat-relay-webhook';
 const PROVIDER = 'smtp-relay';
 
 const ACCOUNTS: Array<{ channel: 'EMAIL' | 'SMS' | 'ZALO_OA' | 'ZALO_ZNS' | 'WHATSAPP'; externalId: string; name: string; credential: string; webhook: string; verify: boolean; disable?: string; autoReply?: string }> = [
-  { channel: 'EMAIL', externalId: MAIL.externalId, name: MAIL.name, credential: MAIL.credential, webhook: WEBHOOK_REF, verify: true, autoReply: 'Sở Kế hoạch và Đầu tư đã nhận ý kiến của quý vị và sẽ phản hồi trong giờ làm việc, chậm nhất trong 01 ngày làm việc.' },
-  { channel: 'SMS', externalId: 'brandname-skhdt-caobang', name: 'Tin nhắn thương hiệu SKHĐT Cao Bằng', credential: 'secret://caobang/sms-brandname', webhook: 'secret://caobang/sms-brandname-webhook', verify: true },
-  { channel: 'ZALO_OA', externalId: '4417283569104528391', name: 'Zalo OA Sở Kế hoạch và Đầu tư Cao Bằng', credential: 'secret://caobang/zalo-oa', webhook: 'secret://caobang/zalo-oa-webhook', verify: true, autoReply: 'Cảm ơn quý vị đã nhắn tin cho Sở Kế hoạch và Đầu tư tỉnh Cao Bằng. Cán bộ sẽ trả lời trong giờ làm việc.' },
-  { channel: 'ZALO_ZNS', externalId: '4417283569104528402', name: 'Zalo thông báo tiếp nhận hồ sơ', credential: 'secret://caobang/zalo-zns', webhook: 'secret://caobang/zalo-zns-webhook', verify: true },
-  { channel: 'WHATSAPP', externalId: '84912340099', name: 'WhatsApp liên hệ nhà thầu nước ngoài', credential: 'secret://caobang/whatsapp', webhook: 'secret://caobang/whatsapp-webhook', verify: false },
-  { channel: 'EMAIL', externalId: 'phanhoi-cu@caobang.gov.vn', name: 'Hộp thư phản ánh cũ (thay bằng hộp thư tiếp nhận)', credential: 'secret://caobang/mail-cu', webhook: WEBHOOK_REF, verify: true, disable: 'Hộp thư cũ ngừng sử dụng từ khi chuyển sang hộp thư tiếp nhận mới của Sở' },
+  { channel: 'EMAIL', externalId: MAIL.externalId, name: MAIL.name, credential: MAIL.credential, webhook: WEBHOOK_REF, verify: true, autoReply: tx('autoReply.002') },
+  { channel: 'SMS', externalId: 'brandname-skhdt-caobang', name: tx('name.003'), credential: 'secret://caobang/sms-brandname', webhook: 'secret://caobang/sms-brandname-webhook', verify: true },
+  { channel: 'ZALO_OA', externalId: '4417283569104528391', name: tx('name.004'), credential: 'secret://caobang/zalo-oa', webhook: 'secret://caobang/zalo-oa-webhook', verify: true, autoReply: tx('autoReply.005') },
+  { channel: 'ZALO_ZNS', externalId: '4417283569104528402', name: tx('name.006'), credential: 'secret://caobang/zalo-zns', webhook: 'secret://caobang/zalo-zns-webhook', verify: true },
+  { channel: 'WHATSAPP', externalId: '84912340099', name: tx('name.007'), credential: 'secret://caobang/whatsapp', webhook: 'secret://caobang/whatsapp-webhook', verify: false },
+  { channel: 'EMAIL', externalId: 'phanhoi-cu@caobang.gov.vn', name: tx('name.008'), credential: 'secret://caobang/mail-cu', webhook: WEBHOOK_REF, verify: true, disable: tx('disable.009') },
 ];
 
 async function waitFor<T>(read: () => Promise<T | undefined>, seconds = 40): Promise<T | undefined> {
@@ -53,7 +57,7 @@ async function connectAccounts(ctx: SeedContext): Promise<void> {
         version = connected.resource_version;
       }
       if (spec.verify) {
-        const asked = existing?.status === 'Active' ? undefined : await ctx.command(SUPERVISOR, `/channel-accounts/${id}/verify`, { reason: 'Xác minh tài khoản kênh trước khi đưa vào sử dụng chính thức' }, { version });
+        const asked = existing?.status === 'Active' ? undefined : await ctx.command(SUPERVISOR, `/channel-accounts/${id}/verify`, { reason: tx('reason.010') }, { version });
         void asked;
         const active = await waitFor(async () => {
           const row = await ctx.get<Obj>(SUPERVISOR, `/resources/channel_account/${id}`);
@@ -62,7 +66,7 @@ async function connectAccounts(ctx: SeedContext): Promise<void> {
         if (active === undefined) ctx.warn(`the channel account ${spec.externalId} did not become Active (is the channel verification consumer wired in the stack?)`);
         else version = Number(active.version);
         if (active !== undefined && spec.autoReply !== undefined) {
-          await ctx.must(SUPERVISOR, 'PUT', `/channel-accounts/${id}`, { auto_reply_text: spec.autoReply, reason: 'Thiết lập trả lời tự động ngoài giờ làm việc' }, { version });
+          await ctx.must(SUPERVISOR, 'PUT', `/channel-accounts/${id}`, { auto_reply_text: spec.autoReply, reason: tx('reason.011') }, { version });
         }
         if (active !== undefined && spec.disable !== undefined) {
           const fresh = await ctx.get<Obj>(SUPERVISOR, `/resources/channel_account/${id}`);
@@ -89,26 +93,26 @@ async function publishRouting(ctx: SeedContext): Promise<void> {
     if (existing !== undefined) return String(existing.id);
     const draft = await ctx.command(SUPERVISOR, '/conversation-routing-policies', {
       rules: [
-        { channels: ['EMAIL', 'ZALO_OA'], keywords: ['bồi thường', 'giải phóng mặt bằng', 'đền bù', 'thu hồi đất'], queue_unit_id: ctx.unitId('CB-SKHDT-QLDA'), priority: 'HIGH' },
-        { channels: ['EMAIL', 'ZALO_OA'], keywords: ['thanh toán', 'tạm ứng', 'giải ngân', 'bảo lãnh'], queue_unit_id: ctx.unitId('CB-STC'), priority: 'NORMAL' },
+        { channels: ['EMAIL', 'ZALO_OA'], keywords: [tx('keywords.012'), tx('keywords.013'), tx('keywords.014'), tx('keywords.015')], queue_unit_id: ctx.unitId('CB-SKHDT-QLDA'), priority: 'HIGH' },
+        { channels: ['EMAIL', 'ZALO_OA'], keywords: [tx('keywords.016'), tx('keywords.017'), tx('keywords.018'), tx('keywords.019')], queue_unit_id: ctx.unitId('CB-STC'), priority: 'NORMAL' },
         { queue_unit_id: ctx.unitId('CB-SKHDT-VP'), priority: 'LOW' },
       ],
       calendar_code: await calendarCode(ctx),
       first_response_minutes: 240,
       resolution_hours: 72,
     });
-    const published = await ctx.command(SUPERVISOR, `/conversation-routing-policies/${draft.resource_id}/publish`, { reason: 'Công bố quy tắc phân công theo nội dung phản ánh và thời hạn phản hồi đầu tiên' }, { version: draft });
+    const published = await ctx.command(SUPERVISOR, `/conversation-routing-policies/${draft.resource_id}/publish`, { reason: tx('reason.020') }, { version: draft });
     made(ctx, 'OMNI', 'routing-policy', 'v1', 'published, 3 rules', { id: published.resource_id, screen: 'OMNI-07' });
     return published.resource_id;
   });
 }
 
 const CANNED = [
-  { code: 'da-tiep-nhan-y-kien', title: 'Đã tiếp nhận ý kiến', body: 'Sở Kế hoạch và Đầu tư đã tiếp nhận ý kiến của quý vị và chuyển cho bộ phận phụ trách. Chúng tôi sẽ phản hồi trong thời hạn quy định.', channels: ['EMAIL', 'ZALO_OA'] },
-  { code: 'hoi-bo-sung-ho-so', title: 'Đề nghị bổ sung hồ sơ', body: 'Để xử lý đề nghị của quý vị, xin bổ sung bản sao hợp đồng, biên bản nghiệm thu và bảng khối lượng hoàn thành có xác nhận của chủ đầu tư.', channels: ['EMAIL'] },
-  { code: 'tien-do-giai-phong-mat-bang', title: 'Thông tin tiến độ giải phóng mặt bằng', body: 'Việc kiểm đếm và lập phương án bồi thường do Hội đồng bồi thường của địa phương thực hiện. Khi phương án được phê duyệt sẽ được niêm yết công khai tại trụ sở Ủy ban nhân dân phường, xã.', channels: ['EMAIL', 'ZALO_OA', 'SMS'] },
-  { code: 'huong-dan-thanh-toan', title: 'Hướng dẫn hồ sơ thanh toán', body: 'Hồ sơ đề nghị thanh toán gồm giấy đề nghị thanh toán, bảng xác định giá trị khối lượng hoàn thành và chứng từ kèm theo. Chủ đầu tư kiểm soát chi qua Kho bạc Nhà nước trước khi thanh toán.', channels: ['EMAIL', 'ZALO_OA'] },
-  { code: 'lien-he-dau-moi', title: 'Thông tin đầu mối liên hệ', body: 'Quý vị có thể liên hệ Văn phòng Sở Kế hoạch và Đầu tư trong giờ hành chính, từ thứ Hai đến thứ Sáu, hoặc gửi thư vào hộp thư tiếp nhận của Sở.', channels: ['EMAIL', 'SMS', 'ZALO_OA'] },
+  { code: 'da-tiep-nhan-y-kien', title: tx('title.021'), body: tx('body.022'), channels: ['EMAIL', 'ZALO_OA'] },
+  { code: 'hoi-bo-sung-ho-so', title: tx('title.023'), body: tx('body.024'), channels: ['EMAIL'] },
+  { code: 'tien-do-giai-phong-mat-bang', title: tx('title.025'), body: tx('body.026'), channels: ['EMAIL', 'ZALO_OA', 'SMS'] },
+  { code: 'huong-dan-thanh-toan', title: tx('title.027'), body: tx('body.028'), channels: ['EMAIL', 'ZALO_OA'] },
+  { code: 'lien-he-dau-moi', title: tx('title.029'), body: tx('body.030'), channels: ['EMAIL', 'SMS', 'ZALO_OA'] },
 ];
 
 /** OMNI-08: the answers the agents reuse. */
@@ -141,30 +145,30 @@ interface Thread {
 }
 
 const THREADS: Thread[] = [
-  { key: 't01', from: 'lehoa.thucphan@gmail.com', name: 'Lê Thị Hòa', daysAgo: 9, hour: 8, flow: 'ANSWERED', assignee: 'projectManager', classification: 'CITIZEN',
-    messages: ['Gia đình tôi ở tổ 7 phường Thục Phán nằm trong diện giải phóng mặt bằng dự án đường tỉnh 205 đoạn Km0 - Km12. Đã kiểm đếm từ tháng 8 nhưng đến nay chưa thấy thông báo bồi thường. Xin cho biết khi nào có phương án và chi trả.'] },
-  { key: 't02', from: 'ketoan@xaydungdonglan.vn', name: 'Nguyễn Thanh Tùng', daysAgo: 8, hour: 9, flow: 'RESOLVED', assignee: 'owner', classification: 'CONTRACTOR_STAFF',
-    messages: ['Công ty TNHH Xây dựng Đông Lan đã nộp hồ sơ đề nghị thanh toán đợt 2 gói thầu xây lắp Trường Tiểu học phường Nùng Trí Cao từ ngày 28/10. Xin cho biết hồ sơ đang ở bước nào và khi nào được thanh toán.'] },
-  { key: 't03', from: 'vanphong@ubnd-tangiang.caobang.gov.vn', name: 'Hoàng Văn Sơn', daysAgo: 7, hour: 14, flow: 'REOPENED', assignee: 'projectManager', classification: 'AGENCY_STAFF',
-    messages: ['Ủy ban nhân dân phường Tân Giang đề nghị cung cấp mẫu báo cáo tiến độ giải ngân dự án Nâng cấp Trạm y tế phường Tân Giang để gửi Sở trước ngày 10 hằng tháng.', 'Cảm ơn Sở đã gửi mẫu. Đề nghị cho biết thêm cột số liệu lũy kế ghi theo năm kế hoạch hay theo toàn bộ dự án.'] },
-  { key: 't04', from: 'nongvanthanh1975@gmail.com', name: 'Nông Văn Thành', daysAgo: 6, hour: 7, flow: 'ISSUE', assignee: 'projectManager', classification: 'CITIZEN',
-    messages: ['Đoạn thi công đường tỉnh 205 gần cổng trường mầm non xe tải chở vật liệu chạy nhiều, bụi và tiếng ồn ảnh hưởng người dân. Đề nghị Sở yêu cầu nhà thầu che chắn và tưới nước giảm bụi.', 'Tôi bổ sung: tình trạng này kéo dài từ đầu tháng, thường nặng nhất lúc 6 đến 8 giờ sáng.'] },
-  { key: 't05', from: 'giamdoc@congtydaiphat-cb.vn', name: 'Triệu Quang Huy', daysAgo: 5, hour: 10, flow: 'NOTE', assignee: 'projectManager', classification: 'CONTRACTOR_STAFF',
-    messages: ['Công ty Cổ phần Đại Phát đã hoàn thành hạng mục mái và hoàn thiện Trạm y tế phường Tân Giang. Đề nghị Sở và chủ đầu tư bố trí lịch nghiệm thu hoàn thành trong tuần này.'] },
-  { key: 't06', from: 'hoangmai.nungtricao@gmail.com', name: 'Hoàng Thị Mai', daysAgo: 4, hour: 15, flow: 'NEW', classification: 'CITIZEN',
-    messages: ['Xin hỏi tiến độ xây dựng Trường Tiểu học phường Nùng Trí Cao, dự kiến khi nào bàn giao đưa vào sử dụng để gia đình đăng ký cho cháu nhập học năm sau.'] },
-  { key: 't07', from: 'phuong.thucphan@caobang.gov.vn', name: 'Lương Văn Đạt', daysAgo: 3, hour: 9, flow: 'ASSIGNED', assignee: 'owner', classification: 'AGENCY_STAFF',
-    messages: ['Phường Thục Phán đề nghị bổ sung địa danh tổ dân phố mới vào danh mục địa bàn dùng chung theo Nghị quyết sắp xếp đơn vị hành chính. Đề nghị Sở hướng dẫn hồ sơ đề xuất.'] },
-  { key: 't08', from: 'phutrach@tuvanxaydung-bangiang.vn', name: 'Đinh Thị Hạnh', daysAgo: 3, hour: 11, flow: 'ASSIGNED', assignee: 'projectManager', classification: 'CONTRACTOR_STAFF',
-    messages: ['Công ty Tư vấn Xây dựng Bằng Giang xin gia hạn bảo lãnh thực hiện hợp đồng tư vấn giám sát đến hết tháng 12/2026. Đề nghị Sở cho biết hồ sơ cần nộp và đầu mối tiếp nhận.'] },
-  { key: 't09', from: 'trinhvanbao.1982@gmail.com', name: 'Trịnh Văn Bảo', daysAgo: 2, hour: 16, flow: 'RESOLVED', assignee: 'projectManager', classification: 'CITIZEN',
-    messages: ['Tôi muốn biết tổng mức đầu tư và nguồn vốn của dự án Nâng cấp Trạm y tế phường Tân Giang để theo dõi. Thông tin này có công khai không?'] },
-  { key: 't10', from: 'tamung@xaydungdonglan.vn', name: 'Lâm Quốc Việt', daysAgo: 1, hour: 8, flow: 'NEW', classification: 'CONTRACTOR_STAFF',
-    messages: ['Về khoản tạm ứng hợp đồng gói thầu trường học: chủ đầu tư yêu cầu thu hồi dần theo từng đợt thanh toán. Xin Sở hướng dẫn tỷ lệ thu hồi theo quy định hiện hành.'] },
-  { key: 't11', from: 'dothihuong.tangiang@gmail.com', name: 'Đỗ Thị Hương', daysAgo: 1, hour: 13, flow: 'NEW', classification: 'CITIZEN',
-    messages: ['Gia đình tôi bị ảnh hưởng thu hồi đất khi nâng cấp Trạm y tế phường Tân Giang. Xin hỏi đơn giá bồi thường áp dụng theo bảng giá đất năm nào và nộp khiếu nại ở đâu.'] },
-  { key: 't12', from: 'quanly@vlxd-caobang.vn', name: 'Bế Văn Cường', daysAgo: 0, hour: 7, flow: 'NEW', classification: 'CONTRACTOR_STAFF',
-    messages: ['Cửa hàng vật liệu xây dựng cung cấp xi măng, thép cho nhà thầu thi công đường 205. Nhà thầu chưa thanh toán công nợ, xin hỏi Sở có thể hỗ trợ làm việc với nhà thầu không.'] },
+  { key: 't01', from: 'lehoa.thucphan@gmail.com', name: tx('name.031'), daysAgo: 9, hour: 8, flow: 'ANSWERED', assignee: 'projectManager', classification: 'CITIZEN',
+    messages: [tx('messages.032')] },
+  { key: 't02', from: 'ketoan@xaydungdonglan.vn', name: tx('name.033'), daysAgo: 8, hour: 9, flow: 'RESOLVED', assignee: 'owner', classification: 'CONTRACTOR_STAFF',
+    messages: [tx('messages.034')] },
+  { key: 't03', from: 'vanphong@ubnd-tangiang.caobang.gov.vn', name: tx('name.035'), daysAgo: 7, hour: 14, flow: 'REOPENED', assignee: 'projectManager', classification: 'AGENCY_STAFF',
+    messages: [tx('messages.036'), tx('messages.037')] },
+  { key: 't04', from: 'nongvanthanh1975@gmail.com', name: tx('name.038'), daysAgo: 6, hour: 7, flow: 'ISSUE', assignee: 'projectManager', classification: 'CITIZEN',
+    messages: [tx('messages.039'), tx('messages.040')] },
+  { key: 't05', from: 'giamdoc@congtydaiphat-cb.vn', name: tx('name.041'), daysAgo: 5, hour: 10, flow: 'NOTE', assignee: 'projectManager', classification: 'CONTRACTOR_STAFF',
+    messages: [tx('messages.042')] },
+  { key: 't06', from: 'hoangmai.nungtricao@gmail.com', name: tx('name.043'), daysAgo: 4, hour: 15, flow: 'NEW', classification: 'CITIZEN',
+    messages: [tx('messages.044')] },
+  { key: 't07', from: 'phuong.thucphan@caobang.gov.vn', name: tx('name.045'), daysAgo: 3, hour: 9, flow: 'ASSIGNED', assignee: 'owner', classification: 'AGENCY_STAFF',
+    messages: [tx('messages.046')] },
+  { key: 't08', from: 'phutrach@tuvanxaydung-bangiang.vn', name: tx('name.047'), daysAgo: 3, hour: 11, flow: 'ASSIGNED', assignee: 'projectManager', classification: 'CONTRACTOR_STAFF',
+    messages: [tx('messages.048')] },
+  { key: 't09', from: 'trinhvanbao.1982@gmail.com', name: tx('name.049'), daysAgo: 2, hour: 16, flow: 'RESOLVED', assignee: 'projectManager', classification: 'CITIZEN',
+    messages: [tx('messages.050')] },
+  { key: 't10', from: 'tamung@xaydungdonglan.vn', name: tx('name.051'), daysAgo: 1, hour: 8, flow: 'NEW', classification: 'CONTRACTOR_STAFF',
+    messages: [tx('messages.052')] },
+  { key: 't11', from: 'dothihuong.tangiang@gmail.com', name: tx('name.053'), daysAgo: 1, hour: 13, flow: 'NEW', classification: 'CITIZEN',
+    messages: [tx('messages.054')] },
+  { key: 't12', from: 'quanly@vlxd-caobang.vn', name: tx('name.055'), daysAgo: 0, hour: 7, flow: 'NEW', classification: 'CONTRACTOR_STAFF',
+    messages: [tx('messages.056')] },
 ];
 
 function webhookSecret(): string {
@@ -248,37 +252,37 @@ interface ContactSpec {
 
 const CONTACTS: ContactSpec[] = [
   {
-    key: 'bui-van-quy', name: 'Bùi Văn Quý - Ban Quản lý dự án', classification: 'AGENCY_STAFF',
-    identities: [{ channel: 'EMAIL', value: 'quybv@banqlda.caobang.gov.vn', verify: 'Quyết định điều động số 41/QĐ-SKHĐT' }, { channel: 'PHONE', value: '0912 345 118', verify: 'Quyết định điều động số 41/QĐ-SKHĐT' }],
+    key: 'bui-van-quy', name: tx('name.057'), classification: 'AGENCY_STAFF',
+    identities: [{ channel: 'EMAIL', value: 'quybv@banqlda.caobang.gov.vn', verify: tx('verify.058') }, { channel: 'PHONE', value: '0912 345 118', verify: tx('verify.058') }],
     consents: [{ channel: 'EMAIL', purpose: 'OPERATIONAL' }, { channel: 'SMS', purpose: 'REMINDER' }],
   },
   {
-    key: 'duong-thi-nga', name: 'Dương Thị Nga - Công ty TNHH Xây dựng Đông Lan', classification: 'CONTRACTOR_STAFF',
-    identities: [{ channel: 'EMAIL', value: 'ngadt@xaydungdonglan.vn', verify: 'Giấy giới thiệu số 12/GT-ĐL ngày 05/10/2026' }, { channel: 'PHONE', value: '0912 777 305', verify: 'Giấy giới thiệu số 12/GT-ĐL ngày 05/10/2026' }],
-    consents: [{ channel: 'EMAIL', purpose: 'SUPPORT_CONVERSATION' }, { channel: 'SMS', purpose: 'OPERATIONAL', withdraw: 'Công ty đề nghị chỉ nhận thông tin qua thư điện tử' }],
+    key: 'duong-thi-nga', name: tx('name.059'), classification: 'CONTRACTOR_STAFF',
+    identities: [{ channel: 'EMAIL', value: 'ngadt@xaydungdonglan.vn', verify: tx('verify.060') }, { channel: 'PHONE', value: '0912 777 305', verify: tx('verify.060') }],
+    consents: [{ channel: 'EMAIL', purpose: 'SUPPORT_CONVERSATION' }, { channel: 'SMS', purpose: 'OPERATIONAL', withdraw: tx('withdraw.061') }],
   },
   {
-    key: 'ly-van-hung', name: 'Lý Văn Hùng - Công ty Cổ phần Đại Phát', classification: 'CONTRACTOR_STAFF',
-    identities: [{ channel: 'EMAIL', value: 'hungly@congtydaiphat-cb.vn', verify: 'Giấy giới thiệu số 08/GT-ĐP ngày 15/09/2026' }, { channel: 'ZALO', value: 'lyvanhung_dp' }],
+    key: 'ly-van-hung', name: tx('name.062'), classification: 'CONTRACTOR_STAFF',
+    identities: [{ channel: 'EMAIL', value: 'hungly@congtydaiphat-cb.vn', verify: tx('verify.063') }, { channel: 'ZALO', value: 'lyvanhung_dp' }],
     consents: [{ channel: 'EMAIL', purpose: 'ANNOUNCEMENT' }],
   },
   {
-    key: 'ma-thi-lan', name: 'Mã Thị Lan', classification: 'CITIZEN',
-    identities: [{ channel: 'PHONE', value: '0975 440 216', verify: 'Phiếu xác minh trực tiếp tại bộ phận một cửa số 118' }, { channel: 'ZALO', value: 'malan.thucphan' }],
+    key: 'ma-thi-lan', name: tx('name.064'), classification: 'CITIZEN',
+    identities: [{ channel: 'PHONE', value: '0975 440 216', verify: tx('verify.065') }, { channel: 'ZALO', value: 'malan.thucphan' }],
     consents: [{ channel: 'SMS', purpose: 'SUPPORT_CONVERSATION' }],
   },
   {
-    key: 'nong-van-tuan', name: 'Nông Văn Tuấn - UBND phường Nùng Trí Cao', classification: 'AGENCY_STAFF',
-    identities: [{ channel: 'EMAIL', value: 'tuannv@nungtricao.caobang.gov.vn', verify: 'Công văn giới thiệu số 22/UBND ngày 02/10/2026' }],
-    consents: [{ channel: 'EMAIL', purpose: 'REMINDER' }, { channel: 'EMAIL', purpose: 'ANNOUNCEMENT', withdraw: 'Đổi địa chỉ thư điện tử nhận thông báo của phường' }],
+    key: 'nong-van-tuan', name: tx('name.066'), classification: 'AGENCY_STAFF',
+    identities: [{ channel: 'EMAIL', value: 'tuannv@nungtricao.caobang.gov.vn', verify: tx('verify.067') }],
+    consents: [{ channel: 'EMAIL', purpose: 'REMINDER' }, { channel: 'EMAIL', purpose: 'ANNOUNCEMENT', withdraw: tx('withdraw.068') }],
   },
   {
-    key: 'tran-quoc-bao', name: 'Trần Quốc Bảo', classification: 'CITIZEN',
+    key: 'tran-quoc-bao', name: tx('name.069'), classification: 'CITIZEN',
     identities: [{ channel: 'PHONE', value: '0966 120 874' }, { channel: 'EMAIL', value: 'tranquocbao.cb@gmail.com' }],
   },
   {
-    key: 'vi-thi-hue', name: 'Vi Thị Huệ - Công ty TNHH Tư vấn Giám sát Cao Bằng', classification: 'CONTRACTOR_STAFF',
-    identities: [{ channel: 'EMAIL', value: 'huevt@giamsatcaobang.vn', verify: 'Giấy giới thiệu số 03/GT-GS ngày 20/08/2026' }],
+    key: 'vi-thi-hue', name: tx('name.070'), classification: 'CONTRACTOR_STAFF',
+    identities: [{ channel: 'EMAIL', value: 'huevt@giamsatcaobang.vn', verify: tx('verify.071') }],
     consents: [{ channel: 'EMAIL', purpose: 'OPERATIONAL' }],
   },
 ];
@@ -297,7 +301,7 @@ async function makeContacts(ctx: SeedContext): Promise<void> {
         }
       }
       for (const consent of spec.consents ?? []) {
-        const given = await ctx.attempt(SUPERVISOR, 'POST', `/contacts/${created.resource_id}/consents`, { channel: consent.channel, purpose: consent.purpose, consent_text_version: 'v2026.1', capture_method: 'WEB_FORM', evidence_reference: `Phiếu đồng ý nhận tin ${spec.key}` });
+        const given = await ctx.attempt(SUPERVISOR, 'POST', `/contacts/${created.resource_id}/consents`, { channel: consent.channel, purpose: consent.purpose, consent_text_version: 'v2026.1', capture_method: 'WEB_FORM', evidence_reference: tx('evidence_reference.072', spec.key) });
         if (given.ok && consent.withdraw !== undefined) await ctx.must(SUPERVISOR, 'POST', `/contact-consents/${given.json.resource_id}/withdraw`, { reason: consent.withdraw }, { version: given.json.resource_version as number });
       }
       made(ctx, 'OMNI', 'contact', spec.key, `${spec.classification}, ${spec.identities.length} identities`, { id: created.resource_id, screen: 'OMNI-03' });
@@ -319,16 +323,16 @@ async function readyToAnswer(ctx: SeedContext, conversation: Obj, thread: Thread
   const identities = (contact.identities as Obj[] | undefined) ?? [];
   const email = identities.find((identity) => identity.channel === 'EMAIL');
   if (email !== undefined && email.status !== 'Verified') {
-    await ctx.attempt(SUPERVISOR, 'POST', `/contacts/${contactId}/identities/${email.id}/verify`, { method: 'ADMIN_DOCUMENT', document_ref: `Phiếu xác minh qua thư điện tử số ${thread.key.slice(1)}/2026` }, { version: Number(email.version) });
+    await ctx.attempt(SUPERVISOR, 'POST', `/contacts/${contactId}/identities/${email.id}/verify`, { method: 'ADMIN_DOCUMENT', document_ref: tx('document_ref.073', thread.key.slice(1)) }, { version: Number(email.version) });
   }
-  await ctx.attempt(SUPERVISOR, 'POST', `/contacts/${contactId}/consents`, { channel: 'EMAIL', purpose: 'SUPPORT_CONVERSATION', consent_text_version: 'v2026.1', capture_method: 'CHANNEL_OPT_IN', evidence_reference: `Thư của ${thread.name} ngày ${ctx.day(-thread.daysAgo)}` });
+  await ctx.attempt(SUPERVISOR, 'POST', `/contacts/${contactId}/consents`, { channel: 'EMAIL', purpose: 'SUPPORT_CONVERSATION', consent_text_version: 'v2026.1', capture_method: 'CHANNEL_OPT_IN', evidence_reference: tx('evidence_reference.074', thread.name, ctx.day(-thread.daysAgo)) });
 }
 
 const ANSWERS: Record<string, string> = {
-  t01: 'Kính gửi bà Lê Thị Hòa, phương án bồi thường dự án đường tỉnh 205 hiện do Hội đồng bồi thường phường Thục Phán hoàn thiện sau kiểm đếm. Dự kiến niêm yết công khai trong tháng 11. Chúng tôi sẽ thông báo khi có kết quả.',
-  t02: 'Kính gửi Công ty Đông Lan, hồ sơ thanh toán đợt 2 đã được chủ đầu tư kiểm tra và chuyển Kho bạc Nhà nước Cao Bằng kiểm soát chi. Thời hạn xử lý theo quy định là 04 ngày làm việc.',
-  t03: 'Kính gửi anh Hoàng Văn Sơn, cột lũy kế ghi theo năm kế hoạch vốn đang thực hiện. Mẫu báo cáo đã được gửi kèm thư này.',
-  t09: 'Kính gửi ông Trịnh Văn Bảo, thông tin tổng mức đầu tư và nguồn vốn của dự án được công khai theo Luật Đầu tư công. Dự án Nâng cấp Trạm y tế phường Tân Giang có tổng mức đầu tư 12 tỷ đồng từ ngân sách tỉnh.',
+  t01: tx('t01.075'),
+  t02: tx('t02.076'),
+  t03: tx('t03.077'),
+  t09: tx('t09.078'),
 };
 
 async function agentsWork(ctx: SeedContext): Promise<void> {
@@ -342,27 +346,27 @@ async function agentsWork(ctx: SeedContext): Promise<void> {
       const conversation = await conversationOf(ctx, thread);
       const id = String(conversation.id);
       if (thread.assignee !== undefined) {
-        await ctx.command(SUPERVISOR, `/conversations/${id}/assign`, { assignee_membership_id: ctx.person(thread.assignee).membershipId, reason: 'Phân công theo nội dung và đơn vị phụ trách' }, { version: await freshVersion(ctx, id) });
+        await ctx.command(SUPERVISOR, `/conversations/${id}/assign`, { assignee_membership_id: ctx.person(thread.assignee).membershipId, reason: tx('reason.079') }, { version: await freshVersion(ctx, id) });
       }
       if (thread.flow === 'ASSIGNED') return { done: 'assigned' };
       if (thread.flow === 'NOTE' || thread.flow === 'ISSUE') {
-        await ctx.command(AGENT, `/conversations/${id}/messages`, { kind: 'INTERNAL_NOTE', channel_account_id: String(mail.id), text: thread.flow === 'NOTE' ? 'Đã trao đổi với chủ đầu tư: lịch nghiệm thu dự kiến thứ Năm tuần này, cần Ban QLDA xác nhận thành phần tham dự.' : 'Phản ánh hợp lý, cần nhắc nhà thầu che chắn và tưới nước giảm bụi. Chuyển thành vướng mắc của dự án để theo dõi xử lý.' }, { version: await freshVersion(ctx, id) });
+        await ctx.command(AGENT, `/conversations/${id}/messages`, { kind: 'INTERNAL_NOTE', channel_account_id: String(mail.id), text: thread.flow === 'NOTE' ? tx('text.080') : tx('text.081') }, { version: await freshVersion(ctx, id) });
       }
       if (thread.flow === 'ISSUE') {
         if (roadProject !== undefined) {
           await ctx.attempt(AGENT, 'POST', `/conversations/${id}/links`, { resource_type: 'project', resource_id: String(roadProject.id) }, { version: await freshVersion(ctx, id) });
           const options = await ctx.attempt<{ issue_types?: string[]; projects?: Obj[] }>(AGENT, 'GET', '/conversation-conversion-options');
           const issueType = String((options.json.issue_types ?? [])[0] ?? 'ENVIRONMENT');
-          await ctx.attempt(AGENT, 'POST', `/conversations/${id}/issues`, { project_id: String(roadProject.id), issue_type: issueType, summary: 'Người dân phản ánh bụi và tiếng ồn từ xe chở vật liệu đoạn gần cổng trường mầm non', due_date: ctx.day(7) }, { version: await freshVersion(ctx, id) });
+          await ctx.attempt(AGENT, 'POST', `/conversations/${id}/issues`, { project_id: String(roadProject.id), issue_type: issueType, summary: tx('summary.082'), due_date: ctx.day(7) }, { version: await freshVersion(ctx, id) });
         } else ctx.warn('the project DA-DT205 is not there: the conversation t04 is not turned into an issue');
         return { done: 'issue' };
       }
       if (thread.flow === 'ANSWERED' || thread.flow === 'RESOLVED' || thread.flow === 'REOPENED') {
         await readyToAnswer(ctx, conversation, thread);
-        await ctx.attempt(AGENT, 'POST', `/conversations/${id}/messages`, { kind: 'EXTERNAL', channel_account_id: String(mail.id), purpose: 'SUPPORT_CONVERSATION', text: ANSWERS[thread.key] ?? 'Sở Kế hoạch và Đầu tư đã tiếp nhận và sẽ phản hồi.' }, { version: await freshVersion(ctx, id) });
+        await ctx.attempt(AGENT, 'POST', `/conversations/${id}/messages`, { kind: 'EXTERNAL', channel_account_id: String(mail.id), purpose: 'SUPPORT_CONVERSATION', text: ANSWERS[thread.key] ?? tx('text.083') }, { version: await freshVersion(ctx, id) });
       }
       if (thread.flow === 'RESOLVED' || thread.flow === 'REOPENED') {
-        await ctx.attempt(AGENT, 'POST', `/conversations/${id}/resolve`, { reason: 'Đã trả lời đầy đủ nội dung đề nghị của người gửi' }, { version: await freshVersion(ctx, id) });
+        await ctx.attempt(AGENT, 'POST', `/conversations/${id}/resolve`, { reason: tx('reason.084') }, { version: await freshVersion(ctx, id) });
       }
       return { done: thread.flow };
     });
@@ -375,7 +379,7 @@ async function followUp(ctx: SeedContext): Promise<void> {
   await once(ctx, 'omni.follow-up', async () => {
     const thread = THREADS.find((candidate) => candidate.key === 't03');
     if (thread === undefined) return {};
-    await write(ctx, thread, 5, 'Xin lỗi, tôi gửi nhầm phường: đề nghị gửi mẫu báo cáo cho cả phường Nùng Trí Cao theo cùng cách ghi lũy kế.', instant(ctx, 0, 8, 25));
+    await write(ctx, thread, 5, tx('followUp.085'), instant(ctx, 0, 8, 25));
     made(ctx, 'OMNI', 'conversation', 't03', 'a new message reopens a resolved conversation', { screen: 'OMNI-01' });
     return {};
   });

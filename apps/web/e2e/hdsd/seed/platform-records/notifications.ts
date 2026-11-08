@@ -2,6 +2,10 @@ import type { SeedContext } from '../context.ts';
 import type { Obj } from '../context.ts';
 import { grantMemberRoles } from './iam.ts';
 import { at, made, once } from './shared.ts';
+import TEXTS from './data/notifications.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * NOT for the guide. The story: the provincial Department of Planning and Investment tells its people what needs their hand. Two phases:
@@ -36,96 +40,96 @@ const TEMPLATES: TemplateSpec[] = [
     code: 'thong-bao-viec-can-xu-ly',
     channel: 'IN_APP',
     purpose: 'OPERATIONAL',
-    body: 'Có việc cần xử lý: {{doi_tuong}} thuộc {{don_vi}}. Hạn xử lý: {{han_xu_ly}}. Đề nghị xem chi tiết và xử lý đúng hạn.',
+    body: tx('body.001'),
     variables: { doi_tuong: 'string', don_vi: 'string', han_xu_ly: 'string' },
     end: 'APPROVE',
-    reason: 'Mẫu thông báo trong hệ thống cho việc cần xử lý, đúng ngôn ngữ hành chính của Sở',
+    reason: tx('reason.002'),
   },
   {
     code: 'nhac-han-bao-cao-tuan',
     channel: 'IN_APP',
     purpose: 'REMINDER',
-    body: 'Báo cáo giải ngân tuần {{tuan}} của {{don_vi}} đến hạn nộp vào {{han_nop}}. Đề nghị hoàn thành đúng hạn theo Công văn 3665.',
+    body: tx('body.003'),
     variables: { tuan: 'string', don_vi: 'string', han_nop: 'string' },
     end: 'APPROVE',
-    reason: 'Nhắc hạn báo cáo giải ngân hằng tuần cho chủ đầu tư',
+    reason: tx('reason.004'),
   },
   {
     code: 'nhac-han-bao-cao-tuan-email',
     channel: 'EMAIL',
     purpose: 'REMINDER',
-    subject: 'Nhắc hạn nộp báo cáo giải ngân tuần {{tuan}}',
-    body: 'Kính gửi {{don_vi}},\n\nBáo cáo giải ngân tuần {{tuan}} đến hạn nộp vào {{han_nop}}. Đề nghị đơn vị hoàn thành và gửi trên hệ thống đúng hạn.\n\nSở Kế hoạch và Đầu tư tỉnh Cao Bằng',
+    subject: tx('subject.005'),
+    body: tx('body.006'),
     variables: { tuan: 'string', don_vi: 'string', han_nop: 'string' },
     end: 'APPROVE',
-    reason: 'Nhắc hạn báo cáo gửi qua thư điện tử cho người có đồng ý nhận tin',
+    reason: tx('reason.007'),
   },
   {
     code: 'thong-bao-lich-bao-tri',
     channel: 'EMAIL',
     purpose: 'ANNOUNCEMENT',
-    subject: 'Thông báo lịch bảo trì hệ thống quản lý đầu tư công',
-    body: 'Kính gửi các đơn vị,\n\nHệ thống quản lý đầu tư công sẽ bảo trì từ {{bat_dau}} đến {{ket_thuc}}. Trong thời gian này hệ thống chỉ cho phép xem. Đề nghị các đơn vị hoàn tất việc nhập liệu trước thời điểm bảo trì.\n\nSở Kế hoạch và Đầu tư tỉnh Cao Bằng',
+    subject: tx('subject.008'),
+    body: tx('body.009'),
     variables: { bat_dau: 'string', ket_thuc: 'string' },
     end: 'APPROVE',
-    reason: 'Thông báo chung về lịch bảo trì, dùng cho các đợt gửi diện rộng',
+    reason: tx('reason.010'),
   },
   {
     code: 'huong-dan-nop-ho-so-thanh-toan',
     channel: 'EMAIL',
     purpose: 'ANNOUNCEMENT',
-    subject: 'Hướng dẫn nộp hồ sơ đề nghị thanh toán trên hệ thống',
-    body: 'Kính gửi các chủ đầu tư và ban quản lý dự án,\n\nTừ {{ngay_ap_dung}}, hồ sơ đề nghị thanh toán được lập và trình trực tiếp trên hệ thống. Tài liệu hướng dẫn kèm theo thông báo này.\n\nSở Kế hoạch và Đầu tư tỉnh Cao Bằng',
+    subject: tx('subject.011'),
+    body: tx('body.012'),
     variables: { ngay_ap_dung: 'string' },
     end: 'APPROVE',
-    reason: 'Hướng dẫn thủ tục nộp hồ sơ thanh toán điện tử',
+    reason: tx('reason.013'),
   },
   {
     code: 'canh-bao-cham-giai-ngan-sms',
     channel: 'SMS',
     purpose: 'OPERATIONAL',
-    body: 'Dự án {{ma_du_an}} đang chậm giải ngân so với kế hoạch vốn. Đề nghị xem chi tiết trên hệ thống quản lý đầu tư công.',
+    body: tx('body.014'),
     variables: { ma_du_an: 'string' },
     end: 'APPROVE',
-    reason: 'Cảnh báo ngắn cho lãnh đạo ban quản lý dự án khi dự án chậm giải ngân',
+    reason: tx('reason.015'),
   },
   {
     code: 'viec-moi-duoc-giao-push',
     channel: 'PUSH_FCM',
     purpose: 'OPERATIONAL',
-    body: 'Bạn có việc mới cần xử lý trên hệ thống quản lý đầu tư công.',
+    body: tx('body.016'),
     variables: {},
     lockscreenSafe: true,
     end: 'APPROVE',
-    reason: 'Tin đẩy trung tính, an toàn khi hiện trên màn hình khóa',
+    reason: tx('reason.017'),
   },
   {
     code: 'thong-bao-tiep-nhan-ho-so-zns',
     channel: 'ZALO_ZNS',
     purpose: 'OPERATIONAL',
-    body: 'Hồ sơ {{ma_ho_so}} đã được Sở Kế hoạch và Đầu tư tiếp nhận. Cán bộ phụ trách sẽ liên hệ khi cần bổ sung.',
+    body: tx('body.018'),
     variables: { ma_ho_so: 'string' },
     end: 'REVIEW',
-    reason: 'Mẫu tin Zalo cho người dân và nhà thầu, chờ nhà cung cấp phê duyệt',
+    reason: tx('reason.019'),
   },
   {
     code: 'nhac-no-tam-ung-sms',
     channel: 'SMS',
     purpose: 'REMINDER',
-    body: 'Hợp đồng {{ma_hop_dong}} còn khoản tạm ứng chưa thu hồi, hạn thu hồi {{han_thu_hoi}}. Đề nghị nhà thầu làm việc với chủ đầu tư.',
+    body: tx('body.020'),
     variables: { ma_hop_dong: 'string', han_thu_hoi: 'string' },
     end: 'REJECT',
-    reason: 'Mẫu nhắc tạm ứng cần ghi rõ số tiền, chưa đủ căn cứ để gửi qua tin nhắn',
+    reason: tx('reason.021'),
   },
   {
     code: 'thu-moi-hop-giao-ban',
     channel: 'EMAIL',
     purpose: 'ANNOUNCEMENT',
-    subject: 'Thư mời họp giao ban đầu tư công tháng {{thang}}',
-    body: 'Kính mời các đồng chí dự họp giao ban đầu tư công tháng {{thang}} tại phòng họp tầng 3, Sở Kế hoạch và Đầu tư.',
+    subject: tx('subject.022'),
+    body: tx('body.023'),
     variables: { thang: 'string' },
     end: 'DRAFT',
-    reason: 'Mẫu thư mời đang soạn',
+    reason: tx('reason.024'),
   },
 ];
 
@@ -201,7 +205,7 @@ async function publishWorkflows(ctx: SeedContext): Promise<void> {
         purpose: plan.purpose,
       };
       const draft = await ctx.command(CHECKER, '/notification-workflows', { event_type: type, definition });
-      const done = await ctx.command(OWNER, `/notification-workflows/${draft.resource_id}/publish`, { decision: 'approve', reason: `Công bố luồng thông báo cho sự kiện ${type}: người xử lý được báo ngay trong hộp thông báo`, evidence_ids: [] }, { version: draft });
+      const done = await ctx.command(OWNER, `/notification-workflows/${draft.resource_id}/publish`, { decision: 'approve', reason: tx('reason.025', type), evidence_ids: [] }, { version: draft });
       made_ += 1;
       return done.resource_id;
     });
@@ -229,8 +233,8 @@ const CONSENTS: Array<{ person: string; channel: 'EMAIL' | 'SMS' | 'ZALO' | 'PUS
   { person: 'projectManager', channel: 'SMS', purpose: 'OPERATIONAL' },
   { person: 'capApprover', channel: 'SMS', purpose: 'OPERATIONAL' },
   { person: 'treasuryMaker', channel: 'PUSH', purpose: 'OPERATIONAL' },
-  { person: 'nobody', channel: 'SMS', purpose: 'REMINDER', withdraw: 'Tôi chỉ nhận nhắc hạn qua thư điện tử, không nhận tin nhắn điện thoại' },
-  { person: 'auditor', channel: 'ZALO', purpose: 'ANNOUNCEMENT', withdraw: 'Chuyển sang nhận thông báo qua thư điện tử của cơ quan' },
+  { person: 'nobody', channel: 'SMS', purpose: 'REMINDER', withdraw: tx('withdraw.026') },
+  { person: 'auditor', channel: 'ZALO', purpose: 'ANNOUNCEMENT', withdraw: tx('withdraw.027') },
 ];
 
 async function recordConsents(ctx: SeedContext): Promise<void> {
@@ -279,12 +283,12 @@ interface CampaignSpec {
 }
 
 const CAMPAIGNS: CampaignSpec[] = [
-  { key: 'bao-tri-thang-11', name: 'Thông báo lịch bảo trì hệ thống tháng 11', purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA', 'LANH_DAO_SO', 'KE_TOAN_THANH_TOAN'], end: 'APPROVE', reason: 'Các đơn vị cần biết lịch bảo trì để hoàn tất nhập liệu trước giờ khóa' },
-  { key: 'nhac-han-bao-cao-tuan', name: 'Nhắc hạn nộp báo cáo giải ngân tuần', purpose: 'REMINDER', template: 'nhac-han-bao-cao-tuan-email', roles: ['CAN_BO_BAN_QLDA', 'KE_TOAN_THANH_TOAN'], scheduleDays: 2, end: 'APPROVE', reason: 'Nhắc các ban quản lý dự án nộp báo cáo tuần trước hạn thứ Sáu' },
-  { key: 'huong-dan-thanh-toan', name: 'Hướng dẫn nộp hồ sơ đề nghị thanh toán điện tử', purpose: 'ANNOUNCEMENT', template: 'huong-dan-nop-ho-so-thanh-toan', roles: ['CAN_BO_BAN_QLDA', 'KE_TOAN_THANH_TOAN'], end: 'PENDING', reason: 'Phổ biến thủ tục mới cho các chủ đầu tư trước khi áp dụng' },
-  { key: 'tap-huan-he-thong', name: 'Thông báo lịch tập huấn sử dụng hệ thống', purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA'], end: 'DRAFT', reason: 'Đang chờ chốt thời gian và địa điểm tập huấn' },
-  { key: 'khen-thuong-giai-ngan', name: 'Thông báo khen thưởng đơn vị giải ngân tốt quý III', purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA', 'LANH_DAO_SO'], end: 'REJECT', reason: 'Chưa có quyết định khen thưởng chính thức nên chưa thể thông báo diện rộng' },
-  { key: 'bao-tri-khan', name: 'Thông báo ngừng hệ thống đột xuất để nâng cấp', purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA', 'LANH_DAO_SO', 'KE_TOAN_THANH_TOAN'], scheduleDays: 5, end: 'CANCEL', reason: 'Lịch nâng cấp thay đổi theo đề nghị của nhà cung cấp, cần hủy và gửi lại sau' },
+  { key: 'bao-tri-thang-11', name: tx('name.028'), purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA', 'LANH_DAO_SO', 'KE_TOAN_THANH_TOAN'], end: 'APPROVE', reason: tx('reason.029') },
+  { key: 'nhac-han-bao-cao-tuan', name: tx('name.030'), purpose: 'REMINDER', template: 'nhac-han-bao-cao-tuan-email', roles: ['CAN_BO_BAN_QLDA', 'KE_TOAN_THANH_TOAN'], scheduleDays: 2, end: 'APPROVE', reason: tx('reason.031') },
+  { key: 'huong-dan-thanh-toan', name: tx('name.032'), purpose: 'ANNOUNCEMENT', template: 'huong-dan-nop-ho-so-thanh-toan', roles: ['CAN_BO_BAN_QLDA', 'KE_TOAN_THANH_TOAN'], end: 'PENDING', reason: tx('reason.033') },
+  { key: 'tap-huan-he-thong', name: tx('name.034'), purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA'], end: 'DRAFT', reason: tx('reason.035') },
+  { key: 'khen-thuong-giai-ngan', name: tx('name.036'), purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA', 'LANH_DAO_SO'], end: 'REJECT', reason: tx('reason.037') },
+  { key: 'bao-tri-khan', name: tx('name.038'), purpose: 'ANNOUNCEMENT', template: 'thong-bao-lich-bao-tri', roles: ['CAN_BO_BAN_QLDA', 'LANH_DAO_SO', 'KE_TOAN_THANH_TOAN'], scheduleDays: 5, end: 'CANCEL', reason: tx('reason.039') },
 ];
 
 async function runCampaign(ctx: SeedContext, spec: CampaignSpec): Promise<string> {
@@ -298,7 +302,7 @@ async function runCampaign(ctx: SeedContext, spec: CampaignSpec): Promise<string
     ...(spec.scheduleDays === undefined ? {} : { scheduled_at: at(ctx, spec.scheduleDays, 8) }),
   });
   if (spec.end === 'DRAFT') return created.resource_id;
-  const preview = await ctx.must<{ preview_hash: string; version: number }>(MAKER, 'POST', `/notification-campaigns/${created.resource_id}/preview`, { reason: 'Kiểm tra danh sách người nhận trước khi trình duyệt' }, { version: created });
+  const preview = await ctx.must<{ preview_hash: string; version: number }>(MAKER, 'POST', `/notification-campaigns/${created.resource_id}/preview`, { reason: tx('reason.040') }, { version: created });
   if (spec.end === 'PENDING' || spec.end === 'REJECT' || spec.end === 'APPROVE' || spec.end === 'CANCEL') {
     const submitted = await ctx.command(MAKER, `/notification-campaigns/${created.resource_id}/submit`, { preview_hash: preview.preview_hash, reason: spec.reason }, { version: preview.version });
     if (spec.end === 'PENDING') return created.resource_id;
@@ -327,7 +331,7 @@ async function setChannelLimits(ctx: SeedContext): Promise<void> {
       const caps: Record<string, { daily: number; budget: string }> = { EMAIL: { daily: 5000, budget: '3000000' }, SMS: { daily: 1000, budget: '5000000' }, ZALO_OA: { daily: 2000, budget: '2000000' } };
       const cap = caps[String(account.channel)];
       if (cap === undefined) continue;
-      await ctx.must(MAKER, 'PUT', `/channel-accounts/${account.id}/limits`, { daily_send_cap: cap.daily, monthly_budget_vnd: cap.budget, reason: 'Hạn mức theo hợp đồng dịch vụ tin nhắn năm 2026 của Sở' }, { version: Number(account.version ?? 1) });
+      await ctx.must(MAKER, 'PUT', `/channel-accounts/${account.id}/limits`, { daily_send_cap: cap.daily, monthly_budget_vnd: cap.budget, reason: tx('reason.041') }, { version: Number(account.version ?? 1) });
       set += 1;
     }
     made(ctx, 'NOT', 'channel-limits', 'limits', `${set} accounts`, { screen: 'NOT-15' });
@@ -342,7 +346,7 @@ async function testSend(ctx: SeedContext): Promise<void> {
     if (template === undefined) return { sent: false };
     const reply = await ctx.attempt(MAKER, 'POST', `/notification-templates/${template.id}/test-sends`, {
       test_recipient_ids: [ctx.person(MAKER).membershipId, ctx.person(CHECKER).membershipId],
-      sample_variables: { tuan: '45', don_vi: 'Ban Quản lý dự án', han_nop: '14/11/2026' },
+      sample_variables: { tuan: '45', don_vi: tx('don_vi.042'), han_nop: '14/11/2026' },
     });
     made(ctx, 'NOT', 'test-send', 'nhac-han-bao-cao-tuan-email', reply.ok ? 'sent' : `refused HTTP ${reply.status}`, { screen: 'NOT-08' });
     return { sent: reply.ok };
@@ -366,7 +370,7 @@ async function readInboxes(ctx: SeedContext): Promise<void> {
       const opened = await ctx.attempt(person, 'POST', `/notifications/${item.id}/read`, { opened_via: 'IN_APP' });
       if (opened.ok) read += 1;
       if (opened.ok && item.ack_required === true && index % 2 === 0) {
-        const done = await ctx.attempt(person, 'POST', `/notifications/${item.id}/acknowledge`, { comment: 'Đã nhận và giao cán bộ phụ trách xử lý' });
+        const done = await ctx.attempt(person, 'POST', `/notifications/${item.id}/acknowledge`, { comment: tx('comment.043') });
         if (done.ok) acknowledged += 1;
       }
     }

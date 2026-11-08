@@ -2,15 +2,19 @@ import { expect, test } from '@playwright/test';
 import vi from '../../src/i18n/vi.json' with { type: 'json' };
 import { pdfWithText } from './pdf.ts';
 import { Clip, loadFlow } from './recorder.ts';
+import TEXTS from './data/02-danh-muc-dia-ban.hdsd.json' with { type: 'json' };
+import { textsOf } from '../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Clip 02 of the user guide: the base data the projects stand on. A member of the project board receives the decision that backs the change, proposes the areas,
  * and the leader approves and publishes them. Everything goes through the screens and the real API; the areas exist afterwards because the leader published them.
  */
 const AREAS = [
-  { key: 'CB-THUC-PHAN', name: 'Phường Thục Phán' },
-  { key: 'CB-NUNG-TRI-CAO', name: 'Phường Nùng Trí Cao' },
-  { key: 'CB-TAN-GIANG', name: 'Phường Tân Giang' },
+  { key: 'CB-THUC-PHAN', name: tx('name.001') },
+  { key: 'CB-NUNG-TRI-CAO', name: tx('name.002') },
+  { key: 'CB-TAN-GIANG', name: tx('name.003') },
 ];
 
 test('clip 02: receive the decision, propose the areas, approve and publish them', async ({ browser }) => {
@@ -25,12 +29,12 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
     await expect(page.getByRole('heading', { level: 1, name: vi['doc.types.page.title'] })).toBeVisible();
     const form = page.getByRole('form', { name: vi['doc.types.type.title'] });
     await ui.type(form.getByLabel(vi['doc.types.code.label']), 'QD');
-    await ui.type(form.getByLabel(vi['doc.types.name.label']), 'Quyết định');
-    await ui.type(form.getByLabel(vi['doc.types.abbreviation.label']), 'QĐ');
+    await ui.type(form.getByLabel(vi['doc.types.name.label']), tx('text.004'));
+    await ui.type(form.getByLabel(vi['doc.types.abbreviation.label']), tx('text.005'));
     await form.getByLabel(vi['doc.types.symbolKind.label']).selectOption({ label: vi['doc.types.kind.decision'] });
     await ui.type(form.getByLabel(vi['doc.types.symbolPattern.label']), '{number}/{type}-{agency}');
     await ui.type(form.getByLabel(vi['doc.types.registerCode.label']), 'SO-QD');
-    await ui.type(form.getByLabel(vi['doc.types.legalBasis.label']), 'Nghị định số 30/2020/NĐ-CP');
+    await ui.type(form.getByLabel(vi['doc.types.legalBasis.label']), tx('text.006'));
     await form.getByLabel(vi['doc.types.effectiveFrom.label']).fill('2026-01-01');
     await ui.click(form.getByRole('button', { name: vi['doc.types.type.submit.action'] }));
     await expect(page.getByText(vi['doc.types.type.accepted.notice'])).toBeVisible();
@@ -46,12 +50,12 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
       mimeType: 'application/pdf',
       buffer: pdfWithText(['UY BAN NHAN DAN TINH CAO BANG', 'Quyet dinh so 128/QD-UBND', 'Ve viec cong bo danh muc dia ban hanh chinh dung chung']),
     });
-    await ui.type(page.getByLabel(vi['doc.incoming.field.title']), 'Quyết định về việc công bố danh mục địa bàn hành chính dùng chung');
+    await ui.type(page.getByLabel(vi['doc.incoming.field.title']), tx('text.007'));
     await ui.point(page.getByLabel(vi['doc.incoming.field.docType']));
     await page.getByLabel(vi['doc.incoming.field.docType']).selectOption('QD');
     await page.getByLabel(vi['doc.incoming.field.channel']).selectOption({ index: 0 });
-    await ui.type(page.getByLabel(vi['doc.incoming.field.sender']), 'Ủy ban nhân dân tỉnh Cao Bằng');
-    await ui.type(page.getByLabel(vi['doc.incoming.field.symbol']), '128/QĐ-UBND');
+    await ui.type(page.getByLabel(vi['doc.incoming.field.sender']), tx('text.008'));
+    await ui.type(page.getByLabel(vi['doc.incoming.field.symbol']), tx('text.009'));
     await page.getByLabel(vi['doc.incoming.field.issuedOn']).fill('2026-10-12');
     await ui.click(page.getByRole('button', { name: vi['doc.incoming.intake.submit'], exact: true }));
     await expect(page.getByTestId('taken-link')).toBeVisible();
@@ -62,7 +66,7 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
     await page.goto('/doc/doc-12?devUser=projectManager');
     await expect(page.getByRole('heading', { level: 1, name: vi['doc.incoming.ledger.title'] })).toBeVisible();
     const row = page.locator('tbody tr').first();
-    await expect(row).toContainText('128/QĐ-UBND');
+    await expect(row).toContainText(tx('text.009'));
     await ui.spot(row, () => ui.wait(1200));
     // The code of the document is on the screen of the letter: it is what the publication of the catalogue asks for.
     await ui.click(row.getByRole('link').first());
@@ -96,7 +100,7 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
       await expect(row).toBeVisible();
       await ui.click(row.getByRole('button', { name: vi['mdm.approval.review.action'] }));
       const panel = page.locator('tr[data-panel-for]');
-      await ui.type(panel.getByLabel(vi['mdm.approval.reason.label']), 'Đúng theo quyết định số 128/QĐ-UBND của Ủy ban nhân dân tỉnh');
+      await ui.type(panel.getByLabel(vi['mdm.approval.reason.label']), tx('text.010'));
       await ui.click(panel.getByRole('button', { name: vi['mdm.approval.decision.approve.action'] }));
       await expect(page.getByText(vi['mdm.approval.decided.notice'])).toBeVisible();
     }
@@ -122,8 +126,8 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
     else await type.fill('AREA');
     // The platform publishes the provinces; a tenant adds its wards under the province they belong to.
     const parent = page.getByLabel(vi['mdm.create.parent.label']);
-    await expect(parent.locator('option', { hasText: 'Cao Bằng' }).first()).toBeAttached();
-    const province = await parent.locator('option', { hasText: 'Cao Bằng' }).first().getAttribute('value');
+    await expect(parent.locator('option', { hasText: tx('hasText.011') }).first()).toBeAttached();
+    const province = await parent.locator('option', { hasText: tx('hasText.011') }).first().getAttribute('value');
     if (slow) await ui.point(parent);
     await parent.selectOption(province);
     if (slow) {
@@ -134,8 +138,8 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
       await page.getByLabel(vi['mdm.create.name.label']).fill(area.name);
     }
     await page.getByLabel(vi['mdm.create.validFrom.label']).fill('2026-01-01');
-    if (slow) await ui.type(page.getByLabel(vi['mdm.create.reason.label']), 'Bổ sung địa bàn theo quyết định số 128/QĐ-UBND');
-    else await page.getByLabel(vi['mdm.create.reason.label']).fill('Bổ sung địa bàn theo quyết định số 128/QĐ-UBND');
+    if (slow) await ui.type(page.getByLabel(vi['mdm.create.reason.label']), tx('fillArea.012'));
+    else await page.getByLabel(vi['mdm.create.reason.label']).fill(tx('fillArea.012'));
     if (slow) await ui.click(page.getByRole('button', { name: vi['mdm.create.save.action'] }));
     else await page.getByRole('button', { name: vi['mdm.create.save.action'] }).click();
   }

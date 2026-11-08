@@ -1,6 +1,10 @@
 import { expect, test } from '@playwright/test';
 import vi from '../../src/i18n/vi.json' with { type: 'json' };
 import { Clip, loadFlow } from './recorder.ts';
+import TEXTS from './data/01-dang-nhap.hdsd.json' with { type: 'json' };
+import { textsOf } from '../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Clip 01 of the user guide: signing in with the identity provider, choosing the tenant, the second factor, and the first look at the home screen.
@@ -30,13 +34,13 @@ test('clip 01: sign in, choose the organisation and look at the home screen', as
 
   await clip.step('xac-thuc-lan-hai', async () => {
     const choose = (name: string) => page.getByRole('button', { name: vi['iam.tenantChooser.select.label'].replace('{name}', name) });
-    await ui.click(choose('Cao Bằng'));
+    await ui.click(choose(tx('text.001')));
     await expect(page.getByRole('alertdialog', { name: vi['adm.roles.stepUp.title'] })).toBeVisible();
     await ui.wait(1500);
     await ui.click(page.getByRole('button', { name: vi['adm.roles.stepUp.confirm.action'] }));
     await page.waitForURL(/\/iam\/iam-04\?next=/);
     await expect(page.getByRole('heading', { level: 1, name: vi['iam.tenantChooser.page.title'] })).toBeVisible();
-    await ui.click(choose('Cao Bằng'));
+    await ui.click(choose(tx('text.001')));
   });
 
   await clip.step('man-hinh-chinh', async () => {
@@ -44,14 +48,14 @@ test('clip 01: sign in, choose the organisation and look at the home screen', as
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await ui.wait(1200);
     // A new organisation has no frozen snapshot yet, and the screen says so; the figures arrive with the reports of the later chapters.
-    const status = page.getByRole('status').filter({ has: page.getByRole('heading', { name: 'Chưa có ảnh chụp số liệu nào được chốt' }) });
+    const status = page.getByRole('status').filter({ has: page.getByRole('heading', { name: tx('name.002') }) });
     await ui.spot(status, () => ui.point(status));
   });
 
   await clip.step('thuc-don', async () => {
     const nav = page.getByRole('navigation', { name: vi['shell.nav.main.label'] });
     await ui.spot(nav, () => ui.wait(500));
-    await ui.point(page.getByRole('button', { name: vi['shell.nav.expand.label'].replace('{name}', 'Dự án') }));
+    await ui.point(page.getByRole('button', { name: vi['shell.nav.expand.label'].replace('{name}', tx('name.003')) }));
   });
 
   await clip.step('goc-tren', async () => {

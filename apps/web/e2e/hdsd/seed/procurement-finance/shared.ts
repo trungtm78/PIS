@@ -1,5 +1,9 @@
 import { taxCode } from '../context.ts';
 import type { Obj , SeedContext} from '../context.ts';
+import TEXTS from './data/shared.json' with { type: 'json' };
+import { textsOf } from '../../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Group `procurement-finance` (modules BID, CTR and PAY): from the procurement plan of a project to the money that leaves the Treasury.
@@ -24,11 +28,11 @@ export const ACCOUNTANT = 'treasuryMaker';
 // ---- documents -----------------------------------------------------------------------------------------------------------------------------
 
 const DOC_TYPES = [
-  { code: 'HSNL', name: 'Hồ sơ năng lực', register: 'SO-HSNL' },
-  { code: 'HD', name: 'Hợp đồng', register: 'SO-HD' },
-  { code: 'BB', name: 'Biên bản', register: 'SO-BB' },
-  { code: 'CV', name: 'Công văn', register: 'SO-CV' },
-  { code: 'BL', name: 'Bảo lãnh', register: 'SO-BL' },
+  { code: 'HSNL', name: tx('name.001'), register: 'SO-HSNL' },
+  { code: 'HD', name: tx('name.002'), register: 'SO-HD' },
+  { code: 'BB', name: tx('name.003'), register: 'SO-BB' },
+  { code: 'CV', name: tx('name.004'), register: 'SO-CV' },
+  { code: 'BL', name: tx('name.005'), register: 'SO-BL' },
 ];
 
 /** The kinds of paper this group files: a document type that exists answers with a conflict, which is the "skip". */
@@ -43,7 +47,7 @@ export async function defineDocumentTypes(ctx: SeedContext): Promise<void> {
       symbol_kind: 'NAMED_TYPE',
       symbol_pattern: '{number}/{type}-{agency}',
       register_code: type.register,
-      legal_basis: 'Nghị định số 30/2020/NĐ-CP',
+      legal_basis: tx('legal_basis.006'),
       effective_from: '2026-01-01',
     });
   }
@@ -91,22 +95,22 @@ interface ContractorSpec {
 }
 
 const CONTRACTORS: ContractorSpec[] = [
-  { n: 1, name: 'Công ty TNHH Xây dựng Minh An', form: 'TNHH', outcome: 'VERIFIED' },
-  { n: 2, name: 'Công ty Cổ phần Đầu tư và Xây dựng Hưng Thịnh', form: 'CP', outcome: 'VERIFIED' },
-  { n: 3, name: 'Công ty Cổ phần Xây dựng Giao thông Cao Bằng', form: 'CP', outcome: 'VERIFIED' },
-  { n: 4, name: 'Công ty TNHH Thương mại và Xây dựng Phúc Lộc', form: 'TNHH', outcome: 'VERIFIED' },
-  { n: 5, name: 'Công ty Cổ phần Tư vấn Thiết kế và Giám sát Bắc Việt', form: 'CP', outcome: 'VERIFIED' },
-  { n: 6, name: 'Công ty TNHH Thiết bị Y tế Đông Dương', form: 'TNHH', outcome: 'VERIFIED' },
-  { n: 7, name: 'Công ty Cổ phần Thiết bị Giáo dục Việt Hưng', form: 'CP', outcome: 'VERIFIED' },
-  { n: 8, name: 'Công ty TNHH Xây dựng và Cơ khí Tân Phát', form: 'TNHH', outcome: 'VERIFIED' },
-  { n: 9, name: 'Công ty TNHH Một thành viên Xây lắp Sông Bằng', form: 'TNHH MTV', outcome: 'VERIFIED' },
-  { n: 10, name: 'Công ty Cổ phần Công trình Thủy lợi Cao Bằng', form: 'CP', outcome: 'VERIFIED' },
-  { n: 11, name: 'Công ty TNHH Xây dựng Hoàng Long', form: 'TNHH', outcome: 'VERIFIED' },
-  { n: 12, name: 'Công ty TNHH Vật liệu và Xây dựng Thăng Long', form: 'TNHH', outcome: 'UNVERIFIED' },
-  { n: 13, name: 'Công ty Cổ phần Cơ điện Đại Phong', form: 'CP', outcome: 'UNVERIFIED' },
-  { n: 14, name: 'Công ty TNHH Xây dựng Quang Vinh', form: 'TNHH', outcome: 'REJECTED' },
-  { n: 15, name: 'Công ty TNHH Tư vấn Xây dựng Cao Bằng', form: 'TNHH', outcome: 'VERIFIED' },
-  { n: 16, name: 'Công ty Cổ phần Tư vấn Đầu tư Xây dựng Việt Đông', form: 'CP', outcome: 'VERIFIED' },
+  { n: 1, name: tx('name.007'), form: 'TNHH', outcome: 'VERIFIED' },
+  { n: 2, name: tx('name.008'), form: 'CP', outcome: 'VERIFIED' },
+  { n: 3, name: tx('name.009'), form: 'CP', outcome: 'VERIFIED' },
+  { n: 4, name: tx('name.010'), form: 'TNHH', outcome: 'VERIFIED' },
+  { n: 5, name: tx('name.011'), form: 'CP', outcome: 'VERIFIED' },
+  { n: 6, name: tx('name.012'), form: 'TNHH', outcome: 'VERIFIED' },
+  { n: 7, name: tx('name.013'), form: 'CP', outcome: 'VERIFIED' },
+  { n: 8, name: tx('name.014'), form: 'TNHH', outcome: 'VERIFIED' },
+  { n: 9, name: tx('name.015'), form: 'TNHH MTV', outcome: 'VERIFIED' },
+  { n: 10, name: tx('name.016'), form: 'CP', outcome: 'VERIFIED' },
+  { n: 11, name: tx('name.017'), form: 'TNHH', outcome: 'VERIFIED' },
+  { n: 12, name: tx('name.018'), form: 'TNHH', outcome: 'UNVERIFIED' },
+  { n: 13, name: tx('name.019'), form: 'CP', outcome: 'UNVERIFIED' },
+  { n: 14, name: tx('name.020'), form: 'TNHH', outcome: 'REJECTED' },
+  { n: 15, name: tx('name.021'), form: 'TNHH', outcome: 'VERIFIED' },
+  { n: 16, name: tx('name.022'), form: 'CP', outcome: 'VERIFIED' },
 ];
 
 /** The contractors of the story by their number (BID-01): name, id and version in the register. */
@@ -128,14 +132,14 @@ export async function registerContractors(ctx: SeedContext): Promise<void> {
   for (const spec of CONTRACTORS) {
     let row = byName.get(spec.name);
     if (row === undefined) {
-      const profile = await paper(ctx, { symbol: `HSNL-${String(spec.n).padStart(3, '0')}/2026`, title: `Hồ sơ năng lực của ${spec.name}`, docType: 'HSNL', sender: spec.name, issuedOn: ctx.day(-120 - spec.n) });
+      const profile = await paper(ctx, { symbol: `HSNL-${String(spec.n).padStart(3, '0')}/2026`, title: tx('title.023', spec.name), docType: 'HSNL', sender: spec.name, issuedOn: ctx.day(-120 - spec.n) });
       await ctx.command(MAKER, '/contractors', { tax_identifier: taxCode(spec.n), legal_name: spec.name, legal_form: spec.form, profile_document_id: profile.documentId });
       row = (await ctx.list<Obj>(MAKER, '/resources/contractor')).find((candidate) => candidate.legal_name === spec.name);
       if (row === undefined) throw new Error(`the contractor ${spec.name} cannot be found after its registration`);
       ctx.record({ module: 'BID', screen: 'BID-01', kind: 'contractor', id: String(row.id), code: taxCode(spec.n), note: 'registered' });
     }
     if (spec.outcome !== 'UNVERIFIED' && String(row.verification_status) === 'UNVERIFIED') {
-      const evidence = await paper(ctx, { symbol: `CV-XM-${String(spec.n).padStart(3, '0')}/2026`, title: `Biên bản xác minh pháp nhân ${spec.name}`, docType: 'BB', sender: 'Ban Quản lý dự án Sở Kế hoạch và Đầu tư', issuedOn: ctx.day(-90 - spec.n) });
+      const evidence = await paper(ctx, { symbol: `CV-XM-${String(spec.n).padStart(3, '0')}/2026`, title: tx('title.024', spec.name), docType: 'BB', sender: tx('sender.025'), issuedOn: ctx.day(-90 - spec.n) });
       const current = await ctx.get<Obj>(CHECKER, `/resources/contractor/${String(row.id)}`);
       await ctx.command(CHECKER, `/contractors/${String(row.id)}/verification`, { decision: spec.outcome, verification_evidence_document_id: evidence.documentId }, { version: Number(current.version) });
       ctx.record({ module: 'BID', screen: 'BID-02', kind: 'contractor-verification', id: String(row.id), code: taxCode(spec.n), note: spec.outcome });

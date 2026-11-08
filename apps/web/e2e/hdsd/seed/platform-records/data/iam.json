@@ -1,0 +1,17 @@
+{
+  "subject.001": "Không vào được màn hình Báo cáo giải ngân tuần",
+  "description.002": "Từ sáng thứ Hai tôi mở mục Báo cáo giải ngân thì hệ thống báo không đủ quyền, trong khi tuần trước vẫn xem được. Nhờ kiểm tra lại phạm vi quyền của tài khoản Đỗ Thị Hà, Văn phòng Sở Kế hoạch và Đầu tư.",
+  "subject.003": "Hướng dẫn nhập hàng loạt danh mục địa bàn từ tệp Excel",
+  "description.004": "Ban Quản lý dự án cần nhập thêm 14 xã thuộc huyện Hà Quảng từ tệp của Sở Nội vụ. Nhờ hướng dẫn mẫu tệp và các cột bắt buộc để lô nhập không bị từ chối.",
+  "subject.005": "Số liệu giải ngân tháng 10 chưa khớp với sao kê Kho bạc",
+  "description.006": "Tổng giải ngân tháng 10 trên hệ thống thấp hơn sao kê Kho bạc Nhà nước Cao Bằng khoảng 2,4 tỷ đồng. Đề nghị kiểm tra lô đối soát nhập ngày 28/10 và cho biết dòng nào chưa được ghép.",
+  "subject.007": "Ký số văn bản bị treo ở bước chờ xác nhận OTP",
+  "description.008": "Sáng nay lãnh đạo Sở ký quyết định giao kế hoạch vốn nhưng màn hình dừng ở bước nhập mã OTP, không có tin nhắn gửi về điện thoại. Cần xử lý gấp vì quyết định phải ban hành trong ngày.",
+  "subject.009": "Đề nghị xuất hóa đơn điện tử quý III cho Sở Kế hoạch và Đầu tư",
+  "description.010": "Phòng Kế hoạch - Tài chính của Sở cần hóa đơn điện tử cho kỳ thanh toán quý III với đúng mã số thuế đơn vị. Nhờ kiểm tra thông tin người mua trên hóa đơn.",
+  "subject.011": "Đề nghị cấp quyền xuất nhật ký kiểm toán cho đoàn kiểm toán nhà nước",
+  "description.012": "Đoàn kiểm toán dự kiến làm việc từ tuần sau, cần xuất nhật ký kiểm toán giai đoạn 01/2026 đến 10/2026. Đề nghị hướng dẫn thủ tục và thời hạn xử lý yêu cầu.",
+  "subject.013": "Thêm cán bộ mới của Ban Quản lý dự án vào hệ thống",
+  "description.014": "Ban Quản lý dự án vừa tiếp nhận hai cán bộ theo quyết định điều động. Nhờ hướng dẫn quy trình mời thành viên và gán vai trò cho đúng phạm vi đơn vị.",
+  "reason.015": "Cán bộ {0} là thành viên của hệ thống: cần hộp thông báo, hồ sơ cá nhân và yêu cầu hỗ trợ"
+}

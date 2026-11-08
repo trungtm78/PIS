@@ -1,5 +1,10 @@
 import { vnd } from './context.ts';
 import type { Obj , SeedContext} from './context.ts';
+import { asVersion } from './context.ts';
+import TEXTS from './data/base.json' with { type: 'json' };
+import { textsOf } from '../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * Group `base`: the API equivalent of clips 02 and 03 of the guide, so that a seed can be developed without filming them.
@@ -8,19 +13,19 @@ import type { Obj , SeedContext} from './context.ts';
  * Every step asks first and skips what exists, so after the clips (which made all this through the screens) the group does nothing.
  */
 
-export const DECISION = { symbol: '128/QĐ-UBND', title: 'Quyết định về việc công bố danh mục địa bàn hành chính dùng chung', sender: 'Ủy ban nhân dân tỉnh Cao Bằng', issuedOn: '2026-10-12' };
+export const DECISION = { symbol: tx('symbol.001'), title: tx('title.002'), sender: tx('sender.003'), issuedOn: '2026-10-12' };
 
 export const AREAS = [
-  { key: 'CB-THUC-PHAN', name: 'Phường Thục Phán' },
-  { key: 'CB-NUNG-TRI-CAO', name: 'Phường Nùng Trí Cao' },
-  { key: 'CB-TAN-GIANG', name: 'Phường Tân Giang' },
+  { key: 'CB-THUC-PHAN', name: tx('name.004') },
+  { key: 'CB-NUNG-TRI-CAO', name: tx('name.005') },
+  { key: 'CB-TAN-GIANG', name: tx('name.006') },
 ];
 
 /** The projects of clip 03 (03-tao-du-an.hdsd.ts): same code, name, ward, sector and amount. */
 export const BASE_PROJECTS = [
-  { code: 'DA-DT205', name: 'Cải tạo, nâng cấp đường tỉnh 205, đoạn Km0 - Km12', area: 'CB-THUC-PHAN', sector: 'TRANSPORT', totalBillions: 150 },
-  { code: 'DA-TH012', name: 'Xây dựng Trường Tiểu học phường Nùng Trí Cao', area: 'CB-NUNG-TRI-CAO', sector: 'EDUCATION', totalBillions: 45 },
-  { code: 'DA-YT007', name: 'Nâng cấp Trạm y tế phường Tân Giang', area: 'CB-TAN-GIANG', sector: 'HEALTH', totalBillions: 12 },
+  { code: 'DA-DT205', name: tx('name.007'), area: 'CB-THUC-PHAN', sector: 'TRANSPORT', totalBillions: 150 },
+  { code: 'DA-TH012', name: tx('name.008'), area: 'CB-NUNG-TRI-CAO', sector: 'EDUCATION', totalBillions: 45 },
+  { code: 'DA-YT007', name: tx('name.009'), area: 'CB-TAN-GIANG', sector: 'HEALTH', totalBillions: 12 },
 ];
 
 /** The master record (version in force) of a type and key, or undefined. */
@@ -32,12 +37,12 @@ export async function masterRecord(ctx: SeedContext, type: string, key: string):
 async function defineDecisionType(ctx: SeedContext): Promise<void> {
   const reply = await ctx.call('projectManager', 'POST', '/document-types', {
     code: 'QD',
-    name: 'Quyết định',
-    abbreviation: 'QĐ',
+    name: tx('name.010'),
+    abbreviation: tx('abbreviation.011'),
     symbol_kind: 'DECISION',
     symbol_pattern: '{number}/{type}-{agency}',
     register_code: 'SO-QD',
-    legal_basis: 'Nghị định số 30/2020/NĐ-CP',
+    legal_basis: tx('legal_basis.012'),
     effective_from: '2026-01-01',
   });
   if (!reply.ok && reply.json.code !== 'DOC_TYPE_RANGE_OVERLAP') ctx.expectOk(reply, 'define the document type QD');
@@ -83,7 +88,7 @@ export async function publishArea(ctx: SeedContext, area: { key: string; name: s
       parent_record_id: province.id,
       attributes: {},
       valid_from: '2026-01-01',
-      reason: 'Bổ sung địa bàn theo quyết định số 128/QĐ-UBND',
+      reason: tx('reason.013'),
     });
     record = await masterRecord(ctx, 'AREA', area.key);
   }
@@ -91,12 +96,12 @@ export async function publishArea(ctx: SeedContext, area: { key: string; name: s
   const changeId = String(record.open_change_request_id);
   if (record.status === 'DRAFT') {
     const change = await ctx.get('projectManager', `/master-change-requests/${changeId}`);
-    await ctx.command('projectManager', `/master-change-requests/${changeId}/submit`, {}, { version: change.version });
+    await ctx.command('projectManager', `/master-change-requests/${changeId}/submit`, {}, { version: asVersion(change.version) });
     record = await masterRecord(ctx, 'AREA', area.key);
   }
   if (record?.status === 'IN_REVIEW') {
     const change = await ctx.get('capApprover', `/master-change-requests/${changeId}`);
-    await ctx.command('capApprover', `/master-change-requests/${changeId}/decision`, { decision: 'approve', reason: 'Đúng theo quyết định số 128/QĐ-UBND của Ủy ban nhân dân tỉnh' }, { version: change.version });
+    await ctx.command('capApprover', `/master-change-requests/${changeId}/decision`, { decision: 'approve', reason: tx('reason.014') }, { version: asVersion(change.version) });
     record = await masterRecord(ctx, 'AREA', area.key);
   }
   if (record?.status === 'APPROVED') {
@@ -139,10 +144,10 @@ export async function seedBase(ctx: SeedContext): Promise<void> {
     return;
   }
   await ctx.step('DOC', 'document type of the decisions', () => defineDecisionType(ctx));
-  const decisionId = await ctx.step('DOC', 'receive the decision 128/QĐ-UBND', () => receiveDecision(ctx));
+  const decisionId = await ctx.step('DOC', tx('decisionId.015'), () => receiveDecision(ctx));
   const province = await ctx.step('MDM', 'find the province', async () => {
     const found = await masterRecord(ctx, 'AREA', 'CAO-BANG');
-    if (found === undefined) throw new Error('the province Cao Bằng is not in the platform catalogue');
+    if (found === undefined) throw new Error(tx('province.016'));
     return found;
   });
   for (const area of AREAS) await ctx.step('MDM', `ward ${area.key}`, () => publishArea(ctx, area, decisionId, province));

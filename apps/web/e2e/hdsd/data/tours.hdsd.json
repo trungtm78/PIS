@@ -1,0 +1,6 @@
+{
+  "choose.001": "^chọn",
+  "empty.002": "chưa có dữ liệu|không có dữ liệu",
+  "denied.003": "không đủ quyền|không có quyền|bị từ chối",
+  "needsRecord.004": "chưa chọn|hãy mở .* từ danh sách|không tìm thấy"
+}

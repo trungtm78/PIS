@@ -1,6 +1,11 @@
 import { vnd } from './context.ts';
 import type { Obj , SeedContext} from './context.ts';
 import { PROJECTS, projectByCode } from './capital-projects.ts';
+import { asObj } from './context.ts';
+import TEXTS from './data/capital-plan.json' with { type: 'json' };
+import { textsOf } from '../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
  * The capital of the year 2026 of the province: the decisions that assign it (appropriations of the central and the local budget, the carry-over of
@@ -23,16 +28,16 @@ export interface AppropriationSpec {
   decide: 'approve' | 'pending';
 }
 
-const PRIME_MINISTER = 'Thủ tướng Chính phủ';
-const PROVINCE = 'Ủy ban nhân dân tỉnh Cao Bằng';
+const PRIME_MINISTER = tx('PRIME_MINISTER.001');
+const PROVINCE = tx('PROVINCE.002');
 
 export const APPROPRIATIONS: AppropriationSpec[] = [
-  { key: 'NSTW', fund: 'NSTW-DTPT', origin: 'PM_ASSIGNED', level: 'CENTRAL', billions: 120, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: '1508/QĐ-TTg', title: 'Quyết định về việc giao kế hoạch đầu tư vốn ngân sách trung ương năm 2026', issuedOn: '2025-12-14', sender: 'Văn phòng Chính phủ' }, decide: 'approve' },
-  { key: 'NSDP', fund: 'NSDP-DTPT', origin: 'LOCAL_ADDED', level: 'LOCAL', billions: 180, authority: PROVINCE, sourceYear: 2026, letter: { symbol: '1850/QĐ-UBND', title: 'Quyết định về việc giao kế hoạch đầu tư công vốn ngân sách địa phương năm 2026', issuedOn: '2025-12-28', sender: PROVINCE }, decide: 'approve' },
-  { key: 'NTM', fund: 'CTMTQG-NTM', origin: 'PM_ASSIGNED', level: 'CENTRAL', program: 'NTM', billions: 60, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: '1509/QĐ-TTg', title: 'Quyết định về việc giao kế hoạch vốn Chương trình mục tiêu quốc gia xây dựng nông thôn mới năm 2026', issuedOn: '2025-12-14', sender: 'Văn phòng Chính phủ' }, decide: 'approve' },
-  { key: 'CARRY', fund: 'NSDP', origin: 'CARRYOVER', level: 'LOCAL', billions: 25, authority: PROVINCE, sourceYear: 2025, extendedTo: '2026-12-31', letter: { symbol: '412/QĐ-UBND', title: 'Quyết định về việc kéo dài thời gian thực hiện và giải ngân kế hoạch vốn năm 2025 sang năm 2026', issuedOn: '2026-01-20', sender: PROVINCE }, decide: 'approve' },
-  { key: 'SUPPORT', fund: 'ODA-NONLEND', origin: 'CENTRAL_SUPPORT', level: 'CENTRAL', billions: 30, authority: 'Bộ Tài chính', sourceYear: 2026, letter: { symbol: '3318/QĐ-BTC', title: 'Quyết định về việc bổ sung có mục tiêu vốn viện trợ không hoàn lại cho tỉnh Cao Bằng', issuedOn: '2026-03-18', sender: 'Bộ Tài chính' }, decide: 'approve' },
-  { key: 'REVENUE', fund: 'NSDP', origin: 'REVENUE_INCREASE', level: 'LOCAL', billions: 20, authority: PROVINCE, sourceYear: 2026, letter: { symbol: '2790/QĐ-UBND', title: 'Quyết định về việc bổ sung kế hoạch vốn từ nguồn tăng thu ngân sách địa phương năm 2026', issuedOn: ctxDate(-9), sender: PROVINCE }, decide: 'pending' },
+  { key: 'NSTW', fund: 'NSTW-DTPT', origin: 'PM_ASSIGNED', level: 'CENTRAL', billions: 120, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: tx('symbol.003'), title: tx('title.004'), issuedOn: '2025-12-14', sender: tx('sender.005') }, decide: 'approve' },
+  { key: 'NSDP', fund: 'NSDP-DTPT', origin: 'LOCAL_ADDED', level: 'LOCAL', billions: 180, authority: PROVINCE, sourceYear: 2026, letter: { symbol: tx('symbol.006'), title: tx('title.007'), issuedOn: '2025-12-28', sender: PROVINCE }, decide: 'approve' },
+  { key: 'NTM', fund: 'CTMTQG-NTM', origin: 'PM_ASSIGNED', level: 'CENTRAL', program: 'NTM', billions: 60, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: tx('symbol.008'), title: tx('title.009'), issuedOn: '2025-12-14', sender: tx('sender.005') }, decide: 'approve' },
+  { key: 'CARRY', fund: 'NSDP', origin: 'CARRYOVER', level: 'LOCAL', billions: 25, authority: PROVINCE, sourceYear: 2025, extendedTo: '2026-12-31', letter: { symbol: tx('symbol.010'), title: tx('title.011'), issuedOn: '2026-01-20', sender: PROVINCE }, decide: 'approve' },
+  { key: 'SUPPORT', fund: 'ODA-NONLEND', origin: 'CENTRAL_SUPPORT', level: 'CENTRAL', billions: 30, authority: tx('authority.012'), sourceYear: 2026, letter: { symbol: tx('symbol.013'), title: tx('title.014'), issuedOn: '2026-03-18', sender: tx('authority.012') }, decide: 'approve' },
+  { key: 'REVENUE', fund: 'NSDP', origin: 'REVENUE_INCREASE', level: 'LOCAL', billions: 20, authority: PROVINCE, sourceYear: 2026, letter: { symbol: tx('symbol.015'), title: tx('title.016'), issuedOn: ctxDate(-9), sender: PROVINCE }, decide: 'pending' },
 ];
 
 /** A fixed date for the letters that arrived in the last weeks: relative to the fixed "as of" day the seed is run on. */
@@ -65,7 +70,7 @@ export const LINES: LineSpec[] = [
 
 /** The appropriation of a spec as the register has it now (by fund source, origin and year), or undefined. */
 export async function appropriationOf(ctx: SeedContext, spec: AppropriationSpec): Promise<Obj | undefined> {
-  return ctx.find('projectManager', '/appropriations', (row) => row.fund_source?.business_key === spec.fund && row.origin === spec.origin && Number(row.source_year) === spec.sourceYear && Number(row.plan_year) === 2026);
+  return ctx.find('projectManager', '/appropriations', (row) => asObj(row.fund_source).business_key === spec.fund && row.origin === spec.origin && Number(row.source_year) === spec.sourceYear && Number(row.plan_year) === 2026);
 }
 
 /** Registers the assignments of capital: each cites the decision of the authority; the leader publishes them (or leaves the last one in the queue). */
@@ -76,7 +81,7 @@ export async function registerAppropriations(ctx: SeedContext): Promise<void> {
     if (row === undefined) {
       const letter = await ctx.letter({ ...spec.letter, docType: 'QD' });
       const program = spec.program === undefined ? undefined : (await ctx.list('projectManager', '/master-records', { master_type: 'PROGRAM' })).find((record) => record.business_key === spec.program);
-      const extension = spec.extendedTo === undefined ? undefined : await ctx.letter({ symbol: '413/QĐ-UBND', title: 'Quyết định về việc cho phép kéo dài giải ngân vốn năm 2025 đến hết ngày 31 tháng 12 năm 2026', issuedOn: '2026-01-20', sender: PROVINCE });
+      const extension = spec.extendedTo === undefined ? undefined : await ctx.letter({ symbol: tx('symbol.017'), title: tx('title.018'), issuedOn: '2026-01-20', sender: PROVINCE });
       const created = await ctx.command('projectManager', '/appropriations', {
         fund_source_version_id: funds.get(spec.fund),
         plan_year: 2026,
@@ -92,9 +97,9 @@ export async function registerAppropriations(ctx: SeedContext): Promise<void> {
       row = { id: created.resource_id, status: created.status, version: created.resource_version };
     }
     if (row.status === 'DRAFT' && spec.decide === 'approve') {
-      await ctx.command('capApprover', `/appropriations/${String(row.id)}/decision`, { decision: 'approve', reason: `Đúng theo ${spec.letter.symbol} của ${spec.authority}` }, { version: Number(row.version) });
+      await ctx.command('capApprover', `/appropriations/${String(row.id)}/decision`, { decision: 'approve', reason: tx('reason.019', spec.letter.symbol, spec.authority) }, { version: Number(row.version) });
     }
-    ctx.record({ module: 'CAP', screen: 'CAP-16', kind: 'appropriation', id: String(row.id), code: spec.letter.symbol, note: `${spec.origin} ${spec.billions} tỷ` });
+    ctx.record({ module: 'CAP', screen: 'CAP-16', kind: 'appropriation', id: String(row.id), code: spec.letter.symbol, note: tx('note.020', spec.origin, spec.billions) });
   }
 }
 
@@ -128,7 +133,7 @@ export async function planOfTheYear(ctx: SeedContext): Promise<void> {
     if (row !== undefined) appropriations.set(spec.key, String(row.id));
   }
   let current = plan;
-  if (current.status === 'DRAFT' && Number(current.totals?.line_count ?? 0) === 0) {
+  if (current.status === 'DRAFT' && Number(asObj(current.totals).line_count ?? 0) === 0) {
     const reply = await ctx.command(
       'projectManager',
       `/capital-plans/${String(current.id)}/allocations`,
@@ -141,7 +146,7 @@ export async function planOfTheYear(ctx: SeedContext): Promise<void> {
           amount_vnd: vnd(line.billions),
           ...(line.ctmtqg === true ? { ctmtqg_subset_vnd: vnd(line.billions), program_master_version_id: programs.get('NTM') } : {}),
         })),
-        note: 'Bố trí vốn năm 2026 cho các dự án chuyển tiếp và khởi công mới',
+        note: tx('note.021'),
       },
       { version: Number(current.version) },
     );
@@ -152,11 +157,11 @@ export async function planOfTheYear(ctx: SeedContext): Promise<void> {
     current = { ...current, status: submitted.status, version: submitted.resource_version };
   }
   if (current.status === 'IN_REVIEW') {
-    const decided = await ctx.command('capApprover', `/capital-plans/${String(current.id)}/decision`, { decision: 'approve', reason: 'Phù hợp dự toán được giao và tiến độ thực hiện của các dự án' }, { version: Number(current.version) });
+    const decided = await ctx.command('capApprover', `/capital-plans/${String(current.id)}/decision`, { decision: 'approve', reason: tx('reason.022') }, { version: Number(current.version) });
     current = { ...current, status: decided.status, version: decided.resource_version };
   }
   if (current.status === 'APPROVED') {
-    const decision = await ctx.letter({ symbol: '1976/QĐ-UBND', title: 'Quyết định về việc giao kế hoạch đầu tư công năm 2026 cho các chủ đầu tư', issuedOn: '2026-01-12', sender: PROVINCE });
+    const decision = await ctx.letter({ symbol: tx('symbol.023'), title: tx('title.024'), issuedOn: '2026-01-12', sender: PROVINCE });
     await ctx.command('capApprover', `/plans/${String(current.id)}/publish`, { decision_document_id: decision.documentId }, { version: Number(current.version) });
   }
   ctx.record({ module: 'CAP', screen: 'CAP-03', kind: 'capital-plan', id: String(current.id), code: 'KHV-2026', note: 'published' });

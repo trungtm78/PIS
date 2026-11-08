@@ -22,11 +22,11 @@ function memoryPath(ctx: SeedContext, key: string): string {
   return join(ctx.stackDir, `seed-steps.platform-records.${key.split('.')[0] ?? 'misc'}.json`);
 }
 
-function readMemory(ctx: SeedContext, key: string): Record<string, Json> {
+function readMemory(ctx: SeedContext, key: string): Record<string, Json | Obj> {
   const file = memoryPath(ctx, key);
   if (!existsSync(file)) return {};
   try {
-    return JSON.parse(readFileSync(file, 'utf8')) as Record<string, Json>;
+    return JSON.parse(readFileSync(file, 'utf8')) as Record<string, Json | Obj>;
   } catch {
     return {};
   }
@@ -36,7 +36,7 @@ function readMemory(ctx: SeedContext, key: string): Record<string, Json> {
  * Runs `run` once per stack: the value it returns (JSON only: ids, versions, codes) is remembered under `key` and returned again on every later run.
  * The key is stable and business-readable: `doc.template.DOC-QD-PHE-DUYET-DU-AN`.
  */
-export async function once<T extends Json>(ctx: SeedContext, key: string, run: () => Promise<T>): Promise<T> {
+export async function once<T extends Json | Obj>(ctx: SeedContext, key: string, run: () => Promise<T>): Promise<T> {
   const memory = readMemory(ctx, key);
   if (key in memory) return memory[key] as T;
   const value = await run();
@@ -48,7 +48,7 @@ export async function once<T extends Json>(ctx: SeedContext, key: string, run: (
 }
 
 /** What `once` remembered under a key (undefined when the step has not been run yet). */
-export function remembered<T extends Json>(ctx: SeedContext, key: string): T | undefined {
+export function remembered<T extends Json | Obj>(ctx: SeedContext, key: string): T | undefined {
   return readMemory(ctx, key)[key] as T | undefined;
 }
 

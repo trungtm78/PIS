@@ -1,9 +1,13 @@
 import { vnd } from './context.ts';
 import type { Obj , SeedContext} from './context.ts';
 import { AREAS, BASE_PROJECTS, DECISION, masterRecord, publishArea } from './base.ts';
+import TEXTS from './data/capital-projects.json' with { type: 'json' };
+import { textsOf } from '../../support/texts.ts';
+
+const tx = textsOf(TEXTS);
 
 /**
- * The portfolio of projects of the Department of Planning and Investment of Cao Bằng, in every stage of the PIMA life cycle, made through the
+ * The portfolio of projects of the Department of Planning and Investment of Cao Bang, in every stage of the PIMA life cycle, made through the
  * commands of PRJ: registered by the project manager, appraised by the owner of the tenant (the proposer does not score) and decided by the leader,
  * given a national code, then (after the capital plan is published, capital-plan.ts) started, suspended or completed by decision of the people's committee.
  */
@@ -33,11 +37,11 @@ export interface ProjectSpec {
 
 /** The wards and communes the portfolio needs besides the three of clip 02 (proposed, approved and published like them). */
 export const MORE_AREAS = [
-  { key: 'CB-HOP-GIANG', name: 'Phường Hợp Giang' },
-  { key: 'CB-SONG-HIEN', name: 'Phường Sông Hiến' },
-  { key: 'CB-QUANG-HOA', name: 'Xã Quảng Hòa' },
-  { key: 'CB-BAN-GIOC', name: 'Xã Bản Giốc' },
-  { key: 'CB-TAM-KIM', name: 'Xã Tam Kim' },
+  { key: 'CB-HOP-GIANG', name: tx('name.001') },
+  { key: 'CB-SONG-HIEN', name: tx('name.002') },
+  { key: 'CB-QUANG-HOA', name: tx('name.003') },
+  { key: 'CB-BAN-GIOC', name: tx('name.004') },
+  { key: 'CB-TAM-KIM', name: tx('name.005') },
 ];
 
 const BASE_BY_CODE = new Map(BASE_PROJECTS.map((project) => [project.code, project]));
@@ -47,16 +51,16 @@ export const PROJECTS: ProjectSpec[] = [
   { code: 'DA-DT205', name: BASE_BY_CODE.get('DA-DT205')?.name ?? '', area: 'CB-THUC-PHAN', sector: 'TRANSPORT', type: 'UPGRADE', totalBillions: 150, startYear: 2026, endYear: 2028, target: 'IMPLEMENTATION', group: 'B', national: '7891234', planBillions: 90, leader: 'capApprover' },
   { code: 'DA-TH012', name: BASE_BY_CODE.get('DA-TH012')?.name ?? '', area: 'CB-NUNG-TRI-CAO', sector: 'EDUCATION', type: 'NEW_BUILD', totalBillions: 45, startYear: 2026, endYear: 2027, target: 'IMPLEMENTATION', group: 'C', national: '7891235', planBillions: 30, leader: 'projectManager' },
   { code: 'DA-YT007', name: BASE_BY_CODE.get('DA-YT007')?.name ?? '', area: 'CB-TAN-GIANG', sector: 'HEALTH', type: 'UPGRADE', totalBillions: 12, startYear: 2026, endYear: 2027, target: 'BUDGETED', group: 'C', national: '7891236', planBillions: 8, leader: 'projectManager' },
-  { code: 'DA-NN031', name: 'Cải tạo hệ thống thủy lợi Nà Rạc, xã Quảng Hòa', area: 'CB-QUANG-HOA', sector: 'AGRICULTURE', type: 'UPGRADE', program: 'NTM', totalBillions: 78, startYear: 2026, endYear: 2028, target: 'IMPLEMENTATION', group: 'C', national: '7891237', planBillions: 40, leader: 'projectManager' },
-  { code: 'DA-MT019', name: 'Kè chống sạt lở bờ sông Hiến, đoạn qua phường Sông Hiến', area: 'CB-SONG-HIEN', sector: 'ENVIRONMENT', type: 'NEW_BUILD', totalBillions: 96, startYear: 2025, endYear: 2027, target: 'SUSPENDED', group: 'C', national: '7891238', planBillions: 25, leader: 'capApprover' },
-  { code: 'DA-CN026', name: 'Hệ thống cấp nước sinh hoạt phường Hợp Giang', area: 'CB-HOP-GIANG', sector: 'URBAN', type: 'NEW_BUILD', totalBillions: 38, startYear: 2025, endYear: 2026, target: 'COMPLETED', group: 'C', national: '7891239', planBillions: 38, leader: 'projectManager' },
-  { code: 'DA-VH044', name: 'Tu bổ, tôn tạo Khu di tích lịch sử Rừng Trần Hưng Đạo', area: 'CB-TAM-KIM', sector: 'CULTURE_SPORT', type: 'UPGRADE', totalBillions: 64, startYear: 2026, endYear: 2028, target: 'BUDGETED', group: 'C', national: '7891240', planBillions: 20, leader: 'capApprover' },
-  { code: 'DA-GT118', name: 'Đường nối Quốc lộ 3 đến Khu du lịch thác Bản Giốc', area: 'CB-BAN-GIOC', sector: 'TRANSPORT', type: 'NEW_BUILD', totalBillions: 480, startYear: 2027, endYear: 2030, target: 'APPRAISAL', group: 'B' },
-  { code: 'DA-GD022', name: 'Xây dựng Trường THPT nội trú dân tộc, phường Sông Hiến', area: 'CB-SONG-HIEN', sector: 'EDUCATION', type: 'NEW_BUILD', totalBillions: 62, startYear: 2027, endYear: 2029, target: 'APPRAISAL', group: 'C' },
-  { code: 'DA-ICT03', name: 'Chuyển đổi số: Trung tâm dữ liệu dùng chung tỉnh Cao Bằng', area: 'CB-THUC-PHAN', sector: 'ICT', type: 'NEW_BUILD', totalBillions: 55, startYear: 2027, endYear: 2028, target: 'PIPELINE', group: 'C' },
-  { code: 'DA-TL001', name: 'Hồ chứa nước Khuổi Pái, xã Bản Giốc', area: 'CB-BAN-GIOC', sector: 'AGRICULTURE', type: 'NEW_BUILD', totalBillions: 2450, startYear: 2027, endYear: 2032, target: 'PIPELINE', group: 'A' },
-  { code: 'DA-DC071', name: 'Khu tái định cư phường Tân Giang', area: 'CB-TAN-GIANG', sector: 'URBAN', type: 'NEW_BUILD', totalBillions: 29, startYear: 2027, endYear: 2028, target: 'REJECTED', group: 'C' },
-  { code: 'DA-TT015', name: 'Trung tâm văn hóa - thể thao xã Tam Kim', area: 'CB-TAM-KIM', sector: 'CULTURE_SPORT', type: 'NEW_BUILD', totalBillions: 22, startYear: 2027, endYear: 2028, target: 'CONCEPT', group: 'C' },
+  { code: 'DA-NN031', name: tx('name.006'), area: 'CB-QUANG-HOA', sector: 'AGRICULTURE', type: 'UPGRADE', program: 'NTM', totalBillions: 78, startYear: 2026, endYear: 2028, target: 'IMPLEMENTATION', group: 'C', national: '7891237', planBillions: 40, leader: 'projectManager' },
+  { code: 'DA-MT019', name: tx('name.007'), area: 'CB-SONG-HIEN', sector: 'ENVIRONMENT', type: 'NEW_BUILD', totalBillions: 96, startYear: 2025, endYear: 2027, target: 'SUSPENDED', group: 'C', national: '7891238', planBillions: 25, leader: 'capApprover' },
+  { code: 'DA-CN026', name: tx('name.008'), area: 'CB-HOP-GIANG', sector: 'URBAN', type: 'NEW_BUILD', totalBillions: 38, startYear: 2025, endYear: 2026, target: 'COMPLETED', group: 'C', national: '7891239', planBillions: 38, leader: 'projectManager' },
+  { code: 'DA-VH044', name: tx('name.009'), area: 'CB-TAM-KIM', sector: 'CULTURE_SPORT', type: 'UPGRADE', totalBillions: 64, startYear: 2026, endYear: 2028, target: 'BUDGETED', group: 'C', national: '7891240', planBillions: 20, leader: 'capApprover' },
+  { code: 'DA-GT118', name: tx('name.010'), area: 'CB-BAN-GIOC', sector: 'TRANSPORT', type: 'NEW_BUILD', totalBillions: 480, startYear: 2027, endYear: 2030, target: 'APPRAISAL', group: 'B' },
+  { code: 'DA-GD022', name: tx('name.011'), area: 'CB-SONG-HIEN', sector: 'EDUCATION', type: 'NEW_BUILD', totalBillions: 62, startYear: 2027, endYear: 2029, target: 'APPRAISAL', group: 'C' },
+  { code: 'DA-ICT03', name: tx('name.012'), area: 'CB-THUC-PHAN', sector: 'ICT', type: 'NEW_BUILD', totalBillions: 55, startYear: 2027, endYear: 2028, target: 'PIPELINE', group: 'C' },
+  { code: 'DA-TL001', name: tx('name.013'), area: 'CB-BAN-GIOC', sector: 'AGRICULTURE', type: 'NEW_BUILD', totalBillions: 2450, startYear: 2027, endYear: 2032, target: 'PIPELINE', group: 'A' },
+  { code: 'DA-DC071', name: tx('name.014'), area: 'CB-TAN-GIANG', sector: 'URBAN', type: 'NEW_BUILD', totalBillions: 29, startYear: 2027, endYear: 2028, target: 'REJECTED', group: 'C' },
+  { code: 'DA-TT015', name: tx('name.015'), area: 'CB-TAM-KIM', sector: 'CULTURE_SPORT', type: 'NEW_BUILD', totalBillions: 22, startYear: 2027, endYear: 2028, target: 'CONCEPT', group: 'C' },
 ];
 
 const STAGE_ORDER = ['CONCEPT', 'APPRAISAL', 'PIPELINE', 'BUDGETED', 'IMPLEMENTATION', 'SUSPENDED', 'COMPLETED'];
@@ -75,9 +79,9 @@ export function projectNow(ctx: SeedContext, id: string): Promise<Obj> {
 }
 
 export async function publishMoreAreas(ctx: SeedContext): Promise<void> {
-  const decision = await ctx.letter({ symbol: '129/QĐ-UBND', title: 'Quyết định về việc bổ sung danh mục xã, phường dùng chung của tỉnh Cao Bằng', issuedOn: '2026-10-20', sender: DECISION.sender });
+  const decision = await ctx.letter({ symbol: tx('symbol.016'), title: tx('title.017'), issuedOn: '2026-10-20', sender: DECISION.sender });
   const province = await masterRecord(ctx, 'AREA', 'CAO-BANG');
-  if (province === undefined) throw new Error('the province Cao Bằng is not in the platform catalogue');
+  if (province === undefined) throw new Error(tx('publishMoreAreas.018'));
   for (const area of [...AREAS, ...MORE_AREAS]) await publishArea(ctx, area, decision.documentId, province);
 }
 
@@ -127,21 +131,21 @@ async function appraise(ctx: SeedContext, spec: PortfolioProject, outcome: 'ADMI
   const sheet = await ctx.must<{ resource_id: string; resource_version: number }>('owner', 'POST', `/projects/${spec.id}/appraisals`, {
     criteria_set_version_id: criteria.version_id,
     recommendation: outcome,
-    note: outcome === 'ADMIT' ? 'Hồ sơ đủ điều kiện, đạt ngưỡng điểm thẩm định' : 'Chưa cân đối được nguồn vốn và chưa rõ quỹ đất, đề nghị không chấp thuận',
+    note: outcome === 'ADMIT' ? tx('note.019') : tx('note.020'),
     scores: Object.entries(marks).map(([criterion_code, score]) => ({ criterion_code, score })),
   });
   const letter = await ctx.letter({
-    symbol: `${spec.code.replace(/\D/gu, '').padStart(3, '0')}/TB-HĐTĐ`,
-    title: `Thông báo kết quả thẩm định đề xuất chủ trương đầu tư dự án ${spec.name}`,
+    symbol: tx('symbol.021', spec.code.replace(/\D/gu, '').padStart(3, '0')),
+    title: tx('title.022', spec.name),
     issuedOn: ctx.day(-40),
-    sender: 'Hội đồng thẩm định Sở Kế hoạch và Đầu tư Cao Bằng',
+    sender: tx('sender.023'),
   });
   await ctx.command(
     'capApprover',
     `/project-appraisals/${sheet.resource_id}/decision`,
     {
       decision: outcome,
-      reason: outcome === 'ADMIT' ? 'Đủ điều kiện đưa vào danh mục dự án chuẩn bị đầu tư' : 'Không đủ điều kiện, trả hồ sơ cho chủ đầu tư',
+      reason: outcome === 'ADMIT' ? tx('reason.024') : tx('reason.025'),
       decision_document_id: letter.documentId,
       ...(outcome === 'ADMIT' ? { project_group: spec.group } : {}),
     },
@@ -155,11 +159,11 @@ export async function advanceToPipeline(ctx: SeedContext, spec: PortfolioProject
   if (project.status === 'CONCEPT' && spec.target !== 'CONCEPT') {
     const proposal = await ctx.letter({
       symbol: `${spec.code.replace(/\D/gu, '').padStart(3, '0')}/TTr-BQLDA`,
-      title: `Tờ trình đề xuất chủ trương đầu tư dự án ${spec.name}`,
+      title: tx('title.026', spec.name),
       issuedOn: ctx.day(-70),
-      sender: 'Ban Quản lý dự án, Sở Kế hoạch và Đầu tư Cao Bằng',
+      sender: tx('sender.027'),
     });
-    await ctx.command('projectManager', `/projects/${spec.id}/appraisal-submissions`, { reason: 'Hồ sơ đề xuất chủ trương đầu tư đủ điều kiện thẩm định', policy_proposal_document_id: proposal.documentId }, { version: Number(project.version) });
+    await ctx.command('projectManager', `/projects/${spec.id}/appraisal-submissions`, { reason: tx('reason.028'), policy_proposal_document_id: proposal.documentId }, { version: Number(project.version) });
     project = await projectNow(ctx, spec.id);
   }
   if (project.status === 'APPRAISAL' && spec.target !== 'APPRAISAL') {
@@ -178,19 +182,19 @@ export async function advanceAfterPlan(ctx: SeedContext, spec: PortfolioProject)
   const wants = (stage: string): boolean => reached(spec.target, stage);
   if (project.status === 'BUDGETED' && wants('IMPLEMENTATION')) {
     const decision = await ctx.letter({
-      symbol: `${spec.code.replace(/\D/gu, '').padStart(3, '0')}/QĐ-UBND`,
-      title: `Quyết định phê duyệt dự án đầu tư ${spec.name}`,
+      symbol: tx('symbol.029', spec.code.replace(/\D/gu, '').padStart(3, '0')),
+      title: tx('title.030', spec.name),
       issuedOn: ctx.day(-60),
     });
-    await ctx.command('projectManager', `/projects/${spec.id}/implementation-start`, { reason: 'Đã được bố trí vốn, tổ chức khởi công', investment_decision_document_id: decision.documentId, effective_date: ctx.day(-45) }, { version: Number(project.version) });
+    await ctx.command('projectManager', `/projects/${spec.id}/implementation-start`, { reason: tx('reason.031'), investment_decision_document_id: decision.documentId, effective_date: ctx.day(-45) }, { version: Number(project.version) });
     project = await projectNow(ctx, spec.id);
   }
   if (project.status === 'IMPLEMENTATION' && spec.target === 'SUSPENDED') {
-    const decision = await ctx.letter({ symbol: '2214/QĐ-UBND', title: 'Quyết định tạm dừng thi công công trình kè sông Hiến để xử lý sạt trượt mái taluy', issuedOn: ctx.day(-20) });
-    await ctx.command('projectManager', `/projects/${spec.id}/suspension`, { reason: 'Sạt trượt mái taluy ở đoạn Km1+200, cần khảo sát địa chất bổ sung', decision_document_id: decision.documentId, effective_date: ctx.day(-20) }, { version: Number(project.version) });
+    const decision = await ctx.letter({ symbol: tx('symbol.032'), title: tx('title.033'), issuedOn: ctx.day(-20) });
+    await ctx.command('projectManager', `/projects/${spec.id}/suspension`, { reason: tx('reason.034'), decision_document_id: decision.documentId, effective_date: ctx.day(-20) }, { version: Number(project.version) });
   }
   if (project.status === 'IMPLEMENTATION' && spec.target === 'COMPLETED') {
-    const decision = await ctx.letter({ symbol: '2001/QĐ-UBND', title: 'Quyết định công nhận hoàn thành công trình cấp nước sinh hoạt phường Hợp Giang', issuedOn: ctx.day(-12) });
-    await ctx.command('projectManager', `/projects/${spec.id}/completion`, { reason: 'Đã nghiệm thu hoàn thành, đưa vào sử dụng', decision_document_id: decision.documentId, effective_date: ctx.day(-12) }, { version: Number(project.version) });
+    const decision = await ctx.letter({ symbol: tx('symbol.035'), title: tx('title.036'), issuedOn: ctx.day(-12) });
+    await ctx.command('projectManager', `/projects/${spec.id}/completion`, { reason: tx('reason.037'), decision_document_id: decision.documentId, effective_date: ctx.day(-12) }, { version: Number(project.version) });
   }
 }
