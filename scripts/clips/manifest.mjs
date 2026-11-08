@@ -88,17 +88,46 @@ async function getJson(base, headers, path) {
   return { json: await response.json() };
 }
 
+/**
+ * The figures of the enterprise home that the product keeps as rows and not as one answer: the accepted plans of the year (equity and loan) and the projects of the
+ * enterprise kinds. Read with the officer, who may read the funding figures. Returns the figures it can state; the others are not here and stay missing.
+ */
+export async function enterpriseValues({ apiUrl, headers, planYear = new Date().getFullYear() }) {
+  const batches = (await getJson(apiUrl, headers, `/funding-figures/batches?plan_year=${planYear}&limit=200`)).json?.items ?? [];
+  const accepted = batches.filter((row) => row.figure_kind === 'PLAN_YEAR' && row.status === 'ACCEPTED');
+  const sumOf = (rows) => rows.reduce((total, row) => total + (row.entries ?? []).filter((entry) => entry.status === 'ACCEPTED').reduce((inner, entry) => inner + Number(entry.amount_vnd), 0), 0);
+  const total = sumOf(accepted);
+  const codes = [...new Set(accepted.map((row) => row.project_id))];
+  let invested = 0;
+  for (const id of codes) invested += Number((await getJson(apiUrl, headers, `/resources/project/${id}`)).json?.total_investment_vnd ?? 0);
+  const out = {};
+  if (codes.length > 0) out['ent-projects-total'] = codes.length;
+  if (invested > 0) out['ent-total-investment'] = Math.round((invested / 1e9) * 10) / 10;
+  if (total > 0) {
+    out['ent-plan-year'] = Math.round((total / 1e9) * 10) / 10;
+    out['ent-share-equity'] = Math.round((sumOf(accepted.filter((row) => row.class_code === 'EQUITY')) / total) * 1000) / 10;
+    out['ent-share-debt'] = Math.round((sumOf(accepted.filter((row) => row.class_code === 'LOAN')) / total) * 1000) / 10;
+  }
+  return out;
+}
+
 /** Reads every figure of the scenario. Returns { figures: { id: { value, source, readAt } }, missing: [{ id, reason }] }. */
-export async function buildManifest({ scenario, apiUrl, key, tenantId, membershipId, applyLog, log = console.log }) {
+export async function buildManifest({ scenario, apiUrl, key, tenantId, membershipId, officerMembershipId, applyLog, log = console.log }) {
   const operations = operationIndex();
   const headers = { authorization: `Bearer ${tokenFor({ key, tenantId, membershipId })}` };
   const figures = {};
   const missing = [];
   const cache = new Map();
   let firstNode;
+  const enterprise = scenario.edition === 'enterprise' && officerMembershipId !== undefined ? await enterpriseValues({ apiUrl, headers: { authorization: `Bearer ${tokenFor({ key, tenantId, membershipId: officerMembershipId })}` } }) : {};
   for (const [id, declaration] of Object.entries(scenario.figures)) {
     const { operation, select } = declaration.source;
     const reader = READERS[id];
+    if (enterprise[id] !== undefined) {
+      figures[id] = { value: enterprise[id], source: 'the accepted plans of the year (GET /funding-figures/batches) and the total investment of the projects (GET /resources/project/{id})' };
+      log(`figure ${id} = ${figures[id].value}`);
+      continue;
+    }
     // The counts of the dry run of the plan file are not kept by the product after the import (an import record keeps the counts of the applied rows): they are
     // the answer of the preview command, which the apply of the clip data printed; they are read from that log of the real run.
     const dryRun = id === 'egp-rows-valid' || id === 'egp-rows-error' ? /\[egp\] KHLCNT dry run (\{[^\n]*\})/u.exec(applyLog ?? '') : null;
@@ -185,7 +214,7 @@ async function main(argv) {
   const user = users.find((candidate) => candidate.key === argument(argv, 'user', 'capApprover'));
   if (user === undefined) throw new Error('unknown user');
   const info = JSON.parse(readFileSync(process.env.E2E_STACK_INFO ?? 'D:/tmp/clipstack/stack-info.json', 'utf8'));
-  const manifest = await buildManifest({ scenario: loadScenario(clip), apiUrl, key, tenantId: argument(argv, 'tenant', info.tenants.A), membershipId: user.membershipId, applyLog: argument(argv, 'apply-log') === undefined ? undefined : readFileSync(argument(argv, 'apply-log'), 'utf8') });
+  const manifest = await buildManifest({ scenario: loadScenario(clip), apiUrl, key, tenantId: argument(argv, 'tenant', info.tenants.A), membershipId: user.membershipId, officerMembershipId: users.find((candidate) => candidate.key === 'projectManager')?.membershipId, applyLog: argument(argv, 'apply-log') === undefined ? undefined : readFileSync(argument(argv, 'apply-log'), 'utf8') });
   writeFileSync(out, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`${clip}: ${Object.keys(manifest.figures).length} figures read, ${manifest.missing.length} missing`);
   return manifest.missing.length === 0 ? 0 : 1;

@@ -263,7 +263,7 @@ async function main(argv) {
         if (!existsSync(raw)) renderAnimatic(scene.screen.animatic, raw);
         finishSegment({ input: raw, seconds, ass, out: file, hold: true });
         report.push({ id: entry.id, kind: 'animatic', animatic: scene.screen.animatic, seconds });
-      } else if (platform === 'web' || platform === 'pwa') {
+      } else if ((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) {
         const views = viewsOf(scene);
         if (webUrl === undefined || views.length === 0 || flag(argv, 'no-web')) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
         if (freemem() < 1.5 * 1024 ** 3) throw new Error('less than 1.5 GB of memory is free: wait before the browser starts');

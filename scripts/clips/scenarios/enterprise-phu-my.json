@@ -242,7 +242,7 @@
       "id": "ent-home",
       "chapter": "leader-home",
       "main": true,
-      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}} và giải ngân lũy kế {{figure:ent-rate-disbursed}}. Có {{figure:ent-projects-delayed}} trên {{figure:ent-projects-total}} dự án đang chậm.",
+      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.",
       "screen": {
         "platform": "web",
         "screens": [
