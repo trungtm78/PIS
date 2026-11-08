@@ -99,7 +99,9 @@ export async function applyPromotions(tx: TenantTx, rows: Array<{ source: string
   const watched = rows.filter((row) => row.severity === 'WATCH' && row.source !== 'ESCALATION' && row.source !== 'COVERAGE');
   if (watched.length === 0) return;
   const found = await tx.query<{ source: string; source_id: string }>(
-    `select e.source, e.source_id from machvon.alert_escalation e join unnest($1::text[], $2::text[]) as k (source, source_id) on k.source = e.source and k.source_id = e.source_id where e.kind = 'PROMOTION' and e.status <> 'CLOSED'`,
+    `select e.source, e.source_id from machvon.alert_escalation e join unnest($1::text[], $2::text[]) as k (source, source_id) on k.source = e.source and k.source_id = e.source_id
+       left join machvon.alert_item_trace t on t.tenant_id = e.tenant_id and t.source = e.source and t.source_id = e.source_id
+      where e.kind = 'PROMOTION' and e.status <> 'CLOSED' and e.occurrence = coalesce(t.reopen_count, 0)`,
     [watched.map((row) => row.source), watched.map((row) => row.id)],
   );
   const promoted = new Set(found.map((row) => actionKey(row.source, row.source_id)));

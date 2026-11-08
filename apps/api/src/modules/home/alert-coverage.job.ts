@@ -98,7 +98,9 @@ export async function alertCoveragePass(tx: TenantTx, tenant: TenantContext, now
     const inactive = new Set(byOwner.keys());
     const desiredGaps = new Map<string, GapDesired>();
     const scratch = { members: 0, items: 0, escalations: 0, promotions: 0, notices: 0, released: 0, digests: 0, cleared: 0, failed: 0 };
-    const climbs = await escalations.climbOf(tx, left.map((item) => ({ source: item.source, sourceId: item.sourceId })));
+    const leftKeys = left.map((item) => ({ source: item.source, sourceId: item.sourceId }));
+    const climbs = await escalations.climbOf(tx, leftKeys);
+    const occurrences = await trace.occurrences(tx, leftKeys);
     for (const item of left) {
       const owner = await escalations.ownerOf(tx, item.ownerId as string, now);
       if (owner === undefined) continue;
@@ -107,7 +109,7 @@ export async function alertCoveragePass(tx: TenantTx, tenant: TenantContext, now
         tx,
         tenant,
         now,
-        row: { source: item.source as WorkSource, id: item.sourceId, severity: item.severity, title: item.title, subtitle: item.subtitle, dueOn: item.dueOn, target: item.target, claimBreached: false, quietBypass: false },
+        row: { source: item.source as WorkSource, id: item.sourceId, occurrence: occurrences.get(`${item.source}:${item.sourceId}`) ?? 0, severity: item.severity, title: item.title, subtitle: item.subtitle, dueOn: item.dueOn, target: item.target, claimBreached: false, quietBypass: false },
         member: item.ownerId as string,
         owner,
         evaluation,

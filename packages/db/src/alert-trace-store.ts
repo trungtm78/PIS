@@ -221,6 +221,16 @@ export class AlertTraceStore {
     return new Set(rows.map((row) => `${row.source}:${row.source_id}`));
   }
 
+  /** The occurrence of each item: how many times it was opened again after it was closed (0 for an item that never was). An item the trace does not know is not in the map. */
+  async occurrences(tx: TenantTx, items: ReadonlyArray<{ source: string; sourceId: string }>): Promise<Map<string, number>> {
+    if (items.length === 0) return new Map();
+    const rows = await tx.query<{ source: string; source_id: string; reopen_count: number }>(
+      'select t.source, t.source_id, t.reopen_count from machvon.alert_item_trace t join unnest($1::text[], $2::text[]) as k (source, source_id) on k.source = t.source and k.source_id = t.source_id',
+      [items.map((item) => item.source), items.map((item) => item.sourceId)],
+    );
+    return new Map(rows.map((row) => [`${row.source}:${row.source_id}`, row.reopen_count]));
+  }
+
   /** When the alert centre first saw each open item of a person (the digest says what is new since the last one). */
   async firstSeenOf(tx: TenantTx, ownerId: string): Promise<Map<string, string>> {
     const rows = await tx.query<{ source: string; source_id: string; first_seen_at: string }>(

@@ -159,6 +159,9 @@ describe('when the levels are reached (G2-3)', () => {
   it('has the one series of a level and of a promotion', () => {
     expect(escalationSeriesKey('ISSUE', 'abc', 2, 'AAAA')).toBe('ESCALATION:ISSUE:abc:2:aaaa');
     expect(promotionSeriesKey('PERMIT', 'abc')).toBe('PROMOTION:PERMIT:abc');
+    // An item that came back is a new occurrence: its keys are its own.
+    expect(escalationSeriesKey('ISSUE', 'abc', 2, 'AAAA', 1)).toBe('ESCALATION:ISSUE:abc:o1:2:aaaa');
+    expect(promotionSeriesKey('PERMIT', 'abc', 2)).toBe('PROMOTION:PERMIT:abc:o2');
   });
 });
 

@@ -119,7 +119,6 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
       const own = collected.rows.filter((row) => row.source !== 'ESCALATION' && row.source !== 'COVERAGE');
       const keys = own.map((row) => ({ source: row.source, sourceId: row.id }));
       const known = await trace.knownKeys(tx, keys);
-      const climbs = await escalations.climbOf(tx, keys);
       const policy = policies.escalation;
       await trace.observe(
         tx,
@@ -148,6 +147,9 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
         now,
       );
       result.items += own.length;
+      // What is recorded of the climb is read after the trace was written: an item that came back after it was closed is a new occurrence with levels of its own.
+      const climbs = await escalations.climbOf(tx, keys);
+      const occurrences = await trace.occurrences(tx, keys);
       const firstSeen = await trace.firstSeenOf(tx, member.id);
       const owner = await escalations.ownerOf(tx, member.id, now);
       for (const row of own) {
@@ -168,7 +170,7 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
           calendars,
         });
         if (owner !== undefined && evaluation.reached > 0) {
-          result.escalations += await sendUp({ tx, tenant, now, row: { source: row.source, id: row.id, severity: row.severity, title: row.title, subtitle: row.subtitle, dueOn: row.dueOn, target: row.target, claimBreached: row.clocks?.claim?.state === 'BREACHED', quietBypass: row.alertType?.quietBypass === true }, member: member.id, owner, evaluation, recorded: climb?.levels ?? new Set<number>(), escalations, trace, covers: { edges, spans, inactive }, policies, notifier, cached, doa, desiredGaps, metrics, result });
+          result.escalations += await sendUp({ tx, tenant, now, row: { source: row.source, id: row.id, occurrence: occurrences.get(key) ?? 0, severity: row.severity, title: row.title, subtitle: row.subtitle, dueOn: row.dueOn, target: row.target, claimBreached: row.clocks?.claim?.state === 'BREACHED', quietBypass: row.alertType?.quietBypass === true }, member: member.id, owner, evaluation, recorded: climb?.levels ?? new Set<number>(), escalations, trace, covers: { edges, spans, inactive }, policies, notifier, cached, doa, desiredGaps, metrics, result });
         }
         // An item that was only to be watched and stayed untouched is raised one step.
         const promotion = evaluatePromotion({
@@ -185,6 +187,7 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
           const recorded = await escalations.record(tx, {
             source: row.source,
             sourceId: row.id,
+            occurrence: occurrences.get(key) ?? 0,
             level: 0,
             kind: 'PROMOTION',
             trigger: 'WATCH_AGED',
@@ -200,7 +203,7 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
             target: row.target,
             reachedAt: new Date(promotion.since),
             policyVersion: policies.versions.escalation,
-            seriesKey: promotionSeriesKey(row.source, row.id),
+            seriesKey: promotionSeriesKey(row.source, row.id, occurrences.get(key) ?? 0),
           });
           if (recorded.created) {
             result.promotions += 1;
@@ -249,7 +252,7 @@ export async function alertEscalationPass(tx: TenantTx, tenant: TenantContext, n
 }
 
 /** What an escalation needs to know of an item: where it is, how it is shown, how urgent it is, and whether nobody took it up in time and its type may break the quiet hours. */
-export type ItemFacts = Pick<WorkRow, 'source' | 'id' | 'severity' | 'title' | 'subtitle' | 'dueOn' | 'target'> & { claimBreached: boolean; quietBypass: boolean };
+export type ItemFacts = Pick<WorkRow, 'source' | 'id' | 'severity' | 'title' | 'subtitle' | 'dueOn' | 'target'> & { occurrence: number; claimBreached: boolean; quietBypass: boolean };
 
 export interface SendUp {
   tx: TenantTx;
@@ -299,6 +302,7 @@ export async function sendUp(input: SendUp): Promise<number> {
       const recorded = await escalations.record(tx, {
         source: row.source,
         sourceId: row.id,
+        occurrence: row.occurrence,
         level: level.level,
         kind: level.step.kind,
         trigger,
@@ -314,7 +318,7 @@ export async function sendUp(input: SendUp): Promise<number> {
         target: row.target,
         reachedAt: new Date(level.reachedAt ?? input.now.toISOString()),
         policyVersion: policies.versions.escalation,
-        seriesKey: escalationSeriesKey(row.source, row.id, level.level, routed.recipient),
+        seriesKey: escalationSeriesKey(row.source, row.id, level.level, routed.recipient, row.occurrence),
       });
       delivered += 1;
       if (!recorded.created) continue;

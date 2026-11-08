@@ -43,6 +43,8 @@ export interface EscalationRecord {
 export interface AlertEscalationInput {
   source: string;
   sourceId: string;
+  /** The occurrence of the item (the reopen count of its trace): what a level or a promotion belongs to. */
+  occurrence: number;
   level: number;
   kind: EscalationKind | 'PROMOTION';
   trigger: EscalationTrigger | 'WATCH_AGED';
@@ -151,8 +153,8 @@ export class AlertEscalationStore {
   async record(tx: TenantTx, input: AlertEscalationInput): Promise<{ id: string; created: boolean }> {
     const inserted = await tx.query<{ id: string }>(
       `insert into machvon.alert_escalation (tenant_id, source, source_id, level, kind, trigger, recipient_membership_id, owner_membership_id, routed_via, cover_id, severity, from_severity, item_title, item_subtitle, item_due_on,
-                                             target_screen, target_id, reached_at, policy_version, series_key)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3::int, $4, $5, $6::uuid, $7::uuid, $8, $9::uuid, $10, $11, $12, $13, $14::date, $15, $16, $17::timestamptz, $18, $19)
+                                             target_screen, target_id, reached_at, policy_version, series_key, occurrence)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3::int, $4, $5, $6::uuid, $7::uuid, $8, $9::uuid, $10, $11, $12, $13, $14::date, $15, $16, $17::timestamptz, $18, $19, $20::int)
        on conflict (tenant_id, series_key) do nothing returning id`,
       [
         input.source,
@@ -174,6 +176,7 @@ export class AlertEscalationStore {
         input.reachedAt.toISOString(),
         input.policyVersion,
         input.seriesKey,
+        input.occurrence,
       ],
     );
     if (inserted[0] !== undefined) return { id: inserted[0].id, created: true };
@@ -188,7 +191,9 @@ export class AlertEscalationStore {
       const chunk = items.slice(from, from + CHUNK);
       const rows = await tx.query<{ source: string; source_id: string; level: number; kind: string; acknowledged_at: string | null }>(
         `select e.source, e.source_id, e.level, e.kind, ${ISO('e.acknowledged_at')} as acknowledged_at
-           from machvon.alert_escalation e join unnest($1::text[], $2::text[]) as k (source, source_id) on k.source = e.source and k.source_id = e.source_id`,
+           from machvon.alert_escalation e join unnest($1::text[], $2::text[]) as k (source, source_id) on k.source = e.source and k.source_id = e.source_id
+           left join machvon.alert_item_trace t on t.tenant_id = e.tenant_id and t.source = e.source and t.source_id = e.source_id
+          where e.occurrence = coalesce(t.reopen_count, 0)`,
         [chunk.map((item) => item.source), chunk.map((item) => item.sourceId)],
       );
       for (const row of rows) {

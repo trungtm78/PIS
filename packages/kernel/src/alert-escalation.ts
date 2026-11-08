@@ -408,7 +408,7 @@ export function escalationChainLabels(policy: EscalationPolicy, severity: ClockS
 }
 
 /** The one series of an escalation row: an item, a level and a person; recording it twice records it once. */
-export const escalationSeriesKey = (source: string, sourceId: string, level: number, recipient: string): string => `ESCALATION:${source}:${sourceId}:${level}:${recipient.toLowerCase()}`.slice(0, 200);
+export const escalationSeriesKey = (source: string, sourceId: string, level: number, recipient: string, occurrence = 0): string => `ESCALATION:${source}:${sourceId}${occurrence > 0 ? `:o${occurrence}` : ''}:${level}:${recipient.toLowerCase()}`.slice(0, 200);
 
 /** The one series of a promotion of an item. */
-export const promotionSeriesKey = (source: string, sourceId: string): string => `PROMOTION:${source}:${sourceId}`.slice(0, 200);
+export const promotionSeriesKey = (source: string, sourceId: string, occurrence = 0): string => `PROMOTION:${source}:${sourceId}${occurrence > 0 ? `:o${occurrence}` : ''}`.slice(0, 200);

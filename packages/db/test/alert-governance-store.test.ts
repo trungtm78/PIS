@@ -192,6 +192,7 @@ describe('the stores of the governance of the alert system', () => {
     const base = (over: Record<string, unknown> = {}): Parameters<AlertEscalationStore['record']>[1] => ({
       source: 'ISSUE',
       sourceId: randomUUID(),
+      occurrence: 0,
       level: 1,
       kind: 'HIERARCHICAL',
       trigger: 'NOT_CLAIMED',
@@ -236,6 +237,29 @@ describe('the stores of the governance of the alert system', () => {
       await expect(as((tx) => tx.query(`update machvon.alert_escalation set status = 'OPEN', closed_at = null, close_reason = null where id = $1`, [id]))).rejects.toThrow(/final/);
       await expect(as((tx) => tx.query(`update machvon.alert_escalation set item_title = 'changed' where id = $1`, [id]))).rejects.toThrow(/permission denied/);
       await expect(as((tx) => tx.query('delete from machvon.alert_escalation where id = $1', [id]))).rejects.toThrow(/permission denied/);
+    });
+
+    it('counts the levels of an item that came back after it was closed as its own: the old levels and promotion do not suppress the new ones', async () => {
+      const item = observation({ source: 'ADVANCE', kind: 'ADVANCE_OVERDUE', typeCode: 'ADVANCE' });
+      await as((tx) => trace.observe(tx, memberId(OFFICER), unitId(NORTH), [item], T0));
+      await as((tx) => escalations.record(tx, base({ source: 'ADVANCE', sourceId: item.sourceId, seriesKey: `ESCALATION:ADVANCE:${item.sourceId}:1:x` })));
+      await as((tx) => escalations.record(tx, base({ source: 'ADVANCE', sourceId: item.sourceId, level: 0, kind: 'PROMOTION', trigger: 'WATCH_AGED', recipientId: null, routedVia: 'NONE', fromSeverity: 'WATCH', seriesKey: `PROMOTION:ADVANCE:${item.sourceId}` })));
+      const key = `ADVANCE:${item.sourceId}`;
+      let climb = (await as((tx) => escalations.climbOf(tx, [{ source: 'ADVANCE', sourceId: item.sourceId }]))).get(key);
+      expect(climb).toMatchObject({ max: 1, promoted: true });
+      // The condition clears and comes back under the same id: a second occurrence.
+      await as((tx) => trace.observe(tx, memberId(OFFICER), unitId(NORTH), [{ ...item, resolved: true }], T1));
+      await as((tx) => trace.observe(tx, memberId(OFFICER), unitId(NORTH), [item], T2));
+      expect((await as((tx) => trace.occurrences(tx, [{ source: 'ADVANCE', sourceId: item.sourceId }]))).get(key)).toBe(1);
+      climb = (await as((tx) => escalations.climbOf(tx, [{ source: 'ADVANCE', sourceId: item.sourceId }]))).get(key);
+      expect(climb).toBeUndefined();
+      // The new occurrence records its own level, with a key of its own, and sees only that.
+      await as((tx) => escalations.record(tx, base({ source: 'ADVANCE', sourceId: item.sourceId, occurrence: 1, seriesKey: `ESCALATION:ADVANCE:${item.sourceId}:o1:1:x` })));
+      climb = (await as((tx) => escalations.climbOf(tx, [{ source: 'ADVANCE', sourceId: item.sourceId }]))).get(key);
+      expect(climb).toMatchObject({ max: 1, promoted: false });
+      const rows = [{ source: 'ADVANCE', id: item.sourceId, severity: 'WATCH' as const }];
+      await as((tx) => applyPromotions(tx, rows));
+      expect(rows[0]?.severity).toBe('WATCH');
     });
 
     it('refuses by the table a level with no recipient and a promotion with one', async () => {
@@ -526,7 +550,7 @@ describe('the stores of the governance of the alert system', () => {
       const work = new HomeWorkStore();
       const row = await as((tx) =>
         escalations.record(tx, {
-          source: 'ISSUE', sourceId: randomUUID(), level: 1, kind: 'FUNCTIONAL', trigger: 'OVERDUE', recipientId: memberId(AUDITOR), ownerId: memberId(OFFICER), routedVia: 'PRIMARY', coverId: null, severity: 'ACTION', fromSeverity: null,
+          source: 'ISSUE', sourceId: randomUUID(), occurrence: 0, level: 1, kind: 'FUNCTIONAL', trigger: 'OVERDUE', recipientId: memberId(AUDITOR), ownerId: memberId(OFFICER), routedVia: 'PRIMARY', coverId: null, severity: 'ACTION', fromSeverity: null,
           itemTitle: 'Overdue issue', itemSubtitle: null, itemDueOn: null, target: { screen: 'ISS-09', id: 'x' }, reachedAt: T0, policyVersion: 'builtin', seriesKey: `ESCALATION:${randomUUID()}`,
         }),
       );

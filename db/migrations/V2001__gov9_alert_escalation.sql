@@ -9,6 +9,8 @@ CREATE TABLE machvon.alert_escalation (
   source text NOT NULL CHECK (source ~ '^[A-Z][A-Z0-9_]{1,39}$'),
   source_id text NOT NULL CHECK (source_id = btrim(source_id) AND char_length(source_id) BETWEEN 1 AND 64),
   level integer NOT NULL CHECK (level BETWEEN 0 AND 5),
+  -- Which time the item appeared: an item whose condition cleared and came back under the same id is a new occurrence (the reopen count of its trace), with levels and promotions of its own.
+  occurrence integer NOT NULL DEFAULT 0 CHECK (occurrence >= 0),
   kind text NOT NULL CHECK (kind IN ('FUNCTIONAL', 'HIERARCHICAL', 'PROMOTION')),
   trigger text NOT NULL CHECK (trigger IN ('NOT_CLAIMED', 'NO_PROGRESS', 'OVERDUE', 'ORPHANED', 'WATCH_AGED')),
   -- The person who receives the level (null for a promotion), the owner of the item at the time, and how the recipient was found.
