@@ -50,6 +50,48 @@ describe('HUB-01, the catalogue of connectors and the health of the hub', () => 
     expect(screen.getByText(word('hub.run.never'))).toBeTruthy();
   });
 
+  it('HUB-2: lists the descriptor of every connector in a registry beside the status: layouts with their acceptance, the freshness policy and where it comes from, the credential, the alerts, the switch and the history', async () => {
+    const open = connector({
+      code: 'access.open-api',
+      name: 'Open interface',
+      acceptance: 'NOT_APPLICABLE',
+      status: 'NEVER_RUN',
+      consumers: ['INT', 'BI'],
+      registry: {
+        transports: ['API_PULL'],
+        layouts: [],
+        freshness_rule: null,
+        max_age_hours: null,
+        warn_after_hours: null,
+        rule_source: 'NOT_JUDGED',
+        credential_kind: 'MACHINE_ACCOUNT',
+        scopes: ['open.projects.read', 'open.contracts.read'],
+        alert_types: ['CONNECTOR_FAILING'],
+        state_owner: 'HUB',
+        history: 'HUB_RUNS',
+      },
+    });
+    mountCatalogue(answerWith([connector(), open]));
+    const section = (await screen.findByText(word('hub.reg.section'))).closest('section') as HTMLElement;
+    expect(within(section).getByText(fill('hub.reg.count', { count: 2 }))).toBeTruthy();
+    expect(within(section).getByText('STATEMENT @ ASSUMED-2026.1')).toBeTruthy();
+    expect(within(section).getByText(fill('hub.reg.freshness.line', { rule: 'TREASURY_STATEMENT', warn: 36, max: 72 }))).toBeTruthy();
+    expect(within(section).getByText(word('hub.reg.ruleSource.default'))).toBeTruthy();
+    expect(within(section).getByText(word('hub.reg.freshness.none'))).toBeTruthy();
+    expect(within(section).getByText(word('hub.reg.layouts.none'))).toBeTruthy();
+    expect(within(section).getByText(word('hub.reg.credential.machineAccount'))).toBeTruthy();
+    expect(within(section).getByText(fill('hub.reg.scopes', { count: 2 }))).toBeTruthy();
+    expect(within(section).getByText(word('hub.reg.history.hubRuns'))).toBeTruthy();
+    expect(within(section).getByText(word('hub.reg.history.fileFramework'))).toBeTruthy();
+    expect(within(section).getByText('CONNECTOR_FAILING')).toBeTruthy();
+  });
+
+  it('HUB-2: shows a dash for a connector whose answer carries no registry facts', async () => {
+    mountCatalogue(answerWith([connector({ registry: undefined })]));
+    const section = (await screen.findByText(word('hub.reg.section'))).closest('section') as HTMLElement;
+    expect(within(section).getAllByText('–').length).toBeGreaterThanOrEqual(4);
+  });
+
   it('shows the figures of the hub with the "i" of each: formula, source, as-of and the unverified flag', async () => {
     mountCatalogue(answerWith([connector(), waiting(), failing()]));
     await screen.findByTestId('connector-treasury.statement');

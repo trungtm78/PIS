@@ -9,6 +9,7 @@ import type { DataTableColumn } from '../../ui';
 import { AcceptanceBadge, KpiInfo, StatusBadge, OutcomePill, refusalText } from './components';
 import { useCaptureSnapshot, useConnectors, useHealth } from './hooks';
 import { STATUSES, ageParts, healthyLabel, vietnamDateTime, word } from './model';
+import { RegistrySection } from './RegistrySection';
 import type { Summary } from './model';
 import './hub.css';
 
@@ -161,6 +162,7 @@ function CatalogueContent({ route }: ScreenProps) {
           {data !== undefined && <DataTable caption={t('hub.cat.table.caption')} columns={columns} rows={data.items} rowKey={(row) => row.code} />}
         </StateBoundary>
       </SectionCard>
+      {data === undefined ? null : <RegistrySection items={data.items} />}
       <p className="hub-links">
         <Link to="/hub/hub-03">{t('hub.cat.link.incidents')}</Link>
       </p>

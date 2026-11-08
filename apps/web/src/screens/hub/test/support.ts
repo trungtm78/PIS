@@ -37,6 +37,19 @@ export const connector = (over: Record<string, unknown> = {}) => ({
   owner_role: 'INTEGRATION_ADMINISTRATOR',
   egress_policy: 'NONE',
   screens: [{ code: 'PAY-13', route: '/pay/pay-13' }],
+  registry: {
+    transports: ['FILE'],
+    layouts: [{ code: 'STATEMENT', version: 'ASSUMED-2026.1', acceptance: 'PENDING_EXTERNAL' }],
+    freshness_rule: 'TREASURY_STATEMENT',
+    max_age_hours: 72,
+    warn_after_hours: 36,
+    rule_source: 'DEFAULT',
+    credential_kind: 'NONE',
+    scopes: [],
+    alert_types: ['CONNECTOR_FAILING', 'CONNECTOR_STALE', 'TREASURY_RECON_ITEM_OVERDUE'],
+    state_owner: 'HUB',
+    history: 'FILE_FRAMEWORK',
+  },
   ...over,
 });
 
