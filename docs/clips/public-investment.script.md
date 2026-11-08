@@ -70,7 +70,8 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 
 | Bản nhạc | Giấy phép | Duyệt |
 |---|---|---|
-| track-1: Classical Pop (Instrumental) (Pro Sensory) * | CC0, https://opengameart.org/content/classical-pop-instrumental | PENDING_OWNER |
+| track-0: Calm Track (loop version) (pmiller) * | CC0, https://opengameart.org/content/calm-track | PROPOSED |
+| track-1: Classical Pop (Instrumental) (Pro Sensory) | CC0, https://opengameart.org/content/classical-pop-instrumental | PENDING_OWNER |
 | track-2: Chill Beats Collection (Holizna) | CC0, https://opengameart.org/content/chill-beats-collection | PENDING_OWNER |
 | track-3: Music for the background (ghi trên trang) | CC0, https://opengameart.org/content/music-for-the-background | PENDING_OWNER |
 

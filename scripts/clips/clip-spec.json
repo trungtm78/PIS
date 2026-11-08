@@ -46,6 +46,7 @@
     "truePeakMaxDb": -1,
     "sampleRate": 48000,
     "musicGainDb": -20,
+    "musicTargetLufs": -22,
     "duck": {
       "threshold": 0.04,
       "ratio": 10,

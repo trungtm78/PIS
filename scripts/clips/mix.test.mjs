@@ -124,3 +124,21 @@ test('the mix writes the sidecar subtitles and a record, runs the two passes in 
   assert.throws(() => mix({ video: 'v.mp4', timeline, audio: { a: { wav: wavA } }, music: join(dir, 'nope.mp3'), out, runner, log: () => undefined }), /music file not found/u);
   assert.throws(() => mix({ video: 'v.mp4', timeline, audio: { a: { wav: wavA } }, out, runner: () => ({ status: 1, stderr: 'boom' }), log: () => undefined }), /ffmpeg failed in the loudness pass/u);
 });
+
+test('the music is brought to a fixed loudness before ducking, and the default track is the proposed file of the clip when it exists', async () => {
+  const { parseEbur128, musicGainFor, defaultMusic } = await import('./mix.mjs');
+  const log = 'x\n  Summary:\n\n  Integrated loudness:\n    I:         -13.9 LUFS\n    Threshold: -24.0 LUFS\n';
+  assert.equal(parseEbur128(log), -13.9);
+  assert.equal(parseEbur128('nothing'), null);
+  assert.equal(musicGainFor(-13.9, -22, -20), -8.1);
+  assert.equal(musicGainFor(null, -22, -20), -20);
+  assert.equal(musicGainFor(-80, -22, -20), 6, 'a silent file is not boosted without limit');
+  const music = { clips: { c: { track: 't2' } }, tracks: [{ id: 't1', file: '/a.ogg', approval: { status: 'PROPOSED' } }, { id: 't2', file: '/b.ogg', approval: { status: 'PROPOSED' } }, { id: 't3' }] };
+  assert.deepEqual(defaultMusic('c', music, () => true), { id: 't2', file: '/b.ogg', status: 'PROPOSED' });
+  assert.equal(defaultMusic('c', music, () => false), undefined);
+  assert.equal(defaultMusic('c', { clips: {}, tracks: [{ id: 't3' }] }, () => true), undefined);
+  const graph = buildFilterGraph({ narration: [{ file: 'a.wav', startMs: 0 }], totalMs: 8000, music: 'm.ogg', musicGainDb: -8.1 });
+  assert.match(graph, /volume=-8\.1dB/u);
+  assert.match(graph, /sidechaincompress/u);
+  assert.match(graph, /afade=t=out/u);
+});
