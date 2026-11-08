@@ -71,6 +71,9 @@ export const WORK_KINDS = [
   'ANOMALY_SIGNAL',
   'RED_FLAG_NEW',
   'ALERT_FEEDBACK_REVIEW',
+  // The Integration Hub (lane HUB-1): a connector whose last runs all failed, and many connectors stale at once.
+  'CONNECTOR_FAILING',
+  'CONNECTOR_HUB_STALE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -135,6 +138,8 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   ANOMALY_SIGNAL: 53,
   RED_FLAG_NEW: 54,
   ALERT_FEEDBACK_REVIEW: 55,
+  CONNECTOR_FAILING: 56,
+  CONNECTOR_HUB_STALE: 57,
 };
 
 export interface WorkItem {

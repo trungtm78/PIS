@@ -252,6 +252,7 @@ export {
   registerEnterpriseRules,
   registerFinanceRules,
   registerGov10Rules,
+  registerIntegrationHubRules,
   registerIntegrationRules,
   registerIntegrityRules,
   registerMoneyRules,
@@ -2748,3 +2749,16 @@ export {
   setAiEditionPolicy,
 } from './ai-edition-policy.ts';
 export type { AiEditionPolicy, Attestation, AiExceptionDecision, ExceptionRecord, ExceptionRequest, AiExceptionStatus, ExternalProbe, ExternalRouting, ExternalVerdict } from './ai-edition-policy.ts';
+// The Integration Hub (lane HUB-1): the descriptor of a connector, the open registry, health, the summary of the hub, runs, incidents and snapshots; the built-in descriptors and the rule defaults.
+export { CONNECTOR_CREDENTIAL_KINDS, CONNECTOR_DIRECTIONS, CONNECTOR_FRESHNESS_RULE_TYPE, CONNECTOR_LEDGER_KINDS, CONNECTOR_TRANSPORTS, HUB_ALERT_FAILING, HUB_ALERT_HUB_STALE, HUB_ALERT_STALE, HUB_DEFAULT_OWNER_ROLE, HUB_FRESHNESS_BANDS, HUB_HEALTH_STATUSES, HUB_MAX_REASON, HUB_MIN_REASON, HUB_POLICY_DEFAULTS, HUB_POLICY_RULE_CODE, HUB_POLICY_RULE_TYPE, INCIDENT_ACTIONS, INCIDENT_KINDS, INCIDENT_STATES, LAYOUT_ACCEPTANCES, RUN_KINDS, RUN_OUTCOMES, assertConnectorDescriptor, assertRunLayoutKnown, connectorAcceptance, connectorTransports, connectorAlertTypes, connectorDescriptor, connectorDescriptors, connectorFreshnessParams, connectorHealth, connectorOfPosition, connectorScreenRoute, consecutiveFailuresOf, hubFreshnessOf, hubPolicyOf, hubReasonOf, hubRunOf, hubStateMove, incidentKindOfAlert, incidentMove, isConnectorCode, isSuccessfulRun, manualIncidentOf, registerConnector, snapshotBucketOf, summarizeHub, unregisterConnector } from './connector-hub.ts';
+export type { ConnectorCredentialKind, ConnectorCredentials, ConnectorDescriptor, ConnectorDirection, ConnectorEgress, ConnectorFreshness, ConnectorFreshnessDefaults, ConnectorHealth, ConnectorLayout, ConnectorLedger, ConnectorLedgerKind, ConnectorTransport, HubAlert, HubConnectorFact, HubFreshnessBand, HubFreshnessParams, HubHealthInput, HubHealthStatus, HubPolicy, HubRunRecord, HubSeverity, HubSummary, HubTrendPoint, IncidentAction, IncidentKind, IncidentMove, IncidentState, LayoutAcceptance, RunKind, RunOutcome } from './connector-hub.ts';
+export { HUB_KPI_CODES } from './connector-hub-defaults.ts';
+export type { HubKpiCode } from './connector-hub-defaults.ts';
+export { BUILT_IN_CONNECTORS, EGP_DESCRIPTOR, NATIONAL_CODES_DESCRIPTOR, PROCUREMENT_MILESTONES_DESCRIPTOR, TREASURY_DESCRIPTOR, registerBuiltInConnectors } from './connector-hub-builtins.ts';
+// The transport protocols, the ETL pipeline model and the conformance helper of the Integration Hub (lane HUB-1).
+export { BUILT_IN_PROTOCOLS, EGRESS_CLASSES, FILE_FORMATS, FileDropAdapter, GeneratorAdapter, InMemoryDropFolder, InMemorySinkFake, InMemorySourceFake, NO_EGRESS_EXCEPTIONS, PROTOCOL_AUTH_TYPES, RefusingProtocolAdapter, TRANSPORT_PROTOCOLS, WebhookInboundAdapter, assertProtocolDefinition, assertReadOnlyStatement, batchHashOf, detectArrivals, egressVerdict, isProtocolCode, makeBatch, parseManifest, protocolDefinition, protocolDefinitions, protocolPortFor, readFlatXml, recordsOfFile, registerProtocol, soapEnvelope, verifyWebhook, webhookSignatureOf } from './connector-protocols.ts';
+export type { ArrivalState, DropEntry, DropFolder, EgressClass, EgressExceptionPort, ExtractBatch, ExtractMode, ExtractRequest, FileFormat, FileLayout, InboundProtocolPort, OutboundMessage, OutboundProtocolPort, ProtocolAuthType, ProtocolDefinition, ProtocolDirection, ProtocolFailureSemantics, ProtocolImplementation, SourceRecord, SourceValue, WebhookDelivery, WebhookVerdict } from './connector-protocols.ts';
+export { ETL_STAGES, MANUAL_SCHEDULE, admitRun, applyMapping, assertMappingApproved, assertMappingShape, assertSchedule, backfillWindows, idempotencyKeyOf, multiplyDecimal as multiplyDecimalText, nextRunAt, paceMillis, reprocessRejects, runEtl } from './etl-pipeline.ts';
+export type { CrosswalkPort, EtlOutcome, EtlPorts, EtlReject, EtlRun, EtlRunInput, EtlStage, FieldIssue, FieldMapping, FieldTransform, LineageEntry, LoadItem, LoadOutcome, MappingVersion, PipelineSpec, RejectStage, ReprocessResult, ScheduleKind, ScheduleSpec, StageCount, ValidationIssue } from './etl-pipeline.ts';
+export { NETWORK_MODULES, connectorConformanceProblems, runWithNetworkWatch } from './connector-conformance.ts';
+export type { ConformanceOptions } from './connector-conformance.ts';

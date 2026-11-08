@@ -71,6 +71,9 @@ export const WORK_KINDS = [
   'ANOMALY_SIGNAL',
   'RED_FLAG_NEW',
   'ALERT_FEEDBACK_REVIEW',
+  // The Integration Hub (lane HUB-1): a failing connector, many connectors stale at once.
+  'CONNECTOR_FAILING',
+  'CONNECTOR_HUB_STALE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;

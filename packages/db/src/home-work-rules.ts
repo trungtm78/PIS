@@ -78,6 +78,8 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   ANOMALY_SIGNAL: 'ANOMALY',
   RED_FLAG_NEW: 'RED_FLAG',
   ALERT_FEEDBACK_REVIEW: 'ALERT_FEEDBACK',
+  CONNECTOR_FAILING: 'CONNECTOR',
+  CONNECTOR_HUB_STALE: 'CONNECTOR',
 };
 
 /**
@@ -145,6 +147,8 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   RED_FLAG: { NEW: 'ACTION', IN_REVIEW: 'WATCH' },
   // G2-9: a report that an alert was wrong waits for the owner of its type to review it.
   ALERT_FEEDBACK: { PENDING: 'WATCH', PENDING_LONG: 'ACTION' },
+  // HUB-1: a failing connector and a stale hub take the severity of the rule INTEGRATION_HUB_POLICY, so the facet is FAILING_ or HUB_STALE_ plus the word.
+  CONNECTOR: { STALE_URGENT: 'URGENT', STALE_ACTION: 'ACTION', STALE_WATCH: 'WATCH', FAILING_URGENT: 'URGENT', FAILING_ACTION: 'ACTION', FAILING_WATCH: 'WATCH', HUB_STALE_URGENT: 'URGENT', HUB_STALE_ACTION: 'ACTION', HUB_STALE_WATCH: 'WATCH' },
   // The work that was there before the alert centre has no severity of its own: what is late or due within the week is to be acted on, the rest is to be watched.
   APPROVAL: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
   EXPLANATION: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
@@ -229,5 +233,7 @@ const CONSEQUENCE_KEYS = [
   'ANOMALY_SIGNAL',
   'RED_FLAG_NEW',
   'ALERT_FEEDBACK_REVIEW',
+  'CONNECTOR_FAILING',
+  'CONNECTOR_HUB_STALE',
 ] as const;
 export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

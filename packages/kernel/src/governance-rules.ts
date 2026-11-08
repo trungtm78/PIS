@@ -15,6 +15,7 @@ import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-polic
 import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
 import { ACTUALS_PRECEDENCES, ACTUAL_SOURCES, ENTRY_MODES, FUNDING_TAXONOMY_RULE_TYPE, MEASURES, PERIOD_GRAINS, RATIO_BASES, RATIO_TERMS, enterprisePackParams, publicPackParams, refineFundingPack } from './fnd-taxonomy.ts';
+import { HUB_POLICY_PARAMS, hubAlertSeeds, hubAlertSource, hubFreshnessDefaults, hubKpiDefaults, hubPolicyFormula, hubPolicySource } from './connector-hub-defaults.ts';
 import { message } from './messages.ts';
 import { PAYEE_ACCOUNT_DEFAULTS, payeeAccountPolicyOf } from './vendor-payee.ts';
 import { PROFILE_FIELDS } from './vendor-profile.ts';
@@ -1716,6 +1717,44 @@ export const registerGov10Rules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(GOV10_ALERT_SEEDS, { source: message('gov.rules.gov10.source') }));
   });
 
+/** The Integration Hub (lane HUB-1): the policy of the hub, the alerts it raises, the freshness codes of the connectors that had none and the KPI definitions of the hub (data of `connector-hub-defaults.ts`). */
+export const registerIntegrationHubRules = (): void =>
+  once('integration-hub', () => {
+    registerCoreRules();
+    registerAnalyticsRules();
+    registerIntegrationRules();
+    registerRuleType({
+      type: 'INTEGRATION_HUB_POLICY',
+      ownerModule: 'HUB',
+      modules: ['HUB', 'INT', 'ADM', 'HOME'],
+      formula: hubPolicyFormula(),
+      source: hubPolicySource(),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        failing_after_runs: int(1, 10),
+        failing_severity: oneOf(...SEVERITIES),
+        hub_stale_ratio_percent: int(1, 100),
+        hub_stale_min_connectors: int(1, 50),
+        hub_stale_severity: oneOf(...SEVERITIES),
+        incident_auto_open: bool,
+        snapshot_retention_days: int(30, 3650),
+      },
+      defaults: { DEFAULT: rule(plain({ ...HUB_POLICY_PARAMS })) },
+    });
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(hubAlertSeeds(), { source: hubAlertSource() }));
+    registerRuleDefaults(
+      'CONNECTOR_FRESHNESS',
+      Object.fromEntries(Object.entries(hubFreshnessDefaults()).map(([code, one]) => [code, rule(plain(one.params), undefined, { formula: one.formula })])),
+    );
+    registerRuleDefaults(
+      'KPI_DEFINITION',
+      Object.fromEntries(
+        Object.entries(hubKpiDefaults()).map(([code, one]) => [code, rule(plain(one.params), one.unverified ? 'UNVERIFIED' : 'VERIFIED', { formula: String(one.params.formula ?? ''), source: String(one.params.source ?? ''), asOf: AS_OF })]),
+      ),
+    );
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -1735,6 +1774,7 @@ export function registerAllGovernanceRules(): void {
   registerClaimRules();
   registerAlertGovernanceRules();
   registerGov10Rules();
+  registerIntegrationHubRules();
 }
 
 registerAllGovernanceRules();
