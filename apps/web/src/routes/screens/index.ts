@@ -500,4 +500,10 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'NOT-30': () => import('../../screens/gov10/AlertLadderScreen'),
   'HOME-30': () => import('../../screens/gov10/AlertFeedbackQueueScreen'),
   'HOME-31': () => import('../../screens/gov10/AlertClosuresScreen'),
+=======
+  'INT-01': () => import('../../screens/int/accounts/AccountsScreen'),
+  'INT-02': () => import('../../screens/int/accounts/ScopesKeysScreen'),
+  'INT-03': () => import('../../screens/int/codes/CodesScreen'),
+  'INT-04': () => import('../../screens/int/bi/BiScreen'),
+  'INT-05': () => import('../../screens/int/log/AccessLogScreen'),
 };
