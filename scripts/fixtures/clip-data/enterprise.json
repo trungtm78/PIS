@@ -598,6 +598,16 @@
     "evaluation.approve": "Phê duyệt sau khi kiểm tra tại hiện trường",
     "doa.submit": "Trình lãnh đạo quyết định",
     "doa.title": "Quyết định về việc phân cấp ủy quyền ký văn bản",
-    "doa.reason": "Ma trận ủy quyền của Tổng công ty"
+    "doa.reason": "Ma trận ủy quyền của Tổng công ty",
+    "capital-projects:sender.023": "Hội đồng thẩm định đầu tư của Tổng công ty",
+    "capital-projects:sender.027": "Ban Quản lý dự án đầu tư của Tổng công ty",
+    "capital-projects:symbol.029": "{0}/QĐ-HĐTV",
+    "capital-projects:symbol.016": "129/QĐ-HĐTV",
+    "capital-projects:title.017": "Quyết định về việc bổ sung danh mục khu vực đầu tư dùng chung của Tổng công ty",
+    "capital-plan:PROVINCE.002": "Hội đồng thành viên Tổng công ty",
+    "capital-plan:symbol.023": "95/QĐ-HĐTV",
+    "capital-plan:title.024": "Quyết định về việc giao kế hoạch vốn đầu tư năm 2026 cho các đơn vị chủ đầu tư",
+    "capital-plan:note.021": "Bố trí vốn năm 2026 cho các dự án chuyển tiếp và khởi công mới của Tổng công ty",
+    "capital-plan:reason.022": "Phù hợp kế hoạch được giao và tiến độ thực hiện của các dự án"
   }
 }
