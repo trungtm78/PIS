@@ -409,7 +409,7 @@ describe('the analytics of the contract portfolio over HTTP (CA-1, part 2: R12, 
       }
       const delay = await call('/contracts/analytics/reports/schedule-delay');
       expect(totals(delay).cells.days_late).toBe(60);
-      expect(delay.json.evm).toEqual({ status: 'UNAVAILABLE', reason: 'NOT_WIRED' });
+      expect(delay.json.evm).toMatchObject({ status: 'UNAVAILABLE', reason: 'NO_CONTRACT_LINK', coverage: { covered: 0 } });
       expect(items(delay).find((item) => item.cells.code === 'HD-4')?.cells.days_late).toBe(20);
     });
 

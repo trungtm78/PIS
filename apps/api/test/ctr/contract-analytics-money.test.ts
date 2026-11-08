@@ -378,7 +378,7 @@ describe('the money reports of the contract portfolio over HTTP (CA-2)', () => {
       for (const key of ['measured_vnd', 'accepted_vnd', 'measured_not_accepted_vnd', 'payments_judged', 'payments_on_time']) expect(String(server.cells[key])).toBe(sumOf(items(reply), key).toString());
       const accepted = sumOf(items(reply), 'accepted_vnd');
       const measured = sumOf(items(reply), 'measured_vnd');
-      expect(server.cells.measured_to_accepted_pct).toBe((Number((accepted * 10_000n) / measured) / 100).toFixed(2));
+      expect(server.cells.measured_to_accepted_pct).toBe(`${((accepted * 20_000n + measured) / (2n * measured)) / 100n}.${(((accepted * 20_000n + measured) / (2n * measured)) % 100n).toString().padStart(2, '0')}`);
     });
 
     it('judges every payment request by the clock, one by one, as the kernel does, and a contract is late exactly when one of its requests is', async () => {
