@@ -5,6 +5,7 @@ import { feedFiles } from './public-feed.ts';
 import { khlcntCsv, tbmtCsv } from './public-egp.ts';
 import { statementCsv } from './public-dis.ts';
 import { ebsCsv } from './enterprise.ts';
+import { periodCode } from './enterprise-reports.ts';
 
 /** The files the groups upload are built by pure functions: their headers are the layouts of the product, their rows follow the plan. */
 
@@ -78,4 +79,10 @@ test('the accounting file names the projects and the periods of the plan', () =>
     '2026-11-05',
   );
   assert.equal(csv, 'project_code,period,extract_date,disbursed_vnd,committed_vnd\nDA-PMDT105,2026-08,2026-11-05,12000000,300000000\n');
+});
+
+test('the period codes are the ones the report engine writes: months zero padded, quarters not', () => {
+  assert.equal(periodCode({ kind: 'MONTH', index: 9 }, 2026), '2026-M09');
+  assert.equal(periodCode({ kind: 'MONTH', index: 10 }, 2026), '2026-M10');
+  assert.equal(periodCode({ kind: 'QUARTER', index: 3 }, 2026), '2026-Q3');
 });

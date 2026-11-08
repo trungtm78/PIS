@@ -28,13 +28,14 @@ interface ReportsBlock {
   rejectionNote: string;
 }
 
-function periodCode(spec: ReportSpec, year: number): string {
-  return spec.kind === 'MONTH' ? `${year}-M${spec.index}` : `${year}-Q${spec.index}`;
+/** The period code the report engine writes: a month is zero padded (2026-M09), a quarter is not (2026-Q3). */
+export function periodCode(spec: Pick<ReportSpec, 'kind' | 'index'>, year: number): string {
+  return spec.kind === 'MONTH' ? `${year}-M${String(spec.index).padStart(2, '0')}` : `${year}-Q${spec.index}`;
 }
 
 async function issueCopy(ctx: SeedContext, spec: ReportSpec, year: number): Promise<{ issueId: string; revision: number; sha256: string } | undefined> {
   const code = periodCode(spec, year);
-  const known = (await ctx.list<Obj>(PREPARER, '/report-engine/issues')).find((row) => row.layout_code === spec.layout && row.period === code && row.is_current === true);
+  const known = (await ctx.list<Obj>(PREPARER, '/report-engine/issues')).find((row) => row.layout_code === spec.layout && row.period_code === code && row.is_current === true);
   if (known !== undefined) return { issueId: String(known.id), revision: Number(known.revision), sha256: String(known.sha256) };
   const generated = await ctx.attempt<Obj>(PREPARER, 'POST', '/report-engine/drafts', { layout_code: spec.layout, period: { kind: spec.kind, year, index: spec.index } });
   if (!generated.ok) return undefined;
@@ -47,7 +48,7 @@ async function issueCopy(ctx: SeedContext, spec: ReportSpec, year: number): Prom
   if (!(await step(CHECKER, 'check'))) return undefined;
   if (!(await step(APPROVER, 'approve'))) return undefined;
   if (!(await step(APPROVER, 'issue'))) return undefined;
-  const issued = (await ctx.list<Obj>(PREPARER, '/report-engine/issues')).find((row) => row.layout_code === spec.layout && row.period === code && row.is_current === true);
+  const issued = (await ctx.list<Obj>(PREPARER, '/report-engine/issues')).find((row) => row.layout_code === spec.layout && row.period_code === code && row.is_current === true);
   return issued === undefined ? undefined : { issueId: String(issued.id), revision: Number(issued.revision), sha256: String(issued.sha256) };
 }
 

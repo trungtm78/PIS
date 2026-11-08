@@ -76,7 +76,7 @@ async function toActive(ctx: SeedContext, spec: PackageSpec, projectCode: string
       expires_at: new Date(Date.parse(`${ctx.day(400)}T00:00:00+07:00`)).toISOString(),
       document_version_id: evidence.versionId,
     });
-    if (guarantee.ok) await ctx.attempt(CHECKER, 'POST', `/guarantees/${guarantee.json.resource_id}/verify`, { outcome: 'VERIFIED', method: 'Confirmed by the issuer', evidence_document_version_id: evidence.versionId });
+    if (guarantee.ok) await ctx.attempt(CHECKER, 'POST', `/guarantees/${guarantee.json.resource_id}/verify`, { outcome: 'VERIFIED', method: 'Confirmed by the issuer', evidence_document_version_id: evidence.versionId }, { version: guarantee.json.resource_version });
     const current = await ctx.get<Obj>(MAKER, `/resources/contract/${id}`);
     version = Number(current.version);
   }
