@@ -1,0 +1,67 @@
+/* FEED-01 to FEED-05, the feed of the Finance Department. Tokens only; the kit (apps/web/src/ui) draws the cards, the tables, the pills, the dialogs and the "i". */
+
+.feed-page { display: grid; gap: var(--mv-space-16); }
+.feed-page .ui-section { margin-bottom: 0; }
+.feed-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--mv-space-12); }
+.feed-links { display: flex; flex-wrap: wrap; gap: var(--mv-space-16); }
+.feed-badges { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); margin-top: var(--mv-space-8); }
+.feed-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.feed-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }
+
+.feed-facts { display: grid; gap: var(--mv-space-12); margin: 0; }
+.feed-fact { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: var(--mv-space-4) var(--mv-space-16); align-items: baseline; padding-bottom: var(--mv-space-8); border-bottom: 1px solid var(--mv-color-border); }
+.feed-fact dt { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.feed-fact dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .feed-fact { grid-template-columns: minmax(0, 1fr); }
+}
+.feed-explain { margin: 0 0 var(--mv-space-12); font-weight: 600; }
+.feed-explain[data-status='STALE'] { color: var(--mv-color-warning); }
+.feed-note { margin: 0 0 var(--mv-space-12); color: var(--mv-color-text-secondary); font-size: 14px; }
+.feed-none { margin: 0; color: var(--mv-color-text-secondary); }
+.feed-link { margin: var(--mv-space-12) 0 0; }
+.feed-list { display: grid; gap: var(--mv-space-8); margin: 0; padding: 0; list-style: none; }
+.feed-item { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.feed-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--mv-space-12); margin: var(--mv-space-16) 0 0; padding: 0; list-style: none; }
+.feed-stack { display: inline-flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-4); }
+.feed-channel { color: var(--mv-color-text-secondary); font-size: 12px; letter-spacing: 0.04em; }
+.feed-hash { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.feed-layout { margin-bottom: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.feed-layout > summary { min-height: 44px; display: flex; align-items: center; padding: 0 var(--mv-space-16); font-weight: 600; cursor: pointer; }
+.feed-layout > summary:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.feed-layout[open] > summary { border-bottom: 1px solid var(--mv-color-border); }
+
+.feed-form { display: grid; gap: var(--mv-space-12); max-width: 960px; }
+.feed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--mv-space-12); }
+.feed-error { color: var(--mv-color-danger); font-size: 12px; }
+.feed-filters { display: flex; flex-wrap: wrap; gap: var(--mv-space-12); align-items: end; margin-bottom: var(--mv-space-12); }
+.feed-filters .field { min-width: 180px; }
+.feed-chips { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin: var(--mv-space-12) 0; padding: 0; border: 0; }
+.feed-chips legend { padding: 0; margin-bottom: var(--mv-space-4); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mv-color-text-secondary); }
+.feed-chip { min-height: 44px; padding: 0 var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-pill); background: var(--mv-color-surface); color: var(--mv-color-ink); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; }
+.feed-chip:hover { background: var(--mv-color-primary-soft); }
+.feed-chip[aria-pressed='true'] { border-color: var(--mv-color-primary); background: var(--mv-color-primary); color: var(--mv-color-surface); font-weight: 600; }
+.feed-chip:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.feed-cell { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.feed-cell small { color: var(--mv-color-text-secondary); font-size: 12px; }
+.feed-code { font-family: inherit; font-weight: 600; font-variant-numeric: tabular-nums; }
+.feed-row-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); align-items: center; }
+.feed-words { font-size: 12px; color: var(--mv-color-text-secondary); }
+.feed-more { display: flex; align-items: center; justify-content: space-between; gap: var(--mv-space-12); margin-top: var(--mv-space-12); }
+.feed-num { font-variant-numeric: tabular-nums; }
+.feed-overdue { color: var(--mv-color-danger); font-weight: 600; }
+
+.feed-state { display: flex; flex-direction: column; gap: var(--mv-space-8); align-items: flex-start; padding: var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); }
+.feed-state h2 { margin: 0; font-size: 18px; }
+.feed-state p { margin: 0; }
+.feed-state--denied, .feed-state--error { border-color: var(--mv-color-danger); }
+
+.feed-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--mv-space-12); margin: 0 0 var(--mv-space-12); }
+.feed-counts > div { padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.feed-counts dt { font-size: 12px; color: var(--mv-color-text-secondary); }
+.feed-counts dd { margin: 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.feed-columns { border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); padding: var(--mv-space-8) var(--mv-space-12); background: var(--mv-color-surface); }
+.feed-columns > summary { cursor: pointer; min-height: 24px; font-weight: 600; }
+.feed-columns > summary:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.feed-filter { max-width: 320px; margin: var(--mv-space-12) 0; }
+.feed-pairs { display: flex; flex-wrap: wrap; gap: var(--mv-space-4) var(--mv-space-12); margin: 0; padding: 0; list-style: none; font-size: 12px; }
