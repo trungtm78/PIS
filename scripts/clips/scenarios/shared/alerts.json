@@ -87,8 +87,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "HOME-02",
-          "HOME-12"
+          "HOME-02"
         ]
       },
       "steps": [
@@ -143,7 +142,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",

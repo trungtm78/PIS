@@ -142,7 +142,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -159,7 +159,7 @@
         },
         {
           "do": "as",
-          "persona": "paymentApprover"
+          "persona": "owner"
         },
         {
           "do": "command",
