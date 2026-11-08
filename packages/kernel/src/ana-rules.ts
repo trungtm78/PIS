@@ -1,4 +1,5 @@
 import { DECISION_DEFAULTS, DECISION_RULE_CODE, DECISION_RULE_TYPE, decisionPolicyOf } from './ana-decision.ts';
+import { INSIGHT_DEFAULTS, INSIGHT_RULE_CODE, INSIGHT_RULE_TYPE, insightParamsOf } from './ana-insight.ts';
 import { BOTTLENECK_DEFAULTS, BOTTLENECK_RULE_CODE, BOTTLENECK_RULE_TYPE, bottleneckModelOf } from './ana-bottleneck.ts';
 import type { ForecastParams } from './ana-forecast.ts';
 import { RANKING_DEFAULTS, RANKING_RULE_CODE, RANKING_RULE_TYPE, rankingModelOf } from './ana-ranking.ts';
@@ -191,5 +192,27 @@ const BOTTLENECK: ExecRuleType = {
   defaults: { [BOTTLENECK_RULE_CODE]: BOTTLENECK_DEFAULTS as RuleParams },
 };
 
+const INSIGHT: ExecRuleType = {
+  type: INSIGHT_RULE_TYPE,
+  ownerModule: 'BI',
+  modules: ['BI', 'HOME'],
+  formula: message('ana.rules.insight.formula'),
+  source: message('ana.rules.source'),
+  schema: {
+    green_ratio: { kind: 'number', min: 0, max: 5 },
+    amber_ratio: { kind: 'number', min: 0, max: 5 },
+    min_cell_count: int(1, 50),
+    ctr_green_pct: int(0, 200),
+    ctr_amber_pct: int(0, 200),
+    backtest_horizon_weeks: int(1, 12),
+    candidate_shifts: { kind: 'list', of: int(-50, 50), min: 1, max: 11 },
+    backtest_min_pairs: int(1, 10000),
+    trend_weeks: int(1, 12),
+    trend_top: int(1, 20),
+  },
+  refine: refineWith(insightParamsOf),
+  defaults: { [INSIGHT_RULE_CODE]: INSIGHT_DEFAULTS as RuleParams },
+};
+
 /** Every rule type of the lane, in the order they are registered. */
-export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT, RANKING, BOTTLENECK];
+export const EXEC_RULE_TYPES: readonly ExecRuleType[] = [FORECAST, DECISION, FRESHNESS, SCORECARD_MODULE, SCORECARD_UNIT, RANKING, BOTTLENECK, INSIGHT];
