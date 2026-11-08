@@ -10,6 +10,7 @@ import { instantText } from '../adm/audit/SealBanner';
 import '../not/delivery/delivery.css';
 import { channelLabel, statusLabel, statusPill } from './conversation/labels';
 import { conversionLink } from './conversation/model';
+import { LinkPanel } from './thread/LinkPanel';
 import { useConversation, useMessageText, useMessages, useMoveConversation, useSendMessage } from './thread/hooks';
 import { deliveryLabel, directionLabel, problemMessage, purposeLabel } from './thread/labels';
 import {
@@ -103,6 +104,7 @@ function ThreadContent({ route }: ScreenProps) {
                 <Link to={conversionLink(current.id)}>{t('omni.thread.convert.action')}</Link>
               </p>
             ) : null}
+            {canReply ? <LinkPanel key={`${current.id}:link`} conversation={current} onDone={setNotice} /> : null}
             {canReply ? <Actions key={current.id} conversation={current} onDone={setNotice} /> : null}
             {canReply ? <Composer key={`${current.id}:composer`} conversation={current} onDone={setNotice} /> : null}
           </>

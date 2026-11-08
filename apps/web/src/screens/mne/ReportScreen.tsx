@@ -6,6 +6,8 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmationLabel, Field } from './components';
+import { ReportCreateForm } from './ReportCreateForm';
+import { mayCreate } from './report-create-model';
 import { useEditReport, useObligations, useReport, useSubmitReport } from './hooks';
 import { reportProblemMessage, reportStatusLabel, sourceLabel } from './labels';
 import { describeReportProblem, draftsOf, drillPath, isEditable, missingCells, narrativeChanges, shown } from './report-model';
@@ -51,16 +53,36 @@ function ReportContent({ route }: ScreenProps) {
 /** The reports of the year that are still drafts, from the filing calendar: where a report is opened from. */
 function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
   const { t } = useTranslation();
+  const { permissions, mode } = useSession();
+  const [creating, setCreating] = useState(false);
   const today = vietnamToday();
   // The reports of a year are filed in the next one: the year is the person's to choose.
   const [year, setYear] = useState(Number(today.slice(0, 4)));
   const list = useObligations({ year, status: 'DRAFT' });
   const items = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data === undefined ? undefined : items });
+  if (creating) {
+    return (
+      <ReportCreateForm
+        onCancel={() => setCreating(false)}
+        onCreated={(id) => {
+          setCreating(false);
+          if (id !== '') onOpen(id);
+        }}
+      />
+    );
+  }
   return (
     <div className="card">
       <h2>{t('mne.report.picker.title')}</h2>
       <p className="sub">{t('mne.report.picker.help')}</p>
+      {mayCreate(permissions, mode === 'READ_ONLY') ? (
+        <div className="mne-actions">
+          <button type="button" className="ui-button ui-button--primary ui-button--small" onClick={() => setCreating(true)} data-testid="create-open">
+            {t('mne.create.open')}
+          </button>
+        </div>
+      ) : null}
       <div className="mne-filters">
         <Field id="report-year" label={t('mne.calendar.filter.year.label')} error={undefined}>
           <select id="report-year" value={year} onChange={(event) => setYear(Number(event.target.value))}>

@@ -8,11 +8,13 @@ import { useScreenState } from '../../../states/useScreenState';
 import { useComparison } from '../compare/hooks';
 import { CreatePanel } from './CreatePanel';
 import { ReportCard } from './ReportCard';
-import { useReports, useSignOff } from './hooks';
+import { useReport, useReports, useSignOff } from './hooks';
 import { REPORT_PERMISSION, candidatesOf, canAct, comparePath, declarationPath, holds, isConfirmation, maySign, readFailure, signBody, withDissentDraft, withoutDissentDraft } from './model';
 import type { DissentDrafts, Report } from './model';
 import './report.css';
 import '../bid.css';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * BID-13: the evaluation report of a package and its sign-off (ST-BID-012, BID 3 F6, BR-BID-03/09). A member of the evaluation team makes the report from analyses whose findings the experts all decided; it freezes
@@ -32,7 +34,12 @@ function ReportContent({ route }: ScreenProps) {
   const packageId = search.get('package') ?? '';
   const allowed = holds(permissions, REPORT_PERMISSION);
   const mayMake = canAct(permissions, mode) && packageId !== '';
-  const read = useReports(packageId, allowed);
+  const openedId = UUID.test(search.get('report') ?? '') ? (search.get('report') ?? '').toLowerCase() : '';
+  // A link to one report shows that report alone when no package is chosen.
+  const single = openedId !== '' && packageId === '';
+  const list = useReports(packageId, allowed);
+  const opened = useReport(openedId, allowed && single);
+  const read = single ? opened : list;
   const comparison = useComparison(packageId, '', mayMake);
   const comparisonState = useScreenState({ isLoading: comparison.isLoading, error: comparison.error, data: comparison.data, isEmpty: () => false });
   const sign = useSignOff();
@@ -54,7 +61,7 @@ function ReportContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={allowed ? 'default' : 'denied'}>
-        {packageId === '' ? (
+        {packageId === '' && !single ? (
           <p className="callout" role="note" data-testid="choose-package">
             {t('bid.report.package.hint')}
           </p>
@@ -72,8 +79,13 @@ function ReportContent({ route }: ScreenProps) {
                 <CreatePanel packageId={packageId} packageCode={packageCode} criteriaVersionId={comparison.data?.criteriaVersionId ?? ''} candidates={candidatesOf(comparison.data)} />
               </StateBoundary>
             ) : null}
+            {single ? (
+              <p className="callout" role="note" data-testid="opened-report">
+                {t('bid.report.opened.notice')}
+              </p>
+            ) : null}
             <p className="sub">
-              <Link to={comparePath(packageId)} data-testid="link-compare">
+              <Link to={comparePath(packageId === '' ? (reports[0]?.package.id ?? '') : packageId)} data-testid="link-compare">
                 {t('bid.report.compare.link')}
               </Link>
             </p>

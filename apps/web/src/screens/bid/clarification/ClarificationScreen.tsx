@@ -6,13 +6,15 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { useProposals } from '../proposal/hooks';
-import { useAnswerClarification, useClarifications, useDeadlineClock } from './hooks';
+import { useAnswerClarification, useClarification, useClarifications, useDeadlineClock } from './hooks';
 import { READ_PERMISSION, canSend, declarationPath, holds, mayAnswer, readFailure, recipientsOf, withAnswerDraft, withoutAnswerDraft } from './model';
 import type { AnswerDrafts, Clarification } from './model';
 import { RequestCard } from './RequestCard';
 import { SendPanel } from './SendPanel';
 import './clarification.css';
 import '../bid.css';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * BID-11: the clarification requests to the contractors during the evaluation of bids (ST-BID-011, BID 3 F6, BR-BID-03). A member of the evaluation team asks the contractor of an opened proposal to explain
@@ -33,7 +35,12 @@ function ClarificationContent({ route }: ScreenProps) {
   const wantedProposal = search.get('proposal') ?? '';
   const allowed = holds(permissions, READ_PERMISSION);
   const mayAsk = canSend(permissions, mode) && packageId !== '';
-  const read = useClarifications(packageId, allowed);
+  const openedId = UUID.test(search.get('clarification') ?? '') ? (search.get('clarification') ?? '').toLowerCase() : '';
+  // A link to one request shows that request alone when no package is chosen.
+  const single = openedId !== '' && packageId === '';
+  const list = useClarifications(packageId, allowed && !single);
+  const opened = useClarification(openedId, allowed && single);
+  const read = single ? opened : list;
   const proposals = useProposals(mayAsk ? packageId : '');
   const proposalState = useScreenState({ isLoading: proposals.isLoading, error: proposals.error, data: proposals.data, isEmpty: () => false });
   const answer = useAnswerClarification();
@@ -77,6 +84,11 @@ function ClarificationContent({ route }: ScreenProps) {
             {canSend(permissions, mode) && packageId === '' ? (
               <p className="callout" role="note" data-testid="choose-package">
                 {t('bid.clarifications.package.hint')}
+              </p>
+            ) : null}
+            {single ? (
+              <p className="callout" role="note" data-testid="opened-request">
+                {t('bid.clarifications.opened.notice')}
               </p>
             ) : null}
             <StateBoundary state={state} onRetry={() => void read.refetch()}>

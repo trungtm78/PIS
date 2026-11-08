@@ -11,6 +11,7 @@ import { DeclarationPanel } from './DeclarationPanel';
 import { useOpenProposal, useProposals } from './hooks';
 import { accessLabel, problemMessage, statusLabel } from './labels';
 import { IntakeDialog } from './IntakeDialog';
+import { PassageSearchPanel } from './PassageSearchPanel';
 import { canEvaluate, canReceive, describeProblem, momentText, openPackages, openingOf, orderedProposals } from './model';
 import type { Proposal } from './model';
 import { ProposalDetailDialog } from './ProposalDetailDialog';
@@ -118,6 +119,7 @@ function ProposalContent({ route }: ScreenProps) {
         </div>
         {pack === undefined ? null : (
           <>
+            {mayEvaluate ? <PassageSearchPanel packageId={packageId} /> : null}
             <SectionCard title={t('bid.proposals.table.title')}>
               {opener.isError ? (
                 <p className="callout warning" role="alert" data-testid="open-refusal">

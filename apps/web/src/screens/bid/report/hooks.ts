@@ -3,7 +3,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
-import { toReportList } from './model';
+import { ApiError } from '@machvon/api-client';
+import { toReport, toReportList } from './model';
 import type { CreateBody, Report, SignBody } from './model';
 
 // What the screen shows depends on what the signed-in membership may see, not only on the tenant: the membership is part of every key.
@@ -64,5 +65,28 @@ export function useSignOff() {
     onSuccess: (_answer, { report }) => attempts.current.delete(report.id),
     onError: (error, { report }) => registryOf(report.id).ended(error),
     onSettled: () => queryClient.invalidateQueries({ queryKey: key }),
+  });
+}
+
+/**
+ * One report by its id (a link from the minutes or a notification opens it): a report of a package the caller does not evaluate, or one hidden by a conflict of interest, is not there for the caller (a 404) and the
+ * answer is then an empty list, never an error. Returned as a list of one so that the screen shows it the way it shows the others.
+ */
+export function useReport(id: string, enabled: boolean) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<Report[]>({
+    queryKey: [...key, 'one', id],
+    queryFn: async () => {
+      try {
+        const one = toReport(await client.read('getEvaluationReport', { path: { id } }));
+        return one === undefined ? [] : [one];
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return [];
+        throw error;
+      }
+    },
+    enabled: enabled && id !== '' && key[1] !== undefined,
+    retry: false,
   });
 }

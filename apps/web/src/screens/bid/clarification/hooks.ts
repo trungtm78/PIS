@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
-import { toClarificationList } from './model';
+import { ApiError } from '@machvon/api-client';
+import { toClarification, toClarificationList } from './model';
 import type { Clarification, SendBody } from './model';
 
 // What the screen shows depends on what the signed-in membership may see, not only on the tenant: the membership is part of every key.
@@ -88,4 +89,27 @@ export function useDeadlineClock(deadlines: readonly string[]): void {
     const timer = setTimeout(() => setTick((current) => current + 1), Math.min(Math.min(...next) - at + 1, LONGEST_WAIT_MS));
     return () => clearTimeout(timer);
   }, [key, tick]);
+}
+
+/**
+ * One request by its id (a link from a notification opens it): the request of another contractor, of another tenant, or one hidden by a conflict of interest is not there for the caller, and the list is then empty
+ * (a 404), never an error. Returned as a list of one so that the screen shows it the way it shows the others.
+ */
+export function useClarification(id: string, enabled: boolean) {
+  const client = useApiClient();
+  const key = useScopeKey();
+  return useQuery<Clarification[]>({
+    queryKey: [...key, 'one', id],
+    queryFn: async () => {
+      try {
+        const one = toClarification(await client.read('getBidClarification', { path: { id } }));
+        return one === undefined ? [] : [one];
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return [];
+        throw error;
+      }
+    },
+    enabled: enabled && id !== '' && key[1] !== undefined,
+    retry: false,
+  });
 }

@@ -204,6 +204,8 @@ export function reportProblemMessage(t: T, problem: ReportProblem, labelOf: (key
       return t('mne.report.problem.templateMissing');
     case 'stateInvalid':
       return t('mne.report.problem.stateInvalid');
+    case 'correctionReason':
+      return t('mne.report.problem.correctionReason');
     case 'snapshotRequired':
       return t('mne.report.problem.snapshotRequired');
     case 'snapshotNotFrozen':

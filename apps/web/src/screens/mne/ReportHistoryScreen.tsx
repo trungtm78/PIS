@@ -19,6 +19,7 @@ import type { Translator } from '../../i18n';
 import './mne.css';
 import './mne-kit.css';
 import { StatusPill } from '../../ui';
+import { CorrectionPanel } from './CorrectionPanel';
 
 type T = Translator['t'];
 const MEMBER_READ_PERMISSION = 'membership.read';
@@ -207,6 +208,7 @@ function HistoryBody({ revision, againstId, onOpen, onCompare }: BodyProps) {
           </table>
         </div>
       </div>
+      {revision.history.find((entry) => entry.id === id)?.current === true ? <CorrectionPanel report={revision.report} onCorrected={(newId) => (newId === '' ? undefined : onOpen(newId))} /> : null}
       {againstId === undefined ? (
         <>
           <p className="callout" role="status" data-testid="compare-none">

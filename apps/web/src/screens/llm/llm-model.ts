@@ -468,6 +468,8 @@ export interface BudgetEntry {
   maxConcurrent: number | null;
   status: string;
   counter: Counter | null;
+  /** The version the decisions on the budget are sent under (0 when the read carried none). */
+  version: number;
 }
 
 export function toBudget(raw: unknown): BudgetEntry | undefined {
@@ -489,6 +491,7 @@ export function toBudget(raw: unknown): BudgetEntry | undefined {
     maxConcurrent: whole(row.max_concurrent) ?? null,
     status: text(row.status) ?? 'ACTIVE',
     counter: toCounter(row.counter),
+    version: whole(row.version) ?? 0,
   };
 }
 

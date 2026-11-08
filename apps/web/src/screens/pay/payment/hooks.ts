@@ -146,3 +146,13 @@ export function useReturnPayment() {
   const client = useApiClient();
   return useCommand<CancelInput & { body: { reason: string; reason_code?: string } }>((input, attempt) => client.command('returnPaymentRequest', { path: { id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }
+
+export interface ManualConfirmInput {
+  body: { payment_request_id: string; document_no: string; document_date: string; amount_vnd: string; confirmed_at: string; evidence_document_version_id: string };
+}
+
+/** Confirms by hand that the Treasury paid a request (source manual-confirmed): the document, its day, the amount and the evidence in DOC; the person who sent the request to the Treasury cannot confirm it. */
+export function useManualTreasuryConfirm() {
+  const client = useApiClient();
+  return useCommand<ManualConfirmInput>((input, attempt) => client.command('confirmTreasuryManually', { body: input.body, attempt }));
+}

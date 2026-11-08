@@ -306,3 +306,35 @@ export function useRecordReceipt() {
     onError: failed,
   });
 }
+
+export interface CreateReportInput {
+  body: Record<string, string | number>;
+}
+
+/** Makes a report by hand from a form, a period and a frozen snapshot (the cells that have a source are filled from the snapshot); the answer names the report made. */
+export function useCreateReport() {
+  const client = useApiClient();
+  const { attempts, settled, failed } = useCommandSupport();
+  return useMutation<unknown, Error, CreateReportInput>({
+    mutationFn: (input) => client.command('createMneReport', { body: input.body as never, attempt: attempts.current.forPayload(input) }),
+    onSuccess: settled,
+    onError: failed,
+  });
+}
+
+export interface CorrectReportInput {
+  id: string;
+  version: number;
+  body: Record<string, string>;
+}
+
+/** Corrects an issued report: a new revision with the reason (versioned); the revision it replaces is kept as it was issued. */
+export function useCorrectReport() {
+  const client = useApiClient();
+  const { attempts, settled, failed } = useCommandSupport();
+  return useMutation<unknown, Error, CorrectReportInput>({
+    mutationFn: (input) => client.command('correctMneReport', { path: { id: input.id }, ifMatchVersion: input.version, body: input.body as never, attempt: attempts.current.forPayload(input) }),
+    onSuccess: settled,
+    onError: failed,
+  });
+}

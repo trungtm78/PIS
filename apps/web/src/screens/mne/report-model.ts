@@ -152,6 +152,7 @@ export type ReportReason =
   | 'selfApproval'
   | 'templateMissing'
   | 'stateInvalid'
+  | 'correctionReason'
   | 'snapshotRequired'
   | 'snapshotNotFrozen'
   | 'locked'
@@ -179,6 +180,7 @@ const REASON_BY_CODE: Readonly<Record<string, ReportReason>> = {
   SELF_APPROVAL_DENIED: 'selfApproval',
   DOC_TEMPLATE_MISSING: 'templateMissing',
   REPORT_STATE_INVALID: 'stateInvalid',
+  CORRECTION_REASON_REQUIRED: 'correctionReason',
   SNAPSHOT_REQUIRED: 'snapshotRequired',
   SNAPSHOT_NOT_FROZEN: 'snapshotNotFrozen',
   FIELD_SOURCE_LOCKED: 'locked',

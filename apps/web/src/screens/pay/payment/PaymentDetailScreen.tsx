@@ -6,6 +6,8 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, Fact } from '../../ctr/components';
+import { ManualConfirmDialog } from './ManualConfirmDialog';
+import { MANUAL_CONFIRM_PERMISSION } from './manual-confirm-model';
 import { AttachDialog, CancelDialog, ReturnDialog, ReviseDialog, SubmitDialog, VerifyDialog } from './PaymentDialogs';
 import { usePayment } from './hooks';
 import { docKindLabel, kindLabel, statusLabel, statusTone, warningMessage } from './labels';
@@ -27,7 +29,7 @@ export default function PaymentDetailScreen({ route }: ScreenProps) {
   return <PaymentDetailContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
-type Dialog = 'revise' | 'attach' | 'cancel' | 'submit' | 'verify' | 'return';
+type Dialog = 'revise' | 'attach' | 'cancel' | 'submit' | 'verify' | 'return' | 'manual';
 
 function PaymentDetailContent({ route }: ScreenProps) {
   const { t } = useTranslation();
@@ -60,7 +62,7 @@ function PaymentDetailContent({ route }: ScreenProps) {
 
 function Detail({ request }: { request: PaymentRequest }) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const [done, setDone] = useState<{ message: string; warnings: WarningCode[] } | undefined>(undefined);
   const money = (value: string): string => signedAmountText(value, locale) ?? value;
@@ -72,6 +74,7 @@ function Detail({ request }: { request: PaymentRequest }) {
       close();
     };
   const writable = mode !== 'READ_ONLY';
+  const mayConfirmManually = writable && request.status === 'SENT_TREASURY' && (permissions === undefined || permissions.includes(MANUAL_CONFIRM_PERMISSION));
 
   return (
     <>
@@ -173,6 +176,11 @@ function Detail({ request }: { request: PaymentRequest }) {
               {t('pay.payment.detail.return')}
             </button>
           ) : null}
+          {mayConfirmManually ? (
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog('manual')} data-action="manual-confirm">
+              {t('pay.manual.open')}
+            </button>
+          ) : null}
           {writable && request.actions.cancel ? (
             <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog('cancel')} data-action="cancel">
               {t('pay.payment.detail.cancel')}
@@ -230,6 +238,7 @@ function Detail({ request }: { request: PaymentRequest }) {
       {dialog === 'cancel' ? <CancelDialog request={request} onDone={finished(t('pay.payment.done.cancelled'))} onClose={close} /> : null}
       {dialog === 'submit' ? <SubmitDialog request={request} onDone={finished(t('pay.payment.done.submitted'))} onClose={close} /> : null}
       {dialog === 'verify' ? <VerifyDialog request={request} onDone={finished(t('pay.payment.done.verified'))} onClose={close} /> : null}
+      {dialog === 'manual' ? <ManualConfirmDialog request={request} onDone={finished(t('pay.manual.done'))} onClose={close} /> : null}
       {dialog === 'return' ? <ReturnDialog request={request} onDone={finished(t('pay.payment.done.returned'))} onClose={close} /> : null}
     </>
   );
