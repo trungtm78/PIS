@@ -1,5 +1,5 @@
 import { ApiError } from '@machvon/api-client';
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { translator } from '../../../i18n';
 import base from '../../../i18n/vi.json';

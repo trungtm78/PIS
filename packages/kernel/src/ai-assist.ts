@@ -110,7 +110,7 @@ export function assertRequestText(raw: unknown, field = 'request_text', required
   return text;
 }
 
-const hasControl = (text: string): boolean => /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(text);
+const hasControl = (text: string): boolean => [...text].some((char) => (char.charCodeAt(0) < 32 && ![9, 10, 13].includes(char.charCodeAt(0))) || char.charCodeAt(0) === 127);
 
 // ---- the sources --------------------------------------------------------------------------------------------------------------------------------
 

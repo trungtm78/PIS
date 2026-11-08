@@ -134,7 +134,7 @@ describe('the two parts of the catalogue', () => {
   });
 
   it('write the Vietnamese part with diacritics', () => {
-    const plain = Object.entries(vi).filter(([, text]) => !/[^\u0000-\u007f]/.test(text) && /[a-z]{4}/.test(text));
+    const plain = Object.entries(vi).filter(([, text]) => [...text].every((char) => char.charCodeAt(0) < 128) && /[a-z]{4}/.test(text));
     // A handful of texts are codes or example values; every sentence has a letter outside plain ASCII.
     expect(plain.map(([key]) => key)).toEqual([]);
   });

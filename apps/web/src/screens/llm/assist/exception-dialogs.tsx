@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n';
 import { ConfirmDialog } from '../../../ui';
 import { Field, describedBy } from './assist-components';
 import { useAttestProvider, useDecideException, useReload, useRequestException, useRevokeException } from './assist-hooks';
-import { approvalProblemText, classificationText, errorText, fieldProblemText } from './assist-labels';
+import { approvalProblemText, errorText, fieldProblemText } from './assist-labels';
 import { CLASSIFICATIONS, MAX_EXCEPTION_DAYS, MIN_EXCEPTION_REASON, MIN_NOTE, approvalProblem, attestBody, emptyAttest, emptyRequest, exceptionDecisionBody, isExternal, isVersionConflict, requestBody, revokeReasonOk, shortId, validateAttest, validateRequest } from './assist-model';
 import type { AttestErrors, AttestForm, Classification, ExceptionRow, FieldProblem, ProviderRow, RequestErrors, RequestForm } from './assist-model';
 
