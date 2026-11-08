@@ -113,7 +113,7 @@ describe('the foreign-id cases of the isolation suite reach an object that exist
   const LIST_QUERIES: Readonly<Record<string, string>> = {
     getDirectivesForReport: 'from=2026-01-01&to=2026-12-31',
     listGovernanceRuleVersions: `rule_type=RAG_THRESHOLDS&code=${GOVRULE_FIXTURES['TNT-B'].rules.read.code}`,
-    getFundingFigureHistory: `project_id=${PROJECT_FIXTURES['TNT-B'].id}&class_code=EQUITY&tier_code=ALL&measure=DISBURSED&period_grain=MONTH&plan_year=2026&period_ordinal=4`,
+    getFundingFigureHistory: `project_id=${PROJECT_FIXTURES['TNT-B'].id}&class_code=CURRENT_YEAR&tier_code=CENTRAL&measure=DISBURSED&period_grain=MONTH&plan_year=2026&period_ordinal=4`,
     getPackageProcessTreeNode: 'node_id=ROOT',
     listPackageProcessTreeNodePackages: 'node_id=ROOT',
     getPackageProcessTreeNodeFeed: 'node_id=ROOT',
