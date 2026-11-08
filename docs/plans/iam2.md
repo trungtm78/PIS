@@ -18,5 +18,15 @@ Lane branch `lane/iam2`, migration block 2460-2479 (V2460-V2464 used). Plan sect
 - [x] web screens ADM-25..27 with tests; i18n; design rows
 - [x] Word converter and exporters
 - [x] Word tests, web format pickers
-- [ ] gate tests (isolation, conformance, outbox consumers, dis/report), lint, typecheck
-- [ ] Codex review and dispositions
+- [x] gate tests of the lane
+- [x] Codex review and dispositions
+
+## Codex review dispositions (model gpt-6-astra, review of main..HEAD)
+
+- P1 acting grants could include `report.review` (a decision): valid. Fixed: the decision verbs now include review, verify, confirm, lock, publish, finalize (kernel, table check of V2462, web form); tests in kernel, db and API.
+- P1 period check on a different grant than the project check: valid. Fixed: `accessForPeriod` removes the grants whose period limit does not cover the period, and the project scope is judged on that access (create, edit, submit, decide, import, export); regression test in dis/report-decision and kernel.
+- P2 period-scope list cut before visibility filtering: valid. Fixed: batches are read on until a page and one more are visible, so the cursor and the end are true.
+
+## Gate suites
+
+Own suites run through the db lane: db iam2/delegation/jobs/rls/ranges (166 passed), API adm/iam2, dis/report-export, dis/report-decision, bi-exports. Shared suites (isolation, conformance, outbox consumers, negative matrix, workers) are run once by the lead on the merged tree; the entries (isolation fixtures and probes, authz fixtures, conformance counts 674/439) are added.
