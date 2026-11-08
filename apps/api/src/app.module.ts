@@ -3,6 +3,8 @@ import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import type { TenantTokenIssuer } from './auth/tenant-token-issuer';
 import { SUPPORT_TOKEN_ISSUER } from './modules/sas/support-token.controller';
+import { OPEN_API_SIGNER } from './modules/int/machine-auth';
+import type { MachineSigner } from './modules/int/machine-auth';
 import { ControlDatabase, EntitlementStore, LicenseStore, TenantDatabase, TenantRegistry } from '@machvon/db';
 import type { AuthzCache, EntitlementCache } from '@machvon/db';
 import type { EditionManifest, RegisteredError } from '@machvon/kernel';
@@ -60,6 +62,8 @@ export interface AppModuleOptions {
   orchestration?: OrchestrationOptions;
   /** The issuer of the support tokens of the exchange `issueSupportAccessToken` (ST-SAS-015); defaults to the issuer of the session module. Without either the exchange answers 503 SIGNING_KEY_UNAVAILABLE. */
   supportIssuer?: TenantTokenIssuer;
+  /** The signer of the access tokens of machine accounts (INT-1, the open API); defaults to the issuer of the session module when that one can sign them (the same keys). Without either the exchange answers 503 SIGNING_KEY_UNAVAILABLE. */
+  openApiSigner?: MachineSigner;
   /** The secret the drill tokens of BI are signed from (at least 32 bytes); every replica must be given the same, or a token made by one is refused by another. */
   biDrillSecret?: Buffer;
   /**
@@ -67,6 +71,11 @@ export interface AppModuleOptions {
    * for the public edition, which lists them all, so every caller that knows nothing of editions is unchanged.
    */
   edition?: EditionManifest;
+}
+
+/** The issuer of the session module as a signer of machine tokens, when it is one (the local issuer is; a test double need not be). */
+function machineSignerOf(issuer: TenantTokenIssuer | undefined): MachineSigner | undefined {
+  return typeof (issuer as Partial<MachineSigner> | undefined)?.issueMachine === 'function' ? (issuer as unknown as MachineSigner) : undefined;
 }
 
 /**
@@ -124,6 +133,7 @@ export class AppModule {
         { provide: TenantDatabase, useValue: options.database },
         // A session revoked here reaches the deny-list the authentication guard consults, and the identity provider's logout where it is connected.
         { provide: SUPPORT_TOKEN_ISSUER, useValue: options.supportIssuer ?? options.session?.issuer },
+        { provide: OPEN_API_SIGNER, useValue: options.openApiSigner ?? machineSignerOf(options.session?.issuer) },
         { provide: SESSION_REVOCATION, useValue: options.session?.denyList ?? { revoke: () => undefined } },
         { provide: IDENTITY_LOGOUT, useValue: options.session?.identityLogout ?? new NoIdentityLogout() },
         ...(options.entitlements === undefined

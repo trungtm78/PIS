@@ -9,6 +9,10 @@ export const CONTROL_AUDIENCE = 'machvon-control';
 export const POWERSYNC_AUDIENCE = 'powersync';
 export const POWERSYNC_TOKEN_TTL_SECONDS = 300;
 
+/** The audience of the access token of a machine account (INT-1) and its lifetime: five minutes at most. */
+export const MACHINE_AUDIENCE = 'machvon-open';
+export const MACHINE_TOKEN_TTL_SECONDS = 300;
+
 /** Lifetime of a tenant access token (IAM 3.2). */
 export const TENANT_TOKEN_TTL_SECONDS = 300;
 /** The largest clock difference tolerated between the issuer and this server. */

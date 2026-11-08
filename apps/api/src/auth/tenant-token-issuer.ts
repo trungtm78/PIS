@@ -3,7 +3,7 @@ import type { JsonWebKey, KeyObject } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { DomainError, parseTenantContext } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
-import { POWERSYNC_AUDIENCE, POWERSYNC_TOKEN_TTL_SECONDS, TENANT_AUDIENCE, TENANT_TOKEN_TTL_SECONDS } from './claims';
+import { MACHINE_AUDIENCE, MACHINE_TOKEN_TTL_SECONDS, POWERSYNC_AUDIENCE, POWERSYNC_TOKEN_TTL_SECONDS, TENANT_AUDIENCE, TENANT_TOKEN_TTL_SECONDS } from './claims';
 
 export interface IssueInput {
   tenant: TenantContext;
@@ -106,6 +106,30 @@ export class LocalTenantTokenIssuer implements TenantTokenIssuer {
     const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
     const signature = sign('sha256', Buffer.from(signingInput), { key: this.options.signingKey.privateKey, dsaEncoding: 'ieee-p1363' });
     return { token: `${signingInput}.${base64url(signature)}`, expiresInSeconds: POWERSYNC_TOKEN_TTL_SECONDS };
+  }
+
+  /**
+   * The access token of a machine account (INT-1): ES256, audience `machvon-open` (never the tenant audience, so it is no session of a person and no route of the tenant plane accepts it), five minutes at most.
+   * It names the tenant, the machine account, the credential it was issued for and the scopes it was issued with, and nothing else; the API judges the account and the credential again on every call.
+   */
+  issueMachine(input: { tenantId: string; accountId: string; credentialId: string; scopes: readonly string[]; now: Date; ttlSeconds?: number }): { token: string; expiresInSeconds: number } {
+    const issuedAt = Math.floor(input.now.getTime() / 1000);
+    const lifetime = input.ttlSeconds ?? MACHINE_TOKEN_TTL_SECONDS;
+    const payload = {
+      iss: this.options.issuer,
+      aud: MACHINE_AUDIENCE,
+      sub: `machine:${input.accountId}`,
+      tid: input.tenantId,
+      mac: input.accountId,
+      cid: input.credentialId,
+      scp: [...input.scopes],
+      iat: issuedAt,
+      exp: issuedAt + lifetime,
+    };
+    const header = { alg: 'ES256', typ: 'JWT', kid: this.options.signingKey.kid };
+    const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
+    const signature = sign('sha256', Buffer.from(signingInput), { key: this.options.signingKey.privateKey, dsaEncoding: 'ieee-p1363' });
+    return { token: `${signingInput}.${base64url(signature)}`, expiresInSeconds: lifetime };
   }
 
   private sign(input: IssueInput): { accessToken: string; expiresInSeconds: number } {
