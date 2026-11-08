@@ -18,6 +18,19 @@ import {
   singleBidderRateOfCounts,
 } from './ctr-analytics.ts';
 import type { ConcentrationDimension, ContractHealth, ContractPartyShare, IndicatorCode, IndicatorResult, NotApplicableReason } from './ctr-analytics.ts';
+import {
+  CHANGE_TIER_KEYS,
+  advanceRecoveryOf,
+  advanceRecoveryShortfallOfSums,
+  guaranteeExposureOfSums,
+  matchStatusOf,
+  measuredToAcceptedOfSums,
+  onTimePaymentRateOfCounts,
+  threeWayDefaults,
+  tierKeyOf,
+} from './ctr-money-reports.ts';
+import type { ContractEvmResult, ReportExtras, ReportTotalExtras, ThreeWayParams } from './ctr-money-reports.ts';
+import type { EvmRag } from './prj-evm.ts';
 import type { ExportColumn, ExportDocument, ExportHeaderEntry } from './dis-export.ts';
 import { message } from './messages.ts';
 
@@ -38,7 +51,7 @@ export const isCtrReportCode = (value: unknown): value is CtrReportCode => typeo
 export type ColumnKind = 'TEXT' | 'MONEY' | 'PERCENT' | 'DAYS' | 'COUNT' | 'DATE' | 'RAG' | 'INDEX' | 'FLAG';
 
 /** Why a cell has no figure (a zero is a figure; this is not one). */
-export type CellReason = NotApplicableReason | 'LEDGER_DENIED' | 'NOT_IN_SNAPSHOT' | 'NO_DATE' | 'NO_PAYMENT';
+export type CellReason = NotApplicableReason | 'LEDGER_DENIED' | 'NOT_IN_SNAPSHOT' | 'NO_DATE' | 'NO_PAYMENT' | 'NO_SCHEDULE';
 
 export interface ReportColumn {
   key: string;
@@ -87,6 +100,14 @@ export const REPORT_COLUMNS: Readonly<Record<Exclude<CtrReportCode, 'contractor-
     col('days_late', 'DAYS', { total: 'MAX', indicator: 'DAYS_LATE' }),
     col('milestone_count', 'COUNT', { total: 'SUM' }),
     col('milestone_past_due_count', 'COUNT', { total: 'SUM' }),
+    ledgerMoney('bac_vnd'),
+    ledgerMoney('planned_value_vnd'),
+    ledgerMoney('earned_value_vnd'),
+    ledgerMoney('actual_cost_vnd'),
+    ledgerMoney('schedule_variance_vnd'),
+    col('spi', 'INDEX', { ledger: true, total: 'RATIO', indicator: 'SPI' }),
+    col('cpi', 'INDEX', { ledger: true, total: 'RATIO', indicator: 'CPI' }),
+    col('evm_health', 'RAG', { ledger: true }),
   ],
   'payment-three-way': [
     ...IDENTITY,
@@ -99,6 +120,12 @@ export const REPORT_COLUMNS: Readonly<Record<Exclude<CtrReportCode, 'contractor-
     col('acceptance_to_request_days_max', 'DAYS', { total: 'MAX' }),
     col('request_to_treasury_days_max', 'DAYS', { total: 'MAX' }),
     col('payment_clock', 'TEXT'),
+    ledgerMoney('measured_not_accepted_vnd'),
+    col('measured_to_accepted_pct', 'PERCENT', { ledger: true, total: 'RATIO', indicator: 'MEASURED_TO_ACCEPTED' }),
+    col('match_status', 'TEXT', { ledger: true }),
+    col('payments_judged', 'COUNT', { ledger: true, total: 'SUM' }),
+    col('payments_on_time', 'COUNT', { ledger: true, total: 'SUM' }),
+    col('on_time_payment_pct', 'PERCENT', { ledger: true, total: 'RATIO', indicator: 'ON_TIME_PAYMENT_RATE' }),
   ],
   'advance-ageing': [
     ...IDENTITY,
@@ -110,6 +137,9 @@ export const REPORT_COLUMNS: Readonly<Record<Exclude<CtrReportCode, 'contractor-
     col('first_advance_on', 'DATE'),
     col('age_days', 'DAYS', { total: 'MAX' }),
     col('age_bucket', 'TEXT'),
+    ledgerMoney('advance_expected_recovery_vnd'),
+    money('advance_recovery_shortfall_vnd', { ledger: true, indicator: 'ADVANCE_RECOVERY_SHORTFALL' }),
+    col('recovery_status', 'TEXT', { ledger: true }),
   ],
   'retention-guarantee': [
     ...IDENTITY,
@@ -120,8 +150,10 @@ export const REPORT_COLUMNS: Readonly<Record<Exclude<CtrReportCode, 'contractor-
     money('guarantee_required_vnd'),
     money('guarantee_valid_vnd'),
     col('guarantee_coverage_pct', 'PERCENT', { total: 'RATIO', indicator: 'GUARANTEE_COVERAGE' }),
-    col('guarantee_exposure_vnd', 'MONEY', { total: 'SUM' }),
+    col('guarantee_exposure_vnd', 'MONEY', { total: 'SUM', indicator: 'GUARANTEE_EXPOSURE' }),
     col('guarantee_next_expiry_on', 'DATE'),
+    ledgerMoney('retention_releasable_vnd'),
+    money('guarantee_expiring_vnd'),
   ],
   'change-growth': [
     ...IDENTITY,
@@ -131,6 +163,10 @@ export const REPORT_COLUMNS: Readonly<Record<Exclude<CtrReportCode, 'contractor-
     col('approved_change_count', 'COUNT', { total: 'SUM' }),
     col('max_change_tier', 'COUNT', { total: 'MAX' }),
     col('max_cumulative_variation_pct', 'PERCENT', { total: 'MAX' }),
+    money('tier_1_delta_vnd'),
+    money('tier_2_delta_vnd'),
+    money('tier_3_delta_vnd'),
+    money('tier_none_delta_vnd'),
   ],
 };
 
@@ -138,15 +174,15 @@ export const REPORT_COLUMNS: Readonly<Record<Exclude<CtrReportCode, 'contractor-
 export const indicatorOfColumn = (report: CtrReportCode, key: string): IndicatorCode | null => (report === 'contractor-concentration' ? null : (REPORT_COLUMNS[report].find((column) => column.key === key)?.indicator ?? null));
 
 /** The reports of the catalogue: its reference in the plan (R1 to R7, R14), what it breaks down by, and whether it has a series (a trend is a BI series over DS-CTR, never an endpoint of its own). */
-export const REPORT_CATALOGUE: Readonly<Record<CtrReportCode, { ref: string; breakdown: string | null; indicators: readonly IndicatorCode[] }>> = {
-  'bid-variance': { ref: 'R1', breakdown: 'bidder_band', indicators: ['BID_PRICE_VARIANCE', 'SINGLE_BIDDER_RATE'] },
-  'portfolio-status': { ref: 'R2', breakdown: 'contract_status', indicators: ['CHANGE_GROWTH', 'PAID_TO_ACCEPTED', 'DAYS_LATE'] },
-  'schedule-delay': { ref: 'R3', breakdown: 'delay_band', indicators: ['DAYS_LATE'] },
-  'payment-three-way': { ref: 'R4', breakdown: null, indicators: ['ACCEPTED_TO_REQUESTED', 'PAID_TO_ACCEPTED'] },
-  'advance-ageing': { ref: 'R5', breakdown: 'age_bucket', indicators: ['ADVANCE_OUTSTANDING', 'ADVANCE_OUTSTANDING_RATIO'] },
-  'retention-guarantee': { ref: 'R6', breakdown: 'contract_status', indicators: ['RETENTION_HELD', 'RETENTION_RELEASED_RATIO', 'GUARANTEE_COVERAGE'] },
-  'change-growth': { ref: 'R7', breakdown: 'change_tier', indicators: ['CHANGE_GROWTH'] },
-  'contractor-concentration': { ref: 'R14', breakdown: null, indicators: ['TOP_N_SHARE', 'HHI', 'SINGLE_BIDDER_RATE'] },
+export const REPORT_CATALOGUE: Readonly<Record<CtrReportCode, { ref: string; breakdown: string | null; breakdowns: readonly string[]; indicators: readonly IndicatorCode[] }>> = {
+  'bid-variance': { ref: 'R1', breakdown: 'bidder_band', breakdowns: ['bidder_band'], indicators: ['BID_PRICE_VARIANCE', 'SINGLE_BIDDER_RATE'] },
+  'portfolio-status': { ref: 'R2', breakdown: 'contract_status', breakdowns: ['contract_status'], indicators: ['CHANGE_GROWTH', 'PAID_TO_ACCEPTED', 'DAYS_LATE'] },
+  'schedule-delay': { ref: 'R3', breakdown: 'delay_band', breakdowns: ['delay_band'], indicators: ['DAYS_LATE', 'SPI', 'CPI'] },
+  'payment-three-way': { ref: 'R4', breakdown: 'match_status', breakdowns: ['match_status'], indicators: ['ACCEPTED_TO_REQUESTED', 'PAID_TO_ACCEPTED', 'MEASURED_TO_ACCEPTED', 'ON_TIME_PAYMENT_RATE'] },
+  'advance-ageing': { ref: 'R5', breakdown: 'age_bucket', breakdowns: ['age_bucket', 'recovery_status'], indicators: ['ADVANCE_OUTSTANDING', 'ADVANCE_OUTSTANDING_RATIO', 'ADVANCE_RECOVERY_SHORTFALL'] },
+  'retention-guarantee': { ref: 'R6', breakdown: 'contract_status', breakdowns: ['contract_status'], indicators: ['RETENTION_HELD', 'RETENTION_RELEASED_RATIO', 'GUARANTEE_COVERAGE', 'GUARANTEE_EXPOSURE'] },
+  'change-growth': { ref: 'R7', breakdown: 'change_tier', breakdowns: ['change_tier'], indicators: ['CHANGE_GROWTH', 'CHANGE_TIER_GROWTH'] },
+  'contractor-concentration': { ref: 'R14', breakdown: null, breakdowns: [], indicators: ['TOP_N_SHARE', 'HHI', 'SINGLE_BIDDER_RATE'] },
 };
 
 /** The groups a breakdown has, in the order they are shown (the key of a group is also what the database cuts by). */
@@ -156,6 +192,8 @@ export const BREAKDOWN_KEYS: Readonly<Record<string, readonly string[]>> = {
   delay_band: ['NOT_LATE', 'LATE_1_30', 'LATE_31_90', 'LATE_OVER_90', 'NOT_APPLICABLE'],
   age_bucket: ['UP_TO_90', 'D91_180', 'D181_365', 'OVER_365'],
   change_tier: ['NONE', 'TIER_1', 'TIER_2', 'TIER_3'],
+  match_status: ['OVER_PAID', 'ACCEPTED_WITHOUT_MEASUREMENT', 'REQUEST_NOT_ACCEPTED', 'MEASURED_NOT_ACCEPTED', 'MATCHED', 'NO_ACTIVITY'],
+  recovery_status: ['BEHIND', 'ON_TRACK', 'RECOVERED'],
 };
 
 // ---- the fact: the row of `contract_fact`, with the names a person reads ------------------------------------------------------------------------------------------
@@ -349,8 +387,46 @@ export function healthOfFact(fact: ContractFact, asOf: string, params: unknown =
 
 const LEDGER_NA: CellReason = 'LEDGER_DENIED';
 
+/** What the rows of the money reports read besides the fact (CA-2): the rule of the three-way match, the tolerance of the advance recovery and the figures read live (null for a frozen snapshot, which does not hold them). */
+export interface MoneyContext {
+  threeWay: ThreeWayParams;
+  advanceToleranceVnd: bigint;
+  extras: ReportExtras | null;
+}
+
+const defaultMoney = (): MoneyContext => ({ threeWay: threeWayDefaults(), advanceToleranceVnd: 0n, extras: null });
+
+const RAG_RANK: Readonly<Record<EvmRag, number>> = { GREEN: 0, AMBER: 1, RED: 2 };
+const worstRag = (a: EvmRag | null, b: EvmRag | null): EvmRag | null => (a === null ? b : b === null ? a : RAG_RANK[a] >= RAG_RANK[b] ? a : b);
+
+const EVM_KEYS = ['bac_vnd', 'planned_value_vnd', 'earned_value_vnd', 'actual_cost_vnd', 'schedule_variance_vnd', 'spi', 'cpi', 'evm_health'] as const;
+const TIMING_KEYS = ['payments_judged', 'payments_on_time', 'on_time_payment_pct'] as const;
+const TIER_COLUMN: Readonly<Record<(typeof CHANGE_TIER_KEYS)[number], string>> = { TIER_1: 'tier_1_delta_vnd', TIER_2: 'tier_2_delta_vnd', TIER_3: 'tier_3_delta_vnd', UNTIERED: 'tier_none_delta_vnd' };
+
+type Put = (key: string, value: CellValue, reason?: CellReason | null) => void;
+
+/** The earned value cells of a contract: the figures of its package share, or why it has none (no ledger right, a frozen period, no link to a package, no baseline). */
+function putEvm(put: Put, fact: ContractFact, evm: ContractEvmResult | undefined, extras: ReportExtras | null): void {
+  const none = (reason: CellReason): void => {
+    for (const key of EVM_KEYS) put(key, null, reason);
+  };
+  if (!fact.ledgerOk) return none(LEDGER_NA);
+  if (extras === null) return none('NOT_IN_SNAPSHOT');
+  if (evm === undefined) return none('NO_CONTRACT_LINK');
+  if (evm.reason !== null) return none(evm.reason);
+  put('bac_vnd', evm.bacVnd);
+  put('planned_value_vnd', evm.pvVnd);
+  put('earned_value_vnd', evm.evVnd);
+  put('actual_cost_vnd', evm.acVnd);
+  put('schedule_variance_vnd', evm.svVnd);
+  put('spi', evm.spi, evm.spiReason ?? 'PV_ZERO');
+  put('cpi', evm.cpi, evm.cpiReason ?? 'AC_ZERO');
+  put('evm_health', worstRag(evm.ragSpi, evm.ragCpi), evm.spiReason ?? evm.cpiReason ?? 'PV_ZERO');
+}
+
 /** One row of a report from the fact: the identity of the contract, then the figures of the report; a ledger figure the reader may not see is `LEDGER_DENIED`, never zero. */
-export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentration'>, fact: ContractFact, context: { asOf: string; ragParams?: unknown; clock?: PaymentClockParams }): ReportRow {
+export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentration'>, fact: ContractFact, context: { asOf: string; ragParams?: unknown; clock?: PaymentClockParams; money?: MoneyContext }): ReportRow {
+  const money = context.money ?? defaultMoney();
   const row: ReportRow = {
     id: fact.id,
     cells: {
@@ -402,6 +478,7 @@ export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentrati
       put('days_late', late.value, late.reason);
       put('milestone_count', fact.milestoneCount);
       put('milestone_past_due_count', fact.milestonePastDueCount);
+      putEvm(put, fact, money.extras?.evm.get(fact.id), money.extras);
       break;
     }
     case 'payment-three-way': {
@@ -420,6 +497,18 @@ export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentrati
       put('acceptance_to_request_days_max', fact.acceptanceToRequestDaysMax, 'NO_PAYMENT');
       put('request_to_treasury_days_max', fact.requestToTreasuryDaysMax, 'NO_PAYMENT');
       put('payment_clock', paymentClockOf(fact, context.clock ?? paymentClockDefaults()));
+      put('measured_not_accepted_vnd', fact.ledgerOk ? (big(fact.measuredVnd) - big(fact.acceptedVnd)).toString() : null, fact.ledgerOk ? null : LEDGER_NA);
+      if (fact.ledgerOk) setIndicator(row, 'measured_to_accepted_pct', measuredToAcceptedOfSums({ acceptedVnd: fact.acceptedVnd, measuredVnd: fact.measuredVnd }));
+      else put('measured_to_accepted_pct', null, LEDGER_NA);
+      put('match_status', fact.ledgerOk ? matchStatusOf({ measuredVnd: fact.measuredVnd, requestedVnd: fact.requestedVnd, acceptedVnd: fact.acceptedVnd, paidVnd: fact.paidVnd }, money.threeWay) : null, fact.ledgerOk ? null : LEDGER_NA);
+      if (!fact.ledgerOk || money.extras === null) {
+        for (const key of TIMING_KEYS) put(key, null, fact.ledgerOk ? 'NOT_IN_SNAPSHOT' : LEDGER_NA);
+      } else {
+        const timing = money.extras.timing.get(fact.id) ?? { judged: 0, onTime: 0 };
+        put('payments_judged', timing.judged);
+        put('payments_on_time', timing.onTime);
+        setIndicator(row, 'on_time_payment_pct', onTimePaymentRateOfCounts(timing));
+      }
       break;
     }
     case 'advance-ageing': {
@@ -437,6 +526,11 @@ export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentrati
       put('first_advance_on', shown ? fact.firstAdvanceOn : null, hidden);
       put('age_days', shown ? age : null, hidden);
       put('age_bucket', shown ? ageBucketOf(age) : null, hidden);
+      const recovery = fact.ledgerOk && has ? advanceRecoveryOf({ advancePaidVnd: fact.advancePaidVnd, advanceRecoveredVnd: fact.advanceRecoveredVnd, acceptedVnd: fact.acceptedVnd, contractValueVnd: fact.contractValueVnd }, money.advanceToleranceVnd) : null;
+      const noRecovery: CellReason = !fact.ledgerOk ? LEDGER_NA : !has ? 'NO_ADVANCE' : 'ZERO_DENOMINATOR';
+      put('advance_expected_recovery_vnd', recovery?.expectedVnd ?? null, noRecovery);
+      put('advance_recovery_shortfall_vnd', recovery?.shortfallVnd ?? null, noRecovery);
+      put('recovery_status', recovery?.status ?? null, noRecovery);
       break;
     }
     case 'retention-guarantee': {
@@ -453,6 +547,11 @@ export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentrati
       setIndicator(row, 'guarantee_coverage_pct', found.guarantee);
       put('guarantee_exposure_vnd', required ? (big(fact.guaranteeRequiredVnd) - big(fact.guaranteeValidVnd)).toString() : null, 'NO_GUARANTEE_REQUIRED');
       put('guarantee_next_expiry_on', fact.guaranteeNextExpiryOn, 'NO_DATE');
+      const coming = money.extras?.exposure.get(fact.id);
+      const releasable: CellReason | null = !fact.ledgerOk ? LEDGER_NA : !has ? 'NO_RETENTION' : money.extras === null ? 'NOT_IN_SNAPSHOT' : null;
+      put('retention_releasable_vnd', releasable === null ? (coming?.retentionDueNowVnd ?? '0') : null, releasable);
+      const expiring: CellReason | null = !required ? 'NO_GUARANTEE_REQUIRED' : money.extras === null ? 'NOT_IN_SNAPSHOT' : null;
+      put('guarantee_expiring_vnd', expiring === null ? (coming?.guaranteeExpiringVnd ?? '0') : null, expiring);
       break;
     }
     case 'change-growth': {
@@ -462,6 +561,15 @@ export function reportRowOf(code: Exclude<CtrReportCode, 'contractor-concentrati
       put('approved_change_count', fact.approvedChangeCount);
       put('max_change_tier', fact.maxChangeTier, 'NO_ROWS');
       put('max_cumulative_variation_pct', fact.maxCumulativeVariationPct, 'NO_ROWS');
+      const tiers = money.extras === null ? null : (money.extras.tiers.get(fact.id) ?? []);
+      for (const key of CHANGE_TIER_KEYS) {
+        if (tiers === null) {
+          put(TIER_COLUMN[key], null, 'NOT_IN_SNAPSHOT');
+          continue;
+        }
+        const own = tiers.filter((one) => tierKeyOf(one.tier) === key);
+        put(TIER_COLUMN[key], own.length === 0 || own.every((one) => one.count === 0) ? null : own.reduce((acc, one) => acc + big(one.deltaVnd), 0n).toString(), 'NO_CHANGE');
+      }
       break;
     }
   }
@@ -503,6 +611,9 @@ export const SUM_KEYS = [
   'max_request_to_treasury',
   'max_tier',
   'max_cumulative_variation',
+  'advance_expected',
+  'advance_shortfall',
+  'advance_recovery_rows',
 ] as const;
 export type SumKey = (typeof SUM_KEYS)[number];
 export type Sums = Record<SumKey, string | null> & { rows: number; ledgerRows: number };
@@ -513,7 +624,7 @@ export const REPORT_SUMS: Readonly<Record<Exclude<CtrReportCode, 'contractor-con
   'portfolio-status': ['contract_value', 'original_value', 'change_delta', 'accepted', 'paid', 'requested', 'max_days_late'],
   'schedule-delay': ['extension_days', 'milestones', 'milestones_past_due', 'max_days_late'],
   'payment-three-way': ['requested', 'measured', 'accepted', 'paid', 'max_acceptance_to_request', 'max_request_to_treasury'],
-  'advance-ageing': ['advance_paid', 'advance_recovered', 'advance_rows', 'max_age_days'],
+  'advance-ageing': ['advance_paid', 'advance_recovered', 'advance_rows', 'max_age_days', 'advance_expected', 'advance_shortfall', 'advance_recovery_rows'],
   'retention-guarantee': ['retention_withheld', 'retention_released', 'retention_rows', 'guarantee_required', 'guarantee_valid', 'guarantee_rows'],
   'change-growth': ['original_value', 'change_delta', 'change_count', 'max_tier', 'max_cumulative_variation'],
 };
@@ -531,6 +642,8 @@ export function sumsOfFacts(facts: readonly ContractFact[], asOf: string): Sums 
   const guarantee = facts.filter((fact) => fact.guaranteeRequiredVnd !== null && big(fact.guaranteeRequiredVnd) > 0n);
   const known = facts.filter((fact) => fact.bidderCount !== null);
   const maxCum = facts.map((fact) => fact.maxCumulativeVariationPct).filter((value): value is string => value !== null);
+  const recoverable = facts.filter((fact) => fact.ledgerOk && big(fact.advancePaidVnd) > 0n && big(fact.contractValueVnd) > 0n);
+  const recoveries = recoverable.map((fact) => advanceRecoveryOf({ advancePaidVnd: fact.advancePaidVnd, advanceRecoveredVnd: fact.advanceRecoveredVnd, acceptedVnd: fact.acceptedVnd, contractValueVnd: fact.contractValueVnd }, 0n));
   return {
     rows: facts.length,
     ledgerRows: facts.filter((fact) => fact.ledgerOk).length,
@@ -565,6 +678,9 @@ export function sumsOfFacts(facts: readonly ContractFact[], asOf: string): Sums 
     max_request_to_treasury: biggest((fact) => fact.requestToTreasuryDaysMax),
     max_tier: biggest((fact) => fact.maxChangeTier),
     max_cumulative_variation: maxCum.length === 0 ? null : maxCum.reduce((a, b) => (Number(b) > Number(a) ? b : a)),
+    advance_expected: recoveries.reduce((acc, one) => acc + big(one?.expectedVnd ?? '0'), 0n).toString(),
+    advance_shortfall: recoveries.reduce((acc, one) => acc + big(one?.shortfallVnd ?? '0'), 0n).toString(),
+    advance_recovery_rows: String(recoverable.length),
   };
 }
 
@@ -581,7 +697,9 @@ export interface ReportTotals {
 const sumOf = (sums: Sums, key: SumKey): string => sums[key] ?? '0';
 
 /** The totals row (or a group) of a report from its sums: sums are the sums, ratios are of the sums, the largest is the largest. */
-export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentration'>, sums: Sums): ReportTotals {
+export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentration'>, sums: Sums, options: { extras?: ReportTotalExtras | null; frozen?: boolean } = {}): ReportTotals {
+  const extras = options.extras ?? null;
+  const missingExtra: CellReason | null = options.frozen === true ? 'NOT_IN_SNAPSHOT' : null;
   const cells: Record<string, CellValue> = {};
   const na: Record<string, CellReason> = {};
   const indicators: IndicatorResult[] = [];
@@ -623,6 +741,21 @@ export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentrat
       put('days_late', sums.max_days_late === null ? null : Number(sums.max_days_late), 'NO_ROWS');
       put('milestone_count', Number(sumOf(sums, 'milestones')));
       put('milestone_past_due_count', Number(sumOf(sums, 'milestones_past_due')));
+      const evm = extras?.evm ?? null;
+      if (ledgerless || evm === null) {
+        for (const key of EVM_KEYS) put(key, null, ledgerless ? LEDGER_NA : missingExtra);
+      } else if (evm.covered === 0) {
+        for (const key of EVM_KEYS) put(key, null, evm.spi.reason ?? 'NO_CONTRACT_LINK');
+        indicators.push(evm.spi, evm.cpi);
+      } else {
+        put('bac_vnd', evm.bacVnd);
+        put('planned_value_vnd', evm.pvVnd);
+        put('earned_value_vnd', evm.evVnd);
+        put('actual_cost_vnd', evm.acVnd);
+        put('schedule_variance_vnd', evm.svVnd);
+        indicator('spi', evm.spi);
+        indicator('cpi', evm.cpi);
+      }
       break;
     }
     case 'payment-three-way': {
@@ -639,6 +772,17 @@ export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentrat
       }
       put('acceptance_to_request_days_max', sums.max_acceptance_to_request === null ? null : Number(sums.max_acceptance_to_request), 'NO_PAYMENT');
       put('request_to_treasury_days_max', sums.max_request_to_treasury === null ? null : Number(sums.max_request_to_treasury), 'NO_PAYMENT');
+      ledger('measured_not_accepted_vnd', (BigInt(sumOf(sums, 'measured')) - BigInt(payments.acceptedVnd)).toString());
+      if (ledgerless) put('measured_to_accepted_pct', null, LEDGER_NA);
+      else indicator('measured_to_accepted_pct', measuredToAcceptedOfSums({ acceptedVnd: payments.acceptedVnd, measuredVnd: sumOf(sums, 'measured') }));
+      const timing = extras?.timing ?? null;
+      if (ledgerless || timing === null) {
+        for (const key of TIMING_KEYS) put(key, null, ledgerless ? LEDGER_NA : missingExtra);
+      } else {
+        put('payments_judged', timing.judged);
+        put('payments_on_time', timing.onTime);
+        indicator('on_time_payment_pct', onTimePaymentRateOfCounts(timing));
+      }
       break;
     }
     case 'advance-ageing': {
@@ -650,6 +794,14 @@ export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentrat
       if (ledgerless) put('advance_outstanding_pct', null, LEDGER_NA);
       else indicator('advance_outstanding_pct', advanceOutstandingRatioOfSums(advance));
       put('age_days', sums.max_age_days === null ? null : Number(sums.max_age_days), 'NO_ADVANCE');
+      const recovery = { expectedVnd: sumOf(sums, 'advance_expected'), shortfallVnd: sumOf(sums, 'advance_shortfall'), rows: Number(sumOf(sums, 'advance_recovery_rows')) };
+      if (ledgerless) {
+        put('advance_expected_recovery_vnd', null, LEDGER_NA);
+        put('advance_recovery_shortfall_vnd', null, LEDGER_NA);
+      } else {
+        put('advance_expected_recovery_vnd', recovery.rows === 0 ? null : recovery.expectedVnd, 'NO_ADVANCE');
+        indicator('advance_recovery_shortfall_vnd', advanceRecoveryShortfallOfSums(recovery));
+      }
       break;
     }
     case 'retention-guarantee': {
@@ -663,7 +815,10 @@ export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentrat
       put('guarantee_required_vnd', guarantee.requiredVnd);
       put('guarantee_valid_vnd', guarantee.validVnd);
       indicator('guarantee_coverage_pct', guaranteeCoverageOfSums(guarantee));
-      put('guarantee_exposure_vnd', (BigInt(guarantee.requiredVnd) - BigInt(guarantee.validVnd)).toString());
+      indicator('guarantee_exposure_vnd', guaranteeExposureOfSums(guarantee));
+      const coming = extras?.exposure ?? null;
+      put('retention_releasable_vnd', ledgerless ? null : coming === null || sumOf(sums, 'retention_rows') === '0' ? null : coming.retentionDueNowVnd, ledgerless ? LEDGER_NA : coming === null ? missingExtra : 'NO_RETENTION');
+      put('guarantee_expiring_vnd', coming === null || guarantee.rows === 0 ? null : coming.guaranteeExpiringVnd, coming === null ? missingExtra : 'NO_GUARANTEE_REQUIRED');
       break;
     }
     case 'change-growth': {
@@ -673,6 +828,14 @@ export function totalsOfSums(code: Exclude<CtrReportCode, 'contractor-concentrat
       put('approved_change_count', Number(sumOf(sums, 'change_count')));
       put('max_change_tier', sums.max_tier === null ? null : Number(sums.max_tier), 'NO_ROWS');
       put('max_cumulative_variation_pct', sums.max_cumulative_variation, 'NO_ROWS');
+      for (const key of CHANGE_TIER_KEYS) {
+        if (extras?.tiers === undefined || extras.tiers === null) {
+          put(TIER_COLUMN[key], null, missingExtra);
+          continue;
+        }
+        const own = extras.tiers.filter((one) => tierKeyOf(one.tier) === key && one.count > 0);
+        put(TIER_COLUMN[key], own.length === 0 ? null : own.reduce((acc, one) => acc + BigInt(one.deltaVnd), 0n).toString(), 'NO_CHANGE');
+      }
       break;
     }
   }
@@ -800,11 +963,15 @@ export interface ReportDocumentInput {
 
 const cellText = (value: CellValue): string => (value === null ? '' : String(value));
 
+/** The columns whose text is one of a closed list of words: a file is read by people who were not given the list, so it carries the word and not the code. */
+const WORDED_COLUMNS: readonly string[] = ['match_status', 'recovery_status'];
+const fileCellText = (column: ReportColumn, value: CellValue): string => (value !== null && WORDED_COLUMNS.includes(column.key) ? message(`ctr.report.value.${column.key}.${String(value)}`) : cellText(value));
+
 /** The document of a report for CSV, XLSX and PDF: the header says what the figures are (scope, period, cut-off day, unit, freshness), the table has a totals row, a figure that is not there is an empty cell and its reason is written in the row after the totals. */
 export function reportDocumentOf(input: ReportDocumentInput): ExportDocument {
   const entry = (key: string, text: string): ExportHeaderEntry => ({ key, label: message(`ctr.report.header.${key}`), value: text });
   const columns: ExportColumn[] = input.columns.map((column) => ({ key: column.key, label: message(`ctr.report.column.${column.key}`), numeric: column.kind !== 'TEXT' && column.kind !== 'DATE' && column.kind !== 'RAG' }));
-  const rows = input.rows.map((row) => input.columns.map((column) => cellText(row.cells[column.key] ?? null)));
+  const rows = input.rows.map((row) => input.columns.map((column) => fileCellText(column, row.cells[column.key] ?? null)));
   if (input.totals !== null) {
     const totals = input.totals;
     rows.push(input.columns.map((column, index) => (index === 0 ? message('ctr.report.total_label') : column.total === null ? '' : cellText(totals.cells[column.key] ?? null))));

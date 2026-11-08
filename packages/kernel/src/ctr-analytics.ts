@@ -31,6 +31,14 @@ export const INDICATOR_CODES = [
   'TOP_N_SHARE',
   'HHI',
   'SINGLE_BIDDER_RATE',
+  // CA-2, the money reports (schedule with earned value, three-way match, advance recovery, exposure, change by tier).
+  'SPI',
+  'CPI',
+  'ON_TIME_PAYMENT_RATE',
+  'MEASURED_TO_ACCEPTED',
+  'ADVANCE_RECOVERY_SHORTFALL',
+  'GUARANTEE_EXPOSURE',
+  'CHANGE_TIER_GROWTH',
 ] as const;
 export type IndicatorCode = (typeof INDICATOR_CODES)[number];
 
@@ -183,6 +191,76 @@ export const CTR_INDICATORS: Readonly<Record<IndicatorCode, IndicatorDefinition>
     sourceTables: ['contract', 'bid_package', 'bid_proposal'],
     nullPolicy: `${NULL_POLICY_RATIO}; a contract with no bidder count on record is not counted`,
   },
+  SPI: {
+    code: 'SPI',
+    name: 'Schedule performance index of the contracts',
+    formula: 'earned value / planned value on the as-of day, four decimals; below 1 the contracts earn less than the baseline planned',
+    numerator: 'sum(earned value: the budget of the package times the share of the contract accepted by the day)',
+    denominator: 'sum(planned value of the baseline of the package, cut to the contract by its share of the contract values)',
+    unit: 'INDEX',
+    sourceTables: ['contract', 'project_component_contract', 'project_baseline', 'project_baseline_line', 'acceptance'],
+    nullPolicy: 'NOT_APPLICABLE with its reason when a contract carries no package, its project has no baseline or the planned value is still zero; never 0',
+  },
+  CPI: {
+    code: 'CPI',
+    name: 'Cost performance index of the contracts',
+    formula: 'earned value / actual cost on the as-of day, four decimals; below 1 the contracts cost more than the work they earned',
+    numerator: 'sum(earned value: the budget of the package times the share of the contract accepted by the day)',
+    denominator: 'sum(actual cost: the gross value of the payment requests certified by the day, a reversed one taking nothing)',
+    unit: 'INDEX',
+    sourceTables: ['contract', 'project_component_contract', 'project_baseline', 'project_baseline_line', 'acceptance', 'payment_request'],
+    nullPolicy: 'NOT_APPLICABLE with its reason when a contract carries no package, its project has no baseline or nothing was certified yet; never 0',
+  },
+  ON_TIME_PAYMENT_RATE: {
+    code: 'ON_TIME_PAYMENT_RATE',
+    name: 'Payment requests handled on time',
+    formula: 'payment requests inside the payment clock / payment requests judged x 100',
+    numerator: 'count(payment requests whose acceptance-to-request days and request-to-treasury days are both within the rule CONTRACT_PAYMENT_CLOCK)',
+    denominator: 'count(payment requests that have at least one of the two steps behind them)',
+    unit: 'PERCENT',
+    sourceTables: ['contract', 'payment_request', 'acceptance'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a request with no step behind it yet is not judged, and a frozen period has no figure (the steps are not kept in the snapshot)`,
+  },
+  MEASURED_TO_ACCEPTED: {
+    code: 'MEASURED_TO_ACCEPTED',
+    name: 'Accepted against measured work',
+    formula: 'accepted / measured x 100',
+    numerator: 'sum(accepted)',
+    denominator: 'sum(approved measurements at the price of their BOQ line)',
+    unit: 'PERCENT',
+    sourceTables: ['contract', 'measurement', 'boq_line', 'acceptance'],
+    nullPolicy: NULL_POLICY_RATIO,
+  },
+  ADVANCE_RECOVERY_SHORTFALL: {
+    code: 'ADVANCE_RECOVERY_SHORTFALL',
+    name: 'Advance not recovered as fast as the work was accepted',
+    formula: 'sum over contracts of max(0, advance paid x min(1, accepted / contract value) - advance recovered)',
+    numerator: 'sum(max(0, expected recovery - advance recovered)), the expected recovery being rounded half up to the dong per contract',
+    denominator: null,
+    unit: 'VND',
+    sourceTables: ['contract', 'advance_payment', 'payment_request', 'acceptance'],
+    nullPolicy: 'NOT_APPLICABLE when no row has an advance and a contract value; zero when every advance is recovered at least in step with the accepted work',
+  },
+  GUARANTEE_EXPOSURE: {
+    code: 'GUARANTEE_EXPOSURE',
+    name: 'Guarantee not in force',
+    formula: 'sum over contracts that require a guarantee of (guarantee required - guarantee in force on the as-of day)',
+    numerator: 'sum(guarantee amount the contract requires - guarantee amount in force on the as-of date)',
+    denominator: null,
+    unit: 'VND',
+    sourceTables: ['contract', 'contract_guarantee'],
+    nullPolicy: 'NOT_APPLICABLE when no contract requires a guarantee; zero when every required guarantee is in force',
+  },
+  CHANGE_TIER_GROWTH: {
+    code: 'CHANGE_TIER_GROWTH',
+    name: 'Contract value growth through changes of one tier',
+    formula: 'sum(approved deltas of the changes of the tier) / original value of all the contracts of the selection x 100, so the tiers add up to the growth through changes',
+    numerator: 'sum(delta of the approved changes whose tier is the one asked, signed)',
+    denominator: 'sum(original contract value of all the contracts of the selection)',
+    unit: 'PERCENT',
+    sourceTables: ['contract', 'contract_revision', 'contract_change'],
+    nullPolicy: `${NULL_POLICY_RATIO}; a tier with no approved change has no figure, which is not a growth of zero`,
+  },
 });
 
 // ---- the result every indicator gives ----------------------------------------------------------------------------------------------------------------------
@@ -197,12 +275,21 @@ export type NotApplicableReason =
   | 'NO_GUARANTEE_REQUIRED'
   | 'NO_BIDDER_COUNT'
   | 'NO_ACTIVE_CONTRACT'
-  | 'ZERO_TOTAL';
+  | 'ZERO_TOTAL'
+  // CA-2
+  | 'NO_CONTRACT_LINK'
+  | 'NO_BASELINE'
+  | 'CONTRACT_VALUE_ZERO'
+  | 'PV_ZERO'
+  | 'AC_ZERO'
+  | 'NO_PAYMENT_JUDGED'
+  | 'NO_MEASURED_WORK'
+  | 'NO_CHANGE';
 
 export interface IndicatorResult {
   code: IndicatorCode;
   unit: IndicatorUnit;
-  /** A whole number (VND, DAYS, COUNT), or a decimal with two places (PERCENT, INDEX); null exactly when the status is NOT_APPLICABLE. */
+  /** A whole number (VND, DAYS, COUNT), or a decimal with two places (PERCENT, INDEX), or four places for the earned value indices SPI and CPI; null exactly when the status is NOT_APPLICABLE. */
   value: string | null;
   status: 'OK' | 'NOT_APPLICABLE';
   reason: NotApplicableReason | null;
@@ -257,6 +344,12 @@ function ratio(code: IndicatorCode, numerator: bigint, denominator: bigint, zero
   if (denominator === 0n) return na(code, zeroReason, numerator, denominator);
   return ok(code, analyticsPercent(numerator, denominator), numerator, denominator);
 }
+
+/** The constructors of a result, for the indicators that are made outside this file from sums of their own (CA-2): one shape of answer for all of them. */
+export const indicatorNotApplicable = na;
+export const indicatorOk = ok;
+export const indicatorRatio = ratio;
+export const wholeAmount = whole;
 
 // ---- bid against contract price -------------------------------------------------------------------------------------------------------------------------
 

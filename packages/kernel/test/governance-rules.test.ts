@@ -297,10 +297,17 @@ describe('validateRuleParams', () => {
     expect(codeOf(() => validateRuleParams('RAG_THRESHOLDS', { direction: 'HIGHER_IS_BETTER', green: 0.8, amber: 0.9, min_coverage_pct: 50 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:green');
     expect(codeOf(() => validateRuleParams('RAG_THRESHOLDS', { direction: 'LOWER_IS_BETTER', green: 0.8, amber: 0.9, min_coverage_pct: 50 }))).toBeUndefined();
     expect(codeOf(() => validateRuleParams('ADVANCE_POLICY', { max_pct_of_contract: 20, recovery_starts_at_pct: 90, fully_recovered_at_pct: 80, overdue_after_days: 30 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:recovery_starts_at_pct');
-    const health = builtInDefault('CONTRACT_HEALTH_RAG', 'DEFAULT')?.params as { factors: Array<Record<string, unknown>> } & Record<string, unknown>;
-    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, factors: health.factors.map((factor, index) => (index === 0 ? { ...factor, weight: 30 } : factor)) }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:factors');
-    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, factors: health.factors.map((factor, index) => (index === 0 ? { ...factor, indicator: 'DELAY_DAYS' } : factor)) }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:factors');
-    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, score_green_at_most: 60 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:score_green_at_most');
+    // The colour of a contract is the worst of its indicators (CA-2): the lines run from amber to red the way each indicator is bad, and an unknown key is a typo that must not become a threshold nobody reads.
+    const health = builtInDefault('CONTRACT_HEALTH_RAG', 'DEFAULT')?.params as Record<string, unknown>;
+    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', health))).toBeUndefined();
+    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, days_late_red: 0 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:days_late_red');
+    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, change_growth_red_pct: 1 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:change_growth_red_pct');
+    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, guarantee_coverage_red_pct: 101 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:guarantee_coverage_red_pct');
+    expect(codeOf(() => validateRuleParams('CONTRACT_HEALTH_RAG', { ...health, score_green_at_most: 25 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:score_green_at_most');
+    const threeWay = builtInDefault('CONTRACT_THREE_WAY_MATCH', 'DEFAULT')?.params as Record<string, unknown>;
+    expect(codeOf(() => validateRuleParams('CONTRACT_THREE_WAY_MATCH', threeWay))).toBeUndefined();
+    expect(codeOf(() => validateRuleParams('CONTRACT_THREE_WAY_MATCH', { ...threeWay, tolerance_pct: 101 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:tolerance_pct');
+    expect(codeOf(() => validateRuleParams('CONTRACT_THREE_WAY_MATCH', { ...threeWay, tolerance_pct: 1.234 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:tolerance_pct');
     const concentration = builtInDefault('CONTRACT_CONCENTRATION', 'DEFAULT')?.params as Record<string, unknown>;
     expect(codeOf(() => validateRuleParams('CONTRACT_CONCENTRATION', { ...concentration, hhi_amber: 2000 }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:hhi_amber');
     expect(codeOf(() => validateRuleParams('CONNECTOR_FRESHNESS', { max_age_hours: 24, warn_after_hours: 48, stale_severity: 'ACTION', figures_blocked_when_stale: true }))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:warn_after_hours');

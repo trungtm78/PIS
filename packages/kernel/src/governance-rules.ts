@@ -1,4 +1,6 @@
 import { DomainError } from './errors.ts';
+import { RAG_DIMENSIONS, contractHealthDefaults, contractHealthRagParams } from './ctr-analytics.ts';
+import { threeWayDefaults, threeWayParams } from './ctr-money-reports.ts';
 import { paymentClockDefaults, paymentClockParams } from './ctr-reports.ts';
 import { FIN_CRITERIA_CATEGORIES, FIN_CRITERIA_DEFAULTS, assertCriteriaSet } from './fin-criteria.ts';
 import { KPI_HOME_DEFAULTS, RAG_EWS_DEFAULTS } from './analytics-rule-defaults.ts';
@@ -936,9 +938,8 @@ export const registerIntegrityRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(INTEGRITY_ALERT_SEEDS, { source: message('gov.rules.register_integrity_rules.source_2') }));
   });
 
-export const CONTRACT_HEALTH_INDICATORS = ['AWARD_PRICE_VARIANCE_PCT', 'CHANGE_GROWTH_PCT', 'PAID_VS_ACCEPTED_PCT', 'ADVANCE_OPEN_PCT', 'DELAY_DAYS'] as const;
-
-/** The health of a contract and the concentration of the portfolio (lane CA: CA-1, CA-3). */
+/** The dimensions the colour of a contract is judged on (the indicators of `ctr-analytics`): the colour is the worst of them, so a single red one is never averaged away (CA-2 decision, docs/ctr-analytics-money.md). */
+export const CONTRACT_HEALTH_INDICATORS = RAG_DIMENSIONS;
 
 /** The health of a contract and the concentration of the portfolio (lane CA: CA-1, CA-3). */
 export const registerContractRules = (): void =>
@@ -954,32 +955,17 @@ export const registerContractRules = (): void =>
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
-        factors: list(shape({ indicator: oneOf(...CONTRACT_HEALTH_INDICATORS), direction: oneOf('HIGHER_IS_BETTER', 'LOWER_IS_BETTER'), green: num(-1_000_000, 1_000_000), amber: num(-1_000_000, 1_000_000), weight: int(1, 100) }), 12, 1),
-        score_green_at_most: num(0, 100),
-        score_amber_at_most: num(0, 100),
-        min_coverage_pct: int(0, 100),
+        days_late_amber: int(0, 1_000_000),
+        days_late_red: int(0, 1_000_000),
+        change_growth_amber_pct: num(0, 1_000_000),
+        change_growth_red_pct: num(0, 1_000_000),
+        guarantee_coverage_amber_pct: num(0, 1_000_000),
+        guarantee_coverage_red_pct: num(0, 1_000_000),
+        paid_to_accepted_amber_pct: num(0, 1_000_000),
+        paid_to_accepted_red_pct: num(0, 1_000_000),
       },
-      refine: (params) => {
-        const factors = params.factors as Array<{ indicator: string; direction: string; green: number; amber: number; weight: number }>;
-        if (new Set(factors.map((factor) => factor.indicator)).size !== factors.length) return 'factors';
-        if (factors.some((factor) => (factor.direction === 'HIGHER_IS_BETTER' ? factor.green <= factor.amber : factor.green >= factor.amber))) return 'factors';
-        if (factors.reduce((sum, factor) => sum + factor.weight, 0) !== 100) return 'factors';
-        return (params.score_green_at_most as number) < (params.score_amber_at_most as number) ? undefined : 'score_green_at_most';
-      },
-      defaults: {
-        DEFAULT: rule({
-          factors: [
-            { indicator: 'AWARD_PRICE_VARIANCE_PCT', direction: 'LOWER_IS_BETTER', green: 0, amber: 2, weight: 20 },
-            { indicator: 'CHANGE_GROWTH_PCT', direction: 'LOWER_IS_BETTER', green: 5, amber: 10, weight: 20 },
-            { indicator: 'PAID_VS_ACCEPTED_PCT', direction: 'LOWER_IS_BETTER', green: 100, amber: 110, weight: 20 },
-            { indicator: 'ADVANCE_OPEN_PCT', direction: 'LOWER_IS_BETTER', green: 20, amber: 40, weight: 20 },
-            { indicator: 'DELAY_DAYS', direction: 'LOWER_IS_BETTER', green: 0, amber: 30, weight: 20 },
-          ],
-          score_green_at_most: 25,
-          score_amber_at_most: 45,
-          min_coverage_pct: 60,
-        }),
-      },
+      refine: refineWith(contractHealthRagParams),
+      defaults: { DEFAULT: rule({ ...contractHealthDefaults() }) },
     });
     registerRuleType({
       type: 'CONTRACT_CONCENTRATION',
@@ -1020,6 +1006,18 @@ export const registerContractRules = (): void =>
       schema: { acceptance_to_request_days: int(1, 365), request_to_treasury_days: int(1, 365) },
       refine: refineWith(paymentClockParams),
       defaults: { DEFAULT: rule({ ...paymentClockDefaults() }) },
+    });
+    registerRuleType({
+      type: 'CONTRACT_THREE_WAY_MATCH',
+      ownerModule: 'CTR',
+      modules: ['CTR', 'PAY', 'BI'],
+      formula: message('gov.rules.register_contract_rules.formula.contract_three_way_match'),
+      source,
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: { tolerance_pct: num(0, 100), tolerance_vnd: int(0, 1_000_000_000_000) },
+      refine: refineWith(threeWayParams),
+      defaults: { DEFAULT: rule({ ...threeWayDefaults() }) },
     });
   });
 
