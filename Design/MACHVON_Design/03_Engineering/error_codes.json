@@ -6448,6 +6448,14 @@
       "module": "HUB",
       "statusBasis": "spec",
       "source": "spec:HUB"
+    },
+    "HUB_CONNECTOR_DISABLED": {
+      "status": 409,
+      "title": "Connector is switched off in the Integration Hub",
+      "meaning": "Bộ kết nối đã bị tắt trong Trung tâm tích hợp dữ liệu nên chưa nhận được tệp",
+      "module": "HUB",
+      "statusBasis": "spec",
+      "source": "spec:HUB"
     }
   }
 }

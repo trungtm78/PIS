@@ -1,4 +1,4 @@
-import { DUPLICATE_CONFLICT_CODE, DomainError, NOOP_METRICS, assertRejection, maskedPreview, fileSha256, planFileImport } from '@machvon/kernel';
+import { connectorOfPosition, DUPLICATE_CONFLICT_CODE, DomainError, NOOP_METRICS, assertRejection, maskedPreview, fileSha256, planFileImport } from '@machvon/kernel';
 import type { Difference, FileImportFormat, FilePlan, MetricsSink, PlannedAccepted, PlannedRejected, Rejection } from '@machvon/kernel';
 import { enqueueOutbox } from './outbox.ts';
 import { DEFAULT_ITEM_DUE_SECONDS, isActiveMember, normalizeUuid, openItem } from './file-import-item-store.ts';
@@ -211,6 +211,17 @@ interface ClaimedRow {
  * Everything happens in one transaction, so a defect leaves nothing behind and the same file can be tried again.
  */
 export class FileImportStore {
+  /**
+   * A connector whose switch the Integration Hub owns (descriptor ledger.stateOwner HUB) takes no file while the hub has it switched off (409 HUB_CONNECTOR_DISABLED): the switch is a decision with a reason,
+   * so it must hold where the data comes in, not only on the screen. A connector with a switch of its own (e-GP) is held by its own command. A position no connector claims is not the hub's business.
+   */
+  private async assertHubSwitchOn(tx: TenantTx, position: string): Promise<void> {
+    const connector = connectorOfPosition(position);
+    if (connector === undefined || connector.ledger.stateOwner !== 'HUB') return;
+    const rows = await tx.query<{ enabled: boolean }>('select enabled from machvon.hub_connector_state where connector_code = $1', [connector.code]);
+    if (rows[0] !== undefined && !rows[0].enabled) throw new DomainError('HUB_CONNECTOR_DISABLED', 409, 'connector', { extensions: { connector_code: connector.code } });
+  }
+
   async run<R>(tx: TenantTx, input: RunFileImportInput<R>): Promise<FileImportResult> {
     const { adapter } = input;
     const metrics = input.metrics ?? NOOP_METRICS;
@@ -226,6 +237,7 @@ export class FileImportStore {
     if (!(await isActiveMember(tx, fallbackOwner))) throw invalid('owner_membership_id');
 
     if (input.cursorScope !== undefined) await this.requireActiveCursor(tx, adapter.connectorCode, input.cursorScope);
+    await this.assertHubSwitchOn(tx, adapter.connectorCode);
 
     const claimed = await tx.query<{ id: string }>(
       `insert into machvon.file_import (tenant_id, id, connector_code, format_version, file_sha256, file_object_key, imported_by, created_at)

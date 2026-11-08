@@ -1,7 +1,9 @@
-import { randomUUID } from 'node:crypto';
-import { connectorDescriptor, connectorDescriptors, hubRunOf, registerBuiltInConnectors, runEtl, makeBatch } from '@machvon/kernel';
+import { createHash, randomUUID } from 'node:crypto';
+import { accept, connectorDescriptor, connectorDescriptors, hubRunOf, registerBuiltInConnectors, runEtl, makeBatch } from '@machvon/kernel';
 import type { ConnectorDescriptor, EtlPorts, FieldMapping } from '@machvon/kernel';
 import { EgpConnectionStore } from '../src/egp-store';
+import { FileImportStore } from '../src/file-import-store';
+import type { FileImportAdapter } from '../src/file-import-store';
 import { registerBuiltInHubAdapters } from '../src/hub-adapters';
 import { IntegrationCursorStore } from '../src/integration-cursor-store';
 import { TREASURY_CONNECTOR_CODE, TREASURY_FORMAT_VERSION } from '../src/pay-treasury-statement-format';
@@ -155,6 +157,25 @@ describe('the Integration Hub store (HUB-1)', () => {
       const on = await as((tx) => hub.setState(tx, 'treasury.statement', 2, { enabled: true, reason: 'The sample file arrived and was checked' }, memberId(MAKER)));
       expect(on.after).toMatchObject({ enabled: true, version: 3 });
       expect((await as((tx) => hub.stateEvents(tx, 'treasury.statement', 10))).map((event) => event.action)).toEqual(['ENABLED', 'DISABLED']);
+    });
+
+    it('holds where the data comes in: a connector the hub switched off takes no file (409 HUB_CONNECTOR_DISABLED, nothing claimed), and takes it again once it is switched on', async () => {
+      const adapter: FileImportAdapter<{ code: string }> = {
+        connectorCode: 'NATIONAL_PIM_FILE',
+        formatVersion: 'TEST-1',
+        parse: () => [{ line: 2, values: { code: 'P-1' } }],
+        judge: (row) => accept({ businessKey: row.values.code as string, fields: { code: row.values.code as string }, record: { code: row.values.code as string } }),
+        apply: async () => [],
+      };
+      const bytes = new TextEncoder().encode('code\nP-1\n');
+      const run = (): Promise<unknown> => as((tx) => new FileImportStore().run(tx, { adapter, bytes, fileObjectKey: `tenants/${TENANT_A}/import/${randomUUID()}`, importedBy: memberId(MAKER), fallbackOwnerId: memberId(MAKER), correlationId: 'hub-switch', now: NOW }));
+      const before = await as((tx) => hub.reading(tx, descriptor('national.project_codes'), NOW));
+      await as((tx) => hub.setState(tx, 'national.project_codes', before.stateVersion, { enabled: false, reason: REASON }, memberId(CHECKER)), CHECKER);
+      expect(await refusal(run())).toMatchObject({ code: 'HUB_CONNECTOR_DISABLED', status: 409 });
+      expect((await owner('select 1 from machvon.file_import where file_sha256 = $1', [createHash('sha256').update(bytes).digest('hex')])).length).toBe(0);
+      const off = await as((tx) => hub.reading(tx, descriptor('national.project_codes'), NOW));
+      await as((tx) => hub.setState(tx, 'national.project_codes', off.stateVersion, { enabled: true, reason: 'The sample file was checked' }, memberId(CHECKER)), CHECKER);
+      expect(await run()).toMatchObject({ outcome: 'APPLIED' });
     });
 
     it('is delegated to the connector for e-GP: its own switch and history move, and the hub keeps its own line too', async () => {
