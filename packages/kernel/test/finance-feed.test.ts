@@ -24,7 +24,9 @@ import {
   builtInDefault,
   dryRunFeedFile,
   diffFeedFigures,
+  FEED_MAX_ROWS,
   feedAlertsFor,
+  feedLayoutColumns,
   feedBatchOfRows,
   feedConnectionMove,
   feedConnectorHealth,
@@ -406,6 +408,16 @@ describe('the comparison of the feed with our own figures', () => {
     expect(refusal(() => resolveFeedDifference(done, { kind: 'KEEP_OURS', resolvedById: 'owner', at, reason: 'Again, a second time.' })).code).toBe('FEED_DIFFERENCE_STATE_INVALID');
     expect(feedPolicyOf({ tolerance_pct: 0.5, large_discrepancy_pct: 5, report_due_days: 5, difference_due_days: 7 }).report_due_days).toBe(5);
     expect(refusal(() => feedPolicyOf({ tolerance_pct: 9, large_discrepancy_pct: 5, report_due_days: 5, difference_due_days: 7 })).code).toBe('GOVERNANCE_RULE_PARAMS_INVALID');
+  });
+});
+
+describe('the edge collector reads the same layouts as the platform', () => {
+  it('keeps scripts/feed-collector/layouts.json equal to the layouts of the kernel', () => {
+    const shipped = JSON.parse(readFileSync(join(__dirname, '..', '..', '..', 'scripts', 'feed-collector', 'layouts.json'), 'utf8')) as { layoutVersion: string; maxRows: number; kinds: Record<string, Array<{ name: string; required: boolean; values?: string[] }>> };
+    expect(shipped.layoutVersion).toBe(FEED_LAYOUT_VERSION);
+    expect(shipped.maxRows).toBe(FEED_MAX_ROWS);
+    expect(Object.keys(shipped.kinds)).toEqual([...FEED_KINDS]);
+    for (const kind of FEED_KINDS) expect(shipped.kinds[kind]).toEqual(feedLayoutColumns(kind).map((column) => ({ name: column.name, required: column.required, ...(column.values === undefined ? {} : { values: [...column.values] }) })));
   });
 });
 

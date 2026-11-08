@@ -118,9 +118,24 @@ New error codes: 503 `FEED_API_UNAVAILABLE`, 409 `FEED_CONNECTION_DISABLED`, `FE
 
 Nothing a consumer touches changes. The reader reads `finance_feed_record`; the generator is one producer of it, like a file. To move to the real feed: (1) when the Finance Department publishes its layout, add it as a new layout version in `finance-feed.ts` (the working assumption stays readable) and ask the department to confirm it; the acceptance word clears only then; (2) when lane INT-1 gives the machine account, `FeedApiPushAdapter` is replaced by the endpoint that authenticates it and calls `feedBatchOfRows`; (3) stop the generator (`STOP`; its records of the last epoch stay in the store as history and are read until a reseed or the real data covers the same projects under other codes); (4) map the real codes (FEED-03).
 
-Section 12 (the edge collector agent) is added when the collector is built.
+## 12. The edge collector agent (cross-platform, ARM included)
 
-## 12. Pieces
+`scripts/feed-collector/` is a small agent that runs next to the Finance application (a server of the department, a branch machine, a Raspberry-class ARM board) and carries its export to the platform. It is plain Node (20 or later), ES modules, **no native dependency and no process spawning** (a test reads every source for both), so it runs the same on linux arm64 and amd64, windows x64 and arm64, and macOS arm64: nothing is compiled per platform, paths go through `node:path`, writes are an atomic rename, and the machine reports its own `os`, `arch` and Node version in every heartbeat.
+
+| Piece | Does |
+|---|---|
+| `csv.mjs`, `layout.mjs`, `layouts.json` | Reads the export (UTF-8 with or without BOM, CRLF or LF, comma, semicolon or tab, quoted cells) and judges it against the layout version the platform reads before anything is sent: a layout version the platform does not read, a missing required column, a duplicated column or an empty file never leaves the machine. `layouts.json` is kept equal to the kernel by a kernel test |
+| `batch.mjs` | Cuts an export into batches of at most 5,000 rows, each **named by the hash** of the layout version, the kind, the hash of the file and the index: the same export always gives the same batches |
+| `spool.mjs` | The **offline spool**: a batch is written to disk (atomic rename) before it is sent and leaves `pending` only when taken (`sent`) or refused for good (`rejected`); a restart or a lost link loses nothing and sends nothing twice |
+| `client.mjs` | The **machine account** (OAuth2 client credentials; id and secret from the environment or a secret file, never in the configuration, which the loader refuses if it holds one) and `POST /finance-feed/push` with `Idempotency-Key: batch-<hash>`. 2xx taken; 401 asks for a new token once; 422, 409, 400, 403 refused for good; 503 `FEED_API_UNAVAILABLE`, 429, 5xx, a network failure or a timeout are tried again later with a delay that doubles from `retryBaseSeconds` to `retryMaxSeconds` |
+| `agent.mjs` | One pass: take in the source (a **drop folder**, files that settled for 5 seconds; or an **export API**, JSON `{ kind, rows }`), keep a ledger of exports already taken in (by the hash of the bytes, so the same export under another name is the same and the source is never written to or emptied), flush the spool oldest first (a transient failure stops the pass), write `heartbeat.json` and, when `platform.heartbeatUrl` is set, send the heartbeat |
+| `feed-collector.mjs` | The command: `--config collector.json` runs until stopped (SIGINT, SIGTERM), `--once` for a scheduler, `--check` prints the platform and checks the configuration |
+
+Idempotent by batch hash: the collector never sends a batch it has already sent, and the platform, which keys the command by the same hash, applies each at most once however many times it arrives. **What the platform does today:** the endpoint `pushFinanceFeedBatch` still answers 503 `FEED_API_UNAVAILABLE` until lane INT-1 gives the machine account (it also owns the token endpoint named in `platform.tokenUrl`, default `<baseUrl>/oauth/token`), so a collector started now keeps every batch in its spool and waits, which is the intended state; the day the endpoint calls `feedBatchOfRows` and the heartbeat endpoint exists, nothing in the collector changes. The collector is the one piece of this lane that calls out, by design and only to the platform address of its configuration; the platform itself still opens no connection.
+
+Configuration (`collector.json`; secrets only by environment): `{ "source": { "type": "folder", "path": "/data/finance-export" }, "platform": { "baseUrl": "https://pis.example.gov.vn", "heartbeatUrl": null, "clientIdEnv": "FEED_CLIENT_ID", "clientSecretEnv": "FEED_CLIENT_SECRET", "clientSecretFile": null }, "stateDir": "/var/lib/feed-collector", "layoutVersion": "WORKING-ASSUMPTION-FIN-2026.1", "intervalSeconds": 60 }`. File names start with the kind (`project`, `plan`, `disbursement`, `milestone`, any case) or the header fits one layout only. To run as a service: a systemd unit on Linux (`ExecStart=node feed-collector.mjs --config ...`, `Restart=always`), a scheduled task or a service wrapper on Windows, a launchd agent on macOS, or `--once` from cron. Tests: `node --test scripts/feed-collector.test.mjs` (fakes only: a fake `fetch`, temporary folders; nothing is sent anywhere).
+
+## 13. Pieces
 
 | Piece | File |
 |---|---|
@@ -135,4 +150,5 @@ Section 12 (the edge collector agent) is added when the collector is built.
 | Migrations | `db/migrations/V2500` to `V2503` |
 | Stores, file adapter, reader, alert source | `packages/db/src/finance-feed-*.ts`, `home-connector-sources.ts`; tests `packages/db/test/finance-feed-store.test.ts` |
 | Controllers and views | `apps/api/src/modules/finance-feed/` |
+| Edge collector | `scripts/feed-collector/`, test `scripts/feed-collector.test.mjs` |
 | Screens | `apps/web/src/screens/feed/`, strings `apps/web/src/i18n/parts/feed.{vi,en}.json` |

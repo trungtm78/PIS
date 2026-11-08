@@ -1,0 +1,176 @@
+{
+  "layoutVersion": "WORKING-ASSUMPTION-FIN-2026.1",
+  "maxRows": 5000,
+  "kinds": {
+    "PROJECT": [
+      {
+        "name": "feed_project_code",
+        "required": true
+      },
+      {
+        "name": "as_of",
+        "required": true
+      },
+      {
+        "name": "project_name",
+        "required": true
+      },
+      {
+        "name": "sector_code",
+        "required": true
+      },
+      {
+        "name": "district_code",
+        "required": true
+      },
+      {
+        "name": "investor_code",
+        "required": true
+      },
+      {
+        "name": "investor_name",
+        "required": false
+      },
+      {
+        "name": "total_investment",
+        "required": false
+      },
+      {
+        "name": "start_year",
+        "required": false
+      },
+      {
+        "name": "end_year",
+        "required": false
+      },
+      {
+        "name": "project_status",
+        "required": false,
+        "values": [
+          "ACTIVE",
+          "SUSPENDED",
+          "COMPLETED",
+          "CANCELLED"
+        ]
+      },
+      {
+        "name": "our_project_code",
+        "required": false
+      }
+    ],
+    "PLAN": [
+      {
+        "name": "feed_project_code",
+        "required": true
+      },
+      {
+        "name": "fiscal_year",
+        "required": true
+      },
+      {
+        "name": "fund_code",
+        "required": true,
+        "values": [
+          "NSTW",
+          "NSDP",
+          "ODA",
+          "TPCP",
+          "CTMTQG",
+          "OTHER"
+        ]
+      },
+      {
+        "name": "plan_amount",
+        "required": true
+      },
+      {
+        "name": "as_of",
+        "required": true
+      },
+      {
+        "name": "decision_no",
+        "required": false
+      }
+    ],
+    "DISBURSEMENT": [
+      {
+        "name": "feed_project_code",
+        "required": true
+      },
+      {
+        "name": "fiscal_year",
+        "required": true
+      },
+      {
+        "name": "month",
+        "required": true
+      },
+      {
+        "name": "fund_code",
+        "required": true,
+        "values": [
+          "NSTW",
+          "NSDP",
+          "ODA",
+          "TPCP",
+          "CTMTQG",
+          "OTHER"
+        ]
+      },
+      {
+        "name": "disbursed_month",
+        "required": true
+      },
+      {
+        "name": "disbursed_cumulative",
+        "required": true
+      },
+      {
+        "name": "reported_on",
+        "required": true
+      },
+      {
+        "name": "as_of",
+        "required": true
+      }
+    ],
+    "MILESTONE": [
+      {
+        "name": "feed_project_code",
+        "required": true
+      },
+      {
+        "name": "milestone_kind",
+        "required": true,
+        "values": [
+          "PACKAGE_PUBLISHED",
+          "PACKAGE_AWARDED",
+          "CONTRACT_SIGNED",
+          "SITE_HANDOVER",
+          "ACCEPTANCE",
+          "SETTLEMENT"
+        ]
+      },
+      {
+        "name": "package_code",
+        "required": false
+      },
+      {
+        "name": "planned_on",
+        "required": false
+      },
+      {
+        "name": "actual_on",
+        "required": false
+      },
+      {
+        "name": "contract_value",
+        "required": false
+      },
+      {
+        "name": "as_of",
+        "required": true
+      }
+    ]
+  }
+}
