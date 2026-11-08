@@ -455,18 +455,18 @@ export class HubStore {
     const hubPolicy = policy ?? (await this.policy(tx, now)).policy;
     const state = await this.stateOf(tx, descriptor);
     const positions = [...descriptor.ledger.positions];
-    const runs = await tx.query<{ outcome: RunOutcome; at: string; at_ms: string }>(
-      `select outcome, ${iso('at')} as at, (extract(epoch from at) * 1000)::bigint::text as at_ms from (
-         select (case i.status when 'APPLIED' then (case when i.rows_quarantined > 0 then 'PARTIAL' else 'SUCCEEDED' end) when 'FAILED' then 'FAILED' else 'RUNNING' end)::text as outcome, coalesce(i.completed_at, i.created_at) as at
+    const runs = await tx.query<{ outcome: RunOutcome; moment: string; at_ms: string }>(
+      `select outcome, ${iso('moment')} as moment, (extract(epoch from moment) * 1000)::bigint::text as at_ms from (
+         select (case i.status when 'APPLIED' then (case when i.rows_quarantined > 0 then 'PARTIAL' else 'SUCCEEDED' end) when 'FAILED' then 'FAILED' else 'RUNNING' end)::text as outcome, coalesce(i.completed_at, i.created_at) as moment
            from machvon.file_import i where i.connector_code = any($1::text[])
          union all
          select r.outcome, coalesce(r.finished_at, r.started_at) from machvon.hub_run_log r where r.connector_code = $2 and r.dry_run = false
-       ) u order by at desc limit ${RECENT_RUNS}`,
+       ) u order by moment desc limit ${RECENT_RUNS}`,
       [positions, descriptor.code],
     );
-    const success = await tx.query<{ at: string | null; at_ms: string | null }>(
-      `select ${iso('max(at)')} as at, (extract(epoch from max(at)) * 1000)::bigint::text as at_ms from (
-         select coalesce(i.completed_at, i.created_at) as at from machvon.file_import i where i.connector_code = any($1::text[]) and i.status = 'APPLIED'
+    const success = await tx.query<{ moment: string | null; at_ms: string | null }>(
+      `select ${iso('max(moment)')} as moment, (extract(epoch from max(moment)) * 1000)::bigint::text as at_ms from (
+         select coalesce(i.completed_at, i.created_at) as moment from machvon.file_import i where i.connector_code = any($1::text[]) and i.status = 'APPLIED'
          union all
          select coalesce(r.finished_at, r.started_at) from machvon.hub_run_log r where r.connector_code = $2 and r.dry_run = false and r.outcome in ('SUCCEEDED', 'PARTIAL')
        ) s`,
@@ -474,10 +474,10 @@ export class HubStore {
     );
     const failed = await tx.query<{ n: string }>(
       `select count(*)::text as n from (
-         select coalesce(i.completed_at, i.created_at) as at from machvon.file_import i where i.connector_code = any($1::text[]) and i.status = 'FAILED'
+         select coalesce(i.completed_at, i.created_at) as moment from machvon.file_import i where i.connector_code = any($1::text[]) and i.status = 'FAILED'
          union all
          select r.started_at from machvon.hub_run_log r where r.connector_code = $2 and r.dry_run = false and r.outcome = 'FAILED'
-       ) f where at >= $3::timestamptz`,
+       ) f where moment >= $3::timestamptz`,
       [positions, descriptor.code, new Date(now.getTime() - WEEK_MS).toISOString()],
     );
     const backlog =
@@ -506,8 +506,8 @@ export class HubStore {
       stateReason: state.reason,
       stateChangedAt: state.changedAt,
       stateOwner: descriptor.ledger.stateOwner,
-      lastSuccessAt: success[0]?.at ?? null,
-      lastRunAt: newest?.at ?? null,
+      lastSuccessAt: success[0]?.moment ?? null,
+      lastRunAt: newest?.moment ?? null,
       lastRunOutcome: newest?.outcome ?? null,
       health,
       failedRuns7d: Number(failed[0]?.n ?? 0),
@@ -728,12 +728,12 @@ export class HubStore {
 
   /** The newest snapshots of a connector (or of the whole hub when `code` is null), newest first. */
   async trend(tx: TenantTx, code: string | null, limit: number): Promise<HubSnapshotRow[]> {
-    const rows = await tx.query<{ at: string; connector_code: string | null; status: string | null; age_hours: string | null; failed_runs_7d: number; discrepancy_backlog: number; pending_mappings: number; summary: Record<string, unknown> | null }>(
-      `select ${iso('bucket')} as at, connector_code, status, age_hours::text as age_hours, failed_runs_7d, discrepancy_backlog, pending_mappings, summary from machvon.hub_health_snapshot
+    const rows = await tx.query<{ moment: string; connector_code: string | null; status: string | null; age_hours: string | null; failed_runs_7d: number; discrepancy_backlog: number; pending_mappings: number; summary: Record<string, unknown> | null }>(
+      `select ${iso('bucket')} as moment, connector_code, status, age_hours::text as age_hours, failed_runs_7d, discrepancy_backlog, pending_mappings, summary from machvon.hub_health_snapshot
         where connector_code is not distinct from $1::text order by bucket desc limit $2`,
       [code, limit],
     );
-    return rows.map((row) => ({ at: row.at, connectorCode: row.connector_code, status: row.status, ageHours: row.age_hours === null ? null : Number(row.age_hours), failedRuns7d: row.failed_runs_7d, discrepancyBacklog: row.discrepancy_backlog, pendingMappings: row.pending_mappings, summary: row.summary }));
+    return rows.map((row) => ({ at: row.moment, connectorCode: row.connector_code, status: row.status, ageHours: row.age_hours === null ? null : Number(row.age_hours), failedRuns7d: row.failed_runs_7d, discrepancyBacklog: row.discrepancy_backlog, pendingMappings: row.pending_mappings, summary: row.summary }));
   }
 
   // ---- mappings and watermarks -------------------------------------------------------------------------------------------------------------------------------------------
@@ -894,11 +894,11 @@ export class HubStore {
 
   /** The newest lineage rows of a connector (source and target of each loaded record). */
   async lineage(tx: TenantTx, code: string, limit: number): Promise<Array<{ sourceRef: string; recordKey: string; targetRef: string | null; status: string; mappingVersion: string; layoutVersion: string; batchSha256: string; at: string }>> {
-    const rows = await tx.query<{ source_ref: string; record_key: string; target_ref: string | null; status: string; mapping_version: string; layout_version: string; batch_sha256: string; at: string }>(
-      `select source_ref, record_key, target_ref, status, mapping_version, layout_version, batch_sha256, ${iso('created_at')} as at from machvon.hub_lineage where connector_code = $1 order by created_at desc, id desc limit $2`,
+    const rows = await tx.query<{ source_ref: string; record_key: string; target_ref: string | null; status: string; mapping_version: string; layout_version: string; batch_sha256: string; moment: string }>(
+      `select source_ref, record_key, target_ref, status, mapping_version, layout_version, batch_sha256, ${iso('created_at')} as moment from machvon.hub_lineage where connector_code = $1 order by created_at desc, id desc limit $2`,
       [code, limit],
     );
-    return rows.map((row) => ({ sourceRef: row.source_ref, recordKey: row.record_key, targetRef: row.target_ref, status: row.status, mappingVersion: row.mapping_version, layoutVersion: row.layout_version, batchSha256: row.batch_sha256, at: row.at }));
+    return rows.map((row) => ({ sourceRef: row.source_ref, recordKey: row.record_key, targetRef: row.target_ref, status: row.status, mappingVersion: row.mapping_version, layoutVersion: row.layout_version, batchSha256: row.batch_sha256, at: row.moment }));
   }
 
   // ---- collector agents ----------------------------------------------------------------------------------------------------------------------------------------------------------
