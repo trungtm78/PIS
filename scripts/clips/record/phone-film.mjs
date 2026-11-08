@@ -22,6 +22,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, '..', '..', '..');
 export const PLAN_FILE = join(HERE, 'phone-film.json');
 export const OUT_DIR = process.env.CLIPS_PHONE_OUT ?? 'D:/PIS-clips-out/phone';
+/** The films of a clip go in a folder of their own for the enterprise edition: <out>/enterprise/<scene id>.mp4 (make.mjs --phone-dir). */
+export const outDirOf = (edition, base = OUT_DIR) => (edition === 'public' ? base : join(base, edition));
 /** The recorder of the device begins its picture a little after it is asked to. */
 const LAG_MS = 700;
 
@@ -103,7 +105,7 @@ export async function filmScene(id, { serial, outDir = OUT_DIR, plan = loadPlan(
   const scene = plan.scenes[id];
   if (scene === undefined) throw new Error(`the plan has no scene ${id}`);
   mkdirSync(outDir, { recursive: true });
-  const work = join(outDir, `${id}.${edition}.work`);
+  const work = join(outDir, `${id}.work`);
   rmSync(work, { recursive: true, force: true });
   mkdirSync(work, { recursive: true });
   const screen = new Screen(serial, work);
@@ -130,7 +132,7 @@ export async function filmScene(id, { serial, outDir = OUT_DIR, plan = loadPlan(
     ffmpeg(['-f', 'concat', '-safe', '0', '-i', join(work, 'list.txt'), '-c', 'copy', joined]);
   }
   // Constant 30 fps (the device writes a picture only when the screen changes), the first moments before the picture cut off.
-  const file = join(outDir, `${id}.${edition}.mp4`);
+  const file = join(outDir, `${id}.mp4`);
   ffmpeg(['-ss', String(LAG_MS / 1000), '-i', joined, '-vf', 'fps=30,format=yuv420p', '-r', '30', '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '17', '-movflags', '+faststart', file]);
   const entry = { scene: id, edition, file, durationMs: probeMs(file), persona: scene.persona, headline: scene.headline ?? null };
   updateIndex(outDir, entry);
@@ -143,8 +145,13 @@ export async function filmScene(id, { serial, outDir = OUT_DIR, plan = loadPlan(
 export function updateIndex(outDir, entry) {
   const file = join(outDir, 'index.json');
   const index = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : { schema: 'phone-footage/1', orientation: 'portrait', size: '720x1560', fps: 30, scenes: {} };
-  index.scenes[`${entry.scene}.${entry.edition}`] = { scene: entry.scene, edition: entry.edition, file: entry.file, durationMs: entry.durationMs, persona: entry.persona, headline: entry.headline };
+  index.scenes[entry.scene] = { scene: entry.scene, edition: entry.edition, file: entry.file, durationMs: entry.durationMs, persona: entry.persona, headline: entry.headline };
   writeFileSync(file, `${JSON.stringify(index, null, 2)}\n`);
+}
+
+/** Stops a recording that a failed walk left running on the device. */
+function screenStop(serial) {
+  adb(serial, 'shell', 'pkill', '-2', 'screenrecord');
 }
 
 async function main(argv) {
@@ -173,7 +180,15 @@ async function main(argv) {
   }
   if (command === 'scene') {
     const ids = rest.filter((word) => !word.startsWith('--') && word !== serial && word !== edition && word !== arg(argv, 'out', ''));
-    for (const id of ids) await filmScene(id, { serial, outDir: arg(argv, 'out', OUT_DIR), plan, edition });
+    for (const id of ids) {
+      try {
+        await filmScene(id, { serial, outDir: outDirOf(edition, arg(argv, 'out', OUT_DIR)), plan, edition });
+      } catch (error) {
+        // A walk that fails is reported and the next scene goes on (the emulator is brought back to the first screen by the next walk).
+        console.error(`scene ${id} failed: ${error instanceof Error ? error.message : error}`);
+        screenStop(serial);
+      }
+    }
     return 0;
   }
   console.error('usage: phone-film.mjs <sign-in|scene|dump|list|check> ...');
