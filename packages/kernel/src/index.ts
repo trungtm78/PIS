@@ -2385,7 +2385,7 @@ export {
 export type { ReportStepKind, ReportWorkflow, ReportWorkflowStep, WorkflowMode } from './dis-report-workflow.ts';
 export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } from './teams-channel.ts';
 export type { TeamsCard } from './teams-channel.ts';
-=======
+export {
   EGP_EXPORT_KINDS,
   EGP_OBLIGATION_FACTS,
   EGP_OPEN_STATES,
@@ -2406,7 +2406,7 @@ export type { TeamsCard } from './teams-channel.ts';
   egpTriggerInstant,
 } from './egp-posting.ts';
 export type { EgpMilestoneDate, EgpMilestoneOutcome, EgpOnTime, EgpPostingFacet, EgpSeverityParams } from './egp-posting.ts';
-=======
+export {
   ACTUALS_PRECEDENCES,
   ACTUAL_SOURCES,
   ENTRY_MODES,

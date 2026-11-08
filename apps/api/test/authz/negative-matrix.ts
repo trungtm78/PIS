@@ -2858,7 +2858,6 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   issueReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/issue', ifMatch: '"1"', body: {} }) },
   deliverReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/deliveries', body: { receiver: 'MOF', channel: 'MANUAL' } }) },
   answerReportDelivery: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/answers', body: { receiver: 'MOF', outcome: 'ACCEPTED' } }) },
-=======
   // EGP-2: the duties of posting to the national procurement network and the reconciliation of the fields; a caller who is refused opens, moves and settles nothing.
   openEgpObligation: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/obligations', body: { kind: 'NOTICE', our_code: 'GT-0001', triggered_on: '2026-11-02' } }) },
   sweepEgpObligations: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/obligations/sweep', body: {} }) },
