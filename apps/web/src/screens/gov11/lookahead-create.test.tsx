@@ -15,9 +15,10 @@ const AS_OF = '2026-11-08T03:00:00.000Z';
 const rule = { code: 'DEFAULT', version: 0, source: 'DEFAULT', unverified: true, params: { min_weeks: 2, max_weeks: 6, default_weeks: 3, constraint_kinds: ['DESIGN', 'MATERIAL', 'OTHER'], variance_reasons: ['WEATHER', 'OTHER'] }, provenance: { formula: 'A formula in words', source: 'The research', as_of: '2026-11-08', legal_status: 'UNVERIFIED' } };
 const item = (n: number, over: Record<string, unknown> = {}) => ({ id: `i${n}`, sequence: n, description: `Item ${n}`, planned_start: '2026-11-10', planned_finish: '2026-11-12', responsible: 'Crew', outcome: 'PLANNED', variance_reason_code: null, outcome_at: null, state: 'READY', constraints: [], version: 1, ...over });
 const emptyView = (over: Record<string, unknown> = {}) => ({ project: { id: ID, code: 'DA1', name: 'P', status: 'IMPLEMENTATION' }, plan: null, history: [], overdue: false, rule, as_of: AS_OF, ...over });
+const planOf = (items: unknown[], over: Record<string, unknown> = {}) => ({ id: 'pl', project_id: ID, week_start: '2026-11-02', window_end: '2026-11-23', horizon_weeks: 3, status: 'DRAFT', policy_version: 0, published_at: null, items, ppc: { committed: 0, done: 0, pct: null, band: 'NO_DATA' }, version: 1, ...over });
 const planView = (items: unknown[], over: Record<string, unknown> = {}) =>
   emptyView({
-    plan: { id: 'pl', project_id: ID, week_start: '2026-11-02', window_end: '2026-11-23', horizon_weeks: 3, status: 'DRAFT', policy_version: 0, published_at: null, items, ppc: { committed: 0, done: 0, pct: null, band: 'NO_DATA' }, version: 1 },
+    plan: planOf(items),
     history: [
       { id: 'pl', week_start: '2026-11-02', horizon_weeks: 3, status: 'DRAFT', ppc: { pct: null, band: 'NO_DATA' } },
       { id: EXISTING, week_start: '2026-10-26', horizon_weeks: 3, status: 'PUBLISHED', ppc: { pct: '80.0', band: 'ON_TARGET' } },
@@ -48,7 +49,7 @@ describe('PRJ-30 creating the look-ahead plan', () => {
 
   it('sends the plan once with the typed items, then opens the plan the server made and says it is a draft', async () => {
     const h = harness(
-      (_operation, input) => ((input as { query?: { plan_id?: string } }).query?.plan_id === NEW_PLAN ? planView([item(1, { description: 'Pour the slab' })], { plan: { ...planView([]).plan, id: NEW_PLAN, items: [item(1, { description: 'Pour the slab' })] } }) : emptyView()),
+      (_operation, input) => ((input as { query?: { plan_id?: string } }).query?.plan_id === NEW_PLAN ? planView([item(1, { description: 'Pour the slab' })], { plan: planOf([item(1, { description: 'Pour the slab' })], { id: NEW_PLAN }) }) : emptyView()),
       () => ({ operation_id: 'o', status: 'DRAFT', resource_version: 1, resource_id: NEW_PLAN }),
     );
     mountAt(h);
@@ -194,7 +195,7 @@ describe('PRJ-30 creating the look-ahead plan', () => {
 });
 
 describe('PRJ-30 raising a constraint', () => {
-  const answer = () => planView([item(1), item(2, { outcome: 'DONE', state: 'DONE' })], { plan: { ...planView([]).plan, status: 'PUBLISHED', items: [item(1), item(2, { outcome: 'DONE', state: 'DONE' })] } });
+  const answer = () => planView([item(1), item(2, { outcome: 'DONE', state: 'DONE' })], { plan: planOf([item(1), item(2, { outcome: 'DONE', state: 'DONE' })], { status: 'PUBLISHED' }) });
   const withMembers = (h: ReturnType<typeof harness>, rows: unknown[] | Error) => {
     (h.client as unknown as { readAll: unknown }).readAll = vi.fn(() => (rows instanceof Error ? Promise.reject(rows) : Promise.resolve(rows)));
   };

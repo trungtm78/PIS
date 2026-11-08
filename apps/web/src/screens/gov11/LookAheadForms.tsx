@@ -1,3 +1,4 @@
+import { ApiError } from '@machvon/api-client';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
@@ -103,7 +104,7 @@ export function PlanCreateForm({ projectId, rule, asOf, existingWeeks, defaultWe
   const addRows = (rows: ItemRow[]): void => setForm((current) => ({ ...current, items: [...current.items, ...rows] }));
   const nextKey = (): number => keys.current++;
   const refusal = refusalCode(create.error);
-  const existingPlan = typeof (create.error as { extensions?: Record<string, unknown> } | null)?.extensions?.plan_id === 'string' ? ((create.error as { extensions: Record<string, unknown> }).extensions.plan_id as string) : undefined;
+  const existingPlan = create.error instanceof ApiError && typeof create.error.extensions.plan_id === 'string' ? create.error.extensions.plan_id : undefined;
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     setTried(true);
