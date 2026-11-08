@@ -84,7 +84,7 @@ export class Screen {
   start() {
     const remote = `/sdcard/hdsd-${this.pieces.length}.mp4`;
     this.pieces.push({ remote, startWall: Date.now(), durationMs: 0 });
-    this.child = spawn('adb', ['-s', this.serial, 'shell', 'screenrecord', '--time-limit', '170', '--bit-rate', '3000000', remote], { stdio: 'ignore' });
+    this.child = spawn('adb', ['-s', this.serial, 'shell', 'screenrecord', '--time-limit', '170', '--bit-rate', process.env.PHONE_BITRATE ?? '3000000', remote], { stdio: 'ignore' });
     this.running = true;
   }
 

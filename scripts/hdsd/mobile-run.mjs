@@ -42,7 +42,7 @@ async function settled(serial, pattern, { scroll = false, timeoutMs = SEE_TIMEOU
 }
 
 /** One operation of a step, done on the device the way a person does it. `recorder` is given while the film is made: it stops and starts the film. */
-async function operate(serial, op, log, recorder) {
+export async function operate(serial, op, log, recorder) {
   const name = opNameOf(op);
   if (name === 'clear') {
     adb(serial, 'shell', 'pm', 'clear', PACKAGE);
