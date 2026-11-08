@@ -148,6 +148,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'confirmSiteDiaryByOwner': CommandResultResponse.fromJson,
   'confirmTreasuryManually': CommandResultResponse.fromJson,
   'connectChannelAccount': CommandResultResponse.fromJson,
+  'controlFinanceFeedGenerator': asObject,
   'convertConversationToIssue': CommandResultResponse.fromJson,
   'correctMeasurement': CommandResultResponse.fromJson,
   'correctMneReport': CommandResultResponse.fromJson,
@@ -259,6 +260,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideDossierDisposal': CommandResultResponse.fromJson,
   'decideEgpMapping': CommandResultResponse.fromJson,
   'decideEntitlementOverride': CommandResultResponse.fromJson,
+  'decideFinanceFeedMapping': CommandResultResponse.fromJson,
   'decideGlossaryTerm': CommandResultResponse.fromJson,
   'decideHpmCorrection': CommandResultResponse.fromJson,
   'decideHubIncident': CommandResultResponse.fromJson,
@@ -626,6 +628,10 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getEgpImport': EgpImportDetailResponse.fromJson,
   'getEgpObligation': EgpObligationDetailResponse.fromJson,
   'getEvaluationReport': BidReportResponse.fromJson,
+  'getFinanceFeedConnection': asObject,
+  'getFinanceFeedFacts': asObject,
+  'getFinanceFeedQuality': asObject,
+  'getFinanceFeedRun': asObject,
   'getFundingFigureBatch': FundingFigureBatchResponse.fromJson,
   'getFundingFigureBoard': FundingFigureBoardResponse.fromJson,
   'getFundingFigureHistory': FundingFigureHistoryResponse.fromJson,
@@ -745,6 +751,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'importBoqLines': CommandResultResponse.fromJson,
   'importEbsFile': EbsImportResultResponse.fromJson,
   'importEgpFile': EgpApplyResultResponse.fromJson,
+  'importFinanceFeedFile': asObject,
   'importIndicatorFile': IndApplyResultResponse.fromJson,
   'importLandParcels': CommandResultResponse.fromJson,
   'importNationalProjectCodes': CommandResultResponse.fromJson,
@@ -871,6 +878,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listExplanationRequests': asObject,
   'listExportDatasets': ExportDatasetListResponse.fromJson,
   'listFeatureFlags': FeatureFlagListResponse.fromJson,
+  'listFinanceFeedDifferences': asObject,
+  'listFinanceFeedMappings': asObject,
+  'listFinanceFeedProjects': asObject,
+  'listFinanceFeedRuns': asObject,
+  'listFinanceFeedUnmapped': asObject,
   'listFiscalYears': FiscalYearListResponse.fromJson,
   'listFundingFigureBatches': FundingFigureBatchListResponse.fromJson,
   'listFundReservations': CapReservationPageResponse.fromJson,
@@ -1078,6 +1090,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'previewCampaignRecipients': CampaignPreviewResponse.fromJson,
   'previewEbsFile': EbsImportPreviewResponse.fromJson,
   'previewEgpFile': EgpPreviewResultResponse.fromJson,
+  'previewFinanceFeedFile': asObject,
   'previewIndicatorImport': IndPreviewResultResponse.fromJson,
   'previewPlanChange': PlanChangePreviewResponse.fromJson,
   'promoteAllocationScenario': CommandResultResponse.fromJson,
@@ -1088,6 +1101,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'proposeContractRating': CommandResultResponse.fromJson,
   'proposeDossierDisposal': CommandResultResponse.fromJson,
   'proposeEgpMapping': EgpMappingResponse.fromJson,
+  'proposeFinanceFeedMapping': asObject,
   'proposeFundingFigures': CommandResultResponse.fromJson,
   'proposeGlossaryTerm': CommandResultResponse.fromJson,
   'proposeHpmCorrection': CommandResultResponse.fromJson,
@@ -1124,6 +1138,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'publishSystemTenantTheme': TenantThemeVersionResponse.fromJson,
   'publishWorkCalendar': CommandResultResponse.fromJson,
   'publishWorkflowVersion': CommandResultResponse.fromJson,
+  'pushFinanceFeedBatch': CommandResultResponse.fromJson,
   'putSystemTenantThemeDraft': TenantThemeDraftResponse.fromJson,
   'putVendorRestrictionIntoEffect': CommandResultResponse.fromJson,
   'raiseContractEarlyWarning': CommandResultResponse.fromJson,
@@ -1273,6 +1288,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'resolveDocumentReference': asObject,
   'resolveEbsDifference': CommandResultResponse.fromJson,
   'resolveEgpReconciliationItem': CommandResultResponse.fromJson,
+  'resolveFinanceFeedDifference': CommandResultResponse.fromJson,
   'resolveIncomingDocument': CommandResultResponse.fromJson,
   'resolveLandComplaint': CommandResultResponse.fromJson,
   'resolveProcurementPetition': CommandResultResponse.fromJson,
@@ -1288,6 +1304,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'resumeWorkClock': asObject,
   'retireDocumentTemplate': CommandResultResponse.fromJson,
   'retireEgpMapping': CommandResultResponse.fromJson,
+  'retireFinanceFeedMapping': CommandResultResponse.fromJson,
   'retireGovernanceRule': CommandResultResponse.fromJson,
   'retireIssueSlaPolicy': CommandResultResponse.fromJson,
   'retireMasterCrosswalk': CommandResultResponse.fromJson,
@@ -1350,6 +1367,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'runAllocationScenario': CommandResultResponse.fromJson,
   'runBillingCycle': CommandResultResponse.fromJson,
   'runEgpReconciliation': EgpReconcileResultResponse.fromJson,
+  'runFinanceFeedReconciliation': asObject,
   'runInvestmentAppraisal': CommandResultResponse.fromJson,
   'runQualityChecks': CommandResultResponse.fromJson,
   'runReconciliation': CommandResultResponse.fromJson,
@@ -1376,6 +1394,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'setEbsConnectionState': CommandResultResponse.fromJson,
   'setEgpConnectionState': CommandResultResponse.fromJson,
   'setExportDataset': CommandResultResponse.fromJson,
+  'setFinanceFeedConnectionState': CommandResultResponse.fromJson,
   'setHpmConnectionState': CommandResultResponse.fromJson,
   'setHubConnectorState': CommandResultResponse.fromJson,
   'setMilestoneDependency': CommandResultResponse.fromJson,
@@ -1464,6 +1483,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'uploadDocumentFile': DocFileUploadResponse.fromJson,
   'uploadEbsFile': EbsFileUploadResponse.fromJson,
   'uploadEgpFile': EgpFileUploadResponse.fromJson,
+  'uploadFinanceFeedFile': FinanceFeedFileUploadResponse.fromJson,
   'uploadIndicatorFile': IndFileUploadResponse.fromJson,
   'uploadLandParcelFile': LndParcelFileResponse.fromJson,
   'uploadLeaderSignedDocument': CommandResultResponse.fromJson,
@@ -28762,6 +28782,56 @@ final class FeatureFlagResponseRollout implements ResponseModel {
         'tenant_cohorts': tenantCohorts,
         'tenant_ids': tenantIds,
         'percentage': percentage,
+        ...extra,
+      };
+}
+
+final class FinanceFeedFileUploadResponse implements ResponseModel {
+  const FinanceFeedFileUploadResponse({
+    required this.fileObjectKey,
+    required this.fileSha256,
+    required this.sizeBytes,
+    required this.format,
+    required this.columns,
+    required this.rowCount,
+    required this.matchingKinds,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory FinanceFeedFileUploadResponse.fromJson(Object? json, [String path = 'FinanceFeedFileUploadResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return FinanceFeedFileUploadResponse(
+      fileObjectKey: requiredField(map, path, 'file_object_key', asString),
+      fileSha256: requiredField(map, path, 'file_sha256', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      format: requiredField(map, path, 'format', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      matchingKinds: requiredField(map, path, 'matching_kinds', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'file_object_key', 'file_sha256', 'size_bytes', 'format', 'columns', 'row_count', 'matching_kinds'}, strict: true),
+    );
+  }
+
+  final String fileObjectKey;
+  final String fileSha256;
+  final int sizeBytes;
+  final String format;
+  final List<String> columns;
+  final int rowCount;
+  final List<String> matchingKinds;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        'size_bytes': sizeBytes,
+        'format': format,
+        'columns': columns,
+        'row_count': rowCount,
+        'matching_kinds': matchingKinds,
         ...extra,
       };
 }

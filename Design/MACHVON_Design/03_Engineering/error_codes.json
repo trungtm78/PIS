@@ -6955,6 +6955,54 @@
       "module": "HOME",
       "statusBasis": "spec",
       "source": "spec:HOME"
+    },
+    "FEED_API_UNAVAILABLE": {
+      "status": 503,
+      "title": "Finance feed push is not available",
+      "meaning": "Chưa có tài khoản máy của cổng tích hợp (INT-1) hoặc đặc tả giao diện của Sở Tài chính; cổng đẩy từ chối mọi lời gọi.",
+      "module": "FEED",
+      "statusBasis": "spec",
+      "source": "spec:FEED"
+    },
+    "FEED_CONNECTION_DISABLED": {
+      "status": 409,
+      "title": "Finance feed connection is switched off",
+      "meaning": "Kết nối fin.sotaichinh đã được tắt kèm lý do nên không nhận số liệu; chạy thử vẫn dùng được.",
+      "module": "FEED",
+      "statusBasis": "spec",
+      "source": "spec:FEED"
+    },
+    "FEED_GENERATOR_STATE_INVALID": {
+      "status": 409,
+      "title": "Generator move not allowed in this state",
+      "meaning": "Bộ sinh dữ liệu không ở trạng thái mà thao tác này bắt đầu (đã chạy, đã dừng, hết năm hoặc kết nối đang tắt).",
+      "module": "FEED",
+      "statusBasis": "spec",
+      "source": "spec:FEED"
+    },
+    "FEED_MAPPING_STATE_INVALID": {
+      "status": 409,
+      "title": "Feed mapping is not in a state that allows this move",
+      "meaning": "Một ánh xạ chỉ được duyệt hoặc từ chối khi đang chờ, và chỉ được thu hồi khi đang hiệu lực.",
+      "module": "FEED",
+      "statusBasis": "spec",
+      "source": "spec:FEED"
+    },
+    "FEED_DIFFERENCE_STATE_INVALID": {
+      "status": 409,
+      "title": "Feed difference is already settled",
+      "meaning": "Một sai lệch chỉ được xử lý một lần; sai lệch đã xử lý là cuối cùng.",
+      "module": "FEED",
+      "statusBasis": "spec",
+      "source": "spec:FEED"
+    },
+    "FEED_LAYOUT_VERSION_UNKNOWN": {
+      "status": 422,
+      "title": "Finance feed layout version unknown",
+      "meaning": "Phiên bản mẫu tệp được nêu không phải phiên bản mà hệ thống đọc; câu trả lời nêu các phiên bản được hỗ trợ.",
+      "module": "FEED",
+      "statusBasis": "spec",
+      "source": "spec:FEED"
     }
   }
 }

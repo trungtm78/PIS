@@ -204804,6 +204804,2813 @@
         "x-exposure": "dto",
         "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
+    },
+    "/finance-feed/connection": {
+      "get": {
+        "operationId": "getFinanceFeedConnection",
+        "summary": "Kết nối fin.sotaichinh: bật/tắt, kênh, mẫu tệp, độ mới, bộ sinh dữ liệu, số liệu chất lượng (FEED-01)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/runs": {
+      "get": {
+        "operationId": "listFinanceFeedRuns",
+        "summary": "Các lần nhận số liệu từ Sở Tài chính, mới nhất trước (FEED-02)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedRunPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/runs/{id}": {
+      "get": {
+        "operationId": "getFinanceFeedRun",
+        "summary": "Một lần nhận số liệu, kèm các dòng bị từ chối (FEED-02)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedRun"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/mappings": {
+      "get": {
+        "operationId": "listFinanceFeedMappings",
+        "summary": "Ánh xạ mã dự án của Sở Tài chính với dự án của ta (FEED-03)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedMappingPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      },
+      "post": {
+        "operationId": "proposeFinanceFeedMapping",
+        "summary": "Đề xuất ánh xạ mã dự án của Sở Tài chính với dự án của ta (FEED-03)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.map",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedMappingPropose"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedMapping"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "CROSSWALK_DUPLICATE"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.mapping.proposed.v1"
+        ]
+      }
+    },
+    "/finance-feed/unmapped": {
+      "get": {
+        "operationId": "listFinanceFeedUnmapped",
+        "summary": "Mã dự án của Sở Tài chính chưa có ánh xạ (FEED-03)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedUnmappedPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/differences": {
+      "get": {
+        "operationId": "listFinanceFeedDifferences",
+        "summary": "Sai lệch giữa số của Sở Tài chính và số của ta, mỗi sai lệch có chủ sở hữu (FEED-04)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "large",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedDifferencePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/quality": {
+      "get": {
+        "operationId": "getFinanceFeedQuality",
+        "summary": "Chất lượng số liệu: độ đầy đủ, độ kịp thời, đơn vị báo cáo trễ, tỷ lệ sai lệch (FEED-01)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedQuality"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/facts": {
+      "get": {
+        "operationId": "getFinanceFeedFacts",
+        "summary": "Số liệu toàn tỉnh theo ngành, huyện, chủ đầu tư, nguồn vốn, tháng cho Ban chỉ đạo (đọc qua ProvinceFactsReader)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "investor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fund",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedFacts"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/projects": {
+      "get": {
+        "operationId": "listFinanceFeedProjects",
+        "summary": "Số liệu từng dự án toàn tỉnh: kế hoạch, giải ngân lũy kế, từng tháng",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.read",
+        "parameters": [
+          {
+            "name": "fiscal_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "investor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fund",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "as_of",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedProjectPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/finance-feed/connection/state": {
+      "post": {
+        "operationId": "setFinanceFeedConnectionState",
+        "summary": "Bật hoặc tắt kết nối số liệu của Sở Tài chính kèm lý do (FEED-01)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.admin",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedConnectionState"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SCOPE_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.connection.changed.v1"
+        ]
+      }
+    },
+    "/finance-feed/generator": {
+      "post": {
+        "operationId": "controlFinanceFeedGenerator",
+        "summary": "Bắt đầu, dừng, tạo lại hạt giống hoặc tiến thêm một tháng của bộ sinh dữ liệu, kèm lý do (FEED-05)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.generator",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedGeneratorControl"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedImportResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SCOPE_DENIED",
+          "FEED_GENERATOR_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.generator.moved.v1"
+        ]
+      }
+    },
+    "/finance-feed/imports/preview": {
+      "post": {
+        "operationId": "previewFinanceFeedFile",
+        "summary": "Chạy thử tệp số liệu của Sở Tài chính: từng dòng hợp lệ, lỗi, trùng, xung đột; không ghi gì (FEED-02)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.preview",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedImportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedPreviewResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "FEED_LAYOUT_VERSION_UNKNOWN",
+          "HASH_MISMATCH",
+          "IMPORT_SCHEMA_INVALID",
+          "IMPORT_EMPTY"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
+    },
+    "/finance-feed/imports": {
+      "post": {
+        "operationId": "importFinanceFeedFile",
+        "summary": "Áp dụng tệp số liệu của Sở Tài chính, một lần cho mỗi tệp (FEED-02)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.import",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedImportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedImportResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
+          "FEED_CONNECTION_DISABLED",
+          "FEED_LAYOUT_VERSION_UNKNOWN",
+          "IMPORT_FILE_ALREADY_APPLIED",
+          "IMPORT_HAS_ERRORS",
+          "HASH_MISMATCH",
+          "IMPORT_SCHEMA_INVALID",
+          "IMPORT_EMPTY"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.import.applied.v1"
+        ]
+      }
+    },
+    "/finance-feed/push": {
+      "post": {
+        "operationId": "pushFinanceFeedBatch",
+        "summary": "Ứng dụng của Sở Tài chính đẩy số liệu bằng tài khoản máy; từ chối cho đến khi có tài khoản máy của cổng tích hợp",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.push",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedPushRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "FEED_API_UNAVAILABLE"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
+    },
+    "/finance-feed/mappings/{id}/decision": {
+      "post": {
+        "operationId": "decideFinanceFeedMapping",
+        "summary": "Duyệt hoặc từ chối đề xuất ánh xạ; người đề xuất không tự duyệt (FEED-03)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.map.approve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedMappingDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SCOPE_DENIED",
+          "FEED_MAPPING_STATE_INVALID",
+          "SELF_APPROVAL_DENIED",
+          "CROSSWALK_DUPLICATE"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.mapping.decided.v1"
+        ]
+      }
+    },
+    "/finance-feed/mappings/{id}/retire": {
+      "post": {
+        "operationId": "retireFinanceFeedMapping",
+        "summary": "Thu hồi một ánh xạ đang hiệu lực kèm lý do (FEED-03)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.map",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedMappingRetire"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SCOPE_DENIED",
+          "FEED_MAPPING_STATE_INVALID"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.mapping.retired.v1"
+        ]
+      }
+    },
+    "/finance-feed/reconciliations": {
+      "post": {
+        "operationId": "runFinanceFeedReconciliation",
+        "summary": "Đối chiếu số của Sở Tài chính với số của ta (DIS, Kho bạc) cho một năm và mở sai lệch (FEED-04)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.reconcile",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedReconciliationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedReconciliationResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.reconciliation.completed.v1"
+        ]
+      }
+    },
+    "/finance-feed/differences/{id}/resolution": {
+      "post": {
+        "operationId": "resolveFinanceFeedDifference",
+        "summary": "Xử lý một sai lệch: chấp nhận số của Sở, giữ số của ta, phản bác hoặc bỏ qua kèm ngày xem lại (FEED-04)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceFeedResolution"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "SCOPE_DENIED",
+          "FEED_DIFFERENCE_STATE_INVALID",
+          "SELF_APPROVAL_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "fin.feed.difference.resolved.v1"
+        ]
+      }
+    },
+    "/finance-feed/imports/files": {
+      "post": {
+        "operationId": "uploadFinanceFeedFile",
+        "summary": "Tải tệp số liệu của Sở Tài chính (CSV hoặc XLSX) lên kho đối tượng, quét mã độc và cho biết tệp có đủ cột của loại nào (FEED-02)",
+        "tags": [
+          "FEED"
+        ],
+        "x-permission": "fin.feed.preview",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The file is stored and clean; its columns and rows are read and the kinds it fits are told",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceFeedFileUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "FILE_TYPE_NOT_ALLOWED",
+          "FILE_NOT_CLEAN",
+          "PAYLOAD_TOO_LARGE",
+          "IMPORT_SCHEMA_INVALID",
+          "IMPORT_EMPTY",
+          "SCAN_PENDING"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
     }
   },
   "components": {
@@ -275805,6 +278612,413 @@
             "format": "date"
           }
         }
+      },
+      "FinanceFeedConnectionState": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enabled",
+          "reason"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      },
+      "FinanceFeedGeneratorControl": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action",
+          "reason"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "START",
+              "STOP",
+              "RESEED",
+              "TICK"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2100
+          },
+          "current_month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "project_count": {
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 1000
+          },
+          "late_units": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "delayed_pct": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 80
+          },
+          "ahead_pct": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "discrepancies": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "anchor_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50,
+            "description": "How many of our own projects with a frozen DIS snapshot the generated projects are anchored on"
+          }
+        }
+      },
+      "FinanceFeedFileUpload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file_object_key",
+          "file_sha256",
+          "size_bytes",
+          "format",
+          "columns",
+          "row_count",
+          "matching_kinds"
+        ],
+        "properties": {
+          "file_object_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "CSV",
+              "XLSX"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "matching_kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PROJECT",
+                "PLAN",
+                "DISBURSEMENT",
+                "MILESTONE"
+              ]
+            },
+            "description": "The kinds whose required columns the file has"
+          }
+        }
+      },
+      "FinanceFeedImportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "file_object_key",
+          "file_sha256"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PROJECT",
+              "PLAN",
+              "DISBURSEMENT",
+              "MILESTONE"
+            ]
+          },
+          "file_object_key": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 500
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "mapping_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "The layout version of the file the caller means; another than the ones the module reads is refused before the file is opened (FEED_LAYOUT_VERSION_UNKNOWN)"
+          }
+        }
+      },
+      "FinanceFeedPushRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "rows"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PROJECT",
+              "PLAN",
+              "DISBURSEMENT",
+              "MILESTONE"
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5000,
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "mapping_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          }
+        }
+      },
+      "FinanceFeedMappingPropose": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "our_code",
+          "external_code",
+          "reason"
+        ],
+        "properties": {
+          "our_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "external_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      },
+      "FinanceFeedMappingDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      },
+      "FinanceFeedMappingRetire": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      },
+      "FinanceFeedReconciliationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fiscal_year"
+        ],
+        "properties": {
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2100
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The person accountable for the differences it opens; the caller when absent"
+          }
+        }
+      },
+      "FinanceFeedResolution": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "reason"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ACCEPT_FEED",
+              "KEEP_OURS",
+              "DISPUTE",
+              "WAIVE"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 1000
+          },
+          "evidence_ref": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "review_on": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "FinanceFeedConnection": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedConnection); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedRunPage": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedRunPage); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedRun": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedRun); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedMappingPage": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedMappingPage); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedUnmappedPage": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedUnmappedPage); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedDifferencePage": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedDifferencePage); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedQuality": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedQuality); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedFacts": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedFacts); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedProjectPage": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedProjectPage); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedPreviewResult": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedPreviewResult); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedImportResult": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedImportResult); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedMapping": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedMapping); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedReconciliationResult": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedReconciliationResult); amounts as decimal strings; carries as_of"
+      },
+      "FinanceFeedDifference": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Read model or result of the finance feed (FinanceFeedDifference); amounts as decimal strings; carries as_of"
       }
     }
   }

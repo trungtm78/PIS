@@ -7136,6 +7136,198 @@ final class FileRankingComplaint implements RequestModel {
       };
 }
 
+final class FinanceFeedConnectionState implements RequestModel {
+  const FinanceFeedConnectionState({
+    required this.enabled,
+    required this.reason,
+  });
+
+  final bool enabled;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'enabled': enabled,
+        'reason': reason,
+      };
+}
+
+final class FinanceFeedGeneratorControl implements RequestModel {
+  const FinanceFeedGeneratorControl({
+    required this.action,
+    required this.reason,
+    this.seed,
+    this.fiscalYear,
+    this.currentMonth,
+    this.projectCount,
+    this.lateUnits,
+    this.delayedPct,
+    this.aheadPct,
+    this.discrepancies,
+    this.anchorCount,
+  });
+
+  final String action;
+  final String reason;
+  final int? seed;
+  final int? fiscalYear;
+  final int? currentMonth;
+  final int? projectCount;
+  final int? lateUnits;
+  final int? delayedPct;
+  final int? aheadPct;
+  final int? discrepancies;
+  final int? anchorCount;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'action': action,
+        'reason': reason,
+        if (seed != null) 'seed': seed,
+        if (fiscalYear != null) 'fiscal_year': fiscalYear,
+        if (currentMonth != null) 'current_month': currentMonth,
+        if (projectCount != null) 'project_count': projectCount,
+        if (lateUnits != null) 'late_units': lateUnits,
+        if (delayedPct != null) 'delayed_pct': delayedPct,
+        if (aheadPct != null) 'ahead_pct': aheadPct,
+        if (discrepancies != null) 'discrepancies': discrepancies,
+        if (anchorCount != null) 'anchor_count': anchorCount,
+      };
+}
+
+final class FinanceFeedImportRequest implements RequestModel {
+  const FinanceFeedImportRequest({
+    required this.kind,
+    required this.fileObjectKey,
+    required this.fileSha256,
+    this.mappingVersion,
+  });
+
+  final String kind;
+  final String fileObjectKey;
+  final String fileSha256;
+  final String? mappingVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        if (mappingVersion != null) 'mapping_version': mappingVersion,
+      };
+}
+
+final class FinanceFeedMappingDecision implements RequestModel {
+  const FinanceFeedMappingDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class FinanceFeedMappingPropose implements RequestModel {
+  const FinanceFeedMappingPropose({
+    required this.ourCode,
+    required this.externalCode,
+    required this.reason,
+    this.validFrom,
+    this.validUntil,
+  });
+
+  final String ourCode;
+  final String externalCode;
+  final String? validFrom;
+  final String? validUntil;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'our_code': ourCode,
+        'external_code': externalCode,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+        'reason': reason,
+      };
+}
+
+final class FinanceFeedMappingRetire implements RequestModel {
+  const FinanceFeedMappingRetire({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class FinanceFeedPushRequest implements RequestModel {
+  const FinanceFeedPushRequest({
+    required this.kind,
+    required this.rows,
+    this.mappingVersion,
+  });
+
+  final String kind;
+  final List<Map<String, String>> rows;
+  final String? mappingVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'rows': rows,
+        if (mappingVersion != null) 'mapping_version': mappingVersion,
+      };
+}
+
+final class FinanceFeedReconciliationRequest implements RequestModel {
+  const FinanceFeedReconciliationRequest({
+    required this.fiscalYear,
+    this.ownerId,
+  });
+
+  final int fiscalYear;
+  final String? ownerId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'fiscal_year': fiscalYear,
+        if (ownerId != null) 'owner_id': ownerId,
+      };
+}
+
+final class FinanceFeedResolution implements RequestModel {
+  const FinanceFeedResolution({
+    required this.kind,
+    required this.reason,
+    this.evidenceRef,
+    this.reviewOn,
+  });
+
+  final String kind;
+  final String reason;
+  final String? evidenceRef;
+  final String? reviewOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'reason': reason,
+        if (evidenceRef != null) 'evidence_ref': evidenceRef,
+        if (reviewOn != null) 'review_on': reviewOn,
+      };
+}
+
 final class FundingFigureEntry implements RequestModel {
   const FundingFigureEntry({
     required this.periodOrdinal,
