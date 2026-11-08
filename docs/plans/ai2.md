@@ -43,3 +43,11 @@ Codex review (`codex review --base main`, model gpt-6-astra, read-only) of the b
 ## Verification
 
 Kernel, db and API typecheck; API suites through the db lane: `llm/ai-assist`, `llm/ai-external.enterprise`, isolation, conformance, outbox consumers, DIS report, authz matrices; web: `src/screens/llm/assist` and `src/routes`; `edition:check`, `i18n-lint`, `commands:check`, `lint-error-codes`, `migrations:check`, `contracts:check`, design `check-cli` at zero errors.
+
+Second Codex review (on the merged branch), three more findings, all valid and fixed:
+
+| Finding | Disposition | Test |
+|---|---|---|
+| P1 the revocation of an exception waits behind the use log of a pending call (FOR UPDATE against the key share of the foreign key) | The exception store locks with FOR NO KEY UPDATE, which does not conflict with the key share, so a revocation commits while a call is pending and the next read sees it | `ai-external.enterprise.test.ts`, revocation through the command during the call |
+| P1 a provider could lose its attestation while active and still be sent data | The gateway checks the attestation (data location, no training) at planning and before each call wherever the edition asks for it; the provider is then withheld | `ai-external.enterprise.test.ts`, "does not use an external provider whose attestation is withdrawn" |
+| P2 twenty sources plus a subject make twenty-one and fail only after the model was called | The combined count is checked right after the sources are merged | `ai-assist.test.ts`, "validates the request before it reads anything" |
