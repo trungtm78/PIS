@@ -6755,6 +6755,195 @@ final class GuestInvite implements RequestModel {
       };
 }
 
+final class HubAgentHeartbeat implements RequestModel {
+  const HubAgentHeartbeat({
+    required this.agentVersion,
+    required this.spoolDepth,
+  });
+
+  final String agentVersion;
+  final int spoolDepth;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'agent_version': agentVersion,
+        'spool_depth': spoolDepth,
+      };
+}
+
+final class HubAgentRequest implements RequestModel {
+  const HubAgentRequest({
+    required this.agentCode,
+    required this.os,
+    required this.cpuArch,
+    required this.agentVersion,
+    required this.connectors,
+  });
+
+  final String agentCode;
+  final String os;
+  final String cpuArch;
+  final String agentVersion;
+  final List<String> connectors;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'agent_code': agentCode,
+        'os': os,
+        'cpu_arch': cpuArch,
+        'agent_version': agentVersion,
+        'connectors': connectors,
+      };
+}
+
+final class HubConnectorStateRequest implements RequestModel {
+  const HubConnectorStateRequest({
+    required this.enabled,
+    required this.reason,
+  });
+
+  final bool enabled;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'enabled': enabled,
+        'reason': reason,
+      };
+}
+
+final class HubIncidentDecision implements RequestModel {
+  const HubIncidentDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class HubIncidentRequest implements RequestModel {
+  const HubIncidentRequest({
+    required this.connectorCode,
+    required this.summary,
+    this.severity,
+  });
+
+  final String connectorCode;
+  final String summary;
+  final String? severity;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'connector_code': connectorCode,
+        'summary': summary,
+        if (severity != null) 'severity': severity,
+      };
+}
+
+final class HubMappingDecision implements RequestModel {
+  const HubMappingDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class HubMappingRequest implements RequestModel {
+  const HubMappingRequest({
+    required this.pipelineCode,
+    required this.mappingVersion,
+    required this.fields,
+  });
+
+  final String pipelineCode;
+  final String mappingVersion;
+  final List<Map<String, Object?>> fields;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'pipeline_code': pipelineCode,
+        'mapping_version': mappingVersion,
+        'fields': fields,
+      };
+}
+
+final class HubRejectDecision implements RequestModel {
+  const HubRejectDecision({
+    required this.decision,
+    required this.reason,
+    this.corrections,
+  });
+
+  final String decision;
+  final String reason;
+  final Map<String, Object?>? corrections;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+        if (corrections != null) 'corrections': corrections,
+      };
+}
+
+final class HubRunRequest implements RequestModel {
+  const HubRunRequest({
+    required this.kind,
+    required this.outcome,
+    required this.startedAt,
+    this.finishedAt,
+    this.layoutCode,
+    this.layoutVersion,
+    this.rowsTotal,
+    this.rowsApplied,
+    this.rowsRejected,
+    this.errorCode,
+    this.sourceRef,
+  });
+
+  final String kind;
+  final String outcome;
+  final String startedAt;
+  final String? finishedAt;
+  final String? layoutCode;
+  final String? layoutVersion;
+  final int? rowsTotal;
+  final int? rowsApplied;
+  final int? rowsRejected;
+  final String? errorCode;
+  final String? sourceRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'outcome': outcome,
+        'started_at': startedAt,
+        if (finishedAt != null) 'finished_at': finishedAt,
+        if (layoutCode != null) 'layout_code': layoutCode,
+        if (layoutVersion != null) 'layout_version': layoutVersion,
+        if (rowsTotal != null) 'rows_total': rowsTotal,
+        if (rowsApplied != null) 'rows_applied': rowsApplied,
+        if (rowsRejected != null) 'rows_rejected': rowsRejected,
+        if (errorCode != null) 'error_code': errorCode,
+        if (sourceRef != null) 'source_ref': sourceRef,
+      };
+}
+
 final class IdentityVerify implements RequestModel {
   const IdentityVerify({
     required this.method,

@@ -171,7 +171,7 @@ describe('the Integration Hub store (HUB-1)', () => {
       expect(third.incidents.autoResolved.map((row) => [row.state, row.resolution, row.resolvedBy])).toEqual([['RESOLVED', 'CONDITION_CLEARED', null]]);
       expect(third.snapshotsWritten).toBe(connectorDescriptors().length + 1);
       expect((await as((tx) => hub.trend(tx, 'national.project_codes', 5))).map((point) => point.status)).toEqual(['HEALTHY', 'FAILING']);
-      expect(((await as((tx) => hub.trend(tx, null, 5)))[0] as { summary: { total: number } }).summary.total).toBe(connectorDescriptors().length);
+      expect(((await as((tx) => hub.trend(tx, null, 5)))[0] as unknown as { summary: { total: number } }).summary.total).toBe(connectorDescriptors().length);
     });
 
     it('lets a person report, acknowledge and resolve an incident, each with a reason and a version', async () => {

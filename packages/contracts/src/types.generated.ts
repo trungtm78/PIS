@@ -20398,6 +20398,247 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/integration-hub/connectors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh mục bộ kết nối của Trung tâm tích hợp dữ liệu kèm sức khỏe, độ mới và tuổi dữ liệu (HUB-01) */
+        get: operations["listHubConnectors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/connectors/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chi tiết một bộ kết nối: tổng quan, giao thức, mẫu tệp và chính sách, quy trình ETL, ánh xạ, tác tử thu thập, lịch sử bật tắt (HUB-02) */
+        get: operations["getHubConnector"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/connectors/{code}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lịch sử chạy của một bộ kết nối, gộp các lần nhập tệp và nhật ký chạy của trung tâm (HUB-02) */
+        get: operations["listHubConnectorRuns"];
+        put?: never;
+        /** Ghi một lần chạy do bộ kết nối hoặc tài khoản máy báo về trung tâm (HUB-02) */
+        post: operations["recordHubRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/connectors/{code}/rejects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách bản ghi bị loại của các quy trình ETL của một bộ kết nối, kèm lý do (HUB-02) */
+        get: operations["listHubRejects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Nhật ký sự cố của các bộ kết nối (HUB-03) */
+        get: operations["listHubIncidents"];
+        put?: never;
+        /** Người dùng báo một sự cố của bộ kết nối (HUB-03) */
+        post: operations["openHubIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bộ chỉ tiêu sức khỏe của trung tâm tích hợp: tỷ lệ bộ kết nối khỏe, tuổi dữ liệu cũ nhất, lần chạy lỗi, chênh lệch tồn đọng, ánh xạ chờ duyệt (HUB-01) */
+        get: operations["getHubHealthSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tác tử thu thập đã đăng ký: nền tảng, phiên bản, nhịp tim, độ sâu hàng đợi (HUB-02) */
+        get: operations["listHubAgents"];
+        put?: never;
+        /** Đăng ký một tác tử thu thập: nền tảng hệ điều hành và kiến trúc CPU, phiên bản, các bộ kết nối phục vụ (HUB-02) */
+        post: operations["registerHubAgent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/connectors/{code}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bật hoặc tắt một bộ kết nối kèm lý do, chuyển cho lệnh riêng của bộ kết nối khi có (HUB-02) */
+        post: operations["setHubConnectorState"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/incidents/{id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Nhận xử lý hoặc đóng một sự cố kèm lý do (HUB-03) */
+        post: operations["decideHubIncident"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/snapshots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Quét sức khỏe toàn trung tâm: chụp số liệu theo giờ và mở hoặc đóng sự cố tự động (HUB-01) */
+        post: operations["captureHubSnapshot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/connectors/{code}/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đề xuất một phiên bản ánh xạ trường của quy trình ETL (HUB-02) */
+        post: operations["proposeHubMapping"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/mappings/{id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Phê duyệt hoặc từ chối phiên bản ánh xạ do người khác đề xuất (HUB-02) */
+        post: operations["decideHubMapping"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/rejects/{id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Xử lý lại hoặc bỏ một bản ghi bị loại kèm lý do (HUB-02) */
+        post: operations["decideHubReject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/integration-hub/agents/{code}/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tác tử thu thập báo nhịp tim, phiên bản và độ sâu hàng đợi (HUB-02) */
+        post: operations["heartbeatHubAgent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -35033,6 +35274,427 @@ export interface components {
             external_routing: "ALLOWED" | "EXCEPTION_REQUIRED";
             attestation_required: boolean;
         };
+        HubAlert: {
+            code: string;
+            /** @enum {string} */
+            severity: "URGENT" | "ACTION" | "WATCH";
+        };
+        HubScreenLink: {
+            code: string;
+            route: string;
+        };
+        HubConnectorSummary: {
+            code: string;
+            name: string;
+            /** @enum {string} */
+            direction: "INBOUND" | "OUTBOUND" | "BOTH";
+            protocols: string[];
+            planned_protocols: string[];
+            /** @enum {string} */
+            acceptance: "PENDING_EXTERNAL" | "ACCEPTED" | "NOT_APPLICABLE";
+            /** @enum {string} */
+            status: "HEALTHY" | "STALE" | "FAILING" | "DISABLED" | "PENDING_EXTERNAL" | "NEVER_RUN";
+            /** @enum {string} */
+            freshness: "FRESH" | "AGING" | "STALE" | "UNKNOWN";
+            age_hours: number | null;
+            enabled: boolean;
+            last_success_at: string | null;
+            last_run_at: string | null;
+            /** @enum {string|null} */
+            last_run_outcome: "SUCCEEDED" | "PARTIAL" | "FAILED" | "RUNNING" | "SKIPPED" | null;
+            alert: components["schemas"]["HubAlert"] | null;
+            figures_blocked: boolean;
+            failed_runs_7d: number;
+            discrepancy_backlog: number;
+            pending_mappings: number;
+            consumers: string[];
+            owner_role: string;
+            /** @enum {string} */
+            egress_policy: "NONE" | "DECLARED";
+            screens: components["schemas"]["HubScreenLink"][];
+        };
+        HubSummary: {
+            total: number;
+            monitored: number;
+            healthy: number;
+            counts: {
+                HEALTHY: number;
+                STALE: number;
+                FAILING: number;
+                DISABLED: number;
+                PENDING_EXTERNAL: number;
+                NEVER_RUN: number;
+            };
+            healthy_percent: number | null;
+            oldest_data_age_hours: number | null;
+            oldest_data_connector: string | null;
+            failed_runs_7d: number;
+            discrepancy_backlog: number;
+            pending_mappings: number;
+            hub_alert: components["schemas"]["HubAlert"] | null;
+        };
+        HubConnectorList: {
+            items: components["schemas"]["HubConnectorSummary"][];
+            summary: components["schemas"]["HubSummary"];
+            as_of: string;
+        };
+        HubKpi: {
+            code: string;
+            name: string;
+            formula: string;
+            numerator: string | null;
+            denominator: string | null;
+            exclusions: string[];
+            source: string;
+            owner: string;
+            unit: string;
+            decimals: number;
+            value: number | null;
+            as_of: string;
+            unverified: boolean;
+            rule_version: number;
+        };
+        HubTrendPoint: {
+            at: string;
+            status: string | null;
+            age_hours: number | null;
+            failed_runs_7d: number;
+            discrepancy_backlog: number;
+            pending_mappings: number;
+            summary: {
+                [key: string]: unknown;
+            } | null;
+        };
+        HubPolicyView: {
+            failing_after_runs: number;
+            /** @enum {string} */
+            failing_severity: "URGENT" | "ACTION" | "WATCH";
+            hub_stale_ratio_percent: number;
+            hub_stale_min_connectors: number;
+            /** @enum {string} */
+            hub_stale_severity: "URGENT" | "ACTION" | "WATCH";
+            incident_auto_open: boolean;
+            snapshot_retention_days: number;
+            agent_stale_after_minutes: number;
+            /** @enum {string} */
+            source: "RULE" | "DEFAULT";
+            unverified: boolean;
+        };
+        HubHealthSummary: {
+            summary: components["schemas"]["HubSummary"];
+            kpis: components["schemas"]["HubKpi"][];
+            trend: components["schemas"]["HubTrendPoint"][];
+            policy: components["schemas"]["HubPolicyView"];
+            as_of: string;
+        };
+        HubLayout: {
+            code: string;
+            version: string;
+            /** @enum {string} */
+            acceptance: "PENDING_EXTERNAL" | "ACCEPTED" | "NOT_APPLICABLE";
+            pending: string[];
+        };
+        HubFreshnessRule: {
+            rule_code: string;
+            /** @enum {string} */
+            source: "RULE" | "DEFAULT" | "DESCRIPTOR";
+            version: number;
+            unverified: boolean;
+            formula: string | null;
+            source_text: string | null;
+            as_of: string | null;
+            max_age_hours: number;
+            warn_after_hours: number;
+            /** @enum {string} */
+            stale_severity: "URGENT" | "ACTION" | "WATCH";
+            figures_blocked_when_stale: boolean;
+        };
+        HubProtocolView: {
+            code: string;
+            name: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "PLANNED";
+            /** @enum {string} */
+            egress: "NONE" | "ALLOWLISTED_HOST" | "CUSTOMER_NETWORK";
+            auth: string[];
+            /** @enum {string} */
+            tls: "REQUIRED" | "NOT_APPLICABLE";
+            /** @enum {string} */
+            signature: "NONE" | "OPTIONAL" | "REQUIRED";
+            /** @enum {string} */
+            implementation: "END_TO_END" | "PORT_ONLY";
+            retry: string;
+            delivery: string;
+            formats: string[];
+        };
+        HubAlertType: {
+            code: string;
+            owner: string | null;
+            expected_action: string | null;
+            consequence: string | null;
+            response_hours: number | null;
+            default_severity: string | null;
+        };
+        HubPipelineSchedule: {
+            /** @enum {string} */
+            kind: "MANUAL" | "EVERY_HOURS" | "DAILY";
+            hours: number | null;
+            at: string | null;
+            working_days_only: boolean;
+            backfill_window_days: number;
+            max_concurrency: number;
+            rate_per_minute: number;
+            next_run_at: string | null;
+        };
+        HubPipelineView: {
+            code: string;
+            name: string;
+            protocol: string;
+            /** @enum {string} */
+            mode: "INCREMENTAL" | "FULL_SNAPSHOT" | "CHANGE_FEED";
+            layout_code: string;
+            layout_version: string;
+            target: string;
+            stages: ("EXTRACT" | "VALIDATE" | "TRANSFORM" | "LOAD")[];
+            schedule: components["schemas"]["HubPipelineSchedule"];
+            watermark: string | null;
+            approved_mapping_version: string | null;
+            pending_mapping_proposals: number;
+            open_rejects: number;
+            last_run: components["schemas"]["HubRun"] | null;
+        };
+        HubRun: {
+            id: string;
+            /** @enum {string} */
+            origin: "FILE_IMPORT" | "HUB";
+            kind: string;
+            /** @enum {string} */
+            outcome: "SUCCEEDED" | "PARTIAL" | "FAILED" | "RUNNING" | "SKIPPED";
+            started_at: string;
+            finished_at: string | null;
+            layout_version: string | null;
+            position: string | null;
+            pipeline_code: string | null;
+            rows_total: number;
+            rows_applied: number;
+            rows_rejected: number;
+            error_code: string | null;
+            source_ref: string | null;
+            dry_run: boolean;
+            stage_counts: {
+                [key: string]: unknown;
+            } | null;
+        };
+        HubRunPage: {
+            items: components["schemas"]["HubRun"][];
+            next_cursor: string | null;
+            as_of: string;
+        };
+        HubMapping: {
+            id: string;
+            pipeline_code: string;
+            mapping_version: string;
+            fields: {
+                [key: string]: unknown;
+            }[];
+            /** @enum {string} */
+            state: "PROPOSED" | "APPROVED" | "REJECTED" | "RETIRED";
+            proposed_by: string;
+            proposed_at: string;
+            decided_by: string | null;
+            decided_at: string | null;
+            decision_reason: string | null;
+            version: number;
+        };
+        HubAgent: {
+            id: string;
+            agent_code: string;
+            os: string;
+            cpu_arch: string;
+            platform: string;
+            agent_version: string;
+            connectors: string[];
+            spool_depth: number;
+            last_heartbeat_at: string | null;
+            /** @enum {string} */
+            state: "ACTIVE" | "RETIRED";
+            /** @enum {string} */
+            health: "ONLINE" | "STALE" | "NEVER_SEEN" | "RETIRED";
+            version: number;
+        };
+        HubAgentList: {
+            items: components["schemas"]["HubAgent"][];
+            stale_after_minutes: number;
+            as_of: string;
+        };
+        HubStateEvent: {
+            id: string;
+            /** @enum {string} */
+            action: "ENABLED" | "DISABLED";
+            reason: string;
+            actor_id: string;
+            version: number;
+            occurred_at: string;
+        };
+        HubConnectorDetail: {
+            summary: components["schemas"]["HubConnectorSummary"];
+            state: {
+                enabled: boolean;
+                version: number;
+                reason: string | null;
+                changed_at: string | null;
+                /** @enum {string} */
+                owner: "CONNECTOR" | "HUB";
+            };
+            layouts: components["schemas"]["HubLayout"][];
+            freshness_rule: components["schemas"]["HubFreshnessRule"] | null;
+            protocol_details: components["schemas"]["HubProtocolView"][];
+            credentials: {
+                /** @enum {string} */
+                kind: "NONE" | "VAULT_REFERENCE" | "MACHINE_ACCOUNT";
+                scopes: string[];
+                secret_store: string;
+            };
+            egress: {
+                /** @enum {string} */
+                policy: "NONE" | "DECLARED";
+                hosts: string[];
+                reason: string | null;
+            };
+            alert_types: components["schemas"]["HubAlertType"][];
+            pipelines: components["schemas"]["HubPipelineView"][];
+            mappings: components["schemas"]["HubMapping"][];
+            agents: components["schemas"]["HubAgent"][];
+            state_events: components["schemas"]["HubStateEvent"][];
+            trend: components["schemas"]["HubTrendPoint"][];
+            open_incidents: number;
+            as_of: string;
+        };
+        HubIncident: {
+            id: string;
+            connector_code: string | null;
+            /** @enum {string} */
+            kind: "FAILING" | "STALE" | "HUB_STALE" | "MANUAL";
+            /** @enum {string} */
+            severity: "URGENT" | "ACTION" | "WATCH";
+            /** @enum {string} */
+            state: "OPEN" | "ACKNOWLEDGED" | "RESOLVED";
+            summary: string | null;
+            opened_by: string | null;
+            opened_at: string;
+            acknowledged_by: string | null;
+            acknowledged_at: string | null;
+            resolved_by: string | null;
+            resolved_at: string | null;
+            resolution: string | null;
+            version: number;
+            alert: components["schemas"]["HubAlertType"] | null;
+        };
+        HubIncidentPage: {
+            items: components["schemas"]["HubIncident"][];
+            next_cursor: string | null;
+            as_of: string;
+        };
+        HubReject: {
+            id: string;
+            pipeline_code: string;
+            run_id: string;
+            /** @enum {string} */
+            stage: "VALIDATE" | "TRANSFORM" | "LOAD";
+            reject_code: string;
+            field: string | null;
+            source_ref: string;
+            record_key: string;
+            line: number | null;
+            record: {
+                [key: string]: unknown;
+            };
+            /** @enum {string} */
+            state: "OPEN" | "REPROCESSED" | "DISCARDED";
+            resolved_by: string | null;
+            resolved_at: string | null;
+            resolution: string | null;
+            version: number;
+            created_at: string;
+        };
+        HubRejectPage: {
+            items: components["schemas"]["HubReject"][];
+            next_cursor: string | null;
+            open_count: number;
+            as_of: string;
+        };
+        HubConnectorStateRequest: {
+            enabled: boolean;
+            /** @description Why the connector is switched on or off; kept in the history */
+            reason: string;
+        };
+        HubRunRequest: {
+            /** @enum {string} */
+            kind: "IMPORT" | "PULL" | "PUSH" | "GENERATE" | "READ" | "CHECK";
+            /** @enum {string} */
+            outcome: "SUCCEEDED" | "PARTIAL" | "FAILED" | "RUNNING" | "SKIPPED";
+            started_at: string;
+            finished_at?: string;
+            layout_code?: string;
+            layout_version?: string;
+            rows_total?: number;
+            rows_applied?: number;
+            rows_rejected?: number;
+            error_code?: string;
+            source_ref?: string;
+        };
+        HubIncidentRequest: {
+            connector_code: string;
+            summary: string;
+            /** @enum {string} */
+            severity?: "URGENT" | "ACTION" | "WATCH";
+        };
+        HubIncidentDecision: {
+            /** @enum {string} */
+            decision: "ACKNOWLEDGE" | "RESOLVE";
+            reason: string;
+        };
+        HubSnapshotResult: {
+            bucket: string;
+            snapshots_written: number;
+            incidents_opened: number;
+            incidents_auto_resolved: number;
+            summary: components["schemas"]["HubSummary"];
+        };
+        HubMappingRequest: {
+            pipeline_code: string;
+            mapping_version: string;
+            fields: {
+                [key: string]: unknown;
+            }[];
+        };
+        HubMappingDecision: {
+            /** @enum {string} */
+            decision: "APPROVE" | "REJECT";
+            reason: string;
+        };
+        HubRejectDecision: {
+            /** @enum {string} */
+            decision: "REPROCESS" | "DISCARD";
+            reason: string;
+            corrections?: {
+                [key: string]: unknown;
+            };
+        };
+        HubAgentRequest: {
+            agent_code: string;
+            /** @enum {string} */
+            os: "linux" | "windows" | "darwin" | "freebsd" | "other";
+            /** @enum {string} */
+            cpu_arch: "amd64" | "arm64" | "arm" | "386" | "riscv64" | "ppc64le" | "s390x" | "other";
+            agent_version: string;
+            connectors: string[];
+        };
+        HubAgentHeartbeat: {
+            agent_version: string;
+            spool_depth: number;
+        };
+        HubSnapshotRequest: Record<string, never>;
     };
     responses: never;
     parameters: never;
@@ -159817,6 +160479,1672 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AiEditionPolicy"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listHubConnectors: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubConnectorList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getHubConnector: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubConnectorDetail"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listHubConnectorRuns: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubRunPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    recordHubRun: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listHubRejects: {
+        parameters: {
+            query?: {
+                state?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubRejectPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listHubIncidents: {
+        parameters: {
+            query?: {
+                state?: string;
+                connector_code?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubIncidentPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    openHubIncident: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubIncidentRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getHubHealthSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubHealthSummary"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listHubAgents: {
+        parameters: {
+            query?: {
+                connector_code?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubAgentList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    registerHubAgent: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubAgentRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    setHubConnectorState: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubConnectorStateRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideHubIncident: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubIncidentDecision"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    captureHubSnapshot: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubSnapshotRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HubSnapshotResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    proposeHubMapping: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubMappingRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideHubMapping: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubMappingDecision"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideHubReject: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubRejectDecision"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    heartbeatHubAgent: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HubAgentHeartbeat"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

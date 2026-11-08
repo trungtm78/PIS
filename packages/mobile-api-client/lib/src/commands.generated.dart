@@ -286,6 +286,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> cancelWorkflowInstance(ReasonOnly body, {required String instanceId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelWorkflowInstance', path: <String, Object?>{'instanceId': instanceId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> captureHubSnapshot(Map<String, Object?> body, {CommandAttempt? attempt}) =>
+      execute('captureHubSnapshot', body: body, attempt: attempt);
+
   Future<Object?> captureProjectBaseline(Map<String, Object?> body, {required String id, CommandAttempt? attempt}) =>
       execute('captureProjectBaseline', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
@@ -723,6 +726,15 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> decideGlossaryTerm(MdmDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideGlossaryTerm', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> decideHubIncident(HubIncidentDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideHubIncident', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> decideHubMapping(HubMappingDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideHubMapping', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> decideHubReject(HubRejectDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideHubReject', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> decideMasterChangeRequest(MdmDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideMasterChangeRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -1182,6 +1194,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getHomeWarnings({Map<String, Object?>? query}) =>
       execute('getHomeWarnings', query: query);
+
+  Future<Object?> getHubConnector({required String code, Map<String, Object?>? query}) =>
+      execute('getHubConnector', path: <String, Object?>{'code': code}, query: query);
+
+  Future<Object?> getHubHealthSummary({Map<String, Object?>? query}) =>
+      execute('getHubHealthSummary', query: query);
 
   Future<Object?> getIncomingDocument({required String id, Map<String, Object?>? query}) =>
       execute('getIncomingDocument', path: <String, Object?>{'id': id}, query: query);
@@ -1993,6 +2011,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> handoverDossierToArchive(DocDossierHandover body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('handoverDossierToArchive', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> heartbeatHubAgent(HubAgentHeartbeat body, {required String code, CommandAttempt? attempt}) =>
+      execute('heartbeatHubAgent', path: <String, Object?>{'code': code}, body: body, attempt: attempt);
+
   Future<Object?> holdPackageWorkflow(PackageWorkflowHold body, {required String workflowId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('holdPackageWorkflow', path: <String, Object?>{'workflow_id': workflowId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -2344,6 +2365,21 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listGovernanceRules({Map<String, Object?>? query}) =>
       execute('listGovernanceRules', query: query);
 
+  Future<Object?> listHubAgents({Map<String, Object?>? query}) =>
+      execute('listHubAgents', query: query);
+
+  Future<Object?> listHubConnectorRuns({required String code, Map<String, Object?>? query}) =>
+      execute('listHubConnectorRuns', path: <String, Object?>{'code': code}, query: query);
+
+  Future<Object?> listHubConnectors({Map<String, Object?>? query}) =>
+      execute('listHubConnectors', query: query);
+
+  Future<Object?> listHubIncidents({Map<String, Object?>? query}) =>
+      execute('listHubIncidents', query: query);
+
+  Future<Object?> listHubRejects({required String code, Map<String, Object?>? query}) =>
+      execute('listHubRejects', path: <String, Object?>{'code': code}, query: query);
+
   Future<Object?> listIncomingDocuments({Map<String, Object?>? query}) =>
       execute('listIncomingDocuments', query: query);
 
@@ -2692,6 +2728,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> openEgpObligation(EgpObligationOpen body, {CommandAttempt? attempt}) =>
       execute('openEgpObligation', body: body, attempt: attempt);
 
+  Future<Object?> openHubIncident(HubIncidentRequest body, {CommandAttempt? attempt}) =>
+      execute('openHubIncident', body: body, attempt: attempt);
+
   Future<Object?> openSettlement(PayOpenSettlement body, {CommandAttempt? attempt}) =>
       execute('openSettlement', body: body, attempt: attempt);
 
@@ -2859,6 +2898,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> proposeGlossaryTerm(MdmGlossaryTerm body, {CommandAttempt? attempt}) =>
       execute('proposeGlossaryTerm', body: body, attempt: attempt);
+
+  Future<Object?> proposeHubMapping(HubMappingRequest body, {required String code, CommandAttempt? attempt}) =>
+      execute('proposeHubMapping', path: <String, Object?>{'code': code}, body: body, attempt: attempt);
 
   Future<Object?> proposeMasterRecord(MdmRecordProposal body, {CommandAttempt? attempt}) =>
       execute('proposeMasterRecord', body: body, attempt: attempt);
@@ -3040,6 +3082,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> recordDistributionAcknowledgement(DocAcknowledgement body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('recordDistributionAcknowledgement', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> recordHubRun(HubRunRequest body, {required String code, CommandAttempt? attempt}) =>
+      execute('recordHubRun', path: <String, Object?>{'code': code}, body: body, attempt: attempt);
+
   Future<Object?> recordInspectionResult(QmsRecordInspectionResult body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('recordInspectionResult', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3144,6 +3189,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> registerGuarantee(CtrRegisterGuarantee body, {required String id, CommandAttempt? attempt}) =>
       execute('registerGuarantee', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> registerHubAgent(HubAgentRequest body, {CommandAttempt? attempt}) =>
+      execute('registerHubAgent', body: body, attempt: attempt);
 
   Future<Object?> registerIncomingDocument(DocIncomingRegister body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('registerIncomingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -3591,6 +3639,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> setEgpConnectionState(EgpConnectionState body, {required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('setEgpConnectionState', body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> setHubConnectorState(HubConnectorStateRequest body, {required String code, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('setHubConnectorState', path: <String, Object?>{'code': code}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> setMilestoneDependency(PrjMilestoneDependency body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('setMilestoneDependency', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

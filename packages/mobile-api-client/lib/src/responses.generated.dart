@@ -97,6 +97,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'cancelSubscription': CommandResultResponse.fromJson,
   'cancelVendorPayeeChange': CommandResultResponse.fromJson,
   'cancelWorkflowInstance': CommandResultResponse.fromJson,
+  'captureHubSnapshot': HubSnapshotResultResponse.fromJson,
   'captureProjectBaseline': CommandResultResponse.fromJson,
   'certifyDataProduct': CommandResultResponse.fromJson,
   'changeSubscriptionPlan': CommandResultResponse.fromJson,
@@ -243,6 +244,9 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideEgpMapping': CommandResultResponse.fromJson,
   'decideEntitlementOverride': CommandResultResponse.fromJson,
   'decideGlossaryTerm': CommandResultResponse.fromJson,
+  'decideHubIncident': CommandResultResponse.fromJson,
+  'decideHubMapping': CommandResultResponse.fromJson,
+  'decideHubReject': CommandResultResponse.fromJson,
   'decideMasterChangeRequest': CommandResultResponse.fromJson,
   'decideMasterImport': CommandResultResponse.fromJson,
   'decideMneEvaluation': CommandResultResponse.fromJson,
@@ -580,6 +584,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getHomeChanges': asObject,
   'getHomeChannelHealth': asObject,
   'getHomeWarnings': asObject,
+  'getHubConnector': HubConnectorDetailResponse.fromJson,
+  'getHubHealthSummary': HubHealthSummaryResponse.fromJson,
   'getIncomingDocument': asObject,
   'getInspection': QmsInspectionLineResponse.fromJson,
   'getInvestmentAppraisal': PrjFinAppraisalResponse.fromJson,
@@ -666,6 +672,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'handleHouseholdDataRequest': CommandResultResponse.fromJson,
   'handlePlanFeedback': CommandResultResponse.fromJson,
   'handoverDossierToArchive': CommandResultResponse.fromJson,
+  'heartbeatHubAgent': CommandResultResponse.fromJson,
   'holdPackageWorkflow': CommandResultResponse.fromJson,
   'importBoqLines': CommandResultResponse.fromJson,
   'importEgpFile': EgpApplyResultResponse.fromJson,
@@ -783,6 +790,11 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listGovernanceAlerts': PrjGovernanceAlertListResponse.fromJson,
   'listGovernanceRules': asObject,
   'listGovernanceRuleVersions': asObject,
+  'listHubAgents': HubAgentListResponse.fromJson,
+  'listHubConnectorRuns': HubRunPageResponse.fromJson,
+  'listHubConnectors': HubConnectorListResponse.fromJson,
+  'listHubIncidents': HubIncidentPageResponse.fromJson,
+  'listHubRejects': HubRejectPageResponse.fromJson,
   'listIncomingDocuments': asObject,
   'listInspections': QmsInspectionListResponse.fromJson,
   'listInteropMessages': DocInteropMessageListResponse.fromJson,
@@ -899,6 +911,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'moveOrganizationUnit': CommandResultResponse.fromJson,
   'openDocumentNumberRegister': CommandResultResponse.fromJson,
   'openEgpObligation': EgpObligationResponse.fromJson,
+  'openHubIncident': CommandResultResponse.fromJson,
   'openSettlement': CommandResultResponse.fromJson,
   'openVendorRestrictionCase': CommandResultResponse.fromJson,
   'openVendorRestrictionCaseFromEgpRecord': CommandResultResponse.fromJson,
@@ -955,6 +968,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'proposeEgpMapping': EgpMappingResponse.fromJson,
   'proposeFundingFigures': CommandResultResponse.fromJson,
   'proposeGlossaryTerm': CommandResultResponse.fromJson,
+  'proposeHubMapping': CommandResultResponse.fromJson,
   'proposeMasterRecord': CommandResultResponse.fromJson,
   'proposeProjectRevision': CommandResultResponse.fromJson,
   'proposeSourceMapping': CommandResultResponse.fromJson,
@@ -1015,6 +1029,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'recordContractSigning': CommandResultResponse.fromJson,
   'recordDirectiveProgress': CommandResultResponse.fromJson,
   'recordDistributionAcknowledgement': CommandResultResponse.fromJson,
+  'recordHubRun': CommandResultResponse.fromJson,
   'recordInspectionResult': CommandResultResponse.fromJson,
   'recordInventory': CommandResultResponse.fromJson,
   'recordLineageBatch': CommandResultResponse.fromJson,
@@ -1050,6 +1065,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'registerDisbursementSchedule': CommandResultResponse.fromJson,
   'registerExternallySignedDocument': CommandResultResponse.fromJson,
   'registerGuarantee': CommandResultResponse.fromJson,
+  'registerHubAgent': CommandResultResponse.fromJson,
   'registerIncomingDocument': CommandResultResponse.fromJson,
   'registerMaterialTest': CommandResultResponse.fromJson,
   'registerMigrationBatch': CommandResultResponse.fromJson,
@@ -1199,6 +1215,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'setChangeChainTiers': CommandResultResponse.fromJson,
   'setChannelLimits': CommandResultResponse.fromJson,
   'setEgpConnectionState': CommandResultResponse.fromJson,
+  'setHubConnectorState': CommandResultResponse.fromJson,
   'setMilestoneDependency': CommandResultResponse.fromJson,
   'setNotificationTestRecipients': CommandResultResponse.fromJson,
   'setRagOverride': asObject,
@@ -28780,6 +28797,1616 @@ final class HomeMetricTileResponse implements ResponseModel {
         if (formula != null) 'formula': formula,
         if (definitionStatus != null) 'definition_status': definitionStatus,
         if (contextToken != null) 'context_token': contextToken,
+        ...extra,
+      };
+}
+
+final class HubAgentListResponse implements ResponseModel {
+  const HubAgentListResponse({
+    required this.items,
+    required this.staleAfterMinutes,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubAgentListResponse.fromJson(Object? json, [String path = 'HubAgentListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubAgentListResponse(
+      items: requiredField(map, path, 'items', asList(HubAgentResponse.fromJson)),
+      staleAfterMinutes: requiredField(map, path, 'stale_after_minutes', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'stale_after_minutes', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HubAgentResponse> items;
+  final int staleAfterMinutes;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'stale_after_minutes': staleAfterMinutes,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubAgentResponse implements ResponseModel {
+  const HubAgentResponse({
+    required this.id,
+    required this.agentCode,
+    required this.os,
+    required this.cpuArch,
+    required this.platform,
+    required this.agentVersion,
+    required this.connectors,
+    required this.spoolDepth,
+    required this.lastHeartbeatAt,
+    required this.state,
+    required this.health,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubAgentResponse.fromJson(Object? json, [String path = 'HubAgentResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubAgentResponse(
+      id: requiredField(map, path, 'id', asString),
+      agentCode: requiredField(map, path, 'agent_code', asString),
+      os: requiredField(map, path, 'os', asString),
+      cpuArch: requiredField(map, path, 'cpu_arch', asString),
+      platform: requiredField(map, path, 'platform', asString),
+      agentVersion: requiredField(map, path, 'agent_version', asString),
+      connectors: requiredField(map, path, 'connectors', asList(asString)),
+      spoolDepth: requiredField(map, path, 'spool_depth', asInt),
+      lastHeartbeatAt: requiredField(map, path, 'last_heartbeat_at', nullable(asString)),
+      state: requiredField(map, path, 'state', asString),
+      health: requiredField(map, path, 'health', asString),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'agent_code', 'os', 'cpu_arch', 'platform', 'agent_version', 'connectors', 'spool_depth', 'last_heartbeat_at', 'state', 'health', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String agentCode;
+  final String os;
+  final String cpuArch;
+  final String platform;
+  final String agentVersion;
+  final List<String> connectors;
+  final int spoolDepth;
+  final String? lastHeartbeatAt;
+  final String state;
+  final String health;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'agent_code': agentCode,
+        'os': os,
+        'cpu_arch': cpuArch,
+        'platform': platform,
+        'agent_version': agentVersion,
+        'connectors': connectors,
+        'spool_depth': spoolDepth,
+        'last_heartbeat_at': lastHeartbeatAt,
+        'state': state,
+        'health': health,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class HubAlertTypeResponse implements ResponseModel {
+  const HubAlertTypeResponse({
+    required this.code,
+    required this.owner,
+    required this.expectedAction,
+    required this.consequence,
+    required this.responseHours,
+    required this.defaultSeverity,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubAlertTypeResponse.fromJson(Object? json, [String path = 'HubAlertTypeResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubAlertTypeResponse(
+      code: requiredField(map, path, 'code', asString),
+      owner: requiredField(map, path, 'owner', nullable(asString)),
+      expectedAction: requiredField(map, path, 'expected_action', nullable(asString)),
+      consequence: requiredField(map, path, 'consequence', nullable(asString)),
+      responseHours: requiredField(map, path, 'response_hours', nullable(asInt)),
+      defaultSeverity: requiredField(map, path, 'default_severity', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'owner', 'expected_action', 'consequence', 'response_hours', 'default_severity'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String? owner;
+  final String? expectedAction;
+  final String? consequence;
+  final int? responseHours;
+  final String? defaultSeverity;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'owner': owner,
+        'expected_action': expectedAction,
+        'consequence': consequence,
+        'response_hours': responseHours,
+        'default_severity': defaultSeverity,
+        ...extra,
+      };
+}
+
+final class HubConnectorDetailResponse implements ResponseModel {
+  const HubConnectorDetailResponse({
+    required this.summary,
+    required this.state,
+    required this.layouts,
+    required this.freshnessRule,
+    required this.protocolDetails,
+    required this.credentials,
+    required this.egress,
+    required this.alertTypes,
+    required this.pipelines,
+    required this.mappings,
+    required this.agents,
+    required this.stateEvents,
+    required this.trend,
+    required this.openIncidents,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubConnectorDetailResponse.fromJson(Object? json, [String path = 'HubConnectorDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubConnectorDetailResponse(
+      summary: requiredField(map, path, 'summary', HubConnectorSummaryResponse.fromJson),
+      state: requiredField(map, path, 'state', HubConnectorDetailResponseState.fromJson),
+      layouts: requiredField(map, path, 'layouts', asList(HubLayoutResponse.fromJson)),
+      freshnessRule: requiredField(map, path, 'freshness_rule', asAny),
+      protocolDetails: requiredField(map, path, 'protocol_details', asList(HubProtocolViewResponse.fromJson)),
+      credentials: requiredField(map, path, 'credentials', HubConnectorDetailResponseCredentials.fromJson),
+      egress: requiredField(map, path, 'egress', HubConnectorDetailResponseEgress.fromJson),
+      alertTypes: requiredField(map, path, 'alert_types', asList(HubAlertTypeResponse.fromJson)),
+      pipelines: requiredField(map, path, 'pipelines', asList(HubPipelineViewResponse.fromJson)),
+      mappings: requiredField(map, path, 'mappings', asList(HubMappingResponse.fromJson)),
+      agents: requiredField(map, path, 'agents', asList(HubAgentResponse.fromJson)),
+      stateEvents: requiredField(map, path, 'state_events', asList(HubStateEventResponse.fromJson)),
+      trend: requiredField(map, path, 'trend', asList(HubTrendPointResponse.fromJson)),
+      openIncidents: requiredField(map, path, 'open_incidents', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'summary', 'state', 'layouts', 'freshness_rule', 'protocol_details', 'credentials', 'egress', 'alert_types', 'pipelines', 'mappings', 'agents', 'state_events', 'trend', 'open_incidents', 'as_of'}, strict: true),
+    );
+  }
+
+  final HubConnectorSummaryResponse summary;
+  final HubConnectorDetailResponseState state;
+  final List<HubLayoutResponse> layouts;
+  final Object? freshnessRule;
+  final List<HubProtocolViewResponse> protocolDetails;
+  final HubConnectorDetailResponseCredentials credentials;
+  final HubConnectorDetailResponseEgress egress;
+  final List<HubAlertTypeResponse> alertTypes;
+  final List<HubPipelineViewResponse> pipelines;
+  final List<HubMappingResponse> mappings;
+  final List<HubAgentResponse> agents;
+  final List<HubStateEventResponse> stateEvents;
+  final List<HubTrendPointResponse> trend;
+  final int openIncidents;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'summary': summary.toJson(),
+        'state': state.toJson(),
+        'layouts': layouts.map((e0) => e0.toJson()).toList(),
+        'freshness_rule': freshnessRule,
+        'protocol_details': protocolDetails.map((e0) => e0.toJson()).toList(),
+        'credentials': credentials.toJson(),
+        'egress': egress.toJson(),
+        'alert_types': alertTypes.map((e0) => e0.toJson()).toList(),
+        'pipelines': pipelines.map((e0) => e0.toJson()).toList(),
+        'mappings': mappings.map((e0) => e0.toJson()).toList(),
+        'agents': agents.map((e0) => e0.toJson()).toList(),
+        'state_events': stateEvents.map((e0) => e0.toJson()).toList(),
+        'trend': trend.map((e0) => e0.toJson()).toList(),
+        'open_incidents': openIncidents,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubConnectorDetailResponseCredentials implements ResponseModel {
+  const HubConnectorDetailResponseCredentials({
+    required this.kind,
+    required this.scopes,
+    required this.secretStore,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubConnectorDetailResponseCredentials.fromJson(Object? json, [String path = 'HubConnectorDetailResponseCredentials']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubConnectorDetailResponseCredentials(
+      kind: requiredField(map, path, 'kind', asString),
+      scopes: requiredField(map, path, 'scopes', asList(asString)),
+      secretStore: requiredField(map, path, 'secret_store', asString),
+      extra: unknownFields(map, path, const <String>{'kind', 'scopes', 'secret_store'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final List<String> scopes;
+  final String secretStore;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'scopes': scopes,
+        'secret_store': secretStore,
+        ...extra,
+      };
+}
+
+final class HubConnectorDetailResponseEgress implements ResponseModel {
+  const HubConnectorDetailResponseEgress({
+    required this.policy,
+    required this.hosts,
+    required this.reason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubConnectorDetailResponseEgress.fromJson(Object? json, [String path = 'HubConnectorDetailResponseEgress']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubConnectorDetailResponseEgress(
+      policy: requiredField(map, path, 'policy', asString),
+      hosts: requiredField(map, path, 'hosts', asList(asString)),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'policy', 'hosts', 'reason'}, strict: true),
+    );
+  }
+
+  final String policy;
+  final List<String> hosts;
+  final String? reason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'policy': policy,
+        'hosts': hosts,
+        'reason': reason,
+        ...extra,
+      };
+}
+
+final class HubConnectorDetailResponseState implements ResponseModel {
+  const HubConnectorDetailResponseState({
+    required this.enabled,
+    required this.version,
+    required this.reason,
+    required this.changedAt,
+    required this.owner,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubConnectorDetailResponseState.fromJson(Object? json, [String path = 'HubConnectorDetailResponseState']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubConnectorDetailResponseState(
+      enabled: requiredField(map, path, 'enabled', asBool),
+      version: requiredField(map, path, 'version', asInt),
+      reason: requiredField(map, path, 'reason', nullable(asString)),
+      changedAt: requiredField(map, path, 'changed_at', nullable(asString)),
+      owner: requiredField(map, path, 'owner', asString),
+      extra: unknownFields(map, path, const <String>{'enabled', 'version', 'reason', 'changed_at', 'owner'}, strict: true),
+    );
+  }
+
+  final bool enabled;
+  final int version;
+  final String? reason;
+  final String? changedAt;
+  final String owner;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'enabled': enabled,
+        'version': version,
+        'reason': reason,
+        'changed_at': changedAt,
+        'owner': owner,
+        ...extra,
+      };
+}
+
+final class HubConnectorListResponse implements ResponseModel {
+  const HubConnectorListResponse({
+    required this.items,
+    required this.summary,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubConnectorListResponse.fromJson(Object? json, [String path = 'HubConnectorListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubConnectorListResponse(
+      items: requiredField(map, path, 'items', asList(HubConnectorSummaryResponse.fromJson)),
+      summary: requiredField(map, path, 'summary', HubSummaryResponse.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'summary', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HubConnectorSummaryResponse> items;
+  final HubSummaryResponse summary;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'summary': summary.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubConnectorSummaryResponse implements ResponseModel {
+  const HubConnectorSummaryResponse({
+    required this.code,
+    required this.name,
+    required this.direction,
+    required this.protocols,
+    required this.plannedProtocols,
+    required this.acceptance,
+    required this.status,
+    required this.freshness,
+    required this.ageHours,
+    required this.enabled,
+    required this.lastSuccessAt,
+    required this.lastRunAt,
+    required this.lastRunOutcome,
+    required this.alert,
+    required this.figuresBlocked,
+    required this.failedRuns7d,
+    required this.discrepancyBacklog,
+    required this.pendingMappings,
+    required this.consumers,
+    required this.ownerRole,
+    required this.egressPolicy,
+    required this.screens,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubConnectorSummaryResponse.fromJson(Object? json, [String path = 'HubConnectorSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubConnectorSummaryResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      direction: requiredField(map, path, 'direction', asString),
+      protocols: requiredField(map, path, 'protocols', asList(asString)),
+      plannedProtocols: requiredField(map, path, 'planned_protocols', asList(asString)),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      status: requiredField(map, path, 'status', asString),
+      freshness: requiredField(map, path, 'freshness', asString),
+      ageHours: requiredField(map, path, 'age_hours', nullable(asNum)),
+      enabled: requiredField(map, path, 'enabled', asBool),
+      lastSuccessAt: requiredField(map, path, 'last_success_at', nullable(asString)),
+      lastRunAt: requiredField(map, path, 'last_run_at', nullable(asString)),
+      lastRunOutcome: requiredField(map, path, 'last_run_outcome', nullable(asString)),
+      alert: requiredField(map, path, 'alert', asAny),
+      figuresBlocked: requiredField(map, path, 'figures_blocked', asBool),
+      failedRuns7d: requiredField(map, path, 'failed_runs_7d', asInt),
+      discrepancyBacklog: requiredField(map, path, 'discrepancy_backlog', asInt),
+      pendingMappings: requiredField(map, path, 'pending_mappings', asInt),
+      consumers: requiredField(map, path, 'consumers', asList(asString)),
+      ownerRole: requiredField(map, path, 'owner_role', asString),
+      egressPolicy: requiredField(map, path, 'egress_policy', asString),
+      screens: requiredField(map, path, 'screens', asList(HubScreenLinkResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'direction', 'protocols', 'planned_protocols', 'acceptance', 'status', 'freshness', 'age_hours', 'enabled', 'last_success_at', 'last_run_at', 'last_run_outcome', 'alert', 'figures_blocked', 'failed_runs_7d', 'discrepancy_backlog', 'pending_mappings', 'consumers', 'owner_role', 'egress_policy', 'screens'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String direction;
+  final List<String> protocols;
+  final List<String> plannedProtocols;
+  final String acceptance;
+  final String status;
+  final String freshness;
+  final num? ageHours;
+  final bool enabled;
+  final String? lastSuccessAt;
+  final String? lastRunAt;
+  final String? lastRunOutcome;
+  final Object? alert;
+  final bool figuresBlocked;
+  final int failedRuns7d;
+  final int discrepancyBacklog;
+  final int pendingMappings;
+  final List<String> consumers;
+  final String ownerRole;
+  final String egressPolicy;
+  final List<HubScreenLinkResponse> screens;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'direction': direction,
+        'protocols': protocols,
+        'planned_protocols': plannedProtocols,
+        'acceptance': acceptance,
+        'status': status,
+        'freshness': freshness,
+        'age_hours': ageHours,
+        'enabled': enabled,
+        'last_success_at': lastSuccessAt,
+        'last_run_at': lastRunAt,
+        'last_run_outcome': lastRunOutcome,
+        'alert': alert,
+        'figures_blocked': figuresBlocked,
+        'failed_runs_7d': failedRuns7d,
+        'discrepancy_backlog': discrepancyBacklog,
+        'pending_mappings': pendingMappings,
+        'consumers': consumers,
+        'owner_role': ownerRole,
+        'egress_policy': egressPolicy,
+        'screens': screens.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class HubHealthSummaryResponse implements ResponseModel {
+  const HubHealthSummaryResponse({
+    required this.summary,
+    required this.kpis,
+    required this.trend,
+    required this.policy,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubHealthSummaryResponse.fromJson(Object? json, [String path = 'HubHealthSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubHealthSummaryResponse(
+      summary: requiredField(map, path, 'summary', HubSummaryResponse.fromJson),
+      kpis: requiredField(map, path, 'kpis', asList(HubKpiResponse.fromJson)),
+      trend: requiredField(map, path, 'trend', asList(HubTrendPointResponse.fromJson)),
+      policy: requiredField(map, path, 'policy', HubPolicyViewResponse.fromJson),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'summary', 'kpis', 'trend', 'policy', 'as_of'}, strict: true),
+    );
+  }
+
+  final HubSummaryResponse summary;
+  final List<HubKpiResponse> kpis;
+  final List<HubTrendPointResponse> trend;
+  final HubPolicyViewResponse policy;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'summary': summary.toJson(),
+        'kpis': kpis.map((e0) => e0.toJson()).toList(),
+        'trend': trend.map((e0) => e0.toJson()).toList(),
+        'policy': policy.toJson(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubIncidentPageResponse implements ResponseModel {
+  const HubIncidentPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubIncidentPageResponse.fromJson(Object? json, [String path = 'HubIncidentPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubIncidentPageResponse(
+      items: requiredField(map, path, 'items', asList(HubIncidentResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HubIncidentResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubIncidentResponse implements ResponseModel {
+  const HubIncidentResponse({
+    required this.id,
+    required this.connectorCode,
+    required this.kind,
+    required this.severity,
+    required this.state,
+    required this.summary,
+    required this.openedBy,
+    required this.openedAt,
+    required this.acknowledgedBy,
+    required this.acknowledgedAt,
+    required this.resolvedBy,
+    required this.resolvedAt,
+    required this.resolution,
+    required this.version,
+    required this.alert,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubIncidentResponse.fromJson(Object? json, [String path = 'HubIncidentResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubIncidentResponse(
+      id: requiredField(map, path, 'id', asString),
+      connectorCode: requiredField(map, path, 'connector_code', nullable(asString)),
+      kind: requiredField(map, path, 'kind', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      state: requiredField(map, path, 'state', asString),
+      summary: requiredField(map, path, 'summary', nullable(asString)),
+      openedBy: requiredField(map, path, 'opened_by', nullable(asString)),
+      openedAt: requiredField(map, path, 'opened_at', asString),
+      acknowledgedBy: requiredField(map, path, 'acknowledged_by', nullable(asString)),
+      acknowledgedAt: requiredField(map, path, 'acknowledged_at', nullable(asString)),
+      resolvedBy: requiredField(map, path, 'resolved_by', nullable(asString)),
+      resolvedAt: requiredField(map, path, 'resolved_at', nullable(asString)),
+      resolution: requiredField(map, path, 'resolution', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      alert: requiredField(map, path, 'alert', asAny),
+      extra: unknownFields(map, path, const <String>{'id', 'connector_code', 'kind', 'severity', 'state', 'summary', 'opened_by', 'opened_at', 'acknowledged_by', 'acknowledged_at', 'resolved_by', 'resolved_at', 'resolution', 'version', 'alert'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String? connectorCode;
+  final String kind;
+  final String severity;
+  final String state;
+  final String? summary;
+  final String? openedBy;
+  final String openedAt;
+  final String? acknowledgedBy;
+  final String? acknowledgedAt;
+  final String? resolvedBy;
+  final String? resolvedAt;
+  final String? resolution;
+  final int version;
+  final Object? alert;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'connector_code': connectorCode,
+        'kind': kind,
+        'severity': severity,
+        'state': state,
+        'summary': summary,
+        'opened_by': openedBy,
+        'opened_at': openedAt,
+        'acknowledged_by': acknowledgedBy,
+        'acknowledged_at': acknowledgedAt,
+        'resolved_by': resolvedBy,
+        'resolved_at': resolvedAt,
+        'resolution': resolution,
+        'version': version,
+        'alert': alert,
+        ...extra,
+      };
+}
+
+final class HubKpiResponse implements ResponseModel {
+  const HubKpiResponse({
+    required this.code,
+    required this.name,
+    required this.formula,
+    required this.numerator,
+    required this.denominator,
+    required this.exclusions,
+    required this.source,
+    required this.owner,
+    required this.unit,
+    required this.decimals,
+    required this.value,
+    required this.asOf,
+    required this.unverified,
+    required this.ruleVersion,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubKpiResponse.fromJson(Object? json, [String path = 'HubKpiResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubKpiResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      formula: requiredField(map, path, 'formula', asString),
+      numerator: requiredField(map, path, 'numerator', nullable(asString)),
+      denominator: requiredField(map, path, 'denominator', nullable(asString)),
+      exclusions: requiredField(map, path, 'exclusions', asList(asString)),
+      source: requiredField(map, path, 'source', asString),
+      owner: requiredField(map, path, 'owner', asString),
+      unit: requiredField(map, path, 'unit', asString),
+      decimals: requiredField(map, path, 'decimals', asInt),
+      value: requiredField(map, path, 'value', nullable(asNum)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      ruleVersion: requiredField(map, path, 'rule_version', asInt),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'formula', 'numerator', 'denominator', 'exclusions', 'source', 'owner', 'unit', 'decimals', 'value', 'as_of', 'unverified', 'rule_version'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String formula;
+  final String? numerator;
+  final String? denominator;
+  final List<String> exclusions;
+  final String source;
+  final String owner;
+  final String unit;
+  final int decimals;
+  final num? value;
+  final String asOf;
+  final bool unverified;
+  final int ruleVersion;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'formula': formula,
+        'numerator': numerator,
+        'denominator': denominator,
+        'exclusions': exclusions,
+        'source': source,
+        'owner': owner,
+        'unit': unit,
+        'decimals': decimals,
+        'value': value,
+        'as_of': asOf,
+        'unverified': unverified,
+        'rule_version': ruleVersion,
+        ...extra,
+      };
+}
+
+final class HubLayoutResponse implements ResponseModel {
+  const HubLayoutResponse({
+    required this.code,
+    required this.version,
+    required this.acceptance,
+    required this.pending,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubLayoutResponse.fromJson(Object? json, [String path = 'HubLayoutResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubLayoutResponse(
+      code: requiredField(map, path, 'code', asString),
+      version: requiredField(map, path, 'version', asString),
+      acceptance: requiredField(map, path, 'acceptance', asString),
+      pending: requiredField(map, path, 'pending', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'version', 'acceptance', 'pending'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String version;
+  final String acceptance;
+  final List<String> pending;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'version': version,
+        'acceptance': acceptance,
+        'pending': pending,
+        ...extra,
+      };
+}
+
+final class HubMappingResponse implements ResponseModel {
+  const HubMappingResponse({
+    required this.id,
+    required this.pipelineCode,
+    required this.mappingVersion,
+    required this.fields,
+    required this.state,
+    required this.proposedBy,
+    required this.proposedAt,
+    required this.decidedBy,
+    required this.decidedAt,
+    required this.decisionReason,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubMappingResponse.fromJson(Object? json, [String path = 'HubMappingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubMappingResponse(
+      id: requiredField(map, path, 'id', asString),
+      pipelineCode: requiredField(map, path, 'pipeline_code', asString),
+      mappingVersion: requiredField(map, path, 'mapping_version', asString),
+      fields: requiredField(map, path, 'fields', asList(asObject)),
+      state: requiredField(map, path, 'state', asString),
+      proposedBy: requiredField(map, path, 'proposed_by', asString),
+      proposedAt: requiredField(map, path, 'proposed_at', asString),
+      decidedBy: requiredField(map, path, 'decided_by', nullable(asString)),
+      decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: requiredField(map, path, 'decision_reason', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'pipeline_code', 'mapping_version', 'fields', 'state', 'proposed_by', 'proposed_at', 'decided_by', 'decided_at', 'decision_reason', 'version'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String pipelineCode;
+  final String mappingVersion;
+  final List<Map<String, Object?>> fields;
+  final String state;
+  final String proposedBy;
+  final String proposedAt;
+  final String? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'pipeline_code': pipelineCode,
+        'mapping_version': mappingVersion,
+        'fields': fields,
+        'state': state,
+        'proposed_by': proposedBy,
+        'proposed_at': proposedAt,
+        'decided_by': decidedBy,
+        'decided_at': decidedAt,
+        'decision_reason': decisionReason,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class HubPipelineScheduleResponse implements ResponseModel {
+  const HubPipelineScheduleResponse({
+    required this.kind,
+    required this.hours,
+    required this.at,
+    required this.workingDaysOnly,
+    required this.backfillWindowDays,
+    required this.maxConcurrency,
+    required this.ratePerMinute,
+    required this.nextRunAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubPipelineScheduleResponse.fromJson(Object? json, [String path = 'HubPipelineScheduleResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubPipelineScheduleResponse(
+      kind: requiredField(map, path, 'kind', asString),
+      hours: requiredField(map, path, 'hours', nullable(asInt)),
+      at: requiredField(map, path, 'at', nullable(asString)),
+      workingDaysOnly: requiredField(map, path, 'working_days_only', asBool),
+      backfillWindowDays: requiredField(map, path, 'backfill_window_days', asInt),
+      maxConcurrency: requiredField(map, path, 'max_concurrency', asInt),
+      ratePerMinute: requiredField(map, path, 'rate_per_minute', asInt),
+      nextRunAt: requiredField(map, path, 'next_run_at', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'kind', 'hours', 'at', 'working_days_only', 'backfill_window_days', 'max_concurrency', 'rate_per_minute', 'next_run_at'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final int? hours;
+  final String? at;
+  final bool workingDaysOnly;
+  final int backfillWindowDays;
+  final int maxConcurrency;
+  final int ratePerMinute;
+  final String? nextRunAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'hours': hours,
+        'at': at,
+        'working_days_only': workingDaysOnly,
+        'backfill_window_days': backfillWindowDays,
+        'max_concurrency': maxConcurrency,
+        'rate_per_minute': ratePerMinute,
+        'next_run_at': nextRunAt,
+        ...extra,
+      };
+}
+
+final class HubPipelineViewResponse implements ResponseModel {
+  const HubPipelineViewResponse({
+    required this.code,
+    required this.name,
+    required this.protocol,
+    required this.mode,
+    required this.layoutCode,
+    required this.layoutVersion,
+    required this.target,
+    required this.stages,
+    required this.schedule,
+    required this.watermark,
+    required this.approvedMappingVersion,
+    required this.pendingMappingProposals,
+    required this.openRejects,
+    required this.lastRun,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubPipelineViewResponse.fromJson(Object? json, [String path = 'HubPipelineViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubPipelineViewResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      protocol: requiredField(map, path, 'protocol', asString),
+      mode: requiredField(map, path, 'mode', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      layoutVersion: requiredField(map, path, 'layout_version', asString),
+      target: requiredField(map, path, 'target', asString),
+      stages: requiredField(map, path, 'stages', asList(asString)),
+      schedule: requiredField(map, path, 'schedule', HubPipelineScheduleResponse.fromJson),
+      watermark: requiredField(map, path, 'watermark', nullable(asString)),
+      approvedMappingVersion: requiredField(map, path, 'approved_mapping_version', nullable(asString)),
+      pendingMappingProposals: requiredField(map, path, 'pending_mapping_proposals', asInt),
+      openRejects: requiredField(map, path, 'open_rejects', asInt),
+      lastRun: requiredField(map, path, 'last_run', asAny),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'protocol', 'mode', 'layout_code', 'layout_version', 'target', 'stages', 'schedule', 'watermark', 'approved_mapping_version', 'pending_mapping_proposals', 'open_rejects', 'last_run'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String protocol;
+  final String mode;
+  final String layoutCode;
+  final String layoutVersion;
+  final String target;
+  final List<String> stages;
+  final HubPipelineScheduleResponse schedule;
+  final String? watermark;
+  final String? approvedMappingVersion;
+  final int pendingMappingProposals;
+  final int openRejects;
+  final Object? lastRun;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'protocol': protocol,
+        'mode': mode,
+        'layout_code': layoutCode,
+        'layout_version': layoutVersion,
+        'target': target,
+        'stages': stages,
+        'schedule': schedule.toJson(),
+        'watermark': watermark,
+        'approved_mapping_version': approvedMappingVersion,
+        'pending_mapping_proposals': pendingMappingProposals,
+        'open_rejects': openRejects,
+        'last_run': lastRun,
+        ...extra,
+      };
+}
+
+final class HubPolicyViewResponse implements ResponseModel {
+  const HubPolicyViewResponse({
+    required this.failingAfterRuns,
+    required this.failingSeverity,
+    required this.hubStaleRatioPercent,
+    required this.hubStaleMinConnectors,
+    required this.hubStaleSeverity,
+    required this.incidentAutoOpen,
+    required this.snapshotRetentionDays,
+    required this.agentStaleAfterMinutes,
+    required this.source,
+    required this.unverified,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubPolicyViewResponse.fromJson(Object? json, [String path = 'HubPolicyViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubPolicyViewResponse(
+      failingAfterRuns: requiredField(map, path, 'failing_after_runs', asInt),
+      failingSeverity: requiredField(map, path, 'failing_severity', asString),
+      hubStaleRatioPercent: requiredField(map, path, 'hub_stale_ratio_percent', asInt),
+      hubStaleMinConnectors: requiredField(map, path, 'hub_stale_min_connectors', asInt),
+      hubStaleSeverity: requiredField(map, path, 'hub_stale_severity', asString),
+      incidentAutoOpen: requiredField(map, path, 'incident_auto_open', asBool),
+      snapshotRetentionDays: requiredField(map, path, 'snapshot_retention_days', asInt),
+      agentStaleAfterMinutes: requiredField(map, path, 'agent_stale_after_minutes', asInt),
+      source: requiredField(map, path, 'source', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      extra: unknownFields(map, path, const <String>{'failing_after_runs', 'failing_severity', 'hub_stale_ratio_percent', 'hub_stale_min_connectors', 'hub_stale_severity', 'incident_auto_open', 'snapshot_retention_days', 'agent_stale_after_minutes', 'source', 'unverified'}, strict: true),
+    );
+  }
+
+  final int failingAfterRuns;
+  final String failingSeverity;
+  final int hubStaleRatioPercent;
+  final int hubStaleMinConnectors;
+  final String hubStaleSeverity;
+  final bool incidentAutoOpen;
+  final int snapshotRetentionDays;
+  final int agentStaleAfterMinutes;
+  final String source;
+  final bool unverified;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'failing_after_runs': failingAfterRuns,
+        'failing_severity': failingSeverity,
+        'hub_stale_ratio_percent': hubStaleRatioPercent,
+        'hub_stale_min_connectors': hubStaleMinConnectors,
+        'hub_stale_severity': hubStaleSeverity,
+        'incident_auto_open': incidentAutoOpen,
+        'snapshot_retention_days': snapshotRetentionDays,
+        'agent_stale_after_minutes': agentStaleAfterMinutes,
+        'source': source,
+        'unverified': unverified,
+        ...extra,
+      };
+}
+
+final class HubProtocolViewResponse implements ResponseModel {
+  const HubProtocolViewResponse({
+    required this.code,
+    required this.name,
+    required this.status,
+    required this.egress,
+    required this.auth,
+    required this.tls,
+    required this.signature,
+    required this.implementation,
+    required this.retry,
+    required this.delivery,
+    required this.formats,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubProtocolViewResponse.fromJson(Object? json, [String path = 'HubProtocolViewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubProtocolViewResponse(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      status: requiredField(map, path, 'status', asString),
+      egress: requiredField(map, path, 'egress', asString),
+      auth: requiredField(map, path, 'auth', asList(asString)),
+      tls: requiredField(map, path, 'tls', asString),
+      signature: requiredField(map, path, 'signature', asString),
+      implementation: requiredField(map, path, 'implementation', asString),
+      retry: requiredField(map, path, 'retry', asString),
+      delivery: requiredField(map, path, 'delivery', asString),
+      formats: requiredField(map, path, 'formats', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'name', 'status', 'egress', 'auth', 'tls', 'signature', 'implementation', 'retry', 'delivery', 'formats'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+  final String status;
+  final String egress;
+  final List<String> auth;
+  final String tls;
+  final String signature;
+  final String implementation;
+  final String retry;
+  final String delivery;
+  final List<String> formats;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'status': status,
+        'egress': egress,
+        'auth': auth,
+        'tls': tls,
+        'signature': signature,
+        'implementation': implementation,
+        'retry': retry,
+        'delivery': delivery,
+        'formats': formats,
+        ...extra,
+      };
+}
+
+final class HubRejectPageResponse implements ResponseModel {
+  const HubRejectPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.openCount,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubRejectPageResponse.fromJson(Object? json, [String path = 'HubRejectPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubRejectPageResponse(
+      items: requiredField(map, path, 'items', asList(HubRejectResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      openCount: requiredField(map, path, 'open_count', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'open_count', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HubRejectResponse> items;
+  final String? nextCursor;
+  final int openCount;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'open_count': openCount,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubRejectResponse implements ResponseModel {
+  const HubRejectResponse({
+    required this.id,
+    required this.pipelineCode,
+    required this.runId,
+    required this.stage,
+    required this.rejectCode,
+    required this.field,
+    required this.sourceRef,
+    required this.recordKey,
+    required this.line,
+    required this.record,
+    required this.state,
+    required this.resolvedBy,
+    required this.resolvedAt,
+    required this.resolution,
+    required this.version,
+    required this.createdAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubRejectResponse.fromJson(Object? json, [String path = 'HubRejectResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubRejectResponse(
+      id: requiredField(map, path, 'id', asString),
+      pipelineCode: requiredField(map, path, 'pipeline_code', asString),
+      runId: requiredField(map, path, 'run_id', asString),
+      stage: requiredField(map, path, 'stage', asString),
+      rejectCode: requiredField(map, path, 'reject_code', asString),
+      field: requiredField(map, path, 'field', nullable(asString)),
+      sourceRef: requiredField(map, path, 'source_ref', asString),
+      recordKey: requiredField(map, path, 'record_key', asString),
+      line: requiredField(map, path, 'line', nullable(asInt)),
+      record: requiredField(map, path, 'record', asObject),
+      state: requiredField(map, path, 'state', asString),
+      resolvedBy: requiredField(map, path, 'resolved_by', nullable(asString)),
+      resolvedAt: requiredField(map, path, 'resolved_at', nullable(asString)),
+      resolution: requiredField(map, path, 'resolution', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'pipeline_code', 'run_id', 'stage', 'reject_code', 'field', 'source_ref', 'record_key', 'line', 'record', 'state', 'resolved_by', 'resolved_at', 'resolution', 'version', 'created_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String pipelineCode;
+  final String runId;
+  final String stage;
+  final String rejectCode;
+  final String? field;
+  final String sourceRef;
+  final String recordKey;
+  final int? line;
+  final Map<String, Object?> record;
+  final String state;
+  final String? resolvedBy;
+  final String? resolvedAt;
+  final String? resolution;
+  final int version;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'pipeline_code': pipelineCode,
+        'run_id': runId,
+        'stage': stage,
+        'reject_code': rejectCode,
+        'field': field,
+        'source_ref': sourceRef,
+        'record_key': recordKey,
+        'line': line,
+        'record': record,
+        'state': state,
+        'resolved_by': resolvedBy,
+        'resolved_at': resolvedAt,
+        'resolution': resolution,
+        'version': version,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class HubRunPageResponse implements ResponseModel {
+  const HubRunPageResponse({
+    required this.items,
+    required this.nextCursor,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubRunPageResponse.fromJson(Object? json, [String path = 'HubRunPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubRunPageResponse(
+      items: requiredField(map, path, 'items', asList(HubRunResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<HubRunResponse> items;
+  final String? nextCursor;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class HubRunResponse implements ResponseModel {
+  const HubRunResponse({
+    required this.id,
+    required this.origin,
+    required this.kind,
+    required this.outcome,
+    required this.startedAt,
+    required this.finishedAt,
+    required this.layoutVersion,
+    required this.position,
+    required this.pipelineCode,
+    required this.rowsTotal,
+    required this.rowsApplied,
+    required this.rowsRejected,
+    required this.errorCode,
+    required this.sourceRef,
+    required this.dryRun,
+    required this.stageCounts,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubRunResponse.fromJson(Object? json, [String path = 'HubRunResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubRunResponse(
+      id: requiredField(map, path, 'id', asString),
+      origin: requiredField(map, path, 'origin', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      outcome: requiredField(map, path, 'outcome', asString),
+      startedAt: requiredField(map, path, 'started_at', asString),
+      finishedAt: requiredField(map, path, 'finished_at', nullable(asString)),
+      layoutVersion: requiredField(map, path, 'layout_version', nullable(asString)),
+      position: requiredField(map, path, 'position', nullable(asString)),
+      pipelineCode: requiredField(map, path, 'pipeline_code', nullable(asString)),
+      rowsTotal: requiredField(map, path, 'rows_total', asInt),
+      rowsApplied: requiredField(map, path, 'rows_applied', asInt),
+      rowsRejected: requiredField(map, path, 'rows_rejected', asInt),
+      errorCode: requiredField(map, path, 'error_code', nullable(asString)),
+      sourceRef: requiredField(map, path, 'source_ref', nullable(asString)),
+      dryRun: requiredField(map, path, 'dry_run', asBool),
+      stageCounts: requiredField(map, path, 'stage_counts', nullable(asObject)),
+      extra: unknownFields(map, path, const <String>{'id', 'origin', 'kind', 'outcome', 'started_at', 'finished_at', 'layout_version', 'position', 'pipeline_code', 'rows_total', 'rows_applied', 'rows_rejected', 'error_code', 'source_ref', 'dry_run', 'stage_counts'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String origin;
+  final String kind;
+  final String outcome;
+  final String startedAt;
+  final String? finishedAt;
+  final String? layoutVersion;
+  final String? position;
+  final String? pipelineCode;
+  final int rowsTotal;
+  final int rowsApplied;
+  final int rowsRejected;
+  final String? errorCode;
+  final String? sourceRef;
+  final bool dryRun;
+  final Map<String, Object?>? stageCounts;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'origin': origin,
+        'kind': kind,
+        'outcome': outcome,
+        'started_at': startedAt,
+        'finished_at': finishedAt,
+        'layout_version': layoutVersion,
+        'position': position,
+        'pipeline_code': pipelineCode,
+        'rows_total': rowsTotal,
+        'rows_applied': rowsApplied,
+        'rows_rejected': rowsRejected,
+        'error_code': errorCode,
+        'source_ref': sourceRef,
+        'dry_run': dryRun,
+        'stage_counts': stageCounts,
+        ...extra,
+      };
+}
+
+final class HubScreenLinkResponse implements ResponseModel {
+  const HubScreenLinkResponse({
+    required this.code,
+    required this.route,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubScreenLinkResponse.fromJson(Object? json, [String path = 'HubScreenLinkResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubScreenLinkResponse(
+      code: requiredField(map, path, 'code', asString),
+      route: requiredField(map, path, 'route', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'route'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String route;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'route': route,
+        ...extra,
+      };
+}
+
+final class HubSnapshotResultResponse implements ResponseModel {
+  const HubSnapshotResultResponse({
+    required this.bucket,
+    required this.snapshotsWritten,
+    required this.incidentsOpened,
+    required this.incidentsAutoResolved,
+    required this.summary,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubSnapshotResultResponse.fromJson(Object? json, [String path = 'HubSnapshotResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubSnapshotResultResponse(
+      bucket: requiredField(map, path, 'bucket', asString),
+      snapshotsWritten: requiredField(map, path, 'snapshots_written', asInt),
+      incidentsOpened: requiredField(map, path, 'incidents_opened', asInt),
+      incidentsAutoResolved: requiredField(map, path, 'incidents_auto_resolved', asInt),
+      summary: requiredField(map, path, 'summary', HubSummaryResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'bucket', 'snapshots_written', 'incidents_opened', 'incidents_auto_resolved', 'summary'}, strict: true),
+    );
+  }
+
+  final String bucket;
+  final int snapshotsWritten;
+  final int incidentsOpened;
+  final int incidentsAutoResolved;
+  final HubSummaryResponse summary;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'bucket': bucket,
+        'snapshots_written': snapshotsWritten,
+        'incidents_opened': incidentsOpened,
+        'incidents_auto_resolved': incidentsAutoResolved,
+        'summary': summary.toJson(),
+        ...extra,
+      };
+}
+
+final class HubStateEventResponse implements ResponseModel {
+  const HubStateEventResponse({
+    required this.id,
+    required this.action,
+    required this.reason,
+    required this.actorId,
+    required this.version,
+    required this.occurredAt,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubStateEventResponse.fromJson(Object? json, [String path = 'HubStateEventResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubStateEventResponse(
+      id: requiredField(map, path, 'id', asString),
+      action: requiredField(map, path, 'action', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      actorId: requiredField(map, path, 'actor_id', asString),
+      version: requiredField(map, path, 'version', asInt),
+      occurredAt: requiredField(map, path, 'occurred_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'action', 'reason', 'actor_id', 'version', 'occurred_at'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String action;
+  final String reason;
+  final String actorId;
+  final int version;
+  final String occurredAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'action': action,
+        'reason': reason,
+        'actor_id': actorId,
+        'version': version,
+        'occurred_at': occurredAt,
+        ...extra,
+      };
+}
+
+final class HubSummaryResponse implements ResponseModel {
+  const HubSummaryResponse({
+    required this.total,
+    required this.monitored,
+    required this.healthy,
+    required this.counts,
+    required this.healthyPercent,
+    required this.oldestDataAgeHours,
+    required this.oldestDataConnector,
+    required this.failedRuns7d,
+    required this.discrepancyBacklog,
+    required this.pendingMappings,
+    required this.hubAlert,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubSummaryResponse.fromJson(Object? json, [String path = 'HubSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubSummaryResponse(
+      total: requiredField(map, path, 'total', asInt),
+      monitored: requiredField(map, path, 'monitored', asInt),
+      healthy: requiredField(map, path, 'healthy', asInt),
+      counts: requiredField(map, path, 'counts', HubSummaryResponseCounts.fromJson),
+      healthyPercent: requiredField(map, path, 'healthy_percent', nullable(asNum)),
+      oldestDataAgeHours: requiredField(map, path, 'oldest_data_age_hours', nullable(asNum)),
+      oldestDataConnector: requiredField(map, path, 'oldest_data_connector', nullable(asString)),
+      failedRuns7d: requiredField(map, path, 'failed_runs_7d', asInt),
+      discrepancyBacklog: requiredField(map, path, 'discrepancy_backlog', asInt),
+      pendingMappings: requiredField(map, path, 'pending_mappings', asInt),
+      hubAlert: requiredField(map, path, 'hub_alert', asAny),
+      extra: unknownFields(map, path, const <String>{'total', 'monitored', 'healthy', 'counts', 'healthy_percent', 'oldest_data_age_hours', 'oldest_data_connector', 'failed_runs_7d', 'discrepancy_backlog', 'pending_mappings', 'hub_alert'}, strict: true),
+    );
+  }
+
+  final int total;
+  final int monitored;
+  final int healthy;
+  final HubSummaryResponseCounts counts;
+  final num? healthyPercent;
+  final num? oldestDataAgeHours;
+  final String? oldestDataConnector;
+  final int failedRuns7d;
+  final int discrepancyBacklog;
+  final int pendingMappings;
+  final Object? hubAlert;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total': total,
+        'monitored': monitored,
+        'healthy': healthy,
+        'counts': counts.toJson(),
+        'healthy_percent': healthyPercent,
+        'oldest_data_age_hours': oldestDataAgeHours,
+        'oldest_data_connector': oldestDataConnector,
+        'failed_runs_7d': failedRuns7d,
+        'discrepancy_backlog': discrepancyBacklog,
+        'pending_mappings': pendingMappings,
+        'hub_alert': hubAlert,
+        ...extra,
+      };
+}
+
+final class HubSummaryResponseCounts implements ResponseModel {
+  const HubSummaryResponseCounts({
+    required this.hEALTHY,
+    required this.sTALE,
+    required this.fAILING,
+    required this.dISABLED,
+    required this.pENDINGEXTERNAL,
+    required this.nEVERRUN,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubSummaryResponseCounts.fromJson(Object? json, [String path = 'HubSummaryResponseCounts']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubSummaryResponseCounts(
+      hEALTHY: requiredField(map, path, 'HEALTHY', asInt),
+      sTALE: requiredField(map, path, 'STALE', asInt),
+      fAILING: requiredField(map, path, 'FAILING', asInt),
+      dISABLED: requiredField(map, path, 'DISABLED', asInt),
+      pENDINGEXTERNAL: requiredField(map, path, 'PENDING_EXTERNAL', asInt),
+      nEVERRUN: requiredField(map, path, 'NEVER_RUN', asInt),
+      extra: unknownFields(map, path, const <String>{'HEALTHY', 'STALE', 'FAILING', 'DISABLED', 'PENDING_EXTERNAL', 'NEVER_RUN'}, strict: true),
+    );
+  }
+
+  final int hEALTHY;
+  final int sTALE;
+  final int fAILING;
+  final int dISABLED;
+  final int pENDINGEXTERNAL;
+  final int nEVERRUN;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'HEALTHY': hEALTHY,
+        'STALE': sTALE,
+        'FAILING': fAILING,
+        'DISABLED': dISABLED,
+        'PENDING_EXTERNAL': pENDINGEXTERNAL,
+        'NEVER_RUN': nEVERRUN,
+        ...extra,
+      };
+}
+
+final class HubTrendPointResponse implements ResponseModel {
+  const HubTrendPointResponse({
+    required this.at,
+    required this.status,
+    required this.ageHours,
+    required this.failedRuns7d,
+    required this.discrepancyBacklog,
+    required this.pendingMappings,
+    required this.summary,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory HubTrendPointResponse.fromJson(Object? json, [String path = 'HubTrendPointResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return HubTrendPointResponse(
+      at: requiredField(map, path, 'at', asString),
+      status: requiredField(map, path, 'status', nullable(asString)),
+      ageHours: requiredField(map, path, 'age_hours', nullable(asNum)),
+      failedRuns7d: requiredField(map, path, 'failed_runs_7d', asInt),
+      discrepancyBacklog: requiredField(map, path, 'discrepancy_backlog', asInt),
+      pendingMappings: requiredField(map, path, 'pending_mappings', asInt),
+      summary: requiredField(map, path, 'summary', nullable(asObject)),
+      extra: unknownFields(map, path, const <String>{'at', 'status', 'age_hours', 'failed_runs_7d', 'discrepancy_backlog', 'pending_mappings', 'summary'}, strict: true),
+    );
+  }
+
+  final String at;
+  final String? status;
+  final num? ageHours;
+  final int failedRuns7d;
+  final int discrepancyBacklog;
+  final int pendingMappings;
+  final Map<String, Object?>? summary;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'at': at,
+        'status': status,
+        'age_hours': ageHours,
+        'failed_runs_7d': failedRuns7d,
+        'discrepancy_backlog': discrepancyBacklog,
+        'pending_mappings': pendingMappings,
+        'summary': summary,
         ...extra,
       };
 }
