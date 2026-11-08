@@ -169,6 +169,8 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     // The public forms: the weekly report of DIS and the meeting pack of the committee (BAN-1).
     expect(items.map((item) => item.code)).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE]);
     expect(items.find((item) => item.code === DIS_WEEKLY_CODE)).toMatchObject({ edition: 'public', status: 'READY', official: 'CONFIRMED', data_source: 'LIVE', registered: false, issuable: true, demo_mark: null, whole_tenant: true });
+    expect(items.map((item) => item.code).filter((code) => !String(code).startsWith('MOF-DIS-'))).toEqual([DIS_WEEKLY_CODE]);
+    expect(items[0]).toMatchObject({ edition: 'public', status: 'READY', official: 'CONFIRMED', data_source: 'LIVE', registered: false, issuable: true, demo_mark: null, whole_tenant: true });
     expect(reply.json).toMatchObject({ demo_mode: false, can_generate: false });
     // No enterprise form is in a public process (npm run edition:check holds the sources to it too).
     expect(REPORT_FORMS.list().every((form) => form.edition === 'public')).toBe(true);
@@ -311,7 +313,7 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     const byRevision = new Map(list.map((one) => [one.revision, one.id]));
     const old = byRevision.get(1) as string;
     const head = byRevision.get(3) as string;
-    const target = { receiver: 'MOF', channel: 'DOWNLOAD', reference: 'letter 12/BC' };
+    const target = { receiver: 'KBNN', channel: 'DOWNLOAD', reference: 'letter 12/BC' };
     // A copy a later revision replaced is out of date.
     const stale = await call('POST', `/report-engine/issues/${old}/deliveries`, { member: SENDER, body: target });
     expect(stale.status).toBe(409);
@@ -319,7 +321,7 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect((await rows<{ n: string }>('select count(*)::text as n from machvon.report_delivery where issue_id = $1', [old]))[0]?.n).toBe('0');
     const done = await call('POST', `/report-engine/issues/${head}/deliveries`, { member: SENDER, body: target });
     expect(done.status).toBe(200);
-    expect(done.json).toMatchObject({ receiver: 'MOF', channel: 'DOWNLOAD', event: 'DELIVERED', revision: 3, counts_as_accepted: true, reference: 'letter 12/BC' });
+    expect(done.json).toMatchObject({ receiver: 'KBNN', channel: 'DOWNLOAD', event: 'DELIVERED', revision: 3, counts_as_accepted: true, reference: 'letter 12/BC' });
     // The same bytes to the same receiver again: nothing new is written.
     const again = await call('POST', `/report-engine/issues/${head}/deliveries`, { member: SENDER, body: target });
     expect(again.status).toBe(409);
@@ -330,12 +332,12 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect((await call('POST', `/report-engine/issues/${head}/deliveries`, { member: SENDER, body: { receiver: 'bad receiver', channel: 'EMAIL' } })).status).toBe(422);
     expect((await call('POST', `/report-engine/issues/${head}/deliveries`, { member: READER, body: target })).status).toBe(403);
     const log = (await call('GET', '/report-engine/deliveries?layout_code=DIS-WEEKLY', { member: READER })).json;
-    expect((log.items as Array<{ receiver: string }>).map((one) => one.receiver).sort()).toEqual(['MOF', 'PVN']);
+    expect((log.items as Array<{ receiver: string }>).map((one) => one.receiver).sort()).toEqual(['KBNN', 'PVN']);
     expect((await audits(head, 'rpt.report_delivered')).length).toBe(2);
     expect((await events(head, 'rpt.report.delivered.v1')).length).toBe(2);
     // The receiver accepts: recorded once; a rejection needs words.
-    expect((await call('POST', `/report-engine/issues/${head}/answers`, { member: SENDER, body: { receiver: 'MOF', outcome: 'ACCEPTED', reference: 'receipt 7' } })).json).toMatchObject({ event: 'ACCEPTED', counts_as_accepted: true });
-    expect((await call('POST', `/report-engine/issues/${head}/answers`, { member: SENDER, body: { receiver: 'MOF', outcome: 'ACCEPTED' } })).status).toBe(409);
+    expect((await call('POST', `/report-engine/issues/${head}/answers`, { member: SENDER, body: { receiver: 'KBNN', outcome: 'ACCEPTED', reference: 'receipt 7' } })).json).toMatchObject({ event: 'ACCEPTED', counts_as_accepted: true });
+    expect((await call('POST', `/report-engine/issues/${head}/answers`, { member: SENDER, body: { receiver: 'KBNN', outcome: 'ACCEPTED' } })).status).toBe(409);
     expect((await call('POST', `/report-engine/issues/${head}/answers`, { member: SENDER, body: { receiver: 'PVN', outcome: 'REJECTED' } })).status).toBe(422);
     expect((await call('POST', `/report-engine/issues/${head}/answers`, { member: SENDER, body: { receiver: 'PVN', outcome: 'REJECTED', note: 'The weekly totals do not match ours' } })).json).toMatchObject({ event: 'REJECTED' });
     // An answer needs a delivery first.

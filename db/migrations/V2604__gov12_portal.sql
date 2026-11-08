@@ -106,7 +106,7 @@ BEGIN
 END $fn$;
 CREATE TRIGGER portal_setting_directory_tg AFTER INSERT OR UPDATE ON machvon.portal_setting FOR EACH ROW EXECUTE FUNCTION machvon.keep_portal_directory();
 
--- The public reads. Each function resolves the slug in the directory, refuses a portal that is off, sets the tenant of the transaction, reads only published rows and clears the tenant again.
+-- The public reads. Each function resolves the slug in the directory, refuses a portal that is off, sets the tenant of the transaction, reads only published rows, cuts every record to the allow-list the settings hold today (a field taken off the list is gone from the answer without a new publication) and clears the tenant again.
 CREATE FUNCTION machvon.portal_public_info(p_slug text) RETURNS TABLE (title text, publisher_name text, id_prefix text, license_uri text, policy_uri text, allowed_fields text[], rate_per_minute integer, page_size_max integer, record_count bigint, last_published_at timestamptz, whistle_enabled boolean, whistle_acknowledge_days integer, whistle_resolve_days integer, whistle_rate_per_hour integer, whistle_rule_version integer)
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = machvon, pg_temp AS $fn$
 DECLARE
@@ -137,8 +137,11 @@ BEGIN
   END IF;
   PERFORM set_config('app.tenant_id', v_tenant::text, true);
   RETURN QUERY
-    SELECT r.public_code, r.fields, r.revision, r.published_at
+    SELECT r.public_code,
+           (SELECT coalesce(jsonb_object_agg(e.key, e.value), '{}'::jsonb) FROM jsonb_each(r.fields) e WHERE e.key = 'project_code' OR e.key = ANY (s.allowed_fields)),
+           r.revision, r.published_at
       FROM machvon.portal_record r
+      JOIN machvon.portal_setting s ON s.tenant_id = r.tenant_id AND s.enabled
      WHERE r.tenant_id = v_tenant AND r.withdrawn_at IS NULL AND (p_after IS NULL OR r.public_code > p_after)
      ORDER BY r.public_code
      LIMIT least(greatest(coalesce(p_limit, 50), 1), 500);

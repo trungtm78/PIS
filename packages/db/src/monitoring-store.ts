@@ -213,7 +213,8 @@ export class MonitoringStore {
     const [row] = await tx.query<{ file_id: string; item: string; withdrawn_at: string | null }>('select file_id, item, withdrawn_at::text from machvon.monitoring_pack_item where id = $1::uuid for update', [itemId]);
     if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     if (row.withdrawn_at !== null) throw new DomainError('MONITORING_PACK_DUPLICATE', 409, 'id');
-    const file = await this.find(tx, row.file_id);
+    // The parent file is locked first, as sending the notice does, so a withdrawal and a notice take turns and the notice never goes without the item it was checked against.
+    const file = await this.find(tx, row.file_id, true);
     if (file?.noticeSentOn !== null && file?.noticeSentOn !== undefined) throw new DomainError('MONITORING_NOTICE_ALREADY_SENT', 409);
     if (reason.trim().length < 5) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
     await tx.query('update machvon.monitoring_pack_item set withdrawn_by = $2::uuid, withdrawn_at = now(), withdrawn_reason = $3 where id = $1::uuid', [itemId, by, reason.trim()]);
@@ -343,7 +344,8 @@ export class MonitoringStore {
     if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     const file = await this.find(tx, current.fileId);
-    if (file?.status === 'CLOSED' && move !== 'REOPEN') throw new DomainError('MONITORING_FILE_CLOSED', 409);
+    // Nothing moves on a closed file, a reopening included: there is no way to open the file again, so a reopened feedback would be stuck.
+    if (file?.status === 'CLOSED') throw new DomainError('MONITORING_FILE_CLOSED', 409);
     const text = input.text === null ? null : input.text.trim();
     assertFeedbackMove({ move, actorId: actor, responderId: current.respondedBy, reason: move === 'DECLINE' || move === 'REOPEN' ? text : null });
     const to = nextMonitoringFeedbackStatus(current.status, move);

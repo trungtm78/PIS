@@ -91,10 +91,9 @@ export class WhistleReadsController {
   async summary(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess): Promise<Record<string, unknown>> {
     assertWholeTenant(access, PERMISSIONS.getWhistleSummary);
     const today = todayOf(new Date());
-    // Counted over what this handler may see: the reports about their own unit are not in the numbers.
-    const rows = await this.database.withTenant(tenant, (tx) => this.store.listFor(tx, tenant.membershipId, { limit: 1000, offset: 0 }, today));
-    const open = rows.filter((row) => row.status !== 'RESOLVED' && row.status !== 'DISMISSED');
-    return { as_of: today, total: rows.length, open: open.length, acknowledge_overdue: open.filter((row) => row.clock.acknowledgeState === 'OVERDUE').length, resolve_overdue: open.filter((row) => row.clock.resolveState === 'OVERDUE').length };
+    // Counted in the database over what this handler may see (the reports about their own unit are not in the numbers), however many there are.
+    const counts = await this.database.withTenant(tenant, (tx) => this.store.summaryFor(tx, tenant.membershipId, today));
+    return { as_of: today, total: counts.total, open: counts.open, acknowledge_overdue: counts.acknowledgeOverdue, resolve_overdue: counts.resolveOverdue };
   }
 
   @Get('whistle-reports')
@@ -192,9 +191,9 @@ export class WhistlePublicController {
   @IdentityCommand('getWhistleReportStatus')
   async status(@Param('slug') slug: string, @Req() request: { ip?: string | undefined }, @Body() body: Schemas['WhistleAccess']): Promise<Record<string, unknown>> {
     assertValidBody('getWhistleReportStatus', body);
-    const { status, thread, info } = await this.lookup(slug, request, body.access_code);
-    const policy = info?.whistle.policy;
-    const clock = policy === undefined ? undefined : whistleClock({ receivedOn: status.receivedOn, acknowledgedOn: status.acknowledgedOn, closedOn: status.closedOn }, todayOf(new Date()), policy);
+    const { status, thread } = await this.lookup(slug, request, body.access_code);
+    // The clocks are those the report was received under (its own days), the same as the handlers see, not the days of the settings today.
+    const clock = whistleClock({ receivedOn: status.receivedOn, acknowledgedOn: status.acknowledgedOn, closedOn: status.closedOn }, todayOf(new Date()), { acknowledge_days: status.acknowledgeDays, resolve_days: status.resolveDays, rate_per_hour: 1 });
     return {
       as_of: todayOf(new Date()),
       category: status.category,
@@ -203,8 +202,8 @@ export class WhistlePublicController {
       acknowledged_on: status.acknowledgedOn,
       closed_on: status.closedOn,
       note: status.publicNote,
-      acknowledge_due_on: clock?.acknowledgeDueOn ?? null,
-      resolve_due_on: clock?.resolveDueOn ?? null,
+      acknowledge_due_on: clock.acknowledgeDueOn,
+      resolve_due_on: clock.resolveDueOn,
       thread: thread.map((message) => ({ seq: message.seq, from: message.sender === 'HANDLER' ? 'HANDLER' : 'YOU', body: message.body, sent_on: message.sentOn })),
     };
   }

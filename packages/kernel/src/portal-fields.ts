@@ -242,7 +242,12 @@ export function validateOc4idsPackage(input: unknown): Oc4idsIssue[] {
   const issues: Oc4idsIssue[] = [];
   if (!isObject(input)) return [{ path: '$', problem: 'WRONG_TYPE' }];
   for (const key of OC4IDS_PACKAGE_REQUIRED) if (input[key] === undefined) issues.push({ path: key, problem: 'MISSING' });
-  if (isObject(input.publisher) && !isText(input.publisher.name)) issues.push({ path: 'publisher.name', problem: 'MISSING' });
+  // The envelope fields are text (the publisher is an object with a name): a value of another type is not a package that holds what the standard requires.
+  for (const key of ['version', 'license', 'publicationPolicy'] as const) if (input[key] !== undefined && !isText(input[key])) issues.push({ path: key, problem: 'WRONG_TYPE' });
+  if (input.publisher !== undefined) {
+    if (!isObject(input.publisher)) issues.push({ path: 'publisher', problem: 'WRONG_TYPE' });
+    else if (!isText(input.publisher.name)) issues.push({ path: 'publisher.name', problem: 'MISSING' });
+  }
   if (input.publishedDate !== undefined && !(typeof input.publishedDate === 'string' && DATE_TIME.test(input.publishedDate))) issues.push({ path: 'publishedDate', problem: 'WRONG_TYPE' });
   const projects = input.projects;
   if (projects === undefined) return issues;

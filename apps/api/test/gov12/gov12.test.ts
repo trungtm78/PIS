@@ -395,6 +395,15 @@ describe('GOV-12 over HTTP', () => {
       expect((await call('GET', '/whistle-reports/summary', { member: ADMIN })).json).toMatchObject({ total: 1, open: 0 });
     });
 
+    it('shows the reporter the days the report was received under, not the days of the settings today (review of the lane)', async () => {
+      await admin([[`update machvon.portal_setting set whistle_acknowledge_days = 30, whistle_resolve_days = 200 where tenant_id = $1`, [TENANT_A]]]);
+      const seen = await publicCall('POST', '/public/portals/cao-bang/reports/status', { access_code: code });
+      const handler = await call('GET', `/whistle-reports/${reportId}`, { member: ADMIN });
+      expect(seen.json.acknowledge_due_on).toBe((handler.json.clock as Record<string, unknown>).acknowledge_due_on);
+      expect(seen.json.resolve_due_on).toBe((handler.json.clock as Record<string, unknown>).resolve_due_on);
+      await admin([[`update machvon.portal_setting set whistle_acknowledge_days = 7, whistle_resolve_days = 90 where tenant_id = $1`, [TENANT_A]]]);
+    });
+
     it('limits what one client may send in an hour, and shows nothing to another tenant', async () => {
       await admin([[`update machvon.portal_setting set whistle_rate_per_hour = 2 where tenant_id = $1`, [TENANT_A]]]);
       const statuses: number[] = [];
@@ -487,6 +496,31 @@ describe('GOV-12 over HTTP', () => {
       const shown = await call('GET', `/report-engine/issues/${issueId}/signature`, { member: ADMIN });
       expect(shown.json).toMatchObject({ signed: true, signature: { provider: 'MOCK', counts_for_delivery: false }, period_lock: null });
       expect(shown.json.signature_required_receivers).toEqual(['MOF']);
+    });
+
+    it('retires a signing session that ran out of time, so the signer can start again (review of the lane)', async () => {
+      // The copy of the earlier test holds a test signature; this one needs a copy with none.
+      await admin([['delete from machvon.report_issue_signature where issue_id = $1', [issueId]]]);
+      const expired = async (): Promise<string> => {
+        const id = randomUUID();
+        await admin([["delete from machvon.report_signature_session where issue_id = $1 and state = 'OPEN'", [issueId]]]);
+        await admin([
+          [
+            `insert into machvon.report_signature_session (tenant_id, id, issue_id, provider, provider_session_ref, certificate_id, certificate_fingerprint, digest_sha256, state, started_by, started_at, expires_at)
+             values ($1, $2, $3, 'MOCK', 'mock-expired', $4, $5, $6, 'OPEN', $7, now() - interval '2 hours', now() - interval '1 hour')`,
+            [TENANT_A, id, issueId, randomUUID(), 'c'.repeat(64), digest, memberId(APPROVER)],
+          ],
+        ]);
+        return id;
+      };
+      // Completing a session that ran out of time closes it for good (the refusal is answered after the closing is committed).
+      const first = await expired();
+      expect((await call('POST', `/report-engine/signature-sessions/${first}/completion`, { member: APPROVER })).json.code).toBe('SIGNING_SESSION_EXPIRED');
+      const rows = await harness.owner<{ state: string }>(TENANT_A, [['select state from machvon.report_signature_session where id = $1', [first]]]);
+      expect(rows[0]?.state).toBe('EXPIRED');
+      // An expired session no longer blocks a new start: the request goes on to the certificate (which does not exist here).
+      await expired();
+      expect((await call('POST', `/report-engine/issues/${issueId}/signature`, { member: APPROVER, body: { certificate_id: randomUUID() } })).json.code).toBe('CERTIFICATE_NOT_ACTIVE');
     });
 
     it('lets only the approver start a signature, and unlocks a period only by a second person with a reason', async () => {

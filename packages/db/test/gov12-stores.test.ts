@@ -159,6 +159,15 @@ describe('GOV-12 stores', () => {
       await expect(as((tx) => monitoring.close(tx, fileId, current.version, memberId(AUDITOR)))).rejects.toMatchObject({ code: 'MONITORING_FEEDBACK_OPEN' });
     });
 
+    it('does not let a feedback be reopened on a closed file, where it would be stuck (review of the lane)', async () => {
+      const open = (await as((tx) => monitoring.feedbackOf(tx, fileId, TODAY))).find((entry) => entry.reference === 'PH-002') as NonNullable<Awaited<ReturnType<MonitoringStore['getFeedback']>>>;
+      await as((tx) => monitoring.moveFeedback(tx, open.id, open.version, 'DECLINE', memberId(OFFICER), { text: 'Not a matter of this project' }, TODAY), TENANT_A, OFFICER);
+      const file = (await as((tx) => monitoring.find(tx, fileId))) as NonNullable<Awaited<ReturnType<MonitoringStore['find']>>>;
+      await as((tx) => monitoring.close(tx, fileId, file.version, memberId(AUDITOR)));
+      const first = (await as((tx) => monitoring.feedbackOf(tx, fileId, TODAY))).find((entry) => entry.reference === 'PH-001') as NonNullable<Awaited<ReturnType<MonitoringStore['getFeedback']>>>;
+      await expect(as((tx) => monitoring.moveFeedback(tx, first.id, first.version, 'REOPEN', memberId(AUDITOR), { text: 'We want to hear it again' }, TODAY))).rejects.toMatchObject({ code: 'MONITORING_FILE_CLOSED' });
+    });
+
     it('shows nothing of another tenant', async () => {
       expect(await as((tx) => monitoring.list(tx, { limit: 10, offset: 0 }, TODAY), TENANT_B)).toEqual([]);
       expect(await as((tx) => monitoring.find(tx, fileId), TENANT_B)).toBeUndefined();
@@ -242,6 +251,15 @@ describe('GOV-12 stores', () => {
       expect(await as((tx) => transmittals.overdue(tx, '2027-04-01'))).toBe(1);
     });
 
+    it('judges a container by the LATEST transmittal that carried it, not by an older approval on the same day (review of the lane)', async () => {
+      const fresh = await as((tx) => transmittals.registerContainer(tx, { projectId: PROJECT, documentId: DOC, documentKind: 'DOCUMENT', revisionLabel: 'C' }, memberId(OFFICER)), TENANT_A, OFFICER);
+      const first = await as((tx) => transmittals.send(tx, { projectId: PROJECT, number: 'TR-0010', purpose: 'FOR_REVIEW', subject: 'First review of revision C', message: null, containerIds: [fresh.container.id], recipients: [{ membershipId: memberId(SECOND), required: true }], supersedesId: null }, memberId(OFFICER), TODAY), TENANT_A, OFFICER);
+      await as((tx) => transmittals.answer(tx, first.transmittal.id, memberId(SECOND), { answer: 'APPROVED', comment: null }, TODAY), TENANT_A, SECOND);
+      await as((tx) => transmittals.send(tx, { projectId: PROJECT, number: 'TR-0011', purpose: 'FOR_REVIEW', subject: 'Second review of revision C', message: null, containerIds: [fresh.container.id], recipients: [{ membershipId: memberId(THIRD), required: true }], supersedesId: null }, memberId(OFFICER), TODAY), TENANT_A, OFFICER);
+      const shared = (await as((tx) => transmittals.findContainer(tx, fresh.container.id))) as NonNullable<Awaited<ReturnType<DocTransmittalStore['findContainer']>>>;
+      await expect(as((tx) => transmittals.moveContainer(tx, shared.id, shared.version, 'PUBLISHED', memberId(AUDITOR), null, TODAY))).rejects.toMatchObject({ code: 'TRANSMITTAL_NOT_APPROVED' });
+    });
+
     it('does not send a document that changed since it was registered, and shows nothing of another tenant', async () => {
       await admin([[`update machvon.document_version set checksum = $2 where id = $1`, [DOC_VERSION, createHash('sha256').update('changed').digest('hex')]]]);
       const fresh = await as((tx) => transmittals.registerContainer(tx, { projectId: PROJECT, documentId: DOC, documentKind: 'DOCUMENT', revisionLabel: 'B' }, memberId(OFFICER)), TENANT_A, OFFICER);
@@ -296,6 +314,18 @@ describe('GOV-12 stores', () => {
       } finally {
         await pool.end();
       }
+    });
+
+    it('cuts the answer of the public function by the allow-list the settings hold today, in the database itself (review of the lane)', async () => {
+      await admin([[`update machvon.portal_setting set allowed_fields = array['project_code','title'] where tenant_id = $1`, [TENANT_A]]]);
+      const pool = controlPool();
+      try {
+        const [record] = await new ControlDatabase(pool).withControl((tx) => new PortalPublicReads().records(tx, 'cao-bang', null, 50));
+        expect(Object.keys(record?.fields ?? {}).sort()).toEqual(['project_code', 'title']);
+      } finally {
+        await pool.end();
+      }
+      await admin([[`update machvon.portal_setting set allowed_fields = array['project_code','title','summary','status','project_group','sector','project_type','purpose','start_year','end_year','budget_vnd','authority_name','updated_on'] where tenant_id = $1`, [TENANT_A]]]);
     });
 
     it('lets the control role read nothing of the tenant tables, and the tenant role nothing of the directory', async () => {
@@ -389,6 +419,9 @@ describe('GOV-12 stores', () => {
       const resolved = await as((tx) => whistle.move(tx, id, 4, 'RESOLVE', memberId(AUDITOR), 'The orders were merged and re-tendered.', TODAY));
       expect(resolved).toMatchObject({ status: 'RESOLVED', closedOn: TODAY, publicNote: 'The orders were merged and re-tendered.' });
       expect(await as((tx) => whistle.counts(tx, TODAY))).toMatchObject({ total: 1, open: 0 });
+      // The summary is made by the database over what the handler may see: the unit the report is about sees none of it.
+      expect(await as((tx) => whistle.summaryFor(tx, memberId(AUDITOR), TODAY))).toEqual({ total: 1, open: 0, acknowledgeOverdue: 0, resolveOverdue: 0 });
+      expect(await as((tx) => whistle.summaryFor(tx, memberId(CHILD_MEMBER), TODAY), TENANT_A, CHILD_MEMBER)).toEqual({ total: 0, open: 0, acknowledgeOverdue: 0, resolveOverdue: 0 });
       expect(await as((tx) => whistle.list(tx, { limit: 10, offset: 0 }, TODAY), TENANT_B)).toEqual([]);
     });
   });

@@ -93,7 +93,7 @@ BEGIN
   RETURN p_received_on;
 END $fn$;
 
-CREATE FUNCTION machvon.whistle_lookup(p_slug text, p_code_hash text) RETURNS TABLE (category text, status text, received_on date, acknowledged_on date, closed_on date, public_note text)
+CREATE FUNCTION machvon.whistle_lookup(p_slug text, p_code_hash text) RETURNS TABLE (category text, status text, received_on date, acknowledged_on date, closed_on date, public_note text, acknowledge_days integer, resolve_days integer)
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = machvon, pg_temp AS $fn$
 DECLARE
   v_tenant uuid := machvon.whistle_tenant(p_slug);
@@ -102,7 +102,7 @@ BEGIN
     RETURN;
   END IF;
   PERFORM set_config('app.tenant_id', v_tenant::text, true);
-  RETURN QUERY SELECT r.category, r.status, r.received_on, r.acknowledged_on, r.closed_on, r.public_note FROM machvon.whistle_report r WHERE r.tenant_id = v_tenant AND r.access_code_hash = p_code_hash;
+  RETURN QUERY SELECT r.category, r.status, r.received_on, r.acknowledged_on, r.closed_on, r.public_note, r.acknowledge_days, r.resolve_days FROM machvon.whistle_report r WHERE r.tenant_id = v_tenant AND r.access_code_hash = p_code_hash;
   PERFORM set_config('app.tenant_id', '', true);
 END $fn$;
 

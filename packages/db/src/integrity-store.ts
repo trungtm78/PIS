@@ -175,6 +175,21 @@ export class WhistleStore {
     return { seq, sender: 'HANDLER', body: text, sentOn: today, handlerId: handler };
   }
 
+  /** The counts of the reports a handler may see, made by one query of the database over the same visibility rule as the list, whatever the number of reports. */
+  async summaryFor(tx: TenantTx, handler: string, today: string): Promise<{ total: number; open: number; acknowledgeOverdue: number; resolveOverdue: number }> {
+    const units = await unitsOf(tx, handler);
+    const [row] = await tx.query<{ total: string; open: string; ack: string; resolve: string }>(
+      `select count(*)::text as total,
+              count(*) filter (where status not in ('RESOLVED', 'DISMISSED'))::text as open,
+              count(*) filter (where status not in ('RESOLVED', 'DISMISSED') and acknowledged_on is null and $2::date > received_on + acknowledge_days)::text as ack,
+              count(*) filter (where status not in ('RESOLVED', 'DISMISSED') and closed_on is null and $2::date > received_on + resolve_days)::text as resolve
+         from machvon.whistle_report where subject_unit_id is null or not (subject_unit_id = any($1::uuid[]))`,
+      [units, today],
+    );
+    const found = row as { total: string; open: string; ack: string; resolve: string };
+    return { total: Number(found.total), open: Number(found.open), acknowledgeOverdue: Number(found.ack), resolveOverdue: Number(found.resolve) };
+  }
+
   async counts(tx: TenantTx, today: string): Promise<{ total: number; open: number; acknowledgeOverdue: number; resolveOverdue: number }> {
     const rows = await tx.query<Raw>(`select ${WHISTLE_COLUMNS} from machvon.whistle_report`);
     const readings = rows.map((row) => toWhistle(row, today));
@@ -198,12 +213,12 @@ export class WhistlePublicReads {
     }
   }
 
-  async lookup(tx: TenantTx, slug: string, codeHash: string): Promise<{ category: string; status: string; receivedOn: string; acknowledgedOn: string | null; closedOn: string | null; publicNote: string | null } | undefined> {
+  async lookup(tx: TenantTx, slug: string, codeHash: string): Promise<{ category: string; status: string; receivedOn: string; acknowledgedOn: string | null; closedOn: string | null; publicNote: string | null; acknowledgeDays: number; resolveDays: number } | undefined> {
     const [row] = await tx.query<Raw>(
-      `select category, status, ${DAY('received_on')} as received_on, ${DAY('acknowledged_on')} as acknowledged_on, ${DAY('closed_on')} as closed_on, public_note from machvon.whistle_lookup($1, $2)`,
+      `select category, status, ${DAY('received_on')} as received_on, ${DAY('acknowledged_on')} as acknowledged_on, ${DAY('closed_on')} as closed_on, public_note, acknowledge_days, resolve_days from machvon.whistle_lookup($1, $2)`,
       [slug, codeHash],
     );
-    return row === undefined ? undefined : { category: row.category as string, status: row.status as string, receivedOn: row.received_on as string, acknowledgedOn: (row.acknowledged_on as string | null) ?? null, closedOn: (row.closed_on as string | null) ?? null, publicNote: (row.public_note as string | null) ?? null };
+    return row === undefined ? undefined : { category: row.category as string, status: row.status as string, receivedOn: row.received_on as string, acknowledgedOn: (row.acknowledged_on as string | null) ?? null, closedOn: (row.closed_on as string | null) ?? null, publicNote: (row.public_note as string | null) ?? null, acknowledgeDays: row.acknowledge_days as number, resolveDays: row.resolve_days as number };
   }
 
   async thread(tx: TenantTx, slug: string, codeHash: string): Promise<Array<{ seq: number; sender: string; body: string; sentOn: string }>> {
@@ -256,7 +271,7 @@ export interface GiftRow {
   version: number;
 }
 
-const GIFT_COLUMNS = `id, recipient_membership_id, declared_by, giver_name, giver_kind, project_id, description, value_vnd::text as value_vnd, ${DAY('received_on')} as received_on, ${DAY('declared_on')} as declared_on, late, needs_review, may_be_kept,
+const GIFT_COLUMNS = `id, recipient_membership_id, declared_by, giver_name, giver_kind, project_id, description, value_vnd::text as value_vnd, ${DAY('received_on')} as received_on, ${DAY('declared_on')} as declared_on, ${DAY('declare_due_on')} as declare_due_on, late, needs_review, may_be_kept,
   rule_version, status, reviewer_membership_id, outcome, outcome_note, ${DAY('closed_on')} as closed_on, version`;
 const toGift = (row: Raw, policy: GiftPolicy): GiftRow => {
   const receivedOn = row.received_on as string;
@@ -279,7 +294,7 @@ const toGift = (row: Raw, policy: GiftPolicy): GiftRow => {
     closedOn: (row.closed_on as string | null) ?? null,
     ruleVersion: row.rule_version as number,
     // The flags are those stored at declaration (the rule of that day), not recomputed with today's rule.
-    reading: { late: row.late as boolean, declareDueOn: giftReading({ receivedOn, declaredOn, valueVnd: row.value_vnd as string }, policy).declareDueOn, needsReview: row.needs_review as boolean, mayBeKept: row.may_be_kept as boolean },
+    reading: { late: row.late as boolean, declareDueOn: row.declare_due_on as string, needsReview: row.needs_review as boolean, mayBeKept: row.may_be_kept as boolean },
     version: Number(row.version),
   };
 };
@@ -305,9 +320,9 @@ export class GiftStore {
     const reading = await this.policy(tx, today);
     const flags = giftReading({ receivedOn: input.receivedOn, declaredOn: today, valueVnd: input.valueVnd }, reading.policy);
     const [row] = await tx.query<{ id: string }>(
-      `insert into machvon.gift_register (tenant_id, recipient_membership_id, declared_by, giver_name, giver_kind, project_id, description, value_vnd, received_on, declared_on, late, needs_review, may_be_kept, rule_version)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5::uuid, $6, $7::numeric, $8::date, $9::date, $10, $11, $12, $13) returning id`,
-      [input.recipientId, declaredBy, input.giverName.trim(), input.giverKind, input.projectId, input.description.trim(), input.valueVnd, input.receivedOn, today, flags.late, flags.needsReview, flags.mayBeKept, reading.version],
+      `insert into machvon.gift_register (tenant_id, recipient_membership_id, declared_by, giver_name, giver_kind, project_id, description, value_vnd, received_on, declared_on, declare_due_on, late, needs_review, may_be_kept, rule_version)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5::uuid, $6, $7::numeric, $8::date, $9::date, $10::date, $11, $12, $13, $14) returning id`,
+      [input.recipientId, declaredBy, input.giverName.trim(), input.giverKind, input.projectId, input.description.trim(), input.valueVnd, input.receivedOn, today, flags.declareDueOn, flags.late, flags.needsReview, flags.mayBeKept, reading.version],
     );
     return (await this.find(tx, (row as { id: string }).id, today)) as GiftRow;
   }

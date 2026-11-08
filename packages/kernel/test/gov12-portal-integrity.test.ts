@@ -303,4 +303,24 @@ describe('the governance rules of lane GOV-12', () => {
     expect(() => validateRuleParams('COMMUNITY_MONITORING_RULE', { notice_days: 10, response_days: 15, reminder_days: 12 })).toThrow();
     expect(() => validateRuleParams('GIFT_RULE', { declare_within_days: 5, review_over_vnd: '2000000', keep_up_to_vnd: '1000000' })).toThrow();
   });
+
+  it('refuses in the rule what the policy would refuse later: a zero or padded money step, a field named twice (review of the lane)', () => {
+    registerGov12Rules();
+    const weights = { weight_overdue: 3, weight_disputed: 2, weight_open: 1, weight_money: 1 };
+    expect(() => validateRuleParams('AUDIT_STANDING_RULE', { ...weights, money_step_vnd: '0' })).toThrow();
+    expect(() => validateRuleParams('AUDIT_STANDING_RULE', { ...weights, money_step_vnd: '0007' })).toThrow();
+    expect(() => validateRuleParams('AUDIT_STANDING_RULE', { ...weights, money_step_vnd: '1000000000' })).not.toThrow();
+    expect(() => validateRuleParams('PUBLIC_PORTAL_RULE', { allowed_fields: ['title', 'title'], rate_per_minute: 60, page_size_max: 100 })).toThrow();
+    expect(() => validateRuleParams('PUBLIC_PORTAL_RULE', { allowed_fields: ['title', 'summary'], rate_per_minute: 60, page_size_max: 100 })).not.toThrow();
+  });
+
+  it('answers a day that does not exist with VALIDATION_FAILED and not with a native error (review of the lane)', () => {
+    expect(codeOf(() => periodKeyOf({ kind: 'AS_OF', year: 2026, day: '2026-13-01' }))).toBe('VALIDATION_FAILED');
+    expect(codeOf(() => periodKeyOf({ kind: 'AS_OF', year: 2026, day: '2026-02-30' }))).toBe('VALIDATION_FAILED');
+  });
+
+  it('checks the types of the envelope of an OC4IDS package (review of the lane)', () => {
+    const issues = validateOc4idsPackage({ version: null, publisher: null, license: 42, publicationPolicy: false, publishedDate: '2026-11-08T00:00:00Z', projects: [] }).map((issue) => issue.path + ':' + issue.problem);
+    expect(issues).toEqual(['version:WRONG_TYPE', 'license:WRONG_TYPE', 'publicationPolicy:WRONG_TYPE', 'publisher:WRONG_TYPE']);
+  });
 });

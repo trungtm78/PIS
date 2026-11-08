@@ -71,7 +71,13 @@ export class PeriodReportController {
     const copy = await this.store.issue(tx, id.toLowerCase());
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     assertSignerIsApprover({ signerId: scope.tenant.membershipId, approverId: copy.approvedBy });
-    if ((await this.store.signatureOf(tx, copy.id)) !== undefined || (await this.store.openSession(tx, copy.id)) !== undefined) throw new DomainError('REPORT_STATE_INVALID', 409, 'signature');
+    if ((await this.store.signatureOf(tx, copy.id)) !== undefined) throw new DomainError('REPORT_STATE_INVALID', 409, 'signature');
+    // A session that ran out of time is retired here, so a signer who missed the approval window can start again; one that is still open is the signer's to complete.
+    const open = await this.store.openSession(tx, copy.id);
+    if (open !== undefined) {
+      if (new Date(open.expiresAt).getTime() > Date.now()) throw new DomainError('REPORT_STATE_INVALID', 409, 'signature');
+      await this.store.closeSession(tx, open.id, 'EXPIRED');
+    }
     if (!(await this.store.isHead(tx, copy.id))) throw new DomainError('REPORT_OUT_OF_DATE', 409, 'issue');
     const certificate = await this.certificates.find(tx, body.certificate_id.toLowerCase());
     // A certificate that is not the signer's own, not personal or not active is "not active" to the caller, whichever it is.
@@ -95,6 +101,19 @@ export class PeriodReportController {
     // Only the person who started the signing completes it; anybody else is told it does not exist.
     if (session === undefined || session.startedBy !== scope.tenant.membershipId) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     if (session.state !== 'OPEN') throw new DomainError('SIGNING_SESSION_EXPIRED', 409, 'session');
+    // The session ran out of time, or a later copy replaced the one it was for: it is closed and the refusal is answered after that is committed, so the signer can start again.
+    if (new Date(session.expiresAt).getTime() <= Date.now()) {
+      await this.store.closeSession(tx, session.id, 'EXPIRED');
+      await scope.audit({ action: 'rpt.signature_session_expired', resourceType: SESSION, resourceId: session.id, classification: 'INTERNAL', diff: { issue_id: session.issueId } });
+      scope.refuseAfterCommit(new DomainError('SIGNING_SESSION_EXPIRED', 409, 'session'));
+      return commandResult(scope, 'EXPIRED', session.version, session.id);
+    }
+    if (!(await this.store.isHead(tx, session.issueId))) {
+      await this.store.closeSession(tx, session.id, 'CANCELLED');
+      await scope.audit({ action: 'rpt.signature_session_cancelled', resourceType: SESSION, resourceId: session.id, classification: 'INTERNAL', diff: { issue_id: session.issueId, reason: 'superseded' } });
+      scope.refuseAfterCommit(new DomainError('REPORT_OUT_OF_DATE', 409, 'issue'));
+      return commandResult(scope, 'CANCELLED', session.version, session.id);
+    }
     const ref: SessionRef = { provider: session.provider, sessionId: session.providerSessionId, expiresAt: new Date(session.expiresAt) };
     const collected = await this.signing.collect(ref);
     // The signer has not approved on their device yet: nothing changes and the caller asks again.

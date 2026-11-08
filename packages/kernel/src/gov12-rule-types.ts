@@ -17,7 +17,8 @@ const AS_OF = '2026-11-08';
 const SOURCE = (): string => message('gov.rules.gov12.source');
 const int = (min: number, max: number): FieldSpec => ({ kind: 'int', min, max });
 const oneOf = (...values: readonly string[]): FieldSpec => ({ kind: 'enum', values });
-const money: FieldSpec = { kind: 'text', max: 24, pattern: '^[0-9]{1,24}$' };
+/** A step of money is a positive whole number of dong with no leading zero: the same values auditStandingPolicyOf accepts. */
+const moneyStep: FieldSpec = { kind: 'text', max: 24, pattern: '^[1-9][0-9]{0,23}$' };
 const receiverList: FieldSpec = { kind: 'list', of: { kind: 'text', max: 60, pattern: '^[A-Za-z0-9][A-Za-z0-9_.-]{0,59}$' }, max: 20 };
 
 const defaults = (value: object): Record<string, { params: Record<string, unknown> }> => ({ DEFAULT: { params: JSON.parse(JSON.stringify(value)) as Record<string, unknown> } });
@@ -62,6 +63,8 @@ export const gov12RuleTypes = (): RuleTypeInput[] => [
     asOf: AS_OF,
     legalStatus: 'UNVERIFIED',
     schema: { allowed_fields: { kind: 'list', of: oneOf(...PORTAL_FIELDS), min: 1, max: PORTAL_FIELDS.length }, rate_per_minute: int(1, 6000), page_size_max: int(1, 500) },
+    // A field is named once: the policy of the portal refuses a list that names one twice, so the rule must not be approved either.
+    refine: (params) => (new Set(params.allowed_fields as string[]).size !== (params.allowed_fields as string[]).length ? 'allowed_fields' : undefined),
     defaults: defaults(portalDefaults()),
   },
   {
@@ -118,7 +121,7 @@ export const gov12RuleTypes = (): RuleTypeInput[] => [
     source: SOURCE(),
     asOf: AS_OF,
     legalStatus: 'UNVERIFIED',
-    schema: { weight_overdue: int(0, 100), weight_disputed: int(0, 100), weight_open: int(0, 100), money_step_vnd: money, weight_money: int(0, 100) },
+    schema: { weight_overdue: int(0, 100), weight_disputed: int(0, 100), weight_open: int(0, 100), money_step_vnd: moneyStep, weight_money: int(0, 100) },
     defaults: defaults(auditStandingDefaults()),
   },
 ];

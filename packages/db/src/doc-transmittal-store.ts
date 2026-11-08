@@ -177,7 +177,7 @@ export class DocTransmittalStore {
   async latestProgress(tx: TenantTx, container: ContainerRow, today: string): Promise<TransmittalProgress | null> {
     const [row] = await tx.query<{ id: string }>(
       `select t.id from machvon.doc_transmittal t join machvon.doc_transmittal_item i on i.tenant_id = t.tenant_id and i.transmittal_id = t.id
-        where i.container_id = $1::uuid and i.content_sha256 = $2 and t.purpose <> 'FOR_INFORMATION' and t.superseded_by_id is null order by t.sent_on desc, t.id desc limit 1`,
+        where i.container_id = $1::uuid and i.content_sha256 = $2 and t.purpose <> 'FOR_INFORMATION' and t.superseded_by_id is null order by t.created_at desc, t.sent_on desc, t.id desc limit 1`,
       [container.id, container.contentSha256],
     );
     if (row === undefined) return null;

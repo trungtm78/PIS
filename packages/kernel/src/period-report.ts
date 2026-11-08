@@ -56,7 +56,7 @@ function assertPeriodShape(period: FormPeriod): void {
   if (limit === undefined || !Number.isInteger(period.year) || period.year < 1900 || period.year > 2999) throw new DomainError('VALIDATION_FAILED', 422, 'period');
   if (period.kind === 'AS_OF') {
     const match = period.day === undefined ? null : DAY.exec(period.day);
-    if (match === null || Number(match[1]) !== period.year || period.index !== undefined || new Date(period.day + 'T00:00:00Z').toISOString().slice(0, 10) !== period.day) throw new DomainError('VALIDATION_FAILED', 422, 'period');
+    if (match === null || Number(match[1]) !== period.year || period.index !== undefined || Number.isNaN(Date.parse(period.day + 'T00:00:00Z')) || new Date(period.day + 'T00:00:00Z').toISOString().slice(0, 10) !== period.day) throw new DomainError('VALIDATION_FAILED', 422, 'period');
     return;
   }
   if (period.day !== undefined) throw new DomainError('VALIDATION_FAILED', 422, 'period');
