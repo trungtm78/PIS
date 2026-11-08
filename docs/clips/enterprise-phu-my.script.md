@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `enterprise-phu-my`
 - Bản: enterprise
-- Video chính: 10:46 (44 cảnh)
+- Video chính: 11:08 (44 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,8 +12,8 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 44 | 10:46 |
-| Giới thiệu phần mềm (`intro`) | 4 | 1:07 |
+| Video chính (`main`) | 44 | 11:08 |
+| Giới thiệu phần mềm (`intro`) | 4 | 1:14 |
 | Tổng quan điều hành (`leader-home`) | 7 | 1:29 |
 | Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:07 |
 | Dự án đầu tư xây dựng (`projects`) | 5 | 1:15 |
@@ -26,8 +26,8 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Cảnh báo (`alerts`) | 8 | 1:59 |
 | Quản lý nhà thầu và nhà cung cấp (`contractors`) | 9 | 2:26 |
 | Cây tiến độ (`process-tree`) | 9 | 2:09 |
-| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:28 |
-| Tin cậy và kết thúc (`close`) | 2 | 0:32 |
+| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:40 |
+| Tin cậy và kết thúc (`close`) | 2 | 0:35 |
 
 ## Dữ liệu và độ sẵn sàng
 
@@ -75,30 +75,30 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 | Điểm nhạc | Chương | Bắt đầu | Mức so với nền | Tính chất |
 |---|---|---|---|---|
 | `ent-open` | `intro` | 0:00 | 0 dB | Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán. |
-| `ent-overview` | `leader-home`, `capital`, `projects` | 1:07 | 0 dB | Phần điều hành, cơ cấu vốn và dự án: nền ổn định. |
-| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:30 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
-| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:43 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
-| `ent-tree-phone` | `process-tree`, `phone` | 8:07 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `ent-close` | `close` | 10:15 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `ent-overview` | `leader-home`, `capital`, `projects` | 1:14 | 0 dB | Phần điều hành, cơ cấu vốn và dự án: nền ổn định. |
+| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:36 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
+| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:50 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
+| `ent-tree-phone` | `process-tree`, `phone` | 8:14 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
+| `ent-close` | `close` | 10:33 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu phần mềm (`intro`)
 
 ### `ent-intro-title`
 
-Nền tảng: title; 19.1 giây; có trong video chính
+Nền tảng: title; 20.3 giây; có trong video chính
 
 **Lời đọc**
 
-> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng web và ứng dụng di động. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.
+> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng web, ứng dụng di động và PWA. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng quép và ứng dụng di động. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu đê-mô, chờ mẫu chính thức.
+> Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ gồm nền tảng quép, ứng dụng di động và pê-đắp-liu-a. Phần mềm theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu đê-mô, chờ mẫu chính thức.
 
 **Phụ đề**
 
 - Phần mềm quản lý đầu / tư xây dựng của Đạm Phú
-- Mỹ gồm nền tảng web và ứng dụng di động.
+- Mỹ gồm nền tảng web, / ứng dụng di động và PWA.
 - Phần mềm theo dõi dự án từ kế / hoạch vốn đến báo cáo gửi Tập đoàn.
 - Dữ liệu trong đoạn phim là minh họa,
 - và sáu biểu mẫu là mẫu / demo, chờ mẫu chính thức.
@@ -118,21 +118,22 @@ Nền tảng: title; 19.1 giây; có trong video chính
 
 ### `ent-intro-web-phone`
 
-Nền tảng: animatic; 13.9 giây; có trong video chính
+Nền tảng: animatic; 19.1 giây; có trong video chính
 
 **Lời đọc**
 
-> Phần mềm gồm hai phần dùng chung một nguồn số liệu và một bộ quyền. Nền tảng web chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường.
+> Phần mềm gồm ba kênh dùng chung một nguồn số liệu và một bộ quyền. Nền tảng web chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường. PWA là ứng dụng web cài vào màn hình chính cho lãnh đạo.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Phần mềm gồm hai phần dùng chung một nguồn số liệu và một bộ quyền. Nền tảng quép chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường.
+> Phần mềm gồm ba kênh dùng chung một nguồn số liệu và một bộ quyền. Nền tảng quép chạy trên trình duyệt cho người điều hành. Ứng dụng di động chạy trên điện thoại cho người làm ở hiện trường. pê-đắp-liu-a là ứng dụng quép cài vào màn hình chính cho lãnh đạo.
 
 **Phụ đề**
 
-- Phần mềm gồm hai phần dùng chung / một nguồn số liệu và một bộ quyền.
+- Phần mềm gồm ba kênh dùng chung / một nguồn số liệu và một bộ quyền.
 - Nền tảng web chạy trên trình / duyệt cho người điều hành.
 - Ứng dụng di động chạy trên điện / thoại cho người làm ở hiện trường.
+- PWA là ứng dụng web cài vào / màn hình chính cho lãnh đạo.
 
 **Các bước quay**
 
@@ -3037,31 +3038,37 @@ Màn hình: `MOB-28` Ghi nhận vướng mắc (tab projects); `MOB-29` Chụp �
 
 ### `ph-pwa`
 
-Nền tảng: pwa; 14.5 giây; có trong video chính
+Nền tảng: pwa; 26.7 giây; có trong video chính
 
 Màn hình: `PWA-01` PWA-01 (/m); `PWA-02` PWA-02 (/m/approvals); `PWA-03` PWA-03 (/m/dashboard); `PWA-04` PWA-04 (/m/directives)
 
 **Lời đọc**
 
-> Người không cài ứng dụng dùng PWA trên trình duyệt: hàng đợi phê duyệt, dashboard điều hành, theo dõi chỉ đạo. PWA chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
+> Người không cài ứng dụng dùng PWA, ứng dụng web cài thẳng vào màn hình chính. Chạm Cài đặt ứng dụng, rồi mở như một ứng dụng thật, không có thanh địa chỉ. Thông báo đẩy chỉ mang đường dẫn, không mang số liệu. Bên trong có hàng đợi phê duyệt, bảng điều hành và theo dõi chỉ đạo. PWA chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Người không cài ứng dụng dùng pê-đắp-liu-a trên trình duyệt: hàng đợi phê duyệt, đát-bo điều hành, theo dõi chỉ đạo. pê-đắp-liu-a chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
+> Người không cài ứng dụng dùng pê-đắp-liu-a, ứng dụng quép cài thẳng vào màn hình chính. Chạm Cài đặt ứng dụng, rồi mở như một ứng dụng thật, không có thanh địa chỉ. Thông báo đẩy chỉ mang đường dẫn, không mang số liệu. Bên trong có hàng đợi phê duyệt, bảng điều hành và theo dõi chỉ đạo. pê-đắp-liu-a chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.
 
 **Phụ đề**
 
-- Người không cài ứng dụng / dùng PWA trên trình duyệt:
-- hàng đợi phê duyệt, dashboard / điều hành, theo dõi chỉ đạo.
+- Người không cài ứng dụng dùng PWA, ứng / dụng web cài thẳng vào màn hình chính.
+- Chạm Cài đặt ứng dụng, rồi mở như một / ứng dụng thật, không có thanh địa chỉ.
+- Thông báo đẩy chỉ mang đường / dẫn, không mang số liệu.
+- Bên trong có hàng đợi phê duyệt, / bảng điều hành và theo dõi chỉ đạo.
 - PWA chỉ lưu vỏ ứng dụng, không lưu / dữ liệu, đăng xuất là xóa sạch.
 
 **Các bước quay**
 
 - `do=as persona=owner`
 - `do=open screen=PWA-01`
+- `do=click ref=pwa.install.button`
 - `do=open screen=PWA-02`
+- `do=spot ref=pwa.approvals.queue`
 - `do=open screen=PWA-03`
+- `do=spot ref=pwa.dashboard.cards`
 - `do=open screen=PWA-04`
+- `do=spot ref=pwa.directives.list`
 
 **Cần thấy trên hình**
 
@@ -3070,6 +3077,10 @@ Màn hình: `PWA-01` PWA-01 (/m); `PWA-02` PWA-02 (/m/approvals); `PWA-03` PWA-0
 - [ ] Màn PWA-03 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/dashboard, trong khung điện thoại
 - [ ] Màn PWA-04 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/directives, trong khung điện thoại
 - [ ] Đăng nhập bằng tài khoản owner
+- [ ] Khung vào phần pwa.install.button đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần pwa.approvals.queue đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần pwa.dashboard.cards đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần pwa.directives.list đúng lúc giọng đọc nói tới
 - [ ] Chú thích "PWA: chỉ lưu vỏ ứng dụng, không lưu dữ liệu" hiện từ giây 4, kéo dài 6 giây
 - [ ] Ứng dụng cài đặt chạy trong khung điện thoại, không thấy thanh địa chỉ của trình duyệt
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -3285,20 +3296,21 @@ Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `ADM-14` Cấu hình
 
 ### `ent-close-outro`
 
-Nền tảng: title; 16.3 giây; có trong video chính
+Nền tảng: title; 19.1 giây; có trong video chính
 
 **Lời đọc**
 
-> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng web và ứng dụng di động, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
+> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng với ba kênh là web, ứng dụng di động và PWA. Một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng quép và ứng dụng di động, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
+> Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng với ba kênh là quép, ứng dụng di động và pê-đắp-liu-a. Một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.
 
 **Phụ đề**
 
-- Từ kế hoạch vốn đến báo cáo / gửi Tập đoàn, một nền tảng web
-- và ứng dụng di động, một bộ / chỉ tiêu, mỗi con số có nguồn.
+- Từ kế hoạch vốn đến báo cáo gửi Tập đoàn,
+- một nền tảng với ba kênh là / web, ứng dụng di động và PWA.
+- Một bộ chỉ tiêu, mỗi con số có nguồn.
 - Đội ngũ đầu tư ít chép số / hơn, lãnh đạo thấy sớm hơn,
 - và kiểm toán dựng lại được từng kỳ.
 

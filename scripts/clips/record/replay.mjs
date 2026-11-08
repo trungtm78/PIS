@@ -233,6 +233,20 @@ export class ReplayUi extends Ui {
     await entry.click({ timeout: 4000 });
   }
 
+  /** Sends the event a Chromium browser sends when the application can be installed (a headless browser never does), so that the install button of the page shows. */
+  async fireInstallPrompt() {
+    await this.page.evaluate(() => {
+      const event = new globalThis.Event('beforeinstallprompt', { cancelable: true });
+      event.prompt = () => {
+        globalThis.setTimeout(() => globalThis.dispatchEvent(new globalThis.Event('appinstalled')), 900);
+        return Promise.resolve();
+      };
+      event.userChoice = Promise.resolve({ outcome: 'accepted' });
+      globalThis.dispatchEvent(event);
+    });
+    await this.page.waitForTimeout(500);
+  }
+
   /** What is on the screen now that should not be: see readScreenProblems. */
   async screenProblems() {
     return this.page.evaluate(readScreenProblems);

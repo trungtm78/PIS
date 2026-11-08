@@ -26,7 +26,9 @@ import { buildTimeline, cuesOf, formatSrt, formatVtt, checkCues } from './subtit
  * subtitles and the loudness (mix.mjs). The words come from the scenario; this file holds none.
  */
 const VIEWPORT = { width: 1920, height: 1080 };
-const ROUTES = Object.fromEntries(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path]));
+/** The screens of the installed web application for leaders (apps/web/src/pwa/PwaRoutes.tsx): they are not in the generated route list. */
+const PWA_ROUTES = { 'PWA-01': '/m', 'PWA-02': '/m/approvals', 'PWA-03': '/m/dashboard', 'PWA-04': '/m/directives' };
+const ROUTES = { ...Object.fromEntries(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path])), ...PWA_ROUTES };
 const ANIMATIC_ALIASES = { 'platform-map': 'platform-public', 'service-flow': 'service-flow-public' };
 /** The people the development session of the clip stack knows (apps/web/e2e/support/docs-people.json). */
 const KNOWN_PERSONAS = new Set(readJson(join(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'docs-people.json')).map((person) => person.key));
@@ -197,6 +199,8 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
       if (index > 0 && views[index - 1].persona === view.persona) await ui.within(address, view.screen);
       else await ui.goto(address, view.persona);
       if (index === 0) contentAt = Date.now() - started;
+      // The browser of the recording does not offer the install by itself: the event it would send is sent here, so that the button of the start page shows.
+      if (view.screen === 'PWA-01') await ui.fireInstallPrompt().catch(() => undefined);
       const alert = await page.locator('[role="alert"]').first().textContent({ timeout: 500 }).catch(() => null);
       if (alert !== null && alert.trim() !== '') problems.push(`${view.screen}: ${alert.trim().slice(0, 80)}`);
       allotted += shares[index];
@@ -270,6 +274,12 @@ async function composeSegment({ painter, work, bg, brand, scenario, scenes, scen
   if (geometry.chips && geometry.web !== undefined && web !== undefined) {
     const placed = chipsFor({ spots: spots.map((spot) => ({ ...spot, box: mapBox(spot.box, { x: 0, y: 0, width: geometry.web.hole.width, height: geometry.web.hole.height }) })), labels, hole: geometry.web.hole, seconds });
     for (const [index, chip] of placed.entries()) chips.push({ ...chip, png: await painter.chip({ x: chip.x, y: chip.y, label: chip.label, accent: brand.accent }, join(work, `${scene.id}.chip${index}.png`)) });
+  }
+  for (const [index, callout] of (scene.callouts ?? []).entries()) {
+    const hole = (callout.anchor === 'phone' ? geometry.phone : geometry.web)?.hole;
+    if (hole === undefined) continue;
+    const png = await painter.chip({ x: Math.round(hole.x + (callout.x ?? 0.5) * hole.width), y: Math.round(hole.y + (callout.y ?? 0.5) * hole.height), label: callout.text, accent: brand.accent }, join(work, `${scene.id}.callout${index}.png`));
+    chips.push({ png, fromSec: callout.atSec, toSec: Math.min(seconds - 0.2, callout.atSec + callout.forSec) });
   }
   const args = segmentArgs({ layout, bg: { file: bg, offsetSec: (entry.startMs / 1000) % LOOP_SEC }, web, phone, overlay, chips: chips.map((chip) => ({ png: chip.png, fromSec: chip.fromSec, toSec: chip.toSec })), seconds, assFilter: assFilterOf(ass), out, spec });
   ffmpeg(args.slice(4));
@@ -367,12 +377,15 @@ async function main(argv) {
         const rawDir = join(dir, 'seg', `${entry.id}.raw`);
         rmSync(rawDir, { recursive: true, force: true });
         const wide = layout === 'split' || layout === 'phone-right';
+        const pwaPhone = platform === 'pwa' && layout === 'phone-right';
         const recorded = views.length === 0 || layout === 'phone-right' ? undefined : await recordViews(browser, { views, durationMs: seconds * 1000, baseUrl: webUrl, dir: rawDir, log: console.log, scene, typed: scenario.typed, replay: showcase ? false : !flag(argv, 'no-steps') });
         let phone = phoneFile === undefined ? undefined : { file: phoneFile, startSec: 0 };
         let phoneSource = phone === undefined ? null : 'emulator';
+        let phoneRecord;
         if (phone === undefined && wide && views.length > 0) {
           // No emulator film: the real web app at the size of a phone (responsive view), named as such in the report.
-          const preview = await recordViews(browser, { views: views.slice(0, 1), durationMs: seconds * 1000, baseUrl: webUrl, dir: join(rawDir, 'phone'), log: console.log, scene, replay: false, viewport: { width: 380, height: 820 }, mobile: true });
+          const preview = await recordViews(browser, { views: pwaPhone ? views : views.slice(0, 1), durationMs: seconds * 1000, baseUrl: webUrl, dir: join(rawDir, 'phone'), log: console.log, scene, typed: scenario.typed, replay: pwaPhone && !flag(argv, 'no-steps'), viewport: { width: 380, height: 820 }, mobile: true });
+          phoneRecord = preview;
           phone = { file: preview.path, startSec: preview.contentAt / 1000 };
           phoneSource = 'responsive-web-preview';
         }
@@ -380,9 +393,10 @@ async function main(argv) {
         const spots = recorded === undefined ? [] : recorded.replay.filter((line) => line.do === 'spot' && line.status === 'replayed' && line.box !== undefined).map((line) => ({ atSec: (line.startedAt - recorded.startedAt - recorded.contentAt) / 1000, holdSec: line.ms / 1000, box: line.box }));
         const composed = await composeSegment({ painter: paint, work: join(dir, 'compose'), bg: bgFile, brand: brandFor(scenario.edition), scenario, scenes, scene, entry, layout, web: recorded === undefined ? undefined : { file: recorded.path, startSec: recorded.contentAt / 1000 }, phone, spots, ass, out: file, seconds });
         rmSync(rawDir, { recursive: true, force: true });
-        const replaySummary = summariseReplay(recorded?.replay ?? []);
+        const shown = recorded ?? phoneRecord;
+        const replaySummary = summariseReplay(shown?.replay ?? []);
         console.log(`  steps of ${entry.id}: ${replaySummary.replayed} replayed, ${replaySummary.skipped} skipped (${replaySummary.offScreen} not clicks); layout ${layout}, ${composed.chips} chips`);
-        report.push({ id: entry.id, kind: 'composed', layout, phoneSource, screens: views.map((view) => view.screen), seconds, problems: recorded?.problems ?? [], steps: { ...replaySummary, lines: recorded?.replay ?? [] } });
+        report.push({ id: entry.id, kind: 'composed', layout, phoneSource, screens: views.map((view) => view.screen), seconds, problems: shown?.problems ?? [], steps: { ...replaySummary, lines: shown?.replay ?? [] } });
       } else if ((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) {
         const views = viewsOf(scene);
         if (webUrl === undefined || views.length === 0 || flag(argv, 'no-web')) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
