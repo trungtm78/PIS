@@ -7299,6 +7299,78 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "LEAD_STATE_INVALID": {
+      "status": 409,
+      "title": "Lead is not where the move starts",
+      "meaning": "Đầu mối điều tra không ở trạng thái mà bước xem xét này bắt đầu, hoặc người thao tác đã tham gia gói thầu (VND-3, V6).",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "SCREENING_HIT_STATE_INVALID": {
+      "status": 409,
+      "title": "Hit is not where the move starts",
+      "meaning": "Kết quả khớp của sàng lọc không ở trạng thái mà bước này bắt đầu (VND-3, V14).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONTRACTOR_SCREENING_HOLD": {
+      "status": 422,
+      "title": "Contractor is on hold of the screening",
+      "meaning": "Nhà thầu đang bị tạm giữ vì khớp danh sách bên bị cấm, chờ người có quyền xác nhận hoặc bác bỏ (VND-3, V14).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PORTAL_REQUEST_STATE_INVALID": {
+      "status": 409,
+      "title": "Request is not in the state the move needs",
+      "meaning": "Yêu cầu gửi nhà thầu không ở trạng thái mà bước này cần (VND-3, V15).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PORTAL_CONTRACTOR_REQUIRED": {
+      "status": 403,
+      "title": "The caller is not bound to a contractor",
+      "meaning": "Cổng nhà thầu chỉ dành cho tài khoản khách gắn với một nhà thầu (VND-3, V15).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONTRACTOR_PORTAL_NOT_BOUND": {
+      "status": 422,
+      "title": "No contractor account is bound to the contractor",
+      "meaning": "Nhà thầu chưa có tài khoản khách còn hiệu lực nên chưa gửi được yêu cầu qua cổng (VND-3, V15).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RECONFIRMATION_DECLARATION_STALE": {
+      "status": 409,
+      "title": "The declaration shown is not the one in force",
+      "meaning": "Phiên bản cam kết liêm chính đã đổi kể từ khi nhà thầu mở màn hình; mở lại để đọc bản hiện hành (VND-3, V15).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "REMEDIATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Plan or action is not in the state the move needs",
+      "meaning": "Kế hoạch hoặc hành động khắc phục không ở trạng thái mà bước này cần, hoặc còn hành động chưa xác minh (VND-3, V17).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "SUBMISSION_TRACE_EXISTS": {
+      "status": 409,
+      "title": "The trace of this submission is already recorded",
+      "meaning": "Dấu vết nộp của hồ sơ dự thầu này đã được ghi một lần và không sửa (VND-3, V6).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

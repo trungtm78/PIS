@@ -12042,6 +12042,97 @@ final class PmtRevokePermitGateWaiver implements RequestModel {
       };
 }
 
+final class PortalActionDone implements RequestModel {
+  const PortalActionDone({
+    required this.note,
+    this.documentId,
+  });
+
+  final String note;
+  final String? documentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'note': note,
+        if (documentId != null) 'document_id': documentId,
+      };
+}
+
+final class PortalQualificationNew implements RequestModel {
+  const PortalQualificationNew({
+    required this.kind,
+    required this.certificateNo,
+    required this.issuer,
+    required this.issuedOn,
+    this.grade,
+    this.scope,
+    this.expiresOn,
+    this.documentId,
+    this.requestId,
+  });
+
+  final String kind;
+  final String certificateNo;
+  final String? grade;
+  final String? scope;
+  final String issuer;
+  final String issuedOn;
+  final String? expiresOn;
+  final String? documentId;
+  final String? requestId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'certificate_no': certificateNo,
+        if (grade != null) 'grade': grade,
+        if (scope != null) 'scope': scope,
+        'issuer': issuer,
+        'issued_on': issuedOn,
+        if (expiresOn != null) 'expires_on': expiresOn,
+        if (documentId != null) 'document_id': documentId,
+        if (requestId != null) 'request_id': requestId,
+      };
+}
+
+final class PortalReconfirmRequest implements RequestModel {
+  const PortalReconfirmRequest({
+    required this.declarationVersion,
+    required this.accepted,
+    this.changesNote,
+  });
+
+  final String declarationVersion;
+  final bool accepted;
+  final String? changesNote;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'declaration_version': declarationVersion,
+        'accepted': accepted,
+        if (changesNote != null) 'changes_note': changesNote,
+      };
+}
+
+final class PortalRespondRequest implements RequestModel {
+  const PortalRespondRequest({
+    this.text,
+    this.documentId,
+    this.qualificationId,
+  });
+
+  final String? text;
+  final String? documentId;
+  final String? qualificationId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (text != null) 'text': text,
+        if (documentId != null) 'document_id': documentId,
+        if (qualificationId != null) 'qualification_id': qualificationId,
+      };
+}
+
 final class PreferenceSet implements RequestModel {
   const PreferenceSet({
     required this.items,
@@ -16025,6 +16116,32 @@ final class VendorKeyStaffNew implements RequestModel {
       };
 }
 
+final class VendorLeadReason implements RequestModel {
+  const VendorLeadReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class VendorLinkScanRequest implements RequestModel {
+  const VendorLinkScanRequest({
+    this.note,
+  });
+
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+      };
+}
+
 final class VendorOwnerNew implements RequestModel {
   const VendorOwnerNew({
     required this.ownerKind,
@@ -16229,6 +16346,47 @@ final class VendorPersonInterestNew implements RequestModel {
       };
 }
 
+final class VendorPortalReason implements RequestModel {
+  const VendorPortalReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class VendorPortalRequestNew implements RequestModel {
+  const VendorPortalRequestNew({
+    required this.kind,
+    required this.title,
+    this.body,
+    this.subjectType,
+    this.subjectId,
+    this.dueOn,
+  });
+
+  final String kind;
+  final String title;
+  final String? body;
+  final String? subjectType;
+  final String? subjectId;
+  final String? dueOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'title': title,
+        if (body != null) 'body': body,
+        if (subjectType != null) 'subject_type': subjectType,
+        if (subjectId != null) 'subject_id': subjectId,
+        if (dueOn != null) 'due_on': dueOn,
+      };
+}
+
 final class VendorProfileUpdate implements RequestModel {
   const VendorProfileUpdate({
     this.legalRepName,
@@ -16301,6 +16459,82 @@ final class VendorReason implements RequestModel {
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'reason': reason,
+      };
+}
+
+final class VendorRemediationClose implements RequestModel {
+  const VendorRemediationClose({
+    required this.outcome,
+    required this.reason,
+  });
+
+  final String outcome;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'reason': reason,
+      };
+}
+
+final class VendorRemediationPlanNew implements RequestModel {
+  const VendorRemediationPlanNew({
+    required this.title,
+    required this.objective,
+    required this.triggerKind,
+    required this.actions,
+    this.contractId,
+    this.triggerRef,
+  });
+
+  final String title;
+  final String objective;
+  final String? contractId;
+  final String triggerKind;
+  final String? triggerRef;
+  final List<VendorRemediationPlanNewActionsItem> actions;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'title': title,
+        'objective': objective,
+        if (contractId != null) 'contract_id': contractId,
+        'trigger_kind': triggerKind,
+        if (triggerRef != null) 'trigger_ref': triggerRef,
+        'actions': actions,
+      };
+}
+
+final class VendorRemediationPlanNewActionsItem implements RequestModel {
+  const VendorRemediationPlanNewActionsItem({
+    required this.description,
+    required this.dueOn,
+  });
+
+  final String description;
+  final String dueOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'description': description,
+        'due_on': dueOn,
+      };
+}
+
+final class VendorRemediationVerify implements RequestModel {
+  const VendorRemediationVerify({
+    required this.outcome,
+    this.note,
+  });
+
+  final String outcome;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        if (note != null) 'note': note,
       };
 }
 
@@ -16406,6 +16640,132 @@ final class VendorRiskDecision implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'decision': decision,
         if (reason != null) 'reason': reason,
+      };
+}
+
+final class VendorScreeningConfirm implements RequestModel {
+  const VendorScreeningConfirm({
+    this.violationGroups,
+    this.violationSummary,
+    this.note,
+  });
+
+  final List<String>? violationGroups;
+  final String? violationSummary;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (violationGroups != null) 'violation_groups': violationGroups,
+        if (violationSummary != null) 'violation_summary': violationSummary,
+        if (note != null) 'note': note,
+      };
+}
+
+final class VendorScreeningDismiss implements RequestModel {
+  const VendorScreeningDismiss({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class VendorScreeningImportRequest implements RequestModel {
+  const VendorScreeningImportRequest({
+    required this.source,
+    required this.asOf,
+    required this.reference,
+    required this.entries,
+  });
+
+  final String source;
+  final String asOf;
+  final String reference;
+  final List<VendorScreeningImportRequestEntriesItem> entries;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'as_of': asOf,
+        'reference': reference,
+        'entries': entries,
+      };
+}
+
+final class VendorScreeningImportRequestEntriesItem implements RequestModel {
+  const VendorScreeningImportRequestEntriesItem({
+    required this.ref,
+    this.name,
+    this.taxCode,
+    this.validFrom,
+    this.validUntil,
+  });
+
+  final String ref;
+  final String? name;
+  final String? taxCode;
+  final String? validFrom;
+  final String? validUntil;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'ref': ref,
+        if (name != null) 'name': name,
+        if (taxCode != null) 'tax_code': taxCode,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+      };
+}
+
+final class VendorSubmissionTraceNew implements RequestModel {
+  const VendorSubmissionTraceNew({
+    this.origin,
+    this.device,
+    this.agent,
+    this.submittedAt,
+    this.files,
+  });
+
+  final String? origin;
+  final String? device;
+  final String? agent;
+  final String? submittedAt;
+  final List<VendorSubmissionTraceNewFilesItem>? files;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (origin != null) 'origin': origin,
+        if (device != null) 'device': device,
+        if (agent != null) 'agent': agent,
+        if (submittedAt != null) 'submitted_at': submittedAt,
+        if (files != null) 'files': files,
+      };
+}
+
+final class VendorSubmissionTraceNewFilesItem implements RequestModel {
+  const VendorSubmissionTraceNewFilesItem({
+    required this.documentVersionId,
+    this.author,
+    this.producer,
+    this.createdStamp,
+  });
+
+  final String documentVersionId;
+  final String? author;
+  final String? producer;
+  final String? createdStamp;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document_version_id': documentVersionId,
+        if (author != null) 'author': author,
+        if (producer != null) 'producer': producer,
+        if (createdStamp != null) 'created_stamp': createdStamp,
       };
 }
 

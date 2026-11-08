@@ -16,6 +16,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> acceptIssueEscalation(IssAcceptIssueEscalation body, {required String id, CommandAttempt? attempt}) =>
       execute('acceptIssueEscalation', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> acceptVendorPortalRequest({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('acceptVendorPortalRequest', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> acknowledgeAdvanceAlert(PayAcknowledgeAdvanceAlert body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeAdvanceAlert', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -111,6 +114,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> advanceVendorRestrictionCase(VendorCaseMove body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('advanceVendorRestrictionCase', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> agreePortalRemediationPlan({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('agreePortalRemediationPlan', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> allocateResettlement(LndAllocateResettlement body, {CommandAttempt? attempt}) =>
       execute('allocateResettlement', body: body, attempt: attempt);
@@ -319,6 +325,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> cancelVendorPayeeChange(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelVendorPayeeChange', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> cancelVendorPortalRequest(VendorPortalReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('cancelVendorPortalRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> cancelWorkflowInstance(ReasonOnly body, {required String instanceId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelWorkflowInstance', path: <String, Object?>{'instanceId': instanceId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -406,6 +415,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> closeVendorPayeeAccount(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('closeVendorPayeeAccount', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> closeVendorRemediationPlan(VendorRemediationClose body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('closeVendorRemediationPlan', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> closeWarrantyObligation(AstCloseWarrantyObligation body, {required String id, CommandAttempt? attempt}) =>
       execute('closeWarrantyObligation', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
@@ -439,6 +451,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> completeSigningSession(DocSigningCompletion body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('completeSigningSession', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> completeVendorRemediationPlan({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('completeVendorRemediationPlan', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> confirmClearRedFlag({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('confirmClearRedFlag', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -457,6 +472,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> confirmInventory(LndConfirmInventory body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('confirmInventory', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> confirmPortalReconfirmation(PortalReconfirmRequest body, {CommandAttempt? attempt}) =>
+      execute('confirmPortalReconfirmation', body: body, attempt: attempt);
+
   Future<Object?> confirmSiteDiaryByOwner(QmsConfirmSiteDiaryByOwner body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('confirmSiteDiaryByOwner', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -465,6 +483,15 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> confirmVendorBidSecurity(VndBidSecurityConfirm body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('confirmVendorBidSecurity', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> confirmVendorLeadDismissal({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('confirmVendorLeadDismissal', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> confirmVendorLeadSignal(VendorLeadReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('confirmVendorLeadSignal', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> confirmVendorScreeningHit(VendorScreeningConfirm body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('confirmVendorScreeningHit', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> connectChannelAccount(ChannelAccountConnect body, {CommandAttempt? attempt}) =>
       execute('connectChannelAccount', body: body, attempt: attempt);
@@ -739,6 +766,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> createVendorJointVenture(VendorVentureNew body, {CommandAttempt? attempt}) =>
       execute('createVendorJointVenture', body: body, attempt: attempt);
 
+  Future<Object?> createVendorPortalRequest(VendorPortalRequestNew body, {required String id, CommandAttempt? attempt}) =>
+      execute('createVendorPortalRequest', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> createVendorRemediationPlan(VendorRemediationPlanNew body, {required String id, CommandAttempt? attempt}) =>
+      execute('createVendorRemediationPlan', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> createWarrantyObligation(AstCreateWarrantyObligation body, {CommandAttempt? attempt}) =>
       execute('createWarrantyObligation', body: body, attempt: attempt);
 
@@ -964,6 +997,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> dismissEarlyWarning(DisWarningAction body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('dismissEarlyWarning', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> dismissVendorScreeningHit(VendorScreeningDismiss body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('dismissVendorScreeningHit', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> dispatchOutgoingDocument(DocDispatch body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('dispatchOutgoingDocument', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -1071,6 +1107,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> exportProjectSCurve({required String id, Map<String, Object?>? query}) =>
       execute('exportProjectSCurve', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> exportVendorOcdsParties({Map<String, Object?>? query}) =>
+      execute('exportVendorOcdsParties', query: query);
 
   Future<Object?> extendDocTransmittal(ExtendDocTransmittal body, {required String id, CommandAttempt? attempt}) =>
       execute('extendDocTransmittal', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
@@ -1606,6 +1645,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getPlacementMigration({required String migrationId, Map<String, Object?>? query}) =>
       execute('getPlacementMigration', path: <String, Object?>{'migrationId': migrationId}, query: query);
 
+  Future<Object?> getPortalHome({Map<String, Object?>? query}) =>
+      execute('getPortalHome', query: query);
+
   Future<Object?> getPortalSettings({Map<String, Object?>? query}) =>
       execute('getPortalSettings', query: query);
 
@@ -1765,8 +1807,14 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getVendorContractor({required String id, Map<String, Object?>? query}) =>
       execute('getVendorContractor', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getVendorContractorLinks({required String id, Map<String, Object?>? query}) =>
+      execute('getVendorContractorLinks', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getVendorControlFigures({Map<String, Object?>? query}) =>
       execute('getVendorControlFigures', query: query);
+
+  Future<Object?> getVendorDisputes({Map<String, Object?>? query}) =>
+      execute('getVendorDisputes', query: query);
 
   Future<Object?> getVendorFigures({Map<String, Object?>? query}) =>
       execute('getVendorFigures', query: query);
@@ -1777,6 +1825,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getVendorIndependence({required String id, Map<String, Object?>? query}) =>
       execute('getVendorIndependence', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getVendorInvestigationFigures({Map<String, Object?>? query}) =>
+      execute('getVendorInvestigationFigures', query: query);
+
+  Future<Object?> getVendorLead({required String id, Map<String, Object?>? query}) =>
+      execute('getVendorLead', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getVendorPackageControls({required String id, Map<String, Object?>? query}) =>
       execute('getVendorPackageControls', path: <String, Object?>{'id': id}, query: query);
 
@@ -1786,11 +1840,20 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getVendorPerformance({required String id, Map<String, Object?>? query}) =>
       execute('getVendorPerformance', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getVendorRemediationPlan({required String id, Map<String, Object?>? query}) =>
+      execute('getVendorRemediationPlan', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getVendorRestrictionCase({required String id, Map<String, Object?>? query}) =>
       execute('getVendorRestrictionCase', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getVendorRiskGrade({required String id, Map<String, Object?>? query}) =>
       execute('getVendorRiskGrade', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getVendorScreening({Map<String, Object?>? query}) =>
+      execute('getVendorScreening', query: query);
+
+  Future<Object?> getVendorScreeningHit({required String id, Map<String, Object?>? query}) =>
+      execute('getVendorScreeningHit', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getWhistleReport({required String id, Map<String, Object?>? query}) =>
       execute('getWhistleReport', path: <String, Object?>{'id': id}, query: query);
@@ -2406,6 +2469,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> importTreasuryStatement(PayImportTreasuryStatement body, {CommandAttempt? attempt}) =>
       execute('importTreasuryStatement', body: body, attempt: attempt);
+
+  Future<Object?> importVendorScreeningList(VendorScreeningImportRequest body, {CommandAttempt? attempt}) =>
+      execute('importVendorScreeningList', body: body, attempt: attempt);
 
   Future<Object?> indexAiKnowledgeItem(LlmIndexItem body, {required String id, CommandAttempt? attempt}) =>
       execute('indexAiKnowledgeItem', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
@@ -3040,8 +3106,20 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listPlanVersions({Map<String, Object?>? query}) =>
       execute('listPlanVersions', query: query);
 
+  Future<Object?> listPortalEvaluations({Map<String, Object?>? query}) =>
+      execute('listPortalEvaluations', query: query);
+
+  Future<Object?> listPortalQualifications({Map<String, Object?>? query}) =>
+      execute('listPortalQualifications', query: query);
+
   Future<Object?> listPortalRecords({Map<String, Object?>? query}) =>
       execute('listPortalRecords', query: query);
+
+  Future<Object?> listPortalRemediationPlans({Map<String, Object?>? query}) =>
+      execute('listPortalRemediationPlans', query: query);
+
+  Future<Object?> listPortalRequests({Map<String, Object?>? query}) =>
+      execute('listPortalRequests', query: query);
 
   Future<Object?> listProcurementExternalLinks({Map<String, Object?>? query}) =>
       execute('listProcurementExternalLinks', query: query);
@@ -3232,6 +3310,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listVendorJointVentures({Map<String, Object?>? query}) =>
       execute('listVendorJointVentures', query: query);
 
+  Future<Object?> listVendorLeads({Map<String, Object?>? query}) =>
+      execute('listVendorLeads', query: query);
+
   Future<Object?> listVendorPayeeChanges({Map<String, Object?>? query}) =>
       execute('listVendorPayeeChanges', query: query);
 
@@ -3241,8 +3322,17 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listVendorPersonInterests({Map<String, Object?>? query}) =>
       execute('listVendorPersonInterests', query: query);
 
+  Future<Object?> listVendorPortalRequests({Map<String, Object?>? query}) =>
+      execute('listVendorPortalRequests', query: query);
+
+  Future<Object?> listVendorReconfirmations({Map<String, Object?>? query}) =>
+      execute('listVendorReconfirmations', query: query);
+
   Future<Object?> listVendorRegister({Map<String, Object?>? query}) =>
       execute('listVendorRegister', query: query);
+
+  Future<Object?> listVendorRemediationPlans({Map<String, Object?>? query}) =>
+      execute('listVendorRemediationPlans', query: query);
 
   Future<Object?> listVendorReputationEvents({Map<String, Object?>? query}) =>
       execute('listVendorReputationEvents', query: query);
@@ -3285,6 +3375,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> markPaymentSentToTreasury(PayMarkPaymentSentToTreasury body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('markPaymentSentToTreasury', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> markPortalRemediationActionDone(PortalActionDone body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('markPortalRemediationActionDone', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> markPunchItemFixed(AstMarkPunchItemFixed body, {required String id, CommandAttempt? attempt}) =>
       execute('markPunchItemFixed', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
@@ -3547,6 +3640,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> proposeVendorBidSecurityForfeiture(VndForfeitProposal body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('proposeVendorBidSecurityForfeiture', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> proposeVendorLeadDismissal(VendorLeadReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('proposeVendorLeadDismissal', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> proposeVendorSubcontract(VndSubcontractNew body, {CommandAttempt? attempt}) =>
       execute('proposeVendorSubcontract', body: body, attempt: attempt);
 
@@ -3808,6 +3904,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> recordProjectHalt(RecordProjectHalt body, {CommandAttempt? attempt}) =>
       execute('recordProjectHalt', body: body, attempt: attempt);
 
+  Future<Object?> recordProposalSubmissionTrace(VendorSubmissionTraceNew body, {required String id, CommandAttempt? attempt}) =>
+      execute('recordProposalSubmissionTrace', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
   Future<Object?> recordRecoveryNotice(LndRecordRecoveryNotice body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('recordRecoveryNotice', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3837,6 +3936,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> referRedFlag(RedFlagReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('referRedFlag', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> referVendorLead(VendorLeadReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('referVendorLead', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> refreshBiQueryContext(BiContextRefresh body, {CommandAttempt? attempt}) =>
       execute('refreshBiQueryContext', body: body, attempt: attempt);
@@ -3933,6 +4035,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> rejectVendorBidSecurity(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('rejectVendorBidSecurity', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> rejectVendorLeadDismissal(VendorLeadReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('rejectVendorLeadDismissal', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> rejectVendorPayeeChange(VendorReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('rejectVendorPayeeChange', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -4129,6 +4234,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> resolveTreasuryDailyReconItem(TreasuryDailyReconResolveItem body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('resolveTreasuryDailyReconItem', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> respondPortalRequest(PortalRespondRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('respondPortalRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> restoreDraftReport({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('restoreDraftReport', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -4212,6 +4320,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> returnPaymentRequest(PayReturnPaymentRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('returnPaymentRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> returnVendorPortalRequest(VendorPortalReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('returnVendorPortalRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> revealHouseholdIdentity({required String id, Map<String, Object?>? query}) =>
       execute('revealHouseholdIdentity', path: <String, Object?>{'id': id}, query: query);
@@ -4362,6 +4473,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> runVendorIndependenceCheck(VendorIndependenceRun body, {required String id, CommandAttempt? attempt}) =>
       execute('runVendorIndependenceCheck', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> runVendorLinkScan(VendorLinkScanRequest body, {CommandAttempt? attempt}) =>
+      execute('runVendorLinkScan', body: body, attempt: attempt);
+
+  Future<Object?> runVendorScreening({CommandAttempt? attempt}) =>
+      execute('runVendorScreening', attempt: attempt);
 
   Future<Object?> saveDashboardVersion(BiDashboardVersionDraft body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('saveDashboardVersion', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -4534,6 +4651,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> startTenantOffboarding(TenantOffboard body, {required String tenantId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('startTenantOffboarding', path: <String, Object?>{'tenantId': tenantId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> startVendorRemediationPlan({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('startVendorRemediationPlan', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> submitAcceptance(CtrSubmitAcceptance body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('submitAcceptance', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -4597,6 +4717,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> submitOutgoingDocumentForReview({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('submitOutgoingDocumentForReview', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> submitPortalQualification(PortalQualificationNew body, {CommandAttempt? attempt}) =>
+      execute('submitPortalQualification', body: body, attempt: attempt);
+
   Future<Object?> submitProcurementPlan({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('submitProcurementPlan', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -4647,6 +4770,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> takeRedFlag({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('takeRedFlag', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> takeVendorLead({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('takeVendorLead', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> terminateContract(CtrTerminateContract body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('terminateContract', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -4773,6 +4899,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> verifyVendorQualification({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('verifyVendorQualification', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> verifyVendorRemediationAction(VendorRemediationVerify body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('verifyVendorRemediationAction', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> verifyWarrantyClaim(AstVerifyWarrantyClaim body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('verifyWarrantyClaim', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

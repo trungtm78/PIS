@@ -13312,5 +13312,218 @@
     "platform": "web",
     "req": "FR-VND-12",
     "source": "Kế hoạch VND-2 (nghiên cứu quản trị nhà thầu V4), docs/vendor-controls.md, docs/ctr-analytics-registers.md"
+  },
+  {
+    "id": "VND-13",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Đầu mối điều tra nhà thầu",
+    "kind": "table",
+    "fields": [
+      "Hạng",
+      "Loại đầu mối",
+      "Nhà thầu",
+      "Gói thầu",
+      "Trạng thái",
+      "Ngày phát hiện",
+      "Người xem xét"
+    ],
+    "role": "Kiểm toán viên (không phải người tham gia gói thầu)",
+    "rule": "Chỉ kiểm toán xem được; tín hiệu để xem xét, không phải kết luận; đóng góp độ chính xác vào chỉ số tỷ lệ đầu mối đúng",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-13",
+    "source": "research-vendor V6"
+  },
+  {
+    "id": "VND-14",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Chi tiết đầu mối và đồ thị liên kết",
+    "kind": "record",
+    "fields": [
+      "Đồ thị liên kết",
+      "Tín hiệu",
+      "Bằng chứng",
+      "Nhà thầu liên quan",
+      "Lịch sử xem xét",
+      "Xem xét hai bước"
+    ],
+    "role": "Kiểm toán viên",
+    "rule": "Xóa đầu mối cần hai kiểm toán viên; đồ thị có bảng thay thế; không lộ khóa gốc",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-14",
+    "source": "research-vendor V6"
+  },
+  {
+    "id": "VND-15",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Sàng lọc liên tục danh sách bên bị cấm",
+    "kind": "table",
+    "fields": [
+      "Nhà thầu",
+      "Nguồn danh sách",
+      "Điểm",
+      "Căn cứ",
+      "Tạm giữ",
+      "Trạng thái",
+      "Ngày khớp",
+      "Quyết định"
+    ],
+    "role": "Người duyệt nhà thầu",
+    "rule": "Khớp tạm giữ giao dịch đến khi quyết định; xác nhận mở hồ sơ cấm; bác bỏ cần lý do 20 ký tự",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-15",
+    "source": "research-vendor V14"
+  },
+  {
+    "id": "VND-16",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Cổng nhà thầu: hồ sơ của tôi",
+    "kind": "dashboard",
+    "fields": [
+      "Hồ sơ",
+      "Xác nhận lại hằng năm",
+      "Cam kết liêm chính",
+      "Việc đang chờ"
+    ],
+    "role": "Nhà thầu (tài khoản khách)",
+    "rule": "Chỉ thấy hồ sơ của chính mình; không thấy red flag hay nhà thầu khác",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-16",
+    "source": "research-vendor V15"
+  },
+  {
+    "id": "VND-17",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Cổng nhà thầu: yêu cầu và trả lời",
+    "kind": "table",
+    "fields": [
+      "Yêu cầu",
+      "Loại",
+      "Hạn trả lời",
+      "Trạng thái",
+      "Câu trả lời",
+      "Lần"
+    ],
+    "role": "Nhà thầu (tài khoản khách)",
+    "rule": "Trả lời muộn vẫn được ghi và đánh dấu muộn",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-17",
+    "source": "research-vendor V15"
+  },
+  {
+    "id": "VND-18",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Cổng nhà thầu: chứng chỉ",
+    "kind": "table",
+    "fields": [
+      "Loại",
+      "Số",
+      "Hạng",
+      "Phạm vi",
+      "Hiệu lực",
+      "Trạng thái",
+      "Đối chiếu"
+    ],
+    "role": "Nhà thầu (tài khoản khách)",
+    "rule": "Chứng chỉ tải lên chờ người khác đối chiếu; chưa đối chiếu thì không tính cho điều kiện năng lực",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-18",
+    "source": "research-vendor V15"
+  },
+  {
+    "id": "VND-19",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Cổng nhà thầu: đánh giá và kế hoạch khắc phục",
+    "kind": "table",
+    "fields": [
+      "Hợp đồng",
+      "Kỳ đánh giá",
+      "Điểm",
+      "Xếp hạng",
+      "Kế hoạch khắc phục",
+      "Hành động",
+      "Hạn"
+    ],
+    "role": "Nhà thầu (tài khoản khách)",
+    "rule": "Chỉ thấy đánh giá đã duyệt của chính mình; đồng ý kế hoạch và báo hành động đã làm",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-19",
+    "source": "research-vendor V15, V17"
+  },
+  {
+    "id": "VND-20",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Quản lý cổng nhà thầu",
+    "kind": "table",
+    "fields": [
+      "Nhà thầu",
+      "Yêu cầu",
+      "Loại",
+      "Hạn",
+      "Trạng thái",
+      "Tái xác nhận",
+      "Hạn xác nhận"
+    ],
+    "role": "Người duyệt nhà thầu",
+    "rule": "Gửi yêu cầu, chấp nhận hoặc trả lại câu trả lời; theo dõi tái xác nhận hằng năm",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-20",
+    "source": "research-vendor V15"
+  },
+  {
+    "id": "VND-21",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Kế hoạch khắc phục của nhà thầu",
+    "kind": "record",
+    "fields": [
+      "Nhà thầu",
+      "Mục tiêu",
+      "Hành động",
+      "Hạn",
+      "Trạng thái",
+      "Xác minh"
+    ],
+    "role": "Quản lý hợp đồng",
+    "rule": "Chỉ hoàn thành khi mọi hành động đã xác minh; nhà thầu đồng ý kế hoạch của chính mình",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-21",
+    "source": "research-vendor V17"
+  },
+  {
+    "id": "VND-22",
+    "module": "VND",
+    "moduleName": "Quản lý nhà thầu và nhà cung cấp",
+    "title": "Kiến nghị, claim và xuất OCDS của nhà thầu",
+    "kind": "dashboard",
+    "fields": [
+      "Kiến nghị",
+      "Claim",
+      "Tỷ lệ chấp nhận",
+      "Số ngày giải quyết",
+      "Các bên OCDS"
+    ],
+    "role": "Kiểm toán viên, người duyệt nhà thầu",
+    "rule": "Thống kê theo nhà thầu và toàn sổ; xuất bên theo OCDS, chủ sở hữu chỉ khi quy tắc cho phép",
+    "phase": "P3",
+    "platform": "web",
+    "req": "FR-VND-22",
+    "source": "research-vendor V16, V18"
   }
 ]
