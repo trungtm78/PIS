@@ -2762,3 +2762,71 @@ export { ETL_STAGES, MANUAL_SCHEDULE, admitRun, applyMapping, assertMappingAppro
 export type { CrosswalkPort, EtlOutcome, EtlPorts, EtlReject, EtlRun, EtlRunInput, EtlStage, FieldIssue, FieldMapping, FieldTransform, LineageEntry, LoadItem, LoadOutcome, MappingVersion, PipelineSpec, RejectStage, ReprocessResult, ScheduleKind, ScheduleSpec, StageCount, ValidationIssue } from './etl-pipeline.ts';
 export { NETWORK_MODULES, connectorConformanceProblems, runWithNetworkWatch } from './connector-conformance.ts';
 export type { ConformanceOptions } from './connector-conformance.ts';
+export {
+  COMMITTEE_KPI_DEFAULTS,
+  COMMITTEE_POLICY_CODE,
+  COMMITTEE_POLICY_DEFAULTS,
+  COMMITTEE_POLICY_RULE_TYPE,
+  committeePolicyOf,
+  committeePolicyParams,
+  defaultCommitteePolicy,
+  parseCommitteePolicy,
+} from './committee-policy.ts';
+export type { CommitteeKpiDefault, CommitteePolicy, CommitteePolicyReading, CommitteeWeights, CurvePoint } from './committee-policy.ts';
+export { factsDefects, feedStatusOf } from './committee-facts.ts';
+export type { FeedNote, FeedStatus, ProvinceFacts, ProvinceFactsRequest, ProvinceFundLine, ProvinceProjectFact, ProvinceUnitReport } from './committee-facts.ts';
+export {
+  ASSURANCE_LEVELS,
+  ATTENTION_REASONS,
+  COMMITTEE_ALERT_TYPES,
+  COMMITTEE_CLASSIFICATION,
+  COMMITTEE_ROLES,
+  COMMITTEE_ROSTER_CLASSIFICATION,
+  COMMITTEE_SENSITIVE_SCREENS,
+  COMMITTEE_SYSTEM_ROLE,
+  DIMENSIONS,
+  aggregateBy,
+  assuranceOf,
+  attentionReasonOf,
+  attentionSignalsOf,
+  buildWorkspace,
+  committeeAlertTypeOf,
+  committeeRoleOf,
+  committeeScreenOf,
+  dimensionOf,
+  evaluateCommitteeAlerts,
+  expectedPctOn,
+  figuresOf,
+  outlookBandOf,
+  percentText as committeePercentText,
+  pointsBetween,
+  provinceRowOf,
+  rankAttention,
+  unitReportingOf,
+} from './committee.ts';
+export type {
+  AggregateRow,
+  AssuranceLevel,
+  AttentionItem,
+  AttentionReason,
+  AttentionSignal,
+  CommitteeAlert,
+  CommitteeAlertSeverity,
+  CommitteeAlertType,
+  CommitteeRag,
+  CommitteeRole,
+  CommitteeScreen,
+  CommitteeWorkspace,
+  Dimension,
+  DirectiveUnitFigure,
+  OutlookBand,
+  OutlookEstimate,
+  OutlookInput,
+  OutlookMethod,
+  RowFigures,
+  UnitReportingRow,
+  ViewAuditFacts,
+} from './committee.ts';
+export { SEED_UNIT_IDS, seedId, seedProvinceFacts } from './committee-seed.ts';
+export type { SeedOptions } from './committee-seed.ts';
+export { COMMITTEE_PACK_TEXT } from './messages/committee-texts.ts';

@@ -7,6 +7,7 @@ import { KPI_HOME_DEFAULTS, RAG_EWS_DEFAULTS } from './analytics-rule-defaults.t
 import { DIRECTIVE_POLICY_DEFAULTS, parseDirectivePolicy } from './directive.ts';
 import { CLAIM_POLICY_DEFAULTS, parseClaimPolicy } from './ctr-claim.ts';
 import { EARLY_WARNING_POLICY_DEFAULTS, parseEarlyWarningPolicy } from './ctr-early-warning.ts';
+import { COMMITTEE_KPI_DEFAULTS, COMMITTEE_POLICY_DEFAULTS, COMMITTEE_POLICY_RULE_TYPE, committeePolicyParams, parseCommitteePolicy } from './committee-policy.ts';
 import { B1_DEFAULTS, EAC_METHODS } from './gov-b1-policy.ts';
 import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_SOURCE, WORKFLOW_METHODS, WORKFLOW_RULE_TYPE, defaultWorkflowParams, parseWorkflowDefinition } from './bid-workflow.ts';
 import { MILESTONE_KINDS } from './procurement-file.ts';
@@ -1144,6 +1145,54 @@ export const registerDirectiveRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(DIRECTIVE_ALERT_SEEDS, { source: message('gov.rules.register_directive_rules.source') }));
   });
 
+const COMMITTEE_ALERT_SEEDS: readonly AlertTypeSeed[] = [
+  { code: 'COMMITTEE_PROVINCE_BEHIND', source: 'COMMITTEE', owner: 'COMMITTEE_HEAD', action: message('gov.rules.committee_alert_seeds.action.province_behind'), consequence: message('gov.rules.committee_alert_seeds.consequence.province_behind'), hours: 72, severity: 'ACTION', why: message('gov.rules.committee_alert_seeds.why.province_behind') },
+  { code: 'COMMITTEE_SECTOR_BEHIND', source: 'COMMITTEE', owner: 'COMMITTEE_HEAD', action: message('gov.rules.committee_alert_seeds.action.sector_behind'), consequence: message('gov.rules.committee_alert_seeds.consequence.sector_behind'), hours: 120, severity: 'ACTION', why: message('gov.rules.committee_alert_seeds.why.sector_behind') },
+  { code: 'COMMITTEE_UNIT_NOT_REPORTING', source: 'COMMITTEE', owner: 'COMMITTEE_SECRETARIAT', action: message('gov.rules.committee_alert_seeds.action.unit_not_reporting'), consequence: message('gov.rules.committee_alert_seeds.consequence.unit_not_reporting'), hours: 72, severity: 'WATCH', why: message('gov.rules.committee_alert_seeds.why.unit_not_reporting') },
+  { code: 'COMMITTEE_DIRECTIVE_OVERDUE', source: 'COMMITTEE', owner: 'COMMITTEE_SECRETARIAT', action: message('gov.rules.committee_alert_seeds.action.directive_overdue'), consequence: message('gov.rules.committee_alert_seeds.consequence.directive_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.committee_alert_seeds.why.directive_overdue') },
+];
+
+/** The thresholds of the committee workspace and its figures in the KPI register (lane BAN-1; packages/kernel/src/committee-policy.ts): the expected curve, the lines of the colours, the reasons a project needs the head and their weights, the four alerts. */
+export const registerCommitteeRules = (): void =>
+  once('committee', () => {
+    registerCoreRules();
+    registerAnalyticsRules();
+    registerRuleType({
+      type: COMMITTEE_POLICY_RULE_TYPE,
+      ownerModule: 'BAN',
+      modules: ['BAN', 'HOME', 'DIR'],
+      formula: message('gov.rules.register_committee_rules.formula'),
+      source: message('gov.rules.register_committee_rules.source'),
+      asOf: AS_OF,
+      legalStatus: 'UNVERIFIED',
+      schema: {
+        curve: list(shape({ month: int(1, 12), cumulative_pct: num(0, 100) }), 12, 12),
+        province_gap_points: num(0, 100),
+        rag_gap_green: num(-100, 0),
+        rag_gap_amber: num(-100, 0),
+        sector_gap_points: num(0, 100),
+        sector_min_plan_share_pct: num(0, 100),
+        unit_not_reporting_days: int(1, 365),
+        unit_min_reporting_rate_pct: num(0, 100),
+        delay_days: int(1, 3650),
+        stalled_days: int(1, 3650),
+        over_budget_pct: num(0, 500),
+        far_below_points: num(0, 100),
+        weights: shape({ delayed: num(0, 10), stalled: num(0, 10), over_budget: num(0, 10), far_below: num(0, 10), not_reporting: num(0, 10) }),
+        exposure_reference_vnd: int(1, 1_000_000_000_000_000),
+        attention_top_n: int(1, 200),
+        directive_overdue_alert_count: int(1, 1000),
+      },
+      refine: refineWith(parseCommitteePolicy),
+      defaults: { DEFAULT: rule(plain(committeePolicyParams(COMMITTEE_POLICY_DEFAULTS))) },
+    });
+    registerRuleDefaults(
+      'KPI_DEFINITION',
+      Object.fromEntries(Object.entries(COMMITTEE_KPI_DEFAULTS).map(([code, one]) => [code, rule(plain(one.params), one.unverified ? 'UNVERIFIED' : 'VERIFIED', { formula: String(one.params.formula ?? ''), source: String(one.params.source ?? ''), asOf: AS_OF })])),
+    );
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(COMMITTEE_ALERT_SEEDS, { source: message('gov.rules.register_committee_rules.alert_source') }));
+  });
+
 /** The model of the money of an enterprise and the checks at the moment of entry (lane FND, IND: FND-1, IND-1). */
 
 /** The model of the money of an enterprise and the checks at the moment of entry (lane FND, IND: FND-1, IND-1). */
@@ -1776,6 +1825,7 @@ export function registerAllGovernanceRules(): void {
   registerAlertGovernanceRules();
   registerGov10Rules();
   registerIntegrationHubRules();
+  registerCommitteeRules();
 }
 
 registerAllGovernanceRules();

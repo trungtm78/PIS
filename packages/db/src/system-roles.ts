@@ -16,7 +16,7 @@ export interface SystemRole {
 const TENANT_PLANE_PREFIXES: readonly string[] = [
   'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'alert', 'allocation_line', 'analysis_finding', 'analysis_run', 'analytics',
   'approval', 'approval_task', 'asset', 'asset_record', 'aud', 'audit', 'audit_event', 'bi', 'bid', 'boq', 'boq_line', 'budget_reservation',
-  'capital', 'change', 'change_request', 'channel_account', 'channel_message', 'contact', 'contact_consent', 'contract', 'contract_revision',
+  'capital', 'change', 'change_request', 'channel_account', 'channel_message', 'committee', 'contact', 'contact_consent', 'contract', 'contract_revision',
   'contractor', 'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract',
   'delivery_attempt', 'device_registration', 'diary', 'directive', 'disbursement', 'doc', 'document_version', 'drill_context', 'evaluation', 'explanation',
   'funding', 'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'inspection', 'int', 'integration', 'integration_cursor', 'internal', 'invitation', 'hub',
@@ -40,10 +40,16 @@ const key = (code: string): string => `iam.role.${code}.name`;
 export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'TENANT_OWNER', name: key('TENANT_OWNER'), rank: 99, permissions: TENANT_PLANE_PREFIXES.map((prefix) => `${prefix}.*`), guestAllowed: false },
   { code: 'TENANT_ADMIN', name: key('TENANT_ADMIN'), rank: 90, permissions: ['iam.*', 'adm.*', 'audit.read', 'tenant.support.approve', 'support_access_grant.read'], guestAllowed: false },
-  { code: 'SECURITY_ADMIN', name: key('SECURITY_ADMIN'), rank: 85, permissions: ['adm.security.*', 'audit.*', 'legal_hold.manage'], guestAllowed: false },
+  { code: 'SECURITY_ADMIN', name: key('SECURITY_ADMIN'), rank: 85, permissions: ['adm.security.*', 'audit.*', 'legal_hold.manage', 'committee.audit.read'], guestAllowed: false },
   { code: 'UNIT_ADMIN', name: key('UNIT_ADMIN'), rank: 70, permissions: ['iam.member.*', 'iam.role.grant', 'iam.unit.manage'], guestAllowed: false },
   // PENDING SIGN-OFF: "read business records within scope" names no permission.
   { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide', 'directive.read'], guestAllowed: false },
+  // BAN-1 (docs/committee-workspace.md): the steering committee of the province. A committee role is granted over the whole tenant (province-wide READ across investors and sectors, never across tenants: row-level security
+  // still holds). It issues directives and keeps minutes (DIR) and works the report engine as the three people of an issue (secretariat prepares and issues, a member checks, the head approves). It holds NO write right on
+  // financial data: no capital, payment, disbursement or contract permission appears below, and system-roles.test.ts asserts it. Reading the audit of who viewed the workspace is for the security administrator and the auditor, not for the committee.
+  { code: 'COMMITTEE_HEAD', name: key('COMMITTEE_HEAD'), rank: 62, permissions: ['committee.read', 'committee.attention.decide', 'committee.alert.acknowledge', 'home.read', 'approval.decide', 'directive.read', 'directive.manage', 'directive.meeting.manage', 'directive.extension.decide', 'directive.close', 'rpt.read', 'rpt.approve'], guestAllowed: false },
+  { code: 'COMMITTEE_MEMBER', name: key('COMMITTEE_MEMBER'), rank: 55, permissions: ['committee.read', 'home.read', 'directive.read', 'rpt.read', 'rpt.check'], guestAllowed: false },
+  { code: 'COMMITTEE_SECRETARIAT', name: key('COMMITTEE_SECRETARIAT'), rank: 52, permissions: ['committee.read', 'committee.manage', 'committee.attention.decide', 'committee.alert.evaluate', 'committee.alert.acknowledge', 'home.read', 'directive.read', 'directive.manage', 'directive.meeting.manage', 'rpt.read', 'rpt.generate', 'rpt.issue', 'rpt.deliver'], guestAllowed: false },
   { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*', 'notification_template_version.read', 'delivery_attempt.read', 'channel_account.read'], guestAllowed: false },
   { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*', 'channel_account.read', 'contact.read', 'contact_consent.read', 'conversation.read', 'channel_message.read', 'adm.integration.read', 'adm.integration.operate'], guestAllowed: false },
   // PENDING SIGN-OFF: "appraise, return/accept" names no permission.
@@ -52,7 +58,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   // PENDING SIGN-OFF: "create/edit/submit records (maker)" names no permission.
   { code: 'INVESTOR_OFFICER', name: key('INVESTOR_OFFICER'), rank: 30, permissions: [], guestAllowed: false },
   // PENDING SIGN-OFF: "read/export" names no permission besides audit.read.
-  { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read'], guestAllowed: false },
+  { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read', 'committee.audit.read'], guestAllowed: false },
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
   // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
   { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read'], guestAllowed: true },
