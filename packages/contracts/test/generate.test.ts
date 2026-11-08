@@ -88,9 +88,9 @@ describe('generateStepUp and generatePlanes', () => {
     expect(text).toContain('export const PLANES = {');
     expect(text).toContain('"a": "control",');
     expect(STEP_UP.grantRole).toBe('aal2');
-    expect(Object.keys(STEP_UP)).toHaveLength(3);
     expect(PLANES.grantRole).toBe('tenant');
     const operations = listOperations(loadRealDocument());
+    expect(Object.keys(STEP_UP).sort()).toEqual(operations.filter((entry) => entry.operation['x-step-up'] !== undefined).map((entry) => entry.operation.operationId).sort());
     expect(Object.values(PLANES).filter((plane) => plane === 'control')).toHaveLength(
       operations.filter((entry) => entry.operation['x-plane'] === 'control').length,
     );
