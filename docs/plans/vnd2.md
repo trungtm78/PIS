@@ -27,7 +27,7 @@ Branch `lane/vnd2`, worktree `D:\PIS-vnd2`, migration block 2420-2439 (registere
 | 6 | API controllers, authz matrix, command registry, isolation entries and counts | `apps/api/test/bid/vendor-controls.test.ts` | [x] |
 | 7 | Web screens VND-07 to VND-12, i18n parts `vnd2.{vi,en}.json`, routes | vitest of the screens | [x] |
 | 8 | Design rows (story, backlog, traceability, test cases), module doc, `docs/vendor-controls.md`, UAT ids | `check-cli.mjs`, `baseline-cli.mjs` | [x] |
-| 9 | Lint, typecheck, scan, Codex review and triage | whole chain | [ ] see the final report |
+| 9 | Lint, typecheck, scan, Codex review and triage | whole chain | [x] Codex review: 4 findings, all valid and fixed with regression tests; shared suites left to the lead |
 
 ## Risks
 
