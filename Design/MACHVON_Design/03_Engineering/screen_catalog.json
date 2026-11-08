@@ -12385,7 +12385,7 @@
     "source": "docs/governance-roadmap-10of10.md G1-12; GOV-11a"
   },
   {
-    "id": "DIS-27",
+    "id": "DIS-30",
     "module": "DIS",
     "moduleName": "Báo cáo giải ngân",
     "title": "Dự báo tới các mốc chỉ đạo của giải ngân",
@@ -12404,11 +12404,11 @@
     "rule": "Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-DIS-27",
+    "req": "FR-DIS-30",
     "source": "docs/governance-roadmap-10of10.md G1-16; GOV-11a"
   },
   {
-    "id": "DIS-28",
+    "id": "DIS-31",
     "module": "DIS",
     "moduleName": "Báo cáo giải ngân",
     "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
@@ -12427,7 +12427,7 @@
     "rule": "So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-DIS-28",
+    "req": "FR-DIS-31",
     "source": "docs/governance-roadmap-10of10.md G1-16; GOV-11a"
   },
   {
@@ -12455,7 +12455,7 @@
     "source": "docs/governance-roadmap-10of10.md G1-17; GOV-11a"
   },
   {
-    "id": "CTR-32",
+    "id": "CTR-38",
     "module": "CTR",
     "moduleName": "Hợp đồng và thực hiện",
     "title": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng",
@@ -12474,11 +12474,11 @@
     "rule": "Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-CTR-32",
+    "req": "FR-CTR-38",
     "source": "docs/governance-roadmap-10of10.md G1-18; GOV-11a"
   },
   {
-    "id": "CTR-33",
+    "id": "CTR-39",
     "module": "CTR",
     "moduleName": "Hợp đồng và thực hiện",
     "title": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh",
@@ -12498,11 +12498,11 @@
     "rule": "Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-CTR-33",
+    "req": "FR-CTR-39",
     "source": "docs/governance-roadmap-10of10.md G1-18; GOV-11a"
   },
   {
-    "id": "PRJ-28",
+    "id": "PRJ-30",
     "module": "PRJ",
     "moduleName": "Danh mục dự án",
     "title": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường",
@@ -12522,7 +12522,7 @@
     "rule": "Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-PRJ-28",
+    "req": "FR-PRJ-30",
     "source": "docs/governance-roadmap-10of10.md G1-19; GOV-11a"
   },
   {

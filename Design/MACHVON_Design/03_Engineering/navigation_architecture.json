@@ -8105,7 +8105,7 @@
       "parent": null
     },
     {
-      "id": "DIS-27",
+      "id": "DIS-30",
       "title": "Dự báo tới các mốc chỉ đạo của giải ngân",
       "kind": "dashboard",
       "area": "investment",
@@ -8115,7 +8115,7 @@
       "parent": null
     },
     {
-      "id": "DIS-28",
+      "id": "DIS-31",
       "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
       "kind": "table",
       "area": "investment",
@@ -8135,7 +8135,7 @@
       "parent": null
     },
     {
-      "id": "CTR-32",
+      "id": "CTR-38",
       "title": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng",
       "kind": "table",
       "area": "investment",
@@ -8145,7 +8145,7 @@
       "parent": null
     },
     {
-      "id": "CTR-33",
+      "id": "CTR-39",
       "title": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh",
       "kind": "record",
       "area": "investment",
@@ -8155,7 +8155,7 @@
       "parent": null
     },
     {
-      "id": "PRJ-28",
+      "id": "PRJ-30",
       "title": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường",
       "kind": "table",
       "area": "investment",

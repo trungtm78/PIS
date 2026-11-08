@@ -20613,9 +20613,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-DIS-27",
-    "requirement": "FR-DIS-27",
-    "screen": "DIS-27",
+    "id": "BL-DIS-30",
+    "requirement": "FR-DIS-30",
+    "screen": "DIS-30",
     "title": "Dự báo tới các mốc chỉ đạo của giải ngân",
     "module": "DIS",
     "platform": "web",
@@ -20634,7 +20634,7 @@
     ],
     "rule": "Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng",
     "test_ids": [
-      "UI-DIS-27"
+      "UI-DIS-30"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20642,9 +20642,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-DIS-28",
-    "requirement": "FR-DIS-28",
-    "screen": "DIS-28",
+    "id": "BL-DIS-31",
+    "requirement": "FR-DIS-31",
+    "screen": "DIS-31",
     "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
     "module": "DIS",
     "platform": "web",
@@ -20663,7 +20663,7 @@
     ],
     "rule": "So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)",
     "test_ids": [
-      "UI-DIS-28"
+      "UI-DIS-31"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20701,9 +20701,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-CTR-32",
-    "requirement": "FR-CTR-32",
-    "screen": "CTR-32",
+    "id": "BL-CTR-38",
+    "requirement": "FR-CTR-38",
+    "screen": "CTR-38",
     "title": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng",
     "module": "CTR",
     "platform": "web",
@@ -20722,7 +20722,7 @@
     ],
     "rule": "Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem",
     "test_ids": [
-      "UI-CTR-32"
+      "UI-CTR-38"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20730,9 +20730,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-CTR-33",
-    "requirement": "FR-CTR-33",
-    "screen": "CTR-33",
+    "id": "BL-CTR-39",
+    "requirement": "FR-CTR-39",
+    "screen": "CTR-39",
     "title": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh",
     "module": "CTR",
     "platform": "web",
@@ -20752,7 +20752,7 @@
     ],
     "rule": "Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét",
     "test_ids": [
-      "UI-CTR-33"
+      "UI-CTR-39"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -20760,9 +20760,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-PRJ-28",
-    "requirement": "FR-PRJ-28",
-    "screen": "PRJ-28",
+    "id": "BL-PRJ-30",
+    "requirement": "FR-PRJ-30",
+    "screen": "PRJ-30",
     "title": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường",
     "module": "PRJ",
     "platform": "web",
@@ -20782,7 +20782,7 @@
     ],
     "rule": "Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết",
     "test_ids": [
-      "UI-PRJ-28"
+      "UI-PRJ-30"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",

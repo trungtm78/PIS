@@ -11462,8 +11462,8 @@
     ]
   },
   {
-    "requirement": "FR-DIS-27",
-    "screen": "DIS-27",
+    "requirement": "FR-DIS-30",
+    "screen": "DIS-30",
     "title": "Dự báo tới các mốc chỉ đạo của giải ngân",
     "use_cases": [],
     "source": "docs/governance-roadmap-10of10.md G1-16; GOV-11a",
@@ -11471,14 +11471,14 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-DIS-27",
+    "backlog_id": "BL-DIS-30",
     "test_ids": [
-      "UI-DIS-27"
+      "UI-DIS-30"
     ]
   },
   {
-    "requirement": "FR-DIS-28",
-    "screen": "DIS-28",
+    "requirement": "FR-DIS-31",
+    "screen": "DIS-31",
     "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
     "use_cases": [],
     "source": "docs/governance-roadmap-10of10.md G1-16; GOV-11a",
@@ -11486,9 +11486,9 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-DIS-28",
+    "backlog_id": "BL-DIS-31",
     "test_ids": [
-      "UI-DIS-28"
+      "UI-DIS-31"
     ]
   },
   {
@@ -11507,8 +11507,8 @@
     ]
   },
   {
-    "requirement": "FR-CTR-32",
-    "screen": "CTR-32",
+    "requirement": "FR-CTR-38",
+    "screen": "CTR-38",
     "title": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng",
     "use_cases": [],
     "source": "docs/governance-roadmap-10of10.md G1-18; GOV-11a",
@@ -11516,14 +11516,14 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-CTR-32",
+    "backlog_id": "BL-CTR-38",
     "test_ids": [
-      "UI-CTR-32"
+      "UI-CTR-38"
     ]
   },
   {
-    "requirement": "FR-CTR-33",
-    "screen": "CTR-33",
+    "requirement": "FR-CTR-39",
+    "screen": "CTR-39",
     "title": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh",
     "use_cases": [],
     "source": "docs/governance-roadmap-10of10.md G1-18; GOV-11a",
@@ -11531,14 +11531,14 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-CTR-33",
+    "backlog_id": "BL-CTR-39",
     "test_ids": [
-      "UI-CTR-33"
+      "UI-CTR-39"
     ]
   },
   {
-    "requirement": "FR-PRJ-28",
-    "screen": "PRJ-28",
+    "requirement": "FR-PRJ-30",
+    "screen": "PRJ-30",
     "title": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường",
     "use_cases": [],
     "source": "docs/governance-roadmap-10of10.md G1-19; GOV-11a",
@@ -11546,9 +11546,9 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-PRJ-28",
+    "backlog_id": "BL-PRJ-30",
     "test_ids": [
-      "UI-PRJ-28"
+      "UI-PRJ-30"
     ]
   },
   {

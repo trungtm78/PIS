@@ -23630,39 +23630,39 @@
     ]
   },
   {
-    "id": "UI-DIS-27",
-    "source": "FR-DIS-27",
+    "id": "UI-DIS-30",
+    "source": "FR-DIS-30",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Dự báo tới các mốc chỉ đạo của giải ngân; user có quyền và user không có quyền; route DIS-27",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Dự báo tới các mốc chỉ đạo của giải ngân; user có quyền và user không có quyền; route DIS-30",
     "steps": [
-      "Mở DIS-27 từ menu và liên kết sâu; kiểm nhãn trường: Mốc và ngày, Mục tiêu (%), Dự kiến (%), Chênh lệch (điểm %), Trạng thái, Chủ đầu tư, Mức đủ dữ liệu, Phiên bản quy tắc",
+      "Mở DIS-30 từ menu và liên kết sâu; kiểm nhãn trường: Mốc và ngày, Mục tiêu (%), Dự kiến (%), Chênh lệch (điểm %), Trạng thái, Chủ đầu tư, Mức đủ dữ liệu, Phiên bản quy tắc",
       "Thực hiện thao tác chính theo quy tắc: Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-27"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-30"
     ],
     "expected": "Dự báo tới các mốc chỉ đạo của giải ngân: hiển thị đủ các trường, áp quy tắc \"Dự kiến tại mốc = số Kho bạc đã chi đến ngày chốt cộng các tháng dự báo đến mốc (tháng chứa mốc tính theo ngày); tháng thiếu số liệu cho cận dưới, không bịa; các mốc là giá trị khởi điểm chưa kiểm chứng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-27"
+      "FR-DIS-30"
     ]
   },
   {
-    "id": "UI-DIS-28",
-    "source": "FR-DIS-28",
+    "id": "UI-DIS-31",
+    "source": "FR-DIS-31",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Độ chính xác dự báo giải ngân của từng chủ đầu tư; user có quyền và user không có quyền; route DIS-28",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Độ chính xác dự báo giải ngân của từng chủ đầu tư; user có quyền và user không có quyền; route DIS-31",
     "steps": [
-      "Mở DIS-28 từ menu và liên kết sâu; kiểm nhãn trường: Chủ đầu tư, Số tháng đo, Dự báo, Thực chi, Sai số tuyệt đối có trọng số (WAPE), Độ lệch (bias), Hạng, Cờ lệch",
+      "Mở DIS-31 từ menu và liên kết sâu; kiểm nhãn trường: Chủ đầu tư, Số tháng đo, Dự báo, Thực chi, Sai số tuyệt đối có trọng số (WAPE), Độ lệch (bias), Hạng, Cờ lệch",
       "Thực hiện thao tác chính theo quy tắc: So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-28"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-31"
     ],
     "expected": "Độ chính xác dự báo giải ngân của từng chủ đầu tư: hiển thị đủ các trường, áp quy tắc \"So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; hạng và ngưỡng theo quy tắc DISBURSEMENT_FORECAST_ACCURACY (chưa kiểm chứng)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-28"
+      "FR-DIS-31"
     ]
   },
   {
@@ -23684,57 +23684,57 @@
     ]
   },
   {
-    "id": "UI-CTR-32",
-    "source": "FR-CTR-32",
+    "id": "UI-CTR-38",
+    "source": "FR-CTR-38",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng; user có quyền và user không có quyền; route CTR-32",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng; user có quyền và user không có quyền; route CTR-38",
     "steps": [
-      "Mở CTR-32 từ menu và liên kết sâu; kiểm nhãn trường: Hợp đồng, Dự án, Nhóm dự án, Ngày hoàn thành, Số tháng cho phép, Hạn nộp hồ sơ quyết toán, Còn lại hoặc quá hạn, Trạng thái",
+      "Mở CTR-38 từ menu và liên kết sâu; kiểm nhãn trường: Hợp đồng, Dự án, Nhóm dự án, Ngày hoàn thành, Số tháng cho phép, Hạn nộp hồ sơ quyết toán, Còn lại hoặc quá hạn, Trạng thái",
       "Thực hiện thao tác chính theo quy tắc: Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CTR-32"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CTR-38"
     ],
     "expected": "Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng: hiển thị đủ các trường, áp quy tắc \"Hạn = ngày hoàn thành hợp đồng + số tháng theo nhóm dự án của quy tắc CONTRACT_SETTLEMENT_DEADLINE (5 và 4, chưa kiểm chứng); đóng đồng hồ khi hồ sơ quyết toán được nộp; sắp đến hạn và quá hạn tính theo ngày xem\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-CTR-32"
+      "FR-CTR-38"
     ]
   },
   {
-    "id": "UI-CTR-33",
-    "source": "FR-CTR-33",
+    "id": "UI-CTR-39",
+    "source": "FR-CTR-39",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh; user có quyền và user không có quyền; route CTR-33",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh; user có quyền và user không có quyền; route CTR-39",
     "steps": [
-      "Mở CTR-33 từ menu và liên kết sâu; kiểm nhãn trường: Dự án, Gói thầu, Kết quả trúng thầu, Nhà thầu và thành viên liên danh, Giá gốc so với giá trúng, Phát hiện của kiểm tra liên kết, Phiên bản điều chỉnh, Tác động lên đường cơ sở, Xem xét đường cơ sở",
+      "Mở CTR-39 từ menu và liên kết sâu; kiểm nhãn trường: Dự án, Gói thầu, Kết quả trúng thầu, Nhà thầu và thành viên liên danh, Giá gốc so với giá trúng, Phát hiện của kiểm tra liên kết, Phiên bản điều chỉnh, Tác động lên đường cơ sở, Xem xét đường cơ sở",
       "Thực hiện thao tác chính theo quy tắc: Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CTR-33"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên CTR-39"
     ],
     "expected": "Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh: hiển thị đủ các trường, áp quy tắc \"Chuỗi dự án, gói thầu, kết quả, nhà thầu được kiểm tra lại trên hồ sơ; mỗi phiên bản điều chỉnh ghi mức thay đổi, tỷ lệ so với chi phí đường cơ sở và giá gốc; phiên bản vượt ngưỡng chờ người khác người lập xem xét\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-CTR-33"
+      "FR-CTR-39"
     ]
   },
   {
-    "id": "UI-PRJ-28",
-    "source": "FR-PRJ-28",
+    "id": "UI-PRJ-30",
+    "source": "FR-PRJ-30",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Kế hoạch nhìn trước 2 đến 6 tuần của công trường; user có quyền và user không có quyền; route PRJ-28",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kế hoạch nhìn trước 2 đến 6 tuần của công trường; user có quyền và user không có quyền; route PRJ-30",
     "steps": [
-      "Mở PRJ-28 từ menu và liên kết sâu; kiểm nhãn trường: Tuần bắt đầu, Hạng mục, Thời gian dự kiến, Đơn vị thực hiện, Vướng mắc chưa gỡ, Trạng thái sẵn sàng, Kết quả cuối tuần, Lý do không xong, PPC các tuần trước",
+      "Mở PRJ-30 từ menu và liên kết sâu; kiểm nhãn trường: Tuần bắt đầu, Hạng mục, Thời gian dự kiến, Đơn vị thực hiện, Vướng mắc chưa gỡ, Trạng thái sẵn sàng, Kết quả cuối tuần, Lý do không xong, PPC các tuần trước",
       "Thực hiện thao tác chính theo quy tắc: Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên PRJ-28"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale), nút \"i\" trên mọi con số và nhãn \"mặc định, chưa kiểm chứng\" trên PRJ-30"
     ],
     "expected": "Kế hoạch nhìn trước 2 đến 6 tuần của công trường: hiển thị đủ các trường, áp quy tắc \"Cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai theo quy tắc LOOK_AHEAD_POLICY (chưa kiểm chứng); hạng mục sắp bắt đầu mà còn vướng mắc là chưa sẵn sàng; PPC = hạng mục xong chia hạng mục đã cam kết\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-PRJ-28"
+      "FR-PRJ-30"
     ]
   },
   {
@@ -23800,8 +23800,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-27",
-      "FR-DIS-28"
+      "FR-DIS-30",
+      "FR-DIS-31"
     ]
   },
   {
@@ -23809,7 +23809,7 @@
     "source": "DIS.md",
     "type": "business",
     "priority": "P1",
-    "setup": "DIS-27, DIS-28 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "setup": "DIS-30, DIS-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
     "steps": [
       "each of the seven standard states is forced in turn"
     ],
@@ -23817,8 +23817,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-27",
-      "FR-DIS-28"
+      "FR-DIS-30",
+      "FR-DIS-31"
     ]
   },
   {
@@ -23866,8 +23866,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-CTR-32",
-      "FR-CTR-33"
+      "FR-CTR-38",
+      "FR-CTR-39"
     ]
   },
   {
@@ -23875,7 +23875,7 @@
     "source": "CTR.md",
     "type": "business",
     "priority": "P1",
-    "setup": "CTR-32, CTR-33 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "setup": "CTR-38, CTR-39 opened at 1440 px and 390 px by a reader with the read permission and one without",
     "steps": [
       "each of the seven standard states is forced in turn"
     ],
@@ -23883,8 +23883,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-CTR-32",
-      "FR-CTR-33"
+      "FR-CTR-38",
+      "FR-CTR-39"
     ]
   },
   {
@@ -23900,7 +23900,7 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-PRJ-28",
+      "FR-PRJ-30",
       "FR-PRJ-29"
     ]
   },
@@ -23909,7 +23909,7 @@
     "source": "PRJ.md",
     "type": "business",
     "priority": "P1",
-    "setup": "PRJ-28, PRJ-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "setup": "PRJ-30, PRJ-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
     "steps": [
       "each of the seven standard states is forced in turn"
     ],
@@ -23917,7 +23917,7 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-PRJ-28",
+      "FR-PRJ-30",
       "FR-PRJ-29"
     ]
   },
