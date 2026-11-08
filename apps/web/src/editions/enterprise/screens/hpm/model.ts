@@ -48,12 +48,14 @@ export interface PushForm {
   revision: string;
   sha256: string;
   fileObjectKey: string;
+  /** The issued copy of the report engine: when it is named the copy holds the file, so the key of a file is not asked. */
+  issueId: string;
   correctionId: string;
 }
 
-export const EMPTY_PUSH_FORM: PushForm = { layoutCode: '', period: '', revision: '1', sha256: '', fileObjectKey: '', correctionId: '' };
+export const EMPTY_PUSH_FORM: PushForm = { layoutCode: '', period: '', revision: '1', sha256: '', fileObjectKey: '', issueId: '', correctionId: '' };
 
-export type PushField = 'layoutCode' | 'period' | 'revision' | 'sha256' | 'fileObjectKey' | 'correctionId';
+export type PushField = 'layoutCode' | 'period' | 'revision' | 'sha256' | 'fileObjectKey' | 'issueId' | 'correctionId';
 export type FieldProblem = 'REQUIRED' | 'FORMAT';
 
 /** The fields of the form that the contract would refuse, found before anything is sent. */
@@ -67,7 +69,8 @@ export function pushProblems(form: PushForm): Partial<Record<PushField, FieldPro
   check('period', form.period, PERIOD_PATTERN);
   check('revision', form.revision, /^[1-9]\d{0,3}$|^10000$/);
   check('sha256', form.sha256, SHA_PATTERN);
-  if (form.fileObjectKey.trim().length < 10) found.fileObjectKey = form.fileObjectKey.trim() === '' ? 'REQUIRED' : 'FORMAT';
+  if (form.issueId.trim() !== '' && !UUID_PATTERN.test(form.issueId.trim())) found.issueId = 'FORMAT';
+  if (form.issueId.trim() === '' && form.fileObjectKey.trim().length < 10) found.fileObjectKey = form.fileObjectKey.trim() === '' ? 'REQUIRED' : 'FORMAT';
   if (form.correctionId.trim() !== '' && !UUID_PATTERN.test(form.correctionId.trim())) found.correctionId = 'FORMAT';
   return found;
 }
@@ -79,7 +82,8 @@ export function pushBody(form: PushForm) {
     period: form.period.trim(),
     revision: Number(form.revision),
     sha256: form.sha256.trim(),
-    file_object_key: form.fileObjectKey.trim(),
+    ...(form.fileObjectKey.trim() === '' ? {} : { file_object_key: form.fileObjectKey.trim() }),
+    ...(form.issueId.trim() === '' ? {} : { issue_id: form.issueId.trim().toLowerCase() }),
     ...(form.correctionId.trim() === '' ? {} : { correction_id: form.correctionId.trim().toLowerCase() }),
   };
 }

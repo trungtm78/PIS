@@ -346,6 +346,9 @@ export function PushDialog({ onClose, onDone }: { onClose: () => void; onDone: (
       <Field id={`${id}-sha`} label={t('hpm.push.field.sha.label')} problem={problems.sha256}>
         <input id={`${id}-sha`} value={form.sha256} onChange={set('sha256')} aria-invalid={problems.sha256 !== undefined} data-testid="push-sha" />
       </Field>
+      <Field id={`${id}-issue`} label={t('hpm.push.field.issue.label')} problem={problems.issueId} hint={t('hpm.push.field.issue.hint')}>
+        <input id={`${id}-issue`} value={form.issueId} onChange={set('issueId')} aria-invalid={problems.issueId !== undefined} data-testid="push-issue" />
+      </Field>
       <Field id={`${id}-file`} label={t('hpm.push.field.file.label')} problem={problems.fileObjectKey}>
         <input id={`${id}-file`} value={form.fileObjectKey} onChange={set('fileObjectKey')} aria-invalid={problems.fileObjectKey !== undefined} data-testid="push-file" />
       </Field>

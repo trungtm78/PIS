@@ -411,6 +411,8 @@
   "hpm.push.field.correction.hint": "Chỉ cần khi thay kỳ HPM đã nhận: mã đính chính đã được duyệt.",
   "hpm.push.field.correction.label": "Đính chính đã duyệt (nếu có)",
   "hpm.push.field.file.label": "Khóa tệp trong kho đối tượng",
+  "hpm.push.field.issue.hint": "Mã bản phát hành của báo cáo (RPT-1): tệp, ảnh chụp và dấu của mẫu lấy từ bản phát hành, nên không cần khóa tệp.",
+  "hpm.push.field.issue.label": "Bản phát hành của báo cáo (nếu có)",
   "hpm.push.field.layout.label": "Mã mẫu báo cáo",
   "hpm.push.field.period.hint": "Ví dụ 2026-M10, 2026-Q3, 2026-H1, 2026 hoặc một ngày",
   "hpm.push.field.period.label": "Kỳ báo cáo",

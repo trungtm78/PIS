@@ -411,6 +411,8 @@
   "hpm.push.field.correction.hint": "Only to replace a period HPM has accepted: the id of the approved correction.",
   "hpm.push.field.correction.label": "Approved correction (if any)",
   "hpm.push.field.file.label": "Key of the file in the object store",
+  "hpm.push.field.issue.hint": "The id of the issued copy of the report (RPT-1): the file, the snapshot and the form marks come from the copy, so no file key is needed.",
+  "hpm.push.field.issue.label": "Issued copy of the report (if any)",
   "hpm.push.field.layout.label": "Report form code",
   "hpm.push.field.period.hint": "For example 2026-M10, 2026-Q3, 2026-H1, 2026 or a day",
   "hpm.push.field.period.label": "Report period",
