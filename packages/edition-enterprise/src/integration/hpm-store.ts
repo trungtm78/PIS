@@ -63,7 +63,8 @@ export interface HpmPushRow {
   revision: number;
   sha256: string;
   requestHash: string;
-  fileObjectKey: string;
+  fileObjectKey: string | null;
+  issueId: string | null;
   snapshot: { snapshotId: string; revision: number; cutoff: string } | null;
   marks: IssuedCopyMarks | null;
   packageFormat: string;
@@ -94,7 +95,8 @@ interface PushSql {
   revision: number;
   sha256: string;
   request_hash: string;
-  file_object_key: string;
+  file_object_key: string | null;
+  issue_id: string | null;
   snapshot_id: string | null;
   snapshot_revision: number | null;
   snapshot_cutoff: string | null;
@@ -118,7 +120,7 @@ interface PushSql {
   created_at: string;
 }
 
-const PUSH_SELECT = `select p.id, p.idempotency_key, p.org_unit_id, p.layout_code, p.period, p.revision, p.sha256, p.request_hash, p.file_object_key, p.snapshot_id, p.snapshot_revision, p.snapshot_cutoff::text as snapshot_cutoff,
+const PUSH_SELECT = `select p.id, p.idempotency_key, p.org_unit_id, p.layout_code, p.period, p.revision, p.sha256, p.request_hash, p.file_object_key, p.issue_id, p.snapshot_id, p.snapshot_revision, p.snapshot_cutoff::text as snapshot_cutoff,
   p.form_status, p.demo_mark, p.package_format, p.status, p.attempts, to_char(p.last_attempt_at at time zone 'UTC', ${ISO}) as last_attempt_at, ${timestampKey('p.last_attempt_at')} as last_attempt_at_key,
   p.last_error_code, p.response, p.correction_id, p.overwrites, p.pushed_by, p.receipt_reference, p.receipt_note, p.receipt_by, to_char(p.receipt_at at time zone 'UTC', ${ISO}) as receipt_at, p.version::text as version,
   to_char(p.created_at at time zone 'UTC', ${ISO}) as created_at from machvon.hpm_push p`;
@@ -133,6 +135,7 @@ const pushOf = (row: PushSql): HpmPushRow => ({
   sha256: row.sha256,
   requestHash: row.request_hash,
   fileObjectKey: row.file_object_key,
+  issueId: row.issue_id,
   snapshot: row.snapshot_id === null ? null : { snapshotId: row.snapshot_id, revision: row.snapshot_revision as number, cutoff: row.snapshot_cutoff as string },
   marks: row.form_status === null ? null : { formStatus: row.form_status, demoMark: row.demo_mark },
   packageFormat: row.package_format,
@@ -176,6 +179,7 @@ export const requestOfRow = (row: HpmPushRow): HpmCopyRequest => ({
   revision: row.revision,
   sha256: row.sha256,
   fileObjectKey: row.fileObjectKey,
+  issueId: row.issueId,
   snapshot: row.snapshot,
   marks: row.marks,
   correctionId: row.correctionId,
@@ -263,6 +267,9 @@ export interface HpmSendInput {
   reopen: PeriodReopenPort;
   bytes: Uint8Array;
   fileName: string;
+  attachments?: ReadonlyArray<{ name: string; bytes: Uint8Array }>;
+  /** The newest revision issued for the series by the report engine, when the push names an issued copy: a copy older than it is stale whatever this ledger knows. */
+  issuedHeadRevision?: number;
 }
 
 export interface HpmPushFilter {
@@ -351,7 +358,9 @@ export class HpmPushStore {
     const { head, accepted } = await this.series(tx, request);
     const policy = await this.policyOf(tx, input.now);
     const copy = copyRefOf(request, existing?.id ?? key, null);
-    const headRef: IssuedCopyRef = head !== undefined && head.revision > request.revision ? copyOfRow(head) : copy;
+    // The head of the series is the newest of what this ledger holds and what the report engine issued: a push of an older copy is stale even when this ledger never saw the newer one.
+    const knownHead = Math.max(head?.revision ?? 0, input.issuedHeadRevision ?? 0);
+    const headRef: IssuedCopyRef = head !== undefined && head.revision > request.revision ? copyOfRow(head) : knownHead > request.revision ? { ...copy, id: `head:${knownHead}`, revision: knownHead, sha256: '0'.repeat(64), snapshot: null } : copy;
     const acceptedRef = accepted === undefined ? null : copyOfRow(accepted);
     let consumed: HpmCorrectionRow | null = null;
     let overwrite = { periodReopened: false, correctionApproved: false };
@@ -395,9 +404,9 @@ export class HpmPushStore {
     try {
       const rows = await tx.query<PushSql>(
         `with inserted as (
-           insert into machvon.hpm_push (tenant_id, id, idempotency_key, org_unit_id, layout_code, period, revision, sha256, request_hash, file_object_key, snapshot_id, snapshot_revision, snapshot_cutoff,
+           insert into machvon.hpm_push (tenant_id, id, idempotency_key, org_unit_id, layout_code, period, revision, sha256, request_hash, file_object_key, issue_id, snapshot_id, snapshot_revision, snapshot_cutoff,
              form_status, demo_mark, package_format, status, attempts, last_attempt_at, correction_id, overwrites, pushed_by, created_by, updated_by)
-           values (${TENANT}, gen_random_uuid(), $1, $2::uuid, $3, $4, $5, $6, $7, $8, $9::uuid, $10, $11::date, $12, $13, $14, 'PENDING', 1, $15::timestamptz, $16::uuid, $17, $18::uuid, $18::uuid, $18::uuid)
+           values (${TENANT}, gen_random_uuid(), $1, $2::uuid, $3, $4, $5, $6, $7, $8, $19::uuid, $9::uuid, $10, $11::date, $12, $13, $14, 'PENDING', 1, $15::timestamptz, $16::uuid, $17, $18::uuid, $18::uuid, $18::uuid)
            returning *)
          ${PUSH_SELECT.replace('from machvon.hpm_push p', 'from inserted p')}`,
         [
@@ -419,6 +428,7 @@ export class HpmPushStore {
           request.correctionId,
           overwrites,
           input.actor,
+          request.issueId,
         ],
       );
       return pushOf(rows[0] as PushSql);
@@ -448,6 +458,7 @@ export class HpmPushStore {
         copy: { orgId: request.orgId, layoutCode: request.layoutCode, period: request.period, revision: request.revision, sha256: request.sha256, snapshot: request.snapshot, marks: request.marks },
         fileName: input.fileName,
         bytes: input.bytes,
+        ...(input.attachments === undefined ? {} : { attachments: input.attachments }),
         sentAt: input.now,
       });
       response = { ...answer };

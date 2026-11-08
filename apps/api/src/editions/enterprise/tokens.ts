@@ -4,5 +4,7 @@ export const HPM_PORT = Symbol('HPM_PORT');
 export const HPM_FILE_SINK = Symbol('HPM_FILE_SINK');
 /** Whether the reopening of a period that a correction names is in force (`PeriodReopenPort`): the default reads the reopenings of DIS. */
 export const HPM_PERIOD_REOPEN = Symbol('HPM_PERIOD_REOPEN');
+/** The issued copies of the report engine (`IssuedReportPort`, RPT-1c): the files a push carries, the head of the series, and the delivery log the push writes into. */
+export const HPM_ISSUED_REPORTS = Symbol('HPM_ISSUED_REPORTS');
 /** The metrics sink of the connections of the enterprise edition (`MetricsSink`); optional. */
 export const ENTERPRISE_METRICS = Symbol('ENTERPRISE_METRICS');

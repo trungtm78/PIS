@@ -98,7 +98,10 @@ export interface HpmCopyRequest {
   period: string;
   revision: number;
   sha256: string;
-  fileObjectKey: string;
+  /** The report in the object store; absent when the push names an issued copy of RPT-1 (the copy holds the file). */
+  fileObjectKey: string | null;
+  /** The issued copy of RPT-1 this push delivers: its revision, hash, snapshot and form marks are the copy's, not the caller's. */
+  issueId: string | null;
   /** The snapshot the copy was made from, with its revision and the common cut-off day (R17); null when the copy has none. */
   snapshot: { snapshotId: string; revision: number; cutoff: string } | null;
   /** The marks of the form the copy was made on; absent for an official form. */
@@ -125,8 +128,11 @@ export function hpmCopyRequestOf(body: Readonly<Record<string, unknown>>, defaul
   const revision = body.revision;
   if (typeof revision !== 'number' || !Number.isInteger(revision) || revision < 1 || revision > 10_000) throw invalid('revision');
   const sha256 = text(body.sha256, 'sha256', SHA256) as string;
+  const issueId = text(body.issue_id, 'issue_id', UUID, true)?.toLowerCase() ?? null;
   const key = body.file_object_key;
-  if (typeof key !== 'string' || key.trim() === '' || key.length > 500 || hasControlChar(key)) throw invalid('file_object_key');
+  if (key === undefined || key === null) {
+    if (issueId === null) throw invalid('file_object_key');
+  } else if (typeof key !== 'string' || key.trim() === '' || key.length > 500 || hasControlChar(key)) throw invalid('file_object_key');
   const snapshotBody = body.snapshot === undefined || body.snapshot === null ? null : object(body.snapshot);
   let snapshot: HpmCopyRequest['snapshot'] = null;
   if (snapshotBody !== null) {
@@ -146,7 +152,7 @@ export function hpmCopyRequestOf(body: Readonly<Record<string, unknown>>, defaul
     marks = { formStatus: status, demoMark: typeof demoMark === 'string' ? demoMark : null };
   }
   const correctionId = text(body.correction_id, 'correction_id', UUID, true)?.toLowerCase() ?? null;
-  return { orgId, layoutCode, period, revision, sha256, fileObjectKey: key.trim(), snapshot, marks, correctionId };
+  return { orgId, layoutCode, period, revision, sha256, fileObjectKey: typeof key === 'string' ? key.trim() : null, issueId, snapshot, marks, correctionId };
 }
 
 /** The copy as the kernel judges it. The id is the key of the push, so a copy and its ledger entry are the same thing. */

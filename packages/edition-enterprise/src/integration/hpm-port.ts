@@ -28,6 +28,8 @@ export interface HpmDeliveryRequest {
   };
   fileName: string;
   bytes: Uint8Array;
+  /** More files of the same issued copy (the Word version next to the workbook): they travel in the package under their own names. */
+  attachments?: ReadonlyArray<{ name: string; bytes: Uint8Array }>;
   sentAt: Date;
 }
 
@@ -77,6 +79,7 @@ export function hpmManifestOf(request: HpmDeliveryRequest): Record<string, unkno
     revision: request.copy.revision,
     report_file: request.fileName,
     report_sha256: request.copy.sha256,
+    attachments: (request.attachments ?? []).map((file) => ({ file: file.name, sha256: createHash('sha256').update(file.bytes).digest('hex') })),
     snapshot: request.copy.snapshot === null ? null : { snapshot_id: request.copy.snapshot.snapshotId, revision: request.copy.snapshot.revision, cutoff: request.copy.snapshot.cutoff },
     form_status: request.copy.marks?.formStatus ?? null,
     demo_mark: request.copy.marks?.demoMark ?? null,
@@ -93,6 +96,7 @@ export function buildHpmPackage(request: HpmDeliveryRequest): Uint8Array {
     {
       'manifest.json': [strToU8(canonicalJson(hpmManifestOf(request))), { level: 0, mtime }],
       [`report/${request.fileName.replace(SAFE, '_')}`]: [request.bytes, { level: 0, mtime }],
+      ...Object.fromEntries((request.attachments ?? []).map((file): [string, [Uint8Array, { level: 0; mtime: Date }]] => [`report/${file.name.replace(SAFE, '_')}`, [file.bytes, { level: 0, mtime }]])),
     },
     { level: 0, mtime },
   );

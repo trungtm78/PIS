@@ -2,6 +2,7 @@
 --   * `hpm_push`: one row per IDEMPOTENCY KEY (tenant, organisation, layout, period, revision): the key is unique, so a retry after a timeout can never become a second push. The row keeps the hash of the request
 --     (the same key with other content is refused), the answer of the adapter, the number of attempts and the receipt the receiver gave. The person who recorded the receipt is never the person who pushed it.
 --   * `hpm_push_attempt`: every try of a key, append-only: what was done, when, by whom and how it ended.
+--   * a push may name an issued copy of RPT-1 (issue_id): the copy then holds the file, the revision, the hash, the snapshot and the form marks, and the delivery and the receipt are mirrored into report_delivery (channel HPM_PUSH).
 -- A push is accepted only when a person records the receipt of HPM; until then the most it can be is WRITTEN (the package was handed to the file sink).
 
 CREATE TABLE machvon.hpm_push (
@@ -14,7 +15,8 @@ CREATE TABLE machvon.hpm_push (
   revision integer NOT NULL,
   sha256 char(64) NOT NULL,
   request_hash char(64) NOT NULL,
-  file_object_key text NOT NULL,
+  file_object_key text,
+  issue_id uuid,
   snapshot_id uuid,
   snapshot_revision integer,
   snapshot_cutoff date,
@@ -39,13 +41,14 @@ CREATE TABLE machvon.hpm_push (
   updated_at timestamptz NOT NULL DEFAULT now(),
   updated_by uuid NOT NULL,
   PRIMARY KEY (tenant_id, id),
+  FOREIGN KEY (tenant_id, issue_id) REFERENCES machvon.report_issue (tenant_id, id),
   CONSTRAINT hpm_push_key_uq UNIQUE (tenant_id, idempotency_key),
   CONSTRAINT hpm_push_key_chk CHECK (idempotency_key = btrim(idempotency_key) AND idempotency_key <> '' AND char_length(idempotency_key) <= 300),
   CONSTRAINT hpm_push_layout_chk CHECK (layout_code ~ '^[A-Z][A-Z0-9_-]{1,59}$'),
   CONSTRAINT hpm_push_period_chk CHECK (period ~ '^\d{4}(-(M(0[1-9]|1[0-2])|Q[1-4]|H[12]|(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])))?$'),
   CONSTRAINT hpm_push_revision_chk CHECK (revision BETWEEN 1 AND 10000),
   CONSTRAINT hpm_push_hash_chk CHECK (sha256 ~ '^[0-9a-f]{64}$' AND request_hash ~ '^[0-9a-f]{64}$'),
-  CONSTRAINT hpm_push_object_chk CHECK (file_object_key = btrim(file_object_key) AND file_object_key <> '' AND char_length(file_object_key) <= 500),
+  CONSTRAINT hpm_push_object_chk CHECK ((file_object_key IS NOT NULL OR issue_id IS NOT NULL) AND (file_object_key IS NULL OR (file_object_key = btrim(file_object_key) AND file_object_key <> '' AND char_length(file_object_key) <= 500))),
   CONSTRAINT hpm_push_snapshot_chk CHECK ((snapshot_id IS NULL) = (snapshot_revision IS NULL) AND (snapshot_id IS NULL) = (snapshot_cutoff IS NULL) AND (snapshot_revision IS NULL OR snapshot_revision >= 1)),
   CONSTRAINT hpm_push_marks_chk CHECK (form_status IS NULL OR form_status IN ('PENDING_EXTERNAL', 'DEMO', 'DRAFT', 'READY')),
   CONSTRAINT hpm_push_status_chk CHECK (status IN ('PENDING', 'WRITTEN', 'FAILED', 'ACCEPTED', 'REJECTED')),
@@ -65,6 +68,7 @@ CREATE TABLE machvon.hpm_push (
 CREATE INDEX hpm_push_series_idx ON machvon.hpm_push (tenant_id, org_unit_id, layout_code, period, revision DESC);
 CREATE INDEX hpm_push_status_idx ON machvon.hpm_push (tenant_id, status, last_attempt_at DESC, id);
 CREATE INDEX hpm_push_correction_idx ON machvon.hpm_push (tenant_id, correction_id) WHERE correction_id IS NOT NULL;
+CREATE INDEX hpm_push_issue_idx ON machvon.hpm_push (tenant_id, issue_id) WHERE issue_id IS NOT NULL;
 CREATE INDEX hpm_push_snapshot_idx ON machvon.hpm_push (tenant_id, snapshot_id) WHERE snapshot_id IS NOT NULL;
 CREATE INDEX hpm_push_actor_idx ON machvon.hpm_push (tenant_id, pushed_by, created_at DESC);
 
@@ -105,7 +109,7 @@ AS $fn$
 BEGIN
   IF NEW.idempotency_key IS DISTINCT FROM OLD.idempotency_key OR NEW.org_unit_id IS DISTINCT FROM OLD.org_unit_id OR NEW.layout_code IS DISTINCT FROM OLD.layout_code
      OR NEW.period IS DISTINCT FROM OLD.period OR NEW.revision IS DISTINCT FROM OLD.revision OR NEW.sha256 IS DISTINCT FROM OLD.sha256 OR NEW.request_hash IS DISTINCT FROM OLD.request_hash
-     OR NEW.file_object_key IS DISTINCT FROM OLD.file_object_key OR NEW.pushed_by IS DISTINCT FROM OLD.pushed_by OR NEW.created_by IS DISTINCT FROM OLD.created_by OR NEW.created_at IS DISTINCT FROM OLD.created_at
+     OR NEW.file_object_key IS DISTINCT FROM OLD.file_object_key OR NEW.issue_id IS DISTINCT FROM OLD.issue_id OR NEW.pushed_by IS DISTINCT FROM OLD.pushed_by OR NEW.created_by IS DISTINCT FROM OLD.created_by OR NEW.created_at IS DISTINCT FROM OLD.created_at
      OR NEW.form_status IS DISTINCT FROM OLD.form_status OR NEW.demo_mark IS DISTINCT FROM OLD.demo_mark OR NEW.snapshot_id IS DISTINCT FROM OLD.snapshot_id THEN
     RAISE EXCEPTION 'a push keeps its key, its report and its origin' USING ERRCODE = '23514';
   END IF;

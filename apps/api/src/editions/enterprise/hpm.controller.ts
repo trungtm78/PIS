@@ -14,7 +14,7 @@ import {
   hpmCopyRequestOf,
   requestOfRow,
 } from '@machvon/edition-enterprise/src/server.ts';
-import type { HpmCopyRequest, HpmPort, HpmPushRow, HpmSendResult, PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
+import type { HpmCopyRequest, HpmPort, HpmPushRow, HpmSendResult, IssuedReportPort, PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -26,7 +26,7 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../../modules/adm/tenant-authority';
 import { FileService } from '../../modules/files';
-import { ENTERPRISE_METRICS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
+import { ENTERPRISE_METRICS, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
 import { correctionDto, pendingExternalDto, pushDto, ruleDto } from './views';
 import type { Caller } from './views';
 
@@ -187,17 +187,37 @@ export class HpmPushController {
     @Inject(FileService) private readonly files: FileService,
     @Inject(HPM_PORT) private readonly port: HpmPort,
     @Inject(HPM_PERIOD_REOPEN) private readonly reopen: PeriodReopenPort,
+    @Inject(HPM_ISSUED_REPORTS) private readonly issued: IssuedReportPort,
     @Optional() @Inject(ENTERPRISE_METRICS) metrics?: MetricsSink,
   ) {
     this.metrics = metrics ?? NOOP_METRICS;
   }
 
-  /** The report from the object store: it must still be the file whose hash the caller names (a key of another tenant is not found). */
-  private async reportOf(tenant: TenantContext, request: HpmCopyRequest): Promise<{ bytes: Uint8Array; fileName: string }> {
-    const { object, bytes } = await this.files.download(tenant, request.fileObjectKey);
-    if (fileSha256(bytes) !== request.sha256) throw new DomainError('HASH_MISMATCH', 422, 'file');
+  /**
+   * The report a push carries. A push that names an issued copy of the report engine (`issue_id`) takes everything from the copy: its files, its snapshot and the marks of its form; what the caller wrote about its layout, period,
+   * revision and hash must be the copy's (422 `VALIDATION_FAILED` naming the field), and the newest revision issued for the series is the head the staleness is judged against. Without `issue_id` the report is the file of the object
+   * store whose hash the caller names (a key of another tenant is not found).
+   */
+  private async reportOf(scope: CommandScope, asked: HpmCopyRequest): Promise<{ request: HpmCopyRequest; bytes: Uint8Array; fileName: string; attachments: Array<{ name: string; bytes: Uint8Array }>; issuedHeadRevision: number | undefined }> {
+    if (asked.issueId !== null) {
+      const issued = await this.issued.load(scope.tx, asked.issueId);
+      if (issued === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'issue_id');
+      const wrong = asked.layoutCode !== issued.layoutCode ? 'layout_code' : asked.period !== issued.period ? 'period' : asked.revision !== issued.revision ? 'revision' : asked.sha256 !== issued.sha256 ? 'sha256' : undefined;
+      if (wrong !== undefined) throw new DomainError('VALIDATION_FAILED', 422, wrong);
+      const [first, ...rest] = issued.files;
+      if (first === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'issue_id');
+      return { request: { ...asked, snapshot: issued.snapshot, marks: issued.marks }, bytes: first.bytes, fileName: first.name, attachments: rest.map((file) => ({ name: file.name, bytes: file.bytes })), issuedHeadRevision: issued.headRevision };
+    }
+    const { object, bytes } = await this.files.download(scope.tenant, asked.fileObjectKey as string);
+    if (fileSha256(bytes) !== asked.sha256) throw new DomainError('HASH_MISMATCH', 422, 'file');
     const extension = EXTENSIONS[object.contentType.split(';')[0]?.trim().toLowerCase() ?? ''] ?? 'bin';
-    return { bytes, fileName: `${request.layoutCode}_${request.period}_r${request.revision}.${extension}` };
+    return { request: asked, bytes, fileName: `${asked.layoutCode}_${asked.period}_r${asked.revision}.${extension}`, attachments: [], issuedHeadRevision: undefined };
+  }
+
+  /** What the push did, in the delivery log of the report engine: a copy that was written to HPM for the first time is delivered to it there. */
+  private async mirrorDelivery(scope: CommandScope, done: HpmSendResult): Promise<void> {
+    if (done.outcome !== 'SENT' || done.row.issueId === null || done.before?.status === 'WRITTEN') return;
+    await this.issued.delivered(scope.tx, done.row.issueId, scope.tenant.membershipId, done.row.key);
   }
 
   private async announce(scope: CommandScope, done: HpmSendResult, action: string, now: Date): Promise<void> {
@@ -302,12 +322,14 @@ export class HpmPushController {
   async submit(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['HpmPushRequest']): Promise<Record<string, unknown>> {
     if (!holdsOnWholeTenant(access, PERMISSIONS.submitHpmPush)) throw new DomainError('SCOPE_DENIED', 403);
     const now = new Date();
-    const request = hpmCopyRequestOf(body as unknown as Record<string, unknown>, scope.tenant.tenantId);
-    // The file comes first: one that is not the caller's tenant's is not found, whatever the state of the connection.
-    const report = await this.reportOf(scope.tenant, request);
+    const asked = hpmCopyRequestOf(body as unknown as Record<string, unknown>, scope.tenant.tenantId);
+    // The report comes first: a copy or a file that is not the caller's tenant's is not found, whatever the state of the connection.
+    const report = await this.reportOf(scope, asked);
+    const request = report.request;
     const { row: connection } = await this.connections.ensure(scope.tx, scope.tenant.membershipId);
     assertHpmPushAllowed(connection);
-    const done = await this.pushes.send(scope.tx, request, 'SUBMIT', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName });
+    const done = await this.pushes.send(scope.tx, request, 'SUBMIT', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName, attachments: report.attachments, ...(report.issuedHeadRevision === undefined ? {} : { issuedHeadRevision: report.issuedHeadRevision }) });
+    await this.mirrorDelivery(scope, done);
     await this.announce(scope, done, 'hpm.push_submitted', now);
     return this.resultOf(scope, done, access);
   }
@@ -324,11 +346,12 @@ export class HpmPushController {
     if (before.version !== (scope.expectedVersion ?? 0)) throw versionConflict(before.version);
     if (before.status !== 'FAILED' && before.status !== 'WRITTEN') throw new DomainError('HPM_PUSH_STATE_INVALID', 409, 'status');
     // A retry re-sends what the key stands for, exactly: the same request, the same key; the number of the attempt is the only thing that moves.
-    const request = requestOfRow(before);
-    const report = await this.reportOf(scope.tenant, request);
+    const report = await this.reportOf(scope, requestOfRow(before));
+    const request = report.request;
     const { row: connection } = await this.connections.ensure(scope.tx, scope.tenant.membershipId);
     assertHpmPushAllowed(connection);
-    const done = await this.pushes.send(scope.tx, request, 'RETRY', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName });
+    const done = await this.pushes.send(scope.tx, request, 'RETRY', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName, attachments: report.attachments, ...(report.issuedHeadRevision === undefined ? {} : { issuedHeadRevision: report.issuedHeadRevision }) });
+    await this.mirrorDelivery(scope, done);
     await this.announce(scope, done, 'hpm.push_retried', now);
     return this.resultOf(scope, done, access);
   }
@@ -342,6 +365,8 @@ export class HpmPushController {
     const now = new Date();
     const done = await this.pushes.recordReceipt(scope.tx, id, scope.expectedVersion ?? 0, { outcome: body.outcome, reference: body.reference, note: body.note }, scope.tenant.membershipId, now);
     const { row } = done;
+    // The answer of HPM is also the answer in the delivery log of the report engine, for the copy the push delivered.
+    if (row.issueId !== null) await this.issued.answered(scope.tx, row.issueId, row.status as 'ACCEPTED' | 'REJECTED', scope.tenant.membershipId, row.receiptReference as string, row.receiptNote);
     await scope.audit({
       action: row.status === 'ACCEPTED' ? 'hpm.receipt_accepted' : 'hpm.receipt_rejected',
       resourceType: PUSH_RESOURCE,

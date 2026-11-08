@@ -1,12 +1,12 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DisPeriodReopenPort, HpmFileWriter } from '@machvon/edition-enterprise/src/server.ts';
+import { DisPeriodReopenPort, HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
 import type { HpmFileSink } from '@machvon/edition-enterprise/src/server.ts';
 import { defineModule } from '../../modules/module-descriptor';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
 import { directoryFileSink } from './file-sink';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from './hpm.controller';
-import { HPM_FILE_SINK, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
+import { HPM_FILE_SINK, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
 
 /** Where the file writer that stands for HPM puts its packages when the environment names no folder. */
 const DEFAULT_OUTBOX = join(tmpdir(), 'machvon-hpm-outbox');
@@ -23,6 +23,7 @@ export const hpmModule = defineModule({
     { provide: HPM_FILE_SINK, useFactory: (): HpmFileSink => directoryFileSink(process.env.MACHVON_HPM_OUTBOX_DIR ?? DEFAULT_OUTBOX) },
     { provide: HPM_PORT, useFactory: (sink: HpmFileSink) => new HpmFileWriter(sink), inject: [HPM_FILE_SINK] },
     { provide: HPM_PERIOD_REOPEN, useValue: new DisPeriodReopenPort() },
+    { provide: HPM_ISSUED_REPORTS, useValue: new ReportStoreIssuedReports() },
   ],
 });
 

@@ -8,3 +8,4 @@ export { EBS_AUDIENCE_PERMISSION, HPM_AUDIENCE_PERMISSION, ebsAlertReader, hpmAl
 export { INTEGRATION_AS_OF, SEVERITY_VALUES, integrationTexts, registerEnterpriseIntegrationRules } from './integration-rules.ts';
 export { HPM_CONNECTION_DESCRIPTOR } from './hpm-connection.ts';
 export { EBS_CONNECTION_DESCRIPTOR } from './ebs-connection.ts';
+export * from './issued-reports.ts';
