@@ -14,7 +14,7 @@ Make the quality claims of the customer checkable by machines: a grounded-assist
 - [x] 4. Multi-browser: `apps/web/e2e/support/browsers.ts` (projects chromium, firefox, webkit chosen by `E2E_BROWSERS`, smoke subset for the engines that are not the baseline engine), wired in both Playwright configs, `e2e:smoke` script, matrix job in `.github/workflows/browser.yml`, YAML test with js-yaml, `docs/runbooks/browser-differences.md`.
 - [x] 5. Guide steps that can fail: the phone chapters and the DIR step carry a verification ledger (`scripts/hdsd/verification.json`) with a pass criterion for each step and a status; `scripts/hdsd/verification.mjs` checks the ledger against the chapters and fails on a step with no criterion, no needed data, or (with `--require-verified`) on a step still untested; node test.
 - [x] 6. Accessibility and responsive rules for screens: `scripts/a11y-lint.mjs` (pure rules over the sources of `apps/web/src`, a ratchet baseline) with test; added to `npm run lint` only if it is fast and green.
-- [ ] 7. Gate: `npm run lint`, typecheck of kernel/api/web, tests of what changed, scan-files self-check, Codex review (model gpt-6-astra), fixes, final report.
+- [x] 7. Gate: `npm run lint`, typecheck of kernel/api/web, tests of what changed, scan-files self-check, Codex review (model gpt-6-astra), fixes, final report.
 
 ## Decisions (owner rule 2026-11-08)
 
@@ -28,3 +28,16 @@ Make the quality claims of the customer checkable by machines: a grounded-assist
 
 - The Playwright smoke subset cannot be run here (no browsers, no servers): it is validated statically (config load, YAML) and documented as such.
 - Perf numbers depend on the customer hardware: the budget table is the contract, the runner reports the evidence.
+
+## Review
+
+Codex review (`codex review --base main`, model gpt-6-astra, read-only) of the branch: two findings, both valid and fixed with regression tests.
+
+| Finding | Disposition | Test |
+|---|---|---|
+| P2 `button:focus { outline: none; }` counted as its own focus replacement in the accessibility rules | A replacement must be another rule for the same element in a focus state that declares a visible outline, shadow or border; the removing rule itself only counts if it declares one | `scripts/a11y-lint.test.mjs`, "a focus selector that removes the outline is not its own replacement" |
+| P2 `perf-budget --only TYPO --strict` selected nothing and exited 0 | An empty selection exits 2 with a message, and an empty result is never a success | `scripts/perf-budget.test.mjs`, "a run that selects no operation fails" |
+
+## Verification
+
+kernel, API and web (app and e2e) typecheck; `npm run lint` chain through `edition:check` and `qa:check` (`uat:check` and `uat:evidence:check` fail the same way on main: stale generated docs, not touched here); kernel ai suites, the API evaluation suite (`MACHVON_TEST_LANE=unit`), node tests of the scripts, web e2e support tests. Not run: Firefox and WebKit legs, k6, the performance runner against a live API (covered by a local-server unit test), an emulator walk.

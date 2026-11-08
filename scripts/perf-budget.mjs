@@ -171,7 +171,8 @@ export function selectOperations(budget, only) {
 }
 
 export function exitCode(results, strict) {
-  if (results.some((result) => result.status === 'FAIL')) return 1;
+  // A run that measured nothing proves nothing.
+  if (results.length === 0 || results.some((result) => result.status === 'FAIL')) return 1;
   if (strict && results.some((result) => result.status === 'SKIPPED')) return 3;
   return 0;
 }
@@ -251,6 +252,10 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
   if (values.list) {
     for (const entry of selectOperations(budget, only)) log(`${pad(entry.id, 9)}${pad(entry.class, 9)}${pad(`${budget.classes[entry.class].budgetMs} ms`, 10)}${entry.method} ${entry.path}`);
     return 0;
+  }
+  if (selectOperations(budget, only).length === 0) {
+    log(`no operation of the table matches --only ${values.only}`);
+    return 2;
   }
   if (values['base-url'] === undefined || !/^https?:\/\//.test(values['base-url'])) {
     log(USAGE);

@@ -155,3 +155,12 @@ test('the committed baseline holds only known rules, and the repository has noth
   const { added } = compareToBaseline(lintRepository(), baseline);
   assert.deepEqual(added.map((item) => `${item.rule} ${item.file}:${item.line}`), []);
 });
+
+test('a focus selector that removes the outline is not its own replacement; a visible outline, shadow or border in a focus rule is', () => {
+  assert.deepEqual(rulesOf(lintCss('button:focus { outline: none; }')), ['A11Y-OUTLINE-NONE']);
+  assert.deepEqual(rulesOf(lintCss('.t:focus-visible { outline: 0; }')), ['A11Y-OUTLINE-NONE']);
+  assert.deepEqual(rulesOf(lintCss('.t { outline: none; }\n.t:focus-visible { outline: none; }')), ['A11Y-OUTLINE-NONE', 'A11Y-OUTLINE-NONE'], 'a second rule that also removes it is no replacement');
+  assert.deepEqual(rulesOf(lintCss('.t { outline: none; }\n.t:focus-visible { color: red; }')), ['A11Y-OUTLINE-NONE'], 'a focus rule with no visible style is no replacement');
+  assert.deepEqual(lintCss('.t { outline: none; }\n.t:focus-visible { box-shadow: 0 0 0 2px red; }'), []);
+  assert.deepEqual(lintCss('.t { outline: none; }\n.t:focus { outline: 2px solid red; }'), []);
+});

@@ -376,3 +376,11 @@ test('both k6 scripts exist, import the library and fail the run when there is n
     assert.match(text, /exec\.test\.abort\(/);
   }
 });
+
+test('a run that selects no operation fails: exit 2 from the command line, exit 1 from the exit code of an empty result', async () => {
+  const lines = [];
+  assert.equal(await main(['--base-url', 'http://localhost:1', '--only', 'TYPO', '--strict'], { log: (line) => lines.push(line), fetchImpl: async () => { throw new Error('must not be called'); } }), 2);
+  assert.equal(lines[0], 'no operation of the table matches --only TYPO');
+  assert.equal(exitCode([], false), 1);
+  assert.equal(exitCode([], true), 1);
+});

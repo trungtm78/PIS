@@ -84,13 +84,13 @@ function boundedViewport(text, index) {
 export function lintCss(text) {
   const found = [];
   const rules = [...text.matchAll(/([^{}]*)\{([^{}]*)\}/g)];
-  const focusRules = rules.map((rule) => rule[1].trim()).filter((selector) => /:focus(-visible|-within)?\b/.test(selector));
+  const visible = (body) => /\b(box-shadow|border)\b/.test(body) || /\boutline\s*:\s*(?!\s|none\b|0\b)/.test(body);
   for (const match of rules) {
     const [, selector, body] = match;
     const removes = /\boutline\s*:\s*(none|0)\b/.test(body);
     // A replacement is a box-shadow or a border in the same rule, or another rule for the same element in its focus state.
     const subject = selector.trim().split(',').map((part) => part.trim());
-    const replaces = /\b(box-shadow|border)\b/.test(body) || subject.every((part) => focusRules.some((focus) => focus.startsWith(part)));
+    const replaces = visible(body) || subject.every((part) => rules.some((other) => other !== match && /:focus(-visible|-within)?\b/.test(other[1]) && other[1].trim().split(',').some((focus) => focus.trim().startsWith(part)) && visible(other[2])));
     if (removes && !replaces) found.push({ rule: 'A11Y-OUTLINE-NONE', line: lineOf(text, match.index + selector.length), snippet: snippet(`${selector.trim()} { ${body.trim()} }`) });
   }
   for (const match of text.matchAll(/\b100vw\b/g)) if (!boundedViewport(text, match.index)) found.push({ rule: 'RSP-VIEWPORT-WIDTH', line: lineOf(text, match.index), snippet: '100vw' });
