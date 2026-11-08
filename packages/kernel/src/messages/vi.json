@@ -1602,5 +1602,10 @@
   "home.source.committee.unit_not_reporting.detail": "Đã {value} ngày kể từ báo cáo gần nhất, quá {threshold} ngày",
   "home.source.committee.unit_not_reporting.never": "Chưa từng nộp báo cáo, hạn {threshold} ngày",
   "home.source.committee.directive_overdue.title": "Đơn vị {label} có {value} chỉ đạo quá hạn",
-  "home.source.committee.directive_overdue.detail": "Từ {threshold} chỉ đạo quá hạn thì báo Trưởng ban"
+  "home.source.committee.directive_overdue.detail": "Từ {threshold} chỉ đạo quá hạn thì báo Trưởng ban",
+  "home.consequence.vendor_link_lead": "Thông thầu hoặc người liên quan có thể không bị phát hiện; kết quả lựa chọn nhà thầu có thể bị hủy khi thanh tra.",
+  "home.consequence.vendor_screening_hit": "Nhà thầu khớp danh sách bên bị cấm đang bị tạm giữ giao dịch; giao dịch với bên bị cấm là vi phạm Điều 16 Luật Đấu thầu.",
+  "home.consequence.vendor_reconfirm_overdue": "Hồ sơ nhà thầu lỗi thời; thông tin sở hữu và người đại diện không còn tin cậy khi xét thầu.",
+  "home.consequence.vendor_portal_request": "Quá thời hạn trả lời thì đánh giá hoặc yêu cầu bị chốt thiếu ý kiến của nhà thầu và có thể bị khiếu nại.",
+  "home.consequence.vendor_remediation_action": "Rủi ro tiến độ và chất lượng của nhà thầu không được xử lý; đánh giá sau của nhà thầu thấp đi."
 }
