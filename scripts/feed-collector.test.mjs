@@ -153,7 +153,8 @@ describe('the collector end to end, with a fake platform', () => {
     const w = await workspace();
     try {
       await w.put('project.csv', PROJECT);
-      let clock = Date.parse('2026-11-08T10:00:00Z');
+      // The files of the drop folder are written a minute in the past of the real clock, so the simulated clock starts at the real one.
+      let clock = Date.now();
       const now = () => clock;
       let mode = 'down';
       const fetchImpl = fakeFetch(
