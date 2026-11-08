@@ -413,6 +413,12 @@ describe('the indicator dictionary, the entry rules, the figures and the import 
       expect(list(applied, 'errors').map((row) => `${row.line}:${row.code}:${row.field}`)).toEqual(['3:PROJECT_UNKNOWN:project', '4:PROJECT_UNKNOWN:project', '5:PERIOD_UNKNOWN:period']);
       const detail = await call('GET', `/indicator-imports/rows?import_id=${String(applied.json.resource_id)}`, { member: READER });
       expect(list(detail, 'differences')).toEqual([expect.objectContaining({ code: 'IND_FIGURE_DIFFERS', expected: '300', actual: '400', status: 'OPEN', line: 2 })]);
+      // A caller who reaches only the department reads the rows of the projects in their scope, not those of the other projects of the same file (Codex review).
+      const scoped = await call('GET', `/indicator-imports/rows?import_id=${String(applied.json.resource_id)}`, { member: UNIT_ADMIN });
+      expect(list(scoped, 'errors').map((row) => `${row.line}:${row.code}`)).toEqual(['5:PERIOD_UNKNOWN']);
+      expect(list(scoped, 'differences')).toHaveLength(1);
+      const whole = await call('GET', `/indicator-imports/rows?import_id=${String(applied.json.resource_id)}`, { member: ADMIN });
+      expect(list(whole, 'errors').map((row) => `${row.line}:${row.code}`)).toEqual(['3:PROJECT_UNKNOWN', '4:PROJECT_UNKNOWN', '5:PERIOD_UNKNOWN']);
       const held = await call('GET', `/indicator-figures?project_id=${mine.projectId}&period_id=${period}&indicator_code=EQUITY_CAPITAL`, { member: ADMIN });
       expect(list(held)[0]).toMatchObject({ value: '300', source: 'ENTRY', revision: 1 });
       await approveRule('DATA_ENTRY_RULE', 'IMPORT_EQUITY_DEBT', { check: 'PARTS_EQUAL_TOTAL', severity: 'BLOCK', fields: ['EQUITY', 'DEBT'], total_field: 'TOTAL_INVESTMENT', tolerance: 0, message: 'Equity plus loan must equal the total', surfaces: ['INDICATOR_IMPORT'] });

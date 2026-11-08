@@ -79,6 +79,8 @@ export class IndEntryController {
       seen.add(figure.indicator_code);
       planned.push({ indicator, value: figure.value, reason: figure.reason });
     }
+    // The rules read several figures together: nobody else judges or writes this set until this command ends.
+    await this.figures.lockSet(scope.tx, project.id, period.id);
     const held = await this.figures.current(scope.tx, project.id, period.id);
     const values: Record<string, string> = { ...figureFacts(held, dictionary) };
     if (values['TOTAL_INVESTMENT'] === undefined) values['TOTAL_INVESTMENT'] = project.totalInvestmentVnd;

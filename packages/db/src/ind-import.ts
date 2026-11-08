@@ -113,6 +113,7 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
     // A locked period takes nothing unless a reopening that was approved covers the project: the same discipline as the weekly report.
     const closed = await this.periods.closedFor(tx, period.id, project.id, this.deps.now);
     if (closed) return { code: 'PERIOD_LOCKED', field: 'period' };
+    await this.figures.lockSet(tx, project.id, period.id);
     return { project, periodId: period.id, periodStatus: period.status === 'LOCKED' ? 'REOPENED' : period.status, current: await this.figures.current(tx, project.id, period.id) };
   }
 
@@ -133,7 +134,9 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
     const values: Record<string, string> = { ...figureFacts(resolved.current, this.deps.indicators) };
     const total = resolved.project.totalInvestmentVnd;
     if (values['TOTAL_INVESTMENT'] === undefined) values['TOTAL_INVESTMENT'] = total;
+    // Only what the apply will persist: a figure that is new. A held number stays as it is (a different one becomes a difference), so the rules judge the held one.
     for (const figure of record.figures) {
+      if (resolved.current.has(figure.indicator)) continue;
       const field = this.byCode.get(figure.indicator)?.entryField;
       if (field !== undefined && field !== null) values[field] = figure.value;
     }
@@ -169,7 +172,7 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
   async apply(tx: TenantTx, entry: ImportEntry<ImportRecord>, context: ApplyContext): Promise<readonly Difference[]> {
     const resolved = await this.resolve(tx, entry.record);
     if ('code' in resolved) throw new DomainError(resolved.code, 422, resolved.field);
-    const differences: Difference[] = [];
+    const differing: Array<{ indicator: string; held: string; asked: string }> = [];
     const mapping = this.deps.mapping;
     if (mapping.ruleId === null) throw new DomainError('IND_MAPPING_NOT_APPROVED', 409, 'mapping_code');
     for (const figure of entry.record.figures) {
@@ -180,7 +183,7 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
         if (sameNumber(held.value, figure.value)) this.written.unchanged += 1;
         else {
           this.written.differences += 1;
-          differences.push({ code: IND_DIFFERENCE_CODES.FIGURE_DIFFERS, expected: held.value, actual: figure.value, detail: `${entry.record.projectCode} ${entry.record.periodCode} ${figure.indicator}`.slice(0, 500) });
+          differing.push({ indicator: figure.indicator, held: held.value, asked: figure.value });
         }
         continue;
       }
@@ -192,13 +195,25 @@ export class IndImportAdapter implements PreviewableAdapter<ImportRecord> {
       );
       this.written.figures += 1;
     }
-    return differences;
+    return differenceOf(entry.record, differing);
   }
 
   /** The owner of a difference is the person who loaded the file (the fallback of the run). */
   async ownerFor(): Promise<string | undefined> {
     return undefined;
   }
+}
+
+/**
+ * The framework keeps one open item for a row and a kind of difference, and all the figures of a row share its key: so a row whose figures differ says so in one difference. With one figure the expected and the
+ * actual are the two numbers; with several they list `INDICATOR=number` for each, and the detail names the indicators.
+ */
+function differenceOf(record: ImportRecord, differing: ReadonlyArray<{ indicator: string; held: string; asked: string }>): Difference[] {
+  const [only, ...rest] = differing;
+  if (only === undefined) return [];
+  const detail = `${record.projectCode} ${record.periodCode} ${differing.map((one) => one.indicator).join(',')}`.slice(0, 500);
+  if (rest.length === 0) return [{ code: IND_DIFFERENCE_CODES.FIGURE_DIFFERS, expected: only.held, actual: only.asked, detail }];
+  return [{ code: IND_DIFFERENCE_CODES.FIGURE_DIFFERS, expected: differing.map((one) => `${one.indicator}=${one.held}`).join('; '), actual: differing.map((one) => `${one.indicator}=${one.asked}`).join('; '), detail }];
 }
 
 const sameNumber = (a: string, b: string): boolean => {

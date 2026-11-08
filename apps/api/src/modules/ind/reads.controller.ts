@@ -188,19 +188,31 @@ export class IndReadsController {
 
   @Get('indicator-imports/rows')
   @OperationId('listIndicatorImportRows')
-  async importRows(@CurrentTenant() tenant: TenantContext, @Query() query: Record<string, unknown>): Promise<Record<string, unknown>> {
+  async importRows(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>): Promise<Record<string, unknown>> {
     const now = new Date();
     const importId = required(uuid(query.import_id, 'import_id'), 'import_id');
     return this.database.withTenant(tenant, async (tx) => {
       const run = await this.runs.run(tx, importId);
       if (run === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-      const refused = await this.imports.quarantined(tx, importId, ROW_CAP + 1);
-      const differences = await this.runs.differences(tx, importId, ROW_CAP);
+      const scope = projectScope(access, PERMISSIONS.listIndicatorImportRows, now);
+      const refusedAll = await this.imports.quarantined(tx, importId, ROW_CAP + 1);
+      const differencesAll = await this.runs.differences(tx, importId, ROW_CAP);
+      // A file may span many projects: the caller reads the rows of the projects in their scope. The business key starts with the project code; a row with no key (the project could not even be read) is for a caller who reaches the whole tenant.
+      const wholeTenant = scope(1).sql === 'true';
+      const codeOf = (key: string | null): string | null => (key === null ? null : (key.split('|')[0] ?? null));
+      const codes = [...new Set([...refusedAll.map((row) => codeOf(row.businessKey)), ...differencesAll.map((row) => codeOf(row.businessKey))].filter((code): code is string => code !== null))];
+      const visible = wholeTenant ? new Set(codes) : new Set((await this.figures.projectsByCode(tx, codes, scope)).keys());
+      const mayRead = (key: string | null): boolean => {
+        const code = codeOf(key);
+        return code === null ? wholeTenant : visible.has(code);
+      };
+      const refused = refusedAll.filter((row) => mayRead(row.businessKey));
+      const differences = differencesAll.filter((row) => mayRead(row.businessKey));
       const names = await this.people.names(tx, differences.map((row) => row.ownerId));
       return {
         import_id: importId,
         errors: refused.slice(0, ROW_CAP).map(rowErrorDto),
-        errors_truncated: refused.length > ROW_CAP,
+        errors_truncated: refusedAll.length > ROW_CAP,
         differences: differences.map((row) => differenceDto(row, names)),
         as_of: now.toISOString(),
       };

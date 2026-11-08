@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { fileSha256, importMappingOf, defaultGovernanceRule, validateRuleParams } from '@machvon/kernel';
 import type { ImportMapping, IndicatorEntry } from '@machvon/kernel';
 import { IndImportAdapter } from '../src/ind-import';
-import { IndDictionaryStore, IndEntryRuleStore, IndFigureStore, IndMappingStore } from '../src/ind-store';
+import { IndDictionaryStore, IndEntryRuleStore, IndFigureStore, IndMappingStore, figureSetLockKey } from '../src/ind-store';
 import { FileImportStore } from '../src/file-import-store';
 import { previewFileImport } from '../src/file-import-preview';
 import type { TenantTx } from '../src/tenant-database';
@@ -277,6 +277,48 @@ describe('the indicator dictionary, the rules at entry, the mappings and the fig
       expect(current.get('TOTAL_INVESTMENT')).toMatchObject({ value: '1000', source: 'IMPORT' });
       const items = await owner<{ code: string; expected: string; actual: string }>(`select code, expected_value as expected, actual_value as actual from machvon.file_import_reconciliation_item where import_id = $1`, [result.importId]);
       expect(items).toEqual([{ code: 'IND_FIGURE_DIFFERS', expected: '300', actual: '400' }]);
+    });
+
+    it('says every figure of a row that differs in one difference, and judges the rules by what the apply will persist (Codex review)', async () => {
+      const { projectCode, projectId } = await seedBidPackage(harness);
+      const period = await seedPeriod('2026-10-H');
+      const hold = async (code: string, value: string): Promise<void> => {
+        await as((tx) => figures.write(tx, { projectId, periodId: period, indicator: entered_(code), value, source: { kind: 'ENTRY' } }, memberId(MAKER), NOW));
+      };
+      const entered_ = (code: string): IndicatorEntry => dictionaryOf.get(code) as IndicatorEntry;
+      const dictionaryOf = new Map((await as((tx) => dictionary.list(tx, DAY))).map((one) => [one.code, one]));
+      await hold('EQUITY_CAPITAL', '300');
+      await hold('LOAN_CAPITAL', '100');
+      const twice = bytes(HEADER, `${projectCode},2026-10-H,"","400","700",""`);
+      const result = await run(twice, await adapterFor());
+      expect(result.counts).toMatchObject({ applied: 1, differencesOpened: 1 });
+      const items = await owner<{ code: string; expected: string; actual: string; detail: string }>('select code, expected_value as expected, actual_value as actual, detail from machvon.file_import_reconciliation_item where import_id = $1', [result.importId]);
+      expect(items).toHaveLength(1);
+      expect(items[0]).toMatchObject({ code: 'IND_FIGURE_DIFFERS', expected: 'EQUITY_CAPITAL=300; LOAN_CAPITAL=100', actual: 'EQUITY_CAPITAL=400; LOAN_CAPITAL=700' });
+      expect(items[0]?.detail).toContain('EQUITY_CAPITAL,LOAN_CAPITAL');
+      // the rule holds the cumulative to the total: the held total is 100, the file says 200 for it (a difference that is not persisted) and 150 for a new cumulative
+      const other = await seedBidPackage(harness);
+      const otherPeriod = await seedPeriod('2026-10-I');
+      await as((tx) => figures.write(tx, { projectId: other.projectId, periodId: otherPeriod, indicator: entered_('TOTAL_INVESTMENT'), value: '100', source: { kind: 'ENTRY' } }, memberId(MAKER), NOW));
+      await approveRule('DATA_ENTRY_RULE', 'IMPORT_CUMULATIVE_BELOW_TOTAL', validateRuleParams('DATA_ENTRY_RULE', { check: 'CUMULATIVE_NOT_ABOVE_TOTAL', severity: 'BLOCK', fields: ['CUMULATIVE'], total_field: 'TOTAL_INVESTMENT', message: 'Cumulative above the total', surfaces: ['INDICATOR_IMPORT'] }));
+      const persisted = bytes(HEADER, `${other.projectCode},2026-10-I,"200","","","150"`);
+      const preview = await as(async (tx) => previewFileImport(tx, await adapterFor(), persisted));
+      expect(preview.rows[0]).toMatchObject({ status: 'ERROR', code: 'ENTRY_RULE_BLOCKED', field: 'IMPORT_CUMULATIVE_BELOW_TOTAL' });
+      const blocked = await run(persisted, await adapterFor());
+      expect(blocked.counts).toMatchObject({ applied: 0, quarantined: 1 });
+      expect((await as((tx) => figures.current(tx, other.projectId, otherPeriod))).has('CUMULATIVE_YTD')).toBe(false);
+    });
+
+    it('serialises everyone who judges or writes the figure set of one project and period (Codex review)', async () => {
+      const { projectId } = await seedBidPackage(harness);
+      const period = await seedPeriod('2026-10-J');
+      await as(async (tx) => {
+        await figures.lockSet(tx, projectId, period);
+        const other = await as((second) => second.query<{ got: boolean }>('select pg_try_advisory_xact_lock(hashtextextended($1, 0)) as got', [figureSetLockKey(projectId, period)]));
+        expect(other[0]?.got).toBe(false);
+      });
+      const free = await as((tx) => tx.query<{ got: boolean }>('select pg_try_advisory_xact_lock(hashtextextended($1, 0)) as got', [figureSetLockKey(projectId, period)]));
+      expect(free[0]?.got).toBe(true);
     });
 
     it('quarantines a row the register or the rules refuse, with its line, field and code', async () => {

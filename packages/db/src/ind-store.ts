@@ -381,7 +381,15 @@ export interface FigureFilter {
 }
 
 /** The figures of the dictionary: append-only, the figure in force is the greatest revision of a (project, period, indicator). */
+/** The key of the lock that serialises everyone who judges or writes the figure set of one project and period (the rules read several indicators together, so a lock per indicator is not enough). */
+export const figureSetLockKey = (projectId: string, periodId: string): string => `ind_figure_set|${projectId}|${periodId}`;
+
 export class IndFigureStore {
+  /** Takes the lock of the figure set for the rest of the transaction: call it before reading the figures that a rule will judge. */
+  async lockSet(tx: TenantTx, projectId: string, periodId: string): Promise<void> {
+    await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [figureSetLockKey(projectId, periodId)]);
+  }
+
   /** The figures in force for a project and a period, by indicator code. */
   async current(tx: TenantTx, projectId: string, periodId: string): Promise<Map<string, FigureRow>> {
     const rows = await tx.query<FigureSql>(
