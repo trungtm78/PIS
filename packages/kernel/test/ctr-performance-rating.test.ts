@@ -35,7 +35,8 @@ describe('the rating rule', () => {
   it('refuses a rule that does not add up, an unknown key, a missing key and lines that go up', () => {
     expect(() => ratingParams({ ...ratingDefaults(), weight_quality_pct: 31 })).toThrow();
     expect(() => ratingParams({ ...ratingDefaults(), extra: 1 })).toThrow();
-    const { min_criteria: _removed, ...rest } = ratingDefaults();
+    const rest: Record<string, unknown> = { ...ratingDefaults() };
+    delete rest.min_criteria;
     expect(() => ratingParams(rest)).toThrow();
     expect(() => ratingParams({ ...ratingDefaults(), good_min: 95 })).toThrow();
     expect(() => ratingParams({ ...ratingDefaults(), min_criteria: 6 })).toThrow();
