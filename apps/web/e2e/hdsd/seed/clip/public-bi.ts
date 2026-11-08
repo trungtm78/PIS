@@ -24,7 +24,6 @@ interface BiBlock {
   sourceCommit: string;
   dashboards: DashboardSpec[];
   publishReason: string;
-  evidence: { symbol: string; title: string; sender: string };
 }
 
 type BundleBuilder = (directory: string) => Promise<{ ok: boolean; bytes?: Buffer; problems?: string[]; count?: number }>;
