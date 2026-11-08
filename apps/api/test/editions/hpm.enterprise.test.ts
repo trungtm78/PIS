@@ -563,7 +563,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       expect(sent.status).toBe(200);
       const row = pushOf(sent);
       expect(row).toMatchObject({ status: 'WRITTEN', snapshot: { revision: 3, cutoff: '2026-10-31' }, form_status: 'READY' });
-      const package_ = written.find((entry) => entry.name === `HPM-${LAYOUT}-2024-M01-r1.zip`);
+      const package_ = written.find((entry) => entry.name === packageName('2024-M01', 1));
       const unpacked = unzipSync(package_?.bytes as Uint8Array);
       expect(unpacked['report/HPM_2024-M01_r1.xlsx']).toEqual(issue.xlsx);
       expect((await deliveries(issue.id)).map((entry) => [entry.event, entry.channel, entry.receiver, entry.recorded_by])).toEqual([['DELIVERED', 'HPM_PUSH', 'HPM', memberId(PUSHER)]]);
@@ -716,7 +716,7 @@ describe('the push of the issued reports to HPM (ENT-2, HPM-01, HPM-02)', () => 
       }
       // The pooled connection of the test client may be reused, so there may be no new connection at all: what must hold is that none goes anywhere but here, and that the writer did its work.
       for (const target of targets) expect(['127.0.0.1', 'localhost', '::1']).toContain(target);
-      expect(written.some((entry) => entry.name === `HPM-${LAYOUT}-2025-M02-r1.zip`)).toBe(true);
+      expect(written.some((entry) => entry.name === packageName('2025-M02', 1))).toBe(true);
     });
   });
 

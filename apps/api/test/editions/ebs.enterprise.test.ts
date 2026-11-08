@@ -497,13 +497,13 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
 
     it('adds the people who made a later reading to the makers of an open item, and hands the item to a holder who is not one of them when its owner is', async () => {
       const project = await seedProject({ paid: ['1000'] });
-      expect((await apply(ADMIN, await upload(file(`${project.code},2026-07,2026-08-02,1200,`)))).status).toBe(200);
-      const opened = await reconcile(RECONCILER, { period: '2026-07', owner_id: memberId(OWNER) });
+      expect((await apply(ADMIN, await upload(file(`${project.code},2026-12,2027-01-04,1200,`)))).status).toBe(200);
+      const opened = await reconcile(RECONCILER, { period: '2026-12', owner_id: memberId(OWNER) });
       const item = itemsOf(opened).find((candidate) => candidate.project_code === project.code) as Record<string, unknown>;
       expect(item).toMatchObject({ owner_id: memberId(OWNER) });
       // The owner runs the comparison on a newer extract: they now made the figures the item shows.
-      expect((await apply(ADMIN, await upload(file(`${project.code},2026-07,2026-08-09,1300,`)))).status).toBe(200);
-      const refreshed = await reconcile(OWNER, { period: '2026-07' });
+      expect((await apply(ADMIN, await upload(file(`${project.code},2026-12,2027-01-11,1300,`)))).status).toBe(200);
+      const refreshed = await reconcile(OWNER, { period: '2026-12' });
       expect(refreshed.status).toBe(200);
       expect(refreshed.json).toMatchObject({ no_owner: 0 });
       const after = itemsOf(refreshed).find((candidate) => candidate.project_code === project.code) as Record<string, unknown>;
@@ -512,7 +512,7 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
       expect([...(stored[0]?.maker_ids ?? [])].sort()).toEqual([memberId(ADMIN), memberId(RECONCILER), memberId(OWNER)].sort());
       expect(stored[0]?.maker_ids).not.toContain(stored[0]?.owner_id);
       // The people who made the reading cannot settle it; the new owner can.
-      const body = { kind: 'WAIVED', reason: 'Accepted by the finance office for now', review_on: '2999-01-01' };
+      const body = { kind: 'TIMING', reason: 'The payment will be booked next month', review_on: new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10) };
       expect((await resolve(OWNER, item.id as string, after.version as number, body)).status).toBe(403);
       expect((await resolve(ALT, item.id as string, after.version as number, body)).status).toBe(200);
     });
