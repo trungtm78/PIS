@@ -179,6 +179,12 @@
       "module": "INT",
       "title": "Open interface and integrations",
       "goal": "Let other systems read what the organization has certified, without a way around its tenant boundary: machine accounts with scopes, rate limits and an access log, certified datasets behind both an API and read-only database logins bound to one tenant, and the codes of our projects in the other systems of the organization."
+    },
+    {
+      "id": "EP-HUB",
+      "module": "HUB",
+      "title": "Integration Hub: one place that manages every connection to an outside system",
+      "goal": "Register every connector by a descriptor, show its health, freshness, runs and incidents the same way, switch it on and off with a reason, run its data through an ETL pipeline (extract, validate, transform, load) with approved mappings, rejects, lineage and a watermark that moves only after a successful load, and register collector agents of any platform; no connector opens a network connection without a declared egress."
     }
   ],
   "features": [
@@ -971,6 +977,11 @@
       "id": "FT-INT-01",
       "epic": "EP-INT",
       "title": "Open API, machine accounts, BI logins and multi-system project codes"
+    },
+    {
+      "id": "FT-HUB-01",
+      "epic": "EP-HUB",
+      "title": "Catalogue, health, incidents, pipelines, mappings and agents of the connectors"
     }
   ],
   "stories": [
@@ -52859,6 +52870,161 @@
             "UI-LLM-25",
             "UI-LLM-26",
             "UI-LLM-27"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-HUB-001",
+      "epic": "EP-HUB",
+      "feature": "FT-HUB-01",
+      "module": "HUB",
+      "title": "Manage every external connection from one hub: health, runs, incidents, ETL pipelines, mappings and collector agents",
+      "narrative": "As an integration administrator I can see every connection to an outside system with its health and the age of its data, switch it on or off with a reason, follow its runs and incidents, approve the mapping its pipeline uses, correct and reprocess rejected records, and see the collector agents that serve it.",
+      "release": "R2",
+      "screens": [
+        "HUB-01",
+        "HUB-02",
+        "HUB-03"
+      ],
+      "operations": [
+        "listHubConnectors",
+        "getHubConnector",
+        "listHubConnectorRuns",
+        "listHubRejects",
+        "listHubIncidents",
+        "getHubHealthSummary",
+        "listHubAgents",
+        "setHubConnectorState",
+        "recordHubRun",
+        "openHubIncident",
+        "decideHubIncident",
+        "captureHubSnapshot",
+        "proposeHubMapping",
+        "decideHubMapping",
+        "decideHubReject",
+        "registerHubAgent",
+        "heartbeatHubAgent"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-HUB-001-1",
+          "given": "Three connectors: one healthy, one waiting for the outside, one failing",
+          "when": "HUB-01 is opened",
+          "then": "The healthy share is 50 percent (1 of 2, the waiting connector is not counted), the failing connector shows CONNECTOR_FAILING, and every figure has its formula, source and as-of behind the \"i\"",
+          "test_id": "UAT-HUB-001"
+        },
+        {
+          "id": "AC-ST-HUB-001-2",
+          "given": "The e-GP connection is on",
+          "when": "It is switched off with a reason of ten characters, then again with the old version",
+          "then": "The switch and the history of the e-GP connection change through its own command, and the old version is 409 VERSION_CONFLICT",
+          "test_id": "UAT-HUB-002"
+        },
+        {
+          "id": "AC-ST-HUB-001-3",
+          "given": "A connector whose last run failed",
+          "when": "The health is swept twice, then a run succeeds and it is swept again",
+          "then": "One incident is open after two sweeps, it closes itself after the success, and acknowledging or resolving one needs a reason",
+          "test_id": "UAT-HUB-003"
+        },
+        {
+          "id": "AC-ST-HUB-001-4",
+          "given": "A mapping proposed by one person for a pipeline",
+          "when": "The proposer approves it, then another person does, and a load fails",
+          "then": "The first is 403 SELF_APPROVAL_DENIED, the second makes it the mapping in use, and the watermark does not move after the failed load",
+          "test_id": "UAT-HUB-004"
+        },
+        {
+          "id": "AC-ST-HUB-001-5",
+          "given": "HUB-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 390 px",
+          "test_id": "UI-HUB-01"
+        },
+        {
+          "id": "AC-ST-HUB-001-6",
+          "given": "HUB-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 390 px",
+          "test_id": "UI-HUB-02"
+        },
+        {
+          "id": "AC-ST-HUB-001-7",
+          "given": "HUB-03 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 390 px",
+          "test_id": "UI-HUB-03"
+        }
+      ],
+      "dependencies": [
+        "ST-BID-005",
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 60,
+          "max": 120
+        },
+        "confidence": "low",
+        "assumption": "Every layout on main is a working assumption (PENDING-EXTERNAL); real network protocol adapters stay refusing stubs until an egress exception exists; the existing imports are not yet instances of the stage runner."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HUB-001-1",
+          "kind": "backend",
+          "title": "Hub store, read model over the connectors, run log, incidents, snapshots, mappings, rejects, agents; commands with audit and outbox",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HUB-001-2",
+          "kind": "web",
+          "title": "HUB-01, HUB-02, HUB-03 built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HUB-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for HUB-01 to HUB-03; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HUB-001-4",
+          "kind": "qa",
+          "title": "Domain, API, authorization, isolation and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-HUB-001",
+            "UAT-HUB-002",
+            "UAT-HUB-003",
+            "UAT-HUB-004"
+          ]
+        },
+        {
+          "id": "TK-HUB-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-HUB-01",
+            "UI-HUB-02",
+            "UI-HUB-03"
           ]
         }
       ]

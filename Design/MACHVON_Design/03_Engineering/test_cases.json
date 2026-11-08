@@ -22767,5 +22767,133 @@
     "covers": [
       "FR-LLM-27"
     ]
+  },
+  {
+    "id": "UI-HUB-01",
+    "source": "FR-HUB-01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Danh mục bộ kết nối và sức khỏe tích hợp; user có quyền và user chỉ đọc; route HUB-01",
+    "steps": [
+      "Mở HUB-01 từ menu và deep link; kiểm nhãn trường: Mã và tên bộ kết nối, Hướng (vào, ra, hai chiều), Giao thức, Trạng thái sức khỏe, Độ mới và tuổi dữ liệu, Lần chạy gần nhất, Trạng thái chờ bên ngoài, Bộ chỉ tiêu sức khỏe (tỷ lệ khỏe, tuổi cũ nhất, lỗi 7 ngày, chênh lệch tồn đọng, ánh xạ chờ duyệt), Quét sức khỏe",
+      "Thực hiện thao tác chính theo quy tắc: Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HUB-01"
+    ],
+    "expected": "Danh mục bộ kết nối và sức khỏe tích hợp: hiển thị đúng 9 trường, áp quy tắc \"Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UI-HUB-02",
+    "source": "FR-HUB-02",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết bộ kết nối; user có quyền và user chỉ đọc; route HUB-02",
+    "steps": [
+      "Mở HUB-02 từ menu và deep link; kiểm nhãn trường: Tổng quan và công tắc bật tắt, Lịch sử chạy, Quy trình ETL (trích xuất, kiểm tra, biến đổi, nạp), bản ghi bị loại, lịch chạy, Ánh xạ và phiên bản, Chênh lệch, Tài khoản và tác tử thu thập, Mẫu tệp và chính sách độ mới, Liên kết tới màn hình riêng của bộ kết nối",
+      "Thực hiện thao tác chính theo quy tắc: Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HUB-02"
+    ],
+    "expected": "Chi tiết bộ kết nối: hiển thị đúng 8 trường, áp quy tắc \"Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UI-HUB-03",
+    "source": "FR-HUB-03",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Nhật ký sự cố tích hợp; user có quyền và user chỉ đọc; route HUB-03",
+    "steps": [
+      "Mở HUB-03 từ menu và deep link; kiểm nhãn trường: Bộ kết nối, Loại sự cố (lỗi, cũ, cũ toàn trung tâm, người báo), Mức, Trạng thái, Thời điểm mở, Người nhận xử lý, Lý do đóng",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HUB-03"
+    ],
+    "expected": "Nhật ký sự cố tích hợp: hiển thị đúng 7 trường, áp quy tắc \"Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-001",
+    "source": "HUB.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Three connectors (healthy, waiting for the outside, failing); the figures of the hub.",
+    "steps": [
+      "Open HUB-01",
+      "Read the healthy share and the status of each connector",
+      "Open the \"i\" of each figure"
+    ],
+    "expected": "The healthy share is 50 percent (1 of 2); the waiting connector is not counted; the failing one shows CONNECTOR_FAILING; each figure shows formula, source, as-of and the unverified flag.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-002",
+    "source": "HUB.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The e-GP connection is on; a member with hub.state.manage.",
+    "steps": [
+      "Switch it off with a reason of ten characters",
+      "Repeat with the old version",
+      "Read the history of the connection and of the hub"
+    ],
+    "expected": "The switch and the history of the e-GP connection change through its own command; the old version is 409 VERSION_CONFLICT; the hub keeps its own line.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01",
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-003",
+    "source": "HUB.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A connector whose last run failed.",
+    "steps": [
+      "Sweep the health twice",
+      "Record a successful run and sweep again",
+      "Acknowledge and resolve a reported incident with a reason"
+    ],
+    "expected": "One incident is open after two sweeps; it closes itself after the success; acknowledge and resolve need a reason and a version; nothing is deleted.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-004",
+    "source": "HUB.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A pipeline with a proposed mapping and a rejected record.",
+    "steps": [
+      "The proposer approves the mapping",
+      "Another person approves it",
+      "Run the pipeline with a failing load, then with a good one",
+      "Discard and reprocess the reject"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: the mapping is in use; step 3: the watermark moves only after the good load; step 4: the reject is closed once with a reason.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
   }
 ]

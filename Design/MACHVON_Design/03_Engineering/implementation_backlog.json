@@ -19800,5 +19800,115 @@
     "stories": [
       "ST-LLM-012"
     ]
+  },
+  {
+    "id": "BL-HUB-01",
+    "requirement": "FR-HUB-01",
+    "screen": "HUB-01",
+    "title": "Danh mục bộ kết nối và sức khỏe tích hợp",
+    "module": "HUB",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM,BID,HOME",
+    "fields": [
+      "Mã và tên bộ kết nối",
+      "Hướng (vào, ra, hai chiều)",
+      "Giao thức",
+      "Trạng thái sức khỏe",
+      "Độ mới và tuổi dữ liệu",
+      "Lần chạy gần nhất",
+      "Trạng thái chờ bên ngoài",
+      "Bộ chỉ tiêu sức khỏe (tỷ lệ khỏe, tuổi cũ nhất, lỗi 7 ngày, chênh lệch tồn đọng, ánh xạ chờ duyệt)",
+      "Quét sức khỏe"
+    ],
+    "rule": "Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.",
+    "test_ids": [
+      "UI-HUB-01",
+      "UAT-HUB-001",
+      "UAT-HUB-002"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/HUB.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-HUB-001"
+    ]
+  },
+  {
+    "id": "BL-HUB-02",
+    "requirement": "FR-HUB-02",
+    "screen": "HUB-02",
+    "title": "Chi tiết bộ kết nối",
+    "module": "HUB",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM,BID,HOME",
+    "fields": [
+      "Tổng quan và công tắc bật tắt",
+      "Lịch sử chạy",
+      "Quy trình ETL (trích xuất, kiểm tra, biến đổi, nạp), bản ghi bị loại, lịch chạy",
+      "Ánh xạ và phiên bản",
+      "Chênh lệch",
+      "Tài khoản và tác tử thu thập",
+      "Mẫu tệp và chính sách độ mới",
+      "Liên kết tới màn hình riêng của bộ kết nối"
+    ],
+    "rule": "Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.",
+    "test_ids": [
+      "UI-HUB-02",
+      "UAT-HUB-002",
+      "UAT-HUB-004"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/HUB.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-HUB-001"
+    ]
+  },
+  {
+    "id": "BL-HUB-03",
+    "requirement": "FR-HUB-03",
+    "screen": "HUB-03",
+    "title": "Nhật ký sự cố tích hợp",
+    "module": "HUB",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM,BID,HOME",
+    "fields": [
+      "Bộ kết nối",
+      "Loại sự cố (lỗi, cũ, cũ toàn trung tâm, người báo)",
+      "Mức",
+      "Trạng thái",
+      "Thời điểm mở",
+      "Người nhận xử lý",
+      "Lý do đóng"
+    ],
+    "rule": "Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.",
+    "test_ids": [
+      "UI-HUB-03",
+      "UAT-HUB-003"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/HUB.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-HUB-001"
+    ]
   }
 ]

@@ -11033,5 +11033,61 @@
     "test_ids": [
       "UI-LLM-27"
     ]
+  },
+  {
+    "requirement": "FR-HUB-01",
+    "screen": "HUB-01",
+    "title": "Danh mục bộ kết nối và sức khỏe tích hợp",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Chỉ đạo chủ đầu tư 2026-11-08 (Integration Hub) và docs/integration-hub.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HUB.md §10–§11; 3 test",
+    "backlog_id": "BL-HUB-01",
+    "test_ids": [
+      "UI-HUB-01",
+      "UAT-HUB-001",
+      "UAT-HUB-002"
+    ]
+  },
+  {
+    "requirement": "FR-HUB-02",
+    "screen": "HUB-02",
+    "title": "Chi tiết bộ kết nối",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Chỉ đạo chủ đầu tư 2026-11-08 (Integration Hub) và docs/integration-hub.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HUB.md §10–§11; 3 test",
+    "backlog_id": "BL-HUB-02",
+    "test_ids": [
+      "UI-HUB-02",
+      "UAT-HUB-002",
+      "UAT-HUB-004"
+    ]
+  },
+  {
+    "requirement": "FR-HUB-03",
+    "screen": "HUB-03",
+    "title": "Nhật ký sự cố tích hợp",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Chỉ đạo chủ đầu tư 2026-11-08 (Integration Hub) và docs/integration-hub.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HUB.md §10–§11; 2 test",
+    "backlog_id": "BL-HUB-03",
+    "test_ids": [
+      "UI-HUB-03",
+      "UAT-HUB-003"
+    ]
   }
 ]
