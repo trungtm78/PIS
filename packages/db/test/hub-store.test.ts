@@ -1,7 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { connectorDescriptor, connectorDescriptors, hubRunOf, registerBuiltInConnectors, runEtl, makeBatch } from '@machvon/kernel';
 import type { ConnectorDescriptor, EtlPorts, FieldMapping } from '@machvon/kernel';
+import { EgpConnectionStore } from '../src/egp-store';
 import { registerBuiltInHubAdapters } from '../src/hub-adapters';
+import { IntegrationCursorStore } from '../src/integration-cursor-store';
+import { TREASURY_CONNECTOR_CODE, TREASURY_FORMAT_VERSION } from '../src/pay-treasury-statement-format';
 import { HubStore } from '../src/hub-store';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
@@ -96,6 +99,22 @@ describe('the Integration Hub store (HUB-1)', () => {
       const other = await as((tx) => hub.reading(tx, descriptor('treasury.statement'), NOW), MAKER, TENANT_B);
       expect(other.health.status).toBe('PENDING_EXTERNAL');
       expect(await as((tx) => hub.listRuns(tx, descriptor('treasury.statement'), { limit: 10, after: undefined }), MAKER, TENANT_B)).toEqual([]);
+    });
+  });
+
+  describe('the conformance check of the database half', () => {
+    it('reports a position without its ledger row and passes once the connector made it; the e-GP connection owns its positions, its switch adapter and a readable history', async () => {
+      const treasury = await as((tx) => hub.conformanceProblems(tx, descriptor('treasury.statement'), NOW));
+      expect(treasury).toEqual(['ledger: position TREASURY_STATEMENT_FILE has no integration_cursor row (call the ensure of the connector)']);
+      await as((tx) => new IntegrationCursorStore().ensureDefaults(tx, memberId(MAKER)));
+      expect(await as((tx) => hub.conformanceProblems(tx, descriptor('treasury.statement'), NOW))).toEqual([]);
+      await as((tx) => new EgpConnectionStore().ensure(tx, memberId(MAKER)));
+      expect(await as((tx) => hub.conformanceProblems(tx, descriptor('egp.muasamcong'), NOW))).toEqual([]);
+    });
+
+    it('keeps the built-in descriptors in step with the format versions of the modules that own the layouts', () => {
+      expect(descriptor('treasury.statement').layouts[0]?.version).toBe(TREASURY_FORMAT_VERSION);
+      expect(descriptor('treasury.statement').ledger.positions).toEqual([TREASURY_CONNECTOR_CODE]);
     });
   });
 

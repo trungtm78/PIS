@@ -543,6 +543,28 @@ export class HubStore {
     return readings;
   }
 
+  /**
+   * The database half of the connector conformance check (the kernel half is connectorConformanceProblems): the connector owns its entry in the ledger. Every position of a file framework connector has its
+   * row in integration_cursor for the tenant (the ensure of the connector made it), a connector with a switch of its own has an adapter registered with the hub, and the hub can read the connector
+   * without failing. An empty list means it conforms.
+   */
+  async conformanceProblems(tx: TenantTx, descriptor: ConnectorDescriptor, now: Date): Promise<string[]> {
+    const problems: string[] = [];
+    if (descriptor.ledger.positions.length > 0) {
+      const rows = await tx.query<{ connector_code: string }>("select connector_code from machvon.integration_cursor where connector_code = any($1::text[]) and source_scope = 'DEFAULT'", [[...descriptor.ledger.positions]]);
+      for (const position of descriptor.ledger.positions) {
+        if (!rows.some((row) => row.connector_code === position)) problems.push(`ledger: position ${position} has no integration_cursor row (call the ensure of the connector)`);
+      }
+    }
+    if (descriptor.ledger.stateOwner === 'CONNECTOR' && hubStateAdapterOf(descriptor.code) === undefined) problems.push('state: the connector owns its switch but registered no hub state adapter');
+    try {
+      await this.reading(tx, descriptor, now);
+    } catch (error) {
+      problems.push(`reading: the hub cannot read the connector (${(error as Error).message})`);
+    }
+    return problems;
+  }
+
   // ---- runs ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   /** The runs of a connector from the file import framework and the hub's run log, newest first (keyset by start time and id). */
