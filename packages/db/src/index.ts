@@ -1672,3 +1672,8 @@ export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from '.
 // RPT-1, part 2: the report engine's layouts, files, drafts, issued copies and delivery log.
 export { ReportStore, copyRefOf } from './report-store.ts';
 export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';
+=======
+export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';
+// FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
+export { FIGURE_CALENDAR, FIGURE_RESOURCE, FUNDING_TAXONOMY_TYPE, FndFigureStore } from './fnd-figure-store.ts';
+export type { FigureBatch, FigureFilter, FigureProposal, FigureResult, FigureRow, ResolvedPack } from './fnd-figure-store.ts';
