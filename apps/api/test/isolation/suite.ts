@@ -385,6 +385,34 @@ export const PROPOSAL_FIXTURES: Readonly<Record<TenantName, { id: string; declar
   'TNT-B': { id: '00000000-0000-4000-b0ba-000000000001', declarationId: '00000000-0000-4000-b0ba-000000000002', bidPrice: '7772000001', relation: 'BETA-CONFLICT-RELATION-0001' },
 };
 
+/** A document of the project repository of each tenant with its first version, one cited paragraph, a comment and a round of review (the title, the paragraph and the comment are distinctive; tenant confidential data). */
+export const REPO_FIXTURES: Readonly<Record<TenantName, { documentId: string; versionId: string; commentId: string; reviewId: string; citationId: string; title: string; reference: string; unitText: string; commentBody: string; fileObjectKey: string }>> = {
+  'TNT-A': {
+    documentId: '00000000-0000-4000-a2d0-000000000001',
+    versionId: '00000000-0000-4000-a2d0-000000000002',
+    commentId: '00000000-0000-4000-a2d0-000000000003',
+    reviewId: '00000000-0000-4000-a2d0-000000000004',
+    citationId: 'cit_a2d0a2d0a2d0a2d0a2d0',
+    title: 'ALPHA-REPOSITORY-DOCUMENT-TITLE-0001',
+    reference: 'ALPHA-REPO-REF-0001',
+    unitText: 'ALPHA-REPOSITORY-PARAGRAPH-TEXT-0001',
+    commentBody: 'ALPHA-REPOSITORY-COMMENT-BODY-0001',
+    fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000a/document/alpha-repository-file-0001',
+  },
+  'TNT-B': {
+    documentId: '00000000-0000-4000-b2d0-000000000001',
+    versionId: '00000000-0000-4000-b2d0-000000000002',
+    commentId: '00000000-0000-4000-b2d0-000000000003',
+    reviewId: '00000000-0000-4000-b2d0-000000000004',
+    citationId: 'cit_b2d0b2d0b2d0b2d0b2d0',
+    title: 'BETA-REPOSITORY-DOCUMENT-TITLE-0001',
+    reference: 'BETA-REPO-REF-0001',
+    unitText: 'BETA-REPOSITORY-PARAGRAPH-TEXT-0001',
+    commentBody: 'BETA-REPOSITORY-COMMENT-BODY-0001',
+    fileObjectKey: 'tenants/00000000-0000-4000-8000-00000000000b/document/beta-repository-file-0001',
+  },
+};
+
 /** A page of OCR of a file of the proposal of each tenant that waits for a person (the engine version and the key of its text are distinctive; tenant confidential data). */
 export const OCR_FIXTURES: Readonly<Record<TenantName, { id: string; documentId: string; versionId: string; fileObjectKey: string; engineVersion: string; textObjectKey: string }>> = {
   'TNT-A': {
@@ -1897,6 +1925,16 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'analysis input hash', value: RUN_FIXTURES[tenant].inputHash },
     { kind: 'analysis review id', value: RUN_FIXTURES[tenant].reviewId },
     { kind: 'analysis review reason', value: RUN_FIXTURES[tenant].reviewReason },
+    { kind: 'repository document id', value: REPO_FIXTURES[tenant].documentId },
+    { kind: 'repository version id', value: REPO_FIXTURES[tenant].versionId },
+    { kind: 'repository comment id', value: REPO_FIXTURES[tenant].commentId },
+    { kind: 'repository review id', value: REPO_FIXTURES[tenant].reviewId },
+    { kind: 'repository citation id', value: REPO_FIXTURES[tenant].citationId },
+    { kind: 'repository document title', value: REPO_FIXTURES[tenant].title },
+    { kind: 'repository document reference', value: REPO_FIXTURES[tenant].reference },
+    { kind: 'repository paragraph text', value: REPO_FIXTURES[tenant].unitText },
+    { kind: 'repository comment body', value: REPO_FIXTURES[tenant].commentBody },
+    { kind: 'repository file key', value: REPO_FIXTURES[tenant].fileObjectKey },
     { kind: 'ocr page id', value: OCR_FIXTURES[tenant].id },
     { kind: 'ocr engine version', value: OCR_FIXTURES[tenant].engineVersion },
     { kind: 'ocr page text key', value: OCR_FIXTURES[tenant].textObjectKey },

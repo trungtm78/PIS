@@ -65,6 +65,7 @@ import {
   PACKAGE_FIXTURES,
   PAYMENT_COMP_FIXTURES,
   OCR_FIXTURES,
+  REPO_FIXTURES,
   RUN_FIXTURES,
   PLAN_COMP_FIXTURES,
   PARCEL_FIXTURES,
@@ -729,6 +730,28 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'reviewOcrPage',
   'uploadOcrCorrectionFile',
   'listProposalOcrPages',
+  'listProjectDocuments',
+  'getProjectDocument',
+  'getProjectDocumentVersion',
+  'listDocumentTextUnits',
+  'resolveDocumentCitation',
+  'listDocumentComments',
+  'compareDocumentVersions',
+  'listDocumentReviews',
+  'getDocumentReview',
+  'getProjectDocumentVersionDownload',
+  'uploadProjectDocumentFile',
+  'createProjectDocument',
+  'updateProjectDocument',
+  'addProjectDocumentVersion',
+  'archiveProjectDocument',
+  'restoreProjectDocument',
+  'rerunDocumentExtraction',
+  'addDocumentComment',
+  'resolveDocumentComment',
+  'reopenDocumentComment',
+  'submitDocumentForReview',
+  'withdrawDocumentReview',
   'post_analysis_runs',
   'post_analysis_runs_id_cancel',
   'listAnalysisFindings',
@@ -2100,6 +2123,25 @@ const INSERT_OCR_VERSION = `insert into machvon.document_version
 const INSERT_PROPOSAL_FILE = `insert into machvon.proposal_document (tenant_id, id, proposal_id, document_version_id, part, received_by)
   values ($1, gen_random_uuid(), $2, $3, 'TECHNICAL', $4) on conflict do nothing`;
 
+const INSERT_REPO_DOCUMENT = `insert into machvon.project_document (tenant_id, id, project_id, doc_class, title, reference, created_by, updated_by)
+  values ($1, $2, $3, 'DESIGN', $4, $5, $6, $6) on conflict do nothing`;
+
+const INSERT_REPO_VERSION = `insert into machvon.project_document_version (tenant_id, id, document_id, version_no, file_object_key, file_sha256, size_bytes, format, mime, created_by)
+  values ($1, $2, $3, 1, $4, repeat('d', 64), 2048, 'PDF', 'application/pdf', $5) on conflict do nothing`;
+
+const INSERT_REPO_UNIT = `insert into machvon.document_text_unit (tenant_id, version_id, seq, citation_id, kind, locator_key, label, page_no, paragraph_no, text, text_sha256)
+  values ($1, $2, 1, $3, 'PARAGRAPH', 'p1/para1', 'p1 para1', 1, 1, $4, repeat('e', 64)) on conflict do nothing`;
+
+const READ_REPO_VERSION = `update machvon.project_document_version set extraction_status = 'EXTRACTED', unit_count = 1, extracted_at = now(), extraction_engine = 'isolation', extraction_engine_version = '1' where id = $1`;
+
+const POINT_REPO_DOCUMENT = `update machvon.project_document set current_version_id = $2 where id = $1`;
+
+const INSERT_REPO_COMMENT = `insert into machvon.document_comment (tenant_id, id, document_id, version_id, citation_id, body, author_id)
+  values ($1, $2, $3, $4, $5, $6, $7) on conflict do nothing`;
+
+const INSERT_REPO_REVIEW = `insert into machvon.document_review (tenant_id, id, document_id, version_id, round_no, submitted_by)
+  values ($1, $2, $3, $4, 1, $5) on conflict do nothing`;
+
 const INSERT_OCR_PAGE = `insert into machvon.document_page_ocr
   (tenant_id, id, document_version_id, page_index, ocr_confidence, text_sha256, text_object_key, engine_version, review_status)
   values ($1, $2, $3, 0, 0.71, repeat('c', 64), $4, $5, 'NEEDS_REVIEW') on conflict do nothing`;
@@ -2710,6 +2752,15 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_OCR_VERSION, [tenantId, ocr.versionId, ocr.documentId, ocr.fileObjectKey, ACTOR_ID]);
     await client.query(INSERT_PROPOSAL_FILE, [tenantId, proposal.id, ocr.versionId, ACTOR_ID]);
     await client.query(INSERT_OCR_PAGE, [tenantId, ocr.id, ocr.versionId, ocr.textObjectKey, ocr.engineVersion]);
+    // A document of the project repository with its text, a comment on the paragraph and a round of review: the reads and the commands of the repository find them through the project.
+    const repo = REPO_FIXTURES[tenant];
+    await client.query(INSERT_REPO_DOCUMENT, [tenantId, repo.documentId, project.id, repo.title, repo.reference, ACTOR_ID]);
+    await client.query(INSERT_REPO_VERSION, [tenantId, repo.versionId, repo.documentId, repo.fileObjectKey, ACTOR_ID]);
+    await client.query(INSERT_REPO_UNIT, [tenantId, repo.versionId, repo.citationId, repo.unitText]);
+    await client.query(READ_REPO_VERSION, [repo.versionId]);
+    await client.query(POINT_REPO_DOCUMENT, [repo.documentId, repo.versionId]);
+    await client.query(INSERT_REPO_COMMENT, [tenantId, repo.commentId, repo.documentId, repo.versionId, repo.citationId, repo.commentBody, ACTOR_ID]);
+    await client.query(INSERT_REPO_REVIEW, [tenantId, repo.reviewId, repo.documentId, repo.versionId, ACTOR_ID]);
     const planFixture = PLAN_COMP_FIXTURES[tenant];
     await client.query(HANDLE_COMP_FEEDBACK, [planFixture.id, MEMBERSHIP_ID]);
     await client.query(CLOSE_COMP_PLAN, [planFixture.id]);
@@ -2936,6 +2987,12 @@ const SNAPSHOT_TABLES = [
   'doc_interop_message',
   'evaluation_report',
   'document_page_ocr',
+  'project_document',
+  'project_document_version',
+  'document_text_unit',
+  'document_comment',
+  'document_review',
+  'document_review_event',
   'analysis_run',
   'analysis_finding',
   'analysis_finding_review',

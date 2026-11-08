@@ -196,10 +196,11 @@ export class ProjectDocumentReadsController {
   @OperationId('resolveDocumentCitation')
   async citation(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Param('citationId') citationId: string): Promise<Record<string, unknown>> {
     const now = new Date();
-    if (!CITATION_ID.test(citationId)) throw new DomainError('VALIDATION_FAILED', 422, 'citation_id');
     return this.database.withTenant(tenant, async (tx) => {
       const found = await this.store.findVersion(tx, id.toLowerCase(), projectScope(access, PERMISSIONS.resolveDocumentCitation, now), now);
       if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      // The place is judged after the scope: a version out of reach is not there, whatever is asked of it.
+      if (!CITATION_ID.test(citationId)) throw new DomainError('VALIDATION_FAILED', 422, 'citation_id');
       const resolved = await this.texts.resolve(tx, found.version.id, citationId);
       if (resolved === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
       const { document, version } = found;
