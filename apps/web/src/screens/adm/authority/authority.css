@@ -1,0 +1,48 @@
+/* ADM-25, ADM-26, ADM-27: the permanent delegation, acting on behalf of a person and the limit of a role to report periods. */
+.adm-authority .adm-authority-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  margin-bottom: var(--mv-space-16);
+}
+
+.adm-authority .adm-authority-tabs [role='tab'][aria-selected='true'] {
+  background: var(--mv-color-primary);
+  border-color: var(--mv-color-primary);
+  color: var(--mv-color-surface);
+}
+
+.adm-authority .authority-permission {
+  display: block;
+}
+
+.adm-authority .authority-chip,
+.command-dialog .authority-chip {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--mv-color-neutral-soft);
+}
+
+.command-dialog .authority-chips {
+  display: block;
+  margin-top: var(--mv-space-8);
+}
+
+/* A review that falls due within 14 days is said next to the date, in the warning colour and in words (never by colour alone). */
+.adm-authority .authority-due {
+  display: block;
+  color: var(--mv-color-warning);
+  font-weight: 600;
+}
+
+.adm-authority tr[data-due-soon='true'] {
+  background: var(--mv-color-warning-soft);
+}
+
+/* The banner of an acting grant in force: the administrator is told, in words, that what they do is done as the person. */
+.adm-authority .authority-acting-banner {
+  margin-bottom: var(--mv-space-16);
+  font-weight: 600;
+}
