@@ -93,7 +93,7 @@ export interface PublicPortalProps {
 }
 
 /**
- * PRJ-33, the public portal (G4-9): read-only, no sign-in, shown outside the shell of the application. It lists the published projects with only the fields that the publisher allowed, offers the OC4IDS file, and takes an anonymous
+ * PRJ-34, the public portal (G4-9): read-only, no sign-in, shown outside the shell of the application. It lists the published projects with only the fields that the publisher allowed, offers the OC4IDS file, and takes an anonymous
  * report (G4-12) without keeping an address, a device or a name. The page says what it keeps (nothing about the person) and that the access code is shown once.
  */
 export default function PublicPortalScreen({ slug: slugProp, fetcher = defaultFetcher }: PublicPortalProps) {
@@ -155,7 +155,7 @@ export default function PublicPortalScreen({ slug: slugProp, fetcher = defaultFe
 
   if (slug === undefined) {
     return (
-      <main className="prj-public" data-screen-id="PRJ-33" aria-labelledby="screen-title">
+      <main className="prj-public" data-screen-id="PRJ-34" aria-labelledby="screen-title">
         <h1 id="screen-title">{t('prj.public.page.title')}</h1>
         <form
           className="prj-form"
@@ -177,7 +177,7 @@ export default function PublicPortalScreen({ slug: slugProp, fetcher = defaultFe
   }
 
   return (
-    <main className="prj-public" data-screen-id="PRJ-33" aria-labelledby="screen-title">
+    <main className="prj-public" data-screen-id="PRJ-34" aria-labelledby="screen-title">
       <header>
         <h1 id="screen-title">{info?.title ?? t('prj.public.page.title')}</h1>
         {info === undefined ? null : (

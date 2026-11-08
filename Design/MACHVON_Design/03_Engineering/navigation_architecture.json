@@ -2989,6 +2989,7 @@
         "PRJ-31",
         "PRJ-32",
         "PRJ-33",
+        "PRJ-34",
         "AUD-17",
         "AUD-18",
         "AUD-19",
@@ -8444,7 +8445,7 @@
       "parent": null
     },
     {
-      "id": "PRJ-30",
+      "id": "PRJ-31",
       "title": "Hồ sơ giám sát cộng đồng",
       "kind": "table",
       "area": "investment",
@@ -8454,7 +8455,7 @@
       "parent": null
     },
     {
-      "id": "PRJ-31",
+      "id": "PRJ-32",
       "title": "Chi tiết hồ sơ giám sát cộng đồng",
       "kind": "detail",
       "area": "investment",
@@ -8464,7 +8465,7 @@
       "parent": null
     },
     {
-      "id": "PRJ-32",
+      "id": "PRJ-33",
       "title": "Quản trị cổng công khai",
       "kind": "form",
       "area": "investment",
@@ -8474,7 +8475,7 @@
       "parent": null
     },
     {
-      "id": "PRJ-33",
+      "id": "PRJ-34",
       "title": "Cổng công khai đầu tư",
       "kind": "dashboard",
       "area": "investment",

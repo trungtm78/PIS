@@ -1,8 +1,8 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { translator } from '../../../i18n';
-import PortalAdminScreen from './PortalAdminScreen';
-import { AS_OF, PORTAL_MANAGER, PORTAL_READER, PROJECT_ID, harness, mount, never, problem, record, routeOf, settings, settingsRead, word } from './test/support';
+import MonitoringDetailScreen from './MonitoringDetailScreen';
+import { FILE_ID, MANAGER, READER, completePack, detail, feedback, fileView, harness, mount, never, notice, problem, routeOf, word } from './test/support';
 import type { Harness } from './test/support';
 
 afterEach(() => {
@@ -12,136 +12,176 @@ afterEach(() => {
 });
 
 const route = routeOf('PRJ-32', 'FR-PRJ-32');
-interface World {
-  settings: unknown;
-  records: unknown;
-  export: unknown;
-}
-const show = (world: Partial<World> = {}, permissions: readonly string[] = PORTAL_MANAGER, command?: (op: string, input: unknown) => unknown): Harness => {
-  const state: World = { settings: settingsRead(settings()), records: { as_of: AS_OF, items: [record()], has_more: false }, export: undefined, ...world };
-  const h = harness((operation) => {
-    if (operation === 'getPortalSettings') return state.settings;
-    if (operation === 'listPortalRecords') return state.records;
-    if (operation === 'exportPortalOc4ids') return state.export;
-    return new Error(`unexpected ${operation}`);
-  }, command);
-  mount(<PortalAdminScreen route={route} />, h, { permissions });
-  return h;
+const PATH = `/prj/prj-32?file=${FILE_ID}`;
+const show = (answer: unknown, permissions: readonly string[] = MANAGER, command?: (op: string, input: unknown) => unknown, path = PATH): { h: Harness } => {
+  const h = harness(() => (typeof answer === 'function' ? (answer as () => unknown)() : answer), command);
+  mount(<MonitoringDetailScreen route={route} />, h, { permissions, path });
+  return { h };
+};
+const click = async (id: string): Promise<void> => {
+  fireEvent.click(await screen.findByTestId(id));
+};
+const confirm = (label: string): void => {
+  fireEvent.click(screen.getByRole('button', { name: label }));
 };
 
-describe('PRJ-32, the administration of the public portal', () => {
-  it('UI-PRJ-32: shows the settings, the policy copied from the rule with its "i", the public address and the published records', async () => {
-    show();
-    expect(await screen.findByTestId('policy-fields')).toBeTruthy();
-    expect(screen.getByTestId('policy-fields').textContent).toBe('project_code, title, summary');
-    expect(screen.getByTestId('policy-rate').textContent).toContain('60');
-    expect(screen.getByTestId('public-link').getAttribute('href')).toBe('/public/portals/cao-bang');
-    expect((screen.getByTestId('settings-slug') as HTMLInputElement).value).toBe('cao-bang');
-    expect(await screen.findByTestId(`record-${PROJECT_ID}`)).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(word('prj.portal.info.policy.name')) }));
-    const panel = await screen.findByRole('dialog', { name: word('prj.portal.info.policy.name') });
+describe('PRJ-32, one community monitoring file', () => {
+  it('UI-PRJ-32: shows the deadline with its "i", the pack with what is missing, and the feedback with its clock', async () => {
+    show(detail({ notice: notice({ state: 'OVERDUE', days_left: -23 }) }));
+    expect(await screen.findByTestId('fact-due')).toBeTruthy();
+    expect(screen.getByTestId('fact-due').textContent).toContain('15/02/2027');
+    expect(screen.getByTestId('fact-left').textContent).toBe(fill('prj.common.days.late', { days: 23 }));
+    expect(screen.getByTestId('pack-NOTICE_TEXT').textContent).toContain(word('prj.monDetail.pack.missingRequired'));
+    expect(screen.getByTestId('pack-BOARD_LIST').textContent).toContain(word('prj.monDetail.pack.missing'));
+    expect(screen.getByText(word('prj.monDetail.pack.incomplete'))).toBeTruthy();
+    expect(screen.getByTestId('rule-note').textContent).toContain('45');
+    expect(screen.getByTestId('sum-total').textContent).toBe('1');
+    expect(screen.getByTestId('sum-ontime').textContent).toBe('–');
+    expect(screen.getAllByText(word('prj.common.response.notDue')).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole('button', { name: new RegExp(word('prj.mon.info.notice.name')) })[0] as HTMLElement);
+    const panel = await screen.findByRole('dialog', { name: word('prj.mon.info.notice.name') });
     expect(within(panel).getByText(word('prj.info.panel.unverified'))).toBeTruthy();
-    expect(screen.queryByTestId('policy-stale')).toBeNull();
   });
 
-  it('says that the copy of the policy in the settings is not the rule in force', async () => {
-    show({ settings: settingsRead(settings(), { rule: { version: 3, unverified: false, allowed_fields: ['project_code'], rate_per_minute: 30, page_size_max: 50 } }) });
-    expect((await screen.findByTestId('policy-stale')).textContent).toBe(word('prj.portalAdmin.policy.stale'));
+  it('does not let the notice go while the pack is incomplete, and lets it go when the pack is complete', async () => {
+    show(detail());
+    await screen.findByTestId('send-notice');
+    expect((screen.getByTestId('send-notice') as HTMLButtonElement).disabled).toBe(true);
+    cleanup();
+    show(detail({ pack: completePack() }));
+    await screen.findByTestId('send-notice');
+    expect((screen.getByTestId('send-notice') as HTMLButtonElement).disabled).toBe(false);
   });
 
-  it('creates the settings with version 0 and the values that were typed', async () => {
-    const h = show({ settings: settingsRead(null), records: { as_of: AS_OF, items: [], has_more: false } }, PORTAL_MANAGER, () => ({ status: 'DISABLED' }));
-    await screen.findByText(word('prj.portalAdmin.settings.none'));
-    fireEvent.click(screen.getByTestId('settings-save'));
-    expect((await screen.findByTestId('message')).textContent).toBe(word('prj.common.error.validationFailed'));
-    expect(h.command).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByTestId('settings-slug'), { target: { value: 'tinh-b' } });
-    fireEvent.change(screen.getByTestId('settings-title'), { target: { value: 'Portal of province B' } });
-    fireEvent.change(screen.getByLabelText(word('prj.portalAdmin.settings.publisher')), { target: { value: 'Board of B' } });
-    fireEvent.change(screen.getByLabelText(word('prj.portalAdmin.settings.prefix')), { target: { value: 'VN-B' } });
-    fireEvent.click(screen.getByTestId('settings-save'));
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('savePortalSettings', expect.objectContaining({ body: expect.objectContaining({ expected_version: 0, slug: 'tinh-b', title: 'Portal of province B', publisher_name: 'Board of B', id_prefix: 'VN-B', enabled: false }) })));
-    expect((await screen.findByTestId('message')).textContent).toBe(word('prj.portalAdmin.receipt.saved'));
+  it('sends the notice with the version of the file and the day, and says it was sent', async () => {
+    const { h } = show(detail({ pack: completePack() }), MANAGER, () => ({ status: 'SENT_ON_TIME' }));
+    await click('send-notice');
+    fireEvent.change(await screen.findByTestId('notice-day'), { target: { value: '2027-02-10' } });
+    fireEvent.change(screen.getByTestId('notice-note'), { target: { value: 'Posted at the commune hall' } });
+    confirm(word('prj.monDetail.notice.confirm'));
+    expect((await screen.findByTestId('receipt')).textContent).toBe(word('prj.monDetail.receipt.notice'));
+    expect(h.command).toHaveBeenCalledWith('sendMonitoringNotice', expect.objectContaining({ ifMatchVersion: 3, body: { sent_on: '2027-02-10', note: 'Posted at the commune hall' } }));
   });
 
-  it('says in words that the address belongs to another portal', async () => {
-    show({}, PORTAL_MANAGER, () => problem('PORTAL_SLUG_TAKEN', 409));
-    await screen.findByTestId('settings-save');
-    fireEvent.click(screen.getByTestId('settings-save'));
-    expect((await screen.findByTestId('message')).textContent).toBe(word('prj.common.error.portalSlugTaken'));
+  it('says in words why the notice was refused', async () => {
+    show(detail({ pack: completePack() }), MANAGER, () => problem('MONITORING_PACK_INCOMPLETE', 422));
+    await click('send-notice');
+    fireEvent.change(await screen.findByTestId('notice-day'), { target: { value: '2027-02-10' } });
+    confirm(word('prj.monDetail.notice.confirm'));
+    expect((await screen.findByRole('alert')).textContent).toContain(word('prj.common.error.monitoringPackIncomplete'));
   });
 
-  it('publishes a project with a plain text description and refuses markup before it asks the server', async () => {
-    const h = show({}, PORTAL_MANAGER, () => ({ status: 'CREATED' }));
-    fireEvent.click(await screen.findByTestId('publish-open'));
-    fireEvent.change(await screen.findByTestId('publish-project'), { target: { value: PROJECT_ID } });
-    fireEvent.change(screen.getByTestId('publish-summary'), { target: { value: 'Click <a href="x">here</a> to see more' } });
-    fireEvent.click(screen.getByRole('button', { name: word('prj.portalAdmin.publish.confirm') }));
+  it('sets the day the duty began; a day fixed by hand needs a reason', async () => {
+    const { h } = show(detail({ trigger: null, notice: notice({ state: 'NOT_STARTED', due_on: null, days_left: null }), notice_days: null, notice_rule_version: null }), MANAGER, () => ({ status: 'TRIGGER_SET' }));
+    await click('set-trigger');
+    fireEvent.change(await screen.findByTestId('trigger-day'), { target: { value: '2027-01-01' } });
+    fireEvent.change(screen.getByTestId('trigger-kind'), { target: { value: 'MANUAL' } });
+    const confirmButton = screen.getByRole('button', { name: word('prj.monDetail.trigger.confirm') }) as HTMLButtonElement;
+    expect(confirmButton.disabled).toBe(true);
+    fireEvent.change(screen.getByLabelText(new RegExp(word('prj.monDetail.trigger.reason'))), { target: { value: 'Decision of the people committee' } });
+    fireEvent.click(confirmButton);
+    await screen.findByTestId('receipt');
+    expect(h.command).toHaveBeenCalledWith('setMonitoringTrigger', expect.objectContaining({ ifMatchVersion: 3, body: { kind: 'MANUAL', on: '2027-01-01', reason: 'Decision of the people committee' } }));
+  });
+
+  it('adds a document of DOC to the pack by its id, and withdraws one with a reason', async () => {
+    const { h } = show(detail({ pack: completePack() }), MANAGER, () => ({ status: 'ADDED' }));
+    await click('add-item');
+    fireEvent.change(await screen.findByTestId('item-kind'), { target: { value: 'BOARD_LIST' } });
+    fireEvent.change(screen.getByTestId('item-document'), { target: { value: 'nope' } });
+    confirm(word('prj.monDetail.addItem.confirm'));
     expect((await screen.findByRole('alert')).textContent).toContain(word('prj.common.error.validationFailed'));
-    expect(h.command).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByTestId('publish-summary'), { target: { value: 'A road of 12 km that joins two communes.' } });
-    fireEvent.click(screen.getByRole('button', { name: word('prj.portalAdmin.publish.confirm') }));
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('publishPortalRecord', expect.objectContaining({ body: { project_id: PROJECT_ID, summary: 'A road of 12 km that joins two communes.', sector: 'transport.road', project_type: 'construction', purpose: 'economic' } })));
-    expect((await screen.findByTestId('message')).textContent).toBe(word('prj.portalAdmin.receipt.publish.created'));
+    fireEvent.change(screen.getByTestId('item-document'), { target: { value: '00000000-0000-4000-8000-000000000099' } });
+    confirm(word('prj.monDetail.addItem.confirm'));
+    await screen.findByTestId('receipt');
+    expect(h.command).toHaveBeenCalledWith('addMonitoringPackItem', expect.objectContaining({ body: { item: 'BOARD_LIST', document_id: '00000000-0000-4000-8000-000000000099', document_kind: 'DOCUMENT' } }));
+    const first = completePack().items[0] as { id: string };
+    await click(`withdraw-${first.id}`);
+    fireEvent.change(await screen.findByLabelText(new RegExp(word('prj.monDetail.withdraw.reason'))), { target: { value: 'Wrong version attached' } });
+    confirm(word('prj.monDetail.withdraw.confirm'));
+    await waitFor(() => expect(h.command).toHaveBeenLastCalledWith('withdrawMonitoringPackItem', expect.objectContaining({ body: { reason: 'Wrong version attached' } })));
   });
 
-  it('says why a project cannot be published', async () => {
-    show({}, PORTAL_MANAGER, () => problem('PORTAL_NOT_PUBLISHABLE', 422));
-    fireEvent.click(await screen.findByTestId('publish-open'));
-    fireEvent.change(await screen.findByTestId('publish-project'), { target: { value: PROJECT_ID } });
-    fireEvent.change(screen.getByTestId('publish-summary'), { target: { value: 'A road of 12 km that joins two communes.' } });
-    fireEvent.click(screen.getByRole('button', { name: word('prj.portalAdmin.publish.confirm') }));
-    expect((await screen.findByRole('alert')).textContent).toContain(word('prj.common.error.portalNotPublishable'));
+  it('hides the changes of the pack once the notice is sent', async () => {
+    show(detail({ pack: completePack(), notice: notice({ state: 'SENT_LATE', sent_on: '2027-02-20', days_late: 5, days_left: null }) }));
+    await screen.findByTestId('fact-sent');
+    expect(screen.getByTestId('fact-sent').textContent).toContain('20/02/2027');
+    expect(screen.queryByTestId('add-item')).toBeNull();
+    expect(screen.queryByTestId('send-notice')).toBeNull();
   });
 
-  it('withdraws a record with a reason', async () => {
-    const h = show({}, PORTAL_MANAGER, () => ({ status: 'WITHDRAWN' }));
-    fireEvent.click(await screen.findByTestId(`withdraw-${PROJECT_ID}`));
-    const reason = await screen.findByLabelText(new RegExp(word('prj.portalAdmin.withdraw.reason')));
-    fireEvent.change(reason, { target: { value: 'The project is under review' } });
-    fireEvent.click(screen.getByRole('button', { name: word('prj.portalAdmin.withdraw.confirm') }));
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('withdrawPortalRecord', expect.objectContaining({ body: { reason: 'The project is under review' } })));
-    expect((await screen.findByTestId('message')).textContent).toBe(word('prj.portalAdmin.receipt.withdrawn'));
+  it('logs a feedback with the days of the rule, without a name or a contact', async () => {
+    const { h } = show(detail({ feedback: [] }), MANAGER, () => ({ status: 'RECEIVED' }));
+    expect(await screen.findByTestId('feedback-empty')).toBeTruthy();
+    await click('log-feedback');
+    expect(await screen.findByText(word('prj.monDetail.log.noIdentity'))).toBeTruthy();
+    fireEvent.change(screen.getByTestId('log-reference'), { target: { value: 'PH-009' } });
+    fireEvent.change(screen.getByTestId('log-day'), { target: { value: '2027-03-01' } });
+    fireEvent.change(screen.getByTestId('log-topic'), { target: { value: 'SAFETY' } });
+    fireEvent.change(screen.getByTestId('log-summary'), { target: { value: 'A child nearly fell into the open trench.' } });
+    confirm(word('prj.monDetail.log.confirm'));
+    await screen.findByTestId('receipt');
+    expect(h.command).toHaveBeenCalledWith('logMonitoringFeedback', expect.objectContaining({ body: { reference: 'PH-009', received_on: '2027-03-01', channel: 'LETTER', topic: 'SAFETY', summary: 'A child nearly fell into the open trench.' } }));
   });
 
-  it('checks the export against the required fields and lists what is missing instead of inventing it', async () => {
-    show({ export: { as_of: AS_OF, version: '0.9', required_fields: ['id', 'title', 'budget'], lists: { source: 'x', legal_status: 'UNVERIFIED' }, complete: false, issues: [{ path: 'projects[0].budget', problem: 'MISSING' }], package: { projects: [{ id: 'VN-CB-PRJ-001' }] } } });
-    fireEvent.click(await screen.findByTestId('export-check'));
-    expect((await screen.findByTestId('export-verdict')).textContent).toBe('Bản xuất còn thiếu hoặc sai 1 chỗ so với chuẩn; hệ thống không bịa giá trị cho trường bị loại khỏi danh sách được phép.');
-    expect(screen.getByTestId('export-issues').textContent).toContain('projects[0].budget');
-    expect(screen.getByTestId('export-issues').textContent).toContain(word('prj.portal.issue.missing'));
-    expect(screen.getByTestId('export-lists').textContent).toContain(word('prj.portalAdmin.export.unverified'));
-    expect(screen.getByTestId('export-download').getAttribute('href')).toContain('data:application/json');
+  it('answers a feedback with a text of enough length and the version of the feedback', async () => {
+    const received = feedback(1);
+    const { h } = show(detail({ feedback: [received] }), MANAGER, () => ({ status: 'RESPONDED' }));
+    await click(`move-respond-${received.id}`);
+    const field = await screen.findByLabelText(new RegExp(word('prj.monDetail.move.text.respond')));
+    fireEvent.change(field, { target: { value: 'short' } });
+    expect((screen.getByRole('button', { name: word('prj.monDetail.move.confirm.respond') }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(field, { target: { value: 'The spoil is moved by 15 March.' } });
+    confirm(word('prj.monDetail.move.confirm.respond'));
+    await screen.findByTestId('receipt');
+    expect(h.command).toHaveBeenCalledWith('moveMonitoringFeedback', expect.objectContaining({ ifMatchVersion: 1, body: { move: 'RESPOND', text: 'The spoil is moved by 15 March.' } }));
   });
 
-  it('says that the export is complete when it is', async () => {
-    show({ export: { as_of: AS_OF, version: '0.9', required_fields: ['id'], lists: { source: 'x', legal_status: 'UNVERIFIED' }, complete: true, issues: [], package: { projects: [{ id: 'a' }, { id: 'b' }] } } });
-    fireEvent.click(await screen.findByTestId('export-check'));
-    expect((await screen.findByTestId('export-verdict')).textContent).toContain('2');
-    expect(screen.queryByTestId('export-issues')).toBeNull();
+  it('does not offer to close an answer to the person who gave it, and offers it to a second person', async () => {
+    const mine = feedback(1, { status: 'RESPONDED', responded_by: '00000000-0000-4000-8000-000000000001', response_text: 'Answer given by me to the community.', responded_on: '2027-03-05' });
+    const theirs = feedback(2, { status: 'RESPONDED', responded_by: '00000000-0000-4000-8000-000000000777', response_text: 'Answer given by another officer.', responded_on: '2027-03-05' });
+    show(detail({ feedback: [mine, theirs] }));
+    await screen.findByTestId(`feedback-${mine.id}`);
+    expect(screen.getByTestId(`second-person-${mine.id}`).textContent).toBe(word('prj.monDetail.move.secondPerson'));
+    expect(screen.queryByTestId(`move-close-${mine.id}`)).toBeNull();
+    expect(screen.getByTestId(`move-close-${theirs.id}`)).toBeTruthy();
   });
 
-  it('shows a reader the portal without any change button', async () => {
-    show({}, PORTAL_READER);
-    await screen.findByTestId('policy-fields');
-    for (const id of ['settings-save', 'publish-open', `withdraw-${PROJECT_ID}`]) expect(screen.queryByTestId(id)).toBeNull();
-    expect((screen.getByTestId('settings-slug') as HTMLInputElement).disabled).toBe(true);
+  it('shows the refusal of a self approval from the server', async () => {
+    const theirs = feedback(2, { status: 'RESPONDED', responded_by: '00000000-0000-4000-8000-000000000777', response_text: 'Answer given by another officer.', responded_on: '2027-03-05' });
+    show(detail({ feedback: [theirs] }), MANAGER, () => problem('SELF_APPROVAL_DENIED', 403));
+    await click(`move-close-${theirs.id}`);
+    confirm(word('prj.monDetail.move.confirm.close'));
+    expect((await screen.findByRole('alert')).textContent).toContain(word('prj.common.error.selfApprovalDenied'));
   });
 
-  it('shows the loading, error and denied states, and an empty list of records', async () => {
-    const loading = harness(() => never());
-    mount(<PortalAdminScreen route={route} />, loading, { permissions: PORTAL_MANAGER });
+  it('shows a reader the file without any button, and a closed file read only', async () => {
+    show(detail(), READER);
+    await screen.findByTestId('fact-due');
+    for (const id of ['set-trigger', 'send-notice', 'close-file', 'add-item', 'log-feedback']) expect(screen.queryByTestId(id)).toBeNull();
+    expect(screen.queryByTestId(`move-take-${feedback(1).id}`)).toBeNull();
+    cleanup();
+    show(detail({ ...fileView({ status: 'CLOSED' }), pack: completePack() }));
+    await screen.findByTestId('fact-due');
+    expect(screen.queryByTestId('close-file')).toBeNull();
+    expect(screen.queryByTestId('log-feedback')).toBeNull();
+  });
+
+  it('shows the empty, loading, error, denied and stale states', async () => {
+    show(detail(), MANAGER, undefined, '/prj/prj-32');
+    expect(await screen.findByText(word('states.empty.title'))).toBeTruthy();
+    cleanup();
+    show(() => never());
     expect(await screen.findByRole('status', { name: word('states.loading.label') })).toBeTruthy();
     cleanup();
-    const failing = harness(() => problem('INTERNAL_ERROR', 500));
-    mount(<PortalAdminScreen route={route} />, failing, { permissions: PORTAL_MANAGER });
+    show(() => problem('INTERNAL_ERROR', 500));
     expect(await screen.findByText(word('states.error.title'))).toBeTruthy();
     cleanup();
-    const denied = harness(() => problem('SCOPE_DENIED', 403));
-    mount(<PortalAdminScreen route={route} />, denied, { permissions: PORTAL_MANAGER });
+    show(() => problem('SCOPE_DENIED', 403));
     expect(await screen.findByText(word('states.denied.title'))).toBeTruthy();
-    cleanup();
-    show({ records: { as_of: AS_OF, items: [], has_more: false } });
-    expect(await screen.findByText(word('states.empty.title'))).toBeTruthy();
   });
 });
+
+function fill(key: string, params: Record<string, string | number>): string {
+  return Object.entries(params).reduce((text, [name, value]) => text.replace(`{${name}}`, String(value)), word(key));
+}

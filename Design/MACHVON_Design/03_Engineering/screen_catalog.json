@@ -12981,7 +12981,7 @@
     "source": "Làn GOV-12; docs/governance-roadmap-10of10.md"
   },
   {
-    "id": "PRJ-30",
+    "id": "PRJ-31",
     "module": "PRJ",
     "moduleName": "Danh mục dự án",
     "title": "Hồ sơ giám sát cộng đồng",
@@ -12999,11 +12999,11 @@
     "rule": "Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-PRJ-30",
+    "req": "FR-PRJ-31",
     "source": "Làn GOV-12; docs/governance-roadmap-10of10.md"
   },
   {
-    "id": "PRJ-31",
+    "id": "PRJ-32",
     "module": "PRJ",
     "moduleName": "Danh mục dự án",
     "title": "Chi tiết hồ sơ giám sát cộng đồng",
@@ -13021,11 +13021,11 @@
     "rule": "Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-PRJ-31",
+    "req": "FR-PRJ-32",
     "source": "Làn GOV-12; docs/governance-roadmap-10of10.md"
   },
   {
-    "id": "PRJ-32",
+    "id": "PRJ-33",
     "module": "PRJ",
     "moduleName": "Danh mục dự án",
     "title": "Quản trị cổng công khai",
@@ -13043,11 +13043,11 @@
     "rule": "Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-PRJ-32",
+    "req": "FR-PRJ-33",
     "source": "Làn GOV-12; docs/governance-roadmap-10of10.md"
   },
   {
-    "id": "PRJ-33",
+    "id": "PRJ-34",
     "module": "PRJ",
     "moduleName": "Danh mục dự án",
     "title": "Cổng công khai đầu tư",
@@ -13064,7 +13064,7 @@
     "rule": "Trang chỉ đọc, không có mã nội bộ, người dùng hay số liệu ngoài bộ trường được phép; có giới hạn tần suất theo khách mà không lưu địa chỉ; tố giác ẩn danh không lưu danh tính và trả mã truy cập một lần.",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-PRJ-33",
+    "req": "FR-PRJ-34",
     "source": "Làn GOV-12; docs/governance-roadmap-10of10.md"
   },
   {

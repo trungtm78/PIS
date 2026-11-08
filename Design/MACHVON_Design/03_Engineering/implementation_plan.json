@@ -55741,8 +55741,8 @@
       "narrative": "As the investor I keep the community monitoring file of a project: the notice has a deadline from the day the duty began, the pack of documents is linked from DOC, and every feedback has its own clock and an answer closed by a second person.",
       "release": "R2",
       "screens": [
-        "PRJ-30",
-        "PRJ-31"
+        "PRJ-31",
+        "PRJ-32"
       ],
       "operations": [
         "listMonitoringFiles",
@@ -55797,19 +55797,19 @@
         {
           "id": "TK-PRJ-121-1",
           "kind": "backend",
-          "title": "Server-side read models, rules and commands behind PRJ-30, PRJ-31",
+          "title": "Server-side read models, rules and commands behind PRJ-31, PRJ-32",
           "test_ids": []
         },
         {
           "id": "TK-PRJ-121-2",
           "kind": "web",
-          "title": "PRJ-30, PRJ-31 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "title": "PRJ-31, PRJ-32 screens built with the kit, the seven standard states and the \"i\" on every figure",
           "test_ids": []
         },
         {
           "id": "TK-PRJ-121-3",
           "kind": "i18n",
-          "title": "Message keys in vi and en for PRJ-30, PRJ-31; no hard-coded display strings",
+          "title": "Message keys in vi and en for PRJ-31, PRJ-32; no hard-coded display strings",
           "test_ids": []
         },
         {
@@ -55825,8 +55825,8 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
-            "UI-PRJ-30",
-            "UI-PRJ-31"
+            "UI-PRJ-31",
+            "UI-PRJ-32"
           ]
         }
       ]
@@ -55840,8 +55840,8 @@
       "narrative": "As the publisher I put public projects on a read-only portal that shows only the allowed fields, and I export them in OC4IDS with the required fields of the standard checked.",
       "release": "R2",
       "screens": [
-        "PRJ-32",
-        "PRJ-33"
+        "PRJ-33",
+        "PRJ-34"
       ],
       "operations": [
         "getPortalSettings",
@@ -55894,19 +55894,19 @@
         {
           "id": "TK-PRJ-122-1",
           "kind": "backend",
-          "title": "Server-side read models, rules and commands behind PRJ-32, PRJ-33",
+          "title": "Server-side read models, rules and commands behind PRJ-33, PRJ-34",
           "test_ids": []
         },
         {
           "id": "TK-PRJ-122-2",
           "kind": "web",
-          "title": "PRJ-32, PRJ-33 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "title": "PRJ-33, PRJ-34 screens built with the kit, the seven standard states and the \"i\" on every figure",
           "test_ids": []
         },
         {
           "id": "TK-PRJ-122-3",
           "kind": "i18n",
-          "title": "Message keys in vi and en for PRJ-32, PRJ-33; no hard-coded display strings",
+          "title": "Message keys in vi and en for PRJ-33, PRJ-34; no hard-coded display strings",
           "test_ids": []
         },
         {
@@ -55922,8 +55922,8 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
-            "UI-PRJ-32",
-            "UI-PRJ-33"
+            "UI-PRJ-33",
+            "UI-PRJ-34"
           ]
         }
       ]

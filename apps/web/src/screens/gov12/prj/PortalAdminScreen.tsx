@@ -36,7 +36,7 @@ const formOf = (settings: PortalSettings | null): Form =>
     : { slug: settings.slug, title: settings.title, publisherName: settings.publisher_name, idPrefix: settings.id_prefix, licenseUri: settings.license_uri, policyUri: settings.policy_uri, enabled: settings.enabled, whistleEnabled: settings.whistle_enabled };
 
 /**
- * PRJ-32, the administration of the public portal (G4-9): the address and the words of the portal, the policy that was copied into the settings from the governance rule (the allowed fields, the rate limit, the size of a page),
+ * PRJ-33, the administration of the public portal (G4-9): the address and the words of the portal, the policy that was copied into the settings from the governance rule (the allowed fields, the rate limit, the size of a page),
  * the projects that are published with their revisions, the withdrawal with a reason, and the export in OC4IDS with the problems against the required fields of the standard: a field that the allow-list took away is listed, never
  * invented. A project is published only if it is classified public and is past the idea stage; the portal reads the cut that was stored, not the project.
  */

@@ -13,12 +13,12 @@ import type { FeedbackView, FileDetail, PackItem } from './prjModel';
 import { DaysText, Facts, Figure, NoticePill, Provenance, ResponsePill } from './prjParts';
 import './prj.css';
 
-const LIST_PATH = '/prj/prj-30';
+const LIST_PATH = '/prj/prj-31';
 const RESPOND_MIN = 10;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * PRJ-31, one community monitoring file: the notice and its deadline, the pack of documents it is made of (linked from DOC by id), and the feedback of the community with its own clock and its answer. The notice is sent only when
+ * PRJ-32, one community monitoring file: the notice and its deadline, the pack of documents it is made of (linked from DOC by id), and the feedback of the community with its own clock and its answer. The notice is sent only when
  * the pack holds the notice text, the project information and the schedule; a sent notice and the pack of that day do not change; the person who closes an answer is not the person who gave it; the file closes when no feedback waits.
  */
 export default function MonitoringDetailScreen({ route }: ScreenProps) {

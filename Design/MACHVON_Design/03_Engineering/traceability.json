@@ -11915,27 +11915,9 @@
     ]
   },
   {
-    "requirement": "FR-PRJ-30",
-    "screen": "PRJ-30",
-    "title": "Hồ sơ giám sát cộng đồng",
-    "use_cases": [
-      "UC06"
-    ],
-    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
-    "phase": "P1",
-    "design_status": "module-spec-m1",
-    "implementation_status": "built",
-    "verification": "apps/web/src/screens/gov12/prj-30.test.tsx",
-    "backlog_id": "BL-PRJ-30",
-    "test_ids": [
-      "UI-PRJ-30",
-      "UAT-PLAN-3002"
-    ]
-  },
-  {
     "requirement": "FR-PRJ-31",
     "screen": "PRJ-31",
-    "title": "Chi tiết hồ sơ giám sát cộng đồng",
+    "title": "Hồ sơ giám sát cộng đồng",
     "use_cases": [
       "UC06"
     ],
@@ -11953,7 +11935,7 @@
   {
     "requirement": "FR-PRJ-32",
     "screen": "PRJ-32",
-    "title": "Quản trị cổng công khai",
+    "title": "Chi tiết hồ sơ giám sát cộng đồng",
     "use_cases": [
       "UC06"
     ],
@@ -11965,13 +11947,13 @@
     "backlog_id": "BL-PRJ-32",
     "test_ids": [
       "UI-PRJ-32",
-      "UAT-PLAN-3003"
+      "UAT-PLAN-3002"
     ]
   },
   {
     "requirement": "FR-PRJ-33",
     "screen": "PRJ-33",
-    "title": "Cổng công khai đầu tư",
+    "title": "Quản trị cổng công khai",
     "use_cases": [
       "UC06"
     ],
@@ -11983,6 +11965,24 @@
     "backlog_id": "BL-PRJ-33",
     "test_ids": [
       "UI-PRJ-33",
+      "UAT-PLAN-3003"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-34",
+    "screen": "PRJ-34",
+    "title": "Cổng công khai đầu tư",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-12; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov12/prj-34.test.tsx",
+    "backlog_id": "BL-PRJ-34",
+    "test_ids": [
+      "UI-PRJ-34",
       "UAT-PLAN-3003"
     ]
   },

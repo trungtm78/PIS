@@ -26,7 +26,7 @@ import { StateBoundary } from './states/StateBoundary';
 import type { ScreenState } from './states/StateBoundary';
 import { PublishedThemeProvider } from './theme/PublishedThemeProvider';
 
-// The public portal (GOV-12, PRJ-33) needs no session and no shell: it is read by anyone, so it is a route of its own outside the shell.
+// The public portal (GOV-12, PRJ-34) needs no session and no shell: it is read by anyone, so it is a route of its own outside the shell.
 const PublicPortalScreen = lazy(() => import('./screens/gov12/prj/PublicPortalScreen'));
 
 const HOME = 'HOME-01';

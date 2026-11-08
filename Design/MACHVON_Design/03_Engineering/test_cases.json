@@ -24662,35 +24662,17 @@
     ]
   },
   {
-    "id": "UI-PRJ-30",
-    "source": "FR-PRJ-30",
-    "type": "screen-contract",
-    "priority": "P1",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ giám sát cộng đồng; người dùng có quyền và người dùng không có quyền; route PRJ-30",
-    "steps": [
-      "Mở PRJ-30 từ menu và deep link; kiểm nhãn trường: Dự án, Ngày phát sinh nghĩa vụ, Hạn thông báo, Trạng thái thông báo, Phản hồi đang mở, Phản hồi quá hạn, Trạng thái hồ sơ",
-      "Thực hiện thao tác chính theo quy tắc: Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-30"
-    ],
-    "expected": "Hồ sơ giám sát cộng đồng: hiển thị đúng các trường, áp quy tắc \"Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
-    "status": "NOT_RUN",
-    "evidence": null,
-    "covers": [
-      "FR-PRJ-30"
-    ]
-  },
-  {
     "id": "UI-PRJ-31",
     "source": "FR-PRJ-31",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết hồ sơ giám sát cộng đồng; người dùng có quyền và người dùng không có quyền; route PRJ-31",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hồ sơ giám sát cộng đồng; người dùng có quyền và người dùng không có quyền; route PRJ-31",
     "steps": [
-      "Mở PRJ-31 từ menu và deep link; kiểm nhãn trường: Gói hồ sơ thông báo, Tài liệu thiếu, Gửi thông báo, Phản hồi của cộng đồng, Hạn trả lời, Câu trả lời, Lịch sử xử lý",
-      "Thực hiện thao tác chính theo quy tắc: Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.",
+      "Mở PRJ-31 từ menu và deep link; kiểm nhãn trường: Dự án, Ngày phát sinh nghĩa vụ, Hạn thông báo, Trạng thái thông báo, Phản hồi đang mở, Phản hồi quá hạn, Trạng thái hồ sơ",
+      "Thực hiện thao tác chính theo quy tắc: Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.",
       "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-31"
     ],
-    "expected": "Chi tiết hồ sơ giám sát cộng đồng: hiển thị đúng các trường, áp quy tắc \"Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "expected": "Hồ sơ giám sát cộng đồng: hiển thị đúng các trường, áp quy tắc \"Hạn thông báo là ngày phát sinh nghĩa vụ cộng số ngày của quy tắc (mặc định 45 ngày, chưa kiểm chứng, theo Luật 58/2024 Điều 78-79) và không đổi khi quy tắc đổi sau đó; mỗi phản hồi có đồng hồ trả lời riêng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -24702,13 +24684,13 @@
     "source": "FR-PRJ-32",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Quản trị cổng công khai; người dùng có quyền và người dùng không có quyền; route PRJ-32",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết hồ sơ giám sát cộng đồng; người dùng có quyền và người dùng không có quyền; route PRJ-32",
     "steps": [
-      "Mở PRJ-32 từ menu và deep link; kiểm nhãn trường: Địa chỉ cổng, Đơn vị công bố, Bộ trường được phép, Giới hạn tần suất, Dự án đã công bố, Rút khỏi cổng, Xuất OC4IDS và lỗi theo trường bắt buộc",
-      "Thực hiện thao tác chính theo quy tắc: Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.",
+      "Mở PRJ-32 từ menu và deep link; kiểm nhãn trường: Gói hồ sơ thông báo, Tài liệu thiếu, Gửi thông báo, Phản hồi của cộng đồng, Hạn trả lời, Câu trả lời, Lịch sử xử lý",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.",
       "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-32"
     ],
-    "expected": "Quản trị cổng công khai: hiển thị đúng các trường, áp quy tắc \"Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "expected": "Chi tiết hồ sơ giám sát cộng đồng: hiển thị đúng các trường, áp quy tắc \"Chỉ gửi thông báo khi gói hồ sơ có văn bản thông báo, thông tin dự án và tiến độ; thông báo đã gửi và gói của ngày gửi không đổi; người đóng câu trả lời khác người trả lời; hồ sơ chỉ đóng khi hết phản hồi mở.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -24720,17 +24702,35 @@
     "source": "FR-PRJ-33",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng công khai đầu tư; người dùng có quyền và người dùng không có quyền; route PRJ-33",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Quản trị cổng công khai; người dùng có quyền và người dùng không có quyền; route PRJ-33",
     "steps": [
-      "Mở PRJ-33 từ menu và deep link; kiểm nhãn trường: Đơn vị công bố và giấy phép, Danh sách dự án đã công bố, Chi tiết các trường được phép, Tải OC4IDS, Gửi tố giác ẩn danh, Xem trả lời bằng mã truy cập",
-      "Thực hiện thao tác chính theo quy tắc: Trang chỉ đọc, không có mã nội bộ, người dùng hay số liệu ngoài bộ trường được phép; có giới hạn tần suất theo khách mà không lưu địa chỉ; tố giác ẩn danh không lưu danh tính và trả mã truy cập một lần.",
+      "Mở PRJ-33 từ menu và deep link; kiểm nhãn trường: Địa chỉ cổng, Đơn vị công bố, Bộ trường được phép, Giới hạn tần suất, Dự án đã công bố, Rút khỏi cổng, Xuất OC4IDS và lỗi theo trường bắt buộc",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.",
       "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-33"
+    ],
+    "expected": "Quản trị cổng công khai: hiển thị đúng các trường, áp quy tắc \"Chỉ dự án mức công khai và đã qua giai đoạn ý tưởng được công bố; cổng chỉ đọc bản ghi đã cắt theo bộ trường được phép (cắt lại khi trả lời); bộ trường, tần suất và cỡ trang đọc từ quy tắc quản trị chưa kiểm chứng; xuất OC4IDS chỉ ra trường bắt buộc còn thiếu thay vì bịa.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-33"
+    ]
+  },
+  {
+    "id": "UI-PRJ-34",
+    "source": "FR-PRJ-34",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cổng công khai đầu tư; người dùng có quyền và người dùng không có quyền; route PRJ-34",
+    "steps": [
+      "Mở PRJ-34 từ menu và deep link; kiểm nhãn trường: Đơn vị công bố và giấy phép, Danh sách dự án đã công bố, Chi tiết các trường được phép, Tải OC4IDS, Gửi tố giác ẩn danh, Xem trả lời bằng mã truy cập",
+      "Thực hiện thao tác chính theo quy tắc: Trang chỉ đọc, không có mã nội bộ, người dùng hay số liệu ngoài bộ trường được phép; có giới hạn tần suất theo khách mà không lưu địa chỉ; tố giác ẩn danh không lưu danh tính và trả mã truy cập một lần.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-34"
     ],
     "expected": "Cổng công khai đầu tư: hiển thị đúng các trường, áp quy tắc \"Trang chỉ đọc, không có mã nội bộ, người dùng hay số liệu ngoài bộ trường được phép; có giới hạn tần suất theo khách mà không lưu địa chỉ; tố giác ẩn danh không lưu danh tính và trả mã truy cập một lần.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-PRJ-33"
+      "FR-PRJ-34"
     ]
   },
   {
@@ -24876,8 +24876,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-PRJ-30",
-      "FR-PRJ-31"
+      "FR-PRJ-31",
+      "FR-PRJ-32"
     ]
   },
   {
@@ -24897,8 +24897,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-PRJ-32",
-      "FR-PRJ-33"
+      "FR-PRJ-33",
+      "FR-PRJ-34"
     ]
   },
   {

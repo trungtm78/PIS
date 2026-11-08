@@ -7,11 +7,11 @@ Roadmap items G4-6, G4-8, G4-9, G4-10, G4-11 and the should-have part of G4-12 (
 | Item | Kernel (pure) | Database | API | Screens |
 |---|---|---|---|---|
 | G4-6 period reports for the Ministry | `period-report.ts`, `mof-forms.ts` | `report_period_lock`, `report_signature_session`, `report_issue_signature` (V2608) | `reports/period-report.controller.ts`, edits in `report.controller.ts` (lock before generate, signature before delivery), `form-registry.ts` (`registerMofReportForms`) | RPT-05, RPT-06 |
-| G4-8 community monitoring | `monitoring-file.ts` | `monitoring_file`, `monitoring_pack_item`, `monitoring_feedback`, `monitoring_feedback_event` (V2600-V2602) | `prj/monitoring.controller.ts` | PRJ-30, PRJ-31 |
-| G4-9 public portal and OC4IDS | `portal-fields.ts` | `portal_setting`, `portal_record`, `portal_directory`, the two public functions (V2604) | `prj/portal.controller.ts` (publisher), `prj/portal-public.controller.ts` (public, control plane) | PRJ-32, PRJ-33 |
+| G4-8 community monitoring | `monitoring-file.ts` | `monitoring_file`, `monitoring_pack_item`, `monitoring_feedback`, `monitoring_feedback_event` (V2600-V2602) | `prj/monitoring.controller.ts` | PRJ-31, PRJ-32 |
+| G4-9 public portal and OC4IDS | `portal-fields.ts` | `portal_setting`, `portal_record`, `portal_directory`, the two public functions (V2604) | `prj/portal.controller.ts` (publisher), `prj/portal-public.controller.ts` (public, control plane) | PRJ-33, PRJ-34 |
 | G4-10 audit standing | `audit-standing.ts` | reads over `audit_recommendation`, `project`, `disbursement_ranking` | `aud/standing.controller.ts` | AUD-17 |
 | G4-11 transmittal | `transmittal.ts` | `doc_container`, `doc_container_move`, `doc_transmittal`, `doc_transmittal_item`, `doc_transmittal_recipient` (V2603) | `doc/transmittal.controller.ts` | DOC-28, DOC-29 |
-| G4-12 anonymous channel | `whistle.ts` | `whistle_report`, `whistle_message`, the four functions (V2605) | `aud/whistle.controller.ts` (handlers and public) | AUD-18 and the public page PRJ-33 |
+| G4-12 anonymous channel | `whistle.ts` | `whistle_report`, `whistle_message`, the four functions (V2605) | `aud/whistle.controller.ts` (handlers and public) | AUD-18 and the public page PRJ-34 |
 | G4-12 gifts | `whistle.ts` | `gift_register` (V2606) | `aud/gift.controller.ts` | AUD-19 |
 | G4-12 photo findings | `photo-findings.ts` | `photo_finding`, `photo_finding_event` (V2607) | `qms/photo-finding.controller.ts` | QMS-12 |
 

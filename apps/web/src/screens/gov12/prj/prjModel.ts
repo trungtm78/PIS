@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { Tone } from '../../../ui';
 
-/** The read models of PRJ-30 to PRJ-33 as the API answers them (the controllers of apps/api/src/modules/prj name every field). */
+/** The read models of PRJ-31 to PRJ-34 as the API answers them (the controllers of apps/api/src/modules/prj name every field). */
 
 export interface NoticeView {
   state: 'NOT_STARTED' | 'PENDING' | 'DUE_SOON' | 'OVERDUE' | 'SENT_ON_TIME' | 'SENT_LATE';

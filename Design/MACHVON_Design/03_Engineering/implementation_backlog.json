@@ -21482,9 +21482,9 @@
     ]
   },
   {
-    "id": "BL-PRJ-30",
-    "requirement": "FR-PRJ-30",
-    "screen": "PRJ-30",
+    "id": "BL-PRJ-31",
+    "requirement": "FR-PRJ-31",
+    "screen": "PRJ-31",
     "title": "Hồ sơ giám sát cộng đồng",
     "module": "PRJ",
     "platform": "web",
@@ -21506,9 +21506,9 @@
     ]
   },
   {
-    "id": "BL-PRJ-31",
-    "requirement": "FR-PRJ-31",
-    "screen": "PRJ-31",
+    "id": "BL-PRJ-32",
+    "requirement": "FR-PRJ-32",
+    "screen": "PRJ-32",
     "title": "Chi tiết hồ sơ giám sát cộng đồng",
     "module": "PRJ",
     "platform": "web",
@@ -21530,9 +21530,9 @@
     ]
   },
   {
-    "id": "BL-PRJ-32",
-    "requirement": "FR-PRJ-32",
-    "screen": "PRJ-32",
+    "id": "BL-PRJ-33",
+    "requirement": "FR-PRJ-33",
+    "screen": "PRJ-33",
     "title": "Quản trị cổng công khai",
     "module": "PRJ",
     "platform": "web",
@@ -21554,9 +21554,9 @@
     ]
   },
   {
-    "id": "BL-PRJ-33",
-    "requirement": "FR-PRJ-33",
-    "screen": "PRJ-33",
+    "id": "BL-PRJ-34",
+    "requirement": "FR-PRJ-34",
+    "screen": "PRJ-34",
     "title": "Cổng công khai đầu tư",
     "module": "PRJ",
     "platform": "web",

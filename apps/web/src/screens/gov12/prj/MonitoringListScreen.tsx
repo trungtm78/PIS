@@ -15,10 +15,10 @@ import './prj.css';
 
 const SIZE = 25;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const DETAIL_PATH = '/prj/prj-31';
+export const DETAIL_PATH = '/prj/prj-32';
 
 /**
- * PRJ-30, the community monitoring files (G4-8, Law 58/2024 articles 78-79, numbers not confirmed): for each project the day the duty to notify began, the deadline of the notice (that day plus the days of the rule at that
+ * PRJ-31, the community monitoring files (G4-8, Law 58/2024 articles 78-79, numbers not confirmed): for each project the day the duty to notify began, the deadline of the notice (that day plus the days of the rule at that
  * time, never moved by a later change of the rule), the state of the notice and the feedback of the community that waits or is late. The investor opens a file for a project from here.
  */
 export default function MonitoringListScreen({ route }: ScreenProps) {
