@@ -3,7 +3,7 @@ import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { AddressInfo } from 'node:net';
 import { ControlDatabase, EffectiveAccessStore, InMemoryAuthzCache, UserSessionStore } from '@machvon/db';
-import { seedSystemRoles } from '@machvon/db/src/system-roles';
+import { SYSTEM_ROLES, seedSystemRoles } from '@machvon/db/src/system-roles';
 import { loadErrorRegistry } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import { AppModule } from '../src/app.module';
@@ -26,6 +26,8 @@ const T = id(0x71, 1);
 const T_OTHER = id(0x71, 2);
 const ACTOR = id(0x60, 99);
 const DAY_MS = 86_400_000;
+// BR-IAM-05 (c): whoever grants a role holds every permission of it, so the custom roles that grant the guest role hold the permissions of the system role GUEST_CONTRACTOR (contract.read and the portal rights).
+const GUEST_ROLE_PERMISSIONS = SYSTEM_ROLES.find((role) => role.code === 'GUEST_CONTRACTOR')?.permissions ?? [];
 
 // People of tenant T (member n is user n).
 const ADMIN = 1; // TENANT_OWNER (rank 99) on the whole tenant: TENANT_ADMIN lacks contract.read, which BR-IAM-05 (c) wants for the guest role
@@ -227,9 +229,9 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
     for (const [n, code, rank] of [
       [1, 'GUEST_ADMIN', 70],
       [2, 'JUNIOR_INVITER', 10],
-    ] as const) await harness.seedRole(T, n, code, ['iam.guest.invite', 'iam.role.grant', 'contract.read'], rank);
+    ] as const) await harness.seedRole(T, n, code, ['iam.guest.invite', 'iam.role.grant', ...GUEST_ROLE_PERMISSIONS], rank);
     await harness.seedRole(T, 3, 'DIRECTORY_READER', ['membership.read'], 1);
-    await harness.seedRole(T, 4, 'GUEST_GRANTER', ['iam.role.grant', 'contract.read'], 70);
+    await harness.seedRole(T, 4, 'GUEST_GRANTER', ['iam.role.grant', ...GUEST_ROLE_PERMISSIONS], 70);
     await harness.seedRole(T, 5, 'GUEST_INVITER', ['iam.guest.invite'], 10);
     for (const row of await admin<{ id: string; code: string }>('select id, code from machvon.role_definition where tenant_id = $1', [T])) roles.set(row.code, row.id);
     await seedContracts();

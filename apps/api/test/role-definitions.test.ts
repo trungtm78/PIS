@@ -127,12 +127,12 @@ describe('role definition reads (ST-ADM-005 role picker, CR-ADM-05)', () => {
     await harness.stop();
   }, 60_000);
 
-  it('lists all 17 seeded system roles and the custom roles to a tenant owner', async () => {
+  it('lists all 18 seeded system roles and the custom roles to a tenant owner', async () => {
     const reply = await get('/resources/role_definition?limit=200', OWNER);
     expect(reply.status).toBe(200);
     const codes = codesOf(reply);
     for (const role of SYSTEM_ROLES) expect(codes).toContain(role.code);
-    expect(SYSTEM_ROLES).toHaveLength(17);
+    expect(SYSTEM_ROLES).toHaveLength(18);
     expect(codes).toEqual(expect.arrayContaining(['GRANT_READER', 'UNIT_HELPER']));
     expect(codes).toEqual([...codes].sort());
     expect(reply.json.next_cursor).toBeNull();
