@@ -354,7 +354,7 @@ export function earlyWarningClocks(input: RegisterClockInput, today: string, pol
   const start = input.active ? input.startOn : null;
   const initial = clock('INITIAL_ISSUE', policy.initialIssueWithinDays, start, input.firstIssueOn, today, policy, calendars, null);
   const meeting = clock('MEETING', policy.meetingEveryDays, start === null ? null : (input.lastMeetingOn ?? start), null, today, policy, calendars, null);
-  const reissue = input.latestMeeting === null ? null : clock('REISSUE', policy.reissueWithinDaysAfterMeeting, input.latestMeeting.heldOn, input.latestMeeting.reissuedOn, today, policy, calendars, input.latestMeeting.id);
+  const reissue = input.latestMeeting === null || !input.active ? null : clock('REISSUE', policy.reissueWithinDaysAfterMeeting, input.latestMeeting.heldOn, input.latestMeeting.reissuedOn, today, policy, calendars, input.latestMeeting.id);
   return { initial, meeting, reissue };
 }
 

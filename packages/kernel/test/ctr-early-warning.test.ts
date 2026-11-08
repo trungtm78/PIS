@@ -150,6 +150,8 @@ describe('the clocks of the register', () => {
       expect([clocks.initial.state, clocks.meeting.state]).toEqual(['NOT_STARTED', 'NOT_STARTED']);
       expect(registerClockAlert(clocks.initial)).toBeNull();
     }
+    // The re-issue owed for a meeting is not owed by a contract that is not in force either.
+    expect(earlyWarningClocks({ ...inForce, active: false, latestMeeting: { id: 'm1', heldOn: '2026-06-20', reissuedOn: null } }, '2026-09-01', policy, undefined).reissue).toBeNull();
     const working = { ...policy, basis: 'WORKING_DAYS' as const };
     expect(earlyWarningClocks(inForce, '2026-06-05', working, undefined).initial).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', dueOn: null });
     // 2026-06-01 is a Monday: five working days is the next Monday, and a week of working days is seven.

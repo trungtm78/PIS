@@ -390,7 +390,8 @@ describe('the claim register of a contract (G1-9: limitation per contract, no de
       expect([page.rows[0]?.id, next.rows[0]?.id].sort()).toEqual([a.id, b.id].sort());
       const missed = await as((tx) => claims.list(tx, { contractId: contract, limitation: 'MISSED' }, readScope(), { limit: 5 }, day(20)));
       expect(missed.rows.map((entry) => entry.id)).toEqual([a.id]);
-      expect(missed.totals.count).toBe(2);
+      // The totals follow the filter on the limitation: only the claim that is missed is added up.
+      expect(missed.totals).toMatchObject({ count: 1, open: 1, claimedVnd: '500000000', byLimitation: { MISSED: 1, CLOSED: 0 } });
       const open = await as((tx) => claims.list(tx, { contractId: contract, open: true, claimantSide: 'CONTRACTOR' }, readScope(), { limit: 5 }, day(20)));
       expect(open.rows.map((entry) => entry.id)).toEqual([a.id]);
     });

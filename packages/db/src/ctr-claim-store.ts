@@ -561,12 +561,14 @@ export class CtrClaimStore {
     const { inputs, rows: claimRows, truncated } = await this.reportInputs(tx, filter, read);
     const report = claimRegisterReport(inputs, today, policy.params, calendars);
     const matching = filter.limitation === undefined ? report.rows : report.rows.filter((row) => row.limitation.status === filter.limitation);
+    // The totals describe the register that was asked for: with a filter on the limitation, they add up the claims that match it.
+    const totals = filter.limitation === undefined ? report.totals : claimRegisterReport(inputs.filter((input) => matching.some((row) => row.id === input.id)), today, policy.params, calendars).totals;
     const start = page.after === undefined ? 0 : matching.findIndex((row) => row.id === page.after) + 1;
     const byId = new Map(claimRows.map((claim) => [claim.id, claim]));
     const rows = matching.slice(start, start + page.limit).map((item): ClaimListItem => ({ ...item, claim: byId.get(item.id) as ClaimRow }));
     const last = rows[rows.length - 1];
     const nextCursor = last !== undefined && start + page.limit < matching.length ? last.id : null;
-    return { rows, nextCursor, totals: report.totals, truncated, policy: policy.basis, calendarPublished: calendars !== undefined, asOf: today };
+    return { rows, nextCursor, totals, truncated, policy: policy.basis, calendarPublished: calendars !== undefined, asOf: today };
   }
 
   /** The claim policy and the calendar of the day, for a caller that evaluates claims itself (the alert source). */

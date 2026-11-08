@@ -205,6 +205,21 @@ describe('the early-warning register of a contract (G1-15)', () => {
       expect(await complete(action.actionId, 1, 'CANCELLED', 'The warning was withdrawn: no action is needed.')).toMatchObject({ actionStatus: 'CANCELLED', actionVersion: 2 });
     });
 
+    it('never resolves a warning while an action is open, even when the action is added while the closure waits', async () => {
+      const contract = await activeContract();
+      const warning = await raise(contract);
+      await assess(warning.id, 1);
+      const first = await addAction(warning.id);
+      await complete(first.actionId, 1);
+      const settled = await as((tx) => warnings.get(tx, warning.id, readScope(), NOW));
+      const [closing, adding] = await Promise.allSettled([close(warning.id, settled.row.version, { outcome: 'RESOLVED', reason: 'The second supplier delivered on time.' }), addAction(warning.id, { description: 'Agree a revised foundation sequence.' })]);
+      const open = await owner<{ n: string }>("select count(*)::text as n from machvon.contract_early_warning_action where warning_id = $1::uuid and status = 'OPEN'", [warning.id]);
+      const state = (await row(warning.id))?.status;
+      // Either the action came first and the closure was refused, or the closure came first and the action was refused: never a resolved warning with an open action.
+      expect(state === 'CLOSED_RESOLVED' && Number(open[0]?.n) > 0).toBe(false);
+      expect([closing?.status, adding?.status].filter((status) => status === 'fulfilled')).toHaveLength(1);
+    });
+
     it('names the change order or the claim a warning that came true became, of the same contract only, and withdraws one raised in error', async () => {
       const contract = await activeContract();
       const other = await activeContract();

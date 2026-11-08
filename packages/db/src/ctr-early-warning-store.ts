@@ -416,8 +416,11 @@ export class CtrEarlyWarningStore {
 
   /** Closes a warning: resolved (no open action, and not by the person who answers for it), come true (naming the change order or claim of the contract it became) or withdrawn. */
   async close(tx: TenantTx, id: string, expectedVersion: number, input: ClosureInput, actor: string, scopes: ContractScopes, now: Date): Promise<EarlyWarningMove> {
-    const held = await this.lock(tx, id, scopes, now);
-    if (held.version !== expectedVersion) throw versionConflict(held.version);
+    const locked = await this.lock(tx, id, scopes, now);
+    if (locked.version !== expectedVersion) throw versionConflict(locked.version);
+    // The actions are counted in a statement of their own after the lock is held: the count of the locking statement may predate an action that was added while this command waited.
+    const open = await tx.query<{ n: string }>("select count(*)::text as n from machvon.contract_early_warning_action where warning_id = $1::uuid and status = 'OPEN'", [id]);
+    const held = { ...locked, openActions: Number(open[0]?.n ?? 0) };
     const closure = validateClosure(input, held.status, held.openActions, held.ownerMembershipId, actor);
     if (closure.materialisedInto !== null) await this.assertMaterialised(tx, held.contractId, closure.materialisedInto, closure.materialisedId as string);
     const version = held.version + 1;
