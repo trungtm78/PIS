@@ -7,9 +7,9 @@ INSERT INTO machvon.role_definition (tenant_id, id, code, name, permissions, ran
 SELECT o.tenant_id, gen_random_uuid(), r.code, r.name, r.permissions, r.rank, true, false, 'Active', o.created_by
   FROM machvon.role_definition o
  CROSS JOIN (VALUES
-   ('COMMITTEE_HEAD', 'iam.role.COMMITTEE_HEAD.name', 62, ARRAY['committee.read', 'committee.attention.decide', 'committee.alert.acknowledge', 'home.read', 'approval.decide', 'directive.read', 'directive.manage', 'directive.meeting.manage', 'directive.extension.decide', 'directive.close', 'rpt.read', 'rpt.approve']::text[]),
+   ('COMMITTEE_HEAD', 'iam.role.COMMITTEE_HEAD.name', 62, ARRAY['committee.read', 'committee.attention.decide', 'committee.alert.acknowledge', 'home.read', 'approval.decide', 'directive.read', 'directive.manage', 'directive.meeting.manage', 'directive.extension.decide', 'directive.close', 'rpt.read', 'rpt.approve', 'rpt.issue']::text[]),
    ('COMMITTEE_MEMBER', 'iam.role.COMMITTEE_MEMBER.name', 55, ARRAY['committee.read', 'home.read', 'directive.read', 'rpt.read', 'rpt.check']::text[]),
-   ('COMMITTEE_SECRETARIAT', 'iam.role.COMMITTEE_SECRETARIAT.name', 52, ARRAY['committee.read', 'committee.manage', 'committee.attention.decide', 'committee.alert.evaluate', 'committee.alert.acknowledge', 'home.read', 'directive.read', 'directive.manage', 'directive.meeting.manage', 'rpt.read', 'rpt.generate', 'rpt.issue', 'rpt.deliver']::text[])
+   ('COMMITTEE_SECRETARIAT', 'iam.role.COMMITTEE_SECRETARIAT.name', 52, ARRAY['committee.read', 'committee.manage', 'committee.attention.decide', 'committee.alert.evaluate', 'committee.alert.acknowledge', 'home.read', 'directive.read', 'directive.manage', 'directive.meeting.manage', 'rpt.read', 'rpt.generate', 'rpt.deliver']::text[])
  ) AS r(code, name, rank, permissions)
  WHERE o.code = 'TENANT_OWNER' AND o.is_system
 ON CONFLICT (tenant_id, code) DO NOTHING;

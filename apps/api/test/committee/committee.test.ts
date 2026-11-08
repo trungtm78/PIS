@@ -100,6 +100,7 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
   async function seedProvince(): Promise<void> {
     const periodOpen = id(FAMILY, 300);
     const periodPrior = id(FAMILY, 301);
+    const periodPriorEnd = id(FAMILY, 302);
     const sCurrent = id(FAMILY, 310);
     const sPrior = id(FAMILY, 311);
     const sPriorEnd = id(FAMILY, 312);
@@ -134,9 +135,10 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
       project(ids.p3, 'BAN-P3', 2, 'IMPLEMENTATION'),
       period(periodOpen, 'BAN-RP-2027', '2027-10-04', '2027-10-17', 2027),
       period(periodPrior, 'BAN-RP-2026', '2026-10-05', '2026-10-18', 2026),
+      period(periodPriorEnd, 'BAN-RP-2026-END', '2026-12-14', '2026-12-27', 2026),
       snapshot(sCurrent, periodOpen, SNAPSHOT_DAY, '2027-10-12T05:00:00Z'),
       snapshot(sPrior, periodPrior, '2026-10-12', '2026-10-12T05:00:00Z'),
-      snapshot(sPriorEnd, periodPrior, '2026-12-20', '2026-12-20T05:00:00Z'),
+      snapshot(sPriorEnd, periodPriorEnd, '2026-12-20', '2026-12-20T05:00:00Z'),
       line(sCurrent, ids.p1, 1000n, 900n, null),
       line(sCurrent, ids.p2, 1000n, 200n, null),
       line(sCurrent, ids.p3, 500n, 450n, 600n),
@@ -298,15 +300,16 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     expect(reply.status).toBe(200);
     const items = reply.json.items as Loose[];
     const byCode = new Map<string, Loose>(items.map((item) => [item.code, item]));
-    expect([...byCode.keys()].sort()).toEqual(['BAN-P2', 'BAN-P3']);
-    expect(byCode.get('BAN-P2')?.signals.map((signal: { reason: string }) => signal.reason).sort()).toEqual(['DELAYED', 'DISBURSEMENT_FAR_BELOW_PLAN']);
+    // Every project belongs to the one unit that never reported, so each carries that reason too.
+    expect(byCode.get('BAN-P2')?.signals.map((signal: { reason: string }) => signal.reason).sort()).toEqual(['DELAYED', 'DISBURSEMENT_FAR_BELOW_PLAN', 'UNIT_NOT_REPORTING']);
     expect(byCode.get('BAN-P2')?.signals.find((signal: { reason: string }) => signal.reason === 'DELAYED')).toMatchObject({ value: '75', threshold: 30, unit: 'DAYS' });
-    expect(byCode.get('BAN-P3')?.signals.map((signal: { reason: string }) => signal.reason).sort()).toEqual(['OVER_BUDGET_RISK', 'STALLED_PROCEDURE']);
+    expect(byCode.get('BAN-P3')?.signals.map((signal: { reason: string }) => signal.reason).sort()).toEqual(['OVER_BUDGET_RISK', 'STALLED_PROCEDURE', 'UNIT_NOT_REPORTING']);
     expect(byCode.get('BAN-P3')?.signals.find((signal: { reason: string }) => signal.reason === 'STALLED_PROCEDURE')).toMatchObject({ value: '56' });
     expect(byCode.get('BAN-P2')?.exposure_vnd).toBe((800n * BILLION).toString());
     expect(items[0]?.code).toBe('BAN-P2');
-    expect(items.map((item) => item.rank)).toEqual([1, 2]);
-    expect(reply.json.total).toBe(2);
+    expect(items.map((item) => item.rank)).toEqual([1, 2, 3]);
+    expect(byCode.get('BAN-P1')?.signals.map((signal: { reason: string }) => signal.reason)).toEqual(['UNIT_NOT_REPORTING']);
+    expect(reply.json.total).toBe(3);
     const reasonOnly = await call('GET', '/committee/attention?reason=STALLED_PROCEDURE', { member: HEAD });
     expect((reasonOnly.json.items as Loose[]).map((item) => item.code)).toEqual(['BAN-P3']);
     expect((await call('GET', '/committee/attention?reason=NOPE', { member: HEAD })).status).toBe(422);
@@ -319,11 +322,11 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     expect((await call('POST', '/committee/attention/decisions', { member: HEAD, body: { project_id: ids.p3, decision: 'DEFERRED', note: 'Waiting for the tender result' } })).status).toBe(422);
     const deferred = await call('POST', '/committee/attention/decisions', { member: HEAD, body: { project_id: ids.p3, decision: 'DEFERRED', note: 'Waiting for the tender result', defer_until: '2027-11-15' } });
     expect(deferred.status).toBe(200);
-    expect((await call('GET', '/committee/attention', { member: HEAD })).json.items).toHaveLength(1);
+    expect((await call('GET', '/committee/attention', { member: HEAD })).json.items).toHaveLength(2);
     const withDeferred = await call('GET', '/committee/attention?include_deferred=true', { member: HEAD });
     const p3 = (withDeferred.json.items as Loose[]).find((item) => item.code === 'BAN-P3');
     expect(p3?.decision).toMatchObject({ decision: 'DEFERRED', defer_until: '2027-11-15', note: 'Waiting for the tender result' });
-    expect(p3?.decision.reasons.sort()).toEqual(['OVER_BUDGET_RISK', 'STALLED_PROCEDURE']);
+    expect(p3?.decision.reasons.sort()).toEqual(['OVER_BUDGET_RISK', 'STALLED_PROCEDURE', 'UNIT_NOT_REPORTING']);
     const resource = deferred.json.resource_id as string;
     expect((await audits(resource, 'committee.attention_decided'))[0]?.safe_diff).toMatchObject({ project_id: ids.p3, decision: 'DEFERRED' });
     expect((await events(resource, 'committee.attention_decided.v1'))[0]?.payload).toMatchObject({ project_id: ids.p3, decision: 'DEFERRED' });
@@ -469,11 +472,12 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     expect(pack.json).toMatchObject({ layout_code: COMMITTEE_PACK_CODE, as_of: SNAPSHOT_DAY });
     expect((pack.json.generation as Loose).recent_drafts[0]).toMatchObject({ id: draftId, status: 'DRAFT' });
     expect((await views('MEETING_PACK', HEAD)).length).toBe(1);
-    // A member checks, the head approves, the secretariat issues: three different people, the engine keeps the order.
+    // A member checks, the head approves and issues (the approver issues in the engine): three different people, the engine keeps the order.
     const v1 = (await call('GET', `/report-engine/drafts/${draftId}`, { member: MEMBER })).json.version as number;
     expect((await call('POST', `/report-engine/drafts/${draftId}/check`, { member: MEMBER, ifMatch: v1 })).status).toBe(200);
     expect((await call('POST', `/report-engine/drafts/${draftId}/approve`, { member: HEAD, ifMatch: v1 + 1 })).status).toBe(200);
-    const issued = await call('POST', `/report-engine/drafts/${draftId}/issue`, { member: SECRETARIAT, ifMatch: v1 + 2 });
+    expect((await call('POST', `/report-engine/drafts/${draftId}/issue`, { member: SECRETARIAT, ifMatch: v1 + 2 })).status).toBe(403);
+    const issued = await call('POST', `/report-engine/drafts/${draftId}/issue`, { member: HEAD, ifMatch: v1 + 2 });
     expect(issued.status).toBe(200);
     expect(issued.json).toMatchObject({ outcome: 'NEW' });
   });

@@ -151,6 +151,7 @@ export class CommitteeController {
       this.record(scope, { action, resource: ALERT, id: row.id, version: row.version, type, classification: COMMITTEE_CLASSIFICATION, facts: { alert_type: row.alertType, subject_kind: row.subjectKind, subject_key: row.subjectKey, severity: row.severity, value: row.value, threshold: row.threshold, status: row.status } });
     for (const row of done.opened) await emit(row, 'committee.alert_raised', 'committee.alert_raised.v1');
     for (const row of done.resolved) await emit(row, 'committee.alert_resolved', 'committee.alert_resolved.v1');
+    await scope.audit({ action: 'committee.alerts_evaluated', resourceType: ALERT, resourceId: scope.tenant.tenantId, classification: COMMITTEE_CLASSIFICATION, diff: { opened: done.opened.length, kept: done.kept, resolved: done.resolved.length, as_of: read.facts.asOf, policy_version: read.policy.version } });
     const types = await this.service.alertTypes(scope.tx, today);
     const live = await this.alerts.list(scope.tx, 'LIVE');
     return { operation_id: scope.requestId, status: 'EVALUATED', resource_version: 0, resource_id: scope.tenant.tenantId, opened: done.opened.length, kept: done.kept, resolved: done.resolved.length, as_of: read.facts.asOf, alerts: live.map((row) => alertDto(row, types)) };

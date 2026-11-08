@@ -9,9 +9,9 @@ Trưởng Ban chỉ đạo cần một nơi duy nhất, truy vết được, tr�
 ## 2. Actor, tenant và phạm vi quyền
 | Actor | Vai trò hệ thống | Được phép | Bị cấm |
 |---|---|---|---|
-| Trưởng ban | COMMITTEE_HEAD (cấp trên toàn tenant) | Đọc toàn bộ; quyết định trên danh sách quan tâm; xác nhận cảnh báo; ra chỉ đạo, đóng chỉ đạo, duyệt gia hạn (DIR); duyệt hồ sơ họp | Mọi quyền ghi dữ liệu tài chính; đọc nhật ký xem |
+| Trưởng ban | COMMITTEE_HEAD (cấp trên toàn tenant) | Đọc toàn bộ; quyết định trên danh sách quan tâm; xác nhận cảnh báo; ra chỉ đạo, đóng chỉ đạo, duyệt gia hạn (DIR); duyệt và phát hành hồ sơ họp | Mọi quyền ghi dữ liệu tài chính; đọc nhật ký xem |
 | Thành viên | COMMITTEE_MEMBER | Đọc; kiểm hồ sơ họp | Quyết định, cảnh báo, ghi |
-| Thư ký | COMMITTEE_SECRETARIAT | Đọc; quản lý danh sách Ban; đánh giá cảnh báo; ghi quyết định; ra chỉ đạo và biên bản (DIR); lập và phát hành hồ sơ họp | Duyệt hồ sơ họp mình lập; ghi dữ liệu tài chính |
+| Thư ký | COMMITTEE_SECRETARIAT | Đọc; quản lý danh sách Ban; đánh giá cảnh báo; ghi quyết định; ra chỉ đạo và biên bản (DIR); lập hồ sơ họp và giao tệp đã phát hành | Duyệt hoặc phát hành hồ sơ họp; ghi dữ liệu tài chính |
 | Quản trị bảo mật, kiểm toán viên | SECURITY_ADMIN, AUDITOR | Đọc nhật ký xem (`committee.audit.read`) | Đọc số liệu điều hành nếu không có vai trò Ban |
 Phạm vi đọc là toàn bộ tenant (mọi chủ đầu tư và ngành); không bao giờ qua tenant (RLS). Quyền gắn ở phạm vi từng đơn vị không đủ: `403 SCOPE_DENIED`. Phân loại dữ liệu: bảng điều hành CONFIDENTIAL, danh sách Ban và nhật ký PERSONAL.
 
@@ -19,7 +19,7 @@ Phạm vi đọc là toàn bộ tenant (mọi chủ đầu tư và ngành); khô
 1. Trưởng ban mở BAN-01: số toàn tỉnh và theo ngành, địa bàn, chủ đầu tư, nguồn vốn; nhật ký ghi lượt xem trong cùng giao dịch.
 2. Từ BAN-02 Trưởng ban xem lý do và số tiền đang bị đe dọa, đánh dấu đã xem, hoãn có lý do đến một ngày, hoặc ra chỉ đạo từ dòng dự án (lệnh của DIR) rồi ghi quyết định "đã ra chỉ đạo".
 3. Thư ký đánh giá lại cảnh báo; Trưởng ban xác nhận có ghi chú; điều kiện hết đúng thì cảnh báo tự đóng.
-4. Trước cuộc họp thư ký lập hồ sơ họp (BAN-03), thành viên kiểm, Trưởng ban duyệt, thư ký phát hành bản Excel và Word.
+4. Trước cuộc họp thư ký lập hồ sơ họp (BAN-03), thành viên kiểm, Trưởng ban duyệt và phát hành bản Excel và Word (người duyệt là người phát hành theo bộ sinh báo cáo).
 5. Thư ký giữ danh sách Ban (BAN-06); an ninh và kiểm toán xem nhật ký (BAN-07).
 
 ## 4. State machine
