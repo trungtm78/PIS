@@ -123,8 +123,16 @@ export async function seedClipEnterpriseFunding(ctx: SeedContext): Promise<void>
 // ---- directives of the steering meetings --------------------------------------------------------------------------------------------------
 
 export async function seedClipEnterpriseDirectives(ctx: SeedContext): Promise<void> {
-  const plan = enterprisePlan(ctx);
-  if (plan === undefined) return;
+  await seedMeetings(ctx);
+}
+
+/** The directives of the steering meetings of the plan (both datasets carry `meetings` and `projects`). */
+export async function seedMeetings(ctx: SeedContext): Promise<void> {
+  const plan = clipPlan() as unknown as Pick<EnterprisePlan, 'meetings' | 'projects'> | undefined;
+  if (plan === undefined || !Array.isArray(plan.meetings)) {
+    ctx.warn('no clip plan with meetings: nothing to do');
+    return;
+  }
   const existing = new Set((await ctx.list<Obj>('projectManager', '/directives')).map((row) => String(row.text)));
   let cursor = 0;
   for (const meeting of plan.meetings) {

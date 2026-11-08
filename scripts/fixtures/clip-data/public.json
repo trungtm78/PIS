@@ -355,7 +355,16 @@
       "title": "Quyết định phê duyệt kế hoạch lựa chọn nhà thầu",
       "sender": "Ủy ban nhân dân tỉnh Cao Bằng"
     },
-    "note": "Bước thực hiện theo quy trình gói thầu của hệ thống; số liệu minh họa"
+    "note": "Bước thực hiện theo quy trình gói thầu của hệ thống; số liệu minh họa",
+    "workflowClockDays": [
+      -70,
+      -45,
+      -25,
+      -12,
+      -6,
+      -3,
+      -1
+    ]
   },
   "egp": {
     "planPrefix": "KH2026",
@@ -401,5 +410,86 @@
     "headAgency": "Công an tỉnh",
     "headAgencyCode": "PA05",
     "meetingReason": "Ban chỉ đạo yêu cầu báo cáo tiến độ giải ngân"
-  }
+  },
+  "alerts": {
+    "rules": [
+      {
+        "rule_code": "EW-01",
+        "name": "Tỷ lệ giải ngân lũy kế thấp hơn đường kỳ vọng",
+        "metric_code": "YTD_RATE_GAP",
+        "comparator": "GTE",
+        "threshold_json": {
+          "points": "10",
+          "critical_points": "30"
+        },
+        "severity": "WARNING"
+      },
+      {
+        "rule_code": "EW-11",
+        "name": "Giải ngân chậm so với đường kỳ vọng, cần theo dõi",
+        "metric_code": "YTD_RATE_GAP",
+        "comparator": "GTE",
+        "threshold_json": {
+          "points": "5"
+        },
+        "severity": "INFO"
+      },
+      {
+        "rule_code": "EW-05",
+        "name": "Dự án có vốn nhưng chưa có mã dự án quốc gia",
+        "metric_code": "NATIONAL_CODE_MISSING",
+        "comparator": "MISSING",
+        "threshold_json": {},
+        "severity": "WARNING"
+      }
+    ],
+    "legalBasis": "Ngưỡng theo quy chế điều hành giải ngân của tỉnh; số liệu minh họa"
+  },
+  "meetings": [
+    {
+      "ago": 75,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư công tháng trước",
+      "directives": [
+        {
+          "text": "Đẩy nhanh giải ngân các dự án có tỷ lệ dưới mức kỳ vọng",
+          "dueIn": -30
+        },
+        {
+          "text": "Hoàn thiện hồ sơ đề nghị cấp mã dự án quốc gia",
+          "dueIn": -12
+        }
+      ]
+    },
+    {
+      "ago": 30,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư công tháng này",
+      "directives": [
+        {
+          "text": "Báo cáo phương án xử lý các gói thầu chậm tiến độ",
+          "dueIn": 10
+        },
+        {
+          "text": "Rà soát kế hoạch lựa chọn nhà thầu của các dự án chuyển tiếp",
+          "dueIn": 20
+        },
+        {
+          "text": "Đối chiếu số liệu đăng tải trên mạng đấu thầu quốc gia",
+          "dueIn": -4
+        }
+      ]
+    },
+    {
+      "ago": 6,
+      "type": "EXTRAORDINARY",
+      "title": "Họp bất thường của Ban chỉ đạo về giải ngân",
+      "directives": [
+        {
+          "text": "Trưởng ban yêu cầu báo cáo tiến độ từng chủ đầu tư trong tuần",
+          "dueIn": 7
+        }
+      ]
+    }
+  ]
 }

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { ApiReader, sessionToken } from './clip-seed-client.mjs';
-import { DATASETS, DATASET_GROUPS, DATASET_PHASES, FUNDED, phasesFor, buildPlan, checkPlan, createRng, judge, judgeAll, parseArgs, planDigest, streamSeed } from './clip-seed-lib.mjs';
+import { DATASETS, DATASET_GROUPS, DATASET_PHASES, FUNDED, WORKFLOW_CLOCKS, phasesFor, buildPlan, checkPlan, createRng, judge, judgeAll, parseArgs, planDigest, streamSeed } from './clip-seed-lib.mjs';
 import { verifyChecks } from './clip-seed-verify.mjs';
 import { loadDataset, main, setClock } from './clip-seed.mjs';
 
@@ -256,9 +256,9 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
 test('the phases cover every group of a dataset once, keep the order, and cut down to the groups asked for', () => {
   for (const dataset of DATASETS) {
     const all = DATASET_PHASES[dataset].flatMap((phase) => phase.groups);
-    assert.deepEqual(all, DATASET_GROUPS[dataset]);
+    assert.deepEqual([...new Set(all)], DATASET_GROUPS[dataset]);
   }
-  assert.deepEqual(phasesFor('public', ['clip-public-workflow']), [{ clockDays: -65, groups: ['clip-public-workflow'] }]);
+  assert.deepEqual(phasesFor('public', ['clip-public-workflow']).map((phase) => phase.clockDays), WORKFLOW_CLOCKS);
   assert.deepEqual(phasesFor('public', ['nothing']), []);
   assert.ok(DATASET_PHASES.public.some((phase) => phase.clockDays < 0), 'the clip data is made in the past');
   assert.equal(DATASET_PHASES.public.at(-1).clockDays, 0, 'the last phase runs on the real day');
@@ -270,4 +270,11 @@ test('the clock of the stack is moved with a post and a stack without the route 
   assert.deepEqual(calls, [{ url: 'http://x/__e2e/clock', body: { offset_days: -65 } }]);
   assert.equal(await setClock('http://x', 0, async () => ({ ok: false })), false);
   assert.equal(await setClock('http://x', 0, async () => { throw new Error('down'); }), false);
+});
+
+test('every package of the plan is driven at one of the workflow clocks, and the clocks are spread', () => {
+  const plan = buildPlan(publicDataset());
+  const clocks = plan.procurement.plans.flatMap((entry) => entry.packages.map((item) => item.clockDays));
+  assert.ok(clocks.every((clock) => WORKFLOW_CLOCKS.includes(clock)));
+  assert.ok(new Set(clocks).size >= 5);
 });

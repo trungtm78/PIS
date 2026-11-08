@@ -8,7 +8,7 @@ export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-workflow', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-committee'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-directives', 'clip-public-committee'],
   enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'],
 };
 
@@ -17,11 +17,16 @@ export const DATASET_GROUPS = {
  * dataset is made in the past (the packages enter their steps, the plan is published) and the clock is then brought back, so steps and clocks really are late.
  * A stack that has no clock route ignores the offset.
  */
+/** The clocks (days from the real day) at which the workflows of the packages are driven; the plan gives each package one of them. */
+export const WORKFLOW_CLOCKS = [-70, -45, -25, -12, -6, -3, -1];
+
 export const DATASET_PHASES = {
   public: [
-    { clockDays: 0, groups: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement'] },
-    { clockDays: -65, groups: ['clip-public-workflow'] },
-    { clockDays: 0, groups: ['clip-public-egp', 'clip-public-disbursement', 'clip-public-committee'] },
+    // The capital plan is published in the past, so the snapshots of the closed months find the plan in force.
+    { clockDays: -80, groups: ['base', 'capital'] },
+    { clockDays: 0, groups: ['clip-public-documents', 'clip-public-procurement'] },
+    ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-public-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
+    { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-directives', 'clip-public-committee'] },
   ],
   enterprise: [{ clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'] }],
 };
@@ -29,7 +34,7 @@ export const DATASET_PHASES = {
 /** The phases cut down to the groups asked for (all when none is asked), dropping the empty ones. */
 export function phasesFor(dataset, groups) {
   const wanted = groups === undefined ? undefined : new Set(groups);
-  return DATASET_PHASES[dataset].map((phase) => ({ clockDays: phase.clockDays, groups: phase.groups.filter((group) => wanted === undefined || wanted.has(group)) })).filter((phase) => phase.groups.length > 0);
+  return DATASET_PHASES[dataset].map((phase) => ({ clockDays: phase.clockDays, env: phase.env, groups: phase.groups.filter((group) => wanted === undefined || wanted.has(group)) })).filter((phase) => phase.groups.length > 0);
 }
 
 /** A small deterministic generator (mulberry32): the same seed always gives the same sequence. */
@@ -176,6 +181,7 @@ export function buildProcurement(dataset, projects, lines) {
   const config = dataset.procurement;
   const rng = createRng(streamSeed(dataset.seed, 'procurement'));
   const targets = rng.shuffle(config.workflowTargets);
+  const clocks = rng.shuffle(config.workflowClockDays ?? [0]);
   const chosen = projects.filter((project) => project.target === 'IMPLEMENTATION' || project.target === 'BUDGETED').slice(0, config.projectsWithPlans);
   let counter = 0;
   return chosen.map((project) => {
@@ -196,6 +202,8 @@ export function buildProcurement(dataset, projects, lines) {
           period: template.period,
           days: template.days,
           target,
+          // The clock of the stack (days from the real day) at which the workflow of this package is driven: steps entered long ago are late now.
+          clockDays: clocks[(counter - 1) % clocks.length],
         };
       }),
     };
@@ -318,6 +326,8 @@ export function buildPlan(dataset) {
       projects: portfolio.projects,
       lines: portfolio.lines,
       egp: dataset.egp,
+      alerts: dataset.alerts,
+      meetings: dataset.meetings,
       disbursement: buildDisbursement(dataset, portfolio.projects),
       committee: dataset.committee,
       procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: buildProcurement(dataset, portfolio.projects, portfolio.lines) },

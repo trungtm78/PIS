@@ -13,7 +13,7 @@ const tx = textsOf(TEXTS);
  * Every step asks first and skips what exists, so after the clips (which made all this through the screens) the group does nothing.
  */
 
-export const DECISION = { symbol: tx('symbol.001'), title: tx('title.002'), sender: tx('sender.003'), issuedOn: '2026-10-12' };
+export const DECISION = { symbol: tx('symbol.001'), title: tx('title.002'), sender: tx('sender.003'), issuedOn: '2026-06-12' };
 
 export const AREAS = [
   { key: 'CB-THUC-PHAN', name: tx('name.004') },

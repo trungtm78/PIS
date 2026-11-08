@@ -89,7 +89,7 @@ async function commandApply(flags) {
       await setClock(flags.api, phase.clockDays);
       code = await run(process.execPath, ['--experimental-strip-types', 'e2e/hdsd/seed/run.ts', '--groups', phase.groups.join(',')], {
         cwd: WEB,
-        env: { ...process.env, CLIP_PLAN_FILE: planFile, CLIP_API_URL: flags.api, E2E_STACK_INFO: stack.path },
+        env: { ...process.env, ...(phase.env ?? {}), CLIP_PLAN_FILE: planFile, CLIP_API_URL: flags.api, E2E_STACK_INFO: stack.path },
       });
       if (code !== 0) break;
     }

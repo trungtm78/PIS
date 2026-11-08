@@ -23,7 +23,7 @@ interface PlanBlock {
   plans: Array<{
     project: string;
     title: string;
-    packages: Array<{ code: string; title: string; millions: number; method: string; category: string; period: string; days: number; target: string }>;
+    packages: Array<{ code: string; title: string; millions: number; method: string; category: string; period: string; days: number; target: string; clockDays: number }>;
   }>;
 }
 
@@ -211,9 +211,12 @@ export async function seedClipWorkflow(ctx: SeedContext): Promise<void> {
     return;
   }
   await ctx.step('ADM', 'working calendar', () => ensureWorkCalendar(ctx));
-  const evidence =await ctx.letter({ symbol: block.decisionLetter.symbol.replace('{n}', '999'), title: block.decisionLetter.title, sender: block.decisionLetter.sender, issuedOn: ctx.day(-20), person: MAKER });
+  const clock = process.env.CLIP_WORKFLOW_CLOCK;
+  const evidence = await ctx.letter({ symbol: block.decisionLetter.symbol.replace('{n}', '999'), title: block.decisionLetter.title, sender: block.decisionLetter.sender, issuedOn: ctx.day(-20), person: MAKER });
   for (const spec of block.plans) {
     for (const item of spec.packages) {
+      // Each package is driven at the clock the plan gives it (one phase of the runner for each clock); without the variable all of them are driven now.
+      if (clock !== undefined && clock !== '' && Number(clock) !== item.clockDays) continue;
       const pack = await packageOf(ctx, item.code);
       if (pack === undefined || String(pack.status) === 'DRAFT' || String(pack.status) === 'IN_REVIEW') {
         ctx.warn(`the package ${item.code} is not approved yet: no workflow`);

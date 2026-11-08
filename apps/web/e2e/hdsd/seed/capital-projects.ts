@@ -79,7 +79,7 @@ export function projectNow(ctx: SeedContext, id: string): Promise<Obj> {
 }
 
 export async function publishMoreAreas(ctx: SeedContext): Promise<void> {
-  const decision = await ctx.letter({ symbol: tx('symbol.016'), title: tx('title.017'), issuedOn: '2026-10-20', sender: DECISION.sender });
+  const decision = await ctx.letter({ symbol: tx('symbol.016'), title: tx('title.017'), issuedOn: '2026-06-20', sender: DECISION.sender });
   const province = await masterRecord(ctx, 'AREA', 'CAO-BANG');
   if (province === undefined) throw new Error(tx('publishMoreAreas.018'));
   for (const area of [...AREAS, ...MORE_AREAS]) await publishArea(ctx, area, decision.documentId, province);
