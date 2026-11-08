@@ -482,7 +482,7 @@ describe('the committee workspace over HTTP (BAN-1): province-wide read, audited
     expect((await call('POST', `/report-engine/drafts/${draftId}/issue`, { member: SECRETARIAT, ifMatch: v1 + 2 })).status).toBe(403);
     const issued = await call('POST', `/report-engine/drafts/${draftId}/issue`, { member: HEAD, ifMatch: v1 + 2 });
     expect(issued.status).toBe(200);
-    expect(issued.json).toMatchObject({ outcome: 'NEW' });
+    expect(issued.json).toMatchObject({ status: 'ISSUED', resource_version: 1 });
   });
 
   it('does not hand the meeting pack to a holder of the report permissions alone: not to generate, not to list, not to read, not to step', async () => {
