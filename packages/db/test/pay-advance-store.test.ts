@@ -320,7 +320,7 @@ describe('the advance of a contract (ST-PAY-004)', () => {
       expect(await refusal(cancel(planned.view.id, planned.view.version + 1))).toMatchObject({ code: 'ADVANCE_STATE_INVALID', extensions: { reason: 'PAYMENT_REQUEST_OPEN' } });
       // Nothing was put on the books of the contract: an advance moves money when the Treasury pays it.
       expect(await contractRow(contract.contractId)).toMatchObject({ paid: '0', recovered: '0' });
-      const returned = await as((tx) => claims.returnRequest(tx, first.id, first.version + 1, { reason: 'The form is wrong.', requestId: randomUUID() }, memberId(CHECKER), everything), CHECKER);
+      const returned = await as((tx) => claims.returnRequest(tx, first.id, first.version + 1, { reason: 'The form is wrong.', reasonCode: 'MISSING_DOCUMENT', requestId: randomUUID() }, memberId(CHECKER), everything), CHECKER);
       expect(returned).toMatchObject({ status: 'RETURNED' });
       expect(await rowOf(planned.view.id)).toMatchObject({ status: 'PLANNED', version: String(planned.view.version + 2) });
     });

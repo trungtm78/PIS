@@ -77,7 +77,7 @@ describe('MasterCrosswalkStore (codes of other systems mapped to master data, ST
       expect(await refusal(create(input(record, 'KB-100')))).toEqual({ code: 'CROSSWALK_DUPLICATE', status: 409 });
       // Another system, another code type and another tenant each have a code space of their own.
       await create(input(record, 'KB-100', { sourceSystem: 'NATIONAL_PIM' }));
-      await create(input(record, 'KB-100', { externalType: 'PROJECT_CODE' }));
+      await create(input(record, 'KB-100', { externalType: 'ORGANIZATION_CODE' }));
       await expect(create(input(await entry(), 'KB-100'), TENANT_B)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
     });
 

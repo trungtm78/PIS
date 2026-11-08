@@ -79,7 +79,9 @@ describe('migration V004 authorization core', () => {
       expect(await failureCode(app, 'delete from machvon.role_grant')).toBe('42501');
       expect(await failureCode(app, 'truncate machvon.role_grant')).toBe('42501');
       expect(await failureCode(admin, 'delete from machvon.role_grant')).toBe('42501');
-      expect(await failureCode(admin, 'truncate machvon.role_grant')).toBe('42501');
+      // The period scope of IAM-2 refers to role_grant, so a plain TRUNCATE is refused earlier (0A000); with CASCADE the statement reaches the guard of the table itself.
+      expect(await failureCode(admin, 'truncate machvon.role_grant')).toBe('0A000');
+      expect(await failureCode(admin, 'truncate machvon.role_grant cascade')).toBe('42501');
       // A revoked grant stays: the application may still update it.
       expect(await failureCode(app, `update machvon.role_grant set version = version + 1 where id = '${GRANT}'`)).toBeUndefined();
     } finally {
