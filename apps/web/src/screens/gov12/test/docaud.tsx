@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { harness, mount } from '../../sas/test-support';
 import type { WebRoute } from '../../../routes/types';
-import vi from '../../../i18n/parts/gov12-docaud.vi.json';
+import vi from '../../../i18n/vi.json';
 import base from '../../../i18n/vi.json';
 
 export { harness, mount };
