@@ -107,6 +107,18 @@ export interface ReceiptEvidence {
 
 const RANK: Readonly<Record<RungState, number>> = { QUEUED: 0, SUPPRESSED: 1, FAILED: 1, SENT: 2, DELIVERED: 3, SEEN: 4 };
 
+/**
+ * Whether a rung may move from one state to another: forward only (a seen rung is never shown as merely sent), except that a rung that is only sent, or queued, may still turn out to have failed or been suppressed
+ * (the sends of the engine failed after the notification was first seen), and a failure or a verdict of "no workflow" may still be lifted by a later delivery.
+ */
+export function rungMayMove(from: RungState, fromReason: string | null, to: RungState): boolean {
+  if (from === to) return false;
+  if (from === 'QUEUED') return true;
+  if (from === 'SENT') return to !== 'QUEUED';
+  if (from === 'SUPPRESSED') return fromReason === 'NO_WORKFLOW' && to !== 'QUEUED';
+  return RANK[to] > RANK[from];
+}
+
 /** The best state any evidence supports: a read beats a delivery beats a send; failure and suppression only count when nothing better happened (a message that arrived late wins over a failure that was reported late). */
 export function receiptStateOf(evidence: ReceiptEvidence): RungState {
   if (!evidence.notificationExists) return 'QUEUED';

@@ -71,6 +71,8 @@ export async function alertLadderPass(tx: TenantTx, tenant: TenantContext, now: 
       const collected = await work.collect(tx, { membershipId: member.id, now, today, view: 'mine', mode: 'count', includeHidden: true, ...workScopes(access, now) });
       const rows = new Map<string, WorkRow>(collected.rows.map((row) => [`${row.source}\u0000${row.id}`, row]));
       const unavailable = new Set<string>(collected.unavailableSources);
+      // A list cut at the cap of a source does not say that an item missing from it is gone.
+      const cut = collected.truncated;
       const storm = await floods.current(tx, member.id);
       // Start: a new item (nobody on it, not put off) whose severity has more than the inbox.
       for (const row of rows.values()) {
@@ -84,7 +86,7 @@ export async function alertLadderPass(tx: TenantTx, tenant: TenantContext, now: 
         if (Date.parse(run.nextAt) > now.getTime()) continue;
         const row = rows.get(`${run.source}\u0000${run.sourceId}`);
         // A source that could not be read does not say the item is gone: the ladder waits for the next pass.
-        if (row === undefined && unavailable.has(run.source)) continue;
+        if (row === undefined && (unavailable.has(run.source) || cut)) continue;
         await advance(tx, tenant, store, profile, metrics, result, run, row, member.id, now);
       }
       await tx.query(`release savepoint ${MEMBER_SAVEPOINT}`);

@@ -201,11 +201,26 @@ describe('the stores of the alert operations', () => {
       const run = (entry as NonNullable<typeof entry>).run;
       await as((tx) => ladders.finish(tx, run.id, { kind: 'DONE', by: 'RECEIPT' }, new Date(NOW.getTime() + 31 * 60_000)));
       expect((await as((tx) => ladders.require(tx, run.id))).state).toBe('DONE');
-      // An ended ladder is not finished again, and a new one may start for the same item.
+      // An ended ladder is not finished again.
       await as((tx) => ladders.finish(tx, run.id, { kind: 'EXPIRED' }, new Date(NOW.getTime() + 32 * 60_000)));
       expect((await as((tx) => ladders.require(tx, run.id))).state).toBe('DONE');
       const reading = await as((tx) => ladders.policy(tx, 'URGENT', '2027-10-15'));
-      expect(await as((tx) => ladders.start(tx, { source: 'ADVANCE', sourceId: 'ladder-1', recipient: memberId(REPORTER), severity: 'URGENT', alertTypeCode: 'ADVANCE', reading, now: LATER }))).toBeDefined();
+      const again = { source: 'ADVANCE', sourceId: 'ladder-1', recipient: memberId(REPORTER), severity: 'URGENT' as const, alertTypeCode: 'ADVANCE', reading, now: LATER };
+      // Review of GOV-10: an alert that stays as it is does not start a second ladder after the first ended; only a reopening of the alert (its condition cleared and came back) does.
+      expect(await as((tx) => ladders.start(tx, again))).toBeUndefined();
+      await admin([
+        [
+          `insert into machvon.alert_observation (tenant_id, source, source_id, kind, severity, state, first_seen_at, last_seen_at, last_reopened_at, reopen_count)
+           values ($1, 'ADVANCE', 'ladder-1', 'ADVANCE_OVERDUE', 'URGENT', 'OPEN', $2::timestamptz, $3::timestamptz, $4::timestamptz, 1)`,
+          [TENANT_A, NOW.toISOString(), LATER.toISOString(), new Date(NOW.getTime() + 45 * 60_000).toISOString()],
+        ],
+      ]);
+      const second = await as((tx) => ladders.start(tx, again));
+      expect(second).toBeDefined();
+      // An unread inbox delivery is not the receipt that an urgent ladder wants (it stops when the person has seen it).
+      const secondId = (second as NonNullable<typeof second>).id;
+      await as((tx) => ladders.recordRung(tx, { runId: secondId, index: 0, channel: 'IN_APP', now: LATER, outboxEventId: null, eventKey: null, suppressed: null }));
+      await admin([["update machvon.alert_ladder_rung set state = 'DELIVERED', receipt_at = $2::timestamptz where run_id = $1::uuid", [secondId, LATER.toISOString()]]]);
       const kpi = await as((tx) => ladders.kpi(tx, '2027-10-01', '2027-11-01', 30));
       expect(kpi.urgent).toMatchObject({ runs: 2, receipted: 1, receiptedWithin: 1, withinMinutes: 30 });
       expect(kpi.byChannel.find((entry) => entry.channel === 'IN_APP')).toMatchObject({ seen: 1 });

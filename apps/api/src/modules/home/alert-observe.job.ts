@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { AlertFloodStore, AlertObservationStore, HomeWorkStore, WORKER_MEMBERSHIP_ID, WORK_SOURCES, alertTypeCodeOf, enqueueOutbox, loadAccessIn } from '@machvon/db';
-import type { ObservedMeta, TenantDatabase, TenantTx, WorkRow, WorkSource } from '@machvon/db';
-import { NOOP_METRICS, floodProtects, groupForFlood, itemKey, observationDecision, vietnamDateOf } from '@machvon/kernel';
+import type { ObservedMeta, TenantDatabase, TenantTx, WorkRow } from '@machvon/db';
+import { NOOP_METRICS, answeredSources, floodProtects, groupForFlood, itemKey, observationDecision, vietnamDateOf } from '@machvon/kernel';
 import type { FloodItem, MetricsSink, TenantContext } from '@machvon/kernel';
 import { canReadScope, workScopes } from './work-scope';
 
@@ -58,6 +58,7 @@ export async function alertObservationPass(tx: TenantTx, tenant: TenantContext, 
   const produced = new Map<string, { source: string; sourceId: string }>();
   const meta = new Map<string, ObservedMeta>();
   const failed = new Set<string>();
+  let truncated = false;
   const lists = new Map<string, WorkRow[]>();
   for (const member of members) {
     const access = await loadAccessIn(tx, member.id);
@@ -70,6 +71,8 @@ export async function alertObservationPass(tx: TenantTx, tenant: TenantContext, 
         if (view === 'scope' && !canReadScope(access, now)) continue;
         const collected = await work.collect(tx, { membershipId: member.id, now, today, view, mode: 'count', includeHidden: true, ...workScopes(access, now) });
         for (const name of collected.unavailableSources) failed.add(name);
+        // A source that reached its cap of rows has more rows than the answer: what is missing from it is not cleared.
+        if (collected.truncated) truncated = true;
         for (const row of collected.rows) {
           const key = itemKey(row.source, row.id);
           produced.set(key, { source: row.source, sourceId: row.id });
@@ -86,7 +89,7 @@ export async function alertObservationPass(tx: TenantTx, tenant: TenantContext, 
   }
   result.items = produced.size;
   // Nobody read, or a list failed: say nothing about what is no longer there (the items that are there are still recorded).
-  const answered = result.incomplete || result.members === 0 ? new Set<string>() : new Set<string>((WORK_SOURCES as readonly WorkSource[]).filter((source) => !failed.has(source)));
+  const answered = answeredSources(WORK_SOURCES as readonly string[], { members: result.members, incomplete: result.incomplete, failed, truncated });
   const known = await observations.known(tx);
   const decision = observationDecision({ produced: [...produced.values()], known, answeredSources: answered, failedSources: failed });
   const applied = await observations.apply(tx, decision, meta, now, passKeyOf(now));

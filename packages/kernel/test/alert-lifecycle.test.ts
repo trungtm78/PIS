@@ -1,5 +1,6 @@
 import { DomainError } from '../src/errors';
 import {
+  answeredSources,
   assertFeedbackInput,
   builtInDefault,
   closedWithoutRecord,
@@ -58,6 +59,15 @@ describe('closing and reopening alerts (G2-8)', () => {
     expect(decision.touch).toEqual([{ source: 'ADVANCE', sourceId: 'a' }]);
     expect(decision.reopen).toEqual([{ source: 'ISSUE', sourceId: 'i' }]);
     expect(decision.open).toEqual([{ source: 'GUARANTEE', sourceId: 'g' }]);
+  });
+
+  it('says no source answered when a list was cut at the cap of a source, a list failed or nobody was read (review of GOV-10)', () => {
+    const all = ['ADVANCE', 'PERMIT'];
+    expect([...answeredSources(all, { members: 3, incomplete: false, failed: new Set(), truncated: false })]).toEqual(all);
+    expect([...answeredSources(all, { members: 3, incomplete: false, failed: new Set(['PERMIT']), truncated: false })]).toEqual(['ADVANCE']);
+    expect(answeredSources(all, { members: 3, incomplete: false, failed: new Set(), truncated: true }).size).toBe(0);
+    expect(answeredSources(all, { members: 3, incomplete: true, failed: new Set(), truncated: false }).size).toBe(0);
+    expect(answeredSources(all, { members: 0, incomplete: false, failed: new Set(), truncated: false }).size).toBe(0);
   });
 
   it('knows an item that closed with no decision of any person', () => {

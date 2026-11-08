@@ -62,6 +62,15 @@ export function observationDecision(pass: ObservationPass): ObservationDecision 
   return decision;
 }
 
+/**
+ * The sources that answered in a pass over the lists of the people: all of them, unless nobody was read, a list could not be read, a source failed, or a source reached its cap of rows in some list (the rows past the cap
+ * are not in the answer, so their absence says nothing). A source that is not in the answer closes nothing.
+ */
+export function answeredSources(all: readonly string[], input: { members: number; incomplete: boolean; failed: ReadonlySet<string>; truncated: boolean }): Set<string> {
+  if (input.members === 0 || input.incomplete || input.truncated) return new Set();
+  return new Set(all.filter((source) => !input.failed.has(source)));
+}
+
 /** An item that the system closed with no decision of any person on it: nobody claimed, assigned, snoozed or paused it. The report of "closed with no record" lists these. */
 export const closedWithoutRecord = (decisionsBeforeClose: number | null): boolean => decisionsBeforeClose === 0;
 

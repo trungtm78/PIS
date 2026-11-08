@@ -1,5 +1,5 @@
 import { DomainError } from '../src/errors';
-import { assertLadderPayload, carriesNoFinancialFigure, ladderDefaults, ladderEventType, ladderPolicyOf, nextLadderMove, receiptStateOf, validateRuleParams } from '../src/index';
+import { assertLadderPayload, rungMayMove, carriesNoFinancialFigure, ladderDefaults, ladderEventType, ladderPolicyOf, nextLadderMove, receiptStateOf, validateRuleParams } from '../src/index';
 import type { LadderInput, RungRecord } from '../src/index';
 
 const refusal = (run: () => unknown): DomainError => {
@@ -77,6 +77,24 @@ describe('receipts of a rung', () => {
     expect(receiptStateOf({ ...none, attemptStatuses: ['Failed'] })).toBe('FAILED');
     expect(receiptStateOf({ ...none, attemptStatuses: ['Suppressed'] })).toBe('SUPPRESSED');
     expect(receiptStateOf({ ...none, suppressionReason: 'NO_CONSENT' })).toBe('SUPPRESSED');
+  });
+});
+
+describe('the moves of a receipt (review of GOV-10)', () => {
+  it('lets a rung that was only sent turn out failed or suppressed, and never moves a delivered or seen rung back', () => {
+    expect(rungMayMove('SENT', null, 'FAILED')).toBe(true);
+    expect(rungMayMove('SENT', null, 'SUPPRESSED')).toBe(true);
+    expect(rungMayMove('QUEUED', null, 'SENT')).toBe(true);
+    expect(rungMayMove('DELIVERED', null, 'FAILED')).toBe(false);
+    expect(rungMayMove('SEEN', null, 'DELIVERED')).toBe(false);
+    expect(rungMayMove('SENT', null, 'QUEUED')).toBe(false);
+    expect(rungMayMove('SENT', null, 'SENT')).toBe(false);
+  });
+
+  it('lifts a failure by a late delivery, and the verdict "no workflow" by anything that happened', () => {
+    expect(rungMayMove('FAILED', null, 'DELIVERED')).toBe(true);
+    expect(rungMayMove('SUPPRESSED', 'NO_WORKFLOW', 'SENT')).toBe(true);
+    expect(rungMayMove('SUPPRESSED', 'NO_CONSENT', 'SENT')).toBe(false);
   });
 });
 

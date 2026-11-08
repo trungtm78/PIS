@@ -1,4 +1,4 @@
-import { DomainError, LADDER_RULE_TYPE, ladderDefaults, ladderPolicyOf, receiptStateOf } from '@machvon/kernel';
+import { DomainError, LADDER_RULE_TYPE, ladderDefaults, ladderPolicyOf, receiptStateOf, rungMayMove } from '@machvon/kernel';
 import type { LadderChannel, LadderMove, LadderPolicy, LadderSeverity, RungRecord, RungState, SuppressionReason } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -56,7 +56,6 @@ export interface LadderKpi {
 }
 
 const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
-const RANK: Readonly<Record<RungState, number>> = { QUEUED: 0, SUPPRESSED: 1, FAILED: 1, SENT: 2, DELIVERED: 3, SEEN: 4 };
 /** A rung whose event reached the relay and met no notification workflow within this many minutes had no workflow to carry it. */
 const NO_WORKFLOW_AFTER_MINUTES = 10;
 
@@ -138,11 +137,18 @@ export class AlertLadderStore {
     }
   }
 
-  /** Starts the ladder of an item for a person; `undefined` when one is already active (a pass that runs twice starts one). */
+  /**
+   * Starts the ladder of an item for a person; `undefined` when one is already active, and also when one already ran for this occurrence of the alert: a ladder that ended (received, escalated, ran out) is not started
+   * again while the item stays as it is, only after the observation reopened the alert (its condition cleared and came back).
+   */
   async start(tx: TenantTx, input: { source: string; sourceId: string; recipient: string; severity: LadderSeverity; alertTypeCode: string | null; reading: LadderPolicyReading; now: Date }): Promise<RunRow | undefined> {
     const inserted = await tx.query<{ id: string }>(
       `insert into machvon.alert_ladder_run (tenant_id, source, source_id, recipient_membership_id, severity, alert_type_code, policy_version, policy, started_at, next_at)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3::uuid, $4, $5, $6, $7::jsonb, $8::timestamptz, $8::timestamptz)
+       select nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3::uuid, $4, $5, $6, $7::jsonb, $8::timestamptz, $8::timestamptz
+        where not exists (
+          select 1 from machvon.alert_ladder_run prior
+           where prior.source = $1 and prior.source_id = $2 and prior.recipient_membership_id = $3::uuid
+             and prior.started_at >= coalesce((select o.last_reopened_at from machvon.alert_observation o where o.source = $1 and o.source_id = $2), '-infinity'::timestamptz))
        on conflict (tenant_id, source, source_id, recipient_membership_id) where state = 'ACTIVE' do nothing returning id`,
       [input.source, input.sourceId, input.recipient, input.severity, input.alertTypeCode, input.reading.version, JSON.stringify(input.reading.policy), input.now.toISOString()],
     );
@@ -248,7 +254,7 @@ export class AlertLadderStore {
         if (state === 'SUPPRESSED') reason = REASON_OF[evidence.suppression_reason ?? ''] ?? 'PROFILE';
         receiptAt = state === 'SEEN' ? (evidence.read_at ?? evidence.delivered_at) : state === 'DELIVERED' ? (evidence.delivered_at ?? now.toISOString()) : null;
       }
-      const forward = RANK[state] > RANK[rung.state] || (rung.state === 'QUEUED' && state !== 'QUEUED') || (rung.state === 'SUPPRESSED' && rung.reason === 'NO_WORKFLOW' && state !== 'SUPPRESSED');
+      const forward = rungMayMove(rung.state, rung.reason, state);
       if (!forward && evidence?.id === rung.notificationId) continue;
       await tx.query(
         `update machvon.alert_ladder_rung set state = $2, reason = $3, receipt_at = coalesce($4::timestamptz, receipt_at), notification_id = coalesce($5::uuid, notification_id), updated_at = now() where id = $1::uuid`,
@@ -301,7 +307,7 @@ export class AlertLadderStore {
   async kpi(tx: TenantTx, from: string, to: string, withinMinutes: number): Promise<LadderKpi> {
     const [totals] = await tx.query<{ runs: string; urgent: string; receipted: string; within: string; median: string | null; escalated: string; exhausted: string }>(
       `with first_receipt as (
-         select r.id, r.severity, r.state, r.started_at, min(g.receipt_at) filter (where g.receipt_at is not null) as at
+         select r.id, r.severity, r.state, r.started_at, min(g.receipt_at) filter (where g.receipt_at is not null and (g.state = 'SEEN' or r.policy ->> 'stop_when' = 'DELIVERED')) as at
            from machvon.alert_ladder_run r left join machvon.alert_ladder_rung g on g.tenant_id = r.tenant_id and g.run_id = r.id
           where r.started_at >= $1::date and r.started_at < $2::date group by r.id, r.severity, r.state, r.started_at)
        select count(*)::text as runs,
