@@ -1,6 +1,7 @@
 import type { TenantName } from '../../suite';
 import { directiveMarkers } from './directive.fixtures';
 import { egpMarkers } from './egp.fixtures';
+import { gov11aMarkers } from './gov11a.fixtures';
 import { govruleMarkers } from './govrule.fixtures';
 import { homeMarkers } from './home.fixtures';
 import { payctlMarkers } from './payctl.fixtures';
@@ -14,6 +15,7 @@ export function governanceMarkers(tenant: TenantName): Marker[] {
   return [
     ...directiveMarkers(tenant),
     ...egpMarkers(tenant),
+    ...gov11aMarkers(tenant),
     ...govruleMarkers(tenant),
     ...homeMarkers(tenant),
     ...payctlMarkers(tenant),
