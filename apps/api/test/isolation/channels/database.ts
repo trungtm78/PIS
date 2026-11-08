@@ -18,6 +18,7 @@ import {
   MASTER_FIXTURES,
   MASTER_IMPORT_FIXTURES,
   CROSSWALK_FIXTURES,
+INT_FIXTURES,
   DASHBOARD_FIXTURES,
   PUBLICATION_FIXTURES,
   SHARE_FIXTURES,
@@ -1530,6 +1531,13 @@ const INSERT_MASTER_IMPORT = `insert into machvon.master_import_batch
 const INSERT_CROSSWALK = `insert into machvon.master_crosswalk
   (tenant_id, id, master_record_id, source_system, external_type, external_code, valid_from, match_method, status, created_by, updated_by)
   values ($1, $2, $3, 'ISOLATION', 'ISOLATION_CODE', $4, '2026-01-01', 'MANUAL', 'ACTIVE', $5, $5) on conflict do nothing`;
+const INSERT_INT_ACCOUNT = `insert into machvon.int_machine_account (tenant_id, id, name, scopes, created_by, updated_by) values ($1, $2, $3, array['open.projects.read'], $4, $4) on conflict do nothing`;
+const INSERT_INT_CREDENTIAL = `insert into machvon.int_machine_credential (tenant_id, id, account_id, client_id, secret_hash, secret_hint, created_by) values ($1, $2, $3, $4, repeat('a', 64), 'mvs_Ab12', $5) on conflict do nothing`;
+const INSERT_INT_READER = `insert into machvon.int_bi_reader (tenant_id, id, name, login_name, connection_limit, created_by, updated_by) values ($1, $2, $3, $4, 3, $5, $5) on conflict do nothing`;
+const INSERT_INT_SYSTEM = `insert into machvon.int_source_system (tenant_id, id, code, name, kind, created_by, updated_by) values ($1, $2, $3, $3, 'ERP', $4, $4) on conflict do nothing`;
+const INSERT_INT_CODE = `insert into machvon.master_crosswalk
+  (tenant_id, id, master_record_id, subject_type, subject_id, source_system, external_type, external_code, valid_from, match_method, status, proposal_reason, created_by, updated_by)
+  values ($1, $2, null, 'PROJECT', $3, $4, 'PROJECT_CODE', $5, '2026-01-01', 'MANUAL', 'PROPOSED', 'Isolation proposal of a project code', $6, $6) on conflict do nothing`;
 const INSERT_CURSOR = `insert into machvon.integration_cursor
   (tenant_id, id, connector_code, source_scope, cursor_json, schema_version, adapter_status, status, last_file_sha256)
   values ($1, $2, 'ISOLATION_FILE', $3, '{}'::jsonb, '1', 'PROPOSED', 'ACTIVE', $4) on conflict do nothing`;
@@ -2355,6 +2363,12 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const project = PROJECT_FIXTURES[tenant];
     await client.query(INSERT_PROJECT, [tenantId, project.id, project.code, project.name, home, master.versionId, ACTOR_ID]);
     await client.query(INSERT_FUNDING_FIGURE, [tenantId, FUNDING_FIGURE_FIXTURES[tenant].figureId, FUNDING_FIGURE_FIXTURES[tenant].batchId, project.id, ACTOR_ID]);
+    const open = INT_FIXTURES[tenant];
+    await client.query(INSERT_INT_ACCOUNT, [tenantId, open.accountId, open.accountName, ACTOR_ID]);
+    await client.query(INSERT_INT_CREDENTIAL, [tenantId, open.credentialId, open.accountId, open.clientId, ACTOR_ID]);
+    await client.query(INSERT_INT_READER, [tenantId, open.readerId, open.readerName, open.loginName, ACTOR_ID]);
+    await client.query(INSERT_INT_SYSTEM, [tenantId, open.systemId, open.systemCode, ACTOR_ID]);
+    await client.query(INSERT_INT_CODE, [tenantId, open.codeId, project.id, open.systemCode, open.externalCode, ACTOR_ID]);
     await client.query(INSERT_APPRAISAL, [tenantId, APPRAISAL_FIXTURES[tenant].id, project.id, master.versionId, MEMBERSHIP_ID]);
     await client.query(INSERT_SECTION, [tenantId, SECTION_FIXTURES[tenant].id, project.id, SECTION_FIXTURES[tenant].code, ACTOR_ID]);
     await client.query(INSERT_PARCEL, [tenantId, PARCEL_FIXTURES[tenant].id, project.id, home, PARCEL_FIXTURES[tenant].code, ACTOR_ID]);
@@ -2741,6 +2755,10 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
 }
 
 const SNAPSHOT_TABLES = [
+  'int_machine_account',
+  'int_machine_credential',
+  'int_bi_reader',
+  'int_source_system',
   'organization_unit',
   'role_definition',
   'role_grant',

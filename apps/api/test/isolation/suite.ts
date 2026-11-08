@@ -162,6 +162,46 @@ export const CROSSWALK_FIXTURES: Readonly<Record<TenantName, { crosswalkId: stri
   },
 };
 
+/** INT-1: a machine account with a credential, a BI login, a source system, a project code waiting for a decision and a frozen snapshot of each tenant (names, codes and logins are distinctive; tenant data). */
+export const INT_FIXTURES: Readonly<
+  Record<TenantName, { accountId: string; accountName: string; credentialId: string; clientId: string; readerId: string; readerName: string; loginName: string; systemId: string; systemCode: string; codeId: string; externalCode: string; productId: string; snapshotId: string; lineId: string; periodId: string }>
+> = {
+  'TNT-A': {
+    accountId: '00000000-0000-4000-a0e1-000000000001',
+    accountName: 'Alpha Lakehouse Reader',
+    credentialId: '00000000-0000-4000-a0e1-000000000002',
+    clientId: 'mvc_aaaaaaaaaaaaaaaaaaaaaaaaab',
+    readerId: '00000000-0000-4000-a0e1-000000000003',
+    readerName: 'Alpha Power BI',
+    loginName: 'machvon_bi_a0e1a0e1a0e1',
+    systemId: '00000000-0000-4000-a0e1-000000000004',
+    systemCode: 'ALPHASYS',
+    codeId: '00000000-0000-4000-a0e1-000000000005',
+    externalCode: 'ALPHA-EXT-CODE-0001',
+    productId: '00000000-0000-4000-a0e1-000000000006',
+    snapshotId: '00000000-0000-4000-a0e1-000000000007',
+    lineId: '00000000-0000-4000-a0e1-000000000008',
+    periodId: '00000000-0000-4000-a0e1-000000000009',
+  },
+  'TNT-B': {
+    accountId: '00000000-0000-4000-b0e1-000000000001',
+    accountName: 'Beta Lakehouse Reader',
+    credentialId: '00000000-0000-4000-b0e1-000000000002',
+    clientId: 'mvc_bbbbbbbbbbbbbbbbbbbbbbbbbc',
+    readerId: '00000000-0000-4000-b0e1-000000000003',
+    readerName: 'Beta Power BI',
+    loginName: 'machvon_bi_b0e1b0e1b0e1',
+    systemId: '00000000-0000-4000-b0e1-000000000004',
+    systemCode: 'BETASYS',
+    codeId: '00000000-0000-4000-b0e1-000000000005',
+    externalCode: 'BETA-EXT-CODE-0001',
+    productId: '00000000-0000-4000-b0e1-000000000006',
+    snapshotId: '00000000-0000-4000-b0e1-000000000007',
+    lineId: '00000000-0000-4000-b0e1-000000000008',
+    periodId: '00000000-0000-4000-b0e1-000000000009',
+  },
+};
+
 /** A glossary term in review of each tenant (its code and its wording are distinctive; tenant data). */
 export const GLOSSARY_FIXTURES: Readonly<Record<TenantName, { termId: string; termCode: string; definition: string }>> = {
   'TNT-A': { termId: '00000000-0000-4000-a013-000000000001', termCode: 'ALPHA_ISOLATION_TERM', definition: 'Alpha tenant definition of the isolation glossary term.' },
@@ -1648,6 +1688,13 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'master import object key', value: MASTER_IMPORT_FIXTURES[tenant].fileObjectKey },
     { kind: 'crosswalk id', value: CROSSWALK_FIXTURES[tenant].crosswalkId },
     { kind: 'crosswalk external code', value: CROSSWALK_FIXTURES[tenant].externalCode },
+    { kind: 'machine account name', value: INT_FIXTURES[tenant].accountName },
+    { kind: 'machine client id', value: INT_FIXTURES[tenant].clientId },
+    { kind: 'bi reader name', value: INT_FIXTURES[tenant].readerName },
+    { kind: 'bi login name', value: INT_FIXTURES[tenant].loginName },
+    { kind: 'source system code', value: INT_FIXTURES[tenant].systemCode },
+    { kind: 'project code in a system', value: INT_FIXTURES[tenant].externalCode },
+    { kind: 'dataset snapshot id', value: INT_FIXTURES[tenant].snapshotId },
     { kind: 'integration cursor id', value: CROSSWALK_FIXTURES[tenant].cursorId },
     { kind: 'integration cursor scope', value: CROSSWALK_FIXTURES[tenant].sourceScope },
     { kind: 'integration cursor file hash', value: CROSSWALK_FIXTURES[tenant].fileSha256 },
