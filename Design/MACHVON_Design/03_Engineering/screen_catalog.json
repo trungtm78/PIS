@@ -11701,5 +11701,32 @@
     "platform": "web",
     "req": "FR-HUB-03",
     "source": "Yêu cầu chủ đầu tư 2026-11-08: xem như xây hệ Integration Hub"
+  },
+  {
+    "id": "CTR-32",
+    "module": "CTR",
+    "moduleName": "Hợp đồng và thực hiện",
+    "title": "Đề xuất xếp hạng thực hiện hợp đồng và phản hồi của nhà thầu",
+    "kind": "detail",
+    "fields": [
+      "Hợp đồng",
+      "Kỳ đánh giá",
+      "Điểm chất lượng",
+      "Điểm tiến độ",
+      "Điểm an toàn và môi trường",
+      "Điểm phối hợp",
+      "Điểm tài chính",
+      "Điểm tổng hợp",
+      "Xếp hạng đề xuất",
+      "Hạn phản hồi của nhà thầu",
+      "Phản hồi",
+      "Đánh giá chính thức"
+    ],
+    "role": "Chuyên viên hợp đồng, Ban QLDA, người duyệt theo thẩm quyền, kiểm toán nội bộ trong phạm vi được cấp",
+    "rule": "Điểm đề xuất từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING; tiêu chí không có dữ liệu không có điểm; người đề xuất không thông báo và không đưa vào đánh giá; nhà thầu có hạn phản hồi theo quy tắc đăng tải CONTRACTOR_RESPONSE; thông báo mở nghĩa vụ đăng tải (CA-3, V4)",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-CTR-37",
+    "source": "Kế hoạch đợt 3 mục 2 CA-3; nghiên cứu nhà thầu V4; docs/ctr-analytics-registers.md"
   }
 ]

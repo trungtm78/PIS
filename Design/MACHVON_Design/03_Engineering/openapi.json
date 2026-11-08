@@ -156626,7 +156626,7 @@
     "/contracts/analytics/reports/{code}": {
       "get": {
         "operationId": "getContractReport",
-        "summary": "Báo cáo phân tích hợp đồng theo mã: bid-variance, portfolio-status, schedule-delay, payment-three-way, advance-ageing, retention-guarantee, change-growth, contractor-concentration; xu hướng theo kỳ đọc qua dataset BI DS-CTR, không có điểm cuối riêng",
+        "summary": "Báo cáo phân tích hợp đồng theo mã: bid-variance, portfolio-status, schedule-delay, payment-three-way, advance-ageing, retention-guarantee, change-growth, contractor-concentration; xu hướng theo kỳ đọc qua dataset BI DS-CTR, không có điểm cuối riêng; CA-3: claims-limitation, quality-defects, obstacles, audit-findings, performance-rating, contract-health (đọc trực tiếp, trừ contract-health)",
         "tags": [
           "CTR"
         ],
@@ -156646,7 +156646,13 @@
                 "advance-ageing",
                 "retention-guarantee",
                 "change-growth",
-                "contractor-concentration"
+                "contractor-concentration",
+                "claims-limitation",
+                "quality-defects",
+                "obstacles",
+                "audit-findings",
+                "performance-rating",
+                "contract-health"
               ]
             }
           },
@@ -156763,6 +156769,24 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Danh sách cách nhau bằng dấu phẩy; chỉ báo cáo của các sổ (CA-3)"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Danh sách cách nhau bằng dấu phẩy; chỉ báo cáo của các sổ (CA-3)"
           }
         ],
         "x-read-model": true,
@@ -157008,6 +157032,57 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bid-variance",
+                "portfolio-status",
+                "schedule-delay",
+                "payment-three-way",
+                "advance-ageing",
+                "retention-guarantee",
+                "change-growth",
+                "contractor-concentration",
+                "claims-limitation",
+                "quality-defects",
+                "obstacles",
+                "audit-findings",
+                "performance-rating",
+                "contract-health"
+              ]
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "xlsx, csv hoặc pdf"
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Danh sách cách nhau bằng dấu phẩy; chỉ báo cáo của các sổ (CA-3)"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Danh sách cách nhau bằng dấu phẩy; chỉ báo cáo của các sổ (CA-3)"
           }
         ],
         "x-read-model": true,
@@ -181742,6 +181817,1015 @@
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "hub.agent.heartbeat.v1"
+        ]
+      }
+    },
+    "/contracts/{id}/rating-proposals": {
+      "post": {
+        "operationId": "proposeContractRating",
+        "summary": "Đề xuất xếp hạng thực hiện hợp đồng từ dữ liệu (người đề xuất không thông báo và không đưa vào đánh giá)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.propose",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrProposeContractRating"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CONTRACT_STATE_INVALID",
+          "RATING_PROPOSAL_EXISTS"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.contract_rating.proposed.v1"
+        ]
+      }
+    },
+    "/contract-rating-proposals/{id}/notify": {
+      "post": {
+        "operationId": "notifyContractRating",
+        "summary": "Thông báo đề xuất xếp hạng cho nhà thầu (người khác người đề xuất); phát sự kiện CONTRACTOR_NOTIFIED mở nghĩa vụ đăng tải phản hồi của nhà thầu",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.notify",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrNotifyContractRating"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SELF_APPROVAL_DENIED",
+          "RATING_STATE_INVALID",
+          "CALENDAR_NOT_EFFECTIVE",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.contract_rating.notified.v1"
+        ]
+      }
+    },
+    "/contract-rating-proposals/{id}/response": {
+      "post": {
+        "operationId": "recordContractRatingResponse",
+        "summary": "Ghi phản hồi của nhà thầu về đề xuất xếp hạng (đúng hạn hay trễ đều ghi nhận, trễ là một số liệu)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.respond",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrRecordContractRatingResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RATING_STATE_INVALID",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.contract_rating.responded.v1"
+        ]
+      }
+    },
+    "/contract-rating-proposals/{id}/adopt": {
+      "post": {
+        "operationId": "adoptContractRating",
+        "summary": "Đưa đề xuất xếp hạng vào đánh giá của CTR-23 sau phản hồi hoặc khi hết thời hạn (người khác người đề xuất)",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.evaluate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrAdoptContractRating"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SELF_APPROVAL_DENIED",
+          "RATING_STATE_INVALID",
+          "RATING_RESPONSE_WINDOW_OPEN",
+          "RATING_INCOMPLETE",
+          "EVALUATION_DUPLICATE",
+          "CONTRACT_STATE_INVALID",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.contract_rating.adopted.v1"
+        ]
+      }
+    },
+    "/contract-rating-proposals/{id}/withdraw": {
+      "post": {
+        "operationId": "withdrawContractRating",
+        "summary": "Rút đề xuất xếp hạng chưa thông báo cho nhà thầu",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.propose",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CtrWithdrawContractRating"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RATING_STATE_INVALID",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ctr.contract_rating.withdrawn.v1"
+        ]
+      }
+    },
+    "/contract-rating-proposals/{id}": {
+      "get": {
+        "operationId": "getContractRatingProposal",
+        "summary": "Một đề xuất xếp hạng thực hiện hợp đồng với điểm từng tiêu chí, đồng hồ phản hồi của nhà thầu và các bước được phép",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrContractRatingProposal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/contract-rating-proposals": {
+      "get": {
+        "operationId": "listContractRatingProposals",
+        "summary": "Các đề xuất xếp hạng thực hiện hợp đồng trong phạm vi đọc, mới nhất trước",
+        "tags": [
+          "CTR"
+        ],
+        "x-permission": "contractor.performance.read",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "contractor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CtrContractRatingProposals"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
         ]
       }
     }
@@ -222615,6 +223699,7 @@
                     "SUM",
                     "RATIO",
                     "MAX",
+                    "MIN",
                     null
                   ]
                 }
@@ -222653,6 +223738,11 @@
                 },
                 "health": {
                   "type": "object"
+                },
+                "record_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Mã bản ghi của sổ (yêu cầu, lỗi, vướng mắc, phát hiện); báo cáo theo hợp đồng không có."
                 }
               }
             }
@@ -223089,6 +224179,11 @@
                 "type": "integer"
               }
             }
+          },
+          "notes": {
+            "type": "object",
+            "description": "Ghi chú về độ phủ của báo cáo sổ, ví dụ số vướng mắc chưa gắn hợp đồng.",
+            "additionalProperties": true
           }
         }
       },
@@ -239591,6 +240686,472 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {}
+      },
+      "CtrProposeContractRating": {
+        "type": "object",
+        "required": [
+          "period_label"
+        ],
+        "properties": {
+          "evaluation_kind": {
+            "type": "string",
+            "enum": [
+              "PERIODIC",
+              "COMPLETION",
+              "TERMINATION"
+            ]
+          },
+          "period_label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "additionalProperties": false
+      },
+      "CtrNotifyContractRating": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "letter_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CtrRecordContractRatingResponse": {
+        "type": "object",
+        "required": [
+          "response_kind",
+          "received_on"
+        ],
+        "properties": {
+          "response_kind": {
+            "type": "string",
+            "enum": [
+              "ACCEPT",
+              "DISPUTE",
+              "NO_COMMENT"
+            ]
+          },
+          "response_text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "received_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "evidence_document_version_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CtrAdoptContractRating": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "overrides": {
+            "type": "object",
+            "description": "Điểm bổ sung cho tiêu chí chưa có dữ liệu, kèm lý do; không thay được điểm đã có từ dữ liệu.",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "score",
+                "reason"
+              ],
+              "properties": {
+                "score": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 20,
+                  "maxLength": 2000
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "CtrWithdrawContractRating": {
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        },
+        "additionalProperties": false
+      },
+      "CtrContractRatingProposal": {
+        "type": "object",
+        "description": "Đề xuất xếp hạng thực hiện hợp đồng (CA-3): điểm từng tiêu chí từ dữ liệu theo quy tắc CONTRACT_PERFORMANCE_RATING (tiêu chí không có dữ liệu không có điểm và nêu lý do), vòng đời thông báo nhà thầu, phản hồi trong thời hạn và đưa vào đánh giá của CTR-23.",
+        "required": [
+          "id",
+          "contract_id",
+          "contract_code",
+          "contractor_id",
+          "evaluation_kind",
+          "period_label",
+          "as_of_date",
+          "state",
+          "rule",
+          "criteria",
+          "covered",
+          "overall_score",
+          "rating",
+          "inputs_sha256",
+          "proposed_by",
+          "allowed",
+          "version",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contract_code": {
+            "type": "string"
+          },
+          "contractor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evaluation_kind": {
+            "type": "string",
+            "enum": [
+              "PERIODIC",
+              "COMPLETION",
+              "TERMINATION"
+            ]
+          },
+          "period_label": {
+            "type": "string"
+          },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "PROPOSED",
+              "NOTIFIED",
+              "RESPONDED",
+              "ADOPTED",
+              "WITHDRAWN"
+            ]
+          },
+          "rule": {
+            "type": "object",
+            "required": [
+              "version",
+              "source"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          },
+          "criteria": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "score",
+                "reason"
+              ],
+              "properties": {
+                "score": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "readings": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": [
+                      "string",
+                      "number"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "covered": {
+            "type": "integer"
+          },
+          "overall_score": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rating": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "EXCELLENT",
+              "GOOD",
+              "FAIR",
+              "POOR",
+              null
+            ]
+          },
+          "inputs_sha256": {
+            "type": "string"
+          },
+          "proposed_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "proposed_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notified": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "letter_document_version_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "response_due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "response_clock": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "RUNNING",
+                  "NEAR",
+                  "ANSWERED_IN_TIME",
+                  "ANSWERED_LATE",
+                  "LAPSED"
+                ]
+              },
+              "due_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "basis": {
+                "type": "string"
+              }
+            }
+          },
+          "response": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "received_on": {
+                "type": "string",
+                "format": "date"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "evidence_document_version_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "adopted": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evaluation_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "overrides": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            }
+          },
+          "withdrawn": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          },
+          "allowed": {
+            "type": "object",
+            "required": [
+              "notify",
+              "respond",
+              "adopt",
+              "withdraw"
+            ],
+            "properties": {
+              "notify": {
+                "type": "boolean"
+              },
+              "respond": {
+                "type": "boolean"
+              },
+              "adopt": {
+                "type": "boolean"
+              },
+              "withdraw": {
+                "type": "boolean"
+              }
+            }
+          },
+          "version": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CtrContractRatingProposals": {
+        "type": "object",
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CtrContractRatingProposal"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   }

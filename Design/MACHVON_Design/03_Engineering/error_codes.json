@@ -6456,6 +6456,38 @@
       "module": "HUB",
       "statusBasis": "spec",
       "source": "spec:HUB"
+    },
+    "RATING_STATE_INVALID": {
+      "status": 409,
+      "title": "Rating proposal state invalid",
+      "meaning": "Đề xuất xếp hạng không ở trạng thái cho phép bước này (đã thông báo, đã trả lời, đã đưa vào đánh giá hoặc đã rút)",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "RATING_RESPONSE_WINDOW_OPEN": {
+      "status": 409,
+      "title": "Response window still open",
+      "meaning": "Nhà thầu còn thời hạn phản hồi và chưa phản hồi: chưa thể đưa đề xuất vào đánh giá",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "RATING_INCOMPLETE": {
+      "status": 422,
+      "title": "Rating incomplete",
+      "meaning": "Có tiêu chí chưa có dữ liệu và chưa có điểm bổ sung kèm lý do: chưa thể đưa đề xuất vào đánh giá",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "RATING_PROPOSAL_EXISTS": {
+      "status": 409,
+      "title": "Rating proposal exists",
+      "meaning": "Hợp đồng đã có một đề xuất xếp hạng còn hiệu lực cho loại đánh giá và kỳ này",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
     }
   }
 }
