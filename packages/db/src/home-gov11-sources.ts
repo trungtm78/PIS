@@ -42,7 +42,7 @@ export class HomeGov11Sources {
         consequence: CONSEQUENCES.DIS_MILESTONE_AT_RISK ?? null,
         causeKey: `dis-milestone:${row.unitId}:${row.code}`,
         startedAt: new Date(row.createdAt).toISOString(),
-        target: { screen: 'DIS-27', id: row.snapshotId },
+        target: { screen: 'DIS-30', id: row.snapshotId },
       }),
     );
   }
@@ -88,7 +88,7 @@ export class HomeGov11Sources {
         consequence: (overdue ? CONSEQUENCES.CONTRACT_SETTLEMENT_OVERDUE : CONSEQUENCES.CONTRACT_SETTLEMENT_NEAR) ?? null,
         causeKey: `settlement-clock:${row.contract.id}`,
         startedAt: startOfDay(row.startedOn),
-        target: { screen: 'CTR-32', id: row.contract.id },
+        target: { screen: 'CTR-38', id: row.contract.id },
       };
     });
   }
@@ -108,7 +108,7 @@ export class HomeGov11Sources {
         consequence: CONSEQUENCES.CONTRACT_BASELINE_REVIEW ?? null,
         causeKey: `contract-adjustment:${row.contract.id}`,
         startedAt: new Date(row.createdAt).toISOString(),
-        target: { screen: 'CTR-33', id: row.contract.id },
+        target: { screen: 'CTR-39', id: row.contract.id },
       }),
     );
   }
@@ -128,7 +128,7 @@ export class HomeGov11Sources {
         consequence: CONSEQUENCES.LOOK_AHEAD_NOT_READY ?? null,
         causeKey: `look-ahead:${row.itemId}`,
         startedAt: startOfDay(row.plannedStart),
-        target: { screen: 'PRJ-28', id: row.projectId },
+        target: { screen: 'PRJ-30', id: row.projectId },
       }),
     );
     for (const row of missing) {
@@ -144,7 +144,7 @@ export class HomeGov11Sources {
         consequence: CONSEQUENCES.LOOK_AHEAD_MISSING ?? null,
         causeKey: `look-ahead-missing:${row.projectId}`,
         startedAt: row.since === null ? null : startOfDay(row.since),
-        target: { screen: 'PRJ-28', id: row.projectId },
+        target: { screen: 'PRJ-30', id: row.projectId },
       });
     }
     return rows;
