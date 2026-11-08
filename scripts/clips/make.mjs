@@ -242,10 +242,10 @@ function phoneCard(scene, out, dir) {
 /** The quoted subtitles filter of the on-screen stamps of a scene (null-safe: undefined when there is no caption file). */
 const assFilterOf = (ass) => (ass === null ? undefined : `subtitles=filename=${filterPath(ass)}:fontsdir=${filterPath(fontsDir)}`);
 
-/** The footage of a phone scene made on an emulator (REC4): <phone-dir>/<name>.mp4 or .webm; undefined when there is none. */
-function phoneFootage(phoneDir, names) {
+/** The footage of a phone scene made on an emulator (REC4) or of the PWA (pwa.mjs): <phone-dir>/<name>.mp4 or .webm, or <name>.<edition>.mp4 as the index of the phone footage names it; undefined when there is none. */
+function phoneFootage(phoneDir, names, edition) {
   if (phoneDir === undefined) return undefined;
-  for (const name of names.filter(Boolean)) for (const extension of ['mp4', 'webm']) if (existsSync(join(phoneDir, `${name}.${extension}`))) return join(phoneDir, `${name}.${extension}`);
+  for (const name of names.filter(Boolean)) for (const base of edition === undefined ? [name] : [name, `${name}.${edition}`]) for (const extension of ['mp4', 'webm']) if (existsSync(join(phoneDir, `${base}.${extension}`))) return join(phoneDir, `${base}.${extension}`);
   return undefined;
 }
 
@@ -333,10 +333,12 @@ async function main(argv) {
       const ass = captionsAss(entry.captions, entry.startMs, join(dir, 'seg', `${entry.id}.ass`));
       const platform = scene.screen.platform;
       const stamp = Date.now();
-      const layout = compose ? layoutOf(scene) : null;
       const bgFile = join(dir, 'compose', 'bg.mp4');
+      const phoneFile = phoneFootage(phoneDir, [scene.id, scene.showcase?.phone], scenario.edition);
+      // The PWA scene shows the installed application on a phone when its film exists (pwa.mjs), else the screens in the browser frame.
+      const pwaOnPhone = platform === 'pwa' && phoneFile !== undefined;
+      const layout = compose ? (pwaOnPhone ? 'phone-right' : layoutOf(scene)) : null;
       const showcase = layout !== null && platform === 'animatic' && scene.showcase !== undefined;
-      const phoneFile = phoneFootage(phoneDir, [scene.id, scene.showcase?.phone]);
       if (layout === 'title' && platform === 'title') {
         const data = JSON.parse(readFileSync(join(CLIPS_DIR, 'animatic', 'data', `${scene.screen.animatic}.json`), 'utf8'));
         const paint = await painterFor();
@@ -349,8 +351,8 @@ async function main(argv) {
         if (!existsSync(raw)) renderAnimatic(scene.screen.animatic, raw);
         finishSegment({ input: raw, seconds, ass, out: file, hold: true });
         report.push({ id: entry.id, kind: 'animatic', animatic: scene.screen.animatic, seconds });
-      } else if (layout !== null && (((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) || showcase || (platform === 'phone' && phoneFile !== undefined))) {
-        const views = showcase ? showcaseViews(scene) : platform === 'phone' ? [] : viewsOf(scene);
+      } else if (layout !== null && (((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) || showcase || ((platform === 'phone' || pwaOnPhone) && phoneFile !== undefined))) {
+        const views = showcase ? showcaseViews(scene) : platform === 'phone' || pwaOnPhone ? [] : viewsOf(scene);
         if (views.length > 0 && (webUrl === undefined || flag(argv, 'no-web'))) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
         if (views.length > 0 && freemem() < 1.5 * 1024 ** 3) throw new Error('less than 1.5 GB of memory is free: wait before the browser starts');
         if (views.length > 0 && browser === undefined) {
