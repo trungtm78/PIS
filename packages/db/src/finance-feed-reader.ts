@@ -58,7 +58,7 @@ export class ProvinceFactsReader {
       today: input.today,
       reportDueDays: input.policy.report_due_days,
       compared: counts.comparedLatest ?? 0,
-      discrepancies: counts.comparedLatest === null ? 0 : counts.open + counts.resolved,
+      discrepancies: counts.differencesLatest ?? 0,
       findings: feedInternalFindings(loaded, input.fiscalYear).length,
     });
   }

@@ -165,7 +165,9 @@ describe('the feed of the Finance Department (FEED-1)', () => {
       expect(byMonth.groups.slice(0, 2).map((group) => [group.disbursed, group.cumulative])).toEqual([['220000', '220000'], ['200000', '420000']]);
       const quality = await as((tx) => reader.quality(tx, { fiscalYear: 2026, month: 1, today: '2026-02-20', policy: FEED_POLICY_DEFAULTS }));
       expect(quality.completeness).toMatchObject({ numerator: 2, denominator: 2, pct: '100.00' });
-      expect(quality.timeliness).toMatchObject({ numerator: 2, denominator: 2 });
+      // CDT-2 reported on 2026-02-08, after the due day (2026-02-05).
+      expect(quality.timeliness).toMatchObject({ numerator: 1, denominator: 2, pct: '50.00' });
+      expect(quality.units.map((unit) => [unit.investorCode, unit.status])).toEqual([['CDT-1', 'REPORTED_ON_TIME'], ['CDT-2', 'REPORTED_LATE']]);
       const later = await as((tx) => reader.quality(tx, { fiscalYear: 2026, month: 3, today: '2026-04-20', policy: FEED_POLICY_DEFAULTS }));
       expect(later.lateUnits.map((unit) => unit.investorCode)).toEqual(['CDT-1', 'CDT-2']);
     });
@@ -279,7 +281,20 @@ describe('the feed of the Finance Department (FEED-1)', () => {
       const again = await as((tx) => differences.reconcile(tx, { fiscalYear: 2026, epoch: 0, policy: FEED_POLICY_DEFAULTS, ownerId: memberId(THIRD), actor: memberId(THIRD), now: NOW }), THIRD);
       expect([again.opened.length, again.existing]).toEqual([0, 2]);
       expect((await as((tx) => differences.counts(tx, 2026))).openLarge).toBe(2);
-      expect((await as((tx) => reader.quality(tx, { fiscalYear: 2026, month: 1, today: '2026-02-20', policy: FEED_POLICY_DEFAULTS }))).discrepancy.denominator).toBe(2);
+      // One population: the figures of the latest run that differ over the figures that run compared, however many times the same figures were reconciled and whatever was settled since.
+      const rate = (await as((tx) => reader.quality(tx, { fiscalYear: 2026, month: 1, today: '2026-02-20', policy: FEED_POLICY_DEFAULTS }))).discrepancy;
+      expect([rate.numerator, rate.denominator]).toEqual([2, 2]);
+      expect(rate.pct).toBe('100.00');
+    });
+
+    it('does not compare through a mapping that is not yet in force', async () => {
+      const later = await seedBidPackage(harness);
+      await apply('PROJECT', bytes(PROJECT_HEADER, 'F-500,2026-01-10,Not yet in force,GT,D01,CDT-9,'));
+      await apply('PLAN', bytes(PLAN_HEADER, 'F-500,2026,NSTW,900000,2026-01-20'));
+      const proposed = await as((tx) => mappings.propose(tx, { ourCode: later.projectCode, externalCode: 'F-500', validFrom: '2099-01-01', validUntil: null, method: 'MANUAL', reason: REASON }, memberId(LOADER), NOW), LOADER);
+      await as((tx) => mappings.decide(tx, proposed.row.id, proposed.row.version, { move: 'APPROVE', reason: REASON }, memberId(CHECKER), NOW), CHECKER);
+      const result = await as((tx) => differences.reconcile(tx, { fiscalYear: 2026, epoch: 0, policy: FEED_POLICY_DEFAULTS, ownerId: memberId(THIRD), actor: memberId(THIRD), now: NOW }), THIRD);
+      expect(result.opened.filter((row) => row.feedProjectCode === 'F-500')).toEqual([]);
     });
 
     it('does not open an item for an owner who is a maker, and names the project', async () => {

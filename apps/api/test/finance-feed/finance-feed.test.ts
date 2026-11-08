@@ -30,6 +30,8 @@ const ADMIN = 1; // every feed permission over the tenant
 const CHECKER = 2; // the right to read, approve a mapping and settle a difference
 const READER = 3; // fin.feed.read only
 const NOBODY = 4;
+const PREVIEWER = 5; // the dry run over the unit tree of the department only
+const DEPARTMENT = 2;
 const B_ADMIN = 1; // of tenant B
 const ROOT = 1;
 const FAMILY = 0x98;
@@ -119,17 +121,24 @@ describe('the feed of the Finance Department (FEED-1, FEED-01 to FEED-05)', () =
   beforeAll(async () => {
     root = await mkdtemp(join(tmpdir(), 'machvon-feed-'));
     await harness.start();
-    for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, [{ n: ROOT, path: `/${unitId(ROOT)}/` }]);
-    for (const n of [ADMIN, CHECKER, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const tenant of [TENANT_A, TENANT_B]) {
+      await harness.seedUnits(tenant, [
+        { n: ROOT, path: `/${unitId(ROOT)}/` },
+        { n: DEPARTMENT, path: `/${unitId(ROOT)}/${unitId(DEPARTMENT)}/`, parent: ROOT },
+      ]);
+    }
+    for (const n of [ADMIN, CHECKER, READER, NOBODY, PREVIEWER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_ADMIN, ROOT);
     await harness.seedRole(TENANT_A, 1, 'FEED_ADMIN', FEED_ALL, 50);
     await harness.seedRole(TENANT_A, 2, 'FEED_CHECKER', ['fin.feed.read', 'fin.feed.map.approve', 'fin.feed.resolve'], 30);
     await harness.seedRole(TENANT_A, 3, 'FEED_READER', ['fin.feed.read'], 20);
+    await harness.seedRole(TENANT_A, 4, 'FEED_PREVIEWER', ['fin.feed.read', 'fin.feed.preview'], 30);
     await harness.seedRole(TENANT_B, 1, 'FEED_ADMIN', FEED_ALL, 50);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: ADMIN, role: 1, kind: 'TENANT' },
       { n: 2, member: CHECKER, role: 2, kind: 'TENANT' },
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
+      { n: 4, member: PREVIEWER, role: 4, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_ADMIN, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -246,6 +255,10 @@ describe('the feed of the Finance Department (FEED-1, FEED-01 to FEED-05)', () =
         expect([push.status, push.json.code]).toEqual([503, 'FEED_API_UNAVAILABLE']);
         expect((await call('POST', '/finance-feed/push', { member: READER, body: { kind: 'PROJECT', rows: [{ feed_project_code: 'P-1' }] } })).status).toBe(403);
         expect((await call('POST', '/finance-feed/imports', { member: CHECKER, body: request('PROJECT', file) })).status).toBe(403);
+        // The dry run reads the import history and the codes of the whole tenant: a grant on a subtree does not reach it.
+        const scoped = await preview(PREVIEWER, 'PROJECT', file);
+        expect([scoped.status, scoped.json.code]).toEqual([403, 'SCOPE_DENIED']);
+        expect(await call('GET', '/finance-feed/connection', { member: PREVIEWER })).toMatchObject({ status: 403 });
       } finally {
         seen.push(...(connect.mock.calls as unknown[][]));
         connect.mockRestore();

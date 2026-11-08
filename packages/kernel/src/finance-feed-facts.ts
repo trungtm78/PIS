@@ -68,44 +68,46 @@ export interface FeedFoldFilter {
   fund?: string | undefined;
 }
 
-const later = (a: string | undefined, b: string): boolean => a === undefined || b >= a;
+/**
+ * Whether a later statement replaces the one held: the later day wins; on the same day the statement of a file or a push wins over the one of the generator, and otherwise the one that came last. The channel decides nothing else:
+ * a project is one project however its statements came in.
+ */
+const replaces = (held: { asOf: string; channel: FeedChannel } | undefined, asOf: string, channel: FeedChannel): boolean => held === undefined || asOf > held.asOf || (asOf === held.asOf && !(channel === 'GENERATOR' && held.channel !== 'GENERATOR'));
 
 /**
- * Folds the records into one fact per project (and channel) for a fiscal year. The latest statement of a thing wins (by the day it was true, then by order); statements after `asOf` are ignored; a record of
+ * Folds the records into one fact per project for a fiscal year, whatever the channel the statements came in by (the channel is provenance: the fact carries the channel of the statement that names the project). The latest statement of a thing wins (by the day it was true, then by order); statements after `asOf` are ignored; a record of
  * another fiscal year is ignored. With a fund filter only that fund counts.
  */
 export function foldFeedFacts(records: readonly SourcedFeedRecord[], filter: FeedFoldFilter): FeedProjectFact[] {
-  const keyOf = (channel: FeedChannel, code: string): string => `${channel}|${code}`;
+  const keyOf = (code: string): string => code;
   const projects = new Map<string, { asOf: string; record: FeedProjectRecord; channel: FeedChannel }>();
-  const plans = new Map<string, { asOf: string; record: FeedPlanRecord }>();
+  const plans = new Map<string, { asOf: string; record: FeedPlanRecord; channel: FeedChannel }>();
   const rows = new Map<string, { asOf: string; record: FeedDisbursementRecord; channel: FeedChannel }>();
-  const seen = new Map<string, SourcedFeedRecord>();
   for (const one of records) {
     if (filter.asOf !== undefined && one.asOf > filter.asOf) continue;
     if (one.kind === 'PROJECT') {
       const record = one.record as FeedProjectRecord;
-      const key = keyOf(one.channel, record.feedProjectCode);
+      const key = keyOf(record.feedProjectCode);
       const held = projects.get(key);
-      if (held === undefined || later(held.asOf, one.asOf)) projects.set(key, { asOf: one.asOf, record, channel: one.channel });
+      if (replaces(held, one.asOf, one.channel)) projects.set(key, { asOf: one.asOf, record, channel: one.channel });
     } else if (one.kind === 'PLAN') {
       const record = one.record as FeedPlanRecord;
       if (record.fiscalYear !== filter.fiscalYear) continue;
-      const key = `${keyOf(one.channel, record.feedProjectCode)}|${record.fundCode}`;
+      const key = `${keyOf(record.feedProjectCode)}|${record.fundCode}`;
       const held = plans.get(key);
-      if (held === undefined || later(held.asOf, one.asOf)) plans.set(key, { asOf: one.asOf, record });
+      if (replaces(held, one.asOf, one.channel)) plans.set(key, { asOf: one.asOf, record, channel: one.channel });
     } else if (one.kind === 'DISBURSEMENT') {
       const record = one.record as FeedDisbursementRecord;
       if (record.fiscalYear !== filter.fiscalYear) continue;
-      const key = `${keyOf(one.channel, record.feedProjectCode)}|${record.fundCode}|${record.month}`;
+      const key = `${keyOf(record.feedProjectCode)}|${record.fundCode}|${record.month}`;
       const held = rows.get(key);
-      if (held === undefined || later(held.asOf, one.asOf)) rows.set(key, { asOf: one.asOf, record, channel: one.channel });
+      if (replaces(held, one.asOf, one.channel)) rows.set(key, { asOf: one.asOf, record, channel: one.channel });
     }
-    seen.set(one.businessKey, one);
   }
 
   const facts = new Map<string, FeedProjectFact>();
   const factOf = (channel: FeedChannel, code: string): FeedProjectFact => {
-    const key = keyOf(channel, code);
+    const key = keyOf(code);
     const held = facts.get(key);
     if (held !== undefined) return held;
     const master = projects.get(key);
@@ -134,29 +136,25 @@ export function foldFeedFacts(records: readonly SourcedFeedRecord[], filter: Fee
     if (fact.asOf === null || asOf > fact.asOf) fact.asOf = asOf;
   };
   for (const [, master] of projects) factOf(master.channel, master.record.feedProjectCode);
-  for (const [key, plan] of plans) {
-    const channel = key.split('|')[0] as FeedChannel;
+  for (const [, plan] of plans) {
     if (filter.fund !== undefined && plan.record.fundCode !== filter.fund) continue;
-    const fact = factOf(channel, plan.record.feedProjectCode);
+    const fact = factOf(plan.channel, plan.record.feedProjectCode);
     fact.planByFund[plan.record.fundCode] = cents(plan.record.planAmount);
     touch(fact, plan.asOf);
   }
-  const latestByFund = new Map<string, { month: number; cumulative: bigint }>();
+  const latestByFund = new Map<string, { month: number; cumulative: bigint; code: string; fund: string }>();
   for (const [, row] of rows) {
     if (filter.fund !== undefined && row.record.fundCode !== filter.fund) continue;
     const fact = factOf(row.channel, row.record.feedProjectCode);
     const month = row.record.month;
     fact.monthly[month - 1] = (fact.monthly[month - 1] as bigint) + cents(row.record.disbursedMonth);
     if (month > fact.latestMonth) fact.latestMonth = month;
-    const key = `${row.channel}|${row.record.feedProjectCode}|${row.record.fundCode}`;
+    const key = `${row.record.feedProjectCode}|${row.record.fundCode}`;
     const held = latestByFund.get(key);
-    if (held === undefined || month > held.month) latestByFund.set(key, { month, cumulative: cents(row.record.disbursedCumulative) });
+    if (held === undefined || month > held.month) latestByFund.set(key, { month, cumulative: cents(row.record.disbursedCumulative), code: row.record.feedProjectCode, fund: row.record.fundCode });
     touch(fact, row.asOf);
   }
-  for (const [key, latest] of latestByFund) {
-    const [channel, code, fund] = key.split('|') as [FeedChannel, string, string];
-    factOf(channel, code).disbursedByFund[fund] = latest.cumulative;
-  }
+  for (const [, latest] of latestByFund) factOf('FILE', latest.code).disbursedByFund[latest.fund] = latest.cumulative;
   return [...facts.values()]
     .filter((fact) => (filter.fund === undefined && fact.known) || Object.keys(fact.planByFund).length > 0 || Object.keys(fact.disbursedByFund).length > 0)
     .filter((fact) => (filter.sector === undefined || fact.sectorCode === filter.sector) && (filter.district === undefined || fact.districtCode === filter.district) && (filter.investor === undefined || fact.investorCode === filter.investor))
@@ -443,13 +441,13 @@ export function feedQuality(input: {
     held.channels.add(fact.channel);
     units.set(fact.investorCode, held);
   }
-  const investorOf = new Map(input.facts.map((fact) => [`${fact.channel}|${fact.feedProjectCode}`, fact.investorCode]));
+  const investorOf = new Map(input.facts.map((fact) => [fact.feedProjectCode, fact.investorCode]));
   const first = new Map<string, string>();
   for (const one of input.disbursements) {
     if (one.kind !== 'DISBURSEMENT') continue;
     const record = one.record as FeedDisbursementRecord;
     if (record.fiscalYear !== input.fiscalYear || record.month !== input.month || one.asOf > input.today) continue;
-    const investor = investorOf.get(`${one.channel}|${record.feedProjectCode}`);
+    const investor = investorOf.get(record.feedProjectCode);
     if (investor === undefined) continue;
     const held = first.get(investor);
     if (held === undefined || record.reportedOn < held) first.set(investor, record.reportedOn);

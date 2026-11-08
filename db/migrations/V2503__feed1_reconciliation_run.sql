@@ -9,6 +9,8 @@ CREATE TABLE machvon.finance_feed_reconciliation (
   fiscal_year integer NOT NULL,
   projects_compared integer NOT NULL,
   figures_compared integer NOT NULL,
+  -- The figures of this run that differ from ours, whether they were opened now, were already open, or belong to a project that was skipped because its owner is a maker: the numerator of the discrepancy rate, over the same figures as its denominator.
+  differences_found integer NOT NULL,
   differences_opened integer NOT NULL,
   differences_existing integer NOT NULL,
   skipped_owner_is_maker integer NOT NULL DEFAULT 0,
@@ -17,7 +19,7 @@ CREATE TABLE machvon.finance_feed_reconciliation (
   created_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (tenant_id, id),
   CONSTRAINT finance_feed_reconciliation_year_chk CHECK (fiscal_year BETWEEN 2000 AND 2100),
-  CONSTRAINT finance_feed_reconciliation_counts_chk CHECK (projects_compared >= 0 AND figures_compared >= 0 AND differences_opened >= 0 AND differences_existing >= 0 AND skipped_owner_is_maker >= 0)
+  CONSTRAINT finance_feed_reconciliation_counts_chk CHECK (projects_compared >= 0 AND figures_compared >= 0 AND differences_found >= 0 AND differences_found <= figures_compared AND differences_opened >= 0 AND differences_existing >= 0 AND skipped_owner_is_maker >= 0)
 );
 CREATE INDEX finance_feed_reconciliation_year_idx ON machvon.finance_feed_reconciliation (tenant_id, fiscal_year, created_at DESC, id DESC);
 CREATE INDEX finance_feed_reconciliation_owner_idx ON machvon.finance_feed_reconciliation (tenant_id, owner_id);

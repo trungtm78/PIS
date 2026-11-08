@@ -166,8 +166,8 @@ export class FeedMappingStore {
 
   /** The project codes of the feed (latest statement of each) that no mapping holds or waits on: what a person maps next. */
   async unmapped(tx: TenantTx, generatorEpoch: number, limit: number): Promise<{ items: FeedUnmapped[]; total: number }> {
-    const base = `from (select distinct on (r.channel, r.feed_project_code) r.feed_project_code, r.record ->> 'projectName' as name, r.record ->> 'investorCode' as investor, r.record ->> 'ourProjectCode' as hint, r.as_of::text as as_of
-           from machvon.finance_feed_record r where r.kind = 'PROJECT' and (r.channel <> 'GENERATOR' or r.epoch = $1) order by r.channel, r.feed_project_code, r.as_of desc) u
+    const base = `from (select distinct on (r.feed_project_code) r.feed_project_code, r.record ->> 'projectName' as name, r.record ->> 'investorCode' as investor, r.record ->> 'ourProjectCode' as hint, r.as_of::text as as_of
+           from machvon.finance_feed_record r where r.kind = 'PROJECT' and (r.channel <> 'GENERATOR' or r.epoch = $1) order by r.feed_project_code, r.as_of desc) u
         where not exists (select 1 from machvon.master_crosswalk x where x.source_system = '${FEED_SOURCE_SYSTEM}' and x.external_type = '${FEED_EXTERNAL_TYPE}' and x.external_code = u.feed_project_code and x.status in ('PROPOSED', 'ACTIVE'))`;
     const rows = await tx.query<{ feed_project_code: string; name: string | null; investor: string | null; hint: string | null; as_of: string }>(`select u.* ${base} order by u.feed_project_code limit $2`, [generatorEpoch, limit]);
     const total = await tx.query<{ n: string }>(`select count(*)::text as n ${base}`, [generatorEpoch]);
@@ -426,6 +426,8 @@ export interface FeedDifferenceCounts {
   openLarge: number;
   resolved: number;
   comparedLatest: number | null;
+  /** The figures of the latest run that differ from ours: the numerator of the rate over `comparedLatest`. */
+  differencesLatest: number | null;
 }
 
 /**
@@ -477,7 +479,7 @@ export class FeedDifferenceStore {
 
   async counts(tx: TenantTx, fiscalYear: number | undefined): Promise<FeedDifferenceCounts> {
     const rows = await tx.query<{ state: string; large: boolean; n: string }>('select state, large, count(*)::text as n from machvon.finance_feed_difference where ($1::int is null or fiscal_year = $1) group by state, large', [fiscalYear ?? null]);
-    const counts: FeedDifferenceCounts = { open: 0, openLarge: 0, resolved: 0, comparedLatest: null };
+    const counts: FeedDifferenceCounts = { open: 0, openLarge: 0, resolved: 0, comparedLatest: null, differencesLatest: null };
     for (const row of rows) {
       if (row.state === 'OPEN') {
         counts.open += Number(row.n);
@@ -485,8 +487,9 @@ export class FeedDifferenceStore {
       } else counts.resolved += Number(row.n);
     }
     if (fiscalYear !== undefined) {
-      const last = await tx.query<{ figures_compared: number }>('select figures_compared from machvon.finance_feed_reconciliation where fiscal_year = $1 order by created_at desc, id desc limit 1', [fiscalYear]);
+      const last = await tx.query<{ figures_compared: number; differences_found: number }>('select figures_compared, differences_found from machvon.finance_feed_reconciliation where fiscal_year = $1 order by created_at desc, id desc limit 1', [fiscalYear]);
       counts.comparedLatest = last[0]?.figures_compared ?? null;
+      counts.differencesLatest = last[0]?.differences_found ?? null;
     }
     return counts;
   }
@@ -503,8 +506,9 @@ export class FeedDifferenceStore {
    */
   async reconcile(tx: TenantTx, input: { fiscalYear: number; epoch: number; policy: FeedPolicy; ownerId: string; actor: string; now: Date }): Promise<FeedReconciliationResult> {
     const mappings = await tx.query<{ subject_id: string; external_code: string }>(
-      `select subject_id, external_code from machvon.master_crosswalk where subject_type = 'PROJECT' and source_system = $1 and external_type = $2 and status = 'ACTIVE' order by external_code`,
-      [FEED_SOURCE_SYSTEM, FEED_EXTERNAL_TYPE],
+      `select subject_id, external_code from machvon.master_crosswalk
+        where subject_type = 'PROJECT' and source_system = $1 and external_type = $2 and status = 'ACTIVE' and valid_from <= $3::date and (valid_until is null or valid_until > $3::date) order by external_code`,
+      [FEED_SOURCE_SYSTEM, FEED_EXTERNAL_TYPE, vietnamDateOf(input.now)],
     );
     const records = await this.records.load(tx, { generatorEpoch: input.epoch, fiscalYear: input.fiscalYear, kinds: ['PROJECT', 'PLAN', 'DISBURSEMENT'] });
     const facts = foldFeedFacts(records, { fiscalYear: input.fiscalYear });
@@ -513,6 +517,7 @@ export class FeedDifferenceStore {
     let existing = 0;
     let projects = 0;
     let figures = 0;
+    let found = 0;
     for (const mapping of mappings) {
       const matching = facts.filter((fact) => fact.feedProjectCode === mapping.external_code);
       if (matching.length === 0) continue;
@@ -522,6 +527,7 @@ export class FeedDifferenceStore {
       const { differences, compared } = diffFeedFigures({ feed: { plan: feedAmountText(plan), disbursed: feedAmountText(disbursed) }, ours: own.figures, policy: input.policy });
       projects += 1;
       figures += compared;
+      found += differences.length;
       if (differences.length === 0) continue;
       const loaders = await tx.query<{ applied_by: string }>('select distinct applied_by from machvon.finance_feed_record where feed_project_code = $1', [mapping.external_code]);
       const makers = [...new Set([...loaders.map((row) => row.applied_by), ...own.makers])];
@@ -539,9 +545,9 @@ export class FeedDifferenceStore {
     }
     const id = randomUUID();
     await tx.query(
-      `insert into machvon.finance_feed_reconciliation (tenant_id, id, fiscal_year, projects_compared, figures_compared, differences_opened, differences_existing, skipped_owner_is_maker, owner_id, run_by)
-       values (${TENANT}, $1::uuid, $2, $3, $4, $5, $6, $7, $8::uuid, $9::uuid)`,
-      [id, input.fiscalYear, projects, figures, opened.length, existing, skipped.length, input.ownerId, input.actor],
+      `insert into machvon.finance_feed_reconciliation (tenant_id, id, fiscal_year, projects_compared, figures_compared, differences_found, differences_opened, differences_existing, skipped_owner_is_maker, owner_id, run_by)
+       values (${TENANT}, $1::uuid, $2, $3, $4, $5, $6, $7, $8, $9::uuid, $10::uuid)`,
+      [id, input.fiscalYear, projects, figures, found, opened.length, existing, skipped.length, input.ownerId, input.actor],
     );
     return { id, fiscalYear: input.fiscalYear, projectsCompared: projects, figuresCompared: figures, opened, existing, skippedOwnerIsMaker: skipped };
   }

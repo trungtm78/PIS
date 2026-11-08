@@ -279,9 +279,21 @@ describe('the reader of the facts', () => {
     expect(foldFeedFacts(rows(), { fiscalYear: 2026, fund: 'NSDP' }).map((fact) => fact.feedProjectCode)).toEqual(['P-2']);
   });
 
-  it('tells apart records of different channels and carries the tag', () => {
-    const mixed = [...sourced(rows().slice(0, 2), 'FILE'), ...rows().slice(2)];
-    expect(aggregateFeedFacts(foldFeedFacts(mixed, { fiscalYear: 2026 }), 'sector', 2026).channels.sort()).toEqual(['FILE', 'GENERATOR']);
+  it('folds one project to one fact whatever channel stated it: the later day wins, a file wins a tie against the generator, and the figures are never counted twice', () => {
+    const own = (channel: SourcedFeedRecord['channel']): SourcedFeedRecord[] => [
+      ...sourced([feedRecordOf('PROJECT', { feedProjectCode: 'P-1', asOf: '2026-01-10', projectName: 'One', sectorCode: 'GT', districtCode: 'D01', investorCode: 'C1', investorName: null, totalInvestment: null, startYear: null, endYear: null, projectStatus: 'ACTIVE', ourProjectCode: null })], channel),
+      ...sourced([feedRecordOf('PLAN', { feedProjectCode: 'P-1', fiscalYear: 2026, fundCode: 'NSTW', planAmount: channel === 'FILE' ? '1000' : '900', asOf: '2026-01-20', decisionNo: null })], channel),
+      ...sourced([feedRecordOf('DISBURSEMENT', { feedProjectCode: 'P-1', fiscalYear: 2026, month: 1, fundCode: 'NSTW', disbursedMonth: '100', disbursedCumulative: '100', reportedOn: '2026-02-03', asOf: '2026-02-03' })], channel),
+    ];
+    const both = foldFeedFacts([...own('GENERATOR'), ...own('FILE')], { fiscalYear: 2026 });
+    expect(both).toHaveLength(1);
+    expect(both[0]?.planByFund).toEqual({ NSTW: 100_000n });
+    expect(both[0]?.disbursedByFund).toEqual({ NSTW: 10_000n });
+    const total = aggregateFeedFacts(both, 'sector', 2026);
+    expect([total.totals.projects, total.totals.plan, total.totals.disbursed]).toEqual([1, '1000', '100']);
+    const later = foldFeedFacts([...own('FILE'), ...sourced([feedRecordOf('PLAN', { feedProjectCode: 'P-1', fiscalYear: 2026, fundCode: 'NSTW', planAmount: '1500', asOf: '2026-06-30', decisionNo: null })], 'GENERATOR')], { fiscalYear: 2026 });
+    expect(later[0]?.planByFund).toEqual({ NSTW: 150_000n });
+    expect(aggregateFeedFacts(foldFeedFacts(own('FILE'), { fiscalYear: 2026 }), 'sector', 2026).channels).toEqual(['FILE']);
   });
 
   it('finds the disagreements inside the feed itself', () => {

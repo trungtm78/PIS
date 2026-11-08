@@ -82,7 +82,6 @@ export class FeedReadsController {
     this.whole(access, PERMISSIONS.getFinanceFeedConnection);
     const now = new Date();
     const today = vietnamDateOf(now);
-    const held = effectivePermissions(access, now);
     return this.database.withTenant(tenant, async (tx) => {
       const current = await this.connections.current(tx);
       const health = await this.connections.health(tx, now, current);
@@ -130,7 +129,7 @@ export class FeedReadsController {
         actions: {
           set_state: holdsOnWholeTenant(access, PERMISSIONS.setFinanceFeedConnectionState),
           control_generator: holdsOnWholeTenant(access, PERMISSIONS.controlFinanceFeedGenerator),
-          preview: holdsPermission(held, PERMISSIONS.previewFinanceFeedFile),
+          preview: holdsOnWholeTenant(access, PERMISSIONS.previewFinanceFeedFile),
           apply: holdsOnWholeTenant(access, PERMISSIONS.importFinanceFeedFile),
           propose_mapping: holdsOnWholeTenant(access, PERMISSIONS.proposeFinanceFeedMapping),
           decide_mapping: holdsOnWholeTenant(access, PERMISSIONS.decideFinanceFeedMapping),

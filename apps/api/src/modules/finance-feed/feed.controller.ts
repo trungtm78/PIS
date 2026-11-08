@@ -219,7 +219,9 @@ export class FeedImportController {
   @HttpCode(200)
   @OperationId('previewFinanceFeedFile')
   @Command({ operation: 'previewFinanceFeedFile' })
-  async preview(@Scope() scope: CommandScope, @Body() body: Schemas['FinanceFeedImportRequest']): Promise<Record<string, unknown>> {
+  async preview(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['FinanceFeedImportRequest']): Promise<Record<string, unknown>> {
+    // The dry run reads the import history and the codes of the whole tenant: a grant on a subtree does not reach it.
+    if (!holdsOnWholeTenant(access, PERMISSIONS.previewFinanceFeedFile)) throw new DomainError('SCOPE_DENIED', 403);
     const now = new Date();
     const kind = feedKindOf(body.kind);
     // The layout of the file is versioned: another layout than the ones the module reads is refused before the file is opened, naming the version.
