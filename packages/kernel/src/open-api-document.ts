@@ -7,7 +7,7 @@ type Json = Record<string, unknown>;
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'] as const;
 const REF = /^#\/components\/schemas\/([A-Za-z0-9_.-]+)$/;
-const INTERNAL_KEYS: readonly string[] = ['x-permission', 'x-plane', 'x-audit-action', 'x-step-up', 'x-state-guard', 'x-domain-events', 'x-read-model', 'x-exposure', 'x-error-codes'];
+const INTERNAL_KEYS: readonly string[] = ['x-permission', 'x-plane', 'x-audit-action', 'x-step-up', 'x-state-guard', 'x-domain-events', 'x-read-model', 'x-exposure', 'x-exposure-reason', 'x-idempotency', 'x-error-codes'];
 
 const isObject = (value: unknown): value is Json => typeof value === 'object' && value !== null && !Array.isArray(value);
 

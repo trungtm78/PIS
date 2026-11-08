@@ -13,6 +13,12 @@ const RESTRICTIVE_POLICY = 'tenant_boundary';
 // The design adds a second restrictive guard on a few project-scoped tables (owner unit scope).
 const SCOPE_POLICY = 'scope_units_guard';
 const SCOPE_PREDICATE_MARKER = "current_setting('app.scope_units'::text, true)";
+// INT-1 (V2202, eng-review R13): the BI logins read four snapshot tables through certified views. Each of those tables carries ONE more restrictive policy for the group role of the BI logins, bound to the tenant
+// of the login by its own name (machvon_bi.tenant_of(current_user)), so a login that changes app.tenant_id reads nothing. No other table may carry it, and no other table may be readable by the group role.
+export const BI_ROLE = 'machvon_bi_reader';
+const BI_POLICY = 'bi_reader_boundary';
+const BI_PREDICATE_MARKER = 'machvon_bi.tenant_of(';
+export const BI_TABLES: readonly string[] = ['contract_fact_snapshot', 'contract_fact_snapshot_line', 'period_snapshot', 'period_snapshot_line'];
 
 /** The tenant predicate exactly as PostgreSQL prints it (pg_get_expr), for USING and WITH CHECK alike. */
 export const TENANT_PREDICATE = "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)";
@@ -46,6 +52,8 @@ export interface CatalogTable {
   appPrivileges: TablePrivileges;
   relayPrivileges: TablePrivileges;
   policies: CatalogPolicy[];
+  /** What the group role of the BI logins may do on the table with some column (absent in catalogs read before INT-1). */
+  biPrivileges?: TablePrivileges;
   /** Every `*_id` column except tenant_id, with whether an index leads with (tenant_id, column) or, on tables without tenant_id, with the column. */
   idColumns: { column: string; indexed: boolean }[];
 }
@@ -69,6 +77,7 @@ export type RlsFailureReason =
   | 'no_restrictive'
   | 'unexpected_policy'
   | 'relay_exception_wrong'
+  | 'bi_exception_wrong'
   | 'control_plane_unexpected'
   | 'control_plane_missing'
   | 'control_plane_granted'
@@ -129,7 +138,7 @@ function policyFailures(table: CatalogTable): RlsFailureReason[] {
   if (!restrictive.some((policy) => !policy.permissive && policy.command === '*' && isTenantPredicate(policy) && sameRoles(policy.roles, wanted))) {
     failures.push('no_restrictive');
   }
-  const known = new Set([PERMISSIVE_POLICY, RESTRICTIVE_POLICY, SCOPE_POLICY, RELAY_POLICY]);
+  const known = new Set([PERMISSIVE_POLICY, RESTRICTIVE_POLICY, SCOPE_POLICY, RELAY_POLICY, BI_POLICY]);
   for (const policy of table.policies) {
     if (!known.has(policy.name) || (policy.name === SCOPE_POLICY && !isScopePolicy(policy))) failures.push('unexpected_policy');
   }
@@ -150,6 +159,18 @@ function policyFailures(table: CatalogTable): RlsFailureReason[] {
         !table.relayPrivileges.truncate
       : relayPolicies.length === 0 && !anyPrivilege(table.relayPrivileges);
   if (!relayOk) failures.push('relay_exception_wrong');
+  const biPolicies = table.policies.filter((policy) => policy.name === BI_POLICY);
+  const biOk = BI_TABLES.includes(table.name)
+    ? biPolicies.length === 1 &&
+      biPolicies[0] !== undefined &&
+      !biPolicies[0].permissive &&
+      biPolicies[0].command === 'r' &&
+      sameRoles(biPolicies[0].roles, [BI_ROLE]) &&
+      (biPolicies[0].using?.includes(BI_PREDICATE_MARKER) ?? false) &&
+      biPolicies[0].withCheck === null &&
+      (table.biPrivileges === undefined || (table.biPrivileges.select && !table.biPrivileges.insert && !table.biPrivileges.update && !table.biPrivileges.delete && !table.biPrivileges.truncate))
+    : biPolicies.length === 0 && (table.biPrivileges === undefined || !anyPrivilege(table.biPrivileges));
+  if (!biOk) failures.push('bi_exception_wrong');
   return failures;
 }
 
@@ -226,7 +247,12 @@ const TABLES_SQL = `
     has_table_privilege($2, c.oid, 'truncate') as app_truncate,
     has_table_privilege($3, c.oid, 'select') as relay_select, has_table_privilege($3, c.oid, 'insert') as relay_insert,
     has_table_privilege($3, c.oid, 'update') as relay_update, has_table_privilege($3, c.oid, 'delete') as relay_delete,
-    has_table_privilege($3, c.oid, 'truncate') as relay_truncate
+    has_table_privilege($3, c.oid, 'truncate') as relay_truncate,
+    case when to_regrole($4) is null then false else has_any_column_privilege($4, c.oid, 'select') end as bi_select,
+    case when to_regrole($4) is null then false else has_any_column_privilege($4, c.oid, 'insert') end as bi_insert,
+    case when to_regrole($4) is null then false else has_any_column_privilege($4, c.oid, 'update') end as bi_update,
+    case when to_regrole($4) is null then false else has_table_privilege($4, c.oid, 'delete') end as bi_delete,
+    case when to_regrole($4) is null then false else has_table_privilege($4, c.oid, 'truncate') end as bi_truncate
   from pg_class c join pg_namespace s on s.oid = c.relnamespace
   where s.nspname = $1 and c.relkind in ('r', 'p') order by c.relname`;
 
@@ -271,6 +297,11 @@ interface TableRow {
   relay_update: boolean;
   relay_delete: boolean;
   relay_truncate: boolean;
+  bi_select: boolean;
+  bi_insert: boolean;
+  bi_update: boolean;
+  bi_delete: boolean;
+  bi_truncate: boolean;
 }
 
 /** Reads the catalog of the product schema through a privileged connection. */
@@ -278,7 +309,7 @@ export async function readCatalog(adminUrl: string): Promise<CatalogSnapshot> {
   const client = new Client({ connectionString: adminUrl });
   await client.connect();
   try {
-    const tables = (await client.query<TableRow>(TABLES_SQL, [SCHEMA, APP_ROLE, RELAY_ROLE])).rows;
+    const tables = (await client.query<TableRow>(TABLES_SQL, [SCHEMA, APP_ROLE, RELAY_ROLE, BI_ROLE])).rows;
     const policies = (
       await client.query<{ table_oid: string; name: string; permissive: boolean; command: string; roles: string[]; using_expr: string | null; check_expr: string | null }>(
         POLICIES_SQL,
@@ -295,6 +326,7 @@ export async function readCatalog(adminUrl: string): Promise<CatalogSnapshot> {
         forceRowSecurity: row.force_row_security,
         appPrivileges: { select: row.app_select, insert: row.app_insert, update: row.app_update, delete: row.app_delete, truncate: row.app_truncate },
         relayPrivileges: { select: row.relay_select, insert: row.relay_insert, update: row.relay_update, delete: row.relay_delete, truncate: row.relay_truncate },
+        biPrivileges: { select: row.bi_select, insert: row.bi_insert, update: row.bi_update, delete: row.bi_delete, truncate: row.bi_truncate },
         policies: policies
           .filter((policy) => policy.table_oid === row.oid)
           .map((policy) => ({

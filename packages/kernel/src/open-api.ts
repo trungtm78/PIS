@@ -52,7 +52,7 @@ export const OPEN_DATASET_DEFINITIONS: Readonly<Record<OpenDatasetCode, OpenData
     scope: 'open.contracts.read',
     grain: 'one row per contract and active party of a frozen contract fact snapshot',
     columns: [
-      'tenant_id', 'snapshot_id', 'period_id', 'revision', 'cutoff_date', 'contract_id', 'contractor_id', 'is_lead', 'share_pct', 'project_id', 'unit_id', 'contract_status', 'contract_type', 'certification_expires_on',
+      'tenant_id', 'snapshot_id', 'period_id', 'revision', 'cutoff_date', 'contract_id', 'contractor_id', 'is_lead', 'share_pct', 'project_id', 'unit_id', 'contract_status', 'contract_type', 'contract_value_vnd', 'active_value_vnd', 'paid_vnd', 'certification_expires_on',
     ],
   },
 };
@@ -115,10 +115,10 @@ export function datasetGate(input: DatasetGateInput): { open: true } | { open: f
   return { open: true };
 }
 
-/** Throws 403 `OPEN_DATASET_NOT_CERTIFIED` naming why the dataset is closed. */
-export function assertDatasetOpen(input: DatasetGateInput): void {
+/** Throws `OPEN_DATASET_NOT_CERTIFIED` naming why the dataset is closed: 403 when a reader asks for it, 422 when a person tries to switch it on. */
+export function assertDatasetOpen(input: DatasetGateInput, status: 403 | 422 = 403): void {
   const verdict = datasetGate(input);
-  if (!verdict.open) throw new DomainError('OPEN_DATASET_NOT_CERTIFIED', 403, 'dataset', { extensions: { reason: verdict.reason } });
+  if (!verdict.open) throw new DomainError('OPEN_DATASET_NOT_CERTIFIED', status, 'dataset', { extensions: { reason: verdict.reason } });
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ export function rateLimitError(verdict: MachineRateVerdict): DomainError {
 // The access log: every read of a machine is a row.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-export const OPEN_ACCESS_OUTCOMES = ['OK', 'DENIED_SCOPE', 'DENIED_DATASET', 'RATE_LIMITED', 'INVALID_REQUEST'] as const;
+export const OPEN_ACCESS_OUTCOMES = ['OK', 'DENIED_CLIENT', 'DENIED_SCOPE', 'DENIED_DATASET', 'RATE_LIMITED', 'INVALID_REQUEST'] as const;
 export type OpenAccessOutcome = (typeof OPEN_ACCESS_OUTCOMES)[number];
 
 export interface OpenAccessEntry {

@@ -2444,6 +2444,8 @@ export type {
   SourceSystemKind,
   SourceSystemRequest,
 } from './open-api.ts';
+export { ACCESS_ATTENTION_CODES, ACCESS_CONNECTOR_CODE, ACCESS_CONSUMER_KINDS, ACCESS_DEFAULT_PARAMS, accessConnectionView } from './integration-access-connection.ts';
+export type { AccessAccountFacts, AccessAttentionCode, AccessConnectionView, AccessConsumerKind, AccessConsumerView, AccessParams } from './integration-access-connection.ts';
 export { openApiSubsetOf } from './open-api-document.ts';
 export type { OpenApiSubset, OpenApiSubsetOptions } from './open-api-document.ts';
 export { CLIENT_ID_PREFIX, CLIENT_SECRET_PREFIX, SCRAM_ITERATIONS, generateBiPassword, generateClientCredentials, hashClientSecret, isClientId, isClientSecretShape, isScramVerifier, scramVerifierOf, verifyClientSecret } from './open-api-secret.ts';

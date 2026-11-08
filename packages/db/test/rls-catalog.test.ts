@@ -14,7 +14,7 @@ const TENANT_B = '00000000-0000-4000-8000-00000000000b';
 // Tables whose design makes them append-only for the application role, and the table whose grants may never be deleted (V004).
 const EXPECTED: RlsExpectations = {
   // The directory of hostnames (V1491, ST-SAS-017) is not in the design: it has no row-level security on purpose, because the control plane reads who holds a hostname across tenants, so its column is not called tenant_id and the application role has no right on it.
-  controlPlane: [...findNonTenantTables(schemaSql), 'tenant_domain_directory', 'tenant_placement_migration_directory'],
+  controlPlane: [...findNonTenantTables(schemaSql), 'tenant_domain_directory', 'tenant_placement_migration_directory', 'int_client_directory'],
   appendOnly: findAppendOnlyTables(schemaSql),
   noDelete: ['role_grant'],
 };
@@ -188,7 +188,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
       for (const table of found.filter((entry) => entry !== undefined)) {
         expect([table.name, table.rowSecurity, table.forceRowSecurity]).toEqual([table.name, true, true]);
         // A table of personal data of households has one more restrictive policy, the guard of the units of the reader (scope_units_guard); it narrows, never widens.
-        const tenantPolicies = table.policies.filter((entry) => entry.name !== 'scope_units_guard');
+        const tenantPolicies = table.policies.filter((entry) => entry.name !== 'scope_units_guard' && entry.name !== 'bi_reader_boundary');
         expect([table.name, tenantPolicies.map((entry) => entry.name).sort()]).toEqual([table.name, ['tenant_access', 'tenant_boundary']]);
         expect(table.policies.filter((entry) => entry.name === 'scope_units_guard').every((entry) => !entry.permissive)).toBe(true);
       }
@@ -274,9 +274,20 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
       ['unknown extra policy', goodTable('t', { policies: [...goodTable('t').policies, policy({ name: 'let_everyone_in', permissive: true, using: 'true', withCheck: 'true' })] }), 'unexpected_policy'],
       ['scope guard with a foreign predicate', goodTable('t', { policies: [...goodTable('t').policies, policy({ name: 'scope_units_guard', permissive: false, using: 'true', withCheck: 'true' })] }), 'unexpected_policy'],
       ['relay privileges on an ordinary table', goodTable('t', { relayPrivileges: { ...NO_PRIVILEGES, select: true } }), 'relay_exception_wrong'],
+      ['a BI policy on an ordinary table', goodTable('t', { policies: [...goodTable('t').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['machvon_bi_reader'], using: '(tenant_id = ( SELECT machvon_bi.tenant_of((CURRENT_USER)::text) AS tenant_of))', withCheck: null })] }), 'bi_exception_wrong'],
+      ['BI privileges on an ordinary table', goodTable('t', { biPrivileges: { ...NO_PRIVILEGES, select: true } }), 'bi_exception_wrong'],
+      ['a BI table without its policy', goodTable('period_snapshot_line'), 'bi_exception_wrong'],
+      ['a BI table whose policy is for another role', goodTable('period_snapshot_line', { policies: [...goodTable('x').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['public'], using: '(tenant_id = ( SELECT machvon_bi.tenant_of((CURRENT_USER)::text) AS tenant_of))', withCheck: null })] }), 'bi_exception_wrong'],
+      ['a BI table whose policy ignores the binding', goodTable('period_snapshot_line', { policies: [...goodTable('x').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['machvon_bi_reader'], using: 'true', withCheck: null })] }), 'bi_exception_wrong'],
+      ['a BI table the group role may write', goodTable('period_snapshot_line', { biPrivileges: { ...NO_PRIVILEGES, select: true, update: true }, policies: [...goodTable('x').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['machvon_bi_reader'], using: '(tenant_id = ( SELECT machvon_bi.tenant_of((CURRENT_USER)::text) AS tenant_of))', withCheck: null })] }), 'bi_exception_wrong'],
       ['relay policy on an ordinary table', goodTable('t', { policies: [...goodTable('t').policies, policy({ name: 'outbox_relay_access', permissive: true, roles: ['machvon_outbox_relay'], using: 'true', withCheck: 'true' })] }), 'relay_exception_wrong'],
     ])('reports %s', (_label, table, reason) => {
       expect(reasonsOf(snapshotOf([table]))).toContain(reason);
+    });
+
+    it('accepts a BI table with the policy bound to the tenant of the login and read-only privileges', () => {
+      const table = goodTable('period_snapshot_line', { biPrivileges: { ...NO_PRIVILEGES, select: true }, policies: [...goodTable('x').policies, policy({ name: 'bi_reader_boundary', permissive: false, command: 'r', roles: ['machvon_bi_reader'], using: '(tenant_id = ( SELECT machvon_bi.tenant_of((CURRENT_USER)::text) AS tenant_of))', withCheck: null })] });
+      expect(reasonsOf(snapshotOf([table]))).toEqual([]);
     });
 
     it('reports a relay table whose relay policy or restrictive roles are wrong', () => {
