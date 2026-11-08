@@ -1112,7 +1112,13 @@ export type ProposeField = 'ourCode' | 'externalCode' | 'validFrom' | 'validUnti
 export type FieldIssue = 'required' | 'tooLong' | 'invalid' | 'order';
 export type ProposeErrors = Partial<Record<ProposeField, FieldIssue>>;
 
-const isDay = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+const isDay = (value: string): boolean => {
+  const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (parts === null) return false;
+  const [year, month, day] = [Number(parts[1]), Number(parts[2]), Number(parts[3])];
+  const moment = new Date(Date.UTC(year, month - 1, day));
+  return moment.getUTCFullYear() === year && moment.getUTCMonth() === month - 1 && moment.getUTCDate() === day;
+};
 /** A control character the server refuses too. */
 const hasControl = (value: string): boolean => Array.from(value).some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127);
 

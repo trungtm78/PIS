@@ -1,5 +1,5 @@
 import { uploadFile } from '@machvon/api-client';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -139,6 +139,8 @@ export function useFeedRuns(filters: RunFilters) {
     initialPageParam: undefined,
     queryFn: async ({ pageParam }) => toRunPage(await client.read('listFinanceFeedRuns', { query: q(runQueryOf(filters, pageParam)) })),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+    // A new filter keeps the rows (and the chips) on the screen until the new answer arrives.
+    placeholderData: keepPreviousData,
     enabled: key[1] !== undefined,
     retry: false,
   });
@@ -166,6 +168,8 @@ export function useFeedMappings(filters: MappingFilters) {
     initialPageParam: undefined,
     queryFn: async ({ pageParam }) => toMappingPage(await client.read('listFinanceFeedMappings', { query: q(mappingQueryOf(filters, pageParam)) })),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+    // A new filter keeps the rows (and the chips) on the screen until the new answer arrives.
+    placeholderData: keepPreviousData,
     enabled: key[1] !== undefined,
     retry: false,
   });
@@ -221,6 +225,8 @@ export function useFeedDifferences(filters: DifferenceFilters) {
     initialPageParam: undefined,
     queryFn: async ({ pageParam }) => toDifferencePage(await client.read('listFinanceFeedDifferences', { query: q(differenceQueryOf(filters, pageParam)) })),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+    // A new filter keeps the rows (and the chips) on the screen until the new answer arrives.
+    placeholderData: keepPreviousData,
     enabled: key[1] !== undefined,
     retry: false,
   });

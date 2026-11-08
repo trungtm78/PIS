@@ -1,7 +1,7 @@
 import type { Translator } from '../../i18n';
 import type { InfoFormulaLabels, Severity, Tone } from '../../ui';
 import { rowCodeKey } from './feed-model';
-import type { Channel, GeneratorAction, GeneratorBlock, HealthStatus, Kind, MappingStatus, Outcome, PendingItem, PreviewRow, Problem, ResolutionKind, RowStatus } from './feed-model';
+import type { Channel, GeneratorAction, GeneratorBlock, HealthStatus, MappingStatus, Outcome, PendingItem, PreviewRow, Problem, ResolutionKind, RowStatus } from './feed-model';
 
 type T = Translator['t'];
 
