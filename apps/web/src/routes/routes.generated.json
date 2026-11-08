@@ -462,6 +462,7 @@
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
+<<<<<<< HEAD
     {"id":"VND-01","path":"/vnd/vnd-01","title":"Sổ nhà thầu","kind":"table","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"workspace","parent":null,"req":"FR-VND-01"},
     {"id":"VND-02","path":"/vnd/vnd-02","title":"Hồ sơ nhà thầu chủ","kind":"detail","area":"insights","module":"VND","group":"Sổ và hồ sơ nhà thầu","role":"detail","parent":"VND-01","req":"FR-VND-02"},
     {"id":"VND-03","path":"/vnd/vnd-03","title":"Hồ sơ cấm tham gia đấu thầu","kind":"workflow","area":"insights","module":"VND","group":"Hồ sơ cấm và tài khoản","role":"workspace","parent":null,"req":"FR-VND-03"},
@@ -525,5 +526,17 @@
     {"id":"PRJ-28","path":"/prj/prj-28","title":"Kế hoạch nhìn trước 2 đến 6 tuần của công trường","kind":"table","area":"investment","module":"PRJ","group":"Danh mục & theo dõi","role":"workspace","parent":null,"req":"FR-PRJ-28"},
     {"id":"PRJ-29","path":"/prj/prj-29","title":"Bài học kinh nghiệm và cổng đóng dự án","kind":"record","area":"investment","module":"PRJ","group":"Danh mục & theo dõi","role":"workspace","parent":null,"req":"FR-PRJ-29"}
 >>>>>>> 648121d8 (test: fixtures of the clock and adjustment store tests, 404 for the adjustments of an unknown contract, the route table, the return dialog waits for the reasons)
+=======
+    {"id":"BI-21","path":"/bi/bi-21","title":"Dự báo giải ngân cuối năm","kind":"dashboard","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-21"},
+    {"id":"BI-22","path":"/bi/bi-22","title":"Nhật ký quyết định","kind":"list","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-22"},
+    {"id":"BI-23","path":"/bi/bi-23","title":"Độ tươi và thẻ điểm chất lượng số liệu","kind":"dashboard","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-23"},
+    {"id":"BI-24","path":"/bi/bi-24","title":"Truy nguồn số liệu","kind":"tree","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-24"},
+    {"id":"BI-25","path":"/bi/bi-25","title":"Xếp hạng nhiều chỉ số","kind":"rank","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-25"},
+    {"id":"BI-26","path":"/bi/bi-26","title":"Ghi chú và khiếu nại xếp hạng","kind":"approval","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-26"},
+    {"id":"BI-27","path":"/bi/bi-27","title":"Điểm nghẽn","kind":"dashboard","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-27"},
+    {"id":"BI-28","path":"/bi/bi-28","title":"Dự án dừng và kế hoạch khởi động lại","kind":"workflow","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-28"},
+    {"id":"BI-29","path":"/bi/bi-29","title":"Bản đồ nhiệt giải ngân","kind":"dashboard","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-29"},
+    {"id":"BI-30","path":"/bi/bi-30","title":"Kiểm thử ngưỡng cảnh báo và xu hướng","kind":"compare","area":"insights","module":"BI","group":"Phân tích điều hành","role":"workspace","parent":null,"req":"FR-BI-30"}
+>>>>>>> 74e53f55 (chore(web): navigation, route table and counts include BI-21 to BI-30)
   ]
 }

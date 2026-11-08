@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 521,
-    "webCatalog": 521,
+    "webRoutes": 531,
+    "webCatalog": 531,
     "webModules": 33,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -851,6 +851,35 @@
             13,
             16,
             17
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Phân tích điều hành",
+          "description": "Dự báo giải ngân, nhật ký quyết định, độ tươi, truy nguồn, xếp hạng, điểm nghẽn, dự án dừng, bản đồ nhiệt",
+          "ids": [
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "primary": [
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
           ],
           "parents": {}
         }
@@ -2790,7 +2819,17 @@
         "AUD-16",
         "NOT-30",
         "HOME-30",
-        "HOME-31"
+        "HOME-31",
+        "BI-21",
+        "BI-22",
+        "BI-23",
+        "BI-24",
+        "BI-25",
+        "BI-26",
+        "BI-27",
+        "BI-28",
+        "BI-29",
+        "BI-30"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -8046,6 +8085,106 @@
       "area": "investment",
       "module": "PRJ",
       "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-21",
+      "title": "Dự báo giải ngân cuối năm",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-22",
+      "title": "Nhật ký quyết định",
+      "kind": "list",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-23",
+      "title": "Độ tươi và thẻ điểm chất lượng số liệu",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-24",
+      "title": "Truy nguồn số liệu",
+      "kind": "tree",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-25",
+      "title": "Xếp hạng nhiều chỉ số",
+      "kind": "rank",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-26",
+      "title": "Ghi chú và khiếu nại xếp hạng",
+      "kind": "approval",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-27",
+      "title": "Điểm nghẽn",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-28",
+      "title": "Dự án dừng và kế hoạch khởi động lại",
+      "kind": "workflow",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-29",
+      "title": "Bản đồ nhiệt giải ngân",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-30",
+      "title": "Kiểm thử ngưỡng cảnh báo và xu hướng",
+      "kind": "compare",
+      "area": "insights",
+      "module": "BI",
+      "group": "Phân tích điều hành",
       "role": "workspace",
       "parent": null
     }
