@@ -1,6 +1,7 @@
+import { TEXT } from './messages/edition-texts.ts';
 /**
  * The product edition mechanism (ENT-0). One code line builds two products that a customer sees as different:
- *   - `public`: "Hệ thống quản lý đầu tư công", the system of the public investment bodies;
+ *   - `public`: the public investment management system, the system of the public investment bodies;
  *   - `enterprise`: the construction investment software of a state enterprise (its name is in its own manifest).
  *
  * This file is pure and imports nothing, so the API, the web build tools and the tests read the same truth. It owns the SHAPE
@@ -144,10 +145,12 @@ export function defineEditionManifest(manifest: EditionManifest): EditionManifes
 }
 
 /** The public edition: everything the product has today, under the name it has today. */
+
+/** The public edition: everything the product has today, under the name it has today. */
 export const PUBLIC_EDITION_MANIFEST: EditionManifest = defineEditionManifest({
   edition: 'public',
-  productName: { vi: 'Hệ thống quản lý đầu tư công', en: 'Public Investment Management System' },
-  brand: { mark: { vi: 'ĐT', en: 'PI' }, themeColor: '#102E3B' },
+  productName: { vi: TEXT.public_edition_manifest_product_name_vi, en: 'Public Investment Management System' },
+  brand: { mark: { vi: TEXT.brand_mark_vi, en: 'PI' }, themeColor: '#102E3B' },
   modules: ALLOW_ALL,
   screens: ALLOW_ALL,
   menu: ALLOW_ALL,

@@ -1,7 +1,7 @@
 import type { RagBand } from './rag-explain.ts';
 
 /**
- * "Thay đổi từ tuần trước" (G3-4, HOME and BI): the few things that moved since the week before, each a fact with its numbers and a link to where it can be checked. The lines are made by rules from the figures of
+ * "Changes since last week" (G3-4, HOME and BI): the few things that moved since the week before, each a fact with its numbers and a link to where it can be checked. The lines are made by rules from the figures of
  * two weeks and nothing else: no language model writes a word of them, and a line that cannot be computed is not written. At most five, the ones that matter most first. No name is in a line (a unit or a project
  * is reached by its link, where the reader's scope is judged again).
  */

@@ -9,6 +9,7 @@ import { MILESTONE_KINDS } from './procurement-file.ts';
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
 import type { MoneyRuleType } from './money-control-policy.ts';
 import { clockPolicyDefaults, clockPolicyOf, reminderPolicyDefaults, reminderPolicyOf, snoozePolicyDefaults, snoozePolicyOf } from './work-clock.ts';
+import { message } from './messages.ts';
 
 /**
  * The governance rules (G0-1, G0-3 of docs/governance-roadmap-10of10.md): thresholds, definitions and policies kept as data that a tenant can version and approve, never as constants in code. This module is
@@ -40,7 +41,7 @@ export type RuleParams = Record<string, unknown>;
 export const RULE_CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
 export const isRuleCode = (value: unknown): value is string => typeof value === 'string' && RULE_CODE_PATTERN.test(value);
 
-/** Whether the numbers behind a type or a default were confirmed against the legal text or with the customer. `UNVERIFIED` is shown on every screen that shows the number ("mặc định, chưa được xác nhận"). */
+/** Whether the numbers behind a type or a default were confirmed against the legal text or with the customer. `UNVERIFIED` is shown on every screen that shows the number (the label "default, not confirmed"). */
 export type LegalStatus = 'VERIFIED' | 'UNVERIFIED';
 export const LEGAL_STATUSES: readonly LegalStatus[] = ['VERIFIED', 'UNVERIFIED'];
 
@@ -186,7 +187,7 @@ export interface Provenance {
 
 export interface BuiltInDefault extends Provenance {
   params: RuleParams;
-  /** The numbers behind this default are not confirmed against the legal text or with the customer: every screen that shows it says so (roadmap, "chưa kiểm chứng"). Always `legalStatus === 'UNVERIFIED'`. */
+  /** The numbers behind this default are not confirmed against the legal text or with the customer: every screen that shows it says so (roadmap, "not verified"). Always `legalStatus === 'UNVERIFIED'`. */
   unverified: boolean;
 }
 
@@ -321,7 +322,7 @@ export function describeRuleType(type: string): RuleTypeDescription {
 }
 
 const AS_OF = '2026-11-08';
-const SOURCE_RESEARCH = 'Nghiên cứu của lộ trình quản trị (docs/governance-roadmap-10of10.md): giá trị khởi điểm, cần xác nhận với khách hàng và kiểm toán';
+const SOURCE_RESEARCH = message('gov.rules.source_research');
 /** A fresh copy of data from another module, so that a registered default can never be changed by the lane that owns the original. */
 const plain = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -344,21 +345,21 @@ export interface AlertTypeSeed {
 export const ALERT_TYPE_FIRST_REVIEW_ON = '2027-05-08';
 
 const CORE_ALERT_TYPE_SEEDS: readonly AlertTypeSeed[] = [
-  { code: 'APPROVAL', source: 'APPROVAL', owner: 'APPROVER', action: 'Xem hồ sơ và quyết định: duyệt, trả lại hoặc từ chối kèm lý do.', consequence: 'Hồ sơ chờ bạn duyệt bị dừng ở bước này cho đến khi có quyết định.', hours: 72, severity: 'ACTION', why: 'Quyết định chậm là điểm nghẽn phổ biến nhất của quy trình duyệt.' },
-  { code: 'EXPLANATION', source: 'EXPLANATION', owner: 'RESPONDENT', action: 'Trả lời yêu cầu giải trình đúng nội dung và nộp trước hạn.', consequence: 'Yêu cầu giải trình chưa được trả lời sẽ bị tính là quá hạn và báo lên người yêu cầu.', hours: 72, severity: 'ACTION', why: 'Bảo đảm yêu cầu giải trình có câu trả lời có căn cứ trong thời hạn.' },
-  { code: 'EXPLANATION_CONCLUDE', source: 'EXPLANATION_CONCLUDE', owner: 'REQUESTER', action: 'Đọc giải trình và ghi kết luận (chấp nhận hoặc yêu cầu làm lại).', consequence: 'Giải trình đã nhận chưa được kết luận thì cảnh báo liên quan vẫn còn mở.', hours: 72, severity: 'ACTION', why: 'Cảnh báo chỉ đóng được khi có kết luận của người yêu cầu giải trình.' },
-  { code: 'REPORT', source: 'REPORT', owner: 'REPORT_OWNER', action: 'Hoàn thiện hoặc sửa và nộp báo cáo của kỳ.', consequence: 'Báo cáo chưa nộp đúng kỳ làm số liệu của dự án thiếu hoặc chậm trên bảng điều hành.', hours: 72, severity: 'ACTION', why: 'Số liệu kỳ báo cáo là nền của bảng điều hành và báo cáo cấp trên.' },
-  { code: 'OBLIGATION', source: 'OBLIGATION', owner: 'REPORT_OWNER', action: 'Lập và nộp báo cáo giám sát đánh giá đúng hạn.', consequence: 'Báo cáo giám sát đánh giá chưa nộp đúng hạn sẽ bị ghi nhận là chậm.', hours: 120, severity: 'ACTION', why: 'Nghĩa vụ báo cáo giám sát đánh giá có hạn theo quy định.' },
-  { code: 'EARLY_WARNING', source: 'EARLY_WARNING', owner: 'PROJECT_OWNER', action: 'Nhận cảnh báo, tìm nguyên nhân, ghi kế hoạch khắc phục và ngày hoàn thành.', consequence: 'Cảnh báo chưa xử lý có thể làm dự án chậm so với kế hoạch giải ngân của kỳ.', hours: 24, severity: 'ACTION', why: 'Phát hiện sớm dự án chậm giải ngân để chủ đầu tư kịp điều chỉnh.' },
-  { code: 'ADVANCE', source: 'ADVANCE', owner: 'CONTRACT_MANAGER', action: 'Ghi kế hoạch thu hồi tạm ứng và ngày hoàn thành thu hồi.', consequence: 'Tạm ứng chưa thu hồi đúng hạn sẽ bị nâng cấp cảnh báo lên lãnh đạo.', hours: 120, severity: 'ACTION', why: 'Tạm ứng quá hạn là rủi ro mất vốn và phải được người phụ trách hợp đồng cam kết thu hồi.' },
-  { code: 'PERMIT_EXPIRED', source: 'PERMIT', owner: 'SITE_MANAGER', action: 'Gia hạn hoặc xin cấp lại giấy phép; dừng phần việc cần giấy phép nếu chưa có.', consequence: 'Giấy phép đã hết hạn: công việc cần giấy phép này có thể phải dừng cho đến khi được gia hạn.', hours: 24, severity: 'URGENT', why: 'Thi công khi giấy phép hết hạn vi phạm quy định và có thể bị đình chỉ.' },
-  { code: 'PERMIT_EXPIRING', source: 'PERMIT', owner: 'SITE_MANAGER', action: 'Nộp hồ sơ gia hạn giấy phép trước ngày hết hạn.', consequence: 'Giấy phép sắp hết hạn: cần gia hạn trước ngày hết hạn để thi công không bị gián đoạn.', hours: 336, severity: 'WATCH', why: 'Báo trước để kịp gia hạn, tránh dừng thi công.' },
-  { code: 'AUDIT_RECOMMENDATION_OVERDUE', source: 'AUDIT_RECOMMENDATION', owner: 'RECOMMENDATION_OWNER', action: 'Thực hiện kiến nghị và nộp bằng chứng hoàn thành hoặc đề nghị gia hạn có lý do.', consequence: 'Kiến nghị quá hạn thực hiện sẽ tiếp tục bị đưa vào theo dõi của cơ quan kiểm toán.', hours: 168, severity: 'ACTION', why: 'Kiến nghị kiểm toán phải được thực hiện đúng hạn và chứng minh được.' },
-  { code: 'AUDIT_RECOMMENDATION_ESCALATED', source: 'AUDIT_RECOMMENDATION', owner: 'UNIT_LEADER', action: 'Chỉ đạo đơn vị báo cáo kết quả xử lý kiến nghị quá hạn.', consequence: 'Kiến nghị quá hạn đã được nâng lên lãnh đạo: đơn vị cần báo cáo kết quả xử lý ngay.', hours: 48, severity: 'URGENT', why: 'Kiến nghị quá hạn kéo dài cần lãnh đạo can thiệp.' },
-  { code: 'ISSUE_SLA_BREACH', source: 'ISSUE', owner: 'ISSUE_OWNER', action: 'Xử lý vấn đề hoặc ghi lý do và kế hoạch giải quyết mới.', consequence: 'Vấn đề vượt thời hạn xử lý sẽ tiếp tục được chuyển lên cấp cao hơn.', hours: 48, severity: 'ACTION', why: 'Vướng mắc kéo dài là nguyên nhân chính làm chậm giải ngân.' },
-  { code: 'ISSUE_SLA_BREACH_L3', source: 'ISSUE', owner: 'TASK_FORCE', action: 'Tổ công tác họp và quyết định hướng giải quyết, ghi người chịu trách nhiệm và ngày.', consequence: 'Vấn đề đã lên cấp 3 (tổ công tác): cần xử lý ngay để không ảnh hưởng tiến độ dự án.', hours: 24, severity: 'URGENT', why: 'Cấp cuối của chuỗi leo thang vướng mắc, không còn cấp nào khác nhận thay.' },
-  { code: 'SITE_DIARY', source: 'SITE_DIARY', owner: 'SITE_SUPERVISOR', action: 'Bổ sung nhật ký công trường của các ngày còn thiếu.', consequence: 'Thiếu nhật ký công trường thì hồ sơ chất lượng không đủ căn cứ để nghiệm thu.', hours: 168, severity: 'WATCH', why: 'Nhật ký công trường là căn cứ nghiệm thu và truy trách nhiệm chất lượng.' },
-  { code: 'GUARANTEE', source: 'GUARANTEE', owner: 'CONTRACT_MANAGER', action: 'Yêu cầu nhà thầu gia hạn hoặc thay bảo lãnh trước ngày hết hạn.', consequence: 'Bảo lãnh hết hạn mà chưa được thay thế thì hợp đồng không còn được bảo đảm.', hours: 168, severity: 'WATCH', why: 'Bảo lãnh là khoản bảo đảm tiền cho chủ đầu tư; hết hạn là mất bảo đảm.' },
+  { code: 'APPROVAL', source: 'APPROVAL', owner: 'APPROVER', action: message('gov.rules.core_alert_type_seeds.action.approval'), consequence: message('gov.rules.core_alert_type_seeds.consequence.approval'), hours: 72, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.approval') },
+  { code: 'EXPLANATION', source: 'EXPLANATION', owner: 'RESPONDENT', action: message('gov.rules.core_alert_type_seeds.action.explanation'), consequence: message('gov.rules.core_alert_type_seeds.consequence.explanation'), hours: 72, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.explanation') },
+  { code: 'EXPLANATION_CONCLUDE', source: 'EXPLANATION_CONCLUDE', owner: 'REQUESTER', action: message('gov.rules.core_alert_type_seeds.action.explanation_conclude'), consequence: message('gov.rules.core_alert_type_seeds.consequence.explanation_conclude'), hours: 72, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.explanation_conclude') },
+  { code: 'REPORT', source: 'REPORT', owner: 'REPORT_OWNER', action: message('gov.rules.core_alert_type_seeds.action.report'), consequence: message('gov.rules.core_alert_type_seeds.consequence.report'), hours: 72, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.report') },
+  { code: 'OBLIGATION', source: 'OBLIGATION', owner: 'REPORT_OWNER', action: message('gov.rules.core_alert_type_seeds.action.obligation'), consequence: message('gov.rules.core_alert_type_seeds.consequence.obligation'), hours: 120, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.obligation') },
+  { code: 'EARLY_WARNING', source: 'EARLY_WARNING', owner: 'PROJECT_OWNER', action: message('gov.rules.core_alert_type_seeds.action.early_warning'), consequence: message('gov.rules.core_alert_type_seeds.consequence.early_warning'), hours: 24, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.early_warning') },
+  { code: 'ADVANCE', source: 'ADVANCE', owner: 'CONTRACT_MANAGER', action: message('gov.rules.core_alert_type_seeds.action.advance'), consequence: message('gov.rules.core_alert_type_seeds.consequence.advance'), hours: 120, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.advance') },
+  { code: 'PERMIT_EXPIRED', source: 'PERMIT', owner: 'SITE_MANAGER', action: message('gov.rules.core_alert_type_seeds.action.permit_expired'), consequence: message('gov.rules.core_alert_type_seeds.consequence.permit_expired'), hours: 24, severity: 'URGENT', why: message('gov.rules.core_alert_type_seeds.why.permit_expired') },
+  { code: 'PERMIT_EXPIRING', source: 'PERMIT', owner: 'SITE_MANAGER', action: message('gov.rules.core_alert_type_seeds.action.permit_expiring'), consequence: message('gov.rules.core_alert_type_seeds.consequence.permit_expiring'), hours: 336, severity: 'WATCH', why: message('gov.rules.core_alert_type_seeds.why.permit_expiring') },
+  { code: 'AUDIT_RECOMMENDATION_OVERDUE', source: 'AUDIT_RECOMMENDATION', owner: 'RECOMMENDATION_OWNER', action: message('gov.rules.core_alert_type_seeds.action.audit_recommendation_overdue'), consequence: message('gov.rules.core_alert_type_seeds.consequence.audit_recommendation_overdue'), hours: 168, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.audit_recommendation_overdue') },
+  { code: 'AUDIT_RECOMMENDATION_ESCALATED', source: 'AUDIT_RECOMMENDATION', owner: 'UNIT_LEADER', action: message('gov.rules.core_alert_type_seeds.action.audit_recommendation_escalated'), consequence: message('gov.rules.core_alert_type_seeds.consequence.audit_recommendation_escalated'), hours: 48, severity: 'URGENT', why: message('gov.rules.core_alert_type_seeds.why.audit_recommendation_escalated') },
+  { code: 'ISSUE_SLA_BREACH', source: 'ISSUE', owner: 'ISSUE_OWNER', action: message('gov.rules.core_alert_type_seeds.action.issue_sla_breach'), consequence: message('gov.rules.core_alert_type_seeds.consequence.issue_sla_breach'), hours: 48, severity: 'ACTION', why: message('gov.rules.core_alert_type_seeds.why.issue_sla_breach') },
+  { code: 'ISSUE_SLA_BREACH_L3', source: 'ISSUE', owner: 'TASK_FORCE', action: message('gov.rules.core_alert_type_seeds.action.issue_sla_breach_l3'), consequence: message('gov.rules.core_alert_type_seeds.consequence.issue_sla_breach_l3'), hours: 24, severity: 'URGENT', why: message('gov.rules.core_alert_type_seeds.why.issue_sla_breach_l3') },
+  { code: 'SITE_DIARY', source: 'SITE_DIARY', owner: 'SITE_SUPERVISOR', action: message('gov.rules.core_alert_type_seeds.action.site_diary'), consequence: message('gov.rules.core_alert_type_seeds.consequence.site_diary'), hours: 168, severity: 'WATCH', why: message('gov.rules.core_alert_type_seeds.why.site_diary') },
+  { code: 'GUARANTEE', source: 'GUARANTEE', owner: 'CONTRACT_MANAGER', action: message('gov.rules.core_alert_type_seeds.action.guarantee'), consequence: message('gov.rules.core_alert_type_seeds.consequence.guarantee'), hours: 168, severity: 'WATCH', why: message('gov.rules.core_alert_type_seeds.why.guarantee') },
 ];
 
 /** The alert types as built-in defaults of `ALERT_TYPE`: what a lane gives for its own alerts (`registerRuleDefaults('ALERT_TYPE', alertTypeDefaults([...]))`). */
@@ -396,8 +397,10 @@ const once = (name: string, run: () => void): void => {
   run();
 };
 
-const SOURCE_ALERT_CENTRE = 'Sổ loại cảnh báo (G0-3 của lộ trình quản trị): mỗi loại có chủ sở hữu, hành động mong đợi, hậu quả, thời hạn đáp ứng, lý do tồn tại và ngày xét lại';
-const SOURCE_KPI = 'Từ điển chỉ tiêu (G0-4 của lộ trình quản trị): một định nghĩa cho mỗi chỉ tiêu';
+const SOURCE_ALERT_CENTRE = message('gov.rules.source_alert_centre');
+const SOURCE_KPI = message('gov.rules.source_kpi');
+
+/** The generic kinds of rule (lane A1): the alert types, the gates, the calendar, the notification policy, the advance ceiling, the red flags, the definitions of the indicators and the lines of the traffic lights. */
 
 /** The generic kinds of rule (lane A1): the alert types, the gates, the calendar, the notification policy, the advance ceiling, the red flags, the definitions of the indicators and the lines of the traffic lights. */
 export const registerCoreRules = (): void =>
@@ -406,7 +409,7 @@ export const registerCoreRules = (): void =>
       type: 'ALERT_TYPE',
       ownerModule: 'ADM',
       modules: ['NOT', 'HOME', 'ADM'],
-      formula: 'Một loại cảnh báo nói ai phải làm (owner), làm gì (expected_action), không làm thì sao (consequence), phải đáp ứng trong bao nhiêu giờ (response_hours) và khi nào xét lại (review_on)',
+      formula: message('gov.rules.register_core_rules.formula.alert_type'),
       source: SOURCE_ALERT_CENTRE,
       asOf: AS_OF,
       legalStatus: 'VERIFIED',
@@ -430,7 +433,7 @@ export const registerCoreRules = (): void =>
       type: 'RAG_THRESHOLDS',
       ownerModule: 'BI',
       modules: ['BI', 'HOME'],
-      formula: 'Xanh khi giá trị ở phía tốt hơn ngưỡng xanh, vàng khi nằm giữa ngưỡng xanh và ngưỡng vàng, đỏ ở phía còn lại; chưa đủ phần trăm dữ liệu (min_coverage_pct) thì không xếp màu',
+      formula: message('gov.rules.register_core_rules.formula.rag_thresholds'),
       source: SOURCE_RESEARCH,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -452,8 +455,8 @@ export const registerCoreRules = (): void =>
       type: 'GATE_CRITERIA',
       ownerModule: 'PRJ',
       modules: ['PRJ', 'ADM'],
-      formula: 'Một dự án chỉ sang giai đoạn kế khi mọi tiêu chí bắt buộc có bằng chứng; ngoại lệ cần số người duyệt ghi trong quy tắc',
-      source: 'Cổng giai đoạn (G1-1 của lộ trình quản trị): bộ tiêu chí mặc định tối thiểu, mỗi đơn vị bổ sung tiêu chí của mình',
+      formula: message('gov.rules.register_core_rules.formula.gate_criteria'),
+      source: message('gov.rules.register_core_rules.source.gate_criteria'),
       asOf: AS_OF,
       legalStatus: 'VERIFIED',
       schema: {
@@ -469,7 +472,7 @@ export const registerCoreRules = (): void =>
           to_stage: 'NEXT',
           exception_allowed: true,
           exception_approvers: 2,
-          criteria: [{ code: 'RECORD_COMPLETE', label: 'Hồ sơ của giai đoạn đã đủ', mandatory: true, evidence: 'DOCUMENT' }],
+          criteria: [{ code: 'RECORD_COMPLETE', label: message('gov.rules.criteria.label.record_complete'), mandatory: true, evidence: 'DOCUMENT' }],
         }),
       },
     });
@@ -478,7 +481,7 @@ export const registerCoreRules = (): void =>
       type: 'KPI_DEFINITION',
       ownerModule: 'BI',
       modules: ['BI', 'HOME'],
-      formula: 'Chỉ tiêu = tử số / mẫu số trong kỳ đã nêu, trừ các khoản loại trừ, làm tròn theo số chữ số thập phân, trễ tối đa allowed_lag_days ngày so với ngày chốt',
+      formula: message('gov.rules.register_core_rules.formula.kpi_definition'),
       source: SOURCE_KPI,
       asOf: AS_OF,
       legalStatus: 'VERIFIED',
@@ -499,13 +502,13 @@ export const registerCoreRules = (): void =>
         rag_code: word(true),
       },
       defaults: {
-        DISBURSEMENT_RATE: rule({ name: 'Tỷ lệ giải ngân', formula: 'Giá trị đã giải ngân lũy kế / kế hoạch vốn của năm', source: 'Phân hệ giải ngân (DIS), số đã chốt', unit: 'PERCENT', owner: 'CAPITAL_PLANNER', decimals: 1, refresh_hours: 24 }, undefined, {
-          formula: 'Giá trị đã giải ngân lũy kế chia cho kế hoạch vốn của năm',
-          source: 'Phân hệ giải ngân (DIS), số đã chốt',
+        DISBURSEMENT_RATE: rule({ name: message('gov.rules.kpi_definition.disbursement_rate.name'), formula: message('gov.rules.kpi_definition.disbursement_rate.formula'), source: message('gov.rules.kpi_definition.disbursement_rate.source'), unit: 'PERCENT', owner: 'CAPITAL_PLANNER', decimals: 1, refresh_hours: 24 }, undefined, {
+          formula: message('gov.rules.kpi_definition.disbursement_rate.formula_2'),
+          source: message('gov.rules.kpi_definition.disbursement_rate.source'),
         }),
-        PHYSICAL_PROGRESS: rule({ name: 'Tiến độ vật lý', formula: 'Khối lượng đã nghiệm thu / khối lượng theo hợp đồng', source: 'Biên bản nghiệm thu (CTR), số đã chốt', unit: 'PERCENT', owner: 'PROJECT_OWNER', decimals: 1, refresh_hours: 24 }, undefined, {
-          formula: 'Khối lượng đã nghiệm thu chia cho khối lượng theo hợp đồng',
-          source: 'Biên bản nghiệm thu (CTR), số đã chốt',
+        PHYSICAL_PROGRESS: rule({ name: message('gov.rules.kpi_definition.physical_progress.name'), formula: message('gov.rules.kpi_definition.physical_progress.formula'), source: message('gov.rules.kpi_definition.physical_progress.source'), unit: 'PERCENT', owner: 'PROJECT_OWNER', decimals: 1, refresh_hours: 24 }, undefined, {
+          formula: message('gov.rules.kpi_definition.physical_progress.formula_2'),
+          source: message('gov.rules.kpi_definition.physical_progress.source'),
         }),
       },
     });
@@ -514,7 +517,7 @@ export const registerCoreRules = (): void =>
       type: 'NOTIFICATION_POLICY',
       ownerModule: 'NOT',
       modules: ['NOT', 'IAM'],
-      formula: 'Không đẩy thông báo trong giờ yên lặng (từ quiet_from đến quiet_to) trừ khi quá hạn khẩn; tin gộp gửi lúc digest_at; tối đa max_push_per_day tin đẩy mỗi ngày',
+      formula: message('gov.rules.register_core_rules.formula.notification_policy'),
       source: SOURCE_RESEARCH,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -526,8 +529,8 @@ export const registerCoreRules = (): void =>
       type: 'ADVANCE_POLICY',
       ownerModule: 'PAY',
       modules: ['PAY', 'CTR'],
-      formula: 'Tạm ứng không quá max_pct_of_contract % giá trị hợp đồng; thu hồi bắt đầu khi thanh toán đạt recovery_starts_at_pct % và xong khi đạt fully_recovered_at_pct %; quá hạn sau overdue_after_days ngày',
-      source: 'Trần và đường cong thu hồi tạm ứng: giá trị khởi điểm của nghiên cứu (lộ trình ghi chưa kiểm chứng), phải đối chiếu văn bản pháp luật hiện hành trước khi khách hàng dựa vào',
+      formula: message('gov.rules.register_core_rules.formula.advance_policy'),
+      source: message('gov.rules.register_core_rules.source.advance_policy'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { max_pct_of_contract: num(0, 100), recovery_starts_at_pct: num(0, 100), fully_recovered_at_pct: num(0, 100), overdue_after_days: int(0, 365) },
@@ -539,14 +542,14 @@ export const registerCoreRules = (): void =>
       type: 'RED_FLAG_RULE',
       ownerModule: 'AUD',
       modules: ['BID', 'CTR', 'AUD'],
-      formula: 'Một dấu hiệu đáng ngờ là tín hiệu để kiểm toán xem xét, không phải kết luận; trọng số (1 đến 5) chỉ dùng để sắp thứ tự danh sách',
-      source: 'Bộ chỉ báo OCP của G4-3 (lane GOV-10 thêm mười hai chỉ báo dưới mã riêng) và nghiên cứu của lộ trình quản trị',
+      formula: message('gov.rules.register_core_rules.formula.red_flag_rule'),
+      source: message('gov.rules.register_core_rules.source.red_flag_rule'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { indicator: text(200), threshold: num(0, 1_000_000_000, true), window_days: int(1, 3650, true), weight: int(1, 5), enabled: bool },
       defaults: {
-        SINGLE_BIDDER: rule({ indicator: 'Chỉ có một nhà thầu nộp hồ sơ dự thầu', weight: 3, enabled: true }),
-        SHORT_TENDER_PERIOD: rule({ indicator: 'Thời gian chuẩn bị hồ sơ dự thầu ngắn hơn mức tối thiểu', threshold: 10, weight: 2, enabled: true }),
+        SINGLE_BIDDER: rule({ indicator: message('gov.rules.red_flag_rule.single_bidder.indicator'), weight: 3, enabled: true }),
+        SHORT_TENDER_PERIOD: rule({ indicator: message('gov.rules.red_flag_rule.short_tender_period.indicator'), threshold: 10, weight: 2, enabled: true }),
       },
     });
 
@@ -554,8 +557,8 @@ export const registerCoreRules = (): void =>
       type: 'WORKING_CALENDAR',
       ownerModule: 'ADM',
       modules: ['ADM', 'NOT'],
-      formula: 'Ngày làm việc là ngày không thuộc weekend_days và không nằm trong holidays (trừ special_workdays), từ day_starts đến day_ends; Chủ nhật là 0',
-      source: 'Lịch nghỉ lễ do Nhà nước công bố mỗi năm: đơn vị duyệt thành quy tắc (mặc định không có ngày nghỉ lễ nên một năm thiếu lịch hiện ra thay vì bị đoán)',
+      formula: message('gov.rules.register_core_rules.formula.working_calendar'),
+      source: message('gov.rules.register_core_rules.source.working_calendar'),
       asOf: AS_OF,
       legalStatus: 'VERIFIED',
       schema: {
@@ -574,25 +577,27 @@ const CLOCK_ALERT_SEEDS: readonly AlertTypeSeed[] = [
     code: 'CLOCK',
     source: 'CLOCK',
     owner: 'ITEM_OWNER',
-    action: 'Làm việc mà đồng hồ giờ làm việc đang đếm và ghi kết quả, hoặc xin tạm dừng đồng hồ có lý do.',
-    consequence: 'Thời hạn của việc này tính theo giờ làm việc; quá hạn sẽ bị ghi nhận là chậm và báo lên cấp trên.',
+    action: message('gov.rules.clock_alert_seeds.action.clock'),
+    consequence: message('gov.rules.clock_alert_seeds.consequence.clock'),
     hours: 48,
     severity: 'ACTION',
-    why: 'Việc có đồng hồ riêng (nghĩa vụ đăng tải, thời hiệu, hạn phản hồi) phải được đếm theo giờ làm việc và nhắc đúng lúc.',
+    why: message('gov.rules.clock_alert_seeds.why.clock'),
   },
 ];
+
+/** The clocks of the alert centre (lane A2: G2-1, G2-2, G2-4; packages/kernel/src/work-clock.ts): snooze, the two clocks and their pause, the cadence of reminders. The code that applies to everybody is `DEFAULT`. */
 
 /** The clocks of the alert centre (lane A2: G2-1, G2-2, G2-4; packages/kernel/src/work-clock.ts): snooze, the two clocks and their pause, the cadence of reminders. The code that applies to everybody is `DEFAULT`. */
 export const registerWorkClockRules = (): void =>
   once('work-clock', () => {
     registerCoreRules();
-    const source = 'G2-1, G2-2, G2-4 của lộ trình quản trị và docs/work-clocks.md: giá trị khởi điểm, cần chốt với khách hàng và kiểm toán';
+    const source = message('gov.rules.register_work_clock_rules.source');
     const reasons = list(codeText(), 20, 1);
     registerRuleType({
       type: 'SNOOZE_POLICY',
       ownerModule: 'HOME',
       modules: ['HOME', 'NOT'],
-      formula: 'Một việc chỉ được nhắc lại sau tối đa max_days_by_severity[mức] ngày, không quá max_consecutive lần liên tiếp, phải chọn một lý do; việc Khẩn không bao giờ hoãn được',
+      formula: message('gov.rules.register_work_clock_rules.formula.snooze_policy'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -604,7 +609,7 @@ export const registerWorkClockRules = (): void =>
       type: 'CLOCK_POLICY',
       ownerModule: 'HOME',
       modules: ['HOME', 'NOT'],
-      formula: 'Hạn nhận việc và hạn xử lý đếm theo giờ làm việc kể từ lúc việc phát sinh, theo mức nghiêm trọng; đồng hồ tạm dừng tối đa max_pause_days ngày và phải có lý do',
+      formula: message('gov.rules.register_work_clock_rules.formula.clock_policy'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -622,7 +627,7 @@ export const registerWorkClockRules = (): void =>
       type: 'REMINDER_POLICY',
       ownerModule: 'HOME',
       modules: ['HOME', 'NOT'],
-      formula: 'Việc đang mở được nhắc mỗi every_working_hours[mức] giờ làm việc, tối đa max_per_item[mức] lần; hết số lần nhắc thì việc leo thang thay vì nhắc mãi',
+      formula: message('gov.rules.register_work_clock_rules.formula.reminder_policy'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -630,8 +635,10 @@ export const registerWorkClockRules = (): void =>
       refine: refineWith(reminderPolicyOf),
       defaults: { DEFAULT: rule(plain({ ...reminderPolicyDefaults() })) },
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(CLOCK_ALERT_SEEDS, { source: 'Đồng hồ của trung tâm cảnh báo (lane A2, G2-2): nguồn CLOCK' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(CLOCK_ALERT_SEEDS, { source: message('gov.rules.register_work_clock_rules.source_2') }));
   });
+
+/** The alert of the baseline lane (B1, G1-3): a milestone or the end of a project that was moved as many times as the rule `BASELINE_DEVIATION` says goes to the auditors (the table `project_governance_alert`, screen PRJ-26). */
 
 /** The alert of the baseline lane (B1, G1-3): a milestone or the end of a project that was moved as many times as the rule `BASELINE_DEVIATION` says goes to the auditors (the table `project_governance_alert`, screen PRJ-26). */
 const BASELINE_ALERT_SEEDS: readonly AlertTypeSeed[] = [
@@ -639,19 +646,21 @@ const BASELINE_ALERT_SEEDS: readonly AlertTypeSeed[] = [
     code: 'RESCHEDULE_COUNT',
     source: 'PROJECT_GOVERNANCE',
     owner: 'AUDITOR',
-    action: 'Xem nguyên nhân và lịch từng lần dời (PRJ-26), hỏi ban quản lý dự án và ghi chú xác nhận.',
-    consequence: 'Đường cơ sở bị sửa nhiều lần mà không ai xem lại: kiểm toán theo dõi muộn.',
+    action: message('gov.rules.baseline_alert_seeds.action.reschedule_count'),
+    consequence: message('gov.rules.baseline_alert_seeds.consequence.reschedule_count'),
     hours: 168,
     severity: 'ACTION',
-    why: 'Một mốc hoặc ngày kết thúc dự án bị dời nhiều lần là dấu hiệu kế hoạch không còn là cam kết; kiểm toán cần biết và hỏi nguyên nhân.',
+    why: message('gov.rules.baseline_alert_seeds.why.reschedule_count'),
   },
 ];
+
+/** The baseline, the estimate at completion and the stages that may not be paid (lane B1: G1-2, G1-3, G1-4; packages/kernel/src/gov-b1-policy.ts). */
 
 /** The baseline, the estimate at completion and the stages that may not be paid (lane B1: G1-2, G1-3, G1-4; packages/kernel/src/gov-b1-policy.ts). */
 export const registerBaselineRules = (): void =>
   once('baseline', () => {
     registerCoreRules();
-    const source = 'G1-2, G1-3, G1-4 của lộ trình quản trị (mục 2): giá trị khởi điểm của nghiên cứu, cần xác nhận với khách hàng và kiểm toán';
+    const source = message('gov.rules.register_baseline_rules.source');
     const deviation = B1_DEFAULTS.BASELINE_DEVIATION;
     const evm = B1_DEFAULTS.EVM_POLICY;
     const precondition = B1_DEFAULTS.DISBURSEMENT_PRECONDITION;
@@ -659,7 +668,7 @@ export const registerBaselineRules = (): void =>
       type: 'BASELINE_DEVIATION',
       ownerModule: 'PRJ',
       modules: ['PRJ', 'AUD'],
-      formula: 'Cần thẩm định lại khi tổng mức đầu tư lệch khỏi đường cơ sở v0 quá cost_pct % hoặc ngày hoàn thành lệch quá slip_days ngày; một mốc dời quá reschedule_alert_count lần thì báo kiểm toán',
+      formula: message('gov.rules.register_baseline_rules.formula.baseline_deviation'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -670,7 +679,7 @@ export const registerBaselineRules = (): void =>
       type: 'EVM_POLICY',
       ownerModule: 'PRJ',
       modules: ['PRJ', 'BI'],
-      formula: 'Dự báo chi phí hoàn thành (EAC) theo eac_method; CPI và SPI từ amber_below trở lên là xanh, thấp hơn là vàng, thấp hơn red_below là đỏ',
+      formula: message('gov.rules.register_baseline_rules.formula.evm_policy'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -682,14 +691,14 @@ export const registerBaselineRules = (): void =>
       type: 'DISBURSEMENT_PRECONDITION',
       ownerModule: 'PRJ',
       modules: ['PRJ', 'PAY', 'DIS'],
-      formula: 'Dự án đang ở một trong các giai đoạn unlisted_statuses thì chưa nằm trong danh mục dự án đầu tư nên không được thanh toán; không có kế hoạch vốn đã duyệt trên hệ thống thì bị từ chối',
-      source: 'Nghị định 85/2025/NĐ-CP Điều 53 (danh mục dự án đầu tư): số liệu chưa kiểm chứng với văn bản gốc, cần xác nhận trước khi khách hàng dựa vào',
+      formula: message('gov.rules.register_baseline_rules.formula.disbursement_precondition'),
+      source: message('gov.rules.register_baseline_rules.source.disbursement_precondition'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { unlisted_statuses: list(codeText(), 20), require_approved_plan: bool },
       defaults: { DEFAULT: rule({ unlisted_statuses: [...precondition.unlistedStatuses], require_approved_plan: precondition.requireApprovedPlan }) },
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(BASELINE_ALERT_SEEDS, { source: 'Đường cơ sở và số lần dời mốc (lane B1, G1-3): cảnh báo gửi kiểm toán của nguồn PROJECT_GOVERNANCE' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(BASELINE_ALERT_SEEDS, { source: message('gov.rules.register_baseline_rules.source_2') }));
   });
 
 const AMOUNT_PATTERN = '^(0|[1-9][0-9]{0,23})$';
@@ -702,45 +711,47 @@ const MONEY_ALERT_SEEDS: readonly AlertTypeSeed[] = [
     code: 'EAC_EXCEEDS_TMDT',
     source: 'MONEY_CONTROL',
     owner: 'PROJECT_OWNER',
-    action: 'Xem dự báo chi phí hoàn thành, tìm nguyên nhân và đề nghị điều chỉnh tổng mức đầu tư hoặc cắt giảm phạm vi.',
-    consequence: 'Dự báo chi phí hoàn thành vượt tổng mức đầu tư đã duyệt: dự án cần điều chỉnh quyết định đầu tư trước khi ký thêm hợp đồng hoặc lệnh thay đổi.',
+    action: message('gov.rules.money_alert_seeds.action.eac_exceeds_tmdt'),
+    consequence: message('gov.rules.money_alert_seeds.consequence.eac_exceeds_tmdt'),
     hours: 48,
     severity: 'URGENT',
-    why: 'Vượt tổng mức đầu tư mà không điều chỉnh là vi phạm kiểm soát vốn và làm các hợp đồng sau đó thiếu nguồn.',
+    why: message('gov.rules.money_alert_seeds.why.eac_exceeds_tmdt'),
   },
   {
     code: 'RESERVE_BELOW_RISK_EV',
     source: 'MONEY_CONTROL',
     owner: 'PROJECT_OWNER',
-    action: 'Rà soát sổ rủi ro, bổ sung dự phòng hoặc giảm rủi ro để dự phòng còn lại đủ che giá trị kỳ vọng.',
-    consequence: 'Dự phòng còn lại thấp hơn giá trị kỳ vọng của các rủi ro đang mở: một rủi ro xảy ra sẽ phải xin điều chỉnh thay vì rút dự phòng.',
+    action: message('gov.rules.money_alert_seeds.action.reserve_below_risk_ev'),
+    consequence: message('gov.rules.money_alert_seeds.consequence.reserve_below_risk_ev'),
     hours: 120,
     severity: 'ACTION',
-    why: 'Dự phòng phải che được các rủi ro đã biết, nếu không mọi biến động đều thành xin điều chỉnh.',
+    why: message('gov.rules.money_alert_seeds.why.reserve_below_risk_ev'),
   },
   {
     code: 'ADVANCE_EXCEEDS_REMAINING',
     source: 'MONEY_CONTROL',
     owner: 'CONTRACT_MANAGER',
-    action: 'Lập kế hoạch thu hồi tạm ứng với nhà thầu: giảm trừ vào kỳ thanh toán gần nhất hoặc yêu cầu hoàn trả.',
-    consequence: 'Dư nợ tạm ứng lớn hơn giá trị còn lại phải thanh toán: không kỳ thanh toán nào còn đủ để thu hồi, và thanh toán cuối sẽ bị chặn.',
+    action: message('gov.rules.money_alert_seeds.action.advance_exceeds_remaining'),
+    consequence: message('gov.rules.money_alert_seeds.consequence.advance_exceeds_remaining'),
     hours: 48,
     severity: 'URGENT',
-    why: 'Tạm ứng không còn đủ giá trị thanh toán để thu hồi là rủi ro mất vốn thực sự.',
+    why: message('gov.rules.money_alert_seeds.why.advance_exceeds_remaining'),
   },
 ];
+
+/** The control of the money (lane B2: G1-6, G1-7, G1-11; packages/kernel/src/money-control-policy.ts). The params keep the names and the string numbers of that module (amounts in whole VND, percents with two decimals). */
 
 /** The control of the money (lane B2: G1-6, G1-7, G1-11; packages/kernel/src/money-control-policy.ts). The params keep the names and the string numbers of that module (amounts in whole VND, percents with two decimals). */
 export const registerMoneyRules = (): void =>
   once('money', () => {
     registerCoreRules();
-    const source = 'CTR F05 và G1-6, G1-7, G1-11 của lộ trình quản trị: giá trị khởi điểm của nghiên cứu; số của pháp luật (trần tạm ứng của Nghị định 254/2025) không nằm ở đây mà là quy tắc chủ đang chờ xác nhận';
+    const source = message('gov.rules.register_money_rules.source');
     const money = <K extends MoneyRuleType>(type: K): RuleParams => plain(MONEY_RULE_DEFAULTS[type]) as unknown as RuleParams;
     registerRuleType({
       type: 'CHANGE_ORDER_TIER',
       ownerModule: 'CTR',
       modules: ['CTR', 'PRJ', 'ADM'],
-      formula: 'Lệnh thay đổi thuộc bậc 1 hoặc 2 khi cả giá trị của lần đổi (maxAmountVnd) và tổng biến động lũy kế so với giá gốc (maxCumulativePct) còn trong bậc; vượt bậc 2 là bậc 3; từ projectAdjustmentPct % buộc kiểm tra điều chỉnh dự án',
+      formula: message('gov.rules.register_money_rules.formula.change_order_tier'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -756,7 +767,7 @@ export const registerMoneyRules = (): void =>
       type: 'RESERVE_POLICY',
       ownerModule: 'PRJ',
       modules: ['PRJ', 'CAP'],
-      formula: 'Báo khi số dư dự phòng thấp hơn coverAlertBelowPct % giá trị kỳ vọng của các rủi ro đang mở',
+      formula: message('gov.rules.register_money_rules.formula.reserve_policy'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -768,7 +779,7 @@ export const registerMoneyRules = (): void =>
       type: 'CONTRACT_AVC',
       ownerModule: 'CAP',
       modules: ['CAP', 'CTR', 'PRJ'],
-      formula: 'Báo khi dự báo chi phí hoàn thành (EAC) vượt tổng mức đầu tư đã duyệt quá eacAlertAbovePct %',
+      formula: message('gov.rules.register_money_rules.formula.contract_avc'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -780,7 +791,7 @@ export const registerMoneyRules = (): void =>
       type: 'ADVANCE_RECOVERY',
       ownerModule: 'PAY',
       modules: ['PAY', 'CTR'],
-      formula: 'Thanh toán cuối bị từ chối khi hợp đồng còn dư nợ tạm ứng sau lần thu hồi của đề nghị đó, trừ phần chênh làm tròn không quá toleranceVnd đồng',
+      formula: message('gov.rules.register_money_rules.formula.advance_recovery'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -788,10 +799,12 @@ export const registerMoneyRules = (): void =>
       refine: refineWith((params) => parseMoneyRuleParams('ADVANCE_RECOVERY', params)),
       defaults: { DEFAULT: rule(money('ADVANCE_RECOVERY')) },
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(MONEY_ALERT_SEEDS, { source: 'Kiểm soát tiền (lane B2): ba cảnh báo của trung tâm cảnh báo, nguồn MONEY_CONTROL' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(MONEY_ALERT_SEEDS, { source: message('gov.rules.register_money_rules.source_2') }));
   });
 
-const ANALYTICS_SOURCE = 'Từ điển chỉ tiêu và điểm cảnh báo sớm (G0-4, G3-2 của lộ trình quản trị): giá trị khởi điểm của nghiên cứu, cần xác nhận với khách hàng và kiểm toán';
+const ANALYTICS_SOURCE = message('gov.rules.analytics_source');
+
+/** The indicators of the command centre and the factors of the early-warning score (lane C: G0-4, G3-2; packages/kernel/src/analytics-rule-defaults.ts) added under `KPI_DEFINITION` and `RAG_THRESHOLDS`. */
 
 /** The indicators of the command centre and the factors of the early-warning score (lane C: G0-4, G3-2; packages/kernel/src/analytics-rule-defaults.ts) added under `KPI_DEFINITION` and `RAG_THRESHOLDS`. */
 export const registerAnalyticsRules = (): void =>
@@ -811,12 +824,12 @@ export const registerAnalyticsRules = (): void =>
       'RAG_THRESHOLDS',
       Object.fromEntries(
         Object.entries(RAG_EWS_DEFAULTS).map(([code, one]) => {
-          const direction = one.params.direction === 'HIGHER_IS_BETTER' ? 'cao hơn' : 'thấp hơn';
-          const weight = typeof one.params.weight === 'number' ? ` với trọng số ${one.params.weight}` : '';
+          const direction = one.params.direction === 'HIGHER_IS_BETTER' ? message('gov.rules.register_analytics_rules.direction') : message('gov.rules.register_analytics_rules.direction_2');
+          const weight = typeof one.params.weight === 'number' ? message('gov.rules.register_analytics_rules.weight', { weight: one.params.weight }) : '';
           return [
             code,
             rule(plain(one.params), status(one.unverified), {
-              formula: `Giá trị ${direction} ${String(one.params.green)} là xanh, ${direction} ${String(one.params.amber)} là vàng, còn lại là đỏ${weight}; điểm cảnh báo sớm chạy từ 0 (không có gì sai) đến 100`,
+              formula: message('gov.rules.register_analytics_rules.formula', { direction: direction, p1: String(one.params.green), direction2: direction, p3: String(one.params.amber), weight: weight }),
               source: ANALYTICS_SOURCE,
               asOf: AS_OF,
             }),
@@ -829,14 +842,19 @@ export const registerAnalyticsRules = (): void =>
 const SOD_CONFLICT = (action_a: string, action_b: string, scope: (typeof SCOPES)[number], exception_max_days: number): Record<string, unknown> => ({ action_a, action_b, scope, severity: 'BLOCK', exception_max_days });
 
 const INTEGRITY_ALERT_SEEDS: readonly AlertTypeSeed[] = [
-  { code: 'SOD_EXCEPTION_EXPIRING', source: 'SOD_EXCEPTION', owner: 'ADM_ADMINISTRATOR', action: 'Xem ngoại lệ tách bạch nhiệm vụ sắp hết hạn: gia hạn có lý do hoặc để hết hạn và phân việc lại.', consequence: 'Ngoại lệ hết hạn thì người giữ cả hai nhiệm vụ bị chặn ở lần thao tác kế tiếp.', hours: 120, severity: 'ACTION', why: 'Ngoại lệ tách bạch nhiệm vụ phải có hạn và người chịu trách nhiệm, không kéo dài ngầm.' },
-  { code: 'SOD_EXCEPTION_USED', source: 'SOD_EXCEPTION', owner: 'AUDITOR', action: 'Xem hồ sơ đã đi qua ngoại lệ tách bạch nhiệm vụ và ghi nhận xét.', consequence: 'Hồ sơ đi qua ngoại lệ mà không ai xem lại thì ngoại lệ mất tác dụng kiểm soát.', hours: 336, severity: 'WATCH', why: 'Kiểm toán cần biết mỗi lần ngoại lệ được dùng.' },
-  { code: 'PAYMENT_INTEGRITY_BLOCKED', source: 'PAYMENT_INTEGRITY', owner: 'PAYMENT_APPROVER', action: 'Xem các phát hiện và sửa đề nghị thanh toán hoặc xin ngoại lệ có lý do.', consequence: 'Đề nghị thanh toán bị chặn không gửi đi được cho đến khi hết phát hiện chặn hoặc có ngoại lệ được duyệt.', hours: 72, severity: 'ACTION', why: 'Chặn trùng lặp, vượt hợp đồng, vượt kế hoạch và vượt giá trị nghiệm thu trước khi tiền đi ra.' },
-  { code: 'PAYMENT_INTEGRITY_SIGNAL', source: 'PAYMENT_INTEGRITY', owner: 'PAYMENT_APPROVER', action: 'Xem tín hiệu bất thường của đề nghị thanh toán và ghi nhận xét trước khi duyệt.', consequence: 'Tín hiệu bất thường không được xem xét sẽ còn nguyên trong hồ sơ cho kiểm toán.', hours: 168, severity: 'WATCH', why: 'Tín hiệu là căn cứ để người duyệt hỏi lại, không phải kết luận.' },
-  { code: 'DISBURSEMENT_EXCEPTION_EXPIRING', source: 'DISBURSEMENT_EXCEPTION', owner: 'CONTRACT_MANAGER', action: 'Xử lý nguyên nhân vượt trần hoặc xin gia hạn ngoại lệ giải ngân có lý do.', consequence: 'Ngoại lệ giải ngân hết hạn thì thanh toán vượt trần bị chặn trở lại.', hours: 168, severity: 'WATCH', why: 'Ngoại lệ vượt trần giải ngân phải có hạn.' },
-  { code: 'TREASURY_RECON_ITEM_OVERDUE', source: 'TREASURY_RECON', owner: 'RECON_ITEM_OWNER', action: 'Giải trình hoặc xử lý chênh lệch đối chiếu Kho bạc và ghi kết quả.', consequence: 'Chỉ tiêu liên quan vẫn bị đánh dấu và một vướng mắc được mở ở phân hệ ISS.', hours: 72, severity: 'ACTION', why: 'Chênh lệch với Kho bạc không có người xử lý là chỗ số liệu giải ngân mất tin cậy.' },
-  { code: 'CROSS_TOTAL_MISMATCH', source: 'CROSS_TOTAL', owner: 'DIS_DATA_STEWARD', action: 'Sửa chiều đang lệch (đơn vị, nguồn vốn hoặc dự án) rồi chạy lại đối chiếu tổng chéo.', consequence: 'Chỉ tiêu không được công bố cho đến khi ba tổng khớp nhau.', hours: 48, severity: 'ACTION', why: 'Ba cách cộng cùng một số liệu giải ngân phải ra cùng một tổng trước khi công bố.' },
+  { code: 'SOD_EXCEPTION_EXPIRING', source: 'SOD_EXCEPTION', owner: 'ADM_ADMINISTRATOR', action: message('gov.rules.integrity_alert_seeds.action.sod_exception_expiring'), consequence: message('gov.rules.integrity_alert_seeds.consequence.sod_exception_expiring'), hours: 120, severity: 'ACTION', why: message('gov.rules.integrity_alert_seeds.why.sod_exception_expiring') },
+  { code: 'SOD_EXCEPTION_USED', source: 'SOD_EXCEPTION', owner: 'AUDITOR', action: message('gov.rules.integrity_alert_seeds.action.sod_exception_used'), consequence: message('gov.rules.integrity_alert_seeds.consequence.sod_exception_used'), hours: 336, severity: 'WATCH', why: message('gov.rules.integrity_alert_seeds.why.sod_exception_used') },
+  { code: 'PAYMENT_INTEGRITY_BLOCKED', source: 'PAYMENT_INTEGRITY', owner: 'PAYMENT_APPROVER', action: message('gov.rules.integrity_alert_seeds.action.payment_integrity_blocked'), consequence: message('gov.rules.integrity_alert_seeds.consequence.payment_integrity_blocked'), hours: 72, severity: 'ACTION', why: message('gov.rules.integrity_alert_seeds.why.payment_integrity_blocked') },
+  { code: 'PAYMENT_INTEGRITY_SIGNAL', source: 'PAYMENT_INTEGRITY', owner: 'PAYMENT_APPROVER', action: message('gov.rules.integrity_alert_seeds.action.payment_integrity_signal'), consequence: message('gov.rules.integrity_alert_seeds.consequence.payment_integrity_signal'), hours: 168, severity: 'WATCH', why: message('gov.rules.integrity_alert_seeds.why.payment_integrity_signal') },
+  { code: 'DISBURSEMENT_EXCEPTION_EXPIRING', source: 'DISBURSEMENT_EXCEPTION', owner: 'CONTRACT_MANAGER', action: message('gov.rules.integrity_alert_seeds.action.disbursement_exception_expiring'), consequence: message('gov.rules.integrity_alert_seeds.consequence.disbursement_exception_expiring'), hours: 168, severity: 'WATCH', why: message('gov.rules.integrity_alert_seeds.why.disbursement_exception_expiring') },
+  { code: 'TREASURY_RECON_ITEM_OVERDUE', source: 'TREASURY_RECON', owner: 'RECON_ITEM_OWNER', action: message('gov.rules.integrity_alert_seeds.action.treasury_recon_item_overdue'), consequence: message('gov.rules.integrity_alert_seeds.consequence.treasury_recon_item_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.integrity_alert_seeds.why.treasury_recon_item_overdue') },
+  { code: 'CROSS_TOTAL_MISMATCH', source: 'CROSS_TOTAL', owner: 'DIS_DATA_STEWARD', action: message('gov.rules.integrity_alert_seeds.action.cross_total_mismatch'), consequence: message('gov.rules.integrity_alert_seeds.consequence.cross_total_mismatch'), hours: 48, severity: 'ACTION', why: message('gov.rules.integrity_alert_seeds.why.cross_total_mismatch') },
 ];
+
+/**
+ * Integrity of the money and of the duties (lane D: G4-1, G4-2, G4-4, G4-5): the matrix of conflicting duties, the checks of a payment request, the reconciliation with the Treasury. The shapes follow the plans of
+ * lane D (docs/gov-d-*.md); the lane adjusts them here when its code settles. Every number is a starting value that says so on the screen.
+ */
 
 /**
  * Integrity of the money and of the duties (lane D: G4-1, G4-2, G4-4, G4-5): the matrix of conflicting duties, the checks of a payment request, the reconciliation with the Treasury. The shapes follow the plans of
@@ -845,12 +863,12 @@ const INTEGRITY_ALERT_SEEDS: readonly AlertTypeSeed[] = [
 export const registerIntegrityRules = (): void =>
   once('integrity', () => {
     registerCoreRules();
-    const source = 'G4-1, G4-2, G4-4, G4-5 của lộ trình quản trị: giá trị khởi điểm của nghiên cứu, cần xác nhận với khách hàng và kiểm toán';
+    const source = message('gov.rules.register_integrity_rules.source');
     registerRuleType({
       type: 'SOD_MATRIX',
       ownerModule: 'ADM',
       modules: ['ADM', 'CTR', 'PAY', 'BID'],
-      formula: 'Một người không được giữ cả hai việc của một cặp trong cùng phạm vi (cùng bản ghi, dự án, hợp đồng hoặc gói thầu); cặp BLOCK chặn, cặp WARN chỉ cảnh báo; ngoại lệ tối đa exception_max_days ngày và cần exception_approvers người duyệt',
+      formula: message('gov.rules.register_integrity_rules.formula.sod_matrix'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -883,7 +901,7 @@ export const registerIntegrityRules = (): void =>
       ownerModule: 'PAY',
       modules: ['PAY', 'AUD', 'CTR'],
       formula:
-        'Chặn khi đề nghị trùng số, nhà cung cấp và số tiền, hoặc vượt trần hợp đồng, kế hoạch hay giá trị nghiệm thu; báo tín hiệu khi khớp từ signal_min_matches thuộc tính, đơn giá lệch quá ngưỡng (hợp đồng hoặc z-score vững so với tối thiểu peer_min đơn giá cùng loại) hoặc khối lượng lệch nhật ký công trường quá tolerance_pct %',
+        message('gov.rules.register_integrity_rules.formula.payment_integrity'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -908,28 +926,30 @@ export const registerIntegrityRules = (): void =>
       type: 'RECONCILIATION_POLICY',
       ownerModule: 'PAY',
       modules: ['PAY', 'DIS'],
-      formula: 'Chênh lệch giữa sổ và sao kê Kho bạc lớn hơn hẳn threshold_vnd đồng (hoặc threshold_pct % khi có) thì mở một mục đối chiếu, hạn xử lý due_days ngày làm việc; không có sao kê sau partial_after_days ngày thì lượt đối chiếu là một phần, không bao giờ là không lệch',
+      formula: message('gov.rules.register_integrity_rules.formula.reconciliation_policy'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { threshold_vnd: int(0, 1_000_000_000_000), threshold_pct: num(0, 100, true), due_days: int(1, 60), partial_after_days: int(0, 30) },
       defaults: { DEFAULT: rule({ threshold_vnd: 1_000_000, due_days: 3, partial_after_days: 1 }) },
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(INTEGRITY_ALERT_SEEDS, { source: 'Tính toàn vẹn của tiền và nhiệm vụ (lane D, G4-1, G4-2, G4-4, G4-5): các loại cảnh báo đề xuất của lane' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(INTEGRITY_ALERT_SEEDS, { source: message('gov.rules.register_integrity_rules.source_2') }));
   });
 
 export const CONTRACT_HEALTH_INDICATORS = ['AWARD_PRICE_VARIANCE_PCT', 'CHANGE_GROWTH_PCT', 'PAID_VS_ACCEPTED_PCT', 'ADVANCE_OPEN_PCT', 'DELAY_DAYS'] as const;
 
 /** The health of a contract and the concentration of the portfolio (lane CA: CA-1, CA-3). */
+
+/** The health of a contract and the concentration of the portfolio (lane CA: CA-1, CA-3). */
 export const registerContractRules = (): void =>
   once('contract', () => {
     registerCoreRules();
-    const source = 'CA-1, CA-3 của kế hoạch phân tích hợp đồng: giá trị khởi điểm của nghiên cứu (chỉ số HHI theo ngưỡng tập trung của hướng dẫn sáp nhập Hoa Kỳ 2023: 1.000 và 1.800), cần xác nhận với khách hàng và kiểm toán';
+    const source = message('gov.rules.register_contract_rules.source');
     registerRuleType({
       type: 'CONTRACT_HEALTH_RAG',
       ownerModule: 'CTR',
       modules: ['CTR', 'BI', 'HOME'],
-      formula: 'Điểm sức khỏe hợp đồng = tổng trọng số của các chỉ báo nằm ngoài vạch xanh (nửa trọng số khi ở vùng vàng, cả trọng số khi ở vùng đỏ), từ 0 đến 100; xanh khi không quá score_green_at_most, vàng khi không quá score_amber_at_most, còn lại đỏ; thiếu dữ liệu dưới min_coverage_pct thì không xếp màu',
+      formula: message('gov.rules.register_contract_rules.formula.contract_health_rag'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -965,7 +985,7 @@ export const registerContractRules = (): void =>
       type: 'CONTRACT_CONCENTRATION',
       ownerModule: 'CTR',
       modules: ['CTR', 'BI', 'AUD'],
-      formula: 'Tỷ trọng của top_n nhà thầu lớn nhất và chỉ số HHI (tổng bình phương tỷ trọng phần trăm, 0 đến 10.000) tính trên basis, giá trị liên danh chia theo tỷ lệ góp của từng bên; vàng từ ngưỡng amber, đỏ từ ngưỡng red; dưới min_contracts hợp đồng thì không xếp màu',
+      formula: message('gov.rules.register_contract_rules.formula.contract_concentration'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -993,7 +1013,7 @@ export const registerContractRules = (): void =>
       type: 'CONTRACT_PAYMENT_CLOCK',
       ownerModule: 'CTR',
       modules: ['CTR', 'PAY', 'BI'],
-      formula: 'Một hợp đồng đúng đồng hồ thanh toán khi đề nghị chậm nhất của nó không quá acceptance_to_request_days ngày kể từ lúc nghiệm thu được duyệt và không quá request_to_treasury_days ngày từ lúc đề nghị đến lúc gửi Kho bạc (ngày lịch); hợp đồng chưa có đề nghị nào thì không được tính là đúng hạn',
+      formula: message('gov.rules.register_contract_rules.formula.contract_payment_clock'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -1004,24 +1024,26 @@ export const registerContractRules = (): void =>
   });
 
 const INTEGRATION_ALERT_SEEDS: readonly AlertTypeSeed[] = [
-  { code: 'CONNECTOR_STALE', source: 'CONNECTOR', owner: 'INTEGRATION_ADMINISTRATOR', action: 'Kiểm tra bộ kết nối, lấy lại tệp hoặc số liệu mới nhất và ghi nguyên nhân.', consequence: 'Số liệu lấy từ nguồn bên ngoài cũ hơn mức cho phép và chỉ tiêu dựa vào đó phải ghi rõ là chưa cập nhật.', hours: 24, severity: 'ACTION', why: 'Số liệu đến từ ngoài hệ thống phải cho biết nó mới đến đâu.' },
-  { code: 'EGP_POSTING_DUE', source: 'EGP_POSTING', owner: 'PROCUREMENT_OFFICER', action: 'Đăng tải thông tin lên hệ thống mạng đấu thầu quốc gia và nộp biên nhận.', consequence: 'Nghĩa vụ đăng tải sắp đến hạn: quá hạn sẽ bị ghi nhận là vi phạm quy định công khai thông tin.', hours: 48, severity: 'ACTION', why: 'Công khai thông tin đấu thầu đúng hạn là nghĩa vụ của chủ đầu tư.' },
-  { code: 'EGP_POSTING_OVERDUE', source: 'EGP_POSTING', owner: 'PROCUREMENT_OFFICER', action: 'Đăng tải ngay thông tin còn thiếu và ghi lý do chậm.', consequence: 'Nghĩa vụ đăng tải đã quá hạn: đơn vị đang vi phạm quy định công khai thông tin đấu thầu.', hours: 24, severity: 'URGENT', why: 'Đăng tải chậm là vi phạm đã xảy ra và phải được xử lý ngay.' },
+  { code: 'CONNECTOR_STALE', source: 'CONNECTOR', owner: 'INTEGRATION_ADMINISTRATOR', action: message('gov.rules.integration_alert_seeds.action.connector_stale'), consequence: message('gov.rules.integration_alert_seeds.consequence.connector_stale'), hours: 24, severity: 'ACTION', why: message('gov.rules.integration_alert_seeds.why.connector_stale') },
+  { code: 'EGP_POSTING_DUE', source: 'EGP_POSTING', owner: 'PROCUREMENT_OFFICER', action: message('gov.rules.integration_alert_seeds.action.egp_posting_due'), consequence: message('gov.rules.integration_alert_seeds.consequence.egp_posting_due'), hours: 48, severity: 'ACTION', why: message('gov.rules.integration_alert_seeds.why.egp_posting_due') },
+  { code: 'EGP_POSTING_OVERDUE', source: 'EGP_POSTING', owner: 'PROCUREMENT_OFFICER', action: message('gov.rules.integration_alert_seeds.action.egp_posting_overdue'), consequence: message('gov.rules.integration_alert_seeds.consequence.egp_posting_overdue'), hours: 24, severity: 'URGENT', why: message('gov.rules.integration_alert_seeds.why.egp_posting_overdue') },
 ];
 
 const POSTING_UNITS = ['WORKING_DAYS', 'CALENDAR_DAYS', 'MONTHS'] as const;
 const POSTING_STARTS = ['DECISION_APPROVED', 'RESULT_ISSUED', 'CONTRACT_SIGNED', 'CONTRACT_COMPLETED', 'EVENT_OCCURRED', 'CONTRACTOR_NOTIFIED'] as const;
 
 /** The data that arrives from outside and the duties of posting to the national procurement network (lane INT, EGP: EGP-1, EGP-2). */
+
+/** The data that arrives from outside and the duties of posting to the national procurement network (lane INT, EGP: EGP-1, EGP-2). */
 export const registerIntegrationRules = (): void =>
   once('integration', () => {
     registerCoreRules();
-    const source = 'EGP-1, EGP-2 và phụ thuộc bên ngoài của kế hoạch: giá trị khởi điểm, cần xác nhận với đơn vị vận hành hệ thống và văn bản pháp luật (Luật Đấu thầu 22/2023/QH15 và văn bản hướng dẫn)';
+    const source = message('gov.rules.register_integration_rules.source');
     registerRuleType({
       type: 'CONNECTOR_FRESHNESS',
       ownerModule: 'INT',
       modules: ['INT', 'ADM', 'HOME'],
-      formula: 'Số liệu của bộ kết nối cũ hơn warn_after_hours giờ thì cảnh báo, cũ hơn max_age_hours giờ thì coi là cũ (stale_severity) và, khi figures_blocked_when_stale, chỉ tiêu dựa vào đó không được công bố như số mới',
+      formula: message('gov.rules.register_integration_rules.formula.connector_freshness'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
@@ -1029,38 +1051,40 @@ export const registerIntegrationRules = (): void =>
       refine: (params) => ((params.warn_after_hours as number) > (params.max_age_hours as number) ? 'warn_after_hours' : undefined),
       defaults: {
         DEFAULT: rule({ max_age_hours: 168, warn_after_hours: 96, stale_severity: 'ACTION', figures_blocked_when_stale: false }),
-        TREASURY_STATEMENT: rule({ max_age_hours: 72, warn_after_hours: 36, stale_severity: 'ACTION', figures_blocked_when_stale: true }, undefined, { formula: 'Sao kê Kho bạc cũ hơn 36 giờ thì cảnh báo, cũ hơn 72 giờ (qua cuối tuần) thì coi là cũ và số giải ngân không được công bố như số mới' }),
-        EGP_FILE: rule({ max_age_hours: 168, warn_after_hours: 120, stale_severity: 'WATCH', figures_blocked_when_stale: false }, undefined, { formula: 'Tệp từ hệ thống mạng đấu thầu quốc gia cũ hơn 120 giờ thì cảnh báo, cũ hơn 168 giờ thì coi là cũ' }),
+        TREASURY_STATEMENT: rule({ max_age_hours: 72, warn_after_hours: 36, stale_severity: 'ACTION', figures_blocked_when_stale: true }, undefined, { formula: message('gov.rules.connector_freshness.treasury_statement.formula') }),
+        EGP_FILE: rule({ max_age_hours: 168, warn_after_hours: 120, stale_severity: 'WATCH', figures_blocked_when_stale: false }, undefined, { formula: message('gov.rules.connector_freshness.egp_file.formula') }),
       },
     });
     registerRuleType({
       type: 'EGP_POSTING_DEADLINES',
       ownerModule: 'BID',
       modules: ['BID', 'CTR', 'HOME'],
-      formula: 'Hạn đăng tải = ngày bắt đầu (starts_on) cộng due_in đơn vị due_unit (ngày làm việc theo lịch làm việc, ngày dương lịch hoặc tháng); nhắc trước remind_before_days ngày',
+      formula: message('gov.rules.register_integration_rules.formula.egp_posting_deadlines'),
       source,
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { obligation: text(200), due_in: int(1, 3650), due_unit: oneOf(...POSTING_UNITS), starts_on: oneOf(...POSTING_STARTS), remind_before_days: int(0, 365), legal_basis: text(300) },
       defaults: {
-        PLAN: rule({ obligation: 'Đăng kế hoạch lựa chọn nhà thầu', due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'DECISION_APPROVED', remind_before_days: 2, legal_basis: 'Chưa kiểm chứng: số ngày khởi điểm, EGP-2 đối chiếu với Luật Đấu thầu 22/2023/QH15 và Nghị định hướng dẫn' }),
-        NOTICE: rule({ obligation: 'Đăng thông báo mời thầu', due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'DECISION_APPROVED', remind_before_days: 2, legal_basis: 'Chưa kiểm chứng: số ngày khởi điểm, EGP-2 đối chiếu với Luật Đấu thầu 22/2023/QH15 và Nghị định hướng dẫn' }),
-        RESULT: rule({ obligation: 'Đăng kết quả lựa chọn nhà thầu', due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'RESULT_ISSUED', remind_before_days: 2, legal_basis: 'Chưa kiểm chứng: số ngày khởi điểm, EGP-2 đối chiếu với Luật Đấu thầu 22/2023/QH15 và Nghị định hướng dẫn' }),
-        CONTRACT_INFO: rule({ obligation: 'Đăng thông tin hợp đồng', due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'CONTRACT_SIGNED', remind_before_days: 2, legal_basis: 'Chưa kiểm chứng: số ngày khởi điểm, EGP-2 đối chiếu với Luật Đấu thầu 22/2023/QH15 và Nghị định hướng dẫn' }),
-        CONTRACTOR_PERFORMANCE: rule({ obligation: 'Đăng kết quả đánh giá nhà thầu', due_in: 6, due_unit: 'MONTHS', starts_on: 'CONTRACT_COMPLETED', remind_before_days: 14, legal_basis: 'Kế hoạch EGP-2: 6 tháng; chưa kiểm chứng với văn bản gốc' }),
-        VIOLATION: rule({ obligation: 'Đăng thông tin nhà thầu vi phạm', due_in: 7, due_unit: 'WORKING_DAYS', starts_on: 'EVENT_OCCURRED', remind_before_days: 2, legal_basis: 'Kế hoạch EGP-2: 7 ngày làm việc; chưa kiểm chứng với văn bản gốc' }),
-        REPUTATION_EVENT: rule({ obligation: 'Đăng sự kiện uy tín dự thầu của nhà thầu', due_in: 7, due_unit: 'WORKING_DAYS', starts_on: 'EVENT_OCCURRED', remind_before_days: 2, legal_basis: 'NĐ 214/2025/NĐ-CP Điều 20.1-2 (7 ngày làm việc), đã đọc từ bản PDF, chưa đối chiếu Công báo' }),
-        CONTRACTOR_RESPONSE: rule({ obligation: 'Nhà thầu phản hồi đánh giá', due_in: 20, due_unit: 'CALENDAR_DAYS', starts_on: 'CONTRACTOR_NOTIFIED', remind_before_days: 5, legal_basis: 'Kế hoạch EGP-2: 20 ngày; chưa rõ ngày làm việc hay ngày dương lịch, chưa kiểm chứng với văn bản gốc' }),
+        PLAN: rule({ obligation: message('gov.rules.egp_posting_deadlines.plan.obligation'), due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'DECISION_APPROVED', remind_before_days: 2, legal_basis: message('gov.rules.egp_posting_deadlines.plan.legal_basis') }),
+        NOTICE: rule({ obligation: message('gov.rules.egp_posting_deadlines.notice.obligation'), due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'DECISION_APPROVED', remind_before_days: 2, legal_basis: message('gov.rules.egp_posting_deadlines.plan.legal_basis') }),
+        RESULT: rule({ obligation: message('gov.rules.egp_posting_deadlines.result.obligation'), due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'RESULT_ISSUED', remind_before_days: 2, legal_basis: message('gov.rules.egp_posting_deadlines.plan.legal_basis') }),
+        CONTRACT_INFO: rule({ obligation: message('gov.rules.egp_posting_deadlines.contract_info.obligation'), due_in: 5, due_unit: 'WORKING_DAYS', starts_on: 'CONTRACT_SIGNED', remind_before_days: 2, legal_basis: message('gov.rules.egp_posting_deadlines.plan.legal_basis') }),
+        CONTRACTOR_PERFORMANCE: rule({ obligation: message('gov.rules.egp_posting_deadlines.contractor_performance.obligation'), due_in: 6, due_unit: 'MONTHS', starts_on: 'CONTRACT_COMPLETED', remind_before_days: 14, legal_basis: message('gov.rules.egp_posting_deadlines.contractor_performance.legal_basis') }),
+        VIOLATION: rule({ obligation: message('gov.rules.egp_posting_deadlines.violation.obligation'), due_in: 7, due_unit: 'WORKING_DAYS', starts_on: 'EVENT_OCCURRED', remind_before_days: 2, legal_basis: message('gov.rules.egp_posting_deadlines.violation.legal_basis') }),
+        REPUTATION_EVENT: rule({ obligation: message('gov.rules.egp_posting_deadlines.reputation_event.obligation'), due_in: 7, due_unit: 'WORKING_DAYS', starts_on: 'EVENT_OCCURRED', remind_before_days: 2, legal_basis: message('gov.rules.egp_posting_deadlines.reputation_event.legal_basis') }),
+        CONTRACTOR_RESPONSE: rule({ obligation: message('gov.rules.egp_posting_deadlines.contractor_response.obligation'), due_in: 20, due_unit: 'CALENDAR_DAYS', starts_on: 'CONTRACTOR_NOTIFIED', remind_before_days: 5, legal_basis: message('gov.rules.egp_posting_deadlines.contractor_response.legal_basis') }),
       },
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(INTEGRATION_ALERT_SEEDS, { source: 'Tích hợp ngoài (EGP-1, EGP-2): các loại cảnh báo của nghĩa vụ đăng tải và độ mới của số liệu' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(INTEGRATION_ALERT_SEEDS, { source: message('gov.rules.register_integration_rules.source_2') }));
   });
 
 const DIRECTIVE_ALERT_SEEDS: readonly AlertTypeSeed[] = [
-  { code: 'DIRECTIVE_DUE', source: 'DIRECTIVE', owner: 'DIRECTIVE_ASSIGNEE', action: 'Báo cáo tiến độ thực hiện chỉ đạo hoặc đề nghị gia hạn có lý do trước ngày đến hạn.', consequence: 'Chỉ đạo sắp đến hạn: nếu không có báo cáo tiến độ hoặc đề nghị gia hạn có lý do, chỉ đạo sẽ bị tính là quá hạn và báo lên lãnh đạo đơn vị.', hours: 48, severity: 'ACTION', why: 'Chỉ đạo của giao ban phải được theo dõi đến khi hoàn thành, nhắc trước hạn để kịp xử lý.' },
-  { code: 'DIRECTIVE_OVERDUE', source: 'DIRECTIVE', owner: 'DIRECTIVE_ASSIGNEE', action: 'Báo cáo kết quả hoặc đề nghị gia hạn có lý do và ghi ngày hoàn thành mới.', consequence: 'Chỉ đạo quá hạn được đưa vào báo cáo kỳ sau là chưa hoàn thành; quá hạn 7 ngày sẽ báo lên lãnh đạo đơn vị.', hours: 72, severity: 'ACTION', why: 'Chỉ đạo quá hạn phải có người chịu trách nhiệm và hạn mới, không để trôi.' },
-  { code: 'DIRECTIVE_ESCALATED', source: 'DIRECTIVE', owner: 'UNIT_LEADER', action: 'Chỉ đạo đơn vị báo cáo kết quả hoặc xin gia hạn có lý do ngay.', consequence: 'Chỉ đạo quá hạn từ 7 ngày đã được nâng lên lãnh đạo đơn vị: cần báo cáo kết quả hoặc xin gia hạn có lý do ngay.', hours: 24, severity: 'URGENT', why: 'Chỉ đạo quá hạn kéo dài cần lãnh đạo đơn vị can thiệp.' },
+  { code: 'DIRECTIVE_DUE', source: 'DIRECTIVE', owner: 'DIRECTIVE_ASSIGNEE', action: message('gov.rules.directive_alert_seeds.action.directive_due'), consequence: message('gov.rules.directive_alert_seeds.consequence.directive_due'), hours: 48, severity: 'ACTION', why: message('gov.rules.directive_alert_seeds.why.directive_due') },
+  { code: 'DIRECTIVE_OVERDUE', source: 'DIRECTIVE', owner: 'DIRECTIVE_ASSIGNEE', action: message('gov.rules.directive_alert_seeds.action.directive_overdue'), consequence: message('gov.rules.directive_alert_seeds.consequence.directive_overdue'), hours: 72, severity: 'ACTION', why: message('gov.rules.directive_alert_seeds.why.directive_overdue') },
+  { code: 'DIRECTIVE_ESCALATED', source: 'DIRECTIVE', owner: 'UNIT_LEADER', action: message('gov.rules.directive_alert_seeds.action.directive_escalated'), consequence: message('gov.rules.directive_alert_seeds.consequence.directive_escalated'), hours: 24, severity: 'URGENT', why: message('gov.rules.directive_alert_seeds.why.directive_escalated') },
 ];
+
+/** The directives of the steering meetings (lane DIR-1; packages/kernel/src/directive.ts): reminder days, escalation, extensions, evidence to close. */
 
 /** The directives of the steering meetings (lane DIR-1; packages/kernel/src/directive.ts): reminder days, escalation, extensions, evidence to close. */
 export const registerDirectiveRules = (): void =>
@@ -1070,16 +1094,18 @@ export const registerDirectiveRules = (): void =>
       type: 'DIRECTIVE_POLICY',
       ownerModule: 'DIR',
       modules: ['DIR', 'HOME'],
-      formula: 'Nhắc người nhận vào các ngày reminder_days_before trước hạn; quá hạn escalate_after_overdue_days ngày thì khẩn và báo lên lãnh đạo đơn vị; được gia hạn tối đa max_extensions lần, mỗi lần tối đa max_extension_days ngày; đóng chỉ đạo cần bằng chứng khi close_requires_evidence',
-      source: 'DIR-1 của lộ trình quản trị (chỉ đạo giao ban, yêu cầu CN.03 và QT.02): giá trị khởi điểm của nghiên cứu, cần xác nhận với khách hàng và kiểm toán',
+      formula: message('gov.rules.register_directive_rules.formula.directive_policy'),
+      source: message('gov.rules.register_directive_rules.source.directive_policy'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: { reminder_days_before: list(int(0, 60), 8, 1), escalate_after_overdue_days: int(1, 90), max_extensions: int(0, 20), max_extension_days: int(1, 365), close_requires_evidence: bool },
       refine: refineWith(parseDirectivePolicy),
       defaults: { DEFAULT: rule({ reminder_days_before: [...DIRECTIVE_POLICY_DEFAULTS.reminderDaysBefore], escalate_after_overdue_days: DIRECTIVE_POLICY_DEFAULTS.escalateAfterOverdueDays, max_extensions: DIRECTIVE_POLICY_DEFAULTS.maxExtensions, max_extension_days: DIRECTIVE_POLICY_DEFAULTS.maxExtensionDays, close_requires_evidence: DIRECTIVE_POLICY_DEFAULTS.closeRequiresEvidence }) },
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(DIRECTIVE_ALERT_SEEDS, { source: 'Chỉ đạo giao ban (lane DIR-1): ba loại cảnh báo của nguồn DIRECTIVE' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(DIRECTIVE_ALERT_SEEDS, { source: message('gov.rules.register_directive_rules.source') }));
   });
+
+/** The model of the money of an enterprise and the checks at the moment of entry (lane FND, IND: FND-1, IND-1). */
 
 /** The model of the money of an enterprise and the checks at the moment of entry (lane FND, IND: FND-1, IND-1). */
 export const registerEnterpriseRules = (): void =>
@@ -1089,8 +1115,8 @@ export const registerEnterpriseRules = (): void =>
       type: 'FUNDING_TAXONOMY',
       ownerModule: 'FND',
       modules: ['FND', 'DIS', 'BI'],
-      formula: 'Gói công giữ nguồn vốn hiện có; gói doanh nghiệp chia vốn thành các nhóm của categories và, khi total_rule là SUM_EQUALS_TOTAL, tổng các nhóm phải bằng tổng nguồn vốn',
-      source: 'FND-1 của kế hoạch: đặc tả nghĩa số liệu doanh nghiệp (R15) chưa được duyệt nên phân loại này là giá trị khởi điểm',
+      formula: message('gov.rules.register_enterprise_rules.formula.funding_taxonomy'),
+      source: message('gov.rules.register_enterprise_rules.source.funding_taxonomy'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
@@ -1099,21 +1125,21 @@ export const registerEnterpriseRules = (): void =>
         total_rule: oneOf('SUM_EQUALS_TOTAL', 'NONE'),
       },
       defaults: {
-        PUBLIC: rule({ package_kind: 'PUBLIC', categories: [{ code: 'FUND_SOURCE_VERSION', label: 'Nguồn vốn theo phiên bản nguồn vốn hiện có', kind: 'EXISTING_FUND_SOURCE' }], total_rule: 'NONE' }, undefined, {
-          formula: 'Gói công giữ nguyên các nguồn vốn theo phiên bản nguồn vốn hiện có; không đổi nghĩa số liệu đã công bố',
+        PUBLIC: rule({ package_kind: 'PUBLIC', categories: [{ code: 'FUND_SOURCE_VERSION', label: message('gov.rules.categories.label.fund_source_version'), kind: 'EXISTING_FUND_SOURCE' }], total_rule: 'NONE' }, undefined, {
+          formula: message('gov.rules.funding_taxonomy.public.formula'),
         }),
         ENTERPRISE: rule(
           {
             package_kind: 'ENTERPRISE',
             categories: [
-              { code: 'EQUITY', label: 'Vốn chủ sở hữu', kind: 'EQUITY' },
-              { code: 'DEBT', label: 'Vốn vay', kind: 'DEBT' },
-              { code: 'OTHER', label: 'Khác', kind: 'OTHER' },
+              { code: 'EQUITY', label: message('gov.rules.categories.label.equity'), kind: 'EQUITY' },
+              { code: 'DEBT', label: message('gov.rules.categories.label.debt'), kind: 'DEBT' },
+              { code: 'OTHER', label: message('gov.rules.categories.label.other'), kind: 'OTHER' },
             ],
             total_rule: 'SUM_EQUALS_TOTAL',
           },
           undefined,
-          { formula: 'Vốn doanh nghiệp gồm vốn chủ sở hữu, vốn vay và khác; tổng ba nhóm phải bằng tổng nguồn vốn' },
+          { formula: message('gov.rules.funding_taxonomy.enterprise.formula') },
         ),
       },
     });
@@ -1121,8 +1147,8 @@ export const registerEnterpriseRules = (): void =>
       type: 'DATA_ENTRY_RULE',
       ownerModule: 'IND',
       modules: ['IND', 'DIS', 'ADM'],
-      formula: 'Kiểm ngay khi nhập: lũy kế không quá tổng mức, các phần cộng lại bằng tổng (sai số tối đa tolerance), kỳ đã chốt không sửa, trường bắt buộc phải có; BLOCK chặn lưu, WARN chỉ cảnh báo',
-      source: 'IND-1 của kế hoạch: từ điển chỉ tiêu của khách hàng chưa có nên bốn kiểm tra này là giá trị khởi điểm',
+      formula: message('gov.rules.register_enterprise_rules.formula.data_entry_rule'),
+      source: message('gov.rules.register_enterprise_rules.source.data_entry_rule'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
@@ -1134,13 +1160,15 @@ export const registerEnterpriseRules = (): void =>
         message: text(300),
       },
       defaults: {
-        CUMULATIVE_NOT_ABOVE_TOTAL: rule({ check: 'CUMULATIVE_NOT_ABOVE_TOTAL', severity: 'BLOCK', fields: ['CUMULATIVE'], total_field: 'TOTAL_INVESTMENT', message: 'Số lũy kế không được lớn hơn tổng mức.' }),
-        EQUITY_PLUS_DEBT_EQUALS_TOTAL: rule({ check: 'PARTS_EQUAL_TOTAL', severity: 'BLOCK', fields: ['EQUITY', 'DEBT'], total_field: 'TOTAL', tolerance: 0, message: 'Vốn chủ sở hữu cộng vốn vay phải bằng tổng nguồn vốn.' }),
-        CLOSED_PERIOD_LOCKED: rule({ check: 'PERIOD_LOCKED_AFTER_CLOSE', severity: 'BLOCK', fields: ['REPORTING_PERIOD'], message: 'Kỳ đã chốt không sửa được; cần mở lại kỳ có người duyệt.' }),
-        MANDATORY_FIELDS: rule({ check: 'FIELD_REQUIRED', severity: 'BLOCK', fields: ['MANDATORY_FIELDS'], message: 'Trường bắt buộc phải có giá trị.' }),
+        CUMULATIVE_NOT_ABOVE_TOTAL: rule({ check: 'CUMULATIVE_NOT_ABOVE_TOTAL', severity: 'BLOCK', fields: ['CUMULATIVE'], total_field: 'TOTAL_INVESTMENT', message: message('gov.rules.data_entry_rule.cumulative_not_above_total.message') }),
+        EQUITY_PLUS_DEBT_EQUALS_TOTAL: rule({ check: 'PARTS_EQUAL_TOTAL', severity: 'BLOCK', fields: ['EQUITY', 'DEBT'], total_field: 'TOTAL', tolerance: 0, message: message('gov.rules.data_entry_rule.equity_plus_debt_equals_total.message') }),
+        CLOSED_PERIOD_LOCKED: rule({ check: 'PERIOD_LOCKED_AFTER_CLOSE', severity: 'BLOCK', fields: ['REPORTING_PERIOD'], message: message('gov.rules.data_entry_rule.closed_period_locked.message') }),
+        MANDATORY_FIELDS: rule({ check: 'FIELD_REQUIRED', severity: 'BLOCK', fields: ['MANDATORY_FIELDS'], message: message('gov.rules.data_entry_rule.mandatory_fields.message') }),
       },
     });
   });
+
+/** The weights of the non-financial benefits of an investment appraisal (lane FIN-1, AI.06): one set of criteria for each category (safety, compliance, maintenance), approved by someone other than who proposed it. */
 
 /** The weights of the non-financial benefits of an investment appraisal (lane FIN-1, AI.06): one set of criteria for each category (safety, compliance, maintenance), approved by someone other than who proposed it. */
 export const registerFinanceRules = (): void =>
@@ -1150,8 +1178,8 @@ export const registerFinanceRules = (): void =>
       type: 'FIN_CRITERIA',
       ownerModule: 'PRJ',
       modules: ['PRJ', 'ADM'],
-      formula: 'Điểm có trọng số = Σ (trọng số(i) × điểm(i)) / 100 với điểm từ 1 đến 5; trọng số của một nhóm cộng lại đúng 100%; chỉ số = điểm có trọng số / 5 × 100%',
-      source: 'Thẩm định hiệu quả đầu tư, yêu cầu AI.06 của khách hàng: tiêu chí phi tài chính của dự án an toàn, tuân thủ và bảo trì; bộ khởi điểm chưa được khách hàng xác nhận',
+      formula: message('gov.rules.register_finance_rules.formula.fin_criteria'),
+      source: message('gov.rules.register_finance_rules.source.fin_criteria'),
       asOf: AS_OF,
       legalStatus: 'UNVERIFIED',
       schema: {
@@ -1179,7 +1207,7 @@ export const registerFinanceRules = (): void =>
         FIN_CRITERIA_CATEGORIES.map((category) => [
           category,
           rule({ criteria: FIN_CRITERIA_DEFAULTS[category].criteria.map((one) => ({ key: one.key, label: one.label, weight_pct: one.weightPct })) }, 'UNVERIFIED', {
-            formula: 'Bộ tiêu chí khởi điểm của nhóm ' + category + ': trọng số cộng lại đúng 100%, điểm từ 1 đến 5, mỗi điểm có bằng chứng',
+            formula: message('gov.rules.defaults.fin_criteria.formula') + category + message('gov.rules.defaults.fin_criteria.formula_2'),
           }),
         ]),
       ),
@@ -1187,11 +1215,13 @@ export const registerFinanceRules = (): void =>
   });
 
 const PROCUREMENT_WORKFLOW_ALERT_SEEDS: readonly AlertTypeSeed[] = [
-  { code: 'PRC_STEP_OVERDUE', source: 'PROCUREMENT_WORKFLOW', owner: 'PACKAGE_OWNER', action: 'Hoàn tất các mục còn mở của bước và chuyển bước, hoặc ghi lý do chậm và xin ngoại lệ có người duyệt.', consequence: 'Gói thầu ở lại bước quá số ngày chuẩn: các bước sau và ngày ký hợp đồng bị đẩy lùi, dự án có thể chậm giải ngân.', hours: 48, severity: 'ACTION', why: 'Mỗi bước của quy trình lựa chọn nhà thầu có thời hạn chuẩn; quá hạn là dấu hiệu sớm của chậm tiến độ lựa chọn nhà thầu.' },
-  { code: 'PRC_CHECKLIST_DUE', source: 'PROCUREMENT_WORKFLOW', owner: 'CHECKLIST_OWNER', action: 'Hoàn tất mục bắt buộc của danh mục kiểm và đính kèm bằng chứng trước hạn.', consequence: 'Mục bắt buộc chưa xong chặn không cho gói thầu sang bước sau; quá hạn sẽ làm bước bị trễ.', hours: 24, severity: 'ACTION', why: 'Mục bắt buộc là điều kiện để rời bước; nhắc sát hạn để không chặn cả gói.' },
-  { code: 'PRC_PACKAGE_STALLED', source: 'PROCUREMENT_WORKFLOW', owner: 'PACKAGE_OWNER', action: 'Xem gói thầu đang vướng ở đâu, ghi lý do tạm dừng hoặc thúc đẩy bước hiện tại.', consequence: 'Gói thầu đứng yên quá số ngày làm việc cho phép mà không có ai ghi nhận: tiến độ thực tế không còn được theo dõi.', hours: 72, severity: 'WATCH', why: 'Gói thầu không có biến động nào trong nhiều ngày thường là gói bị bỏ quên.' },
-  { code: 'PRC_NO_OWNER', source: 'PROCUREMENT_WORKFLOW', owner: 'PROCUREMENT_MANAGER', action: 'Phân công người phụ trách cho gói thầu.', consequence: 'Gói thầu không có người phụ trách thì không ai nhận cảnh báo của bước và mục danh mục kiểm, gói sẽ trôi.', hours: 24, severity: 'ACTION', why: 'Mỗi gói thầu đang chạy quy trình phải có một người chịu trách nhiệm.' },
+  { code: 'PRC_STEP_OVERDUE', source: 'PROCUREMENT_WORKFLOW', owner: 'PACKAGE_OWNER', action: message('gov.rules.procurement_workflow_alert_seeds.action.prc_step_overdue'), consequence: message('gov.rules.procurement_workflow_alert_seeds.consequence.prc_step_overdue'), hours: 48, severity: 'ACTION', why: message('gov.rules.procurement_workflow_alert_seeds.why.prc_step_overdue') },
+  { code: 'PRC_CHECKLIST_DUE', source: 'PROCUREMENT_WORKFLOW', owner: 'CHECKLIST_OWNER', action: message('gov.rules.procurement_workflow_alert_seeds.action.prc_checklist_due'), consequence: message('gov.rules.procurement_workflow_alert_seeds.consequence.prc_checklist_due'), hours: 24, severity: 'ACTION', why: message('gov.rules.procurement_workflow_alert_seeds.why.prc_checklist_due') },
+  { code: 'PRC_PACKAGE_STALLED', source: 'PROCUREMENT_WORKFLOW', owner: 'PACKAGE_OWNER', action: message('gov.rules.procurement_workflow_alert_seeds.action.prc_package_stalled'), consequence: message('gov.rules.procurement_workflow_alert_seeds.consequence.prc_package_stalled'), hours: 72, severity: 'WATCH', why: message('gov.rules.procurement_workflow_alert_seeds.why.prc_package_stalled') },
+  { code: 'PRC_NO_OWNER', source: 'PROCUREMENT_WORKFLOW', owner: 'PROCUREMENT_MANAGER', action: message('gov.rules.procurement_workflow_alert_seeds.action.prc_no_owner'), consequence: message('gov.rules.procurement_workflow_alert_seeds.consequence.prc_no_owner'), hours: 24, severity: 'ACTION', why: message('gov.rules.procurement_workflow_alert_seeds.why.prc_no_owner') },
 ];
+
+/** The workflow of a procurement package (lane PRC-1; packages/kernel/src/bid-workflow.ts): one code per selection method, the steps with their checklists, durations and evidence, and the four alerts of the monitoring. */
 
 /** The workflow of a procurement package (lane PRC-1; packages/kernel/src/bid-workflow.ts): one code per selection method, the steps with their checklists, durations and evidence, and the four alerts of the monitoring. */
 export const registerProcurementWorkflowRules = (): void =>
@@ -1223,7 +1253,7 @@ export const registerProcurementWorkflowRules = (): void =>
       refine: refineWith((params) => parseWorkflowDefinition(params)),
       defaults: Object.fromEntries(WORKFLOW_METHODS.map((method) => [method, rule(defaultWorkflowParams(method), 'UNVERIFIED')])),
     });
-    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(PROCUREMENT_WORKFLOW_ALERT_SEEDS, { source: 'Theo dõi quy trình lựa chọn nhà thầu (PRC-1): bốn loại cảnh báo của nguồn PROCUREMENT_WORKFLOW' }));
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(PROCUREMENT_WORKFLOW_ALERT_SEEDS, { source: message('gov.rules.register_procurement_workflow_rules.source') }));
   });
 
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
@@ -1341,7 +1371,7 @@ export function resolveGovernanceRule(rules: readonly GovernanceRuleVersion[], t
   return { type, code, params: fallback.params, version: 0, source: 'DEFAULT', ruleId: null, unitId: null, unverified: fallback.unverified, provenance };
 }
 
-/** The built-in default as a resolved rule (what a caller reads before the port exists, and what a screen shows as "mặc định"); undefined when there is none. */
+/** The built-in default as a resolved rule (what a caller reads before the port exists, and what a screen shows as "default"); undefined when there is none. */
 export const defaultGovernanceRule = (type: string, code: string): ResolvedGovernanceRule | undefined => resolveGovernanceRule([], type, code, '2000-01-01');
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

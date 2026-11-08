@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 import { metricOfDocument } from '../src/bi-metric.ts';
 import { CONTRACT_ADAPTER, measurePlanOf } from '../src/bi-query.ts';
@@ -9,8 +10,7 @@ const files = existsSync(METRICS) ? readdirSync(METRICS).filter((name) => /^ctr_
 
 describe('CA-1 the metric files of the contract portfolio are queryable over DS-CTR', () => {
   // The YAML library is the one the bundle script loads; the files are read the way it reads them.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const yaml = require('js-yaml') as { load: (text: string) => unknown };
+  const yaml = createRequire(__filename)('js-yaml') as { load: (text: string) => unknown };
 
   it('has the metric files', () => {
     expect(files.length).toBeGreaterThanOrEqual(14);

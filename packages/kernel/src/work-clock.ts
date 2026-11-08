@@ -42,7 +42,7 @@ export interface SnoozePolicy {
   final_notifies_next_level: boolean;
 }
 
-/** G2-1: Cần xử lý at most 3 days, Theo dõi at most 14 days, Khẩn never, two in a row, the last one tells the next level. Starting values to be settled with the customer and the audit, not legal numbers. */
+/** G2-1: Action at most 3 days, Watch at most 14 days, Urgent never, two in a row, the last one tells the next level. Starting values to be settled with the customer and the audit, not legal numbers. */
 export function snoozePolicyDefaults(): SnoozePolicy {
   return {
     reasons: SNOOZE_REASONS,
@@ -95,7 +95,7 @@ export interface ClockPolicy {
   claim_within_working_hours: PerSeverity<number>;
   /** How long an item that has no due day of its own may take, in working hours from the moment it started. An item whose module says a due day keeps that day. */
   resolve_within_working_hours: PerSeverity<number>;
-  /** An item somebody took up that shows no sign of work for this long (working hours) is shown to the next level as "cần nhận lại". */
+  /** An item somebody took up that shows no sign of work for this long (working hours) is shown to the next level as "to be taken back". */
   no_progress_after_working_hours: PerSeverity<number>;
   /** The longest a clock may be paused in one go, in days. */
   max_pause_days: number;

@@ -5,7 +5,7 @@ import type { GovernanceRuleVersion, ResolvedGovernanceRule } from './governance
 /**
  * The KPI register (G0-4, BI 3 F1 and HOME 3 F1): one definition for each indicator, kept as `KPI_DEFINITION` rules of the governance store, so that the command center, the BI boards, the phone and the Excel file
  * all read the same words and the same numbers. This module is pure: the shape of a definition, how one is read out of a rule, the "i" of a figure (formula, source, as-of), the one way a figure is written as text, and the
- * life of a certification (G3-1: Nháp, Đã xác nhận, Đã chứng nhận, Lỗi thời) with the flags that say how far a figure can be trusted. No threshold or definition is a constant here: the defaults are data of `governance-rules`.
+ * life of a certification (G3-1: Draft, Confirmed, Certified, Obsolete) with the flags that say how far a figure can be trusted. No threshold or definition is a constant here: the defaults are data of `governance-rules`.
  */
 
 export const KPI_RULE_TYPE = 'KPI_DEFINITION';
@@ -217,8 +217,8 @@ const reasonText = (note: string | undefined): string | null => {
 };
 
 /**
- * The line that a move adds, or the refusal. A version with no line is Nháp. It is confirmed by one person and certified by another (403 SELF_APPROVAL_DENIED: a certificate is a second pair of eyes); it cannot skip a
- * step (409 STAGE_TRANSITION_DENIED); sending it back to Nháp or making it Lỗi thời needs the reason in words (422 VALIDATION_FAILED on `note`). Lỗi thời is final for that version.
+ * The line that a move adds, or the refusal. A version with no line is Draft. It is confirmed by one person and certified by another (403 SELF_APPROVAL_DENIED: a certificate is a second pair of eyes); it cannot skip a
+ * step (409 STAGE_TRANSITION_DENIED); sending it back to Draft or making it Obsolete needs the reason in words (422 VALIDATION_FAILED on `note`). Obsolete is final for that version.
  */
 export function nextCertification(current: CertLine | undefined, to: CertStatus, input: { actor: string; note?: string | undefined; at: string }): CertLine {
   const from: CertStatus = current?.status ?? 'DRAFT';
@@ -248,7 +248,7 @@ export interface FigureFacts {
 }
 
 /**
- * The flags that sit on a number (G3-1, BI: "cờ chất lượng ngay trên số"): in the order of how much they matter. A figure that has no value says NO_DATA and never reads as 0; one whose version is not
+ * The flags that sit on a number (G3-1, BI: "quality flags on the number itself"): in the order of how much they matter. A figure that has no value says NO_DATA and never reads as 0; one whose version is not
  * certified (or was made obsolete) says so; one older than the lag its definition allows says STALE; one made from part of the data says PARTIAL_COVERAGE.
  */
 export function figureFlags(facts: FigureFacts): FigureFlag[] {

@@ -3,13 +3,14 @@ import { MILESTONE_KINDS } from './procurement-file.ts';
 import type { MilestoneKind } from './procurement-file.ts';
 import { isWorkingDay } from './working-time.ts';
 import type { WorkCalendarSource } from './working-time.ts';
+import { message } from './messages.ts';
 
 /**
  * The workflow of a procurement package (PRC-1, docs/bid-workflow.md): for each way of choosing a contractor, the ordered steps a package passes, the checklist of each step, the evidence each asks for, and the rules that move a
  * package from one step to the next. Looking at ONE package says which step it is at; looking at ONE step says which packages are in it.
  *
  * Everything here is pure. A definition is DATA: the governance rule type `PROCUREMENT_WORKFLOW` (one code per selection method, versioned and approved through the governance store) carries it, and the sequence below is only the built-in
- * default, taken from the order of the Luật Đấu thầu 22/2023/QH15 and written down with `legalStatus: UNVERIFIED`: the durations and the order are a starting value that legal and the procuring entity confirm, never a rule of the code.
+ * default, taken from the order of the Procurement Law 22/2023/QH15 and written down with `legalStatus: UNVERIFIED`: the durations and the order are a starting value that legal and the procuring entity confirm, never a rule of the code.
  * A package that starts takes a frozen copy of the definition (the version of the rule and a hash), so a later change of the rule never moves a package already under way.
  */
 
@@ -85,10 +86,10 @@ export const isEvidenceKind = (code: unknown): code is string => typeof code ===
 export const evidenceKinds = (): EvidenceKindInfo[] => [...EVIDENCE_KINDS.values()];
 export const evidenceKindOf = (code: string): EvidenceKindInfo | undefined => EVIDENCE_KINDS.get(code);
 
-registerEvidenceKind({ code: 'DOCUMENT', source: 'DOCUMENT', label: 'Tài liệu trong kho hồ sơ', module: 'BID' });
-registerEvidenceKind({ code: 'DECISION_DOCUMENT', source: 'DOCUMENT', label: 'Quyết định hoặc văn bản phê duyệt', module: 'BID' });
-registerEvidenceKind({ code: 'MILESTONE', source: 'MILESTONE', label: 'Mốc của gói thầu đã ghi ngày thực tế', module: 'BID' });
-registerEvidenceKind({ code: 'ATTESTATION', source: 'ATTESTATION', label: 'Xác nhận của người phụ trách (có ghi chú)', module: 'BID' });
+registerEvidenceKind({ code: 'DOCUMENT', source: 'DOCUMENT', label: message('bid.workflow.label.document'), module: 'BID' });
+registerEvidenceKind({ code: 'DECISION_DOCUMENT', source: 'DOCUMENT', label: message('bid.workflow.label.decision_document'), module: 'BID' });
+registerEvidenceKind({ code: 'MILESTONE', source: 'MILESTONE', label: message('bid.workflow.label.milestone'), module: 'BID' });
+registerEvidenceKind({ code: 'ATTESTATION', source: 'ATTESTATION', label: message('bid.workflow.label.attestation'), module: 'BID' });
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // The definition.
@@ -278,13 +279,13 @@ export function canonicalWorkflowText(definition: WorkflowDefinition): string {
 export const stepOf = (definition: WorkflowDefinition, code: string): WorkflowStepDef | undefined => definition.steps.find((step) => step.code === code);
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// The built-in default definitions: the sequence of the Luật Đấu thầu 22/2023/QH15, UNVERIFIED.
+// The built-in default definitions: the sequence of the Procurement Law 22/2023/QH15, UNVERIFIED.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export const WORKFLOW_DEFAULTS_AS_OF = '2026-11-08';
-export const WORKFLOW_DEFAULTS_SOURCE = 'Trình tự các bước của Luật Đấu thầu 22/2023/QH15 và văn bản hướng dẫn; số ngày chuẩn là giá trị khởi điểm do người làm hệ thống đặt, chưa đối chiếu văn bản gốc, đơn vị và pháp chế xác nhận trước khi dựa vào';
+export const WORKFLOW_DEFAULTS_SOURCE = message('bid.workflow.workflow_defaults_source');
 export const WORKFLOW_DEFAULTS_FORMULA =
-  'Một gói đi qua các bước theo thứ tự; chỉ sang bước kế khi mọi mục bắt buộc của bước đã xong và đủ bằng chứng (hoặc có ngoại lệ được người khác duyệt); hạn của bước = ngày vào bước cộng số ngày làm việc chuẩn trên lịch làm việc';
+  message('bid.workflow.workflow_defaults_formula');
 
 interface ItemSeed {
   code: string;
@@ -310,234 +311,234 @@ interface StepSeed {
 
 const CATALOGUE: Readonly<Record<string, StepSeed>> = {
   PLAN_SELECTION: {
-    name: 'Lập kế hoạch lựa chọn nhà thầu',
-    entry: 'Dự án có quyết định đầu tư và gói thầu nằm trong kế hoạch lựa chọn nhà thầu',
-    exit: 'Kế hoạch lựa chọn nhà thầu được phê duyệt có quyết định',
+    name: message('bid.workflow.catalogue.plan_selection.name'),
+    entry: message('bid.workflow.catalogue.plan_selection.entry'),
+    exit: message('bid.workflow.catalogue.plan_selection.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 10,
     evidence: ['DECISION_DOCUMENT'],
     maker: true,
     items: [
-      { code: 'PLAN_DRAFTED', name: 'Dự thảo kế hoạch lựa chọn nhà thầu và phần công việc của gói', due: 5, evidence: ['DOCUMENT'], needsEvidence: true },
-      { code: 'PLAN_APPROVED', name: 'Quyết định phê duyệt kế hoạch lựa chọn nhà thầu', due: 10, evidence: ['DECISION_DOCUMENT'], needsEvidence: true },
+      { code: 'PLAN_DRAFTED', name: message('bid.workflow.items.name.plan_drafted'), due: 5, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'PLAN_APPROVED', name: message('bid.workflow.items.name.plan_approved'), due: 10, evidence: ['DECISION_DOCUMENT'], needsEvidence: true },
     ],
   },
   DOC_PREPARE: {
-    name: 'Lập hồ sơ mời thầu / hồ sơ yêu cầu',
-    entry: 'Kế hoạch lựa chọn nhà thầu đã được phê duyệt',
-    exit: 'Hồ sơ đã lập đủ nội dung, có tiêu chí đánh giá',
+    name: message('bid.workflow.catalogue.doc_prepare.name'),
+    entry: message('bid.workflow.catalogue.doc_prepare.entry'),
+    exit: message('bid.workflow.catalogue.doc_prepare.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 15,
     evidence: ['DOCUMENT'],
     items: [
-      { code: 'DOC_DRAFTED', name: 'Dự thảo hồ sơ mời thầu / hồ sơ yêu cầu', due: 12, evidence: ['DOCUMENT'], needsEvidence: true },
-      { code: 'CRITERIA_SET', name: 'Tiêu chí đánh giá và dự toán gói thầu đã chốt', due: 15, evidence: ['DOCUMENT'], needsEvidence: true },
-      { code: 'TECHNICAL_SPEC', name: 'Yêu cầu kỹ thuật được bộ phận chuyên môn xác nhận', required: false, role: 'TECHNICAL_LEAD', due: 10, evidence: ['ATTESTATION'] },
+      { code: 'DOC_DRAFTED', name: message('bid.workflow.items.name.doc_drafted'), due: 12, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'CRITERIA_SET', name: message('bid.workflow.items.name.criteria_set'), due: 15, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'TECHNICAL_SPEC', name: message('bid.workflow.items.name.technical_spec'), required: false, role: 'TECHNICAL_LEAD', due: 10, evidence: ['ATTESTATION'] },
     ],
   },
   DOC_APPRAISE: {
-    name: 'Thẩm định hồ sơ mời thầu',
-    entry: 'Hồ sơ mời thầu đã lập đủ',
-    exit: 'Có báo cáo thẩm định của đơn vị thẩm định',
+    name: message('bid.workflow.catalogue.doc_appraise.name'),
+    entry: message('bid.workflow.catalogue.doc_appraise.entry'),
+    exit: message('bid.workflow.catalogue.doc_appraise.exit'),
     role: 'APPRAISER',
     days: 20,
     evidence: ['DOCUMENT'],
     maker: true,
     items: [
-      { code: 'APPRAISAL_REQUEST', name: 'Văn bản đề nghị thẩm định gửi đơn vị thẩm định', role: 'PROCUREMENT_OFFICER', due: 1, evidence: ['DOCUMENT'], needsEvidence: true },
-      { code: 'APPRAISAL_REPORT', name: 'Báo cáo thẩm định hồ sơ mời thầu', role: 'APPRAISER', due: 20, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'APPRAISAL_REQUEST', name: message('bid.workflow.items.name.appraisal_request'), role: 'PROCUREMENT_OFFICER', due: 1, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'APPRAISAL_REPORT', name: message('bid.workflow.items.name.appraisal_report'), role: 'APPRAISER', due: 20, evidence: ['DOCUMENT'], needsEvidence: true },
     ],
   },
   DOC_APPROVE: {
-    name: 'Phê duyệt hồ sơ mời thầu',
-    entry: 'Có báo cáo thẩm định hồ sơ mời thầu',
-    exit: 'Quyết định phê duyệt hồ sơ mời thầu',
+    name: message('bid.workflow.catalogue.doc_approve.name'),
+    entry: message('bid.workflow.catalogue.doc_approve.entry'),
+    exit: message('bid.workflow.catalogue.doc_approve.exit'),
     role: 'DECISION_AUTHORITY',
     days: 10,
     evidence: ['DECISION_DOCUMENT'],
     maker: true,
-    items: [{ code: 'DOC_APPROVAL_DECISION', name: 'Quyết định phê duyệt hồ sơ mời thầu', role: 'DECISION_AUTHORITY', due: 10, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'DOC_APPROVAL_DECISION', name: message('bid.workflow.catalogue.doc_approve.exit'), role: 'DECISION_AUTHORITY', due: 10, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
   },
   SHORTLIST: {
-    name: 'Phê duyệt danh sách nhà thầu được mời',
-    entry: 'Hồ sơ mời thầu đã được phê duyệt (đấu thầu hạn chế)',
-    exit: 'Danh sách nhà thầu được mời tham gia được phê duyệt',
+    name: message('bid.workflow.catalogue.shortlist.name'),
+    entry: message('bid.workflow.catalogue.shortlist.entry'),
+    exit: message('bid.workflow.catalogue.shortlist.exit'),
     role: 'DECISION_AUTHORITY',
     days: 7,
     evidence: ['DECISION_DOCUMENT'],
     maker: true,
-    items: [{ code: 'SHORTLIST_DECISION', name: 'Quyết định phê duyệt danh sách nhà thầu được mời', role: 'DECISION_AUTHORITY', due: 7, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'SHORTLIST_DECISION', name: message('bid.workflow.items.name.shortlist_decision'), role: 'DECISION_AUTHORITY', due: 7, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
   },
   NOTICE_POST: {
-    name: 'Đăng tải thông báo mời thầu',
-    entry: 'Hồ sơ mời thầu đã được phê duyệt',
-    exit: 'Thông báo mời thầu đã đăng trên hệ thống mạng đấu thầu quốc gia, có biên nhận hoặc ngày đăng',
+    name: message('bid.workflow.catalogue.notice_post.name'),
+    entry: message('bid.workflow.catalogue.notice_post.entry'),
+    exit: message('bid.workflow.catalogue.notice_post.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 3,
     evidence: ['MILESTONE'],
     milestone: 'INVITATION_PUBLISHED',
-    items: [{ code: 'NOTICE_POSTED', name: 'Đăng thông báo mời thầu lên hệ thống mạng đấu thầu quốc gia', due: 3, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'INVITATION_PUBLISHED' }],
+    items: [{ code: 'NOTICE_POSTED', name: message('bid.workflow.items.name.notice_posted'), due: 3, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'INVITATION_PUBLISHED' }],
   },
   DOC_ISSUE: {
-    name: 'Phát hành hồ sơ mời thầu',
-    entry: 'Thông báo mời thầu đã đăng (hoặc thư mời đã gửi)',
-    exit: 'Hồ sơ đã phát hành, hết thời gian chuẩn bị hồ sơ dự thầu',
+    name: message('bid.workflow.catalogue.doc_issue.name'),
+    entry: message('bid.workflow.catalogue.doc_issue.entry'),
+    exit: message('bid.workflow.catalogue.doc_issue.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 20,
     items: [
-      { code: 'DOC_ISSUED', name: 'Phát hành hồ sơ cho nhà thầu, ghi danh sách nhận hồ sơ', due: 1, evidence: ['DOCUMENT'], needsEvidence: true },
-      { code: 'PREP_PERIOD_ELAPSED', name: 'Hết thời gian chuẩn bị hồ sơ dự thầu theo hồ sơ mời thầu', due: 20, evidence: ['ATTESTATION'], needsEvidence: true },
+      { code: 'DOC_ISSUED', name: message('bid.workflow.items.name.doc_issued'), due: 1, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'PREP_PERIOD_ELAPSED', name: message('bid.workflow.items.name.prep_period_elapsed'), due: 20, evidence: ['ATTESTATION'], needsEvidence: true },
     ],
   },
   CLARIFY: {
-    name: 'Làm rõ hồ sơ mời thầu',
-    entry: 'Hồ sơ mời thầu đã phát hành',
-    exit: 'Mọi yêu cầu làm rõ đã được trả lời trước hạn làm rõ',
+    name: message('bid.workflow.catalogue.clarify.name'),
+    entry: message('bid.workflow.catalogue.clarify.entry'),
+    exit: message('bid.workflow.catalogue.clarify.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 3,
     milestone: 'CLARIFICATION_DEADLINE',
-    items: [{ code: 'CLARIFICATIONS_ANSWERED', name: 'Trả lời mọi yêu cầu làm rõ của nhà thầu và gửi cho tất cả nhà thầu nhận hồ sơ', required: false, due: 3, evidence: ['DOCUMENT', 'ATTESTATION'] }],
+    items: [{ code: 'CLARIFICATIONS_ANSWERED', name: message('bid.workflow.items.name.clarifications_answered'), required: false, due: 3, evidence: ['DOCUMENT', 'ATTESTATION'] }],
   },
   BID_CLOSING: {
-    name: 'Đóng thầu',
-    entry: 'Hết thời gian chuẩn bị hồ sơ dự thầu',
-    exit: 'Đã đóng thầu đúng thời điểm trong hồ sơ mời thầu, biên bản tiếp nhận hồ sơ dự thầu',
+    name: message('bid.workflow.catalogue.bid_closing.name'),
+    entry: message('bid.workflow.catalogue.bid_closing.entry'),
+    exit: message('bid.workflow.catalogue.bid_closing.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 1,
     evidence: ['MILESTONE'],
     milestone: 'BID_CLOSING',
-    items: [{ code: 'BID_CLOSED', name: 'Đóng thầu và lập biên bản tiếp nhận hồ sơ dự thầu', due: 1, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'BID_CLOSING' }],
+    items: [{ code: 'BID_CLOSED', name: message('bid.workflow.items.name.bid_closed'), due: 1, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'BID_CLOSING' }],
   },
   BID_OPENING: {
-    name: 'Mở thầu',
-    entry: 'Đã đóng thầu',
-    exit: 'Biên bản mở thầu có đại diện các nhà thầu',
+    name: message('bid.workflow.catalogue.bid_opening.name'),
+    entry: message('bid.workflow.catalogue.bid_opening.entry'),
+    exit: message('bid.workflow.catalogue.bid_opening.exit'),
     role: 'EVALUATION_TEAM',
     days: 1,
     evidence: ['MILESTONE'],
     milestone: 'BID_OPENING',
-    items: [{ code: 'BID_OPENED', name: 'Mở thầu công khai và lập biên bản mở thầu', role: 'EVALUATION_TEAM', due: 1, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'BID_OPENING' }],
+    items: [{ code: 'BID_OPENED', name: message('bid.workflow.items.name.bid_opened'), role: 'EVALUATION_TEAM', due: 1, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'BID_OPENING' }],
   },
   EVALUATE: {
-    name: 'Đánh giá hồ sơ dự thầu',
-    entry: 'Đã mở thầu (hoặc đã nhận hồ sơ đề xuất)',
-    exit: 'Có báo cáo đánh giá được tổ chuyên gia ký',
+    name: message('bid.workflow.catalogue.evaluate.name'),
+    entry: message('bid.workflow.catalogue.evaluate.entry'),
+    exit: message('bid.workflow.catalogue.evaluate.exit'),
     role: 'EVALUATION_TEAM',
     days: 45,
     evidence: ['DOCUMENT'],
     milestone: 'EVALUATION_DONE',
     maker: true,
     items: [
-      { code: 'CONFLICT_DECLARED', name: 'Thành viên tổ chuyên gia đã khai báo không có xung đột lợi ích', role: 'EVALUATION_TEAM', due: 2, evidence: ['ATTESTATION'], needsEvidence: true },
-      { code: 'EVALUATION_REPORT', name: 'Báo cáo đánh giá hồ sơ dự thầu', role: 'EVALUATION_TEAM', due: 45, evidence: ['DOCUMENT', 'MILESTONE'], needsEvidence: true, milestone: 'EVALUATION_DONE' },
+      { code: 'CONFLICT_DECLARED', name: message('bid.workflow.items.name.conflict_declared'), role: 'EVALUATION_TEAM', due: 2, evidence: ['ATTESTATION'], needsEvidence: true },
+      { code: 'EVALUATION_REPORT', name: message('bid.workflow.items.name.evaluation_report'), role: 'EVALUATION_TEAM', due: 45, evidence: ['DOCUMENT', 'MILESTONE'], needsEvidence: true, milestone: 'EVALUATION_DONE' },
     ],
   },
   RESULT_APPRAISE: {
-    name: 'Thẩm định kết quả lựa chọn nhà thầu',
-    entry: 'Có báo cáo đánh giá hồ sơ dự thầu',
-    exit: 'Có báo cáo thẩm định kết quả lựa chọn nhà thầu',
+    name: message('bid.workflow.catalogue.result_appraise.name'),
+    entry: message('bid.workflow.catalogue.result_appraise.entry'),
+    exit: message('bid.workflow.catalogue.result_appraise.exit'),
     role: 'APPRAISER',
     days: 20,
     evidence: ['DOCUMENT'],
     maker: true,
-    items: [{ code: 'RESULT_APPRAISAL_REPORT', name: 'Báo cáo thẩm định kết quả lựa chọn nhà thầu', role: 'APPRAISER', due: 20, evidence: ['DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'RESULT_APPRAISAL_REPORT', name: message('bid.workflow.items.name.result_appraisal_report'), role: 'APPRAISER', due: 20, evidence: ['DOCUMENT'], needsEvidence: true }],
   },
   RESULT_APPROVE: {
-    name: 'Phê duyệt kết quả lựa chọn nhà thầu',
-    entry: 'Có báo cáo thẩm định kết quả',
-    exit: 'Quyết định phê duyệt kết quả lựa chọn nhà thầu',
+    name: message('bid.workflow.catalogue.result_approve.name'),
+    entry: message('bid.workflow.catalogue.result_approve.entry'),
+    exit: message('bid.workflow.catalogue.result_approve.exit'),
     role: 'DECISION_AUTHORITY',
     days: 10,
     evidence: ['DECISION_DOCUMENT'],
     milestone: 'RESULT_APPROVED',
     maker: true,
-    items: [{ code: 'RESULT_DECISION', name: 'Quyết định phê duyệt kết quả lựa chọn nhà thầu', role: 'DECISION_AUTHORITY', due: 10, evidence: ['DECISION_DOCUMENT', 'MILESTONE'], needsEvidence: true, milestone: 'RESULT_APPROVED' }],
+    items: [{ code: 'RESULT_DECISION', name: message('bid.workflow.catalogue.result_approve.exit'), role: 'DECISION_AUTHORITY', due: 10, evidence: ['DECISION_DOCUMENT', 'MILESTONE'], needsEvidence: true, milestone: 'RESULT_APPROVED' }],
   },
   RESULT_POST: {
-    name: 'Đăng tải kết quả lựa chọn nhà thầu',
-    entry: 'Kết quả lựa chọn nhà thầu đã được phê duyệt',
-    exit: 'Kết quả đã đăng trên hệ thống mạng đấu thầu quốc gia và gửi thông báo cho nhà thầu',
+    name: message('bid.workflow.catalogue.result_post.name'),
+    entry: message('bid.workflow.catalogue.result_post.entry'),
+    exit: message('bid.workflow.catalogue.result_post.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 5,
     evidence: ['MILESTONE'],
     milestone: 'RESULT_PUBLISHED',
     items: [
-      { code: 'RESULT_POSTED', name: 'Đăng kết quả lựa chọn nhà thầu lên hệ thống mạng đấu thầu quốc gia', due: 5, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'RESULT_PUBLISHED' },
-      { code: 'CONTRACTORS_NOTIFIED', name: 'Gửi thông báo kết quả cho các nhà thầu tham dự', due: 5, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'RESULT_POSTED', name: message('bid.workflow.items.name.result_posted'), due: 5, evidence: ['MILESTONE', 'DOCUMENT'], needsEvidence: true, milestone: 'RESULT_PUBLISHED' },
+      { code: 'CONTRACTORS_NOTIFIED', name: message('bid.workflow.items.name.contractors_notified'), due: 5, evidence: ['DOCUMENT'], needsEvidence: true },
     ],
   },
   NEGOTIATE: {
-    name: 'Thương thảo, hoàn thiện hợp đồng',
-    entry: 'Có kết quả lựa chọn nhà thầu',
-    exit: 'Biên bản thương thảo và dự thảo hợp đồng đã hoàn thiện',
+    name: message('bid.workflow.catalogue.negotiate.name'),
+    entry: message('bid.workflow.catalogue.negotiate.entry'),
+    exit: message('bid.workflow.catalogue.negotiate.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 15,
     evidence: ['DOCUMENT'],
     items: [
-      { code: 'NEGOTIATION_MINUTES', name: 'Biên bản thương thảo hợp đồng', due: 12, evidence: ['DOCUMENT'], needsEvidence: true },
-      { code: 'CONTRACT_DRAFT_FINAL', name: 'Dự thảo hợp đồng hoàn thiện', due: 15, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'NEGOTIATION_MINUTES', name: message('bid.workflow.items.name.negotiation_minutes'), due: 12, evidence: ['DOCUMENT'], needsEvidence: true },
+      { code: 'CONTRACT_DRAFT_FINAL', name: message('bid.workflow.items.name.contract_draft_final'), due: 15, evidence: ['DOCUMENT'], needsEvidence: true },
     ],
   },
   CONTRACT_SIGN: {
-    name: 'Ký hợp đồng',
-    entry: 'Hợp đồng đã hoàn thiện',
-    exit: 'Hợp đồng đã ký, chuyển sang quản lý hợp đồng',
+    name: message('bid.workflow.catalogue.contract_sign.name'),
+    entry: message('bid.workflow.catalogue.contract_sign.entry'),
+    exit: message('bid.workflow.catalogue.contract_sign.exit'),
     role: 'DECISION_AUTHORITY',
     days: 10,
     evidence: ['MILESTONE'],
     milestone: 'CONTRACT_SIGNED',
     maker: true,
-    items: [{ code: 'CONTRACT_SIGNED_COPY', name: 'Hợp đồng đã ký của hai bên', role: 'DECISION_AUTHORITY', due: 10, evidence: ['DOCUMENT', 'MILESTONE'], needsEvidence: true, milestone: 'CONTRACT_SIGNED' }],
+    items: [{ code: 'CONTRACT_SIGNED_COPY', name: message('bid.workflow.items.name.contract_signed_copy'), role: 'DECISION_AUTHORITY', due: 10, evidence: ['DOCUMENT', 'MILESTONE'], needsEvidence: true, milestone: 'CONTRACT_SIGNED' }],
   },
   PERFORMANCE_GUARANTEE: {
-    name: 'Bảo đảm thực hiện hợp đồng',
-    entry: 'Hợp đồng đã ký',
-    exit: 'Nhà thầu đã nộp bảo đảm thực hiện hợp đồng hợp lệ',
+    name: message('bid.workflow.catalogue.performance_guarantee.name'),
+    entry: message('bid.workflow.catalogue.performance_guarantee.entry'),
+    exit: message('bid.workflow.catalogue.performance_guarantee.exit'),
     role: 'CONTRACT_MANAGER',
     days: 10,
     evidence: ['DOCUMENT'],
-    items: [{ code: 'GUARANTEE_RECEIVED', name: 'Bảo đảm thực hiện hợp đồng của nhà thầu đã được kiểm tra', role: 'CONTRACT_MANAGER', due: 10, evidence: ['DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'GUARANTEE_RECEIVED', name: message('bid.workflow.items.name.guarantee_received'), role: 'CONTRACT_MANAGER', due: 10, evidence: ['DOCUMENT'], needsEvidence: true }],
   },
   TASK_ASSIGN: {
-    name: 'Giao nhiệm vụ tự thực hiện',
-    entry: 'Phương án và dự toán đã được phê duyệt',
-    exit: 'Có quyết định giao nhiệm vụ cho đơn vị tự thực hiện',
+    name: message('bid.workflow.catalogue.task_assign.name'),
+    entry: message('bid.workflow.catalogue.task_assign.entry'),
+    exit: message('bid.workflow.catalogue.task_assign.exit'),
     role: 'DECISION_AUTHORITY',
     days: 5,
     evidence: ['DECISION_DOCUMENT'],
     maker: true,
-    items: [{ code: 'ASSIGNMENT_DECISION', name: 'Quyết định giao nhiệm vụ thực hiện gói thầu', role: 'DECISION_AUTHORITY', due: 5, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'ASSIGNMENT_DECISION', name: message('bid.workflow.items.name.assignment_decision'), role: 'DECISION_AUTHORITY', due: 5, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
   },
   COMMUNITY_AGREEMENT: {
-    name: 'Thỏa thuận với cộng đồng thực hiện',
-    entry: 'Phương án đã được phê duyệt (gói thầu có cộng đồng tham gia)',
-    exit: 'Có biên bản thỏa thuận với cộng đồng dân cư hoặc tổ chức đại diện',
+    name: message('bid.workflow.catalogue.community_agreement.name'),
+    entry: message('bid.workflow.catalogue.community_agreement.entry'),
+    exit: message('bid.workflow.catalogue.community_agreement.exit'),
     role: 'PROCUREMENT_OFFICER',
     days: 10,
     evidence: ['DOCUMENT'],
-    items: [{ code: 'COMMUNITY_MINUTES', name: 'Biên bản thỏa thuận với cộng đồng', due: 10, evidence: ['DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'COMMUNITY_MINUTES', name: message('bid.workflow.items.name.community_minutes'), due: 10, evidence: ['DOCUMENT'], needsEvidence: true }],
   },
   SPECIAL_DECISION: {
-    name: 'Quyết định áp dụng trường hợp đặc biệt',
-    entry: 'Hồ sơ đề nghị áp dụng trường hợp đặc biệt đã lập',
-    exit: 'Có quyết định của cấp có thẩm quyền về trường hợp đặc biệt',
+    name: message('bid.workflow.catalogue.special_decision.name'),
+    entry: message('bid.workflow.catalogue.special_decision.entry'),
+    exit: message('bid.workflow.catalogue.special_decision.exit'),
     role: 'DECISION_AUTHORITY',
     days: 10,
     evidence: ['DECISION_DOCUMENT'],
     maker: true,
-    items: [{ code: 'SPECIAL_CASE_DECISION', name: 'Quyết định áp dụng trường hợp đặc biệt', role: 'DECISION_AUTHORITY', due: 10, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
+    items: [{ code: 'SPECIAL_CASE_DECISION', name: message('bid.workflow.catalogue.special_decision.name'), role: 'DECISION_AUTHORITY', due: 10, evidence: ['DECISION_DOCUMENT'], needsEvidence: true }],
   },
 };
 
 const METHOD_NAMES: Readonly<Record<WorkflowMethod, string>> = {
-  OPEN_BIDDING: 'Quy trình đấu thầu rộng rãi',
-  LIMITED_BIDDING: 'Quy trình đấu thầu hạn chế',
-  DIRECT_APPOINTMENT: 'Quy trình chỉ định thầu',
-  COMPETITIVE_QUOTATION: 'Quy trình chào hàng cạnh tranh',
-  DIRECT_PURCHASE: 'Quy trình mua sắm trực tiếp',
-  SELF_EXECUTION: 'Quy trình tự thực hiện',
-  COMMUNITY_PARTICIPATION: 'Quy trình có cộng đồng tham gia thực hiện',
-  SPECIAL_CASE: 'Quy trình trường hợp đặc biệt',
+  OPEN_BIDDING: message('bid.workflow.method_names.open_bidding'),
+  LIMITED_BIDDING: message('bid.workflow.method_names.limited_bidding'),
+  DIRECT_APPOINTMENT: message('bid.workflow.method_names.direct_appointment'),
+  COMPETITIVE_QUOTATION: message('bid.workflow.method_names.competitive_quotation'),
+  DIRECT_PURCHASE: message('bid.workflow.method_names.direct_purchase'),
+  SELF_EXECUTION: message('bid.workflow.method_names.self_execution'),
+  COMMUNITY_PARTICIPATION: message('bid.workflow.method_names.community_participation'),
+  SPECIAL_CASE: message('bid.workflow.method_names.special_case'),
 };
 
 const METHOD_STEPS: Readonly<Record<WorkflowMethod, readonly string[]>> = {
@@ -909,7 +910,7 @@ export interface StuckPackage {
   basis: 'WORKING_DAYS' | 'CALENDAR_DAYS';
 }
 
-/** The packages that have been in their step longest, longest first (the "gói kẹt lâu nhất" list); `limit` of them. */
+/** The packages that have been in their step longest, longest first (the "packages stuck longest" list); `limit` of them. */
 export function stuckPackages(visits: readonly StepVisitFact[], limit: number): StuckPackage[] {
   return visits
     .filter((visit) => visit.exitedOn === null)
@@ -919,7 +920,9 @@ export function stuckPackages(visits: readonly StepVisitFact[], limit: number): 
 }
 
 /** The KPIs of PRC-1 for the KPI register: their codes, formulas and units (the register reads these; they are defined once). */
+
+/** The KPIs of PRC-1 for the KPI register: their codes, formulas and units (the register reads these; they are defined once). */
 export const WORKFLOW_KPIS = [
-  { code: 'PRC_STEP_ON_TIME_SHARE', unit: 'PERCENT', formula: 'Số lần rời bước đúng hạn / số lần rời bước trong kỳ, mỗi bước của mỗi hình thức; đúng hạn là số ngày làm việc ở bước không vượt số ngày chuẩn của bước' },
-  { code: 'PRC_STEP_MEDIAN_DAYS', unit: 'DAYS', formula: 'Trung vị số ngày làm việc ở bước của các lần rời bước trong kỳ (ngày dương lịch khi lịch làm việc chưa công bố)' },
+  { code: 'PRC_STEP_ON_TIME_SHARE', unit: 'PERCENT', formula: message('bid.workflow.workflow_kpis.formula.prc_step_on_time_share') },
+  { code: 'PRC_STEP_MEDIAN_DAYS', unit: 'DAYS', formula: message('bid.workflow.workflow_kpis.formula.prc_step_median_days') },
 ] as const;

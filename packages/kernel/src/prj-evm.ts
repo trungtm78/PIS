@@ -5,7 +5,7 @@ import { isCalendarDate } from './retention.ts';
 
 /**
  * Earned value of a project, a work package or a contract (G1-4, G1-5; research F01, F02). The planned value comes from the baseline, the earned value only from the quantities that were accepted, the actual cost
- * only from the payments that were certified. What cannot be known is "chưa đủ dữ liệu" with the reason, never a zero: a missing baseline, a package with no contract and money planned for it, a contract with no
+ * only from the payments that were certified. What cannot be known is "not enough data" with the reason, never a zero: a missing baseline, a package with no contract and money planned for it, a contract with no
  * value or no days. The formula of the estimate at completion that was used is part of the answer. Money is whole dong in text, ratios have four decimals; nothing is a float. Pure functions of their input.
  */
 export type EvmMissing = 'NO_BASELINE' | 'NO_CONTRACT_LINK' | 'CONTRACT_VALUE_ZERO' | 'NO_SCHEDULE';
@@ -145,7 +145,7 @@ export function ragOf(index: string | null, policy: Pick<EvmPolicy, 'amberBelow'
 }
 
 /**
- * The nine figures from the four that are measured. With one of them unknown the whole answer is "chưa đủ dữ liệu": every figure empty, the reasons named. The estimate at completion follows the formula of the
+ * The nine figures from the four that are measured. With one of them unknown the whole answer is "not enough data": every figure empty, the reasons named. The estimate at completion follows the formula of the
  * policy: BAC over the cumulative CPI (default), or the actual cost plus the work left at the budgeted rate, or that work over CPI times SPI.
  */
 export function computeEvm(inputs: EvmInputs, method: EacMethod, policy: Pick<EvmPolicy, 'amberBelow' | 'redBelow'>, asOf: string): EvmFigures {

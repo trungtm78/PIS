@@ -28,7 +28,7 @@ export interface FinAssumptionInput {
   key: string;
   /** What the assumption states, in words (for example "8% a year, the rate of the lending programme"). */
   value: string;
-  /** ĐVT: the unit the value is in. */
+  /** Unit of account: the unit the value is in. */
   unit: string;
   sourceKind: string;
   /** The document, estimate or reasoning the value rests on. */

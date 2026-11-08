@@ -1,6 +1,7 @@
 import { DomainError } from './errors.ts';
 import { roundDecimalText } from './kpi-register.ts';
 import type { FigureFlag, KpiPeriod, KpiUnit } from './kpi-register.ts';
+import { message } from './messages.ts';
 
 /**
  * The report engine's pure model (RPT-1): a report form is a grid with EXACT rows and columns, and every cell of it either says a fixed word or is bound to a figure: an indicator of the KPI register (by code and
@@ -117,21 +118,23 @@ const dmy = (day: string): string => {
 
 export type ReportLocale = 'vi' | 'en';
 
-/** The words a form prints for its period: "Tháng 10 năm 2026", "Quý III năm 2026", "6 tháng đầu năm 2026", "Năm 2026", "Tính đến ngày 31/10/2026". */
+/** The words a form prints for its period: "Month 10 of 2026", "Quarter III of 2026", "First 6 months of 2026", "Year 2026", "As of 31/10/2026" (the Vietnamese wording is in the message catalogue). */
+
+/** The words a form prints for its period: "Month 10 of 2026", "Quarter III of 2026", "First 6 months of 2026", "Year 2026", "As of 31/10/2026" (the Vietnamese wording is in the message catalogue). */
 export function periodLabel(period: FormPeriod, locale: ReportLocale = 'vi'): string {
   assertReportPeriod(period);
   const vi = locale === 'vi';
   switch (period.kind) {
     case 'MONTH':
-      return vi ? `Tháng ${period.index} năm ${period.year}` : `${new Date(Date.UTC(2000, (period.index as number) - 1, 1)).toLocaleString('en', { month: 'long', timeZone: 'UTC' })} ${period.year}`;
+      return vi ? message('report.layout.period_label.month', { index: period.index as number, year: period.year }) : `${new Date(Date.UTC(2000, (period.index as number) - 1, 1)).toLocaleString('en', { month: 'long', timeZone: 'UTC' })} ${period.year}`;
     case 'QUARTER':
-      return vi ? `Quý ${ROMAN[period.index as number]} năm ${period.year}` : `Q${period.index} ${period.year}`;
+      return vi ? message('report.layout.period_label.quarter', { roman: ROMAN[period.index as number] as string, year: period.year }) : `Q${period.index} ${period.year}`;
     case 'HALF_YEAR':
-      return vi ? (period.index === 1 ? `6 tháng đầu năm ${period.year}` : `6 tháng cuối năm ${period.year}`) : `H${period.index} ${period.year}`;
+      return vi ? (period.index === 1 ? message('report.layout.period_label.half_year', { year: period.year }) : message('report.layout.period_label.half_year_2', { year: period.year })) : `H${period.index} ${period.year}`;
     case 'YEAR':
-      return vi ? `Năm ${period.year}` : `Year ${period.year}`;
+      return vi ? message('report.layout.period_label.year', { year: period.year }) : `Year ${period.year}`;
     case 'AS_OF':
-      return vi ? `Tính đến ngày ${dmy(period.day as string)}` : `As of ${dmy(period.day as string)}`;
+      return vi ? message('report.layout.period_label.as_of', { p0: dmy(period.day as string) }) : `As of ${dmy(period.day as string)}`;
   }
 }
 
@@ -184,22 +187,24 @@ export function defaultBasisOf(period: KpiPeriod): PeriodBasis {
 
 // ---- units and number formats ------------------------------------------------------------------------------------------------------------------
 
-/** The scale money is written in (ĐVT): dong, thousand, million or billion dong. The source of every money figure is whole dong. */
+/** The scale money is written in (the unit of account): dong, thousand, million or billion dong. The source of every money figure is whole dong. */
 export const MONEY_SCALES = ['VND', 'THOUSAND_VND', 'MILLION_VND', 'BILLION_VND'] as const;
 export type MoneyScale = (typeof MONEY_SCALES)[number];
 const SCALE_PLACES: Record<MoneyScale, number> = { VND: 0, THOUSAND_VND: 3, MILLION_VND: 6, BILLION_VND: 9 };
 /** Places kept when the cell does not say: whole dong, thousand and million, two places for a billion. */
 const SCALE_DECIMALS: Record<MoneyScale, number> = { VND: 0, THOUSAND_VND: 0, MILLION_VND: 0, BILLION_VND: 2 };
 const SCALE_LABEL: Record<ReportLocale, Record<MoneyScale, string>> = {
-  vi: { VND: 'đồng', THOUSAND_VND: 'nghìn đồng', MILLION_VND: 'triệu đồng', BILLION_VND: 'tỷ đồng' },
+  vi: { VND: message('report.layout.scale_label.vi.vnd'), THOUSAND_VND: message('report.layout.scale_label.vi.thousand_vnd'), MILLION_VND: message('report.layout.scale_label.vi.million_vnd'), BILLION_VND: message('report.layout.scale_label.vi.billion_vnd') },
   en: { VND: 'VND', THOUSAND_VND: 'thousand VND', MILLION_VND: 'million VND', BILLION_VND: 'billion VND' },
 };
 
 export const moneyScaleLabel = (scale: MoneyScale, locale: ReportLocale = 'vi'): string => SCALE_LABEL[locale][scale];
 export const isMoneyScale = (value: unknown): value is MoneyScale => (MONEY_SCALES as readonly unknown[]).includes(value);
 
-/** The text a form prints for its unit of account: "Đơn vị tính: triệu đồng". */
-export const unitLine = (scale: MoneyScale, locale: ReportLocale = 'vi'): string => `${locale === 'vi' ? 'Đơn vị tính' : 'Unit'}: ${moneyScaleLabel(scale, locale)}`;
+/** The text a form prints for its unit of account: "Unit of account: million dong" (the Vietnamese wording is in the message catalogue). */
+
+/** The text a form prints for its unit of account: "Unit of account: million dong" (the Vietnamese wording is in the message catalogue). */
+export const unitLine = (scale: MoneyScale, locale: ReportLocale = 'vi'): string => `${locale === 'vi' ? message('report.layout.unit_line') : 'Unit'}: ${moneyScaleLabel(scale, locale)}`;
 
 const DECIMAL = /^-?(0|[1-9]\d*)(\.\d+)?$/;
 
@@ -289,7 +294,7 @@ export interface LayoutRow {
   overflow?: 'EXPAND' | 'REFUSE' | undefined;
 }
 
-/** A column of the form, with its header as a path from the top level (`['Kế hoạch năm', 'Vốn NSNN']`): neighbours with the same upper path form a column group and merge. */
+/** A column of the form, with its header as a path from the top level (`['Annual plan', 'State budget capital']`): neighbours with the same upper path form a column group and merge. */
 export interface LayoutColumn {
   col: number;
   key: string;
@@ -300,14 +305,16 @@ export interface LayoutColumn {
 
 /**
  * PENDING_EXTERNAL: the official template has not arrived, the layout is built from its description and cannot be issued; DRAFT: being worked; READY: matches the confirmed official template; DEMO: a form the system
- * designed itself ("mẫu demo do hệ thống thiết kế, chưa phải mẫu chính thức") that may be issued only while demo forms are switched on, carries the demo mark on every output, and can never become READY or count as
+ * designed itself ("demo form designed by the system, not an official form") that may be issued only while demo forms are switched on, carries the demo mark on every output, and can never become READY or count as
  * accepted (rule R18): the official form is always a NEW layout (version) with a form reference, never a DEMO layout promoted.
  */
 export const LAYOUT_STATUSES = ['PENDING_EXTERNAL', 'DEMO', 'DRAFT', 'READY'] as const;
 export type LayoutStatus = (typeof LAYOUT_STATUSES)[number];
 
 /** The words printed on every output of a DEMO form (header and footer of the file, a visible row of the sheet, the metadata of the issued copy). */
-export const DEMO_MARK = 'MẪU DEMO — chờ mẫu chính thức';
+
+/** The words printed on every output of a DEMO form (header and footer of the file, a visible row of the sheet, the metadata of the issued copy). */
+export const DEMO_MARK = message('report.layout.demo_mark');
 /** The governance rule type that says whether demo forms may be issued (param `demo_forms`, code `DEFAULT`); the environment variable DEMO_FORMS overrides it. */
 export const REPORT_FORM_MODE_RULE_TYPE = 'REPORT_FORM_MODE';
 export const DEMO_FORMS_ENV = 'DEMO_FORMS';
@@ -390,13 +397,15 @@ export function dataRowOf(dataset: string, columns: readonly LayoutColumn[], opt
 const rowsOf = (layout: ReportLayout): LayoutRow[] => [...layout.preface, ...(layout.columns.length === 0 ? [] : headerRowsOf(layout.columns)), ...layout.body];
 
 /** The layout must be a grid that can be placed: positive integer columns and spans, no two cells on the same square, one DATA row per dataset, totals that name a dataset the layout has. */
+
+/** The layout must be a grid that can be placed: positive integer columns and spans, no two cells on the same square, one DATA row per dataset, totals that name a dataset the layout has. */
 export function validateLayout(layout: ReportLayout): void {
   if (!LAYOUT_CODE.test(layout.code) || layout.name.trim() === '' || layout.version.trim() === '' || layout.sheetName.trim() === '') fail('layout');
   if (!(LAYOUT_STATUSES as readonly string[]).includes(layout.status)) fail('layout_status');
   if (!isMoneyScale(layout.moneyScale)) fail('money_scale');
   if (layout.status === 'DEMO') {
     // A demo form is never an official one: no form reference, a name that says so, and the demo mark in a visible cell of the preface.
-    if (layout.formRef !== null || !layout.name.toLowerCase().includes('mẫu demo')) fail('demo_layout');
+    if (layout.formRef !== null || !layout.name.toLowerCase().includes(message('report.layout.validate_layout'))) fail('demo_layout');
     const marked = layout.preface.some((row) => row.cells.some((cell) => cell.binding.kind === 'TEXT' && cell.binding.text.includes(DEMO_MARK)));
     if (!marked) fail('demo_mark_missing');
   }
@@ -830,7 +839,7 @@ export function fillGrid(layout: ReportLayout, data: ReportFillData): FilledGrid
 // ---- narrative (Word) --------------------------------------------------------------------------------------------------------------------------
 
 /**
- * The narrative part of a report (thuyết minh): blocks that the Word writer lays out. Text may carry tokens `{{indicator:CODE}}` or `{{indicator:CODE@BASIS}}` and `{{meta:KEY}}`: `fillNarrative` replaces them with the
+ * The narrative part of a report (the explanatory notes): blocks that the Word writer lays out. Text may carry tokens `{{indicator:CODE}}` or `{{indicator:CODE@BASIS}}` and `{{meta:KEY}}`: `fillNarrative` replaces them with the
  * figure written as the grid writes it, so a sentence and a table can never give two numbers for one indicator. `{{` that is not a token is left as written.
  */
 export type NarrativeBlock =
@@ -924,9 +933,9 @@ export function groupDigits(value: string, locale: ReportLocale = 'vi'): string 
 // ---- the forms the first customer asked for ------------------------------------------------------------------------------------------------------
 
 /**
- * The six forms of the enterprise edition (ENT-1 and RPT-1 plan, "6 biểu mẫu báo cáo"). The official templates have not arrived, so for the demo stage the system designs the six forms itself: each is listed as DEMO
- * ("mẫu demo do hệ thống thiết kế, chưa phải mẫu chính thức"), issuable only in demo mode and stamped with the demo mark. `official` is the acceptance of the form by the customer and stays PENDING_EXTERNAL until the
- * official template arrives and the owner confirms it matches (R18): the catalogue never says a demo form is accepted. The names say "chờ mẫu chính thức" and are never offered as an official form.
+ * The six forms of the enterprise edition (ENT-1 and RPT-1 plan, "six report forms"). The official templates have not arrived, so for the demo stage the system designs the six forms itself: each is listed as DEMO
+ * ("demo form designed by the system, not an official form"), issuable only in demo mode and stamped with the demo mark. `official` is the acceptance of the form by the customer and stays PENDING_EXTERNAL until the
+ * official template arrives and the owner confirms it matches (R18): the catalogue never says a demo form is accepted. The names say "awaiting the official form" and are never offered as an official form.
  */
 export interface ReportFormEntry {
   code: string;
@@ -940,10 +949,10 @@ export interface ReportFormEntry {
 }
 
 export const REPORT_FORM_CATALOGUE: readonly ReportFormEntry[] = Object.freeze([
-  { code: 'PVN-MONTHLY', name: 'Báo cáo tháng gửi Tập đoàn (mẫu demo, chờ mẫu chính thức)', receiver: 'PVN', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
-  { code: 'PVN-QUARTERLY-F2', name: 'Báo cáo quý gửi Tập đoàn, Biểu 2 (mẫu demo, chờ mẫu chính thức)', receiver: 'PVN', period: 'QUARTER', status: 'DEMO', official: 'PENDING_EXTERNAL' },
-  { code: 'HPM-MONTHLY', name: 'Báo cáo tháng theo định dạng HPM (mẫu demo, chờ mẫu chính thức)', receiver: 'HPM', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
-  { code: 'COMMITTEE-PERIODIC', name: 'Báo cáo định kỳ Ủy ban Đầu tư phát triển và Khoa học công nghệ (mẫu demo, chờ mẫu chính thức)', receiver: 'UB-DTPT-KHCN', period: 'QUARTER', status: 'DEMO', official: 'PENDING_EXTERNAL' },
-  { code: 'INVEST-STEERING', name: 'Báo cáo giao ban đầu tư (mẫu demo, chờ mẫu chính thức)', receiver: 'BAN-KHDT', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
-  { code: 'PLANT-PHU-MY', name: 'Báo cáo Nhà máy Đạm Phú Mỹ (mẫu demo, chờ mẫu chính thức)', receiver: 'NMD-PM', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
+  { code: 'PVN-MONTHLY', name: message('report.layout.report_form_catalogue.name.pvn_monthly'), receiver: 'PVN', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
+  { code: 'PVN-QUARTERLY-F2', name: message('report.layout.report_form_catalogue.name.pvn_quarterly_f2'), receiver: 'PVN', period: 'QUARTER', status: 'DEMO', official: 'PENDING_EXTERNAL' },
+  { code: 'HPM-MONTHLY', name: message('report.layout.report_form_catalogue.name.hpm_monthly'), receiver: 'HPM', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
+  { code: 'COMMITTEE-PERIODIC', name: message('report.layout.report_form_catalogue.name.committee_periodic'), receiver: 'UB-DTPT-KHCN', period: 'QUARTER', status: 'DEMO', official: 'PENDING_EXTERNAL' },
+  { code: 'INVEST-STEERING', name: message('report.layout.report_form_catalogue.name.invest_steering'), receiver: 'BAN-KHDT', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
+  { code: 'PLANT-PHU-MY', name: message('report.layout.report_form_catalogue.name.plant_phu_my'), receiver: 'NMD-PM', period: 'MONTH', status: 'DEMO', official: 'PENDING_EXTERNAL' },
 ] satisfies readonly ReportFormEntry[]);

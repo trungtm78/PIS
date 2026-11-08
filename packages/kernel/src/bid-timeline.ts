@@ -3,7 +3,7 @@ import type { EntryKind, ExitKind, WorkflowDefinition } from './bid-workflow.ts'
 import type { WorkCalendarSource } from './working-time.ts';
 
 /**
- * The day-by-day timeline of a package under its workflow (PRC-1, "Cây tiến độ"): every change of state, who made it, how long the package had spent in the state it left, the reason, the evidence, the items of the checklist completed
+ * The day-by-day timeline of a package under its workflow (PRC-1, "process tree"): every change of state, who made it, how long the package had spent in the state it left, the reason, the evidence, the items of the checklist completed
  * that day, the holds, exceptions, returns and corrections, the milestones that came in by hand or from a file of the national bidding network, and the days a clock ran out. `buildPackageTimeline` is the one function that builds it; it
  * only READS facts (the append-only history of the steps, the items, the log of the workflow, the milestones): nothing here is stored or edited, so a timeline is the same every time it is built from the same facts.
  * The same module builds the day groups (`groupTimelineByDay`), the filters (`filterTimeline`), the summary text data (`timelineSummary`), the planned-versus-actual strip (`ganttOf`) and the merged feed of a node of the tree (`mergeRecentChanges`).
@@ -215,7 +215,7 @@ export interface StepSummary {
   current: boolean;
 }
 
-/** "12 ngày ở bước 3, trễ 4 ngày so với chuẩn": one row per step the package has been in, from its visits (an open visit counts up to `today`). */
+/** "12 days in step 3, 4 days late against the standard": one row per step the package has been in, from its visits (an open visit counts up to `today`). */
 export function timelineSummary(definition: WorkflowDefinition, visits: readonly TimelineVisitFact[], today: string, calendars?: WorkCalendarSource): StepSummary[] {
   const byStep = new Map<string, { calendar: number; working: number | null; current: boolean }>();
   for (const visit of visits) {

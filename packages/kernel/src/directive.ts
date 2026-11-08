@@ -1,7 +1,7 @@
 import { DomainError } from './errors.ts';
 
 /**
- * The directives of the steering meetings (customer requirements CN.03 and QT.02, "chỉ đạo giao ban"; governance deepening, lane DIR-1): what the leadership orders in an investment steering meeting, who must do it, by
+ * The directives of the steering meetings (customer requirements CN.03 and QT.02, "steering meeting directives"; governance deepening, lane DIR-1): what the leadership orders in an investment steering meeting, who must do it, by
  * when, and how it is followed until somebody other than the person who recorded it closes it with evidence. Everything here is pure: the thresholds come in as arguments (they are data, a `DirectivePolicy` read
  * through the policy reader of the database side, never a constant of a screen or a controller), and the clock of the caller is a day (`YYYY-MM-DD`, Vietnam time).
  *

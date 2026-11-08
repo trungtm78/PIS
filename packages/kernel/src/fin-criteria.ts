@@ -1,5 +1,6 @@
 import { DomainError } from './errors.ts';
 import { decimalOf, parseScaled } from './fin-analysis.ts';
+import { message } from './messages.ts';
 
 /**
  * The non-financial benefits of an investment (lane FIN-1, customer requirement AI.06): a safety, compliance or maintenance project may have no revenue to put in a cash flow, and the case for it rests on
@@ -35,24 +36,24 @@ export interface FinCriteriaSet {
 }
 
 const SAFETY: FinCriterion[] = [
-  { key: 'accident_risk_reduction', label: 'Giảm nguy cơ tai nạn nghiêm trọng', weightPct: '30' },
-  { key: 'legal_safety_standard', label: 'Đáp ứng quy chuẩn an toàn bắt buộc', weightPct: '25' },
-  { key: 'people_protected', label: 'Số người được bảo vệ', weightPct: '20' },
-  { key: 'incident_history', label: 'Lịch sử sự cố tại hạng mục', weightPct: '15' },
-  { key: 'urgency', label: 'Mức khẩn cấp phải xử lý', weightPct: '10' },
+  { key: 'accident_risk_reduction', label: message('fin.criteria.safety.label.accident_risk_reduction'), weightPct: '30' },
+  { key: 'legal_safety_standard', label: message('fin.criteria.safety.label.legal_safety_standard'), weightPct: '25' },
+  { key: 'people_protected', label: message('fin.criteria.safety.label.people_protected'), weightPct: '20' },
+  { key: 'incident_history', label: message('fin.criteria.safety.label.incident_history'), weightPct: '15' },
+  { key: 'urgency', label: message('fin.criteria.safety.label.urgency'), weightPct: '10' },
 ];
 const COMPLIANCE: FinCriterion[] = [
-  { key: 'legal_obligation', label: 'Nghĩa vụ pháp lý phải thực hiện', weightPct: '35' },
-  { key: 'penalty_avoided', label: 'Mức xử phạt hoặc thiệt hại tránh được', weightPct: '25' },
-  { key: 'audit_finding_closed', label: 'Đóng được kiến nghị của thanh tra, kiểm toán', weightPct: '20' },
-  { key: 'deadline_pressure', label: 'Thời hạn bắt buộc', weightPct: '20' },
+  { key: 'legal_obligation', label: message('fin.criteria.compliance.label.legal_obligation'), weightPct: '35' },
+  { key: 'penalty_avoided', label: message('fin.criteria.compliance.label.penalty_avoided'), weightPct: '25' },
+  { key: 'audit_finding_closed', label: message('fin.criteria.compliance.label.audit_finding_closed'), weightPct: '20' },
+  { key: 'deadline_pressure', label: message('fin.criteria.compliance.label.deadline_pressure'), weightPct: '20' },
 ];
 const MAINTENANCE: FinCriterion[] = [
-  { key: 'asset_condition', label: 'Tình trạng xuống cấp của tài sản', weightPct: '30' },
-  { key: 'service_continuity', label: 'Bảo đảm dịch vụ không gián đoạn', weightPct: '25' },
-  { key: 'cost_of_deferral', label: 'Chi phí phát sinh nếu hoãn', weightPct: '20' },
-  { key: 'lifecycle_extension', label: 'Kéo dài tuổi thọ tài sản', weightPct: '15' },
-  { key: 'energy_environment', label: 'Tiết kiệm năng lượng, môi trường', weightPct: '10' },
+  { key: 'asset_condition', label: message('fin.criteria.maintenance.label.asset_condition'), weightPct: '30' },
+  { key: 'service_continuity', label: message('fin.criteria.maintenance.label.service_continuity'), weightPct: '25' },
+  { key: 'cost_of_deferral', label: message('fin.criteria.maintenance.label.cost_of_deferral'), weightPct: '20' },
+  { key: 'lifecycle_extension', label: message('fin.criteria.maintenance.label.lifecycle_extension'), weightPct: '15' },
+  { key: 'energy_environment', label: message('fin.criteria.maintenance.label.energy_environment'), weightPct: '10' },
 ];
 
 /** The sets in force until a tenant approves its own. Unverified starting values, to be settled with the customer. */
@@ -108,7 +109,7 @@ export interface FinCriteriaResult {
   formula: string;
 }
 
-export const FIN_CRITERIA_FORMULA = 'Điểm có trọng số = Σ (trọng số(i) × điểm(i)) / 100; chỉ số = điểm có trọng số / 5 × 100%';
+export const FIN_CRITERIA_FORMULA = message('fin.criteria.fin_criteria_formula');
 
 /** Scores a set: every criterion needs exactly one whole score from 1 to 5 and the evidence it rests on; a missing, extra or repeated score is refused. */
 export function scoreCriteria(set: FinCriteriaSet, scores: readonly FinCriterionScoreInput[]): FinCriteriaResult {

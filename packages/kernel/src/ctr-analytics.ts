@@ -1,7 +1,7 @@
 import { DomainError } from './errors.ts';
 
 /**
- * Contract analytics (CA-1, plan "nền phân tích hợp đồng", eng-review R12, R16, R17): every indicator of the contract portfolio is defined ONCE, here, as a pure function over plain rows and as an entry in
+ * Contract analytics (CA-1, plan "contract analytics foundation", eng-review R12, R16, R17): every indicator of the contract portfolio is defined ONCE, here, as a pure function over plain rows and as an entry in
  * `CTR_INDICATORS` that says what the number means (formula, numerator, denominator, unit, source tables, null policy). The database view `contract_fact`, the BI dataset `DS-CTR`, the portfolio endpoint, the
  * exports and the screens all read the meaning from here: a number that is computed anywhere else is a second definition of it.
  *

@@ -122,7 +122,7 @@ const SEVERITY: Readonly<Record<RagColor, number>> = { GREEN: 0, AMBER: 0.5, RED
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 /**
- * The reading of one unit or project. A factor with no value takes no part; if the factors that had values carry less of the weight than the model asks, the unit is "chưa đủ dữ liệu" (NO_DATA, no score):
+ * The reading of one unit or project. A factor with no value takes no part; if the factors that had values carry less of the weight than the model asks, the unit is "not enough data" (NO_DATA, no score):
  * a lack of data is never read as green and never as zero.
  */
 export function evaluateRag(model: RagModel, inputs: readonly RagFactorInput[]): RagEvaluation {

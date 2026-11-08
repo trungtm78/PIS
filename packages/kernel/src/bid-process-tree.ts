@@ -3,7 +3,7 @@ import type { EntryKind, WorkflowDefinition, WorkflowStatus } from './bid-workfl
 import type { WorkCalendarSource } from './working-time.ts';
 
 /**
- * The process tree of the packages of a procurement (PRC-1, "Cây tiến độ"): every package is in exactly one state, the states are the steps of the workflow of its selection method (each split into on track, late, returned and on hold),
+ * The process tree of the packages of a procurement (PRC-1, "process tree"): every package is in exactly one state, the states are the steps of the workflow of its selection method (each split into on track, late, returned and on hold),
  * plus the states a package can be in outside the steps (not started, completed, cancelled). The tree says, for every state, how many packages are in it, their total value, their share of all, the median days they have spent in it, how
  * many are late, and how many moved along each edge (from a state to another) during the period; every node also says the path from the root to it, so a click can open the packages of the node.
  *

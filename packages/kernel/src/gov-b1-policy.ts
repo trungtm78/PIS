@@ -33,7 +33,7 @@ export interface EvmPolicy {
 }
 
 export interface DisbursementPreconditionPolicy {
-  /** A project in one of these stages is not on the list of the investment projects, so nothing is paid for it (NĐ 85/2025 Điều 53). */
+  /** A project in one of these stages is not on the list of the investment projects, so nothing is paid for it (Decree 85/2025 Article 53). */
   unlistedStatuses: readonly string[];
   /** A project with no approved amount in the capital plan on the system is refused (the number on the system wins over paper). */
   requireApprovedPlan: boolean;

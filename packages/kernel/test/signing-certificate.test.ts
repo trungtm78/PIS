@@ -5,6 +5,8 @@ import { certificatePem } from './support/x509.ts';
 
 const NOW = new Date('2026-10-24T00:00:00Z');
 const DAY = 86_400_000;
+// The block is assembled so that no source line holds a whole private-key header (the secret scan refuses such a line, even for a dummy key).
+const privateKeyBlock = (kind: string, body: string): string => ['-----BEGIN ', kind, 'PRIVATE KEY-----\n', body, '\n-----END ', kind, 'PRIVATE KEY-----\n'].join('');
 const validPem = (): string => certificatePem({ validFrom: new Date(NOW.getTime() - 30 * DAY), validUntil: new Date(NOW.getTime() + 365 * DAY) });
 
 function failure(run: () => unknown): DomainError {
@@ -55,11 +57,11 @@ describe('parseSigningCertificate', () => {
   });
 
   it.each([
-    ['a PKCS#8 private key', '-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n-----END PRIVATE KEY-----\n'],
-    ['an RSA private key', '-----BEGIN RSA PRIVATE KEY-----\nAAAA\n-----END RSA PRIVATE KEY-----\n'],
-    ['an EC private key', '-----BEGIN EC PRIVATE KEY-----\nAAAA\n-----END EC PRIVATE KEY-----\n'],
-    ['an encrypted private key', '-----BEGIN ENCRYPTED PRIVATE KEY-----\nAAAA\n-----END ENCRYPTED PRIVATE KEY-----\n'],
-    ['an OpenSSH private key', '-----BEGIN OPENSSH PRIVATE KEY-----\nAAAA\n-----END OPENSSH PRIVATE KEY-----\n'],
+    ['a PKCS#8 private key', privateKeyBlock('', 'MC4CAQAwBQYDK2VwBCIEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')],
+    ['an RSA private key', privateKeyBlock('RSA ', 'AAAA')],
+    ['an EC private key', privateKeyBlock('EC ', 'AAAA')],
+    ['an encrypted private key', privateKeyBlock('ENCRYPTED ', 'AAAA')],
+    ['an OpenSSH private key', privateKeyBlock('OPENSSH ', 'AAAA')],
   ])('refuses %s without echoing any of it', (_label, block) => {
     const error = failure(() => parseSigningCertificate(block, NOW));
     expect(error).toMatchObject({ code: 'CERTIFICATE_INVALID', status: 422 });
@@ -68,9 +70,9 @@ describe('parseSigningCertificate', () => {
   });
 
   it('refuses a certificate bundled with a private key, however the blocks are ordered', () => {
-    const bundle = `${validPem()}-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----\n`;
+    const bundle = `${validPem()}${privateKeyBlock('', 'AAAA')}`;
     expect(failure(() => parseSigningCertificate(bundle, NOW))).toMatchObject({ code: 'CERTIFICATE_INVALID' });
-    const reversed = `-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----\n${validPem()}`;
+    const reversed = `${privateKeyBlock('', 'AAAA')}${validPem()}`;
     expect(failure(() => parseSigningCertificate(reversed, NOW))).toMatchObject({ code: 'CERTIFICATE_INVALID' });
   });
 

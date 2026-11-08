@@ -12,9 +12,10 @@ import { readTabularFile } from './tabular-file.ts';
 import { DEFAULT_WORKING_INTERVALS, WORKING_TIME_ZONE, isWorkingDay } from './working-time.ts';
 import type { WorkCalendarContent, WorkCalendarSource, WorkingInterval } from './working-time.ts';
 import type { AdapterStatus, ConnectorMode } from './connector.ts';
+import { message } from './messages.ts';
 
 /**
- * The connector to the national e-procurement network, muasamcong.mof.gov.vn (EGP-1, EGP-2; plan "EGP-1 muasamcong chiều vào"; spec docs/egp-connector.md).
+ * The connector to the national e-procurement network, muasamcong.mof.gov.vn (EGP-1, EGP-2; plan "EGP-1 muasamcong inbound"; spec docs/egp-connector.md).
  *
  * THIS MODULE IS PURE AND NEVER OPENS A CONNECTION. It imports no network module and calls no `fetch`: the file adapter reads bytes a person hands over, the API adapter is a stub that
  * refuses (`EGP_API_UNAVAILABLE`) until the operator of the network publishes a specification and gives the agency access. A test (packages/kernel/test/egp.test.ts) proves both: it
@@ -63,11 +64,11 @@ export const EGP_PENDING_EXTERNAL_ITEMS: readonly EgpPendingExternalItem[] = [
   { code: 'SAMPLE_KHLCNT', what: 'Official sample file of the plan (KHLCNT) and its column specification', owner: 'Operator of the national network', workingAssumption: 'Layout KHLCNT of WORKING-ASSUMPTION-2026.2', switchesWhenItArrives: 'The KHLCNT layout of packages/kernel/src/egp.ts; BID-24 shows the official version' },
   { code: 'SAMPLE_TBMT', what: 'Official sample file of the notice of invitation (TBMT)', owner: 'Operator of the national network', workingAssumption: 'Layout TBMT of WORKING-ASSUMPTION-2026.2', switchesWhenItArrives: 'The TBMT layout' },
   { code: 'SAMPLE_RESULT', what: 'Official sample file of the result of the choice of contractor', owner: 'Operator of the national network', workingAssumption: 'Layout RESULT of WORKING-ASSUMPTION-2026.2', switchesWhenItArrives: 'The RESULT layout' },
-  { code: 'SAMPLE_CONTRACTOR', what: 'Official sample file of the contractor profile (Điều 19 NĐ 214/2025)', owner: 'Operator of the national network', workingAssumption: 'Layout CONTRACTOR of WORKING-ASSUMPTION-2026.2', switchesWhenItArrives: 'The CONTRACTOR layout' },
+  { code: 'SAMPLE_CONTRACTOR', what: message('egp.egp_pending_external_items.what.sample_contractor'), owner: 'Operator of the national network', workingAssumption: 'Layout CONTRACTOR of WORKING-ASSUMPTION-2026.2', switchesWhenItArrives: 'The CONTRACTOR layout' },
   { code: 'SAMPLE_RESTRICTION', what: 'Official sample of the list of contractors under restriction', owner: 'Operator of the national network', workingAssumption: 'Layout RESTRICTION of WORKING-ASSUMPTION-2026.2', switchesWhenItArrives: 'The RESTRICTION layout' },
   { code: 'API_SPECIFICATION', what: 'API specification, credentials and a test environment of the network', owner: 'Operator of the national network', workingAssumption: 'None: the API adapter refuses with EGP_API_UNAVAILABLE', switchesWhenItArrives: 'EgpApiAdapter is implemented; the connector may become VERIFIED' },
   { code: 'POSTING_RECEIPT_FORMAT', what: 'The receipt the network gives for a posting (number, time)', owner: 'Operator of the national network', workingAssumption: 'A free reference typed by the person who posted', switchesWhenItArrives: 'The receipt reference of an obligation is checked against the format' },
-  { code: 'LEGAL_TEXT_DEADLINES', what: 'Official text of the posting deadlines (Luật 22/2023 as amended, NĐ 214/2025 Điều 19-20) read by the legal staff of the customer', owner: 'Legal staff of the customer', workingAssumption: 'Rule EGP_POSTING_DEADLINES default, flagged UNVERIFIED', switchesWhenItArrives: 'The tenant approves its own EGP_POSTING_DEADLINES rule and the flag clears' },
+  { code: 'LEGAL_TEXT_DEADLINES', what: message('egp.egp_pending_external_items.what.legal_text_deadlines'), owner: 'Legal staff of the customer', workingAssumption: 'Rule EGP_POSTING_DEADLINES default, flagged UNVERIFIED', switchesWhenItArrives: 'The tenant approves its own EGP_POSTING_DEADLINES rule and the flag clears' },
 ];
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -95,7 +96,7 @@ export function egpDayOf(cell: string): string | undefined {
 }
 
 /**
- * The tax code (mã số thuế) of a contractor: 10 digits, or 10 digits and a 3 digit branch (`0101234567-001`, also written as 13 digits). Spaces are dropped. A contractor is identified by it,
+ * The tax code (the tax number) of a contractor: 10 digits, or 10 digits and a 3 digit branch (`0101234567-001`, also written as 13 digits). Spaces are dropped. A contractor is identified by it,
  * never by name (BR-BID-01, MDM F5); the check digit is not verified (the algorithm is not in the sources read).
  */
 export function normaliseTaxCode(raw: string): string | undefined {
@@ -121,7 +122,7 @@ export function egpMoneyOf(cell: string): string | undefined {
 export const EGP_LAYOUT_KINDS = ['KHLCNT', 'TBMT', 'RESULT', 'CONTRACTOR', 'RESTRICTION'] as const;
 export type EgpLayoutKind = (typeof EGP_LAYOUT_KINDS)[number];
 
-/** The methods of choosing a contractor (Luật 22/2023, written in the words of the register: `procurement_package.method` reads OPEN_BIDDING). */
+/** The methods of choosing a contractor (Law 22/2023, written in the words of the register: `procurement_package.method` reads OPEN_BIDDING). */
 export const EGP_SELECTION_METHODS = ['OPEN_BIDDING', 'LIMITED_BIDDING', 'DIRECT_APPOINTMENT', 'COMPETITIVE_QUOTATION', 'DIRECT_PURCHASE', 'SELF_EXECUTION', 'COMMUNITY_PARTICIPATION', 'SPECIAL_CASE'] as const;
 export const EGP_NOTICE_KINDS = ['INVITATION', 'MODIFICATION', 'CANCELLATION'] as const;
 export const EGP_RESULT_KINDS = ['AWARDED', 'NO_QUALIFIED_BID', 'CANCELLED'] as const;
@@ -794,7 +795,7 @@ const wordsOf = (name: string): Set<string> =>
     name
       .normalize('NFD')
       .replace(/\p{M}/gu, '')
-      .replace(/đ/gi, 'd')
+      .replace(/\u0111/gi, 'd')
       .toLowerCase()
       .split(/[^a-z0-9]+/)
       .filter((word) => word !== ''),
@@ -1024,7 +1025,7 @@ export function resolveReconciliationItem(item: EgpReconciliationItem, resolutio
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// The obligations to post (Điều 19-20 NĐ 214/2025): kinds, deadlines read from the rule EGP_POSTING_DEADLINES, states, the clock.
+// The obligations to post (Article 19-20 of Decree 214/2025): kinds, deadlines read from the rule EGP_POSTING_DEADLINES, states, the clock.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export const EGP_POSTING_KINDS = ['PLAN', 'NOTICE', 'RESULT', 'CONTRACT_INFO', 'CONTRACTOR_PERFORMANCE', 'VIOLATION', 'REPUTATION_EVENT', 'CONTRACTOR_RESPONSE'] as const;

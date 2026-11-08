@@ -2,7 +2,7 @@ import { DomainError } from './errors.ts';
 import type { DisbursementPreconditionPolicy } from './gov-b1-policy.ts';
 
 /**
- * The precondition of a disbursement (G1-2; NĐ 85/2025 Điều 53, research F-PAY): money is paid only for a project that is on the list of the investment projects and has an approved amount in the capital plan on the
+ * The precondition of a disbursement (G1-2; Decree 85/2025 Article 53, research F-PAY): money is paid only for a project that is on the list of the investment projects and has an approved amount in the capital plan on the
  * system. The number on the system wins over paper: a paper decision that the system does not hold does not open the payment. Each refusal names its cause and the way to fix it, so the person at the counter is never
  * told only "refused". Pure function of its input.
  */

@@ -1,5 +1,6 @@
 import { DomainError } from './errors.ts';
 import { canonicalJson, sha256Hex } from './canonical-json.ts';
+import { TEXT } from './messages/fin-analysis-texts.ts';
 
 /**
  * The financial analysis of an investment (lane FIN-1, customer requirement AI.06): net present value, internal rate of return, payback (simple and discounted), benefit/cost ratio, total cost of
@@ -80,16 +81,18 @@ export const FIN_REASONS = ['NO_SIGN_CHANGE', 'MULTIPLE_ROOTS', 'NO_ROOT_IN_RANG
 export type FinReason = (typeof FIN_REASONS)[number];
 
 /** Why a measure does not apply, in the words of the customer (the screen shows its own text from the i18n keys of the same codes). */
+
+/** Why a measure does not apply, in the words of the customer (the screen shows its own text from the i18n keys of the same codes). */
 export const FIN_REASON_TEXT: Readonly<Record<FinReason, string>> = {
-  NO_SIGN_CHANGE: 'Dòng tiền ròng không đổi dấu (không có cả khoản chi lẫn khoản thu), nên không có tỷ suất nội hoàn.',
-  MULTIPLE_ROOTS: 'Dòng tiền đổi dấu nhiều lần và có nhiều hơn một tỷ suất làm NPV bằng 0; không chọn một tỷ suất nào, hãy dùng NPV.',
-  NO_ROOT_IN_RANGE: 'Tỷ suất làm NPV bằng 0 nằm ngoài khoảng dò từ -99,9% đến 10.000%.',
-  RATE_AT_OR_BELOW_MINUS_100: 'Tỷ lệ chiết khấu từ -100% trở xuống làm hệ số chiết khấu không xác định.',
-  NOT_RECOVERED: 'Vốn chưa được thu hồi trong thời gian phân tích.',
-  NO_OUTLAY: 'Không có khoản chi nào làm lũy kế âm, nên không có vốn để thu hồi.',
-  NO_COSTS: 'Chi phí ròng quy về hiện tại không dương, tỷ số không xác định.',
-  HORIZON_ZERO: 'Thời gian phân tích chỉ có kỳ 0, không có kỳ nào để quy đổi thành chi phí bình quân hằng kỳ.',
-  COMPONENT_ZERO: 'Thành phần này bằng 0 ở mọi kỳ nên không có giá trị chuyển đổi.',
+  NO_SIGN_CHANGE: TEXT.fin_reason_text_no_sign_change,
+  MULTIPLE_ROOTS: TEXT.fin_reason_text_multiple_roots,
+  NO_ROOT_IN_RANGE: TEXT.fin_reason_text_no_root_in_range,
+  RATE_AT_OR_BELOW_MINUS_100: TEXT.fin_reason_text_rate_at_or_below_minus_100,
+  NOT_RECOVERED: TEXT.fin_reason_text_not_recovered,
+  NO_OUTLAY: TEXT.fin_reason_text_no_outlay,
+  NO_COSTS: TEXT.fin_reason_text_no_costs,
+  HORIZON_ZERO: TEXT.fin_reason_text_horizon_zero,
+  COMPONENT_ZERO: TEXT.fin_reason_text_component_zero,
 };
 
 export interface FinAssumption {
@@ -310,16 +313,16 @@ function discountFactor(t: number, rate: Rate, convention: FinConvention): Frac 
 // ---- Measures -------------------------------------------------------------------------------------------------------------------------
 
 const ASSUMPTION = {
-  END_PERIOD: { code: 'END_PERIOD', text: 'Mỗi dòng tiền phát sinh vào cuối kỳ của nó; kỳ 0 là hôm nay và không bị chiết khấu.' },
-  MID_PERIOD: { code: 'MID_PERIOD', text: 'Dòng tiền của kỳ t phát sinh giữa kỳ và bị chiết khấu (t - 1/2) kỳ; kỳ 0 là hôm nay và không bị chiết khấu. Căn bậc hai lấy chính xác đến 36 chữ số thập phân.' },
-  RATE_PER_PERIOD: { code: 'RATE_PER_PERIOD', text: 'Tỷ lệ chiết khấu tính cho một kỳ và không đổi trong suốt thời gian phân tích.' },
-  EXACT_ARITHMETIC: { code: 'EXACT_ARITHMETIC', text: 'Tính bằng số thập phân chính xác (phân số số nguyên lớn); chỉ làm tròn một lần ở kết quả, theo nguyên tắc nửa ra xa số 0.' },
-  IRR_ROOT: { code: 'IRR_ROOT', text: 'IRR là tỷ suất làm NPV bằng 0, tìm bằng cách dò dấu của NPV trên lưới từ -99,9% đến 10.000% rồi chia đôi khoảng; không phụ thuộc quy ước giữa kỳ hay cuối kỳ. Một nghiệm bội chẵn chạm trục mà không đổi dấu không bị phát hiện.' },
-  IRR_UNIQUE: { code: 'IRR_UNIQUE', text: 'Chỉ báo IRR khi có đúng một nghiệm; có nhiều nghiệm thì không báo tỷ suất nào.' },
-  PAYBACK_FIRST: { code: 'PAYBACK_FIRST', text: 'Hoàn vốn là lần đầu lũy kế quay lại không âm sau khi đã âm; dòng tiền trong một kỳ phát sinh đều nên phần lẻ của kỳ được nội suy tuyến tính.' },
-  PAYBACK_DISCOUNTED: { code: 'PAYBACK_DISCOUNTED', text: 'Hoàn vốn có chiết khấu dùng giá trị hiện tại của từng kỳ theo cùng tỷ lệ và quy ước của NPV.' },
-  BCR_NET_COST: { code: 'BCR_NET_COST', text: 'Chi phí ở mẫu số là vốn đầu tư, vận hành và bảo trì, trừ giá trị thu hồi; tử số là lợi ích.' },
-  TCO_RESIDUAL: { code: 'TCO_RESIDUAL', text: 'Giá trị thu hồi làm giảm chi phí sở hữu; chi phí bình quân hằng kỳ là giá trị hiện tại chia cho hệ số niên kim của các kỳ 1..T.' },
+  END_PERIOD: { code: 'END_PERIOD', text: TEXT.end_period_text_end_period },
+  MID_PERIOD: { code: 'MID_PERIOD', text: TEXT.mid_period_text_mid_period },
+  RATE_PER_PERIOD: { code: 'RATE_PER_PERIOD', text: TEXT.rate_per_period_text_rate_per_period },
+  EXACT_ARITHMETIC: { code: 'EXACT_ARITHMETIC', text: TEXT.exact_arithmetic_text_exact_arithmetic },
+  IRR_ROOT: { code: 'IRR_ROOT', text: TEXT.irr_root_text_irr_root },
+  IRR_UNIQUE: { code: 'IRR_UNIQUE', text: TEXT.irr_unique_text_irr_unique },
+  PAYBACK_FIRST: { code: 'PAYBACK_FIRST', text: TEXT.payback_first_text_payback_first },
+  PAYBACK_DISCOUNTED: { code: 'PAYBACK_DISCOUNTED', text: TEXT.payback_discounted_text_payback_discounted },
+  BCR_NET_COST: { code: 'BCR_NET_COST', text: TEXT.bcr_net_cost_text_bcr_net_cost },
+  TCO_RESIDUAL: { code: 'TCO_RESIDUAL', text: TEXT.tco_residual_text_tco_residual },
 } as const satisfies Record<string, FinAssumption>;
 
 const conventionAssumption = (convention: FinConvention): FinAssumption => (convention === 'END' ? ASSUMPTION.END_PERIOD : ASSUMPTION.MID_PERIOD);
@@ -332,7 +335,7 @@ function notApplicable<V>(code: FinMeasureCode, reason: FinReason, formula: stri
   return { code, status: 'NOT_APPLICABLE', value: null, reason, detail, formula, inputs, assumptions };
 }
 
-const NPV_FORMULA = 'NPV = Σ CF(t) / (1 + r)^t, t = 0..T, với CF(t) = lợi ích(t) + giá trị thu hồi(t) - vốn đầu tư(t) - vận hành(t) - bảo trì(t); giữa kỳ: số mũ là (t - 1/2) từ kỳ 1';
+const NPV_FORMULA = TEXT.npv_formula;
 
 /** The net present value of the model. */
 export function npvOf(model: Model): FinMeasure<string> {
@@ -353,7 +356,7 @@ function npvExact(model: Model): Frac | null {
 
 // ---- IRR --------------------------------------------------------------------------------------------------------------------------------
 
-const IRR_FORMULA = 'IRR là r sao cho NPV(r) = Σ CF(t) / (1 + r)^t = 0';
+const IRR_FORMULA = TEXT.irr_formula;
 /** The grid of the scan, in thousandths of the rate: every 0.1% from -99.9% to 100%, every 1% to 1000%, every 10% to 10000%. */
 const GRID: readonly number[] = (() => {
   const out: number[] = [];
@@ -462,8 +465,8 @@ export function irrOf(model: Model): FinMeasure<string> {
 
 // ---- Payback --------------------------------------------------------------------------------------------------------------------------
 
-const PAYBACK_FORMULA = 'Hoàn vốn = (T - 1) + |lũy kế(T - 1)| / dòng tiền(T), với T là kỳ đầu tiên lũy kế quay lại không âm sau khi đã âm';
-const DISCOUNTED_PAYBACK_FORMULA = 'Hoàn vốn có chiết khấu = (T - 1) + |lũy kế PV(T - 1)| / PV dòng tiền(T), với PV(t) = CF(t) / (1 + r)^t';
+const PAYBACK_FORMULA = TEXT.payback_formula;
+const DISCOUNTED_PAYBACK_FORMULA = TEXT.discounted_payback_formula;
 
 function paybackOf(model: Model, discounted: boolean): FinMeasure<string> {
   const code: FinMeasureCode = discounted ? 'DISCOUNTED_PAYBACK' : 'PAYBACK';
@@ -507,7 +510,7 @@ function paybackOf(model: Model, discounted: boolean): FinMeasure<string> {
 
 // ---- Benefit/cost ratio and total cost of ownership -----------------------------------------------------------------------------------------
 
-const BCR_FORMULA = 'B/C = PV(lợi ích) / (PV(vốn đầu tư) + PV(vận hành) + PV(bảo trì) - PV(giá trị thu hồi))';
+const BCR_FORMULA = TEXT.bcr_formula;
 
 export function bcrOf(model: Model): FinMeasure<string> {
   const rate = rateOf(model.ratePct4);
@@ -539,7 +542,7 @@ export interface FinTco {
   capexSharePct: string | null;
 }
 
-const TCO_FORMULA = 'TCO = Σ (vốn đầu tư(t) + vận hành(t) + bảo trì(t) - giá trị thu hồi(t)) / (1 + r)^t; chi phí bình quân hằng kỳ = PV(TCO) / Σ 1 / (1 + r)^t, t = 1..T';
+const TCO_FORMULA = TEXT.tco_formula;
 
 export function tcoOf(model: Model): FinMeasure<FinTco> {
   const rate = rateOf(model.ratePct4);
@@ -757,7 +760,7 @@ export function assertScenarios(scenarios: readonly FinScenarioInput[]): void {
 
 function runScenarios(model: Model, scenarios: readonly FinScenarioInput[]): FinScenarioResult[] {
   assertScenarios(scenarios);
-  const base: FinScenarioResult = { code: 'BASE', label: 'Cơ sở', deltas: {}, headline: headlineOf(model) };
+  const base: FinScenarioResult = { code: 'BASE', label: TEXT.base_label_base, deltas: {}, headline: headlineOf(model) };
   return [
     base,
     ...scenarios.map((scenario, index): FinScenarioResult => ({ code: scenario.code, label: scenario.label, deltas: scenario.deltas, headline: headlineOf(applyDeltas(model, exactDeltas(scenario.deltas, `scenarios[${index}].deltas`), `scenarios[${index}].deltas`)) })),
