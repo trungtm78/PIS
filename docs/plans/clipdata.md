@@ -29,10 +29,10 @@ real HTTP commands of the product (real personas, real maker-checker and approva
 - [x] 0. Research the surface (API cheat sheets, existing seeds, stack).
 - [x] 1. Pure planner + fixtures + `clip-seed.mjs` (plan/apply/verify skeleton) + tests `scripts/clip-seed.test.mjs`.
 - [x] 2. Run the existing groups on a fresh docs stack (baseline proof), fix what is broken (appropriation of the programme fund, document seed route).
-- [~] 3. Public groups: portfolio of 45 projects with central/local/ODA lines DONE and run; contractors DONE; 14 procurement plans / 42 packages created and submitted DONE; approval and the package workflow driver WRITTEN but BLOCKED (needs an issued decision, the document seed of the guide fails at template_code); contracts, payments NOT DONE.
-- [ ] 4. Public groups: e-GP import and obligations, finance feed and committee, alerts, directives, accounts. NOT DONE (hooks and cheat sheet in docs/clip-data.md).
-- [~] 5. Enterprise stack switch DONE; groups for projects, equity/loan funding, directives, EBS import and reconciliation DONE and run; PVN forms and HPM push NOT DONE.
-- [x] 6. Each dataset run on a local stack with `verify` green (public: 13 checks; enterprise: 5 checks); stack stopped.
+- [~] 3. Public groups: portfolio, contractors, plans, workflows at seven clocks, contracts (written, not yet run), alerts (written, not yet run); measurements, payments, advances NOT DONE.
+- [~] 4. e-GP DONE and run; Treasury statement, snapshots, committee roster DONE and run; finance feed and directives WRITTEN, not yet run; alerts WRITTEN; BI NOT DONE (no route stores the metric bundle).
+- [~] 5. Enterprise stack switch, projects, funding, directives, EBS DONE and run; PVN/HPM group WRITTEN, not yet run.
+- [~] 6. Early runs verified; the full phased public run reached the end; the last groups wait for a stack window (the coordinator stopped the stack).
 - [x] 7. `docs/clip-data.md`; gates; Codex review (gpt-6-astra) and triage; final report.
 
 ## Tests per step
