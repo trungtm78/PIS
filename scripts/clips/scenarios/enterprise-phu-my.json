@@ -1,0 +1,1386 @@
+{
+  "schema": "clip-scenario/1",
+  "clip": "enterprise-phu-my",
+  "edition": "enterprise",
+  "title": "Phần mềm quản lý đầu tư xây dựng",
+  "summary": "Intro clip of the enterprise edition for Dam Phu My (PVFCCo): investment and equipment purchase projects, equity and loan capital, reports to the group, HPM push, accounting reconciliation, meeting directives, the leader PWA. Every name, figure and form is illustrative; the six forms are DEMO forms stamped as such.",
+  "data": {
+    "tenant": "enterprise edition, illustrative PVFCCo tenant (no customer figure is used)",
+    "seedGroups": [
+      "base"
+    ],
+    "newSeedGroups": [
+      {
+        "name": "clip-enterprise-capital",
+        "purpose": "Real commands: the enterprise funding pack (equity, loan, other), the original and adjusted year plan, quarter and month phasing, estimates replaced by actuals with the conversion history."
+      },
+      {
+        "name": "clip-enterprise-projects",
+        "purpose": "Real commands: the illustrative projects of packages/edition-enterprise (investment, asset purchase, fixed asset purchase, major repair) through the stage gates, appraisal scoring and a feasibility run."
+      },
+      {
+        "name": "clip-enterprise-reports",
+        "purpose": "Real commands: indicator dictionary, entry rules, period data entered and closed, the six DEMO forms filled and one issued copy by three different people."
+      },
+      {
+        "name": "clip-enterprise-integration",
+        "purpose": "Real commands: the period approval workflow, a file written for HPM with a retry and a refused stale version, an accounting (EBS) file imported and reconciled, a directive board from two meetings."
+      },
+      {
+        "name": "clip-public-alerts",
+        "purpose": "Shared with the public clip: alerts of three severities, one snoozed, one escalated, an absence delegation."
+      },
+      {
+        "name": "clip-public-contractors",
+        "purpose": "Shared with the public clip: contractors, a restriction, evaluations, concentration."
+      },
+      {
+        "name": "clip-public-packages",
+        "purpose": "Shared with the public clip: procurement packages spread over the process tree."
+      }
+    ],
+    "fixtures": {
+      "ebs-ledger-sample": "Accounting ledger file in the assumed layout with two projects whose figures differ from the reported ones",
+      "excel-entry-sample": "Excel entry file mapped by the approved entry mapping version"
+    }
+  },
+  "figures": {
+    "ent-total-investment": {
+      "kind": "money-billion",
+      "sample": 4820.6,
+      "digits": 1,
+      "description": "Total investment of the projects in scope, from the enterprise KPI pack (ENT_TOTAL_INVESTMENT).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_TOTAL_INVESTMENT].value"
+      }
+    },
+    "ent-plan-year": {
+      "kind": "money-billion",
+      "sample": 912.3,
+      "digits": 1,
+      "description": "Capital plan of the year in force (ENT_PLAN_IN_FORCE).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_PLAN_IN_FORCE].value"
+      }
+    },
+    "ent-rate-disbursed": {
+      "kind": "percent",
+      "sample": 58.7,
+      "digits": 1,
+      "description": "Disbursement since the start of the year against the plan of the year (ENT_RATE_DISBURSED_YTD).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_RATE_DISBURSED_YTD].value"
+      }
+    },
+    "ent-projects-total": {
+      "kind": "count",
+      "sample": 38,
+      "description": "Projects in scope (ENT_PROJECTS_TOTAL).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_PROJECTS_TOTAL].value"
+      }
+    },
+    "ent-projects-delayed": {
+      "kind": "count",
+      "sample": 7,
+      "description": "Projects behind schedule (ENT_PROJECTS_DELAYED).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_PROJECTS_DELAYED].value"
+      }
+    },
+    "ent-share-equity": {
+      "kind": "percent",
+      "sample": 63.2,
+      "digits": 1,
+      "description": "Equity share of the year plan (ENT_SHARE_EQUITY).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_SHARE_EQUITY].value"
+      }
+    },
+    "ent-share-debt": {
+      "kind": "percent",
+      "sample": 31.5,
+      "digits": 1,
+      "description": "Loan share of the year plan (ENT_SHARE_DEBT).",
+      "source": {
+        "operation": "getKpiRegister",
+        "select": "kpis[code=ENT_SHARE_DEBT].value"
+      }
+    },
+    "ent-ebs-differences": {
+      "kind": "count",
+      "sample": 2,
+      "description": "Open differences between reported and accounting figures after the accounting file import.",
+      "source": {
+        "operation": "listEbsReconciliationItems",
+        "select": "meta.open_count"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {
+    "title-enterprise": {
+      "kind": "animatic",
+      "description": "Title card with the enterprise product name, the illustrative data line and the demo form stamp."
+    },
+    "problem-enterprise": {
+      "kind": "animatic",
+      "description": "Monthly and quarterly reports to the group built by hand from spreadsheets, HPM and the accounting system that disagree."
+    },
+    "platform-enterprise": {
+      "kind": "animatic",
+      "description": "One platform with the enterprise edition on top: its own names, capital structure, forms, and the links to HPM, the accounting system, the lakehouse, Power BI and the open interface."
+    },
+    "outro-enterprise": {
+      "kind": "animatic",
+      "description": "Closing card for the enterprise edition."
+    }
+  },
+  "typed": {},
+  "chapters": [
+    {
+      "id": "intro",
+      "title": "Giới thiệu phần mềm",
+      "summary": "The product, the problem and the platform of the enterprise edition.",
+      "standalone": false
+    },
+    {
+      "id": "leader-home",
+      "title": "Tổng quan điều hành",
+      "summary": "The leader overview of the enterprise edition."
+    },
+    {
+      "id": "capital",
+      "title": "Cơ cấu vốn và kế hoạch",
+      "summary": "Enterprise capital structure, plan versions, estimates and actuals."
+    },
+    {
+      "id": "projects",
+      "title": "Dự án đầu tư xây dựng",
+      "summary": "Stage gates, appraisal scoring, feasibility analysis, post investment evaluation."
+    },
+    {
+      "id": "reports-pvn",
+      "title": "Báo cáo gửi Tập đoàn",
+      "summary": "Indicator dictionary and entry rules, the report generator, the six demo forms, issued copies."
+    },
+    {
+      "id": "workflow",
+      "title": "Quy trình duyệt số liệu kỳ",
+      "summary": "Period approval flow with deadlines, closing and the phone."
+    },
+    {
+      "id": "hpm-ebs",
+      "title": "Đẩy số HPM và đối chiếu kế toán",
+      "summary": "HPM push with an idempotency key, refusal of stale versions, accounting reconciliation, lakehouse and open API."
+    },
+    {
+      "id": "directives",
+      "title": "Chỉ đạo giao ban",
+      "summary": "Meeting directives followed to the end and fed into the next report."
+    },
+    {
+      "id": "docs-ai",
+      "title": "Hồ sơ dự án và trợ lý AI",
+      "summary": "The project document store with OCR and versions, the AI assistant on a self-hosted model."
+    },
+    {
+      "id": "close",
+      "title": "Tin cậy và kết thúc",
+      "summary": "On-premises, single sign-on, immutable backups and the closing card.",
+      "standalone": false
+    }
+  ],
+  "scenes": [
+    {
+      "id": "ent-intro-title",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Phần mềm quản lý đầu tư xây dựng của Đạm Phú Mỹ theo dõi dự án từ kế hoạch vốn đến báo cáo gửi Tập đoàn. Dữ liệu trong đoạn phim là minh họa, và sáu biểu mẫu là mẫu demo, chờ mẫu chính thức.",
+      "screen": {
+        "platform": "title",
+        "screens": [],
+        "animatic": "title-enterprise"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "title-enterprise"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Dữ liệu minh họa",
+          "atSec": 1,
+          "forSec": 5
+        },
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 6,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "illustrative-data",
+        "demo-form"
+      ],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "ent-intro-problem",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Tổng công ty phải báo cáo tháng, quý cho Tập đoàn, đẩy số sang HPM và đối chiếu với kế toán Oracle EBS. Số liệu nằm ở nhiều bảng tính, vốn chủ sở hữu và vốn vay mỗi nơi tính một kiểu, báo cáo mất nhiều ngày để ghép.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "problem-enterprise"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "problem-enterprise"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.1
+    },
+    {
+      "id": "ent-intro-platform",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Đây là bản doanh nghiệp của cùng một nền tảng, riêng từ tên gọi, menu đến cơ cấu vốn và biểu mẫu. Nó nối với HPM, kế toán Oracle EBS, Lakehouse, Power BI và giao diện mở API.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "platform-enterprise"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "platform-enterprise"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "ent-home",
+      "chapter": "leader-home",
+      "main": true,
+      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, giải ngân lũy kế {{figure:ent-rate-disbursed}}, và {{figure:ent-projects-delayed}} trên {{figure:ent-projects-total}} dự án đang chậm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-09",
+          "HOME-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-09"
+        },
+        {
+          "do": "spot",
+          "ref": "home.context-bar"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.home.kpi-strip"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Dữ liệu minh họa",
+          "atSec": 1,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 18.1
+    },
+    {
+      "include": "shared/leader-home.json"
+    },
+    {
+      "id": "ent-capital",
+      "chapter": "capital",
+      "main": true,
+      "narration": "Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-share-equity}}, vốn vay {{figure:ent-share-debt}} và vốn khác. Kế hoạch có bản giao đầu năm và bản hiện hành, chia theo quý và tháng. Số ước được thay bằng số thực khi có.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-07",
+          "planned:ent-capital-structure"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "HOME-07"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.capital.structure-bar"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-capital-structure"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.capital.estimate-to-actual"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.5
+    },
+    {
+      "id": "ent-plan-versions",
+      "chapter": "capital",
+      "main": false,
+      "narration": "Mỗi năm có kế hoạch giao đầu năm, các bản điều chỉnh và bản đang hiệu lực. Bản nào cũng giữ người lập, người duyệt và lý do. Số lũy kế tính cả từ đầu năm lẫn từ khi khởi công, và không bao giờ vượt tổng mức đầu tư.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-03",
+          "CAP-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-07"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.versions.compare"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17
+    },
+    {
+      "id": "ent-estimate-actual",
+      "chapter": "capital",
+      "main": false,
+      "narration": "Số ước của kỳ được ghi trước, khi số thực về thì thay vào và giữ lại lịch sử chuyển đổi. Số kế toán và số báo cáo có thứ tự ưu tiên ghi trong quy tắc, và mọi con số trên biểu mẫu truy được về nguồn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-12",
+          "CAP-13"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-12"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.estimates.conversion-history"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16
+    },
+    {
+      "id": "ent-funding-pack",
+      "chapter": "capital",
+      "main": false,
+      "narration": "Cơ cấu vốn là một quy tắc có phiên bản. Gói của đầu tư công giữ nguyên nguồn hiện có, gói doanh nghiệp là vốn chủ sở hữu, vốn vay và khác. Đổi sang gói khác không làm đổi một con số nào của bản công.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-19",
+          "ADM-20"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-20"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.rules.funding-taxonomy"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "ent-gates",
+      "chapter": "projects",
+      "main": true,
+      "narration": "Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt. Thẩm định chấm điểm theo tiêu chí đã công bố.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-14",
+          "PRJ-15"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-14"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.lifecycle.gates"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-15"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.appraisal.criteria-scores"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "ent-npv",
+      "chapter": "projects",
+      "main": true,
+      "narration": "Phân tích khả thi tính NPV, IRR, thời gian hoàn vốn và TCO bằng hàm có kiểm chứng, kèm kịch bản và độ nhạy. Mô hình chỉ hỗ trợ, quyết định thuộc hội đồng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-24",
+          "planned:feasibility"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "PRJ-24"
+        },
+        {
+          "do": "click",
+          "ref": "prj.feasibility.run-scenarios"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.feasibility.sensitivity"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "ent-kinds",
+      "chapter": "projects",
+      "main": false,
+      "narration": "Bốn loại hình cùng một quy trình: đầu tư xây dựng cơ bản, mua sắm tài sản, mua sắm tài sản cố định và sửa chữa lớn. Mỗi loại có nhóm riêng trên biểu mẫu báo cáo, và có chung đường cơ sở, rủi ro và giá trị thu được.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-01",
+          "PRJ-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-01"
+        },
+        {
+          "do": "choose",
+          "ref": "prj.list.kind-filter",
+          "option": "first"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "ent-post-investment",
+      "chapter": "projects",
+      "main": false,
+      "narration": "Sau khi vận hành, hệ thống đặt chỉ tiêu mục tiêu lúc phê duyệt cạnh kết quả thực tế. Đánh giá sau đầu tư tự được lên lịch khi bàn giao tài sản, và bài học kinh nghiệm được ghi lại cho dự án sau.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "MNE-08",
+          "AST-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-08"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.evaluation.target-vs-actual"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "ent-risks",
+      "chapter": "projects",
+      "main": false,
+      "narration": "Sổ rủi ro chấm điểm trước và sau phản ứng, và tự kích hoạt khi chỉ số chi phí hay tiến độ xấu đi. Dự phòng chỉ được rút gắn với một rủi ro hoặc một lệnh thay đổi, và mỗi lần rút đều bất biến.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-16",
+          "PRJ-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-16"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.risk.before-after-score"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "rpt-dictionary",
+      "chapter": "reports-pvn",
+      "main": true,
+      "narration": "Từ điển chỉ tiêu định nghĩa mỗi con số một lần. Quy tắc nhập kiểm ngay khi gõ: lũy kế không vượt tổng mức, vốn chủ sở hữu cộng vốn vay bằng tổng, kỳ đã chốt không sửa được.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ent-indicator-dictionary",
+          "planned:ent-entry-rules"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-indicator-dictionary"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.dictionary.indicator-row"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-entry-rules"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.entry-rules.violation-hint"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.3
+    },
+    {
+      "id": "rpt-generate",
+      "chapter": "reports-pvn",
+      "main": true,
+      "narration": "Bộ sinh báo cáo điền thẳng vào tệp Excel mẫu, giữ nguyên bố cục, hàng tổng là công thức thật. Phần thuyết minh sinh ra tệp Word, các con số trong lời văn lấy từ cùng chỉ tiêu nên không lệch với bảng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:report-generate"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:report-generate"
+        },
+        {
+          "do": "choose",
+          "ref": "rpt.generate.form",
+          "option": "first"
+        },
+        {
+          "do": "click",
+          "ref": "rpt.generate.fill-template"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.generate.preview-sheet"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "rpt-six-forms",
+      "chapter": "reports-pvn",
+      "main": true,
+      "narration": "Có sáu biểu mẫu gửi Tập đoàn, HPM, ủy ban, giao ban và nhà máy Đạm Phú Mỹ. Cả sáu hiện là mẫu demo do hệ thống tự thiết kế, đóng dấu chờ mẫu chính thức, không bao giờ tính là nghiệm thu chính thức.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:report-forms"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "planned:report-forms"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.forms.status-column"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.forms.demo-stamp"
+        }
+      ],
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 5,
+          "forSec": 8
+        }
+      ],
+      "stamps": [
+        "demo-form"
+      ],
+      "expectedSec": 16
+    },
+    {
+      "id": "rpt-issue",
+      "chapter": "reports-pvn",
+      "main": true,
+      "narration": "Bản phát hành theo kỳ không sửa được và có mã băm. Người lập, người kiểm tra và người duyệt là ba người khác nhau. Sửa số đã phát hành phải tạo phiên bản mới có lý do, bản cũ vẫn giữ nguyên.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:report-issued"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:report-issued"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.issued.three-roles"
+        },
+        {
+          "do": "command",
+          "operation": "issueReportCopy",
+          "as": "mneAdmin"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Lập ≠ kiểm ≠ duyệt",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "rpt-naming",
+      "chapter": "reports-pvn",
+      "main": false,
+      "narration": "Tên tệp tuân theo quy tắc đặt tên: mã biểu, kỳ, phiên bản và một đoạn mã băm của nội dung. Cùng đầu vào thì ra một tệp giống hệt, nên bên nhận kiểm được tệp mình nhận có đúng bản đã phát hành hay không.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:report-issued"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:report-issued"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.issued.file-name"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "rpt-word",
+      "chapter": "reports-pvn",
+      "main": false,
+      "narration": "Thuyết minh bằng Word có khung sẵn cho các biểu quý, ủy ban, giao ban và nhà máy. Phần máy điền là con số lấy từ chỉ tiêu, phần người viết là chỗ trống có ghi chú. Dấu mẫu demo in ở đầu mỗi trang.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:report-generate"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:report-generate"
+        },
+        {
+          "do": "click",
+          "ref": "rpt.generate.word-narrative"
+        }
+      ],
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "demo-form"
+      ],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "wf-flow",
+      "chapter": "workflow",
+      "main": true,
+      "narration": "Số liệu kỳ đi qua một quy trình: đơn vị nhập, người duyệt đơn vị, Ban Kế hoạch đầu tư rà soát, chốt kỳ rồi đẩy số. Mỗi bước có hạn và nhắc việc, trả lại phải nêu lý do, và kênh Microsoft Teams báo tin cho người đến lượt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-18",
+          "planned:period-flow"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:period-flow"
+        },
+        {
+          "do": "spot",
+          "ref": "wf.period.step-deadlines"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-18"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.5
+    },
+    {
+      "id": "wf-close",
+      "chapter": "workflow",
+      "main": false,
+      "narration": "Chốt kỳ đóng băng số liệu thành ảnh chụp bất biến. Sai sót sau chốt không sửa đè mà đi đường điều chỉnh, có lý do và người duyệt. Lãnh đạo duyệt ngay trên điện thoại hoặc PWA.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-21",
+          "DIS-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-21"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.freeze.snapshot-hash"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "wf-warnings",
+      "chapter": "workflow",
+      "main": false,
+      "narration": "Người duyệt có thể gửi trả kèm cảnh báo: dòng nào vượt quy tắc nhập, dòng nào thiếu bằng chứng. Đơn vị sửa đúng chỗ được chỉ ra, rồi trình lại, và lịch sử trả lại và trình lại được giữ đủ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-06",
+          "DIS-08"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-06"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.review.warnings"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "wf-teams",
+      "chapter": "workflow",
+      "main": false,
+      "narration": "Người đến lượt duyệt nhận tin ngay trong kênh Microsoft Teams của đơn vị, kèm đường dẫn mở đúng hồ sơ. Tin trên Teams không chứa số tiền, chỉ báo có việc chờ, và việc duyệt vẫn làm trong hệ thống.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-06",
+          "NOT-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-06"
+        },
+        {
+          "do": "spot",
+          "ref": "not.workflow.teams-channel-step"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "hpm-push",
+      "chapter": "hpm-ebs",
+      "main": true,
+      "narration": "Kỳ đã chốt được đẩy sang HPM. Mỗi lần đẩy có khóa theo tổ chức, kỳ và phiên bản báo cáo, nên gửi lại không bao giờ trùng. Hiện bộ ghi tệp chuẩn thay chỗ HPM, là giả định tạm chờ thông tin kỹ thuật chính thức.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:hpm-push"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:hpm-push"
+        },
+        {
+          "do": "spot",
+          "ref": "hpm.push.idempotency-key"
+        },
+        {
+          "do": "click",
+          "ref": "hpm.push.retry"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
+          "atSec": 6,
+          "forSec": 8
+        }
+      ],
+      "stamps": [
+        "external-assumption"
+      ],
+      "expectedSec": 17.3
+    },
+    {
+      "id": "hpm-stale",
+      "chapter": "hpm-ebs",
+      "main": false,
+      "narration": "Bản báo cáo cũ hơn bản HPM đã nhận bị từ chối kèm lý do. Muốn ghi đè một kỳ đã được nhận, phải mở lại kỳ, có điều chỉnh được duyệt, và việc đó ghi vào nhật ký kiểm toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:hpm-push",
+          "ADM-11"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "planned:hpm-push"
+        },
+        {
+          "do": "spot",
+          "ref": "hpm.push.stale-refusal"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "ebs-reconcile",
+      "chapter": "hpm-ebs",
+      "main": true,
+      "narration": "Số kế toán từ Oracle EBS được nhập và đối chiếu theo mã dự án, hiện còn {{figure:ent-ebs-differences}} chênh lệch. Mỗi chênh lệch cần giải trình của người phụ trách. Mẫu tệp là giả định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ebs-reconcile"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ebs-reconcile"
+        },
+        {
+          "do": "upload",
+          "operation": "importEbsLedger",
+          "fixture": "ebs-ledger-sample"
+        },
+        {
+          "do": "spot",
+          "ref": "ebs.reconcile.difference-rows"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
+          "atSec": 5,
+          "forSec": 8
+        }
+      ],
+      "stamps": [
+        "external-assumption"
+      ],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "ent-lake-api",
+      "chapter": "hpm-ebs",
+      "main": false,
+      "narration": "Cho kho dữ liệu Lakehouse và Power BI, mỗi tổ chức có một tài khoản chỉ đọc riêng trên các bảng xem đã chứng nhận, và chỉ thấy dòng của tổ chức mình. Giao diện mở API có tài liệu, tài khoản máy, phạm vi và giới hạn tần suất.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:open-api"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:open-api"
+        },
+        {
+          "do": "spot",
+          "ref": "int.open-api.machine-accounts"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.8
+    },
+    {
+      "id": "ent-cross-code",
+      "chapter": "hpm-ebs",
+      "main": false,
+      "narration": "Một dự án có thể mang nhiều mã ở nhiều hệ thống: kế toán, HPM, mạng đấu thầu. Bảng ánh xạ chung nối các mã đó, mỗi nối có hiệu lực theo ngày, người đề xuất khác người duyệt, và không bao giờ nối ngầm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-23",
+          "MDM-35"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-35"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.crosswalk.multi-system-codes"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "dir-track",
+      "chapter": "directives",
+      "main": true,
+      "narration": "Chỉ đạo giao ban được ghi từ cuộc họp: đơn vị thực hiện, hạn, tiến độ và bằng chứng. Chỉ đạo quá hạn nổi lên đầu bảng, gia hạn phải có lý do, và chỉ đạo của kỳ tự đưa vào báo cáo kỳ sau.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIR-01",
+          "DIR-03",
+          "DIR-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "DIR-03"
+        },
+        {
+          "do": "click",
+          "ref": "dir.board.first-overdue"
+        },
+        {
+          "do": "spot",
+          "ref": "dir.detail.timeline"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "dir-meeting",
+      "chapter": "directives",
+      "main": false,
+      "narration": "Mỗi cuộc giao ban là một bản ghi: thành phần, nội dung và các chỉ đạo đã giao. Mỗi chỉ đạo giao cho một đơn vị với hạn rõ ràng, người được giao nhận việc rồi báo cáo tiến độ kèm bằng chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIR-01",
+          "DIR-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "DIR-02"
+        },
+        {
+          "do": "spot",
+          "ref": "dir.meeting.directive-list"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "dir-present",
+      "chapter": "directives",
+      "main": false,
+      "narration": "Dashboard có chế độ trình chiếu cho phòng họp: so với cùng kỳ, chỉ đạo quá hạn, dự án vướng thủ tục. Trên điện thoại, danh sách chỉ đạo cho phép người được giao cập nhật tiến độ ngay tại hiện trường.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIR-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "DIR-05"
+        },
+        {
+          "do": "click",
+          "ref": "dir.dashboard.presentation-mode"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "dir-feed",
+      "chapter": "directives",
+      "main": false,
+      "narration": "Chỉ đạo của kỳ trở thành đầu vào của báo cáo kỳ sau: báo cáo tự liệt kê chỉ đạo đã hoàn thành, đang làm và quá hạn, không ai phải chép lại.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIR-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "DIR-05"
+        },
+        {
+          "do": "spot",
+          "ref": "dir.feed.next-period-input"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.1
+    },
+    {
+      "id": "doc-repo",
+      "chapter": "docs-ai",
+      "main": true,
+      "narration": "Hồ sơ dự án nằm trong một kho: PDF, Word, Excel, có phân loại và ngày hiệu lực. Chữ trong ảnh quét được nhận dạng bằng OCR và dẫn nguồn về đúng trang. Mỗi phiên bản có góp ý riêng, so sánh được, và bản đã duyệt bị khóa.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:doc-repository"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "planned:doc-repository"
+        },
+        {
+          "do": "click",
+          "ref": "doc.repo.first-file"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.repo.ocr-citation"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "ai-assistant",
+      "chapter": "docs-ai",
+      "main": true,
+      "narration": "Trợ lý AI trả lời, tóm tắt và dự thảo thuyết minh, mỗi nhận định dẫn tới trang và đoạn. Ở bản doanh nghiệp, AI chạy trên mô hình tự đặt tại máy chủ của Tổng công ty, nhà cung cấp ngoài tắt mặc định. AI không quyết định thanh toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ai-assistant",
+          "LLM-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "planned:ai-assistant"
+        },
+        {
+          "do": "click",
+          "ref": "ai.assistant.ask"
+        },
+        {
+          "do": "spot",
+          "ref": "ai.assistant.citations"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "ai-review",
+      "chapter": "docs-ai",
+      "main": false,
+      "narration": "Trước khi trình, AI rà soát hồ sơ: thiếu tài liệu nào, số nào lệch giữa thuyết minh và biểu mẫu. Kết quả là gợi ý có dẫn nguồn, người lập hồ sơ quyết định sửa hay không, và mọi gợi ý được ghi lại.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ai-assistant"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "planned:ai-assistant"
+        },
+        {
+          "do": "click",
+          "ref": "ai.assistant.review-dossier"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "doc-flow",
+      "chapter": "docs-ai",
+      "main": false,
+      "narration": "Hồ sơ trình duyệt đi theo giai đoạn, có thể song song, có bổ sung và trình lại. Mỗi lần bổ sung giữ phiên bản cũ, người duyệt thấy rõ phần nào đã thay đổi so với lần trước.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:doc-repository",
+          "DOC-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-04"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.review.stage-bar"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.3
+    },
+    {
+      "include": "shared/analytics.json"
+    },
+    {
+      "include": "shared/alerts.json"
+    },
+    {
+      "include": "shared/contractors.json"
+    },
+    {
+      "include": "shared/process-tree.json"
+    },
+    {
+      "include": "shared/phone.json"
+    },
+    {
+      "id": "ent-close-trust",
+      "chapter": "close",
+      "main": true,
+      "narration": "Phần mềm cài đặt tại chỗ của Tổng công ty: đăng nhập một lần qua AD kèm xác thực hai lớp, sao lưu có bản bất biến, được kiểm thử bảo mật độc lập. Mọi thay đổi đều ghi nhật ký kiểm toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-11",
+          "ADM-14"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-14"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.security.sso-mfa"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "ent-close-outro",
+      "chapter": "close",
+      "main": true,
+      "narration": "Từ kế hoạch vốn đến báo cáo gửi Tập đoàn, một nền tảng, một bộ chỉ tiêu, mỗi con số có nguồn. Đội ngũ đầu tư ít chép số hơn, lãnh đạo thấy sớm hơn, và kiểm toán dựng lại được từng kỳ.",
+      "screen": {
+        "platform": "title",
+        "screens": [],
+        "animatic": "outro-enterprise"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "outro-enterprise"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    }
+  ]
+}

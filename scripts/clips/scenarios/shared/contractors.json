@@ -1,0 +1,367 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "contractors",
+  "title": "Quản lý nhà thầu và nhà cung cấp",
+  "summary": "Contractor and supplier management: the master profile and verification, restrictions with a procedure, the performance scorecard, concentration and workload, the link to the national procurement network, red flags for the auditors, the contractor portal.",
+  "figures": {
+    "hhi": {
+      "kind": "count",
+      "sample": 1480,
+      "description": "Herfindahl index of contract value across contractors, 0 to 10000, joint-venture value split by share.",
+      "source": {
+        "operation": "getContractReport",
+        "select": "rows[code=CONCENTRATION].summary.hhi"
+      }
+    },
+    "top5-share": {
+      "kind": "percent",
+      "sample": 41.5,
+      "digits": 1,
+      "description": "Share of contract value held by the five largest contractors.",
+      "source": {
+        "operation": "getContractReport",
+        "select": "rows[code=CONCENTRATION].summary.top5_share_pct"
+      }
+    },
+    "single-bid-rate": {
+      "kind": "percent",
+      "sample": 12.5,
+      "digits": 1,
+      "description": "Share of packages that had a single bidder.",
+      "source": {
+        "operation": "getContractReport",
+        "select": "rows[code=CONCENTRATION].summary.single_bidder_pct"
+      }
+    }
+  },
+  "literalNumbers": {
+    "12": "the roadmap defines 12 procurement red flag indicators (G4-3)"
+  },
+  "animatics": {},
+  "typed": {
+    "restriction.reason": "Nhà thầu vi phạm nghĩa vụ bảo hành theo quyết định đã ban hành"
+  },
+  "scenes": [
+    {
+      "id": "vnd-registry",
+      "chapter": "contractors",
+      "main": true,
+      "narration": "Mỗi nhà thầu có một hồ sơ chủ: kiểm mã số thuế, gợi ý hợp nhất hồ sơ trùng. Tài khoản nhận tiền cần hai người duyệt và gọi xác nhận lại. Tài khoản chưa hiệu lực thì chặn thanh toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-01",
+          "BID-02",
+          "planned:vendor-bank-accounts"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-01"
+        },
+        {
+          "do": "click",
+          "ref": "bid.contractors.first-row"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.contractor.master-profile"
+        },
+        {
+          "do": "open",
+          "screen": "planned:vendor-bank-accounts"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.bank-accounts.two-approvers"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Một hồ sơ chủ · tài khoản nhận tiền hai người duyệt",
+          "atSec": 2,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "vnd-restrictions",
+      "chapter": "contractors",
+      "main": true,
+      "narration": "Hạn chế tham gia đấu thầu đi đủ thủ tục: đề nghị, thông báo, phản hồi, quyết định, hiệu lực. Có hiệu lực thì chặn cả liên danh ở khâu dự thầu, hợp đồng, thầu phụ và thanh toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-21"
+        },
+        {
+          "do": "click",
+          "ref": "bid.restrictions.new"
+        },
+        {
+          "do": "type",
+          "ref": "bid.restrictions.reason",
+          "textKey": "restriction.reason"
+        },
+        {
+          "do": "command",
+          "operation": "recordContractorRestriction",
+          "as": "bidManager"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.3
+    },
+    {
+      "id": "vnd-scorecard",
+      "chapter": "contractors",
+      "main": true,
+      "narration": "Bảng điểm chấm năm tiêu chí theo trọng số của quy tắc. Người chấm khác người duyệt. Vi phạm do một người ghi, người khác xác nhận, và hình phạt phải có văn bản quyết định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-23"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-23"
+        },
+        {
+          "do": "click",
+          "ref": "ctr.scorecard.new-evaluation"
+        },
+        {
+          "do": "command",
+          "operation": "evaluateContractor",
+          "as": "ctrOfficer"
+        },
+        {
+          "do": "as",
+          "persona": "paymentApprover"
+        },
+        {
+          "do": "command",
+          "operation": "approveContractorEvaluation",
+          "as": "paymentApprover"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Người chấm ≠ người duyệt",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 12.7
+    },
+    {
+      "id": "vnd-concentration",
+      "chapter": "contractors",
+      "main": true,
+      "narration": "Chỉ số tập trung HHI là {{figure:hhi}} trên thang không đến mười nghìn, năm nhà thầu lớn nhất giữ {{figure:top5-share}} giá trị, gói chỉ một nhà thầu chiếm {{figure:single-bid-rate}}. Giá trị liên danh chia theo phần góp.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-31"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-31"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.concentration.hhi-tile"
+        },
+        {
+          "do": "click",
+          "ref": "ctr.concentration.top5-table"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.1
+    },
+    {
+      "id": "vnd-egp-link",
+      "chapter": "contractors",
+      "main": false,
+      "narration": "Quản lý nhà thầu nối với mạng đấu thầu quốc gia qua nhập và xuất tệp: nhận danh sách hạn chế, đăng tải đánh giá thực hiện hợp đồng trong thời hạn, và đối chiếu từng trường giữa số của mình với số trên mạng. Hệ thống không quét trang web.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-22",
+          "BID-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-22"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.connection-card"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Chỉ nhập và xuất tệp, không quét trang web",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 16.9
+    },
+    {
+      "id": "vnd-redflag",
+      "chapter": "contractors",
+      "main": false,
+      "narration": "Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn, chẳng hạn chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:red-flag-board"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "planned:red-flag-board"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.red-flags.indicator-list"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Tín hiệu để điều tra, không phải kết luận",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 19.7
+    },
+    {
+      "id": "vnd-portal",
+      "chapter": "contractors",
+      "main": false,
+      "narration": "Nhà thầu có cổng riêng: xem hồ sơ và đánh giá của chính mình, phản hồi trong thời hạn, tải chứng chỉ mới và tái xác nhận hằng năm. Nhà thầu không thấy chỉ báo đáng ngờ và không thấy dữ liệu của nhà thầu khác.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:vendor-portal"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "planned:vendor-portal"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.my-evaluations"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "vnd-subcontract",
+      "chapter": "contractors",
+      "main": false,
+      "narration": "Nhà thầu phụ được đăng ký trên hợp đồng, và nhà thầu chính phải xác nhận đã trả tiền cho thầu phụ. Chứng chỉ và nhân sự chủ chốt có hạn, hết hạn thì cảnh báo tới đúng người.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:vendor-subcontracts",
+          "CTR-25"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "planned:vendor-subcontracts"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.subcontracts.paid-confirmation"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.3
+    },
+    {
+      "id": "vnd-bonds",
+      "chapter": "contractors",
+      "main": false,
+      "narration": "Bảo lãnh dự thầu, bảo lãnh thực hiện và bảo lãnh tạm ứng được theo dõi đến ngày hết hạn. Khi nhà thầu vi phạm, việc tịch thu bảo đảm đi theo quyết định có người duyệt. Tải đồng thời của từng nhà thầu hiện ngay để tránh giao quá sức.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-05",
+          "planned:vendor-workload"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-05"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.guarantees.expiry-column"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.3
+    }
+  ]
+}

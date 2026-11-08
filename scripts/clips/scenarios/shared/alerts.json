@@ -1,0 +1,338 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "alerts",
+  "title": "Cảnh báo",
+  "summary": "The alert centre: bell and drawer, three severities, claim, assign and snooze with a reason and a cap, two clocks, escalation, absence delegation, the alert type register, the delivery ladder and the health page of the alert system.",
+  "figures": {
+    "alerts-urgent": {
+      "kind": "count",
+      "sample": 4,
+      "description": "Open alerts of severity Urgent for the reader.",
+      "source": {
+        "operation": "getMyWorkCounts",
+        "select": "counts.urgent"
+      }
+    },
+    "alerts-action": {
+      "kind": "count",
+      "sample": 11,
+      "description": "Open alerts of severity Action for the reader.",
+      "source": {
+        "operation": "getMyWorkCounts",
+        "select": "counts.action"
+      }
+    },
+    "alerts-watch": {
+      "kind": "count",
+      "sample": 7,
+      "description": "Open alerts of severity Watch for the reader.",
+      "source": {
+        "operation": "getMyWorkCounts",
+        "select": "counts.watch"
+      }
+    }
+  },
+  "literalNumbers": {
+    "14": "the alert health page measures 14 KPIs (roadmap G2-10)"
+  },
+  "animatics": {},
+  "typed": {
+    "snooze.reason": "Chờ biên bản nghiệm thu bổ sung từ chủ đầu tư"
+  },
+  "scenes": [
+    {
+      "id": "al-bell",
+      "chapter": "alerts",
+      "main": true,
+      "narration": "Chuông Cần xử lý gom mọi việc vào một ngăn kéo, theo ba mức: Khẩn, Cần xử lý, Theo dõi. Hôm nay có {{figure:alerts-urgent}} mục Khẩn, {{figure:alerts-action}} Cần xử lý, {{figure:alerts-watch}} Theo dõi, mỗi mục nói rõ hậu quả.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-01",
+          "HOME-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-01"
+        },
+        {
+          "do": "click",
+          "ref": "shell.alert-bell"
+        },
+        {
+          "do": "spot",
+          "ref": "alerts.drawer.consequence-line"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Khẩn · Cần xử lý · Theo dõi",
+          "atSec": 2,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "al-actions",
+      "chapter": "alerts",
+      "main": true,
+      "narration": "Người nhận có thể nhận việc, giao cho người khác hoặc hoãn. Hoãn phải có lý do và có trần số ngày. Mục Khẩn thì máy chủ từ chối hoãn. Mọi thao tác ghi nhật ký kiểm toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-02",
+          "HOME-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-02"
+        },
+        {
+          "do": "click",
+          "ref": "alerts.item.claim"
+        },
+        {
+          "do": "click",
+          "ref": "alerts.item.snooze"
+        },
+        {
+          "do": "type",
+          "ref": "alerts.snooze.reason",
+          "textKey": "snooze.reason"
+        },
+        {
+          "do": "command",
+          "operation": "snoozeWork",
+          "as": "projectManager"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Hoãn phải có lý do và có trần",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 13.7
+    },
+    {
+      "id": "al-escalation",
+      "chapter": "alerts",
+      "main": true,
+      "narration": "Cảnh báo không bao giờ mồ côi. Người nhận im lặng quá hạn thì việc tự leo lên cấp trên. Người đi vắng ủy quyền, và hệ thống kiểm tra độ phủ ủy quyền.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-04",
+          "HOME-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-04"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.delegation.coverage-check"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-06"
+        },
+        {
+          "do": "spot",
+          "ref": "alerts.record.escalation-trail"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.1
+    },
+    {
+      "id": "al-health",
+      "chapter": "alerts",
+      "main": true,
+      "narration": "Chính hệ thống cảnh báo cũng được đo. Trang sức khỏe theo dõi 14 chỉ số, như thời gian nhận, thời gian xử lý, tỷ lệ đúng hạn, leo thang và cảnh báo mồ côi.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:alert-health"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "planned:alert-health"
+        },
+        {
+          "do": "spot",
+          "ref": "alerts.health.kpi-grid"
+        }
+      ],
+      "captions": [
+        {
+          "text": "14 chỉ số sức khỏe hệ thống cảnh báo",
+          "atSec": 2,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 12.4
+    },
+    {
+      "id": "al-clocks",
+      "chapter": "alerts",
+      "main": false,
+      "narration": "Mỗi cảnh báo chạy hai đồng hồ: từ lúc đến tới lúc nhận, và từ lúc đến tới lúc xử lý. Đã nhận mà im lặng thì chuyển sang trạng thái cần nhận lại. Tạm dừng đồng hồ phải có lý do và người cho phép.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-06"
+        },
+        {
+          "do": "spot",
+          "ref": "alerts.record.two-clocks"
+        },
+        {
+          "do": "click",
+          "ref": "alerts.record.pause-clock"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "al-types",
+      "chapter": "alerts",
+      "main": false,
+      "narration": "Sổ loại cảnh báo là nơi duy nhất sinh ra cảnh báo. Mỗi loại ghi chủ sở hữu, hành động mong đợi, hậu quả, thời hạn đáp ứng, lý do tồn tại và ngày xét lại. Loại nào thiếu một trong các mục đó thì không được đăng ký.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-23",
+          "ADM-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-23"
+        },
+        {
+          "do": "click",
+          "ref": "adm.alert-types.first-row"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.alert-types.required-fields"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "al-channels",
+      "chapter": "alerts",
+      "main": false,
+      "narration": "Thông báo đi theo thang kênh: trong ứng dụng, đẩy lên điện thoại, rồi tin nhắn hoặc Zalo. Mỗi lần gửi có biên nhận giao nhận. Giờ yên tĩnh được tôn trọng, trừ mục Khẩn quá hạn nhận. Nội dung đẩy không chứa số tiền hay tên người, chỉ có đường dẫn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-03",
+          "NOT-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-03"
+        },
+        {
+          "do": "spot",
+          "ref": "not.preferences.quiet-hours"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-12"
+        },
+        {
+          "do": "spot",
+          "ref": "not.journey.delivery-receipts"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "al-feedback",
+      "chapter": "alerts",
+      "main": false,
+      "narration": "Khi một cảnh báo không đúng, người nhận bấm nút cảnh báo này không đúng và chọn lý do. Phản hồi đi vào hàng đợi của chủ loại cảnh báo để chỉnh quy tắc. Nhờ vậy cảnh báo ngày càng ít nhiễu mà không bỏ sót việc thật.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-06"
+        },
+        {
+          "do": "click",
+          "ref": "alerts.record.report-wrong"
+        },
+        {
+          "do": "choose",
+          "ref": "alerts.record.wrong-reason",
+          "option": "first"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    }
+  ]
+}

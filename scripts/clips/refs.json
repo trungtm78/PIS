@@ -1,0 +1,650 @@
+{
+  "schema": "clip-refs/1",
+  "note": "Symbolic UI references of the scenario step lists. The recorder spec binds each to a locator (a test id, a role and name from the string tables, or a component hook). Descriptions are in English.",
+  "refs": {
+    "adm.alert-types.first-row": {
+      "screen": "ADM-23",
+      "what": "alert types / first row (adm)"
+    },
+    "adm.alert-types.required-fields": {
+      "screen": "ADM-23",
+      "what": "alert types / required fields (adm)"
+    },
+    "adm.audit-log.latest-rows": {
+      "screen": "ADM-11",
+      "what": "audit log / latest rows (adm)"
+    },
+    "adm.delegation.coverage-check": {
+      "screen": "ADM-04",
+      "what": "delegation / coverage check (adm)"
+    },
+    "adm.rules.funding-taxonomy": {
+      "screen": "ADM-19",
+      "what": "rules / funding taxonomy (adm)"
+    },
+    "adm.security.sso-mfa": {
+      "screen": "ADM-11",
+      "what": "security / sso mfa (adm)"
+    },
+    "ai.assistant.ask": {
+      "screen": "planned:ai-assistant",
+      "what": "assistant / ask (ai)"
+    },
+    "ai.assistant.citations": {
+      "screen": "planned:ai-assistant",
+      "what": "assistant / citations (ai)"
+    },
+    "ai.assistant.review-dossier": {
+      "screen": "planned:ai-assistant",
+      "what": "assistant / review dossier (ai)"
+    },
+    "alerts.drawer.consequence-line": {
+      "screen": "HOME-01",
+      "what": "drawer / consequence line (alerts)"
+    },
+    "alerts.health.kpi-grid": {
+      "screen": "planned:alert-health",
+      "what": "health / kpi grid (alerts)"
+    },
+    "alerts.item.claim": {
+      "screen": "HOME-02",
+      "what": "item / claim (alerts)"
+    },
+    "alerts.item.package-overdue": {
+      "screen": "HOME-02",
+      "what": "item / package overdue (alerts)"
+    },
+    "alerts.item.snooze": {
+      "screen": "HOME-02",
+      "what": "item / snooze (alerts)"
+    },
+    "alerts.record.escalation-trail": {
+      "screen": "ADM-04",
+      "what": "record / escalation trail (alerts)"
+    },
+    "alerts.record.pause-clock": {
+      "screen": "HOME-06",
+      "what": "record / pause clock (alerts)"
+    },
+    "alerts.record.report-wrong": {
+      "screen": "HOME-06",
+      "what": "record / report wrong (alerts)"
+    },
+    "alerts.record.two-clocks": {
+      "screen": "HOME-06",
+      "what": "record / two clocks (alerts)"
+    },
+    "alerts.record.wrong-reason": {
+      "screen": "HOME-06",
+      "what": "record / wrong reason (alerts)"
+    },
+    "alerts.snooze.reason": {
+      "screen": "HOME-02",
+      "what": "snooze / reason (alerts)"
+    },
+    "aud.integrity.findings": {
+      "screen": "AUD-12",
+      "what": "integrity / findings (aud)"
+    },
+    "aud.red-flags.indicator-list": {
+      "screen": "planned:red-flag-board",
+      "what": "red flags / indicator list (aud)"
+    },
+    "bi.chart-builder.dataset": {
+      "screen": "BI-02",
+      "what": "chart builder / dataset (bi)"
+    },
+    "bi.chart-builder.save": {
+      "screen": "BI-02",
+      "what": "chart builder / save (bi)"
+    },
+    "bi.dashboard.open-chart-builder": {
+      "screen": "BI-02",
+      "what": "dashboard / open chart builder (bi)"
+    },
+    "bi.datasets.certify-button": {
+      "screen": "BI-18",
+      "what": "datasets / certify button (bi)"
+    },
+    "bi.datasets.state-column": {
+      "screen": "BI-18",
+      "what": "datasets / state column (bi)"
+    },
+    "bi.kpi-register.formula-panel": {
+      "screen": "BI-20",
+      "what": "kpi register / formula panel (bi)"
+    },
+    "bi.kpi-register.info-button": {
+      "screen": "BI-20",
+      "what": "kpi register / info button (bi)"
+    },
+    "bi.lineage.trace-metric": {
+      "screen": "BI-14",
+      "what": "lineage / trace metric (bi)"
+    },
+    "bi.publication.compare-versions": {
+      "screen": "BI-11",
+      "what": "publication / compare versions (bi)"
+    },
+    "bi.schedule.new": {
+      "screen": "BI-12",
+      "what": "schedule / new (bi)"
+    },
+    "bi.schedule.recipients-scope": {
+      "screen": "BI-12",
+      "what": "schedule / recipients scope (bi)"
+    },
+    "bid.board.column-totals": {
+      "screen": "BID-28",
+      "what": "board / column totals (bid)"
+    },
+    "bid.board.filter-late-only": {
+      "screen": "BID-28",
+      "what": "board / filter late only (bid)"
+    },
+    "bid.bottleneck.export-xlsx": {
+      "screen": "BID-30",
+      "what": "bottleneck / export xlsx (bid)"
+    },
+    "bid.bottleneck.step-medians": {
+      "screen": "BID-30",
+      "what": "bottleneck / step medians (bid)"
+    },
+    "bid.contractor.master-profile": {
+      "screen": "BID-01",
+      "what": "contractor / master profile (bid)"
+    },
+    "bid.contractors.first-row": {
+      "screen": "BID-01",
+      "what": "contractors / first row (bid)"
+    },
+    "bid.definition.method": {
+      "screen": "BID-31",
+      "what": "definition / method (bid)"
+    },
+    "bid.definition.step-list": {
+      "screen": "BID-31",
+      "what": "definition / step list (bid)"
+    },
+    "bid.egp.connection-card": {
+      "screen": "BID-22",
+      "what": "egp / connection card (bid)"
+    },
+    "bid.egp.connection-freshness": {
+      "screen": "BID-22",
+      "what": "egp / connection freshness (bid)"
+    },
+    "bid.egp.import.already-applied": {
+      "screen": "BID-24",
+      "what": "egp / import / already applied (bid)"
+    },
+    "bid.egp.import.apply": {
+      "screen": "BID-24",
+      "what": "egp / import / apply (bid)"
+    },
+    "bid.egp.import.dry-run": {
+      "screen": "BID-24",
+      "what": "egp / import / dry run (bid)"
+    },
+    "bid.egp.import.kind": {
+      "screen": "BID-24",
+      "what": "egp / import / kind (bid)"
+    },
+    "bid.egp.import.layout-version": {
+      "screen": "BID-24",
+      "what": "egp / import / layout version (bid)"
+    },
+    "bid.egp.import.row-errors": {
+      "screen": "BID-24",
+      "what": "egp / import / row errors (bid)"
+    },
+    "bid.egp.mapping.approve": {
+      "screen": "BID-23",
+      "what": "egp / mapping / approve (bid)"
+    },
+    "bid.egp.mapping.first-suggestion": {
+      "screen": "BID-23",
+      "what": "egp / mapping / first suggestion (bid)"
+    },
+    "bid.egp.obligations.clock-column": {
+      "screen": "planned:egp-obligations",
+      "what": "egp / obligations / clock column (bid)"
+    },
+    "bid.egp.obligations.record-receipt": {
+      "screen": "planned:egp-obligations",
+      "what": "egp / obligations / record receipt (bid)"
+    },
+    "bid.egp.pending-external-list": {
+      "screen": "BID-22",
+      "what": "egp / pending external list (bid)"
+    },
+    "bid.egp.recon.first-item": {
+      "screen": "planned:egp-reconciliation",
+      "what": "egp / recon / first item (bid)"
+    },
+    "bid.egp.recon.resolution": {
+      "screen": "planned:egp-reconciliation",
+      "what": "egp / recon / resolution (bid)"
+    },
+    "bid.package.required-items": {
+      "screen": "BID-29",
+      "what": "package / required items (bid)"
+    },
+    "bid.package.stepper": {
+      "screen": "BID-29",
+      "what": "package / stepper (bid)"
+    },
+    "bid.package.tab-checklist": {
+      "screen": "BID-29",
+      "what": "package / tab checklist (bid)"
+    },
+    "bid.package.timeline": {
+      "screen": "BID-29",
+      "what": "package / timeline (bid)"
+    },
+    "bid.package.timeline-import-entry": {
+      "screen": "BID-29",
+      "what": "package / timeline import entry (bid)"
+    },
+    "bid.restrictions.from-file-difference": {
+      "screen": "BID-21",
+      "what": "restrictions / from file difference (bid)"
+    },
+    "bid.restrictions.new": {
+      "screen": "BID-21",
+      "what": "restrictions / new (bid)"
+    },
+    "bid.restrictions.reason": {
+      "screen": "BID-21",
+      "what": "restrictions / reason (bid)"
+    },
+    "bid.tree.canvas": {
+      "screen": "BID-27",
+      "what": "tree / canvas (bid)"
+    },
+    "bid.tree.edge-label": {
+      "screen": "BID-27",
+      "what": "tree / edge label (bid)"
+    },
+    "bid.tree.node-busiest": {
+      "screen": "BID-27",
+      "what": "tree / node busiest (bid)"
+    },
+    "bid.tree.panel-first-package": {
+      "screen": "BID-29",
+      "what": "tree / panel first package (bid)"
+    },
+    "bid.tree.panel-overview": {
+      "screen": "BID-27",
+      "what": "tree / panel overview (bid)"
+    },
+    "bid.tree.panel-tab-packages": {
+      "screen": "BID-27",
+      "what": "tree / panel tab packages (bid)"
+    },
+    "cap.estimates.conversion-history": {
+      "screen": "CAP-12",
+      "what": "estimates / conversion history (cap)"
+    },
+    "cap.realloc.impact-on-rate": {
+      "screen": "CAP-19",
+      "what": "realloc / impact on rate (cap)"
+    },
+    "cap.realloc.simulate": {
+      "screen": "CAP-19",
+      "what": "realloc / simulate (cap)"
+    },
+    "cap.versions.compare": {
+      "screen": "CAP-03",
+      "what": "versions / compare (cap)"
+    },
+    "ctr.change-chain.board": {
+      "screen": "CTR-19",
+      "what": "change chain / board (ctr)"
+    },
+    "ctr.closure.checklist": {
+      "screen": "CTR-17",
+      "what": "closure / checklist (ctr)"
+    },
+    "ctr.concentration.hhi-tile": {
+      "screen": "CTR-31",
+      "what": "concentration / hhi tile (ctr)"
+    },
+    "ctr.concentration.top5-table": {
+      "screen": "CTR-31",
+      "what": "concentration / top5 table (ctr)"
+    },
+    "ctr.guarantees.expiry-column": {
+      "screen": "CTR-05",
+      "what": "guarantees / expiry column (ctr)"
+    },
+    "ctr.portfolio.first-row": {
+      "screen": "CTR-01",
+      "what": "portfolio / first row (ctr)"
+    },
+    "ctr.portfolio.server-totals": {
+      "screen": "CTR-01",
+      "what": "portfolio / server totals (ctr)"
+    },
+    "ctr.price-gap.sort-by-gap": {
+      "screen": "CTR-30",
+      "what": "price gap / sort by gap (ctr)"
+    },
+    "ctr.price-gap.table": {
+      "screen": "CTR-30",
+      "what": "price gap / table (ctr)"
+    },
+    "ctr.report-hub.cards": {
+      "screen": "CTR-28",
+      "what": "report hub / cards (ctr)"
+    },
+    "ctr.report-hub.export-xlsx": {
+      "screen": "CTR-28",
+      "what": "report hub / export xlsx (ctr)"
+    },
+    "ctr.scorecard.new-evaluation": {
+      "screen": "CTR-23",
+      "what": "scorecard / new evaluation (ctr)"
+    },
+    "dir.board.first-overdue": {
+      "screen": "DIR-01",
+      "what": "board / first overdue (dir)"
+    },
+    "dir.dashboard.presentation-mode": {
+      "screen": "DIR-05",
+      "what": "dashboard / presentation mode (dir)"
+    },
+    "dir.detail.timeline": {
+      "screen": "DIR-01",
+      "what": "detail / timeline (dir)"
+    },
+    "dir.feed.next-period-input": {
+      "screen": "DIR-05",
+      "what": "feed / next period input (dir)"
+    },
+    "dir.meeting.directive-list": {
+      "screen": "DIR-01",
+      "what": "meeting / directive list (dir)"
+    },
+    "dis.forecast.band": {
+      "screen": "HOME-09",
+      "what": "forecast / band (dis)"
+    },
+    "dis.freeze.snapshot-hash": {
+      "screen": "DIS-21",
+      "what": "freeze / snapshot hash (dis)"
+    },
+    "dis.funding.matrix": {
+      "screen": "DIS-03",
+      "what": "funding / matrix (dis)"
+    },
+    "dis.review.submit": {
+      "screen": "DIS-03",
+      "what": "review / submit (dis)"
+    },
+    "dis.review.warnings": {
+      "screen": "DIS-06",
+      "what": "review / warnings (dis)"
+    },
+    "dis.warning-rules.version-column": {
+      "screen": "DIS-20",
+      "what": "warning rules / version column (dis)"
+    },
+    "doc.repo.first-file": {
+      "screen": "planned:doc-repository",
+      "what": "repo / first file (doc)"
+    },
+    "doc.repo.ocr-citation": {
+      "screen": "planned:doc-repository",
+      "what": "repo / ocr citation (doc)"
+    },
+    "doc.review.stage-bar": {
+      "screen": "planned:doc-repository",
+      "what": "review / stage bar (doc)"
+    },
+    "ebs.reconcile.difference-rows": {
+      "screen": "planned:ebs-reconcile",
+      "what": "reconcile / difference rows (ebs)"
+    },
+    "ent.capital.estimate-to-actual": {
+      "screen": "HOME-07",
+      "what": "capital / estimate to actual (ent)"
+    },
+    "ent.capital.structure-bar": {
+      "screen": "HOME-07",
+      "what": "capital / structure bar (ent)"
+    },
+    "ent.dictionary.indicator-row": {
+      "screen": "planned:ent-indicator-dictionary",
+      "what": "dictionary / indicator row (ent)"
+    },
+    "ent.entry-rules.violation-hint": {
+      "screen": "planned:ent-indicator-dictionary",
+      "what": "entry rules / violation hint (ent)"
+    },
+    "ent.home.kpi-strip": {
+      "screen": "HOME-09",
+      "what": "home / kpi strip (ent)"
+    },
+    "home.changes.list": {
+      "screen": "HOME-09",
+      "what": "changes / list (home)"
+    },
+    "home.context-bar": {
+      "screen": "HOME-09",
+      "what": "context bar (home)"
+    },
+    "home.drill.first-unit": {
+      "screen": "HOME-10",
+      "what": "drill / first unit (home)"
+    },
+    "home.drill.record-link": {
+      "screen": "HOME-10",
+      "what": "drill / record link (home)"
+    },
+    "home.map.first-marker": {
+      "screen": "HOME-05",
+      "what": "map / first marker (home)"
+    },
+    "home.rag.first-red-row": {
+      "screen": "HOME-11",
+      "what": "rag / first red row (home)"
+    },
+    "home.rag.why-factors": {
+      "screen": "HOME-11",
+      "what": "rag / why factors (home)"
+    },
+    "home.ranking.table": {
+      "screen": "HOME-04",
+      "what": "ranking / table (home)"
+    },
+    "home.rate-tiles": {
+      "screen": "HOME-09",
+      "what": "rate tiles (home)"
+    },
+    "home.rate-tiles.drill-link": {
+      "screen": "HOME-10",
+      "what": "rate tiles / drill link (home)"
+    },
+    "hpm.push.idempotency-key": {
+      "screen": "planned:hpm-push",
+      "what": "push / idempotency key (hpm)"
+    },
+    "hpm.push.retry": {
+      "screen": "planned:hpm-push",
+      "what": "push / retry (hpm)"
+    },
+    "hpm.push.stale-refusal": {
+      "screen": "planned:hpm-push",
+      "what": "push / stale refusal (hpm)"
+    },
+    "int.open-api.machine-accounts": {
+      "screen": "planned:open-api",
+      "what": "open api / machine accounts (int)"
+    },
+    "mdm.crosswalk.multi-system-codes": {
+      "screen": "BID-23",
+      "what": "crosswalk / multi system codes (mdm)"
+    },
+    "mne.evaluation.target-vs-actual": {
+      "screen": "MNE-08",
+      "what": "evaluation / target vs actual (mne)"
+    },
+    "mob.ai.first-citation": {
+      "screen": "MOB-37",
+      "what": "ai / first citation (mob)"
+    },
+    "mob.approvals.first-task": {
+      "screen": "MOB-23",
+      "what": "approvals / first task (mob)"
+    },
+    "mob.home.alert-card": {
+      "screen": "MOB-07",
+      "what": "home / alert card (mob)"
+    },
+    "mob.home.figure-info": {
+      "screen": "MOB-07",
+      "what": "home / figure info (mob)"
+    },
+    "mob.inbox.first-item": {
+      "screen": "MOB-32",
+      "what": "inbox / first item (mob)"
+    },
+    "mob.issue.submit": {
+      "screen": "MOB-28",
+      "what": "issue / submit (mob)"
+    },
+    "mob.issue.take-photo": {
+      "screen": "MOB-28",
+      "what": "issue / take photo (mob)"
+    },
+    "mob.projects.first-item": {
+      "screen": "MOB-09",
+      "what": "projects / first item (mob)"
+    },
+    "mob.report.submit": {
+      "screen": "MOB-13",
+      "what": "report / submit (mob)"
+    },
+    "mob.tree.first-node": {
+      "screen": "MOB-71",
+      "what": "tree / first node (mob)"
+    },
+    "not.journey.delivery-receipts": {
+      "screen": "NOT-03",
+      "what": "journey / delivery receipts (not)"
+    },
+    "not.preferences.quiet-hours": {
+      "screen": "NOT-03",
+      "what": "preferences / quiet hours (not)"
+    },
+    "not.workflow.teams-channel-step": {
+      "screen": "NOT-06",
+      "what": "workflow / teams channel step (not)"
+    },
+    "pay.advance.plan-vs-actual": {
+      "screen": "PAY-18",
+      "what": "advance / plan vs actual (pay)"
+    },
+    "pay.conditions.blocking-reason": {
+      "screen": "PAY-19",
+      "what": "conditions / blocking reason (pay)"
+    },
+    "pay.daily-recon.assign-owner": {
+      "screen": "PAY-20",
+      "what": "daily recon / assign owner (pay)"
+    },
+    "pay.daily-recon.difference-rows": {
+      "screen": "PAY-20",
+      "what": "daily recon / difference rows (pay)"
+    },
+    "pay.three-way.mismatch": {
+      "screen": "PAY-10",
+      "what": "three way / mismatch (pay)"
+    },
+    "prj.appraisal.criteria-scores": {
+      "screen": "PRJ-14",
+      "what": "appraisal / criteria scores (prj)"
+    },
+    "prj.evm.s-curve": {
+      "screen": "PRJ-27",
+      "what": "evm / s curve (prj)"
+    },
+    "prj.evm.view-at-date": {
+      "screen": "PRJ-27",
+      "what": "evm / view at date (prj)"
+    },
+    "prj.feasibility.run-scenarios": {
+      "screen": "PRJ-24",
+      "what": "feasibility / run scenarios (prj)"
+    },
+    "prj.feasibility.sensitivity": {
+      "screen": "PRJ-24",
+      "what": "feasibility / sensitivity (prj)"
+    },
+    "prj.lifecycle.gates": {
+      "screen": "PRJ-14",
+      "what": "lifecycle / gates (prj)"
+    },
+    "prj.list.kind-filter": {
+      "screen": "PRJ-01",
+      "what": "list / kind filter (prj)"
+    },
+    "prj.risk.before-after-score": {
+      "screen": "PRJ-16",
+      "what": "risk / before after score (prj)"
+    },
+    "rpt.forms.demo-stamp": {
+      "screen": "planned:report-forms",
+      "what": "forms / demo stamp (rpt)"
+    },
+    "rpt.forms.status-column": {
+      "screen": "planned:report-forms",
+      "what": "forms / status column (rpt)"
+    },
+    "rpt.generate.fill-template": {
+      "screen": "planned:report-generate",
+      "what": "generate / fill template (rpt)"
+    },
+    "rpt.generate.form": {
+      "screen": "planned:report-generate",
+      "what": "generate / form (rpt)"
+    },
+    "rpt.generate.preview-sheet": {
+      "screen": "planned:report-generate",
+      "what": "generate / preview sheet (rpt)"
+    },
+    "rpt.generate.word-narrative": {
+      "screen": "planned:report-generate",
+      "what": "generate / word narrative (rpt)"
+    },
+    "rpt.issued.file-name": {
+      "screen": "planned:report-issued",
+      "what": "issued / file name (rpt)"
+    },
+    "rpt.issued.three-roles": {
+      "screen": "planned:report-issued",
+      "what": "issued / three roles (rpt)"
+    },
+    "shell.alert-bell": {
+      "screen": "HOME-01",
+      "what": "alert bell (shell)"
+    },
+    "vnd.bank-accounts.two-approvers": {
+      "screen": "BID-01",
+      "what": "bank accounts / two approvers (vnd)"
+    },
+    "vnd.portal.my-evaluations": {
+      "screen": "planned:vendor-portal",
+      "what": "portal / my evaluations (vnd)"
+    },
+    "vnd.subcontracts.paid-confirmation": {
+      "screen": "planned:vendor-subcontracts",
+      "what": "subcontracts / paid confirmation (vnd)"
+    },
+    "wf.period.step-deadlines": {
+      "screen": "ADM-18",
+      "what": "period / step deadlines (wf)"
+    }
+  }
+}

@@ -1,0 +1,360 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "analytics",
+  "title": "Báo cáo phân tích và BI",
+  "summary": "Governance analytics: the KPI register with formula and source, the 19 contract analytics reports, EVM and the S curve, certified BI datasets, leader dashboards, the chart builder, exports and schedules.",
+  "figures": {
+    "ctr-count": {
+      "kind": "count",
+      "sample": 214,
+      "description": "Contracts in the scope of the reader, from the portfolio total computed by the server.",
+      "source": {
+        "operation": "getContractPortfolio",
+        "select": "totals.contract_count"
+      }
+    },
+    "ctr-value": {
+      "kind": "money-billion",
+      "sample": 1286.4,
+      "digits": 1,
+      "description": "Sum of the contract prices in scope, in billions of dong, from the portfolio total.",
+      "source": {
+        "operation": "getContractPortfolio",
+        "select": "totals.contract_value_billion"
+      }
+    },
+    "price-gap-pct": {
+      "kind": "percent",
+      "sample": 3.8,
+      "digits": 1,
+      "description": "Average gap between the winning bid price and the contract price over the portfolio.",
+      "source": {
+        "operation": "getContractReport",
+        "select": "rows[code=PRICE_GAP].summary.average_gap_pct"
+      }
+    }
+  },
+  "literalNumbers": {
+    "19": "the plan fixes 19 contract analytics reports"
+  },
+  "animatics": {},
+  "scenes": [
+    {
+      "id": "ana-hub",
+      "chapter": "analytics",
+      "main": true,
+      "narration": "Trung tâm báo cáo hợp đồng gom 19 báo cáo phân tích. Bộ lọc và tổng cộng do máy chủ tính, nên số trên màn hình, trong Excel và trên điện thoại luôn khớp. Hiện có {{figure:ctr-count}} hợp đồng, giá trị {{figure:ctr-value}}.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-28",
+          "CTR-29"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-28"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.report-hub.cards"
+        },
+        {
+          "do": "click",
+          "ref": "ctr.report-hub.export-xlsx"
+        }
+      ],
+      "captions": [
+        {
+          "text": "19 báo cáo · một định nghĩa số liệu",
+          "atSec": 1.5,
+          "forSec": 4
+        }
+      ],
+      "expectedSec": 19.1
+    },
+    {
+      "id": "ana-kpi-info",
+      "chapter": "analytics",
+      "main": true,
+      "narration": "Mỗi con số có nút i: bấm vào để xem công thức, nguồn, giờ cập nhật và ngày chốt. Chỉ tiêu có một định nghĩa, một người chịu trách nhiệm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-20",
+          "BI-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "BI-20"
+        },
+        {
+          "do": "click",
+          "ref": "bi.kpi-register.info-button"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.kpi-register.formula-panel"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Công thức · nguồn · giờ cập nhật · ngày chốt",
+          "atSec": 2,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 10.5
+    },
+    {
+      "id": "ana-evm",
+      "chapter": "analytics",
+      "main": true,
+      "narration": "Báo cáo giá trị thu được tính đủ chỉ số chi phí và tiến độ, kèm đường S so với đường cơ sở. Chỉ khối lượng đã nghiệm thu mới tạo giá trị. Thiếu đường cơ sở thì ghi chưa đủ dữ liệu, không ghi số không.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-27",
+          "PRJ-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-27"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.evm.s-curve"
+        },
+        {
+          "do": "click",
+          "ref": "prj.evm.view-at-date"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Giá trị thu được chỉ từ khối lượng đã nghiệm thu",
+          "atSec": 1.5,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 16
+    },
+    {
+      "id": "ana-bi-dashboard",
+      "chapter": "analytics",
+      "main": true,
+      "narration": "Dashboard lãnh đạo chỉ dùng chỉ tiêu đã chứng nhận. Người dùng tự dựng biểu đồ từ bộ dữ liệu phân quyền theo dòng và cột, rồi lưu, chia sẻ hoặc đặt lịch gửi.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-02",
+          "BI-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-02"
+        },
+        {
+          "do": "click",
+          "ref": "bi.dashboard.open-chart-builder"
+        },
+        {
+          "do": "choose",
+          "ref": "bi.chart-builder.dataset",
+          "option": "first"
+        },
+        {
+          "do": "click",
+          "ref": "bi.chart-builder.save"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Chỉ tiêu đã chứng nhận · phân quyền dòng và cột",
+          "atSec": 2,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 12.1
+    },
+    {
+      "id": "ana-gap",
+      "chapter": "analytics",
+      "main": false,
+      "narration": "Báo cáo chênh lệch giá cho thấy giá trúng thầu so với giá hợp đồng ở từng gói. Chênh lệch bình quân toàn danh mục là {{figure:price-gap-pct}}. Báo cáo cũng ghi tăng trưởng của các thay đổi so với giá gốc, theo từng tầng phê duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-30"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-30"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.price-gap.table"
+        },
+        {
+          "do": "click",
+          "ref": "ctr.price-gap.sort-by-gap"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17
+    },
+    {
+      "id": "ana-bi-datasets",
+      "chapter": "analytics",
+      "main": false,
+      "narration": "Mỗi bộ dữ liệu có trạng thái: nháp, đã xác nhận, đã chứng nhận hoặc lỗi thời. Dashboard lãnh đạo chỉ đọc bộ dữ liệu đã chứng nhận. Khi dữ liệu quá hạn làm mới, chữ số liệu cũ tự hiện, kèm giờ cập nhật tốt gần nhất.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-18",
+          "BI-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "BI-18"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.datasets.state-column"
+        },
+        {
+          "do": "click",
+          "ref": "bi.datasets.certify-button"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "ana-bi-schedule",
+      "chapter": "analytics",
+      "main": false,
+      "narration": "Lịch xuất và phân phối cho phép gửi một báo cáo đúng giờ tới đúng người. Tệp xuất giữ phạm vi quyền của người nhận, ghi băm của tệp và nhật ký mỗi lần gửi. Người không đủ quyền không nhận được dòng nào ngoài phạm vi của mình.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-12",
+          "BI-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "BI-12"
+        },
+        {
+          "do": "click",
+          "ref": "bi.schedule.new"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.schedule.recipients-scope"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "ana-bi-publication",
+      "chapter": "analytics",
+      "main": false,
+      "narration": "Dashboard muốn công bố rộng phải qua phê duyệt: người lập khác người duyệt, mỗi phiên bản được so sánh với bản trước. Bản đã công bố không sửa trực tiếp, mọi thay đổi là một phiên bản mới có lý do.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-11",
+          "BI-10"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "BI-11"
+        },
+        {
+          "do": "click",
+          "ref": "bi.publication.compare-versions"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "ana-lineage",
+      "chapter": "analytics",
+      "main": false,
+      "narration": "Từ một chỉ tiêu, người kiểm tra lần ngược về bộ dữ liệu, bảng nguồn và mô-đun sinh ra nó. Điểm chất lượng dữ liệu theo từng mô-đun và đơn vị nằm cùng màn hình, nên biết ngay con số nào đáng tin đến đâu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-14",
+          "DGV-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "BI-14"
+        },
+        {
+          "do": "click",
+          "ref": "bi.lineage.trace-metric"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    }
+  ]
+}

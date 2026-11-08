@@ -1,0 +1,181 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "leader-home",
+  "title": "Tổng quan điều hành",
+  "summary": "The leader overview: drill through in three steps, colours with reasons, the weekly changes and the year end forecast, the ranking, the project map and the meeting directives.",
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "home-drill",
+      "chapter": "leader-home",
+      "main": true,
+      "narration": "Bấm vào một con số để truy nguồn ba bước: chỉ tiêu, đơn vị hoặc dự án, hồ sơ gốc. Bộ lọc được giữ nguyên, và phạm vi ngoài quyền không lộ tên.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-10"
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "ref": "home.rate-tiles.drill-link"
+        },
+        {
+          "do": "click",
+          "ref": "home.drill.first-unit"
+        },
+        {
+          "do": "spot",
+          "ref": "home.drill.record-link"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.5,
+      "mainFor": [
+        "public"
+      ]
+    },
+    {
+      "id": "home-why-red",
+      "chapter": "leader-home",
+      "main": true,
+      "narration": "Màu xanh, vàng, đỏ luôn kèm lời giải thích: vì sao đỏ, do một đến ba yếu tố nào, dữ liệu phủ bao nhiêu. Ghi đè một màu phải có lý do.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-11"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "HOME-11"
+        },
+        {
+          "do": "click",
+          "ref": "home.rag.first-red-row"
+        },
+        {
+          "do": "spot",
+          "ref": "home.rag.why-factors"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.1
+    },
+    {
+      "id": "home-changes",
+      "chapter": "leader-home",
+      "main": true,
+      "narration": "Khối thay đổi từ tuần trước tự sinh theo quy tắc, tối đa năm dòng. Dự báo cuối năm hiện thành một dải, và cho biết mỗi tuần cần giải ngân thêm bao nhiêu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-09",
+          "DIS-23"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "HOME-09"
+        },
+        {
+          "do": "spot",
+          "ref": "home.changes.list"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-23"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.forecast.band"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.8
+    },
+    {
+      "id": "home-ranking",
+      "chapter": "leader-home",
+      "main": false,
+      "narration": "Xếp hạng giải ngân dùng nhiều chỉ số, chuẩn hóa theo quy mô, và ghép tỷ lệ giải ngân với tiến độ vật lý. Đơn vị vướng ngoài tầm kiểm soát được ghi chú có người duyệt, và có quyền khiếu nại số liệu của mình.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "HOME-04"
+        },
+        {
+          "do": "spot",
+          "ref": "home.ranking.table"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "home-map",
+      "chapter": "leader-home",
+      "main": false,
+      "narration": "Bản đồ dự án đặt từng dự án đúng vị trí, tô màu theo mức giải ngân và tình trạng vướng mắc. Chạm vào một điểm để xem hồ sơ và người phụ trách.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "HOME-05"
+        },
+        {
+          "do": "click",
+          "ref": "home.map.first-marker"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.8
+    },
+    {
+      "id": "home-directives",
+      "chapter": "leader-home",
+      "main": false,
+      "narration": "Chỉ đạo giao ban được theo dõi đến cùng: ai giao, đơn vị thực hiện, hạn, tiến độ và bằng chứng. Chỉ đạo quá hạn nổi lên đầu bảng, và chỉ đạo của kỳ tự đưa vào báo cáo kỳ sau.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIR-03",
+          "DIR-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "DIR-03"
+        },
+        {
+          "do": "click",
+          "ref": "dir.board.first-overdue"
+        },
+        {
+          "do": "spot",
+          "ref": "dir.detail.timeline"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    }
+  ]
+}

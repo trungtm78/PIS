@@ -1,0 +1,379 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "phone",
+  "title": "Ứng dụng điện thoại và PWA",
+  "summary": "The phone application and the installed web application for leaders: the leader home with the alert card, the notification inbox, approvals, field reports with photo and location, the PWA, lists, the weekly report, offline work, security and AI answers with sources.",
+  "figures": {
+    "phone-approvals-waiting": {
+      "kind": "count",
+      "sample": 5,
+      "description": "Approval tasks waiting for the signed-in leader.",
+      "source": {
+        "operation": "get_resources_approval_task",
+        "select": "meta.total"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {
+    "approval-sheet-reconstructed": {
+      "kind": "still",
+      "description": "Reconstructed picture of the phone approval confirmation sheet: the operating system blocks screen capture of that screen, so the picture is drawn from the same tokens and strings."
+    }
+  },
+  "typed": {},
+  "scenes": [
+    {
+      "id": "ph-home",
+      "chapter": "phone",
+      "main": true,
+      "narration": "Trang chủ lãnh đạo trên điện thoại mở bằng khối chỉ huy với hai tỷ lệ giải ngân, thẻ cảnh báo Cần xử lý ngay ở trên cùng. Mỗi số có nút i, thanh độ mới nói số liệu cập nhật lúc nào.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-07"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.home.alert-card"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.home.figure-info"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Thẻ cảnh báo ở đầu trang chủ",
+          "atSec": 2,
+          "forSec": 4
+        }
+      ],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "ph-inbox",
+      "chapter": "phone",
+      "main": false,
+      "narration": "Hộp thông báo gom mọi việc đến từ hệ thống. Thông báo đẩy chỉ mang một đường dẫn, không mang số tiền hay tên người, nên màn hình khóa không lộ thông tin. Chạm vào, ứng dụng mở đúng hồ sơ cần xử lý.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-32",
+          "MOB-33"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-32"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.inbox.first-item"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-33"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "ph-approval",
+      "chapter": "phone",
+      "main": true,
+      "narration": "Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-23",
+          "MOB-24",
+          "MOB-25"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-23"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.approvals.first-task"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-24"
+        },
+        {
+          "do": "still",
+          "id": "approval-sheet-reconstructed"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Hình dựng lại: hệ điều hành chặn quay màn này",
+          "atSec": 6,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "ph-field",
+      "chapter": "phone",
+      "main": true,
+      "narration": "Cán bộ hiện trường chụp ảnh, chú thích và đính kèm vị trí. Mất mạng thì hồ sơ nằm trong hàng đợi, tự gửi khi có kết nối lại.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-28",
+          "MOB-29",
+          "MOB-30"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-28"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.issue.take-photo"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-30"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.issue.submit"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 10.2
+    },
+    {
+      "id": "ph-pwa",
+      "chapter": "phone",
+      "main": true,
+      "narration": "Người không cài ứng dụng dùng PWA trên trình duyệt: hàng đợi phê duyệt, dashboard điều hành, theo dõi chỉ đạo. PWA chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.",
+      "screen": {
+        "platform": "pwa",
+        "screens": [
+          "PWA-01",
+          "PWA-02",
+          "PWA-03",
+          "PWA-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-01"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-02"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-03"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-04"
+        }
+      ],
+      "captions": [
+        {
+          "text": "PWA: chỉ lưu vỏ ứng dụng, không lưu dữ liệu",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "ph-lists",
+      "chapter": "phone",
+      "main": false,
+      "narration": "Danh sách dự án và hợp đồng trên điện thoại có chi tiết, bản đồ hiện trường và các mốc gần hạn. Cán bộ ngoài công trường mở được nhật ký thi công, ghi khối lượng và kiểm tra chất lượng, rồi đồng bộ khi có mạng.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-09",
+          "MOB-61",
+          "MOB-62"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-09"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.projects.first-item"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-61"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "ph-report",
+      "chapter": "phone",
+      "main": false,
+      "narration": "Báo cáo giải ngân tuần làm được trên điện thoại: chọn kỳ, nhập khối lượng và vốn theo nguồn, đính kèm chứng từ, rà soát rồi gửi. Gửi xong có biên nhận ghi mã, giờ, người nhận và bước kế tiếp.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-13",
+          "MOB-20",
+          "MOB-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-13"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-20"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.report.submit"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-21"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "ph-offline",
+      "chapter": "phone",
+      "main": false,
+      "narration": "Khi mất kết nối, ứng dụng chuyển sang chế độ chỉ đọc kèm giờ đồng bộ gần nhất. Việc ghi nhận nằm trong hàng đợi đồng bộ. Nếu hai người sửa cùng một hồ sơ, màn xử lý xung đột cho so sánh hai bản và chọn bản đúng.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-43",
+          "MOB-41",
+          "MOB-42"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-43"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-41"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-42"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "ph-security",
+      "chapter": "phone",
+      "main": false,
+      "narration": "Đăng nhập một lần qua tài khoản của tổ chức, xác thực hai lớp, và có thể mở khóa bằng sinh trắc học. Người dùng thấy và thu hồi được từng thiết bị của mình. Hết phiên hay hết giấy phép sử dụng, ứng dụng nói rõ lý do chứ không treo im lặng.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-02",
+          "MOB-03",
+          "MOB-47",
+          "MOB-49"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-02"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-03"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-47"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-49"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "ph-ai",
+      "chapter": "phone",
+      "main": false,
+      "narration": "Trợ lý AI trên điện thoại trả lời kèm nguồn: mỗi nhận định dẫn tới trang và đoạn trong hồ sơ gốc, tách rõ nguồn, giả định và suy luận. AI hỗ trợ đọc và tóm tắt, không quyết định thanh toán.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-37",
+          "MOB-39"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-37"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.ai.first-citation"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-39"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    }
+  ]
+}

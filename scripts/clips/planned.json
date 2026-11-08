@@ -1,0 +1,124 @@
+{
+  "schema": "clip-planned/1",
+  "note": "What the scenarios use that is not yet in the contract or the screen catalogue of this branch, with the lane that builds it. `scenario.mjs check --strict` turns each entry still missing into an error; run it before the recording starts. Entries marked status built exist in the application but outside the screen catalogue.",
+  "operations": {
+    "issueReportCopy": {
+      "lane": "RPT-1",
+      "note": "issue an immutable report copy; name to confirm at record time"
+    },
+    "importEbsLedger": {
+      "lane": "ENT-2",
+      "note": "import the accounting ledger file; name to confirm at record time"
+    },
+    "listEbsReconciliationItems": {
+      "lane": "ENT-2",
+      "note": "open accounting differences; name to confirm at record time"
+    }
+  },
+  "screens": {
+    "PWA-01": {
+      "lane": "ENT-0",
+      "status": "built",
+      "note": "start page of the installed application (docs/pwa.md)"
+    },
+    "PWA-02": {
+      "lane": "ENT-0",
+      "status": "built",
+      "note": "approval queue of the period data"
+    },
+    "PWA-03": {
+      "lane": "ENT-0",
+      "status": "built",
+      "note": "leader dashboard"
+    },
+    "PWA-04": {
+      "lane": "ENT-0",
+      "status": "built",
+      "note": "directive tracking"
+    },
+    "planned:alert-health": {
+      "lane": "GOV-9a",
+      "note": "health page of the alert system with 14 KPIs (G2-10)"
+    },
+    "planned:vendor-bank-accounts": {
+      "lane": "VND-1",
+      "note": "payee accounts with two approvers, call back and waiting time (V12)"
+    },
+    "planned:vendor-portal": {
+      "lane": "VND-3",
+      "note": "contractor portal (V15)"
+    },
+    "planned:vendor-subcontracts": {
+      "lane": "VND-2",
+      "note": "subcontractors with confirmed payment (V11)"
+    },
+    "planned:vendor-workload": {
+      "lane": "VND-2",
+      "note": "concurrent workload of a contractor (V9)"
+    },
+    "planned:red-flag-board": {
+      "lane": "GOV-10",
+      "note": "procurement red flags, audit only (G4-3)"
+    },
+    "planned:egp-obligations": {
+      "lane": "EGP-2",
+      "note": "posting obligations with clocks (proposed id BID-25)"
+    },
+    "planned:egp-reconciliation": {
+      "lane": "EGP-2",
+      "note": "reconciliation items with four resolutions (proposed id BID-26)"
+    },
+    "planned:ent-capital-structure": {
+      "lane": "FND-1/ENT-1",
+      "note": "enterprise capital structure and plan versions"
+    },
+    "planned:feasibility": {
+      "lane": "FIN-1",
+      "note": "NPV, IRR, payback and TCO with scenarios"
+    },
+    "planned:ent-indicator-dictionary": {
+      "lane": "IND-1",
+      "note": "indicator dictionary (DL.02)"
+    },
+    "planned:ent-entry-rules": {
+      "lane": "IND-1",
+      "note": "data entry rules checked while typing"
+    },
+    "planned:report-generate": {
+      "lane": "RPT-1",
+      "note": "report generator over templates"
+    },
+    "planned:report-forms": {
+      "lane": "RPT-1/ENT-1",
+      "note": "catalogue of the six DEMO forms"
+    },
+    "planned:report-issued": {
+      "lane": "RPT-1",
+      "note": "issued copies with maker, checker, approver"
+    },
+    "planned:period-flow": {
+      "lane": "WF-1",
+      "note": "period approval flow on the workflow engine"
+    },
+    "planned:hpm-push": {
+      "lane": "ENT-2",
+      "note": "HPM push log with idempotency key"
+    },
+    "planned:ebs-reconcile": {
+      "lane": "ENT-2",
+      "note": "accounting reconciliation by project code"
+    },
+    "planned:open-api": {
+      "lane": "INT-1",
+      "note": "open API, machine accounts, lakehouse views"
+    },
+    "planned:doc-repository": {
+      "lane": "DOC-2",
+      "note": "project document store with OCR and versions"
+    },
+    "planned:ai-assistant": {
+      "lane": "AI-2",
+      "note": "AI assistant with cited answers"
+    }
+  }
+}

@@ -1,0 +1,1115 @@
+{
+  "schema": "clip-scenario/1",
+  "clip": "public-investment",
+  "edition": "public",
+  "title": "Hệ thống quản lý đầu tư công",
+  "summary": "Intro clip of the public edition: a province (Cao Bang sample data) managing public investment from the capital plan to settlement, with the stress on early warning, disbursement, contracts, analytics, alerts, contractor management, the national procurement network connection and the progress tree.",
+  "data": {
+    "tenant": "public edition, provincial sample tenant (Cao Bang)",
+    "seedGroups": [
+      "base",
+      "capital",
+      "field-assurance",
+      "procurement-finance",
+      "intelligence"
+    ],
+    "newSeedGroups": [
+      {
+        "name": "clip-public-egp",
+        "purpose": "Real commands: connect the egp connection, import a plan file and a notice file (dry run then apply), propose and approve mappings, leave two obligations due and one overdue, leave one reconciliation item per resolution kind."
+      },
+      {
+        "name": "clip-public-alerts",
+        "purpose": "Real commands: open alerts of the three severities for the leader, one snoozed with a reason, one escalated, delegation of absence for one unit head."
+      },
+      {
+        "name": "clip-public-contractors",
+        "purpose": "Real commands: contractors with profiles, one restriction through the whole procedure, evaluations with a different approver, a concentration worth showing."
+      },
+      {
+        "name": "clip-public-packages",
+        "purpose": "Real commands: about forty procurement packages moved through the steps of the workflow over several weeks (back dated through the command clock), some late, one on hold, one returned, one fed by an imported milestone."
+      }
+    ],
+    "fixtures": {
+      "egp-khlcnt-sample": "KHLCNT file in the working-assumption layout with a few bad rows (a wrong tax code, a wrong day, a duplicate)",
+      "egp-tbmt-sample": "TBMT file in the working-assumption layout, valid"
+    }
+  },
+  "figures": {
+    "disb-rate-pm": {
+      "kind": "percent",
+      "sample": 62.4,
+      "digits": 1,
+      "description": "Disbursement rate over the plan assigned by the Prime Minister, from the command center tile.",
+      "source": {
+        "operation": "getCommandCenter",
+        "select": "tiles[code=DISBURSEMENT_RATE_PM].value"
+      }
+    },
+    "disb-rate-total": {
+      "kind": "percent",
+      "sample": 48.9,
+      "digits": 1,
+      "description": "Disbursement rate over the whole plan, from the command center tile.",
+      "source": {
+        "operation": "getCommandCenter",
+        "select": "tiles[code=DISBURSEMENT_RATE_TOTAL].value"
+      }
+    },
+    "disbursed-treasury": {
+      "kind": "money-billion",
+      "sample": 1236.4,
+      "digits": 1,
+      "description": "Amount disbursed according to the Treasury, in billions of dong.",
+      "source": {
+        "operation": "getCommandCenter",
+        "select": "tiles[code=DISBURSED_TREASURY].value"
+      }
+    },
+    "egp-age-hours": {
+      "kind": "count",
+      "sample": 26,
+      "description": "Hours since the last applied import of the national procurement network files.",
+      "source": {
+        "operation": "getEgpConnection",
+        "select": "health.age_hours"
+      }
+    },
+    "egp-rows-valid": {
+      "kind": "count",
+      "sample": 41,
+      "description": "Valid rows in the dry run of the plan file.",
+      "source": {
+        "operation": "previewEgpFile",
+        "select": "counts.valid"
+      }
+    },
+    "egp-rows-error": {
+      "kind": "count",
+      "sample": 3,
+      "description": "Rows with an error in the dry run of the plan file.",
+      "source": {
+        "operation": "previewEgpFile",
+        "select": "counts.errors"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {
+    "title-public": {
+      "kind": "animatic",
+      "description": "Title card with the product name and the line about sample data."
+    },
+    "problem-scattered": {
+      "kind": "animatic",
+      "description": "Spreadsheets and reports drifting apart: the same figure with three different values arriving late."
+    },
+    "platform-map": {
+      "kind": "animatic",
+      "description": "The modules of the platform joined around one catalogue, one rule store and one audit log."
+    },
+    "service-flow": {
+      "kind": "animatic",
+      "description": "Browser and phone, single sign-on, business server, database with row security, events to notifications and analytics, files to the Treasury and the procurement network."
+    },
+    "egp-obligations": {
+      "kind": "animatic",
+      "description": "The five things an investor posts on the national procurement network, with the arrow from the system to a person who posts by hand."
+    },
+    "egp-no-egress-proof": {
+      "kind": "animatic",
+      "description": "A test run that replaces every way out of the machine with a counter and shows zero attempts."
+    },
+    "outro-public": {
+      "kind": "animatic",
+      "description": "Closing card: one platform, one set of figures, every figure with a source."
+    }
+  },
+  "typed": {},
+  "chapters": [
+    {
+      "id": "intro",
+      "title": "Giới thiệu hệ thống",
+      "summary": "The problem, the platform and how the services connect.",
+      "standalone": false
+    },
+    {
+      "id": "leader-home",
+      "title": "Tổng quan điều hành",
+      "summary": "The command center, drill through, colours with reasons, weekly changes and the year end forecast."
+    },
+    {
+      "id": "disbursement",
+      "title": "Giải ngân và kế hoạch vốn",
+      "summary": "Weekly reports, frozen periods, daily Treasury reconciliation, reallocation, disbursement conditions and advances."
+    },
+    {
+      "id": "contracts",
+      "title": "Quản lý hợp đồng",
+      "summary": "The contract portfolio, the change chain, three way matching, payment integrity and closure."
+    },
+    {
+      "id": "egp",
+      "title": "Quản lý kết nối muasamcong",
+      "summary": "The national procurement network: why, the connection, file imports, the id mapping, posting obligations, reconciliation, milestones as evidence."
+    },
+    {
+      "id": "close",
+      "title": "Tin cậy và kết thúc",
+      "summary": "Audit trail, rule store, the limits of AI, and the closing card.",
+      "standalone": false
+    }
+  ],
+  "scenes": [
+    {
+      "id": "intro-title",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Hệ thống quản lý đầu tư công theo dõi một khoản vốn từ kế hoạch đến quyết toán. Dữ liệu trong đoạn phim là dữ liệu minh họa cấp tỉnh.",
+      "screen": {
+        "platform": "title",
+        "screens": [],
+        "animatic": "title-public"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "title-public"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Dữ liệu minh họa",
+          "atSec": 1,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "illustrative-data"
+      ],
+      "expectedSec": 10.5
+    },
+    {
+      "id": "intro-problem",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Đầu tư công đi qua nhiều tay: vốn, dự án, giải ngân, hợp đồng, đấu thầu. Mỗi nơi giữ một bảng tính, số liệu lệch nhau và đến muộn. Lãnh đạo hỏi một con số thì không biết số nào đúng.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "problem-scattered"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "problem-scattered"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "intro-platform",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Một nền tảng gom kế hoạch vốn, dự án, giải ngân, thanh toán, hợp đồng, đấu thầu, phân tích, cảnh báo và ứng dụng điện thoại. Mọi mô-đun dùng chung một danh mục, một bộ quy tắc và một nhật ký kiểm toán.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "platform-map"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "platform-map"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "intro-services",
+      "chapter": "intro",
+      "main": true,
+      "narration": "Người dùng vào bằng trình duyệt hoặc điện thoại, đăng nhập một lần. Mỗi thao tác đi qua máy chủ nghiệp vụ, ghi vào cơ sở dữ liệu phân quyền theo dòng, rồi phát sự kiện cho thông báo và phân tích. Kho bạc và mạng đấu thầu nối bằng tệp.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "service-flow"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "service-flow"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.3
+    },
+    {
+      "id": "home-command",
+      "chapter": "leader-home",
+      "main": true,
+      "narration": "Trung tâm điều hành đặt hai tỷ lệ giải ngân cạnh nhau: {{figure:disb-rate-pm}} theo kế hoạch Thủ tướng giao, {{figure:disb-rate-total}} theo toàn bộ kế hoạch. Đã giải ngân {{figure:disbursed-treasury}}. Phạm vi, ngày chốt và mã số liệu luôn hiện trên cùng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-09",
+          "HOME-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-09"
+        },
+        {
+          "do": "spot",
+          "ref": "home.context-bar"
+        },
+        {
+          "do": "spot",
+          "ref": "home.rate-tiles"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Hai tỷ lệ cùng một tử số",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 20.9
+    },
+    {
+      "include": "shared/leader-home.json"
+    },
+    {
+      "id": "dis-weekly",
+      "chapter": "disbursement",
+      "main": true,
+      "narration": "Chủ đầu tư nhập báo cáo giải ngân tuần theo từng nguồn vốn, rà soát rồi gửi. Người gửi khác người duyệt. Báo cáo bị trả lại phải có lý do, bản đã duyệt không sửa được.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-03",
+          "DIS-04",
+          "DIS-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-04"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.funding.matrix"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-06"
+        },
+        {
+          "do": "click",
+          "ref": "dis.review.submit"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "dis-freeze",
+      "chapter": "disbursement",
+      "main": true,
+      "narration": "Cuối kỳ, số liệu được chốt kèm mã băm, nên báo cáo hôm nay và ba tháng sau cho cùng một kết quả. Mở lại kỳ phải có lý do và người duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-21",
+          "DIS-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-21"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.freeze.snapshot-hash"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-22"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.5
+    },
+    {
+      "id": "dis-treasury",
+      "chapter": "disbursement",
+      "main": true,
+      "narration": "Mỗi ngày hệ thống đối soát số giải ngân với Kho bạc theo dự án và nguồn vốn. Chênh lệch vượt ngưỡng thành hạng mục có người chịu trách nhiệm, khác người lập.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-20",
+          "PAY-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-20"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.daily-recon.difference-rows"
+        },
+        {
+          "do": "click",
+          "ref": "pay.daily-recon.assign-owner"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.5
+    },
+    {
+      "id": "cap-realloc",
+      "chapter": "disbursement",
+      "main": true,
+      "narration": "Dự án giải ngân chậm có thể được đề xuất chuyển vốn sang dự án nhanh. Hệ thống mô phỏng tác động lên tỷ lệ toàn tỉnh trước khi duyệt, và ghi bất biến mọi quyết định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-19",
+          "CAP-09"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-19"
+        },
+        {
+          "do": "click",
+          "ref": "cap.realloc.simulate"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.realloc.impact-on-rate"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.7
+    },
+    {
+      "id": "pay-conditions",
+      "chapter": "disbursement",
+      "main": false,
+      "narration": "Dự án chưa có danh mục và kế hoạch vốn trên hệ thống thì không lập được đề nghị thanh toán, và hệ thống nói đúng nguyên nhân cùng cách xử lý. Số trên hệ thống thắng số trên giấy. Căn cứ pháp lý của quy tắc này còn ghi chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "paymentApprover"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-19"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.conditions.blocking-reason"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "unverified-legal"
+      ],
+      "expectedSec": 17.9
+    },
+    {
+      "id": "pay-advance",
+      "chapter": "disbursement",
+      "main": false,
+      "narration": "Tạm ứng có trần theo chính sách có hiệu lực theo ngày. Bảng thu hồi đặt kế hoạch cạnh thực tế, và dư nợ vượt giá trị còn lại của hợp đồng thì báo Khẩn tới người chịu trách nhiệm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-18",
+          "PAY-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "paymentApprover"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-18"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.advance.plan-vs-actual"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "dis-warnings",
+      "chapter": "disbursement",
+      "main": false,
+      "narration": "Quy tắc cảnh báo sớm là dữ liệu có phiên bản. Mỗi cảnh báo ghi công thức, ngưỡng, người được báo và hậu quả nếu bỏ qua. Đổi ngưỡng phải qua người duyệt và có hiệu lực từ một ngày xác định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-20",
+          "HOME-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-20"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.warning-rules.version-column"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "ctr-portfolio",
+      "chapter": "contracts",
+      "main": true,
+      "narration": "Danh mục hợp đồng lấy tổng từ máy chủ. Mỗi hợp đồng có không gian thực hiện: khối lượng, nghiệm thu, thanh toán, tạm ứng, giữ lại và bảo lãnh, khớp với sổ lũy kế.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-01",
+          "CTR-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-01"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.portfolio.server-totals"
+        },
+        {
+          "do": "click",
+          "ref": "ctr.portfolio.first-row"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.1
+    },
+    {
+      "id": "ctr-change-chain",
+      "chapter": "contracts",
+      "main": false,
+      "narration": "Thay đổi hợp đồng đi theo chuỗi: sự kiện thay đổi, lệnh thay đổi tạm tính, rồi lệnh thay đổi chính thức. Có nhiều tầng duyệt theo ngưỡng và ủy quyền, giá trị cộng dồn so với giá gốc, và hệ thống chặn khi hết vốn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-19",
+          "CTR-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "CTR-19"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.change-chain.board"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-27"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "ctr-three-way",
+      "chapter": "contracts",
+      "main": false,
+      "narration": "Khớp ba bên đặt khối lượng đo, nghiệm thu và thanh toán lên cùng một sổ lũy kế. Hệ thống chặn giải phóng khoản giữ lại khi còn tồn đọng chất lượng, bảo hành hoặc khiếu nại chưa xử lý.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-10",
+          "CTR-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "paymentApprover"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-10"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.three-way.mismatch"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "ctr-integrity",
+      "chapter": "contracts",
+      "main": false,
+      "narration": "Kiểm toàn vẹn thanh toán phát hiện khoản trùng, đơn giá bất thường, thanh toán vượt hợp đồng và khối lượng lệch nhật ký. Ma trận tách bạch nhiệm vụ được kiểm ngay lúc ghi, và ngoại lệ phải có hạn cùng hai người duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-12",
+          "ADM-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-12"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.integrity.findings"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "ctr-closure",
+      "chapter": "contracts",
+      "main": false,
+      "narration": "Cuối vòng đời, hợp đồng đi qua nghiệm thu, bàn giao, bảo hành và quyết toán. Hồ sơ tài sản chuyển sang đơn vị vận hành, và việc kích hoạt đánh giá sau đầu tư nằm ngay trong bước bàn giao.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-17",
+          "AST-04",
+          "AST-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-17"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.closure.checklist"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "include": "shared/analytics.json"
+    },
+    {
+      "include": "shared/alerts.json"
+    },
+    {
+      "include": "shared/contractors.json"
+    },
+    {
+      "id": "egp-why",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Chủ đầu tư phải đăng tải kế hoạch, thông báo, kết quả, hợp đồng và đánh giá nhà thầu lên mạng đấu thầu quốc gia. Hệ thống không quét trang web, không mở kết nối ra ngoài: nhập tệp đã tải về, chuẩn bị gói cho người đăng, và quản lý cả vòng đời.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "egp-obligations"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "egp-obligations"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Không quét trang web · chỉ nhập và xuất tệp",
+          "atSec": 6,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 17.8
+    },
+    {
+      "id": "egp-connection",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Màn kết nối cho biết trạng thái, độ mới của dữ liệu và các hạng mục còn chờ bên ngoài. Lần nhập gần nhất cách đây {{figure:egp-age-hours}} giờ. Dữ liệu quá hạn báo là cũ, không báo là không có. Mẫu tệp hiện là giả định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-22"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.connection-card"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.pending-external-list"
+        },
+        {
+          "do": "command",
+          "operation": "getEgpConnection",
+          "as": "bidManager"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+          "atSec": 5,
+          "forSec": 7
+        }
+      ],
+      "stamps": [
+        "egp-assumption"
+      ],
+      "expectedSec": 16.7
+    },
+    {
+      "id": "egp-import",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Nhập tệp kế hoạch, thông báo, kết quả, nhà thầu hoặc hạn chế. Chạy thử trước, chưa ghi gì: có {{figure:egp-rows-valid}} dòng hợp lệ và {{figure:egp-rows-error}} dòng lỗi, báo theo cột. Áp dụng xong, nhập lại đúng tệp đó bị từ chối.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BID-24"
+        },
+        {
+          "do": "upload",
+          "operation": "uploadEgpFile",
+          "fixture": "egp-khlcnt-sample"
+        },
+        {
+          "do": "click",
+          "ref": "bid.egp.import.dry-run"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.import.row-errors"
+        },
+        {
+          "do": "click",
+          "ref": "bid.egp.import.apply"
+        },
+        {
+          "do": "expect",
+          "ref": "bid.egp.import.already-applied"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "egp-mapping",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Ánh xạ nối mã trên mạng đấu thầu với mã nội bộ. Hệ thống đề xuất, người thứ hai duyệt. Nhà thầu chỉ ánh xạ theo mã số thuế, xung đột được nêu ra, không nối ngầm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-23"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-23"
+        },
+        {
+          "do": "click",
+          "ref": "bid.egp.mapping.first-suggestion"
+        },
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "click",
+          "ref": "bid.egp.mapping.approve"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Người đề xuất ≠ người duyệt",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 13
+    },
+    {
+      "id": "egp-obligations",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Mỗi nghĩa vụ đăng tải có đồng hồ. Sắp hết hạn thì cảnh báo Cần xử lý, quá hạn thì Khẩn, biên nhận đóng cảnh báo. Thời hạn là cấu hình mặc định, chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:egp-obligations"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "planned:egp-obligations"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.obligations.clock-column"
+        },
+        {
+          "do": "click",
+          "ref": "bid.egp.obligations.record-receipt"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 5,
+          "forSec": 7
+        }
+      ],
+      "stamps": [
+        "unverified-legal"
+      ],
+      "expectedSec": 12.7
+    },
+    {
+      "id": "egp-reconcile",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Đối chiếu từng trường giữa số của mình và số trên mạng. Mỗi chênh lệch có người xử lý, không phải người lập, với bốn cách giải quyết: chấp nhận, sửa, tranh chấp có bằng chứng, hoặc miễn có hạn xét lại.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:egp-reconciliation"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "planned:egp-reconciliation"
+        },
+        {
+          "do": "click",
+          "ref": "bid.egp.recon.first-item"
+        },
+        {
+          "do": "choose",
+          "ref": "bid.egp.recon.resolution",
+          "option": "first"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "egp-tree-evidence",
+      "chapter": "egp",
+      "main": true,
+      "narration": "Mốc nhập từ mạng đấu thầu trở thành bằng chứng của bước trong cây tiến độ, và được ghi rõ là nhập từ tệp.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-29",
+          "BID-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BID-29"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.timeline-import-entry"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 8.4
+    },
+    {
+      "id": "egp-file-kinds",
+      "chapter": "egp",
+      "main": false,
+      "narration": "Có năm loại tệp: kế hoạch, thông báo mời thầu, kết quả, hồ sơ nhà thầu và danh sách hạn chế. Mỗi loại có cột bắt buộc, kiểu ngày, số tiền và mã số thuế được kiểm chặt. Số tiền viết nguyên số để không hiểu nhầm dấu phân cách, và bố cục tệp hiện là giả định có phiên bản.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BID-24"
+        },
+        {
+          "do": "choose",
+          "ref": "bid.egp.import.kind",
+          "option": "first"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.import.layout-version"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+          "atSec": 5,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "egp-assumption"
+      ],
+      "expectedSec": 20.3
+    },
+    {
+      "id": "egp-health",
+      "chapter": "egp",
+      "main": false,
+      "narration": "Độ mới của kết nối có bốn mức: mới, cũ dần, quá hạn và chưa nhập lần nào. Quá hạn thì sinh cảnh báo kết nối quá hạn cho người quản trị tích hợp, và số liệu dựa trên tệp ngoài phải ghi là chưa cập nhật.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-22",
+          "HOME-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BID-22"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.egp.connection-freshness"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "egp-no-egress",
+      "chapter": "egp",
+      "main": false,
+      "narration": "Cam kết không kết nối ra ngoài được chứng minh bằng kiểm thử. Mọi đường ra khỏi máy bị thay bằng bộ đếm, hệ thống chạy toàn bộ thao tác nhập, ánh xạ, đối chiếu và đồng hồ, kết quả là không lần thử kết nối nào. Mã nguồn cũng bị quét để không có lời gọi mạng.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "egp-no-egress-proof"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "egp-no-egress-proof"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 19.4
+    },
+    {
+      "id": "egp-restrictions",
+      "chapter": "egp",
+      "main": false,
+      "narration": "Danh sách hạn chế nhập từ mạng không tự trở thành hạn chế pháp lý khi mẫu tệp còn là giả định. Nó thành một chênh lệch để người có thẩm quyền ghi theo quyết định, vì một hạn chế pháp lý không được ghi từ tệp chưa ai xác nhận.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-21",
+          "BID-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-21"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.restrictions.from-file-difference"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "egp-assumption"
+      ],
+      "expectedSec": 16.9
+    },
+    {
+      "include": "shared/process-tree.json"
+    },
+    {
+      "include": "shared/phone.json"
+    },
+    {
+      "id": "close-trust",
+      "chapter": "close",
+      "main": true,
+      "narration": "Mọi thay đổi cấu hình, ủy quyền hay hoãn cảnh báo đều ghi nhật ký kiểm toán. Quy tắc nằm trong kho có phiên bản, người lập khác người duyệt. AI chỉ hỗ trợ đọc, không quyết định thanh toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-11",
+          "ADM-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-11"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.audit-log.latest-rows"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-19"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "close-outro",
+      "chapter": "close",
+      "main": true,
+      "narration": "Một nền tảng, một bộ số liệu, mỗi con số có nguồn. Lãnh đạo thấy sớm, người làm đỡ chép số, kiểm toán dựng lại được từng quyết định.",
+      "screen": {
+        "platform": "title",
+        "screens": [],
+        "animatic": "outro-public"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "outro-public"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 10.2
+    }
+  ]
+}

@@ -1,0 +1,345 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "process-tree",
+  "title": "Cây tiến độ",
+  "summary": "The progress tree of procurement packages: counts per state and flows between states, drill into a node and a package, the day by day timeline, the board by step, bottleneck analysis, the phone views, the process definition, checklists and alerts.",
+  "figures": {
+    "tree-packages-total": {
+      "kind": "count",
+      "sample": 38,
+      "description": "All procurement packages in the scope of the reader, from the process tree.",
+      "source": {
+        "operation": "getPackageProcessTree",
+        "select": "summary.total_packages"
+      }
+    },
+    "tree-packages-late": {
+      "kind": "count",
+      "sample": 6,
+      "description": "Packages whose current step is past its due day.",
+      "source": {
+        "operation": "getPackageProcessTree",
+        "select": "summary.late_packages"
+      }
+    },
+    "tree-median-days": {
+      "kind": "days",
+      "sample": 7,
+      "description": "Median days a package stays in the busiest node.",
+      "source": {
+        "operation": "getPackageProcessTreeNode",
+        "select": "node.median_days"
+      }
+    },
+    "tree-stuck-days": {
+      "kind": "days",
+      "sample": 19,
+      "description": "Days the longest stuck package has been in its step.",
+      "source": {
+        "operation": "getPackageWorkflowStatistics",
+        "select": "bottlenecks[0].longest_days"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {},
+  "scenes": [
+    {
+      "id": "tree-overview",
+      "chapter": "process-tree",
+      "main": true,
+      "narration": "Cây tiến độ cho thấy mọi gói thầu thành một cây trạng thái có số lượng. Mỗi nút ghi số gói, giá trị, ngày trung vị và số gói trễ, cạnh ghi số gói chuyển trong kỳ. Hiện có {{figure:tree-packages-total}} gói, {{figure:tree-packages-late}} gói trễ hạn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-27"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.tree.canvas"
+        },
+        {
+          "do": "point",
+          "ref": "bid.tree.edge-label"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Cây tiến độ · số gói ở từng trạng thái",
+          "atSec": 1.5,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 16
+    },
+    {
+      "id": "tree-node",
+      "chapter": "process-tree",
+      "main": true,
+      "narration": "Bấm vào một nút, bảng bên phải hiện ngày trung vị {{figure:tree-median-days}}, mục danh mục kiểm hay bỏ dở, người giữ nhiều gói và danh sách gói của nút.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "ref": "bid.tree.node-busiest"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.tree.panel-overview"
+        },
+        {
+          "do": "click",
+          "ref": "bid.tree.panel-tab-packages"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 10.2
+    },
+    {
+      "id": "tree-package",
+      "chapter": "process-tree",
+      "main": true,
+      "narration": "Bấm vào một gói để đi sâu: thanh tiến trình cho biết bước hiện tại, chuẩn mấy ngày, thực mấy ngày, ai giữ, điều gì đang chặn. Dòng thời gian ghi từng ngày: đổi trạng thái, ai làm, lý do, bằng chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-29"
+        ]
+      },
+      "steps": [
+        {
+          "do": "click",
+          "ref": "bid.tree.panel-first-package"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.stepper"
+        },
+        {
+          "do": "scroll",
+          "through": "voice"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.timeline"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Dòng thời gian theo từng ngày",
+          "atSec": 5,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "tree-board",
+      "chapter": "process-tree",
+      "main": true,
+      "narration": "Nhìn theo công đoạn là bảng cột theo bước: mỗi thẻ là một gói, lọc theo đơn vị, hình thức hay chỉ gói trễ, số lượng và giá trị đổi theo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-28"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BID-28"
+        },
+        {
+          "do": "click",
+          "ref": "bid.board.filter-late-only"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.board.column-totals"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 10.5
+    },
+    {
+      "id": "tree-bottleneck",
+      "chapter": "process-tree",
+      "main": true,
+      "narration": "Phân tích nút nghẽn chỉ ra bước làm chậm cả quy trình và gói kẹt lâu nhất, hiện {{figure:tree-stuck-days}}. Báo cáo xuất ra Excel.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-30"
+        ]
+      },
+      "steps": [
+        {
+          "do": "open",
+          "screen": "BID-30"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.bottleneck.step-medians"
+        },
+        {
+          "do": "click",
+          "ref": "bid.bottleneck.export-xlsx"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 9.6
+    },
+    {
+      "id": "tree-phone",
+      "chapter": "process-tree",
+      "main": true,
+      "narration": "Trên điện thoại, cây tiến độ là danh sách thụt vào, chạm một dòng để xem gói, chạm tiếp để xem tiến trình từng ngày. PWA của lãnh đạo hiện thành thẻ phễu.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-71",
+          "MOB-70",
+          "MOB-69"
+        ]
+      },
+      "steps": [
+        {
+          "do": "phone-open",
+          "screen": "MOB-71"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.tree.first-node"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-70"
+        },
+        {
+          "do": "phone-scroll",
+          "through": "voice"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.4
+    },
+    {
+      "id": "tree-definition",
+      "chapter": "process-tree",
+      "main": false,
+      "narration": "Quy trình lựa chọn nhà thầu là dữ liệu có phiên bản, cấu hình theo từng hình thức: đấu thầu rộng rãi, hạn chế, chỉ định thầu, chào hàng cạnh tranh và các hình thức khác. Mỗi bước có điều kiện vào, điều kiện ra, người chịu trách nhiệm, thời hạn chuẩn và bằng chứng. Các bước theo Luật Đấu thầu còn ghi chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-31"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-31"
+        },
+        {
+          "do": "choose",
+          "ref": "bid.definition.method",
+          "option": "first"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.definition.step-list"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 5,
+          "forSec": 6
+        }
+      ],
+      "stamps": [
+        "unverified-legal"
+      ],
+      "expectedSec": 21.8
+    },
+    {
+      "id": "tree-checklist",
+      "chapter": "process-tree",
+      "main": false,
+      "narration": "Trong mỗi bước có danh mục kiểm: mục nào có người, hạn và bằng chứng. Mục bắt buộc chưa xong thì chặn việc qua bước. Ngoại lệ phải có lý do và người duyệt, và được ghi vào nhật ký kiểm toán.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-29"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-29"
+        },
+        {
+          "do": "click",
+          "ref": "bid.package.tab-checklist"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.required-items"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "tree-alerts",
+      "chapter": "process-tree",
+      "main": false,
+      "narration": "Quy trình tự sinh cảnh báo: bước quá hạn, mục bắt buộc sát hạn mà chưa xong, gói đứng yên quá lâu, gói thiếu người phụ trách và thứ tự đăng tải sai trên mạng đấu thầu. Mỗi cảnh báo có chủ, hành động mong đợi và hậu quả.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-02",
+          "BID-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-02"
+        },
+        {
+          "do": "spot",
+          "ref": "alerts.item.package-overdue"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    }
+  ]
+}
