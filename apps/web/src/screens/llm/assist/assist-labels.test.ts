@@ -2,8 +2,8 @@ import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
 import { createTranslator } from '../../../i18n';
 import type { Locale } from '../../../i18n';
-import en from '../../../i18n/parts/ai2.en.json';
-import vi from '../../../i18n/parts/ai2.vi.json';
+import enAll from '../../../i18n/en.json';
+import viAll from '../../../i18n/vi.json';
 import { basisHint, basisLabel, basisTone, checkKindLabel, codeText, completenessLabel, completenessNote, completenessTone, configStatusLabel, configStatusTone, decisionLabel, decisionTone, errorText, exceptionStatusLabel, exceptionStatusTone, kindHint, kindLabel, resultTone, reviewByLabel, reviewDetailText, reviewResultLabel, routingNote, runStatusLabel, runStatusTone, scoreStatusLabel, scoreStatusTone, sectionLabel, severityLabel, severityTone, sourceKindLabel, verdictLabel, verdictNote, verdictTone, verificationLabel, weightStateText } from './assist-labels';
 import {
   CHECK_KINDS,
@@ -27,6 +27,11 @@ import {
   camelKey,
 } from './assist-model';
 
+// The keys of the assistant screens are the ones of the catalogues under these heads (the part file they were written in is folded away).
+const ASSIST_KEYS = /^llm.(assist|review|evaluation|config|exceptions)./;
+const only = (all: object): Record<string, string> => Object.fromEntries(Object.entries(all as Record<string, string>).filter(([key]) => ASSIST_KEYS.test(key)));
+const vi = only(viAll);
+const en = only(enAll);
 const catalogues = { vi: vi as Record<string, string>, en: en as Record<string, string> };
 
 /** A translator that throws for a key neither catalogue holds, so a label of an enumeration without its key fails here. */
