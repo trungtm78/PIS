@@ -1,0 +1,15 @@
+# A metric of the contract portfolio as code (CA-2, ST-BI-001). The meaning of the number is written once, in `packages/kernel/src/ctr-analytics.ts` (indicator PAID_TO_ACCEPTED); this file only says which
+# fields of the dataset DS-CTR it is made of. The dataset is read from the certified contract fact of a frozen snapshot.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Paid, the numerator of paid over accepted and the first term of paid ahead of acceptance (paid less accepted). A stock.
+code: ctr_paid_value
+grain: contract
+aggregation_type: semi_additive
+expression:
+  op: sum
+  args:
+    - { op: field, name: PAID }
+unit: VND
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, fund_source, investor, contractor, contract_status, contract_type]
+effective_from: "2026-11-08"

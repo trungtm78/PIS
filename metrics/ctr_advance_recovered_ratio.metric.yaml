@@ -1,0 +1,19 @@
+# A metric of the contract portfolio as code (CA-2, ST-BI-001). The meaning of the number is written once, in `packages/kernel/src/ctr-analytics.ts` (indicator ADVANCE_OUTSTANDING_RATIO, the share recovered is its complement); this file only says which
+# fields of the dataset DS-CTR it is made of. The dataset is read from the certified contract fact of a frozen snapshot.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Advance recovered over advance paid: how much of the advances the contracts have taken back.
+code: ctr_advance_recovered_ratio
+grain: contract
+aggregation_type: ratio
+numerator:
+  op: sum
+  args:
+    - { op: field, name: ADVANCE_RECOVERED }
+denominator:
+  op: sum
+  args:
+    - { op: field, name: ADVANCE_PAID }
+unit: percent
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, fund_source, investor, contractor, contract_status, contract_type]
+effective_from: "2026-11-08"
