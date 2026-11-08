@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { LOOK_AHEAD_CONSTRAINT_RESOURCE, LOOK_AHEAD_ITEM_RESOURCE, LOOK_AHEAD_RESOURCE, PrjLookAheadStore, TenantDatabase, projectScope } from '@machvon/db';
 import type { LookAheadPlanView, LookAheadView } from '@machvon/db';
@@ -44,9 +44,9 @@ export class LookAheadController {
 
   @Get('projects/:id/look-ahead')
   @OperationId('getLookAhead')
-  async read(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
+  async read(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Query('plan_id', new ParseUUIDPipe({ optional: true })) planId?: string): Promise<Record<string, unknown>> {
     const now = new Date();
-    const view = await this.database.withTenant(tenant, (tx) => this.store.view(tx, projectScope(access, PERMISSIONS.getLookAhead, now), id.toLowerCase(), now));
+    const view = await this.database.withTenant(tenant, (tx) => this.store.view(tx, projectScope(access, PERMISSIONS.getLookAhead, now), id.toLowerCase(), now, planId?.toLowerCase()));
     return lookAheadViewOf(view, now);
   }
 

@@ -329,8 +329,11 @@ export class PrjLookAheadStore {
     };
   }
 
-  /** The look-ahead of a project: the plan of the current week (or the newest one), the plans before it with their PPC, and whether a new plan is overdue. */
-  async view(tx: TenantTx, scope: ScopeBuilder, projectId: string, now: Date): Promise<LookAheadView> {
+  /**
+   * The look-ahead of a project: the plan of the current week (or the newest one), the plans before it with their PPC, and whether a new plan is overdue. With `planId` the plan of that week is shown instead (a draft for a
+   * week that has not begun is not the current one, and would otherwise never be seen); a plan of another project is 404, as a foreign id is everywhere.
+   */
+  async view(tx: TenantTx, scope: ScopeBuilder, projectId: string, now: Date, planId?: string): Promise<LookAheadView> {
     const project = await this.project(tx, scope, projectId);
     const rule = await this.policy(tx, now);
     const today = vietnamDateOf(now);
@@ -338,7 +341,13 @@ export class PrjLookAheadStore {
       `select id, week_start::text as week_start, horizon_weeks, status from machvon.look_ahead_plan where project_id = $1::uuid order by week_start desc limit ${MAX_WEEKS_BACK}`,
       [project.id],
     );
-    const current = plans.find((plan) => plan.week_start <= today) ?? plans[0];
+    let current = plans.find((plan) => plan.week_start <= today) ?? plans[0];
+    if (planId !== undefined) {
+      const asked = await tx.query<{ id: string; week_start: string; horizon_weeks: number; status: string }>('select id, week_start::text as week_start, horizon_weeks, status from machvon.look_ahead_plan where id = $1::uuid and project_id = $2::uuid', [planId, project.id]);
+      if (asked[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+      current = asked[0];
+      if (!plans.some((plan) => plan.id === current?.id)) plans.push(current);
+    }
     const history: LookAheadView['history'] = [];
     for (const plan of plans) {
       const outcomes = await tx.query<{ outcome: 'PLANNED' | 'DONE' | 'NOT_DONE' }>('select outcome from machvon.look_ahead_item where plan_id = $1::uuid', [plan.id]);

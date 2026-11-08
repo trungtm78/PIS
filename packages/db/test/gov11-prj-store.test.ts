@@ -108,6 +108,19 @@ describe('GOV-11a PRJ stores (G1-19): the look-ahead plan, the lessons learned a
       expect(await refusal(as((tx) => lookAheads.create(tx, nothing, { projectId: other, weekStart: '2026-11-09', horizonWeeks: 3, items: [item()], actor: memberId(ACTOR), now: NOW })))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
     });
 
+    it('opens the plan of a week that has not begun by its id, and treats the plan of another project or outside the scope as not found', async () => {
+      const id = await project('IMPLEMENTATION');
+      const current = await plan(id);
+      const future = await plan(id, { weekStart: '2026-11-16', items: [item({ plannedStart: '2026-11-17', plannedFinish: '2026-11-18' })] });
+      expect((await as((tx) => lookAheads.view(tx, everything, id, NOW))).plan?.id).toBe(current.id);
+      const asked = await as((tx) => lookAheads.view(tx, everything, id, NOW, future.id));
+      expect(asked.plan).toMatchObject({ id: future.id, status: 'DRAFT', weekStart: '2026-11-16' });
+      expect(asked.history.map((week) => week.id)).toEqual(expect.arrayContaining([current.id, future.id]));
+      const foreign = await plan(await project('IMPLEMENTATION'));
+      expect(await refusal(as((tx) => lookAheads.view(tx, everything, id, NOW, foreign.id)))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      expect(await refusal(as((tx) => lookAheads.view(tx, nothing, id, NOW, future.id)))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+    });
+
     it('publishes once under the version it was read at, and a published plan is not changed by the database', async () => {
       const made = await plan(await project('IMPLEMENTATION'));
       expect(await refusal(as((tx) => lookAheads.publish(tx, everything, { planId: made.id, expectedVersion: 99, actor: memberId(ACTOR), now: NOW })))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });

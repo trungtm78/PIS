@@ -186268,7 +186268,10 @@ export interface operations {
     };
     getLookAhead: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The plan of one week of the project (any status); without it the plan of the current week, or the newest one */
+                plan_id?: string;
+            };
             header?: never;
             path: {
                 id: string;

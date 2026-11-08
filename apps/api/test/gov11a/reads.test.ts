@@ -119,6 +119,8 @@ describe('the reads of the milestones, the clocks, the look-ahead and the lesson
       expect([path, reply.status]).toEqual([path, 404]);
     }
     expect([400, 422]).toContain((await get('/contracts/not-a-uuid/linkage')).status);
+    expect((await get(`/projects/${randomUUID()}/look-ahead?plan_id=${randomUUID()}`)).status).toBe(404);
+    expect([400, 422]).toContain((await get(`/projects/${randomUUID()}/look-ahead?plan_id=nope`)).status);
   });
 
   it('refuses a caller without the permission and reads nothing of another tenant', async () => {

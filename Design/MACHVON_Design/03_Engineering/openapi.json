@@ -200507,6 +200507,16 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "plan_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The plan of one week of the project (any status); without it the plan of the current week, or the newest one"
           }
         ],
         "x-read-model": true,
