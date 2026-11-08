@@ -3,7 +3,6 @@
   "note": "Vietnamese words of the shot checklist and of the shooting script. The code only fills the {placeholders}.",
   "shot": {
     "web": "Màn {id} \"{title}\" mở được ở đường dẫn {route}, có dữ liệu thật, không báo trống hay lỗi",
-    "webPending": "Màn {id} \"{title}\" (đường dẫn {route}) CHƯA có mô-đun trong bản này: chờ làn xây màn hình, rồi mới quay",
     "pwa": "Màn {id} của ứng dụng cài đặt (PWA) mở ở đường dẫn {route}, trong khung điện thoại",
     "phone": "Màn {id} \"{title}\" trên điện thoại ({route}) hiện đủ nội dung, không bị hệ điều hành che",
     "animatic": "Hoạt cảnh {id} chạy hết thời lượng của lời đọc, chữ trên hình là tiếng Việt",

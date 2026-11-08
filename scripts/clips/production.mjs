@@ -104,7 +104,7 @@ export function shotChecklist(scene, scenario, context, facts, production) {
   for (const id of scene.screen?.screens ?? []) {
     const fact = screenFact(id, context, facts);
     const route = fact.route ?? '-';
-    if (fact.kind === 'web') items.push({ kind: 'screen', text: fill(fact.implemented ? shot.web : shot.webPending, { id, title: fact.title, route }) });
+    if (fact.kind === 'web') items.push({ kind: 'screen', text: fill(shot.web, { id, title: fact.title, route }) });
     else if (fact.kind === 'pwa') items.push({ kind: 'screen', text: fill(shot.pwa, { id, route }) });
     else if (fact.kind === 'phone') items.push({ kind: 'screen', text: fill(shot.phone, { id, title: fact.title, route }) });
   }

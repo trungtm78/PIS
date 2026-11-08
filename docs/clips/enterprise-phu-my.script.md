@@ -1140,7 +1140,7 @@ Màn hình: `HPM-01` Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, 
 
 **Cần thấy trên hình**
 
-- [ ] Màn HPM-01 "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận" (đường dẫn /hpm/hpm-01) CHƯA có mô-đun trong bản này: chờ làn xây màn hình, rồi mới quay
+- [ ] Màn HPM-01 "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận" mở được ở đường dẫn /hpm/hpm-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản mneAdmin
 - [ ] Khung vào phần hpm.push.idempotency-key đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần hpm.push.retry đúng lúc giọng đọc nói tới
@@ -1180,7 +1180,7 @@ Màn hình: `HPM-01` Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, 
 
 **Cần thấy trên hình**
 
-- [ ] Màn HPM-01 "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận" (đường dẫn /hpm/hpm-01) CHƯA có mô-đun trong bản này: chờ làn xây màn hình, rồi mới quay
+- [ ] Màn HPM-01 "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận" mở được ở đường dẫn /hpm/hpm-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-11 "Nhật ký kiểm toán" mở được ở đường dẫn /adm/adm-11, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Khung vào phần hpm.push.stale-refusal đúng lúc giọng đọc nói tới
 - [ ] Chú thích "MẪU DEMO — chờ mẫu chính thức" hiện từ giây 2, kéo dài 6 giây
@@ -1217,7 +1217,7 @@ Màn hình: `EBS-02` Đối chiếu Oracle EBS theo mã dự án và giải trì
 
 **Cần thấy trên hình**
 
-- [ ] Màn EBS-02 "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch" (đường dẫn /ebs/ebs-02) CHƯA có mô-đun trong bản này: chờ làn xây màn hình, rồi mới quay
+- [ ] Màn EBS-02 "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch" mở được ở đường dẫn /ebs/ebs-02, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản dgvSteward
 - [ ] Tải tệp mẫu ebs-ledger-sample lên thao tác importEbsFile
 - [ ] Khung vào phần ebs.reconcile.difference-rows đúng lúc giọng đọc nói tới
