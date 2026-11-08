@@ -244751,10 +244751,9 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "source_commit",
-          "bundle_object_key",
-          "bundle_sha256"
+          "source_commit"
         ],
+        "description": "The bundle of the metrics of a deploy is given in one of two ways: by the key of an object already in the store with its SHA-256 (the pipeline of the repository), or inline as the document itself (`bundle`, a JSON document of the shape {version, metrics}); the server then keeps its canonical bytes and computes the hash. Exactly one of the two ways.",
         "properties": {
           "source_commit": {
             "type": "string",
@@ -244769,6 +244768,11 @@
           "bundle_sha256": {
             "type": "string",
             "pattern": "^[0-9a-f]{64}$"
+          },
+          "bundle": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The bundle inline: {version: 1, metrics: [...]}, the document scripts/bi-metrics-bundle.mjs builds."
           }
         }
       },

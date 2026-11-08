@@ -72,6 +72,29 @@ describe('the registry of metrics (ST-BI-001, BI F1)', () => {
       expect((await runs())[2]?.error_json).toEqual({ code: 'BREAKING_CHANGE_WITHOUT_NEW_CODE', detail: 'disbursement_rate' });
     });
 
+    it('takes the bundle inline, without a file in the object store: the server keeps the bytes it read and the hash it computed, and the same document again is the same deploy', async () => {
+      const first = await app.call('POST', '/bi/metric-registry-syncs', { member: PIPELINE, body: { source_commit: 'inline01', bundle: { version: 1, metrics: [RATE] } } });
+      expect(first.status).toBe(200);
+      expect(first.json).toMatchObject({ status: 'APPLIED', added: 1, revised: 0, retired: 0 });
+      const runs = await app.harness.owner<{ bundle_sha256: string; bundle_object_key: string }>(TENANT_A, [['select bundle_sha256, bundle_object_key from machvon.bi_metric_sync_run where source_commit = $1', ['inline01']]]);
+      expect(runs).toHaveLength(1);
+      expect(runs[0]?.bundle_object_key).toBe(`inline:${runs[0]?.bundle_sha256}`);
+      const again = await app.call('POST', '/bi/metric-registry-syncs', { member: PIPELINE, body: { source_commit: 'inline01', bundle: { version: 1, metrics: [RATE] } } });
+      expect(again.json).toMatchObject({ status: 'NO_CHANGE', added: 0 });
+    });
+
+    it('refuses a sync that gives both ways to name the bundle, or neither, and an inline document that is not a bundle', async () => {
+      const stored = await app.bundle([RATE]);
+      const both = await app.call('POST', '/bi/metric-registry-syncs', { member: PIPELINE, body: { source_commit: 'both0001', bundle: { version: 1, metrics: [RATE] }, bundle_object_key: stored.key, bundle_sha256: stored.sha256 } });
+      expect([both.status, both.json.code, both.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'bundle']);
+      const neither = await app.call('POST', '/bi/metric-registry-syncs', { member: PIPELINE, body: { source_commit: 'neither1' } });
+      expect([neither.status, neither.json.code, neither.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'bundle']);
+      const half = await app.call('POST', '/bi/metric-registry-syncs', { member: PIPELINE, body: { source_commit: 'half0001', bundle_object_key: stored.key } });
+      expect([half.status, half.json.code, half.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'bundle_sha256']);
+      const wrong = await app.call('POST', '/bi/metric-registry-syncs', { member: PIPELINE, body: { source_commit: 'wrong001', bundle: { version: 2, metrics: [] } } });
+      expect([wrong.status, wrong.json.code]).toEqual([422, 'METRIC_DEFINITION_INVALID']);
+    });
+
     it('takes a change of what a number means as the next revision when it starts on a later day, supersedes the revision it replaces, and keeps both', async () => {
       await sync([RATE]);
       const later = await sync([{ ...RATE, denominator: sum('KE_HOACH_TONG'), effective_from: '2027-01-01' }], 'a1b2c3d');

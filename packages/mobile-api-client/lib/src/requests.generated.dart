@@ -2052,19 +2052,22 @@ final class BiMetricDraft implements RequestModel {
 final class BiMetricSync implements RequestModel {
   const BiMetricSync({
     required this.sourceCommit,
-    required this.bundleObjectKey,
-    required this.bundleSha256,
+    this.bundleObjectKey,
+    this.bundleSha256,
+    this.bundle,
   });
 
   final String sourceCommit;
-  final String bundleObjectKey;
-  final String bundleSha256;
+  final String? bundleObjectKey;
+  final String? bundleSha256;
+  final Map<String, Object?>? bundle;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'source_commit': sourceCommit,
-        'bundle_object_key': bundleObjectKey,
-        'bundle_sha256': bundleSha256,
+        if (bundleObjectKey != null) 'bundle_object_key': bundleObjectKey,
+        if (bundleSha256 != null) 'bundle_sha256': bundleSha256,
+        if (bundle != null) 'bundle': bundle,
       };
 }
 

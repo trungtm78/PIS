@@ -30641,10 +30641,15 @@ export interface components {
             model_id: string;
             attempts: Record<string, never>[];
         };
+        /** @description The bundle of the metrics of a deploy is given in one of two ways: by the key of an object already in the store with its SHA-256 (the pipeline of the repository), or inline as the document itself (`bundle`, a JSON document of the shape {version, metrics}); the server then keeps its canonical bytes and computes the hash. Exactly one of the two ways. */
         BiMetricSync: {
             source_commit: string;
-            bundle_object_key: string;
-            bundle_sha256: string;
+            bundle_object_key?: string;
+            bundle_sha256?: string;
+            /** @description The bundle inline: {version: 1, metrics: [...]}, the document scripts/bi-metrics-bundle.mjs builds. */
+            bundle?: {
+                [key: string]: unknown;
+            };
         };
         BiMetricDraft: {
             code: string;

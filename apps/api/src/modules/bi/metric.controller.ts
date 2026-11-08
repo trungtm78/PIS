@@ -15,6 +15,7 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { FileService } from '../files';
+import { metricBundleSource } from './metric-bundle-source';
 import { metricView } from './metric-views';
 
 const RESOURCE_TYPE = 'metric_definition';
@@ -61,7 +62,8 @@ export class MetricRegistryController {
   @Command({ operation: 'syncMetricRegistry' })
   async sync(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['BiMetricSync']): Promise<CommandResult & { added: number; revised: number; retired: number }> {
     assertWholeTenant(access, PERMISSIONS.syncMetricRegistry);
-    const input: SyncRunInput = { sourceCommit: body.source_commit, bundleSha256: body.bundle_sha256, bundleObjectKey: body.bundle_object_key, triggeredBy: scope.tenant.membershipId };
+    const source = metricBundleSource(body);
+    const input: SyncRunInput = { sourceCommit: body.source_commit, bundleSha256: source.sha256, bundleObjectKey: source.objectKey, triggeredBy: scope.tenant.membershipId };
     await this.metrics.lockSync(scope.tx);
     // The same commit with the same bundle again is the same deploy: nothing is read and nothing changes.
     if ((await this.metrics.processedRun(scope.tx, input.sourceCommit, input.bundleSha256)) !== undefined) {
@@ -71,8 +73,8 @@ export class MetricRegistryController {
     }
     let plan: MetricSyncPlan;
     try {
-      const { bytes } = await this.files.download(scope.tenant, body.bundle_object_key);
-      const bundle = parseMetricBundle(bytes, body.bundle_sha256);
+      const bytes = source.bytes ?? (await this.files.download(scope.tenant, source.objectKey)).bytes;
+      const bundle = parseMetricBundle(bytes, source.sha256);
       plan = planMetricSync(await this.metrics.registeredPlatform(scope.tx), bundle);
     } catch (error) {
       if (!(error instanceof DomainError)) throw error;
