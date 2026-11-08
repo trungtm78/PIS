@@ -12,6 +12,7 @@ import { useFigures, useRegister } from '../shared/vnd-hooks';
 import { infoLabels, profileFieldLabel, verificationLabel } from '../shared/vnd-labels';
 import { PATHS, VERIFICATIONS, dayText, numberText, percentText, verificationTone } from '../shared/vnd-model';
 import type { Figures, Policy, RegisterLine } from '../shared/vnd-model';
+import { ControlFigures, DuplicateQueue } from './register-panels';
 import { CoverageBar, CountInfo, CursorPager, PolicyInfo, Screen, ScreenFooter, ScreenHead, StaleNotice, UnverifiedPill } from '../shared/vnd-ui';
 
 const PAGE_SIZE = 20;
@@ -182,6 +183,8 @@ function RegisterContent({ route }: ScreenProps) {
           </SectionCard>
         )}
       </StateBoundary>
+      <ControlFigures />
+      <DuplicateQueue />
       <ScreenFooter route={route} />
     </Screen>
   );

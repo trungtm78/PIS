@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { translator } from '../../../i18n';
 import base from '../../../i18n/vi.json';
 import RegisterScreen from './RegisterScreen';
-import { READER, client, coverage, figures, mount, registerLine, registerPage, routeOf } from '../shared/test/vnd-test-support';
+import { READER, client, coverage, figures, mount, policy, registerLine, registerPage, routeOf } from '../shared/test/vnd-test-support';
 import type { World } from '../shared/test/vnd-test-support';
 
 const word = (key: string): string => (base as Record<string, string>)[key] ?? key;
@@ -23,11 +23,14 @@ const rows = () => [
 ];
 
 function open(over: Partial<World['answers']> = {}, permissions: string[] = READER) {
-  const world: World = { answers: { listVendorRegister: registerPage(rows()), getVendorFigures: figures(), ...over } };
+  const world: World = { answers: { listVendorRegister: registerPage(rows()), getVendorFigures: figures(), ...PANELS, ...over } };
   const h = client(world);
   mount(<RegisterScreen route={route} />, h, { permissions });
   return { h, world };
 }
+
+// the panels of the controls and of the duplicate queue read their own operations; these screens' tests are about the register
+const PANELS = { getVendorControlFigures: { indicators: [], as_of: '2026-11-08T03:00:00.000Z' }, listVendorDuplicates: { items: [], policy: policy('VENDOR_DUPLICATE_SIGNALS'), as_of: '2026-11-08T03:00:00.000Z' } };
 
 const tableRows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-contractor-id]'));
 
@@ -164,7 +167,7 @@ describe('RegisterScreen (VND-01): the contractor register', () => {
   });
 
   it('ERROR: names the failure and retries in place', async () => {
-    const world: World = { answers: { listVendorRegister: registerPage(rows()), getVendorFigures: figures() }, failing: { listVendorRegister: { error: problem(500, 'INTERNAL_ERROR'), times: 1 } } };
+    const world: World = { answers: { listVendorRegister: registerPage(rows()), getVendorFigures: figures(), ...PANELS }, failing: { listVendorRegister: { error: problem(500, 'INTERNAL_ERROR'), times: 1 } } };
     mount(<RegisterScreen route={route} />, client(world), { permissions: READER });
     expect((await screen.findByRole('alert')).textContent).toContain(word('states.error.title'));
     fireEvent.click(screen.getByRole('button', { name: word('states.retry.action') }));
@@ -172,14 +175,14 @@ describe('RegisterScreen (VND-01): the contractor register', () => {
   });
 
   it('FORBIDDEN: says the scope is hidden and offers no list and no retry', async () => {
-    const world: World = { answers: { getVendorFigures: figures() }, failing: { listVendorRegister: { error: problem(403, 'SCOPE_DENIED'), times: 9 } } };
+    const world: World = { answers: { getVendorFigures: figures(), ...PANELS }, failing: { listVendorRegister: { error: problem(403, 'SCOPE_DENIED'), times: 9 } } };
     mount(<RegisterScreen route={route} />, client(world), { permissions: READER });
     expect((await screen.findByRole('alert')).textContent).toContain(word('states.denied.title'));
     expect(document.querySelector('tr[data-contractor-id]')).toBeNull();
   });
 
   it('PARTIAL: a failed strip does not hide the list, and says which part failed with a retry', async () => {
-    const world: World = { answers: { listVendorRegister: registerPage(rows()) }, failing: { getVendorFigures: { error: problem(500, 'INTERNAL_ERROR'), times: 1 } } };
+    const world: World = { answers: { listVendorRegister: registerPage(rows()), ...PANELS }, failing: { getVendorFigures: { error: problem(500, 'INTERNAL_ERROR'), times: 1 } } };
     world.answers.getVendorFigures = figures();
     const h = client(world);
     mount(<RegisterScreen route={route} />, h, { permissions: READER });

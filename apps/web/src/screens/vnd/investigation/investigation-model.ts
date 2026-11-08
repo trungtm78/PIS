@@ -41,6 +41,7 @@ export const INV_PERMISSION = {
   leadReview: 'vnd.lead.review',
   leadConfirm: 'vnd.lead.confirm',
   leadScan: 'vnd.lead.scan',
+  traceWrite: 'vnd.trace.write',
   screeningRead: 'vnd.screening.read',
   screeningRun: 'vnd.screening.run',
   screeningDecide: 'vnd.screening.decide',

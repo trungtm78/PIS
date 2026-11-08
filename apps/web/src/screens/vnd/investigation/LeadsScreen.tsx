@@ -15,6 +15,7 @@ import { useInvestigationFigures, useLeads, useVendorCommand } from './investiga
 import { leadKindLabel, leadStatusLabel } from './investigation-labels';
 import { INV_PATHS, INV_PERMISSION, LEAD_KINDS, LEAD_STATUSES, PAGE_SIZE, dayText, leadOpen, leadTone, numberText, percentText, rankTone, traceShares, vietnamStamp } from './investigation-model';
 import type { InvestigationFigures, LeadLine } from './investigation-model';
+import { SubmissionTraceDialog } from './trace-dialog';
 import './investigation.css';
 
 interface Filters {
@@ -49,6 +50,7 @@ function LeadsContent({ route }: ScreenProps) {
   const scan = useVendorCommand('runVendorLinkScan');
   const receipt = useReceipt();
   const [scanFailure, setScanFailure] = useState<unknown>(undefined);
+  const [tracing, setTracing] = useState(false);
   const data = query.data;
   const hidden = data === undefined && hiddenError(query.error);
   const state = useScreenState({ isLoading: query.isLoading, error: data === undefined && !hidden ? query.error : undefined, data, isEmpty: () => false });
@@ -82,10 +84,19 @@ function LeadsContent({ route }: ScreenProps) {
         asOf={data?.as_of}
         stale={refreshFailed}
         actions={
-          writer.can(INV_PERMISSION.leadScan) ? (
-            <button type="button" className="ui-button ui-button--primary" data-testid="run-scan" disabled={scan.isPending} onClick={runScan}>
-              {scan.isPending ? t('vnd3.leads.scan.pending') : t('vnd3.leads.scan.action')}
-            </button>
+          writer.can(INV_PERMISSION.leadScan) || writer.can(INV_PERMISSION.traceWrite) ? (
+            <span className="vnd-row">
+              {writer.can(INV_PERMISSION.traceWrite) && (
+                <button type="button" className="ui-button ui-button--outline" data-testid="record-trace" onClick={() => setTracing(true)}>
+                  {t('lookahead.vnd.trace.action')}
+                </button>
+              )}
+              {writer.can(INV_PERMISSION.leadScan) && (
+                <button type="button" className="ui-button ui-button--primary" data-testid="run-scan" disabled={scan.isPending} onClick={runScan}>
+                  {scan.isPending ? t('vnd3.leads.scan.pending') : t('vnd3.leads.scan.action')}
+                </button>
+              )}
+            </span>
           ) : undefined
         }
       />
@@ -226,6 +237,15 @@ function LeadsContent({ route }: ScreenProps) {
             )}
           </StateBoundary>
         </>
+      )}
+      {tracing && (
+        <SubmissionTraceDialog
+          onClose={() => setTracing(false)}
+          onDone={() => {
+            setTracing(false);
+            receipt.show(t('lookahead.vnd.trace.receipt'));
+          }}
+        />
       )}
       <ScreenFooter route={route} />
     </Screen>
