@@ -41,6 +41,8 @@ export const WORK_KINDS = [
   'PAYMENT_INTEGRITY_SIGNAL',
   'DISBURSEMENT_EXCEPTION_EXPIRING',
   'RESCHEDULE_COUNT',
+  // The connection to the national procurement network is older than its rule allows (lane EGP-1): the files it fed are shown as not up to date.
+  'CONNECTOR_STALE',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -81,6 +83,7 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   PAYMENT_INTEGRITY_SIGNAL: 29,
   DISBURSEMENT_EXCEPTION_EXPIRING: 30,
   RESCHEDULE_COUNT: 31,
+  CONNECTOR_STALE: 32,
 };
 
 export interface WorkItem {

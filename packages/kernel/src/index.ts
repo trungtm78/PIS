@@ -490,6 +490,27 @@ export type {
   EgpSubjectType,
 } from './egp.ts';
 export {
+  EGP_MAPPING_DIFFERENCE_CODES,
+  EGP_MAPPING_MOVES,
+  EGP_MAPPING_STATUSES,
+  EGP_MAX_REASON,
+  EGP_MIN_REASON,
+  EGP_POSITIONS,
+  assertEgpApplyAllowed,
+  assertEgpLayoutKnown,
+  egpConnectionMove,
+  egpConnectionView,
+  egpFreshnessParamsOf,
+  egpKindOf,
+  egpKindOfPosition,
+  egpMappingMove,
+  egpMappingRequestOf,
+  egpReasonOf,
+  isEgpLayoutKind,
+  isEgpSubjectType,
+} from './egp-connection.ts';
+export type { EgpConnectionState, EgpConnectionView, EgpMappingMove, EgpMappingRequest, EgpMappingStatus } from './egp-connection.ts';
+export {
   CONFLICT_DECISIONS,
   MAX_FILE_TITLE,
   MAX_PROPOSAL_FILES,
