@@ -2,6 +2,7 @@ import { DomainError, HUB_KPI_CODES, HUB_POLICY_RULE_CODE, HUB_POLICY_RULE_TYPE,
 import type { AgentHealth, AgentRegistration, ConnectorDescriptor, ConnectorHealth, EtlRun, FieldMapping, HubConnectorFact, HubFreshnessParams, HubPolicy, HubRunRecord, HubSeverity, HubSummary, IncidentAction, IncidentKind, IncidentMove, IncidentState, KpiDefinition, MappingVersion, PipelineSpec, ResolvedGovernanceRule, RunKind, RunOutcome } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { hubStateAdapterOf } from './hub-adapters.ts';
+import { hubProbeOf } from './hub-probes.ts';
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -560,7 +561,7 @@ export class HubStore {
    */
   async conformanceProblems(tx: TenantTx, descriptor: ConnectorDescriptor, now: Date): Promise<string[]> {
     const problems: string[] = [];
-    if (descriptor.ledger.positions.length > 0) {
+    if (descriptor.ledger.positions.length > 0 && descriptor.ledger.cursorless !== true) {
       const rows = await tx.query<{ connector_code: string }>("select connector_code from machvon.integration_cursor where connector_code = any($1::text[]) and source_scope = 'DEFAULT'", [[...descriptor.ledger.positions]]);
       for (const position of descriptor.ledger.positions) {
         if (!rows.some((row) => row.connector_code === position)) problems.push(`ledger: position ${position} has no integration_cursor row (call the ensure of the connector)`);
@@ -737,8 +738,9 @@ export class HubStore {
    * with the health. Returns the readings, the summary, what the incidents did and how many snapshots are new.
    */
   async sweep(tx: TenantTx, descriptors: readonly ConnectorDescriptor[], now: Date, actor: string): Promise<{ items: HubConnectorReading[]; summary: HubSummary; policy: HubPolicy; incidents: HubSweepChange; snapshotsWritten: number; bucket: string }> {
-    const { items, summary, policy } = await this.readings(tx, descriptors, now);
     const bucket = snapshotBucketOf(now);
+    await this.runProbes(tx, descriptors, now, bucket, actor);
+    const { items, summary, policy } = await this.readings(tx, descriptors, now);
     let written = 0;
     for (const item of items) {
       const inserted = await tx.query(
@@ -756,6 +758,21 @@ export class HubStore {
     written += hubRow.length;
     const incidents = await this.syncIncidents(tx, items, summary, policy);
     return { items, summary, policy, incidents, snapshotsWritten: written, bucket };
+  }
+
+  /** Asks each connector that has a probe how it stands and records the answer as one CHECK run for the hour of `now` (a repeat in the same hour finds it and writes nothing). */
+  private async runProbes(tx: TenantTx, descriptors: readonly ConnectorDescriptor[], now: Date, bucket: string, actor: string): Promise<void> {
+    for (const descriptor of descriptors) {
+      const probe = hubProbeOf(descriptor.code);
+      if (probe === undefined) continue;
+      const found = await probe.probe(tx, now);
+      await this.recordRun(
+        tx,
+        descriptor.code,
+        { kind: 'CHECK', outcome: found.outcome, startedAt: now, finishedAt: now, layoutCode: null, layoutVersion: null, rowsTotal: found.rowsTotal, rowsApplied: found.rowsTotal - found.rowsRejected, rowsRejected: found.rowsRejected, errorCode: found.outcome === 'FAILED' ? found.errorCode : null, sourceRef: `check:${bucket}` },
+        actor,
+      );
+    }
   }
 
   /** The newest snapshots of a connector (or of the whole hub when `code` is null), newest first. */

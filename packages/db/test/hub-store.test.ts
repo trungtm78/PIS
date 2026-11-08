@@ -71,7 +71,11 @@ describe('the Integration Hub store (HUB-1)', () => {
     it('shows every registered connector for a tenant that never used one: waiting for the outside, never "fine", and writes nothing to show it', async () => {
       const { items, summary } = await as((tx) => hub.readings(tx, connectorDescriptors(), NOW));
       expect(items.map((item) => item.descriptor.code)).toEqual(connectorDescriptors().map((one) => one.code));
-      for (const item of items) expect(item.health).toMatchObject({ status: 'PENDING_EXTERNAL', acceptance: 'PENDING_EXTERNAL', alert: null });
+      // A connector whose layout waits for the other side is PENDING_EXTERNAL; one whose layout is the tenant's own mapping (or that has none) is NEVER_RUN: neither is a fault and neither is fine.
+      for (const item of items) {
+        if (item.descriptor.layouts.some((layout) => layout.acceptance === 'PENDING_EXTERNAL')) expect(item.health).toMatchObject({ status: 'PENDING_EXTERNAL', acceptance: 'PENDING_EXTERNAL', alert: null });
+        else expect(item.health).toMatchObject({ status: 'NEVER_RUN', alert: null });
+      }
       expect(summary).toMatchObject({ monitored: 0, healthyPercent: null, hubAlert: null });
       expect((await owner('select 1 from machvon.hub_connector_state')).length).toBe(0);
       const treasury = items.find((item) => item.descriptor.code === 'treasury.statement');

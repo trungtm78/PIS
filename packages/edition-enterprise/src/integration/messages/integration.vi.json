@@ -8,6 +8,9 @@
     "formula": "Một chênh lệch với Oracle EBS phải được giải trình trong due_in_working_days ngày làm việc theo lịch đã công bố, kể từ ngày mở",
     "source": "Quyết định thiết kế ENT-2 ngày 2026-11-08 (định dạng tệp EBS chưa có, PENDING-EXTERNAL); số ngày là giả định chưa kiểm chứng"
   },
+  "hpmFreshness": {
+    "formula": "Tuổi = bây giờ trừ thời điểm lần chuyển giao gần nhất sang HPM được ghi nhận; mới đến warn_after_hours, già đến max_age_hours, quá hạn sau đó; con số lấy cùng giá trị với quy tắc HPM_PUSH_POLICY; chưa chuyển lần nào thì không báo động"
+  },
   "ebsFreshness": {
     "formula": "Tuổi = bây giờ trừ thời điểm áp dụng tệp Oracle EBS gần nhất; mới đến warn_after_hours, già đến max_age_hours, quá hạn sau đó; chưa nhập tệp nào thì không báo động"
   },

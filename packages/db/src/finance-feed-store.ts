@@ -37,6 +37,7 @@ import type {
   SourcedFeedRecord,
 } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
+import { HubRunPort } from './hub-run-port.ts';
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -490,6 +491,25 @@ export class FeedRecordStore {
       [runId, run.channel, run.kind, run.action, run.layoutVersion, run.fileSha256 ?? null, run.fileImportId ?? null, run.seed ?? null, run.epoch, run.parameters === undefined ? null : JSON.stringify(run.parameters), run.records.length, fresh.length, run.records.length - fresh.length, run.rejected, asOfLatest, run.digest ?? null, actor],
     );
     const written = await this.insert(tx, fresh, { channel: run.channel, epoch: run.epoch, runId, importId: null, layoutVersion: run.layoutVersion, actor });
+    // The hub learns of every run that does not pass through the file framework (a push, a move of the generator); the feed keeps its own history and its behaviour does not change.
+    const at = new Date();
+    const known = run.kind !== null && run.layoutVersion === FEED_LAYOUT_VERSION;
+    await new HubRunPort().report(
+      tx,
+      FEED_CONNECTOR_CODE,
+      {
+        kind: run.channel === 'GENERATOR' ? 'GENERATE' : 'IMPORT',
+        outcome: 'SUCCEEDED',
+        startedAt: at,
+        finishedAt: at,
+        ...(known ? { layoutCode: run.kind as string, layoutVersion: run.layoutVersion } : {}),
+        rowsTotal: run.records.length + run.rejected,
+        rowsApplied: written,
+        rowsRejected: run.rejected,
+        sourceRef: `feed-run:${runId}`,
+      },
+      actor,
+    );
     return { runId, written, skipped: run.records.length - written };
   }
 

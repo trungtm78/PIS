@@ -79,7 +79,7 @@ export const hubKpiDefaults = (): Readonly<Record<string, HubKpiDefault>> => {
         formula: message('hub.rule.kpi.healthy.formula'),
         numerator: message('hub.rule.kpi.healthy.numerator'),
         denominator: message('hub.rule.kpi.healthy.denominator'),
-        exclusions: [message('hub.rule.kpi.healthy.exclusions'), message('hub.rule.kpi.healthy.exclusions_2')],
+        exclusions: [message('hub.rule.kpi.healthy.exclusions'), message('hub.rule.kpi.healthy.exclusions_2'), message('hub.rule.kpi.healthy.exclusions_3')],
         unit: 'PERCENT',
         decimals: 1,
       },

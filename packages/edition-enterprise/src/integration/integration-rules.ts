@@ -1,6 +1,10 @@
-import { alertTypeDefaults, registerIntegrationRules, registerRuleDefaults, registerRuleType } from '@machvon/kernel';
+import { alertTypeDefaults, connectorDescriptor, registerConnector, registerIntegrationRules, registerRuleDefaults, registerRuleType } from '@machvon/kernel';
 import type { AlertTypeSeed, FieldSpec } from '@machvon/kernel';
-import { registerConnectorAlertReader } from '@machvon/db';
+import { registerConnectorAlertReader, registerHubStateAdapter } from '@machvon/db';
+import type { HubStateAdapter } from '@machvon/db';
+import { EBS_CONNECTION, EntConnectionStore, HPM_CONNECTION } from './ent-connection-store.ts';
+import type { EntConnectionDef } from './ent-connection-store.ts';
+import { ENTERPRISE_CONNECTORS, HPM_FRESHNESS_RULE_CODE } from './hub-descriptors.ts';
 import { ebsAlertReader, hpmAlertReader } from './integration-alerts.ts';
 import { textsOf } from '../report-forms/texts.ts';
 
@@ -18,6 +22,7 @@ interface IntegrationTexts {
   hpmPolicy: { formula: string; source: string };
   ebsPolicy: { formula: string; source: string };
   ebsFreshness: { formula: string };
+  hpmFreshness: { formula: string };
   alerts: Record<'hpmPushFailed' | 'hpmPushStale', { action: string; consequence: string; why: string }>;
   /** What each connection waits for from outside (R18): what, who gives it and what it blocks. */
   pendingExternal: Record<'hpm' | 'ebs', Array<{ code: string; what: string; owner: string; consequence: string }>>;
@@ -39,6 +44,24 @@ const EBS_SCHEMA: Readonly<Record<string, FieldSpec>> = { due_in_working_days: {
 
 let registered = false;
 
+/** The switch of an enterprise connection is the one of its own screen (the table ent_connection), moved by the same store as the command of that screen; the hub moves it through this adapter. */
+const switchAdapter = (def: EntConnectionDef): HubStateAdapter => {
+  const store = new EntConnectionStore(def);
+  return {
+    async read(tx) {
+      const row = await store.current(tx);
+      return { enabled: row.enabled, version: row.version, reason: row.stateReason, changedAt: row.stateChangedAt };
+    },
+    async set(tx, expectedVersion, move, actor) {
+      const moved = await store.setState(tx, expectedVersion, move, actor);
+      return {
+        before: { enabled: moved.before.enabled, version: moved.before.version },
+        after: { enabled: moved.row.enabled, version: moved.row.version, reason: moved.row.stateReason, changedAt: moved.row.stateChangedAt },
+      };
+    },
+  };
+};
+
 /** Registers the rules, the alert types and the alert readers of the connections of the enterprise edition. Idempotent. */
 export function registerEnterpriseIntegrationRules(): void {
   if (registered) return;
@@ -46,6 +69,13 @@ export function registerEnterpriseIntegrationRules(): void {
   registerIntegrationRules();
   const texts = integrationTexts();
   registerRuleDefaults('CONNECTOR_FRESHNESS', {
+    [HPM_FRESHNESS_RULE_CODE]: {
+      params: { max_age_hours: 1080, warn_after_hours: 720, stale_severity: 'ACTION', figures_blocked_when_stale: false },
+      formula: texts.hpmFreshness.formula,
+      source: texts.source,
+      asOf: INTEGRATION_AS_OF,
+      legalStatus: 'UNVERIFIED',
+    },
     EBS_FILE: {
       params: { max_age_hours: 168, warn_after_hours: 120, stale_severity: 'WATCH', figures_blocked_when_stale: false },
       formula: texts.ebsFreshness.formula,
@@ -84,4 +114,8 @@ export function registerEnterpriseIntegrationRules(): void {
   registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(seeds, { source: texts.source }));
   registerConnectorAlertReader(hpmAlertReader);
   registerConnectorAlertReader(ebsAlertReader);
+  // The two connections are connectors of the Integration Hub from the moment the edition loads (HUB-2): the descriptor, and the adapter that moves the switch of each.
+  for (const descriptor of ENTERPRISE_CONNECTORS) if (connectorDescriptor(descriptor.code) === undefined) registerConnector(descriptor);
+  registerHubStateAdapter(HPM_CONNECTION.code, switchAdapter(HPM_CONNECTION));
+  registerHubStateAdapter(EBS_CONNECTION.code, switchAdapter(EBS_CONNECTION));
 }

@@ -1,5 +1,6 @@
-import { DomainError, assertFourEyes, readTabularFile, versionConflict } from '@machvon/kernel';
+import { DomainError, MASTER_IMPORT_CONNECTOR_CODE, MASTER_IMPORT_LAYOUT, assertFourEyes, readTabularFile, versionConflict } from '@machvon/kernel';
 import type { TabularFile } from '@machvon/kernel';
+import { HubRunPort } from './hub-run-port.ts';
 import type { BatchAccess, MasterContent, MasterNamespace } from './master-store.ts';
 import { MasterCrosswalkStore, TENANT_ALIAS_SYSTEM } from './master-crosswalk-store.ts';
 import type { CrosswalkTarget } from './master-crosswalk-store.ts';
@@ -556,6 +557,14 @@ export class MasterImportStore {
     await tx.query(
       `update machvon.master_import_batch set status = 'IN_REVIEW', total_rows = $2, error_rows = $3, errors_json = $4::jsonb, applied_by = $5::uuid, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,
       [batch.id, plan.total, plan.errorRows, JSON.stringify(plan.errors), actor],
+    );
+    // The hub run log sees the batch with the other connectors; the import keeps its own batch history and its behaviour does not change.
+    const at = new Date();
+    await new HubRunPort().report(
+      tx,
+      MASTER_IMPORT_CONNECTOR_CODE,
+      { kind: 'IMPORT', outcome: plan.errorRows > 0 ? 'PARTIAL' : 'SUCCEEDED', startedAt: at, finishedAt: at, layoutCode: MASTER_IMPORT_LAYOUT.code, layoutVersion: MASTER_IMPORT_LAYOUT.version, rowsTotal: plan.total, rowsApplied: plan.valid.length, rowsRejected: plan.errorRows, sourceRef: `master-import:${batch.id}` },
+      actor,
     );
     return { batch: (await this.find(tx, batch.id)) as ImportBatchRow, created: plan.valid.length, skipped: plan.errorRows };
   }

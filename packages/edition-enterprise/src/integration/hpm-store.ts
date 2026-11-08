@@ -1,8 +1,8 @@
 import { DomainError, versionConflict } from '@machvon/kernel';
 import type { IssuedCopyMarks, IssuedCopyRef } from '@machvon/kernel';
-import { GovernancePolicyPort, timestampKey } from '@machvon/db';
+import { GovernancePolicyPort, HubRunPort, timestampKey } from '@machvon/db';
 import type { TenantTx } from '@machvon/db';
-import { HPM_PACKAGE_FORMAT, copyRefOf, decideHpmPush, hpmCopyRequestOf, hpmCorrectionDecision, hpmCorrectionRequestOf, hpmHealthOf, hpmKeyOf, hpmPolicyParamsOf, hpmPeriodRange, hpmRangesTouch, hpmReceiptMove, hpmRequestHash } from './hpm-rules.ts';
+import { HPM_CONNECTOR_CODE, HPM_PACKAGE_FORMAT, copyRefOf, decideHpmPush, hpmCopyRequestOf, hpmCorrectionDecision, hpmCorrectionRequestOf, hpmHealthOf, hpmKeyOf, hpmPolicyParamsOf, hpmPeriodRange, hpmRangesTouch, hpmReceiptMove, hpmRequestHash } from './hpm-rules.ts';
 import type { HpmCopyRequest, HpmCorrectionState, HpmHealth, HpmPolicyParams, HpmPushState } from './hpm-rules.ts';
 import type { HpmPort } from './hpm-port.ts';
 
@@ -475,6 +475,13 @@ export class HpmPushStore {
       `update machvon.hpm_push set status = $2, attempts = $3, last_attempt_at = $4::timestamptz, last_error_code = $5, response = coalesce($6::jsonb, response), version = version + 1, updated_at = $4::timestamptz, updated_by = $7::uuid
         where id = $1::uuid`,
       [row.id, ok ? 'WRITTEN' : 'FAILED', attempt, input.now.toISOString(), errorCode, response === null ? null : JSON.stringify(response), input.actor],
+    );
+    // The hub run log sees every attempt of a push with the other connectors; the push keeps its own ledger and its behaviour does not change.
+    await new HubRunPort().report(
+      tx,
+      HPM_CONNECTOR_CODE,
+      { kind: 'PUSH', outcome: ok ? 'SUCCEEDED' : 'FAILED', startedAt: input.now, finishedAt: input.now, layoutCode: 'DELIVERY_PACKAGE', layoutVersion: HPM_PACKAGE_FORMAT, rowsTotal: 1, rowsApplied: ok ? 1 : 0, rowsRejected: ok ? 0 : 1, errorCode, sourceRef: `hpm-push:${row.id}:${attempt}` },
+      input.actor,
     );
     const updated = (await this.find(tx, row.id)) as HpmPushRow;
     await this.attach(tx, [updated]);

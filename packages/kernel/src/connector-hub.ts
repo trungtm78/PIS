@@ -106,6 +106,8 @@ export interface ConnectorLedger {
   sourceSystems: readonly string[];
   /** Who owns the on/off switch: the connector's own command (CONNECTOR) or the hub (HUB). */
   stateOwner: 'CONNECTOR' | 'HUB';
+  /** True when the import path of the connector keeps no `integration_cursor` row for its positions (the framework is used without a cursor scope): the database half of the conformance check then does not ask for one. */
+  cursorless?: boolean;
 }
 
 export interface ConnectorDescriptor {
@@ -141,7 +143,7 @@ const CODE = /^[a-z0-9_.-]{3,60}$/;
 const WORD = /^[A-Z][A-Z0-9_]*$/;
 const MODULE = /^[A-Z]{2,6}$/;
 const SCREEN = /^[A-Z]{2,6}-\d{2}$/;
-const SCOPE = /^[a-z][a-z0-9_.]{1,60}$/;
+const SCOPE = /^[a-z][a-z0-9_.-]{1,60}$/;
 const HOST = /^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/;
 const SOURCE_FILE = /^[A-Za-z0-9_./-]{3,200}$/;
 
@@ -221,6 +223,7 @@ export function assertConnectorDescriptor(descriptor: ConnectorDescriptor): Conn
   const ledger = descriptor.ledger;
   if (!oneOf(CONNECTOR_LEDGER_KINDS, ledger.kind)) throw flaw(code, 'ledger.kind is unknown');
   if (!oneOf(['CONNECTOR', 'HUB'] as const, ledger.stateOwner)) throw flaw(code, 'ledger.stateOwner is unknown');
+  if (ledger.cursorless !== undefined && typeof ledger.cursorless !== 'boolean') throw flaw(code, 'ledger.cursorless must be a boolean');
   if (!ledger.positions.every((position) => WORD.test(position) && position.length <= 80)) throw flaw(code, 'a ledger position must be an upper case word');
   if (ledger.kind === 'FILE_FRAMEWORK' && ledger.positions.length === 0) throw flaw(code, 'a file framework connector names its positions');
   if (ledger.kind !== 'FILE_FRAMEWORK' && ledger.positions.length > 0) throw flaw(code, 'only a file framework connector has positions');
@@ -462,7 +465,7 @@ export interface HubConnectorFact {
 
 export interface HubSummary {
   total: number;
-  /** Enabled connectors that are not waiting for the other side: the denominator of the healthy share. */
+  /** Enabled connectors that have run at least once and are not waiting for the other side: the denominator of the healthy share. */
   monitored: number;
   healthy: number;
   counts: Record<HubHealthStatus, number>;
@@ -494,7 +497,8 @@ export function summarizeHub(facts: readonly HubConnectorFact[], policy: Pick<Hu
     pending += fact.pendingMappings;
     if (fact.health.status !== 'DISABLED' && fact.health.ageHours !== null && (oldest === null || fact.health.ageHours > oldest.hours)) oldest = { hours: fact.health.ageHours, code: fact.code };
   }
-  const monitored = facts.length - counts.DISABLED - counts.PENDING_EXTERNAL;
+  // A connector nobody has used yet is neither fine nor a fault (HUB-2): it is left out of the healthy share like one that waits for the other side or is switched off.
+  const monitored = facts.length - counts.DISABLED - counts.PENDING_EXTERNAL - counts.NEVER_RUN;
   const stale = counts.STALE;
   const hubAlert: HubAlert | null = monitored >= policy.hubStaleMinConnectors && stale > 0 && (stale / monitored) * 100 >= policy.hubStaleRatioPercent ? { code: HUB_ALERT_HUB_STALE, severity: policy.hubStaleSeverity } : null;
   return {

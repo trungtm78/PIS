@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { GovernancePolicyPort } from '@machvon/db';
 import type { HubAgentRow, HubConnectorReading, HubIncidentRow, HubMappingRow, HubRejectRow, HubRunView, HubSnapshotRow, TenantTx } from '@machvon/db';
-import { connectorAlertTypes, connectorScreenRoute, nextRunAt, protocolDefinition } from '@machvon/kernel';
+import { connectorAlertTypes, connectorScreenRoute, connectorTransports, nextRunAt, protocolDefinition } from '@machvon/kernel';
 import type { ConnectorDescriptor, HubPolicy, HubSummary, PipelineSpec } from '@machvon/kernel';
 import { vietnamDateOf } from '@machvon/kernel';
 import type { Schemas } from '../../contract-types';
@@ -15,6 +15,27 @@ export const isWorkingDay = (day: string): boolean => {
 };
 
 export const alertDto = (alert: { code: string; severity: string } | null): Schemas['HubAlert'] | null => (alert === null ? null : { code: alert.code, severity: alert.severity as Schemas['HubAlert']['severity'] });
+
+/**
+ * What the registry tab of the catalogue shows about a connector beside its status (HUB-2): the transports, the layouts with their version and acceptance, the freshness policy in force (the rule when the tenant has one, else
+ * the default, else what the descriptor itself says), what credential it needs, the alert types it can raise, who owns its switch and where its history lives.
+ */
+export function registryFactsDto(reading: HubConnectorReading): Schemas['HubRegistryFacts'] {
+  const { descriptor, rule } = reading;
+  return {
+    transports: connectorTransports(descriptor),
+    layouts: descriptor.layouts.map((layout) => ({ code: layout.code, version: layout.version, acceptance: layout.acceptance })),
+    freshness_rule: descriptor.freshness === null ? null : descriptor.freshness.ruleCode,
+    max_age_hours: rule === null ? null : rule.params.maxAgeHours,
+    warn_after_hours: rule === null ? null : rule.params.warnAfterHours,
+    rule_source: rule === null ? 'NOT_JUDGED' : rule.source,
+    credential_kind: descriptor.credentials.kind,
+    scopes: [...(descriptor.credentials.scopes ?? [])],
+    alert_types: connectorAlertTypes(descriptor),
+    state_owner: descriptor.ledger.stateOwner,
+    history: descriptor.ledger.kind,
+  };
+}
 
 export function connectorSummaryDto(reading: HubConnectorReading): Schemas['HubConnectorSummary'] {
   const { descriptor, health } = reading;
@@ -41,6 +62,7 @@ export function connectorSummaryDto(reading: HubConnectorReading): Schemas['HubC
     owner_role: descriptor.ownerRole,
     egress_policy: descriptor.egress.policy,
     screens: descriptor.screens.map((code) => ({ code, route: connectorScreenRoute(code) })),
+    registry: registryFactsDto(reading),
   };
 }
 
