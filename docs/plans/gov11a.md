@@ -65,3 +65,6 @@ Builds on kernel `prj-wbs.ts`, QMS site diary (`qms-diary.ts`), `prj-stage-store
 ## Final status (2026-11-08)
 
 Own suites green (db: gov11-prj, gov11-dis-cap, pay-clock, ctr-gov11, pay-claim, pay-form, pay-settlement, jobs; api: gov11a/reads; web vitest 397; typecheck; lint with every check). Shared suites (isolation, reachability, conformance, outbox-consumers, dis/report, negative matrix, workers) were NOT run here by the lead rule; entries and counts were added only.
+
+## Merge renumbering (2026-11-08)
+At the merge onto main the ids that clashed with earlier lanes were renumbered: DIS-27 -> DIS-30 and DIS-28 -> DIS-31 (FND-1 keeps DIS-27, DIS-28), CTR-32 -> CTR-38 and CTR-33 -> CTR-39 (GOV-8 keeps CTR-32, CTR-33), PRJ-28 -> PRJ-30 (MR-1 keeps PRJ-28). CAP-23, PAY-22 and PRJ-29 did not clash and stay. Stories: ST-DIS-026 -> ST-DIS-027, ST-CTR-021 -> ST-CTR-023, ST-PRJ-020 -> ST-PRJ-021; features FT-DIS-09 -> FT-DIS-10, FT-CTR-10 -> FT-CTR-11.

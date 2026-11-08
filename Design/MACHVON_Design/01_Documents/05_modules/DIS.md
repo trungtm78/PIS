@@ -267,4 +267,4 @@ Jobs (Temporal): `dis.period-autoclose` (soft-close sau deadline, lock theo poli
 
 **Độ chính xác.** Quy tắc `DISBURSEMENT_FORECAST_ACCURACY`: so dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng; sai số tuyệt đối có trọng số (WAPE), độ lệch, hạng tốt/khá/kém, không xếp hạng khi chưa đủ số tháng.
 
-**API.** `GET /disbursement-milestones`, `GET /disbursement-forecast-accuracy`. **Màn.** DIS-27, DIS-28.
+**API.** `GET /disbursement-milestones`, `GET /disbursement-forecast-accuracy`. **Màn.** DIS-30, DIS-31.
