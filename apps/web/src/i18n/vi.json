@@ -29289,5 +29289,6 @@
   "hub.inc.dlg.report.connector": "Bộ kết nối",
   "hub.inc.dlg.report.severity": "Mức",
   "hub.inc.dlg.report.summary": "Điều đã thấy (ít nhất {min} ký tự)",
-  "hub.inc.dlg.report.invalid": "Cần chọn bộ kết nối và mô tả ít nhất {min} ký tự."
+  "hub.inc.dlg.report.invalid": "Cần chọn bộ kết nối và mô tả ít nhất {min} ký tự.",
+  "hub.common.more": "Tải thêm"
 }

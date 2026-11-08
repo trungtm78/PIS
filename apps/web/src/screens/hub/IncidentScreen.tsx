@@ -122,6 +122,12 @@ function IncidentContent({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void query.refetch()}>
         {data !== undefined && <DataTable caption={t('hub.inc.table.caption')} columns={columns} rows={data.items} rowKey={(incident) => incident.id} />}
       </StateBoundary>
+        {query.hasNextPage === true ? (
+          <button type="button" className="ui-button ui-button--outline" data-testid="more-incidents" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
+            {t('hub.common.more')}
+          </button>
+        ) : null}
+
       {step === undefined ? null : step === 'report' ? <ReportDialog preset={connectorCode} onClose={() => setStep(undefined)} /> : <DecideDialog step={step} onClose={() => setStep(undefined)} />}
       <p className="prototype-note">{t('hub.common.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

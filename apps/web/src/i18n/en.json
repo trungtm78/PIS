@@ -29289,5 +29289,6 @@
   "hub.inc.dlg.report.connector": "Connector",
   "hub.inc.dlg.report.severity": "Severity",
   "hub.inc.dlg.report.summary": "What was seen (at least {min} characters)",
-  "hub.inc.dlg.report.invalid": "Choose a connector and describe it in at least {min} characters."
+  "hub.inc.dlg.report.invalid": "Choose a connector and describe it in at least {min} characters.",
+  "hub.common.more": "Load more"
 }

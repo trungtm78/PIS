@@ -211,6 +211,12 @@ function RunsTab({ code }: { code: string }) {
       <StateBoundary state={state} onRetry={() => void runs.refetch()}>
         {runs.data !== undefined && <DataTable caption={t('hub.runs.caption')} columns={columns} rows={runs.data.items} rowKey={(run) => run.id} />}
       </StateBoundary>
+        {runs.hasNextPage === true ? (
+          <button type="button" className="ui-button ui-button--outline" data-testid="more-runs" disabled={runs.isFetchingNextPage} onClick={() => void runs.fetchNextPage()}>
+            {t('hub.common.more')}
+          </button>
+        ) : null}
+
     </SectionCard>
   );
 }
@@ -265,6 +271,12 @@ function PipelineTab({ data, onReject }: { data: Detail; onReject: (reject: Reje
         <StateBoundary state={rejectState} onRetry={() => void rejects.refetch()}>
           {rejects.data !== undefined && <DataTable caption={t('hub.rej.caption')} columns={rejectColumns} rows={rejects.data.items} rowKey={(reject) => reject.id} />}
         </StateBoundary>
+        {rejects.hasNextPage === true ? (
+          <button type="button" className="ui-button ui-button--outline" data-testid="more-rejects" disabled={rejects.isFetchingNextPage} onClick={() => void rejects.fetchNextPage()}>
+            {t('hub.common.more')}
+          </button>
+        ) : null}
+
       </SectionCard>
       <SectionCard title={t('hub.pipe.protocols.section')}>
         <table className="hub-table">

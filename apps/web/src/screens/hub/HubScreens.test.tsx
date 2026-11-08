@@ -326,6 +326,21 @@ describe('HUB-03, the incident log', () => {
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('openHubIncident', expect.objectContaining({ body: { connector_code: 'treasury.statement', summary: 'The file arrived with another layout', severity: 'WATCH' } })));
   });
 
+  it('loads the next page with the cursor the server gave, shows both pages in one list and offers no more once the last page came', async () => {
+    const h = mountLog((operation, input) => {
+      if (operation !== 'listHubIncidents') throw new Error(`unexpected read ${operation}`);
+      const cursor = (input as { query: { cursor?: string } }).query.cursor;
+      return cursor === undefined ? page([incident(90)], { next_cursor: 'cursor-1' }) : page([incident(91, { connector_code: 'treasury.statement' })]);
+    });
+    expect(await screen.findByTestId(`incident-${uuid(90)}`)).toBeTruthy();
+    expect(screen.queryByTestId(`incident-${uuid(91)}`)).toBeNull();
+    fireEvent.click(screen.getByTestId('more-incidents'));
+    expect(await screen.findByTestId(`incident-${uuid(91)}`)).toBeTruthy();
+    expect(screen.getByTestId(`incident-${uuid(90)}`)).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listHubIncidents', expect.objectContaining({ query: expect.objectContaining({ cursor: 'cursor-1' }) }));
+    expect(screen.queryByTestId('more-incidents')).toBeNull();
+  });
+
   it('shows the empty state and the denied state', async () => {
     mountLog(reads([]));
     await waitFor(() => expect(screen.queryByTestId(`incident-${uuid(90)}`)).toBeNull());

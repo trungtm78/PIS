@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -38,26 +38,51 @@ export function useConnector(connectorCode: string | undefined) {
   });
 }
 
+interface Paged<Item> {
+  items: Item[];
+  next_cursor: string | null;
+  as_of: string;
+}
+
+/** What a list screen needs of a paged read: every page loaded so far as one list, whether there is more, and the way to ask for it (the cursor is the server's, never made up here). */
+function usePaged<Item, Page extends Paged<Item>>(key: readonly unknown[], enabled: boolean, read: (cursor: string | undefined) => Promise<Page>) {
+  const query = useInfiniteQuery({
+    queryKey: key,
+    queryFn: ({ pageParam }) => read(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last: Page) => last.next_cursor ?? undefined,
+    enabled,
+    retry: false,
+  });
+  const pages = query.data?.pages;
+  const last = pages === undefined ? undefined : (pages[pages.length - 1] as Page);
+  const data = last === undefined || pages === undefined ? undefined : ({ ...last, items: pages.flatMap((page) => page.items) } as Page);
+  return {
+    data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+    hasNextPage: query.hasNextPage,
+    fetchNextPage: query.fetchNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+  };
+}
+
 export function useRuns(connectorCode: string | undefined) {
   const client = useApiClient();
   const key = useScopeKey();
-  return useQuery<{ items: Run[]; next_cursor: string | null; as_of: string }>({
-    queryKey: [...key, 'runs', connectorCode ?? ''],
-    queryFn: () => client.read('listHubConnectorRuns', { path: code(connectorCode as string), query: q({ limit: 50 }) }) as Promise<{ items: Run[]; next_cursor: string | null; as_of: string }>,
-    enabled: key[1] !== undefined && connectorCode !== undefined,
-    retry: false,
-  });
+  return usePaged<Run, Paged<Run>>([...key, 'runs', connectorCode ?? ''], key[1] !== undefined && connectorCode !== undefined, (cursor) =>
+    client.read('listHubConnectorRuns', { path: code(connectorCode as string), query: q({ limit: 50, ...(cursor === undefined ? {} : { cursor }) }) }) as Promise<Paged<Run>>,
+  );
 }
 
 export function useRejects(connectorCode: string | undefined) {
   const client = useApiClient();
   const key = useScopeKey();
-  return useQuery<{ items: Reject[]; next_cursor: string | null; open_count: number; as_of: string }>({
-    queryKey: [...key, 'rejects', connectorCode ?? ''],
-    queryFn: () => client.read('listHubRejects', { path: code(connectorCode as string), query: q({ state: 'OPEN', limit: 100 }) }) as Promise<{ items: Reject[]; next_cursor: string | null; open_count: number; as_of: string }>,
-    enabled: key[1] !== undefined && connectorCode !== undefined,
-    retry: false,
-  });
+  return usePaged<Reject, Paged<Reject> & { open_count: number }>([...key, 'rejects', connectorCode ?? ''], key[1] !== undefined && connectorCode !== undefined, (cursor) =>
+    client.read('listHubRejects', { path: code(connectorCode as string), query: q({ state: 'OPEN', limit: 100, ...(cursor === undefined ? {} : { cursor }) }) }) as Promise<Paged<Reject> & { open_count: number }>,
+  );
 }
 
 export function useAgents(connectorCode: string | undefined) {
@@ -79,12 +104,11 @@ export interface IncidentFilter {
 export function useIncidents(filter: IncidentFilter) {
   const client = useApiClient();
   const key = useScopeKey();
-  return useQuery<{ items: Incident[]; next_cursor: string | null; as_of: string }>({
-    queryKey: [...key, 'incidents', filter.state ?? '', filter.connectorCode ?? ''],
-    queryFn: () => client.read('listHubIncidents', { query: q({ ...(filter.state === undefined ? {} : { state: filter.state }), ...(filter.connectorCode === undefined ? {} : { connector_code: filter.connectorCode }), limit: 100 }) }) as Promise<{ items: Incident[]; next_cursor: string | null; as_of: string }>,
-    enabled: key[1] !== undefined,
-    retry: false,
-  });
+  return usePaged<Incident, Paged<Incident>>([...key, 'incidents', filter.state ?? '', filter.connectorCode ?? ''], key[1] !== undefined, (cursor) =>
+    client.read('listHubIncidents', {
+      query: q({ ...(filter.state === undefined ? {} : { state: filter.state }), ...(filter.connectorCode === undefined ? {} : { connector_code: filter.connectorCode }), limit: 100, ...(cursor === undefined ? {} : { cursor }) }),
+    }) as Promise<Paged<Incident>>,
+  );
 }
 
 /** One command, one idempotency attempt per intention: the key is kept while the same request is retried and dropped when it ends. */
