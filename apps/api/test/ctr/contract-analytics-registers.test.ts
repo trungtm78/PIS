@@ -190,7 +190,7 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
       [TENANT_A, memberId(ADMIN)],
     );
     // R-1: 40 days late, money in the ledger, a guarantee; R-2: on time; R-3: a draft (it can be neither rated nor coloured).
-    await seedContract('R-1', 'ACTIVE', M(1000), { accepted: M(800), requested: M(800), paid: M(900), due: day(-40), guarantee: M(100) });
+    await seedContract('R-1', 'ACTIVE', M(1000), { accepted: M(800), requested: M(800), paid: M(800), due: day(-40), guarantee: M(100) });
     await seedContract('R-2', 'ACTIVE', M(2000), { accepted: M(500), requested: M(500), paid: M(400), due: day(90), guarantee: M(200) });
     await seedContract('R-3', 'DRAFT', M(500));
     await defect('R-1', 'CRITICAL', 'OPEN', { dueOffset: -5 });
