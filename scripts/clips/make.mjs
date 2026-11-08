@@ -112,6 +112,22 @@ const isEmptySelection = (text) => text.length < 700 && EMPTY_SELECTION.test(tex
 /** The internal links of the page now open (same origin, no query noise kept except what the app wrote). */
 const hrefsOf = (page) => page.$$eval('[data-screen-id] a[href]', (anchors) => [...new Set(anchors.map((anchor) => anchor.getAttribute('href')))].filter((href) => href.startsWith('/')));
 
+
+/** The id of the first warning a person sees (GET /home/warnings through the web proxy, signed as the development session of the clip stack). */
+async function firstWarningId(page, persona) {
+  const key = process.env.E2E_SESSION_KEY;
+  const infoPath = process.env.E2E_STACK_INFO;
+  if (key === undefined || infoPath === undefined) return undefined;
+  const { sessionToken, membershipOfPerson } = await import('../clip-seed-client.mjs');
+  const info = JSON.parse(readFileSync(infoPath, 'utf8'));
+  const token = sessionToken({ key, tenantId: info.tenants.A, membershipId: membershipOfPerson(join(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'e2e-fixtures.json'), persona) });
+  const base = new URL(page.url()).origin;
+  const reply = await fetch(`${base}/api/home/warnings?limit=1`, { headers: { authorization: `Bearer ${token}`, accept: 'application/json' } });
+  const body = await reply.json();
+  const first = Array.isArray(body.items) ? body.items[0] : undefined;
+  return typeof first?.id === 'string' ? first.id : undefined;
+}
+
 /**
  * A detail screen opened with no record says "choose one": find a link of another screen that opens it with a record (the app writes the id in the link) and
  * return that address. Pages are searched breadth first, two levels deep, at most 12 pages.
@@ -119,6 +135,14 @@ const hrefsOf = (page) => page.$$eval('[data-screen-id] a[href]', (anchors) => [
 async function findContext(ui, page, target, persona, hints, log) {
   const prefix = ROUTES[target];
   if (contextLinks.has(target)) return contextLinks.get(target);
+  // The profile of a warning is opened with the id of one in the address (?warning=): the first one the person sees is read from the API.
+  if (target === 'HOME-06') {
+    const id = await firstWarningId(page, persona).catch(() => undefined);
+    if (id !== undefined) {
+      contextLinks.set(target, `${prefix}?warning=${id}`);
+      return contextLinks.get(target);
+    }
+  }
   const queue = [...hints.filter((id) => id !== target), ...CONTEXT_HINTS].map((id) => ROUTES[id]).filter((path) => path !== undefined && path !== prefix);
   const seen = new Set();
   const queries = [];
