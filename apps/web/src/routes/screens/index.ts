@@ -505,6 +505,12 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'VND-10': () => import('../../screens/vnd/subcontracts/SubcontractScreen'),
   'VND-11': () => import('../../screens/vnd/risk/RiskScreen'),
   'VND-12': () => import('../../screens/vnd/performance/PerformanceScreen'),
+=======
+  // The investigation of contractors (lane VND-3): leads, one lead with its graph, the screening against lists of banned parties, disputes and the OCDS export.
+  'VND-13': () => import('../../screens/vnd/investigation/LeadsScreen'),
+  'VND-14': () => import('../../screens/vnd/investigation/LeadDetailScreen'),
+  'VND-15': () => import('../../screens/vnd/investigation/ScreeningScreen'),
+  'VND-22': () => import('../../screens/vnd/investigation/DisputesScreen'),
   // The claim register and the early-warning register of a contract (lane GOV-8).
   'CTR-32': () => import('../../screens/ctr/claims/ClaimRegisterScreen'),
   'CTR-33': () => import('../../screens/ctr/claims/ClaimRecordScreen'),

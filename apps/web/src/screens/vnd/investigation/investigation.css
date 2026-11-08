@@ -1,0 +1,34 @@
+/* VND-13, VND-14, VND-15, VND-22: the investigation of contractors. Tokens only; the kit draws the cards, the tables, the pills and the figures. */
+@import '../shared/vnd.css';
+
+.inv-notice { margin: 0; }
+.inv-counts { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin: 0 0 var(--mv-space-12); padding: 0; list-style: none; }
+.inv-counts li { display: inline-flex; align-items: center; gap: var(--mv-space-4); }
+.inv-rank { font-variant-numeric: tabular-nums; font-size: 18px; }
+.inv-evidence { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--mv-space-4) var(--mv-space-12); font-size: 12px; }
+.inv-evidence dt { color: var(--mv-color-text-secondary); }
+.inv-evidence dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.inv-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: var(--mv-space-16); align-items: start; }
+.inv-aside { border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); padding: var(--mv-space-16); display: grid; gap: var(--mv-space-12); }
+.inv-textarea { width: 100%; min-height: 120px; padding: var(--mv-space-8); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); color: var(--mv-color-ink); font: inherit; }
+.inv-preview { margin: 0; padding-left: var(--mv-space-16); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* the graph: an inline SVG that takes its size from the page, so it never scrolls the page sideways */
+.inv-graph { margin: 0; display: grid; gap: var(--mv-space-12); min-width: 0; }
+.inv-graph__svg { width: 100%; height: auto; max-height: 520px; border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface2); }
+.inv-graph__table { min-width: 0; }
+.inv-graph__selected { border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); padding: var(--mv-space-12); background: var(--mv-color-surface); }
+.inv-graph__selected h3 { margin: 0 0 var(--mv-space-8); font-size: 14px; }
+.inv-edge { stroke: var(--mv-color-chart-plan); stroke-linecap: round; }
+.inv-edge--stale { stroke-dasharray: 6 4; }
+.inv-edge--on { stroke: var(--mv-color-primary); }
+.inv-edge__label { fill: var(--mv-color-ink); font-size: 11px; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 4px; }
+.inv-node { cursor: pointer; outline: none; }
+.inv-node circle { fill: var(--mv-color-surface); stroke: var(--mv-color-ink); stroke-width: 2; }
+.inv-node--focus circle { fill: var(--mv-color-primary-soft); stroke: var(--mv-color-primary); stroke-width: 4; }
+.inv-node--restricted circle { stroke: var(--mv-color-danger); stroke-dasharray: 5 3; }
+.inv-node--selected circle { stroke-width: 4; }
+.inv-node:focus-visible circle { stroke: var(--mv-color-focus); stroke-width: 5; stroke-dasharray: none; }
+.inv-node__initial { fill: var(--mv-color-ink); font-size: 14px; font-weight: 600; }
+.inv-node__name { fill: var(--mv-color-ink); font-size: 11px; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 3px; }
+.inv-node__badge { fill: var(--mv-color-danger); font-size: 11px; font-weight: 600; }
