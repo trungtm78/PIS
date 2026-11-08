@@ -14,7 +14,7 @@ import { LeadMoveDialog } from './lead-dialogs';
 import type { LeadMove } from './lead-dialogs';
 import { useLead } from './investigation-hooks';
 import { evidenceKeyLabel, evidenceValueText, leadKindLabel, leadMoveLabel, leadStatusLabel } from './investigation-labels';
-import { INV_PATHS, INV_PERMISSION, dayText, historyGroups, leadTone, nodesOfLead, rankTone, traceShares, vietnamStamp } from './investigation-model';
+import { INV_PATHS, dayText, historyGroups, leadTone, nodesOfLead, rankTone, traceShares, vietnamStamp } from './investigation-model';
 import type { LeadDetail, LeadSignal } from './investigation-model';
 import { LinkGraph } from './LinkGraph';
 import './investigation.css';

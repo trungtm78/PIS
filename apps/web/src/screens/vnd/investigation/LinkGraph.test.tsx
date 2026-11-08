@@ -6,7 +6,7 @@ import { LinkGraph } from './LinkGraph';
 import { leadContractor, leadLink } from './test/investigation-fixtures';
 import { text, word } from './test/helpers';
 import { uuid } from '../shared/test/vnd-test-support';
-import type { LinkNode } from './investigation-model';
+import type { LeadLink, LinkNode } from './investigation-model';
 
 afterEach(() => {
   cleanup();
@@ -17,7 +17,8 @@ const A = uuid('0001', 1);
 const B = uuid('0001', 2);
 const C = uuid('0001', 3);
 const nodes: LinkNode[] = [leadContractor(1), leadContractor(2, { restricted: true }), leadContractor(3)].map((item) => ({ ...item, cluster: null }));
-const links = [leadLink(1, 2), leadLink(2, 3, { strength: 61, status: 'STALE', evidence: [{ kind: 'ADDRESS', fingerprint: '99999999', weight: 35 }, { kind: 'PHONE', fingerprint: '88888888', weight: 40 }] })];
+const typed = (value: unknown): LeadLink => value as LeadLink;
+const links = [typed(leadLink(1, 2)), typed(leadLink(2, 3, { strength: 61, status: 'STALE', evidence: [{ kind: 'ADDRESS', fingerprint: '99999999', weight: 35 }, { kind: 'PHONE', fingerprint: '88888888', weight: 40 }] }))];
 
 const draw = (focus: string | null = A) =>
   render(
@@ -92,7 +93,7 @@ describe('LinkGraph: the graph of related parties', () => {
   it('says an isolated contractor has no link', () => {
     render(
       <MemoryRouter>
-        <LinkGraph nodes={nodes} links={[leadLink(1, 2)]} focusId={null} title="Đồ thị thử" />
+        <LinkGraph nodes={nodes} links={[typed(leadLink(1, 2))]} focusId={null} title="Đồ thị thử" />
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByTestId(`graph-node-${C}`));
