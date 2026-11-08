@@ -17,3 +17,14 @@ Hook for FND-1 (kernel API section 13.3 of fnd-funding-model.md): the identities
 ## Decisions
 
 Rules and mappings are governance rules (versions, maker-checker, effective days); only approved tenant versions hold an entry; figures are append-only; a file never overwrites a held number; the period discipline of the weekly report is reused; audit keeps ids and numbers, never the words of a reason.
+
+## Codex review (model gpt-6-astra, base main) and dispositions
+
+| # | Finding | Disposition |
+|---|---|---|
+| 1 P1 | `listIndicatorImportRows` shows quarantined rows and differences of projects outside the scope of the caller | Valid. The rows are filtered by the project code of the business key against `projectScope`; a row with no key is for a caller who reaches the whole tenant. Test: API test of the rows read by the department admin and by the tenant admin. |
+| 2 P1 | The rules judged the figures a row asks for, while the apply keeps a held number | Valid. `verdictOf` overlays only the figures that are new; held numbers stay as they are. Test: db test with a held total of 100, a file saying total 200 and a new cumulative 150 is refused (`ENTRY_RULE_BLOCKED`). |
+| 3 P2 | One open item per row and code: only the first differing figure of a COLUMNS row was stored | Valid. A row whose figures differ gives one difference that lists every `INDICATOR=number` pair (one figure keeps the plain two numbers). Test: db test with two differing indicators. |
+| 4 P2 | Write skew: two entries for different indicators validate against the old set | Valid. `IndFigureStore.lockSet` takes an advisory lock of the project and period before the figures are read, in the entry command and in the import adapter. Test: db test that a second session cannot take the lock. |
+
+Not run by this lane, by the rule of the coordinator: isolation, reachability, command conformance, outbox consumers, DIS report and negative matrix suites (the lead runs them once on the merged tree). Entries are added: the 14 operations in the isolation expected list and full-rights set, the 5 required-query reads in `NOT_PLAIN_LISTS` and 2 IND lists in `LISTS_WITHOUT_ROWS` of the reachability test, the operation counts 689 and 445 of the conformance test, the prefix `ind` of the tenant owner. Failures seen on the merged branch that are not IND-1: `getFundingFigureHistory` answers 422 as a plain list, the e-GP obligation operations answer 403 where the isolation suite expects 404.
