@@ -23,7 +23,6 @@ import {
   projectCodeRequestOf,
   queryKeysOf,
   rateLimitError,
-  scopesOf,
   sourceSystemRequestOf,
 } from '../src/open-api';
 import { openApiSubsetOf } from '../src/open-api-document';
