@@ -289,6 +289,8 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
           'aud-recovery-reconcile': 'SUCCESS',
           'llm-key-sweep': 'SUCCESS',
           'llm-reservation-expiry': 'SUCCESS',
+          'alert-escalation': 'SUCCESS',
+          'alert-coverage': 'SUCCESS',
         });
         const [certificate] = await fixture.harness.owner<{ status: string }>(TENANT_A, [['select status from machvon.signing_certificate where id = $1', [registered.id]]]);
         expect(certificate?.status).toBe('Expired');

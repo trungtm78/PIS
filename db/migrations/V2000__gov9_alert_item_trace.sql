@@ -53,6 +53,7 @@ CREATE INDEX alert_item_trace_owner_idx ON machvon.alert_item_trace (tenant_id, 
 CREATE INDEX alert_item_trace_unit_idx ON machvon.alert_item_trace (tenant_id, owner_unit_id, state) WHERE owner_unit_id IS NOT NULL;
 CREATE INDEX alert_item_trace_seen_idx ON machvon.alert_item_trace (tenant_id, first_seen_at);
 CREATE INDEX alert_item_trace_source_idx ON machvon.alert_item_trace (tenant_id, source_id);
+CREATE INDEX alert_item_trace_target_idx ON machvon.alert_item_trace (tenant_id, target_id);
 CREATE INDEX alert_item_trace_closed_idx ON machvon.alert_item_trace (tenant_id, closed_at) WHERE closed_at IS NOT NULL;
 
 ALTER TABLE machvon.alert_item_trace ENABLE ROW LEVEL SECURITY;
