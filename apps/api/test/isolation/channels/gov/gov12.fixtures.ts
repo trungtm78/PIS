@@ -2,8 +2,8 @@ import type { TenantName } from '../../suite';
 import { fixtureId } from './support';
 import type { Marker } from './support';
 
-/** The group digit of the ids of the GOV-12 fixtures (community monitoring, transmittals, portal, anonymous channel, gifts, photo findings). */
-const GROUP = 0xc;
+/** The group digit of the ids of the GOV-12 fixtures (0, the only digit no other lane takes; community monitoring, transmittals, portal, anonymous channel, gifts, photo findings). */
+const GROUP = 0;
 
 const FAMILY = {
   file: 1,

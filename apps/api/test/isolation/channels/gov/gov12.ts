@@ -123,6 +123,9 @@ export async function seedGov12(client: Client, context: SeedContext): Promise<v
   const project = PROJECT_FIXTURES[context.tenant].id;
   const member = context.membershipId;
   const tenant = context.tenantId;
+  // The suite seeds a tenant once for every channel: the rows of this lane go in together, so a seeded file means every row is there.
+  const seeded = await client.query('select 1 from machvon.monitoring_file where id = $1', [fixture.fileId]);
+  if (seeded.rowCount !== 0) return;
   await client.query('insert into machvon.monitoring_file (tenant_id, id, project_id, created_by) values ($1, $2, $3, $4)', [tenant, fixture.fileId, project, member]);
   await client.query(
     `insert into machvon.monitoring_feedback (tenant_id, id, file_id, reference, received_on, channel, topic, summary, response_days, rule_version, created_by) values ($1, $2, $3, $4, '2026-03-01', 'MEETING', 'LAND', $5, 15, 0, $6)`,
@@ -164,8 +167,8 @@ export async function seedGov12(client: Client, context: SeedContext): Promise<v
     [tenant, fixture.whistleId, fixture.whistleBody, fixture.whistleCodeHash],
   );
   await client.query(
-    `insert into machvon.gift_register (tenant_id, id, recipient_membership_id, declared_by, giver_name, giver_kind, description, value_vnd, received_on, declared_on, late, needs_review, may_be_kept, rule_version)
-     values ($1, $2, $3, $3, $4, 'CONTRACTOR', 'A basket of fruit', 3000000, '2026-03-01', '2026-03-03', false, true, false, 0)`,
+    `insert into machvon.gift_register (tenant_id, id, recipient_membership_id, declared_by, giver_name, giver_kind, description, value_vnd, received_on, declared_on, declare_due_on, late, needs_review, may_be_kept, rule_version)
+     values ($1, $2, $3, $3, $4, 'CONTRACTOR', 'A basket of fruit', 3000000, '2026-03-01', '2026-03-03', '2026-03-03', false, true, false, 0)`,
     [tenant, fixture.giftId, member, fixture.giftGiver],
   );
   for (const [id, key] of [[fixture.photoFirstId, 'first'], [fixture.photoSecondId, 'second']] as const) {
