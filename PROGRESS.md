@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-BƯỚC TIẾP THEO: (1) hai agent INTEG sửa bộ hợp đồng và bộ kế hoạch sau khi gộp 23 lane vào main; (2) chạy typecheck, lint, test cô lập tenant, conformance, consumer trên main đã gộp, sửa lỗi; (3) gộp nốt FEED-1, MR-1, GOV-11a/11b, GOV-12, INFRA-1 khi xong; (4) viết lại tiêu đề commit dài, push main qua cổng pre-push (node ci/src/verify-cli.mjs); (5) UAT, hạ tầng, rồi hai clip giới thiệu (CLIP-1 và CLIP-2 đã dựng công cụ).
+BƯỚC TIẾP THEO: (1) đã gộp vào main: 24 lane gồm GOV-11a, GOV-11b, FEED-1, MR-1; hai agent INTEG đang sửa phía web và bộ thiết kế (đánh lại mã màn hình trùng, route, i18n, design check) và phía API/DB (chạy bộ test chung: cô lập tenant, conformance, consumer, đếm lệnh); (2) gộp nốt GOV-12 và INFRA-1 khi xong; (3) viết lại tiêu đề commit dài, push qua cổng pre-push; (4) UAT, hạ tầng, hai clip.
 Cập nhật: 2026-11-08 | Đã hợp nhất đợt 1 của hai sản phẩm (nền quản trị, đồng hồ, kiểm soát tiền, toàn vẹn, phân tích hợp đồng, chỉ đạo, theo dõi mua sắm theo luồng, bộ máy báo cáo, cơ chế bản doanh nghiệp, PWA); trước đó 2026-11-05T17:30+07:00 | Milestone: M3/6 | Task: OMNI-1 xong ST-OMNI-001, 002, 003; NOT-1 xong 007, 009, 010; còn R2: OMNI-004..007, MOB-007, CTR/PAY/ISS/QMS/LND/AST/DOC/BID/LLM/BI/DGV/ADM/SAS/MDM/PRJ/CAP/MNE
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
