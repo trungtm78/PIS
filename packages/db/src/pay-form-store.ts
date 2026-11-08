@@ -3,6 +3,7 @@ import { DomainError, PAYMENT_FORM_CODES, formsMissing, versionConflict } from '
 import type { FormFacts, PaymentFormCode, PaymentKind, PaymentStatus } from '@machvon/kernel';
 import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP } from './ctr-contract-store.ts';
 import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
+import { PayClockStore } from './pay-clock-store.ts';
 import { PayPaymentStore } from './pay-payment-store.ts';
 import type { PaymentResult } from './pay-payment-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -131,6 +132,7 @@ const toForm = (row: FormSql): FormView => ({
 export class PayFormStore {
   private readonly contracts = new CtrContractStore();
   private readonly payments = new PayPaymentStore();
+  private readonly clocks = new PayClockStore();
 
   /** The request locked for update inside the scope of the command, its contract locked first; it must be checked, and a stale version is 409 `VERSION_CONFLICT` when one is given. */
   async lockChecked(tx: TenantTx, requestId: string, scopes: ContractScopes, expectedVersion?: number): Promise<FormRequest> {
@@ -284,6 +286,8 @@ export class PayFormStore {
     } catch (error) {
       throw this.mapRefusal(error);
     }
+    // G1-17: the dossier is with the Treasury: its clock of working days starts at the instant the send recorded.
+    await this.clocks.start(tx, { requestId: held.id, actor, now: new Date() });
     return this.payments.resultOf(tx, held.id, held.status, []);
   }
 

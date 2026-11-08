@@ -7,6 +7,7 @@ import { DEFAULT_ITEM_DUE_SECONDS } from './file-import-item-store.ts';
 import { lockLedgerRows } from './ledger-lock.ts';
 import { ADVANCE_GPMB_RULE } from './pay-advance-store.ts';
 import { MasterRules } from './master-rules.ts';
+import { PayClockStore } from './pay-clock-store.ts';
 import { PAY_LEDGER_LOCK_WAIT_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
 import { PayPaymentStore } from './pay-payment-store.ts';
 import type { PaymentResult } from './pay-payment-store.ts';
@@ -104,6 +105,7 @@ export class PaySettlementStore {
   private readonly contracts = new CtrContractStore();
   private readonly payments = new PayPaymentStore();
   private readonly rules = new MasterRules();
+  private readonly clocks = new PayClockStore();
   private readonly ledger: PayLedgerStore;
   private readonly metrics: MetricsSink;
 
@@ -209,6 +211,8 @@ export class PaySettlementStore {
           where id = $1::uuid`,
         [request.id, transaction.paid_on, transaction.id, actor],
       );
+      // G1-17: the Treasury has paid, so the clock of this attempt ends here (in time or late, judged when read).
+      await this.clocks.end(tx, { requestId: request.id, endKind: 'SETTLED', actor, now: new Date() });
     } catch (error) {
       throw this.mapRefusal(error);
     }
