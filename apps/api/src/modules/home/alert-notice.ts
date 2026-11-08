@@ -121,7 +121,7 @@ export class AlertNotifier {
         bypass: delivery.bypass,
         inQuiet: delivery.inQuiet,
         localDay: prepared.localDay,
-        seriesKey: `NOTICE:${request.occasion}:${request.key}:${delivery.channel}`,
+        seriesKey: `NOTICE:${request.occasion}:${request.key}:${request.recipientId.toLowerCase()}:${delivery.channel}`,
       };
       const created = await this.profiles.record(this.tx, entry);
       if (!created) continue;
@@ -150,15 +150,26 @@ export class AlertNotifier {
         bypass: null,
         inQuiet: false,
         localDay: prepared.localDay,
-        seriesKey: `NOTICE:${request.occasion}:${request.key}:DIGEST`,
+        seriesKey: `NOTICE:${request.occasion}:${request.key}:${request.recipientId.toLowerCase()}:DIGEST`,
       });
     }
     return sent;
   }
 
-  /** Sends a notice that was held for the quiet hours, now that they are over: one release for each held notice. */
+  /**
+   * Decides again a notice that was held for the quiet hours, now that they may be over: the plan is made with the profile, the cap and the consent of this moment. It is sent (once) when the plan says so; when it would be held again it stays
+   * held (the next pass looks again); when the cap, the threshold or the consent forbids it, it goes to the digest and the release is recorded without a send.
+   */
   async release(held: { id: string; recipientId: string; occasion: NoticeEntry['occasion']; severity: NotifySeverity; source: string | null; sourceId: string | null; channel: NoticeEntry['channel'] }): Promise<boolean> {
     const prepared = await this.prepared(held.recipientId);
+    const kind = KIND_OF[held.occasion === 'DIGEST' ? 'NEW_ITEM' : (held.occasion as NotifyOccasionKind)];
+    const plan = planNotification(
+      { kind: held.occasion === 'DIGEST' ? 'NEW_ITEM' : (held.occasion as NotifyOccasionKind), severity: held.severity, claimBreached: false, typeMayBreakQuiet: false },
+      { now: this.now, profile: prepared.profile, sentToday: prepared.sentToday, urgentThisHour: prepared.urgentThisHour, consent: prepared.consent },
+    );
+    const now = plan.deliveries.find((delivery) => delivery.channel === held.channel);
+    if (now !== undefined && now.decision === 'HOLD_QUIET') return false;
+    const sends = now !== undefined && (now.decision === 'SEND_NOW' || now.decision === 'SEND_GROUPED');
     const entry: NoticeEntry = {
       recipientId: held.recipientId,
       occasion: held.occasion,
@@ -166,7 +177,7 @@ export class AlertNotifier {
       source: held.source,
       sourceId: held.sourceId,
       channel: held.channel,
-      decision: 'SEND_NOW',
+      decision: now === undefined ? 'SKIP_THRESHOLD' : now.decision,
       holdUntil: null,
       bypass: null,
       inQuiet: false,
@@ -174,8 +185,10 @@ export class AlertNotifier {
       seriesKey: `RELEASE:${held.id}`,
     };
     if (!(await this.profiles.record(this.tx, entry))) return false;
+    if (!sends) return false;
     prepared.sentToday += 1;
-    await this.emit(entry, KIND_OF[held.occasion === 'DIGEST' ? 'NEW_ITEM' : (held.occasion as NotifyOccasionKind)], 1);
+    if (held.severity === 'URGENT') prepared.urgentThisHour += 1;
+    await this.emit(entry, now.decision === 'SEND_GROUPED' ? 'GROUP' : kind, 1);
     return true;
   }
 
@@ -209,7 +222,7 @@ export class AlertNotifier {
     if (!(await this.profiles.record(this.tx, entry))) return null;
     // The push of the digest is one notice for the day, sent only when it is not the quiet hours of the person (the card is there to be read when they choose, and a push held over a weekend would be stale): it keeps the cap like any other.
     if (!quietAt(this.now, prepared.profile.quiet).quiet) {
-      await this.notify({ recipientId, occasion: 'REMINDER', severity: 'ACTION', source: null, sourceId: null, claimBreached: false, typeMayBreakQuiet: false, key: `digest:${prepared.localDay}`, push: { kind: 'DIGEST', count: digest.total } });
+      await this.notify({ recipientId, occasion: 'REMINDER', severity: 'ACTION', source: null, sourceId: null, claimBreached: false, typeMayBreakQuiet: false, key: `digest:${prepared.localDay}:${recipientId.toLowerCase()}`, push: { kind: 'DIGEST', count: digest.total } });
     }
     return digest;
   }
