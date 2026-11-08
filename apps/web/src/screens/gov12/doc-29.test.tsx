@@ -152,3 +152,22 @@ describe('DOC-29, one transmittal', () => {
     expect(await screen.findByText(word('states.error.title'))).toBeTruthy();
   });
 });
+
+describe('DOC-29, the list that has more pages', () => {
+  it('loads the next page with the offset of what is loaded and appends it', async () => {
+    const row = (n: number) => ({ id: uuid(500 + n), number: `TR-000${n}`, subject: `Subject ${n}`, sent_on: '2027-03-02' });
+    const h = harness((op, input) => {
+      if (op !== 'listDocTransmittals') return {};
+      const offset = (input as { query: { offset: number } }).query.offset;
+      return offset === 0 ? { as_of: AS_OF, items: [row(1), row(2)], has_more: true } : { as_of: AS_OF, items: [row(3)], has_more: false };
+    });
+    mount(<TransmittalScreen route={route} />, h, ALL, '/');
+    await screen.findByTestId('open-TR-0001');
+    expect(screen.getByTestId('partial-note').textContent).toBe(word('gov12da.common.partial.note').replace('{count}', '2'));
+    fireEvent.click(screen.getByTestId('load-more'));
+    expect(await screen.findByTestId('open-TR-0003')).toBeTruthy();
+    expect(screen.getByTestId('open-TR-0001')).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listDocTransmittals', expect.objectContaining({ query: expect.objectContaining({ offset: 2 }) }));
+    expect(screen.queryByTestId('load-more')).toBeNull();
+  });
+});

@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { ApiClient } from '@machvon/api-client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useTranslation } from '../../i18n';
@@ -39,6 +39,56 @@ export function useRead<T>(operation: string, input: { path?: Record<string, str
     enabled: key[1] !== undefined && enabled,
     retry: false,
   });
+}
+
+export interface PageShape<Item> {
+  as_of: string;
+  items: Item[];
+  has_more: boolean;
+}
+
+/**
+ * A list read page by page: the first page is an ordinary read, loadMore asks for the next page with the offset of what is already loaded and appends it, and hasMore stays true until the server says there is
+ * no more. The pages that were appended belong to the first page they were loaded after: when the first page is read again (a command ended, the filter changed) they are dropped, so a list is never made of two moments.
+ */
+export function usePagedList<Item>(operation: string, query: Query, pageSize: number, enabled = true) {
+  const client = useApiClient();
+  const first = useRead<PageShape<Item>>(operation, { query: { ...query, limit: pageSize, offset: 0 } }, enabled);
+  const [extra, setExtra] = useState<{ stamp: string; items: Item[]; hasMore: boolean } | undefined>(undefined);
+  const [phase, setPhase] = useState<'idle' | 'loading' | 'failed'>('idle');
+  const stamp = `${JSON.stringify(clean(query))}:${first.dataUpdatedAt}`;
+  const mine = extra !== undefined && extra.stamp === stamp ? extra : undefined;
+  const items = [...(first.data?.items ?? []), ...(mine?.items ?? [])];
+  const hasMore = mine !== undefined ? mine.hasMore : first.data?.has_more === true;
+  const loadMore = async (): Promise<void> => {
+    if (phase === 'loading') return;
+    setPhase('loading');
+    try {
+      const page = (await client.read(operation as never, { query: clean({ ...query, limit: pageSize, offset: items.length }) } as never)) as PageShape<Item>;
+      setExtra({ stamp, items: [...(mine?.items ?? []), ...page.items], hasMore: page.has_more });
+      setPhase('idle');
+    } catch {
+      setPhase('failed');
+    }
+  };
+  return { first, items, hasMore, loadMore, loading: phase === 'loading', failed: phase === 'failed' };
+}
+
+/** The button that loads the next page while the server has more, with the sentence that says how much of the list is shown, and the failure of a page that could not be loaded. */
+export function LoadMore({ shown, hasMore, loading, failed, onLoad }: { shown: number; hasMore: boolean; loading: boolean; failed: boolean; onLoad: () => void }) {
+  const { t } = useTranslation();
+  if (!hasMore && !failed) return null;
+  return (
+    <div className="g12-more" data-testid="load-more-box">
+      {hasMore ? <span className="g12-muted" data-testid="partial-note">{t('gov12da.common.partial.note', { count: shown })}</span> : null}{' '}
+      {failed ? <span role="alert">{t('gov12da.common.more.error')}</span> : null}{' '}
+      {hasMore ? (
+        <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="load-more" disabled={loading} onClick={onLoad}>
+          {t('gov12da.common.more.load')}
+        </button>
+      ) : null}
+    </div>
+  );
 }
 
 /** One command, one idempotency attempt per intention: the key is kept while the same request is retried and dropped when it ends; every read of the screens is refreshed after a success. */
@@ -156,14 +206,16 @@ export function InfoRule({ topic, name, asOf, rule }: { topic: RuleTopic; name: 
 }
 
 /** A figure with its name, its value and its "i". */
-export function Figure({ label, value, topic, asOf, rule, testId }: { label: string; value: string; topic: RuleTopic; asOf: string; rule: RuleView | undefined; testId?: string }) {
+export function Figure({ label, value, topic, asOf, rule, testId, partial = false }: { label: string; value: string; topic: RuleTopic; asOf: string; rule: RuleView | undefined; testId?: string; partial?: boolean }) {
+  const { t } = useTranslation();
+  const name = partial ? `${label} ${t('gov12da.common.partial.suffix')}` : label;
   return (
     <div className="g12-figure">
-      <span className="g12-figure__label">{label}</span>
+      <span className="g12-figure__label">{name}</span>
       <strong className="g12-figure__value" data-testid={testId}>
         {value}
       </strong>
-      <InfoRule topic={topic} name={label} asOf={asOf} rule={rule} />
+      <InfoRule topic={topic} name={name} asOf={asOf} rule={rule} />
     </div>
   );
 }

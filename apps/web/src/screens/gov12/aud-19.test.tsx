@@ -127,3 +127,21 @@ describe('AUD-19, the gifts register', () => {
     expect(await screen.findByText(word('states.denied.title'))).toBeTruthy();
   });
 });
+
+describe('AUD-19, the register that has more pages', () => {
+  it('loads the next page with the offset of what is loaded and appends it', async () => {
+    const h = harness((op, input) => {
+      if (op !== 'listGifts') return {};
+      const offset = (input as { query: { offset: number } }).query.offset;
+      return offset === 0 ? { as_of: AS_OF, items: [gift(1), gift(2)], has_more: true, rule } : { as_of: AS_OF, items: [gift(3)], has_more: false, rule };
+    });
+    mount(<GiftScreen route={route} />, h, ALL);
+    await screen.findByTestId(`flags-${uuid(1)}`);
+    expect(screen.getByTestId('partial-note')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('load-more'));
+    expect(await screen.findByTestId(`flags-${uuid(3)}`)).toBeTruthy();
+    expect(screen.getByTestId(`flags-${uuid(1)}`)).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listGifts', expect.objectContaining({ query: expect.objectContaining({ offset: 2 }) }));
+    expect(screen.queryByTestId('load-more')).toBeNull();
+  });
+});

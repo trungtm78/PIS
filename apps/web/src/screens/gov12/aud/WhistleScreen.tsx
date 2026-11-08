@@ -7,7 +7,7 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
-import { Figure, InfoRule, WordSelect, refusalText, useCommand, useRead, useRights, vietnamDay, vietnamDateTime, word } from '../docaud-support';
+import { Figure, InfoRule, LoadMore, WordSelect, refusalText, useCommand, usePagedList, useRead, useRights, vietnamDay, vietnamDateTime, word } from '../docaud-support';
 import '../docaud.css';
 import { MOVES, NOTE_MIN, UUID, WHISTLE_STATUSES, moveNeedsNote } from './audModel';
 import type { Whistle, WhistleClock, WhistleDetail, WhistleList, WhistleMove, WhistleSummary } from './audModel';
@@ -114,7 +114,8 @@ function WhistleContent({ route }: ScreenProps) {
   const [statusFilter, setStatusFilter] = useState('');
   const [dialog, setDialog] = useState<'move' | 'subject' | 'reply' | undefined>(undefined);
   const summary = useRead<WhistleSummary>('getWhistleSummary');
-  const list = useRead<WhistleList>('listWhistleReports', { query: { status: statusFilter, limit: 100 } }, id === undefined);
+  const pages = usePagedList<Whistle>('listWhistleReports', { status: statusFilter }, 100, id === undefined);
+  const list = { ...pages.first, data: pages.first.data === undefined ? undefined : ({ ...pages.first.data, items: pages.items, has_more: pages.hasMore } as WhistleList) };
   const one = useRead<WhistleDetail>('getWhistleReport', { path: { id: id ?? '' } }, id !== undefined);
   const query = id === undefined ? list : one;
   const data = query.data;
@@ -164,6 +165,7 @@ function WhistleContent({ route }: ScreenProps) {
       ) : null}
       <StateBoundary state={state} onRetry={() => void query.refetch()}>
         {id === undefined && list.data !== undefined ? <DataTable caption={t('gov12da.aud18.table.caption')} columns={columns} rows={list.data.items} rowKey={(row) => row.id} /> : null}
+        {id === undefined ? <LoadMore shown={pages.items.length} hasMore={pages.hasMore} loading={pages.loading} failed={pages.failed} onLoad={() => void pages.loadMore()} /> : null}
         {detail === undefined ? null : (
           <>
             <dl className="g12-facts">

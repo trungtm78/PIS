@@ -17,3 +17,4 @@
 .g12-recipients { display: grid; gap: var(--space-2, 8px); }
 .g12-recipients__row { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
 @media (max-width: 640px) { .g12-figures { grid-template-columns: 1fr; } }
+.g12-more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2, 8px); margin: var(--space-3, 12px) 0; }

@@ -127,3 +127,20 @@ describe('QMS-12, site photos to explain across projects', () => {
     expect(await screen.findByText(word('states.denied.title'))).toBeTruthy();
   });
 });
+
+describe('QMS-12, the list that has more pages', () => {
+  it('loads the next page with the offset of what is loaded and appends it', async () => {
+    const h = open((op, input) => {
+      if (op !== 'listPhotoFindings') return {};
+      const offset = (input as { query: { offset: number } }).query.offset;
+      return offset === 0 ? { as_of: AS_OF, items: [finding(1), finding(2)], has_more: true, rule } : { as_of: AS_OF, items: [finding(3)], has_more: false, rule };
+    });
+    await screen.findByTestId(`measure-${uuid(21)}`);
+    expect(screen.getByTestId('partial-note')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('load-more'));
+    expect(await screen.findByTestId(`measure-${uuid(23)}`)).toBeTruthy();
+    expect(screen.getByTestId(`measure-${uuid(21)}`)).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listPhotoFindings', expect.objectContaining({ query: expect.objectContaining({ offset: 2 }) }));
+    expect(screen.queryByTestId('load-more')).toBeNull();
+  });
+});

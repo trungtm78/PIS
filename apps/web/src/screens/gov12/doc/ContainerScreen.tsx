@@ -7,10 +7,10 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { Figure, InfoRule, Pill, WordSelect, refusalText, shortHash, useCommand, useRead, useRights, vietnamDateTime, vietnamDay, word } from '../docaud-support';
+import { Figure, InfoRule, LoadMore, Pill, WordSelect, refusalText, shortHash, useCommand, usePagedList, useRead, useRights, vietnamDateTime, vietnamDay, word } from '../docaud-support';
 import '../docaud.css';
 import { CONTAINER_STATES, NEXT_STATES, PURPOSES, REASON_MIN, UUID, needsReason, stateTone } from './docModel';
-import type { Container, ContainerList, ContainerState, Inbox, Purpose, TransmittalList } from './docModel';
+import type { Container, ContainerList, ContainerState, Inbox, Purpose, TransmittalHead } from './docModel';
 
 const PERMISSION = { manage: 'doc.transmittal.manage', send: 'doc.transmittal.send', answer: 'doc.transmittal.answer' } as const;
 
@@ -216,10 +216,14 @@ function ContainerContent({ route }: ScreenProps) {
   const [moving, setMoving] = useState<Container | undefined>(undefined);
   const [receipt, setReceipt] = useState<string | undefined>(undefined);
   const project = UUID.test(projectFilter) ? projectFilter : undefined;
-  const containers = useRead<ContainerList>('listDocContainers', { query: { state: stateFilter, project_id: project, limit: 100 } });
-  const transmittals = useRead<TransmittalList>('listDocTransmittals', { query: { project_id: project, limit: 50 } });
+  const containerPages = usePagedList<Container>('listDocContainers', { state: stateFilter, project_id: project }, 100);
+  const transmittalPages = usePagedList<TransmittalHead>('listDocTransmittals', { project_id: project }, 50);
+  const containers = containerPages.first;
+  const transmittals = transmittalPages.first;
   const inbox = useRead<Inbox>('getDocTransmittalInbox', {}, holds(PERMISSION.answer));
-  const data = containers.data;
+  // Every page loaded so far; the counts below describe these pages only while the server still has more.
+  const data = containers.data === undefined ? undefined : { ...containers.data, items: containerPages.items, has_more: containerPages.hasMore };
+  const transmittalList = transmittals.data === undefined ? undefined : { ...transmittals.data, items: transmittalPages.items, has_more: transmittalPages.hasMore };
   const state = useScreenState({ isLoading: containers.isLoading, error: data === undefined ? containers.error : undefined, data, isEmpty: (value) => (value as ContainerList).items.length === 0 });
   const refreshFailed = containers.isError && data !== undefined;
   const mayManage = holds(PERMISSION.manage) && !frozen;
@@ -227,7 +231,7 @@ function ContainerContent({ route }: ScreenProps) {
   const chosen = data?.items.filter((entry) => picked.includes(entry.id)) ?? [];
   const sameProject = chosen.length > 0 && chosen.every((entry) => entry.project_id === chosen[0]?.project_id);
   const asOf = data?.as_of ?? '';
-  const overdue = transmittals.data?.items.reduce((sum, entry) => sum + (entry.progress?.overdue ?? 0), 0) ?? 0;
+  const overdue = transmittalList?.items.reduce((sum, entry) => sum + (entry.progress?.overdue ?? 0), 0) ?? 0;
   const counts = CONTAINER_STATES.map((entry) => ({ state: entry, count: data?.items.filter((row) => row.state === entry).length ?? 0 }));
 
   const columns: DataTableColumn<Container>[] = [
@@ -266,8 +270,8 @@ function ContainerContent({ route }: ScreenProps) {
       )}
       {data === undefined ? null : (
         <div className="g12-figures">
-          {counts.map((entry) => <Figure key={entry.state} label={t(`gov12da.doc.state.${entry.state.toLowerCase()}`)} value={String(entry.count)} topic="transmittal" asOf={asOf} rule={undefined} testId={`count-${entry.state}`} />)}
-          <Figure label={t('gov12da.doc28.figure.overdue')} value={String(overdue)} topic="transmittal" asOf={asOf} rule={undefined} testId="count-overdue" />
+          {counts.map((entry) => <Figure key={entry.state} label={t(`gov12da.doc.state.${entry.state.toLowerCase()}`)} value={String(entry.count)} topic="transmittal" asOf={asOf} rule={undefined} testId={`count-${entry.state}`} partial={containerPages.hasMore} />)}
+          <Figure label={t('gov12da.doc28.figure.overdue')} value={String(overdue)} topic="transmittal" asOf={asOf} rule={undefined} testId="count-overdue" partial={transmittalPages.hasMore} />
         </div>
       )}
       <div className="g12-filter">
@@ -279,6 +283,7 @@ function ContainerContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void containers.refetch()}>
         {data !== undefined && <DataTable caption={t('gov12da.doc28.table.caption')} columns={columns} rows={data.items} rowKey={(row) => row.id} />}
+        <LoadMore shown={containerPages.items.length} hasMore={containerPages.hasMore} loading={containerPages.loading} failed={containerPages.failed} onLoad={() => void containerPages.loadMore()} />
       </StateBoundary>
 
       {holds(PERMISSION.answer) && inbox.data !== undefined && inbox.data.items.length > 0 ? (
@@ -299,11 +304,11 @@ function ContainerContent({ route }: ScreenProps) {
         <h2 id="transmittals-title">{t('gov12da.doc28.transmittals.title')}</h2>
         {transmittals.isLoading ? <p role="status" aria-busy="true">{t('states.loading.label')}</p> : null}
         {transmittals.isError ? <p role="alert">{t('gov12da.doc28.transmittals.error')}</p> : null}
-        {transmittals.data !== undefined && transmittals.data.items.length === 0 ? <p className="g12-muted">{t('gov12da.doc28.transmittals.empty')}</p> : null}
-        {transmittals.data !== undefined && transmittals.data.items.length > 0 ? (
+        {transmittalList !== undefined && transmittalList.items.length === 0 ? <p className="g12-muted">{t('gov12da.doc28.transmittals.empty')}</p> : null}
+        {transmittalList !== undefined && transmittalList.items.length > 0 ? (
           <DataTable
             caption={t('gov12da.doc28.transmittals.caption')}
-            rows={transmittals.data.items}
+            rows={transmittalList.items}
             rowKey={(row) => row.id}
             columns={[
               { key: 'number', header: t('gov12da.doc28.tcol.number'), pinned: true, render: (row) => <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`open-${row.number}`} onClick={() => void navigate(`/doc/doc-29?transmittal=${row.id}`)}>{row.number}</button> },
@@ -325,6 +330,7 @@ function ContainerContent({ route }: ScreenProps) {
             ]}
           />
         ) : null}
+        <LoadMore shown={transmittalPages.items.length} hasMore={transmittalPages.hasMore} loading={transmittalPages.loading} failed={transmittalPages.failed} onLoad={() => void transmittalPages.loadMore()} />
       </section>
 
       {dialog === 'register' ? <RegisterDialog onClose={() => setDialog(undefined)} onDone={() => setDialog(undefined)} /> : null}

@@ -180,3 +180,50 @@ describe('DOC-28, the documents of the project by state and their transmittals',
     await waitFor(() => expect(h.read).toHaveBeenCalledWith('listDocContainers', expect.objectContaining({ query: expect.objectContaining({ project_id: uuid(901) }) })));
   });
 });
+
+describe('DOC-28, lists that have more pages', () => {
+  const offsetOf = (input: unknown): number => (input as { query: { offset: number } }).query.offset;
+
+  it('loads the next page with the offset of what is loaded, appends it, and labels the counts as partial only while there is more', async () => {
+    const h = open((op, input) => {
+      if (op === 'listDocContainers') return offsetOf(input) === 0 ? { as_of: AS_OF, items: [container(1), container(2)], has_more: true } : { as_of: AS_OF, items: [container(3)], has_more: false };
+      return world([])(op);
+    });
+    await screen.findByText('Design report 1');
+    expect(screen.getByTestId('partial-note').textContent).toBe(word('gov12da.common.partial.note').replace('{count}', '2'));
+    expect(screen.getByText(`${word('gov12da.doc.state.wip')} ${word('gov12da.common.partial.suffix')}`)).toBeTruthy();
+    expect(screen.getByTestId('count-WIP').textContent).toBe('2');
+    fireEvent.click(screen.getByTestId('load-more'));
+    expect(await screen.findByText('Design report 3')).toBeTruthy();
+    expect(screen.getByText('Design report 1')).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listDocContainers', expect.objectContaining({ query: expect.objectContaining({ offset: 2 }) }));
+    expect(screen.queryByTestId('load-more')).toBeNull();
+    expect(screen.getByTestId('count-WIP').textContent).toBe('3');
+    expect(screen.queryByText(`${word('gov12da.doc.state.wip')} ${word('gov12da.common.partial.suffix')}`)).toBeNull();
+  });
+
+  it('pages the transmittals too, and the overdue figure is partial until the last page', async () => {
+    const h = open((op, input) => {
+      if (op === 'listDocTransmittals') return offsetOf(input) === 0 ? { as_of: AS_OF, items: [head(1)], has_more: true } : { as_of: AS_OF, items: [head(3)], has_more: false };
+      return world([container(1)])(op);
+    });
+    await screen.findByTestId('open-TR-0001');
+    expect(screen.getByText(`${word('gov12da.doc28.figure.overdue')} ${word('gov12da.common.partial.suffix')}`)).toBeTruthy();
+    fireEvent.click(screen.getByTestId('load-more'));
+    expect(await screen.findByTestId('open-TR-0003')).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listDocTransmittals', expect.objectContaining({ query: expect.objectContaining({ offset: 1 }) }));
+    expect(screen.getByTestId('count-overdue').textContent).toBe('2');
+    expect(screen.queryByText(`${word('gov12da.doc28.figure.overdue')} ${word('gov12da.common.partial.suffix')}`)).toBeNull();
+  });
+
+  it('says in words when the next page cannot be loaded and keeps the pages already shown', async () => {
+    open((op, input) => {
+      if (op === 'listDocContainers') return offsetOf(input) === 0 ? { as_of: AS_OF, items: [container(1)], has_more: true } : problem('INTERNAL_ERROR', 500);
+      return world([])(op);
+    });
+    fireEvent.click(await screen.findByTestId('load-more'));
+    expect(await screen.findByText(word('gov12da.common.more.error'))).toBeTruthy();
+    expect(screen.getByText('Design report 1')).toBeTruthy();
+    expect(screen.getByTestId('load-more')).toBeTruthy();
+  });
+});

@@ -136,3 +136,23 @@ describe('AUD-18, the anonymous reports', () => {
     expect(await screen.findByText(word('states.denied.title'))).toBeTruthy();
   });
 });
+
+describe('AUD-18, the queue that has more pages', () => {
+  it('loads the next page with the offset of what is loaded and appends it', async () => {
+    const other = uuid(82);
+    const third = uuid(83);
+    const h = open((op, input) => {
+      if (op === 'getWhistleSummary') return { as_of: AS_OF, total: 3, open: 3, acknowledge_overdue: 0, resolve_overdue: 0 };
+      if (op !== 'listWhistleReports') return {};
+      const offset = (input as { query: { offset: number } }).query.offset;
+      return offset === 0 ? { as_of: AS_OF, items: [report(), report({ id: other })], has_more: true } : { as_of: AS_OF, items: [report({ id: third })], has_more: false };
+    });
+    await screen.findByTestId(`ack-${ID}`);
+    expect(screen.getByTestId('partial-note')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('load-more'));
+    expect(await screen.findByTestId(`ack-${third}`)).toBeTruthy();
+    expect(screen.getByTestId(`ack-${ID}`)).toBeTruthy();
+    expect(h.read).toHaveBeenCalledWith('listWhistleReports', expect.objectContaining({ query: expect.objectContaining({ offset: 2 }) }));
+    expect(screen.queryByTestId('load-more')).toBeNull();
+  });
+});

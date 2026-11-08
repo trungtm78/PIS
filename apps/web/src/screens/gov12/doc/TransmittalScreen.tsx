@@ -6,10 +6,10 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
-import { Figure, InfoRule, Pill, WordSelect, refusalText, useCommand, useRead, useRights, vietnamDateTime, vietnamDay, word } from '../docaud-support';
+import { Figure, InfoRule, LoadMore, Pill, WordSelect, refusalText, useCommand, usePagedList, useRead, useRights, vietnamDateTime, vietnamDay, word } from '../docaud-support';
 import '../docaud.css';
 import { ANSWERS, REASON_MIN } from './docModel';
-import type { Answer, Recipient, TransmittalDetail, TransmittalList } from './docModel';
+import type { Answer, Recipient, TransmittalDetail, TransmittalHead, TransmittalList } from './docModel';
 
 const PERMISSION = { send: 'doc.transmittal.send', answer: 'doc.transmittal.answer' } as const;
 
@@ -89,9 +89,10 @@ function TransmittalContent({ route }: ScreenProps) {
   const { holds, frozen, membershipId } = useRights();
   const [params] = useSearchParams();
   const id = params.get('transmittal') ?? undefined;
-  const list = useRead<TransmittalList>('listDocTransmittals', { query: { limit: 100 } }, id === undefined);
+  const pages = usePagedList<TransmittalHead>('listDocTransmittals', {}, 100, id === undefined);
+  const list = { ...pages.first, data: pages.first.data === undefined ? undefined : ({ ...pages.first.data, items: pages.items, has_more: pages.hasMore } as TransmittalList) };
   const one = useRead<TransmittalDetail>('getDocTransmittal', { path: { id: id ?? '' } }, id !== undefined);
-  const query = id === undefined ? list : one;
+  const query = id === undefined ? pages.first : one;
   const data = query.data;
   const state = useScreenState({ isLoading: query.isLoading, error: data === undefined ? query.error : undefined, data, isEmpty: (value) => 'items' in (value as object) && (value as TransmittalList).items !== undefined && Array.isArray((value as TransmittalList).items) && (value as TransmittalList).items.length === 0 && id === undefined });
   const refreshFailed = query.isError && data !== undefined;
@@ -127,6 +128,7 @@ function TransmittalContent({ route }: ScreenProps) {
             ]}
           />
         ) : null}
+        {id === undefined ? <LoadMore shown={pages.items.length} hasMore={pages.hasMore} loading={pages.loading} failed={pages.failed} onLoad={() => void pages.loadMore()} /> : null}
         {detail === undefined ? null : (
           <>
             <dl className="g12-facts">

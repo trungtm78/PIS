@@ -6,7 +6,7 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { Figure, InfoRule, WordSelect, dong, refusalText, useCommand, useRead, useRights, vietnamDay, vietnamDateTime, word } from '../docaud-support';
+import { Figure, InfoRule, LoadMore, WordSelect, dong, refusalText, useCommand, usePagedList, useRights, vietnamDay, vietnamDateTime, word } from '../docaud-support';
 import '../docaud.css';
 import { GIFT_STATUSES, GIVER_KINDS, OUTCOMES, REASON_MIN, UUID } from './audModel';
 import type { Gift, GiftList, Outcome } from './audModel';
@@ -121,8 +121,9 @@ function GiftContent({ route }: ScreenProps) {
   const [declaring, setDeclaring] = useState(false);
   const [closing, setClosing] = useState<Gift | undefined>(undefined);
   const [notice, setNotice] = useState<string | undefined>(undefined);
-  const list = useRead<GiftList>('listGifts', { query: { status: statusFilter, limit: 100 } });
-  const data = list.data;
+  const pages = usePagedList<Gift>('listGifts', { status: statusFilter }, 100);
+  const list = pages.first;
+  const data = list.data === undefined ? undefined : ({ ...list.data, items: pages.items, has_more: pages.hasMore } as GiftList);
   const state = useScreenState({ isLoading: list.isLoading, error: data === undefined ? list.error : undefined, data, isEmpty: (value) => (value as GiftList).items.length === 0 });
   const refreshFailed = list.isError && data !== undefined;
   const take = useCommand<Gift>((client, gift, attempt) => client.command('takeGiftReview' as never, { path: { id: gift.id }, ifMatchVersion: gift.version, attempt } as never));
@@ -181,6 +182,7 @@ function GiftContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         {data !== undefined && <DataTable caption={t('gov12da.aud19.table.caption')} columns={columns} rows={data.items} rowKey={(row) => row.id} />}
+        <LoadMore shown={pages.items.length} hasMore={pages.hasMore} loading={pages.loading} failed={pages.failed} onLoad={() => void pages.loadMore()} />
       </StateBoundary>
       {declaring ? <DeclareDialog defaultRecipient={membershipId ?? ''} onClose={() => setDeclaring(false)} /> : null}
       {closing === undefined ? null : <CloseDialog gift={closing} onClose={() => setClosing(undefined)} />}

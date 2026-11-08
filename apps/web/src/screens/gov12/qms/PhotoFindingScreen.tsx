@@ -7,7 +7,7 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { Figure, InfoRule, WordSelect, refusalText, useCommand, useRead, useRights, vietnamDateTime, word } from '../docaud-support';
+import { Figure, InfoRule, LoadMore, WordSelect, refusalText, useCommand, usePagedList, useRead, useRights, vietnamDateTime, word } from '../docaud-support';
 import type { RuleView } from '../docaud-support';
 import '../docaud.css';
 
@@ -97,7 +97,8 @@ function PhotoFindingContent({ route }: ScreenProps) {
   const [kindFilter, setKindFilter] = useState('');
   const [moving, setMoving] = useState<Finding | undefined>(undefined);
   const [notice, setNotice] = useState<string | undefined>(undefined);
-  const list = useRead<FindingList>('listPhotoFindings', { query: { status: statusFilter, kind: kindFilter, limit: 100 } }, id === undefined);
+  const pages = usePagedList<Finding>('listPhotoFindings', { status: statusFilter, kind: kindFilter }, 100, id === undefined);
+  const list = { ...pages.first, data: pages.first.data === undefined ? undefined : ({ ...pages.first.data, items: pages.items, has_more: pages.hasMore } as FindingList) };
   const one = useRead<FindingDetail>('getPhotoFinding', { path: { id: id ?? '' } }, id !== undefined);
   const query = id === undefined ? list : one;
   const data = query.data;
@@ -157,6 +158,7 @@ function PhotoFindingContent({ route }: ScreenProps) {
       ) : null}
       <StateBoundary state={state} onRetry={() => void query.refetch()}>
         {id === undefined && list.data !== undefined ? <DataTable caption={t('gov12da.qms12.table.caption')} columns={columns} rows={list.data.items} rowKey={(row) => row.id} /> : null}
+        {id === undefined ? <LoadMore shown={pages.items.length} hasMore={pages.hasMore} loading={pages.loading} failed={pages.failed} onLoad={() => void pages.loadMore()} /> : null}
         {detail === undefined ? null : (
           <>
             <DataTable caption={t('gov12da.qms12.detail.caption')} columns={columns} rows={[detail]} rowKey={(row) => row.id} />
