@@ -16,16 +16,13 @@ import '../auth/oidc_client.dart';
 import '../flow.dart';
 import '../session_providers.dart';
 
-final NotifierProvider<FlowNotifier, FlowState> signInFlowProvider =
-    NotifierProvider.autoDispose<FlowNotifier, FlowState>(FlowNotifier.new);
+final NotifierProvider<FlowNotifier, FlowState> signInFlowProvider = NotifierProvider.autoDispose<FlowNotifier, FlowState>(FlowNotifier.new);
 
 /// MOB-02: sign in through the system browser (Authorization Code with PKCE). The screen only starts the flow and shows how
 /// it went; the password and the second factor are typed in the browser of the system, never here. With `unlock=1` (the
 /// biometric lock of a stored session) it offers the unlock first.
-Widget buildSignInScreen(BuildContext context, ScreenContext screen) => SignInScreen(
-      returnTo: safeReturnLocation(screen.queryParameters[returnParameter]),
-      unlock: screen.queryParameters[unlockParameter] == '1',
-    );
+Widget buildSignInScreen(BuildContext context, ScreenContext screen) =>
+    SignInScreen(returnTo: safeReturnLocation(screen.queryParameters[returnParameter]), unlock: screen.queryParameters[unlockParameter] == '1');
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({required this.returnTo, required this.unlock, super.key});
@@ -100,43 +97,48 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         state: flow.state,
         problem: flow.problem,
         onRetry: flow.state == ScreenState.loading ? null : (widget.unlock ? _unlock : _signIn),
-        child: ListView(
+        // A scrolling column rather than a lazy list: every control is built at once, so the sign-in button is reachable
+        // (and found by assistive technology) at 200 percent text on a small phone.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
-          children: <Widget>[
-            const BrandHeader(),
-            const SizedBox(height: MachvonSpace.space24),
-            Semantics(header: true, child: Text(context.t('mob.signIn.title.text'), style: Theme.of(context).textTheme.headlineSmall)),
-            const SizedBox(height: MachvonSpace.space12),
-            Text(context.t('mob.signIn.body.text')),
-            const SizedBox(height: MachvonSpace.space24),
-            if (config != null) ...<Widget>[
-              Text(context.t('mob.signIn.tenant.label'), style: Theme.of(context).textTheme.labelMedium),
-              Text(config.issuer.host),
-              const SizedBox(height: MachvonSpace.space8),
-            ],
-            if (widget.unlock) ...<Widget>[
-              Text(context.t('mob.signIn.unlock.title'), style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: MachvonSpace.space8),
-              Text(context.t('mob.signIn.unlock.body')),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const BrandHeader(),
+              const SizedBox(height: MachvonSpace.space24),
+              Semantics(header: true, child: Text(context.t('mob.signIn.title.text'), style: Theme.of(context).textTheme.headlineSmall)),
               const SizedBox(height: MachvonSpace.space12),
-              FilledButton(onPressed: _unlock, child: Text(context.t('mob.signIn.unlock.action'))),
-              if (_unlockFailed) ...<Widget>[
+              Text(context.t('mob.signIn.body.text')),
+              const SizedBox(height: MachvonSpace.space24),
+              if (config != null) ...<Widget>[
+                Text(context.t('mob.signIn.tenant.label'), style: Theme.of(context).textTheme.labelMedium),
+                Text(config.issuer.host),
                 const SizedBox(height: MachvonSpace.space8),
-                Semantics(liveRegion: true, child: Text(context.t('mob.signIn.unlock.failed'))),
               ],
-              const SizedBox(height: MachvonSpace.space16),
+              if (widget.unlock) ...<Widget>[
+                Text(context.t('mob.signIn.unlock.title'), style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: MachvonSpace.space8),
+                Text(context.t('mob.signIn.unlock.body')),
+                const SizedBox(height: MachvonSpace.space12),
+                FilledButton(onPressed: _unlock, child: Text(context.t('mob.signIn.unlock.action'))),
+                if (_unlockFailed) ...<Widget>[
+                  const SizedBox(height: MachvonSpace.space8),
+                  Semantics(liveRegion: true, child: Text(context.t('mob.signIn.unlock.failed'))),
+                ],
+                const SizedBox(height: MachvonSpace.space16),
+              ],
+              if (_cancelled) ...<Widget>[
+                Semantics(liveRegion: true, child: Text(context.t('mob.signIn.cancelled.hint'))),
+                const SizedBox(height: MachvonSpace.space12),
+              ],
+              FilledButton(onPressed: config == null ? null : _signIn, child: Text(context.t('mob.signIn.submit.action'))),
+              const SizedBox(height: MachvonSpace.space8),
+              OutlinedButton(
+                onPressed: () => context.go(withReturn(ref.read(routeTableProvider).locationOf('MOB-01'), widget.returnTo)),
+                child: Text(context.t('mob.signIn.tenantChange.action')),
+              ),
             ],
-            if (_cancelled) ...<Widget>[
-              Semantics(liveRegion: true, child: Text(context.t('mob.signIn.cancelled.hint'))),
-              const SizedBox(height: MachvonSpace.space12),
-            ],
-            FilledButton(onPressed: config == null ? null : _signIn, child: Text(context.t('mob.signIn.submit.action'))),
-            const SizedBox(height: MachvonSpace.space8),
-            OutlinedButton(
-              onPressed: () => context.go(withReturn(ref.read(routeTableProvider).locationOf('MOB-01'), widget.returnTo)),
-              child: Text(context.t('mob.signIn.tenantChange.action')),
-            ),
-          ],
+          ),
         ),
       ),
     );

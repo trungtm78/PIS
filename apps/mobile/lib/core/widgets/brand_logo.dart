@@ -19,7 +19,9 @@ class BrandLogo extends ConsumerWidget {
     return Semantics(
       image: true,
       label: context.t('mob.signIn.logo.label'),
-      child: ExcludeSemantics(child: Image.asset(asset, width: size, height: size, filterQuality: FilterQuality.medium)),
+      child: ExcludeSemantics(
+        child: Image.asset(asset, width: size, height: size, filterQuality: FilterQuality.medium),
+      ),
     );
   }
 }
@@ -31,10 +33,15 @@ class BrandHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Edition edition = ref.watch(editionProfileProvider).edition;
-    final String tagline = edition == Edition.enterprise ? context.t('mob.signIn.tagline.enterprise.text') : context.t('mob.signIn.tagline.public.text');
+    final String tagline = edition == Edition.enterprise
+        ? context.t('mob.signIn.tagline.enterprise.text')
+        : context.t('mob.signIn.tagline.public.text');
+    // The logo gives way to the text: at a large text size it shrinks (to a floor) so the head does not push the controls off the screen.
+    final double textScale = MediaQuery.textScalerOf(context).scale(1);
+    final double logoSize = (56 / (textScale < 1 ? 1 : textScale)).clamp(32.0, 56.0);
     return Row(
       children: <Widget>[
-        const BrandLogo(size: 56),
+        BrandLogo(size: logoSize),
         const SizedBox(width: 12),
         Expanded(child: Text(tagline, style: Theme.of(context).textTheme.titleSmall)),
       ],
