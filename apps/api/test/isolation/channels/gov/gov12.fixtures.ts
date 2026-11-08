@@ -2,26 +2,26 @@ import type { TenantName } from '../../suite';
 import { fixtureId } from './support';
 import type { Marker } from './support';
 
-/** The group digit of the ids of the GOV-12 fixtures (0, the only digit no other lane takes; community monitoring, transmittals, portal, anonymous channel, gifts, photo findings). */
-const GROUP = 0;
+/** The group digit of the ids of the GOV-12 fixtures (the family numbers start at 0x11: the rating lane holds 0x01 to 0x05 of the same group; community monitoring, transmittals, portal, anonymous channel, gifts, photo findings). */
+const GROUP = 0xc;
 
 const FAMILY = {
-  file: 1,
-  feedback: 2,
-  packItem: 3,
-  container: 4,
-  transmittal: 5,
-  transmittalItem: 6,
-  recipient: 7,
-  portalSetting: 8,
-  portalRecord: 9,
-  whistle: 10,
-  gift: 11,
-  photoFirst: 12,
-  photoSecond: 13,
-  finding: 14,
-  lock: 15,
-  session: 16,
+  file: 0x11,
+  feedback: 0x12,
+  packItem: 0x13,
+  container: 0x14,
+  transmittal: 0x15,
+  transmittalItem: 0x16,
+  recipient: 0x17,
+  portalSetting: 0x18,
+  portalRecord: 0x19,
+  whistle: 0x1a,
+  gift: 0x1b,
+  photoFirst: 0x1c,
+  photoSecond: 0x1d,
+  finding: 0x1e,
+  lock: 0x1f,
+  session: 0x20,
 } as const;
 
 const LABEL: Readonly<Record<TenantName, string>> = { 'TNT-A': 'Alpha', 'TNT-B': 'Beta' };

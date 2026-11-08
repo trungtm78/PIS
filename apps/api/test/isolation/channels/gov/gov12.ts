@@ -43,6 +43,9 @@ export const GOV12_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'completeReportSignature', method: 'POST', id: THEIRS.sessionId, body: {} },
 ];
 
+/** The foreign-id cases whose row the suite does not seed (a lock of a period and a signing session need an issued copy of a report): the cases prove that a foreign id is refused, the control run of the owner has nothing to find for them. */
+export const GOV12_UNSEEDED_OPERATIONS: readonly string[] = ['unlockReportPeriod', 'getReportSignature', 'startReportSignature', 'completeReportSignature'];
+
 /** Every operation of lane GOV-12 that a tenant user can reach (the public portal and the anonymous channel are on the control plane and have their own tests): the test role of the suite holds the permission of each. */
 export const GOV12_OPERATIONS: readonly string[] = [
   'listMonitoringFiles',
@@ -117,7 +120,7 @@ export const GOV12_SNAPSHOT_TABLES: readonly string[] = [
 
 const SHA = (seed: string): string => seed.repeat(64).slice(0, 64);
 
-/** Seeds the rows of one tenant: a monitoring file with a feedback and a pack item, a container and a transmittal for information, the portal with a published record, a whistle report, a gift and a pair of photos with their finding. */
+/** Seeds the rows of one tenant: a monitoring file with a feedback and a pack item, a container and a transmittal for review, the portal with a published record, a whistle report, a gift and a pair of photos with their finding. */
 export async function seedGov12(client: Client, context: SeedContext): Promise<void> {
   const fixture = GOV12_FIXTURES[context.tenant];
   const project = PROJECT_FIXTURES[context.tenant].id;
@@ -126,6 +129,8 @@ export async function seedGov12(client: Client, context: SeedContext): Promise<v
   // The suite seeds a tenant once for every channel: the rows of this lane go in together, so a seeded file means every row is there.
   const seeded = await client.query('select 1 from machvon.monitoring_file where id = $1', [fixture.fileId]);
   if (seeded.rowCount !== 0) return;
+  // The investor profile reads the units that hold a recommendation through the investor of its project: the home unit becomes the investor of the project of the fixtures.
+  await client.query('update machvon.project set investor_unit_id = $3 where tenant_id = $1 and id = $2 and investor_unit_id is null', [tenant, project, context.home]);
   await client.query('insert into machvon.monitoring_file (tenant_id, id, project_id, created_by) values ($1, $2, $3, $4)', [tenant, fixture.fileId, project, member]);
   await client.query(
     `insert into machvon.monitoring_feedback (tenant_id, id, file_id, reference, received_on, channel, topic, summary, response_days, rule_version, created_by) values ($1, $2, $3, $4, '2026-03-01', 'MEETING', 'LAND', $5, 15, 0, $6)`,
@@ -140,14 +145,14 @@ export async function seedGov12(client: Client, context: SeedContext): Promise<v
     [tenant, fixture.containerId, project, fixture.packItemId, fixture.containerTitle, SHA('c'), member],
   );
   await client.query(
-    `insert into machvon.doc_transmittal (tenant_id, id, project_id, number, purpose, subject, sent_on, sent_by, rule_version) values ($1, $2, $3, $4, 'FOR_INFORMATION', $5, '2026-03-02', $6, 0)`,
+    `insert into machvon.doc_transmittal (tenant_id, id, project_id, number, purpose, subject, sent_on, sent_by, review_days, rule_version) values ($1, $2, $3, $4, 'FOR_REVIEW', $5, '2026-03-02', $6, 14, 0)`,
     [tenant, fixture.transmittalId, project, fixture.transmittalNumber, fixture.transmittalSubject, member],
   );
   await client.query(
     `insert into machvon.doc_transmittal_item (tenant_id, id, transmittal_id, container_id, document_id, revision_label, title, content_sha256) values ($1, $2, $3, $4, $5, 'A', $6, $7)`,
     [tenant, fixture.transmittalItemId, fixture.transmittalId, fixture.containerId, fixture.packItemId, fixture.containerTitle, SHA('c')],
   );
-  await client.query(`insert into machvon.doc_transmittal_recipient (tenant_id, id, transmittal_id, recipient_membership_id, required) values ($1, $2, $3, $4, false)`, [tenant, fixture.recipientRowId, fixture.transmittalId, member]);
+  await client.query(`insert into machvon.doc_transmittal_recipient (tenant_id, id, transmittal_id, recipient_membership_id, required, due_on) values ($1, $2, $3, $4, true, '2026-03-16')`, [tenant, fixture.recipientRowId, fixture.transmittalId, member]);
   await client.query(
     `insert into machvon.portal_setting (tenant_id, id, slug, enabled, whistle_enabled, title, publisher_name, id_prefix, license_uri, policy_uri, allowed_fields, updated_by)
      values ($1, $2, $3, true, true, $4, 'Isolation board', 'ISO', 'https://example.org/license', 'https://example.org/policy', array['project_code','title'], $5)`,
