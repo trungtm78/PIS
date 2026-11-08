@@ -6,8 +6,10 @@ import { seedIntelligence } from './intelligence.ts';
 import { applyClipPlan } from './clip/plan.ts';
 import { ensureDoaMatrix } from './clip/doa.ts';
 import { seedClipEnterpriseDirectives, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
+import { seedClipDisbursement } from './clip/public-dis.ts';
+import { seedClipCommittee } from './clip/public-committee.ts';
 import { seedClipEgp } from './clip/public-egp.ts';
-import { seedClipProcurement } from './clip/public-procurement.ts';
+import { seedClipProcurement, seedClipWorkflow } from './clip/public-procurement.ts';
 import { seedDoc } from './platform-records/doc.ts';
 import { seedProcurementFinance } from './procurement-finance.ts';
 
@@ -30,7 +32,10 @@ export const GROUPS: SeedGroup[] = [
   { name: 'intelligence', seed: seedIntelligence },
   { name: 'clip-public-documents', seed: async (ctx) => { await ctx.step('ADM', 'delegation of authority matrix', () => ensureDoaMatrix(ctx)); try { await seedDoc(ctx); } catch (error) { ctx.warn(`the document seed of the guide stopped: ${error instanceof Error ? error.message.slice(0, 300) : String(error)}`); } } },
   { name: 'clip-public-procurement', seed: seedClipProcurement },
+  { name: 'clip-public-workflow', seed: seedClipWorkflow },
   { name: 'clip-public-egp', seed: seedClipEgp },
+  { name: 'clip-public-disbursement', seed: seedClipDisbursement },
+  { name: 'clip-public-committee', seed: seedClipCommittee },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
   { name: 'clip-ent-funding', seed: seedClipEnterpriseFunding },
   { name: 'clip-ent-directives', seed: seedClipEnterpriseDirectives },
@@ -50,6 +55,7 @@ export interface SeedSummary {
  */
 export async function runSeed(ctx: SeedContext, names?: readonly string[]): Promise<SeedSummary> {
   applyClipPlan();
+  await ctx.syncClock();
   const known = GROUPS.map((group) => group.name);
   for (const name of names ?? []) if (!known.includes(name)) throw new Error(`unknown seed group "${name}" (known: ${known.join(', ')})`);
   const chosen = GROUPS.filter((group) => names === undefined || names.includes(group.name));

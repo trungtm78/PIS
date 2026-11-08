@@ -197,7 +197,21 @@ export async function seedClipProcurement(ctx: SeedContext): Promise<void> {
   await ctx.step('DOC', 'document types of the papers', () => defineDocumentTypes(ctx));
   await ctx.step('BID', 'contractors', () => registerContractors(ctx));
   for (const [index, spec] of block.plans.entries()) await ctx.step('BID', `procurement plan of ${spec.project}`, () => approvedPlanOf(ctx, block, spec, index));
-  const evidence = await ctx.letter({ symbol: block.decisionLetter.symbol.replace('{n}', '999'), title: block.decisionLetter.title, sender: block.decisionLetter.sender, issuedOn: ctx.day(-20), person: MAKER });
+}
+
+/**
+ * Group `clip-public-workflow`: moves the package workflow of every approved package to the step the plan names. The runner of the clip data runs it with the
+ * clock of the stack in the past, so the steps entered stand over their due day when the clock comes back: the tree shows late steps beside the ones on
+ * time, on hold and given back.
+ */
+export async function seedClipWorkflow(ctx: SeedContext): Promise<void> {
+  const block = blockOf(clipPlan());
+  if (block === undefined) {
+    ctx.warn('no clip plan (CLIP_PLAN_FILE): the workflow group has nothing to do');
+    return;
+  }
+  await ctx.step('ADM', 'working calendar', () => ensureWorkCalendar(ctx));
+  const evidence =await ctx.letter({ symbol: block.decisionLetter.symbol.replace('{n}', '999'), title: block.decisionLetter.title, sender: block.decisionLetter.sender, issuedOn: ctx.day(-20), person: MAKER });
   for (const spec of block.plans) {
     for (const item of spec.packages) {
       const pack = await packageOf(ctx, item.code);

@@ -1689,6 +1689,41 @@ class E2eProviderController {
   }
 }
 
+/**
+ * The clock of the stack. The API reads `new Date()` everywhere and no command takes a clock, so the stack can shift it: E2E_CLOCK_OFFSET_DAYS at start, or
+ * POST /__e2e/clock {offset_days} at any time (the clip data is made in the past and the clock is then brought back, so steps, obligations and directives are
+ * really late). Only `Date` is shifted: timers and the database keep real time, so what the database stamps itself (created_at) stays real.
+ */
+const RealDate = Date;
+let clockOffsetMs = Number(process.env.E2E_CLOCK_OFFSET_DAYS ?? 0) * 86_400_000;
+class ShiftedDate extends RealDate {
+  constructor(...args: unknown[]) {
+    if (args.length === 0) super(RealDate.now() + clockOffsetMs);
+    else super(...(args as [number]));
+  }
+
+  static override now(): number {
+    return RealDate.now() + clockOffsetMs;
+  }
+}
+globalThis.Date = ShiftedDate as unknown as DateConstructor;
+
+@Controller('__e2e')
+class ClockController {
+  @Get('clock')
+  @Public()
+  read(): { offset_days: number; now: string } {
+    return { offset_days: clockOffsetMs / 86_400_000, now: new RealDate(RealDate.now() + clockOffsetMs).toISOString() };
+  }
+
+  @Post('clock')
+  @Public()
+  set(@Body() body: { offset_days?: number }): { offset_days: number; now: string } {
+    clockOffsetMs = Number(body.offset_days ?? 0) * 86_400_000;
+    return this.read();
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -1862,7 +1897,7 @@ describe('e2e API stack', () => {
                 // MACHVON_EDITION names the edition the stack serves (the clip dataset of the second edition needs its modules); unset or public leaves the stack as it always was.
                 ...(process.env.MACHVON_EDITION === 'enterprise' ? { edition: await loadEditionManifest('enterprise'), editionModules: await loadEditionModules('enterprise') } : {}),
               })],
-            controllers: [HealthController, DevMailboxController, E2eProviderController],
+            controllers: [HealthController, ClockController, DevMailboxController, E2eProviderController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },

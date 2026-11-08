@@ -8,9 +8,29 @@ export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-egp'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-workflow', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-committee'],
   enterprise: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'],
 };
+
+/**
+ * The phases of an apply: the clock of the stack is set to `clockDays` (relative to the real day) before the groups of the phase run. The clip data of the public
+ * dataset is made in the past (the packages enter their steps, the plan is published) and the clock is then brought back, so steps and clocks really are late.
+ * A stack that has no clock route ignores the offset.
+ */
+export const DATASET_PHASES = {
+  public: [
+    { clockDays: 0, groups: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement'] },
+    { clockDays: -65, groups: ['clip-public-workflow'] },
+    { clockDays: 0, groups: ['clip-public-egp', 'clip-public-disbursement', 'clip-public-committee'] },
+  ],
+  enterprise: [{ clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs'] }],
+};
+
+/** The phases cut down to the groups asked for (all when none is asked), dropping the empty ones. */
+export function phasesFor(dataset, groups) {
+  const wanted = groups === undefined ? undefined : new Set(groups);
+  return DATASET_PHASES[dataset].map((phase) => ({ clockDays: phase.clockDays, groups: phase.groups.filter((group) => wanted === undefined || wanted.has(group)) })).filter((phase) => phase.groups.length > 0);
+}
 
 /** A small deterministic generator (mulberry32): the same seed always gives the same sequence. */
 export function createRng(seed) {
@@ -182,6 +202,33 @@ export function buildProcurement(dataset, projects, lines) {
   });
 }
 
+/**
+ * The statement of the Treasury: for each project that is under way (or done, or stopped) two to four payments in the months up to the last closed month,
+ * adding up to a share of its plan of the year that differs from project to project (some are far behind, some ahead), so the rates, the ranking and the
+ * warnings of the leader's screens have a spread to show.
+ */
+export function buildDisbursement(dataset, projects) {
+  const config = dataset.disbursement;
+  const rng = createRng(streamSeed(dataset.seed, 'disbursement'));
+  const rows = [];
+  const shares = {};
+  for (const project of projects.filter((item) => config.projectStages.includes(item.target) && item.planBillions !== undefined)) {
+    const rate = rng.int(config.rateRange[0], config.rateRange[1]);
+    const total = Math.max(1, Math.round((project.planBillions * 1000 * rate) / 100));
+    const count = rng.int(config.paymentsPerProject[0], config.paymentsPerProject[1]);
+    shares[project.code] = rate;
+    let left = total;
+    for (let index = 0; index < count; index += 1) {
+      const millions = index === count - 1 ? left : Math.max(1, Math.floor(left / (count - index)));
+      left -= millions;
+      const month = rng.int(2, config.lastMonth);
+      const day = rng.int(3, 26);
+      rows.push({ project: project.code, no: `KB-${project.code.replace('DA-', '')}-${index + 1}`, date: `${config.fiscalYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, millions });
+    }
+  }
+  return { office: config.office, decision: config.decision, reason: config.reason, fiscalYear: config.fiscalYear, lastMonth: config.lastMonth, rows, shares };
+}
+
 /** The room the appropriations of the seed layer have for the extra projects: the amounts (after the overrides) less what its own lines draw. */
 export function baseRoomOf(dataset, base) {
   const room = {};
@@ -271,6 +318,8 @@ export function buildPlan(dataset) {
       projects: portfolio.projects,
       lines: portfolio.lines,
       egp: dataset.egp,
+      disbursement: buildDisbursement(dataset, portfolio.projects),
+      committee: dataset.committee,
       procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: buildProcurement(dataset, portfolio.projects, portfolio.lines) },
       expect: summarise(dataset, portfolio),
     };

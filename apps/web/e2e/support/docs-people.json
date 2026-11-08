@@ -5,5 +5,6 @@
   { "key": "capApprover", "name": "Trần Thị Bích", "initials": "TB", "unit": 2, "role": "LANH_DAO_SO", "kind": "TENANT" },
   { "key": "treasuryMaker", "name": "Hoàng Thị Lan", "initials": "TL", "unit": 3, "role": "KE_TOAN_THANH_TOAN", "kind": "TENANT" },
   { "key": "auditor", "name": "Vũ Đức Minh", "initials": "ĐM", "unit": 1, "role": "AUDITOR", "kind": "TENANT" },
-  { "key": "nobody", "name": "Đỗ Thị Hà", "initials": "TH", "unit": 4, "role": "MEMBER", "kind": "TENANT" }
+  { "key": "nobody", "name": "Đỗ Thị Hà", "initials": "TH", "unit": 4, "role": "MEMBER", "kind": "TENANT" },
+  { "key": "docHead", "name": "Trần Văn Hùng", "initials": "VH", "unit": 1, "role": "COMMITTEE_HEAD", "kind": "TENANT" }
 ]

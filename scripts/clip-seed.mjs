@@ -11,7 +11,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ApiReader } from './clip-seed-client.mjs';
-import { DATASETS, DATASET_GROUPS, buildPlan, checkPlan, judgeAll, parseArgs, planDigest } from './clip-seed-lib.mjs';
+import { DATASETS, DATASET_GROUPS, buildPlan, phasesFor, checkPlan, judgeAll, parseArgs, planDigest } from './clip-seed-lib.mjs';
 import { verifyChecks } from './clip-seed-verify.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -52,6 +52,16 @@ async function commandPlan(flags) {
   return problems.length === 0 ? 0 : 1;
 }
 
+/** Moves the clock of the stack (POST /__e2e/clock) when it has one; a stack without the route is left alone. */
+export async function setClock(api, days, fetchImpl = fetch) {
+  try {
+    const response = await fetchImpl(`${api.replace(/\/+$/u, '')}/__e2e/clock`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ offset_days: days }) });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 function run(command, args, options) {
   return new Promise((resolveRun) => {
     const child = spawn(command, args, { stdio: 'inherit', ...options });
@@ -70,12 +80,24 @@ async function commandApply(flags) {
   const stack = stackInfoOf(flags);
   const planFile = join(dirname(stack.path), `clip-plan.${plan.dataset}.json`);
   writeFileSync(planFile, `${JSON.stringify(plan, null, 2)}\n`, 'utf8');
-  const groups = typeof flags.groups === 'string' ? flags.groups : DATASET_GROUPS[plan.dataset].join(',');
-  process.stdout.write(`applying dataset ${plan.dataset} (digest ${planDigest(plan)}) to ${flags.api}: groups ${groups}\n`);
-  return run(process.execPath, ['--experimental-strip-types', 'e2e/hdsd/seed/run.ts', '--groups', groups], {
-    cwd: WEB,
-    env: { ...process.env, CLIP_PLAN_FILE: planFile, CLIP_API_URL: flags.api, E2E_STACK_INFO: stack.path },
-  });
+  const asked = typeof flags.groups === 'string' ? flags.groups.split(',').map((name) => name.trim()) : undefined;
+  const phases = phasesFor(plan.dataset, asked);
+  process.stdout.write(`applying dataset ${plan.dataset} (digest ${planDigest(plan)}) to ${flags.api}: ${phases.map((phase) => `[clock ${phase.clockDays} days: ${phase.groups.join(', ')}]`).join(' ')}\n`);
+  let code = 0;
+  try {
+    for (const phase of phases) {
+      await setClock(flags.api, phase.clockDays);
+      code = await run(process.execPath, ['--experimental-strip-types', 'e2e/hdsd/seed/run.ts', '--groups', phase.groups.join(',')], {
+        cwd: WEB,
+        env: { ...process.env, CLIP_PLAN_FILE: planFile, CLIP_API_URL: flags.api, E2E_STACK_INFO: stack.path },
+      });
+      if (code !== 0) break;
+    }
+  } finally {
+    // The clock of the stack always comes back to the real day, whatever happened.
+    await setClock(flags.api, 0);
+  }
+  return code;
 }
 
 async function commandVerify(flags) {

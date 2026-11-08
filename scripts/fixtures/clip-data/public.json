@@ -364,5 +364,42 @@
     "decisionNo": "QD-2026-UBND",
     "noticePrefix": "IB",
     "reason": "Đối chiếu với kế hoạch lựa chọn nhà thầu đã được phê duyệt"
+  },
+  "disbursement": {
+    "office": {
+      "key": "KBNN-CAO-BANG",
+      "name": "Kho bạc Nhà nước tỉnh Cao Bằng",
+      "externalCode": "0011",
+      "province": "Cao Bằng"
+    },
+    "decision": {
+      "symbol": "142/QĐ-UBND",
+      "title": "Quyết định về việc công bố danh mục Kho bạc Nhà nước dùng chung",
+      "sender": "Ủy ban nhân dân tỉnh Cao Bằng"
+    },
+    "reason": "Công bố danh mục theo quyết định của Ủy ban nhân dân tỉnh",
+    "fiscalYear": 2026,
+    "lastMonth": 10,
+    "rateRange": [
+      8,
+      92
+    ],
+    "paymentsPerProject": [
+      2,
+      4
+    ],
+    "projectStages": [
+      "IMPLEMENTATION",
+      "COMPLETED",
+      "SUSPENDED"
+    ]
+  },
+  "committee": {
+    "code": "BCD57",
+    "name": "Ban chỉ đạo của tỉnh về tiến độ đầu tư công",
+    "legalBasis": "Quyết định thành lập Ban chỉ đạo của Ủy ban nhân dân tỉnh",
+    "headAgency": "Công an tỉnh",
+    "headAgencyCode": "PA05",
+    "meetingReason": "Ban chỉ đạo yêu cầu báo cáo tiến độ giải ngân"
   }
 }

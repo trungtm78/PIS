@@ -4,9 +4,9 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { ApiReader, sessionToken } from './clip-seed-client.mjs';
-import { DATASETS, DATASET_GROUPS, FUNDED, buildPlan, checkPlan, createRng, judge, judgeAll, parseArgs, planDigest, streamSeed } from './clip-seed-lib.mjs';
+import { DATASETS, DATASET_GROUPS, DATASET_PHASES, FUNDED, phasesFor, buildPlan, checkPlan, createRng, judge, judgeAll, parseArgs, planDigest, streamSeed } from './clip-seed-lib.mjs';
 import { verifyChecks } from './clip-seed-verify.mjs';
-import { loadDataset, main } from './clip-seed.mjs';
+import { loadDataset, main, setClock } from './clip-seed.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const enterpriseDataset = () => JSON.parse(readFileSync(join(HERE, 'fixtures', 'clip-data', 'enterprise.json'), 'utf8'));
@@ -251,4 +251,23 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
   // Two batches of one project do not stand in for the missing batches of the others.
   const doubled = { ...rows, '/funding-figures/batches': batches.filter((batch) => batch.project_id === 'p0').concat(batches.filter((batch) => batch.project_id === 'p0')) };
   assert.equal(judgeAll(await verifyChecks(plan, { async list(_person, path) { return doubled[path]; } })).ok, false);
+});
+
+test('the phases cover every group of a dataset once, keep the order, and cut down to the groups asked for', () => {
+  for (const dataset of DATASETS) {
+    const all = DATASET_PHASES[dataset].flatMap((phase) => phase.groups);
+    assert.deepEqual(all, DATASET_GROUPS[dataset]);
+  }
+  assert.deepEqual(phasesFor('public', ['clip-public-workflow']), [{ clockDays: -65, groups: ['clip-public-workflow'] }]);
+  assert.deepEqual(phasesFor('public', ['nothing']), []);
+  assert.ok(DATASET_PHASES.public.some((phase) => phase.clockDays < 0), 'the clip data is made in the past');
+  assert.equal(DATASET_PHASES.public.at(-1).clockDays, 0, 'the last phase runs on the real day');
+});
+
+test('the clock of the stack is moved with a post and a stack without the route is left alone', async () => {
+  const calls = [];
+  assert.equal(await setClock('http://x/', -65, async (url, options) => { calls.push({ url, body: JSON.parse(options.body) }); return { ok: true }; }), true);
+  assert.deepEqual(calls, [{ url: 'http://x/__e2e/clock', body: { offset_days: -65 } }]);
+  assert.equal(await setClock('http://x', 0, async () => ({ ok: false })), false);
+  assert.equal(await setClock('http://x', 0, async () => { throw new Error('down'); }), false);
 });

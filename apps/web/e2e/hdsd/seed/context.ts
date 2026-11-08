@@ -199,9 +199,9 @@ export class SeedContext {
   /** The module being seeded: `step` sets it, errors name it. */
   module = '';
   /** The instant the seed started; `today` and every relative date come from it. */
-  readonly asOf: Date;
+  asOf: Date;
   /** Today in Vietnam (YYYY-MM-DD). */
-  readonly today: string;
+  today: string;
   readonly people: Record<string, Person>;
   readonly ledger: LedgerEntry[] = [];
   readonly warnings: string[] = [];
@@ -258,6 +258,24 @@ export class SeedContext {
   }
 
   // ---- dates
+
+  /**
+   * Takes the day from the clock of the stack (GET /__e2e/clock) when it has one: the clip data is made with the clock of the stack moved to the past, and
+   * every date the seeds compute (`day`, `today`) must be the day the server believes it is. A stack without the route keeps the clock of this machine.
+   */
+  async syncClock(): Promise<void> {
+    try {
+      const response = await fetch(`${this.base}/__e2e/clock`);
+      if (!response.ok) return;
+      const body = (await response.json()) as { now?: string };
+      if (typeof body.now === 'string') {
+        this.asOf = new Date(body.now);
+        this.today = vietnamDate(this.asOf);
+      }
+    } catch (error) {
+      this.warn(`the clock of the stack cannot be read: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 
   /** The date `days` days from today (negative: in the past), YYYY-MM-DD. */
   day(days: number): string {
