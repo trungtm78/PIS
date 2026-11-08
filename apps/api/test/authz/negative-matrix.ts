@@ -2831,6 +2831,20 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   requestPackageStepException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/exceptions', body: { kind: 'SKIP_ITEMS', reason: REASON } }) },
   decidePackageStepException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-step-exceptions/00000000-0000-4000-8000-0000000000f1/decision', body: { decision: 'REJECT', note: REASON } }) },
   cancelPackageWorkflow: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  // EGP-1: the connection of the national procurement network and the codes it carries; a caller who is refused changes nothing and reads no file.
+  setEgpConnectionState: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/connection/state', ifMatch: '"1"', body: { enabled: false, reason: REASON } }) },
+  uploadEgpFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/imports/files', body: {} }) },
+  previewEgpFile: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/egp/imports/preview', body: { kind: 'KHLCNT', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/import/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) } }),
+  },
+  importEgpFile: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/egp/imports', body: { kind: 'KHLCNT', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/import/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) } }),
+  },
+  proposeEgpMapping: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/mappings', body: { subject_type: 'PACKAGE', our_code: 'GT-0001', external_code: 'PK-0001', reason: REASON } }) },
+  decideEgpMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/mappings/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'APPROVE', reason: REASON } }) },
+  retireEgpMapping: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/egp/mappings/00000000-0000-4000-8000-0000000000f1/retire', ifMatch: '"1"', body: { reason: REASON } }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),

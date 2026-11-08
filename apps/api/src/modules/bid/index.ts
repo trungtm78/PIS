@@ -3,6 +3,8 @@ import { AnalysisController } from './analysis.controller';
 import { BidAnalysisService } from './analysis.service';
 import { ClarificationController } from './clarification.controller';
 import { ConflictController } from './conflict.controller';
+import { EgpConnectionController, EgpImportController, EgpMappingController } from './egp.controller';
+import { EgpReadsController } from './egp-reads.controller';
 import { ContractorController, ContractorReadsController } from './contractor.controller';
 import { ContractorHistoryController } from './contractor-history.controller';
 import { CriteriaVersionController, CriteriaVersionReadsController } from './criteria.controller';
@@ -30,6 +32,6 @@ import { PackageWorkflowController, PackageWorkflowReadsController } from './wor
  */
 export const bidModule = defineModule({
   code: 'BID',
-  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, AnalysisController, ReviewController, ClarificationController, ReportController, ResultController, PetitionController, PackageWorkflowController, PackageWorkflowReadsController],
+  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, AnalysisController, ReviewController, ClarificationController, ReportController, ResultController, PetitionController, PackageWorkflowController, PackageWorkflowReadsController, EgpConnectionController, EgpImportController, EgpMappingController, EgpReadsController],
   providers: [{ provide: CONTRACTOR_IDENTITY_PORT, useValue: new UnboundIdentityPort() }, BidAnalysisService],
 });
