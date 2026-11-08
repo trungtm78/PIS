@@ -7,6 +7,8 @@ Screens complete: 63 of 532 (11.8 percent); screens with no test of the design: 
 Requirement rows complete: 63 of 532 (532 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 467, SKIPPED 0, FAIL 1, GAP 0.
 Screens complete: 63 of 528 (11.9 percent); screens with no test of the design: 0.
 Requirement rows complete: 63 of 528 (528 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 463, SKIPPED 0, FAIL 1, GAP 0.
+Screens complete: 63 of 527 (12.0 percent); screens with no test of the design: 0.
+Requirement rows complete: 63 of 527 (527 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 462, SKIPPED 0, FAIL 1, GAP 0.
 A row is PASS only when every test it names has a recorded PASS with its evidence (when it ran, the build, the schema version, the hash of the dataset, the request ids and a link to the evidence). FAIL, SKIPPED and NOT_RUN never count as PASS; a PASS without its evidence is UNPROVEN; a row without any known test is a GAP; WAIVED needs an approved waiver with an owner, a reason and an expiry that has not passed.
 
 ## Critical tests (money, isolation, restore)
@@ -593,6 +595,10 @@ Every screen names at least one test.
 | CTR-34 | CTR | NOT_RUN |
 | CTR-35 | CTR | NOT_RUN |
 | CTR-36 | CTR | NOT_RUN |
+| NOT-18 | NOT | NOT_RUN |
+| NOT-19 | NOT | NOT_RUN |
+| ADM-25 | ADM | NOT_RUN |
+| HOME-13 | HOME | NOT_RUN |
 
 ## Requirements
 
@@ -1135,3 +1141,7 @@ Every screen names at least one test.
 | FR-CTR-34 | CTR-34 | UI-CTR-34 NOT_RUN<br>UAT-PLAN-141 NOT_RUN | NOT_RUN |
 | FR-CTR-35 | CTR-35 | UI-CTR-35 NOT_RUN<br>UAT-PLAN-144 NOT_RUN<br>UAT-PLAN-145 NOT_RUN | NOT_RUN |
 | FR-CTR-36 | CTR-36 | UI-CTR-36 NOT_RUN<br>UAT-PLAN-144 NOT_RUN | NOT_RUN |
+| FR-HOME-13 | HOME-13 | UI-HOME-13 NOT_RUN<br>UAT-PLAN-141 NOT_RUN<br>UAT-PLAN-142 NOT_RUN | NOT_RUN |
+| FR-NOT-19 | NOT-19 | UI-NOT-19 NOT_RUN<br>UAT-PLAN-143 NOT_RUN<br>UAT-PLAN-144 NOT_RUN | NOT_RUN |
+| FR-NOT-18 | NOT-18 | UI-NOT-18 NOT_RUN<br>UAT-PLAN-145 NOT_RUN<br>UAT-PLAN-146 NOT_RUN | NOT_RUN |
+| FR-ADM-25 | ADM-25 | UI-ADM-25 NOT_RUN<br>UAT-PLAN-147 NOT_RUN<br>UAT-PLAN-148 NOT_RUN | NOT_RUN |
