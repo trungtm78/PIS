@@ -395,23 +395,54 @@ export type FileLayout = { format: FileFormat; version: string; keyColumns: read
 
 const ENTITY = /<!DOCTYPE|<!ENTITY/i;
 
-/** Reads a flat XML file: a root, then one element per record, each with child elements that hold text. A DOCTYPE or an entity is refused (no external entity, no expansion). */
-export function readFlatXml(text: string): Array<Record<string, string>> {
-  if (ENTITY.test(text)) throw new DomainError('IMPORT_SCHEMA_INVALID', 422, 'xml');
-  const body = text.replace(/^\uFEFF/, '').replace(/<\?xml[^>]*\?>/, '').replace(/<!--[\s\S]*?-->/g, '').trim();
-  const root = /^<([A-Za-z_][\w.-]*)[^>]*>([\s\S]*)<\/\1>$/.exec(body);
-  if (root === null) throw new DomainError('IMPORT_SCHEMA_INVALID', 422, 'xml');
-  const unescape = (value: string): string => value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
-  const records: Array<Record<string, string>> = [];
-  for (const record of (root[2] as string).matchAll(/<([A-Za-z_][\w.-]*)[^>]*>([\s\S]*?)<\/\1>/g)) {
-    const row: Record<string, string> = {};
-    for (const field of (record[2] as string).matchAll(/<([A-Za-z_][\w.-]*)[^>]*>([^<]*)<\/\1>/g)) {
-      if ((field[1] as string) in row) throw new DomainError('IMPORT_SCHEMA_INVALID', 422, 'xml');
-      row[field[1] as string] = unescape((field[2] as string).trim());
+const XML_NAME = '[A-Za-z_][\\w.-]*';
+const XML_EMPTY = new RegExp(`^<(${XML_NAME})\\s*/>`);
+const XML_OPEN = new RegExp(`^<(${XML_NAME})(?:\\s[^<>]*)?>`);
+
+const xmlRefusal = (): DomainError => new DomainError('IMPORT_SCHEMA_INVALID', 422, 'xml');
+
+/** The elements that make up a text, one after the other, and nothing else: a stray character, an unclosed tag or a nested element of the same name is refused, never skipped. */
+function xmlElements(text: string): Array<{ name: string; inner: string }> {
+  const found: Array<{ name: string; inner: string }> = [];
+  let rest = text.trim();
+  while (rest !== '') {
+    const empty = XML_EMPTY.exec(rest);
+    if (empty !== null) {
+      found.push({ name: empty[1] as string, inner: '' });
+      rest = rest.slice(empty[0].length).trimStart();
+      continue;
     }
-    records.push(row);
+    const open = XML_OPEN.exec(rest);
+    if (open === null) throw xmlRefusal();
+    const name = open[1] as string;
+    const close = rest.indexOf(`</${name}>`, open[0].length);
+    if (close === -1) throw xmlRefusal();
+    const inner = rest.slice(open[0].length, close);
+    if (new RegExp(`<${name}[\\s>/]`).test(inner)) throw xmlRefusal();
+    found.push({ name, inner });
+    rest = rest.slice(close + name.length + 3).trimStart();
   }
-  return records;
+  return found;
+}
+
+/**
+ * Reads a flat XML file: one root, then one element per record, each with child elements that hold text only. A DOCTYPE or an entity is refused (no external entity, no expansion). Anything that is not exactly
+ * that (an unclosed element, text between elements, a field that holds elements, a repeated field) is 422 IMPORT_SCHEMA_INVALID: a malformed file is never read as a shorter one.
+ */
+export function readFlatXml(text: string): Array<Record<string, string>> {
+  if (ENTITY.test(text)) throw xmlRefusal();
+  const body = text.replace(/^\uFEFF/, '').replace(/<\?xml[^>]*\?>/, '').replace(/<!--[\s\S]*?-->/g, '');
+  const roots = xmlElements(body);
+  if (roots.length !== 1) throw xmlRefusal();
+  const unescape = (value: string): string => value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+  return xmlElements((roots[0] as { inner: string }).inner).map((record) => {
+    const row: Record<string, string> = {};
+    for (const field of xmlElements(record.inner)) {
+      if (field.inner.includes('<') || field.name in row) throw xmlRefusal();
+      row[field.name] = unescape(field.inner.trim());
+    }
+    return row;
+  });
 }
 
 /** The records of a file in the format of its layout, each with the line it came from. CSV and XLSX go through the framework reader; JSON is an array of flat objects; XML is the flat form above. */

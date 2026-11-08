@@ -112,6 +112,14 @@ describe('FILE_DROP, end to end with no network', () => {
     expect(() => recordsOfFile('a.csv', new TextEncoder().encode('code,name\n,Alpha\n'), LAYOUT)).toThrow(DomainError);
   });
 
+  it('refuses a flat XML file that is not exactly root, records and text fields, instead of reading it as a shorter one', () => {
+    for (const bad of ['<rows><row></rows>', '<rows><row><code>1</code>junk</row></rows>', '<rows>junk<row><code>1</code></row></rows>', '<rows><row><code>1</row></rows>', '<rows><row><code><b>1</b></code></row></rows>', '<rows><row><code>1</code><code>2</code></row></rows>', '<rows></rows><rows></rows>', 'not xml', '<rows><row><code>1</code></row>']) {
+      expect(() => readFlatXml(bad)).toThrow(DomainError);
+    }
+    expect(readFlatXml('<rows><row><code>1</code><name/></row><row/></rows>')).toEqual([{ code: '1', name: '' }, {}]);
+    expect(readFlatXml('<?xml version="1.0"?>\n<rows>\n  <!-- one -->\n  <row>\n    <code> X1 </code>\n  </row>\n</rows>')).toEqual([{ code: 'X1' }]);
+  });
+
   it('parses a manifest and refuses a malformed line or a repeated name', () => {
     expect([...parseManifest(`# delivery\n${sha('x')}  a.csv\n${sha('y')} *b.csv\n`)]).toEqual([['a.csv', sha('x')], ['b.csv', sha('y')]]);
     expect(() => parseManifest('not a manifest line')).toThrow(DomainError);
