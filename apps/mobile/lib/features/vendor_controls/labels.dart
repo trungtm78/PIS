@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../core/theme/machvon_semantic.dart';
@@ -38,6 +39,23 @@ class TierPill extends StatelessWidget {
         return StatusPill(label: tierWord(context, one), tone: MachvonTone.warning, icon: Icons.warning_amber_rounded);
       case VendorTier.critical:
         return StatusPill(label: tierWord(context, one), tone: MachvonTone.danger, icon: Icons.report_outlined);
+/// A tier as an icon and a word on a soft ground; never the colour alone.
+class TierPill extends StatelessWidget {
+  const TierPill({required this.tier, super.key});
+
+  final VendorTier tier;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (tier) {
+      case VendorTier.low:
+        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.success, icon: Icons.check_circle_outline);
+      case VendorTier.medium:
+        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.info, icon: Icons.info_outline);
+      case VendorTier.high:
+        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.warning, icon: Icons.warning_amber_rounded);
+      case VendorTier.critical:
+        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.danger, icon: Icons.report_outlined);
     }
   }
 }

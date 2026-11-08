@@ -186,6 +186,11 @@ class _ListState extends ConsumerState<_List> {
   void didUpdateWidget(_List oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.page, widget.page)) _reset();
+  @override
+  void initState() {
+    super.initState();
+    _items = List<VendorRiskItem>.of(widget.page.items);
+    _cursor = widget.page.nextCursor;
   }
 
   /// The next page, appended; a page that cannot be had says so in place and can be asked again, and what is shown stays.
@@ -201,6 +206,7 @@ class _ListState extends ConsumerState<_List> {
       final Object? raw = await ref.read(apiClientProvider).listVendorRiskGrades(query: <String, Object?>{...widget.query, 'cursor': cursor});
       final VendorRiskPage? page = parseVendorRiskPage(raw);
       if (!mounted || epoch != _epoch) return;
+      if (!mounted) return;
       if (page == null) {
         setState(() {
           _loading = false;
@@ -215,6 +221,7 @@ class _ListState extends ConsumerState<_List> {
       });
     } on Object {
       if (!mounted || epoch != _epoch) return;
+      if (!mounted) return;
       setState(() {
         _loading = false;
         _failed = true;
@@ -285,6 +292,7 @@ class _RowTile extends StatelessWidget {
                       TierPill(tier: item.tier),
                       if (item.score != null) Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score!}), style: theme.textTheme.bodyMedium),
                     ],
+                    children: <Widget>[TierPill(tier: item.tier), Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score}), style: theme.textTheme.bodyMedium)],
                   ),
                 ),
                 if (review != null)
