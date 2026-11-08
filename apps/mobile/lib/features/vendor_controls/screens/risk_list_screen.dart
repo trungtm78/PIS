@@ -130,6 +130,7 @@ class _Filters extends StatelessWidget {
                   button: true,
                   selected: filter == selected,
                   label: _filterWord(context, filter),
+                  onTap: () => onChanged(filter),
                   excludeSemantics: true,
                   child: ChoiceChip(
                     label: Text(_filterWord(context, filter)),
@@ -163,17 +164,35 @@ class _ListState extends ConsumerState<_List> {
   bool _loading = false;
   bool _failed = false;
 
+  /// Counts the pages the list was reset to, so that an answer to a request of an older page is never appended to a newer one.
+  int _epoch = 0;
+
   @override
   void initState() {
     super.initState();
+    _reset();
+  }
+
+  void _reset() {
     _items = List<VendorRiskItem>.of(widget.page.items);
     _cursor = widget.page.nextCursor;
+    _loading = false;
+    _failed = false;
+    _epoch += 1;
+  }
+
+  /// A refresh gives a new first page for the same filter: the rows and the cursor of the old page are dropped with it.
+  @override
+  void didUpdateWidget(_List oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.page, widget.page)) _reset();
   }
 
   /// The next page, appended; a page that cannot be had says so in place and can be asked again, and what is shown stays.
   Future<void> _more() async {
     final String? cursor = _cursor;
     if (cursor == null || _loading) return;
+    final int epoch = _epoch;
     setState(() {
       _loading = true;
       _failed = false;
@@ -181,7 +200,7 @@ class _ListState extends ConsumerState<_List> {
     try {
       final Object? raw = await ref.read(apiClientProvider).listVendorRiskGrades(query: <String, Object?>{...widget.query, 'cursor': cursor});
       final VendorRiskPage? page = parseVendorRiskPage(raw);
-      if (!mounted) return;
+      if (!mounted || epoch != _epoch) return;
       if (page == null) {
         setState(() {
           _loading = false;
@@ -195,7 +214,7 @@ class _ListState extends ConsumerState<_List> {
         _loading = false;
       });
     } on Object {
-      if (!mounted) return;
+      if (!mounted || epoch != _epoch) return;
       setState(() {
         _loading = false;
         _failed = true;
@@ -245,7 +264,7 @@ class _RowTile extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final String? review = item.nextReviewOn;
     return TappableRow(
-      semanticLabel: context.t('mob.vnd.row.aria', <String, Object>{'name': item.name, 'tier': tierWord(context, item.tier)}),
+      semanticLabel: context.t('mob.vnd.row.aria', <String, Object>{'name': item.name, 'tier': item.tier == null ? context.t('mob.vnd.tier.none') : tierWord(context, item.tier!)}),
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +281,10 @@ class _RowTile extends StatelessWidget {
                     spacing: MachvonSpace.space8,
                     runSpacing: MachvonSpace.space4,
                     crossAxisAlignment: WrapCrossAlignment.center,
-                    children: <Widget>[TierPill(tier: item.tier), Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score}), style: theme.textTheme.bodyMedium)],
+                    children: <Widget>[
+                      TierPill(tier: item.tier),
+                      if (item.score != null) Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score!}), style: theme.textTheme.bodyMedium),
+                    ],
                   ),
                 ),
                 if (review != null)

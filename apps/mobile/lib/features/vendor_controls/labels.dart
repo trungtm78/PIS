@@ -19,23 +19,25 @@ String tierWord(BuildContext context, VendorTier tier) {
   }
 }
 
-/// A tier as an icon and a word on a soft ground; never the colour alone.
+/// A tier as an icon and a word on a soft ground; never the colour alone. A contractor that was never graded says so.
 class TierPill extends StatelessWidget {
   const TierPill({required this.tier, super.key});
 
-  final VendorTier tier;
+  final VendorTier? tier;
 
   @override
   Widget build(BuildContext context) {
-    switch (tier) {
+    final VendorTier? one = tier;
+    if (one == null) return StatusPill(label: context.t('mob.vnd.tier.none'), tone: MachvonTone.neutral, icon: Icons.help_outline);
+    switch (one) {
       case VendorTier.low:
-        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.success, icon: Icons.check_circle_outline);
+        return StatusPill(label: tierWord(context, one), tone: MachvonTone.success, icon: Icons.check_circle_outline);
       case VendorTier.medium:
-        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.info, icon: Icons.info_outline);
+        return StatusPill(label: tierWord(context, one), tone: MachvonTone.info, icon: Icons.info_outline);
       case VendorTier.high:
-        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.warning, icon: Icons.warning_amber_rounded);
+        return StatusPill(label: tierWord(context, one), tone: MachvonTone.warning, icon: Icons.warning_amber_rounded);
       case VendorTier.critical:
-        return StatusPill(label: tierWord(context, tier), tone: MachvonTone.danger, icon: Icons.report_outlined);
+        return StatusPill(label: tierWord(context, one), tone: MachvonTone.danger, icon: Icons.report_outlined);
     }
   }
 }

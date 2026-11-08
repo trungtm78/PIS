@@ -164,6 +164,7 @@ class _DimensionPicker extends StatelessWidget {
             button: true,
             selected: dimension == selected,
             label: _dimensionWord(context, dimension),
+            onTap: () => onChanged(dimension),
             excludeSemantics: true,
             child: ChoiceChip(
               label: Text(_dimensionWord(context, dimension)),

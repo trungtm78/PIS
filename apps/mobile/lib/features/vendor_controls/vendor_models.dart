@@ -55,9 +55,9 @@ final class VendorRiskItem {
   const VendorRiskItem({
     required this.contractorId,
     required this.name,
-    required this.tier,
-    required this.score,
     required this.reviewOverdue,
+    this.tier,
+    this.score,
     this.taxId,
     this.nextReviewOn,
     this.pendingTier,
@@ -67,8 +67,10 @@ final class VendorRiskItem {
   final String contractorId;
   final String name;
   final String? taxId;
-  final VendorTier tier;
-  final int score;
+
+  /// Null for a contractor whose grade was never confirmed (a first proposal may be waiting): the screen says it is not graded, it does not hide the contractor.
+  final VendorTier? tier;
+  final int? score;
   final String? nextReviewOn;
   final bool reviewOverdue;
 
@@ -81,15 +83,13 @@ VendorRiskItem? _item(Object? raw) {
   final Json? row = asRecord(raw);
   final String? id = filled(row?['contractor_id']);
   final String? name = filled(row?['legal_name']);
-  final VendorTier? tier = _tiers[row?['tier']];
-  final int? score = whole(row?['score']);
-  if (row == null || id == null || name == null || tier == null || score == null) return null;
+  if (row == null || id == null || name == null) return null;
   return VendorRiskItem(
     contractorId: id,
     name: name,
     taxId: filled(row['tax_identifier']),
-    tier: tier,
-    score: score,
+    tier: _tiers[row['tier']],
+    score: whole(row['score']),
     nextReviewOn: filled(row['next_review_on']),
     reviewOverdue: row['review_overdue'] == true,
     pendingTier: _tiers[row['pending_tier']],
@@ -241,13 +241,13 @@ VendorSnapshot? _snapshot(Object? raw) {
 
 /// The grade of one contractor.
 final class VendorRiskDetail {
-  const VendorRiskDetail({required this.contractorId, required this.name, required this.tier, required this.history, required this.asOf, this.live, this.confirmed, this.pending, this.policy});
+  const VendorRiskDetail({required this.contractorId, required this.name, required this.history, required this.asOf, this.tier, this.live, this.confirmed, this.pending, this.policy});
 
   final String contractorId;
   final String name;
 
-  /// The tier the contractor carries now (the confirmed one).
-  final VendorTier tier;
+  /// The tier the contractor carries now (the confirmed one); null when no grade was ever confirmed.
+  final VendorTier? tier;
   final VendorGrade? live;
   final VendorSnapshot? confirmed;
   final VendorSnapshot? pending;
@@ -260,13 +260,12 @@ VendorRiskDetail? parseVendorRiskDetail(Object? raw) {
   final Json? row = asRecord(raw);
   final String? id = filled(row?['contractor_id']);
   final String? name = filled(row?['contractor_name']);
-  final VendorTier? tier = _tiers[row?['tier']];
   final String? asOf = filled(row?['as_of']);
-  if (row == null || id == null || name == null || tier == null || asOf == null) return null;
+  if (row == null || id == null || name == null || asOf == null) return null;
   return VendorRiskDetail(
     contractorId: id,
     name: name,
-    tier: tier,
+    tier: _tiers[row['tier']],
     live: _grade(row['live']),
     confirmed: _snapshot(row['confirmed']),
     pending: _snapshot(row['pending']),

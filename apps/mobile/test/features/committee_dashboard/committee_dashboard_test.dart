@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -222,6 +223,19 @@ void main() {
       await tester.tap(find.text('Nguồn vốn'));
       await tester.pumpAndSettle();
       expect(find.text('Ngân sách trung ương'), findsOneWidget);
+    });
+
+    testWidgets('the four cuts can be switched from the screen reader: each has a tap action (Codex review P2)', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      await _open(tester, _server());
+
+      expect(tester.getSemantics(find.bySemanticsLabel('Huyện')).getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      tester.semantics.tap(find.semantics.byLabel('Huyện'));
+      await tester.pumpAndSettle();
+      expect(find.text('Huyện A'), findsWidgets);
+      expect(find.text('Giao thông'), findsNothing);
+      semantics.dispose();
     });
 
     testWidgets('the whole attention list with its reasons and figures, and how many more there are', (WidgetTester tester) async {

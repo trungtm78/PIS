@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/features/vendor_controls/screens/contractor_screen.dart';
 import 'package:machvon_mobile/features/vendor_controls/screens/risk_list_screen.dart';
@@ -33,6 +34,25 @@ void main() {
       expect(page.figures.single.denominator, 9);
       expect(page.policy!.unverified, isTrue);
       expect(parseVendorRiskPage(<String, Object?>{'items': <Object?>[]}), isNull, reason: 'no day, no page');
+    });
+
+    test('a contractor never graded is kept, with no tier and no score, in the list and in the detail (Codex review P1)', () {
+      final Map<String, Object?> ungraded = riskItem('c-9', 'Công ty Mới', 'LOW', 0, pending: 'MEDIUM')
+        ..['tier'] = null
+        ..['score'] = null
+        ..['next_review_on'] = null;
+      final VendorRiskPage page = parseVendorRiskPage(riskPage(<Map<String, Object?>>[ungraded], next: 'c-9'))!;
+      expect(page.items, hasLength(1));
+      expect(page.items.single.tier, isNull);
+      expect(page.items.single.score, isNull);
+      expect(page.items.single.pendingTier, VendorTier.medium);
+      expect(page.nextCursor, 'c-9', reason: 'the pages after a page of ungraded contractors are still reachable');
+      final Map<String, Object?> grade = riskGrade()
+        ..['tier'] = null
+        ..['confirmed'] = null;
+      final VendorRiskDetail detail = parseVendorRiskDetail(grade)!;
+      expect(detail.tier, isNull);
+      expect(detail.pending, isNotNull);
     });
 
     test('the grade of one contractor keeps the factors in the server\'s order and the readings as text; the performance is optional', () {
@@ -117,6 +137,62 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Công ty Hòa Bình'), findsOneWidget);
       expect(find.text('Hiển thị 2 nhà thầu'), findsOneWidget);
+    });
+
+    testWidgets('a contractor never graded is listed and says so in a word and a shape, without a score; its detail opens (Codex review P1)', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final ScriptedServer server = ScriptedServer();
+      final Map<String, Object?> ungraded = riskItem('c-9', 'Công ty Mới', 'LOW', 0, pending: 'MEDIUM')
+        ..['tier'] = null
+        ..['score'] = null
+        ..['next_review_on'] = null;
+      _registerList(server, riskPage(<Map<String, Object?>>[ungraded]));
+      await openVendorScreen(tester, server, const RiskListScreen());
+
+      expect(find.text('Công ty Mới'), findsOneWidget);
+      expect(find.text('Chưa xếp hạng'), findsOneWidget);
+      expect(find.textContaining('Điểm '), findsNothing, reason: 'a score that does not exist is not drawn as 0');
+      expect(find.text('Có mức đề xuất chờ xác nhận: Trung bình'), findsOneWidget);
+      expect(find.bySemanticsLabel('Công ty Mới, Chưa xếp hạng'), findsOneWidget);
+    });
+
+    testWidgets('a refresh gives the list the new first page: rows and cursor of the old page are dropped (Codex review P2)', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final ScriptedServer server = ScriptedServer();
+      int reads = 0;
+      server.on('GET', _list, (call) {
+        reads += 1;
+        return reads == 1
+            ? riskPage(<Map<String, Object?>>[riskItem('c-1', 'Công ty An Phát', 'HIGH', 52)], next: 'c-1')
+            : riskPage(<Map<String, Object?>>[riskItem('c-2', 'Công ty Bình Minh', 'LOW', 8)]);
+      });
+      await openVendorScreen(tester, server, const RiskListScreen());
+      expect(find.text('Công ty An Phát'), findsOneWidget);
+      expect(find.text('Xem thêm'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Công ty Bình Minh'), findsOneWidget);
+      expect(find.text('Công ty An Phát'), findsNothing, reason: 'the row of the old page is gone');
+      expect(find.text('Xem thêm'), findsNothing, reason: 'the cursor of the old page is gone');
+      expect(find.text('Hiển thị 1 nhà thầu'), findsOneWidget);
+    });
+
+    testWidgets('the filters can be used from the screen reader: each one has a tap action (Codex review P2)', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      final ScriptedServer server = ScriptedServer();
+      _registerList(server);
+      await openVendorScreen(tester, server, const RiskListScreen());
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Quá hạn xét lại'));
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      await tester.ensureVisible(find.text('Quá hạn xét lại'));
+      tester.semantics.tap(find.semantics.byLabel('Quá hạn xét lại'));
+      await tester.pumpAndSettle();
+      expect(server.callsTo('GET', _list).last.url.queryParameters['review_due'], 'true');
+      semantics.dispose();
     });
 
     testWidgets('English words', (WidgetTester tester) async {
@@ -227,6 +303,20 @@ void main() {
       expect(find.text('Chưa có xếp loại nào được chấp thuận.'), findsOneWidget);
       expect(find.text('Mức đề xuất đang chờ'), findsNothing);
       expect(find.textContaining('Gợi ý:'), findsNothing);
+    });
+
+    testWidgets('a contractor never graded opens: it says no grade was confirmed and still shows the proposal waiting (Codex review P1)', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final ScriptedServer server = ScriptedServer();
+      final Map<String, Object?> grade = riskGrade()
+        ..['tier'] = null
+        ..['confirmed'] = null;
+      _registerDetail(server, risk: grade);
+      await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
+
+      expect(find.text('Chưa có mức rủi ro nào được xác nhận cho nhà thầu này.'), findsOneWidget);
+      expect(find.text('Chưa xếp hạng'), findsOneWidget);
+      expect(find.text('Mức đề xuất đang chờ'), findsOneWidget);
     });
 
     testWidgets('every state, and the screen contract at the three devices and at 200 percent text', (WidgetTester tester) async {
