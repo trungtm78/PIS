@@ -533,6 +533,69 @@ describe('the file import and the reconciliation of Oracle EBS (ENT-2, EBS-01, E
     });
   });
 
+  describe('the code of a project through the crosswalk (ENT-3e, R25: expand then contract)', () => {
+    /** A mapping of the code EBS uses to one of our projects, as the maker-checker life leaves it: ACTIVE when approved by somebody other than the maker, PROPOSED while it waits. */
+    async function mapCode(projectId: string, externalCode: string, status: 'ACTIVE' | 'PROPOSED' = 'ACTIVE', validFrom = '2026-01-01'): Promise<void> {
+      const decided = status === 'ACTIVE';
+      await seedAsAdmin([
+        [
+          `insert into machvon.master_crosswalk
+             (tenant_id, id, master_record_id, subject_type, subject_id, source_system, external_type, external_code, valid_from, match_method, status, proposal_reason, created_by, updated_by, approved_by, approved_at, decision_reason)
+           values ($1, gen_random_uuid(), null, 'PROJECT', $2, 'ORACLE_EBS', 'PROJECT_CODE', $3, $4::date, 'MANUAL', $5, 'Matched by the investment decision', $6, $6, $7, $8, $9)`,
+          [TENANT_A, projectId, externalCode, validFrom, status, memberId(ADMIN), decided ? memberId(RECONCILER) : null, decided ? new Date().toISOString() : null, decided ? 'Matched by the investment decision' : null],
+        ],
+      ]);
+    }
+
+    it('reads a code that is the code of one of our projects as before: the dry run knows it, the item names the project (the regression of the reconciled imports)', async () => {
+      const project = await seedProject({ paid: ['300'], contracts: ['900'] });
+      const door = await upload(file(`${project.code},2026-10,2026-11-06,350,900`));
+      const dry = await preview(PREVIEWER, door);
+      expect((dry.json.rows as Array<{ outcome: string | null }>)[0]?.outcome).toBe('RECORD');
+      expect((await apply(ADMIN, door)).status).toBe(200);
+      const run = await reconcile(RECONCILER, { period: '2026-10', owner_id: memberId(OWNER) });
+      const mine = itemsOf(run).filter((item) => item.project_code === project.code);
+      expect(mine).toHaveLength(1);
+      expect(mine[0]).toMatchObject({ project_id: project.projectId, measure: 'DISBURSED_VND', ours: '300', theirs: '350' });
+    });
+
+    it('reads a code of EBS that is not ours through the ACTIVE mapping of the project, keeping the code the file said', async () => {
+      const project = await seedProject({ paid: ['400'], contracts: ['1000'] });
+      await mapCode(project.projectId, 'ORACLE-PRJ-7001');
+      const door = await upload(file('ORACLE-PRJ-7001,2026-10,2026-11-06,450,1000'));
+      const dry = await preview(PREVIEWER, door);
+      expect((dry.json.rows as Array<{ outcome: string | null }>)[0]?.outcome).toBe('RECORD');
+      const done = await apply(ADMIN, door);
+      expect(done.json).toMatchObject({ status: 'APPLIED', unknown_projects: 0 });
+      const run = await reconcile(RECONCILER, { period: '2026-10', owner_id: memberId(OWNER) });
+      const mine = itemsOf(run).filter((item) => item.project_code === 'ORACLE-PRJ-7001');
+      expect(mine.map((item) => [item.project_id, item.measure, item.difference_kind, item.ours, item.theirs])).toEqual([[project.projectId, 'DISBURSED_VND', 'AMOUNT_MISMATCH', '400', '450']]);
+      const stored = await rows<{ project_code: string }>('select project_code from machvon.ebs_record where import_id = $1', [done.json.resource_id]);
+      expect(stored).toEqual([{ project_code: 'ORACLE-PRJ-7001' }]);
+    });
+
+    it('does not read a code through a mapping that waits for its second person or whose range has not begun', async () => {
+      const waiting = await seedProject({ paid: ['10'] });
+      await mapCode(waiting.projectId, 'ORACLE-PRJ-7002', 'PROPOSED');
+      const later = await seedProject({ paid: ['10'] });
+      await mapCode(later.projectId, 'ORACLE-PRJ-7003', 'ACTIVE', '2999-01-01');
+      const door = await upload(file('ORACLE-PRJ-7002,2026-10,2026-11-06,10,', 'ORACLE-PRJ-7003,2026-10,2026-11-06,10,'));
+      const dry = await preview(PREVIEWER, door);
+      expect((dry.json.rows as Array<{ outcome: string | null }>).map((row) => row.outcome)).toEqual(['RECORD_PROJECT_UNKNOWN', 'RECORD_PROJECT_UNKNOWN']);
+    });
+
+    it('lets the mapping win when the same text is also the code of another project, and keeps the other project out of the comparison', async () => {
+      const mapped = await seedProject({ paid: ['70'], contracts: ['80'] });
+      const homonym = await seedProject({ paid: ['5'], contracts: ['6'] });
+      await mapCode(mapped.projectId, homonym.code);
+      const door = await upload(file(`${homonym.code},2026-10,2026-11-07,75,80`));
+      expect((await apply(ADMIN, door)).status).toBe(200);
+      const run = await reconcile(RECONCILER, { period: '2026-10', owner_id: memberId(OWNER) });
+      const mine = itemsOf(run).filter((item) => item.project_code === homonym.code);
+      expect(mine.map((item) => [item.project_id, item.ours, item.theirs])).toEqual([[mapped.projectId, '70', '75']]);
+    });
+  });
+
   describe('another tenant (isolation)', () => {
     it('answers 404 to a member of tenant B for a difference of tenant A, as for an id that does not exist, and shows no foreign data', async () => {
       const [target] = (await call('GET', '/ebs/differences?state=OPEN&limit=1', { member: ADMIN })).json.items as Array<{ id: string }>;

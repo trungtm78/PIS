@@ -8,7 +8,7 @@ ALTER TABLE machvon.appropriation ADD COLUMN decision_kind text;
 
 ALTER TABLE machvon.appropriation ADD CONSTRAINT appropriation_decision_kind_chk CHECK (
   (taxonomy_pack = 'PUBLIC' AND decision_kind IS NULL)
-  OR (taxonomy_pack = 'ENTERPRISE' AND decision_kind ~ '^[A-Z][A-Z0-9_]{1,39}$'));
+  OR (taxonomy_pack = 'ENTERPRISE' AND decision_kind IS NOT NULL AND decision_kind ~ '^[A-Z][A-Z0-9_]{1,39}$'));
 
 COMMENT ON COLUMN machvon.appropriation.decision_kind IS 'ENT-3e: the kind of the decision document (a code of the legal-document catalogue) that backs the appropriation; null for the public pack, required for the enterprise pack, bound to the origin by the pack.';
 
