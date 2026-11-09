@@ -303,6 +303,7 @@ describe('MasterStore (versioned master data, ST-MDM-001)', () => {
         'DOCUMENT_TYPE',
         'EXPERT_ROLE',
         'FUND_SOURCE',
+        'FX_RATE',
         'LANGUAGE',
         'LND_PRICE_DECISION',
         'LND_TIMER',

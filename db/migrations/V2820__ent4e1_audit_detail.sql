@@ -75,6 +75,9 @@ $fn$;
 
 CREATE TRIGGER audit_detail_policy_event_append_only BEFORE UPDATE OR DELETE ON machvon.audit_detail_policy_event FOR EACH ROW EXECUTE FUNCTION machvon.audit_detail_append_only();
 CREATE TRIGGER audit_event_detail_append_only BEFORE UPDATE OR DELETE ON machvon.audit_event_detail FOR EACH ROW EXECUTE FUNCTION machvon.audit_detail_append_only();
+-- A trigger does not stop a TRUNCATE of a table that is not referenced, and the superuser passes the grants: the same statement guard as audit_event (V003).
+CREATE TRIGGER audit_detail_policy_event_no_truncate BEFORE TRUNCATE ON machvon.audit_detail_policy_event FOR EACH STATEMENT EXECUTE FUNCTION machvon.audit_detail_append_only();
+CREATE TRIGGER audit_event_detail_no_truncate BEFORE TRUNCATE ON machvon.audit_event_detail FOR EACH STATEMENT EXECUTE FUNCTION machvon.audit_detail_append_only();
 
 CREATE FUNCTION machvon.guard_audit_detail_policy() RETURNS trigger
 LANGUAGE plpgsql

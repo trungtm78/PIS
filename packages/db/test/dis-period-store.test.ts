@@ -3,7 +3,7 @@ import { CollectingTelemetry, reportingPeriods } from '@machvon/kernel';
 import { AuditWriter } from '../src/audit-writer';
 import { DisPeriodAutoclose, workingHoursPerDay } from '../src/dis-period-autoclose';
 import { DIS_PERIOD_TRANSITION_METRIC, DisPeriodStore, periodMoveRecord, submitLabels, transitionLabels } from '../src/dis-period-store';
-import type { PeriodRow } from '../src/dis-period-store';
+import type { PeriodRow, PeriodType } from '../src/dis-period-store';
 import { BASELINE_PACK, applyBaseline, sealPack } from '../src/master-baseline';
 import { MasterStore } from '../src/master-store';
 import type { BaselineEntry } from '../src/master-baseline';
@@ -34,7 +34,7 @@ async function refusal(work: Promise<unknown>): Promise<{ code: string; status: 
   throw new Error('expected a refusal');
 }
 
-const generate = (fiscalYear: number, now: string, tenant = TENANT_A, extra: { calendarCode?: string; periodType?: 'WEEK' | 'MONTH' | 'QUARTER' } = {}) =>
+const generate = (fiscalYear: number, now: string, tenant = TENANT_A, extra: { calendarCode?: string; periodType?: PeriodType } = {}) =>
   as((tx) => periods.generate(tx, { calendarCode: extra.calendarCode ?? 'DEFAULT', fiscalYear, periodType: extra.periodType ?? 'WEEK' }, memberId(ACTOR), at(now)), tenant);
 const byCode = async (code: string, tenant = TENANT_A): Promise<PeriodRow> => {
   const [found] = await owner<{ id: string }>('select id from machvon.reporting_period where code = $1', [code], tenant);
@@ -113,10 +113,22 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       expect((await generate(2028, '2026-09-01T00:00:00Z')).calendar.revision).toBe(2);
     });
 
+    it('generates the quarters and the year of a fiscal year from the same calendar, each type apart (schedule reader)', async () => {
+      const quarters = await generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { periodType: 'QUARTER' });
+      expect(quarters.periods).toHaveLength(4);
+      expect(quarters.periods[0]?.startDate).toBe('2027-01-01');
+      expect(quarters.periods[3]?.endDate).toBe('2027-12-31');
+      const year = await generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { periodType: 'YEAR' });
+      expect(year.periods).toHaveLength(1);
+      expect([year.periods[0]?.startDate, year.periods[0]?.endDate]).toEqual(['2027-01-01', '2027-12-31']);
+      const stored = await owner<{ period_type: string; n: string }>('select period_type, count(*)::text as n from machvon.reporting_period group by 1 order by 1');
+      expect(stored).toEqual([{ period_type: 'QUARTER', n: '4' }, { period_type: 'YEAR', n: '1' }]);
+    });
+
     it('refuses a request it cannot serve and writes nothing', async () => {
       expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { calendarCode: 'OTHER' }))).toEqual({ code: 'CALENDAR_NOT_EFFECTIVE', status: 422, detail: 'calendar_code' });
       expect(await refusal(generate(2024, '2024-01-01T00:00:00Z'))).toEqual({ code: 'CALENDAR_NOT_EFFECTIVE', status: 422, detail: 'calendar_code' });
-      expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { periodType: 'QUARTER' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'period_type' });
+      expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { periodType: 'HALF_YEAR' }))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'period_type' });
       expect(await refusal(generate(1969, '2026-12-15T00:00:00Z'))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'fiscal_year' });
       expect(await refusal(generate(10_000, '2026-12-15T00:00:00Z'))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'fiscal_year' });
       expect(await refusal(generate(2027.5, '2026-12-15T00:00:00Z'))).toEqual({ code: 'VALIDATION_FAILED', status: 422, detail: 'fiscal_year' });
