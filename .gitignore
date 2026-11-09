@@ -56,3 +56,6 @@ scripts/clips/**/*.webm
 # JVM crash and replay logs written by a tool that crashed (already matched by *.log; named so nobody force-adds them)
 hs_err_pid*.log
 replay_pid*.log
+
+# Customer documents, templates and finished clips are delivered by hand, never committed.
+Design/Requirments/
