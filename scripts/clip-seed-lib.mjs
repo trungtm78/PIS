@@ -346,13 +346,20 @@ export function assignStages(dataset, projects) {
   }
 }
 
+/** The class of the enterprise pack (EQUITY, LOAN, OTHER) a line drawn on the appropriation falls in: the register refuses a line of a bucket the pack does not list. */
+function bucketOf(dataset, key) {
+  const item = dataset.capital.appropriations.find((one) => one.key === key);
+  if (item === undefined || typeof item.bucket !== 'string') throw new Error(`the appropriation ${key} of the enterprise dataset names no bucket`);
+  return item.bucket;
+}
+
 /** The appropriations and lines of capital of the enterprise plan: equity and loan, each wide enough for the lines drawn on it. */
 export function buildEnterpriseCapital(dataset, projects) {
   const funded = projects.filter((project) => FUNDED.has(project.target) && project.planBillions !== undefined);
   const lines = [];
   for (const project of funded) {
-    lines.push({ project: project.code, appropriation: 'VCSH', billions: project.equityBillions });
-    lines.push({ project: project.code, appropriation: 'VAY', billions: project.loanBillions });
+    lines.push({ project: project.code, appropriation: 'VCSH', billions: project.equityBillions, bucket: bucketOf(dataset, 'VCSH') });
+    lines.push({ project: project.code, appropriation: 'VAY', billions: project.loanBillions, bucket: bucketOf(dataset, 'VAY') });
   }
   const sum = (key) => lines.filter((line) => line.appropriation === key).reduce((total, line) => total + line.billions, 0);
   const appropriations = dataset.capital.appropriations.map((item) => ({ ...item, billions: sum(item.key) + dataset.capital.margin }));

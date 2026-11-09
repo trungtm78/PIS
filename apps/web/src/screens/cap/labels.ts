@@ -23,6 +23,22 @@ export function originLabel(t: Translate, origin: Origin): string {
   }
 }
 
+/** The kind of the decision document that backs an appropriation of the enterprise pack (a code of the legal-document catalogue); a code the screen does not know is shown as it is. */
+export function decisionKindLabel(t: Translate, kind: string): string {
+  switch (kind) {
+    case 'GROUP_RESOLUTION':
+      return t('cap.decisionKind.groupResolution.label');
+    case 'GROUP_DECISION':
+      return t('cap.decisionKind.groupDecision.label');
+    case 'COMPANY_RESOLUTION':
+      return t('cap.decisionKind.companyResolution.label');
+    case 'COMPANY_DECISION':
+      return t('cap.decisionKind.companyDecision.label');
+    default:
+      return kind;
+  }
+}
+
 export function levelLabel(t: Translate, level: BudgetLevel): string {
   if (level === 'ALL') return t('cap.level.all.label');
   return level === 'CENTRAL' ? t('cap.level.central.label') : t('cap.level.local.label');

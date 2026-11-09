@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
+import { useEdition } from '../../editions/EditionContext';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
@@ -10,18 +11,20 @@ import { useAppropriations, useDecideAppropriation, useMasterOptions, useRegiste
 import { levelLabel, originLabel, problemMessage } from './labels';
 import {
   APPROVE_PERMISSION,
+  ALL_ORIGINS,
   BUDGET_LEVELS,
   EMPTY_FILTER,
-  EMPTY_FORM,
   MANAGE_PERMISSION,
   ENTERPRISE_LEVEL,
-  ENTERPRISE_ORIGINS,
-  ORIGINS,
   REASON_MAX_LENGTH,
   REASON_MIN_LENGTH,
+  changeField,
   describeProblem,
+  emptyFormOf,
   filterLines,
+  formLevelsOf,
   formOfRevision,
+  formOriginsOf,
   isPublished,
   registerBody,
   sortLines,
@@ -60,7 +63,9 @@ function BookContent({ route }: ScreenProps) {
   const decide = useDecideAppropriation();
   const [filter, setFilter] = useState<BookFilter>(EMPTY_FILTER);
   const [panel, setPanel] = useState<Panel | undefined>(undefined);
-  const [form, setForm] = useState<AppropriationForm>(EMPTY_FORM);
+  // The register of the enterprise edition lists other origins, the single level and a kind of decision document: the form opens on a line it accepts.
+  const enterprise = useEdition().manifest.edition === 'enterprise';
+  const [form, setForm] = useState<AppropriationForm>(() => emptyFormOf(enterprise));
   const [errors, setErrors] = useState<Partial<Record<FormField, FieldProblem>>>({});
   const [acting, setActing] = useState<Acting | undefined>(undefined);
   const [reason, setReason] = useState('');
@@ -68,9 +73,9 @@ function BookContent({ route }: ScreenProps) {
   const programs = useMasterOptions(['PROGRAM'], panel !== undefined);
   const state = useScreenState({ isLoading: book.isLoading, error: book.error, data: book.data });
   const shown = useMemo(() => sortLines(filterLines(book.data ?? [], filter)), [book.data, filter]);
-  // The public origins and levels, and the enterprise ones only when the register holds a line of them (the public edition never sees them).
-  const filterOrigins = useMemo(() => [...ORIGINS, ...ENTERPRISE_ORIGINS.filter((origin) => (book.data ?? []).some((line) => line.origin === origin))] as readonly Origin[], [book.data]);
-  const filterLevels = useMemo(() => [...BUDGET_LEVELS, ...((book.data ?? []).some((line) => line.budgetLevel === ENTERPRISE_LEVEL) ? [ENTERPRISE_LEVEL] : [])] as readonly BudgetLevel[], [book.data]);
+  // The filters list what the form of the edition registers (the public origins and levels, or the enterprise ones), then any other origin or level the register holds a line of (the public edition never sees the enterprise ones).
+  const filterOrigins = useMemo(() => [...formOriginsOf(enterprise), ...ALL_ORIGINS.filter((origin) => !formOriginsOf(enterprise).includes(origin) && (book.data ?? []).some((line) => line.origin === origin))] as readonly Origin[], [book.data, enterprise]);
+  const filterLevels = useMemo(() => [...formLevelsOf(enterprise), ...([...BUDGET_LEVELS, ENTERPRISE_LEVEL] as readonly BudgetLevel[]).filter((level) => !formLevelsOf(enterprise).includes(level) && (book.data ?? []).some((line) => line.budgetLevel === level))] as readonly BudgetLevel[], [book.data, enterprise]);
   const totals = useMemo(() => totalsOf(shown.filter(isPublished)), [shown]);
   const problem = register.isError ? describeProblem(register.error) : decide.isError ? describeProblem(decide.error) : undefined;
   const reasonTooShort = reason.trim().length < REASON_MIN_LENGTH;
@@ -79,20 +84,20 @@ function BookContent({ route }: ScreenProps) {
     register.reset();
     setErrors({});
     setPanel(next);
-    setForm(next.kind === 'new' ? EMPTY_FORM : formOfRevision(next.line, locale));
+    setForm(next.kind === 'new' ? emptyFormOf(enterprise) : formOfRevision(next.line, locale));
   };
   const close = (): void => {
     setPanel(undefined);
     setErrors({});
   };
   const setField = (field: FormField, value: string): void => {
-    setForm((current) => ({ ...current, [field]: value, ...(field === 'planYear' && current.origin !== 'CARRYOVER' ? { sourceYear: value } : {}) }));
+    setForm((current) => changeField(current, field, value, enterprise));
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
   const save = (event: FormEvent): void => {
     event.preventDefault();
     if (register.isPending || !canManage || panel === undefined) return;
-    const found = validateForm(form, locale);
+    const found = validateForm(form, locale, enterprise);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     register.mutate(registerBody(form, locale, panel.kind === 'revision' ? panel.line.id : undefined), { onSuccess: close });
@@ -139,6 +144,7 @@ function BookContent({ route }: ScreenProps) {
           funds={funds.data ?? []}
           programs={programs.data ?? []}
           revision={panel.kind === 'revision'}
+          enterprise={enterprise}
           disabled={!canManage}
           pending={register.isPending}
           onChange={setField}

@@ -1,8 +1,8 @@
 import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
 import { SectionCard, StatusPill, StickyActions } from '../../ui';
-import { fieldProblemMessage, levelLabel, originLabel, statusLabel } from './labels';
-import { BUDGET_LEVELS, ORIGINS, millionsText, vndOfMillions, vndText } from './model';
+import { decisionKindLabel, fieldProblemMessage, levelLabel, originLabel, statusLabel } from './labels';
+import { decisionKindsOf, formLevelsOf, formOriginsOf, millionsText, vndOfMillions, vndText } from './model';
 import type { AppropriationForm, AppropriationLine, BudgetLevel, FieldProblem, FormField, MasterOption, Origin } from './model';
 import './cap.css';
 
@@ -83,6 +83,8 @@ export interface FormPanelProps {
   programs: readonly MasterOption[];
   /** A revision keeps what identifies the appropriation it replaces: only the amount, the document and the authority change. */
   revision: boolean;
+  /** Whether the edition is the enterprise one: its pack lists other origins, the single level and a kind of decision document. */
+  enterprise?: boolean;
   disabled: boolean;
   pending: boolean;
   onChange: (field: FormField, value: string) => void;
@@ -91,7 +93,7 @@ export interface FormPanelProps {
 }
 
 /** The form that registers an appropriation, or a revision of a published one. The amount is typed in millions of dong and sent as exact VND. */
-export function FormPanel({ title, form, errors, funds, programs, revision, disabled, pending, onChange, onSubmit, onCancel }: FormPanelProps) {
+export function FormPanel({ title, form, errors, funds, programs, revision, enterprise = false, disabled, pending, onChange, onSubmit, onCancel }: FormPanelProps) {
   const { t, locale } = useTranslation();
   const error = (field: FormField): string | undefined => {
     const problem = errors[field];
@@ -129,7 +131,7 @@ export function FormPanel({ title, form, errors, funds, programs, revision, disa
           </Field>
           <Field id="cap-origin" label={t('cap.form.origin.label')} error={undefined}>
             <select id="cap-origin" value={form.origin} onChange={(event) => onChange('origin', event.target.value)}>
-              {ORIGINS.map((origin) => (
+              {formOriginsOf(enterprise).map((origin) => (
                 <option key={origin} value={origin}>
                   {originLabel(t, origin)}
                 </option>
@@ -138,13 +140,24 @@ export function FormPanel({ title, form, errors, funds, programs, revision, disa
           </Field>
           <Field id="cap-level" label={t('cap.form.level.label')} error={undefined}>
             <select id="cap-level" value={form.budgetLevel} onChange={(event) => onChange('budgetLevel', event.target.value)}>
-              {BUDGET_LEVELS.map((level: BudgetLevel) => (
+              {formLevelsOf(enterprise).map((level: BudgetLevel) => (
                 <option key={level} value={level}>
                   {levelLabel(t, level)}
                 </option>
               ))}
             </select>
           </Field>
+          {enterprise ? (
+            <Field id="cap-decision-kind" label={t('cap.form.decisionKind.label')} error={error('decisionKind')} hint={t('cap.form.decisionKind.hint')}>
+              <select id="cap-decision-kind" value={form.decisionKind} aria-invalid={error('decisionKind') !== undefined} onChange={(event) => onChange('decisionKind', event.target.value)}>
+                {decisionKindsOf(form.origin).map((kind) => (
+                  <option key={kind} value={kind}>
+                    {decisionKindLabel(t, kind)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
           {carryover ? (
             <Field id="cap-source-year" label={t('cap.form.sourceYear.label')} error={error('sourceYear')} hint={t('cap.form.sourceYear.hint')}>
               <input id="cap-source-year" inputMode="numeric" value={form.sourceYear} aria-invalid={error('sourceYear') !== undefined} onChange={(event) => onChange('sourceYear', event.target.value)} />

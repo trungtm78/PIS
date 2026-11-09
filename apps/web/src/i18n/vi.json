@@ -38028,5 +38028,11 @@
   "rpt.crosscheck.gate.blocked": "Bản nháp này chưa phát hành được: còn {count} số lệch mức chặn chưa có giải trình.",
   "rpt.crosscheck.gate.counts": "Đã giải trình: {explained}. Cảnh báo: {warnings}.",
   "rpt.common.error.crosscheckBlocked.text": "Chưa phát hành được: các báo cáo cùng kỳ chưa khớp nhau và còn số lệch mức chặn chưa có giải trình của người khác người lập. Mở trang so sánh chéo để xem và giải trình.",
-  "rpt.draft.crosscheck.open": "Xem so sánh chéo với các báo cáo cùng kỳ"
+  "rpt.draft.crosscheck.open": "Xem so sánh chéo với các báo cáo cùng kỳ",
+  "cap.form.decisionKind.label": "Loại văn bản giao vốn",
+  "cap.form.decisionKind.hint": "Loại văn bản của Tập đoàn hoặc của Tổng công ty làm căn cứ giao khoản vốn này.",
+  "cap.decisionKind.groupResolution.label": "Nghị quyết của Tập đoàn",
+  "cap.decisionKind.groupDecision.label": "Quyết định của Tập đoàn",
+  "cap.decisionKind.companyResolution.label": "Nghị quyết của Tổng công ty",
+  "cap.decisionKind.companyDecision.label": "Quyết định của Tổng công ty"
 }

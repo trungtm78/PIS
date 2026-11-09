@@ -38028,5 +38028,11 @@
   "rpt.crosscheck.gate.blocked": "This draft cannot be issued yet: {count} blocking differences have no explanation.",
   "rpt.crosscheck.gate.counts": "Explained: {explained}. Warnings: {warnings}.",
   "rpt.common.error.crosscheckBlocked.text": "Not issued: the reports of the same period do not agree and a blocking difference has no explanation by someone other than the preparer. Open the cross-report comparison to see it and explain it.",
-  "rpt.draft.crosscheck.open": "See the comparison with the reports of the same period"
+  "rpt.draft.crosscheck.open": "See the comparison with the reports of the same period",
+  "cap.form.decisionKind.label": "Kind of assigning document",
+  "cap.form.decisionKind.hint": "The kind of document of the group or of the company that backs this capital.",
+  "cap.decisionKind.groupResolution.label": "Resolution of the group",
+  "cap.decisionKind.groupDecision.label": "Decision of the group",
+  "cap.decisionKind.companyResolution.label": "Resolution of the company",
+  "cap.decisionKind.companyDecision.label": "Decision of the company"
 }
