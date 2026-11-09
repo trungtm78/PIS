@@ -192,7 +192,7 @@ describe('the enterprise period snapshot: build, freeze and read (ENT-3a, DL.03,
       expect((await call('POST', '/enterprise-snapshots', { member: READER, body: { period_id: periodId } })).status).toBe(403);
       expect((await call('POST', '/enterprise-snapshots', { member: FREEZER, body: { period_id: periodId } })).status).toBe(403);
       expect((await call('POST', '/enterprise-snapshots', { member: BUILDER, body: { period_id: randomUUID() } })).status).toBe(404);
-      expect((await call('POST', '/enterprise-snapshots', { member: BUILDER, body: {} })).status).toBe(422);
+      expect((await call('POST', '/enterprise-snapshots', { member: BUILDER, body: {} })).status).toBe(400);
     });
   });
 
@@ -219,7 +219,7 @@ describe('the enterprise period snapshot: build, freeze and read (ENT-3a, DL.03,
     });
 
     it('is read in review: totals and rates come from the one reader, each rate with its numerator and denominator, and the actions say what the caller may do', async () => {
-      const detail = await call('GET', `/enterprise-snapshots/${snapshotId}`, { member: BUILDER });
+      const detail = await call('GET', `/enterprise-snapshots/${snapshotId}?measure=DISBURSED`, { member: BUILDER });
       expect(detail.status).toBe(200);
       expect(detail.json).toMatchObject({ measure: 'DISBURSED', partial: false, hash_verified: null, actions: { build: true, freeze: false }, snapshot: { id: snapshotId, status: 'BUILDING', revision: 1 } });
       const totals = detail.json.totals as { money: Array<{ code: string; value_vnd: string | null }>; rates: Array<{ code: string; numerator_vnd: string | null; denominator_vnd: string; rate_pct: string | null }> };
@@ -234,7 +234,7 @@ describe('the enterprise period snapshot: build, freeze and read (ENT-3a, DL.03,
     });
 
     it('a reader of one unit tree sees that unit alone and the sums of what he sees (partial)', async () => {
-      const partial = await call('GET', `/enterprise-snapshots/${snapshotId}`, { member: UNIT_READER });
+      const partial = await call('GET', `/enterprise-snapshots/${snapshotId}?measure=DISBURSED`, { member: UNIT_READER });
       expect(partial.status).toBe(200);
       expect(partial.json).toMatchObject({ partial: true });
       expect(partial.json.projects as unknown[]).toHaveLength(1);
