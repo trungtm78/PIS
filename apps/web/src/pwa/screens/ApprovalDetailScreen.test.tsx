@@ -69,7 +69,7 @@ function open(world: World, options: { permissions?: readonly string[] | undefin
 afterEach(cleanup);
 
 describe('ApprovalDetailScreen (PWA-05)', () => {
-  it('names the project, period and unit, and compares the figures with the plan and the period before', async () => {
+  it('names the project, period and unit, and compares the figures with the plan and the period before (AC-ST-PWA-001-1)', async () => {
     const h = open({ reports: { [REPORT]: report(REPORT, 1) } });
     await screen.findByTestId('summary');
     await waitFor(() => expect(screen.getByTestId('project-name').textContent).toContain('Cầu Bằng Giang'));
@@ -142,7 +142,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     expect(h.read).not.toHaveBeenCalledWith('get_resources_approval_task_id', expect.anything());
   });
 
-  it('approves under the version on the screen with the idempotency key, and gives a receipt with the project name', async () => {
+  it('approves under the version on the screen with the idempotency key, and gives a receipt with the project name (AC-ST-PWA-001-2)', async () => {
     const h = open({ reports: { [REPORT]: report(REPORT, 1) } });
     await waitFor(() => expect(screen.getByTestId('project-name').textContent).toContain('Cầu Bằng Giang'));
     fireEvent.click(within(screen.getByTestId('actions')).getByRole('button', { name: word('pwa.approvals.action.approve') }));
@@ -178,7 +178,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
-  it('has no serious accessibility violation and every control is a touch target', async () => {
+  it('has no serious accessibility violation and every control is a touch target (AC-ST-PWA-001-3)', async () => {
     open({ reports: { [REPORT]: report(REPORT, 1) } });
     await screen.findByTestId('plan-total');
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);

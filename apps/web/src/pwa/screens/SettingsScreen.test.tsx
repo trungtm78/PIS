@@ -55,7 +55,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(h.read).toHaveBeenCalledWith('listMyDevices', {});
   });
 
-  it('asks for the reason before ending another session and sends it once', async () => {
+  it('asks for the reason before ending another session and sends it once (AC-ST-PWA-004-1)', async () => {
     const h = open();
     const sessions = await screen.findByTestId('sessions');
     fireEvent.click(sessions.querySelector('[data-action="revoke-session"]') as HTMLElement);
@@ -95,7 +95,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(h.command.mock.calls[0]?.[1]).toMatchObject({ body: { locale: 'en-US' }, ifMatchVersion: 4 });
   });
 
-  it('shows the preferences per category with the mandatory inbox locked, and saves the whole set under its version', async () => {
+  it('shows the preferences per category with the mandatory inbox locked, and saves the whole set under its version (AC-ST-PWA-004-2)', async () => {
     const h = open();
     const form = await screen.findByTestId('preferences-form');
     const report = form.querySelector('[data-category="report"]') as HTMLElement;

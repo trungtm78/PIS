@@ -36,7 +36,7 @@ describe('ProgressScreen (PWA-09): the procurement progress as a list', () => {
     expect(h.read).toHaveBeenCalledWith('getPackageProcessTree', { query: {} });
   });
 
-  it('opens the packages of a step on a tap and closes them on the next', async () => {
+  it('opens the packages of a step on a tap and closes them on the next (AC-ST-PWA-002-2)', async () => {
     const h = bidClient(world());
     bidMount(<ProgressScreen />, h, { permissions: ['bid.read'], path: '/m/progress' });
     await screen.findByTestId('kpis');
@@ -102,7 +102,7 @@ const center = {
 };
 
 describe('FiguresDetailScreen (PWA-08): the drill-down of the command center', () => {
-  it('shows the amounts of the snapshot in one column and keeps going when another card cannot be read', async () => {
+  it('shows the amounts of the snapshot in one column and keeps going when another card cannot be read (AC-ST-PWA-002-1)', async () => {
     const h = pwaClient({ read: (operation) => (operation === 'getCommandCenter' ? center : new Error(`unexpected read ${operation}`)) });
     mountPwa(<FiguresDetailScreen />, h, { permissions: ['home.read'], path: '/m/dashboard/detail' });
     const amounts = await screen.findByTestId('figures-amounts');
@@ -123,7 +123,7 @@ describe('FiguresDetailScreen (PWA-08): the drill-down of the command center', (
 describe('the phone layout (360 px)', () => {
   const css = readFileSync(join(__dirname, 'pwa.css'), 'utf8');
 
-  it('keeps every screen to one column that never grows past the width, and wraps long words', () => {
+  it('keeps every screen to one column that never grows past the width, and wraps long words (AC-ST-PWA-002-3)', () => {
     expect(css).toMatch(/\.pwa-screen \{[^}]*max-width: 720px/);
     expect(css).toMatch(/\.pwa-screen \{[^}]*min-width: 0; overflow-wrap: anywhere/);
     expect(css).toMatch(/@media \(max-width: 480px\) \{ \.pwa-screen table \{ display: block; overflow-x: auto; max-width: 100%; \} \}/);

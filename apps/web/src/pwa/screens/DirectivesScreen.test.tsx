@@ -67,7 +67,7 @@ describe('DirectivesScreen (PWA-04): the directive tracking over the real operat
     expect(tiles.textContent).toContain('Chỉ đạo chưa xong có hạn trong 3 ngày.');
   });
 
-  it('filters by status, overdue and unit through the server query', async () => {
+  it('filters by status, overdue and unit through the server query (AC-ST-PWA-003-1)', async () => {
     const h = openList();
     await screen.findByLabelText(word('pwa.directives.list.aria'));
     fireEvent.change(screen.getByLabelText(word('pwa.directives.filter.status')), { target: { value: 'OVERDUE' } });
@@ -157,7 +157,7 @@ function openDetail(world: World, id = uuid(201)) {
 }
 
 describe('DirectiveDetailScreen (PWA-06)', () => {
-  it('shows the directive, the latest progress, the timeline newest first, the extension and the evidence', async () => {
+  it('shows the directive, the latest progress, the timeline newest first, the extension and the evidence (AC-ST-PWA-003-2)', async () => {
     const h = openDetail({ detail: detailBody() });
     await screen.findByTestId('directive-summary');
     expect(h.read).toHaveBeenCalledWith('getDirective', { path: { id: uuid(201) } });
