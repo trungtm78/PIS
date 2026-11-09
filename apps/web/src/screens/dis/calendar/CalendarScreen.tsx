@@ -20,9 +20,42 @@ export default function CalendarScreen({ route }: ScreenProps) {
   const [yearText, setYearText] = useState(thisYear());
   const [kind, setKind] = useState<ItemKind | ''>('');
   const [periodId, setPeriodId] = useState<string | undefined>(undefined);
+  // The year that is read is the last valid one typed: a half-typed year does not blank the screen, and the field stays where it can be corrected.
+  const [applied, setApplied] = useState(Number(thisYear()));
   const year = yearOf(yearText);
-  const query = useGovRead('dis', 'getReportingCalendar', year === undefined ? undefined : { query: { year: String(year) } }, year !== undefined);
+  const query = useGovRead('dis', 'getReportingCalendar', { query: { year: String(applied) } });
   const schedules = asList(query.data?.schedules).map((one) => one as unknown as RuleReading);
+  const filters = (
+    <div className="gov11-row">
+      <div className="field">
+        <label htmlFor="ent4c-year">{t('ent4c.calendar.filter.year')}</label>
+        <input
+          id="ent4c-year"
+          inputMode="numeric"
+          maxLength={4}
+          value={yearText}
+          aria-invalid={year === undefined}
+          onChange={(event) => {
+            setYearText(event.target.value);
+            const next = yearOf(event.target.value);
+            if (next !== undefined) setApplied(next);
+          }}
+        />
+        {year === undefined ? <p role="alert">{t('ent4c.calendar.filter.yearInvalid')}</p> : null}
+      </div>
+      <div className="field">
+        <label htmlFor="ent4c-kind">{t('ent4c.calendar.filter.kind')}</label>
+        <select id="ent4c-kind" value={kind} onChange={(event) => setKind(itemKindOf(event.target.value) ?? '')}>
+          <option value="">{t('ent4c.calendar.filter.allKinds')}</option>
+          {ITEM_KINDS.map((one) => (
+            <option key={one} value={one}>
+              {t(`ent4c.kind.${kindKeyOf(one)}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
   return (
     <Frame
       route={route}
@@ -31,30 +64,17 @@ export default function CalendarScreen({ route }: ScreenProps) {
       scope={[{ label: t('ent4c.common.scope'), value: tenant?.name ?? '–' }]}
       query={query}
       isEmpty={(data) => asList(data.items).length === 0}
-      notice={<UnverifiedNote rules={schedules} />}
+      notice={
+        <>
+          {filters}
+          <UnverifiedNote rules={schedules} />
+        </>
+      }
     >
       {(data) => {
         const items = asList(data.items).filter((item) => kind === '' || item.kind === kind);
         return (
           <div className="gov11-grid">
-            <div className="gov11-row">
-              <div className="field">
-                <label htmlFor="ent4c-year">{t('ent4c.calendar.filter.year')}</label>
-                <input id="ent4c-year" inputMode="numeric" maxLength={4} value={yearText} aria-invalid={year === undefined} onChange={(event) => setYearText(event.target.value)} />
-                {year === undefined ? <p role="alert">{t('ent4c.calendar.filter.yearInvalid')}</p> : null}
-              </div>
-              <div className="field">
-                <label htmlFor="ent4c-kind">{t('ent4c.calendar.filter.kind')}</label>
-                <select id="ent4c-kind" value={kind} onChange={(event) => setKind(itemKindOf(event.target.value) ?? '')}>
-                  <option value="">{t('ent4c.calendar.filter.allKinds')}</option>
-                  {ITEM_KINDS.map((one) => (
-                    <option key={one} value={one}>
-                      {t(`ent4c.kind.${kindKeyOf(one)}`)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
             <div className="gov11-scroll">
               <table className="gov11-table" data-testid="calendar-table">
                 <caption>{t('ent4c.calendar.caption', { year: text(data.year) })}</caption>
