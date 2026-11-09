@@ -120,10 +120,22 @@ export class ReportController {
       });
     }
 
-    let data: ReportFillData;
+    let data: ReportFillData | undefined;
     let snapshot: SnapshotRevisionRef | null = null;
+    let dataSource = bundle.dataSource;
     if (bundle.dataSource === 'ILLUSTRATIVE') {
-      data = (bundle.illustrative as NonNullable<typeof bundle.illustrative>)(period);
+      // ENT-3a: a DEMO form that names a snapshot provider stands on the frozen snapshot of the period when there is one (its stamp stays); without one it keeps its invented data.
+      const snapshotProvider = bundle.snapshotProvider === undefined || bundle.snapshotProvider === null ? undefined : REPORT_FORMS.provider(bundle.snapshotProvider);
+      if (snapshotProvider !== undefined) {
+        if (snapshotProvider.wholeTenant) this.assertWhole(access, PERMISSIONS.generateReport);
+        const loaded = await snapshotProvider.load({ database: this.database, tenant: scope.tenant, access, now, today, period, layout: layout.layout });
+        if (loaded.snapshot !== null) {
+          data = loaded.data;
+          snapshot = loaded.snapshot;
+          dataSource = 'LIVE';
+        }
+      }
+      data ??= (bundle.illustrative as NonNullable<typeof bundle.illustrative>)(period);
     } else {
       const provider = REPORT_FORMS.provider(bundle.provider as string);
       if (provider === undefined) throw new DomainError('PROVIDER_UNAVAILABLE', 503, 'provider');
@@ -167,7 +179,7 @@ export class ReportController {
       pdfSha256: pdfSha,
       layoutSha256: rendered.layoutSha256,
       packageSha256: packageSha,
-      dataSource: bundle.dataSource,
+      dataSource,
       snapshotRef: snapshot,
       marks,
       gridIssues: rendered.issues,

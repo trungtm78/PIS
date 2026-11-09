@@ -7162,6 +7162,19 @@ final class EntConnectionState implements RequestModel {
       };
 }
 
+final class EnterpriseSnapshotBuild implements RequestModel {
+  const EnterpriseSnapshotBuild({
+    required this.periodId,
+  });
+
+  final String periodId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period_id': periodId,
+      };
+}
+
 final class EntitlementOverrideRequest implements RequestModel {
   const EntitlementOverrideRequest({
     required this.featureCode,

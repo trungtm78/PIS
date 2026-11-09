@@ -229166,6 +229166,661 @@
         "x-plane": "tenant",
         "x-audit-action": "device.test_push_sent"
       }
+    },
+    "/enterprise-snapshots": {
+      "post": {
+        "operationId": "buildEnterpriseSnapshot",
+        "summary": "Dựng bản chốt kỳ doanh nghiệp từ số liệu vốn đã duyệt và chỉ tiêu đã nhập; từ chối kèm danh sách đơn vị chưa nộp; kỳ đã chốt chỉ dựng lại sau khi mở lại kỳ (ENT-3a, DIS-30)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "funding.snapshot.build",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseSnapshotBuild"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "PERIOD_STATE_INVALID",
+          "SNAPSHOT_FROZEN",
+          "SNAPSHOT_BUILD_IN_PROGRESS",
+          "ENTERPRISE_SNAPSHOT_INCOMPLETE"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "enterprise.snapshot_built.v1"
+        ]
+      },
+      "get": {
+        "operationId": "listEnterpriseSnapshots",
+        "summary": "Các bản chốt kỳ doanh nghiệp, mới nhất trước, theo kỳ và trạng thái (ENT-3a, DIS-30)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "funding.snapshot.read",
+        "parameters": [
+          {
+            "name": "period_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseSnapshotList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/enterprise-snapshots/{id}/freeze": {
+      "post": {
+        "operationId": "freezeEnterpriseSnapshot",
+        "summary": "Chốt bản chốt kỳ doanh nghiệp bằng mã băm lược đồ 2; người dựng không tự chốt; bản chốt trước của cùng kỳ thành SUPERSEDED (ENT-3a, DIS-31)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "funding.snapshot.freeze",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SNAPSHOT_FROZEN",
+          "SNAPSHOT_NOT_BUILT",
+          "PERIOD_STATE_INVALID",
+          "SELF_APPROVAL_DENIED",
+          "VERSION_CONFLICT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "enterprise.snapshot_frozen.v1"
+        ]
+      }
+    },
+    "/enterprise-snapshots/{id}": {
+      "get": {
+        "operationId": "getEnterpriseSnapshot",
+        "summary": "Chi tiết một bản chốt kỳ doanh nghiệp đọc qua một bộ đọc duy nhất: tổng, theo đơn vị, theo dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản (ENT-3a, DIS-31)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "funding.snapshot.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "measure",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseSnapshotDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/enterprise-snapshot-readiness": {
+      "get": {
+        "operationId": "getEnterpriseSnapshotReadiness",
+        "summary": "Kỳ đã đủ số liệu để dựng bản chốt chưa: đơn vị, dự án, ô và tháng còn thiếu, lô chờ duyệt, bản đã chốt và điều kiện dựng lại (ENT-3a, DIS-30)",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "funding.snapshot.build",
+        "parameters": [
+          {
+            "name": "period_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseSnapshotReadiness"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -309868,6 +310523,261 @@
         "properties": {
           "acknowledged": {
             "type": "boolean"
+          }
+        }
+      },
+      "EnterpriseSnapshotBuild": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "period_id"
+        ],
+        "properties": {
+          "period_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EnterpriseSnapshot": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "period_id",
+          "period_code",
+          "status",
+          "revision",
+          "version",
+          "payload_sha256",
+          "taxonomy_pack",
+          "row_count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "period_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "period_code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "BUILDING",
+              "FROZEN",
+              "SUPERSEDED",
+              "FAILED"
+            ]
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "payload_sha256": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxonomy_pack": {
+            "type": "string"
+          },
+          "taxonomy_version": {
+            "type": "integer"
+          },
+          "hash_schema": {
+            "type": "integer"
+          },
+          "definition_status": {
+            "type": "string"
+          },
+          "row_count": {
+            "type": "integer"
+          },
+          "figure_count": {
+            "type": "integer"
+          },
+          "indicator_count": {
+            "type": "integer"
+          },
+          "as_of_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "supersedes_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "frozen_by": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "frozen_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EnterpriseSnapshotList": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseSnapshot"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "EnterpriseSnapshotDetail": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "snapshot",
+          "period",
+          "measure",
+          "totals",
+          "by_unit",
+          "projects",
+          "indicators",
+          "lineage",
+          "actions",
+          "as_of"
+        ],
+        "properties": {
+          "snapshot": {
+            "$ref": "#/components/schemas/EnterpriseSnapshot"
+          },
+          "period": {
+            "type": "object"
+          },
+          "pack": {
+            "type": "object"
+          },
+          "measure": {
+            "type": "string"
+          },
+          "totals": {
+            "type": "object"
+          },
+          "by_unit": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "lineage": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "hash_verified": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "actions": {
+            "type": "object"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "EnterpriseSnapshotReadiness": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "period",
+          "pack",
+          "complete",
+          "planned_cells",
+          "projects",
+          "missing_units",
+          "waiting_batches",
+          "frozen",
+          "rebuild_allowed",
+          "actions"
+        ],
+        "properties": {
+          "period": {
+            "type": "object"
+          },
+          "pack": {
+            "type": "object"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "planned_cells": {
+            "type": "integer"
+          },
+          "projects": {
+            "type": "integer"
+          },
+          "missing_units": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "waiting_batches": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "frozen": {
+            "type": "object",
+            "nullable": true
+          },
+          "rebuild_allowed": {
+            "type": "boolean"
+          },
+          "actions": {
+            "type": "object"
           }
         }
       }

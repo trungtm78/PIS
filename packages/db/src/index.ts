@@ -349,8 +349,8 @@ export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChan
 export { BASELINE_POLICIES, MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
 export { MASTER_MERGE_RESOURCE, MasterMergeStore, SURVIVORSHIP_RULE_RESOURCE } from './master-merge-store.ts';
 export type { MasterMerge, MasterMergeOutcome, Page as MasterPage, RepointedReference, SurvivorshipRule, MasterUnmergeOutcome } from './master-merge-store.ts';
-export { AdmMigrationStore, MIGRATION_BATCH_RESOURCE, MIGRATION_STATUSES } from './adm-migration-store.ts';
-export type { DryRunOutcome, MigrationBatch, MigrationErrorRow, MigrationPage, MigrationStatus } from './adm-migration-store.ts';
+export { AdmMigrationStore, MIGRATION_BATCH_RESOURCE, MIGRATION_STATUSES, registerMigrationVerifier } from './adm-migration-store.ts';
+export type { DryRunOutcome, MigrationBatch, MigrationErrorRow, MigrationPage, MigrationStatus, MigrationVerifier } from './adm-migration-store.ts';
 export type {
   ChangeKind,
   ChangeRequestDetail,
@@ -1891,5 +1891,6 @@ export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
-export { registerMigrationVerifier } from './adm-migration-store.ts';
-export type { MigrationVerifier } from './adm-migration-store.ts';
+// ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
+export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
+export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';

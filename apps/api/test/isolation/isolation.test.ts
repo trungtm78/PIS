@@ -1282,6 +1282,12 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'acceptFundingFigures',
         'returnFundingFigures',
         'withdrawFundingFigures',
+        // ENT-3a: the enterprise period snapshot
+        'getEnterpriseSnapshot',
+        'getEnterpriseSnapshotReadiness',
+        'listEnterpriseSnapshots',
+        'buildEnterpriseSnapshot',
+        'freezeEnterpriseSnapshot',
         // VND-1: the management of contractors.
         // VND-2 (alpha): independence, finance and load.
         'listVendorPersonInterests',

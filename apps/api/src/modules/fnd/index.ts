@@ -1,4 +1,5 @@
 import { defineModule } from '../module-descriptor';
+import { EnterpriseSnapshotController } from './enterprise-snapshot.controller';
 import { FundingFigureController } from './figure.controller';
 import { FundingFigureReadsController } from './figure-reads.controller';
 
@@ -8,5 +9,5 @@ import { FundingFigureReadsController } from './figure-reads.controller';
  */
 export const fndModule = defineModule({
   code: 'FND',
-  controllers: [FundingFigureController, FundingFigureReadsController],
+  controllers: [FundingFigureController, FundingFigureReadsController, EnterpriseSnapshotController],
 });

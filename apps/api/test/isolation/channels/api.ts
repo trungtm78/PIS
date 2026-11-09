@@ -369,6 +369,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'acceptFundingFigures', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].batchId, versioned: true, body: {} },
   { operation: 'returnFundingFigures', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].batchId, versioned: true, body: { reason: 'Isolation foreign return attempt' } },
   { operation: 'withdrawFundingFigures', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].batchId, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt' } },
+  // ENT-3a: another tenant's snapshot id answers as one that does not exist (the fixture id is not a snapshot of either tenant).
+  { operation: 'getEnterpriseSnapshot', method: 'GET', id: FUNDING_FIGURE_FIXTURES['TNT-B'].figureId },
+  { operation: 'freezeEnterpriseSnapshot', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].figureId, versioned: true, body: {} },
   { operation: 'releaseFundReservation', method: 'POST', id: RESERVATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
   { operation: 'requestAllocationExtension', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].lineId, body: { amount_vnd: '100', extended_to: '2027-03-31', reason_code: 'GPMB_CHAM' } },
   { operation: 'decideAllocationExtension', method: 'POST', id: EXTENSION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision' } },

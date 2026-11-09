@@ -2946,6 +2946,9 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   acceptFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/acceptance', ifMatch: '"1"', body: {} }) },
   returnFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/return', ifMatch: '"1"', body: { reason: REASON } }) },
   withdrawFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/withdrawal', ifMatch: '"1"', body: { reason: REASON } }) },
+  // ENT-3a: the enterprise period snapshot; a caller who is refused builds and freezes nothing.
+  buildEnterpriseSnapshot: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/enterprise-snapshots', body: { period_id: '00000000-0000-4000-8000-0000000000f1' } }) },
+  freezeEnterpriseSnapshot: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/enterprise-snapshots/00000000-0000-4000-8000-0000000000f1/freeze', ifMatch: '"1"', body: {} }) },
   // EGP-1: the connection of the national procurement network and the codes it carries; a caller who is refused changes nothing and reads no file.
   setEgpConnectionState: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/connection/state', ifMatch: '"1"', body: { enabled: false, reason: REASON } }) },
   uploadEgpFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/imports/files', body: {} }) },

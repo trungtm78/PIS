@@ -4,6 +4,7 @@ import { REPORT_FORM_CATALOGUE } from '@machvon/kernel/src/report-layout.ts';
 import type { ReportFormBundle } from '@machvon/kernel/src/report-form.ts';
 import { DEMO_FORMS } from './forms.ts';
 import { illustrativeFillData } from './illustrative-data.ts';
+import { ENTERPRISE_SNAPSHOT_PROVIDER } from './snapshot-data.ts';
 import { templateFileName } from './template-builder.ts';
 
 /**
@@ -44,6 +45,8 @@ export function enterpriseReportBundles(): ReportFormBundle[] {
       periodKind: entry.period,
       dataSource: 'ILLUSTRATIVE',
       provider: null,
+      // The form stays a DEMO form with its invented data until the official layout arrives (R18); when a frozen enterprise snapshot of the period exists, the engine fills it from that snapshot instead.
+      snapshotProvider: ENTERPRISE_SNAPSHOT_PROVIDER,
       templates: async () => ({ xlsx: readTemplate(code, 'xlsx'), docx: form.narrative === null ? null : readTemplate(code, 'docx') }),
       illustrative: (period) => illustrativeFillData(form, period),
     };

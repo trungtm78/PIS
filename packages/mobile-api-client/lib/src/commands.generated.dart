@@ -280,6 +280,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> buildBiDatasetVersion(BiDatasetVersionBuild body, {required String id, CommandAttempt? attempt}) =>
       execute('buildBiDatasetVersion', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> buildEnterpriseSnapshot(EnterpriseSnapshotBuild body, {CommandAttempt? attempt}) =>
+      execute('buildEnterpriseSnapshot', body: body, attempt: attempt);
+
   Future<Object?> buildPeriodSnapshot(DisSnapshotRequest body, {CommandAttempt? attempt}) =>
       execute('buildPeriodSnapshot', body: body, attempt: attempt);
 
@@ -1144,6 +1147,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> fixEffectTargets({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('fixEffectTargets', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> freezeEnterpriseSnapshot({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('freezeEnterpriseSnapshot', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> freezePeriodSnapshot({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('freezePeriodSnapshot', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -1449,6 +1455,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getEnterpriseOrgPack({Map<String, Object?>? query}) =>
       execute('getEnterpriseOrgPack', query: query);
+
+  Future<Object?> getEnterpriseSnapshot({required String id, Map<String, Object?>? query}) =>
+      execute('getEnterpriseSnapshot', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getEnterpriseSnapshotReadiness({Map<String, Object?>? query}) =>
+      execute('getEnterpriseSnapshotReadiness', query: query);
 
   Future<Object?> getEvaluationReport({required String id, Map<String, Object?>? query}) =>
       execute('getEvaluationReport', path: <String, Object?>{'id': id}, query: query);
@@ -2829,6 +2841,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listEnforcementCases({Map<String, Object?>? query}) =>
       execute('listEnforcementCases', query: query);
+
+  Future<Object?> listEnterpriseSnapshots({Map<String, Object?>? query}) =>
+      execute('listEnterpriseSnapshots', query: query);
 
   Future<Object?> listEvaluationReports({required String id, Map<String, Object?>? query}) =>
       execute('listEvaluationReports', path: <String, Object?>{'id': id}, query: query);

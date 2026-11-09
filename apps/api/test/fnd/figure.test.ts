@@ -7,6 +7,7 @@ import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { fndModule } from '../../src/modules/fnd';
+import { EnterpriseSnapshotController } from '../../src/modules/fnd/enterprise-snapshot.controller';
 import { FundingFigureController } from '../../src/modules/fnd/figure.controller';
 import { FundingFigureReadsController } from '../../src/modules/fnd/figure-reads.controller';
 import { FUNDING_PACK_CODE } from '../../src/modules/fnd/tokens';
@@ -142,7 +143,7 @@ describe('the figures of the funding model: batches, acceptance, the board and t
 
   it('is registered in the module of FND, which is a module of its own', () => {
     expect(fndModule.code).toBe('FND');
-    expect(fndModule.controllers).toEqual([FundingFigureController, FundingFigureReadsController]);
+    expect(fndModule.controllers).toEqual([FundingFigureController, FundingFigureReadsController, EnterpriseSnapshotController]);
   });
 
   describe('getFundingTaxonomy', () => {

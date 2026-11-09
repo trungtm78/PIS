@@ -46,11 +46,26 @@ export interface SnapshotFigure {
   sourceFigureId: string | null;
 }
 
+/** One figure of the indicator dictionary (IND-1) frozen with an enterprise snapshot: the number in force for a project and the period, with the register's revision it was read from. */
+export interface SnapshotIndicator {
+  projectId: string;
+  unitId: string;
+  indicatorCode: string;
+  /** The number as the register writes it (decimal text, no trailing zero of the fraction). */
+  value: string;
+  unit: string;
+  definitionVersion: number;
+  revision: number;
+  sourceFigureId: string | null;
+}
+
 export interface HashSchema2Extras {
   taxonomyPack: string;
   taxonomyVersion: number;
   actualsPrecedence: string;
   figures: readonly SnapshotFigure[];
+  /** The indicator figures of the dictionary carried by the snapshot. Hashed only when there is one, so a snapshot without any keeps the hash it always had. */
+  indicators?: readonly SnapshotIndicator[] | undefined;
 }
 
 const lineKey = (line: { projectId: string; bucket: string; budgetLevel: string }): string => line.projectId + `${line.bucket}/${line.budgetLevel}`;
@@ -67,7 +82,9 @@ export function snapshotHashFor(schema: HashSchema, header: SnapshotHashHeader, 
   if (extras === undefined) throw new Error('hash schema 2 needs the pack, the version and the figures');
   const figures = [...extras.figures].sort(byText(figureKey));
   const figureKinds = [...new Set(figures.map((figure) => figure.figureKind))].sort();
-  return sha256Hex(canonicalJson({ header: { ...header, taxonomyPack: extras.taxonomyPack, taxonomyVersion: extras.taxonomyVersion, actualsPrecedence: extras.actualsPrecedence, figureKinds }, lines: ordered, figures }));
+  const indicators = [...(extras.indicators ?? [])].sort(byText((one: SnapshotIndicator) => [one.projectId, one.indicatorCode].join('|')));
+  const body = { header: { ...header, taxonomyPack: extras.taxonomyPack, taxonomyVersion: extras.taxonomyVersion, actualsPrecedence: extras.actualsPrecedence, figureKinds }, lines: ordered, figures };
+  return sha256Hex(canonicalJson(indicators.length === 0 ? body : { ...body, indicators }));
 }
 
 const MISSING = 'NO_DATA';
