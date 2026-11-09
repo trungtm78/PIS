@@ -62,7 +62,11 @@ const dataOf = (count: number): ReportFillData => ({ period: { kind: 'MONTH', ye
 
 describe('a form that needs several pages', () => {
   it('repeats the header of the table on each page it continues on, keeps the pages in order and agrees with the workbook', async () => {
-    const made = await writeAll({ layout: LONG, narrative: NARRATIVE, data: dataOf(120), template: await buildBlankTemplate(LONG), issuedAt: ISSUED_AT });
+    const template = await buildBlankTemplate(LONG);
+    const started = Date.now();
+    const made = await writeAll({ layout: LONG, narrative: NARRATIVE, data: dataOf(120), template, issuedAt: ISSUED_AT });
+    // The budget of the customer for a report is 20 seconds (HT.05, docs/qa/perf-budget.json); all three files of a long form are far inside it.
+    expect(Date.now() - started).toBeLessThan(20_000);
     expect(await disagreements(made)).toEqual([]);
     expect(made.pdf.plan.sheetPages).toBeGreaterThan(2);
     const headerRowNumbers = new Set(made.document.grid.rows.filter((row) => row.kind === 'HEADER').map((row) => row.row));

@@ -439,6 +439,7 @@
     "adoptContractRating",
     "withdrawContractRating",
     "generateReport",
+    "previewReportLayout",
     "checkReport",
     "approveReport",
     "issueReport",

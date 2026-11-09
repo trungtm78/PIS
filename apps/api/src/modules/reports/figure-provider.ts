@@ -35,7 +35,7 @@ export interface ReportFigureProvider {
 
 export const DIS_HOME_PROVIDER = 'DIS_HOME';
 
-const definitionOf = (definition: KpiDefinition): ReportIndicatorDefinition => ({
+export const definitionOf = (definition: KpiDefinition): ReportIndicatorDefinition => ({
   code: definition.code,
   name: definition.name,
   unit: definition.unit,
@@ -46,6 +46,9 @@ const definitionOf = (definition: KpiDefinition): ReportIndicatorDefinition => (
   source: definition.source,
   unverified: definition.unverified,
 });
+
+/** The codes of the indicators a layout binds, in its preface and its body. */
+const indicatorCodesOf = (layout: ReportLayout): string[] => [...layout.preface, ...layout.body].flatMap((row) => row.cells.flatMap((cell) => (cell.binding.kind === 'INDICATOR' ? [cell.binding.code] : [])));
 
 /**
  * The weekly disbursement report: the tiles of the command center from the latest frozen snapshot (the two rates, the Treasury amount, the two plans) and its three counts, through the same reader as the screen of the
@@ -86,7 +89,8 @@ export class DisHomeProvider implements ReportFigureProvider {
       org: (await tx.query<{ name: string }>('select name from machvon.organization_unit where parent_id is null and valid_until is null order by valid_from, id limit 1'))[0]?.name ?? WEEKLY_ORG_FALLBACK,
       revision: read === null ? 0 : await this.store.snapshotRevision(tx, read.snapshot.id),
     }));
-    const wanted = new Set<string>(DIS_WEEKLY_INDICATORS.map((one) => one.code));
+    // The indicators of the weekly report and every indicator the layout of the form binds (a configured layout picks its own); the command center gives a figure for the ones it shows, the rest are reported as missing.
+    const wanted = new Set<string>([...DIS_WEEKLY_INDICATORS.map((one) => one.code), ...indicatorCodesOf(context.layout)]);
     const definitions: Record<string, ReportIndicatorDefinition> = {};
     for (const [code, definition] of around.definitions) if (wanted.has(code)) definitions[code] = definitionOf(definition);
     const figures: ReportFigure[] = [];

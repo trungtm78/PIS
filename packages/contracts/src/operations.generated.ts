@@ -1196,6 +1196,7 @@ export const OPERATIONS = {
   "previewFinanceFeedFile": { method: "post", path: "/finance-feed/imports/preview", versioned: false, stepUp: null, permission: "fin.feed.preview" },
   "previewIndicatorImport": { method: "post", path: "/indicator-imports/preview", versioned: false, stepUp: null, permission: "ind.import.preview" },
   "previewPlanChange": { method: "post", path: "/system/subscriptions/{subscriptionId}/plan-change-previews", versioned: false, stepUp: null, permission: "system.billing.manage" },
+  "previewReportLayout": { method: "post", path: "/report-engine/layout-previews", versioned: false, stepUp: null, permission: "rpt.generate" },
   "promoteAllocationScenario": { method: "post", path: "/allocation-scenarios/{id}/promote", versioned: true, stepUp: null, permission: "capital.reallocation.propose" },
   "promoteChangeRequest": { method: "post", path: "/change-requests/{id}/promote", versioned: true, stepUp: null, permission: "change.manage" },
   "proposeAlertCover": { method: "post", path: "/home/alert-absences/{id}/covers", versioned: false, stepUp: null, permission: "home.read" },

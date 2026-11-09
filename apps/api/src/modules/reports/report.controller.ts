@@ -24,6 +24,7 @@ import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
+import { configuredFormOf } from './configured-forms';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess } from './form-registry';
 import { renderReport } from './render';
@@ -93,13 +94,14 @@ export class ReportController {
   @Command({ operation: 'generateReport' })
   async generate(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['RptGenerate']): Promise<Schemas['RptGenerated']> {
     this.assertWhole(access, PERMISSIONS.generateReport);
-    const bundle = REPORT_FORMS.get(body.layout_code);
-    if (bundle === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout_code');
-    const period = periodOf(body.period);
-    assertPeriodFitsForm(bundle.periodKind, period);
     const { tx } = scope;
     const now = this.clock();
     const today = vietnamDateOf(now);
+    // A form owned by code, else a layout the tenant configured without code (the version of its rule in force today).
+    const bundle = REPORT_FORMS.get(body.layout_code) ?? (await configuredFormOf(tx, body.layout_code, today))?.bundle;
+    if (bundle === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout_code');
+    const period = periodOf(body.period);
+    assertPeriodFitsForm(bundle.periodKind, period);
     const by = scope.tenant.membershipId;
     // A DEMO form is generated only while demo forms are on (TEMPLATE_UNCONFIRMED otherwise); the marks of the copy come from the form as it is today.
     const demoMode = await demoModeOf(tx, today, bundle.layout.status);

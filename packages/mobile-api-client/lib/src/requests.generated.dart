@@ -14826,6 +14826,22 @@ final class RptGenerate implements RequestModel {
       };
 }
 
+final class RptLayoutPreviewRequest implements RequestModel {
+  const RptLayoutPreviewRequest({
+    required this.params,
+    this.period,
+  });
+
+  final Map<String, Object?> params;
+  final RptPeriod? period;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'params': params,
+        if (period != null) 'period': period,
+      };
+}
+
 final class RptPeriod implements RequestModel {
   const RptPeriod({
     required this.kind,

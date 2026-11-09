@@ -3592,6 +3592,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> previewPlanChange(PlanChange body, {required String subscriptionId, CommandAttempt? attempt}) =>
       execute('previewPlanChange', path: <String, Object?>{'subscriptionId': subscriptionId}, body: body, attempt: attempt);
 
+  Future<Object?> previewReportLayout(RptLayoutPreviewRequest body, {CommandAttempt? attempt}) =>
+      execute('previewReportLayout', body: body, attempt: attempt);
+
   Future<Object?> promoteAllocationScenario({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('promoteAllocationScenario', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
 

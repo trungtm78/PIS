@@ -9,6 +9,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
+import { configuredFormsOf } from './configured-forms';
 import { sha256Hex } from './digest';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess, layoutReadable } from './form-registry';
@@ -64,8 +65,9 @@ export class ReportReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const demoMode = await demoModeOf(tx, vietnamDateOf(now), 'ANY');
       const registered = new Map((await reportStore.listLayouts(tx)).map((row) => [row.code, row]));
+      const configured = await configuredFormsOf(tx, vietnamDateOf(now));
       return {
-        items: REPORT_FORMS.list().map((bundle) => catalogueEntryDto(bundle, registered.get(bundle.layout.code), demoMode)),
+        items: [...REPORT_FORMS.list(), ...configured.map((one) => one.bundle)].map((bundle) => catalogueEntryDto(bundle, registered.get(bundle.layout.code), demoMode)),
         demo_mode: demoMode,
         as_of: now.toISOString(),
         can_generate: holdsPermission(held, PERMISSIONS.generateReport),

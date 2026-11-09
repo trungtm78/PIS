@@ -1199,6 +1199,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'previewFinanceFeedFile': asObject,
   'previewIndicatorImport': IndPreviewResultResponse.fromJson,
   'previewPlanChange': PlanChangePreviewResponse.fromJson,
+  'previewReportLayout': RptLayoutPreviewResponse.fromJson,
   'promoteAllocationScenario': CommandResultResponse.fromJson,
   'promoteChangeRequest': CommandResultResponse.fromJson,
   'proposeAlertCover': CommandResultResponse.fromJson,
@@ -57251,6 +57252,56 @@ final class RptIssueResponse implements ResponseModel {
         'can_deliver': canDeliver,
         'can_answer': canAnswer,
         if (layoutSha256 != null) 'layout_sha256': layoutSha256,
+        ...extra,
+      };
+}
+
+final class RptLayoutPreviewResponse implements ResponseModel {
+  const RptLayoutPreviewResponse({
+    required this.valid,
+    required this.problem,
+    required this.formName,
+    required this.status,
+    required this.datasets,
+    required this.preview,
+    required this.issues,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptLayoutPreviewResponse.fromJson(Object? json, [String path = 'RptLayoutPreviewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptLayoutPreviewResponse(
+      valid: requiredField(map, path, 'valid', asBool),
+      problem: requiredField(map, path, 'problem', nullable(asString)),
+      formName: requiredField(map, path, 'form_name', nullable(asString)),
+      status: requiredField(map, path, 'status', nullable(asString)),
+      datasets: requiredField(map, path, 'datasets', asList(asString)),
+      preview: requiredField(map, path, 'preview', asAny),
+      issues: requiredField(map, path, 'issues', asList(RptGridIssueResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'valid', 'problem', 'form_name', 'status', 'datasets', 'preview', 'issues'}, strict: true),
+    );
+  }
+
+  final bool valid;
+  final String? problem;
+  final String? formName;
+  final String? status;
+  final List<String> datasets;
+  final Object? preview;
+  final List<RptGridIssueResponse> issues;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'valid': valid,
+        'problem': problem,
+        'form_name': formName,
+        'status': status,
+        'datasets': datasets,
+        'preview': preview,
+        'issues': issues.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }
