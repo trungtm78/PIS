@@ -49655,6 +49655,111 @@
       ]
     },
     {
+      "id": "ST-MOB-042",
+      "epic": "EP-MOB",
+      "feature": "FT-MOB-06",
+      "module": "MOB",
+      "title": "Delegations and absences, the KPI register and the report catalogue on the phone, read-only; real push adapter; alert routing; protected screens; enterprise home cards",
+      "narrative": "As an officer or a leader on the move I read my delegations and absences, the KPI register and the report catalogue on my phone, I receive push notifications that open the right screen without any figure in the payload, and every alert opens the phone screen that exists for its target.",
+      "release": "R3",
+      "screens": [
+        "MOB-75",
+        "MOB-76",
+        "MOB-77"
+      ],
+      "operations": [],
+      "tables": [],
+      "nfr": [
+        "NFR-ACCESSIBILITY-02",
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-MOB-042-1",
+          "given": "A phone with a push configuration and one without, and a notification id sent by the server",
+          "when": "the push arrives, is tapped, the token rotates and the person signs out",
+          "then": "the device registers once per token, the tap opens the opaque link of the notification and nothing else of the payload is read, the registration is revoked and the token forgotten at sign-out, and a build without the configuration runs on the null adapter",
+          "test_id": "UAT-PLAN-3101"
+        },
+        {
+          "id": "AC-ST-MOB-042-2",
+          "given": "MOB-75 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, no command is offered, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-75"
+        },
+        {
+          "id": "AC-ST-MOB-042-3",
+          "given": "MOB-76 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, no command is offered, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-76"
+        },
+        {
+          "id": "AC-ST-MOB-042-4",
+          "given": "MOB-77 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, no command is offered, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-77"
+        }
+      ],
+      "dependencies": [
+        "ST-MOB-029"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "No command exists on these screens; offline data carries its as-of time and is never presented as the latest; the committee read writes a view row on the server."
+      },
+      "mobile": "flutter-screen",
+      "tasks": [
+        {
+          "id": "TK-MOB-042-1",
+          "kind": "mobile",
+          "title": "MOB-75, MOB-76, MOB-77 Flutter screens with offline state and as-of time; the push adapter on firebase_messaging behind the port; alert routing table",
+          "test_ids": []
+        },
+        {
+          "id": "TK-MOB-042-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for MOB-75, MOB-76, MOB-77; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-MOB-042-3",
+          "kind": "qa",
+          "title": "Automated tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3101"
+          ]
+        },
+        {
+          "id": "TK-MOB-042-4",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-MOB-75",
+            "UI-MOB-76",
+            "UI-MOB-77"
+          ]
+        }
+      ]
+    },
+    {
       "id": "ST-DIR-001",
       "epic": "EP-DIR",
       "feature": "FT-DIR-01",

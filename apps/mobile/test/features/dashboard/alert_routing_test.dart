@@ -12,7 +12,7 @@ const String _catalogue = '$_root/Design/MACHVON_Design/03_Engineering/screen_ca
 
 final RegExp _screenId = RegExp(r"'([A-Z]{2,4}-\d{2})'");
 
-/// The target screens that the server writes into the alerts: the literals `screen: 'XXX-NN'` and the screen constants of the home sources of
+/// The target screens that the server writes into the alerts: the literals `screen: '<ID>'` and the screen constants of the home sources of
 /// the database package, and the screen tables of the kernel (GOV-10 and VND-3).
 Set<String> _serverTargets() {
   final Set<String> found = <String>{};
