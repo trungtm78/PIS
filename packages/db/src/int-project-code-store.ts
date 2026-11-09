@@ -200,6 +200,19 @@ const codeOf = (row: ProjectCodeSql): ProjectCodeRow => ({
   createdAtKey: row.created_at_key,
 });
 
+/** How far the codes of one system reach over the projects of the tenant on a day (ENT-3e). `directOnly` are the projects without an ACTIVE code that the direct match still serves; `unmapped` those it does not. */
+export interface ProjectCodeCoverage {
+  sourceSystem: string;
+  projects: number;
+  mapped: number;
+  directOnly: number;
+  unmapped: number;
+  proposed: number;
+  /** ACTIVE codes that are, as text, the code of ANOTHER project: the crosswalk and the direct match read them differently. */
+  shadows: number;
+  directFallback: boolean;
+}
+
 export interface ProjectCodeFilter {
   sourceSystem?: string | undefined;
   status?: EgpMappingStatus | undefined;
@@ -270,6 +283,24 @@ export class ProjectCodeStore {
       throw error;
     }
     return (await this.find(tx, id)) as ProjectCodeRow;
+  }
+
+  /** Counts, for one system and a day: the projects, those with an ACTIVE code that holds, the codes waiting for a second person and the ACTIVE codes that shadow the direct reading of another project. */
+  async coverage(tx: TenantTx, sourceSystem: string, day: string): Promise<ProjectCodeCoverage> {
+    const [row] = await tx.query<{ projects: string; mapped: string; proposed: string; shadows: string }>(
+      `select (select count(*) from machvon.project)::text as projects,
+              (select count(distinct x.subject_id) from machvon.master_crosswalk x where x.subject_type = 'PROJECT' and x.external_type = '${PROJECT_CODE_EXTERNAL_TYPE}' and x.source_system = $1 and x.status = 'ACTIVE'
+                  and x.valid_from <= $2::date and (x.valid_until is null or x.valid_until > $2::date))::text as mapped,
+              (select count(*) from machvon.master_crosswalk x where x.subject_type = 'PROJECT' and x.external_type = '${PROJECT_CODE_EXTERNAL_TYPE}' and x.source_system = $1 and x.status = 'PROPOSED')::text as proposed,
+              (select count(*) from machvon.master_crosswalk x join machvon.project p on p.tenant_id = x.tenant_id and p.code = x.external_code and p.id <> x.subject_id
+                where x.subject_type = 'PROJECT' and x.external_type = '${PROJECT_CODE_EXTERNAL_TYPE}' and x.source_system = $1 and x.status = 'ACTIVE'
+                  and x.valid_from <= $2::date and (x.valid_until is null or x.valid_until > $2::date))::text as shadows`,
+      [sourceSystem, day],
+    );
+    const projects = Number(row?.projects ?? 0);
+    const mapped = Number(row?.mapped ?? 0);
+    const directFallback = isDirectMatchSystem(sourceSystem);
+    return { sourceSystem, projects, mapped, directOnly: directFallback ? projects - mapped : 0, unmapped: directFallback ? 0 : projects - mapped, proposed: Number(row?.proposed ?? 0), shadows: Number(row?.shadows ?? 0), directFallback };
   }
 
   /** For a system that is also read by direct match: the code may not be the code of another project (409 `CROSSWALK_DUPLICATE`, reason `EXTERNAL_CODE_IS_OTHER_PROJECT`). */

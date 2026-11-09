@@ -312,7 +312,7 @@ export class CapScheduleStore {
     const planYear = yearOf(input.planYear);
     if (!SCHEDULE_GRAINS.includes(input.granularity)) throw invalid('granularity');
     if (!SCHEDULE_KINDS.includes(input.kind)) throw invalid('kind');
-    if (!LINE_BUCKETS.includes(input.bucket)) throw invalid('bucket');
+    if (!(LINE_BUCKETS as readonly string[]).includes(input.bucket)) throw invalid('bucket');
     if (!BUDGET_LEVELS.includes(input.budgetLevel)) throw invalid('budget_level');
     // A registration is monthly and a weekly commitment weekly; a forecast may be either.
     if (input.kind === 'REGISTERED' && input.granularity !== 'MONTH') throw invalid('granularity');

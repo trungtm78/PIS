@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { APPROPRIATION_ORIGINS, BUDGET_LEVELS, CapAppropriationStore, TenantDatabase } from '@machvon/db';
 import type { AppropriationFilter, AppropriationOrigin, AppropriationRow, BudgetLevel } from '@machvon/db';
-import { DomainError, asUuid } from '@machvon/kernel';
+import { DomainError, asUuid, fundingPackCodeOfEdition, resolveEdition } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -82,6 +82,7 @@ export class AppropriationController {
         amountVnd: body.amount_vnd,
         decisionDocumentId: uuidOf(body.decision_document_id, 'decision_document_id'),
         issuingAuthority: body.issuing_authority,
+        decisionKind: body.decision_kind,
         sourceYear: body.source_year,
         extendedTo: body.extended_to,
         extensionDocumentId: optionalUuidOf(body.extension_document_id, 'extension_document_id'),
@@ -89,6 +90,9 @@ export class AppropriationController {
         capitalPlanId: optionalUuidOf(body.capital_plan_id, 'capital_plan_id'),
       },
       scope.tenant.membershipId,
+      undefined,
+      // The pack of the process: the edition names it (ENT-3e). A public process takes the five public origins and no kind of decision, as it always did.
+      fundingPackCodeOfEdition(resolveEdition(process.env)),
     );
     await scope.audit({
       action: 'capital.appropriation_registered',
@@ -101,6 +105,7 @@ export class AppropriationController {
         budget_level: body.budget_level,
         amount_vnd: body.amount_vnd,
         decision_document_id: body.decision_document_id,
+        ...(body.decision_kind === undefined ? {} : { decision_kind: body.decision_kind }),
         source_year: body.source_year,
         revision: registered.revision,
         supersedes_id: body.supersedes_id ?? null,

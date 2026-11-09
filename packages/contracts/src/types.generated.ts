@@ -26808,7 +26808,7 @@ export interface components {
             /** Format: uuid */
             appropriation_id: string;
             /** @enum {string} */
-            bucket: "CURRENT_YEAR" | "CARRYOVER" | "OTHER";
+            bucket: "CURRENT_YEAR" | "CARRYOVER" | "OTHER" | "EQUITY" | "LOAN";
             source_year: number;
             amount_vnd: components["schemas"]["Money"];
             ctmtqg_subset_vnd?: components["schemas"]["Money"];
@@ -26837,9 +26837,9 @@ export interface components {
             fund_source_version_id: string;
             plan_year: number;
             /** @enum {string} */
-            origin: "PM_ASSIGNED" | "LOCAL_ADDED" | "CARRYOVER" | "CENTRAL_SUPPORT" | "REVENUE_INCREASE";
+            origin: "PM_ASSIGNED" | "LOCAL_ADDED" | "CARRYOVER" | "CENTRAL_SUPPORT" | "REVENUE_INCREASE" | "GROUP_ASSIGNED" | "BOARD_APPROVED";
             /** @enum {string} */
-            budget_level: "CENTRAL" | "LOCAL";
+            budget_level: "CENTRAL" | "LOCAL" | "ALL";
             /** Format: uuid */
             program_master_version_id?: string;
             amount_vnd: components["schemas"]["Money"];
@@ -26855,6 +26855,7 @@ export interface components {
             supersedes_id?: string;
             /** Format: uuid */
             capital_plan_id?: string;
+            decision_kind?: string;
         };
         CapReservation: {
             /** Format: uuid */
@@ -41999,6 +42000,7 @@ export interface components {
             systems: components["schemas"]["ProjectCodeSystem"][];
             can_propose: boolean;
             as_of: string;
+            coverage?: components["schemas"]["ProjectCodeCoverage"][];
         };
         ProjectCodePropose: {
             source_system: string;
@@ -46432,6 +46434,16 @@ export interface components {
                 mimes: string[];
             };
             as_of: string;
+        };
+        ProjectCodeCoverage: {
+            source_system: string;
+            projects: number;
+            mapped: number;
+            direct_only: number;
+            unmapped: number;
+            proposed: number;
+            shadows: number;
+            direct_fallback: boolean;
         };
     };
     responses: never;

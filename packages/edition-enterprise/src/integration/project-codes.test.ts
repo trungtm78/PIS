@@ -5,7 +5,6 @@ import {
   ENTERPRISE_SYSTEM_SEEDS,
   HPM_PROJECT_CODE,
   HPM_CODE_SYSTEM,
-  coverageOf,
   holdsOn,
   isEnterpriseCodeSystem,
   resolveInbound,
@@ -16,7 +15,6 @@ import type { CodeMapping } from './project-codes.ts';
 
 const A = '11111111-1111-4111-8111-111111111111';
 const B = '22222222-2222-4222-8222-222222222222';
-const C = '33333333-3333-4333-8333-333333333333';
 const DAY = '2026-11-09';
 
 const mapping = (projectId: string, externalCode: string, extra: Partial<CodeMapping> = {}): CodeMapping => ({
@@ -100,26 +98,5 @@ describe('the code of a project in EBS and in HPM (ENT-3e, MD.01, TH.03)', () =>
     expect(shadowedProject({ externalCode: 'P-1', projectId: A, directProjectId: B })).toBe(B);
     expect(shadowedProject({ externalCode: 'P-1', projectId: A, directProjectId: A })).toBeNull();
     expect(shadowedProject({ externalCode: 'P-1', projectId: A, directProjectId: null })).toBeNull();
-  });
-
-  describe('coverage', () => {
-    const projects = [
-      { id: A, code: 'PRJ-A' },
-      { id: B, code: 'PRJ-B' },
-      { id: C, code: 'PRJ-C' },
-    ];
-
-    it('counts what is mapped, what only the fallback serves, what waits and what shadows', () => {
-      const mappings = [mapping(A, 'E-A'), mapping(B, 'PRJ-C'), mapping(C, 'E-C', { status: 'PROPOSED' })];
-      expect(coverageOf({ projects, mappings, sourceSystem: EBS_CODE_SYSTEM, day: DAY })).toEqual({ projects: 3, mapped: 2, directOnly: 1, unmapped: 0, proposed: 1, shadows: 1 });
-    });
-
-    it('after the contract step the same figures call the rest unmapped', () => {
-      expect(coverageOf({ projects, mappings: [mapping(A, 'E-A')], sourceSystem: EBS_CODE_SYSTEM, day: DAY }, { directFallback: false })).toEqual({ projects: 3, mapped: 1, directOnly: 0, unmapped: 2, proposed: 0, shadows: 0 });
-    });
-
-    it('one system never counts the mappings of the other', () => {
-      expect(coverageOf({ projects, mappings: [mapping(A, 'H-A', { sourceSystem: HPM_CODE_SYSTEM })], sourceSystem: EBS_CODE_SYSTEM, day: DAY }).mapped).toBe(0);
-    });
   });
 });

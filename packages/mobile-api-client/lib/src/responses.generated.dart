@@ -54623,6 +54623,60 @@ final class ProjectCodeCountsResponse implements ResponseModel {
       };
 }
 
+final class ProjectCodeCoverageResponse implements ResponseModel {
+  const ProjectCodeCoverageResponse({
+    required this.sourceSystem,
+    required this.projects,
+    required this.mapped,
+    required this.directOnly,
+    required this.unmapped,
+    required this.proposed,
+    required this.shadows,
+    required this.directFallback,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectCodeCoverageResponse.fromJson(Object? json, [String path = 'ProjectCodeCoverageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectCodeCoverageResponse(
+      sourceSystem: requiredField(map, path, 'source_system', asString),
+      projects: requiredField(map, path, 'projects', asInt),
+      mapped: requiredField(map, path, 'mapped', asInt),
+      directOnly: requiredField(map, path, 'direct_only', asInt),
+      unmapped: requiredField(map, path, 'unmapped', asInt),
+      proposed: requiredField(map, path, 'proposed', asInt),
+      shadows: requiredField(map, path, 'shadows', asInt),
+      directFallback: requiredField(map, path, 'direct_fallback', asBool),
+      extra: unknownFields(map, path, const <String>{'source_system', 'projects', 'mapped', 'direct_only', 'unmapped', 'proposed', 'shadows', 'direct_fallback'}, strict: true),
+    );
+  }
+
+  final String sourceSystem;
+  final int projects;
+  final int mapped;
+  final int directOnly;
+  final int unmapped;
+  final int proposed;
+  final int shadows;
+  final bool directFallback;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source_system': sourceSystem,
+        'projects': projects,
+        'mapped': mapped,
+        'direct_only': directOnly,
+        'unmapped': unmapped,
+        'proposed': proposed,
+        'shadows': shadows,
+        'direct_fallback': directFallback,
+        ...extra,
+      };
+}
+
 final class ProjectCodePageResponse implements ResponseModel {
   const ProjectCodePageResponse({
     required this.items,
@@ -54631,6 +54685,7 @@ final class ProjectCodePageResponse implements ResponseModel {
     required this.systems,
     required this.canPropose,
     required this.asOf,
+    this.coverage,
     this.extra = const <String, Object?>{},
   });
 
@@ -54643,7 +54698,8 @@ final class ProjectCodePageResponse implements ResponseModel {
       systems: requiredField(map, path, 'systems', asList(ProjectCodeSystemResponse.fromJson)),
       canPropose: requiredField(map, path, 'can_propose', asBool),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'systems', 'can_propose', 'as_of'}, strict: true),
+      coverage: optionalField(map, path, 'coverage', asList(ProjectCodeCoverageResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'counts', 'systems', 'can_propose', 'as_of', 'coverage'}, strict: true),
     );
   }
 
@@ -54653,6 +54709,7 @@ final class ProjectCodePageResponse implements ResponseModel {
   final List<ProjectCodeSystemResponse> systems;
   final bool canPropose;
   final String asOf;
+  final List<ProjectCodeCoverageResponse>? coverage;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -54665,6 +54722,7 @@ final class ProjectCodePageResponse implements ResponseModel {
         'systems': systems.map((e0) => e0.toJson()).toList(),
         'can_propose': canPropose,
         'as_of': asOf,
+        if (coverage != null) 'coverage': coverage!.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }

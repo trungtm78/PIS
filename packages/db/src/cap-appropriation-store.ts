@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, VND_SCALE, assertFourEyes, compareDecimal, requirePositiveAmount, vietnamDateOf, versionConflict, hasControlChar } from '@machvon/kernel';
+import { DomainError, FUNDING_TAXONOMY_RULE_TYPE, VND_SCALE, assertAppropriationForPack, assertFourEyes, compareDecimal, parseFundingPack, requirePositiveAmount, vietnamDateOf, versionConflict, hasControlChar } from '@machvon/kernel';
 import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
+import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -18,9 +19,10 @@ const ALLOCATION_WRITE_SETTING = 'app.cap_allocation_write';
 /** A document that has been recalled, replaced or has expired no longer backs an assignment of capital. */
 const USABLE_DOCUMENT_STATUSES: readonly string[] = ['PENDING', 'EFFECTIVE', 'CORRECTED'];
 
-export const APPROPRIATION_ORIGINS = ['PM_ASSIGNED', 'LOCAL_ADDED', 'CARRYOVER', 'CENTRAL_SUPPORT', 'REVENUE_INCREASE'] as const;
+/** Every origin a pack may list: the five of the public pack, then the two of the enterprise pack (ENT-3e); which of them an appropriation may take is the pack of the process (`assertAppropriationForPack`). */
+export const APPROPRIATION_ORIGINS = ['PM_ASSIGNED', 'LOCAL_ADDED', 'CARRYOVER', 'CENTRAL_SUPPORT', 'REVENUE_INCREASE', 'GROUP_ASSIGNED', 'BOARD_APPROVED'] as const;
 export type AppropriationOrigin = (typeof APPROPRIATION_ORIGINS)[number];
-export const BUDGET_LEVELS = ['CENTRAL', 'LOCAL'] as const;
+export const BUDGET_LEVELS = ['CENTRAL', 'LOCAL', 'ALL'] as const;
 export type BudgetLevel = (typeof BUDGET_LEVELS)[number];
 export const APPROPRIATION_STATUSES = ['DRAFT', 'APPROVED', 'PUBLISHED', 'SUPERSEDED', 'REJECTED'] as const;
 export type AppropriationStatus = (typeof APPROPRIATION_STATUSES)[number];
@@ -62,6 +64,9 @@ export interface AppropriationRow {
   decisionSymbol: string | null;
   decisionIssuedOn: string | null;
   issuingAuthority: string;
+  /** The funding pack the appropriation is counted in (PUBLIC or ENTERPRISE) and, for the enterprise pack, the kind of the decision document that backs its origin. */
+  taxonomyPack: string;
+  decisionKind: string | null;
   sourceYear: number;
   isExtended: boolean;
   extendedTo: string | null;
@@ -86,6 +91,8 @@ export interface AppropriationInput {
   amountVnd: string;
   decisionDocumentId: string;
   issuingAuthority: string;
+  /** The kind of the decision document (a code of the legal-document catalogue); the pack of the process says whether it is required, which kinds fit the origin, or that there is none. */
+  decisionKind?: string | undefined;
   sourceYear: number;
   extendedTo?: string | undefined;
   extensionDocumentId?: string | undefined;
@@ -140,6 +147,8 @@ interface SqlRow {
   decision_symbol: string | null;
   decision_issued_on: string | null;
   issuing_authority: string;
+  taxonomy_pack: string;
+  decision_kind: string | null;
   source_year: number;
   is_extended: boolean;
   extended_to: string | null;
@@ -158,7 +167,7 @@ const SELECT = `select a.id, a.fund_source_version_id, fr.business_key as fund_k
     fv.valid_from::text as fund_valid_from, fv.valid_until::text as fund_valid_until, a.program_master_version_id, pr.business_key as program_key, pv.label as program_label,
     a.plan_year, a.origin, a.budget_level, a.amount_vnd::text as amount_vnd, a.allocated_total_vnd::text as allocated_total_vnd,
     (a.amount_vnd - a.allocated_total_vnd)::text as remaining_vnd, a.decision_document_id, dd.symbol as decision_symbol, dd.issued_on::text as decision_issued_on,
-    a.issuing_authority, a.source_year, a.is_extended, a.extended_to::text as extended_to, a.extension_document_id, a.revision, a.supersedes_id, a.capital_plan_id,
+    a.issuing_authority, a.taxonomy_pack, a.decision_kind, a.source_year, a.is_extended, a.extended_to::text as extended_to, a.extension_document_id, a.revision, a.supersedes_id, a.capital_plan_id,
     a.status, a.created_by, a.approved_by, a.version::text as version, ${timestampKey('a.created_at')} as created_at_key
   from machvon.appropriation a
   join machvon.master_record_version fv on fv.tenant_id = a.tenant_id and fv.id = a.fund_source_version_id
@@ -192,6 +201,8 @@ const toRow = (row: SqlRow): AppropriationRow => ({
   decisionSymbol: row.decision_symbol,
   decisionIssuedOn: row.decision_issued_on,
   issuingAuthority: row.issuing_authority,
+  taxonomyPack: row.taxonomy_pack,
+  decisionKind: row.decision_kind,
   sourceYear: row.source_year,
   isExtended: row.is_extended,
   extendedTo: row.extended_to,
@@ -334,7 +345,8 @@ export class CapAppropriationStore {
    * of the tenant; a carry-over names its extension document and the day the extension ends. A revision names the published appropriation it
    * replaces, keeps its fund source, program, year, origin and level, and is refused below what is already allocated.
    */
-  async register(tx: TenantTx, input: AppropriationInput, actor: string, today: string = vietnamDateOf(new Date())): Promise<RegisteredAppropriation> {
+  async register(tx: TenantTx, input: AppropriationInput, actor: string, today: string = vietnamDateOf(new Date()), packCode = 'PUBLIC'): Promise<RegisteredAppropriation> {
+    await this.assertPack(tx, packCode, input, today);
     const amount = amountOf(input.amountVnd);
     const authority = authorityOf(input.issuingAuthority);
     const planYear = yearOf(input.planYear, 'plan_year');
@@ -359,9 +371,9 @@ export class CapAppropriationStore {
       await tx.query(
         `insert into machvon.appropriation
            (tenant_id, id, capital_plan_id, fund_source_version_id, plan_year, origin, budget_level, program_master_version_id, amount_vnd, allocated_total_vnd,
-            decision_document_id, issuing_authority, is_extended, extended_to, extension_document_id, source_year, revision, supersedes_id, status, created_by, updated_by, version)
+            decision_document_id, issuing_authority, is_extended, extended_to, extension_document_id, source_year, revision, supersedes_id, status, created_by, updated_by, version, taxonomy_pack, decision_kind)
          values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4::integer, $5, $6, $7::uuid, $8::numeric, 0,
-            $9::uuid, $10, $11::boolean, $12::date, $13::uuid, $14::integer, $15::integer, $16::uuid, 'DRAFT', $17::uuid, $17::uuid, 1)`,
+            $9::uuid, $10, $11::boolean, $12::date, $13::uuid, $14::integer, $15::integer, $16::uuid, 'DRAFT', $17::uuid, $17::uuid, 1, $18, $19)`,
         [
           id,
           input.capitalPlanId ?? null,
@@ -380,6 +392,8 @@ export class CapAppropriationStore {
           revision,
           input.supersedesId ?? null,
           actor,
+          packCode,
+          input.decisionKind ?? null,
         ],
       );
     } catch (error) {
@@ -440,6 +454,15 @@ export class CapAppropriationStore {
     }
     ledgerEntryIds.push(await this.postAppropriate(tx, draft, decider));
     return { row: peek, status: 'PUBLISHED', version: draft.version + 1, supersededId: previous?.id ?? null, movedLines, ledgerEntryIds };
+  }
+
+  /**
+   * The origin, the budget level and the kind of decision against the pack of the process on the day (the approved rule of the tenant or the built-in default): the public pack lists five origins, two levels and
+   * binds no kind; the enterprise pack lists the resolution of the group and the decision of the company and binds each to its own kinds of document (ENT-3e, CN.01).
+   */
+  private async assertPack(tx: TenantTx, packCode: string, input: AppropriationInput, today: string): Promise<void> {
+    const resolved = await new GovernancePolicyPort().require(tx, FUNDING_TAXONOMY_RULE_TYPE, packCode, today);
+    assertAppropriationForPack(parseFundingPack(packCode, resolved.params), { origin: input.origin, budgetLevel: input.budgetLevel, decisionKind: input.decisionKind });
   }
 
   /** What an appropriation may be, judged by its origin: the carry-over fields belong to a carry-over only. Returns the day the extension ends. */

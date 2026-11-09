@@ -1742,7 +1742,7 @@ export type { BiReaderEventRow, BiReaderRow } from './int-bi-reader-store.ts';
 export { AccessLogStore, AccessOverviewReads, ExportDatasetStore, MachineAccountStore, OpenReads, liveAccount, lookupClient } from './int-open-api-store.ts';
 export type { AccessLogFilter, AccessLogRow, ClientLookup, ExportDatasetRow, LiveAccount, MachineAccountFilter, MachineAccountRow, MachineCredentialRow, OpenPage, ProductChoice } from './int-open-api-store.ts';
 export { ProjectCodeStore, SourceSystemStore, isDirectMatchSystem, registerDirectMatchSystem } from './int-project-code-store.ts';
-export type { ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
+export type { ProjectCodeCoverage, ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
 export { StandingRequestStore } from './iam-standing-store.ts';
 export type { NewStandingRequest, StandingRequestRecord, StandingRequestStatus } from './iam-standing-store.ts';
 export { ActingStore } from './iam-acting-store.ts';

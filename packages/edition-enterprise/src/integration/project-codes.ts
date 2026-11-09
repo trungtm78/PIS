@@ -7,7 +7,7 @@ import { EBS_SOURCE_SYSTEM } from './ebs-rules.ts';
  * the Oracle EBS import) and which code of the other system a project of ours goes under (outbound, the HPM package).
  *
  * Expand then contract (R25): the crosswalk is the way; the direct match (the code of the other system is the code of one of our projects, which is what the import did before the crosswalk existed) stays as the
- * fallback for one version, so every import that was reconciled by direct match is read the same way. The contract step, dropping the fallback, is a later version once `coverageOf` shows no project that depends on it.
+ * fallback for one version, so every import that was reconciled by direct match is read the same way. The contract step, dropping the fallback, is a later version once the coverage the mapping screen shows has no project that depends on it.
  */
 
 /** The names of the pairs (system, type) in the words of the plan: the external types `EBS_PROJECT_CODE` and `HPM_PROJECT_CODE`. */
@@ -85,43 +85,4 @@ export function resolveOutbound(input: { mappings: readonly CodeMapping[]; sourc
  */
 export function shadowedProject(input: { externalCode: string; projectId: string; directProjectId: string | null }): string | null {
   return input.directProjectId !== null && input.directProjectId !== input.projectId ? input.directProjectId : null;
-}
-
-export interface Coverage {
-  /** Projects counted. */
-  projects: number;
-  /** Projects with an ACTIVE mapping on the day. */
-  mapped: number;
-  /** Projects with no mapping that the fallback still serves. */
-  directOnly: number;
-  /** Projects with no mapping and no fallback. */
-  unmapped: number;
-  /** Mappings waiting for the second person. */
-  proposed: number;
-  /** Projects whose mapping shadows the direct reading of another project. */
-  shadows: number;
-}
-
-/** How far the mappings of one system reach over the projects of the tenant, on a day: the figure that tells when the fallback may be dropped (`directOnly` and `shadows` both zero). */
-export function coverageOf(input: { projects: ReadonlyArray<{ id: string; code: string }>; mappings: readonly CodeMapping[]; sourceSystem: string; day: string }, options: { directFallback?: boolean } = {}): Coverage {
-  const fallback = options.directFallback ?? DIRECT_MATCH_FALLBACK;
-  const own = input.mappings.filter((mapping) => mapping.sourceSystem === input.sourceSystem);
-  const byCode = new Map(input.projects.map((project) => [project.code, project.id] as const));
-  let mapped = 0;
-  let shadows = 0;
-  for (const project of input.projects) {
-    const hold = own.find((mapping) => mapping.projectId === project.id && holdsOn(mapping, input.day));
-    if (hold === undefined) continue;
-    mapped += 1;
-    if (shadowedProject({ externalCode: hold.externalCode, projectId: project.id, directProjectId: byCode.get(hold.externalCode) ?? null }) !== null) shadows += 1;
-  }
-  const rest = input.projects.length - mapped;
-  return {
-    projects: input.projects.length,
-    mapped,
-    directOnly: fallback ? rest : 0,
-    unmapped: fallback ? 0 : rest,
-    proposed: own.filter((mapping) => mapping.status === 'PROPOSED').length,
-    shadows,
-  };
 }

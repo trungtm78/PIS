@@ -1,8 +1,8 @@
 import { vietnamDateOf } from '@machvon/kernel';
 import { SourceSystemStore, registerDirectMatchSystem } from '@machvon/db';
 import type { TenantTx } from '@machvon/db';
-import { ENTERPRISE_CODE_SYSTEMS, ENTERPRISE_SYSTEM_SEEDS, coverageOf, resolveInbound, resolveOutbound } from './project-codes.ts';
-import type { CodeMapping, Coverage, InboundResolution, OutboundResolution } from './project-codes.ts';
+import { ENTERPRISE_CODE_SYSTEMS, ENTERPRISE_SYSTEM_SEEDS, resolveInbound, resolveOutbound } from './project-codes.ts';
+import type { CodeMapping, InboundResolution, OutboundResolution } from './project-codes.ts';
 
 /**
  * The database half of the project codes of EBS and HPM (ENT-3e): reads the rows of `master_crosswalk` (subject PROJECT, type PROJECT_CODE, the system) and hands them to the pure rules of `project-codes.ts`. Nothing is
@@ -64,13 +64,5 @@ export class ProjectCodeResolver {
     const mappings = (await tx.query<MappingSql>(`${MAPPING_SELECT} and x.source_system = $1 and x.subject_id = any($2::uuid[]) and x.status = 'ACTIVE'`, [sourceSystem, [...projectIds]])).map(mappingOf);
     for (const project of projects) answer.set(project.id, { ...resolveOutbound({ mappings, sourceSystem, projectId: project.id, ourCode: project.code, day }), ourCode: project.code });
     return answer;
-  }
-
-  /** How far the mappings of one system reach over the projects of the tenant on a day (the figure that tells when the fallback may go). */
-  async coverage(tx: TenantTx, sourceSystem: string, at: Date | string): Promise<Coverage> {
-    const day = typeof at === 'string' ? at : vietnamDateOf(at);
-    const projects = await tx.query<{ id: string; code: string }>('select id, code from machvon.project');
-    const mappings = (await tx.query<MappingSql>(`${MAPPING_SELECT} and x.source_system = $1 and x.status in ('ACTIVE', 'PROPOSED')`, [sourceSystem])).map(mappingOf);
-    return coverageOf({ projects, mappings, sourceSystem, day });
   }
 }
