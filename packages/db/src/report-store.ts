@@ -636,7 +636,7 @@ export class ReportStore {
     const inserted = await tx.query<IssueSql>(
       `insert into machvon.report_issue (tenant_id, layout_id, layout_code, layout_version, period_code, period, revision, supersedes_id, reason, draft_id, sha256, xlsx_sha256, docx_sha256, pdf_sha256, layout_sha256, xlsx_name, docx_name, pdf_name,
          data_source, snapshot_ref, form_status, demo_mark, counts_as_accepted, grid_issues, prepared_by, checked_by, approved_by, issued_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21, $22::jsonb, $23, $24, $25, $26)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19::jsonb, $20, $21, $22, $23::jsonb, $24, $25, $26, $27)
        returning id`,
       [
         locked.layoutId,
