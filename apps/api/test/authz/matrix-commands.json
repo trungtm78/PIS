@@ -892,7 +892,9 @@
     "recordProcurementPetitionOutcome",
     "confirmProcurementPetitionOutcome",
     "returnProcurementPetitionOutcome",
-    "uploadPortalAttachment"
+    "uploadPortalAttachment",
+    "buildEnterpriseSnapshot",
+    "freezeEnterpriseSnapshot"
   ],
   "controlCommands": [
     "decideTenantRestore",
