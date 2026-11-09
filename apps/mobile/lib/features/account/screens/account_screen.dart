@@ -187,6 +187,27 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ),
                 ),
                 _Row(
+                  icon: Icons.swap_horiz_outlined,
+                  label: context.t('mob.reads.entry.delegations'),
+                  onTap: () => context.push(
+                    ref.read(routeTableProvider).locationOf('MOB-75'),
+                  ),
+                ),
+                _Row(
+                  icon: Icons.fact_check_outlined,
+                  label: context.t('mob.reads.entry.kpi'),
+                  onTap: () => context.push(
+                    ref.read(routeTableProvider).locationOf('MOB-76'),
+                  ),
+                ),
+                _Row(
+                  icon: Icons.description_outlined,
+                  label: context.t('mob.reads.entry.reports'),
+                  onTap: () => context.push(
+                    ref.read(routeTableProvider).locationOf('MOB-77'),
+                  ),
+                ),
+                _Row(
                   icon: Icons.help_outline,
                   label: context.t('mob.account.help.action'),
                   onTap: () => context.push(
