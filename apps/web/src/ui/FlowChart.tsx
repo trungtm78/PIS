@@ -109,30 +109,33 @@ export function FlowChart({ series, unit, caption, state = 'ready', onRetry }: F
           </span>
         ))}
       </figcaption>
-      <table className="ui-sr-only">
-        <caption>{`${caption} (${unit})`}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{t('ui.flowChart.tableX')}</th>
-            {series.map((line) => (
-              <th scope="col" key={`${line.style}:${line.label}`}>
-                {line.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {labels.map((label) => (
-            <tr key={label}>
-              <th scope="row">{label}</th>
-              {series.map((line) => {
-                const value = valueAt(line, label);
-                return <td key={`${line.style}:${line.label}`}>{value === undefined ? '' : number(value)}</td>;
-              })}
+      {/* Wrapped: a table keeps the width of its content whatever `width` says, so as the screen-reader-only element itself it stretched the page sideways on a phone. */}
+      <div className="ui-sr-only">
+        <table>
+          <caption>{`${caption} (${unit})`}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t('ui.flowChart.tableX')}</th>
+              {series.map((line) => (
+                <th scope="col" key={`${line.style}:${line.label}`}>
+                  {line.label}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {labels.map((label) => (
+              <tr key={label}>
+                <th scope="row">{label}</th>
+                {series.map((line) => {
+                  const value = valueAt(line, label);
+                  return <td key={`${line.style}:${line.label}`}>{value === undefined ? '' : number(value)}</td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }

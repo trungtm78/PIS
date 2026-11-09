@@ -33,6 +33,14 @@ export async function purgeClientState(deps: PurgeDeps): Promise<PurgeReport> {
     // Memory that cannot be cleared must not stop the rest.
   }
   try {
+    // First and synchronous: the record of the device is the one step that must never wait for the worker or the push service (a worker that never
+    // becomes ready holds the last step for seconds), so a person who is signed out is never seen with a device record still on the phone.
+    deps.storage?.removeItem(DEVICE_STORAGE_KEY);
+    report.device = deps.storage !== undefined;
+  } catch {
+    report.device = false;
+  }
+  try {
     if (deps.cacheStorage !== undefined) {
       const names = purgeCacheNames(await deps.cacheStorage.keys());
       await Promise.all(names.map((name) => deps.cacheStorage?.delete(name)));
@@ -53,12 +61,6 @@ export async function purgeClientState(deps: PurgeDeps): Promise<PurgeReport> {
     report.push = await unsubscribePush(registration);
   } catch {
     report.push = false;
-  }
-  try {
-    deps.storage?.removeItem(DEVICE_STORAGE_KEY);
-    report.device = deps.storage !== undefined;
-  } catch {
-    report.device = false;
   }
   return report;
 }

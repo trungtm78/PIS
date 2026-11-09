@@ -8,6 +8,12 @@
 .pwa-touch:focus-visible,
 .pwa-entry:focus-visible { outline: 3px solid var(--mv-color-focus); outline-offset: 2px; }
 
+/* The cards of the web screens that the manager screens reuse (the figures, the alert band) draw plain text links and small buttons: on a phone each one is a
+   target of at least 44 px, whatever the card around it draws. A link in a line of text stays in that line (inline-flex), it only gains the height. */
+.pwa-screen a:not([class]),
+.pwa-screen .mv-alert-link { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+.pwa-screen .ui-button { min-height: 44px; }
+
 .pwa-back { align-self: flex-start; color: var(--mv-color-primary); font-weight: 600; padding-inline: var(--mv-space-8); margin-inline: calc(var(--mv-space-8) * -1); }
 
 .pwa-entries { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--mv-space-12); }

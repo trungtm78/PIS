@@ -19,6 +19,9 @@ function BellIcon() {
  */
 export function AlertBell() {
   const { t } = useTranslation();
+  // The name starts with the visible label and goes on with the figures in the order they are shown (WCAG 2.5.3, Label in Name): what a person
+  // says to a voice control, or reads on the button, is contained in the name that a screen reader reads.
+  const label = t('alerts.bell.label');
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const counts = useAlertCounts('mine');
@@ -30,12 +33,12 @@ export function AlertBell() {
   let name: string;
   let value: string;
   if (answer === undefined) {
-    name = counts.isError ? t('alerts.bell.nameError') : t('alerts.bell.nameLoading');
+    name = counts.isError ? t('alerts.bell.nameError', { label }) : t('alerts.bell.nameLoading', { label });
     value = counts.isError ? t('alerts.bell.errorValue') : t('alerts.bell.loadingValue');
   } else {
     const { total, urgent } = answer.counts;
     value = String(total);
-    name = total === 0 ? t('alerts.bell.nameNone') : urgent > 0 ? t('alerts.bell.name', { total, urgent }) : t('alerts.bell.nameNoUrgent', { total });
+    name = total === 0 ? t('alerts.bell.nameNone', { label }) : urgent > 0 ? t('alerts.bell.name', { label, total, urgent }) : t('alerts.bell.nameNoUrgent', { label, total });
   }
   const notes = [partial ? t('alerts.bell.partial') : '', stale ? t('alerts.bell.stale') : ''].filter((note) => note !== '');
   const accessibleName = notes.length === 0 ? name : `${name}, ${notes.join(', ')}`;
@@ -47,15 +50,20 @@ export function AlertBell() {
       <button ref={button} type="button" className="mv-alert-bell" aria-label={accessibleName} aria-haspopup="dialog" aria-expanded={open} data-state={answer === undefined ? (counts.isError ? 'error' : 'loading') : 'ready'} data-urgent={urgent > 0 ? 'true' : 'false'} onClick={() => setOpen(true)}>
         <BellIcon />
         <span className="mv-alert-bell__label" aria-hidden="true">
-          {t('alerts.bell.label')}
+          {label}
         </span>
+        {/* Spaces between the items of the button (not drawn in a flex row): a text reader that joins them reads "Cần xử lý 7 2 khẩn", not "Cần xử lý72 khẩn". */}
+        {' '}
         <span className="mv-alert-bell__count" aria-hidden="true">
           {value}
         </span>
         {urgent > 0 ? (
-          <span className="mv-alert-bell__urgent" aria-hidden="true">
-            {t('alerts.bell.urgentChip', { urgent })}
-          </span>
+          <>
+            {' '}
+            <span className="mv-alert-bell__urgent" aria-hidden="true">
+              {t('alerts.bell.urgentChip', { urgent })}
+            </span>
+          </>
         ) : null}
         {warn ? <span className="mv-alert-bell__dot" aria-hidden="true" data-testid="alert-bell-warning" /> : null}
       </button>

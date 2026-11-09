@@ -135,7 +135,7 @@
 .ui-hero__caption { font-size: 14px; color: var(--mv-color-menu-muted); }
 .ui-hero__message { margin: 0; font-size: 14px; }
 .ui-hero__chips { list-style: none; margin: var(--mv-space-8) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
-.ui-hero__chip { display: inline-flex; gap: var(--mv-space-8); align-items: baseline; padding: var(--mv-space-4) var(--mv-space-12); border: 1px solid var(--mv-color-selected); background: var(--mv-color-table-head); border-radius: var(--mv-radius-pill); font-size: 12px; }
+.ui-hero__chip { display: inline-flex; flex-wrap: wrap; max-width: 100%; overflow-wrap: anywhere; gap: var(--mv-space-8); align-items: baseline; padding: var(--mv-space-4) var(--mv-space-12); border: 1px solid var(--mv-color-selected); background: var(--mv-color-table-head); border-radius: var(--mv-radius-pill); font-size: 12px; }
 .ui-hero__chip-label { color: var(--mv-color-menu-muted); }
 .ui-hero__chip-value { font-variant-numeric: tabular-nums; }
 .ui-hero__ratio { display: flex; flex-direction: column; align-items: center; gap: var(--mv-space-4); }
