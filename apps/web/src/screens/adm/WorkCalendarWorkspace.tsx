@@ -231,34 +231,36 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
                       <StatusPill tone={statusTone(version.status)}>{statusLabel(t, version.status)}</StatusPill>
                     </td>
                     <td>{version.legalBasis}</td>
-                    <td className="row-actions">
-                      <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setViewing(version.id)}>
-                        {t('adm.calendar.view.action')}
-                      </button>
-                      {canManage ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setValues(valuesOfCalendar(version));
-                            setErrors({});
-                            setAccepted(undefined);
-                          }}
-                        >
-                          {t('adm.calendar.copy.action')}
+                    <td>
+                      <div className="row-actions">
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setViewing(version.id)}>
+                          {t('adm.calendar.view.action')}
                         </button>
-                      ) : null}
-                      {version.status === 'Draft' && canManage && publishing !== version.id ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPublishing(version.id);
-                            setReason('');
-                            setReasonError(false);
-                          }}
-                        >
-                          {t('adm.calendar.publish.action')}
-                        </button>
-                      ) : null}
+                        {canManage ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setValues(valuesOfCalendar(version));
+                              setErrors({});
+                              setAccepted(undefined);
+                            }}
+                          >
+                            {t('adm.calendar.copy.action')}
+                          </button>
+                        ) : null}
+                        {version.status === 'Draft' && canManage && publishing !== version.id ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPublishing(version.id);
+                              setReason('');
+                              setReasonError(false);
+                            }}
+                          >
+                            {t('adm.calendar.publish.action')}
+                          </button>
+                        ) : null}
+                      </div>
                       {publishing === version.id && canManage ? (
                         <form onSubmit={(event) => confirmPublish(event, version)} noValidate aria-label={t('adm.calendar.publish.action')}>
                           <PublishPreview version={version} />
