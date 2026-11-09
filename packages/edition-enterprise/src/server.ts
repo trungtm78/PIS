@@ -7,3 +7,5 @@ export * from './report-forms/exports.ts';
 export { ENTERPRISE_AI_POLICY, clearEnterpriseAiPolicy, registerEnterpriseAiPolicy } from './ai-policy.ts';
 // The connections of the enterprise edition (ENT-2): the push of issued reports to HPM and the file import and reconciliation of Oracle EBS; the rules, the ports and the stores, with the rules and alert types they register.
 export * from './integration/exports.ts';
+// The leadership dashboard of the enterprise edition (ENT-4d): rates against the annual plan by company, unit and project with the same period of last year, and the projects blocked on procedure.
+export * from './leader/exports.ts';
