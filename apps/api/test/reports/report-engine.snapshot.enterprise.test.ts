@@ -80,6 +80,7 @@ describe('the demo forms stand on the frozen enterprise snapshot of the period (
       ],
     ]);
     const [period] = await harness.owner<{ id: string }>(TENANT_A, [[`select id from machvon.reporting_period where calendar_code = 'ENTERPRISE' and start_date = '2026-10-01' order by created_at limit 1`]]);
+    await seed([[`update machvon.period_snapshot set status = 'SUPERSEDED' where snapshot_kind = 'ENTERPRISE_CLOSE' and status = 'FROZEN'`, []]]);
     await seed([
       [
         `insert into machvon.period_snapshot (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count, payload_sha256, frozen_by, frozen_at, taxonomy_pack, taxonomy_version, hash_schema, revision, created_by, updated_by)
