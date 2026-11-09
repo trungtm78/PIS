@@ -1,0 +1,1798 @@
+{
+  "source": "26 11 03 HSKT_Phan mem Quan ly DTXD_Du thao v0.3.docx (PVFCCo), read on 2026-11-09",
+  "readOn": "2026-11-09",
+  "registerDocument": "docs/delivery/11-pending-external-register.md",
+  "texts": {
+    "title": "Ma trận truy vết yêu cầu HSKT \"Phần mềm quản lý đầu tư xây dựng\" v0.3",
+    "generated": "Tệp này được sinh từ `docs/hskt/requirements.json` bằng `node scripts/hskt-trace.mjs generate`. Không sửa tay: sửa dữ liệu rồi sinh lại. `node scripts/hskt-trace.mjs check` (nằm trong `npm run qa:check`) so khớp ma trận với kho mã.",
+    "intro": "Mỗi mã yêu cầu của hồ sơ kỹ thuật (mục II.3), mỗi giai đoạn Waterfall (mục II.2.3) và mỗi sản phẩm bàn giao (mục II.5) có đúng một dòng. Trạng thái là đánh giá của làn DELIVERY-1 ngày 2026-11-09 từ mã nguồn và tài liệu thiết kế; làn nào hoàn thành khoảng trống của mình thì cập nhật dòng của mình. Ký hiệu bằng chứng: M là mã màn hình (screen_catalog.json), O là mã thao tác (openapi.json), S là câu chuyện (implementation_plan.json), D là tài liệu, T là tệp kiểm thử. Mục chờ tài liệu hoặc quyết định của khách ghi PX-nn, chi tiết ở bảng cuối (quy tắc R18: không tính nghiệm thu khi chưa có).",
+    "summaryHeading": "Tóm tắt",
+    "statusColumn": "Trạng thái",
+    "countColumn": "Số dòng",
+    "totalLabel": "Tổng",
+    "byLaneHeading": "Việc còn lại theo làn",
+    "laneColumn": "Làn",
+    "codesColumn": "Mã",
+    "legend": "DONE: đã có và có bằng chứng. PARTIAL: đã có một phần, khoảng trống ghi ở cột \"Khoảng trống\". MISSING: chưa có. PENDING-EXTERNAL: phần mềm sẵn sàng nhưng không nghiệm thu được khi khách chưa cung cấp tài liệu hoặc quyết định.",
+    "codeColumn": "Mã",
+    "titleColumn": "Yêu cầu",
+    "evidenceColumn": "Bằng chứng",
+    "gapColumn": "Khoảng trống",
+    "pendingColumn": "Chờ khách",
+    "groups": {
+      "MD": "Đối tượng quản lý và danh mục dự án",
+      "DL": "Bộ dữ liệu nền và định nghĩa chỉ tiêu",
+      "QT": "Quy trình quản lý trên phần mềm (To-Be)",
+      "CN": "Chức năng nghiệp vụ theo quy trình To-Be",
+      "BC": "Báo cáo đầu ra và biểu mẫu",
+      "TH": "Tích hợp hệ thống",
+      "HT": "Quản trị hệ thống",
+      "YCK": "Các yêu cầu khác",
+      "TK": "Triển khai phần mềm"
+    },
+    "phasesHeading": "Bảy giai đoạn Waterfall (mục II.2.3)",
+    "deliverablesHeading": "Mười một sản phẩm bàn giao (mục II.5)",
+    "registerHeading": "Sổ mục chờ khách (PENDING-EXTERNAL)",
+    "registerIntro": "Những gì chỉ khách mới cung cấp được. Phần mềm đã dựng sẵn với bộ giả định gắn nhãn; mọi con số dựng trên giả định không tính vào nghiệm thu.",
+    "idColumn": "Mã",
+    "whatColumn": "Khách cần cung cấp",
+    "providerColumn": "Đơn vị cung cấp",
+    "assumptionColumn": "Giả định tạm dùng",
+    "blocksColumn": "Chặn các mã",
+    "registerDocumentNote": "Văn bản sổ đăng ký và cách gửi, xác nhận: "
+  },
+  "pendingExternal": [
+    {
+      "id": "PX-01",
+      "what": "Bố cục chính thức của 06 biểu mẫu báo cáo (PVN tháng, PVN quý Biểu 2, HPM tháng, Ủy ban ĐTPT-KHCN, giao ban đầu tư, ĐTXD và CTSC Nhà máy Đạm Phú Mỹ)",
+      "provider": "Ban KHĐT",
+      "assumption": "Sáu biểu mẫu DEMO do hệ thống thiết kế (docs/report-engine.md), mọi đầu ra đóng dấu MẪU DEMO"
+    },
+    {
+      "id": "PX-02",
+      "what": "Từ điển chỉ tiêu và bộ nguyên tắc nhập liệu đã được Tổ chuẩn hóa dữ liệu thống nhất",
+      "provider": "Tổ chuẩn hóa dữ liệu, Ban KHĐT",
+      "assumption": "Chỉ tiêu, quy tắc và bảng ánh xạ khởi điểm gắn legalStatus UNVERIFIED (docs/ind-indicator-dictionary.md)"
+    },
+    {
+      "id": "PX-03",
+      "what": "Thông tin kỹ thuật HPM: nền tảng, đơn vị phát triển, khả năng mở API, cấu trúc dữ liệu nhận",
+      "provider": "Ban CĐS&CNTT",
+      "assumption": "Gói giao nhận ghi ra tệp HPM-FILE-WORKING-ASSUMPTION-2026.1, người ghi biên nhận (docs/hpm-ebs-connectors.md)"
+    },
+    {
+      "id": "PX-04",
+      "what": "Mẫu tệp xuất từ Oracle EBS và quyền đọc (tệp, DB hay API); phạm vi và phương thức đối chiếu",
+      "provider": "Ban TCKT, Ban CĐS&CNTT",
+      "assumption": "Bố cục WORKING-ASSUMPTION-2026.1: project_code, period, extract_date, disbursed_vnd, committed_vnd"
+    },
+    {
+      "id": "PX-05",
+      "what": "Danh sách 09 đầu mối (07 Ban/Đơn vị và 02 Tổ dự án, kèm tên 02 Tổ dự án), người nhập liệu và người phê duyệt của từng đầu mối, nhân sự Ban KHĐT và lãnh đạo",
+      "provider": "Tổ chuẩn hóa dữ liệu",
+      "assumption": "Chưa có; gói cấu hình mẫu PVFCCO-TEMPLATE sẽ do ENT-3d dựng, không dùng tên thật"
+    },
+    {
+      "id": "PX-06",
+      "what": "Đặc tả kết nối eProcurement (số liệu mua sắm trang thiết bị dự án) và cách lấy dữ liệu",
+      "provider": "Ban Thương mại, Ban CĐS&CNTT",
+      "assumption": "Nhập tay và nhập tệp theo biểu mẫu; chưa có bộ kết nối"
+    },
+    {
+      "id": "PX-07",
+      "what": "Đặc tả hệ thống văn thư (văn bản pháp lý) và hệ thống xác thực tập trung của Tổng công ty",
+      "provider": "Ban CĐS&CNTT",
+      "assumption": "Tệp đính kèm tải lên; xác thực qua Keycloak liên kết AD (docs/runbooks/infra/keycloak.md)"
+    },
+    {
+      "id": "PX-08",
+      "what": "Phạm vi dữ liệu lịch sử cần chuyển đổi (từ năm nào, những biểu nào)",
+      "provider": "Ban KHĐT",
+      "assumption": "Kỳ vận hành đầu tiên làm mốc; lịch sử chỉ nạp sau khi Ban KHĐT chốt phạm vi"
+    },
+    {
+      "id": "PX-09",
+      "what": "Đơn vị độc lập rà soát mã nguồn và kiểm thử xâm nhập được PVFCCo chấp thuận; giấy phép dịch vụ; kết quả và retest",
+      "provider": "PVFCCo (chấp thuận), nhà cung cấp (thuê)",
+      "assumption": "Gói sẵn sàng pentest docs/security/pentest-readiness.md; chưa có báo cáo độc lập"
+    },
+    {
+      "id": "PX-10",
+      "what": "Cấu hình phần cứng thực của máy chủ UAT và Production để đo hiệu năng (phản hồi dưới 5 giây, báo cáo dưới 20 giây)",
+      "provider": "Ban CĐS&CNTT",
+      "assumption": "Ngân sách hiệu năng docs/qa/perf-budget.json đo trên máy phát triển"
+    },
+    {
+      "id": "PX-11",
+      "what": "Hạ tầng máy chủ hai môi trường UAT và Production, tài khoản truy cập HPM, EBS, Data Lakehouse, SMTP và Teams",
+      "provider": "Ban CĐS&CNTT",
+      "assumption": "Gói cài ngoại tuyến docs/runbooks/infra/onprem-install.md thử trên máy của nhà cung cấp"
+    },
+    {
+      "id": "PX-12",
+      "what": "Phê duyệt của PVFCCo cho từng giai đoạn và từng sản phẩm bàn giao (chữ ký, ngày) theo mục II.2.3 và II.5",
+      "provider": "PVFCCo",
+      "assumption": "Mẫu phiếu phê duyệt ở docs/delivery/README.md; chưa có chữ ký"
+    },
+    {
+      "id": "PX-13",
+      "what": "Hai kỳ báo cáo thực tế để vận hành song song với biểu mẫu Excel và số liệu Excel của hai kỳ đó",
+      "provider": "09 đầu mối, Ban KHĐT",
+      "assumption": "Kế hoạch và mẫu đối chiếu ở docs/delivery/08-parallel-run-plan.md; chưa có kỳ thực tế"
+    },
+    {
+      "id": "PX-14",
+      "what": "Danh mục dự án chính thức (22 dự án đầu tư xây dựng, 01 hạng mục mua sắm tài sản dự án, 09 hạng mục mua sắm tài sản cố định), mã HPM và mã EBS từng dự án, cấp quản lý cấp dưới dự án do Ban KHĐT xác nhận",
+      "provider": "Ban KHĐT",
+      "assumption": "Dữ liệu minh họa của clip và bản chuyển đổi mẫu; không dùng làm số liệu thật"
+    },
+    {
+      "id": "PX-15",
+      "what": "Mẫu báo cáo của Sở/Ban/Ngành cần gửi (theo mẫu của đơn vị yêu cầu)",
+      "provider": "Ban KHĐT",
+      "assumption": "Chưa có mẫu; công cụ cấu hình bố cục ENT-4b dựng sẵn"
+    },
+    {
+      "id": "PX-16",
+      "what": "Thông tin SSO/LDAP/Active Directory (nhóm AD theo vai trò), SMTP và địa chỉ Teams để gửi nhắc việc",
+      "provider": "Ban CĐS&CNTT",
+      "assumption": "Realm Keycloak mẫu (infra/keycloak/realm-template.json); bảng ánh xạ nhóm AD mẫu sẽ do ENT-3d dựng"
+    },
+    {
+      "id": "PX-17",
+      "what": "Ước tính số người dùng (nhập liệu, phê duyệt, Ban KHĐT, lãnh đạo, quản trị) để tính năng lực hạ tầng",
+      "provider": "Tổ chuẩn hóa dữ liệu",
+      "assumption": "Hạn mức số ghế (seats) theo gói và license đặt khi cấp license; chưa có con số để chọn, cần gói không giới hạn hoặc đủ lớn cho PVFCCo"
+    }
+  ],
+  "rows": [
+    {
+      "code": "MD.01",
+      "title": "Danh mục dự án và hạng mục đầu tư: mã thống nhất, ánh xạ mã HPM/EBS, phân loại nhóm A/B/C, loại hình, giai đoạn, thông tin chung và cấp dưới dự án",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "PRJ-01",
+          "PRJ-02",
+          "PRJ-03",
+          "INT-03",
+          "MDM-07",
+          "MDM-35"
+        ],
+        "operations": [
+          "createProject",
+          "createMasterCrosswalk",
+          "listMasterCrosswalks",
+          "listProjectCodes",
+          "proposeProjectCode",
+          "decideProjectCode"
+        ],
+        "stories": [
+          "ST-PRJ-001",
+          "ST-PRJ-004",
+          "ST-MDM-007",
+          "ST-INT-001"
+        ],
+        "docs": [
+          "Design/MACHVON_Design/01_Documents/05_modules/PRJ.md",
+          "docs/prj-national-code-file.md"
+        ]
+      },
+      "gap": "G7: nhập EBS so khớp thẳng mã dự án, chưa qua master_crosswalk; chưa có mã HPM theo từng dự án; chưa có danh mục loại dự án (ĐTXDCB, mua sắm, sửa chữa lớn) và cờ khởi công mới/chuyển tiếp của bản enterprise.",
+      "owners": [
+        "ENT-3e"
+      ],
+      "pending": [
+        "PX-14"
+      ]
+    },
+    {
+      "code": "MD.02",
+      "title": "Hồ sơ pháp lý, mốc vòng đời dự án và lịch sử thay đổi, các phiên bản kế hoạch được giao/điều chỉnh",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "PRJ-04",
+          "PRJ-05",
+          "PRJ-06",
+          "PRJ-07",
+          "DOC-01"
+        ],
+        "operations": [
+          "addProjectMilestone",
+          "listProjectMilestones",
+          "recordMilestoneProgress",
+          "createProjectDocument"
+        ],
+        "stories": [
+          "ST-PRJ-008",
+          "ST-PRJ-009",
+          "ST-CAP-004"
+        ],
+        "docs": [
+          "docs/prj-revisions.md",
+          "docs/prj-wbs.md",
+          "docs/doc-dossiers.md"
+        ]
+      },
+      "gap": "G11: chưa có danh mục mốc vòng đời đầu tư enterprise và danh mục loại hồ sơ pháp lý theo dossier; chưa nối hệ thống văn thư.",
+      "owners": [
+        "ENT-3e",
+        "ENT-4e"
+      ],
+      "pending": [
+        "PX-07"
+      ]
+    },
+    {
+      "code": "MD.03",
+      "title": "Danh mục dùng chung: đầu mối, kỳ báo cáo, nguồn vốn, đơn vị tính, tỷ giá, nguyên nhân chậm tiến độ, loại báo cáo, cơ quan nhận; do Ban KHĐT/quản trị quản lý tập trung",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "MDM-01",
+          "MDM-04",
+          "MDM-11",
+          "MDM-12",
+          "MDM-17",
+          "ADM-05"
+        ],
+        "operations": [
+          "proposeMasterRecord",
+          "listMasterChangeRequests",
+          "stageMasterImport",
+          "listMasterTypePolicies"
+        ],
+        "stories": [
+          "ST-MDM-001",
+          "ST-MDM-003",
+          "ST-MDM-004",
+          "ST-MDM-005",
+          "ST-ADM-019"
+        ],
+        "docs": [
+          "docs/mdm-catalogue-dictionary.md"
+        ]
+      },
+      "gap": "G11: chưa có danh mục tỷ giá; loại báo cáo và cơ quan nhận còn là hằng số trong mã (REPORT_FORM_CATALOGUE), chưa là danh mục quản lý được.",
+      "owners": [
+        "ENT-4e"
+      ],
+      "pending": []
+    },
+    {
+      "code": "DL.01",
+      "title": "Bộ dữ liệu nền nhập một lần theo dự án và kỳ: kế hoạch, thực hiện/giải ngân, lũy kế, cơ cấu vốn, thuyết minh; số ước và số thực của cùng một kỳ",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIS-27",
+          "DIS-28",
+          "DIS-29",
+          "IND-01"
+        ],
+        "operations": [
+          "getFundingFigureBoard",
+          "proposeFundingFigures",
+          "acceptFundingFigures",
+          "getFundingFigureHistory",
+          "enterIndicatorFigures"
+        ],
+        "stories": [
+          "ST-DIS-026",
+          "ST-IND-002"
+        ],
+        "docs": [
+          "docs/fnd-funding-model.md",
+          "docs/ind-indicator-dictionary.md"
+        ],
+        "tests": [
+          "packages/kernel/test/fnd-figures.test.ts",
+          "packages/kernel/test/ind-entry.test.ts"
+        ]
+      },
+      "gap": "G2: thuyết minh có cấu trúc 8 trường cho bản enterprise (tình hình, đánh giá mốc, giải ngân, nguyên nhân, khó khăn, giải pháp, kế hoạch kỳ tới, kiến nghị), kế thừa kỳ trước và danh mục nguyên nhân chuẩn MDM-17 chưa nối; phạm vi quản lý số ước chờ Ban KHĐT xác nhận.",
+      "owners": [
+        "ENT-3b"
+      ],
+      "pending": [
+        "PX-02"
+      ]
+    },
+    {
+      "code": "DL.02",
+      "title": "Từ điển chỉ tiêu, quy tắc kiểm tra khi nhập, nhập trực tiếp và nhập từ Excel theo mẫu có kiểm tra trước khi ghi",
+      "status": "PENDING-EXTERNAL",
+      "evidence": {
+        "screens": [
+          "IND-01",
+          "IND-02",
+          "IND-03",
+          "ADM-19",
+          "DIS-10"
+        ],
+        "operations": [
+          "listIndicators",
+          "getIndicator",
+          "listIndicatorEntryRules",
+          "evaluateIndicatorEntry",
+          "enterIndicatorFigures",
+          "previewIndicatorImport",
+          "importIndicatorFile",
+          "listIndicatorImportMappings"
+        ],
+        "stories": [
+          "ST-IND-001",
+          "ST-IND-002",
+          "ST-IND-003",
+          "ST-DIS-008"
+        ],
+        "docs": [
+          "docs/ind-indicator-dictionary.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/IND.md"
+        ],
+        "tests": [
+          "apps/api/test/ind/ind.test.ts",
+          "packages/kernel/test/ind-dictionary.test.ts",
+          "packages/kernel/test/ind-import-mapping.test.ts"
+        ]
+      },
+      "gap": "Phần mềm đủ (từ điển, quy tắc, nhập tay và nhập Excel có chạy thử); từ điển, quy tắc và bảng ánh xạ hiện là giá trị khởi điểm UNVERIFIED, không nghiệm thu được khi chưa có bản của Tổ chuẩn hóa dữ liệu (PX-02); thay qua màn ADM-19, không sửa mã.",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-02"
+      ]
+    },
+    {
+      "code": "DL.03",
+      "title": "Dữ liệu lịch sử theo kỳ, so sánh cùng kỳ nhiều kỳ, bản chốt số liệu của mỗi kỳ đúng như đã báo cáo; cho phép so sánh cùng kỳ, nhiều kỳ",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIS-21",
+          "DIS-22",
+          "DIS-11",
+          "DIS-14"
+        ],
+        "operations": [
+          "buildPeriodSnapshot",
+          "freezePeriodSnapshot",
+          "listPeriodSnapshots",
+          "requestPeriodReopen",
+          "decidePeriodReopen"
+        ],
+        "stories": [
+          "ST-DIS-009",
+          "ST-DIS-002",
+          "ST-BI-002"
+        ],
+        "docs": [
+          "docs/dis-snapshot.md"
+        ],
+        "tests": [
+          "apps/api/test/dis/snapshot.test.ts",
+          "apps/api/test/dis/period-reopen.test.ts"
+        ]
+      },
+      "gap": "G1: chưa có lệnh dựng và chốt period_snapshot bản enterprise (băm schema 2) từ plan_figure_revision và ind_figure; sáu biểu mẫu chạy dữ liệu minh họa (dataSource ILLUSTRATIVE); phạm vi dữ liệu lịch sử chờ khách. So sánh cùng kỳ và nhiều kỳ của bản enterprise chưa có (DIS-11 là lịch sử và so sánh của báo cáo tuần).",
+      "owners": [
+        "ENT-3a"
+      ],
+      "pending": [
+        "PX-08"
+      ]
+    },
+    {
+      "code": "QT.01",
+      "title": "Quy trình To-Be cấu hình được: đầu mối nhập, phê duyệt tại đơn vị, Ban KHĐT rà soát, chốt kỳ, đẩy HPM; sai sót trả về kèm cảnh báo",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "ADM-06",
+          "ADM-18",
+          "ADM-15",
+          "DIS-06",
+          "DIS-07",
+          "HPM-01"
+        ],
+        "operations": [
+          "createWorkflowDraft",
+          "publishWorkflowVersion",
+          "getReportWorkflow",
+          "decideApprovalTask",
+          "reassignApprovalTask"
+        ],
+        "stories": [
+          "ST-ADM-012",
+          "ST-ADM-013",
+          "ST-ADM-011",
+          "ST-DIS-006"
+        ],
+        "docs": [
+          "docs/adm-approval-workflow.md",
+          "docs/delivery/02-to-be-process.md"
+        ],
+        "tests": [
+          "packages/kernel/test/dis-report-workflow.test.ts",
+          "apps/api/test/dis/report-staged-approval.test.ts"
+        ]
+      },
+      "gap": "G3: bước PUSH của quy trình duyệt là bước người, chưa gọi đẩy HPM (cần AWAITING_RECEIPT và khóa chống trùng); quy trình duyệt chỉ gắn với báo cáo DIS, chưa gắn với lô số liệu FND và nhập IND; chế độ điều chỉnh \"ở kỳ sau\" chưa có.",
+      "owners": [
+        "ENT-3c"
+      ],
+      "pending": [
+        "PX-03"
+      ]
+    },
+    {
+      "code": "QT.02",
+      "title": "Lịch kỳ báo cáo (tháng, quý, năm, giao ban) với hạn từng bước, theo dõi nhập liệu từng đầu mối, nhắc việc, chốt kỳ và mở lại có lý do; quy trình bổ sung: điều chỉnh kế hoạch trong năm, giao và theo dõi chỉ đạo giao ban",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIS-14",
+          "DIS-15",
+          "DIS-21",
+          "DIS-22",
+          "MDM-11",
+          "ADM-07",
+          "CAP-07",
+          "DIR-01"
+        ],
+        "operations": [
+          "generateReportingPeriods",
+          "softCloseReportingPeriod",
+          "lockReportingPeriod",
+          "requestPeriodReopen",
+          "decidePeriodReopen",
+          "getSubmissionProgress"
+        ],
+        "stories": [
+          "ST-DIS-001",
+          "ST-DIS-002",
+          "ST-DIS-015",
+          "ST-MDM-004"
+        ],
+        "docs": [
+          "docs/dis-report-progress.md",
+          "docs/adm-working-time.md"
+        ],
+        "tests": [
+          "apps/api/test/dis/reporting-period.test.ts",
+          "apps/api/test/dis/period-reopen.test.ts"
+        ]
+      },
+      "gap": "G9: hạn nhập theo bước còn là hằng số (ngày 5 tháng sau); chưa có lịch kỳ riêng cho quý, năm, giao ban với hạn từng bước; nhắc việc qua email chưa kiểm với SMTP thật. Điều chỉnh kế hoạch trong năm (CAP-07) và chỉ đạo giao ban (DIR-01 đến DIR-06) đã có; các quy trình khác Ban KHĐT bổ sung chưa nêu.",
+      "owners": [
+        "ENT-4c"
+      ],
+      "pending": [
+        "PX-16"
+      ]
+    },
+    {
+      "code": "CN.01",
+      "title": "Kế hoạch đầu tư: kế hoạch vốn năm theo Nghị quyết PVN và Quyết định của Tổng công ty, phân bổ quý/tháng, cơ cấu nguồn, điều chỉnh có căn cứ",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "CAP-01",
+          "CAP-02",
+          "CAP-03",
+          "CAP-05",
+          "CAP-06",
+          "CAP-07",
+          "CAP-15"
+        ],
+        "stories": [
+          "ST-CAP-001",
+          "ST-CAP-002",
+          "ST-CAP-003",
+          "ST-CAP-004"
+        ],
+        "docs": [
+          "docs/capital-balances.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/CAP.md"
+        ]
+      },
+      "gap": "G8: danh sách nguồn dòng kế hoạch CAP chưa có GROUP_ASSIGNED và BOARD_APPROVED; chưa tách Nghị quyết PVN và Quyết định Tổng công ty theo dự án.",
+      "owners": [
+        "ENT-3e"
+      ],
+      "pending": []
+    },
+    {
+      "code": "CN.02",
+      "title": "Theo dõi thực hiện và giải ngân: nhập, phê duyệt, tự tính lũy kế và tỷ lệ; thuyết minh có cấu trúc; theo dõi mua sắm trang thiết bị của Ban Thương mại",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIS-03",
+          "DIS-04",
+          "DIS-06",
+          "DIS-13",
+          "DIS-19",
+          "IND-02"
+        ],
+        "operations": [
+          "enterIndicatorFigures",
+          "getDisbursementRates",
+          "submitFundingFigures",
+          "acceptFundingFigures"
+        ],
+        "stories": [
+          "ST-DIS-003",
+          "ST-DIS-004",
+          "ST-DIS-010",
+          "ST-DIS-015"
+        ],
+        "docs": [
+          "docs/dis-rates.md",
+          "docs/dis-report-submit.md"
+        ]
+      },
+      "gap": "G2, G12: thuyết minh 8 trường và kế thừa kỳ trước (ENT-3b); chưa có màn mua sắm trang thiết bị theo Ban Thương mại và nối eProcurement (ENT-4e).",
+      "owners": [
+        "ENT-3b",
+        "ENT-4e"
+      ],
+      "pending": [
+        "PX-06"
+      ]
+    },
+    {
+      "code": "CN.03",
+      "title": "Theo dõi tiến độ và chỉ đạo điều hành: mốc tiến độ, cảnh báo chậm, vướng thủ tục; chỉ đạo giao ban theo dự án, giao việc, theo dõi, tổng hợp vào báo cáo kỳ sau",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIR-01",
+          "DIR-02",
+          "DIR-03",
+          "DIR-04",
+          "DIR-05",
+          "DIR-06",
+          "PRJ-05",
+          "DIS-20"
+        ],
+        "operations": [
+          "addDirective",
+          "listDirectives",
+          "getDirectiveSummary",
+          "getDirectivesForReport",
+          "recordDirectiveProgress",
+          "requestDirectiveExtension",
+          "closeDirective"
+        ],
+        "stories": [
+          "ST-DIR-001",
+          "ST-DIR-002",
+          "ST-DIR-003",
+          "ST-DIR-004",
+          "ST-DIR-005",
+          "ST-PRJ-009"
+        ],
+        "docs": [
+          "Design/MACHVON_Design/01_Documents/05_modules/DIR.md"
+        ],
+        "tests": [
+          "apps/api/test/dir/directive.test.ts",
+          "packages/kernel/test/directive.test.ts"
+        ]
+      },
+      "gap": "G12, G13: kết quả chỉ đạo giao ban chưa nối vào thuyết minh biểu mẫu (getDirectivesForReport chưa được thuyết minh gọi); ô \"dự án vướng thủ tục\" còn R2; màn PWA-04 chưa nối dữ liệu chỉ đạo.",
+      "owners": [
+        "ENT-3b",
+        "ENT-4e"
+      ],
+      "pending": []
+    },
+    {
+      "code": "CN.04",
+      "title": "Đối chiếu số liệu: giải ngân với EBS theo mã dự án và kỳ; so sánh chéo cùng kỳ giữa các loại báo cáo trước khi phát hành",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "EBS-01",
+          "EBS-02",
+          "DIS-26"
+        ],
+        "operations": [
+          "uploadEbsFile",
+          "previewEbsFile",
+          "importEbsFile",
+          "reconcileEbs",
+          "getCrossTotalControl",
+          "evaluateCrossTotal"
+        ],
+        "stories": [
+          "ST-EBS-001",
+          "ST-EBS-002",
+          "ST-DIS-025",
+          "ST-DIS-022"
+        ],
+        "docs": [
+          "docs/hpm-ebs-connectors.md",
+          "docs/gov-d-cross-total.md"
+        ],
+        "tests": [
+          "apps/api/test/editions/ebs.enterprise.test.ts"
+        ]
+      },
+      "gap": "G4: chưa có so sánh chéo cùng kỳ giữa các loại báo cáo (tháng, quý, giao ban, HPM) và chặn phát hành khi lệch có giải trình; đối chiếu EBS chạy trên bố cục giả định.",
+      "owners": [
+        "ENT-4a",
+        "ENT-3e"
+      ],
+      "pending": [
+        "PX-04"
+      ]
+    },
+    {
+      "code": "BC.01",
+      "title": "Báo cáo theo biểu mẫu quy định (06 biểu mẫu, Sở/Ban/Ngành), xuất đúng bố cục Excel, PDF và Word, quy ước đặt tên, lưu bản đã phát hành theo kỳ",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "RPT-01",
+          "RPT-02",
+          "RPT-03",
+          "RPT-04",
+          "RPT-05",
+          "RPT-06",
+          "DIS-17"
+        ],
+        "operations": [
+          "listReportCatalogue",
+          "generateReport",
+          "checkReport",
+          "approveReport",
+          "issueReport",
+          "listReportIssues",
+          "getReportIssueFile",
+          "deliverReport"
+        ],
+        "stories": [
+          "ST-RPT-001",
+          "ST-RPT-121",
+          "ST-DIS-016"
+        ],
+        "docs": [
+          "docs/report-engine.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/RPT.md"
+        ],
+        "tests": [
+          "packages/edition-enterprise/test/report-forms.test.ts",
+          "apps/api/test/reports/report-engine.enterprise.test.ts"
+        ]
+      },
+      "gap": "G1, G5: sáu biểu mẫu chạy dữ liệu minh họa và nhãn DEMO; báo cáo chưa xuất PDF; chưa có mẫu Sở/Ban/Ngành; chưa có công cụ cấu hình bố cục nội bộ không cần lập trình.",
+      "owners": [
+        "ENT-3a",
+        "ENT-4b"
+      ],
+      "pending": [
+        "PX-01",
+        "PX-15"
+      ]
+    },
+    {
+      "code": "BC.02",
+      "title": "Dashboard và báo cáo quản trị: tỷ lệ giải ngân theo công ty/đơn vị/dự án, chậm tiến độ, chỉ đạo quá hạn, so sánh cùng kỳ; tự tạo báo cáo; trình chiếu; gửi email theo lịch; báo cáo có người lập, người kiểm tra, người phê duyệt; dữ liệu cập nhật theo thời gian thực sau khi chốt kỳ",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "HOME-01",
+          "HOME-09",
+          "BI-01",
+          "BI-03",
+          "BI-12",
+          "BI-16",
+          "BAN-01"
+        ],
+        "operations": [
+          "getCommandCenter",
+          "createDashboard",
+          "saveDashboardVersion",
+          "createBiExportSchedule",
+          "getDirectiveWidget",
+          "getDisbursementRates"
+        ],
+        "stories": [
+          "ST-HOME-001",
+          "ST-BI-005",
+          "ST-BI-008",
+          "ST-BAN-001",
+          "ST-DIR-002"
+        ],
+        "docs": [
+          "docs/home-command-center.md",
+          "docs/bi-dashboards.md",
+          "docs/bi-exports.md"
+        ]
+      },
+      "gap": "G10: chưa có chế độ trình chiếu; tỷ lệ trên HOME/BAN là tỷ lệ bản công, chưa so sánh kế hoạch theo công ty, đơn vị, dự án của bản enterprise; gửi theo lịch mới cho chỉ tiêu BI, chưa cho biểu mẫu đã phát hành. Khối người lập, kiểm tra, phê duyệt có trong biểu mẫu (ba chữ ký) nhưng chưa có trên báo cáo quản trị tự tạo; cập nhật dashboard ngay sau chốt kỳ phụ thuộc bản chốt enterprise (ENT-3a).",
+      "owners": [
+        "ENT-4d"
+      ],
+      "pending": []
+    },
+    {
+      "code": "TH.01",
+      "title": "Tích hợp HPM: đẩy số liệu tháng đã chốt theo cấu trúc HPM, ghi kết quả, cảnh báo lỗi, đẩy lại, điều chỉnh sau khi đã đẩy",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "HPM-01",
+          "HPM-02",
+          "HUB-01",
+          "RPT-04"
+        ],
+        "operations": [
+          "getHpmConnection",
+          "submitHpmPush",
+          "retryHpmPush",
+          "recordHpmReceipt",
+          "listHpmPushes",
+          "proposeHpmCorrection",
+          "decideHpmCorrection"
+        ],
+        "stories": [
+          "ST-HPM-001",
+          "ST-HPM-002",
+          "ST-HUB-001"
+        ],
+        "docs": [
+          "docs/hpm-ebs-connectors.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/HPM.md"
+        ],
+        "tests": [
+          "apps/api/test/editions/hpm.enterprise.test.ts"
+        ]
+      },
+      "gap": "G3, G18: bộ ghi HPM là tệp (HPM-FILE-WORKING-ASSUMPTION), bước PUSH của quy trình chưa gọi đẩy; thiếu chế độ điều chỉnh \"ở kỳ sau\"; thiếu tài liệu đề xuất phương thức tích hợp (API, DB trung gian, tệp chuẩn).",
+      "owners": [
+        "ENT-3c",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-03"
+      ]
+    },
+    {
+      "code": "TH.02",
+      "title": "Tích hợp Data Lakehouse và công cụ báo cáo: cấp dữ liệu qua DB hoặc API cho Power BI và công cụ BI khác",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "INT-01",
+          "INT-02",
+          "INT-04",
+          "INT-05",
+          "BI-07",
+          "HUB-01"
+        ],
+        "operations": [
+          "createMachineAccount",
+          "createBiReader",
+          "listExportDatasets",
+          "setExportDataset",
+          "issueOpenApiToken",
+          "getOpenApiDocument",
+          "listOpenDatasets",
+          "listOpenDisbursementLines"
+        ],
+        "stories": [
+          "ST-INT-001",
+          "ST-BI-002"
+        ],
+        "docs": [
+          "docs/open-api.md",
+          "docs/open-api/openapi.json",
+          "docs/integration-hub.md"
+        ]
+      },
+      "gap": "G18: chưa có mô hình Power BI mẫu và hướng dẫn nối cho CN QLPTDA; chưa có tài liệu đề xuất cách cấp dữ liệu cho Data Lakehouse.",
+      "owners": [
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-11"
+      ]
+    },
+    {
+      "code": "TH.03",
+      "title": "Tích hợp EBS và hệ thống khác: đọc thanh toán theo mã dự án; sẵn sàng eProcurement, văn thư, xác thực tập trung; API mở có tài liệu, không phí bản quyền",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "EBS-01",
+          "EBS-02",
+          "INT-03",
+          "HUB-01",
+          "ADM-09",
+          "ADM-10"
+        ],
+        "operations": [
+          "importEbsFile",
+          "reconcileEbs",
+          "createMasterCrosswalk",
+          "listHubConnectors",
+          "createIntegrationConnector",
+          "getOpenApiDocument"
+        ],
+        "stories": [
+          "ST-EBS-001",
+          "ST-EBS-002",
+          "ST-HUB-001",
+          "ST-ADM-018",
+          "ST-KERNEL-042"
+        ],
+        "docs": [
+          "docs/hpm-ebs-connectors.md",
+          "docs/integration-hub.md",
+          "docs/open-api.md",
+          "docs/runbooks/infra/keycloak.md"
+        ]
+      },
+      "gap": "G7, G18: EBS đối chiếu qua tệp, chưa qua master_crosswalk và chưa đọc DB; eProcurement và văn thư chờ đặc tả (chưa có bộ kết nối).",
+      "owners": [
+        "ENT-3e",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-04",
+        "PX-06",
+        "PX-07"
+      ]
+    },
+    {
+      "code": "HT.01",
+      "title": "Lưu trữ và bảo mật: dữ liệu và phần mềm tại máy chủ PVFCCo, cơ chế bảo mật theo quy định",
+      "status": "PENDING-EXTERNAL",
+      "evidence": {
+        "operations": [
+          "createSecurityPolicyVersion",
+          "publishSecurityPolicy"
+        ],
+        "stories": [
+          "ST-ADM-009",
+          "ST-KERNEL-011",
+          "ST-KERNEL-094"
+        ],
+        "docs": [
+          "docs/runbooks/infra/onprem-install.md",
+          "docs/runbooks/infra/tls-headers.md",
+          "docs/runbooks/infra/secrets-rotation.md"
+        ]
+      },
+      "gap": "Gói cài ngoại tuyến và cơ chế bảo mật sẵn sàng; việc cài lên máy chủ PVFCCo và kiểm tra theo quy định bảo mật của Tổng công ty chờ hạ tầng (PX-11).",
+      "owners": [
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-11"
+      ]
+    },
+    {
+      "code": "HT.02",
+      "title": "Phân quyền theo nhóm, vai trò (nhập liệu, phê duyệt đơn vị, rà soát Ban KHĐT, lãnh đạo xem, quản trị) và phạm vi dữ liệu (đơn vị, dự án, kỳ)",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "ADM-01",
+          "ADM-02",
+          "ADM-03",
+          "ADM-15",
+          "ADM-27"
+        ],
+        "operations": [
+          "grantRole",
+          "createCustomRole",
+          "createPeriodScope",
+          "createOrganizationUnit",
+          "inviteMember"
+        ],
+        "stories": [
+          "ST-ADM-004",
+          "ST-ADM-005",
+          "ST-ADM-006",
+          "ST-ADM-028"
+        ],
+        "docs": [
+          "docs/adm-doa-resolver.md",
+          "docs/security/identity-test-plan.md"
+        ]
+      },
+      "gap": "G6: chưa có gói cấu hình PVFCCo: 09 đầu mối (07 Ban/Đơn vị và 02 Tổ dự án), người nhập và người duyệt mỗi đầu mối, Ban KHĐT rà soát, vai trò lãnh đạo, ánh xạ nhóm AD (ad-group-role-map.json), nạp qua lệnh có chạy thử và nhãn PVFCCO-TEMPLATE.",
+      "owners": [
+        "ENT-3d"
+      ],
+      "pending": [
+        "PX-05",
+        "PX-16"
+      ]
+    },
+    {
+      "code": "HT.03",
+      "title": "Ủy quyền xử lý công việc (nhập, phê duyệt) trong thời hạn hoặc vĩnh viễn khi đổi nhân sự",
+      "status": "DONE",
+      "evidence": {
+        "screens": [
+          "ADM-04",
+          "ADM-25",
+          "ADM-26",
+          "ADM-28"
+        ],
+        "operations": [
+          "createDelegation",
+          "revokeDelegation",
+          "createStandingDelegationRequest",
+          "decideStandingDelegationRequest",
+          "reviewDelegation"
+        ],
+        "stories": [
+          "ST-ADM-014",
+          "ST-ADM-029",
+          "ST-ADM-027"
+        ],
+        "docs": [
+          "docs/adm-delegation.md"
+        ]
+      },
+      "gap": "",
+      "owners": [],
+      "pending": []
+    },
+    {
+      "code": "HT.04",
+      "title": "Tham số hóa: quản trị tự đổi danh mục, công thức chỉ tiêu, quy tắc kiểm tra, lịch kỳ báo cáo, bố cục biểu mẫu nội bộ không cần lập trình",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "ADM-19",
+          "ADM-20",
+          "ADM-21",
+          "ADM-22",
+          "ADM-05",
+          "IND-01",
+          "IND-02"
+        ],
+        "operations": [
+          "createGovernanceRuleDraft",
+          "submitGovernanceRule",
+          "approveGovernanceRule",
+          "getGovernanceRuleDiff",
+          "getGovernanceRuleCatalog"
+        ],
+        "stories": [
+          "ST-ADM-022",
+          "ST-ADM-023",
+          "ST-BI-011"
+        ],
+        "docs": [
+          "docs/governance-roadmap-10of10.md",
+          "docs/ind-indicator-dictionary.md"
+        ]
+      },
+      "gap": "G5, G9: bố cục biểu mẫu nội bộ vẫn đăng ký bằng TypeScript (cần loại quy tắc REPORT_LAYOUT có phiên bản); lịch kỳ chưa cấu hình được cho quý, năm, giao ban.",
+      "owners": [
+        "ENT-4b",
+        "ENT-4c"
+      ],
+      "pending": []
+    },
+    {
+      "code": "HT.05",
+      "title": "Hiệu năng: phản hồi dưới 5 giây, xem báo cáo dưới 20 giây; công cụ theo dõi hiệu suất và nhật ký",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "BI-13",
+          "HUB-01"
+        ],
+        "stories": [
+          "ST-KERNEL-081",
+          "ST-KERNEL-050",
+          "ST-KERNEL-052"
+        ],
+        "docs": [
+          "docs/qa/performance.md",
+          "docs/qa/perf-budget.json",
+          "docs/slo-error-budget.md"
+        ]
+      },
+      "gap": "G17: chưa có bằng chứng hiệu năng trên phần cứng của khách; ngân sách đọc bản chốt enterprise và PDF biểu mẫu chưa là dòng trong perf-budget.json.",
+      "owners": [
+        "DOC-3",
+        "ENT-4b"
+      ],
+      "pending": [
+        "PX-10"
+      ]
+    },
+    {
+      "code": "HT.06",
+      "title": "Truy vết (audit và log): người, thời điểm, giá trị trước/sau, lý do cho mọi thao tác tạo, sửa, duyệt, chốt, mở lại kỳ, đẩy HPM; tham số giới hạn số lượng và dung lượng log",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "ADM-11",
+          "ADM-12",
+          "RPT-04",
+          "HPM-01"
+        ],
+        "operations": [
+          "exportAuditLog",
+          "get_resources_audit_event",
+          "createRetentionPolicyVersion",
+          "publishRetentionPolicy"
+        ],
+        "stories": [
+          "ST-ADM-002",
+          "ST-ADM-016",
+          "ST-ADM-017",
+          "ST-KERNEL-023"
+        ],
+        "docs": [
+          "docs/runbooks/audit-export.md",
+          "docs/runbooks/retention.md"
+        ]
+      },
+      "gap": "G14: chưa có tham số giới hạn số lượng và dung lượng tệp log; nhật ký lưu safe_diff, chưa đủ giá trị trước/sau.",
+      "owners": [
+        "ENT-4e"
+      ],
+      "pending": []
+    },
+    {
+      "code": "YCK.01",
+      "title": "Trình duyệt (Chrome, Firefox, Edge, Safari) và PWA cho quản lý: hàng đợi duyệt, dashboard lãnh đạo, chỉ đạo; SSO và MFA từ ngoài mạng; nhắc việc qua email/Teams; hỗ trợ các phiên bản trình duyệt phát hành trong 5 năm gần nhất",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIR-06",
+          "NOT-11",
+          "NOT-13"
+        ],
+        "operations": [
+          "decideApprovalTask",
+          "getCommandCenter",
+          "listDirectives"
+        ],
+        "stories": [
+          "ST-MOB-013",
+          "ST-IAM-002",
+          "ST-NOT-002",
+          "ST-NOT-006"
+        ],
+        "docs": [
+          "docs/pwa.md",
+          "docs/runbooks/browser-differences.md",
+          "docs/runbooks/notification-delivery.md"
+        ],
+        "tests": [
+          "apps/web/src/pwa/PwaSessionGuard.test.tsx"
+        ]
+      },
+      "gap": "G13: màn PWA-04 (chỉ đạo) chưa nối; email là MOCK; Teams chỉ ghi tệp Adaptive Card chờ bộ chuyển tiếp; chưa có làn CI riêng cho Edge. Ba màn PWA-01 đến PWA-04 không nằm trong screen_catalog.json (xem docs/pwa.md); ứng dụng native iOS/Android ngoài giai đoạn 1.",
+      "owners": [
+        "ENT-4e",
+        "ENT-4c"
+      ],
+      "pending": [
+        "PX-16"
+      ]
+    },
+    {
+      "code": "YCK.02",
+      "title": "Hai môi trường UAT và Production trên hạ tầng của Tổng công ty; nhà cung cấp nêu cấu hình hạ tầng khuyến nghị",
+      "status": "PARTIAL",
+      "evidence": {
+        "stories": [
+          "ST-KERNEL-011",
+          "ST-KERNEL-014"
+        ],
+        "docs": [
+          "docs/runbooks/infra/environments.md",
+          "docs/runbooks/infra/onprem-install.md",
+          "docs/runbooks/infra/onprem-upgrade-rollback.md"
+        ]
+      },
+      "gap": "G17: chưa có tài liệu cấu hình khuyến nghị riêng cho UAT và Production của PVFCCo (CPU, RAM, đĩa, mạng theo số người dùng).",
+      "owners": [
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-11",
+        "PX-17"
+      ]
+    },
+    {
+      "code": "YCK.03",
+      "title": "Số lượng người dùng (nhập liệu, phê duyệt, Ban KHĐT, lãnh đạo, quản trị); không giới hạn bản quyền theo người dùng",
+      "status": "PENDING-EXTERNAL",
+      "evidence": {
+        "stories": [
+          "ST-SAS-002",
+          "ST-SAS-010"
+        ],
+        "docs": [
+          "docs/delivery/11-pending-external-register.md"
+        ]
+      },
+      "gap": "Con số ước tính do khách cung cấp (PX-17). Hồ sơ yêu cầu không giới hạn bản quyền theo số người dùng; nền tảng có hạn mức số ghế theo gói và license (member.seats trong plan-catalogue, license), nên cần xác nhận gói của PVFCCo đặt hạn mức không giới hạn hoặc đủ lớn trước khi nghiệm thu.",
+      "owners": [
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-17"
+      ]
+    },
+    {
+      "code": "YCK.04",
+      "title": "Nhập Excel/CSV; xuất Excel, PDF, Word; API và kết nối trực tiếp DB cho công cụ BI; API cấu hình được bằng giao diện",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "IND-03",
+          "DIS-10",
+          "DIS-17",
+          "ADM-13",
+          "INT-01",
+          "INT-02",
+          "INT-04"
+        ],
+        "operations": [
+          "importIndicatorFile",
+          "createReportImport",
+          "createReportExport",
+          "createBiReader",
+          "createMachineAccount",
+          "getOpenApiDocument"
+        ],
+        "stories": [
+          "ST-DIS-008",
+          "ST-DIS-016",
+          "ST-INT-001",
+          "ST-IND-003",
+          "ST-KERNEL-070"
+        ],
+        "docs": [
+          "docs/file-import.md",
+          "docs/open-api.md",
+          "docs/dis-report-export.md"
+        ]
+      },
+      "gap": "G5: biểu mẫu enterprise chưa xuất PDF (Excel và Word có); PDF dùng chung ReportDocument (ENT-4b).",
+      "owners": [
+        "ENT-4b"
+      ],
+      "pending": []
+    },
+    {
+      "code": "YCK.05",
+      "title": "Khả năng mở rộng: thêm chỉ tiêu, biểu mẫu, quy trình, phân hệ mới; nâng cấp không mất dữ liệu và cấu hình",
+      "status": "DONE",
+      "evidence": {
+        "screens": [
+          "ADM-19",
+          "ADM-06",
+          "HUB-01",
+          "SAS-20"
+        ],
+        "stories": [
+          "ST-ADM-022",
+          "ST-ADM-012",
+          "ST-HUB-001",
+          "ST-SAS-020",
+          "ST-KERNEL-033"
+        ],
+        "docs": [
+          "docs/integration-hub.md",
+          "docs/runbooks/infra/onprem-upgrade-rollback.md",
+          "docs/kernel-release-compatibility.md",
+          "docs/contract-patch.md"
+        ]
+      },
+      "gap": "",
+      "owners": [],
+      "pending": []
+    },
+    {
+      "code": "YCK.06",
+      "title": "Sao lưu tự động và thủ công theo ngày/tuần/tháng; full, differential, incremental; giữ tối thiểu 03 bản; bản tách rời hoặc bất biến; kiểm tra khôi phục định kỳ",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "SAS-21"
+        ],
+        "operations": [
+          "requestTenantRestore",
+          "decideTenantRestore"
+        ],
+        "stories": [
+          "ST-KERNEL-040",
+          "ST-KERNEL-080",
+          "ST-SAS-019"
+        ],
+        "docs": [
+          "docs/runbooks/infra/backup-immutable.md",
+          "docs/runbooks/infra/restore-drill.md",
+          "docs/runbooks/tenant-restore-drill.md"
+        ]
+      },
+      "gap": "G15: chưa có chu kỳ tuần/tháng, bản khác biệt (differential), \"giữ tối thiểu 03 bản\", sao lưu thủ công trên giao diện quản trị, bản ngoại tuyến; chưa có bằng chứng diễn tập khôi phục.",
+      "owners": [
+        "INFRA-2"
+      ],
+      "pending": [
+        "PX-11"
+      ]
+    },
+    {
+      "code": "YCK.07",
+      "title": "Bảo mật: tài khoản DB riêng, TLS 1.2+, SSO/LDAP/AD, MFA, bản vá trong 01 tháng, rà soát mã nguồn (SAST/SCA) và pentest bởi đơn vị độc lập đạt tiêu chí",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "IAM-01",
+          "ADM-14"
+        ],
+        "stories": [
+          "ST-KERNEL-093",
+          "ST-KERNEL-094",
+          "ST-KERNEL-013",
+          "ST-KERNEL-042",
+          "ST-KERNEL-027"
+        ],
+        "docs": [
+          "docs/security/pentest-readiness.md",
+          "docs/security/identity-test-plan.md",
+          "docs/runbooks/infra/security-scanning.md",
+          "docs/runbooks/supply-chain.md",
+          "docs/runbooks/infra/tls-headers.md"
+        ]
+      },
+      "gap": "G16: chưa chạy rà soát mã nguồn và pentest độc lập; chưa nhập thử realm Keycloak vào máy chủ chạy thật; chưa quét mã độc tệp tải lên và chưa có kiểm thử allowlist egress; kịch bản ransomware chưa liệt kê trong gói pentest.",
+      "owners": [
+        "INFRA-2"
+      ],
+      "pending": [
+        "PX-09",
+        "PX-16"
+      ]
+    },
+    {
+      "code": "YCK.08",
+      "title": "Nhập liệu và trải nghiệm: trường bắt buộc, kiểm tra ngay khi nhập, giao diện tiếng Việt, hướng dẫn trực tuyến trên màn hình",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "IAM-08",
+          "IND-02",
+          "DIS-03"
+        ],
+        "operations": [
+          "evaluateIndicatorEntry"
+        ],
+        "stories": [
+          "ST-IAM-007",
+          "ST-IND-001",
+          "ST-KERNEL-111"
+        ],
+        "docs": [
+          "scripts/hdsd/chapters.json",
+          "docs/runbooks/uat-evidence.md"
+        ]
+      },
+      "gap": "G17: chưa có hướng dẫn trực tuyến trên màn hình (nút trợ giúp theo màn hình dùng bộ hdsd); trường bắt buộc và kiểm tra ngay khi nhập đã có (IND-02).",
+      "owners": [
+        "DOC-3"
+      ],
+      "pending": []
+    },
+    {
+      "code": "TK.01",
+      "title": "Đào tạo người dùng cuối tại 09 đầu mối và Ban KHĐT, lãnh đạo khai thác dashboard, quản trị cho Ban CĐS&CNTT",
+      "status": "PARTIAL",
+      "evidence": {
+        "stories": [
+          "ST-KERNEL-104",
+          "ST-KERNEL-103"
+        ],
+        "docs": [
+          "docs/delivery/07-training-plan.md",
+          "scripts/hdsd/chapters.json",
+          "docs/clips/enterprise-phu-my.script.md"
+        ]
+      },
+      "gap": "Có kế hoạch, giáo trình theo bộ hdsd và mẫu biên bản; chưa tổ chức buổi đào tạo nào (cần danh sách 09 đầu mối, PX-05, và môi trường UAT).",
+      "owners": [
+        "DELIVERY-1",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-05",
+        "PX-11"
+      ]
+    },
+    {
+      "code": "TK.02",
+      "title": "Tài liệu hướng dẫn sử dụng, hướng dẫn quản trị, thiết kế, tích hợp (bản cứng, bản mềm, video)",
+      "status": "PARTIAL",
+      "evidence": {
+        "stories": [
+          "ST-KERNEL-107"
+        ],
+        "docs": [
+          "docs/delivery/README.md",
+          "docs/delivery/10-handover-checklist.md",
+          "scripts/hdsd/chapters.json",
+          "docs/clips/public-investment.script.md",
+          "docs/open-api.md"
+        ]
+      },
+      "gap": "G17: hướng dẫn quản trị và tài liệu đề xuất tích hợp HPM (DOC-3) chưa viết; video tiếng Việt đã dựng một phần, còn thiếu giọng đọc và nhạc được duyệt.",
+      "owners": [
+        "DOC-3",
+        "DELIVERY-1"
+      ],
+      "pending": []
+    },
+    {
+      "code": "TK.03",
+      "title": "Chuyển đổi dữ liệu: danh mục dự án, kế hoạch năm, lũy kế đến đầu kỳ vận hành và lịch sử từ biểu mẫu Excel; biên bản xác nhận với Ban KHĐT",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "ADM-13",
+          "IND-03",
+          "MDM-29"
+        ],
+        "operations": [
+          "registerMigrationBatch",
+          "dryRunMigrationBatch",
+          "applyMigrationBatch",
+          "rollbackMigrationBatch",
+          "importIndicatorFile"
+        ],
+        "stories": [
+          "ST-ADM-020",
+          "ST-KERNEL-100",
+          "ST-KERNEL-101",
+          "ST-KERNEL-102",
+          "ST-MDM-006"
+        ],
+        "docs": [
+          "docs/delivery/06-data-conversion-plan.md",
+          "docs/adm-migration.md",
+          "docs/ind-indicator-dictionary.md"
+        ]
+      },
+      "gap": "Có kế hoạch, ánh xạ 05 biểu Excel vào từ điển chỉ tiêu và mẫu biên bản xác nhận; chưa nhận tệp Excel thật nên chưa chạy thử chuyển đổi; ENT-3d nạp dữ liệu mẫu.",
+      "owners": [
+        "DELIVERY-1",
+        "ENT-3d"
+      ],
+      "pending": [
+        "PX-02",
+        "PX-08",
+        "PX-14"
+      ]
+    },
+    {
+      "code": "TK.04",
+      "title": "Vận hành thử song song với biểu mẫu Excel trong 02 kỳ báo cáo thực tế; đối chiếu và khắc phục trước nghiệm thu",
+      "status": "PARTIAL",
+      "evidence": {
+        "screens": [
+          "DIS-21",
+          "EBS-02",
+          "DIS-26"
+        ],
+        "stories": [
+          "ST-DIS-024",
+          "ST-KERNEL-103",
+          "ST-KERNEL-102"
+        ],
+        "docs": [
+          "docs/delivery/08-parallel-run-plan.md",
+          "docs/dis-d03-signoff-pack.md",
+          "docs/file-import.md"
+        ]
+      },
+      "gap": "Có kế hoạch và mẫu đối chiếu; chưa có kỳ thực tế (PX-13); đối chiếu chéo giữa loại báo cáo (CN.04) cần ENT-4a.",
+      "owners": [
+        "DELIVERY-1",
+        "ENT-4a"
+      ],
+      "pending": [
+        "PX-13"
+      ]
+    },
+    {
+      "code": "GD.1",
+      "title": "Giai đoạn 1. Khảo sát hiện trạng, phân tích yêu cầu: Báo cáo khảo sát As-Is; URD",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/01-as-is-survey-and-urd.md",
+          "Design/MACHVON_Design/01_Documents/02_BRD.md",
+          "Design/MACHVON_Design/01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md"
+        ]
+      },
+      "gap": "Khung đã điền từ hồ sơ kỹ thuật và thiết kế; các trường [khách điền] cần khảo sát 09 đầu mối; PVFCCo phê duyệt (PX-12).",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-05",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "GD.2",
+      "title": "Giai đoạn 2. Thiết kế tương lai: quy trình To-Be, SRS, thiết kế hệ thống, thiết kế tích hợp HPM/ERP/Lakehouse",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/02-to-be-process.md",
+          "docs/delivery/03-srs-mapping.md",
+          "docs/delivery/04-system-and-integration-design.md",
+          "Design/MACHVON_Design/01_Documents/03_FRD.md",
+          "Design/MACHVON_Design/01_Documents/04_Thiet_ke_co_ban.md"
+        ]
+      },
+      "gap": "Thiết kế đã có trong 01_Documents; thiết kế tích hợp HPM cần đặc tả của HPM (PX-03); PVFCCo phê duyệt quy trình To-Be và SRS (PX-12).",
+      "owners": [
+        "DELIVERY-1",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-03",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "GD.3",
+      "title": "Giai đoạn 3. Xây dựng, cấu hình: phần mềm trên UAT; kịch bản kiểm thử SIT và UAT",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/05-sit-uat-scripts.md",
+          "docs/uat/INDEX.md",
+          "docs/UAT-COVERAGE.md"
+        ],
+        "stories": [
+          "ST-KERNEL-090",
+          "ST-KERNEL-091"
+        ]
+      },
+      "gap": "Kịch bản có theo phân hệ (bộ ca thiết kế 1449 ca; 1125 ca trong các tệp docs/uat/<phân hệ>/uat.json), nhưng IND, RPT, DIR, HPM, EBS, HUB, INT chưa có thư mục uat.json; phần mềm lên môi trường UAT của khách chờ hạ tầng (PX-11).",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-11",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "GD.4",
+      "title": "Giai đoạn 4. Kiểm nghiệm: SIT do nhà cung cấp, UAT cùng đầu mối; biên bản UAT; danh sách lỗi và kết quả khắc phục",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/05-sit-uat-scripts.md",
+          "docs/delivery/09-acceptance-minutes-template.md",
+          "docs/UAT-EVIDENCE.md",
+          "docs/runbooks/uat-evidence.md"
+        ],
+        "stories": [
+          "ST-KERNEL-095"
+        ]
+      },
+      "gap": "Chưa chạy UAT bản enterprise sau khi gộp các làn ENT-3 và ENT-4; mục dựng trên giả định ghi PENDING-EXTERNAL, không tính đạt (R18).",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-12"
+      ]
+    },
+    {
+      "code": "GD.5",
+      "title": "Giai đoạn 5. Chuyển đổi dữ liệu, đào tạo: nạp danh mục, kế hoạch năm, lũy kế; đào tạo; biên bản và video hướng dẫn",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/06-data-conversion-plan.md",
+          "docs/delivery/07-training-plan.md"
+        ],
+        "stories": [
+          "ST-KERNEL-100",
+          "ST-KERNEL-104"
+        ]
+      },
+      "gap": "Kế hoạch và mẫu biên bản sẵn sàng; chờ tệp Excel hiện hành và danh sách người học (PX-05, PX-08, PX-14).",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-05",
+        "PX-08",
+        "PX-14"
+      ]
+    },
+    {
+      "code": "GD.6",
+      "title": "Giai đoạn 6. Vận hành thử, nghiệm thu: song song 02 kỳ, đẩy HPM chính thức, biên bản vận hành thử và nghiệm thu, bộ tài liệu bàn giao",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/08-parallel-run-plan.md",
+          "docs/delivery/09-acceptance-minutes-template.md",
+          "docs/delivery/10-handover-checklist.md"
+        ],
+        "stories": [
+          "ST-DIS-024",
+          "ST-KERNEL-107"
+        ]
+      },
+      "gap": "Chờ hai kỳ báo cáo thực tế (PX-13), giao diện HPM chính thức (PX-03) và pentest độc lập đạt (PX-09).",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-03",
+        "PX-09",
+        "PX-13"
+      ]
+    },
+    {
+      "code": "GD.7",
+      "title": "Giai đoạn 7. Bảo hành, bảo trì: hỗ trợ sau nghiệm thu, hỗ trợ kỳ chốt, điều chỉnh biểu mẫu; báo cáo bảo trì định kỳ",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/runbooks/release-checklist.md",
+          "docs/runbooks/infra/onprem-upgrade-rollback.md",
+          "docs/delivery/README.md"
+        ],
+        "stories": [
+          "ST-KERNEL-105"
+        ]
+      },
+      "gap": "Mô hình hỗ trợ và hypercare có trong thiết kế (ST-KERNEL-105); mẫu báo cáo bảo trì định kỳ và lịch hỗ trợ kỳ chốt chưa lập, chỉ bắt đầu sau nghiệm thu.",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.01",
+      "title": "Sản phẩm 1. Báo cáo khảo sát hiện trạng và Tài liệu yêu cầu người dùng (URD)",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/01-as-is-survey-and-urd.md"
+        ]
+      },
+      "gap": "Khung và URD điền từ hồ sơ kỹ thuật; phần khảo sát tại 09 đầu mối để trống [khách điền].",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-05",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.02",
+      "title": "Sản phẩm 2. Quy trình quản lý To-Be áp dụng trên phần mềm",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/02-to-be-process.md",
+          "docs/adm-approval-workflow.md"
+        ]
+      },
+      "gap": "Quy trình To-Be dựng từ quy trình duyệt có bước; cần Tổ chuẩn hóa dữ liệu chốt hạn từng bước và PVFCCo phê duyệt; bước PUSH chờ ENT-3c.",
+      "owners": [
+        "DELIVERY-1",
+        "ENT-3c"
+      ],
+      "pending": [
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.03",
+      "title": "Sản phẩm 3. SRS, tài liệu thiết kế hệ thống, thiết kế tích hợp",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/03-srs-mapping.md",
+          "docs/delivery/04-system-and-integration-design.md"
+        ]
+      },
+      "gap": "Bảng đối chiếu mã yêu cầu tới BRD, FRD và thiết kế đã có; thiết kế tích hợp HPM chờ đặc tả (PX-03).",
+      "owners": [
+        "DELIVERY-1",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-03",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.04",
+      "title": "Sản phẩm 4. Bộ master data và từ điển chỉ tiêu đã chuẩn hóa, khởi tạo trên hệ thống",
+      "status": "PENDING-EXTERNAL",
+      "evidence": {
+        "screens": [
+          "IND-01",
+          "IND-03",
+          "MDM-01"
+        ],
+        "docs": [
+          "docs/ind-indicator-dictionary.md",
+          "docs/delivery/06-data-conversion-plan.md"
+        ]
+      },
+      "gap": "Từ điển và danh mục dự án chính thức do Tổ chuẩn hóa dữ liệu cung cấp; bộ khởi điểm là giả định UNVERIFIED.",
+      "owners": [
+        "ENT-3d",
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-02",
+        "PX-14"
+      ]
+    },
+    {
+      "code": "SP.05",
+      "title": "Sản phẩm 5. Kịch bản kiểm thử và Biên bản kiểm thử chấp nhận (UAT)",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/05-sit-uat-scripts.md",
+          "docs/delivery/09-acceptance-minutes-template.md",
+          "docs/uat/INDEX.md"
+        ]
+      },
+      "gap": "Kịch bản và mẫu biên bản có; biên bản UAT thật cần chạy UAT trên bản đã gộp.",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.06",
+      "title": "Sản phẩm 6. Biên bản xác nhận chuyển đổi dữ liệu",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/06-data-conversion-plan.md"
+        ]
+      },
+      "gap": "Mẫu biên bản có trong tài liệu 06; ký sau khi chuyển đổi thật và Ban KHĐT xác nhận.",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-08",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.07",
+      "title": "Sản phẩm 7. Biên bản xác nhận đào tạo; tài liệu và video hướng dẫn",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/07-training-plan.md",
+          "docs/clips/enterprise-phu-my.script.md",
+          "docs/clips/public-investment.script.md"
+        ]
+      },
+      "gap": "Mẫu biên bản và giáo trình có; video tiếng Việt chờ giọng đọc và nhạc được duyệt; biên bản ký sau buổi đào tạo.",
+      "owners": [
+        "DELIVERY-1",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-05",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.08",
+      "title": "Sản phẩm 8. Báo cáo rà soát mã nguồn và pentest của đơn vị độc lập; báo cáo khắc phục và retest đạt YCK.07",
+      "status": "PENDING-EXTERNAL",
+      "evidence": {
+        "docs": [
+          "docs/security/pentest-readiness.md",
+          "docs/delivery/10-handover-checklist.md"
+        ]
+      },
+      "gap": "Chỉ đơn vị độc lập được PVFCCo chấp thuận làm được; gói sẵn sàng pentest và bằng chứng nội bộ đã có.",
+      "owners": [
+        "INFRA-2",
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-09"
+      ]
+    },
+    {
+      "code": "SP.09",
+      "title": "Sản phẩm 9. Biên bản vận hành thử và Biên bản nghiệm thu đưa vào sử dụng",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/08-parallel-run-plan.md",
+          "docs/delivery/09-acceptance-minutes-template.md"
+        ]
+      },
+      "gap": "Mẫu biên bản có; ký sau hai kỳ chạy song song và pentest đạt.",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-13",
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.10",
+      "title": "Sản phẩm 10. Bộ tài liệu bàn giao: cài đặt, vận hành, quản trị; mã nguồn hoặc gói cài đặt và cấu hình; tài liệu API",
+      "status": "PARTIAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/10-handover-checklist.md",
+          "docs/runbooks/infra/onprem-install.md",
+          "docs/open-api/openapi.json",
+          "docs/runbooks/release-checklist.md"
+        ],
+        "stories": [
+          "ST-KERNEL-107"
+        ]
+      },
+      "gap": "Danh mục bàn giao và liên kết có; hướng dẫn quản trị (DOC-3) chưa viết.",
+      "owners": [
+        "DELIVERY-1",
+        "DOC-3"
+      ],
+      "pending": [
+        "PX-12"
+      ]
+    },
+    {
+      "code": "SP.11",
+      "title": "Sản phẩm 11. Các sản phẩm khác theo Điều lệ dự án",
+      "status": "PENDING-EXTERNAL",
+      "evidence": {
+        "docs": [
+          "docs/delivery/README.md"
+        ]
+      },
+      "gap": "Điều lệ dự án do hai bên thỏa thuận; chưa có nội dung.",
+      "owners": [
+        "DELIVERY-1"
+      ],
+      "pending": [
+        "PX-12"
+      ]
+    }
+  ]
+}
