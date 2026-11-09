@@ -228942,7 +228942,17 @@
           "NOT"
         ],
         "x-permission": "webhook.provider",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Committed result (replayed on idempotent retry)",
