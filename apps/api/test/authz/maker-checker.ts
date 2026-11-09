@@ -599,8 +599,10 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     operationId: 'decideBackupRequest',
     build: (objectId) => ({ method: 'POST', path: `/backup-requests/${objectId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'maker-checker matrix decision' } }),
     seedMadeBy: (objectId, maker) => [
-      `insert into machvon.backup_request (tenant_id, id, kind, repository, reason, requested_by)
-       values (current_setting('app.tenant_id')::uuid, $1, 'full', 1, 'maker-checker matrix request', $2)`,
+      // One request for each kind and repository may be open (a unique index), so the case clears the open ones of the earlier cases first; the seed runs as the owner of the schema, which may delete.
+      `with cleared as (delete from machvon.backup_request where status in ('Requested', 'Approved') and kind = 'full' and repository = 1 returning id)
+       insert into machvon.backup_request (tenant_id, id, kind, repository, reason, requested_by)
+       select current_setting('app.tenant_id')::uuid, $1::uuid, 'full', 1, 'maker-checker matrix request', $2::uuid from (select count(*) from cleared) as done`,
       [objectId, maker],
     ],
   },
