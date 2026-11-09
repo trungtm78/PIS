@@ -37894,5 +37894,6 @@
   "pwa2.figures.page.title": "Disbursement figures in detail",
   "pwa2.figures.page.subtitle": "The amounts of the snapshot, the ranking, the causes of slow disbursement, the cash flow and the changes since the snapshot before.",
   "pwa2.figures.context": "Snapshot of {day}, read at {time}",
-  "pwa2.figures.amounts.title": "Amounts of the snapshot"
+  "pwa2.figures.amounts.title": "Amounts of the snapshot",
+  "hpm.correction.state.applied": "Applied"
 }

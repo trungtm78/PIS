@@ -37894,5 +37894,6 @@
   "pwa2.figures.page.title": "Chi tiết số liệu giải ngân",
   "pwa2.figures.page.subtitle": "Số tiền theo bản chốt, xếp hạng, nguyên nhân chậm, dòng tiền và thay đổi so với bản chốt trước.",
   "pwa2.figures.context": "Bản chốt ngày {day}, đọc lúc {time}",
-  "pwa2.figures.amounts.title": "Số tiền theo bản chốt"
+  "pwa2.figures.amounts.title": "Số tiền theo bản chốt",
+  "hpm.correction.state.applied": "Đã áp dụng"
 }

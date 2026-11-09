@@ -77,7 +77,7 @@ describe('EquipmentListScreen (EQP-01)', () => {
     const hidden = line({ masked: ['CONTRACT', 'PAYMENT'], contract_value_vnd: null, paid_vnd: null, disbursement_percent: null });
     mountInSession(<EquipmentListScreen route={ROUTE('EQP-01')} />, harness(() => list([hidden])), { permissions: READER });
     const table = await screen.findByTestId('lines');
-    expect(within(table).getAllByText(vi_['eqp.list.masked'])).toHaveLength(2);
+    expect(within(table).getAllByText(vi_['eqp.list.masked'] ?? '')).toHaveLength(2);
   });
 
   it('says there is nothing in the scope, and offers the form to a planner', async () => {
@@ -107,7 +107,7 @@ describe('EquipmentDetailScreen (EQP-02)', () => {
     const form = await screen.findByRole('form', { name: vi_['eqp.manage.aria'] });
     await user.click(within(form).getByRole('button', { name: vi_['eqp.manage.cancel'] }));
     expect(h.command).not.toHaveBeenCalled();
-    await user.type(within(form).getByLabelText(vi_['eqp.manage.reason']), 'dropped from the plan');
+    await user.type(within(form).getByLabelText(vi_['eqp.manage.reason'] ?? ''), 'dropped from the plan');
     await user.click(within(form).getByRole('button', { name: vi_['eqp.manage.cancel'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     expect(h.command.mock.calls[0]?.[0]).toBe('updateEquipmentProcurementItem');

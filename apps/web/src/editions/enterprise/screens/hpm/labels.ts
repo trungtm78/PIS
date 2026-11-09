@@ -28,6 +28,8 @@ export function correctionStateLabel(t: T, state: CorrectionState): string {
       return t('hpm.correction.state.approved');
     case 'REJECTED':
       return t('hpm.correction.state.rejected');
+    case 'APPLIED':
+      return t('hpm.correction.state.applied');
     case 'CONSUMED':
       return t('hpm.correction.state.consumed');
   }

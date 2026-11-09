@@ -79,7 +79,7 @@ describe('LogCapacityScreen (ADM-30)', () => {
     const outbox = table.querySelector('tr[data-record-class="outbox_event"]') as HTMLElement;
     expect(outbox.getAttribute('data-state')).toBe('NEAR');
     const audit = table.querySelector('tr[data-record-class="audit_event"]') as HTMLElement;
-    expect(within(audit).getByText(vi_['adm.logCapacity.neverPurged'])).toBeTruthy();
+    expect(within(audit).getByText(vi_['adm.logCapacity.neverPurged'] ?? '')).toBeTruthy();
     expect(screen.getByTestId('no-batches')).toBeTruthy();
   });
 
@@ -101,7 +101,7 @@ describe('LogCapacityScreen (ADM-30)', () => {
     const form = await screen.findByRole('form', { name: vi_['adm.logCapacity.form.aria'] });
     await user.click(within(form).getByRole('button', { name: vi_['adm.logCapacity.form.save'] }));
     expect(h.command).not.toHaveBeenCalled();
-    await user.type(within(form).getByLabelText(vi_['adm.logCapacity.field.reason']), 'raise after the audit');
+    await user.type(within(form).getByLabelText(vi_['adm.logCapacity.field.reason'] ?? ''), 'raise after the audit');
     await user.click(within(form).getByRole('button', { name: vi_['adm.logCapacity.form.save'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     expect(h.command.mock.calls[0]?.[0]).toBe('saveLogCapacityPolicy');

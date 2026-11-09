@@ -19,7 +19,7 @@ export const SHA_PATTERN = /^[0-9a-f]{64}$/;
 export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const PAGE_SIZE = 25;
 export const PUSH_STATUSES: readonly PushStatus[] = ['PENDING', 'WRITTEN', 'FAILED', 'ACCEPTED', 'REJECTED'];
-export const CORRECTION_STATES: readonly CorrectionState[] = ['PROPOSED', 'APPROVED', 'REJECTED', 'CONSUMED'];
+export const CORRECTION_STATES: readonly CorrectionState[] = ['PROPOSED', 'APPROVED', 'REJECTED', 'CONSUMED', 'APPLIED'];
 
 // ---- reading the answer ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ const PUSH_ICON: Readonly<Record<PushStatus, string>> = { PENDING: '○', WRITTE
 export const pushTone = (status: PushStatus): Tone => PUSH_TONE[status];
 export const pushIcon = (status: PushStatus): string => PUSH_ICON[status];
 
-const CORRECTION_TONE: Readonly<Record<CorrectionState, Tone>> = { PROPOSED: 'info', APPROVED: 'success', REJECTED: 'danger', CONSUMED: 'neutral' };
+const CORRECTION_TONE: Readonly<Record<CorrectionState, Tone>> = { PROPOSED: 'info', APPROVED: 'success', REJECTED: 'danger', CONSUMED: 'neutral', APPLIED: 'success' };
 export const correctionTone = (state: CorrectionState): Tone => CORRECTION_TONE[state];
 
 // ---- the form of a push ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ export function correctionProblems(form: CorrectionForm): Partial<Record<Correct
 }
 
 export function correctionBody(form: CorrectionForm) {
-  return { layout_code: form.layoutCode.trim(), period: form.period.trim(), from_revision: Number(form.fromRevision), period_reopen_id: form.periodReopenId.trim().toLowerCase(), reason: form.reason.trim() };
+  return { layout_code: form.layoutCode.trim(), period: form.period.trim(), from_revision: Number(form.fromRevision), period_reopen_id: form.periodReopenId.trim().toLowerCase(), reason: form.reason.trim(), mode: 'OVERWRITE' as const };
 }
 
 /** The length the screen asks of a note when the receiver rejects a push (the contract asks ten characters). */

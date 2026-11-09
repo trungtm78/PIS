@@ -2,7 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import catalogue from '../../../i18n/vi.json';
-import words from '../../../i18n/parts/infra2.vi.json';
+
 import { routeOf } from '../../doc/test-support';
 import { harness, mount } from '../../sas/test-support';
 import BackupsScreen from './BackupsScreen';
@@ -10,7 +10,7 @@ import { kindsFor, refusalOf, toBackupPage } from './model';
 
 vi.setConfig({ testTimeout: 30_000 });
 
-const word = (key: string): string => (words as Record<string, string>)[key] ?? key;
+const word = (key: string): string => (catalogue as Record<string, string>)[key] ?? key;
 const ROUTE = routeOf('ADM-32', 'FR-ADM-32');
 const ALL = ['adm.backup.read', 'adm.backup.request', 'adm.backup.decide', 'adm.backup.record'];
 const id = (n: number): string => `00000000-0000-4000-8000-00000000b${String(n).padStart(3, '0')}`;

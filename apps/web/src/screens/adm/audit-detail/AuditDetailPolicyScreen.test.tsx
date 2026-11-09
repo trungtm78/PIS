@@ -69,13 +69,13 @@ describe('AuditDetailPolicyScreen (ADM-29)', () => {
 
   it('shows the stored values of an audit row and whether they still match the sealed row', async () => {
     mountInSession(<AuditDetailPolicyScreen route={ROUTE} />, harness((operation) => (operation === 'getAuditEventDetail' ? detail() : empty)), { permissions: MANAGER });
-    await userEvent.setup().type(await screen.findByLabelText(vi_['adm.auditDetail.lookup.label']), EVENT_ID);
+    await userEvent.setup().type(await screen.findByLabelText(vi_['adm.auditDetail.lookup.label'] ?? ''), EVENT_ID);
     const panel = await screen.findByTestId('detail');
     expect(panel.getAttribute('data-matches')).toBe('true');
     expect(within(panel).getByTestId('detail-after').textContent).toContain('[REDACTED]');
     cleanup();
     mountInSession(<AuditDetailPolicyScreen route={ROUTE} />, harness((operation) => (operation === 'getAuditEventDetail' ? detail({ matches_sealed_row: false }) : empty)), { permissions: MANAGER });
-    await userEvent.setup().type(await screen.findByLabelText(vi_['adm.auditDetail.lookup.label']), EVENT_ID);
+    await userEvent.setup().type(await screen.findByLabelText(vi_['adm.auditDetail.lookup.label'] ?? ''), EVENT_ID);
     expect((await screen.findByTestId('detail')).getAttribute('data-matches')).toBe('false');
   });
 
@@ -84,8 +84,8 @@ describe('AuditDetailPolicyScreen (ADM-29)', () => {
     mountInSession(<AuditDetailPolicyScreen route={ROUTE} />, h, { permissions: MANAGER });
     const user = userEvent.setup();
     const form = await screen.findByRole('form', { name: vi_['adm.auditDetail.form.aria'] });
-    await user.type(within(form).getByLabelText(vi_['adm.auditDetail.field.class']), 'hpm_push');
-    await user.type(within(form).getByLabelText(vi_['adm.auditDetail.field.reason']), 'needed for HT.06');
+    await user.type(within(form).getByLabelText(vi_['adm.auditDetail.field.class'] ?? ''), 'hpm_push');
+    await user.type(within(form).getByLabelText(vi_['adm.auditDetail.field.reason'] ?? ''), 'needed for HT.06');
     await user.click(within(form).getByRole('button', { name: vi_['adm.auditDetail.form.save'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     expect((h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body).toMatchObject({ resource_type: 'hpm_push', enabled: true, expected_version: 0 });

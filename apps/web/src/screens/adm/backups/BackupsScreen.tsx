@@ -183,7 +183,7 @@ function BackupDialog({ dialog, onClose }: { dialog: Dialog; onClose: () => void
       <fieldset disabled={action.isPending}>
         {dialog.kind === 'new' ? (
           <>
-            <Field id="backup-repository" label={t('adm.backups.form.repository')}>
+            <Field id="backup-repository" label={t('adm.backups.form.repository')} error={undefined}>
               <select
                 id="backup-repository"
                 value={repository}
@@ -197,7 +197,7 @@ function BackupDialog({ dialog, onClose }: { dialog: Dialog; onClose: () => void
                 <option value={2}>{t('adm.backups.repository.archive')}</option>
               </select>
             </Field>
-            <Field id="backup-kind" label={t('adm.backups.form.kind')}>
+            <Field id="backup-kind" label={t('adm.backups.form.kind')} error={undefined}>
               <select id="backup-kind" value={kind} onChange={(event) => setKind(event.target.value as BackupKind)}>
                 {kindsFor(repository).map((option) => (
                   <option key={option} value={option}>
@@ -209,7 +209,7 @@ function BackupDialog({ dialog, onClose }: { dialog: Dialog; onClose: () => void
           </>
         ) : null}
         {dialog.kind === 'decide' ? (
-          <Field id="backup-decision" label={t('adm.backups.form.decision')}>
+          <Field id="backup-decision" label={t('adm.backups.form.decision')} error={undefined}>
             <select id="backup-decision" value={decision} onChange={(event) => setDecision(event.target.value as 'approve' | 'reject')}>
               <option value="approve">{t('adm.backups.decision.approve')}</option>
               <option value="reject">{t('adm.backups.decision.reject')}</option>
@@ -218,7 +218,7 @@ function BackupDialog({ dialog, onClose }: { dialog: Dialog; onClose: () => void
         ) : null}
         {dialog.kind === 'record' ? (
           <>
-            <Field id="backup-outcome" label={t('adm.backups.form.outcome')}>
+            <Field id="backup-outcome" label={t('adm.backups.form.outcome')} error={undefined}>
               <select id="backup-outcome" value={outcome} onChange={(event) => setOutcome(event.target.value as 'completed' | 'failed')}>
                 <option value="completed">{t('adm.backups.outcome.completed')}</option>
                 <option value="failed">{t('adm.backups.outcome.failed')}</option>

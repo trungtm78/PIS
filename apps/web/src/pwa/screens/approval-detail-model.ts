@@ -8,7 +8,7 @@ const record = (value: unknown): Raw | undefined => (typeof value === 'object' &
 const text = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);
 const dong = (value: unknown): string | undefined => (typeof value === 'string' && /^\d+$/.test(value) ? value : undefined);
 const whole = (value: unknown): number | undefined => (typeof value === 'number' && Number.isInteger(value) ? value : undefined);
-const list = (value: unknown): Raw[] => (Array.isArray(value) ? value.flatMap((item) => record(item) ?? []) : []);
+const list = (value: unknown): Raw[] => (Array.isArray(value) ? value.flatMap((item: unknown): Raw[] => { const found = record(item); return found === undefined ? [] : [found]; }) : []);
 
 /** The business type whose tasks carry a report revision; the others have no figures to compare. */
 export const REPORT_ACCEPT = 'report.accept';
