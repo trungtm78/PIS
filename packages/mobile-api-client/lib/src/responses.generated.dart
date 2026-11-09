@@ -94,6 +94,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'attestAiProvider': CommandResultResponse.fromJson,
   'bindGlossaryTermToDataset': CommandResultResponse.fromJson,
   'buildBiDatasetVersion': CommandResultResponse.fromJson,
+  'buildEnterpriseSnapshot': CommandResultResponse.fromJson,
   'buildPeriodSnapshot': CommandResultResponse.fromJson,
   'cancelActingRequest': CommandResultResponse.fromJson,
   'cancelAdvance': PayAdvanceCommandResultResponse.fromJson,
@@ -382,6 +383,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'fileRankingComplaint': CommandResultResponse.fromJson,
   'fileWarrantyClaim': CommandResultResponse.fromJson,
   'fixEffectTargets': CommandResultResponse.fromJson,
+  'freezeEnterpriseSnapshot': CommandResultResponse.fromJson,
   'freezePeriodSnapshot': CommandResultResponse.fromJson,
   'fundProjectReserve': CommandResultResponse.fromJson,
   'generateEffectCalendar': CommandResultResponse.fromJson,
@@ -667,6 +669,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getEgpConnection': EgpConnectionResponse.fromJson,
   'getEgpImport': EgpImportDetailResponse.fromJson,
   'getEgpObligation': EgpObligationDetailResponse.fromJson,
+  'getEnterpriseSnapshot': EnterpriseSnapshotDetailResponse.fromJson,
+  'getEnterpriseSnapshotReadiness': EnterpriseSnapshotReadinessResponse.fromJson,
   'getEvaluationReport': BidReportResponse.fromJson,
   'getFinanceFeedConnection': asObject,
   'getFinanceFeedFacts': asObject,
@@ -943,6 +947,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listEgpObligations': EgpObligationPageResponse.fromJson,
   'listEgpReconciliationItems': EgpReconciliationPageResponse.fromJson,
   'listEnforcementCases': asObject,
+  'listEnterpriseSnapshots': EnterpriseSnapshotListResponse.fromJson,
   'listEvaluationReports': BidReportListResponse.fromJson,
   'listEvaluationTriggers': asObject,
   'listExpiringGuarantees': asObject,
@@ -28723,6 +28728,274 @@ final class EgpSuggestionResponseCandidatesItem implements ResponseModel {
         'name': name,
         'budget_vnd': budgetVnd,
         'confidence': confidence,
+        ...extra,
+      };
+}
+
+final class EnterpriseSnapshotDetailResponse implements ResponseModel {
+  const EnterpriseSnapshotDetailResponse({
+    required this.snapshot,
+    required this.period,
+    required this.measure,
+    required this.totals,
+    required this.byUnit,
+    required this.projects,
+    required this.indicators,
+    required this.lineage,
+    required this.actions,
+    required this.asOf,
+    this.pack,
+    this.hashVerified,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EnterpriseSnapshotDetailResponse.fromJson(Object? json, [String path = 'EnterpriseSnapshotDetailResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EnterpriseSnapshotDetailResponse(
+      snapshot: requiredField(map, path, 'snapshot', EnterpriseSnapshotResponse.fromJson),
+      period: requiredField(map, path, 'period', asObject),
+      pack: optionalField(map, path, 'pack', asObject),
+      measure: requiredField(map, path, 'measure', asString),
+      totals: requiredField(map, path, 'totals', asObject),
+      byUnit: requiredField(map, path, 'by_unit', asList(asObject)),
+      projects: requiredField(map, path, 'projects', asList(asObject)),
+      indicators: requiredField(map, path, 'indicators', asList(asObject)),
+      lineage: requiredField(map, path, 'lineage', asList(asObject)),
+      hashVerified: optionalField(map, path, 'hash_verified', nullable(asBool)),
+      actions: requiredField(map, path, 'actions', asObject),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'snapshot', 'period', 'pack', 'measure', 'totals', 'by_unit', 'projects', 'indicators', 'lineage', 'hash_verified', 'actions', 'as_of'}, strict: false),
+    );
+  }
+
+  final EnterpriseSnapshotResponse snapshot;
+  final Map<String, Object?> period;
+  final Map<String, Object?>? pack;
+  final String measure;
+  final Map<String, Object?> totals;
+  final List<Map<String, Object?>> byUnit;
+  final List<Map<String, Object?>> projects;
+  final List<Map<String, Object?>> indicators;
+  final List<Map<String, Object?>> lineage;
+  final bool? hashVerified;
+  final Map<String, Object?> actions;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'snapshot': snapshot.toJson(),
+        'period': period,
+        if (pack != null) 'pack': pack,
+        'measure': measure,
+        'totals': totals,
+        'by_unit': byUnit,
+        'projects': projects,
+        'indicators': indicators,
+        'lineage': lineage,
+        if (hashVerified != null) 'hash_verified': hashVerified,
+        'actions': actions,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class EnterpriseSnapshotListResponse implements ResponseModel {
+  const EnterpriseSnapshotListResponse({
+    required this.items,
+    required this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EnterpriseSnapshotListResponse.fromJson(Object? json, [String path = 'EnterpriseSnapshotListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EnterpriseSnapshotListResponse(
+      items: requiredField(map, path, 'items', asList(EnterpriseSnapshotResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final List<EnterpriseSnapshotResponse> items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class EnterpriseSnapshotReadinessResponse implements ResponseModel {
+  const EnterpriseSnapshotReadinessResponse({
+    required this.period,
+    required this.pack,
+    required this.complete,
+    required this.plannedCells,
+    required this.projects,
+    required this.missingUnits,
+    required this.waitingBatches,
+    required this.frozen,
+    required this.rebuildAllowed,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EnterpriseSnapshotReadinessResponse.fromJson(Object? json, [String path = 'EnterpriseSnapshotReadinessResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EnterpriseSnapshotReadinessResponse(
+      period: requiredField(map, path, 'period', asObject),
+      pack: requiredField(map, path, 'pack', asObject),
+      complete: requiredField(map, path, 'complete', asBool),
+      plannedCells: requiredField(map, path, 'planned_cells', asInt),
+      projects: requiredField(map, path, 'projects', asInt),
+      missingUnits: requiredField(map, path, 'missing_units', asList(asObject)),
+      waitingBatches: requiredField(map, path, 'waiting_batches', asList(asObject)),
+      frozen: requiredField(map, path, 'frozen', nullable(asObject)),
+      rebuildAllowed: requiredField(map, path, 'rebuild_allowed', asBool),
+      actions: requiredField(map, path, 'actions', asObject),
+      extra: unknownFields(map, path, const <String>{'period', 'pack', 'complete', 'planned_cells', 'projects', 'missing_units', 'waiting_batches', 'frozen', 'rebuild_allowed', 'actions'}, strict: false),
+    );
+  }
+
+  final Map<String, Object?> period;
+  final Map<String, Object?> pack;
+  final bool complete;
+  final int plannedCells;
+  final int projects;
+  final List<Map<String, Object?>> missingUnits;
+  final List<Map<String, Object?>> waitingBatches;
+  final Map<String, Object?>? frozen;
+  final bool rebuildAllowed;
+  final Map<String, Object?> actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period': period,
+        'pack': pack,
+        'complete': complete,
+        'planned_cells': plannedCells,
+        'projects': projects,
+        'missing_units': missingUnits,
+        'waiting_batches': waitingBatches,
+        'frozen': frozen,
+        'rebuild_allowed': rebuildAllowed,
+        'actions': actions,
+        ...extra,
+      };
+}
+
+final class EnterpriseSnapshotResponse implements ResponseModel {
+  const EnterpriseSnapshotResponse({
+    required this.id,
+    required this.periodId,
+    required this.periodCode,
+    required this.status,
+    required this.revision,
+    required this.version,
+    required this.payloadSha256,
+    required this.taxonomyPack,
+    required this.rowCount,
+    this.taxonomyVersion,
+    this.hashSchema,
+    this.definitionStatus,
+    this.figureCount,
+    this.indicatorCount,
+    this.asOfAt,
+    this.asOfDate,
+    this.supersedesId,
+    this.frozenBy,
+    this.frozenAt,
+    this.createdAt,
+    this.createdBy,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory EnterpriseSnapshotResponse.fromJson(Object? json, [String path = 'EnterpriseSnapshotResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return EnterpriseSnapshotResponse(
+      id: requiredField(map, path, 'id', asString),
+      periodId: requiredField(map, path, 'period_id', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      status: requiredField(map, path, 'status', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      payloadSha256: requiredField(map, path, 'payload_sha256', nullable(asString)),
+      taxonomyPack: requiredField(map, path, 'taxonomy_pack', asString),
+      taxonomyVersion: optionalField(map, path, 'taxonomy_version', asInt),
+      hashSchema: optionalField(map, path, 'hash_schema', asInt),
+      definitionStatus: optionalField(map, path, 'definition_status', asString),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      figureCount: optionalField(map, path, 'figure_count', asInt),
+      indicatorCount: optionalField(map, path, 'indicator_count', asInt),
+      asOfAt: optionalField(map, path, 'as_of_at', asString),
+      asOfDate: optionalField(map, path, 'as_of_date', asString),
+      supersedesId: optionalField(map, path, 'supersedes_id', nullable(asString)),
+      frozenBy: optionalField(map, path, 'frozen_by', nullable(asString)),
+      frozenAt: optionalField(map, path, 'frozen_at', nullable(asString)),
+      createdAt: optionalField(map, path, 'created_at', asString),
+      createdBy: optionalField(map, path, 'created_by', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'period_id', 'period_code', 'status', 'revision', 'version', 'payload_sha256', 'taxonomy_pack', 'taxonomy_version', 'hash_schema', 'definition_status', 'row_count', 'figure_count', 'indicator_count', 'as_of_at', 'as_of_date', 'supersedes_id', 'frozen_by', 'frozen_at', 'created_at', 'created_by'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String periodId;
+  final String periodCode;
+  final String status;
+  final int revision;
+  final int version;
+  final String? payloadSha256;
+  final String taxonomyPack;
+  final int? taxonomyVersion;
+  final int? hashSchema;
+  final String? definitionStatus;
+  final int rowCount;
+  final int? figureCount;
+  final int? indicatorCount;
+  final String? asOfAt;
+  final String? asOfDate;
+  final String? supersedesId;
+  final String? frozenBy;
+  final String? frozenAt;
+  final String? createdAt;
+  final String? createdBy;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'period_id': periodId,
+        'period_code': periodCode,
+        'status': status,
+        'revision': revision,
+        'version': version,
+        'payload_sha256': payloadSha256,
+        'taxonomy_pack': taxonomyPack,
+        if (taxonomyVersion != null) 'taxonomy_version': taxonomyVersion,
+        if (hashSchema != null) 'hash_schema': hashSchema,
+        if (definitionStatus != null) 'definition_status': definitionStatus,
+        'row_count': rowCount,
+        if (figureCount != null) 'figure_count': figureCount,
+        if (indicatorCount != null) 'indicator_count': indicatorCount,
+        if (asOfAt != null) 'as_of_at': asOfAt,
+        if (asOfDate != null) 'as_of_date': asOfDate,
+        if (supersedesId != null) 'supersedes_id': supersedesId,
+        if (frozenBy != null) 'frozen_by': frozenBy,
+        if (frozenAt != null) 'frozen_at': frozenAt,
+        if (createdAt != null) 'created_at': createdAt,
+        if (createdBy != null) 'created_by': createdBy,
         ...extra,
       };
 }

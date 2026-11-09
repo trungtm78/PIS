@@ -1,4 +1,5 @@
 import { defineModule } from '../module-descriptor';
+import { EnterpriseSnapshotController } from './enterprise-snapshot.controller';
 import { FndFigureApprovalBinding } from './figure-approval.binding';
 import { FundingFigureController } from './figure.controller';
 import { FundingFigureReadsController } from './figure-reads.controller';
@@ -11,5 +12,5 @@ export const fndModule = defineModule({
   code: 'FND',
   // Binds the final command and the PUSH source of the staged approval of figure batches (ENT-3c).
   providers: [FndFigureApprovalBinding],
-  controllers: [FundingFigureController, FundingFigureReadsController],
+  controllers: [FundingFigureController, FundingFigureReadsController, EnterpriseSnapshotController],
 });
