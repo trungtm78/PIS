@@ -1421,6 +1421,8 @@ export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput,
 export { IamSelfStore } from './iam-self-store.ts';
 export type { DeviceRevocation, DeviceView, ProfileRecord, SessionRevocation, SessionView } from './iam-self-store.ts';
 export { ApprovalStore, SLA_PASS_LIMIT as APPROVAL_SLA_PASS_LIMIT } from './approval-store.ts';
+export { ApprovalHoldStore } from './approval-hold-store.ts';
+export type { HoldInput, HoldRecord } from './approval-hold-store.ts';
 export {
   REORGANIZATION_FAILED_GAUGE,
   REORGANIZATION_STEPS_PER_PASS,
@@ -1444,6 +1446,8 @@ export type {
   ApprovalEffects,
   DecisionResult,
   FinalCommand,
+  HoldAnswer,
+  HoldHook,
   SlaSweepResult as ApprovalSlaSweepResult,
   InstanceRecord as WorkflowInstanceRecord,
   StartInput as ApprovalStartInput,
