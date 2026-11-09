@@ -19,5 +19,6 @@
   "webpush.test.state.inactive": "Kênh thông báo đẩy chưa được kích hoạt ở môi trường này.",
   "webpush.test.state.noToken": "Thiết bị này chưa đăng ký với hệ thống. Bật thông báo đẩy rồi thử lại.",
   "webpush.test.state.failed": "Không gửi được thông báo thử. Thử lại sau.",
-  "webpush.start.link": "Cài đặt thông báo và gửi thông báo thử"
+  "webpush.start.link": "Cài đặt thông báo và gửi thông báo thử",
+  "gov10.ladder.channel.teams": "Microsoft Teams"
 }

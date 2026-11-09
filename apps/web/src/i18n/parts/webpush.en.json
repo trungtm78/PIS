@@ -19,5 +19,6 @@
   "webpush.test.state.inactive": "The push channel is not active in this environment.",
   "webpush.test.state.noToken": "This device is not registered with the system. Turn on push notifications and try again.",
   "webpush.test.state.failed": "The test notification could not be sent. Try again later.",
-  "webpush.start.link": "Notification settings and test notification"
+  "webpush.start.link": "Notification settings and test notification",
+  "gov10.ladder.channel.teams": "Microsoft Teams"
 }
