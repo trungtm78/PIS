@@ -82,7 +82,8 @@ const compareToGolden = (code: string, actual: string): string | undefined => {
     mkdirSync(GOLDEN_DIR, { recursive: true });
     writeFileSync(goldenPath(code), actual, 'utf8');
   }
-  return existsSync(goldenPath(code)) ? readFileSync(goldenPath(code), 'utf8') : undefined;
+  // a checkout with core.autocrlf turns the LF of the golden files into CRLF; the cell map itself is always LF
+  return existsSync(goldenPath(code)) ? readFileSync(goldenPath(code), 'utf8').replace(/\r\n/g, '\n') : undefined;
 };
 
 // ---- a small evaluator for the formulas the forms write (independent of the writer) -------------------------------------------------------------------
