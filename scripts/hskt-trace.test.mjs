@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { ALL_CODES, DATA_PATH, DELIVERABLE_CODES, OUTPUT_PATH, PHASE_CODES, REQUIREMENT_CODES, loadSources, render, run, validate } from './hskt-trace.mjs';
 
+const real = JSON.parse(readFileSync(new URL('../docs/hskt/requirements.json', import.meta.url), 'utf8'));
+
 const REGISTER = 'register.md';
 const sources = (overrides = {}) => ({
   screens: new Set(['SCR-01']),
@@ -16,9 +18,9 @@ const sources = (overrides = {}) => ({
 const row = (code, extra = {}) => ({ code, title: `title ${code}`, status: 'DONE', evidence: { docs: ['doc.md'] }, gap: '', owners: [], pending: [], ...extra });
 const valid = () => ({
   registerDocument: REGISTER,
-  texts: {},
+  texts: real.texts,
   pendingExternal: [{ id: 'PX-01', what: 'a file', provider: 'the customer', assumption: 'none' }],
-  rows: ALL_CODES.map((code, index) => (index === 0 ? row(code, { pending: ['PX-01'] }) : row(code))),
+  rows: ALL_CODES.map((code, index) => (index === 0 ? row(code, { status: 'PENDING-EXTERNAL', gap: 'waits', owners: ['DELIVERY-1'], pending: ['PX-01'] }) : row(code))),
 });
 const withRow = (data, code, patch) => ({ ...data, rows: data.rows.map((one) => (one.code === code ? { ...one, ...patch } : one)) });
 const problems = (data, over) => validate(data, sources(over));
@@ -80,7 +82,7 @@ test('PENDING-EXTERNAL needs an item of the register, every item is used and des
 test('render lists every code once and the status counts', () => {
   const text = render(valid());
   for (const code of ALL_CODES) assert.ok(text.includes(`| ${code} |`), code);
-  assert.match(text, /\| DONE \| 53 \|/u);
+  assert.match(text, /\| DONE \| 52 \|/u);
   assert.match(text, /\| PX-01 \|/u);
 });
 
@@ -140,11 +142,49 @@ test('the repository matrix is closed: every reference exists and the generated 
 
 test('the checker can go red on the real matrix: a dropped row, a renamed screen and an emptied evidence each fail', () => {
   const data = JSON.parse(readFileSync(new URL('../docs/hskt/requirements.json', import.meta.url), 'utf8'));
-  const real = loadSources();
-  assert.deepEqual(validate(data, real), []);
-  assert.match(validate({ ...data, rows: data.rows.filter((one) => one.code !== 'TK.04') }, real).join('\n'), /TK\.04: the code of the dossier has no row/u);
+  const sourcesOfRepository = loadSources();
+  assert.deepEqual(validate(data, sourcesOfRepository), []);
+  assert.match(validate({ ...data, rows: data.rows.filter((one) => one.code !== 'TK.04') }, sourcesOfRepository).join('\n'), /TK\.04: the code of the dossier has no row/u);
   const renamed = { ...data, rows: data.rows.map((one) => (one.code === 'DL.02' ? { ...one, evidence: { ...one.evidence, screens: ['IND-99'] } } : one)) };
-  assert.match(validate(renamed, real).join('\n'), /DL\.02: screen IND-99/u);
+  assert.match(validate(renamed, sourcesOfRepository).join('\n'), /DL\.02: screen IND-99/u);
   const emptied = { ...data, rows: data.rows.map((one) => (one.code === 'HT.03' ? { ...one, evidence: {} } : one)) };
-  assert.match(validate(emptied, real).join('\n'), /HT\.03: status DONE but no evidence/u);
+  assert.match(validate(emptied, sourcesOfRepository).join('\n'), /HT\.03: status DONE but no evidence/u);
+});
+
+test('malformed data is a problem line, never a crash', () => {
+  const data = valid();
+  assert.match(problems({ ...data, rows: [...data.rows, null] }).join(' '), /rows: an entry is not an object/u);
+  assert.match(problems({ ...data, pendingExternal: [...data.pendingExternal, 7] }).join(' '), /pendingExternal: an entry is not an object/u);
+  assert.match(problems({ ...data, rows: 'x' }).join(' '), /rows: not a list/u);
+  assert.deepEqual(problems(null), ['the data is not an object']);
+  assert.match(problems(withRow(data, 'DL.01', { evidence: { docs: 'doc.md' } })).join(' '), /DL\.01: docs must be a list/u);
+  assert.match(problems(withRow(data, 'DL.01', { owners: 'ENT-3a' })).join(' '), /DL\.01: owners must be a list/u);
+  assert.match(problems(withRow(data, 'DL.01', { evidence: 'doc.md' })).join(' '), /DL\.01: evidence is not an object/u);
+  assert.match(problems({ ...data, texts: {} }).join(' '), /texts\.title: missing/u);
+});
+
+test('evidence paths must be non-empty relative files inside the repository', () => {
+  const data = valid();
+  for (const bad of ['', '../outside.md', '/abs.md', 'C:/abs.md', 'docs/../../x.md']) {
+    const text = problems(withRow(data, 'DL.01', { evidence: { docs: [bad] } }), { fileExists: () => true }).join(' ');
+    assert.match(text, /DL\.01: (file ".*" is (empty or not text|not a path inside the repository)|docs must be a list)/u, bad);
+  }
+});
+
+test('a DONE row cannot wait for the customer, and a register item cannot appear twice', () => {
+  const data = valid();
+  assert.match(problems(withRow(data, 'TH.01', { pending: ['PX-01'] })).join(' '), /TH\.01: status DONE cannot wait for the customer/u);
+  assert.match(problems({ ...data, pendingExternal: [...data.pendingExternal, data.pendingExternal[0]] }).join(' '), /PX-01: register item appears twice/u);
+});
+
+test('check reports unreadable data and ignores a byte order mark in the generated file', () => {
+  const lines = [];
+  assert.equal(run(['check'], { log: (line) => lines.push(line), read: () => '{not json', sources: sources() }), 1);
+  assert.ok(lines.some((line) => /cannot be read as JSON/u.test(line)));
+  const data = valid();
+  const one = memory(data, `\uFEFF${render(data)}`);
+  assert.equal(run(['check'], one.io), 0);
+  const broken = memory(withRow(data, 'DL.01', { evidence: { screens: ['SCR-99'] } }));
+  assert.equal(run(['generate'], broken.io), 1);
+  assert.ok(!broken.files.has(OUTPUT_PATH));
 });

@@ -16,7 +16,7 @@ Nguyên tắc của hồ sơ kỹ thuật: các giai đoạn thực hiện tuầ
 | 4 | Kiểm nghiệm | Biên bản kiểm thử UAT; danh sách lỗi và kết quả khắc phục | [05](05-sit-uat-scripts.md), [09](09-acceptance-minutes-template.md) | Có | GD.4, SP.05 |
 | 5 | Chuyển đổi dữ liệu, đào tạo | Biên bản xác nhận chuyển đổi dữ liệu; biên bản đào tạo; tài liệu và video hướng dẫn | [06](06-data-conversion-plan.md), [07](07-training-plan.md) | Có | GD.5, SP.04, SP.06, SP.07 |
 | 6 | Vận hành thử, nghiệm thu | Biên bản vận hành thử; biên bản nghiệm thu; bộ tài liệu bàn giao | [08](08-parallel-run-plan.md), [09](09-acceptance-minutes-template.md), [10](10-handover-checklist.md) | Có | GD.6, SP.08, SP.09, SP.10 |
-| 7 | Bảo hành, bảo trì | Báo cáo bảo trì định kỳ | [10](10-handover-checklist.md) (mục bảo hành), `docs/runbooks/release-checklist.md` | không áp dụng | GD.7, SP.11 |
+| 7 | Bảo hành, bảo trì | Báo cáo bảo trì định kỳ (II.5 không liệt kê thành sản phẩm đánh số) | [10](10-handover-checklist.md) (mục bảo hành), `docs/runbooks/release-checklist.md` | không áp dụng | GD.7 |
 
 Kế hoạch chi tiết bảy giai đoạn phải được nhà cung cấp trình PVFCCo trong vòng 10 ngày sau khi ký hợp đồng (mục II.4); tệp này là khung của kế hoạch đó, không thay thế nó.
 

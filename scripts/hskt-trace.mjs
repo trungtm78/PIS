@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,16 +45,29 @@ export function loadSources(root = ROOT) {
   for (const methods of Object.values(readJson(root, `${ENGINEERING}/openapi.json`).paths)) {
     for (const operation of Object.values(methods)) if (operation !== null && typeof operation === 'object' && typeof operation.operationId === 'string') operations.add(operation.operationId);
   }
-  return { screens, stories, operations, fileExists: (path) => existsSync(join(root, path)), readText: (path) => readFileSync(join(root, path), 'utf8') };
+  return { screens, stories, operations, fileExists: (path) => existsSync(join(root, path)) && statSync(join(root, path)).isFile(), readText: (path) => readFileSync(join(root, path), 'utf8') };
 }
 
 const evidenceOf = (row) => EVIDENCE_KINDS.flatMap((kind) => (Array.isArray(row.evidence?.[kind]) ? row.evidence[kind] : []));
 const list = (value) => (Array.isArray(value) ? value : []);
+const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+const isText = (value) => typeof value === 'string' && value.trim() !== '';
+/** A published path is relative, inside the repository and not empty. */
+const pathProblem = (path) => {
+  if (!isText(path)) return 'is empty or not text';
+  return /^([a-zA-Z]:|[\\/])/u.test(path) || path.split(/[\\/]/u).includes('..') ? 'is not a path inside the repository' : null;
+};
+const TEXT_KEYS = ['title', 'generated', 'intro', 'summaryHeading', 'statusColumn', 'countColumn', 'totalLabel', 'byLaneHeading', 'laneColumn', 'codesColumn', 'legend', 'codeColumn', 'titleColumn', 'evidenceColumn', 'gapColumn', 'pendingColumn', 'phasesHeading', 'deliverablesHeading', 'registerHeading', 'registerIntro', 'idColumn', 'whatColumn', 'providerColumn', 'assumptionColumn', 'blocksColumn', 'registerDocumentNote'];
 
 /** The problems of the data against the dossier's code list and the repository; an empty array means the matrix is closed. */
 export function validate(data, sources) {
   const problems = [];
-  const rows = list(data.rows);
+  if (!isRecord(data)) return ['the data is not an object'];
+  for (const key of TEXT_KEYS) if (!isText(data.texts?.[key])) problems.push('texts.' + key + ': missing');
+  for (const group of Object.keys(REQUIREMENT_GROUPS)) if (!isText(data.texts?.groups?.[group])) problems.push('texts.groups.' + group + ': missing');
+  if (!Array.isArray(data.rows)) problems.push('rows: not a list');
+  const rows = list(data.rows).filter(isRecord);
+  if (rows.length !== list(data.rows).length) problems.push('rows: an entry is not an object');
   const seen = new Map();
   for (const row of rows) seen.set(row.code, (seen.get(row.code) ?? 0) + 1);
   for (const code of ALL_CODES) if (!seen.has(code)) problems.push(`${code}: the code of the dossier has no row`);
@@ -62,7 +75,13 @@ export function validate(data, sources) {
     if (!ALL_CODES.includes(code)) problems.push(`${code}: the row has a code the dossier does not have`);
     if (count > 1) problems.push(`${code}: ${count} rows for one code`);
   }
-  const register = new Map(list(data.pendingExternal).map((item) => [item.id, item]));
+  const items = list(data.pendingExternal).filter(isRecord);
+  if (items.length !== list(data.pendingExternal).length) problems.push('pendingExternal: an entry is not an object');
+  const register = new Map();
+  for (const item of items) {
+    if (register.has(item.id)) problems.push(item.id + ': register item appears twice');
+    register.set(item.id, item);
+  }
   const used = new Set();
   const registerText = typeof data.registerDocument === 'string' && sources.fileExists(data.registerDocument) ? sources.readText(data.registerDocument) : null;
   if (registerText === null) problems.push(`registerDocument: ${data.registerDocument ?? '(missing)'} does not exist`);
@@ -70,13 +89,22 @@ export function validate(data, sources) {
     const at = row.code;
     if (!STATUSES.includes(row.status)) problems.push(`${at}: status ${row.status} is not one of ${STATUSES.join(', ')}`);
     if (typeof row.title !== 'string' || row.title.trim() === '') problems.push(`${at}: no title`);
-    const ownEvidence = row.evidence ?? {};
+    const ownEvidence = isRecord(row.evidence) ? row.evidence : {};
+    if (row.evidence !== undefined && !isRecord(row.evidence)) problems.push(at + ': evidence is not an object');
+    for (const [field, value] of [['owners', row.owners], ['pending', row.pending], ...Object.entries(ownEvidence)]) {
+      if (value !== undefined && !(Array.isArray(value) && value.every(isText))) problems.push(at + ': ' + field + ' must be a list of non-empty text');
+    }
     for (const kind of Object.keys(ownEvidence)) if (!EVIDENCE_KINDS.includes(kind)) problems.push(`${at}: evidence kind ${kind} is unknown`);
     for (const id of list(ownEvidence.screens)) if (!sources.screens.has(id)) problems.push(`${at}: screen ${id} is not in screen_catalog.json`);
     for (const id of list(ownEvidence.operations)) if (!sources.operations.has(id)) problems.push(`${at}: operation ${id} is not in openapi.json`);
     for (const id of list(ownEvidence.stories)) if (!sources.stories.has(id)) problems.push(`${at}: story ${id} is not in implementation_plan.json`);
-    for (const path of [...list(ownEvidence.docs), ...list(ownEvidence.tests)]) if (!sources.fileExists(path)) problems.push(`${at}: file ${path} does not exist`);
+    for (const path of [...list(ownEvidence.docs), ...list(ownEvidence.tests)]) {
+      const bad = pathProblem(path);
+      if (bad !== null) problems.push(at + ': file "' + path + '" ' + bad);
+      else if (!sources.fileExists(path)) problems.push(at + ': file ' + path + ' does not exist');
+    }
     if (row.status === 'DONE' && evidenceOf(row).length === 0) problems.push(`${at}: status DONE but no evidence`);
+    if (row.status === 'DONE' && list(row.pending).length > 0) problems.push(at + ': status DONE cannot wait for the customer, use PENDING-EXTERNAL');
     if (row.status !== 'DONE') {
       if (typeof row.gap !== 'string' || row.gap.trim() === '') problems.push(`${at}: status ${row.status} needs a gap text`);
       if (list(row.owners).length === 0) problems.push(`${at}: status ${row.status} needs an owning lane`);
@@ -120,7 +148,7 @@ const GROUP_OF = (rowCode) => rowCode.split('.')[0];
 /** The markdown of the matrix. The words are the data's (`texts`), the layout is here. */
 export function render(data) {
   const texts = data.texts ?? {};
-  const rows = list(data.rows);
+  const rows = list(data.rows).filter(isRecord);
   const byCode = new Map(rows.map((row) => [row.code, row]));
   const out = [];
   out.push(`# ${texts.title}`, '', texts.generated, '', texts.intro, '');
@@ -165,27 +193,47 @@ export function run(argv, io = {}) {
     log('usage: node scripts/hskt-trace.mjs <check|generate>');
     return 2;
   }
-  const data = JSON.parse(read(DATA_PATH));
-  const text = render(data);
-  if (command === 'generate') {
-    write(OUTPUT_PATH, text);
-    log(`wrote ${OUTPUT_PATH}`);
-    return 0;
+  let data;
+  try {
+    data = JSON.parse(read(DATA_PATH));
+  } catch (error) {
+    log('hskt-trace: ' + DATA_PATH + ' cannot be read as JSON: ' + (error instanceof Error ? error.message : String(error)));
+    return 1;
   }
   const sources = io.sources ?? loadSources(root);
   const problems = validate(data, sources);
-  let current = null;
-  try {
-    current = read(OUTPUT_PATH);
-  } catch {
-    current = null;
+  if (command === 'generate' && problems.length > 0) {
+    for (const problem of problems) log('hskt-trace: ' + problem);
+    log('hskt-trace: not written, fix the data first');
+    return 1;
   }
-  if (current === null) problems.push(`${OUTPUT_PATH} does not exist: run node scripts/hskt-trace.mjs generate`);
-  else if (current.replace(/\r\n/gu, '\n') !== text) problems.push(`${OUTPUT_PATH} is out of date: run node scripts/hskt-trace.mjs generate`);
-  for (const problem of problems) log(`hskt-trace: ${problem}`);
-  const rows = list(data.rows);
-  log(`hskt-trace: ${rows.length} rows, ${problems.length === 0 ? 'ok' : `${problems.length} problem(s)`}`);
+  const text = problems.length === 0 ? render(data) : '';
+  if (command === 'generate') {
+    write(OUTPUT_PATH, text);
+    log('wrote ' + OUTPUT_PATH);
+    return 0;
+  }
+  if (problems.length === 0) {
+    let current = null;
+    try {
+      current = read(OUTPUT_PATH);
+    } catch {
+      current = null;
+    }
+    if (current === null) problems.push(OUTPUT_PATH + ' does not exist: run node scripts/hskt-trace.mjs generate');
+    else if (current.replace(/^\uFEFF/u, '').replace(/\r\n/gu, '\n') !== text) problems.push(OUTPUT_PATH + ' is out of date: run node scripts/hskt-trace.mjs generate');
+  }
+  for (const problem of problems) log('hskt-trace: ' + problem);
+  log('hskt-trace: ' + list(data.rows).length + ' rows, ' + (problems.length === 0 ? 'ok' : problems.length + ' problem(s)'));
   return problems.length === 0 ? 0 : 1;
 }
 
-if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = run(process.argv.slice(2));
+const isMain = () => {
+  if (process.argv[1] === undefined) return false;
+  try {
+    return realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+if (isMain()) process.exitCode = run(process.argv.slice(2));
