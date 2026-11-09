@@ -14,6 +14,7 @@ import { useReportRevision, useStepHistory, useTaskDetail } from './approval-det
 import { REPORT_ACCEPT } from './approval-detail-model';
 import { DECIDE_PERMISSION, READ_PERMISSION, REFRESH_PROBLEMS, checkComment, describeProblem, mayDecide } from './approval-model';
 import type { ApprovalTask, Decision, Problem } from './approval-model';
+import { taskStatusLabel } from './approval-labels';
 import { problemText } from './approval-problem';
 import { EvidenceList, PlanComparison, RevisionComparison, StepHistory, money } from './ApprovalDetailSections';
 import { DecisionSheet } from './DecisionSheet';
@@ -162,7 +163,7 @@ function DetailContent({ taskId }: { taskId: string }) {
               )}
               {pending || receipt !== undefined ? null : (
                 <p className="callout warning" role="status" data-testid="not-pending">
-                  {t('pwa2.approvalDetail.notPending.note', { status: t(`pwa2.approvalDetail.taskStatus.${record.status}`) })}
+                  {t('pwa2.approvalDetail.notPending.note', { status: taskStatusLabel(t, record.status) })}
                 </p>
               )}
               {readOnly ? (
@@ -172,7 +173,7 @@ function DetailContent({ taskId }: { taskId: string }) {
               ) : null}
               <SectionCard
                 title={t('pwa2.approvalDetail.summary.title')}
-                status={record.overdue ? <StatusPill tone="danger">{t('pwa.approvals.status.late')}</StatusPill> : <StatusPill tone="neutral">{pending ? t('pwa.approvals.status.pending') : t(`pwa2.approvalDetail.taskStatus.${record.status}`)}</StatusPill>}
+                status={record.overdue ? <StatusPill tone="danger">{t('pwa.approvals.status.late')}</StatusPill> : <StatusPill tone="neutral">{pending ? t('pwa.approvals.status.pending') : taskStatusLabel(t, record.status)}</StatusPill>}
               >
                 <dl className="pwa-facts" data-testid="summary">
                   <dt>{t('pwa2.approvalDetail.field.type')}</dt>

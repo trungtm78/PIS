@@ -1,4 +1,5 @@
 import { useTranslation } from '../../i18n';
+import { cellTitle } from './approval-labels';
 import type { ReportRead, StepRead, Unavailable } from './approval-detail-hooks';
 import { compareRevisions, differenceDong, isNegative, kilobytes, orderedCells, planShareTenths } from './approval-detail-model';
 import type { Cell, ReportFigures } from './approval-detail-model';
@@ -29,7 +30,7 @@ function CellCard({ cell, locale }: { cell: Cell; locale: string }) {
   const change = cell.previousVnd === null ? null : differenceDong(cell.cumulativeVnd, cell.previousVnd);
   return (
     <li className="pwa-subcard" data-cell={`${cell.bucket}:${cell.level}`}>
-      <h3>{t('pwa2.report.cell.title', { bucket: t(`pwa2.report.bucket.${cell.bucket}`), level: t(`pwa2.report.level.${cell.level}`) })}</h3>
+      <h3>{cellTitle(t, cell.bucket, cell.level)}</h3>
       <dl className="pwa-facts">
         <dt>{t('pwa2.approvalDetail.plan.allocated')}</dt>
         <dd>{money(cell.allocatedVnd, locale)}</dd>
@@ -106,7 +107,7 @@ export function RevisionComparison({ report, previous, locale }: { report: Repor
         <ul className="pwa-lines">
           {changes.map((change) => (
             <li key={`${change.bucket}:${change.level}`}>
-              <strong>{t('pwa2.report.cell.title', { bucket: t(`pwa2.report.bucket.${change.bucket}`), level: t(`pwa2.report.level.${change.level}`) })}</strong>
+              <strong>{cellTitle(t, change.bucket, change.level)}</strong>
               <br />
               {money(change.previousVnd, locale)} → {money(change.currentVnd, locale)} ({signed(change.changeVnd, locale)})
             </li>
