@@ -167,7 +167,7 @@ export function documentSheetOf(document: ReportDocument): DocumentSheet {
   const unevaluated: string[] = [];
   let columns = 0;
   const cellsByRow = new Map<number, SheetCell[]>();
-  for (const cell of all) {
+  for (const cell of byKey.values()) {
     const key = cellRef(cell.row, cell.col);
     const merge = merges.get(key);
     const colSpan = merge === undefined ? 1 : merge.toCol - merge.fromCol + 1;
