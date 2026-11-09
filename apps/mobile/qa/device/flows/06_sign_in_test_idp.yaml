@@ -37,6 +37,6 @@ appId: vn.machvon.app
 - takeScreenshot: mob04_second_factor
 - tapOn: 'Xác thực trong trình duyệt'
 - extendedWaitUntil:
-    visible: 'Trang chủ lãnh đạo'
+    visible: 'Trang chủ (lãnh đạo|điều hành)'
     timeout: 30000
 - takeScreenshot: mob07_home
