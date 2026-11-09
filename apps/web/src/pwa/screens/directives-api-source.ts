@@ -31,7 +31,7 @@ export function toDirectiveItem(line: DirectiveLine): DirectiveItem {
  * list already read keeps the list and says it is stale, and a failure without one is an error that retries in place. The scope and the tenant are part of the query key, so a list never outlives the person.
  */
 export function useApiDirectives(query: DirectivesQuery): DirectivesReading {
-  const list = useDirectiveList({ ...NO_FILTER, status: query.status === 'ALL' ? '' : query.status }, PWA_DIRECTIVES_PAGE);
+  const list = useDirectiveList({ ...NO_FILTER, status: query.status === 'ALL' ? '' : query.status, overdue: query.overdue === true, unitId: query.unitId ?? '' }, PWA_DIRECTIVES_PAGE);
   const retry = (): void => void list.refetch();
   if (list.data === undefined) return list.isError ? { state: 'error', error: list.error, retry } : { state: 'loading' };
   const pages = list.data.pages;

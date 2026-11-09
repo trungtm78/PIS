@@ -24,6 +24,8 @@ import './pwa.css';
 const START_PATH = '/m';
 /** The full command center, where the leader goes for the drill-down the phone does not repeat. */
 export const COMMAND_CENTER_PATH = '/home/home-09';
+/** The same figures in detail as a one-column page for the phone (PWA-08). */
+export const FIGURES_DETAIL_PATH = '/m/dashboard/detail';
 
 /** The failures that this screen answers with a card of its own; every other failure is one of the standard states. */
 const OWN_PROBLEMS = new Set(['RESOURCE_NOT_FOUND', 'SNAPSHOT_NOT_FROZEN', 'SCOPE_DENIED', 'METRIC_UNAVAILABLE', 'VALIDATION_FAILED']);
@@ -151,6 +153,9 @@ function Body({ center, waiting }: { center: CommandCenter; waiting: WaitingCoun
       </section>
       <Kpis center={center} waiting={waiting} />
       <p>
+        <Link className="ui-button ui-button--primary pwa-touch" to={FIGURES_DETAIL_PATH} data-testid="pwa-detail">
+          {t('pwa2.dashboard.detail.link')}
+        </Link>{' '}
         <Link className="ui-button ui-button--outline pwa-touch" to={COMMAND_CENTER_PATH} data-testid="pwa-full">
           {t('pwa.dashboard.full.link')}
         </Link>

@@ -20,7 +20,7 @@ import { FIELDS, FIELD_KEY, FIELD_MAX_CHARS, appendLine, bodyOf, formOf, problem
 import type { DirectiveItem, NarrativeContext, NarrativeForm as Form } from './model';
 
 /**
- * DIS-34: the structured narrative of a period (ENT-3b; HSKT DL.01, CN.02, CN.03). The person writes the eight fields of the form for one project and period, picks the standard causes from the list (MDM-17),
+ * DIS-35: the structured narrative of a period (ENT-3b; HSKT DL.01, CN.02, CN.03). The person writes the eight fields of the form for one project and period, picks the standard causes from the list (MDM-17),
  * copies the words of the previous period (the server keeps a trace of the copy) and adds the results of the leadership directives of the period (DIR-05) to the words. Nothing is written for the person: a
  * directive line is added to the field the person chooses, and a field left empty stays empty. The approved entry rules are shown as they judge the draft now.
  */

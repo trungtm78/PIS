@@ -8,8 +8,8 @@ import NarrativeScreen from './NarrativeScreen';
 import { appendLine, bodyOf, formOf, problemOf, toContext, tooLong } from './model';
 import { toReportDetail } from '../report/model';
 
-const ROUTE = routeOf('DIS-34', 'DL.01');
-const PATH = '/dis/dis-34';
+const ROUTE = routeOf('DIS-35', 'DL.01');
+const PATH = '/dis/dis-35';
 const DIRECTIVE = '11111111-1111-4111-8111-111111111111';
 const CONTEXT = {
   report_id: REPORT,
@@ -32,7 +32,7 @@ const open = (details: Record<string, unknown> = report(), permissions: readonly
 };
 const bodySent = (h: ReturnType<typeof client>): Record<string, unknown> => (h.command.mock.calls.find((call) => call[0] === 'post_reports_id_revisions')?.[1] as { body: Record<string, unknown> }).body;
 
-describe('DIS-34 structured narrative of a period', () => {
+describe('DIS-35 structured narrative of a period', () => {
   it('asks for a report when none is named', async () => {
     mount(<NarrativeScreen route={ROUTE} />, client(world()), { permissions: MAKER, path: PATH });
     expect(await screen.findByTestId('no-report')).toBeTruthy();

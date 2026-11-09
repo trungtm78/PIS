@@ -351,6 +351,7 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-09" element={screen} />
                 <Route path="/dis/dis-10" element={screen} />
                 <Route path="/dis/dis-34" element={screen} />
+                <Route path="/dis/dis-35" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
                 <Route path="/dis/dis-13" element={screen} />

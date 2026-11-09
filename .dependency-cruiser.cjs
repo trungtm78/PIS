@@ -6,7 +6,8 @@ const ANY_APP = '^(apps/|@machvon/(api|web)(/|$))';
 // Imports that apps/web must never have: server-side workspaces and the API app.
 const WEB_FORBIDDEN = '^(packages/(kernel|db)/|apps/api/|@machvon/(kernel|db|api)(/|$))';
 // The one file of the kernel the web may read: the edition mechanism is pure and imports nothing (ENT-0); the rest of the kernel stays server-side.
-const WEB_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults)\\.ts|@machvon/kernel/src/(edition|fin-defaults)\\.ts)$';
+const WEB_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults|delay-cause|log-capacity|equipment-procurement)\\.ts|@machvon/kernel/src/(edition|fin-defaults|delay-cause|log-capacity|equipment-procurement)\\.ts)$';
+// delay-cause.ts, log-capacity.ts and equipment-procurement.ts (ENT-4e) are pure rule modules the screens read so that the choice, the capacity state and the stage are computed by the one rule the server uses; they reach only other kernel files (and a type) and no node module.
 // fin-defaults.ts (FIN-1) is the same kind of file: data only, no run-time import. The formula module itself (fin-analysis.ts) is read by exactly two web files, the test fixtures that build a report the way the server does.
 const WEB_KERNEL_TEST_READERS = '^apps/web/src/screens/prj/fin/(fixtures\\.ts|model\\.test\\.ts)$';
 const WEB_TEST_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults|fin-analysis)\\.ts|@machvon/kernel/src/(edition|fin-defaults|fin-analysis)\\.ts)$';

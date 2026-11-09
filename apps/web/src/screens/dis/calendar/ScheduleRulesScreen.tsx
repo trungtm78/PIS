@@ -11,7 +11,7 @@ import { STEP_KINDS, isStepKind, scheduleKeyOf, stepKeyOf } from './model';
 const RULES_PATH = '/adm/adm-19';
 
 /**
- * ADM-29, the deadline of each step of the reporting calendar (QT.02): for each kind of period the rule `REPORTING_SCHEDULE` in force, the days and hour of every step, the reminders and the escalation, the version
+ * ADM-31, the deadline of each step of the reporting calendar (QT.02): for each kind of period the rule `REPORTING_SCHEDULE` in force, the days and hour of every step, the reminders and the escalation, the version
  * that decides and whether it is the built-in default nobody confirmed. A new version is proposed, submitted and approved in the repository of governance rules (the approver is not the proposer); this screen shows
  * what is in force and leads there.
  */

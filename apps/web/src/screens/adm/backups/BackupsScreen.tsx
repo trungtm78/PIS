@@ -17,7 +17,7 @@ import '../adm-kit.css';
 type Dialog = { kind: 'new' } | { kind: 'decide'; row: BackupRequestView } | { kind: 'cancel'; row: BackupRequestView } | { kind: 'record'; row: BackupRequestView };
 
 /**
- * ADM-29: the backups (HSKT YCK.06). The top shows how the last backups and the last verification are, as the server reads them from the state files the host writes (never a made-up value: no source is UNKNOWN).
+ * ADM-32: the backups (HSKT YCK.06). The top shows how the last backups and the last verification are, as the server reads them from the state files the host writes (never a made-up value: no source is UNKNOWN).
  * Below, the manual backup requests: one person asks for a full, differential or incremental backup, a different person allows it, the host runner runs it and the outcome (the pgBackRest label) is recorded. This screen
  * never runs a backup.
  */

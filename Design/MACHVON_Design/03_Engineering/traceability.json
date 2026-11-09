@@ -12627,8 +12627,8 @@
     ]
   },
   {
-    "requirement": "FR-DIS-32",
-    "screen": "DIS-32",
+    "requirement": "FR-DIS-34",
+    "screen": "DIS-34",
     "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
     "use_cases": [],
     "source": "HSKT PVFCCo v0.3 QT.02; docs/plans/ent4c.md",
@@ -12636,14 +12636,14 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-DIS-32",
+    "backlog_id": "BL-DIS-34",
     "test_ids": [
-      "UI-DIS-32"
+      "UI-DIS-34"
     ]
   },
   {
-    "requirement": "FR-ADM-29",
-    "screen": "ADM-29",
+    "requirement": "FR-ADM-31",
+    "screen": "ADM-31",
     "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
     "use_cases": [],
     "source": "HSKT PVFCCo v0.3 QT.02; docs/plans/ent4c.md",
@@ -12651,14 +12651,14 @@
     "design_status": "specified-m1",
     "implementation_status": "built",
     "verification": "Spec + UAT/API test definitions; NOT_RUN",
-    "backlog_id": "BL-ADM-29",
+    "backlog_id": "BL-ADM-31",
     "test_ids": [
-      "UI-ADM-29"
+      "UI-ADM-31"
     ]
   },
   {
-    "requirement": "FR-ADM-29",
-    "screen": "ADM-29",
+    "requirement": "FR-ADM-32",
+    "screen": "ADM-32",
     "title": "Sao lưu và yêu cầu sao lưu thủ công",
     "use_cases": [
       "UC11"
@@ -12668,10 +12668,276 @@
     "design_status": "module-spec-m1",
     "implementation_status": "not-built",
     "verification": "05_modules/ADM.md; 2 test",
+    "backlog_id": "BL-ADM-32",
+    "test_ids": [
+      "UI-ADM-32",
+      "UAT-INFRA2-01"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+    "use_cases": [],
+    "source": "docs/ent-snapshot.md; docs/plans/ent3a.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-32",
+    "test_ids": [
+      "UI-DIS-32",
+      "UAT-DIS-ENT3A-1"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-33",
+    "screen": "DIS-33",
+    "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+    "use_cases": [],
+    "source": "docs/ent-snapshot.md; docs/plans/ent3a.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-33",
+    "test_ids": [
+      "UI-DIS-33",
+      "UAT-DIS-ENT3A-1"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-AUDIT-DETAIL",
+    "screen": "ADM-29",
+    "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 HT.06; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-29",
     "test_ids": [
       "UI-ADM-29",
-      "UAT-INFRA2-01"
+      "UAT-ADM-ENT4E-1"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-LOG-CAPACITY",
+    "screen": "ADM-30",
+    "title": "Giới hạn số lượng và dung lượng log",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 HT.06; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-30",
+    "test_ids": [
+      "UI-ADM-30",
+      "UAT-ADM-ENT4E-2"
+    ]
+  },
+  {
+    "requirement": "FR-EQP-01",
+    "screen": "EQP-01",
+    "title": "Mua sắm trang thiết bị dự án",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 CN.02; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-EQP-01",
+    "test_ids": [
+      "UI-EQP-01",
+      "UAT-EQP-ENT4E-1"
+    ]
+  },
+  {
+    "requirement": "FR-EQP-02",
+    "screen": "EQP-02",
+    "title": "Chi tiết dòng mua sắm trang thiết bị",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 CN.02; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-EQP-02",
+    "test_ids": [
+      "UI-EQP-02",
+      "UAT-EQP-ENT4E-1"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-01",
+    "title": "Trang chủ ứng dụng cài đặt",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (ứng dụng cho lãnh đạo, cài đặt được, thông báo đẩy); docs/pwa.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m",
+    "backlog_id": "BL-PWA-01",
+    "test_ids": [
+      "UI-PWA-01"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-02",
+    "title": "Hàng đợi phê duyệt số liệu kỳ",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (i); cùng thao tác với MOB-23 và ADM-18",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/approvals",
+    "backlog_id": "BL-PWA-02",
+    "test_ids": [
+      "UI-PWA-02"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-03",
+    "title": "Bảng điều hành của lãnh đạo",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); HOME-09",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/dashboard",
+    "backlog_id": "BL-PWA-03",
+    "test_ids": [
+      "UI-PWA-03"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-04",
+    "title": "Theo dõi chỉ đạo",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (iii); DIR-03, MOB chỉ đạo",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/directives",
+    "backlog_id": "BL-PWA-04",
+    "test_ids": [
+      "UI-PWA-04"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-05",
+    "title": "Chi tiết phê duyệt số liệu kỳ",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (i); cùng nội dung với MOB-24",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/approvals/:taskId",
+    "backlog_id": "BL-PWA-05",
+    "test_ids": [
+      "UI-PWA-05"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-06",
+    "title": "Chi tiết chỉ đạo và dòng thời gian",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (iii); DIR-04",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/directives/:id",
+    "backlog_id": "BL-PWA-06",
+    "test_ids": [
+      "UI-PWA-06"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-07",
+    "title": "Cài đặt ứng dụng cài đặt",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy, đăng nhập một lần có xác thực hai bước); IAM-06, NOT",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/settings",
+    "backlog_id": "BL-PWA-07",
+    "test_ids": [
+      "UI-PWA-07"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-08",
+    "title": "Chi tiết số liệu bảng điều hành",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); HOME-09, bản dành cho điện thoại",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/dashboard/detail",
+    "backlog_id": "BL-PWA-08",
+    "test_ids": [
+      "UI-PWA-08"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-09",
+    "title": "Tiến độ đấu thầu trên điện thoại",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); BID-27, bản dành cho điện thoại",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/progress",
+    "backlog_id": "BL-PWA-09",
+    "test_ids": [
+      "UI-PWA-09"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-10",
+    "title": "Cài đặt thông báo đẩy",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy); docs/pwa.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/notifications",
+    "backlog_id": "BL-PWA-10",
+    "test_ids": [
+      "UI-PWA-10"
     ]
   }
 ]

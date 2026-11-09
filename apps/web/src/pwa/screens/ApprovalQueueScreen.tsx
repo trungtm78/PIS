@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from '../../i18n';
-import type { Translator } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
@@ -8,49 +7,21 @@ import { useOrgUnits } from '../../screens/adm/org-tree/hooks';
 import { BUSINESS_TYPES, businessTypeLabel } from '../../screens/adm/approvals/labels';
 import { DeadlineCountdown, StatusPill } from '../../ui';
 import { clock, todayOf } from '../../ui/alerts/format';
+import { Link } from 'react-router-dom';
 import { useApprovalQueue, useDecideTask } from './approval-hooks';
+import { useReportNames } from './approval-detail-hooks';
 import { DECIDE_PERMISSION, NO_FILTER, PERIOD_FILTER, READ_PERMISSION, REFRESH_PROBLEMS, applyFilter, checkComment, describeProblem, mayDecide } from './approval-model';
 import type { ApprovalTask, Decision, Problem, QueueFilter } from './approval-model';
+import { problemText } from './approval-problem';
 import { DecisionSheet } from './DecisionSheet';
 import { PwaBackLink } from './PwaBackLink';
 import './pwa.css';
 
 /** How old the list may be before the screen says so (the list is read again when the page comes back to the front). */
 export const STALE_AFTER_MS = 5 * 60_000;
+/** How many cards have the name of their record read (one read each). */
+const NAMED_CARDS = 20;
 const START_PATH = '/m';
-
-type T = Translator['t'];
-
-function problemText(t: T, problem: Problem): string {
-  switch (problem) {
-    case 'selfApproval':
-      return t('pwa.approvals.problem.selfApproval');
-    case 'stepUp':
-      return t('pwa.approvals.problem.stepUp');
-    case 'notAuthorized':
-      return t('pwa.approvals.problem.notAuthorized');
-    case 'alreadyDecided':
-      return t('pwa.approvals.problem.alreadyDecided');
-    case 'versionConflict':
-      return t('pwa.approvals.problem.versionConflict');
-    case 'notRunning':
-      return t('pwa.approvals.problem.notRunning');
-    case 'periodLocked':
-      return t('pwa.approvals.problem.periodLocked');
-    case 'licenseExpired':
-      return t('pwa.approvals.problem.licenseExpired');
-    case 'denied':
-      return t('pwa.approvals.problem.denied');
-    case 'notFound':
-      return t('pwa.approvals.problem.notFound');
-    case 'validation':
-      return t('pwa.approvals.problem.validation');
-    case 'sessionEnded':
-      return t('pwa.approvals.problem.sessionEnded');
-    case 'general':
-      return t('pwa.approvals.problem.general');
-  }
-}
 
 interface Receipt {
   decision: Decision;
@@ -99,6 +70,12 @@ function QueueContent() {
   const queryState = useScreenState({ isLoading: queue.isLoading, error: queue.data === undefined ? queue.error : undefined, data: queue.data, isEmpty: () => false });
   const state = mayRead ? queryState : 'denied';
   const shown = applyFilter(tasks, filter);
+  // The project of a report is named on its card (only the first cards are read: each name is one read of the report, kept for the page).
+  const names = useReportNames(shown.slice(0, NAMED_CARDS));
+  const recordName = (task: ApprovalTask): string => {
+    const name = names.get(task.resourceId);
+    return name === undefined ? task.resourceType : `${name.project} · ${name.period}`;
+  };
   const late = tasks.filter((task) => task.overdue).length;
   const today = todayOf(new Date(now));
   const staleList = queue.data !== undefined && (queue.isError || now - queue.dataUpdatedAt > STALE_AFTER_MS);
@@ -124,7 +101,7 @@ function QueueContent() {
       { task, decision, comment },
       {
         onSuccess: () => {
-          setReceipt({ decision, step: task.stepName, record: `${task.resourceType} ${task.resourceId.slice(0, 8)}`, at: new Date() });
+          setReceipt({ decision, step: task.stepName, record: recordName(task), at: new Date() });
           close();
         },
       },
@@ -255,9 +232,7 @@ function QueueContent() {
                     <dt>{t('pwa.approvals.field.step')}</dt>
                     <dd>{task.stepName === '' ? '—' : task.stepName}</dd>
                     <dt>{t('pwa.approvals.field.record')}</dt>
-                    <dd>
-                      {task.resourceType} <code>{task.resourceId.slice(0, 8)}</code>
-                    </dd>
+                    <dd data-testid="record-name">{recordName(task)}</dd>
                     {unit === undefined ? null : (
                       <>
                         <dt>{t('pwa.approvals.field.unit')}</dt>
@@ -277,6 +252,9 @@ function QueueContent() {
                       <DeadlineCountdown dueOn={todayOf(new Date(task.dueAt))} today={today} />
                     </dd>
                   </dl>
+                  <Link to={`/m/approvals/${task.id}`} className="ui-button ui-button--outline pwa-touch" data-action="detail">
+                    {t('pwa2.approvals.action.detail')}
+                  </Link>
                   {may ? (
                     <div className="pwa-actions">
                       <button type="button" className="ui-button ui-button--primary pwa-touch" data-action="approve" onClick={() => setActing({ task, decision: 'approve' })}>
@@ -302,7 +280,7 @@ function QueueContent() {
           title={acting.decision === 'approve' ? t('pwa.approvals.sheet.approve.title') : t('pwa.approvals.sheet.return.title')}
           context={[
             { label: t('pwa.approvals.field.step'), value: acting.task.stepName === '' ? '—' : acting.task.stepName },
-            { label: t('pwa.approvals.field.record'), value: `${acting.task.resourceType} ${acting.task.resourceId.slice(0, 8)}` },
+            { label: t('pwa.approvals.field.record'), value: recordName(acting.task) },
             ...(acting.task.amountVnd === null ? [] : [{ label: t('pwa.approvals.field.amount'), value: `${money(acting.task.amountVnd) ?? ''} ${t('pwa.approvals.unit.vnd')}` }]),
           ]}
           commentLabel={acting.decision === 'approve' ? t('pwa.approvals.sheet.approve.comment') : t('pwa.approvals.sheet.return.comment')}

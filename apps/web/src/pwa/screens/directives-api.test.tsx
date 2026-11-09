@@ -128,7 +128,7 @@ describe('PWA-04 over the directive module: list, status, overdue, detail', () =
     expect(empty.getAttribute('data-kind')).toBe('none');
   });
 
-  it('opens one directive read only: who gave it, the extensions, the latest progress and the timeline', async () => {
+  it('opens one directive read only: who gave it, the extensions, the latest progress and the timeline (AC-ST-PWA-003-2)', async () => {
     const h = pwaClient({ read: (operation) => (operation === 'getDirective' ? detail(1) : undefined) });
     mountPwa(
       <Routes>

@@ -51,7 +51,6 @@ export const leaderModule = defineModule({ code: 'LDR', editions: ['enterprise']
 /** The e-mail schedules of the issued report forms and their log (ENT-4d); the job that sends is bound by the process (`report-mail-job.ts`). */
 export const reportMailModule = defineModule({ code: 'RML', editions: ['enterprise'], controllers: [ReportMailReadsController, ReportMailCommandController] });
 
-/** The modules of the enterprise edition, in the order the registry mounts them after its own. */
 /**
  * The organisation and the roles of the edition (ENT-3d): the PVFCCo template pack, the plan and verification against the tenant, and the command that turns an applied batch of the pack file into units, roles and proposals for approval.
  * The module exists in the enterprise edition only.
@@ -62,7 +61,6 @@ export const orgPackModule = defineModule({
   controllers: [OrgPackController],
 });
 
-/** The modules of the enterprise edition, in the order the registry mounts them after its own. */
 /**
  * The equipment procurement view of the Ban Thuong mai (ENT-4e, CN.02): the lines of the plan bought as equipment with the package, the choice of contractor, the contract and the payments read from BID, CTR and PAY in the scope of the caller, and the
  * state of the file import that feeds them (PENDING-EXTERNAL layout). The module exists in the enterprise edition only.

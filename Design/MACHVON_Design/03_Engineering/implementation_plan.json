@@ -227,6 +227,18 @@
       "module": "RML",
       "title": "Scheduled e-mail of issued report forms and the leadership dashboard (enterprise edition)",
       "goal": "Send the issued copies of a report form to the members a schedule names, once to each, with the issued file and its SHA-256, and give the leaders the disbursement against the annual plan with the same period of last year and the projects blocked on procedure."
+    },
+    {
+      "id": "EP-EQP",
+      "module": "EQP",
+      "title": "Equipment procurement of the investment projects (enterprise edition)",
+      "goal": "Show, for each line of the plan that is bought as equipment, where it stands from the plan through the choice of contractor and the contract to the last payment, as a read model over BID, CTR and PAY, with the figures masked when the reader may not see them."
+    },
+    {
+      "id": "EP-PWA",
+      "module": "PWA",
+      "title": "The installed manager application",
+      "goal": "Give the leaders who will not install a phone application the three things they need on a phone, installable and with notifications: decide the period data with its figures in front of them, read the leader dashboard and its drill-downs, and follow the directives, with the settings of their devices, language and notifications."
     }
   ],
   "features": [
@@ -1104,6 +1116,36 @@
       "id": "FT-RML-01",
       "epic": "EP-RML",
       "title": "E-mail schedules of issued forms, the mailing log and the leader panel"
+    },
+    {
+      "id": "FT-DIS-11",
+      "epic": "EP-DIS",
+      "title": "Enterprise period snapshot: completeness, build, review and freeze (ENT-3a)"
+    },
+    {
+      "id": "FT-ADM-07",
+      "epic": "EP-ADM",
+      "title": "Audit detail and log capacity (HT.06, ENT-4e)"
+    },
+    {
+      "id": "FT-EQP-01",
+      "epic": "EP-EQP",
+      "title": "Equipment procurement register and read model (CN.02, ENT-4e)"
+    },
+    {
+      "id": "FT-PWA-01",
+      "epic": "EP-PWA",
+      "title": "Approval of period data on the phone"
+    },
+    {
+      "id": "FT-PWA-02",
+      "epic": "EP-PWA",
+      "title": "Leader dashboard and its phone drill-downs"
+    },
+    {
+      "id": "FT-PWA-03",
+      "epic": "EP-PWA",
+      "title": "Directive tracking and settings on the phone"
     }
   ],
   "stories": [
@@ -58368,120 +58410,6 @@
       ]
     },
     {
-      "id": "ST-NOT-007",
-      "epic": "EP-NOT",
-      "feature": "FT-NOT-04",
-      "module": "NOT",
-      "title": "[MOBILE: PUSH-ADAPTER] FCM and APNs push adapter with lock-screen safety and silent entitlement push",
-      "narrative": "As a mobile user I receive push messages that never show confidential data on the lock screen, and my app refreshes its entitlements through a silent push when they change.",
-      "release": "R1",
-      "screens": [],
-      "operations": [],
-      "tables": [],
-      "nfr": [
-        "NFR-PRIVACY-02",
-        "NFR-AVAILABILITY-04",
-        "NFR-LEGAL-01"
-      ],
-      "cxn": [],
-      "spikes": [],
-      "acceptance": [
-        {
-          "id": "AC-ST-NOT-007-1",
-          "given": "a device token reported UNREGISTERED by the provider",
-          "when": "a push is sent",
-          "then": "the failure is PERMANENT and the device is revoked",
-          "test_id": "UAT-AC179"
-        },
-        {
-          "id": "AC-ST-NOT-007-2",
-          "given": "a push for a confidential record",
-          "when": "sent through the mock FCM and APNs adapters",
-          "then": "the payload holds only a neutral sentence and an opaque deep link, never an amount or name",
-          "test_id": "UAT-AC28"
-        },
-        {
-          "id": "AC-ST-NOT-007-3",
-          "given": "a push accepted or delivered by the provider",
-          "when": "the inbox is inspected",
-          "then": "the notification is not marked read and the deep link discloses nothing",
-          "test_id": "NOT02"
-        },
-        {
-          "id": "AC-ST-NOT-007-4",
-          "given": "the push device screen",
-          "when": "opened after a permanent failure",
-          "then": "the device shows as revoked with the reason; the seven UI states render and the screen contract checks of UI-NOT-14 report 0 failures",
-          "test_id": "UI-NOT-14"
-        }
-      ],
-      "dependencies": [
-        "ST-NOT-006",
-        "ST-NOT-005",
-        "ST-SAS-002"
-      ],
-      "review": {
-        "required": [
-          "privacy"
-        ],
-        "hours": {
-          "min": 0.5,
-          "max": 1
-        }
-      },
-      "effort": {
-        "agent_hours": {
-          "min": 24,
-          "max": 48
-        },
-        "confidence": "medium",
-        "assumption": "FCM and APNs adapters follow the public provider documentation and are VERIFIED only after a sandbox spike; silent push for sas.entitlement.changed.v1 depends on the entitlement foundation."
-      },
-      "mobile": "flutter-screen",
-      "tasks": [
-        {
-          "id": "TK-NOT-007-1",
-          "kind": "backend",
-          "title": "FcmPort and ApnsPort adapters with error classification (RETRYABLE/PERMANENT), token revocation and delivery receipts",
-          "test_ids": []
-        },
-        {
-          "id": "TK-NOT-007-2",
-          "kind": "backend",
-          "title": "Silent data message on entitlement change and iam.access.changed so the app refetches /me/entitlements",
-          "test_ids": []
-        },
-        {
-          "id": "TK-NOT-007-3",
-          "kind": "mobile",
-          "title": "Flutter handlers for notification tap deep links (opaque id, permission re-check) and silent data refresh",
-          "test_ids": []
-        },
-        {
-          "id": "TK-NOT-007-4",
-          "kind": "qa",
-          "title": "Adapter contract tests with provider mocks including token and quota errors",
-          "test_ids": [
-            "UAT-AC179",
-            "UAT-AC28",
-            "NOT02",
-            "UI-NOT-14"
-          ]
-        },
-        {
-          "id": "TK-NOT-007-5",
-          "kind": "qa",
-          "title": "Automate and run acceptance tests UAT-AC179, UAT-AC28, NOT02, UI-NOT-14 in CI with evidence",
-          "test_ids": [
-            "UAT-AC179",
-            "UAT-AC28",
-            "NOT02",
-            "UI-NOT-14"
-          ]
-        }
-      ]
-    },
-    {
       "id": "ST-DIS-028",
       "epic": "EP-DIS",
       "feature": "FT-DIS-10",
@@ -58490,8 +58418,8 @@
       "narrative": "As the planning board I can set the calendar of the month, quarter, year and steering-meeting periods with a deadline for each step, see where every input point stands, and have people reminded and the unit leader told when a step is late.",
       "release": "R2",
       "screens": [
-        "DIS-32",
-        "ADM-29"
+        "DIS-34",
+        "ADM-31"
       ],
       "operations": [
         "getReportingCalendar",
@@ -58521,7 +58449,7 @@
         },
         {
           "id": "AC-ST-DIS-028-3",
-          "given": "DIS-32 and ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "given": "DIS-34 and ADM-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, and a default nobody confirmed says so",
           "test_id": "UAT-DIS-ENT4C-3"
@@ -58551,19 +58479,19 @@
         {
           "id": "TK-DIS-028-1",
           "kind": "backend",
-          "title": "Kernel schedule rule, store, migration, job and API behind DIS-32, ADM-29",
+          "title": "Kernel schedule rule, store, migration, job and API behind DIS-34, ADM-31",
           "test_ids": []
         },
         {
           "id": "TK-DIS-028-2",
           "kind": "web",
-          "title": "DIS-32, ADM-29 built with the kit and the seven standard states",
+          "title": "DIS-34, ADM-31 built with the kit and the seven standard states",
           "test_ids": []
         },
         {
           "id": "TK-DIS-028-3",
           "kind": "i18n",
-          "title": "Message keys in vi and en for DIS-32, ADM-29",
+          "title": "Message keys in vi and en for DIS-34, ADM-31",
           "test_ids": []
         },
         {
@@ -58580,8 +58508,8 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states",
           "test_ids": [
-            "UI-DIS-32",
-            "UI-ADM-29"
+            "UI-DIS-34",
+            "UI-ADM-31"
           ]
         }
       ]
@@ -58775,7 +58703,7 @@
       "narrative": "As a system administrator I can ask for a full, differential or incremental backup, have a second person allow it and record what the host runner did, and see the state of the last backups and of the last repository verification, so that backups on the day, week and month cycles can be complemented by an audited manual one without the application ever running a backup itself.",
       "release": "R2",
       "screens": [
-        "ADM-29"
+        "ADM-32"
       ],
       "operations": [
         "listBackupRequests",
@@ -58801,10 +58729,10 @@
         },
         {
           "id": "AC-ST-ADM-030-2",
-          "given": "ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without, with a state source and without",
+          "given": "ADM-32 opened at 1440 px and 390 px by a reader with the read permission and one without, with a state source and without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty, validation error, service error with retry and permission denied all render, a missing state source reads UNKNOWN and never healthy, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-ADM-29"
+          "test_id": "UI-ADM-32"
         }
       ],
       "dependencies": [
@@ -58845,13 +58773,13 @@
         {
           "id": "TK-ADM-030-3",
           "kind": "web",
-          "title": "ADM-29 screen built with the kit and the seven standard states",
+          "title": "ADM-32 screen built with the kit and the seven standard states",
           "test_ids": []
         },
         {
           "id": "TK-ADM-030-4",
           "kind": "i18n",
-          "title": "Message keys in vi and en for ADM-29; no hard-coded display strings",
+          "title": "Message keys in vi and en for ADM-32; no hard-coded display strings",
           "test_ids": []
         },
         {
@@ -58873,7 +58801,821 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
+            "UI-ADM-32"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DIS-029",
+      "epic": "EP-DIS",
+      "feature": "FT-DIS-11",
+      "module": "DIS",
+      "title": "Enterprise period snapshot: completeness check, build, review of the missing input points and a freeze by a second person",
+      "narrative": "As the planning board I can see whether every planned cell of a closed period has its accepted actual, build the frozen enterprise snapshot of the period, read it through one reader with the numerator and denominator of every ratio, and freeze it by a person other than the builder, so that a figure of a report always comes from one hashed snapshot.",
+      "release": "R2",
+      "screens": [
+        "DIS-32",
+        "DIS-33"
+      ],
+      "operations": [
+        "getEnterpriseSnapshotReadiness",
+        "buildEnterpriseSnapshot",
+        "listEnterpriseSnapshots",
+        "getEnterpriseSnapshot",
+        "freezeEnterpriseSnapshot"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-DIS-029-1",
+          "given": "A locked period of the enterprise pack in which one planned cell has no accepted actual",
+          "when": "The planner builds the snapshot of the period",
+          "then": "422 ENTERPRISE_SNAPSHOT_INCOMPLETE with the list of the missing units, projects and cells and the batches that wait for acceptance; no snapshot row is created",
+          "test_id": "UAT-DIS-ENT3A-1"
+        },
+        {
+          "id": "AC-ST-DIS-029-2",
+          "given": "A complete locked period and a built snapshot",
+          "when": "The builder tries to freeze it, then another person freezes it, then the builder builds the period again",
+          "then": "403 SELF_APPROVAL_DENIED for the builder; the freeze by the other person makes it frozen with a SHA-256 that never changes; a second build is 409 SNAPSHOT_FROZEN until the period is reopened with a reason and a second approver, then it is the next revision that supersedes the old one",
+          "test_id": "UAT-DIS-ENT3A-1"
+        },
+        {
+          "id": "AC-ST-DIS-029-UI",
+          "given": "DIS-32 and DIS-33 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DIS-32"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "money",
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "medium",
+        "assumption": "The figures are the accepted actuals and plan revisions already in the database; the screen adds no figure of its own and a cell without a number is empty with a reason, never 0."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DIS-029-1",
+          "kind": "db",
+          "title": "Migration V2660 for the indicator rows of the snapshot with RLS and the immutability guard",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-029-2",
+          "kind": "backend",
+          "title": "Pure figure reader and completeness rule, store, controller with Idempotency-Key and If-Match, audit and outbox: getEnterpriseSnapshotReadiness, buildEnterpriseSnapshot, listEnterpriseSnapshots, getEnterpriseSnapshot, freezeEnterpriseSnapshot",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-029-3",
+          "kind": "web",
+          "title": "DIS-32 and DIS-33 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-029-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DIS-32 and DIS-33; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-029-5",
+          "kind": "qa",
+          "title": "Kernel, store and API tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-DIS-ENT3A-1"
+          ]
+        },
+        {
+          "id": "TK-DIS-029-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-DIS-32",
+            "UI-DIS-33"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ADM-031",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-07",
+      "module": "ADM",
+      "title": "Full before and after values of the audit trail, switched on per class of business object with a reason",
+      "narrative": "As a tenant administrator I can keep the full before and after values of the business objects of a class in the audit trail, off by default, with a byte cap per row and extra sensitive keys, and an auditor can read the detail of one row and check it against the sealed row, so that a figure change can be traced without weakening the seal of the trail.",
+      "release": "R2",
+      "screens": [
+        "ADM-29"
+      ],
+      "operations": [
+        "listAuditDetailPolicies",
+        "saveAuditDetailPolicy",
+        "getAuditEventDetail"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-031-1",
+          "given": "A tenant with the policy of the class off, and an administrator who holds the manage permission over the whole tenant",
+          "when": "A command of the class runs, the administrator switches the class on with a reason, and the command runs again",
+          "then": "the first run writes no detail row; the second writes one detail row whose SHA-256 equals the detail_ref of the sealed row; keys named secret and personal keys are masked at any depth and the row is cut at the byte cap; a switch without a reason is 422 VALIDATION_FAILED and a stale version is 409 VERSION_CONFLICT",
+          "test_id": "UAT-ADM-ENT4E-1"
+        },
+        {
+          "id": "AC-ST-ADM-031-2",
+          "given": "A reader who holds audit_event.read and one who does not",
+          "when": "Each opens the detail of a row that has one",
+          "then": "the first reads the masked values with the hash check against the sealed row; the second gets 403; an unknown row is 404 RESOURCE_NOT_FOUND",
+          "test_id": "UAT-ADM-ENT4E-1"
+        },
+        {
+          "id": "AC-ST-ADM-031-UI",
+          "given": "ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-29"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "privacy",
+          "security",
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 45
+        },
+        "confidence": "medium",
+        "assumption": "The audit_event table, the seal and the export format do not change; the detail is a side record that the sealed row commits to."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-031-1",
+          "kind": "db",
+          "title": "Migration V2820 for audit_detail_policy and the append-only audit_event_detail with RLS",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-031-2",
+          "kind": "backend",
+          "title": "Redaction and byte cap rules, writer path, policy store and controller with Idempotency-Key and If-Match: listAuditDetailPolicies, saveAuditDetailPolicy, getAuditEventDetail",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-031-3",
+          "kind": "web",
+          "title": "ADM-29 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-031-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-29; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-031-5",
+          "kind": "qa",
+          "title": "Kernel, store and API tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-ADM-ENT4E-1"
+          ]
+        },
+        {
+          "id": "TK-ADM-031-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
             "UI-ADM-29"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ADM-032",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-07",
+      "module": "ADM",
+      "title": "Caps on the rows and bytes of each log, measured every night, archived with a hash before any row is purged",
+      "narrative": "As a tenant administrator I can set a cap on the rows and bytes of each kind of log and see the last measure, the rows that may be archived and the batches already archived, so that technical logs cannot grow without limit while the audit trail is only measured and never purged.",
+      "release": "R2",
+      "screens": [
+        "ADM-30"
+      ],
+      "operations": [
+        "getLogCapacity",
+        "saveLogCapacityPolicy"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-032-1",
+          "given": "A technical log over its row cap that holds rows younger than the retention period and rows under legal hold, and the audit trail over its own cap",
+          "when": "The nightly retention job runs twice",
+          "then": "the oldest rows beyond the retention period are written to a hashed archive file first and exactly those rows are deleted afterwards; rows younger than the retention period and held rows stay; the audit trail is measured and raises an alert but no row is deleted; the second run deletes nothing",
+          "test_id": "UAT-ADM-ENT4E-2"
+        },
+        {
+          "id": "AC-ST-ADM-032-2",
+          "given": "An administrator who holds the manage permission and a reader who holds only the read permission",
+          "when": "Each sets a cap",
+          "then": "the reader gets 403; the administrator needs a reason (422 VALIDATION_FAILED without one) and a stale version is 409 VERSION_CONFLICT; every change is in the audit trail",
+          "test_id": "UAT-ADM-ENT4E-2"
+        },
+        {
+          "id": "AC-ST-ADM-032-UI",
+          "given": "ADM-30 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-30"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 36
+        },
+        "confidence": "medium",
+        "assumption": "Bytes are sampled from the size of the rows once a night and flagged as estimated above the scan limit; the archive goes to the object store the tenant already uses."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-032-1",
+          "kind": "db",
+          "title": "Migration V2820 for log_capacity_policy, log_archive_batch and log_capacity_reading with RLS",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-032-2",
+          "kind": "backend",
+          "title": "Cap evaluation rules, retention job extension (archive then purge), store and controller with Idempotency-Key and If-Match: getLogCapacity, saveLogCapacityPolicy",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-032-3",
+          "kind": "web",
+          "title": "ADM-30 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-032-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-30; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-032-5",
+          "kind": "qa",
+          "title": "Kernel, store, job and API tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-ADM-ENT4E-2"
+          ]
+        },
+        {
+          "id": "TK-ADM-032-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-ADM-30"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-EQP-001",
+      "epic": "EP-EQP",
+      "feature": "FT-EQP-01",
+      "module": "EQP",
+      "title": "Equipment procurement lines of a project from the plan to the last payment, read through BID, CTR and PAY",
+      "narrative": "As the commercial board I can list the lines of a project that are bought as equipment, link each to its package and contract once, cancel a line with a reason, and see the stage, the selection result, the contract value, the variance to the plan and the share paid, so that equipment can be followed without a second copy of the figures.",
+      "release": "R3",
+      "screens": [
+        "EQP-01",
+        "EQP-02"
+      ],
+      "operations": [
+        "listEquipmentProcurement",
+        "createEquipmentProcurementItem",
+        "getEquipmentProcurement",
+        "updateEquipmentProcurementItem"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-EQP-001-1",
+          "given": "A line with a package, an approved award, a contract of 1000 VND units and payments paid of 250 VND units, and a reader who holds bid.read but not the contract and payment read permissions",
+          "when": "Both an authorised reader and that reader open the line",
+          "then": "the authorised reader sees the stage DISBURSING, the share paid 25.0 percent and the variance to the plan; the other sees the contract and payment figures as masked with the masked list and never as 0",
+          "test_id": "UAT-EQP-ENT4E-1"
+        },
+        {
+          "id": "AC-ST-EQP-001-2",
+          "given": "A line of a project in the scope of the unit and a package of another project",
+          "when": "The line is linked to that package, a line code is reused, and a cancelled line is changed",
+          "then": "422 EQUIPMENT_LINK_INVALID for the package of another project; 409 EQUIPMENT_LINE_CODE_TAKEN for the reused code; 409 EQUIPMENT_LINE_STATE_INVALID for the cancelled line; a cancel without a reason is 422 VALIDATION_FAILED",
+          "test_id": "UAT-EQP-ENT4E-1"
+        },
+        {
+          "id": "AC-ST-EQP-001-UI",
+          "given": "EQP-01 and EQP-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-EQP-01"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 50
+        },
+        "confidence": "medium",
+        "assumption": "The layout of the e-GP file is a working assumption and its acceptance is PENDING-EXTERNAL; the module is read only over BID, CTR and PAY and opens no connection."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-EQP-001-1",
+          "kind": "db",
+          "title": "Migration V2820 for equipment_procurement_item with RLS and tenant-leading indexes",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EQP-001-2",
+          "kind": "backend",
+          "title": "Stage, share and masking rules, store and controller with Idempotency-Key and If-Match: listEquipmentProcurement, createEquipmentProcurementItem, getEquipmentProcurement, updateEquipmentProcurementItem",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EQP-001-3",
+          "kind": "web",
+          "title": "EQP-01 and EQP-02 in the enterprise web layer with the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EQP-001-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for EQP-01 and EQP-02; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-EQP-001-5",
+          "kind": "qa",
+          "title": "Kernel, store, API and isolation tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-EQP-ENT4E-1"
+          ]
+        },
+        {
+          "id": "TK-EQP-001-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-EQP-01",
+            "UI-EQP-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-001",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-01",
+      "module": "PWA",
+      "title": "Decide the period data on the phone: queue, detail with plan and revision comparison, evidence and step history, approve or return",
+      "narrative": "As a leader I open a task from my queue, read the project, the figures against the plan and the period before, the evidence and the steps so far, and approve or return it with a comment, so that I decide with the numbers in front of me.",
+      "release": "R2",
+      "screens": [
+        "PWA-01",
+        "PWA-02",
+        "PWA-05"
+      ],
+      "operations": [
+        "get_resources_approval_task",
+        "get_resources_approval_task_id",
+        "decideApprovalTask",
+        "getReportRevision",
+        "get_resources_organization_unit"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-001-1",
+          "given": "A task of the leader on a report with a previous revision",
+          "when": "The leader opens the task from the queue",
+          "then": "The detail names the project, period and unit (no id prefix), compares the cells with the plan and the period before and the revision with the one it corrects, lists the evidence and the steps; a refused part is left out with the reason",
+          "test_id": "UAT-PWA-01"
+        },
+        {
+          "id": "AC-ST-PWA-001-2",
+          "given": "The leader on the detail of a pending task",
+          "when": "The leader approves, and then returns without a comment",
+          "then": "The decision goes once under the version of the task (If-Match) with an idempotency key and a fresh second factor; a return without a comment is refused before sending; a conflict offers to reload",
+          "test_id": "UAT-PWA-01"
+        },
+        {
+          "id": "AC-ST-PWA-001-3",
+          "given": "The queue at 360 px",
+          "when": "Cards, filters and the sheet are used with a thumb",
+          "then": "No horizontal scroll, every control at least 44 px, the sheet at the bottom of the screen",
+          "test_id": "UI-PWA-02"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-001-1",
+          "kind": "web",
+          "title": "PWA-01, PWA-02, PWA-05 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-001-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-01, PWA-02, PWA-05; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-001-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-01",
+            "UI-PWA-01",
+            "UI-PWA-02",
+            "UI-PWA-05"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-002",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-02",
+      "module": "PWA",
+      "title": "Leader dashboard on the phone with the drill-downs of the figures and of the procurement progress",
+      "narrative": "As a leader I read the dashboard and tap through to the figures behind it and to the procurement progress, in one column, from the same snapshot and the same numbers as the full screens.",
+      "release": "R2",
+      "screens": [
+        "PWA-03",
+        "PWA-08",
+        "PWA-09"
+      ],
+      "operations": [
+        "getCommandCenter",
+        "getPackageProcessTree",
+        "listPackageProcessTreeNodePackages",
+        "getPackageWorkflowSummary"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-002-1",
+          "given": "The latest frozen snapshot",
+          "when": "The leader opens the dashboard and then the detail of the figures",
+          "then": "The amounts, ranking, causes, cash flow and changes belong to the same snapshot as HOME-09, a card that cannot be read says so without hiding the others",
+          "test_id": "UAT-PWA-02"
+        },
+        {
+          "id": "AC-ST-PWA-002-2",
+          "given": "The procurement tree with steps and packages",
+          "when": "The leader opens the progress and taps a step",
+          "then": "The steps are listed by method in order with counts and lateness and the packages of the step open in place; a leader without the right to read is told the scope is hidden",
+          "test_id": "UAT-PWA-02"
+        },
+        {
+          "id": "AC-ST-PWA-002-3",
+          "given": "The dashboard at 360 px",
+          "when": "The leader reads the figures",
+          "then": "One column, no horizontal scroll, figures that cannot be given are said so and never shown as 0",
+          "test_id": "UI-PWA-03"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-002-1",
+          "kind": "web",
+          "title": "PWA-03, PWA-08, PWA-09 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-002-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-03, PWA-08, PWA-09; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-002-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-02",
+            "UI-PWA-03",
+            "UI-PWA-08",
+            "UI-PWA-09"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-003",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-03",
+      "module": "PWA",
+      "title": "Directive tracking on the phone: list with filters and counts, detail with timeline",
+      "narrative": "As a leader I see the directives of my scope with the counts, filter them by status, overdue and unit, and open one to read its timeline, extension requests and evidence.",
+      "release": "R2",
+      "screens": [
+        "PWA-04",
+        "PWA-06"
+      ],
+      "operations": [
+        "listDirectives",
+        "getDirectiveSummary",
+        "getDirective"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-003-1",
+          "given": "Directives in the scope of the leader",
+          "when": "The leader opens the tracking and filters by overdue and by unit",
+          "then": "The list and the counts are read from listDirectives and getDirectiveSummary with the filter, a failed summary is said so and never shown as 0, and more pages load on request",
+          "test_id": "UAT-PWA-03"
+        },
+        {
+          "id": "AC-ST-PWA-003-2",
+          "given": "A directive with progress events and an extension request",
+          "when": "The leader opens it",
+          "then": "The detail shows the clock as the server counts it, the latest progress (or that none was reported), the timeline newest first, the request and the evidence, read-only",
+          "test_id": "UAT-PWA-03"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-003-1",
+          "kind": "web",
+          "title": "PWA-04, PWA-06 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-003-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-04, PWA-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-003-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-03",
+            "UI-PWA-04",
+            "UI-PWA-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-004",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-03",
+      "module": "PWA",
+      "title": "Settings of the installed application: sessions and devices, language, notifications per category",
+      "narrative": "As a user I see where I am signed in, end a session or remove a device with a reason, choose my language and decide which kinds of events reach my inbox, my push and my mail.",
+      "release": "R2",
+      "screens": [
+        "PWA-07",
+        "PWA-10"
+      ],
+      "operations": [
+        "listMySessions",
+        "listMyDevices",
+        "revokeMySession",
+        "revokeMyDevice",
+        "getMyProfile",
+        "updateMyProfile",
+        "getMyNotificationPreferences",
+        "updateMyNotificationPreferences",
+        "sendMyTestPush"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-004-1",
+          "given": "A user with two sessions and three devices",
+          "when": "The user ends the other session with a short and then a proper reason",
+          "then": "The current session has no end action, a reason under 10 characters is refused before sending, and the end is sent once with the reason",
+          "test_id": "UAT-PWA-04"
+        },
+        {
+          "id": "AC-ST-PWA-004-2",
+          "given": "The notification preferences under a version",
+          "when": "The user switches a push off and saves",
+          "then": "The whole set is saved under the version the user saw, a channel locked for an urgent category cannot be switched off, equal quiet hours are refused",
+          "test_id": "UAT-PWA-04"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-004-1",
+          "kind": "web",
+          "title": "PWA-07, PWA-10 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-004-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-07, PWA-10; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-004-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-04",
+            "UI-PWA-07",
+            "UI-PWA-10"
           ]
         }
       ]

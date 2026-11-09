@@ -92,7 +92,7 @@ describe('DirectivesScreen (PWA-04): the directive tracking view', () => {
   it('passes the status to the source, so a real one can ask the server for it', () => {
     const source = vi.fn<DirectivesSource>(() => ({ state: 'loading' }));
     open(source);
-    expect(source).toHaveBeenCalledWith({ status: 'ALL' });
+    expect(source).toHaveBeenCalledWith({ status: 'ALL', overdue: false, unitId: '' });
   });
 
   it('names a failure in the standard states and retries in place', () => {

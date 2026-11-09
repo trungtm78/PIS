@@ -22679,9 +22679,9 @@
     ]
   },
   {
-    "id": "BL-DIS-32",
-    "requirement": "FR-DIS-32",
-    "screen": "DIS-32",
+    "id": "BL-DIS-34",
+    "requirement": "FR-DIS-34",
+    "screen": "DIS-34",
     "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
     "module": "DIS",
     "platform": "web",
@@ -22697,7 +22697,7 @@
     ],
     "rule": "Hạn của từng bước lấy từ quy tắc quản trị REPORTING_SCHEDULE đang hiệu lực; kỳ đã sinh giữ hạn nhập liệu lúc sinh; bước chưa có dữ kiện hiển thị là CHƯA THEO DÕI, không hiển thị là xong hay mở.",
     "test_ids": [
-      "UI-DIS-32"
+      "UI-DIS-34"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -22705,9 +22705,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-ADM-29",
-    "requirement": "FR-ADM-29",
-    "screen": "ADM-29",
+    "id": "BL-ADM-31",
+    "requirement": "FR-ADM-31",
+    "screen": "ADM-31",
     "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
     "module": "ADM",
     "platform": "web",
@@ -22722,7 +22722,7 @@
     ],
     "rule": "Đề xuất, trình và duyệt phiên bản mới bằng kho quy tắc quản trị (người duyệt khác người đề xuất); màn chỉ hiển thị phiên bản đang hiệu lực.",
     "test_ids": [
-      "UI-ADM-29"
+      "UI-ADM-31"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -22730,9 +22730,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-ADM-29",
-    "requirement": "FR-ADM-29",
-    "screen": "ADM-29",
+    "id": "BL-ADM-32",
+    "requirement": "FR-ADM-32",
+    "screen": "ADM-32",
     "title": "Sao lưu và yêu cầu sao lưu thủ công",
     "module": "ADM",
     "platform": "web",
@@ -22752,7 +22752,7 @@
     ],
     "rule": "requestBackup/decideBackupRequest/cancelBackupRequest/recordBackupOutcome/listBackupRequests; người yêu cầu và người duyệt khác nhau; giao diện không chạy sao lưu, chỉ ghi yêu cầu và hiển thị trạng thái đọc từ nguồn trạng thái; không có nguồn trạng thái thì hiển thị chưa rõ, không bao giờ hiển thị khỏe",
     "test_ids": [
-      "UI-ADM-29",
+      "UI-ADM-32",
       "UAT-INFRA2-01"
     ],
     "status": "NOT_BUILT",
@@ -22764,6 +22764,541 @@
     "release": "R2",
     "stories": [
       "ST-ADM-030"
+    ]
+  },
+  {
+    "id": "BL-DIS-32",
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,CAP,IND",
+    "fields": [
+      "Kỳ doanh nghiệp",
+      "Trạng thái kỳ",
+      "Đủ số liệu hay chưa",
+      "Đơn vị chưa nộp",
+      "Dự án và ô còn thiếu",
+      "Lô chờ duyệt",
+      "Bản đã chốt và phiên bản",
+      "Điều kiện dựng lại",
+      "Người dựng"
+    ],
+    "rule": "Chỉ dựng khi kỳ đã khóa; thiếu số thực của một ô kế hoạch thì từ chối kèm danh sách đơn vị; kỳ đã chốt chỉ dựng lại sau khi mở lại kỳ có lý do và người duyệt khác [ENT-3a, DL.03, R17, R21]",
+    "test_ids": [
+      "UI-DIS-32",
+      "UAT-DIS-ENT3A-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-DIS-029"
+    ]
+  },
+  {
+    "id": "BL-DIS-33",
+    "requirement": "FR-DIS-33",
+    "screen": "DIS-33",
+    "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,CAP,IND",
+    "fields": [
+      "Kỳ và phiên bản",
+      "Trạng thái và mã băm",
+      "Kế hoạch năm gốc, điều chỉnh, trong hiệu lực",
+      "Ước và thực của kỳ",
+      "Lũy kế năm và từ đầu dự án",
+      "Tỷ lệ kèm tử số, mẫu số",
+      "Theo nhóm vốn",
+      "Theo đơn vị",
+      "Theo dự án",
+      "Chỉ tiêu đã nhập",
+      "Dòng dõi phiên bản"
+    ],
+    "rule": "Mọi số đọc qua một bộ đọc duy nhất trên bản chốt; ô không có số là trống kèm lý do, không bao giờ là 0; bản chốt không sửa, bản mới là phiên bản kế tiếp nối với bản cũ; người dựng không tự chốt [ENT-3a, R17, R21]",
+    "test_ids": [
+      "UI-DIS-33",
+      "UAT-DIS-ENT3A-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-DIS-029"
+    ]
+  },
+  {
+    "id": "BL-ADM-29",
+    "requirement": "FR-ADM-AUDIT-DETAIL",
+    "screen": "ADM-29",
+    "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM,DIS",
+    "fields": [
+      "Loại đối tượng nghiệp vụ",
+      "Bật lưu đủ trước và sau",
+      "Dung lượng tối đa mỗi dòng",
+      "Khóa nhạy cảm thêm",
+      "Lý do",
+      "Phiên bản"
+    ],
+    "rule": "listAuditDetailPolicies, saveAuditDetailPolicy; mặc định tắt; bật theo từng loại đối tượng nghiệp vụ (kỳ số liệu, mở lại kỳ, đẩy HPM); giá trị được che khóa bí mật và dữ kiện cá nhân, cắt theo dung lượng; dòng nhật ký đã niêm phong mang băm của bản đầy đủ nên không đổi được sau này; mọi thay đổi cần lý do và có ghi nhật ký (HT.06)",
+    "test_ids": [
+      "UI-ADM-29",
+      "UAT-ADM-ENT4E-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-ADM-031"
+    ]
+  },
+  {
+    "id": "BL-ADM-30",
+    "requirement": "FR-ADM-LOG-CAPACITY",
+    "screen": "ADM-30",
+    "title": "Giới hạn số lượng và dung lượng log",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Loại log",
+      "Số dòng",
+      "Dung lượng",
+      "Giới hạn dòng",
+      "Giới hạn dung lượng",
+      "Ngưỡng cảnh báo",
+      "Trạng thái",
+      "Dòng được phép lưu trữ",
+      "Dòng được giữ theo hạn lưu",
+      "Lô đã lưu trữ"
+    ],
+    "rule": "getLogCapacity, saveLogCapacityPolicy; log kỹ thuật vượt giới hạn được lưu trữ vào tệp có băm rồi mới xóa đúng các dòng đó, không bao giờ xóa dòng trẻ hơn hạn lưu hoặc đang bị giữ pháp lý; nhật ký nghiệp vụ (audit_event) chỉ được đo và cảnh báo, không bao giờ bị xóa tự động; cảnh báo khi đạt ngưỡng và khi vượt mà không xử lý được; mọi thay đổi cần lý do (HT.06)",
+    "test_ids": [
+      "UI-ADM-30",
+      "UAT-ADM-ENT4E-2"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-ADM-032"
+    ]
+  },
+  {
+    "id": "BL-EQP-01",
+    "requirement": "FR-EQP-01",
+    "screen": "EQP-01",
+    "title": "Mua sắm trang thiết bị dự án",
+    "module": "EQP",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "BID,CTR,PAY",
+    "fields": [
+      "Dòng mua sắm",
+      "Dự án",
+      "Đơn vị",
+      "Giá trị kế hoạch",
+      "Gói thầu",
+      "Kết quả lựa chọn nhà thầu",
+      "Giá trị hợp đồng",
+      "Đã giải ngân",
+      "Tỷ lệ giải ngân",
+      "Giai đoạn",
+      "Mã trên mạng đấu thầu quốc gia",
+      "Cách lấy dữ liệu"
+    ],
+    "rule": "listEquipmentProcurement, createEquipmentProcurementItem; đọc từ BID, CTR, PAY (một đường đọc); số liệu bị che hiện là không có quyền, không phải số không; khung Cách lấy dữ liệu nêu trạng thái nhập tệp e-GP (chưa nhập, mới, cũ) và các bước tải, nạp thử, áp dụng, gắn gói; định dạng tệp là giả định làm việc chờ bên ngoài (PENDING-EXTERNAL); chỉ bản enterprise (CN.02)",
+    "test_ids": [
+      "UI-EQP-01",
+      "UAT-EQP-ENT4E-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R3",
+    "stories": [
+      "ST-EQP-001"
+    ]
+  },
+  {
+    "id": "BL-EQP-02",
+    "requirement": "FR-EQP-02",
+    "screen": "EQP-02",
+    "title": "Chi tiết dòng mua sắm trang thiết bị",
+    "module": "EQP",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "BID,CTR,PAY",
+    "fields": [
+      "Dòng mua sắm",
+      "Giá trị kế hoạch",
+      "Gói thầu",
+      "Kết quả lựa chọn nhà thầu",
+      "Nhà thầu trúng",
+      "Hợp đồng",
+      "Giá trị hợp đồng",
+      "Chênh lệch so với kế hoạch",
+      "Đã giải ngân",
+      "Mã trên mạng đấu thầu quốc gia",
+      "Phiên bản"
+    ],
+    "rule": "getEquipmentProcurement, updateEquipmentProcurementItem; gắn gói thầu và hợp đồng một lần, cùng dự án, hợp đồng thuộc gói; hủy cần lý do; dòng đã hủy không đổi nữa (CN.02)",
+    "test_ids": [
+      "UI-EQP-02",
+      "UAT-EQP-ENT4E-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R3",
+    "stories": [
+      "ST-EQP-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-01",
+    "requirement": "YCK.01",
+    "screen": "PWA-01",
+    "title": "Trang chủ ứng dụng cài đặt",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số việc chờ duyệt",
+      "Ba lối vào",
+      "Cách cài đặt",
+      "Bật thông báo đẩy"
+    ],
+    "rule": "Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn",
+    "test_ids": [
+      "UI-PWA-01"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-02",
+    "requirement": "YCK.01",
+    "screen": "PWA-02",
+    "title": "Hàng đợi phê duyệt số liệu kỳ",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Loại hồ sơ",
+      "Bước",
+      "Đơn vị",
+      "Dự án",
+      "Số tiền",
+      "Hạn",
+      "Phê duyệt",
+      "Trả lại kèm ý kiến"
+    ],
+    "rule": "Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo",
+    "test_ids": [
+      "UI-PWA-02"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-03",
+    "requirement": "YCK.01",
+    "screen": "PWA-03",
+    "title": "Bảng điều hành của lãnh đạo",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Phạm vi và ngày chốt",
+      "Giải ngân và tỷ lệ",
+      "Kế hoạch và việc chờ",
+      "Cần xử lý ngay",
+      "Tiến độ đấu thầu",
+      "Hội đồng"
+    ],
+    "rule": "Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem",
+    "test_ids": [
+      "UI-PWA-03"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-002"
+    ]
+  },
+  {
+    "id": "BL-PWA-04",
+    "requirement": "YCK.01",
+    "screen": "PWA-04",
+    "title": "Theo dõi chỉ đạo",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số liệu tổng hợp",
+      "Bộ lọc trạng thái, quá hạn, đơn vị",
+      "Danh sách chỉ đạo",
+      "Hạn và tiến độ"
+    ],
+    "rule": "Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo",
+    "test_ids": [
+      "UI-PWA-04"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-003"
+    ]
+  },
+  {
+    "id": "BL-PWA-05",
+    "requirement": "YCK.01",
+    "screen": "PWA-05",
+    "title": "Chi tiết phê duyệt số liệu kỳ",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Nội dung và số tiền",
+      "So sánh với kế hoạch",
+      "So sánh với lần báo cáo trước",
+      "Bằng chứng đính kèm",
+      "Lịch sử các bước",
+      "Phê duyệt hoặc trả lại"
+    ],
+    "rule": "Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp",
+    "test_ids": [
+      "UI-PWA-05"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-06",
+    "requirement": "YCK.01",
+    "screen": "PWA-06",
+    "title": "Chi tiết chỉ đạo và dòng thời gian",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Nội dung chỉ đạo",
+      "Đơn vị và người thực hiện",
+      "Hạn gốc và hạn hiện tại",
+      "Dòng thời gian",
+      "Đề nghị gia hạn",
+      "Bằng chứng"
+    ],
+    "rule": "Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính",
+    "test_ids": [
+      "UI-PWA-06"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-003"
+    ]
+  },
+  {
+    "id": "BL-PWA-07",
+    "requirement": "YCK.01",
+    "screen": "PWA-07",
+    "title": "Cài đặt ứng dụng cài đặt",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Thiết bị và phiên đăng nhập",
+      "Ngôn ngữ",
+      "Thông báo theo nhóm sự kiện",
+      "Giờ yên lặng"
+    ],
+    "rule": "Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được",
+    "test_ids": [
+      "UI-PWA-07"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-004"
+    ]
+  },
+  {
+    "id": "BL-PWA-08",
+    "requirement": "YCK.01",
+    "screen": "PWA-08",
+    "title": "Chi tiết số liệu bảng điều hành",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số tiền theo bản chốt",
+      "Xếp hạng",
+      "Nguyên nhân chậm giải ngân",
+      "Dòng tiền",
+      "Thay đổi so với bản chốt trước",
+      "Mức cảnh báo"
+    ],
+    "rule": "Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px",
+    "test_ids": [
+      "UI-PWA-08"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-002"
+    ]
+  },
+  {
+    "id": "BL-PWA-09",
+    "requirement": "YCK.01",
+    "screen": "PWA-09",
+    "title": "Tiến độ đấu thầu trên điện thoại",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số gói và việc quá hạn",
+      "Các bước của quy trình",
+      "Gói ở từng bước"
+    ],
+    "rule": "Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị",
+    "test_ids": [
+      "UI-PWA-09"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-002"
+    ]
+  },
+  {
+    "id": "BL-PWA-10",
+    "requirement": "YCK.01",
+    "screen": "PWA-10",
+    "title": "Cài đặt thông báo đẩy",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Quyền thông báo của trình duyệt",
+      "Đăng ký và hủy đăng ký thiết bị",
+      "Thông báo thử gửi cho chính mình"
+    ],
+    "rule": "Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng",
+    "test_ids": [
+      "UI-PWA-10"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-004"
     ]
   }
 ]
