@@ -34045,7 +34045,8 @@
       "release": "R1",
       "screens": [],
       "operations": [
-        "acknowledgePush"
+        "acknowledgePush",
+        "sendMyTestPush"
       ],
       "tables": [],
       "nfr": [

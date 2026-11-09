@@ -18,6 +18,8 @@ import { DeviceRegistrationsController } from '../../notifications/devices/devic
 import { InMemoryPushTokenVault, PUSH_TOKEN_VAULT } from '../../notifications/devices/push-vault';
 import { PushReceiptController, WEBPUSH_RECEIPT_KEYS } from '../../notifications/push/push-receipt.controller';
 import { receiptKeysFromEnv } from '../../notifications/push/web-push-config';
+import { MyTestPushController } from '../../notifications/push/my-test-push.controller';
+import { WEB_PUSH_RUNTIME, webPushRuntime } from '../../notifications/push/web-push-wiring';
 import { CampaignsController } from '../../notifications/campaigns/campaigns.controller';
 import { ChannelLimitsController } from '../../notifications/limits/limits.controller';
 import { NotificationTemplatesController } from '../../notifications/templates/templates.controller';
@@ -50,6 +52,7 @@ export const notificationsModule = defineModule({
     ChannelLimitsController,
     CampaignsController,
     PushReceiptController,
+    MyTestPushController,
   ],
   // The provider webhook finds its tenant through the control plane (the channel account of the receipt), so it is active only where the application has one.
   controlPlane: { controllers: [ChannelWebhookController] },
@@ -61,6 +64,8 @@ export const notificationsModule = defineModule({
     { provide: PUSH_TOKEN_VAULT, useClass: InMemoryPushTokenVault },
     { provide: WEBHOOK_PAYLOADS, useFactory: () => defaultWebhookPayloads() },
     // The keys that verify the receipt a web push carries (the acknowledgement of a service worker); none means no receipt is verified.
+    // One web-push runtime for the channel adapter and the test message of the person: the same sender and the same limit per tenant.
+    { provide: WEB_PUSH_RUNTIME, useFactory: () => webPushRuntime(process.env) },
     { provide: WEBPUSH_RECEIPT_KEYS, useFactory: () => receiptKeysFromEnv(process.env) },
     {
       provide: DELIVERY_ENGINE,

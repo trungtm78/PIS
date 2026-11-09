@@ -1524,6 +1524,7 @@ export const OPERATIONS = {
   "sendConversationMessage": { method: "post", path: "/conversations/{conversationId}/messages", versioned: true, stepUp: null, permission: "omni.conversation.reply" },
   "sendDocTransmittal": { method: "post", path: "/doc-transmittals", versioned: false, stepUp: null, permission: "doc.transmittal.send" },
   "sendMonitoringNotice": { method: "post", path: "/monitoring-files/{id}/notice", versioned: true, stepUp: null, permission: "project.monitoring.manage" },
+  "sendMyTestPush": { method: "post", path: "/me/devices/{deviceId}/test-push", versioned: false, stepUp: null, permission: "session.self" },
   "sendTestNotification": { method: "post", path: "/notification-templates/{templateId}/test-sends", versioned: false, stepUp: null, permission: "notification.template.manage" },
   "setChangeChainTiers": { method: "post", path: "/projects/{id}/change-chain-config", versioned: false, stepUp: null, permission: "change.tiers.configure" },
   "setChannelLimits": { method: "put", path: "/channel-accounts/{channelAccountId}/limits", versioned: true, stepUp: null, permission: "notification.channel.manage" },

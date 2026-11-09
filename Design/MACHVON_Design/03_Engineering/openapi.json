@@ -228663,6 +228663,126 @@
           }
         }
       }
+    },
+    "/me/devices/{deviceId}/test-push": {
+      "post": {
+        "operationId": "sendMyTestPush",
+        "summary": "Gui thong bao thu den thiet bi web cua chinh minh (cai dat thong bao day, YCK.01)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "session.self",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed result (replayed on idempotent retry)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED / SIGNATURE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND within authorized scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED / domain invariant",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "RATE_LIMIT"
+        ],
+        "x-plane": "tenant",
+        "x-audit-action": "device.test_push_sent"
+      }
     }
   },
   "components": {

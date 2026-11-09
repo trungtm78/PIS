@@ -1526,6 +1526,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'sendConversationMessage': OperationDescriptor(method: 'POST', path: '/conversations/{conversationId}/messages', versioned: true, stepUp: null, permission: 'omni.conversation.reply'),
   'sendDocTransmittal': OperationDescriptor(method: 'POST', path: '/doc-transmittals', versioned: false, stepUp: null, permission: 'doc.transmittal.send'),
   'sendMonitoringNotice': OperationDescriptor(method: 'POST', path: '/monitoring-files/{id}/notice', versioned: true, stepUp: null, permission: 'project.monitoring.manage'),
+  'sendMyTestPush': OperationDescriptor(method: 'POST', path: '/me/devices/{deviceId}/test-push', versioned: false, stepUp: null, permission: 'session.self'),
   'sendTestNotification': OperationDescriptor(method: 'POST', path: '/notification-templates/{templateId}/test-sends', versioned: false, stepUp: null, permission: 'notification.template.manage'),
   'setChangeChainTiers': OperationDescriptor(method: 'POST', path: '/projects/{id}/change-chain-config', versioned: false, stepUp: null, permission: 'change.tiers.configure'),
   'setChannelLimits': OperationDescriptor(method: 'PUT', path: '/channel-accounts/{channelAccountId}/limits', versioned: true, stepUp: null, permission: 'notification.channel.manage'),

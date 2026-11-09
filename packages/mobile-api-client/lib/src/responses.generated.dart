@@ -1527,6 +1527,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'sendConversationMessage': CommandResultResponse.fromJson,
   'sendDocTransmittal': CommandResultResponse.fromJson,
   'sendMonitoringNotice': CommandResultResponse.fromJson,
+  'sendMyTestPush': CommandResultResponse.fromJson,
   'sendTestNotification': CommandResultResponse.fromJson,
   'setChangeChainTiers': CommandResultResponse.fromJson,
   'setChannelLimits': CommandResultResponse.fromJson,

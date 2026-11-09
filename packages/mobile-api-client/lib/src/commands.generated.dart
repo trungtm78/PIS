@@ -4576,6 +4576,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> sendMonitoringNotice(SendMonitoringNotice body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('sendMonitoringNotice', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> sendMyTestPush({required String deviceId, CommandAttempt? attempt}) =>
+      execute('sendMyTestPush', path: <String, Object?>{'deviceId': deviceId}, attempt: attempt);
+
   Future<Object?> sendTestNotification(TestSendRequest body, {required String templateId, CommandAttempt? attempt}) =>
       execute('sendTestNotification', path: <String, Object?>{'templateId': templateId}, body: body, attempt: attempt);
 

@@ -1523,6 +1523,7 @@
   "sendConversationMessage": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "sendDocTransmittal": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "sendMonitoringNotice": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
+  "sendMyTestPush": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "sendTestNotification": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "setChangeChainTiers": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "setChannelLimits": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},

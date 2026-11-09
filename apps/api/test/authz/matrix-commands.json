@@ -529,7 +529,7 @@
     "runReconciliation",
     "updateMyProfile",
     "revokeMySession",
-    "revokeMyDevice",
+    "revokeMyDevice","sendMyTestPush",
     "createWorkflowDraft",
     "updateWorkflowDraft",
     "publishWorkflowVersion",
