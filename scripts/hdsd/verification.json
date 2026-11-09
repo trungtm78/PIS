@@ -71,7 +71,7 @@
   "blockers": {},
   "alertCentre": {
     "status": "UNTESTED",
-    "note": "The alert centre (the block Needs action now of the home screens, MOB-07 and MOB-08) is not a screen of its own, so it has no step in mobile-chapters.json; its pass criteria are kept here and in UAT-PLAN-3101. The chapter m14 only waits for the block before it opens MOB-72.",
+    "note": "The alert centre (the block Needs action now of the home screens, MOB-07 and MOB-08) is not a screen of its own, so it has no step in mobile-chapters.json; its pass criteria are kept here and in UAT-PLAN-3101. MOB-72, MOB-73, MOB-74 are protected screens and are listed in not-filmed.json, so no chapter of the guide shows them.",
     "criteria": [
       "Every alert of the feed shows a label for its source in words; a raw source code on screen fails the check (the 43 values of WorkSource in openapi.json each have a label).",
       "Every alert shows its severity as icon and text and its consequence line; colour alone never carries the severity.",

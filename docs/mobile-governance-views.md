@@ -38,6 +38,10 @@ All 43 values of `WorkSource` in `openapi.json` have a label in words (`alertSou
 
 Reads go through `features/read_support`: the last answer is kept with its `as_of` and the moment the phone got it, per tenant and per person (BR-MOB-01, R6). Offline, the screen shows that copy with its as-of time and the words "stale" once it is older than its time to live; it is never presented as the latest. A copy is dropped on sign-out and on a change of tenant or person. Only answers are kept: no command is queued from these screens. The committee workspace is confidential and the server answers it with `Cache-Control: no-store`, so MOB-72 keeps NO copy on the device (`keepCopy: false`): without a connection it shows the offline state, never an old table of the province.
 
+## Secure screens
+
+Lane MOBILE3 decided that four more screens are protected against screenshots, screen recording and the app-switcher thumbnail (`kSecureScreenIds` in `route_policy.dart`): MOB-65 (the decision papers of an acceptance), MOB-72 (the confidential committee workspace), MOB-73 and MOB-74 (the risk grades of named contractors, which are findings and not for a picture that leaves the phone). A test pins the four ids, the node tests of `scripts/hdsd` hold `not-filmed.json` equal to the set, and the guide no longer films them.
+
 ## Audit of views
 
 The committee workspace is classified CONFIDENTIAL. Every read writes one row of `committee_view_audit` on the server in the same transaction (who, committee role, screen, filters, as-of, record count, assurance level); a view that cannot be recorded is not answered. The phone therefore counts as one view per opening and one per explicit refresh. Reading the audit is itself audited and stays on the web.
@@ -55,4 +59,4 @@ The committee workspace is classified CONFIDENTIAL. Every read writes one row of
 
 ## Verification
 
-Screen contracts UI-MOB-72, UI-MOB-73, UI-MOB-74 (seven states, tap targets, screen reader) and UAT-PLAN-3101 (alert labels and targets, committee dashboard, risk views, node statistics, offline). The phone steps of the guide are chapter `m14-ban-chi-dao-rui-ro-nha-thau-dien-thoai` in `scripts/hdsd/mobile-chapters.json`; their state in `scripts/hdsd/verification.json` is UNTESTED until a walk on a device passes them.
+Screen contracts UI-MOB-72, UI-MOB-73, UI-MOB-74 (seven states, tap targets, screen reader) and UAT-PLAN-3101 (alert labels and targets, committee dashboard, risk views, node statistics, offline). MOB-72, MOB-73 and MOB-74 are protected screens (see "Secure screens"), so the guide films none of them: they are listed in `scripts/hdsd/not-filmed.json` with the reason, and the former chapter `m14-ban-chi-dao-rui-ro-nha-thau-dien-thoai` was removed from `scripts/hdsd/mobile-chapters.json`. The alert centre criteria stay in `scripts/hdsd/verification.json` (UNTESTED until a walk on a device passes them).

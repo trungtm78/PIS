@@ -189,6 +189,8 @@ void main() {
       expect(kSecureScreenIds.difference(catalogue), isEmpty);
       expect(kSecureScreenIds.difference(implemented), isEmpty, reason: 'a protected screen that does not exist protects nothing');
       expect(kSecureScreenIds, containsAll(<String>['MOB-23', 'MOB-24', 'MOB-25', 'MOB-26', 'MOB-67', 'DOC-22', 'MOB-27', 'MOB-60', 'MOB-14', 'MOB-20']));
+      // the acceptance decision papers, the confidential committee workspace and the grades of risk of the contractors (lane MOBILE3)
+      expect(kSecureScreenIds, containsAll(<String>['MOB-65', 'MOB-72', 'MOB-73', 'MOB-74']));
     });
   });
 

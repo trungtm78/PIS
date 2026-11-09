@@ -17,7 +17,7 @@ Branch `lane/mobile3`, worktree `D:\PIS-mobile3`. Owner rule 2026-11-08: decide 
 |---|---|---|---|
 | 1 | Plan, commit | | [x] |
 | 2 | Documentation duplicates, `.gitignore` for crash logs | `check-cli` | [x] |
-| 3 | Secure screens MOB-65, 72, 73, 74 and not-filmed ledger | `test/hardening/secure_window_test.dart`, `scripts/hdsd` node tests | [ ] |
+| 3 | Secure screens MOB-65, 72, 73, 74 and not-filmed ledger | `test/hardening/secure_window_test.dart`, `scripts/hdsd` node tests | [x] |
 | 4 | Alert routing for payment, contract, issue, permit, audit, report, diary, claim sources | `test/features/dashboard/alert_routing_test.dart` | [ ] |
 | 5 | Push adapter, permission flow, token refresh, revoke, payload deep link, receipt port | `test/features/notification_inbox/push_adapter_test.dart` | [ ] |
 | 6 | MOB-75 delegations and absences, MOB-76 KPI register, MOB-77 report catalogue | `test/features/governance_reads` | [ ] |
