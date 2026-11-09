@@ -8,6 +8,7 @@ import DirectiveDetailScreen from './screens/DirectiveDetailScreen';
 import DirectivesScreen from './screens/DirectivesScreen';
 import LeaderDashboardScreen from './screens/LeaderDashboardScreen';
 import PwaStartScreen from './screens/PwaStartScreen';
+import SettingsScreen from './screens/SettingsScreen';
 
 /** The route of the start page and the three screens; `/m` is what the manifest's `start_url` opens. */
 export const PWA_ROUTE_PREFIX = '/m';
@@ -29,6 +30,7 @@ export function PwaRoutes() {
       <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
       <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
       <Route path="directives/:id" element={<Gated><DirectiveDetailScreen /></Gated>} />
+      <Route path="settings" element={<Gated><SettingsScreen /></Gated>} />
       <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />
     </Routes>
   );

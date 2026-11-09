@@ -15,6 +15,7 @@ import './pwa.css';
 export const APPROVALS_PATH = '/m/approvals';
 export const DASHBOARD_PATH = '/m/dashboard';
 export const DIRECTIVES_PATH = '/m/directives';
+export const SETTINGS_PATH = '/m/settings';
 
 type T = Translator['t'];
 
@@ -96,6 +97,11 @@ export default function PwaStartScreen({ pushDeps, manualInstall }: PwaStartScre
       </nav>
       <InstallCard manualInstall={manualInstall} />
       <PushCard pushDeps={pushDeps} />
+      <p>
+        <Link to={SETTINGS_PATH} className="ui-button ui-button--outline pwa-touch" data-entry="settings">
+          {t('pwa2.start.settings.link')}
+        </Link>
+      </p>
     </section>
   );
 }

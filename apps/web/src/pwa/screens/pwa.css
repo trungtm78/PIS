@@ -82,3 +82,8 @@
 .pwa-more { align-self: center; }
 .pwa-scroll-x { overflow-x: auto; max-width: 100%; }
 @media (max-width: 480px) { .pwa-screen table { display: block; overflow-x: auto; max-width: 100%; } }
+.pwa-fieldset { margin: 0; padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); display: flex; flex-direction: column; gap: var(--mv-space-8); min-width: 0; }
+.pwa-fieldset legend { font-weight: 600; padding-inline: var(--mv-space-4); }
+.pwa-details summary { cursor: pointer; font-weight: 600; }
+.pwa-clamp { margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.pwa-link-title { color: var(--mv-color-primary); font-weight: 700; justify-content: flex-start; }
