@@ -182,8 +182,10 @@ export class EnterpriseFigureReader {
   private readonly byCell = new Map<string, Map<string, SnapshotFigure>>();
   private readonly tmdt = new Map<string, string | null>();
   private readonly unitOf = new Map<string, string>();
+  readonly view: EnterpriseSnapshotView;
 
-  constructor(readonly view: EnterpriseSnapshotView) {
+  constructor(view: EnterpriseSnapshotView) {
+    this.view = view;
     for (const row of view.figures) {
       this.unitOf.set(row.projectId, row.unitId);
       if (row.figureKind === TMDT_KIND) {

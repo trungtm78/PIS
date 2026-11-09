@@ -28,6 +28,8 @@ export class ReportFormRegistry {
     if (bundle.layout.status === 'DEMO' && (bundle.dataSource !== 'ILLUSTRATIVE' || bundle.illustrative === undefined)) throw new DomainError('VALIDATION_FAILED', 422, 'demo_form_data');
     if (bundle.dataSource === 'ILLUSTRATIVE' && bundle.layout.status !== 'DEMO') throw new DomainError('VALIDATION_FAILED', 422, 'illustrative_not_demo');
     if (bundle.dataSource === 'LIVE' && (bundle.provider === null || bundle.illustrative !== undefined)) throw new DomainError('VALIDATION_FAILED', 422, 'live_form_provider');
+    // ENT-3a: a snapshot provider belongs to a DEMO form (it replaces the invented data while the layout stays DEMO); a LIVE form has its own provider.
+    if (bundle.snapshotProvider !== undefined && bundle.snapshotProvider !== null && bundle.dataSource !== 'ILLUSTRATIVE') throw new DomainError('VALIDATION_FAILED', 422, 'snapshot_provider_form');
     this.forms.set(code, bundle);
   }
 
