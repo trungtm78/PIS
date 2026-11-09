@@ -11,6 +11,18 @@ import { membershipOf, sql } from './support/stack.ts';
  * the server refuses the call), and the support capital is a group of its own. What the screens changed is looked up in the database.
  */
 
+/**
+ * The edition the stack serves (MACHVON_EDITION, which the stack and the browser build both read): the enterprise register lists other origins than the public one, one budget level and a kind of decision document
+ * (ENT-3e), so the flows that are not about a particular origin register the first line the edition accepts.
+ */
+const ENTERPRISE = (process.env.MACHVON_EDITION ?? process.env.VITE_EDITION) === 'enterprise';
+/** The line the form opens on, in the words of the database and of the screen. */
+const FIRST = ENTERPRISE ? { origin: 'GROUP_ASSIGNED', level: 'ALL', kind: 'GROUP_RESOLUTION' } : { origin: 'PM_ASSIGNED', level: 'CENTRAL', kind: null };
+/** A second kind of line, chosen on the form. */
+const SECOND = ENTERPRISE
+  ? { origin: 'BOARD_APPROVED', originLabel: vi['cap.origin.boardApproved.label'], level: 'ALL', levelLabel: vi['cap.level.all.label'], kind: 'COMPANY_DECISION' }
+  : { origin: 'LOCAL_ADDED', originLabel: vi['cap.origin.localAdded.label'], level: 'LOCAL', levelLabel: vi['cap.level.local.label'], kind: null };
+
 /** The decision documents the stack seeds in tenant A (apps/api/test/e2e-stack): 1 to 4. */
 const docId = (n: number): string => `00000000-0000-4000-005d-${n.toString(16).padStart(12, '0')}`;
 const CITATION = (n: number): string => `QD-E2E-${n}/2026`;
@@ -26,6 +38,7 @@ interface AppropriationRow {
   status: string;
   origin: string;
   budget_level: string;
+  decision_kind: string | null;
   plan_year: number;
   amount_vnd: string;
   allocated_total_vnd: string;
@@ -39,7 +52,7 @@ interface AppropriationRow {
 
 const linesOf = (year: number): Promise<AppropriationRow[]> =>
   sql(
-    `select a.id, a.status, a.origin, a.budget_level, a.plan_year, a.amount_vnd::text as amount_vnd, a.allocated_total_vnd::text as allocated_total_vnd, a.revision,
+    `select a.id, a.status, a.origin, a.budget_level, a.decision_kind, a.plan_year, a.amount_vnd::text as amount_vnd, a.allocated_total_vnd::text as allocated_total_vnd, a.revision,
             a.supersedes_id, a.created_by, a.approved_by, a.decision_document_id, r.business_key as fund_key
        from machvon.appropriation a
        join machvon.master_record_version v on v.id = a.fund_source_version_id
@@ -60,6 +73,8 @@ interface Entry {
   authority: string;
   origin?: string;
   level?: string;
+  /** The label of the kind of decision document (enterprise edition). */
+  kind?: string;
 }
 
 async function register(page: Page, entry: Entry): Promise<void> {
@@ -69,6 +84,7 @@ async function register(page: Page, entry: Entry): Promise<void> {
   await field(panel, vi['cap.form.year.label']).fill(entry.year);
   if (entry.origin !== undefined) await field(panel, vi['cap.form.origin.label']).selectOption({ label: entry.origin });
   if (entry.level !== undefined) await field(panel, vi['cap.form.level.label']).selectOption({ label: entry.level });
+  if (entry.kind !== undefined) await field(panel, vi['cap.form.decisionKind.label']).selectOption({ label: entry.kind });
   await field(panel, vi['cap.form.amount.label']).fill(entry.amount);
   await field(panel, vi['cap.form.decision.label']).fill(docId(entry.doc));
   await field(panel, vi['cap.form.authority.label']).fill(entry.authority);
@@ -107,9 +123,9 @@ test.describe('CAP-16 appropriation book', () => {
     await panel.getByRole('button', { name: vi['cap.form.submit.action'] }).click();
     await expect(panel).toBeHidden();
     const [draft] = await linesOf(2027);
-    expect(draft).toMatchObject({ status: 'DRAFT', origin: 'PM_ASSIGNED', budget_level: 'CENTRAL', amount_vnd: '150000000', allocated_total_vnd: '0', revision: 1, supersedes_id: null, created_by: membershipOf('capPlanner'), approved_by: null, decision_document_id: docId(1), fund_key: 'NSTW' });
+    expect(draft).toMatchObject({ status: 'DRAFT', origin: FIRST.origin, budget_level: FIRST.level, decision_kind: FIRST.kind, amount_vnd: '150000000', allocated_total_vnd: '0', revision: 1, supersedes_id: null, created_by: membershipOf('capPlanner'), approved_by: null, decision_document_id: docId(1), fund_key: 'NSTW' });
     const first = draft?.id ?? '';
-    await expect(rowOf(page, first)).toHaveAttribute('data-origin', 'PM_ASSIGNED');
+    await expect(rowOf(page, first)).toHaveAttribute('data-origin', FIRST.origin);
     await expect(rowOf(page, first).locator('[data-status]')).toHaveText(vi['cap.status.draft.label']);
     await expect(rowOf(page, first)).toContainText(CITATION(1));
     // The planner holds no approval permission: the draft offers no decision, and a draft is not in the total (of the year: the book holds the capital of other years too).
@@ -201,10 +217,10 @@ test.describe('CAP-16 appropriation book', () => {
     });
     // The owner holds every permission, the approval of the capital among them.
     await open(page, 'owner');
-    await register(page, { fund: 'NSDP · Ngân sách địa phương', year: '2028', amount: '40', doc: 3, authority: 'Hội đồng nhân dân tỉnh', origin: vi['cap.origin.localAdded.label'], level: vi['cap.level.local.label'] });
+    await register(page, { fund: 'NSDP · Ngân sách địa phương', year: '2028', amount: '40', doc: 3, authority: 'Hội đồng nhân dân tỉnh', origin: SECOND.originLabel, level: SECOND.levelLabel });
     await expect(page.getByRole('form', { name: vi['cap.book.form.new.title'] })).toBeHidden();
     const [draft] = await linesOf(2028);
-    expect(draft).toMatchObject({ status: 'DRAFT', origin: 'LOCAL_ADDED', budget_level: 'LOCAL', fund_key: 'NSDP', created_by: membershipOf('owner') });
+    expect(draft).toMatchObject({ status: 'DRAFT', origin: SECOND.origin, budget_level: SECOND.level, decision_kind: SECOND.kind, fund_key: 'NSDP', created_by: membershipOf('owner') });
     const id = draft?.id ?? '';
     await expect(rowOf(page, id).getByText(vi['cap.book.ownDraft.notice'])).toBeVisible();
     await expect(rowOf(page, id).locator('[data-decision]')).toHaveCount(0);
@@ -224,10 +240,10 @@ test.describe('CAP-16 appropriation book', () => {
     await open(page, 'capApprover');
     await decide(page, id, 'approve', 'Nghị quyết của Hội đồng nhân dân tỉnh');
     await expect(rowOf(page, id).locator('[data-status]')).toHaveText(vi['cap.status.published.label']);
-    await expect(rowOf(page, id).locator('[data-origin="LOCAL_ADDED"]')).toHaveText(vi['cap.origin.localAdded.label']);
+    await expect(rowOf(page, id).locator(`[data-origin="${SECOND.origin}"]`)).toHaveText(SECOND.originLabel);
     await expect(rowOf(page, id).getByTestId('remaining').locator('.cap-money')).toHaveAttribute('data-vnd', '40000000');
     expect((await linesOf(2028))[0]).toMatchObject({ status: 'PUBLISHED', approved_by: membershipOf('capApprover'), created_by: membershipOf('owner') });
-    await field(page.getByRole('search', { name: vi['cap.book.filters.title'] }), vi['cap.book.origin.label']).selectOption('PM_ASSIGNED');
+    await field(page.getByRole('search', { name: vi['cap.book.filters.title'] }), vi['cap.book.origin.label']).selectOption(FIRST.origin);
     await expect(rowOf(page, id)).toHaveCount(0);
 
     // A second draft of the owner is rejected by another person for a stated reason; a rejected draft leaves the book.
@@ -235,7 +251,7 @@ test.describe('CAP-16 appropriation book', () => {
     await register(page, { fund: 'NSTW · Ngân sách trung ương', year: '2028', amount: '10', doc: 3, authority: 'Thủ tướng Chính phủ' });
     await expect(page.getByRole('form', { name: vi['cap.book.form.new.title'] })).toBeHidden();
     const rejected = (await linesOf(2028)).find((line) => line.id !== id);
-    expect(rejected).toMatchObject({ status: 'DRAFT', origin: 'PM_ASSIGNED', fund_key: 'NSTW' });
+    expect(rejected).toMatchObject({ status: 'DRAFT', origin: FIRST.origin, fund_key: 'NSTW' });
     const rejectedId = rejected?.id ?? '';
     await open(page, 'capApprover');
     await decide(page, rejectedId, 'reject', 'Văn bản giao chưa đủ căn cứ');
@@ -261,6 +277,8 @@ test.describe('CAP-16 appropriation book', () => {
 });
 
 test.describe('CAP-04 fund sources and CAP-14 support capital', () => {
+  // Central support and revenue increase are origins of the public pack; the enterprise pack lists the resolution of the group and the decision of the company instead (the next test).
+  test.skip(ENTERPRISE, 'the origins of the support capital belong to the public pack');
   test('published support capital is a group of its own on CAP-14, and the fund tree of CAP-04 shows it under its source with the ODA lending badge (AC-ST-CAP-001-2)', async ({ page }) => {
     await open(page, 'capPlanner');
     await register(page, {
@@ -321,5 +339,35 @@ test.describe('CAP-04 fund sources and CAP-14 support capital', () => {
     await expect(source.locator(`li[data-appropriation-id="${id}"]`)).toContainText(CITATION(4));
     await expect(page.locator('li[data-category="ODA"]')).toBeVisible();
     await expect(page.getByTestId('grand-total')).toBeVisible();
+  });
+});
+
+test.describe('CAP-16 in the enterprise edition (ENT-3e)', () => {
+  test.skip(!ENTERPRISE, 'the origins, the level and the kinds of decision document belong to the enterprise pack');
+
+  test('the form opens on a line the pack accepts, the kinds follow the origin, and the register keeps the kind of the document that backs the line (AC-ST-CAP-001-1)', async ({ page }) => {
+    await open(page, 'capPlanner');
+    await page.getByRole('button', { name: vi['cap.book.register.action'] }).click();
+    const panel = form(page, vi['cap.book.form.new.title']);
+    // Nothing but the required fields is needed: the origin, the single level and the kind of document are already ones the pack accepts.
+    await expect(field(panel, vi['cap.form.origin.label'])).toHaveValue('GROUP_ASSIGNED');
+    await expect(field(panel, vi['cap.form.level.label'])).toHaveValue('ALL');
+    await expect(field(panel, vi['cap.form.decisionKind.label'])).toHaveValue('GROUP_RESOLUTION');
+    await expect(field(panel, vi['cap.form.origin.label']).locator('option')).toHaveCount(3);
+    await expect(field(panel, vi['cap.form.level.label']).locator('option')).toHaveCount(1);
+    // The company's own origin takes the kinds of the company.
+    await field(panel, vi['cap.form.origin.label']).selectOption('BOARD_APPROVED');
+    await expect(field(panel, vi['cap.form.decisionKind.label'])).toHaveValue('COMPANY_RESOLUTION');
+    await field(panel, vi['cap.form.decisionKind.label']).selectOption('COMPANY_DECISION');
+    await field(panel, vi['cap.form.fund.label']).selectOption({ label: 'NSDP · Ngân sách địa phương' });
+    await field(panel, vi['cap.form.year.label']).fill('2031');
+    await field(panel, vi['cap.form.amount.label']).fill('250');
+    await field(panel, vi['cap.form.decision.label']).fill(docId(4));
+    await field(panel, vi['cap.form.authority.label']).fill('Hội đồng thành viên Tổng công ty');
+    await panel.getByRole('button', { name: vi['cap.form.submit.action'] }).click();
+    await expect(panel).toBeHidden();
+    const [draft] = await linesOf(2031);
+    expect(draft).toMatchObject({ status: 'DRAFT', origin: 'BOARD_APPROVED', budget_level: 'ALL', decision_kind: 'COMPANY_DECISION', amount_vnd: '250000000', fund_key: 'NSDP', created_by: membershipOf('capPlanner') });
+    await expect(rowOf(page, draft?.id ?? '')).toHaveAttribute('data-origin', 'BOARD_APPROVED');
   });
 });

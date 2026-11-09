@@ -16,8 +16,11 @@ const tx = textsWithOverlay('capital-plan', TEXTS);
 export interface AppropriationSpec {
   key: string;
   fund: string;
-  origin: 'PM_ASSIGNED' | 'LOCAL_ADDED' | 'CARRYOVER' | 'CENTRAL_SUPPORT' | 'REVENUE_INCREASE';
-  level: 'CENTRAL' | 'LOCAL';
+  /** The five origins of the public pack, then the two of the enterprise pack (ENT-3e); the register judges which of them the edition takes. */
+  origin: 'PM_ASSIGNED' | 'LOCAL_ADDED' | 'CARRYOVER' | 'CENTRAL_SUPPORT' | 'REVENUE_INCREASE' | 'GROUP_ASSIGNED' | 'BOARD_APPROVED';
+  level: 'CENTRAL' | 'LOCAL' | 'ALL';
+  /** The kind of the decision document: required by the enterprise pack, never sent to the public one. */
+  decisionKind?: string;
   program?: 'NTM' | 'DTTS' | 'GNBV';
   billions: number;
   authority: string;
@@ -50,7 +53,8 @@ export interface LineSpec {
   project: string;
   appropriation: string;
   billions: number;
-  bucket?: 'CURRENT_YEAR' | 'CARRYOVER';
+  /** The class of the line: the two buckets of the public pack, or a class of the enterprise pack (EQUITY, LOAN, OTHER). */
+  bucket?: 'CURRENT_YEAR' | 'CARRYOVER' | 'EQUITY' | 'LOAN' | 'OTHER';
   sourceYear?: number;
   ctmtqg?: boolean;
 }
@@ -87,6 +91,7 @@ export async function registerAppropriations(ctx: SeedContext): Promise<void> {
         plan_year: 2026,
         origin: spec.origin,
         budget_level: spec.level,
+        ...(spec.decisionKind === undefined ? {} : { decision_kind: spec.decisionKind }),
         ...(program === undefined ? {} : { program_master_version_id: program.version_id }),
         amount_vnd: vnd(spec.billions),
         decision_document_id: letter.documentId,

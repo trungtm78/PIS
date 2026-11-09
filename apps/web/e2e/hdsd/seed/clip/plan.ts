@@ -22,9 +22,9 @@ export interface ClipPlan {
   areas: Array<{ key: string; name: string }>;
   areaDecision: { symbol: string; title: string };
   appropriationOverrides: Record<string, number>;
-  extraAppropriations: Array<{ key: string; fund: string; origin: AppropriationSpec['origin']; level: 'CENTRAL' | 'LOCAL'; billions: number; sourceYear: number; authority: string; symbol: string; title: string; issuedOn: string }>;
+  extraAppropriations: Array<{ key: string; fund: string; origin: AppropriationSpec['origin']; level: AppropriationSpec['level']; billions: number; sourceYear: number; authority: string; symbol: string; title: string; issuedOn: string }>;
   projects: ProjectSpec[];
-  lines: Array<{ project: string; appropriation: string; billions: number }>;
+  lines: Array<{ project: string; appropriation: string; billions: number; bucket?: LineSpec['bucket'] }>;
   [more: string]: unknown;
 }
 
@@ -52,7 +52,7 @@ export function clipText(key: string, ...args: readonly unknown[]): string {
  * run unchanged on the projects and contractors of the enterprise, and nothing of the province is written into the product.
  */
 function applyEnterprisePlan(plan: ClipPlan): void {
-  const capital = plan.capital as { appropriations: Array<ClipPlan['extraAppropriations'][number]>; lines: Array<{ project: string; appropriation: string; billions: number }> };
+  const capital = plan.capital as { appropriations: Array<ClipPlan['extraAppropriations'][number] & { decisionKind?: string }>; lines: Array<{ project: string; appropriation: string; billions: number; bucket?: LineSpec['bucket'] }> };
   MORE_AREAS.length = 0;
   PROJECTS.length = 0;
   PROJECTS.push(...plan.projects);
@@ -67,11 +67,13 @@ function applyEnterprisePlan(plan: ClipPlan): void {
       authority: extra.authority,
       sourceYear: extra.sourceYear,
       letter: { symbol: extra.symbol, title: extra.title, issuedOn: extra.issuedOn, sender: extra.authority },
+      // The enterprise pack requires the kind of the document that backs the assignment (ENT-3e); the public one binds none.
+      ...(extra.decisionKind === undefined ? {} : { decisionKind: extra.decisionKind }),
       decide: 'approve',
     });
   }
   LINES.length = 0;
-  for (const line of capital.lines) LINES.push({ project: line.project, appropriation: line.appropriation, billions: line.billions } satisfies LineSpec);
+  for (const line of capital.lines) LINES.push({ project: line.project, appropriation: line.appropriation, billions: line.billions, ...(line.bucket === undefined ? {} : { bucket: line.bucket }) } satisfies LineSpec);
   PLANS.length = 0;
   PLANS.push(...(plan.tenders as PlanSpec[]));
   CONTRACTORS.length = 0;

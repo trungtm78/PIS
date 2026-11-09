@@ -18,6 +18,19 @@ export const ALL_ORIGINS: readonly Origin[] = [...ORIGINS, ...ENTERPRISE_ORIGINS
 export const BUDGET_LEVELS = ['CENTRAL', 'LOCAL'] as const;
 /** The single level of the enterprise pack. */
 export const ENTERPRISE_LEVEL = 'ALL';
+/**
+ * The origins the form of the enterprise edition offers: the enterprise pack lists the resolution of the group, the decision of the company and the carry-over, and refuses the five public ones (CAP, ENT-3e; the order is the one of
+ * `enterprisePackParams`). The test `enterprise-origin.test.ts` keeps this list and the kinds below equal to the built-in pack of the kernel.
+ */
+export const ENTERPRISE_FORM_ORIGINS = ['GROUP_ASSIGNED', 'BOARD_APPROVED', 'CARRYOVER'] as const;
+/** The kinds of decision document (codes of the legal-document catalogue) that may back an appropriation of each origin of the enterprise pack; the register refuses an enterprise appropriation without one of them. */
+export const ENTERPRISE_DECISION_KINDS: Readonly<Record<(typeof ENTERPRISE_FORM_ORIGINS)[number], readonly string[]>> = {
+  GROUP_ASSIGNED: ['GROUP_RESOLUTION', 'GROUP_DECISION'],
+  BOARD_APPROVED: ['COMPANY_RESOLUTION', 'COMPANY_DECISION'],
+  CARRYOVER: ['GROUP_RESOLUTION', 'GROUP_DECISION', 'COMPANY_RESOLUTION', 'COMPANY_DECISION'],
+};
+/** The kinds of decision document an origin of the enterprise pack takes; none for an origin the pack does not list (the public ones bind no kind). */
+export const decisionKindsOf = (origin: string): readonly string[] => (ENTERPRISE_DECISION_KINDS as Readonly<Record<string, readonly string[] | undefined>>)[origin] ?? [];
 export type BudgetLevel = (typeof BUDGET_LEVELS)[number] | typeof ENTERPRISE_LEVEL;
 export type AppropriationStatus = 'DRAFT' | 'APPROVED' | 'PUBLISHED' | 'SUPERSEDED' | 'REJECTED';
 const STATUSES: readonly string[] = ['DRAFT', 'APPROVED', 'PUBLISHED', 'SUPERSEDED', 'REJECTED'];
@@ -90,6 +103,8 @@ export interface AppropriationLine {
   createdBy: string;
   approvedBy: string | null;
   version: number;
+  /** The kind of the decision document that backs the line: the enterprise pack requires one, the public pack has none. */
+  decisionKind: string | null;
 }
 
 function masterRefOf(value: unknown): MasterRef | null {
@@ -166,6 +181,7 @@ export function toAppropriation(raw: unknown): AppropriationLine | undefined {
     createdBy: text(row.created_by) ?? '',
     approvedBy: nullableText(row.approved_by),
     version,
+    decisionKind: nullableText(row.decision_kind),
   };
 }
 
@@ -345,6 +361,8 @@ export interface AppropriationForm {
   sourceYear: string;
   extendedTo: string;
   extensionDocumentId: string;
+  /** The kind of the decision document (enterprise edition only; empty in the public one, which binds none). */
+  decisionKind: string;
 }
 
 export type FormField = keyof AppropriationForm;
@@ -362,12 +380,36 @@ export const EMPTY_FORM: AppropriationForm = {
   sourceYear: '',
   extendedTo: '',
   extensionDocumentId: '',
+  decisionKind: '',
 };
+
+/** The form of the enterprise edition opens on a line its pack accepts: the resolution of the group, the single level and the first kind of document that backs it. */
+export const ENTERPRISE_EMPTY_FORM: AppropriationForm = {
+  ...EMPTY_FORM,
+  origin: ENTERPRISE_FORM_ORIGINS[0],
+  budgetLevel: ENTERPRISE_LEVEL,
+  decisionKind: decisionKindsOf(ENTERPRISE_FORM_ORIGINS[0])[0] ?? '',
+};
+
+/** The empty form of the edition: the origin, the level and the kind of document are ones the register of the edition accepts, so a form that is only filled in is never refused for them. */
+export const emptyFormOf = (enterprise: boolean): AppropriationForm => (enterprise ? ENTERPRISE_EMPTY_FORM : EMPTY_FORM);
+
+/** The origins and the levels the form of the edition offers. */
+export const formOriginsOf = (enterprise: boolean): readonly Origin[] => (enterprise ? ENTERPRISE_FORM_ORIGINS : ORIGINS);
+export const formLevelsOf = (enterprise: boolean): readonly BudgetLevel[] => (enterprise ? [ENTERPRISE_LEVEL] : BUDGET_LEVELS);
+
+/** The form after a change of one field: a new origin of the enterprise pack takes the first kind of document it accepts when the kind chosen does not fit it. */
+export function changeField(form: AppropriationForm, field: FormField, value: string, enterprise: boolean): AppropriationForm {
+  const next = { ...form, [field]: value, ...(field === 'planYear' && form.origin !== 'CARRYOVER' ? { sourceYear: value } : {}) };
+  if (!enterprise || field !== 'origin') return next;
+  const kinds = decisionKindsOf(value);
+  return kinds.includes(next.decisionKind) ? next : { ...next, decisionKind: kinds[0] ?? '' };
+}
 
 const yearOf = (value: string): number | undefined => (YEAR.test(value.trim()) && Number(value) >= MIN_YEAR && Number(value) <= MAX_YEAR ? Number(value) : undefined);
 
 /** What is wrong with the fields of the form, before anything is sent; the server judges the same rules again. */
-export function validateForm(form: AppropriationForm, locale: string): Partial<Record<FormField, FieldProblem>> {
+export function validateForm(form: AppropriationForm, locale: string, enterprise = false): Partial<Record<FormField, FieldProblem>> {
   const problems: Partial<Record<FormField, FieldProblem>> = {};
   if (form.fundSourceVersionId === '') problems.fundSourceVersionId = 'required';
   const planYear = yearOf(form.planYear);
@@ -381,6 +423,7 @@ export function validateForm(form: AppropriationForm, locale: string): Partial<R
   if (authority === '') problems.issuingAuthority = 'required';
   else if (authority.length < AUTHORITY_MIN_LENGTH) problems.issuingAuthority = 'tooShort';
   else if (authority.length > AUTHORITY_MAX_LENGTH) problems.issuingAuthority = 'tooLong';
+  if (enterprise && !decisionKindsOf(form.origin).includes(form.decisionKind)) problems.decisionKind = 'required';
   if (form.origin === 'CARRYOVER') {
     const sourceYear = yearOf(form.sourceYear);
     if (form.sourceYear.trim() === '') problems.sourceYear = 'required';
@@ -408,6 +451,7 @@ export function registerBody(form: AppropriationForm, locale: string, supersedes
     decision_document_id: form.decisionDocumentId.trim().toLowerCase(),
     issuing_authority: form.issuingAuthority.trim(),
     source_year: carryover ? Number(form.sourceYear.trim()) : planYear,
+    ...(form.decisionKind === '' ? {} : { decision_kind: form.decisionKind }),
     ...optional(form.programVersionId, 'program_master_version_id'),
     ...(carryover ? { extended_to: form.extendedTo.trim(), ...optional(form.extensionDocumentId, 'extension_document_id') } : {}),
     ...(supersedesId === undefined ? {} : { supersedes_id: supersedesId }),
@@ -430,6 +474,7 @@ export function formOfRevision(line: AppropriationLine, locale: string): Appropr
     sourceYear: String(line.sourceYear),
     extendedTo: line.extendedTo ?? '',
     extensionDocumentId: line.extensionDocumentId ?? '',
+    decisionKind: line.decisionKind ?? '',
   };
 }
 

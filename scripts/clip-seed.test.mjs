@@ -408,3 +408,21 @@ test('the clock offset for the overdue sweep lands on half past six in Vietnam, 
     assert.equal(`${vietnam.getUTCHours()}:${vietnam.getUTCMinutes()}`, '6:30', iso);
   }
 });
+
+test('the enterprise assignments and lines are ones the enterprise pack accepts (origin, level, kind of document, class of the line)', async () => {
+  // The register of the enterprise edition refuses the origins and the levels of the public pack (ENT-3e): a plan that names them stops the seed at its first assignment.
+  const { assertAppropriationForPack, builtInPack } = await import('../packages/kernel/src/fnd-taxonomy.ts');
+  const pack = builtInPack('ENTERPRISE');
+  const plan = buildPlan(enterpriseDataset(), 1);
+  assert.ok(plan.capital.appropriations.length >= 2);
+  for (const appropriation of plan.capital.appropriations) {
+    assert.doesNotThrow(() => assertAppropriationForPack(pack, { origin: appropriation.origin, budgetLevel: appropriation.level, decisionKind: appropriation.decisionKind }), appropriation.key);
+    assert.ok(pack.classes.some((one) => one.code === appropriation.bucket), `${appropriation.key} names a class of the pack`);
+  }
+  for (const line of plan.capital.lines) {
+    const own = plan.capital.appropriations.find((appropriation) => appropriation.key === line.appropriation);
+    assert.equal(line.bucket, own?.bucket, `${line.project}/${line.appropriation}`);
+  }
+  // The public pack, on the other hand, takes none of the enterprise values: the two datasets are not interchangeable.
+  assert.throws(() => assertAppropriationForPack(builtInPack('PUBLIC'), { origin: 'BOARD_APPROVED', budgetLevel: 'ALL', decisionKind: 'COMPANY_DECISION' }));
+});
