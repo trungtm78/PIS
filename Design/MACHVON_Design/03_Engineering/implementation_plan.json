@@ -215,6 +215,12 @@
       "module": "FEED",
       "title": "Data feed of the Finance Department into the public investment system",
       "goal": "Take the records of the Finance Department application in by file, by push and from a data generator through one judgement, map its project codes to ours with a maker and a checker, compare it with our own figures and give every difference an owner, show how fresh and how good the data is, and keep every figure behind an \"i\" with formula, source and day."
+    },
+    {
+      "id": "EP-RML",
+      "module": "RML",
+      "title": "Scheduled e-mail of issued report forms and the leadership dashboard (enterprise edition)",
+      "goal": "Send the issued copies of a report form to the members a schedule names, once to each, with the issued file and its SHA-256, and give the leaders the disbursement against the annual plan with the same period of last year and the projects blocked on procedure."
     }
   ],
   "features": [
@@ -1082,6 +1088,11 @@
       "id": "FT-VND-04",
       "epic": "EP-VND",
       "title": "Contractor portal, annual re-confirmation, remediation plans, disputes and the OCDS parties"
+    },
+    {
+      "id": "FT-RML-01",
+      "epic": "EP-RML",
+      "title": "E-mail schedules of issued forms, the mailing log and the leader panel"
     }
   ],
   "stories": [
@@ -58027,6 +58038,186 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-BID-34"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-RML-001",
+      "epic": "EP-RML",
+      "feature": "FT-RML-01",
+      "module": "RML",
+      "title": "Schedules that e-mail issued report forms, and the log of what was sent",
+      "narrative": "As a report officer I can schedule the e-mail of an issued form to members, and see for every message what happened and the SHA-256 of the file.",
+      "release": "R3",
+      "screens": [
+        "RML-01"
+      ],
+      "operations": [
+        "listReportMailSchedules",
+        "listReportMailings",
+        "createReportMailSchedule",
+        "retireReportMailSchedule"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-RML-001-1",
+          "given": "A schedule made for a form, and a copy of it issued afterwards",
+          "when": "The job runs twice",
+          "then": "Each recipient gets one message with the issued file attached and its SHA-256 in the text; the log has one row for each (schedule, copy, recipient); a copy of a DEMO form is skipped with its reason",
+          "test_id": "UI-RML-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The adapter stays PROPOSED and the interface or layout is a working assumption (PENDING-EXTERNAL); no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HPM-001-1",
+          "kind": "backend",
+          "title": "Rules, store, migrations, controllers and authorization for the operations of the story",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-2",
+          "kind": "web",
+          "title": "Screens built with the kit and the seven standard states in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the screens; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-169",
+            "UAT-PLAN-170"
+          ]
+        },
+        {
+          "id": "TK-HPM-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-HPM-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-RML-002",
+      "epic": "EP-RML",
+      "feature": "FT-RML-01",
+      "module": "RML",
+      "title": "Leadership dashboard of the enterprise edition: rates against the annual plan with last year, and the projects blocked on procedure",
+      "narrative": "As a leader I see the disbursement against the annual plan by company, unit and project beside the same period last year, and which projects are blocked on procedure.",
+      "release": "R3",
+      "screens": [],
+      "operations": [
+        "getLeaderRates",
+        "getBlockedProjects"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-RML-002-1",
+          "given": "A frozen enterprise snapshot and the snapshot of the same period last year",
+          "when": "The leader opens the command center",
+          "then": "The rate of a group is the sum over the sum, the change is in percentage points, a group with no figure says why and is never 0",
+          "test_id": "UI-RML-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-018"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The adapter stays PROPOSED and the interface or layout is a working assumption (PENDING-EXTERNAL); no outbound network call exists."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HPM-001-1",
+          "kind": "backend",
+          "title": "Rules, store, migrations, controllers and authorization for the operations of the story",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-2",
+          "kind": "web",
+          "title": "Screens built with the kit and the seven standard states in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the screens; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HPM-001-4",
+          "kind": "qa",
+          "title": "Automated domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-169",
+            "UAT-PLAN-170"
+          ]
+        },
+        {
+          "id": "TK-HPM-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-HPM-01"
           ]
         }
       ]

@@ -20355,6 +20355,37 @@
     ]
   },
   {
+    "id": "BL-RML-01",
+    "requirement": "FR-RML-01",
+    "screen": "RML-01",
+    "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+    "module": "RML",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Mẫu biểu, lịch (cron), định dạng tệp, người nhận, ghi chú",
+      "Lần chạy gần nhất, trạng thái, người lập",
+      "Nhật ký gửi: người nhận, bản phát hành, mã băm SHA-256 tệp đính kèm, trạng thái, số lần thử, mã lỗi",
+      "Lập lịch mới, chấm dứt lịch kèm lý do"
+    ],
+    "rule": "Lịch chỉ gửi các bản phát hành sau khi lịch được lập; mỗi (lịch, bản phát hành, người nhận) gửi một lần; bản DEMO không bao giờ được gửi",
+    "test_ids": [
+      "UI-RML-01"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-HPM-002"
+    ]
+  },
+  {
     "id": "BL-EBS-01",
     "requirement": "FR-EBS-01",
     "screen": "EBS-01",
