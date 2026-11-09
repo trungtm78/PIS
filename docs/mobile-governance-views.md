@@ -7,7 +7,6 @@ The phone app reads the governance modules of the web and never writes to them. 
 | Screen | What it shows | Reads | Permission |
 |---|---|---|---|
 | MOB-72 steering committee dashboard (tab Home, entrance from the committee card of the leader home) | Province disbursement against the expected curve and the year-end range; progress by sector, district, investor and fund source; projects needing attention with the reason; overdue directives by unit; units not reporting; alerts of the committee with their action and consequence; the "i" of every figure (formula, source, as-of); the basis of the figures and the rule in force with its UNVERIFIED flag | `getCommitteeWorkspace` | `committee.read` on the whole tenant |
-| MOB-72 steering committee dashboard (tab Home, entrance from the committee card of the leader home) | Province disbursement against the expected curve and the year-end range; progress by sector, district, investor and fund source; projects needing attention with the reason; overdue directives by unit; units not reporting; alerts of the committee; changes since last week; the "i" of every figure (formula, source, as-of) | `getCommitteeWorkspace` | `committee.read` on the whole tenant |
 | MOB-73 contractor risk list (tab Projects) | Contractors by tier (low, medium, high, critical) and score, next review date, overdue review, tier proposals waiting for confirmation, list totals, rule in force | `listVendorRiskGrades` | `vnd.read` |
 | MOB-74 one contractor, risk and performance | Confirmed tier, score, factors and reasons in words, grading history; performance grade, posting clock, response clock, run of poor grades, suggestions | `getVendorRiskGrade`, `getVendorPerformance` | `vnd.read` |
 | MOB-69 packages by step (existing) | Now also the statistics of the chosen node: median, longest and shortest days, late, stalled, held, without owner, top owners, unfinished items, weekly arrivals and departures | `getPackageProcessTreeNode` | as the web tree |
@@ -17,13 +16,11 @@ A figure the server did not send is not drawn, and a figure without a value is n
 ## Alert source labels and targets
 
 All 43 values of `WorkSource` in `openapi.json` have a label in words (`alertSourceLabel` in the dashboard feature, one literal string key per source); `kAlertSources` lists them and a test reads the contract and fails when the list differs from it or a value has no label in either language, so a new source cannot ship unlabelled. The targets are the table `kAlertTargets` (web screen to phone screen and whether the record id goes into the path). A value newer than the phone shows its raw code. Each alert also shows severity (icon and words) and its consequence line.
-All 43 values of `WorkSource` in `openapi.json` have a label in words, kept as a table (source code to string key) in the dashboard feature; a test reads the contract and fails when a value has no label, so a new source cannot ship unlabelled. A value newer than the phone shows its raw code. Each alert also shows severity (icon and words) and its consequence line.
 
 | Web target of the alert | Opens on the phone | Typical source |
 |---|---|---|
 | BID-29 package progress | MOB-70 package timeline | PROCUREMENT_WORKFLOW |
 | PRJ-03, PRJ-26, PRJ-28, PRJ-29, PRJ-30 (all carry the project id) | MOB-10 project detail | PROJECT_RISK, LOOK_AHEAD, LESSONS_LEARNED, PROJECT_GOVERNANCE |
-| PRJ-30 look-ahead, PRJ-03 project | MOB-10 project detail | LOOK_AHEAD, project sources |
 | DIR-04 directive | DIR-06 directives | DIRECTIVE |
 | BAN-05 committee | MOB-72 committee dashboard | COMMITTEE |
 | VND-11, VND-12 contractor | MOB-74 contractor | VENDOR |
@@ -40,7 +37,6 @@ All 43 values of `WorkSource` in `openapi.json` have a label in words, kept as a
 ## Offline and copies kept on the device
 
 Reads go through `features/read_support`: the last answer is kept with its `as_of` and the moment the phone got it, per tenant and per person (BR-MOB-01, R6). Offline, the screen shows that copy with its as-of time and the words "stale" once it is older than its time to live; it is never presented as the latest. A copy is dropped on sign-out and on a change of tenant or person. Only answers are kept: no command is queued from these screens. The committee workspace is confidential and the server answers it with `Cache-Control: no-store`, so MOB-72 keeps NO copy on the device (`keepCopy: false`): without a connection it shows the offline state, never an old table of the province.
-Reads go through `features/read_support`: the last answer is kept with its `as_of` and the moment the phone got it, per tenant and per person (BR-MOB-01, R6). Offline, the screen shows that copy with its as-of time and the words "stale" once it is older than its time to live; it is never presented as the latest. A copy is dropped on sign-out and on a change of tenant or person. Only answers are kept: no command is queued from these screens. The committee workspace is confidential and the server answers it with `Cache-Control: no-store`; the phone keeps it in the protected store of the session only so that the last answer can be shown with its as-of time, and drops it with the session.
 
 ## Audit of views
 

@@ -32,13 +32,6 @@ Branch `lane/mobile2`, worktree `D:\PIS-mobile2`. Owner rule 2026-11-08: decide 
 | 6 | Design rows (screens, navigation, story, backlog, traceability, test cases), `docs/mobile-governance-views.md`, hdsd phone steps ledger (`scripts/hdsd/verification.json`, `mobile-chapters.json`) | `check-cli.mjs --locale en`, `baseline-cli.mjs --locale en`, `generate_routes.dart --check` | [x] |
 | 7 | `flutter analyze`, `flutter test`, repo scan, `npm run lint`, `npm run typecheck` | analyze clean; flutter test 2312 pass (5 Windows file-lock flakes of the photo and consent suites pass alone); typecheck green; lint chain green except the CRLF checkout quirk of `uat:check` | [x] |
 | 8 | Codex review (model gpt-6-astra), triage, fixes with regression tests | see below | [x] |
-| 2 | Alert sources: labels for all contract values, source-to-label test against the contract, target mapping for the new screens | `test/features/dashboard/alert_sources_test.dart`, existing alerts tests | [ ] |
-| 3 | Progress tree: statistics of a node on MOB-69 | `test/features/procurement_workflow` | [ ] |
-| 4 | Committee dashboard MOB-72 (and entrance from the home card) | `test/features/committee_dashboard` | [ ] |
-| 5 | Contractor risk list MOB-73 and detail MOB-74 (entrance from the projects list) | `test/features/vendor_controls` | [ ] |
-| 6 | Design rows (screens, navigation, story, backlog, traceability, test cases), `docs/mobile-governance-views.md`, hdsd phone steps ledger (`scripts/hdsd/verification.json`, `mobile-chapters.json`) | `check-cli.mjs --locale en`, `baseline-cli.mjs --locale en`, `generate_routes.dart --check` | [ ] |
-| 7 | `flutter analyze`, `flutter test`, repo scan, `npm run lint`, `npm run typecheck` | | [ ] |
-| 8 | Codex review (model gpt-6-astra), triage, fixes with regression tests | | [ ] |
 
 ## Risks
 
@@ -51,6 +44,3 @@ Branch `lane/mobile2`, worktree `D:\PIS-mobile2`. Owner rule 2026-11-08: decide 
 1. P1 contractors without a confirmed grade were dropped (the contract makes `tier` and `score` nullable in the register and `tier` nullable in the grade): valid. Fixed: the item and the detail keep a null tier, the screens say "Not graded" with an icon and a word and draw no score; regression tests in the model, the list and the detail.
 2. P2 the risk list kept rows and cursor of the old page after a refresh: valid. Fixed (`didUpdateWidget` resets, an epoch drops answers of an older page); regression test refreshes and expects the old row and the "show more" button gone.
 3. P2 the chips replaced their semantics without a tap action: valid for the new chips (vendor filters, committee cuts). Fixed with `onTap` on the replacement node and two tests that tap through the semantics tree. The same pre-existing pattern in the chips of MOB-69 (not in this diff) is left for its owner and noted in the report.
-1. P1 contractors without a confirmed grade were dropped (the contract makes  and  nullable in the register and  nullable in the grade): valid. Fixed: the item and the detail keep a null tier, the screens say "Not graded" with an icon and a word and draw no score; regression tests in the model, the list and the detail.
-2. P2 the risk list kept rows and cursor of the old page after a refresh: valid. Fixed ( resets, an epoch drops answers of an older page); regression test refreshes and expects the old row and the "show more" button gone.
-3. P2 the chips replaced their semantics without a tap action: valid for the new chips (vendor filters, committee cuts). Fixed with  on the replacement node and two tests that tap through the semantics tree. The same pre-existing pattern in the chips of MOB-69 (not in this diff) is left for its owner and noted in the report.
