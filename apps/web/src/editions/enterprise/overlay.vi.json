@@ -2,5 +2,17 @@
   "shell.app.name.title": "Phần mềm quản lý đầu tư xây dựng",
   "shell.brand.home.label": "Phần mềm quản lý đầu tư xây dựng: trang chủ",
   "shell.brand.mark.text": "XD",
-  "shell.brand.name.text": "Phần mềm quản lý đầu tư xây dựng"
+  "shell.brand.name.text": "Phần mềm quản lý đầu tư xây dựng",
+  "home.context.cutoff.label": "Số liệu chốt đến ngày",
+  "home.tile.metric.disbursed": "Giải ngân lũy kế",
+  "home.tile.metric.planPm": "Kế hoạch vốn được giao",
+  "home.tile.nullReason.treasuryNone": "Chưa ghi nhận giải ngân",
+  "home.ov.hero.caption": "Theo số liệu đã chốt đến {date}",
+  "home.ov.hero.noData": "Chưa có số liệu giải ngân cho phạm vi này.",
+  "home.ov.hero.ring": "Theo kế hoạch vốn được giao",
+  "home.ov.hero.chip.pm": "Tỷ lệ theo kế hoạch vốn được giao",
+  "home.ov.hero.chip.total": "Tỷ lệ theo tổng kế hoạch vốn",
+  "home.ov.kpi.plan.subMissing": "Chưa có kế hoạch vốn được giao",
+  "home.ov.rank.caption": "Các đơn vị đứng đầu nhóm {group}, theo kế hoạch vốn được giao",
+  "govc.home.kpi.plan.sub": "Trong đó được giao {pm} đồng"
 }

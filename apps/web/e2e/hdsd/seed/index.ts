@@ -13,6 +13,7 @@ import { seedClipContracts } from './clip/public-contracts.ts';
 import { seedClipAlerts } from './clip/public-alerts.ts';
 import { seedClipEnterpriseAlertTriage, seedClipEnterpriseAlerts } from './clip/enterprise-alerts.ts';
 import { seedClipEnterpriseEquipment } from './clip/enterprise-equipment.ts';
+import { seedClipEnterpriseSnapshot } from './clip/enterprise-snapshot.ts';
 import { seedClipEnterpriseBi, seedClipEnterpriseCapital, seedClipEnterpriseDocuments } from './clip/enterprise-more.ts';
 import { seedClipEnterpriseDirectives, seedMeetings, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
 import { seedClipDisbursement } from './clip/public-dis.ts';
@@ -66,6 +67,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-ent-equipment', seed: seedClipEnterpriseEquipment },
   { name: 'clip-ent-workflow', seed: seedClipWorkflow },
   { name: 'clip-ent-disbursement', seed: seedClipDisbursement },
+  { name: 'clip-ent-snapshot', seed: seedClipEnterpriseSnapshot },
   { name: 'clip-ent-bi', seed: seedClipEnterpriseBi },
   { name: 'clip-ent-alert-triage', seed: seedClipEnterpriseAlertTriage },
 ];

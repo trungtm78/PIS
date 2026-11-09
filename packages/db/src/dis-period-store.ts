@@ -17,6 +17,13 @@ export const PERIOD_RESOURCE = 'reporting_period';
 /** The calendar that the reporting calendar of MDM-11 holds: the rule port reads this key and no other (ST-MDM-004). */
 export const REPORTING_CALENDAR_CODE = 'DEFAULT';
 /**
+ * The calendar of the months, quarters and year of the enterprise edition (ENT-3a): the same dates as the reporting calendar of MDM-11 produces for them, kept apart from the periods of the weekly calendar (no overlap
+ * between the two) and under codes of their own. The enterprise snapshot is built over a period of this calendar.
+ */
+export const ENTERPRISE_CALENDAR_CODE = 'ENTERPRISE';
+export const ENTERPRISE_PERIOD_PREFIX = 'ENT-';
+const ENTERPRISE_TYPES: ReadonlySet<PeriodType> = new Set(['MONTH', 'QUARTER', 'YEAR']);
+/**
  * The working calendar (ADM-07) that counts the working days between the deadline of a period and its lock. D03 assumption: the lock comes
  * three working days after the deadline (DIS 3 F4); the days are counted on this calendar, and a year without a published version is
  * refused rather than guessed.
@@ -273,10 +280,14 @@ export class DisPeriodStore {
     if (!Number.isInteger(request.fiscalYear) || request.fiscalYear < FIRST_YEAR || request.fiscalYear > LAST_YEAR) throw invalid('fiscal_year');
     if (!GENERATED_TYPES.has(request.periodType)) throw invalid('period_type');
     // MDM-11 keeps one reporting calendar; a code it does not hold has no version in force.
-    if (calendarCode !== REPORTING_CALENDAR_CODE) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'calendar_code');
+    const enterprise = calendarCode === ENTERPRISE_CALENDAR_CODE;
+    if (calendarCode !== REPORTING_CALENDAR_CODE && !enterprise) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'calendar_code');
+    if (enterprise && !ENTERPRISE_TYPES.has(request.periodType)) throw invalid('period_type');
     const generated = await this.rules.calendarPeriods(tx, request.fiscalYear, calendarDateFor(request.fiscalYear, now), request.periodType);
     if (generated === undefined) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'calendar_code');
-    const { periods, reading } = generated;
+    const { reading } = generated;
+    // The enterprise calendar holds the same dates under codes of its own (the code of a period is unique in the tenant).
+    const periods = enterprise ? generated.periods.map((period) => ({ ...period, code: `${ENTERPRISE_PERIOD_PREFIX}${period.code}` })) : generated.periods;
     const overlap = await tx.query(
       `select 1 from machvon.reporting_period p
          join unnest($3::date[], $4::date[]) as n(starts_on, ends_on) on daterange(p.start_date, p.end_date, '[]') && daterange(n.starts_on, n.ends_on, '[]')

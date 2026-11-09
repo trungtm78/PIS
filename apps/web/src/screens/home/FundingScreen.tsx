@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -21,6 +22,9 @@ const DETAIL_PATH = '/home/home-08';
  */
 export default function FundingScreen({ route }: ScreenProps) {
   const tenant = useSession().tenant;
+  // An edition that counts its capital in classes of its own (the enterprise: equity, loan, other) draws its own structure in place of the public sources.
+  const EditionStructure = useEdition().slots?.fundingStructure;
+  if (EditionStructure !== undefined) return <EditionStructure route={route} />;
   // What is open belongs to one member of one tenant: a switch starts the screen over.
   return <FundingContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }

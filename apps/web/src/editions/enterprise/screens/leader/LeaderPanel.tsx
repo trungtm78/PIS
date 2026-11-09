@@ -44,7 +44,7 @@ function Rates() {
   const lastCell = (row: LeaderRateRow): string => (row.last_year.rate_pct !== null ? percentText(row.last_year.rate_pct, locale) : row.last_year.null_reason === 'NO_PRIOR_SNAPSHOT' ? t('ent.leader.lastYear.none') : row.last_year.null_reason === 'NOT_IN_PRIOR_SNAPSHOT' ? t('ent.leader.lastYear.new') : t('ent.leader.noData.text'));
   const columns = (first: string): DataTableColumn<LeaderRateRow>[] => [
     { key: 'name', header: first, pinned: true, render: (row) => `${row.code ?? ''} ${row.name ?? ''}`.trim() },
-    { key: 'plan', header: t('ent.leader.col.plan'), align: 'right', render: (row) => money(row.plan_vnd) },
+    { key: 'plan', header: t('ent.leader.col.plan'), align: 'right', render: (row) => (row.plan_vnd === '0' && row.rate_pct === null ? t('ent.leader.noData.text') : money(row.plan_vnd)) },
     { key: 'disbursed', header: t('ent.leader.col.disbursed'), align: 'right', render: (row) => money(row.disbursed_vnd) },
     { key: 'rate', header: t('ent.leader.col.rate'), align: 'right', render: rateCell },
     { key: 'last', header: t('ent.leader.col.lastYear'), align: 'right', render: lastCell },

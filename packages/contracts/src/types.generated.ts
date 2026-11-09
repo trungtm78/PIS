@@ -47311,6 +47311,7 @@ export interface components {
             projects: components["schemas"]["LeaderRateRow"][];
             /** Format: date-time */
             as_of: string;
+            structure?: components["schemas"]["LeaderFundingStructure"];
         };
         LeaderBlockedProject: {
             /** Format: uuid */
@@ -47941,6 +47942,26 @@ export interface components {
             truncated: boolean;
             /** Format: date-time */
             as_of: string;
+        };
+        LeaderFundingStructure: {
+            measure: string;
+            plan_total_vnd: string | null;
+            disbursed_total_vnd: string | null;
+            classes: {
+                /** @description A class of the funding taxonomy of the enterprise pack (EQUITY, LOAN, OTHER) */
+                class_code: string;
+                /** @description Annual plan in force of the class, whole dong; null when no project has a plan in it */
+                plan_vnd: string | null;
+                /** @description Disbursed since the start of the year, whole dong */
+                disbursed_vnd: string | null;
+                /** @description Share of the class in the plan in force, percent with four places */
+                plan_share_pct: string | null;
+                /** @description Share of the class in the disbursed figure, percent with four places */
+                disbursed_share_pct: string | null;
+                /** @description Disbursed over plan of the class, percent with four places */
+                rate_pct: string | null;
+                null_reason: string | null;
+            }[];
         };
     };
     responses: never;

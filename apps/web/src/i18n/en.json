@@ -38039,5 +38039,22 @@
   "states.crash.body": "The system could not show the content. Saved information is not lost. Reload the screen or go back to the home page.",
   "states.crash.reload": "Reload the screen",
   "states.crash.home": "Back to the home page",
-  "shell.notFound.home": "Back to the home page"
+  "shell.notFound.home": "Back to the home page",
+  "ent.funding.page.title": "Funding structure: equity, loans and other capital",
+  "ent.funding.page.subtitle": "The annual capital plan in force and the cumulative disbursement since the start of the year by source of capital of the company, read from the latest frozen enterprise snapshot. Read only.",
+  "ent.funding.empty": "No enterprise snapshot has been frozen yet, so there is no funding structure.",
+  "ent.funding.context.snapshot": "Snapshot",
+  "ent.funding.context.snapshotValue": "Day {day}, revision {revision}",
+  "ent.funding.total.title": "Total capital of the company",
+  "ent.funding.total.plan": "Annual capital plan",
+  "ent.funding.total.disbursed": "Disbursed since the start of the year",
+  "ent.funding.total.note": "The sum of the sources of capital below; a source with no figure says so and is never shown as 0.",
+  "ent.funding.classes.title": "By source of capital",
+  "ent.funding.class.equity": "Equity",
+  "ent.funding.class.loan": "Loans",
+  "ent.funding.class.other": "Other capital",
+  "ent.funding.card.planShare": "Share of the annual capital plan: {value}",
+  "ent.funding.card.disbursed": "Disbursed: {value}",
+  "ent.funding.card.disbursedShare": "Share of what was disbursed: {value}",
+  "ent.funding.card.rate": "Against the plan of this source: {value}"
 }

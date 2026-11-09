@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { DIS_PERIOD_TRANSITION_METRIC, DisPeriodStore, PERIOD_RESOURCE, PERIOD_TYPES, periodMoveRecord, transitionLabels, TenantDatabase } from '@machvon/db';
+import { DIS_PERIOD_TRANSITION_METRIC, DisPeriodStore, ENTERPRISE_CALENDAR_CODE, ENTERPRISE_PACK, PERIOD_RESOURCE, PERIOD_TYPES, periodMoveRecord, transitionLabels, TenantDatabase } from '@machvon/db';
 import type { PeriodFilter, PeriodMove, PeriodReopenRow, PeriodRow, PeriodStatus, PeriodType } from '@machvon/db';
-import { DomainError, NOOP_METRICS } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, fundingPackCodeOfEdition, resolveEdition } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -14,6 +14,7 @@ import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
+import { FUNDING_PACK_CODE } from '../fnd/tokens';
 import { DIS_CLOCK, DIS_METRICS } from './tokens';
 
 const PERIOD_STATUSES: ReadonlySet<string> = new Set(['OPEN', 'SOFT_CLOSED', 'LOCKED']);
@@ -117,9 +118,12 @@ export class ReportingPeriodController {
   private readonly metrics: MetricsSink;
   private readonly clock: () => Date;
 
-  constructor(@Optional() @Inject(DIS_METRICS) metrics?: MetricsSink, @Optional() @Inject(DIS_CLOCK) clock?: () => Date) {
+  private readonly packCode: string;
+
+  constructor(@Optional() @Inject(DIS_METRICS) metrics?: MetricsSink, @Optional() @Inject(DIS_CLOCK) clock?: () => Date, @Optional() @Inject(FUNDING_PACK_CODE) packCode?: string) {
     this.metrics = metrics ?? NOOP_METRICS;
     this.clock = clock ?? ((): Date => new Date());
+    this.packCode = packCode ?? fundingPackCodeOfEdition(resolveEdition(process.env));
   }
 
   @Post('reporting-periods/generate')
@@ -128,6 +132,8 @@ export class ReportingPeriodController {
   @Command({ operation: 'generateReportingPeriods' })
   async generate(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['DisPeriodGenerate']): Promise<CommandResult> {
     assertHolds(access, PERMISSIONS.generateReportingPeriods);
+    // The calendar of the enterprise months, quarters and year (the periods an enterprise snapshot is built over) exists in the enterprise edition only.
+    if (body.calendar_code.trim() === ENTERPRISE_CALENDAR_CODE && this.packCode !== ENTERPRISE_PACK) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'calendar_code');
     const generated = await this.periods.generate(
       scope.tx,
       { calendarCode: body.calendar_code, fiscalYear: body.fiscal_year, periodType: body.period_type },

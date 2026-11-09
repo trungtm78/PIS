@@ -316,7 +316,7 @@ test('the accounting rows name projects of the plan, two periods, and differ fro
 });
 
 test('the enterprise dataset runs its own groups (capital, documents, procurement, contracts, process tree, BI) and no group of the public dataset', () => {
-  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-bi', 'clip-ent-alert-triage']);
+  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-bi', 'clip-ent-alert-triage']);
   assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
 });
 

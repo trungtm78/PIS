@@ -43437,6 +43437,94 @@ final class LeaderBlockedProjectsResponse implements ResponseModel {
       };
 }
 
+final class LeaderFundingStructureResponse implements ResponseModel {
+  const LeaderFundingStructureResponse({
+    required this.measure,
+    required this.planTotalVnd,
+    required this.disbursedTotalVnd,
+    required this.classes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LeaderFundingStructureResponse.fromJson(Object? json, [String path = 'LeaderFundingStructureResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LeaderFundingStructureResponse(
+      measure: requiredField(map, path, 'measure', asString),
+      planTotalVnd: requiredField(map, path, 'plan_total_vnd', nullable(asString)),
+      disbursedTotalVnd: requiredField(map, path, 'disbursed_total_vnd', nullable(asString)),
+      classes: requiredField(map, path, 'classes', asList(LeaderFundingStructureResponseClassesItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'measure', 'plan_total_vnd', 'disbursed_total_vnd', 'classes'}, strict: false),
+    );
+  }
+
+  final String measure;
+  final String? planTotalVnd;
+  final String? disbursedTotalVnd;
+  final List<LeaderFundingStructureResponseClassesItem> classes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'measure': measure,
+        'plan_total_vnd': planTotalVnd,
+        'disbursed_total_vnd': disbursedTotalVnd,
+        'classes': classes.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class LeaderFundingStructureResponseClassesItem implements ResponseModel {
+  const LeaderFundingStructureResponseClassesItem({
+    required this.classCode,
+    required this.planVnd,
+    required this.disbursedVnd,
+    required this.planSharePct,
+    required this.disbursedSharePct,
+    required this.ratePct,
+    required this.nullReason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory LeaderFundingStructureResponseClassesItem.fromJson(Object? json, [String path = 'LeaderFundingStructureResponseClassesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return LeaderFundingStructureResponseClassesItem(
+      classCode: requiredField(map, path, 'class_code', asString),
+      planVnd: requiredField(map, path, 'plan_vnd', nullable(asString)),
+      disbursedVnd: requiredField(map, path, 'disbursed_vnd', nullable(asString)),
+      planSharePct: requiredField(map, path, 'plan_share_pct', nullable(asString)),
+      disbursedSharePct: requiredField(map, path, 'disbursed_share_pct', nullable(asString)),
+      ratePct: requiredField(map, path, 'rate_pct', nullable(asString)),
+      nullReason: requiredField(map, path, 'null_reason', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'class_code', 'plan_vnd', 'disbursed_vnd', 'plan_share_pct', 'disbursed_share_pct', 'rate_pct', 'null_reason'}, strict: false),
+    );
+  }
+
+  final String classCode;
+  final String? planVnd;
+  final String? disbursedVnd;
+  final String? planSharePct;
+  final String? disbursedSharePct;
+  final String? ratePct;
+  final String? nullReason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'class_code': classCode,
+        'plan_vnd': planVnd,
+        'disbursed_vnd': disbursedVnd,
+        'plan_share_pct': planSharePct,
+        'disbursed_share_pct': disbursedSharePct,
+        'rate_pct': ratePct,
+        'null_reason': nullReason,
+        ...extra,
+      };
+}
+
 final class LeaderRateRowResponse implements ResponseModel {
   const LeaderRateRowResponse({
     required this.level,
@@ -43555,6 +43643,7 @@ final class LeaderRatesResponse implements ResponseModel {
     this.priorAsOfDate,
     this.definitionStatus,
     this.formula,
+    this.structure,
     this.extra = const <String, Object?>{},
   });
 
@@ -43573,7 +43662,8 @@ final class LeaderRatesResponse implements ResponseModel {
       units: requiredField(map, path, 'units', asList(LeaderRateRowResponse.fromJson)),
       projects: requiredField(map, path, 'projects', asList(LeaderRateRowResponse.fromJson)),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'snapshot_id', 'as_of_date', 'revision', 'snapshot_hash', 'prior_snapshot_id', 'prior_as_of_date', 'definition_status', 'formula', 'company', 'units', 'projects', 'as_of'}, strict: false),
+      structure: optionalField(map, path, 'structure', LeaderFundingStructureResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'snapshot_id', 'as_of_date', 'revision', 'snapshot_hash', 'prior_snapshot_id', 'prior_as_of_date', 'definition_status', 'formula', 'company', 'units', 'projects', 'as_of', 'structure'}, strict: false),
     );
   }
 
@@ -43589,6 +43679,7 @@ final class LeaderRatesResponse implements ResponseModel {
   final List<LeaderRateRowResponse> units;
   final List<LeaderRateRowResponse> projects;
   final String asOf;
+  final LeaderFundingStructureResponse? structure;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -43607,6 +43698,7 @@ final class LeaderRatesResponse implements ResponseModel {
         'units': units.map((e0) => e0.toJson()).toList(),
         'projects': projects.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
+        if (structure != null) 'structure': structure!.toJson(),
         ...extra,
       };
 }

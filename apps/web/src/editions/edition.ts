@@ -4,7 +4,7 @@ import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
 import { translator } from '../i18n';
 import type { Catalogue, Locale } from '../i18n';
 import type { NavigationAccess } from '../navigation/model';
-import type { ScreenLoader, WebRoute } from '../routes/types';
+import type { ScreenComponent, ScreenLoader, WebRoute } from '../routes/types';
 
 /**
  * What the web build of one edition is made of (ENT-0): the manifest (names, module, screen and menu lists, rule packs) and the terminology
@@ -31,6 +31,15 @@ export type LeaderPanelPart = 'rates' | 'tiles' | 'all';
 
 export interface WebEditionSlots {
   readonly leaderPanel?: ComponentType<{ part: LeaderPanelPart }>;
+  /** The funding structure screen (HOME-07) of an edition that counts its capital in classes of its own (the enterprise: equity, loan, other); the public screen of the sources is drawn when there is none. */
+  readonly fundingStructure?: ScreenComponent;
+  /** How the figures of the command center (HOME-09, HOME-01) are drawn: digits grouped by thousands, and whether the blocks of the public plan (the ratio over the plan the Prime Minister gave) are drawn. */
+  readonly homeFigures?: HomeFiguresStyle;
+}
+
+export interface HomeFiguresStyle {
+  readonly groupDigits: boolean;
+  readonly publicPlanBlocks: boolean;
 }
 
 export const PUBLIC_BUNDLE: WebEditionBundle = { manifest: PUBLIC_EDITION_MANIFEST };
