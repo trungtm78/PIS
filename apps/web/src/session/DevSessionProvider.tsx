@@ -55,8 +55,8 @@ export default function DevSessionProvider({ children, tenants = DEV_TENANTS, ke
   const assurance = useMemo<SessionAssurance>(() => (aal2At === undefined ? { level: 'aal1' } : { level: 'aal2', aal2At }), [aal2At]);
 
   const value = useMemo<SessionValue>(
-    () => ({ tenant, tenants, user, access: ALL_MODULES_VISIBLE, switchTenant, getSession, permissions, assurance, requestStepUp }),
-    [tenant, tenants, user, switchTenant, getSession, permissions, assurance, requestStepUp],
+    () => ({ tenant, tenants, user, access: ALL_MODULES_VISIBLE, switchTenant, getSession, permissions, assurance, requestStepUp, controlPlane: controlRoles !== undefined }),
+    [tenant, tenants, user, switchTenant, getSession, permissions, assurance, requestStepUp, controlRoles],
   );
 
   return (

@@ -4,7 +4,7 @@ import { WEB_ROUTES } from './support/web-routes.ts';
 import { browserChannel } from './support/browser-channel.ts';
 import { problemsOf, writeReportPart } from './support/report.ts';
 import { selectRoutes } from './support/routes-filter.ts';
-import { ROUTES_PER_BROWSER, batchesOf, devUserFor, failedByTheMachine, isExpectedAbsence, parseWalkPages, retryShareExceeded, summariseRetries } from './support/walk-plan.ts';
+import { ROUTES_PER_BROWSER, batchesOf, devUserFor, failedByTheMachine, isExpectedAbsence, parseWalkPages, retryShareExceeded, routesOfEdition, summariseRetries } from './support/walk-plan.ts';
 import type { RouteWalkEntry, WalkViewport } from './support/report.ts';
 
 type WalkRoute = (typeof WEB_ROUTES)[number];
@@ -149,7 +149,8 @@ test('every web route renders the shell without console errors or overflow, at 1
   test.setTimeout(45 * 60_000);
   // `E2E_ROUTES=HOME-01,ADM-01` limits the walk (for a quick run); an id that is not in the table fails the run, because a
   // mistyped id would otherwise walk fewer pages, or none, and pass.
-  const { selected: routes, unknown } = selectRoutes(WEB_ROUTES, process.env.E2E_ROUTES);
+  // The routes are those of the edition under test: the public build opens none of the enterprise-only modules.
+  const { selected: routes, unknown } = selectRoutes(routesOfEdition(WEB_ROUTES, process.env), process.env.E2E_ROUTES);
   if (unknown.length > 0 || routes.length === 0) {
     // No walk happened: a result left by an earlier run must not stand in for it.
     writeReportPart({ routeWalk: undefined });

@@ -35,6 +35,8 @@ export interface SessionValue extends SessionSignIn {
   user: SessionUser | undefined;
   /** Modules the user may open; the server still decides every request. */
   access: NavigationAccess;
+  /** The session is a control-plane one (the platform pseudo-tenant): the work, the alerts and the release flags belong to a tenant, so the shell asks the tenant plane for none of them. */
+  controlPlane?: boolean;
   switchTenant(tenantId: string): void;
   /** The bearer token for the API client, undefined when there is no session. */
   getSession(): Promise<{ token: string } | undefined>;

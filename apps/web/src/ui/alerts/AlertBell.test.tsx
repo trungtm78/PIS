@@ -94,6 +94,14 @@ describe('AlertBell', () => {
     }
   });
 
+  it('draws nothing and asks the tenant plane for nothing in a control-plane session (it has no work, and the tenant plane answers 403)', async () => {
+    const h = harness(alertsBackend({ mine: { counts: countsAnswer(1, 1, 0), list } }));
+    mount(<AlertBell />, h, '/', { controlPlane: true });
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(h.read).not.toHaveBeenCalled();
+  });
+
   it('has no serious accessibility violation', async () => {
     const h = harness(alertsBackend({ mine: { counts: countsAnswer(1, 1, 0), list } }));
     const { container } = mount(<AlertBell />, h);

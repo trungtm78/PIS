@@ -1,7 +1,7 @@
 /* IND-01 to IND-03 (indicator dictionary, data entry rules, Excel import mappings). Tokens only; the kit (apps/web/src/ui) draws the sections, the pills and the tables. */
 @import '../ctr/kit.css';
 
-.ind-screen { display: grid; gap: var(--mv-space-16); }
+.ind-screen { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--mv-space-16); }
 .ind-screen .heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--mv-space-12); }
 .ind-links { display: flex; flex-wrap: wrap; gap: var(--mv-space-16); }
 .ind-chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); margin: 0 0 var(--mv-space-12); }

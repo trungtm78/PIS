@@ -1,4 +1,4 @@
-.ana-stack { display: grid; gap: 16px; }
+.ana-stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .ana-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .ana-tile { border: 1px solid var(--line, #d0d7de); border-radius: 8px; padding: 12px 14px; background: var(--card, #fff); display: grid; gap: 4px; }
 .ana-tile__label { font-size: 0.8125rem; color: var(--muted, #57606a); display: flex; align-items: center; gap: 6px; }

@@ -23,6 +23,19 @@ describe('DevSessionProvider for a control-plane user', () => {
     expect(claims).toMatchObject({ tenantId: PLATFORM_TENANT.id, membershipId: MEMBERSHIP, scopeVersion: 0, aud: 'control', roles: ['SystemAdmin'] });
   });
 
+  it('tells the shell that the session is a control-plane one, and a tenant session that it is not', () => {
+    const control = renderHook(() => useSession(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <DevSessionProvider keyBase64={KEY} tenants={TENANTS} controlRoles={['SystemAdmin']}>
+          {children}
+        </DevSessionProvider>
+      ),
+    });
+    expect(control.result.current.controlPlane).toBe(true);
+    const tenant = renderHook(() => useSession(), { wrapper: ({ children }: { children: ReactNode }) => <DevSessionProvider keyBase64={KEY}>{children}</DevSessionProvider> });
+    expect(tenant.result.current.controlPlane).toBe(false);
+  });
+
   it('keeps the control claims after the step-up', async () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <DevSessionProvider keyBase64={KEY} tenants={TENANTS} controlRoles={['PlatformOperator']}>

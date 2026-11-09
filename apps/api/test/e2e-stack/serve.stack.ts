@@ -416,9 +416,12 @@ const WORK_ACCEPTANCE_ROLES = [
  */
 const PAYMENT_ROLES = [
   { n: 827, user: 'paymentAccountant', code: 'E2E_PAYMENT_ACCOUNTANT', permissions: ['payment_request.read', 'payment.create', 'payment.document.attach', 'payment.cancel', 'payment.submit', 'payment.forms.generate', 'payment.treasury.send', 'contract.read', 'acceptance.read', 'allocation_line.read', 'session.self'], rank: 30 },
-  { n: 828, user: 'paymentApprover', code: 'E2E_PAYMENT_APPROVER', permissions: ['payment_request.read', 'payment.document.attach', 'payment.verify', 'payment.return', 'session.self'], rank: 40 },
+  { n: 828, user: 'paymentApprover', code: 'E2E_PAYMENT_APPROVER', permissions: ['payment_request.read', 'payment.document.attach', 'payment.verify', 'payment.return', 'payment.clock.read', 'session.self'], rank: 40 },
   { n: 829, user: 'paymentReader', code: 'E2E_PAYMENT_READER', permissions: ['payment_request.read', 'session.self'], rank: 10 },
 ];
+
+/** The accountant who records that the file went to the Treasury is not the one who drew the request up: the matrix of duties keeps `payment.request` and `payment.approve` of one record apart. */
+const PAYMENT_SENDER_ROLES = [{ n: 879, user: 'paymentSender', code: 'E2E_PAYMENT_SENDER', permissions: ['payment_request.read', 'payment.treasury.send', 'contract.read', 'session.self'], rank: 30 }];
 
 /**
  * The people of the advance of a contract (PAY-07, CTR-06): the accountant who records a recovery and cancels an advance, and a reader, over the whole tenant. The permissions are the ones of
@@ -817,6 +820,7 @@ const GRANTS: GrantPlan[] = [
   ...WORK_ACCEPTANCE_ROLES.map((role, index): GrantPlan => ({ n: 822 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...LEDGER_ROLES.map((role, index): GrantPlan => ({ n: 826 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...PAYMENT_ROLES.map((role, index): GrantPlan => ({ n: 827 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
+  ...PAYMENT_SENDER_ROLES.map((role, index): GrantPlan => ({ n: 879 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...ADVANCE_ROLES.map((role, index): GrantPlan => ({ n: 830 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...RECONCILE_ROLES.map((role, index): GrantPlan => ({ n: 832 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
   ...SETTLEMENT_ROLES.map((role, index): GrantPlan => ({ n: 837 + index, user: role.user, role: role.code, kind: 'TENANT', refs: [] })),
@@ -1154,7 +1158,7 @@ function providerFixtures(tenantId: string): Array<[string, unknown[]]> {
 const deliveryTenants = new Set<string>([fixtures.tenants.B]);
 
 /** Every role the tests make: the browser flows each have people with one narrow role. */
-const E2E_ROLES = [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES];
+const E2E_ROLES = [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...PAYMENT_SENDER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES];
 
 /**
  * The stack of the user guide (E2E_SEED=docs): the tenants and their units, seven people with real names and the roles of a unit, and no business data at all.

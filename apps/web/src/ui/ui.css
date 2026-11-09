@@ -1,5 +1,10 @@
 /* The shared component kit of the web app (design.md, apps/web/src/ui/CONTRACT.md). Tokens only: every colour is var(--mv-color-*). */
 
+/* A hash, a key or a code is one long word: it breaks where it must rather than push the page sideways. */
+code {
+  overflow-wrap: anywhere;
+}
+
 .ui-sr-only {
   position: absolute;
   width: 1px;

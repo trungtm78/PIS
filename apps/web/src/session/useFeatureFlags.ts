@@ -32,11 +32,12 @@ export function flagMapOf(raw: unknown): Map<string, boolean> {
  */
 export function useFeatureFlags(): FeatureFlags {
   const client = useApiClient();
-  const { tenant } = useSession();
+  const { tenant, controlPlane } = useSession();
   const query = useQuery<Map<string, boolean>>({
     queryKey: ['me', 'feature-flags', tenant?.id, tenant?.membershipId],
     queryFn: async () => flagMapOf(await client.read('getMyFeatureFlags')),
-    enabled: tenant?.id !== undefined,
+    // The release flags are those of a tenant: the control plane has none, and the tenant plane refuses it (403).
+    enabled: tenant?.id !== undefined && controlPlane !== true,
     staleTime: 60_000,
     retry: false,
   });

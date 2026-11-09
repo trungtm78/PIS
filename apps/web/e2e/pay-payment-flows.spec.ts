@@ -406,6 +406,8 @@ test.describe('the payment request', () => {
     await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
     await expect(page.getByTestId('verification-note')).toHaveText('Hồ sơ đầy đủ.');
     await page.locator('button[data-action="return"]').click();
+    // The standard reasons of the return are asked for first (ACCEPTANCE_MISMATCH is one the rule starts with); the free text says more.
+    await page.locator('#return-reason-code').selectOption('ACCEPTANCE_MISMATCH');
     await page.locator('#return-reason').fill('Hóa đơn không khớp với nghiệm thu.');
     await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.return.submit'] }).click();
     await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.returned']);
@@ -473,7 +475,8 @@ test.describe('the payment request', () => {
     await expect(page.getByTestId('history')).toContainText(vi['pay.forms.status.superseded']);
     expect((await sql<{ status: string }>("select status from machvon.payment_form_instance where payment_request_id = $1 and form_code = '03.a/TT' order by created_at", [made!.id])).map((form) => form.status)).toEqual(['SUPERSEDED', 'GENERATED']);
 
-    // The file goes to the Treasury by hand; the day and the number are recorded.
+    // The file goes to the Treasury by hand; the day and the number are recorded by another person than the one who drew the request up (the matrix of duties: payment.request and payment.approve of one record).
+    await open(page, `/pay/pay-14?request=${made!.id}`, 'paymentSender');
     await page.locator('button[data-action="send"]').click();
     await page.locator('#send-day').fill('2026-07-24');
     await page.locator('#send-ref').fill('KB-2026-0001');
@@ -483,9 +486,9 @@ test.describe('the payment request', () => {
     await expect(page.getByTestId('sent-on')).toHaveText('2026-07-24');
     await expect(page.getByTestId('ref')).toHaveText('KB-2026-0001');
     expect(await sql<{ status: string; treasury_ref: string; treasury_sent_by: string }>('select status, treasury_ref, treasury_sent_by from machvon.payment_request where id = $1', [made!.id])).toEqual([
-      { status: 'SENT_TREASURY', treasury_ref: 'KB-2026-0001', treasury_sent_by: membershipOf('paymentAccountant') },
+      { status: 'SENT_TREASURY', treasury_ref: 'KB-2026-0001', treasury_sent_by: membershipOf('paymentSender') },
     ]);
-    expect(await auditsOf(made!.id, 'payment_request.sent_treasury')).toEqual([{ actor_id: membershipOf('paymentAccountant') }]);
+    expect(await auditsOf(made!.id, 'payment_request.sent_treasury')).toEqual([{ actor_id: membershipOf('paymentSender') }]);
     expect(await eventsOf(made!.id, 'pay.payment_request.sent_treasury.v1')).toHaveLength(1);
 
     await open(page, '/pay/pay-04', 'paymentReader');
@@ -514,6 +517,8 @@ test.describe('the payment request', () => {
     await page.locator('#generate-place').fill('Cao Bằng');
     await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
     await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.generated']);
+    // Another person than the one who drew the request up records that the file went to the Treasury.
+    await open(page, `/pay/pay-14?request=${made!.id}`, 'paymentSender');
     await page.locator('button[data-action="send"]').click();
     await page.locator('#send-day').fill('2026-07-24');
     await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.send.submit'] }).click();

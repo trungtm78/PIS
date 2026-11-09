@@ -5,6 +5,8 @@
  * and `ERR_INSUFFICIENT_RESOURCES` for healthy screens, so the walk recycles its browser and retries those failures once.
  */
 
+import { PUBLIC_EDITION_MANIFEST, resolveEdition, screenInEdition } from '@machvon/kernel/src/edition.ts';
+
 /** Pages open at once in one browser. */
 export const DEFAULT_WALK_PAGES = 3;
 const MAX_WALK_PAGES = 4;
@@ -71,13 +73,28 @@ export function devUserFor(route: { module: string }): 'owner' | 'sysAdmin' {
 }
 
 const ABSENT_ESTIMATE = /\/api\/disbursement-forecasts\?project_id=/;
+// The leadership dashboard of the enterprise edition answers 404 RESOURCE_NOT_FOUND while no enterprise snapshot is frozen; its panel shows "no snapshot yet" (LeaderPanel).
+const ABSENT_LEADER_BOARD = /\/api\/leader\/rates(\?|$)/;
+// The cross-total control of DIS-26 answers 404 for a snapshot that is not there for the caller; the screen reads that as "no control for this snapshot" (`useControl`) and shows its empty state.
+const ABSENT_CONTROL = /\/api\/period-snapshots\/[0-9a-f-]{36}\/cross-total$/;
+// The area of the contractor portal answers 403 PORTAL_CONTRACTOR_REQUIRED to a member who is not a guest contractor; its screens show the denied state saying the area is for contractor accounts (portal-ui).
+const CONTRACTOR_AREA = /\/api\/portal\//;
 
 /**
- * Whether a console error is the browser noting a 404 that the product specifies: a project that has no line in the latest frozen snapshot has no
- * estimate, and DIS answers 404 for it (docs/dis-forecast.md). The screens of CAP show that as "no estimate"; it is not a defect of the screen.
+ * Whether a console error is the browser noting an answer that the product specifies for the kind of person the walk opens the screen as, and that the screen shows as a state of its own:
+ * 404 for a project that has no line in the latest frozen snapshot (DIS: no estimate, docs/dis-forecast.md), 404 for the leadership dashboard before an enterprise snapshot is frozen, 404 for the cross-total control of a snapshot that is not there for the caller, and 403
+ * for the contractor portal opened by a member who is not a contractor. It is not a defect of the screen; any other 4xx or 5xx still is.
  */
 export function isExpectedAbsence(text: string, url: string): boolean {
-  return /status of 404/.test(text) && ABSENT_ESTIMATE.test(url);
+  if (/status of 404/.test(text)) return ABSENT_ESTIMATE.test(url) || ABSENT_LEADER_BOARD.test(url) || ABSENT_CONTROL.test(url);
+  if (/status of 403/.test(text)) return CONTRACTOR_AREA.test(url);
+  return false;
+}
+
+/** The routes that exist in the edition under test (`MACHVON_EDITION`, public when unset): the public build opens none of the routes of the enterprise-only modules, so walking them there would walk its "not found" page. */
+export function routesOfEdition<T extends { id: string; module: string }>(routes: readonly T[], env: Readonly<Record<string, string | undefined>>): T[] {
+  if (resolveEdition(env) !== 'public') return [...routes];
+  return routes.filter((route) => screenInEdition(PUBLIC_EDITION_MANIFEST, route));
 }
 
 // The console says so when the machine has no socket buffer left: the browser then fails to load the files of a page that is healthy.

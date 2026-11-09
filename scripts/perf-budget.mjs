@@ -82,7 +82,54 @@ export function budgetProblems(budget) {
       if (reference !== null && !variables.has(reference[1])) problems.push(`${label} query ${name} uses the undeclared variable ${reference[1]}`);
     }
   }
+  for (const [name, rule] of Object.entries(budget.discovery ?? {})) {
+    if (!variables.has(name)) problems.push(`discovery of ${name} names a variable the table does not declare`);
+    if (typeof rule?.path !== 'string' || !rule.path.startsWith('/') || /\{\w+\}/.test(rule.path)) problems.push(`discovery of ${name} has no fixed path`);
+    if (typeof rule?.pick !== 'string' || rule.pick === '') problems.push(`discovery of ${name} has no pick`);
+  }
   return problems;
+}
+
+/** The value at a dotted path of a parsed answer (`items.0.id`), or undefined. */
+export function pickValue(answer, pick) {
+  let at = answer;
+  for (const step of String(pick).split('.')) {
+    if (at === null || typeof at !== 'object') return undefined;
+    at = at[step];
+  }
+  return at;
+}
+
+/**
+ * Finds the ids the table needs in the tenant that is measured, by reading the first row of a list the API already serves (the `discovery` of the table): a variable that is given is kept, a list that is
+ * empty or refused leaves the variable missing (its operations are then `SKIPPED` with the name of the variable, and `problems` says why). Nothing is written to the tenant.
+ */
+export async function discoverVariables({ budget, baseUrl, token, headers = {}, vars = {}, fetchImpl = fetch, timeoutMs = 20_000 }) {
+  const found = {};
+  const problems = [];
+  const requestHeaders = { accept: 'application/json', ...headers, ...(token === undefined ? {} : { authorization: `Bearer ${token}` }) };
+  for (const [name, rule] of Object.entries(budget.discovery ?? {})) {
+    if (vars[name] !== undefined && vars[name] !== '') continue;
+    const query = new URLSearchParams(rule.query ?? {}).toString();
+    const url = `${baseUrl.replace(/\/+$/, '')}${rule.path}${query === '' ? '' : `?${query}`}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetchImpl(url, { method: 'GET', headers: requestHeaders, signal: controller.signal });
+      if (response.status < 200 || response.status >= 300) {
+        problems.push(`${name}: ${rule.path} answered ${response.status}`);
+        continue;
+      }
+      const value = pickValue(await response.json(), rule.pick);
+      if (typeof value === 'string' && value !== '') found[name] = value;
+      else problems.push(`${name}: ${rule.path} has nothing at ${rule.pick} (the tenant has no such row)`);
+    } catch {
+      problems.push(`${name}: ${rule.path} could not be read`);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return { found, problems };
 }
 
 /** The URL of one operation, or the variables it lacks. Path values are percent-encoded. */
@@ -201,7 +248,8 @@ function readJson(path, label) {
 
 const USAGE = [
   'usage: node scripts/perf-budget.mjs --base-url <url> [--token <jwt>] [--vars <file.json>] [--var name=value] [--only <ids,areas,class>] [--samples <n>] [--warmup <n>] [--stat p50|p95|max]',
-  '                                    [--budget <file>] [--header "Name: value"] [--strict] [--list] [--check] [--out <file.json>]',
+  '                                    [--budget <file>] [--header "Name: value"] [--strict] [--list] [--check] [--out <file.json>] [--discover] [--vars-out <file.json>]',
+  '--discover reads the first row of the lists named in the `discovery` of the table to find the ids that --vars and --var did not give; --vars-out writes the variables that were used (for the k6 scripts).',
   'the token can also be given in PERF_TOKEN; the base URL includes the version prefix (https://host/v1).',
 ].join('\n');
 
@@ -225,6 +273,8 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
         list: { type: 'boolean', default: false },
         check: { type: 'boolean', default: false },
         out: { type: 'string' },
+        discover: { type: 'boolean', default: false },
+        'vars-out': { type: 'string' },
       },
     }));
   } catch {
@@ -293,6 +343,14 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
     headers[line.slice(0, at).trim().toLowerCase()] = line.slice(at + 1).trim();
   }
   const token = values.token ?? env.PERF_TOKEN;
+  if (values.discover) {
+    const discovered = await discoverVariables({ budget, baseUrl: values['base-url'], token, headers, vars, fetchImpl });
+    vars = { ...vars, ...discovered.found };
+    for (const [name, value] of Object.entries(discovered.found)) log(`found ${name} = ${value}`);
+    for (const problem of discovered.problems) log(`not found ${problem}`);
+  }
+  if (values['vars-out'] !== undefined) writeFileSync(resolve(values['vars-out']), `${JSON.stringify(vars, null, 2)}
+`);
   const results = await runBudget({ budget, baseUrl: values['base-url'], token, vars, headers, samples, warmup, stat: values.stat, only, fetchImpl, now, onResult: (result) => log(formatLine(result)) });
   const summary = summaryOf(results);
   const code = exitCode(results, values.strict);

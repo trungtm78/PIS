@@ -77,7 +77,12 @@ const RESOURCE_MODULES: Readonly<Record<string, string>> = {
   maturity_assessment: 'MNE', maturity_evidence: 'MNE',
   // The project documents of DOC carry the `project.` prefix too, so the project itself is named: its read belongs to PRJ, not to whoever tags a project operation first.
   project: 'PRJ',
+  // The retention, DOA, integration, security and signature registers of ADM carry the `adm.` prefix (and other modules tag operations with it too), so no tagged operation owns it alone.
+  adm: 'ADM',
 };
+
+// Resources that no grant reaches whatever tagged operation shares their permission prefix: a read-detail operation tagged ADM (`audit_event.read`) must not drag the list of the audit trail into the module of ADM.
+const KEPT_FROM_EVERY_GRANT: ReadonlySet<string> = new Set(['proposal', 'device_registration', 'outbox_event', 'audit_event', 'tenant']);
 
 // Maps every operationId to the module it belongs to: its first tag, else the module of its resource (RESOURCE_MODULES), else the only module whose tagged operations share the first segment of its permission; an operation
 // that none of these places has none. A support access grant is scoped by module (ST-SAS-015).
@@ -96,7 +101,7 @@ export function generateModules(doc: OpenApiDocument): Record<string, string> {
   }
   const modules: Record<string, string> = {};
   for (const { id, operation } of entries) {
-    const sole = owners.get(prefixOf(operation));
+    const sole = KEPT_FROM_EVERY_GRANT.has(prefixOf(operation)) ? undefined : owners.get(prefixOf(operation));
     const module = tagOf(operation) ?? RESOURCE_MODULES[prefixOf(operation)] ?? (sole?.size === 1 ? [...sole][0] : undefined);
     if (module !== undefined) modules[id] = module;
   }

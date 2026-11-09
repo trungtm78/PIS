@@ -73,7 +73,7 @@ product: the contract, the balances of the ledger by identifier, the tranches of
 
 Checking (`verifyPaymentRequest`, `payment.verify`) takes a `SUBMITTED` request to `VERIFIED`; whoever drew it up or sent it is refused (403 `SELF_APPROVAL_DENIED`).
 
-Returning (`returnPaymentRequest`, `payment.return`) takes a `SUBMITTED` or `VERIFIED` request to `RETURNED` with a reason, and a request with the Treasury only when the Treasury returned it (`returned_by_treasury`).
+Returning (`returnPaymentRequest`, `payment.return`) takes a `SUBMITTED` or `VERIFIED` request to `RETURNED` with a reason (the screen offers the standard reasons of the rule `PAYMENT_RETURN_REASON`, read with `listPaymentReturnReasons` under `payment.clock.read`, so the role of a person who returns holds that permission too: without it the list cannot be read and the screen does not send the return), and a request with the Treasury only when the Treasury returned it (`returned_by_treasury`).
 Everything sending put on the books is given back by the opposite entries: `CLAIM_RELEASE` and `ADVANCE_RECOVERY_REVERSAL` say which entry they reverse; the retention is let go by `RETENTION_RELEASE` (it
 reverses a hold of this round, so a second round is not confused with the first); the tranches get `REVERSE_RECOVER`; the totals of the contract move back and the retention rows are deleted. Revising a
 returned request makes it a draft again and sending it takes the claim again. No entry is ever updated or deleted (V1564 makes the advance entries append-only like the ledger).

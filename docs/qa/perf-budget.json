@@ -24,7 +24,14 @@
     "reportIssueId": "id of an issued report that has a PDF file (the heaviest of its files, ENT-4b)",
     "reportExportId": "id of a finished report export",
     "mneReportId": "id of a monitoring and evaluation report",
-    "evaluationReportId": "id of a bid evaluation report"
+    "evaluationReportId": "id of a bid evaluation report",
+    "allocationLineId": "id of a line of the capital plan (the availability of a line is asked for one line)"
+  },
+  "discovery": {
+    "projectId": {"path": "/resources/project", "query": {"limit": "1"}, "pick": "items.0.id"},
+    "allocationLineId": {"path": "/resources/allocation_line", "query": {"limit": "1"}, "pick": "items.0.id"},
+    "reportDraftId": {"path": "/report-engine/drafts", "query": {"limit": "1"}, "pick": "items.0.id"},
+    "reportIssueId": {"path": "/report-engine/issues", "query": {"limit": "1"}, "pick": "items.0.id"}
   },
   "operations": [
     {"id":"PB-F001","operationId":"getCommandCenter","method":"GET","path":"/home/command-center","permission":"home.read","class":"FUNCTION","area":"HOME"},
@@ -40,7 +47,7 @@
     {"id":"PB-F011","operationId":"getBottleneckAnalysis","method":"GET","path":"/home/bottlenecks","permission":"home.read","class":"FUNCTION","area":"HOME"},
     {"id":"PB-F012","operationId":"getAnalyticsHeatmap","method":"GET","path":"/home/insight/heatmap","permission":"home.read","class":"FUNCTION","area":"HOME"},
     {"id":"PB-F013","operationId":"getAlertHealth","method":"GET","path":"/home/alert-health","permission":"home.alert.health.read","class":"FUNCTION","area":"HOME"},
-    {"id":"PB-F014","operationId":"getCapitalAvailability","method":"GET","path":"/capital/availability","permission":"capital.read","class":"FUNCTION","area":"CAP"},
+    {"id":"PB-F014","operationId":"getCapitalAvailability","method":"GET","path":"/capital/availability","permission":"capital.read","class":"FUNCTION","area":"CAP","query":{"allocation_line_id":"$allocationLineId"}},
     {"id":"PB-F015","operationId":"listAppropriations","method":"GET","path":"/appropriations","permission":"capital.read","class":"FUNCTION","area":"CAP"},
     {"id":"PB-F016","operationId":"listFundReservations","method":"GET","path":"/fund-reservations","permission":"capital.read","class":"FUNCTION","area":"CAP"},
     {"id":"PB-F017","operationId":"listCapitalLedger","method":"GET","path":"/capital-ledger","permission":"capital.ledger.read","class":"FUNCTION","area":"CAP"},
@@ -103,7 +110,7 @@
     {"id":"PB-R007","operationId":"getReportDraftFile","method":"GET","path":"/report-engine/drafts/{id}/files/{format}","permission":"rpt.read","class":"REPORT","area":"RPT","pathVars":{"id":"reportDraftId"},"pathFixed":{"format":"XLSX"}},
     {"id":"PB-R008","operationId":"getReportIssueFile","method":"GET","path":"/report-engine/issues/{id}/files/{format}","permission":"rpt.read","class":"REPORT","area":"RPT","pathVars":{"id":"reportIssueId"},"pathFixed":{"format":"PDF"}},
     {"id":"PB-R009","operationId":"getReportExportDownload","method":"GET","path":"/report-exports/{id}/download","permission":"report.export","class":"REPORT","area":"DIS","pathVars":{"id":"reportExportId"}},
-    {"id":"PB-R010","operationId":"getDirectivesForReport","method":"GET","path":"/directives/for-report","permission":"directive.read","class":"REPORT","area":"DIR"},
+    {"id":"PB-R010","operationId":"getDirectivesForReport","method":"GET","path":"/directives/for-report","permission":"directive.read","class":"REPORT","area":"DIR","query":{"from":"2000-01-01","to":"2099-12-31"}},
     {"id":"PB-R011","operationId":"getMneReport","method":"GET","path":"/mne-reports/{id}","permission":"mne.read","class":"REPORT","area":"MNE","pathVars":{"id":"mneReportId"}},
     {"id":"PB-R012","operationId":"getEvaluationReport","method":"GET","path":"/evaluation-reports/{id}","permission":"bid.evaluate","class":"REPORT","area":"BID","pathVars":{"id":"evaluationReportId"}},
     {"id":"PB-R013","operationId":"getAlertCoverageReport","method":"GET","path":"/home/alert-coverage","permission":"home.alert.health.read","class":"REPORT","area":"HOME"},
