@@ -18,9 +18,9 @@ Requirements: HSKT v0.3 DL.01 (the data set per project and period includes the 
 - [x] 1. Plan and migration block (2680-2699 registered as `ENT3B-1`).
 - [x] 2. Kernel: `ent-narrative.ts` (fields, validation, inheritance, directive lines, import parse, entry facts), `fillNarrative` token, entry surface `PERIOD_NARRATIVE`, messages. Tests: kernel unit tests.
 - [x] 3. DB: migration 2680, store changes (read/write the block, previous report, cause catalogue, import judge/apply). Tests: db store test.
-- [ ] 4. API + contract: narrative in report create/save/detail, `inheritReportNarrative`, `getReportNarrativeContext`, `downloadReportNarrativeTemplate`, import mapping, rules on save/submit, authz/isolation entries. Tests: api tests (listed, not run in the shared suites).
-- [ ] 5. Enterprise package: six narrative skeletons, templates rebuilt, provider wiring of narratives in the report render. Tests: package tests.
-- [ ] 6. Web: narrative screen (next free DIS id), hooks, model, i18n parts `ent3b.{vi,en}.json`. Tests: vitest.
+- [x] 4. API + contract: narrative in report create/save/detail, `inheritReportNarrative`, `getReportNarrativeContext`, `downloadReportNarrativeTemplate`, import mapping, rules on save/submit, authz/isolation entries. Tests: api tests (listed, not run in the shared suites).
+- [x] 5. Enterprise package: six narrative skeletons, templates rebuilt, provider wiring of narratives in the report render. Tests: package tests.
+- [x] 6. Web: narrative screen (next free DIS id), hooks, model, i18n parts `ent3b.{vi,en}.json`. Tests: vitest.
 - [ ] 7. Docs, story/traceability rows, shared-suite entries, independent review, merge main.
 
 ## Risks
@@ -28,3 +28,7 @@ Requirements: HSKT v0.3 DL.01 (the data set per project and period includes the 
 - Contract footprint is large (openapi, authz matrix, isolation, generated files): operations are kept to three new ones; everything else extends existing operations.
 - ENT-3a edits `bundles.ts` and the provider: only `narratives.ts`, `forms.ts` and the render input are touched here.
 - DB and API jest only through the serialized lane and only when memory is free and no verify run is active.
+
+## Status (final)
+
+Steps 1 to 6 done; step 7: story and traceability rows, docs and the independent review were not done (see the report). The web screen is DIS-35. Shared suites: authz matrix, negative matrix and isolation entries were added and not run in the shared form.
