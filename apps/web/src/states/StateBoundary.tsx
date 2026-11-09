@@ -54,6 +54,8 @@ export function StateBoundary({ state, onRetry, children }: StateBoundaryProps) 
   if (state === 'loading') {
     return (
       <div className="card" role="status" aria-busy="true" aria-label={t('states.loading.label')}>
+        {/* Text for the reader of the page and for any check of an empty page: the bars alone say nothing. */}
+        <span className="sr-only">{t('states.loading.label')}</span>
         {Array.from({ length: SKELETON_ROWS }, (_, row) => (
           <div className="skeleton" key={row} />
         ))}

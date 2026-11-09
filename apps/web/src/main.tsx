@@ -2,6 +2,7 @@ import { resolveEdition } from '@machvon/kernel/src/edition.ts';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { CrashCard } from './states/ScreenErrorBoundary';
 import { listenForInstall } from './pwa/install';
 import { startServiceWorker } from './pwa/register';
 import { installEdition } from './editions/edition';
@@ -38,7 +39,8 @@ if (edition === 'public') {
       mount(root);
     },
     (error: unknown) => {
-      root.textContent = error instanceof Error ? error.message : String(error);
+      // The bundle of the edition did not load: the standard error card with the reload and the way back, never an empty page or a bare message.
+      createRoot(root).render(<CrashCard />);
       throw error;
     },
   );

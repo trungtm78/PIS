@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { editionAccess, editionRoutes } from '../editions/edition';
 import { useEdition } from '../editions/EditionContext';
 import { useTranslation } from '../i18n';
@@ -9,6 +9,7 @@ import { routeById, routeByPath } from '../routes/registry';
 import { WEB_ROUTES } from '../routes/web-routes';
 import { useUnreadBadge } from '../screens/not/inbox/badge';
 import { useSession } from '../session/SessionContext';
+import { GuardedOutlet } from '../states/ScreenErrorBoundary';
 import { PortalFrame } from '../screens/vnd/portal/portal-frame';
 import { isPortalCaller } from '../screens/vnd/portal/portal-model';
 import { useAlertCounts } from '../ui/alerts';
@@ -141,7 +142,7 @@ function StaffShell() {
           onTogglePin={() => route !== undefined && toggle(route.id)}
         />
         <div className="content">
-          <Outlet />
+          <GuardedOutlet />
         </div>
       </div>
       <button

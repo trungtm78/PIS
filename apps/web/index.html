@@ -10,9 +10,26 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <title>Hệ thống quản lý đầu tư công</title>
+    <!-- The first paint, before any script ran: the page is never empty while the application loads (the content security policy allows inline styles, not inline scripts). -->
+    <style>
+      .boot { display: flex; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin: 0; background: #f4f6f6; color: #102e3b; font-family: system-ui, 'Be Vietnam Pro', sans-serif; text-align: center; }
+      .boot p { margin: 0; }
+      .boot-name { font-size: 20px; font-weight: 700; }
+      .boot-wait { font-size: 15px; }
+      .boot-wait::after { content: ''; display: inline-block; width: 12px; height: 12px; margin-left: 8px; border: 2px solid #007d77; border-right-color: transparent; border-radius: 50%; vertical-align: -1px; animation: boot-spin 0.9s linear infinite; }
+      .boot-failed .boot-wait::after { display: none; }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+    </style>
+    <script src="/boot-guard.js" defer></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" role="status" data-boot>
+        <p class="boot-name">Hệ thống quản lý đầu tư công</p>
+        <p class="boot-wait">Đang tải ứng dụng…</p>
+      </div>
+    </div>
+    <noscript>Cần bật JavaScript của trình duyệt để dùng ứng dụng này.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

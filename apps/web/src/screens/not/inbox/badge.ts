@@ -25,11 +25,21 @@ export function useUnreadBadge(sessionCount: number | undefined): number | undef
   const [items, setItems] = useState<NotificationItem[] | undefined>(() => itemsOf(queryClient.getQueryData<InfiniteData<InboxPage>>(key)));
 
   useEffect(() => {
+    let live = true;
     const read = (): void => setItems(itemsOf(queryClient.getQueryData<InfiniteData<InboxPage>>(key)));
     read();
-    return queryClient.getQueryCache().subscribe((event) => {
-      if (event.query.queryKey[0] === key[0] && event.query.queryKey[1] === key[1]) read();
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      // The cache also tells about a query that a screen builds while it renders (the inbox screen does): a state of this component set at that moment is
+      // "Cannot update a component while rendering a different component". The change is read in a microtask, after the render that caused it.
+      if (event.query.queryKey[0] === key[0] && event.query.queryKey[1] === key[1])
+        queueMicrotask(() => {
+          if (live) read();
+        });
     });
+    return () => {
+      live = false;
+      unsubscribe();
+    };
   }, [queryClient, key]);
 
   return badgeCount(sessionCount, items);
