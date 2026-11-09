@@ -87,3 +87,8 @@
 .pwa-details summary { cursor: pointer; font-weight: 600; }
 .pwa-clamp { margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .pwa-link-title { color: var(--mv-color-primary); font-weight: 700; justify-content: flex-start; }
+.pwa-steps-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--mv-space-8); }
+.pwa-step { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); padding: var(--mv-space-8) var(--mv-space-12); text-align: left; background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); color: var(--mv-color-ink); font: inherit; cursor: pointer; justify-content: flex-start; }
+.pwa-step[aria-expanded='true'] { border-color: var(--mv-color-primary); }
+.pwa-step-name { flex: 1 1 140px; font-weight: 600; min-width: 0; }
+.pwa-tiles-stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--mv-space-8); }

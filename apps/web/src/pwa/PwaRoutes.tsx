@@ -6,7 +6,9 @@ import ApprovalDetailScreen from './screens/ApprovalDetailScreen';
 import ApprovalQueueScreen from './screens/ApprovalQueueScreen';
 import DirectiveDetailScreen from './screens/DirectiveDetailScreen';
 import DirectivesScreen from './screens/DirectivesScreen';
+import FiguresDetailScreen from './screens/FiguresDetailScreen';
 import LeaderDashboardScreen from './screens/LeaderDashboardScreen';
+import ProgressScreen from './screens/ProgressScreen';
 import PwaStartScreen from './screens/PwaStartScreen';
 import SettingsScreen from './screens/SettingsScreen';
 
@@ -28,6 +30,8 @@ export function PwaRoutes() {
       <Route path="approvals" element={<Gated><ApprovalQueueScreen /></Gated>} />
       <Route path="approvals/:taskId" element={<Gated><ApprovalDetailScreen /></Gated>} />
       <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
+      <Route path="dashboard/detail" element={<Gated><FiguresDetailScreen /></Gated>} />
+      <Route path="progress" element={<Gated><ProgressScreen /></Gated>} />
       <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
       <Route path="directives/:id" element={<Gated><DirectiveDetailScreen /></Gated>} />
       <Route path="settings" element={<Gated><SettingsScreen /></Gated>} />
