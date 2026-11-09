@@ -132,10 +132,5 @@
   "pwa2.figures.page.title": "Chi tiết số liệu giải ngân",
   "pwa2.figures.page.subtitle": "Số tiền theo bản chốt, xếp hạng, nguyên nhân chậm, dòng tiền và thay đổi so với bản chốt trước.",
   "pwa2.figures.context": "Bản chốt ngày {day}, đọc lúc {time}",
-  "pwa2.figures.amounts.title": "Số tiền theo bản chốt",
-  "pwa.directives.empty.notBuilt.title": "Chưa có dữ liệu chỉ đạo",
-  "pwa.directives.empty.notBuilt.body": "Phân hệ chỉ đạo chưa được bật trong phiên bản này. Khi có, các chỉ đạo giao cho đơn vị sẽ hiện ở đây.",
-  "pwa.directives.unavailable.note": "Không đọc được nguồn: {sources}. Danh sách có thể thiếu.",
-  "pwa.directives.counts.line": "{shown} trên {total} chỉ đạo",
-  "pwa.directives.field.issuedBy": "Người giao"
+  "pwa2.figures.amounts.title": "Số tiền theo bản chốt"
 }

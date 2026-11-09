@@ -132,10 +132,5 @@
   "pwa2.figures.page.title": "Disbursement figures in detail",
   "pwa2.figures.page.subtitle": "The amounts of the snapshot, the ranking, the causes of slow disbursement, the cash flow and the changes since the snapshot before.",
   "pwa2.figures.context": "Snapshot of {day}, read at {time}",
-  "pwa2.figures.amounts.title": "Amounts of the snapshot",
-  "pwa.directives.empty.notBuilt.title": "No directive data yet",
-  "pwa.directives.empty.notBuilt.body": "The directives module is not switched on in this version. When it is, the directives given to units appear here.",
-  "pwa.directives.unavailable.note": "Could not read: {sources}. The list may be incomplete.",
-  "pwa.directives.counts.line": "{shown} of {total} directives",
-  "pwa.directives.field.issuedBy": "Issued by"
+  "pwa2.figures.amounts.title": "Amounts of the snapshot"
 }
