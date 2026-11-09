@@ -13770,7 +13770,7 @@
     "source": "docs/ent-snapshot.md; docs/fnd-funding-model.md 13"
   },
   {
-    "id": "DIS-32",
+    "id": "DIS-34",
     "module": "DIS",
     "moduleName": "Báo cáo giải ngân",
     "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
@@ -13790,7 +13790,7 @@
     "source": "HSKT PVFCCo v0.3, yêu cầu QT.02 (lịch kỳ báo cáo với thời hạn từng bước, theo dõi nhập liệu từng đầu mối, nhắc việc và cảnh báo quá hạn)"
   },
   {
-    "id": "ADM-29",
+    "id": "ADM-31",
     "module": "ADM",
     "moduleName": "Quản trị tenant",
     "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
@@ -13927,7 +13927,7 @@
     "source": "HSKT PVFCCo v0.3 CN.02; kế hoạch ENT-3 khoảng trống G12"
   },
   {
-    "id": "ADM-29",
+    "id": "ADM-32",
     "module": "ADM",
     "moduleName": "Quản trị tenant",
     "title": "Sao lưu và yêu cầu sao lưu thủ công",
@@ -13947,7 +13947,7 @@
     "rule": "Yêu cầu và duyệt do hai người khác nhau; giao diện không chạy sao lưu, chỉ ghi yêu cầu và hiển thị trạng thái đọc từ nguồn trạng thái",
     "phase": "P1",
     "platform": "web",
-    "req": "FR-ADM-29",
+    "req": "FR-ADM-32",
     "source": "HSKT YCK.06"
   },
   {

@@ -441,8 +441,8 @@
           "ADM-07",
           "CAP-07",
           "DIR-01",
-          "DIS-32",
-          "ADM-29"
+          "DIS-34",
+          "ADM-31"
         ],
         "operations": [
           "generateReportingPeriods",
@@ -1068,7 +1068,7 @@
           "DIR-06",
           "NOT-11",
           "NOT-13",
-          "DIS-32"
+          "DIS-34"
         ],
         "operations": [
           "decideApprovalTask",
@@ -1226,7 +1226,8 @@
       "status": "PARTIAL",
       "evidence": {
         "screens": [
-          "SAS-21"
+          "SAS-21",
+          "ADM-32"
         ],
         "operations": [
           "requestTenantRestore",

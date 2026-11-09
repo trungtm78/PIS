@@ -25992,39 +25992,39 @@
     ]
   },
   {
-    "id": "UI-DIS-32",
-    "source": "FR-DIS-32",
+    "id": "UI-DIS-34",
+    "source": "FR-DIS-34",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối; user có quyền và user không có quyền; route DIS-32",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối; user có quyền và user không có quyền; route DIS-34",
     "steps": [
-      "Mở DIS-32 từ menu và liên kết sâu; kiểm nhãn trường: Năm và loại kỳ, Hạn từng bước, Trạng thái từng đầu mối theo bước, Dự án đã nhập và đã duyệt, Các lần nhắc đã gửi",
+      "Mở DIS-34 từ menu và liên kết sâu; kiểm nhãn trường: Năm và loại kỳ, Hạn từng bước, Trạng thái từng đầu mối theo bước, Dự án đã nhập và đã duyệt, Các lần nhắc đã gửi",
       "Thực hiện thao tác chính theo quy tắc: Hạn của từng bước lấy từ quy tắc REPORTING_SCHEDULE đang hiệu lực; bước chưa có dữ kiện là CHƯA THEO DÕI",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-32"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-34"
     ],
     "expected": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối: hiển thị đủ các trường, áp quy tắc \"Hạn của từng bước lấy từ quy tắc REPORTING_SCHEDULE đang hiệu lực; bước chưa có dữ kiện là CHƯA THEO DÕI\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-32"
+      "FR-DIS-34"
     ]
   },
   {
-    "id": "UI-ADM-29",
-    "source": "FR-ADM-29",
+    "id": "UI-ADM-31",
+    "source": "FR-ADM-31",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Hạn từng bước của lịch kỳ báo cáo; user có quyền và user không có quyền; route ADM-29",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hạn từng bước của lịch kỳ báo cáo; user có quyền và user không có quyền; route ADM-31",
     "steps": [
-      "Mở ADM-29 từ menu và liên kết sâu; kiểm nhãn trường: Loại kỳ, Số ngày và giờ hạn của từng bước, Mốc nhắc và báo lãnh đạo, Phiên bản và nhãn chưa xác nhận",
+      "Mở ADM-31 từ menu và liên kết sâu; kiểm nhãn trường: Loại kỳ, Số ngày và giờ hạn của từng bước, Mốc nhắc và báo lãnh đạo, Phiên bản và nhãn chưa xác nhận",
       "Thực hiện thao tác chính theo quy tắc: Hiển thị phiên bản đang hiệu lực của quy tắc REPORTING_SCHEDULE; đề xuất phiên bản mới trong kho quy tắc",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và nhãn \"mặc định, chưa kiểm chứng\" trên ADM-29"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và nhãn \"mặc định, chưa kiểm chứng\" trên ADM-31"
     ],
     "expected": "Hạn từng bước của lịch kỳ báo cáo: hiển thị đủ các trường, áp quy tắc \"Hiển thị phiên bản đang hiệu lực của quy tắc REPORTING_SCHEDULE; đề xuất phiên bản mới trong kho quy tắc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-ADM-29"
+      "FR-ADM-31"
     ]
   },
   {
@@ -26040,8 +26040,8 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-32",
-      "FR-ADM-29"
+      "FR-DIS-34",
+      "FR-ADM-31"
     ]
   },
   {
@@ -26057,7 +26057,7 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-32"
+      "FR-DIS-34"
     ]
   },
   {
@@ -26065,7 +26065,7 @@
     "source": "DIS.md",
     "type": "business",
     "priority": "P1",
-    "setup": "DIS-32 and ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "setup": "DIS-34 and ADM-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
     "steps": [
       "Each of the seven standard states is forced in turn"
     ],
@@ -26073,26 +26073,26 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-DIS-32",
-      "FR-ADM-29"
+      "FR-DIS-34",
+      "FR-ADM-31"
     ]
   },
   {
-    "id": "UI-ADM-29",
-    "source": "FR-ADM-29",
+    "id": "UI-ADM-32",
+    "source": "FR-ADM-32",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant TNT-A với dữ liệu synthetic của Sao lưu và yêu cầu sao lưu thủ công; user có quyền và user chỉ đọc; route ADM-29",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sao lưu và yêu cầu sao lưu thủ công; user có quyền và user chỉ đọc; route ADM-32",
     "steps": [
-      "Mở ADM-29 từ menu và deep link; kiểm nhãn trường: Trạng thái bản sao lưu gần nhất, Lần kiểm tra gần nhất, Loại sao lưu, Kho lưu, Lý do, Người yêu cầu, Người duyệt, Nhãn bản sao lưu, Trạng thái",
+      "Mở ADM-32 từ menu và deep link; kiểm nhãn trường: Trạng thái bản sao lưu gần nhất, Lần kiểm tra gần nhất, Loại sao lưu, Kho lưu, Lý do, Người yêu cầu, Người duyệt, Nhãn bản sao lưu, Trạng thái",
       "Thực hiện thao tác chính: requestBackup, decideBackupRequest, cancelBackupRequest, recordBackupOutcome; không có nguồn trạng thái thì hiển thị chưa rõ, không bao giờ hiển thị khỏe",
-      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-29"
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-32"
     ],
     "expected": "Sao lưu và yêu cầu sao lưu thủ công: hiển thị đúng 9 trường, người yêu cầu không tự duyệt được yêu cầu của mình, trạng thái chưa rõ khi không có nguồn, 0 lỗi console và không tràn ngang ở 1440 px.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-ADM-29"
+      "FR-ADM-32"
     ]
   },
   {
@@ -26111,7 +26111,7 @@
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-ADM-29"
+      "FR-ADM-32"
     ]
   }
 ]

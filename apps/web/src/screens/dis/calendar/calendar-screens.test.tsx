@@ -65,9 +65,9 @@ const answer = (operation: string) => (operation === 'getReportingCalendarBoard'
 
 afterEach(cleanup);
 
-describe('DIS-32, the reporting calendar (QT.02)', () => {
+describe('DIS-34, the reporting calendar (QT.02)', () => {
   it('lists the periods with the deadline of every step, the directive that falls due, and says a period that was not generated is not', async () => {
-    mount(<CalendarScreen route={route('DIS-32', 'DIS')} />, harness((operation) => answer(operation)), PERMISSIONS);
+    mount(<CalendarScreen route={route('DIS-34', 'DIS')} />, harness((operation) => answer(operation)), PERMISSIONS);
     const rows = await screen.findAllByTestId('calendar-row');
     expect(rows).toHaveLength(3);
     expect(rows[0]?.textContent).toContain('M2027-09');
@@ -80,7 +80,7 @@ describe('DIS-32, the reporting calendar (QT.02)', () => {
   });
 
   it('filters by kind and refuses a year that is not one', async () => {
-    mount(<CalendarScreen route={route('DIS-32', 'DIS')} />, harness((operation) => answer(operation)), PERMISSIONS);
+    mount(<CalendarScreen route={route('DIS-34', 'DIS')} />, harness((operation) => answer(operation)), PERMISSIONS);
     await screen.findAllByTestId('calendar-row');
     fireEvent.change(screen.getByLabelText(translator.t('ent4c.calendar.filter.kind')), { target: { value: 'DIRECTIVE_DUE' } });
     expect(screen.getAllByTestId('calendar-row')).toHaveLength(1);
@@ -91,7 +91,7 @@ describe('DIS-32, the reporting calendar (QT.02)', () => {
   });
 
   it('opens the status board of a period: the state of each step for each input point, "not tracked" for a step with no fact, and the reminders sent', async () => {
-    mount(<CalendarScreen route={route('DIS-32', 'DIS')} />, harness((operation) => answer(operation)), PERMISSIONS);
+    mount(<CalendarScreen route={route('DIS-34', 'DIS')} />, harness((operation) => answer(operation)), PERMISSIONS);
     const first = (await screen.findAllByTestId('calendar-row'))[0] as HTMLElement;
     fireEvent.click(within(first).getByRole('button', { name: translator.t('ent4c.calendar.board.open') }));
     const row = await screen.findByTestId('board-row');
@@ -104,7 +104,7 @@ describe('DIS-32, the reporting calendar (QT.02)', () => {
   });
 
   it('says the calendar has nothing when the year has no item, and names an error that retries', async () => {
-    mount(<CalendarScreen route={route('DIS-32', 'DIS')} />, harness(() => ({ ...calendar(), items: [] })), PERMISSIONS);
+    mount(<CalendarScreen route={route('DIS-34', 'DIS')} />, harness(() => ({ ...calendar(), items: [] })), PERMISSIONS);
     expect(await screen.findByText(translator.t('states.empty.title'))).toBeTruthy();
   });
 
@@ -116,10 +116,10 @@ describe('DIS-32, the reporting calendar (QT.02)', () => {
   });
 });
 
-describe('ADM-29, the deadline of each step (QT.02)', () => {
+describe('ADM-31, the deadline of each step (QT.02)', () => {
   it('shows the rule in force for each kind of period with its days, hour, reminders and version, and the note that the default is not confirmed', async () => {
     const data = { ...calendar(), schedules: [schedule('MONTH'), schedule('QUARTER', { source: 'RULE', version: 2, unverified: false, escalate_after_overdue_days: 0, reminder_days_before: [] })] };
-    mount(<ScheduleRulesScreen route={route('ADM-29', 'ADM')} />, harness(() => data), PERMISSIONS);
+    mount(<ScheduleRulesScreen route={route('ADM-31', 'ADM')} />, harness(() => data), PERMISSIONS);
     const rows = await screen.findAllByTestId('schedule-row');
     expect(rows).toHaveLength(2);
     expect(rows[0]?.textContent).toContain('+5');

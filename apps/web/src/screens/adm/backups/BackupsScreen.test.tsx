@@ -11,7 +11,7 @@ import { kindsFor, refusalOf, toBackupPage } from './model';
 vi.setConfig({ testTimeout: 30_000 });
 
 const word = (key: string): string => (words as Record<string, string>)[key] ?? key;
-const ROUTE = routeOf('ADM-29', 'FR-ADM-29');
+const ROUTE = routeOf('ADM-32', 'FR-ADM-32');
 const ALL = ['adm.backup.read', 'adm.backup.request', 'adm.backup.decide', 'adm.backup.record'];
 const id = (n: number): string => `00000000-0000-4000-8000-00000000b${String(n).padStart(3, '0')}`;
 
@@ -46,7 +46,7 @@ const page = (items: unknown[], stateExtra: Record<string, unknown> = {}) => ({ 
 
 function open(answer: unknown, permissions: readonly string[] | undefined = ALL, command: (operation: string, input: unknown) => unknown = () => ({ resource_id: id(1), resource_version: 2 })) {
   const h = harness((operation) => (operation === 'listBackupRequests' ? answer : new Error(`unexpected read ${operation}`)), command);
-  mount(<BackupsScreen route={ROUTE} />, h, permissions, '/adm/adm-29');
+  mount(<BackupsScreen route={ROUTE} />, h, permissions, '/adm/adm-32');
   return h;
 }
 const commands = (h: ReturnType<typeof harness>, operation: string) => h.command.mock.calls.filter((call) => call[0] === operation).map((call) => call[1] as { path?: Record<string, string>; body?: Record<string, unknown>; ifMatchVersion?: number });
@@ -57,7 +57,7 @@ const type = (elementId: string, value: string): void => {
 
 afterEach(cleanup);
 
-describe('BackupsScreen (ADM-29, HSKT YCK.06)', () => {
+describe('BackupsScreen (ADM-32, HSKT YCK.06)', () => {
   it('shows the state the server read and the requests with the actions each status allows', async () => {
     open(page([request(1, 'Requested'), request(2, 'Approved', { kind: 'diff' }), request(3, 'Completed', { backup_label: '20261109-013000F_20261109-123000D', kind: 'diff' })]));
     expect((await screen.findByTestId('backup-health')).getAttribute('data-health')).toBe('OK');

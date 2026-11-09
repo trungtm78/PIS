@@ -287,7 +287,7 @@
     {"id":"ADM-26","path":"/adm/adm-26","title":"Làm thay có người duyệt","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-26"},
     {"id":"ADM-27","path":"/adm/adm-27","title":"Phạm vi theo kỳ báo cáo","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-27"},
     {"id":"ADM-28","path":"/adm/adm-28","title":"Vắng mặt, người thay và độ phủ người nhận cảnh báo","kind":"list","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-28"},
-    {"id":"ADM-29","path":"/adm/adm-29","title":"Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"QT.02"},
+    {"id":"ADM-31","path":"/adm/adm-31","title":"Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"QT.02"},
     {"id":"SAS-01","path":"/sas/sas-01","title":"Danh sách tenant","kind":"list","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"workspace","parent":null,"req":"FR-SAS-01"},
     {"id":"SAS-02","path":"/sas/sas-02","title":"Khởi tạo tenant","kind":"form","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"detail","parent":"SAS-01","req":"FR-SAS-02"},
     {"id":"SAS-03","path":"/sas/sas-03","title":"Chi tiết tenant","kind":"detail","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"detail","parent":"SAS-01","req":"FR-SAS-03"},
@@ -520,7 +520,7 @@
     {"id":"CAP-23","path":"/cap/cap-23","title":"Điều chuyển vốn theo hiệu suất và mô phỏng tác động","kind":"compare","area":"investment","module":"CAP","group":"Kế hoạch vốn","role":"workspace","parent":null,"req":"FR-CAP-23"},
     {"id":"DIS-30","path":"/dis/dis-30","title":"Dự báo tới các mốc chỉ đạo của giải ngân","kind":"dashboard","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"FR-DIS-30"},
     {"id":"DIS-31","path":"/dis/dis-31","title":"Độ chính xác dự báo giải ngân của từng chủ đầu tư","kind":"table","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"FR-DIS-31"},
-    {"id":"DIS-32","path":"/dis/dis-32","title":"Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối","kind":"table","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"QT.02"},
+    {"id":"DIS-34","path":"/dis/dis-34","title":"Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối","kind":"table","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"QT.02"},
     {"id":"PAY-22","path":"/pay/pay-22","title":"Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày","kind":"table","area":"investment","module":"PAY","group":"Hồ sơ thanh toán","role":"workspace","parent":null,"req":"FR-PAY-22"},
     {"id":"CTR-38","path":"/ctr/ctr-38","title":"Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng","kind":"table","area":"investment","module":"CTR","group":"Hợp đồng & điều khoản","role":"workspace","parent":null,"req":"FR-CTR-38"},
     {"id":"CTR-39","path":"/ctr/ctr-39","title":"Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh","kind":"record","area":"investment","module":"CTR","group":"Hợp đồng & điều khoản","role":"workspace","parent":null,"req":"FR-CTR-39"},
@@ -545,6 +545,8 @@
     {"id":"MNE-11","path":"/mne/mne-11","title":"Hiệu quả sau đầu tư: chỉ tiêu mục tiêu và thực tế","kind":"board","area":"insights","module":"MNE","group":"Theo dõi & lịch sử","role":"workspace","parent":null,"req":"FR-MNE-11"},
     {"id":"RPT-05","path":"/rpt/rpt-05","title":"Biểu mẫu báo cáo gửi Bộ Tài chính","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-05"},
     {"id":"RPT-06","path":"/rpt/rpt-06","title":"Khóa kỳ và chữ ký số báo cáo","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-06"},
+    {"id":"RPT-07","path":"/rpt/rpt-07","title":"Bố cục biểu mẫu cấu hình","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-07"},
+    {"id":"RPT-08","path":"/rpt/rpt-08","title":"Soạn bố cục biểu mẫu","kind":"form","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-08"},
     {"id":"PRJ-31","path":"/prj/prj-31","title":"Hồ sơ giám sát cộng đồng","kind":"table","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-31"},
     {"id":"PRJ-32","path":"/prj/prj-32","title":"Chi tiết hồ sơ giám sát cộng đồng","kind":"detail","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-32"},
     {"id":"PRJ-33","path":"/prj/prj-33","title":"Quản trị cổng công khai","kind":"form","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-33"},
@@ -577,6 +579,7 @@
     {"id":"ADM-29","path":"/adm/adm-29","title":"Nhật ký đủ trước và sau theo loại đối tượng","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-AUDIT-DETAIL"},
     {"id":"ADM-30","path":"/adm/adm-30","title":"Giới hạn số lượng và dung lượng log","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-LOG-CAPACITY"},
     {"id":"EQP-01","path":"/eqp/eqp-01","title":"Mua sắm trang thiết bị dự án","kind":"table","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"workspace","parent":null,"req":"FR-EQP-01"},
-    {"id":"EQP-02","path":"/eqp/eqp-02","title":"Chi tiết dòng mua sắm trang thiết bị","kind":"detail","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"detail","parent":"EQP-01","req":"FR-EQP-02"}
+    {"id":"EQP-02","path":"/eqp/eqp-02","title":"Chi tiết dòng mua sắm trang thiết bị","kind":"detail","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"detail","parent":"EQP-01","req":"FR-EQP-02"},
+    {"id":"ADM-32","path":"/adm/adm-32","title":"Sao lưu và yêu cầu sao lưu thủ công","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-32"}
   ]
 }

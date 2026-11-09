@@ -58490,8 +58490,8 @@
       "narrative": "As the planning board I can set the calendar of the month, quarter, year and steering-meeting periods with a deadline for each step, see where every input point stands, and have people reminded and the unit leader told when a step is late.",
       "release": "R2",
       "screens": [
-        "DIS-32",
-        "ADM-29"
+        "DIS-34",
+        "ADM-31"
       ],
       "operations": [
         "getReportingCalendar",
@@ -58521,7 +58521,7 @@
         },
         {
           "id": "AC-ST-DIS-028-3",
-          "given": "DIS-32 and ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "given": "DIS-34 and ADM-31 opened at 1440 px and 390 px by a reader with the read permission and one without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, and a default nobody confirmed says so",
           "test_id": "UAT-DIS-ENT4C-3"
@@ -58551,19 +58551,19 @@
         {
           "id": "TK-DIS-028-1",
           "kind": "backend",
-          "title": "Kernel schedule rule, store, migration, job and API behind DIS-32, ADM-29",
+          "title": "Kernel schedule rule, store, migration, job and API behind DIS-34, ADM-31",
           "test_ids": []
         },
         {
           "id": "TK-DIS-028-2",
           "kind": "web",
-          "title": "DIS-32, ADM-29 built with the kit and the seven standard states",
+          "title": "DIS-34, ADM-31 built with the kit and the seven standard states",
           "test_ids": []
         },
         {
           "id": "TK-DIS-028-3",
           "kind": "i18n",
-          "title": "Message keys in vi and en for DIS-32, ADM-29",
+          "title": "Message keys in vi and en for DIS-34, ADM-31",
           "test_ids": []
         },
         {
@@ -58580,8 +58580,8 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states",
           "test_ids": [
-            "UI-DIS-32",
-            "UI-ADM-29"
+            "UI-DIS-34",
+            "UI-ADM-31"
           ]
         }
       ]
@@ -58775,7 +58775,7 @@
       "narrative": "As a system administrator I can ask for a full, differential or incremental backup, have a second person allow it and record what the host runner did, and see the state of the last backups and of the last repository verification, so that backups on the day, week and month cycles can be complemented by an audited manual one without the application ever running a backup itself.",
       "release": "R2",
       "screens": [
-        "ADM-29"
+        "ADM-32"
       ],
       "operations": [
         "listBackupRequests",
@@ -58801,10 +58801,10 @@
         },
         {
           "id": "AC-ST-ADM-030-2",
-          "given": "ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without, with a state source and without",
+          "given": "ADM-32 opened at 1440 px and 390 px by a reader with the read permission and one without, with a state source and without",
           "when": "each of the seven standard states is forced in turn",
           "then": "loading skeleton, populated, empty, validation error, service error with retry and permission denied all render, a missing state source reads UNKNOWN and never healthy, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
-          "test_id": "UI-ADM-29"
+          "test_id": "UI-ADM-32"
         }
       ],
       "dependencies": [
@@ -58845,13 +58845,13 @@
         {
           "id": "TK-ADM-030-3",
           "kind": "web",
-          "title": "ADM-29 screen built with the kit and the seven standard states",
+          "title": "ADM-32 screen built with the kit and the seven standard states",
           "test_ids": []
         },
         {
           "id": "TK-ADM-030-4",
           "kind": "i18n",
-          "title": "Message keys in vi and en for ADM-29; no hard-coded display strings",
+          "title": "Message keys in vi and en for ADM-32; no hard-coded display strings",
           "test_ids": []
         },
         {
@@ -58873,7 +58873,7 @@
           "kind": "qa",
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
-            "UI-ADM-29"
+            "UI-ADM-32"
           ]
         }
       ]

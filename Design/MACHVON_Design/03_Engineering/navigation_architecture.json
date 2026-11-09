@@ -428,13 +428,15 @@
             10,
             18,
             30,
-            31
+            31,
+            34
           ],
           "primary": [
             1,
             10,
             30,
-            31
+            31,
+            34
           ],
           "parents": {
             "2": 1,
@@ -487,7 +489,9 @@
             26,
             27,
             28,
-            29
+            29,
+            32,
+            33
           ],
           "primary": [
             14,
@@ -499,10 +503,12 @@
             26,
             27,
             28,
-            29
+            29,
+            32
           ],
           "parents": {
-            "22": 21
+            "22": 21,
+            "33": 32
           }
         }
       ]
@@ -1303,7 +1309,9 @@
             27,
             28,
             29,
-            30
+            30,
+            31,
+            32
           ],
           "primary": [
             19,
@@ -1314,7 +1322,9 @@
             27,
             28,
             29,
-            30
+            30,
+            31,
+            32
           ],
           "parents": {
             "20": 19,
@@ -3213,7 +3223,11 @@
         "DOC-29",
         "QMS-12",
         "ADM-29",
-        "DIS-32"
+        "DIS-32",
+        "ADM-31",
+        "ADM-32",
+        "DIS-33",
+        "DIS-34"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -6113,7 +6127,7 @@
       "parent": null
     },
     {
-      "id": "ADM-29",
+      "id": "ADM-31",
       "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
       "kind": "table",
       "area": "admin",
@@ -8454,6 +8468,26 @@
     },
     {
       "id": "DIS-32",
+      "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+      "kind": "form",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-33",
+      "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+      "kind": "detail",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "detail",
+      "parent": "DIS-32"
+    },
+    {
+      "id": "DIS-34",
       "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
       "kind": "table",
       "area": "investment",
@@ -9053,7 +9087,7 @@
       "parent": "EQP-01"
     },
     {
-      "id": "ADM-29",
+      "id": "ADM-32",
       "title": "Sao lưu và yêu cầu sao lưu thủ công",
       "kind": "table",
       "area": "admin",

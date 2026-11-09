@@ -34,4 +34,4 @@ When the Tổng công ty network does not let the platform reach Microsoft, give
 
 ## Who receives what
 
-The reminder job writes the events with the unit of the input point as the resource; the notification workflow of the tenant (event types above, channels in the order they are tried) names the roles and the channels. A tenant with no workflow for the event type gets no notification, and the board (DIS-32) still shows every reminder that was recorded in `reporting_reminder`. Alert types with owner, expected action and consequence: `REPORTING_STEP_DUE_SOON`, `REPORTING_STEP_OVERDUE`, `REPORTING_STEP_ESCALATED` (ADM-23).
+The reminder job writes the events with the unit of the input point as the resource; the notification workflow of the tenant (event types above, channels in the order they are tried) names the roles and the channels. A tenant with no workflow for the event type gets no notification, and the board (DIS-34) still shows every reminder that was recorded in `reporting_reminder`. Alert types with owner, expected action and consequence: `REPORTING_STEP_DUE_SOON`, `REPORTING_STEP_OVERDUE`, `REPORTING_STEP_ESCALATED` (ADM-23).

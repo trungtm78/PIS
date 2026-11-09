@@ -22679,9 +22679,9 @@
     ]
   },
   {
-    "id": "BL-DIS-32",
-    "requirement": "FR-DIS-32",
-    "screen": "DIS-32",
+    "id": "BL-DIS-34",
+    "requirement": "FR-DIS-34",
+    "screen": "DIS-34",
     "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
     "module": "DIS",
     "platform": "web",
@@ -22697,7 +22697,7 @@
     ],
     "rule": "Hạn của từng bước lấy từ quy tắc quản trị REPORTING_SCHEDULE đang hiệu lực; kỳ đã sinh giữ hạn nhập liệu lúc sinh; bước chưa có dữ kiện hiển thị là CHƯA THEO DÕI, không hiển thị là xong hay mở.",
     "test_ids": [
-      "UI-DIS-32"
+      "UI-DIS-34"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -22705,9 +22705,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-ADM-29",
-    "requirement": "FR-ADM-29",
-    "screen": "ADM-29",
+    "id": "BL-ADM-31",
+    "requirement": "FR-ADM-31",
+    "screen": "ADM-31",
     "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
     "module": "ADM",
     "platform": "web",
@@ -22722,7 +22722,7 @@
     ],
     "rule": "Đề xuất, trình và duyệt phiên bản mới bằng kho quy tắc quản trị (người duyệt khác người đề xuất); màn chỉ hiển thị phiên bản đang hiệu lực.",
     "test_ids": [
-      "UI-ADM-29"
+      "UI-ADM-31"
     ],
     "status": "BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -22730,9 +22730,9 @@
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   },
   {
-    "id": "BL-ADM-29",
-    "requirement": "FR-ADM-29",
-    "screen": "ADM-29",
+    "id": "BL-ADM-32",
+    "requirement": "FR-ADM-32",
+    "screen": "ADM-32",
     "title": "Sao lưu và yêu cầu sao lưu thủ công",
     "module": "ADM",
     "platform": "web",
@@ -22752,7 +22752,7 @@
     ],
     "rule": "requestBackup/decideBackupRequest/cancelBackupRequest/recordBackupOutcome/listBackupRequests; người yêu cầu và người duyệt khác nhau; giao diện không chạy sao lưu, chỉ ghi yêu cầu và hiển thị trạng thái đọc từ nguồn trạng thái; không có nguồn trạng thái thì hiển thị chưa rõ, không bao giờ hiển thị khỏe",
     "test_ids": [
-      "UI-ADM-29",
+      "UI-ADM-32",
       "UAT-INFRA2-01"
     ],
     "status": "NOT_BUILT",

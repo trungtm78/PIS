@@ -11,7 +11,7 @@ import type { ItemKind } from './model';
 const thisYear = (): string => String(new Date().getFullYear());
 
 /**
- * DIS-32, the reporting calendar (QT.02): the periods of a year (month, quarter, year), the in-year plan adjustment, the steering meetings and the directives that fall due, each with the deadline of every step of the
+ * DIS-34, the reporting calendar (QT.02): the periods of a year (month, quarter, year), the in-year plan adjustment, the steering meetings and the directives that fall due, each with the deadline of every step of the
  * schedule rule in force; and, for a period that was generated, the status board by input point. A step with no fact behind it says "not tracked": it is never shown as open or done.
  */
 export default function CalendarScreen({ route }: ScreenProps) {
