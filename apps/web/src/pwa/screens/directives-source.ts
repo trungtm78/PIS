@@ -1,72 +1,75 @@
 import { createContext, useContext } from 'react';
+import { useDirectiveList, useSummary } from '../../screens/dir/hooks';
+import { PAGE_SIZE } from '../../screens/dir/model';
+import type { DirectiveLine, DirectiveStatus, Summary } from '../../screens/dir/model';
 
 /**
- * The contract of the directive tracking view (PWA-04, YCK.01). The directive entity is built by another lane (DIR-1); this file is where that lane plugs in,
- * and nothing in it is invented data. Until the entity exists the default source says so (`notBuilt`), which the screen shows as its own empty state and
- * never as "no directive": a source that cannot be read is named, never shown as no work (design.md).
- *
- * Next step (DIR-1): replace `notBuiltSource` by a hook over the list operation of the directive module and provide it where `DirectivesSourceContext` is
- * provided (or make it the default of the context). The shape the screen needs is below and in docs/pwa.md ("Directives contract"):
- *
- *   GET /directives?status={OPEN|IN_PROGRESS|DONE|OVERDUE|CANCELLED}&unit_id={uuid}   (read permission of the directive module; scope: the units of the reader)
- *   200 { items: Directive[], next_cursor: string | null, as_of: ISO time, unavailable_sources: string[] }
- *   Directive { id: uuid, title: string, issued_by: { id, name }, issued_on: 'YYYY-MM-DD', due_on: 'YYYY-MM-DD' | null, status,
- *               assignee_unit: { id, name } | null, progress_percent: 0..100 | null, last_update_at: ISO time | null, overdue_days: number }
- *   `progress_percent` is null when no progress was reported: the screen says "not reported", never 0%.
+ * The source of the directive tracking view (PWA-04, YCK.01). It reads the real operations of the directive module, through the same hooks as DIR-03:
+ * `listDirectives` (the directives of the reader's scope, narrowed by status, overdue and unit, page after page), `getDirectiveSummary` (the counts with the
+ * formula of each number) and, for the detail, `getDirective`. The screen is written against `DirectivesSource` so a test can provide a reading; the default
+ * is `liveSource`, which asks the server. A directive carries its clock (`phase`, `days_to_due`, `overdue_days`, computed by the server) and its progress
+ * lives in the timeline of its detail, not in the list.
  */
-
-export const DIRECTIVE_STATUSES = ['OPEN', 'IN_PROGRESS', 'DONE', 'OVERDUE', 'CANCELLED'] as const;
-export type DirectiveStatus = (typeof DIRECTIVE_STATUSES)[number];
-
-/** One directive as the tracking view shows it. */
-export interface DirectiveItem {
-  id: string;
-  title: string;
-  issuedBy: string;
-  /** YYYY-MM-DD. */
-  issuedOn: string;
-  /** YYYY-MM-DD, or null when it has no deadline. */
-  dueOn: string | null;
-  status: DirectiveStatus;
-  /** The unit that carries it out, or null when none is named. */
-  assigneeUnit: string | null;
-  /** 0 to 100, or null when no progress has been reported. */
-  progressPercent: number | null;
-  /** ISO time of the last report, or null. */
-  lastUpdateAt: string | null;
-  /** Days past the deadline as the server counts them; 0 when not late. */
-  overdueDays: number;
-}
-
 export interface DirectivesQuery {
-  status: DirectiveStatus | 'ALL';
+  status: DirectiveStatus | '';
+  /** Only the directives past their due day. */
+  overdue: boolean;
+  /** One unit, or '' for the whole scope of the reader. */
+  unitId: string;
 }
+
+export const ALL_DIRECTIVES: DirectivesQuery = { status: '', overdue: false, unitId: '' };
 
 /** What a reading of the directives is, in the words of the states of design.md. */
 export type DirectivesReading =
   | { state: 'loading' }
-  /** The directive entity does not exist in this deployment yet (its lane has not landed). */
-  | { state: 'notBuilt' }
   | { state: 'error'; error: unknown; retry(): void }
   | {
       state: 'ready';
-      items: readonly DirectiveItem[];
-      /** ISO time the list was read. */
+      items: readonly DirectiveLine[];
+      /** The counts of the scope, or null when they could not be read (the list stands, and the screen says the counts are missing). */
+      summary: Summary | null;
+      summaryFailed: boolean;
+      /** ISO time the list was read (the server's `as_of`). */
       asOf: string;
       /** The list is the last good one and the latest reading failed. */
       stale: boolean;
-      /** Sources the server could not read; named on the screen, never hidden as "no directive". */
-      unavailableSources: readonly string[];
+      hasMore: boolean;
+      loadingMore: boolean;
+      loadMore(): void;
       retry(): void;
     };
 
 /** A hook that reads the directives: the contract the screen is written against. */
 export type DirectivesSource = (query: DirectivesQuery) => DirectivesReading;
 
-/** The default source until DIR-1 lands: it reads nothing and says that it is not built. */
-export const notBuiltSource: DirectivesSource = () => ({ state: 'notBuilt' });
+/** The default source: the list and the summary of the directive module, read live. */
+export const liveSource: DirectivesSource = (query) => {
+  const filter = { status: query.status, unitId: query.unitId, projectId: '', meetingId: '', assignedToMe: false, overdue: query.overdue, q: '', dueFrom: '', dueTo: '' };
+  const list = useDirectiveList(filter, PAGE_SIZE);
+  const summary = useSummary({ unitId: query.unitId, projectId: '', meetingId: '' });
+  const retry = (): void => {
+    void list.refetch();
+    void summary.refetch();
+  };
+  if (list.isLoading) return { state: 'loading' };
+  if (list.data === undefined) return { state: 'error', error: list.error, retry };
+  const pages = list.data.pages;
+  return {
+    state: 'ready',
+    items: pages.flatMap((page) => page.items),
+    summary: summary.data ?? null,
+    summaryFailed: summary.isError || (summary.isSuccess && summary.data === null),
+    asOf: pages[0]?.asOf ?? '',
+    stale: list.isError || list.isRefetchError,
+    hasMore: list.hasNextPage,
+    loadingMore: list.isFetchingNextPage,
+    loadMore: () => void list.fetchNextPage(),
+    retry,
+  };
+};
 
-export const DirectivesSourceContext = createContext<DirectivesSource>(notBuiltSource);
+export const DirectivesSourceContext = createContext<DirectivesSource>(liveSource);
 
 /** The directives of the signed-in person's scope, from whatever source the application provides. */
 export function useDirectives(query: DirectivesQuery): DirectivesReading {

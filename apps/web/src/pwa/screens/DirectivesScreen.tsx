@@ -1,25 +1,28 @@
+import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import type { ScreenState } from '../../states/StateBoundary';
-import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
-import { DeadlineCountdown, StatusPill } from '../../ui';
-import type { Tone } from '../../ui';
-import { clockAndDay, todayOf } from '../../ui/alerts/format';
-import { DIRECTIVE_STATUSES, useDirectives } from './directives-source';
-import type { DirectiveItem, DirectiveStatus } from './directives-source';
+import { StatusPill } from '../../ui';
+import { clockAndDay } from '../../ui/alerts/format';
+import { clockText } from '../../screens/dir/labels';
+import { useUnitOptions } from '../../screens/dir/hooks';
+import { STATUSES, dayText, phaseTone, statusTone } from '../../screens/dir/model';
+import type { DirectiveLine, DirectiveStatus, Summary } from '../../screens/dir/model';
+import { ALL_DIRECTIVES, useDirectives } from './directives-source';
+import type { DirectivesQuery } from './directives-source';
 import { PwaBackLink } from './PwaBackLink';
 import './pwa.css';
 
 const START_PATH = '/m';
+export const directivePwaPath = (id: string): string => `/m/directives/${id}`;
 
 type T = Translator['t'];
 
-const TONES: Readonly<Record<DirectiveStatus, Tone>> = { OPEN: 'info', IN_PROGRESS: 'info', DONE: 'success', OVERDUE: 'danger', CANCELLED: 'neutral' };
-
-function statusLabel(t: T, status: DirectiveStatus): string {
+export function statusLabel(t: T, status: DirectiveStatus): string {
   switch (status) {
     case 'OPEN':
       return t('pwa.directives.status.open');
@@ -35,7 +38,7 @@ function statusLabel(t: T, status: DirectiveStatus): string {
 }
 
 /** The failure of a reading as one of the standard states: a lapsed session, a refusal of scope, no network, or any other failure. */
-function failureState(error: unknown): ScreenState {
+export function failureState(error: unknown): ScreenState {
   if (error instanceof ApiError) {
     if (error.code === 'SESSION_EXPIRED') return 'signedOut';
     if (error.status === 403) return 'denied';
@@ -45,10 +48,11 @@ function failureState(error: unknown): ScreenState {
 }
 
 /**
- * The directive tracking view (PWA-04, YCK.01): the directives given to the leader's scope with who issued them, the unit that carries them out, the deadline
- * and the progress reported. The directive entity belongs to another lane, so the screen is written against the typed hook of `directives-source.ts` and shows
- * its own empty state while the hook says `notBuilt`; it shows no invented directive. Loading is a skeleton (never a count of 0), empty has two kinds (none,
- * and the filter found nothing), an error names itself and retries in place, stale says when the list was read, and a source the server could not read is named.
+ * The directive tracking view (PWA-04, YCK.01): the directives given to the leader's scope with the unit that carries them out, the deadline as the server
+ * counts it, and the counts of the scope on top. It reads `listDirectives` and `getDirectiveSummary` (the operations DIR-03 and the phone application use),
+ * filtered by status, by overdue and by unit, and each card opens the detail with its timeline (PWA-06). Loading is a skeleton (never a count of 0), empty
+ * has two kinds (none, and the filter found nothing), an error names itself and retries in place, stale says when the list was read, and counts that could
+ * not be read are said so and never shown as 0.
  */
 export default function DirectivesScreen() {
   const { tenant } = useSession();
@@ -57,11 +61,10 @@ export default function DirectivesScreen() {
 
 function DirectivesContent() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<DirectiveStatus | 'ALL'>('ALL');
-  const reading = useDirectives({ status });
-  const today = todayOf();
-  const items = reading.state === 'ready' ? reading.items : [];
-  const shown = status === 'ALL' ? items : items.filter((item) => item.status === status);
+  const [query, setQuery] = useState<DirectivesQuery>(ALL_DIRECTIVES);
+  const reading = useDirectives(query);
+  const units = useUnitOptions();
+  const filtered = query.status !== '' || query.overdue || query.unitId !== '';
   const screenState: ScreenState = reading.state === 'loading' ? 'loading' : reading.state === 'error' ? failureState(reading.error) : 'default';
 
   return (
@@ -73,13 +76,38 @@ function DirectivesContent() {
           <p>{t('pwa.directives.page.subtitle')}</p>
         </div>
       </div>
-      <StateBoundary state={screenState} onRetry={reading.state === 'error' ? reading.retry : undefined}>
-        {reading.state === 'notBuilt' ? (
-          <div className="card statecard pwa-empty" role="status" data-testid="empty" data-kind="notBuilt">
-            <h2>{t('pwa.directives.empty.notBuilt.title')}</h2>
-            <p className="muted">{t('pwa.directives.empty.notBuilt.body')}</p>
+      {screenState === 'loading' || screenState === 'default' ? (
+        <div className="pwa-filters">
+          <div className="field">
+            <label htmlFor="pwa-directives-status">{t('pwa.directives.filter.status')}</label>
+            <select id="pwa-directives-status" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value as DirectiveStatus | '' })}>
+              <option value="">{t('pwa.directives.filter.all')}</option>
+              {STATUSES.map((value) => (
+                <option key={value} value={value}>
+                  {statusLabel(t, value)}
+                </option>
+              ))}
+            </select>
           </div>
-        ) : reading.state === 'ready' ? (
+          <div className="field">
+            <label htmlFor="pwa-directives-unit">{t('pwa2.directives.filter.unit')}</label>
+            <select id="pwa-directives-unit" value={query.unitId} onChange={(event) => setQuery({ ...query, unitId: event.target.value })}>
+              <option value="">{t('pwa2.directives.filter.unitAll')}</option>
+              {(units.data ?? []).map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <label className="pwa-check" htmlFor="pwa-directives-late">
+            <input type="checkbox" id="pwa-directives-late" checked={query.overdue} onChange={(event) => setQuery({ ...query, overdue: event.target.checked })} />
+            <span>{t('pwa2.directives.filter.overdue')}</span>
+          </label>
+        </div>
+      ) : null}
+      <StateBoundary state={screenState} onRetry={reading.state === 'error' ? reading.retry : undefined}>
+        {reading.state !== 'ready' ? null : (
           <>
             {reading.stale ? (
               <p className="callout warning" role="status" data-testid="stale">
@@ -89,85 +117,142 @@ function DirectivesContent() {
                 </button>
               </p>
             ) : null}
-            {reading.unavailableSources.length === 0 ? null : (
-              <p className="callout warning" role="alert" data-testid="unavailable">
-                {t('pwa.directives.unavailable.note', { sources: reading.unavailableSources.join(', ') })}
-              </p>
-            )}
-            <div className="pwa-filters">
-              <div className="field">
-                <label htmlFor="pwa-directives-status">{t('pwa.directives.filter.status')}</label>
-                <select id="pwa-directives-status" value={status} onChange={(event) => setStatus(event.target.value as DirectiveStatus | 'ALL')}>
-                  <option value="ALL">{t('pwa.directives.filter.all')}</option>
-                  {DIRECTIVE_STATUSES.map((value) => (
-                    <option key={value} value={value}>
-                      {statusLabel(t, value)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <Tiles summary={reading.summary} failed={reading.summaryFailed} retry={reading.retry} />
             <p className="sub" data-testid="counts">
-              {t('pwa.directives.counts.line', { shown: shown.length, total: items.length })}
+              {t('pwa2.directives.counts.shown', { shown: reading.items.length })}
+              {reading.hasMore ? ` ${t('pwa2.directives.counts.more')}` : ''}
               {' · '}
               {t('pwa.directives.counts.updated', { time: clockAndDay(reading.asOf) })}
             </p>
-            {shown.length === 0 ? (
-              <div className="card statecard pwa-empty" role="status" data-testid="empty" data-kind={items.length === 0 ? 'none' : 'filtered'}>
-                <h2>{items.length === 0 ? t('pwa.directives.empty.none.title') : t('pwa.directives.empty.filtered.title')}</h2>
-                <p className="muted">{items.length === 0 ? t('pwa.directives.empty.none.body') : t('pwa.directives.empty.filtered.body')}</p>
-                {items.length === 0 ? null : (
-                  <button type="button" className="ui-button ui-button--outline pwa-touch" onClick={() => setStatus('ALL')}>
+            {reading.items.length === 0 ? (
+              <div className="card statecard pwa-empty" role="status" data-testid="empty" data-kind={filtered ? 'filtered' : 'none'}>
+                <h2>{filtered ? t('pwa.directives.empty.filtered.title') : t('pwa.directives.empty.none.title')}</h2>
+                <p className="muted">{filtered ? t('pwa.directives.empty.filtered.body') : t('pwa.directives.empty.none.body')}</p>
+                {filtered ? (
+                  <button type="button" className="ui-button ui-button--outline pwa-touch" onClick={() => setQuery(ALL_DIRECTIVES)}>
                     {t('pwa.directives.empty.filtered.clear')}
                   </button>
-                )}
+                ) : null}
               </div>
             ) : (
               <ul className="pwa-cards" aria-label={t('pwa.directives.list.aria')}>
-                {shown.map((item) => (
-                  <DirectiveCard key={item.id} item={item} today={today} />
+                {reading.items.map((item) => (
+                  <DirectiveCard key={item.id} item={item} />
                 ))}
               </ul>
             )}
+            {reading.hasMore ? (
+              <button type="button" className="ui-button ui-button--outline pwa-touch pwa-more" data-action="more" disabled={reading.loadingMore} onClick={reading.loadMore}>
+                {reading.loadingMore ? t('pwa2.directives.more.loading') : t('pwa2.directives.more.action')}
+              </button>
+            ) : null}
           </>
-        ) : null}
+        )}
       </StateBoundary>
     </section>
   );
 }
 
-function DirectiveCard({ item, today }: { item: DirectiveItem; today: string }) {
+/** The counts of the scope with how each is made: a missing reading says so and shows no number. */
+function Tiles({ summary, failed, retry }: { summary: Summary | null; failed: boolean; retry: () => void }) {
   const { t } = useTranslation();
-  return (
-    <li className="pwa-card" data-directive={item.id} data-status={item.status}>
-      <div className="pwa-card-head">
-        <h2>{item.title}</h2>
-        <StatusPill tone={TONES[item.status]}>{statusLabel(t, item.status)}</StatusPill>
+  if (summary === null) {
+    return failed ? (
+      <p className="callout warning" role="alert" data-testid="summary-failed">
+        {t('pwa2.directives.summary.failed')}{' '}
+        <button type="button" className="ui-button ui-button--outline ui-button--small pwa-touch" onClick={retry}>
+          {t('states.retry.action')}
+        </button>
+      </p>
+    ) : (
+      <div role="status" aria-busy="true" aria-label={t('states.loading.label')}>
+        <span className="ui-skeleton ui-skeleton--line" />
       </div>
+    );
+  }
+  const tiles: Array<{ key: string; label: string; value: number; tone?: 'danger' }> = [
+    { key: 'overdue', label: t('pwa2.directives.summary.overdue'), value: summary.byStatus.OVERDUE, tone: 'danger' },
+    { key: 'dueSoon', label: t('pwa2.directives.summary.dueSoon'), value: summary.dueSoon },
+    { key: 'escalated', label: t('pwa2.directives.summary.escalated'), value: summary.escalated },
+    { key: 'open', label: t('pwa2.directives.summary.open'), value: summary.byStatus.OPEN + summary.byStatus.IN_PROGRESS },
+  ];
+  const definitions = Object.entries(summary.definitions);
+  return (
+    <section aria-label={t('pwa2.directives.summary.aria')} data-testid="summary">
+      <ul className="pwa-tiles">
+        {tiles.map((tile) => (
+          <li key={tile.key} className="pwa-tile" data-tile={tile.key} {...(tile.tone === undefined || tile.value === 0 ? {} : { 'data-tone': tile.tone })}>
+            <span>{tile.label}</span>
+            <strong>{tile.value}</strong>
+          </li>
+        ))}
+      </ul>
+      <p className="sub">
+        {t('pwa2.directives.summary.total', { total: summary.total })}
+        {summary.truncated ? ` ${t('pwa2.directives.summary.truncated')}` : ''}
+      </p>
+      {summary.policy.unverified ? (
+        <p className="callout" role="status" data-testid="policy-unverified">
+          {t('pwa2.directives.summary.unverified')}
+        </p>
+      ) : null}
+      {definitions.length === 0 ? null : (
+        <details className="pwa-details">
+          <summary className="pwa-touch">{t('pwa2.directives.summary.how')}</summary>
+          <ul className="pwa-lines">
+            {definitions.map(([name, text]) => (
+              <li key={name}>{text}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
+  );
+}
+
+function DirectiveCard({ item }: { item: DirectiveLine }) {
+  const { t } = useTranslation();
+  const clock = clockText(t, item);
+  return (
+    <li className="pwa-card" data-directive={item.id} data-status={item.status} data-overdue={item.status === 'OVERDUE' ? 'yes' : 'no'}>
+      <div className="pwa-card-head">
+        <h2>
+          <Link to={directivePwaPath(item.id)} className="pwa-touch pwa-link-title" data-action="open">
+            {item.code}
+          </Link>
+        </h2>
+        <StatusPill tone={statusTone(item.status)}>{statusLabel(t, item.status)}</StatusPill>
+      </div>
+      <p className="pwa-clamp">{item.text}</p>
       <dl className="pwa-facts">
-        <dt>{t('pwa.directives.field.issuedBy')}</dt>
-        <dd>{item.issuedBy}</dd>
         <dt>{t('pwa.directives.field.unit')}</dt>
-        <dd>{item.assigneeUnit ?? '—'}</dd>
+        <dd>{item.assigneeUnit.name === '' ? '—' : item.assigneeUnit.name}</dd>
+        {item.assignee === null ? null : (
+          <>
+            <dt>{t('pwa2.directives.field.assignee')}</dt>
+            <dd>{item.assignee.displayName}</dd>
+          </>
+        )}
+        {item.project === null ? null : (
+          <>
+            <dt>{t('pwa2.directives.field.project')}</dt>
+            <dd>{item.project.name}</dd>
+          </>
+        )}
         <dt>{t('pwa.directives.field.due')}</dt>
         <dd>
-          <DeadlineCountdown dueOn={item.dueOn} today={today} daysLate={item.overdueDays} />
-        </dd>
-        <dt>{t('pwa.directives.field.progress')}</dt>
-        <dd>
-          {item.progressPercent === null ? (
-            <span data-testid="progress-none">{t('pwa.directives.progress.none')}</span>
-          ) : (
-            <span className="pwa-progress">
-              <progress value={item.progressPercent} max={100} aria-label={t('pwa.directives.progress.aria', { percent: item.progressPercent })} />
-              <span>{t('pwa.directives.progress.value', { percent: item.progressPercent })}</span>
-            </span>
+          {dayText(item.dueOn)}
+          {clock === '' ? null : (
+            <>
+              {' '}
+              <StatusPill tone={phaseTone(item.phase)}>{clock}</StatusPill>
+            </>
           )}
         </dd>
-        {item.lastUpdateAt === null ? null : (
+        {item.openExtension === null ? null : (
           <>
-            <dt>{t('pwa.directives.field.updated')}</dt>
-            <dd>{clockAndDay(item.lastUpdateAt)}</dd>
+            <dt>{t('pwa2.directives.field.extension')}</dt>
+            <dd>{t('pwa2.directives.extension.pending', { day: dayText(item.openExtension.proposedDueOn) })}</dd>
           </>
         )}
       </dl>

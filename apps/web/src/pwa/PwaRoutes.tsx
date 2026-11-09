@@ -4,6 +4,7 @@ import { WEB_ROUTES } from '../routes/web-routes';
 import { SessionGate } from './SessionGate';
 import ApprovalDetailScreen from './screens/ApprovalDetailScreen';
 import ApprovalQueueScreen from './screens/ApprovalQueueScreen';
+import DirectiveDetailScreen from './screens/DirectiveDetailScreen';
 import DirectivesScreen from './screens/DirectivesScreen';
 import LeaderDashboardScreen from './screens/LeaderDashboardScreen';
 import PwaStartScreen from './screens/PwaStartScreen';
@@ -27,6 +28,7 @@ export function PwaRoutes() {
       <Route path="approvals/:taskId" element={<Gated><ApprovalDetailScreen /></Gated>} />
       <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
       <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
+      <Route path="directives/:id" element={<Gated><DirectiveDetailScreen /></Gated>} />
       <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />
     </Routes>
   );

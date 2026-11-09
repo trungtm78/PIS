@@ -148,11 +148,11 @@ test.describe('the start page and the three screens at 360 px', () => {
     }
   });
 
-  test('the directive tracking says the module is not built yet and shows no directive', async ({ page }) => {
+  test('the directive tracking reads the real list and summary and never an invented directive', async ({ page }) => {
     await open(page, '/m/directives');
     await expect(page.locator(`[data-screen-id="${SCREEN.directives}"]`)).toBeVisible();
-    await expect(page.getByTestId('empty')).toHaveAttribute('data-kind', 'notBuilt');
-    await expect(page.locator('[data-directive]')).toHaveCount(0);
+    // The list is the one of the directive module: either its cards or its own empty state, never the old "not built" card.
+    await expect(page.locator('[data-kind="notBuilt"]')).toHaveCount(0);
     await expectNoHorizontalScroll(page);
   });
 
