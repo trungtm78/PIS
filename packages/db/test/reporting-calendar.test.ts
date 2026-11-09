@@ -9,7 +9,7 @@ import { runCalendarReminders } from '../src/reporting-calendar-reminders';
 import { ReportingCalendarStore, WHOLE_TENANT } from '../src/reporting-calendar-store';
 import { ReportingScheduleReader } from '../src/reporting-schedule-reader';
 import type { TenantTx } from '../src/tenant-database';
-import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId } from './support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
 
 const harness = new AuthzHarness();
 const periods = new DisPeriodStore();
@@ -20,7 +20,6 @@ const APPROVER = 2;
 const WORKER = '00000000-0000-4000-8000-000000000000';
 const AREA = '00000000-0000-4000-8000-0000000000f1';
 const PLAN = '00000000-0000-4000-8000-0000000000f2';
-const unitId = (n: number): string => `00000000-0000-4000-8000-00000000010${n}`;
 const projectId = (n: number): string => `00000000-0000-4000-8000-00000000020${n}`;
 const calendarEntry = BASELINE_PACK.entries.find((entry) => entry.masterType === 'CALENDAR') as BaselineEntry;
 const CALENDAR: CalendarDefinition = { weekStartsOn: 'SATURDAY', deadlineWeekday: 'FRIDAY', deadlineTime: '10:00', timezone: 'Asia/Ho_Chi_Minh' };
@@ -131,9 +130,9 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     ]);
     await seedReplica([
       [
-        `insert into machvon.report_revision (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, submitted_at, accepted_at, payload_hash)
-         values ($1, $2, $3, $4, $5, 1, 'ACCEPTED', true, 1, '2027-10-01T01:00:00Z', '2027-10-02T01:00:00Z', repeat('a', 64)), ($1, $6, $7, $4, $5, 1, 'SUBMITTED', true, 1, '2027-10-01T02:00:00Z', null, repeat('b', 64)), ($1, $8, $9, $4, $5, 1, 'DRAFT', true, 1, null, null, repeat('c', 64))`,
-        [TENANT_A, randomUUID(), projectId(1), period.id, PLAN, randomUUID(), projectId(3), randomUUID(), projectId(2)],
+        `insert into machvon.report_revision (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, submitted_at, accepted_at, payload_hash, submitted_by, accepted_by)
+         values ($1, $2, $3, $4, $5, 1, 'ACCEPTED', true, 1, '2027-10-01T01:00:00Z', '2027-10-02T01:00:00Z', repeat('a', 64), $10, $11), ($1, $6, $7, $4, $5, 1, 'SUBMITTED', true, 1, '2027-10-01T02:00:00Z', null, repeat('b', 64), $10, null), ($1, $8, $9, $4, $5, 1, 'DRAFT', true, 1, null, null, repeat('c', 64), null, null)`,
+        [TENANT_A, randomUUID(), projectId(1), period.id, PLAN, randomUUID(), projectId(3), randomUUID(), projectId(2), memberId(ACTOR), memberId(APPROVER)],
       ],
     ]);
     expect((await as((tx) => calendar.unitFacts(tx, WHOLE_TENANT, period))).map((unit) => [unit.unitId, unit.projects, unit.entered, unit.approved, unit.enteredAt, unit.approvedAt])).toEqual([

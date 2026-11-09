@@ -13650,5 +13650,44 @@
     "platform": "web",
     "req": "FR-BID-34",
     "source": "Phần việc còn lại của VND-3 (kiến nghị chưa có kết quả); kế hoạch PORTAL-2"
+  },
+  {
+    "id": "DIS-32",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
+    "kind": "table",
+    "fields": [
+      "Năm và loại kỳ (tháng, quý, năm, giao ban, điều chỉnh kế hoạch trong năm, chỉ đạo đến hạn)",
+      "Hạn từng bước (nhập liệu, đơn vị duyệt, Ban KHĐT rà soát, chốt kỳ, đẩy hệ thống)",
+      "Trạng thái từng đầu mối theo bước (xong, xong muộn, sắp đến hạn, mở, quá hạn, chưa theo dõi)",
+      "Số dự án đã nhập và đã duyệt trên số dự án phải báo cáo",
+      "Các lần nhắc đã gửi"
+    ],
+    "role": "Ban KHĐT, người duyệt đơn vị, lãnh đạo (xem)",
+    "rule": "Hạn của từng bước lấy từ quy tắc quản trị REPORTING_SCHEDULE đang hiệu lực; kỳ đã sinh giữ hạn nhập liệu lúc sinh; bước chưa có dữ kiện hiển thị là CHƯA THEO DÕI, không hiển thị là xong hay mở.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "QT.02",
+    "source": "HSKT PVFCCo v0.3, yêu cầu QT.02 (lịch kỳ báo cáo với thời hạn từng bước, theo dõi nhập liệu từng đầu mối, nhắc việc và cảnh báo quá hạn)"
+  },
+  {
+    "id": "ADM-29",
+    "module": "ADM",
+    "moduleName": "Quản trị tenant",
+    "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+    "kind": "table",
+    "fields": [
+      "Loại kỳ (tháng, quý, năm, giao ban, điều chỉnh kế hoạch trong năm)",
+      "Số ngày và giờ hạn của từng bước",
+      "Mốc nhắc trước hạn, chu kỳ nhắc quá hạn, số ngày báo lãnh đạo đơn vị",
+      "Phiên bản đang hiệu lực, nguồn (quy tắc hay mặc định) và nhãn chưa xác nhận"
+    ],
+    "role": "Quản trị hệ thống, Ban KHĐT (đề xuất), người duyệt khác người đề xuất",
+    "rule": "Đề xuất, trình và duyệt phiên bản mới bằng màn quy tắc quản trị (người duyệt khác người đề xuất); màn này chỉ hiển thị phiên bản đang hiệu lực và dẫn tới màn đề xuất.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "QT.02",
+    "source": "HSKT PVFCCo v0.3, yêu cầu QT.02"
   }
 ]
