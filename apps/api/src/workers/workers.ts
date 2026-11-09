@@ -253,12 +253,9 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     },
     masterBaseline: {
       apply: async (ctx) => {
-        const applied = await deps.tenants.withTenant(ctx, async (tx) => {
-          const platform = await applyBaseline(tx, BASELINE_PACK, ctx.membershipId);
-          // The packs of the edition (the enterprise project types) follow the platform pack in the same transaction; a public process registers none.
-          for (const pack of editionBaselines()) await applyBaseline(tx, pack, ctx.membershipId);
-          return platform;
-        });
+        const applied = await deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, BASELINE_PACK, ctx.membershipId));
+        // The packs of the edition (the enterprise project types) follow in a transaction of their own, so a pack of the edition that is refused never undoes the platform pack; a public process registers none.
+        for (const pack of editionBaselines()) await deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, pack, ctx.membershipId));
         // The permit type catalogue starts from its working assumptions (ST-PMT-001); a code the tenant already has is left alone. A separate transaction: one cannot undo the other.
         await deps.tenants.withTenant(ctx, (tx) => permitTypes.seedWorkingAssumptions(tx, ctx.membershipId, audit));
         return applied;

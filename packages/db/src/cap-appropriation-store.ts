@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, FUNDING_TAXONOMY_RULE_TYPE, VND_SCALE, assertAppropriationForPack, assertFourEyes, compareDecimal, parseFundingPack, requirePositiveAmount, vietnamDateOf, versionConflict, hasControlChar } from '@machvon/kernel';
+import { DomainError, FUNDING_TAXONOMY_RULE_TYPE, builtInPack, VND_SCALE, assertAppropriationForPack, assertFourEyes, compareDecimal, parseFundingPack, requirePositiveAmount, vietnamDateOf, versionConflict, hasControlChar } from '@machvon/kernel';
 import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { timestampKey } from './keyset.ts';
@@ -462,7 +462,10 @@ export class CapAppropriationStore {
    */
   private async assertPack(tx: TenantTx, packCode: string, input: AppropriationInput, today: string): Promise<void> {
     const resolved = await new GovernancePolicyPort().require(tx, FUNDING_TAXONOMY_RULE_TYPE, packCode, today);
-    assertAppropriationForPack(parseFundingPack(packCode, resolved.params), { origin: input.origin, budgetLevel: input.budgetLevel, decisionKind: input.decisionKind });
+    const parsed = parseFundingPack(packCode, resolved.params);
+    // A rule version of the tenant written before the kinds existed lists none: the enterprise pack then keeps the built-in bindings, so the database (which requires a kind) and the register never disagree.
+    const pack = packCode === 'ENTERPRISE' && parsed.originDecisions.size === 0 ? { ...parsed, originDecisions: builtInPack('ENTERPRISE').originDecisions } : parsed;
+    assertAppropriationForPack(pack, { origin: input.origin, budgetLevel: input.budgetLevel, decisionKind: input.decisionKind });
   }
 
   /** What an appropriation may be, judged by its origin: the carry-over fields belong to a carry-over only. Returns the day the extension ends. */
