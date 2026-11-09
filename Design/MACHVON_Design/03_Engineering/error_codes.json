@@ -7427,6 +7427,14 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "ENTERPRISE_SNAPSHOT_INCOMPLETE": {
+      "status": 422,
+      "title": "Enterprise snapshot incomplete",
+      "meaning": "Kỳ doanh nghiệp chưa đủ số liệu để chốt: còn đầu mối chưa nộp số thực của ô kế hoạch; phản hồi liệt kê đơn vị, dự án, ô và tháng còn thiếu (ENT-3a, DL.03).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
     }
   }
 }
