@@ -13650,5 +13650,55 @@
     "platform": "web",
     "req": "FR-BID-34",
     "source": "Phần việc còn lại của VND-3 (kiến nghị chưa có kết quả); kế hoạch PORTAL-2"
+  },
+  {
+    "id": "DIS-32",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+    "kind": "form",
+    "fields": [
+      "Kỳ doanh nghiệp",
+      "Trạng thái kỳ",
+      "Đủ số liệu hay chưa",
+      "Đơn vị chưa nộp",
+      "Dự án và ô còn thiếu",
+      "Lô chờ duyệt",
+      "Bản đã chốt và phiên bản",
+      "Điều kiện dựng lại",
+      "Người dựng"
+    ],
+    "role": "Người dựng: chuyên viên kế hoạch có quyền trên toàn đơn vị; người chốt: lãnh đạo hoặc trưởng phòng kế hoạch, khác người dựng",
+    "rule": "Chỉ dựng khi kỳ đã khóa; thiếu số thực của một ô kế hoạch thì từ chối kèm danh sách đơn vị; kỳ đã chốt chỉ dựng lại sau khi mở lại kỳ có lý do và người duyệt khác [ENT-3a, DL.03, R17, R21]",
+    "phase": "P1",
+    "platform": "web",
+    "req": "DL.03",
+    "source": "docs/ent-snapshot.md; docs/fnd-funding-model.md 6.5"
+  },
+  {
+    "id": "DIS-33",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+    "kind": "detail",
+    "fields": [
+      "Kỳ và phiên bản",
+      "Trạng thái và mã băm",
+      "Kế hoạch năm gốc, điều chỉnh, trong hiệu lực",
+      "Ước và thực của kỳ",
+      "Lũy kế năm và từ đầu dự án",
+      "Tỷ lệ kèm tử số, mẫu số",
+      "Theo nhóm vốn",
+      "Theo đơn vị",
+      "Theo dự án",
+      "Chỉ tiêu đã nhập",
+      "Dòng dõi phiên bản"
+    ],
+    "role": "Chuyên viên kế hoạch, lãnh đạo, kiểm toán nội bộ",
+    "rule": "Mọi số đọc qua một bộ đọc duy nhất trên bản chốt; ô không có số là trống kèm lý do, không bao giờ là 0; bản chốt không sửa, bản mới là phiên bản kế tiếp nối với bản cũ; người dựng không tự chốt [ENT-3a, R17, R21]",
+    "phase": "P1",
+    "platform": "web",
+    "req": "BC.01",
+    "source": "docs/ent-snapshot.md; docs/fnd-funding-model.md 13"
   }
 ]
