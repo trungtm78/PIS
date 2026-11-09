@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
@@ -21,6 +22,7 @@ const SCREENS = [
   ['/m/notifications', 'PWA-10'],
 ] as const;
 const TOUCH_TARGET = 44;
+const AXE_SOURCE = createRequire(import.meta.url).resolve('axe-core');
 
 async function open(page: Page, path: string): Promise<void> {
   await page.goto(`${path}?devUser=owner`);
@@ -48,6 +50,19 @@ for (const viewport of VIEWPORTS) {
         }, TOUCH_TARGET);
         expect(small).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+      });
+
+      // ENT-PWA-01: a table that scrolls on a phone is a region the keyboard reaches; no screen holds a second, unfocusable scroller.
+      test(`${screen} ${path}: no scrollable region is out of reach of the keyboard`, async ({ page }) => {
+        await open(page, path);
+        await expect(page.locator(`[data-screen-id="${screen}"]`)).toBeVisible();
+        await page.addScriptTag({ path: AXE_SOURCE });
+        const found = await page.evaluate(async () => {
+          const axe = (window as unknown as { axe: { run(c: Document, o: object): Promise<{ violations: Array<{ nodes: Array<{ target: unknown[] }> }> }> } }).axe;
+          const result = await axe.run(document, { runOnly: { type: 'rule', values: ['scrollable-region-focusable'] }, resultTypes: ['violations'] });
+          return result.violations.flatMap((violation) => violation.nodes.map((node) => node.target.join(' ')));
+        });
+        expect(found).toEqual([]);
       });
     }
   });

@@ -87,7 +87,13 @@
 .pwa-tile[data-tone='danger'] { box-shadow: inset 4px 0 0 var(--mv-color-danger); }
 .pwa-more { align-self: center; }
 .pwa-scroll-x { overflow-x: auto; max-width: 100%; }
-@media (max-width: 480px) { .pwa-screen table { display: block; overflow-x: auto; max-width: 100%; } }
+/* A bare table scrolls itself on a phone. A table that already sits in a focusable, named scroller (.ui-table-scroll) or that only a screen reader reads
+   keeps its own layout: a second scroller around it would be a scrollable region no keyboard can reach (axe scrollable-region-focusable). */
+@media (max-width: 480px) {
+  .pwa-screen table { display: block; overflow-x: auto; max-width: 100%; }
+  .pwa-screen .ui-table-scroll table,
+  .pwa-screen .ui-sr-only table { display: table; overflow: visible; max-width: none; }
+}
 .pwa-fieldset { margin: 0; padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); display: flex; flex-direction: column; gap: var(--mv-space-8); min-width: 0; }
 .pwa-fieldset legend { font-weight: 600; padding-inline: var(--mv-space-4); }
 .pwa-details summary { cursor: pointer; font-weight: 600; }
