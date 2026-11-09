@@ -157,3 +157,29 @@ describe('the directive widget of the dashboard', () => {
     void directive;
   });
 });
+
+describe('DIR-05: presentation mode (ENT-4d, BC.02)', () => {
+  it('opens the counts and the late directives over the page, with the clip hook on the button, and leaves with Escape', async () => {
+    const h = harness(() => report());
+    mount(<PeriodScreen route={ROUTE} />, h, { permissions: ['directive.read'] });
+    expect(await screen.findByRole('link', { name: 'GB-2026-001/CD-01' })).toBeTruthy();
+    const open = screen.getByTestId('dir-presentation-mode');
+    expect(open.getAttribute('data-clip-ref')).toBe('dir.dashboard.presentation-mode');
+    fireEvent.click(open);
+    const presentation = await screen.findByRole('dialog', { name: text('dir.present.title.text') });
+    expect(within(presentation).getByRole('heading', { level: 2, name: text('dir.present.counts.title') })).toBeTruthy();
+    fireEvent.keyDown(presentation, { key: 'ArrowRight' });
+    expect(within(presentation).getByRole('heading', { level: 2, name: text('dir.present.overdue.title') })).toBeTruthy();
+    expect(within(presentation).getByText('GB-2026-001/CD-01')).toBeTruthy();
+    // The directive that is not late is not on the board of the late ones, and the page's own buttons are not in the presentation.
+    expect(within(presentation).queryByText('GB-2026-001/CD-02')).toBeNull();
+    expect(within(presentation).queryByLabelText(text('dir.period.from.label'))).toBeNull();
+    fireEvent.keyDown(presentation, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: text('dir.present.title.text') })).toBeNull());
+  });
+
+  it('keeps the button off until the period is read', () => {
+    mount(<PeriodScreen route={ROUTE} />, harness(() => new Promise(() => undefined)), { permissions: ['directive.read'] });
+    expect((screen.getByTestId('dir-presentation-mode') as HTMLButtonElement).disabled).toBe(true);
+  });
+});

@@ -403,6 +403,19 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     await waitFor(() => expect(document.querySelector(`[data-metric-id="${RATE.id}"] [data-reason="policy"]`)?.textContent).toBe(vi_['bi.query.refused.policy']));
   });
 
+  it('ENT-4d: presents the certified tiles a page at a time over the board, with the filter and the links left behind', async () => {
+    const user = userEvent.setup();
+    mount(<BoardScreen route={BOARD} />, client(normal(), () => answer()), { permissions: QUERIER });
+    await findFigure(RATE.id);
+    await user.click(screen.getByTestId('present-open'));
+    const presentation = await screen.findByRole('dialog', { name: vi_['bi.present.title.text'].replace('{period}', '2026-10') });
+    expect(within(presentation).getByRole('heading', { level: 2, name: vi_['bi.present.page.text'].replace('{from}', '1').replace('{to}', '2') })).toBeTruthy();
+    expect(presentation.querySelector(`[data-metric-id="${RATE.id}"]`)).not.toBeNull();
+    expect(within(presentation).queryByLabelText(vi_['bi.board.period'])).toBeNull();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
   it('draws the tiles of the period chosen, and says when no period is frozen', async () => {
     const user = userEvent.setup();
     const h = client({ ...normal(), versions: [version(V1), version(V2, 'FROZEN', '2026-09')] }, () => answer());
