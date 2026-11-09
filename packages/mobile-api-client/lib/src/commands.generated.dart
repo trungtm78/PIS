@@ -295,6 +295,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> cancelAuditEngagement(AudStatusNote body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelAuditEngagement', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> cancelBackupRequest(ReasonOnly body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('cancelBackupRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> cancelCampaign(ReasonOnly body, {required String campaignId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('cancelCampaign', path: <String, Object?>{'campaignId': campaignId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -819,6 +822,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> decideApprovalTask(ApprovalDecision body, {required String taskId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideApprovalTask', path: <String, Object?>{'taskId': taskId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> decideBackupRequest(BackupRequestDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideBackupRequest', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> decideBiPublication(BiPublicationDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideBiPublication', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -2698,6 +2704,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listAvcPolicies({Map<String, Object?>? query}) =>
       execute('listAvcPolicies', query: query);
 
+  Future<Object?> listBackupRequests({Map<String, Object?>? query}) =>
+      execute('listBackupRequests', query: query);
+
   Future<Object?> listBatchGates({Map<String, Object?>? query}) =>
       execute('listBatchGates', query: query);
 
@@ -3898,6 +3907,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> recordAuditFinding(AudFindingRecord body, {required String id, CommandAttempt? attempt}) =>
       execute('recordAuditFinding', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> recordBackupOutcome(BackupRequestOutcome body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('recordBackupOutcome', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> recordClaimStep(CtrClaimStepRecord body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('recordClaimStep', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -4218,6 +4230,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> requestAuditFollowUpReport(AudFollowUpReport body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('requestAuditFollowUpReport', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> requestBackup(BackupRequestCreate body, {CommandAttempt? attempt}) =>
+      execute('requestBackup', body: body, attempt: attempt);
 
   Future<Object?> requestBiExport(BiExportRequest body, {CommandAttempt? attempt}) =>
       execute('requestBiExport', body: body, attempt: attempt);

@@ -2873,6 +2873,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeActing: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/acting-requests/00000000-0000-4000-8000-0000000000f1/revoke', ifMatch: '"1"', body: { reason: REASON } }) },
   createPeriodScope: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/period-scopes', body: { role_grant_id: '00000000-0000-4000-8000-0000000000f1', period_codes: ['2026-Q3'], reason: REASON } }) },
   liftPeriodScope: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/period-scopes/00000000-0000-4000-8000-0000000000f1/lift', ifMatch: '"1"', body: { reason: REASON } }) },
+  // INFRA-2: the manual backup request; a caller who is refused changes nothing.
+  requestBackup: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests', body: { kind: 'full', repository: 1, reason: 'Before the upgrade of the release on Saturday.' } }) },
+  decideBackupRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }) },
+  cancelBackupRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  recordBackupOutcome: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests/00000000-0000-4000-8000-0000000000f1/outcome', ifMatch: '"1"', body: { outcome: 'completed', backup_label: '20261109-013000F' } }) },
   reassignApprovalTask: {
     referencesTenantIds: true,
     build: (t) => ({

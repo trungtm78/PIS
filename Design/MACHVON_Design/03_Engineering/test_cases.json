@@ -26022,5 +26022,42 @@
       "FR-DIS-32",
       "FR-ADM-29"
     ]
+  },
+  {
+    "id": "UI-ADM-29",
+    "source": "FR-ADM-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sao lưu và yêu cầu sao lưu thủ công; user có quyền và user chỉ đọc; route ADM-29",
+    "steps": [
+      "Mở ADM-29 từ menu và deep link; kiểm nhãn trường: Trạng thái bản sao lưu gần nhất, Lần kiểm tra gần nhất, Loại sao lưu, Kho lưu, Lý do, Người yêu cầu, Người duyệt, Nhãn bản sao lưu, Trạng thái",
+      "Thực hiện thao tác chính: requestBackup, decideBackupRequest, cancelBackupRequest, recordBackupOutcome; không có nguồn trạng thái thì hiển thị chưa rõ, không bao giờ hiển thị khỏe",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ADM-29"
+    ],
+    "expected": "Sao lưu và yêu cầu sao lưu thủ công: hiển thị đúng 9 trường, người yêu cầu không tự duyệt được yêu cầu của mình, trạng thái chưa rõ khi không có nguồn, 0 lỗi console và không tràn ngang ở 1440 px.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-29"
+    ]
+  },
+  {
+    "id": "UAT-INFRA2-01",
+    "source": "HSKT v0.3 YCK.06",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Người dùng X và Y đều có quyền sao lưu thủ công; trạm chạy sao lưu của máy chủ chưa chạy.",
+    "steps": [
+      "X yêu cầu sao lưu đầy đủ kho vận hành với lý do",
+      "X thử tự duyệt yêu cầu của mình",
+      "Y duyệt; ghi nhãn bản sao lưu thuộc loại khác; ghi nhãn đúng",
+      "X yêu cầu thêm một bản đầy đủ khi yêu cầu trước còn mở"
+    ],
+    "expected": "Bước 2: 403 SELF_APPROVAL_DENIED; bước 3: duyệt thành công, nhãn sai loại 422 VALIDATION_FAILED, nhãn đúng chuyển sang Completed; bước 4: 409 BACKUP_REQUEST_OPEN; mọi bước có bản ghi kiểm toán và ứng dụng không tự chạy sao lưu.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-29"
+    ]
   }
 ]

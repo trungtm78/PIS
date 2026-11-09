@@ -1031,6 +1031,12 @@ export const PERIOD_SCOPE_FIXTURES: Readonly<Record<TenantName, { id: string; gr
   'TNT-B': { id: '00000000-0000-4000-b1b3-000000000001', grantId: '00000000-0000-4000-b1b4-000000000001', reason: 'BETA-PERIOD-SCOPE-REASON-0001' },
 };
 
+/** A manual backup request that waits for a decision in each tenant (its reason is distinctive; tenant data, INFRA-2). */
+export const BACKUP_REQUEST_FIXTURES: Readonly<Record<TenantName, { id: string; reason: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a1b5-000000000001', reason: 'ALPHA-BACKUP-REQUEST-REASON-0001 before the upgrade' },
+  'TNT-B': { id: '00000000-0000-4000-b1b5-000000000001', reason: 'BETA-BACKUP-REQUEST-REASON-0001 before the upgrade' },
+};
+
 /** A reorganisation of units that waits for approval in each tenant (its legal basis is distinctive; tenant data). */
 export const REORGANIZATION_FIXTURES: Readonly<Record<TenantName, { id: string; legalBasis: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0d8-000000000001', legalBasis: 'ALPHA-REORGANIZATION-BASIS-0001' },
@@ -2101,6 +2107,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'acting grant reason', value: ACTING_FIXTURES[tenant].reason },
     { kind: 'period scope id', value: PERIOD_SCOPE_FIXTURES[tenant].id },
     { kind: 'period scope reason', value: PERIOD_SCOPE_FIXTURES[tenant].reason },
+    { kind: 'backup request id', value: BACKUP_REQUEST_FIXTURES[tenant].id },
+    { kind: 'backup request reason', value: BACKUP_REQUEST_FIXTURES[tenant].reason },
     { kind: 'sla policy id', value: SLA_POLICY_FIXTURES[tenant].id },
     { kind: 'sla policy code', value: SLA_POLICY_FIXTURES[tenant].code },
     { kind: 'issue id', value: ISSUE_FIXTURES[tenant].id },

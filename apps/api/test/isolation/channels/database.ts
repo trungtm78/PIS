@@ -46,6 +46,7 @@ INT_FIXTURES,
 } from '../suite';
 import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
 import { ACTING_FIXTURES, PERIOD_SCOPE_FIXTURES, STANDING_REQUEST_FIXTURES } from '../suite';
+import { BACKUP_REQUEST_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
@@ -1028,6 +1029,11 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'get_resources_acting_grant_id',
   'createPeriodScope',
   'liftPeriodScope',
+  'requestBackup',
+  'decideBackupRequest',
+  'cancelBackupRequest',
+  'recordBackupOutcome',
+  'listBackupRequests',
   'get_resources_period_scope',
   'get_resources_period_scope_id',
   'get_resources_quality_incident',
@@ -1911,6 +1917,10 @@ const INSERT_STANDING_REQUEST = `insert into machvon.standing_delegation_request
   (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, starts_at, review_due_at, end_condition_kind, end_condition_text, reason)
   values ($1, $2, $3, $4, '{approval.decide}', '{"kind":"UNIT_SUBTREE","ref_ids":[]}'::jsonb, now(), now() + interval '180 days', 'UNTIL_EVENT', $5, 'Isolation fixture of a standing request') on conflict do nothing`;
 
+// INFRA-2: a manual backup request that waits for a decision.
+const INSERT_BACKUP_REQUEST = `insert into machvon.backup_request (tenant_id, id, kind, repository, reason, requested_by)
+  values ($1, $2, 'incr', 1, $3, $4) on conflict do nothing`;
+
 const INSERT_ACTING = `insert into machvon.acting_grant (tenant_id, id, requester_membership_id, subject_membership_id, permissions, hours, reason)
   values ($1, $2, $3, $4, '{dis.report.submit}', 4, $5) on conflict do nothing`;
 
@@ -2750,6 +2760,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const periodScope = PERIOD_SCOPE_FIXTURES[tenant];
     await client.query(INSERT_GRANT, [tenantId, periodScope.grantId, member.id, role.id, ACTOR_ID]);
     await client.query(INSERT_PERIOD_SCOPE, [tenantId, periodScope.id, periodScope.grantId, periodScope.reason, MEMBERSHIP_ID]);
+    const backupRequest = BACKUP_REQUEST_FIXTURES[tenant];
+    await client.query(INSERT_BACKUP_REQUEST, [tenantId, backupRequest.id, backupRequest.reason, MEMBERSHIP_ID]);
     const reorganization = REORGANIZATION_FIXTURES[tenant];
     await client.query(INSERT_REORGANIZATION, [tenantId, reorganization.id, reorganization.legalBasis, member.id]);
     const term = GLOSSARY_FIXTURES[tenant];

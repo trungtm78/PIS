@@ -108,6 +108,7 @@ import {
 import { TEMPLATE_FIXTURES } from '../suite';
 import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
 import { ACTING_FIXTURES, PERIOD_SCOPE_FIXTURES, STANDING_REQUEST_FIXTURES } from '../suite';
+import { BACKUP_REQUEST_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
@@ -724,6 +725,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'revokeActing', method: 'POST', id: ACTING_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'get_resources_period_scope_id', method: 'GET', id: PERIOD_SCOPE_FIXTURES['TNT-B'].id },
   { operation: 'liftPeriodScope', method: 'POST', id: PERIOD_SCOPE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the lifting' } },
+  // INFRA-2: a foreign backup request is as absent as a foreign delegation.
+  { operation: 'decideBackupRequest', method: 'POST', id: BACKUP_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation probe of the decision' } },
+  { operation: 'cancelBackupRequest', method: 'POST', id: BACKUP_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the withdrawal' } },
+  { operation: 'recordBackupOutcome', method: 'POST', id: BACKUP_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { outcome: 'failed', note: 'Isolation probe of the outcome' } },
   { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
   { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },
   { operation: 'decideApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { decision: 'approve' } },

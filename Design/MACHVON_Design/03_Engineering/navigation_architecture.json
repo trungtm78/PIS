@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 573,
-    "webCatalog": 573,
+    "webRoutes": 574,
+    "webCatalog": 574,
     "webModules": 35,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -9051,6 +9051,16 @@
       "group": "Mua sắm trang thiết bị",
       "role": "detail",
       "parent": "EQP-01"
+    },
+    {
+      "id": "ADM-29",
+      "title": "Sao lưu và yêu cầu sao lưu thủ công",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
     }
   ],
   "mobileRoutes": [

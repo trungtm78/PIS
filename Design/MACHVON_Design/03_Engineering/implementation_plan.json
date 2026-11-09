@@ -58660,6 +58660,118 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-ADM-030",
+      "epic": "EP-ADM",
+      "feature": "FT-ADM-03",
+      "module": "ADM",
+      "title": "Manual backup request with a second approver and the state of the last backups read from a port",
+      "narrative": "As a system administrator I can ask for a full, differential or incremental backup, have a second person allow it and record what the host runner did, and see the state of the last backups and of the last repository verification, so that backups on the day, week and month cycles can be complemented by an audited manual one without the application ever running a backup itself.",
+      "release": "R2",
+      "screens": [
+        "ADM-29"
+      ],
+      "operations": [
+        "listBackupRequests",
+        "requestBackup",
+        "decideBackupRequest",
+        "cancelBackupRequest",
+        "recordBackupOutcome"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-SECURITY-01",
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADM-030-1",
+          "given": "A request for a full backup of the operational repository, and two people who hold the backup permissions",
+          "when": "The person who asked tries to approve it, the second person approves it, the label of another kind is recorded, and the right label is recorded",
+          "then": "403 SELF_APPROVAL_DENIED for the asker; the approval makes the request Approved; the label of another kind is 422 VALIDATION_FAILED; the right label makes it Completed; a second open request of the same kind is 409 BACKUP_REQUEST_OPEN; every step is in the audit trail and the API starts no backup",
+          "test_id": "UAT-INFRA2-01"
+        },
+        {
+          "id": "AC-ST-ADM-030-2",
+          "given": "ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without, with a state source and without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty, validation error, service error with retry and permission denied all render, a missing state source reads UNKNOWN and never healthy, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-ADM-29"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-014"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 30
+        },
+        "confidence": "medium",
+        "assumption": "The host runner and the state files are part of the on-prem package (systemd units and the info timer); the application records the request and reads the state, nothing more."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADM-030-1",
+          "kind": "db",
+          "title": "Migration V2800 for backup_request with RLS, tenant-leading indexes and guards for the four eyes and the order of states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-030-2",
+          "kind": "backend",
+          "title": "Commands and queries with DTO allowlists, Idempotency-Key, If-Match and audit: requestBackup, decideBackupRequest, cancelBackupRequest, recordBackupOutcome, listBackupRequests; the state port and its file adapter",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-030-3",
+          "kind": "web",
+          "title": "ADM-29 screen built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-030-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for ADM-29; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-030-5",
+          "kind": "security",
+          "title": "Negative matrix and maker-checker case for the commands; isolation probes for a foreign request",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADM-030-6",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-INFRA2-01"
+          ]
+        },
+        {
+          "id": "TK-ADM-030-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-ADM-29"
+          ]
+        }
+      ]
     }
   ]
 }

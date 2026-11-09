@@ -595,6 +595,15 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     build: (objectId) => ({ method: 'POST', path: `/dgv/quality-rules/${derivedId(objectId, 'quality-rule')}/approval`, ifMatch: '"1"', body: {} }),
     seedMadeBy: (objectId, maker, checker) => [SEED_QUALITY_RULE, [derivedId(objectId, 'quality-rule'), maker, checker, derivedId(objectId, 'quality-dataset'), derivedId(objectId, 'quality-contract')]],
   },
+  {
+    operationId: 'decideBackupRequest',
+    build: (objectId) => ({ method: 'POST', path: `/backup-requests/${objectId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'maker-checker matrix decision' } }),
+    seedMadeBy: (objectId, maker) => [
+      `insert into machvon.backup_request (tenant_id, id, kind, repository, reason, requested_by)
+       values (current_setting('app.tenant_id')::uuid, $1, 'full', 1, 'maker-checker matrix request', $2)`,
+      [objectId, maker],
+    ],
+  },
 ];
 
 /** A draft quality rule written by $2 on a dataset of the DIS module (owned by $2, stewarded by $3), through its working contract. */

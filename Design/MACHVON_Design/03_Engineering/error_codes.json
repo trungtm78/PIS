@@ -7491,6 +7491,14 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "BACKUP_REQUEST_OPEN": {
+      "status": 409,
+      "title": "A backup of this kind is already requested",
+      "meaning": "Đã có một yêu cầu sao lưu cùng loại và cùng kho đang chờ duyệt hoặc chờ chạy; hoàn tất hoặc hủy yêu cầu đó trước khi tạo yêu cầu mới.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
     }
   }
 }

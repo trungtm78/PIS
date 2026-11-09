@@ -1904,6 +1904,7 @@ export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-s
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
 // ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
 export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
@@ -1926,3 +1927,7 @@ export type { ScheduleReading } from './reporting-schedule-reader.ts';
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { EquipmentProcurementStore } from './equipment-procurement-store.ts';
 export type { EquipmentCreateInput, EquipmentLine, EquipmentListFilter, EquipmentPatch } from './equipment-procurement-store.ts';
 >>>>>>> lane/ent4e
+=======
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { BackupRequestStore } from './backup-request-store.ts';
+export type { BackupDecision, BackupRequestRow } from './backup-request-store.ts';
+>>>>>>> lane/infra2

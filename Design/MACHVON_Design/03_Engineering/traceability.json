@@ -12601,5 +12601,23 @@
     "test_ids": [
       "UI-ADM-29"
     ]
+  },
+  {
+    "requirement": "FR-ADM-29",
+    "screen": "ADM-29",
+    "title": "Sao lưu và yêu cầu sao lưu thủ công",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "HSKT v0.3 YCK.06: sao lưu thủ công trên giao diện, giữ tối thiểu 03 bản, diễn tập khôi phục; kế hoạch INFRA-2",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md; 2 test",
+    "backlog_id": "BL-ADM-29",
+    "test_ids": [
+      "UI-ADM-29",
+      "UAT-INFRA2-01"
+    ]
   }
 ]

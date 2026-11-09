@@ -22635,5 +22635,42 @@
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-ADM-29",
+    "requirement": "FR-ADM-29",
+    "screen": "ADM-29",
+    "title": "Sao lưu và yêu cầu sao lưu thủ công",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Trạng thái bản sao lưu gần nhất",
+      "Lần kiểm tra gần nhất",
+      "Loại sao lưu",
+      "Kho lưu",
+      "Lý do",
+      "Người yêu cầu",
+      "Người duyệt",
+      "Nhãn bản sao lưu",
+      "Trạng thái"
+    ],
+    "rule": "requestBackup/decideBackupRequest/cancelBackupRequest/recordBackupOutcome/listBackupRequests; người yêu cầu và người duyệt khác nhau; giao diện không chạy sao lưu, chỉ ghi yêu cầu và hiển thị trạng thái đọc từ nguồn trạng thái; không có nguồn trạng thái thì hiển thị chưa rõ, không bao giờ hiển thị khỏe",
+    "test_ids": [
+      "UI-ADM-29",
+      "UAT-INFRA2-01"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-ADM-030"
+    ]
   }
 ]
