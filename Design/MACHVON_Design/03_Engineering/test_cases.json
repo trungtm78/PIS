@@ -26113,5 +26113,188 @@
     "covers": [
       "FR-ADM-32"
     ]
+  },
+  {
+    "id": "UI-DIS-32",
+    "source": "FR-DIS-32",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, a locked period with one missing cell; a user with funding.snapshot.build and a read-only user; route DIS-32",
+    "steps": [
+      "Open DIS-32 from the menu and by deep link; check the labelled fields: period, state, complete or not, units that have not submitted, projects and cells missing, batches waiting, frozen versions, condition to rebuild, builder",
+      "Pick a complete period and build the snapshot; pick an incomplete period and read the list of missing units",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "All nine fields shown, the build button off with the reason while the period is incomplete, no write in the read-only mode",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UI-DIS-33",
+    "source": "FR-DIS-33",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, one frozen and one built snapshot; a user with funding.snapshot.read and one with funding.snapshot.freeze; route DIS-33",
+    "steps": [
+      "Open DIS-33 from DIS-32; check the labelled fields: period and revision, state and hash, plan, estimate and actual, cumulative figures, ratios with numerator and denominator, by class, unit and project, indicators, lineage",
+      "Freeze the built snapshot as another person than the builder",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "Every ratio shows its numerator and denominator, an empty cell shows the reason and never 0, the freeze is offered to another person only",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UI-ADM-29",
+    "source": "FR-ADM-AUDIT-DETAIL",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A; a user with adm.audit_detail.manage and a read-only user; route ADM-29",
+    "steps": [
+      "Open ADM-29 from the menu and by deep link; check the labelled fields: class of business object, switch, byte cap per row, extra sensitive keys, reason, version",
+      "Switch a class on with a reason; try without a reason",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "All six fields shown, the default of every class is off, a save without a reason is refused, no write in the read-only mode",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-AUDIT-DETAIL"
+    ]
+  },
+  {
+    "id": "UI-ADM-30",
+    "source": "FR-ADM-LOG-CAPACITY",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A; a user with adm.log_capacity.manage and a read-only user; route ADM-30",
+    "steps": [
+      "Open ADM-30 from the menu and by deep link; check the labelled fields: kind of log, rows, size, caps, alert threshold, state, rows that may be archived, rows kept by retention, archived batches",
+      "Set a cap with a reason; remove a cap",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "All ten fields shown, the audit trail row is marked as measured only, a save without a reason is refused, no write in the read-only mode",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-LOG-CAPACITY"
+    ]
+  },
+  {
+    "id": "UI-EQP-01",
+    "source": "FR-EQP-01",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise; a user with bid.read and bid.plan.manage and one without contract.read; route EQP-01",
+    "steps": [
+      "Open EQP-01 from the menu and by deep link; check the labelled fields: line, project, unit, planned value, package, selection result, contract value, paid, share paid, stage, e-GP code, how the data is obtained",
+      "Add a line; check the e-GP import block (never imported, fresh, stale)",
+      "Force the 7 states and check the masked figures without the permission"
+    ],
+    "expected": "All twelve fields shown, a masked figure reads as no permission and never as 0, the public build has no such screen",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-01"
+    ]
+  },
+  {
+    "id": "UI-EQP-02",
+    "source": "FR-EQP-02",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, one line with a package and one cancelled; a user with bid.plan.manage; route EQP-02",
+    "steps": [
+      "Open EQP-02 from EQP-01; check the labelled fields: line, planned value, package, selection result, winning contractor, contract, contract value, variance to the plan, paid, e-GP code, version",
+      "Link the package and the contract once; cancel the line with a reason",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "All eleven fields shown, a second link is refused, a cancelled line offers no change",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-02"
+    ]
+  },
+  {
+    "id": "UAT-DIS-ENT3A-1",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A locked period of the enterprise pack with one planned cell without an accepted actual; two people with the build and freeze permissions",
+    "steps": [
+      "The planner builds the snapshot",
+      "The missing actual is accepted and the snapshot is built",
+      "The builder tries to freeze it, then the second person freezes it",
+      "The planner builds the same period again"
+    ],
+    "expected": "Step 1: 422 ENTERPRISE_SNAPSHOT_INCOMPLETE with the missing units and no row; step 3: 403 SELF_APPROVAL_DENIED for the builder, the other person freezes it and its SHA-256 never changes; step 4: 409 SNAPSHOT_FROZEN until a reopening with a reason and a second approver exists, then the next revision supersedes the old one",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32",
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UAT-ADM-ENT4E-1",
+    "source": "ADM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A tenant with the audit detail of a class off; an administrator with adm.audit_detail.manage and a reader with audit_event.read",
+    "steps": [
+      "A command of the class runs",
+      "The administrator switches the class on with a reason; a stale version is sent once",
+      "The command runs again and the reader opens the detail of that row"
+    ],
+    "expected": "Run 1 writes no detail row; the switch without a reason is 422 VALIDATION_FAILED and a stale version 409 VERSION_CONFLICT; run 2 writes one detail row whose SHA-256 equals the detail_ref of the sealed row, secrets are masked at any depth and the row is cut at the byte cap; a user without audit_event.read gets 403",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-AUDIT-DETAIL"
+    ]
+  },
+  {
+    "id": "UAT-ADM-ENT4E-2",
+    "source": "ADM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A technical log over its row cap with old rows, young rows and rows under legal hold, and the audit trail over its own cap",
+    "steps": [
+      "The nightly retention job runs twice",
+      "A reader with only the read permission sets a cap",
+      "The administrator sets a cap without and with a reason"
+    ],
+    "expected": "Only the oldest rows beyond the retention period are archived to a hashed file and then deleted, young and held rows stay, the audit trail is measured and alerts but loses no row, the second run deletes nothing; the reader gets 403, no reason is 422 VALIDATION_FAILED",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-LOG-CAPACITY"
+    ]
+  },
+  {
+    "id": "UAT-EQP-ENT4E-1",
+    "source": "BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A line with a package, an approved award, a contract and payments paid in part; a reader with bid.read only and a reader with contract.read and payment_request.read",
+    "steps": [
+      "Both readers open the line",
+      "The line is linked to a package of another project",
+      "A line code is reused and a cancelled line is changed"
+    ],
+    "expected": "The full reader sees the stage DISBURSING and the share paid; the other sees contract and payment figures masked, never 0; 422 EQUIPMENT_LINK_INVALID, 409 EQUIPMENT_LINE_CODE_TAKEN, 409 EQUIPMENT_LINE_STATE_INVALID; a cancel without a reason is 422 VALIDATION_FAILED",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-01",
+      "FR-EQP-02"
+    ]
   }
 ]

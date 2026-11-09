@@ -12673,5 +12673,101 @@
       "UI-ADM-32",
       "UAT-INFRA2-01"
     ]
+  },
+  {
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+    "use_cases": [],
+    "source": "docs/ent-snapshot.md; docs/plans/ent3a.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-32",
+    "test_ids": [
+      "UI-DIS-32",
+      "UAT-DIS-ENT3A-1"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-33",
+    "screen": "DIS-33",
+    "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+    "use_cases": [],
+    "source": "docs/ent-snapshot.md; docs/plans/ent3a.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-33",
+    "test_ids": [
+      "UI-DIS-33",
+      "UAT-DIS-ENT3A-1"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-AUDIT-DETAIL",
+    "screen": "ADM-29",
+    "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 HT.06; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-29",
+    "test_ids": [
+      "UI-ADM-29",
+      "UAT-ADM-ENT4E-1"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-LOG-CAPACITY",
+    "screen": "ADM-30",
+    "title": "Giới hạn số lượng và dung lượng log",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 HT.06; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-30",
+    "test_ids": [
+      "UI-ADM-30",
+      "UAT-ADM-ENT4E-2"
+    ]
+  },
+  {
+    "requirement": "FR-EQP-01",
+    "screen": "EQP-01",
+    "title": "Mua sắm trang thiết bị dự án",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 CN.02; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-EQP-01",
+    "test_ids": [
+      "UI-EQP-01",
+      "UAT-EQP-ENT4E-1"
+    ]
+  },
+  {
+    "requirement": "FR-EQP-02",
+    "screen": "EQP-02",
+    "title": "Chi tiết dòng mua sắm trang thiết bị",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 CN.02; docs/plans/ent4e.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-EQP-02",
+    "test_ids": [
+      "UI-EQP-02",
+      "UAT-EQP-ENT4E-1"
+    ]
   }
 ]

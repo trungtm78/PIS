@@ -22765,5 +22765,220 @@
     "stories": [
       "ST-ADM-030"
     ]
+  },
+  {
+    "id": "BL-DIS-32",
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,CAP,IND",
+    "fields": [
+      "Kỳ doanh nghiệp",
+      "Trạng thái kỳ",
+      "Đủ số liệu hay chưa",
+      "Đơn vị chưa nộp",
+      "Dự án và ô còn thiếu",
+      "Lô chờ duyệt",
+      "Bản đã chốt và phiên bản",
+      "Điều kiện dựng lại",
+      "Người dựng"
+    ],
+    "rule": "Chỉ dựng khi kỳ đã khóa; thiếu số thực của một ô kế hoạch thì từ chối kèm danh sách đơn vị; kỳ đã chốt chỉ dựng lại sau khi mở lại kỳ có lý do và người duyệt khác [ENT-3a, DL.03, R17, R21]",
+    "test_ids": [
+      "UI-DIS-32",
+      "UAT-DIS-ENT3A-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-DIS-029"
+    ]
+  },
+  {
+    "id": "BL-DIS-33",
+    "requirement": "FR-DIS-33",
+    "screen": "DIS-33",
+    "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,CAP,IND",
+    "fields": [
+      "Kỳ và phiên bản",
+      "Trạng thái và mã băm",
+      "Kế hoạch năm gốc, điều chỉnh, trong hiệu lực",
+      "Ước và thực của kỳ",
+      "Lũy kế năm và từ đầu dự án",
+      "Tỷ lệ kèm tử số, mẫu số",
+      "Theo nhóm vốn",
+      "Theo đơn vị",
+      "Theo dự án",
+      "Chỉ tiêu đã nhập",
+      "Dòng dõi phiên bản"
+    ],
+    "rule": "Mọi số đọc qua một bộ đọc duy nhất trên bản chốt; ô không có số là trống kèm lý do, không bao giờ là 0; bản chốt không sửa, bản mới là phiên bản kế tiếp nối với bản cũ; người dựng không tự chốt [ENT-3a, R17, R21]",
+    "test_ids": [
+      "UI-DIS-33",
+      "UAT-DIS-ENT3A-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-DIS-029"
+    ]
+  },
+  {
+    "id": "BL-ADM-29",
+    "requirement": "FR-ADM-AUDIT-DETAIL",
+    "screen": "ADM-29",
+    "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM,DIS",
+    "fields": [
+      "Loại đối tượng nghiệp vụ",
+      "Bật lưu đủ trước và sau",
+      "Dung lượng tối đa mỗi dòng",
+      "Khóa nhạy cảm thêm",
+      "Lý do",
+      "Phiên bản"
+    ],
+    "rule": "listAuditDetailPolicies, saveAuditDetailPolicy; mặc định tắt; bật theo từng loại đối tượng nghiệp vụ (kỳ số liệu, mở lại kỳ, đẩy HPM); giá trị được che khóa bí mật và dữ kiện cá nhân, cắt theo dung lượng; dòng nhật ký đã niêm phong mang băm của bản đầy đủ nên không đổi được sau này; mọi thay đổi cần lý do và có ghi nhật ký (HT.06)",
+    "test_ids": [
+      "UI-ADM-29",
+      "UAT-ADM-ENT4E-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-ADM-031"
+    ]
+  },
+  {
+    "id": "BL-ADM-30",
+    "requirement": "FR-ADM-LOG-CAPACITY",
+    "screen": "ADM-30",
+    "title": "Giới hạn số lượng và dung lượng log",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Loại log",
+      "Số dòng",
+      "Dung lượng",
+      "Giới hạn dòng",
+      "Giới hạn dung lượng",
+      "Ngưỡng cảnh báo",
+      "Trạng thái",
+      "Dòng được phép lưu trữ",
+      "Dòng được giữ theo hạn lưu",
+      "Lô đã lưu trữ"
+    ],
+    "rule": "getLogCapacity, saveLogCapacityPolicy; log kỹ thuật vượt giới hạn được lưu trữ vào tệp có băm rồi mới xóa đúng các dòng đó, không bao giờ xóa dòng trẻ hơn hạn lưu hoặc đang bị giữ pháp lý; nhật ký nghiệp vụ (audit_event) chỉ được đo và cảnh báo, không bao giờ bị xóa tự động; cảnh báo khi đạt ngưỡng và khi vượt mà không xử lý được; mọi thay đổi cần lý do (HT.06)",
+    "test_ids": [
+      "UI-ADM-30",
+      "UAT-ADM-ENT4E-2"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-ADM-032"
+    ]
+  },
+  {
+    "id": "BL-EQP-01",
+    "requirement": "FR-EQP-01",
+    "screen": "EQP-01",
+    "title": "Mua sắm trang thiết bị dự án",
+    "module": "EQP",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "BID,CTR,PAY",
+    "fields": [
+      "Dòng mua sắm",
+      "Dự án",
+      "Đơn vị",
+      "Giá trị kế hoạch",
+      "Gói thầu",
+      "Kết quả lựa chọn nhà thầu",
+      "Giá trị hợp đồng",
+      "Đã giải ngân",
+      "Tỷ lệ giải ngân",
+      "Giai đoạn",
+      "Mã trên mạng đấu thầu quốc gia",
+      "Cách lấy dữ liệu"
+    ],
+    "rule": "listEquipmentProcurement, createEquipmentProcurementItem; đọc từ BID, CTR, PAY (một đường đọc); số liệu bị che hiện là không có quyền, không phải số không; khung Cách lấy dữ liệu nêu trạng thái nhập tệp e-GP (chưa nhập, mới, cũ) và các bước tải, nạp thử, áp dụng, gắn gói; định dạng tệp là giả định làm việc chờ bên ngoài (PENDING-EXTERNAL); chỉ bản enterprise (CN.02)",
+    "test_ids": [
+      "UI-EQP-01",
+      "UAT-EQP-ENT4E-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R3",
+    "stories": [
+      "ST-EQP-001"
+    ]
+  },
+  {
+    "id": "BL-EQP-02",
+    "requirement": "FR-EQP-02",
+    "screen": "EQP-02",
+    "title": "Chi tiết dòng mua sắm trang thiết bị",
+    "module": "EQP",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "BID,CTR,PAY",
+    "fields": [
+      "Dòng mua sắm",
+      "Giá trị kế hoạch",
+      "Gói thầu",
+      "Kết quả lựa chọn nhà thầu",
+      "Nhà thầu trúng",
+      "Hợp đồng",
+      "Giá trị hợp đồng",
+      "Chênh lệch so với kế hoạch",
+      "Đã giải ngân",
+      "Mã trên mạng đấu thầu quốc gia",
+      "Phiên bản"
+    ],
+    "rule": "getEquipmentProcurement, updateEquipmentProcurementItem; gắn gói thầu và hợp đồng một lần, cùng dự án, hợp đồng thuộc gói; hủy cần lý do; dòng đã hủy không đổi nữa (CN.02)",
+    "test_ids": [
+      "UI-EQP-02",
+      "UAT-EQP-ENT4E-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R3",
+    "stories": [
+      "ST-EQP-001"
+    ]
   }
 ]
