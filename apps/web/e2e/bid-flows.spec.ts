@@ -261,9 +261,13 @@ test.describe('BID-01 and BID-02 contractor registry', () => {
 
     await open(page, '/bid/bid-01', 'bidReader');
     await expect(page.getByRole('heading', { level: 1, name: vi['bid.list.page.title'] })).toBeVisible();
-    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(tax);
+    // The reader is given the covered form (the four middle digits of the ten), so that is what the registry can be searched by: the full number is not in what they received.
+    const covered = `${tax.slice(0, 3)}****${tax.slice(7)}`;
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(covered);
     await expect(page.locator(`tr[data-contractor-id="${contractor.id}"]`)).toBeVisible();
-    await expect(page.locator(`tr[data-contractor-id="${contractor.id}"] code`)).not.toHaveText(tax);
+    await expect(page.locator(`tr[data-contractor-id="${contractor.id}"] code`)).toHaveText(covered);
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(tax);
+    await expect(page.getByTestId('no-match')).toBeVisible();
     await expect(page.getByTestId('register-panel')).toHaveCount(0);
 
     await open(page, profilePath(contractor.id), 'bidReader');

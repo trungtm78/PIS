@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DEFAULT_WALK_PAGES, devUserFor, MAX_RETRY_SHARE, batchesOf, failedByTheMachine, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './walk-plan.ts';
+import { DEFAULT_WALK_PAGES, devUserFor, MAX_RETRY_SHARE, batchesOf, failedByTheMachine, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, routesOfEdition, summariseRetries } from './walk-plan.ts';
 
 test('the failures a starved machine produces are infrastructure failures', () => {
   for (const message of [
@@ -77,6 +77,26 @@ test('the 404 of an estimate that DIS has none to give for a project is an answe
   assert.equal(isExpectedAbsence(missing, 'http://127.0.0.1:1/api/projects/x'), false);
   assert.equal(isExpectedAbsence('Failed to load resource: the server responded with a status of 500 (Internal Server Error)', estimate), false);
   assert.equal(isExpectedAbsence('Uncaught TypeError', estimate), false);
+});
+
+test('the leadership board before a snapshot is frozen (404) and the contractor portal opened by a member who is not a contractor (403) are answers of the product, and nothing else on those areas is', () => {
+  const notFound = 'Failed to load resource: the server responded with a status of 404 (Not Found)';
+  const refused = 'Failed to load resource: the server responded with a status of 403 (Forbidden)';
+  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/leader/rates'), true);
+  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/leader/blocked'), false);
+  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/period-snapshots/542285ab-a558-4908-b4ff-7167435517c0/cross-total'), true);
+  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/period-snapshots/542285ab-a558-4908-b4ff-7167435517c0/lines'), false);
+  assert.equal(isExpectedAbsence(refused, 'http://127.0.0.1:1/api/portal/me'), true);
+  assert.equal(isExpectedAbsence(refused, 'http://127.0.0.1:1/api/portal/requests?status=OPEN'), true);
+  assert.equal(isExpectedAbsence(refused, 'http://127.0.0.1:1/api/home/my-work/counts?view=mine'), false);
+  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/portal/me'), false);
+});
+
+test('the public build is walked without the routes of the enterprise-only modules, and the enterprise build with all of them', () => {
+  const routes = [{ id: 'HOME-01', module: 'HOME' }, { id: 'EBS-01', module: 'EBS' }, { id: 'EQP-02', module: 'EQP' }, { id: 'HPM-01', module: 'HPM' }, { id: 'ORG-01', module: 'ORG' }, { id: 'RML-01', module: 'RML' }, { id: 'PRJ-01', module: 'PRJ' }];
+  assert.deepEqual(routesOfEdition(routes, {}).map((route) => route.id), ['HOME-01', 'PRJ-01']);
+  assert.deepEqual(routesOfEdition(routes, { MACHVON_EDITION: 'public' }).map((route) => route.id), ['HOME-01', 'PRJ-01']);
+  assert.equal(routesOfEdition(routes, { MACHVON_EDITION: 'enterprise' }).length, routes.length);
 });
 
 test('a page whose load failed with a console error of the machine (no buffer space for a socket) is the machine\'s failure, and a plain 404 or a script error is not', () => {

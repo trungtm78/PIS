@@ -96,7 +96,7 @@ const permitRow = (page: Page, typeCode: string) => page.locator('tr[data-permit
 
 async function record(page: Page, step: string, day: string): Promise<void> {
   const milestone = form(page, 'pmt.permit.milestone.aria');
-  await milestone.getByLabel(vi['pmt.permit.milestone.step.label']).selectOption(step);
+  await milestone.getByLabel(vi['pmt.permit.milestone.step.label'], { exact: true }).selectOption(step);
   await milestone.getByLabel(vi['pmt.permit.milestone.actual.label']).fill(day);
   await milestone.getByRole('button', { name: vi['pmt.permit.milestone.save.action'] }).click();
   await expect(page.getByTestId('milestone-saved')).toBeVisible();

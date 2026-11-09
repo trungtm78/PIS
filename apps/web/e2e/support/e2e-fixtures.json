@@ -1772,6 +1772,18 @@
         "payment.document.attach",
         "payment.verify",
         "payment.return",
+        "payment.clock.read",
+        "session.self"
+      ]
+    },
+    {
+      "key": "paymentSender",
+      "displayName": "Kế toán gửi hồ sơ lên Kho bạc",
+      "membershipId": "00000000-0000-4000-8000-000000000879",
+      "permissions": [
+        "payment_request.read",
+        "payment.treasury.send",
+        "contract.read",
         "session.self"
       ]
     },
