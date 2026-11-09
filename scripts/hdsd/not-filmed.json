@@ -73,5 +73,25 @@
     "screen": "DOC-22",
     "reason": "Màn này hiện văn bản đang chờ ký nên ứng dụng cấm chụp và quay màn hình khi đang xem; mọi ảnh chụp và phim quay của màn này chỉ có khung đen, vì vậy không có clip cho màn này.",
     "evidence": "Ứng dụng đặt cờ bảo mật cửa sổ (FLAG_SECURE, apps/mobile/android/app/src/main/kotlin/vn/machvon/machvon_mobile/MainActivity.kt) cho các màn nằm trong kSecureScreenIds (apps/mobile/lib/core/navigation/route_policy.dart). Ảnh chụp thử màn MOB-23 trên máy ảo Android 15 (apps/mobile/qa/device/results/guide-android15-debug-2026-11-06/screens/MOB-23.png, 720x1560) có độ sáng lớn nhất 16 trên 255, tức đen hoàn toàn dù màn đang hiện nội dung."
+  },
+  {
+    "screen": "MOB-65",
+    "reason": "Màn này hiện hồ sơ nghiệm thu chờ quyết định của người duyệt nên ứng dụng cấm chụp và quay màn hình khi đang xem; mọi ảnh chụp và phim quay của màn này chỉ có khung đen, vì vậy không có clip cho màn này.",
+    "evidence": "Ứng dụng đặt cờ bảo mật cửa sổ (FLAG_SECURE, apps/mobile/android/app/src/main/kotlin/vn/machvon/machvon_mobile/MainActivity.kt) cho các màn nằm trong kSecureScreenIds (apps/mobile/lib/core/navigation/route_policy.dart). Ảnh chụp thử màn MOB-23 trên máy ảo Android 15 (apps/mobile/qa/device/results/guide-android15-debug-2026-11-06/screens/MOB-23.png, 720x1560) có độ sáng lớn nhất 16 trên 255, tức đen hoàn toàn dù màn đang hiện nội dung."
+  },
+  {
+    "screen": "MOB-72",
+    "reason": "Màn này hiện số liệu mật của Ban chỉ đạo tỉnh (giải ngân, dự án cần chú ý, chỉ đạo quá hạn) nên ứng dụng cấm chụp và quay màn hình khi đang xem; mọi ảnh chụp và phim quay của màn này chỉ có khung đen, vì vậy không có clip cho màn này.",
+    "evidence": "Ứng dụng đặt cờ bảo mật cửa sổ (FLAG_SECURE, apps/mobile/android/app/src/main/kotlin/vn/machvon/machvon_mobile/MainActivity.kt) cho các màn nằm trong kSecureScreenIds (apps/mobile/lib/core/navigation/route_policy.dart). Ảnh chụp thử màn MOB-23 trên máy ảo Android 15 (apps/mobile/qa/device/results/guide-android15-debug-2026-11-06/screens/MOB-23.png, 720x1560) có độ sáng lớn nhất 16 trên 255, tức đen hoàn toàn dù màn đang hiện nội dung."
+  },
+  {
+    "screen": "MOB-73",
+    "reason": "Màn này hiện hạng rủi ro của các nhà thầu nên ứng dụng cấm chụp và quay màn hình khi đang xem; mọi ảnh chụp và phim quay của màn này chỉ có khung đen, vì vậy không có clip cho màn này.",
+    "evidence": "Ứng dụng đặt cờ bảo mật cửa sổ (FLAG_SECURE, apps/mobile/android/app/src/main/kotlin/vn/machvon/machvon_mobile/MainActivity.kt) cho các màn nằm trong kSecureScreenIds (apps/mobile/lib/core/navigation/route_policy.dart). Ảnh chụp thử màn MOB-23 trên máy ảo Android 15 (apps/mobile/qa/device/results/guide-android15-debug-2026-11-06/screens/MOB-23.png, 720x1560) có độ sáng lớn nhất 16 trên 255, tức đen hoàn toàn dù màn đang hiện nội dung."
+  },
+  {
+    "screen": "MOB-74",
+    "reason": "Màn này hiện hạng rủi ro và kết quả thực hiện hợp đồng của một nhà thầu nên ứng dụng cấm chụp và quay màn hình khi đang xem; mọi ảnh chụp và phim quay của màn này chỉ có khung đen, vì vậy không có clip cho màn này.",
+    "evidence": "Ứng dụng đặt cờ bảo mật cửa sổ (FLAG_SECURE, apps/mobile/android/app/src/main/kotlin/vn/machvon/machvon_mobile/MainActivity.kt) cho các màn nằm trong kSecureScreenIds (apps/mobile/lib/core/navigation/route_policy.dart). Ảnh chụp thử màn MOB-23 trên máy ảo Android 15 (apps/mobile/qa/device/results/guide-android15-debug-2026-11-06/screens/MOB-23.png, 720x1560) có độ sáng lớn nhất 16 trên 255, tức đen hoàn toàn dù màn đang hiện nội dung."
   }
 ]

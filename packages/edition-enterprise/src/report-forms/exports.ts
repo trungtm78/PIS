@@ -7,6 +7,9 @@ export { ILLUSTRATIVE_COUNTS, illustrativeFigures, illustrativeFillData, illustr
 export { TEMPLATE_DATE, buildDemoTemplates, buildDocxSkeleton, buildXlsxTemplate, stampFooter, stampHeader, templateFileName } from './template-builder.ts';
 export type { TemplateFile } from './template-builder.ts';
 export { enterpriseReportBundles, templatesFolder } from './bundles.ts';
+export { ENTERPRISE_SNAPSHOT_PROVIDER, snapshotFigures, snapshotFillData } from './snapshot-data.ts';
+export type { SnapshotProjectName } from './snapshot-data.ts';
+export { ENTERPRISE_DEFINITIONS } from './illustrative-data.ts';
 
 import { DEMO_FORMS } from './forms.ts';
 import type { DemoFormSpec } from './common.ts';

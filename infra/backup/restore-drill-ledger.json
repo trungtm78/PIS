@@ -1,0 +1,6 @@
+{
+  "description": "Ledger of the restore drills of the whole installation (HSKT YCK.06: periodic restore test with evidence). One entry per drill, oldest first, appended in the commit that signs the minutes; an entry is never edited or removed (a wrong entry is answered by a new entry that names it in `corrects`). Fields come from the output of scripts/restore-drill.mjs compare. scripts/backup-verify.mjs checks the structure offline and `drill-status` judges the age against restoreDrill.maxDaysBetweenDrills of backup-policy.json.",
+  "firstDrillDueBy": "2027-01-31",
+  "reason": "PENDING-EXTERNAL: no drill has been run yet. The first drill needs the clean host at the second site and the release in production (docs/runbooks/infra/restore-drill.md); until it is recorded here, drill-status reports the installation as never drilled.",
+  "entries": []
+}

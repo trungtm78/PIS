@@ -327,6 +327,8 @@
     "recordPermitMilestone",
     "recordPlanFeedback",
     "recordProcurementMilestone",
+    "saveAuditDetailPolicy",
+    "saveLogCapacityPolicy",
     "recordProjectAppraisal",
     "recordRecoveryNotice",
     "recordMaterialTestResult",
@@ -541,6 +543,10 @@
     "proposeUnitReorganization",
     "decideUnitReorganization",
     "revokeDelegation",
+    "requestBackup",
+    "decideBackupRequest",
+    "cancelBackupRequest",
+    "recordBackupOutcome",
     "createStandingDelegationRequest",
     "decideStandingDelegationRequest",
     "cancelStandingDelegationRequest",
@@ -893,7 +899,9 @@
     "recordProcurementPetitionOutcome",
     "confirmProcurementPetitionOutcome",
     "returnProcurementPetitionOutcome",
-    "uploadPortalAttachment"
+    "uploadPortalAttachment",
+    "buildEnterpriseSnapshot",
+    "freezeEnterpriseSnapshot"
   ],
   "controlCommands": [
     "decideTenantRestore",
@@ -950,6 +958,8 @@
     "replyWhistleReportAsReporter"
   ],
   "enterpriseCommands": [
+    "createEquipmentProcurementItem",
+    "updateEquipmentProcurementItem",
     "setHpmConnectionState",
     "submitHpmPush",
     "retryHpmPush",
@@ -963,6 +973,8 @@
     "reconcileEbs",
     "resolveEbsDifference",
     "reassignEbsDifference",
+    "createReportMailSchedule",
+    "retireReportMailSchedule",
     "materialiseEnterpriseOrgPack"
   ]
 }

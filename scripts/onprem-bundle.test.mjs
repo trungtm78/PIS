@@ -102,7 +102,7 @@ test('the plan builds each product image for both platforms, the web image for o
   assert.ok(web.args.includes('PUBLIC_HOST=h.example.vn') && web.args.includes('MACHVON_EDITION=enterprise'));
   assert.ok(!steps.find((step) => step.name === 'api').args.some((arg) => arg.startsWith('PUBLIC_HOST')));
   const copies = steps.filter((step) => step.kind === 'copy');
-  assert.deepEqual(copies.map((step) => step.name), ['keycloak']);
+  assert.deepEqual(copies.map((step) => step.name), ['keycloak', 'clamav']);
   assert.ok(copies[0].args.includes('--all') && copies[0].args.some((arg) => arg.includes('@sha256:')));
   assert.ok(steps.every((step) => !step.ref.endsWith(':latest')));
 });
@@ -138,7 +138,7 @@ test('a built bundle carries the archives, the SBOM, the deployment trees, the s
   assert.equal(manifest.version, '1.2.3');
   assert.equal(manifest.builtAt, '2026-11-08T00:00:00.000Z');
   assert.deepEqual(manifest.platforms, ['linux/amd64', 'linux/arm64']);
-  assert.deepEqual(manifest.images.map((image) => image.name), ['api', 'workers', 'web', 'db', 'keycloak']);
+  assert.deepEqual(manifest.images.map((image) => image.name), ['api', 'workers', 'web', 'db', 'keycloak', 'clamav']);
   assert.ok(manifest.images.every((image) => image.platforms.join() === 'linux/amd64,linux/arm64' && /^[0-9a-f]{64}$/.test(image.sha256)));
   assert.ok(manifest.thirdPartyDigests.postgres.startsWith('sha256:'));
   assert.equal(readFileSync(join(out, 'VERSION'), 'utf8'), '1.2.3\n');

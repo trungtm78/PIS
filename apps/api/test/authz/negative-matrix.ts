@@ -419,6 +419,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  // The audit settings (HT.06): a caller that is refused changes neither the opt-in of a class nor a cap.
+  saveAuditDetailPolicy: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/audit-detail-policies', body: { resource_type: 'period_reopen', enabled: true, max_bytes: 16384, sensitive_keys: [], reason: REASON, expected_version: 0 } }),
+  },
+  saveLogCapacityPolicy: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/log-capacity', body: { record_class: 'outbox_event', max_rows: 1000000, max_bytes: null, warn_pct: 80, active: true, reason: REASON, expected_version: 0 } }),
+  },
   publishRetentionPolicy: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/retention-policies/${t.retentionDraftId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
@@ -2864,6 +2873,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeActing: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/acting-requests/00000000-0000-4000-8000-0000000000f1/revoke', ifMatch: '"1"', body: { reason: REASON } }) },
   createPeriodScope: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/period-scopes', body: { role_grant_id: '00000000-0000-4000-8000-0000000000f1', period_codes: ['2026-Q3'], reason: REASON } }) },
   liftPeriodScope: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/period-scopes/00000000-0000-4000-8000-0000000000f1/lift', ifMatch: '"1"', body: { reason: REASON } }) },
+  // INFRA-2: the manual backup request; a caller who is refused changes nothing.
+  requestBackup: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests', body: { kind: 'full', repository: 1, reason: 'Before the upgrade of the release on Saturday.' } }) },
+  decideBackupRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests/00000000-0000-4000-8000-0000000000f1/decision', ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }) },
+  cancelBackupRequest: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
+  recordBackupOutcome: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/backup-requests/00000000-0000-4000-8000-0000000000f1/outcome', ifMatch: '"1"', body: { outcome: 'completed', backup_label: '20261109-013000F' } }) },
   reassignApprovalTask: {
     referencesTenantIds: true,
     build: (t) => ({
@@ -2946,6 +2960,9 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   acceptFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/acceptance', ifMatch: '"1"', body: {} }) },
   returnFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/return', ifMatch: '"1"', body: { reason: REASON } }) },
   withdrawFundingFigures: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/funding-figures/batches/00000000-0000-4000-8000-0000000000f1/withdrawal', ifMatch: '"1"', body: { reason: REASON } }) },
+  // ENT-3a: the enterprise period snapshot; a caller who is refused builds and freezes nothing.
+  buildEnterpriseSnapshot: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/enterprise-snapshots', body: { period_id: '00000000-0000-4000-8000-0000000000f1' } }) },
+  freezeEnterpriseSnapshot: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/enterprise-snapshots/00000000-0000-4000-8000-0000000000f1/freeze', ifMatch: '"1"', body: {} }) },
   // EGP-1: the connection of the national procurement network and the codes it carries; a caller who is refused changes nothing and reads no file.
   setEgpConnectionState: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/connection/state', ifMatch: '"1"', body: { enabled: false, reason: REASON } }) },
   uploadEgpFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/egp/imports/files', body: {} }) },

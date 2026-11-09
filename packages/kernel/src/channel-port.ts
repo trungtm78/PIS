@@ -30,6 +30,15 @@ export interface ChannelSendRequest {
   /** A push is made for one tenant and one priority (the urgency header and the receipt of a web push depend on them). */
   tenantId?: string;
   priority?: string;
+  /** Files that go with an e-mail (ENT-4d: the issued copy of a report form). An adapter of a channel that cannot carry a file answers a PERMANENT `ATTACHMENT_UNSUPPORTED` failure instead of dropping it; the SHA-256 is of the bytes, and is also in the text of the message. */
+  attachments?: ChannelAttachment[];
+}
+
+export interface ChannelAttachment {
+  fileName: string;
+  mediaType: string;
+  content: Uint8Array;
+  sha256: string;
 }
 
 export type ChannelSendResult =

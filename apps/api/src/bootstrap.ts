@@ -23,6 +23,7 @@ import { Pool } from 'pg';
 import { createAlertSink } from './alerts/alert-sinks';
 import { AppModule } from './app.module';
 import { loadEditionManifest, loadEditionModules } from './editions/load-edition';
+import { loadReportMailJob } from './editions/load-enterprise';
 import type { ModuleDescriptor } from './modules/module-descriptor';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { HttpJwksSource, discoverJwksUri } from './auth/jwks-source';
@@ -307,6 +308,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           inboxHandlers: app.get<InboxHandlerRegistry>(ADM_INBOX_HANDLERS, { strict: false }),
           // The sends that are due go out, and the ones whose result was lost are asked about (ST-NOT-002).
           notificationDelivery: dispatcher,
+          // An enterprise process mails the issued report forms by schedule through the channel port (ENT-4d); a public process binds nothing.
+          ...(config.edition === 'enterprise' ? { reportMailRunner: await loadReportMailJob({ tenants, registry: app.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }) }) } : {}),
         },
         { ...(overrides.timers === undefined ? {} : { timers: overrides.timers }), ...(overrides.workerLog === undefined ? {} : { log: overrides.workerLog }) },
       );

@@ -1,7 +1,8 @@
 import { ApprovalStore, GovernancePolicyPort } from '@machvon/db';
-import type { ApprovalEffects, ApprovalTaskRecord, TenantTx, WorkflowInstanceRecord } from '@machvon/db';
+import type { ApprovalEffects, ApprovalTaskRecord, HoldRecord, TenantTx, WorkflowInstanceRecord } from '@machvon/db';
 import { APPROVAL_WORKFLOW_RULE_TYPE, DomainError, REPORT_ACCEPT_BUSINESS_TYPE, REPORT_WORKFLOW_RESOURCE, REPORT_WORKFLOW_RULE_CODE, engineDefinitionOf, reportWorkflowOf } from '@machvon/kernel';
 import type { ApprovalWorkflowDefinition, DecisionInput, ReportWorkflow } from '@machvon/kernel';
+import type { ApprovalHoldService } from '../adm/approval-hold.service';
 import type { FinalCommandRegistry } from '../adm/approval.service';
 
 /** The rule that governs the approval of the weekly reports on the day, with the version that decided (0 for the built-in default). */
@@ -11,11 +12,12 @@ export interface GovernedWorkflow {
   ruleId: string | null;
 }
 
-/** What a decision on a step did: whether the report was decided by it (the last step), and the instance after it. */
+/** What a decision on a step did: whether the report was decided by it (the last step), and the instance after it. `HELD` is the PUSH step that handed its package over and waits for the receipt (R22): the report is not decided yet. */
 export interface StepDecision {
-  step: 'STAYED' | 'NEXT_STEP' | 'RETURNED_TO_STEP' | 'COMPLETED';
+  step: 'STAYED' | 'NEXT_STEP' | 'RETURNED_TO_STEP' | 'COMPLETED' | 'HELD';
   instance: WorkflowInstanceRecord;
   taskId: string;
+  hold?: HoldRecord;
 }
 
 /**
@@ -27,8 +29,11 @@ export class ReportApprovalFlow {
   private readonly policy = new GovernancePolicyPort();
   private readonly approvals = new ApprovalStore();
 
-  /** `commands` is the registry of the final commands of the process; absent where the ADM module is not mounted. */
-  constructor(private readonly commands?: FinalCommandRegistry) {}
+  /** `commands` is the registry of the final commands of the process; absent where the ADM module is not mounted. `holds` is the receiver of the PUSH step (ENT-3c); absent, the PUSH step is a person's. */
+  constructor(
+    private readonly commands?: FinalCommandRegistry,
+    private readonly holds?: ApprovalHoldService,
+  ) {}
 
   /** The workflow in force for the tenant on the day (the built-in default when no rule was approved). */
   async workflowFor(tx: TenantTx, now: Date): Promise<GovernedWorkflow> {
@@ -70,7 +75,7 @@ export class ReportApprovalFlow {
    * An approval on the report that has a running instance: the decision of the pending task of the person who decides (403 `APPROVER_NOT_AUTHORIZED` when they hold none: the report is theirs to review but not at this
    * step). `apply` is the decision of the report itself and runs only when this approval is the last one the instance needs.
    */
-  async approve(tx: TenantTx, effects: ApprovalEffects, instance: WorkflowInstanceRecord, input: DecisionInput, now: Date, apply: () => Promise<void>): Promise<StepDecision> {
+  async approve(tx: TenantTx, effects: ApprovalEffects, instance: WorkflowInstanceRecord, input: DecisionInput, now: Date, apply: () => Promise<void>, tenantId = ''): Promise<StepDecision> {
     const task = await this.approvals.pendingTaskFor(tx, instance, effects.actor);
     if (task === undefined) throw new DomainError('APPROVER_NOT_AUTHORIZED', 403, 'assignee');
     const result = await this.approvals.decide(tx, effects, {
@@ -80,11 +85,13 @@ export class ReportApprovalFlow {
       reason: input.reason,
       returnToStep: undefined,
       now,
+      hold: this.holds?.hook(tenantId),
       finish: async () => {
         await apply();
         return 'APPLIED';
       },
     });
+    if (result.kind === 'HELD') return { step: 'HELD', instance: result.instance, taskId: result.task.id, hold: result.hold };
     // The one who handed the report in never reaches here (the command refused them before), so a refusal of the engine is a rule of the engine that the command did not know.
     if (result.kind === 'SELF_APPROVAL') throw new DomainError('SELF_APPROVAL_DENIED', 403);
     await effects.audit({
@@ -97,11 +104,11 @@ export class ReportApprovalFlow {
   }
 
   /** What a screen shows of the approval of a report: the rule in force, the instance the report had last (running or not), the definition it ran by and its tasks. */
-  async read(tx: TenantTx, reportId: string, now: Date): Promise<{ governed: GovernedWorkflow; instance: WorkflowInstanceRecord | undefined; definition: ApprovalWorkflowDefinition | undefined; tasks: ApprovalTaskRecord[] }> {
+  async read(tx: TenantTx, reportId: string, now: Date): Promise<{ governed: GovernedWorkflow; instance: WorkflowInstanceRecord | undefined; definition: ApprovalWorkflowDefinition | undefined; tasks: ApprovalTaskRecord[]; holds: HoldRecord[] }> {
     const governed = await this.workflowFor(tx, now);
     const instance = await this.approvals.findLatest(tx, REPORT_WORKFLOW_RESOURCE, reportId);
-    if (instance === undefined) return { governed, instance, definition: undefined, tasks: [] };
-    return { governed, instance, definition: await this.approvals.definitionOf(tx, instance), tasks: await this.approvals.tasksOf(tx, instance.id) };
+    if (instance === undefined) return { governed, instance, definition: undefined, tasks: [], holds: [] };
+    return { governed, instance, definition: await this.approvals.definitionOf(tx, instance), tasks: await this.approvals.tasksOf(tx, instance.id), holds: await this.approvals.holdsOf(tx, [instance.id]) };
   }
 
   /** The report was sent back or taken back: the running instance ends Cancelled with its open tasks (false when there was none). */

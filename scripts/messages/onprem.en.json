@@ -33,7 +33,7 @@
   "bundle.code.BUNDLE_IMAGE_MISSING": "an image of the image list is not in the bundle: {detail}",
   "bundle.code.BUNDLE_IMAGE_ARCH_MISSING": "an image archive lacks a required platform: {detail}",
   "bundle.code.BUNDLE_IMAGE_UNREADABLE": "an image archive is not an OCI layout: {detail}",
-  "backupVerify.usage": "usage: node scripts/backup-verify.mjs [offline | live --bucket <name> --endpoint <url> [--region <r>] [--probe]] [--evidence <file>] [--root <dir>]",
+  "backupVerify.usage": "usage: node scripts/backup-verify.mjs [offline | drill-status | live --bucket <name> --endpoint <url> [--region <r>] [--probe] [--archive-bucket <name> [--archive-endpoint <url>]]] [--evidence <file>] [--root <dir>]",
   "backupVerify.check": "{name}: {state} {detail}",
   "backupVerify.summary.pass.offline": "backup policy: schedule, immutability, encryption, retention, targets and drill hold",
   "backupVerify.summary.pass.live": "backup bucket: object lock, versioning and encryption hold as the policy says",
@@ -80,5 +80,16 @@
   "infra.BACKUP_POLICY_VIOLATION": "the backup policy or its implementation is weaker than required (immutability, encryption, schedule, targets): {detail}",
   "infra.SCAN_WORKFLOW": "a security scanning workflow is missing or incomplete (CodeQL, secret scan, image scan, DAST): {detail}",
   "infra.WORKFLOW_FLOATING_ACTION": "a workflow uses an action on a moving branch: {detail}",
-  "infra.NATIVE_DEPS": "a native dependency has no linux arm64 build or is not acknowledged: {detail}"
+  "infra.NATIVE_DEPS": "a native dependency has no linux arm64 build or is not acknowledged: {detail}",
+  "backupVerify.drillStatus": "restore drill: {state} ({detail})",
+  "backupVerify.code.BACKUP_CYCLES": "the day, week and month cycles do not cover full, differential and incremental backups: {detail}",
+  "backupVerify.code.BACKUP_MINIMUM": "the backups kept are fewer than the policy minimum or the retention differs from the policy: {detail}",
+  "backupVerify.code.BACKUP_ARCHIVE": "the archive repository is not separate, encrypted and locked as the policy says: {detail}",
+  "backupVerify.code.BACKUP_OFFLINE_COPY": "the offline copy is not declared with its custodians and its runbook section: {detail}",
+  "backupVerify.code.BACKUP_DRILL_LEDGER": "the restore drill ledger is malformed: {detail}",
+  "backupVerify.code.BACKUP_DRILL_OVERDUE": "the restore drill is overdue or failed: {detail}",
+  "infra.MALWARE_SCAN": "the malware scan is not wired as required (clamav service on the app network, the API and workers told to use it): {detail}",
+  "infra.EGRESS_RULES": "the egress firewall script does not end in a drop of everything not allowlisted: {detail}",
+  "infra.RANSOMWARE_CATALOGUE": "the ransomware scenario catalogue is incomplete or cites evidence that does not exist: {detail}",
+  "infra.REALM_IMPORT": "the Keycloak realm file breaks an import rule: {detail}"
 }

@@ -8,12 +8,14 @@ import { editionAccess, editionRoutes, installEdition, resetEdition } from './ed
 import { enterpriseBundle } from './enterprise';
 
 // This test names the enterprise folder, so it carries `.enterprise.` in its name: the edition check lets only such tests, the loader and the folder itself do so.
-const IDS = ['EBS-01', 'EBS-02', 'HPM-01', 'HPM-02', 'ORG-01'];
+const IDS = ['EBS-01', 'EBS-02', 'HPM-01', 'HPM-02', 'ORG-01', 'RML-01'];
+const IDS = ['EBS-01', 'EBS-02', 'EQP-01', 'EQP-02', 'HPM-01', 'HPM-02'];
 
 afterEach(() => resetEdition());
 
 describe('the screens the enterprise edition brings with it (ENT-2)', () => {
   it('are exactly the five screens of the modules that exist in the enterprise edition only', () => {
+  it('are exactly the screens of the modules that exist in the enterprise edition only', () => {
     expect(Object.keys(enterpriseBundle.screens ?? {}).sort()).toEqual(IDS);
     expect(WEB_ROUTES.filter((route) => ENTERPRISE_ONLY_MODULES.includes(route.module)).map((route) => route.id).sort()).toEqual(IDS);
   });

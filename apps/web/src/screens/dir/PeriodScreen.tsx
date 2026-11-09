@@ -5,8 +5,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, KpiStrip, StatusPill } from '../../ui';
-import type { DataTableColumn } from '../../ui';
+import { ContextBar, DataTable, FilterPanel, KpiStrip, PresentButton, PresentationMode, StatusPill } from '../../ui';
+import type { DataTableColumn, PresentationBoard } from '../../ui';
 import { Field, FormulaTile, Notice, Select, StatusChip } from './components';
 import { useProjectOptions, useReport, useUnitOptions } from './hooks';
 import { statusLabel } from './labels';
@@ -14,6 +14,8 @@ import { BOARD_PATH, STATUSES, asOfText, dayText, defaultPeriod, directivePath, 
 import type { Policy, ReportItem } from './model';
 
 const NEVER_EMPTY = (): boolean => false;
+/** How many late directives one board of the presentation lists. */
+const PRESENT_ROWS = 8;
 /** Not a policy of the period: the numbers of a period are counted by their own rule, which the server states with each figure; this only fills the "i" (the version is the one of the clock). */
 const NO_POLICY: Policy = { code: 'DEFAULT', version: null, source: 'DEFAULT', unverified: false, reminderDaysBefore: [], escalateAfterOverdueDays: 0, maxExtensions: 0, maxExtensionDays: 0, closeRequiresEvidence: true };
 
@@ -61,6 +63,37 @@ function PeriodContent({ route }: ScreenProps) {
     { key: 'note', header: t('dir.period.note.header'), render: (row) => (row.lastNote === null ? '' : `${row.lastNote}${row.lastNoteOn === null ? '' : ` (${dayText(row.lastNoteOn)})`}`) },
   ];
 
+  const [presenting, setPresenting] = useState(false);
+  const overdueRows = data === undefined ? [] : data.items.filter((row) => row.statusAtEnd === 'OVERDUE');
+  // The boards of the presentation at a meeting: the counts of the period first, then the directives that are late, the filters and links of the page left behind.
+  const boards: PresentationBoard[] =
+    data === undefined
+      ? []
+      : [
+          {
+            id: 'counts',
+            title: t('dir.present.counts.title'),
+            content: (
+              <>
+                <KpiStrip label={t('dir.period.tiles.label')}>
+                  {tile(t('dir.period.tile.total.label'), counts?.total, 'by_status')}
+                  {tile(t('dir.period.tile.raised.label'), counts?.raised, 'raised')}
+                  {tile(t('dir.period.tile.closed.label'), counts?.closed, 'closed', 'success')}
+                  {tile(t('dir.period.tile.extended.label'), counts?.extended, 'extended')}
+                  {tile(t('dir.period.tile.open.label'), counts?.openAtEnd, 'open_at_end', 'warning')}
+                  {tile(t('dir.period.tile.overdue.label'), counts?.overdueAtEnd, 'overdue_at_end', 'danger')}
+                </KpiStrip>
+                <p className="muted">{STATUSES.map((status) => `${statusLabel(t, status)}: ${counts?.byStatus[status] ?? 0}`).join(' · ')}</p>
+              </>
+            ),
+          },
+          {
+            id: 'overdue',
+            title: t('dir.present.overdue.title'),
+            content: <DataTable caption={t('dir.present.overdue.caption')} columns={columns.filter((column) => ['code', 'text', 'about', 'unit', 'due'].includes(column.key))} rows={overdueRows.slice(0, PRESENT_ROWS)} rowKey={(row) => row.id} state={overdueRows.length === 0 ? 'empty' : 'ready'} severity={() => 'ACTION'} />,
+          },
+        ];
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -69,10 +102,12 @@ function PeriodContent({ route }: ScreenProps) {
           <p>{t('dir.period.page.subtitle')}</p>
         </div>
         <div className="dir-actions">
+          <PresentButton onOpen={() => setPresenting(true)} disabled={data === undefined} testId="dir-presentation-mode" clipRef="dir.dashboard.presentation-mode" />
           <Link className="ui-button ui-button--outline" to={BOARD_PATH}>
             {t('dir.period.board.action')}
           </Link>
         </div>
+        {presenting && data !== undefined ? <PresentationMode title={t('dir.present.title.text')} boards={boards} onExit={() => setPresenting(false)} /> : null}
       </div>
       <ContextBar items={[{ label: t('dir.ctx.scope.label'), value: tenant?.name ?? t('dir.ctx.scope.all') }, { label: t('dir.period.ctx.period'), value: `${dayText(period.from)} – ${dayText(period.to)}` }]} {...(data === undefined || data.asOf === '' ? {} : { asOf: asOfText(data.asOf) })} stale={stale} />
       <FilterPanel>

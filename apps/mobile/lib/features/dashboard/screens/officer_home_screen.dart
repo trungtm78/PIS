@@ -15,6 +15,7 @@ import '../alert_badge.dart';
 import '../alerts.dart';
 import '../my_work.dart';
 import '../widgets/alert_list.dart';
+import '../widgets/edition_cards.dart';
 
 /// The page size of the work list; the screen follows the pages to the end (or to the limit of pages).
 const int workPageSize = 50;
@@ -107,6 +108,7 @@ class _WorkBody extends StatelessWidget {
           stale: loaded.fromCache && loaded.stale,
           fetchedAt: loaded.fetchedAt,
         ),
+        const EditionHomeCards(),
         if (work.total > 0) SectionCard(
           title: context.t('mob.home.work.summary', <String, Object>{'total': work.total, 'overdue': work.overdue}),
           children: <Widget>[

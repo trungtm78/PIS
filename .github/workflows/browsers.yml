@@ -1,7 +1,8 @@
 name: Browsers
 
 # The cross-browser leg of the browser checks: the smoke subset of the web flows (the real sign-in with its redirects, a list
-# and form screen of the administration, a project screen, the accessibility check) on Firefox and WebKit. Chromium is the
+# and form screen of the administration, a project screen, the accessibility check) on Firefox, WebKit and Microsoft Edge (YCK.01
+# names it; the msedge channel of Playwright, installed with `playwright install msedge`). Chromium is the
 # engine of browser.yml, which runs the whole suite (the route walk and the pixel baselines are for that engine only).
 # apps/web/e2e/support/browsers.ts says which specs run where; docs/runbooks/browser-differences.md lists what is known to
 # differ between the engines. One engine for each runner, because the flows write to the database of the API stack they start.
@@ -27,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        engine: [firefox, webkit]
+        engine: [firefox, webkit, edge]
     env:
       E2E_BROWSERS: ${{ matrix.engine }}
     steps:
@@ -42,7 +43,7 @@ jobs:
         run: npm ci
 
       - name: Install the browser and its system libraries
-        run: npx playwright install --with-deps ${{ matrix.engine }}
+        run: npx playwright install --with-deps ${{ matrix.engine == 'edge' && 'msedge' || matrix.engine }}
 
       - name: Smoke flows
         run: npm run e2e:smoke -w @machvon/web

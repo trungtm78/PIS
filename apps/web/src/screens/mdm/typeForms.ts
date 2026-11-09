@@ -82,6 +82,18 @@ export const TYPE_FORMS: Readonly<Record<string, readonly AttributeSpec[]>> = {
   ISSUE_CATEGORY: [
     { name: 'handler_unit_key', kind: 'text' },
     { name: 'sla_priority_key', kind: 'ref', refType: 'PRIORITY' },
+    { name: 'delay_cause', kind: 'boolean' },
+    { name: 'cause_group', kind: 'choice', family: 'causeGroup', choices: ['SITE_CLEARANCE', 'CAPITAL', 'PROCEDURE', 'CONTRACTOR', 'DESIGN', 'WEATHER', 'SUPPLY', 'OTHER'] },
+  ],
+  FX_RATE: [
+    { name: 'base_currency', kind: 'text' },
+    { name: 'quote_currency', kind: 'text' },
+    { name: 'rate', kind: 'text' },
+    { name: 'rate_kind', kind: 'choice', family: 'fxRateKind', choices: ['OFFICIAL_AVERAGE', 'BUY', 'SELL', 'TRANSFER', 'CLOSING'] },
+    { name: 'period_kind', kind: 'choice', family: 'fxPeriodKind', choices: ['DAY', 'MONTH', 'QUARTER', 'YEAR'] },
+    { name: 'source', kind: 'choice', family: 'fxSource', choices: ['SBV', 'COMMERCIAL_BANK', 'PVN_GROUP', 'OTHER'] },
+    { name: 'source_ref', kind: 'text' },
+    { name: 'approval_ref', kind: 'text' },
   ],
   CONTRACTOR_CRITERION: [
     { name: 'category', kind: 'choice', family: 'criterionCategory', choices: ['QUALITY', 'SCHEDULE', 'SAFETY', 'COST', 'COMPLIANCE'] },

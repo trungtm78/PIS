@@ -177,6 +177,7 @@ export class DisSnapshotStore {
     const rows = await tx.query<SnapshotSql>(
       `select ${COLUMNS} from machvon.period_snapshot s
         where ($1::uuid is null or s.period_id = $1::uuid) and ($2::text is null or s.snapshot_kind = $2) and ($3::text is null or s.status = $3)
+          and s.snapshot_kind <> 'ENTERPRISE_CLOSE'
         order by s.created_at desc, s.id desc limit $4`,
       [filter.periodId ?? null, filter.kind ?? null, filter.status ?? null, limit],
     );
@@ -329,6 +330,8 @@ export class DisSnapshotStore {
     const current = await this.find(tx, id, true);
     if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (current.version !== expectedVersion) throw versionConflict(current.version);
+    // An enterprise period snapshot (ENT-3a) is hashed with schema 2 and frozen by its own command: this one hashes public lines.
+    if ((current.snapshotKind as string) === 'ENTERPRISE_CLOSE') throw new DomainError('SNAPSHOT_NOT_BUILT', 409, 'snapshot_kind');
     if (current.status === 'FROZEN' || current.status === 'SUPERSEDED') throw new DomainError('SNAPSHOT_FROZEN', 409, 'status', { extensions: { snapshot_status: current.status, payload_sha256: current.payloadSha256 } });
     if (current.status !== 'BUILDING') throw new DomainError('SNAPSHOT_NOT_BUILT', 409, 'status', { extensions: { snapshot_status: current.status } });
     const lines = await tx.query<LineSql>(`select ${LINE_COLUMNS} from machvon.period_snapshot_line l join machvon.project p on p.tenant_id = l.tenant_id and p.id = l.project_id where l.snapshot_id = $1::uuid`, [id]);

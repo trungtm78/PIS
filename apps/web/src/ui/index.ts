@@ -48,3 +48,5 @@ export { Stepper } from './Stepper';
 export type { StepperProps, StepperStatus, StepperStep } from './Stepper';
 export { DayStrip } from './DayStrip';
 export type { DayStripBar, DayStripProps } from './DayStrip';
+export { PresentationMode, PresentButton, PRESENTATION_INTERVALS, PRESENTATION_SIZES } from './PresentationMode';
+export type { PresentationBoard, PresentationModeProps } from './PresentationMode';

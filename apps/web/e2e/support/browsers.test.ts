@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { BASELINE_ONLY, BrowserSelectionError, CROSS_BROWSER_SMOKE, ENGINES, browserProjects, engineIgnore, selectedEngines } from './browsers.ts';
+import { BASELINE_ONLY, BROWSERS, BrowserSelectionError, CROSS_BROWSER_SMOKE, EDGE_CHANNEL, ENGINES, browserProjects, engineIgnore, selectedEngines } from './browsers.ts';
 
 const E2E_DIR = join(import.meta.dirname, '..');
 const WEB_DIR = join(E2E_DIR, '..');
@@ -21,7 +21,7 @@ test('the engines asked for are read in a stable order, once each, without regar
 });
 
 test('an engine that does not exist is an error and is named', () => {
-  assert.throws(() => selectedEngines({ E2E_BROWSERS: 'chromium,edge,opera' }), (error: unknown) => error instanceof BrowserSelectionError && /edge, opera/.test(error.message));
+  assert.throws(() => selectedEngines({ E2E_BROWSERS: 'chromium,safari,opera' }), (error: unknown) => error instanceof BrowserSelectionError && /safari, opera/.test(error.message));
 });
 
 test('chromium keeps the whole suite and the channel of the default run; the other engines run the smoke subset only', () => {
@@ -49,8 +49,29 @@ test('every smoke spec and every baseline-only spec exists, and no spec is in bo
   assert.ok(CROSS_BROWSER_SMOKE.length >= 3);
 });
 
-test('the engines are the three Playwright engines', () => {
+test('the engines are the three Playwright engines, and Edge is a fourth browser that is Chromium with the msedge channel', () => {
   assert.deepEqual([...ENGINES], ['chromium', 'firefox', 'webkit']);
+  assert.deepEqual([...BROWSERS], ['chromium', 'firefox', 'webkit', 'edge']);
+});
+
+test('edge runs the smoke subset on the msedge channel whatever channel the default run has, and the whole suite minus the baseline specs in full scope', () => {
+  assert.deepEqual(selectedEngines({ E2E_BROWSERS: 'edge,chromium' }), ['chromium', 'edge']);
+  const [edge] = browserProjects({ E2E_BROWSERS: 'edge' }, 'chrome');
+  assert.deepEqual(edge, { name: 'edge', testMatch: CROSS_BROWSER_SMOKE.map((name) => `**/${name}`), testIgnore: BASELINE_ONLY.map((name) => `**/${name}`), use: { browserName: 'chromium', channel: EDGE_CHANNEL } });
+  assert.equal(EDGE_CHANNEL, 'msedge');
+  const [full] = browserProjects({ E2E_BROWSERS: 'edge', E2E_BROWSER_SCOPE: 'full' }, undefined);
+  assert.equal(full?.testMatch, '**/*.spec.ts');
+  assert.deepEqual(full?.testIgnore, engineIgnore('edge'));
+});
+
+test('the browsers workflow has an Edge leg that installs msedge, and its YAML parses', async () => {
+  const { load } = await import('js-yaml');
+  const text = readFileSync(join(WEB_DIR, '..', '..', '.github', 'workflows', 'browsers.yml'), 'utf8');
+  const workflow = load(text) as { jobs: { smoke: { strategy: { matrix: { engine: string[] } }; steps: Array<{ name?: string; run?: string }> } } };
+  assert.ok(workflow.jobs.smoke.strategy.matrix.engine.includes('edge'));
+  assert.deepEqual(workflow.jobs.smoke.strategy.matrix.engine.filter((name) => !(BROWSERS as readonly string[]).includes(name)), []);
+  const install = workflow.jobs.smoke.steps.find((step) => step.run?.includes('playwright install'));
+  assert.ok(install?.run?.includes("'msedge'"), 'the edge leg installs the msedge channel, not a browser called edge');
 });
 
 test('the shared configuration uses the helper and keeps the channel for the default run only; the recording of the guide stays on its own projects', () => {

@@ -40,6 +40,11 @@ export interface ReportFormBundle {
   templates(): Promise<ReportTemplateBytes>;
   /** For an ILLUSTRATIVE form: the invented data of one period. */
   illustrative?: ((period: FormPeriod) => ReportFillData) | undefined;
+  /**
+   * For an ILLUSTRATIVE form only (ENT-3a): the id of a provider whose figures come from a frozen snapshot of the period. When the provider finds one, the copy is filled from it (its data source is then LIVE and it
+   * names the snapshot and its revision) and the form is still a DEMO form with its stamp; when it finds none, the invented data is used exactly as before.
+   */
+  snapshotProvider?: string | null | undefined;
 }
 
 const SHA256 = /^[0-9a-f]{64}$/;

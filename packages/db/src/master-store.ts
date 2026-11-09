@@ -123,6 +123,7 @@ export const BASELINE_POLICIES: Readonly<Record<string, { scope: TypeScope; reti
   CALENDAR: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: false },
   UNIT: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: true },
   CURRENCY: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },
+  FX_RATE: { scope: 'TENANT_ONLY', retireRequiresSuccessor: false },
   DOCUMENT_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
   CONTRACT_TYPE: { scope: 'PLATFORM_WITH_TENANT_EXTENSION', retireRequiresSuccessor: false },
   PAYMENT_TYPE: { scope: 'PLATFORM_ONLY', retireRequiresSuccessor: true },

@@ -3,6 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import { harness, mount, routeOf } from '../mne/test-support';
 import BoardScreen from './BoardScreen';
 import { useRunQuery } from './hooks';
@@ -401,6 +402,19 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     const tile = await findFigure(DISBURSED.id);
     expect(tile.textContent).toBe(vi_['bi.query.noData']);
     await waitFor(() => expect(document.querySelector(`[data-metric-id="${RATE.id}"] [data-reason="policy"]`)?.textContent).toBe(vi_['bi.query.refused.policy']));
+  });
+
+  it('ENT-4d: presents the certified tiles a page at a time over the board, with the filter and the links left behind', async () => {
+    const user = userEvent.setup();
+    mount(<BoardScreen route={BOARD} />, client(normal(), () => answer()), { permissions: QUERIER });
+    await findFigure(RATE.id);
+    await user.click(screen.getByTestId('present-open'));
+    const presentation = await screen.findByRole('dialog', { name: translator.t('bi.present.title.text', { period: '2026-10' }) });
+    expect(within(presentation).getByRole('heading', { level: 2, name: translator.t('bi.present.page.text', { from: 1, to: 2 }) })).toBeTruthy();
+    expect(presentation.querySelector(`[data-metric-id="${RATE.id}"]`)).not.toBeNull();
+    expect(within(presentation).queryByLabelText(vi_['bi.board.period'])).toBeNull();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('draws the tiles of the period chosen, and says when no period is frozen', async () => {

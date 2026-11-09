@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 579,
-    "webCatalog": 579,
-    "webModules": 35,
+    "webRoutes": 584,
+    "webCatalog": 584,
+    "webModules": 36,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
-    "modulesTotal": 36
+    "modulesTotal": 37
   },
   "libraryGroups": [
     {
@@ -87,6 +87,34 @@
         "LLM",
         "SAS",
         "INT"
+      ]
+    },
+    {
+      "id": "insights",
+      "name": "Phân tích",
+      "icon": "insights",
+      "modules": [
+        "BID",
+        "BI",
+        "MNE",
+        "AUD",
+        "RPT",
+        "VND",
+        "EQP"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Dữ liệu",
+      "icon": "data",
+      "modules": [
+        "MDM",
+        "DGV",
+        "HUB",
+        "IND",
+        "HPM",
+        "EBS",
+        "FEED"
       ]
     }
   ],
@@ -1274,7 +1302,9 @@
             25,
             26,
             27,
-            28
+            28,
+            29,
+            30
           ],
           "primary": [
             19,
@@ -1283,7 +1313,9 @@
             25,
             26,
             27,
-            28
+            28,
+            29,
+            30
           ],
           "parents": {
             "20": 19,
@@ -2447,6 +2479,25 @@
         }
       ]
     },
+    "EQP": {
+      "name": "Mua sắm trang thiết bị",
+      "groups": [
+        {
+          "title": "Mua sắm trang thiết bị",
+          "description": "Kế hoạch, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân của từng dòng",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1
+          }
+        }
+      ]
+    },
     "PWA": {
       "name": "Ứng dụng cài đặt cho lãnh đạo",
       "groups": [
@@ -3014,6 +3065,7 @@
     "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch.",
     "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu.",
     "ORG": "Xem tổ chức và vai trò của bản enterprise: đơn vị đầu mối, vai trò theo phạm vi, chỗ ngồi và nhóm thư mục, quy trình duyệt, kế hoạch nạp và báo cáo kiểm chứng.",
+    "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân.",
     "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy."
   },
   "adminLibraryModules": [
@@ -3216,7 +3268,9 @@
         "AUD-19",
         "DOC-28",
         "DOC-29",
-        "QMS-12"
+        "QMS-12",
+        "ADM-29",
+        "DIS-32"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -6116,6 +6170,16 @@
       "parent": null
     },
     {
+      "id": "ADM-29",
+      "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
       "id": "SAS-01",
       "title": "Danh sách tenant",
       "kind": "list",
@@ -8336,6 +8400,16 @@
       "parent": "HPM-01"
     },
     {
+      "id": "RML-01",
+      "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+      "kind": "table",
+      "area": "data",
+      "module": "RML",
+      "group": "Gửi biểu mẫu qua email",
+      "role": "workspace",
+      "parent": null
+    },
+    {
       "id": "EBS-01",
       "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",
       "kind": "import",
@@ -8428,6 +8502,16 @@
     {
       "id": "DIS-31",
       "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-32",
+      "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
       "kind": "table",
       "area": "investment",
       "module": "DIS",
@@ -8984,6 +9068,56 @@
       "group": "Nhà thầu & lựa chọn",
       "role": "detail",
       "parent": "BID-20"
+    },
+    {
+      "id": "ADM-29",
+      "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+      "kind": "form",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-30",
+      "title": "Giới hạn số lượng và dung lượng log",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "EQP-01",
+      "title": "Mua sắm trang thiết bị dự án",
+      "kind": "table",
+      "area": "insights",
+      "module": "EQP",
+      "group": "Mua sắm trang thiết bị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "EQP-02",
+      "title": "Chi tiết dòng mua sắm trang thiết bị",
+      "kind": "detail",
+      "area": "insights",
+      "module": "EQP",
+      "group": "Mua sắm trang thiết bị",
+      "role": "detail",
+      "parent": "EQP-01"
+    },
+    {
+      "id": "ADM-29",
+      "title": "Sao lưu và yêu cầu sao lưu thủ công",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
     },
     {
       "id": "PWA-01",
@@ -9604,6 +9738,27 @@
       "kind": "detail",
       "bottomNavigation": "projects",
       "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-75",
+      "title": "Ủy quyền và vắng mặt trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-76",
+      "title": "Sổ chỉ tiêu trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-77",
+      "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "QMS-09",

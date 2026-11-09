@@ -16,6 +16,7 @@ import { ReportSubmitController } from './report-submit.controller';
 import { ReportWorkflowReadsController } from './report-workflow.controller';
 import { ReportController, ReportReadsController } from './report.controller';
 import { ReportingPeriodController, ReportingPeriodReadsController } from './reporting-period.controller';
+import { ReportingCalendarController } from './reporting-calendar.controller';
 import { SubmissionProgressController } from './submission-progress.controller';
 import { WeeklyPlanController } from './weekly-plan.controller';
 
@@ -24,5 +25,5 @@ export const disModule = defineModule({
   code: 'DIS',
   providers: [DisReportApprovalBinding],
   // The read of the approval steps comes first: tests of this module count its controllers from the end of the list.
-  controllers: [ReportWorkflowReadsController, MilestoneForecastController, ReportingPeriodController, ReportingPeriodReadsController, PeriodReopenController, ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, PeriodSnapshotController, DisbursementRatesController, EarlyWarningController, WeeklyPlanController, SubmissionProgressController, ReportExportController, DisbursementForecastController, CrossTotalController],
+  controllers: [ReportWorkflowReadsController, MilestoneForecastController, ReportingPeriodController, ReportingPeriodReadsController, PeriodReopenController, ReportController, ReportReadsController, ReportFileController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, PeriodSnapshotController, DisbursementRatesController, EarlyWarningController, WeeklyPlanController, SubmissionProgressController, ReportingCalendarController, ReportExportController, DisbursementForecastController, CrossTotalController],
 });

@@ -66,6 +66,12 @@ export {
 } from './retention-job.ts';
 export type { PayloadRemover, RetentionJobOptions, RetentionRunResult } from './retention-job.ts';
 export { BUSINESS_SOURCES } from './retention-sources.ts';
+export { LOG_ARCHIVED_METRIC, LOG_CAPACITY_EXCEEDED_METRIC, LOG_CAPACITY_NEAR_METRIC, LogCapacityJob, LogCapacityRunFailed } from './log-capacity-job.ts';
+export type { LogArchiveSink, LogCapacityJobOptions, LogCapacityRunResult } from './log-capacity-job.ts';
+export { LogCapacityStore } from './log-capacity-store.ts';
+export type { ArchiveBatchRow, LogCapacityInput, LogCapacityPolicyRow, LogCapacityReadingRow } from './log-capacity-store.ts';
+export { AuditDetailPolicyStore, AuditDetailReads } from './audit-detail-store.ts';
+export type { AuditDetailPolicyChange, AuditDetailPolicyInput, AuditDetailPolicyRow, AuditDetailView } from './audit-detail-store.ts';
 export { RetentionReviewStore } from './retention-review-store.ts';
 export type { ReviewItemRow, ReviewPageAnchor } from './retention-review-store.ts';
 export { IntegrationConnectorStore } from './integration-connector-store.ts';
@@ -349,8 +355,8 @@ export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChan
 export { BASELINE_POLICIES, MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
 export { MASTER_MERGE_RESOURCE, MasterMergeStore, SURVIVORSHIP_RULE_RESOURCE } from './master-merge-store.ts';
 export type { MasterMerge, MasterMergeOutcome, Page as MasterPage, RepointedReference, SurvivorshipRule, MasterUnmergeOutcome } from './master-merge-store.ts';
-export { AdmMigrationStore, MIGRATION_BATCH_RESOURCE, MIGRATION_STATUSES } from './adm-migration-store.ts';
-export type { DryRunOutcome, MigrationBatch, MigrationErrorRow, MigrationPage, MigrationStatus } from './adm-migration-store.ts';
+export { AdmMigrationStore, MIGRATION_BATCH_RESOURCE, MIGRATION_STATUSES, registerMigrationVerifier } from './adm-migration-store.ts';
+export type { DryRunOutcome, MigrationBatch, MigrationErrorRow, MigrationPage, MigrationStatus, MigrationVerifier } from './adm-migration-store.ts';
 export type {
   ChangeKind,
   ChangeRequestDetail,
@@ -1421,6 +1427,8 @@ export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput,
 export { IamSelfStore } from './iam-self-store.ts';
 export type { DeviceRevocation, DeviceView, ProfileRecord, SessionRevocation, SessionView } from './iam-self-store.ts';
 export { ApprovalStore, SLA_PASS_LIMIT as APPROVAL_SLA_PASS_LIMIT } from './approval-store.ts';
+export { ApprovalHoldStore } from './approval-hold-store.ts';
+export type { HoldInput, HoldRecord } from './approval-hold-store.ts';
 export {
   REORGANIZATION_FAILED_GAUGE,
   REORGANIZATION_STEPS_PER_PASS,
@@ -1444,6 +1452,8 @@ export type {
   ApprovalEffects,
   DecisionResult,
   FinalCommand,
+  HoldAnswer,
+  HoldHook,
   SlaSweepResult as ApprovalSlaSweepResult,
   InstanceRecord as WorkflowInstanceRecord,
   StartInput as ApprovalStartInput,
@@ -1677,6 +1687,8 @@ export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from '.
 export { ReportStore, copyRefOf } from './report-store.ts';
 export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
+export { ENTRY_BATCH_STATUSES, IND_ENTRY_BATCH_RESOURCE, IndEntryBatchStore } from './ind-entry-batch-store.ts';
+export type { EntryBatchFigure, EntryBatchFilter, EntryBatchRow, EntryBatchStatus } from './ind-entry-batch-store.ts';
 export { IND_FIGURE_RESOURCE, figureSetLockKey, IndDictionaryStore, IndEntryRuleStore, IndImportReads, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
 export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter as IndFigureFilter, FigureOutcome, FigureRow as IndFigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
@@ -1890,6 +1902,25 @@ export type { AccountCreator, PortalInvitationRow } from './vnd-portal-invitatio
 export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
+<<<<<<< HEAD
+<<<<<<< HEAD
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
-export { registerMigrationVerifier } from './adm-migration-store.ts';
-export type { MigrationVerifier } from './adm-migration-store.ts';
+// ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
+export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
+export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';
+<<<<<<< HEAD
+<<<<<<< HEAD
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { CALENDAR_REMINDER_METRIC, MAX_REMINDERS_PER_PASS, REMINDER_HORIZON_DAYS, runCalendarReminders } from './reporting-calendar-reminders.ts';
+export type { CalendarReminderResult } from './reporting-calendar-reminders.ts';
+export { ReportingCalendarStore, WHOLE_TENANT, figureKeyOf, seriesKeyOf } from './reporting-calendar-store.ts';
+export type { CalendarMeetingRow, CalendarPeriodRow, ScheduleReminderRecord, UnitFactsRow } from './reporting-calendar-store.ts';
+export { ReportingScheduleReader } from './reporting-schedule-reader.ts';
+export type { ScheduleReading } from './reporting-schedule-reader.ts';
+>>>>>>> lane/ent4c
+>>>>>>> lane/ent4d
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { EquipmentProcurementStore } from './equipment-procurement-store.ts';
+export type { EquipmentCreateInput, EquipmentLine, EquipmentListFilter, EquipmentPatch } from './equipment-procurement-store.ts';
+>>>>>>> lane/ent4e
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { BackupRequestStore } from './backup-request-store.ts';
+export type { BackupDecision, BackupRequestRow } from './backup-request-store.ts';
+>>>>>>> lane/infra2

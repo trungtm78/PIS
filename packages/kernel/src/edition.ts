@@ -147,10 +147,11 @@ export function defineEditionManifest(manifest: EditionManifest): EditionManifes
 /** The public edition: everything the product has today, under the name it has today. */
 
 /**
- * The business modules whose pages are part of the shared design (the screen catalogue and the route table list them) but whose code exists in the enterprise edition only (ENT-2: the connections to HPM and to Oracle EBS).
+ * The business modules whose pages are part of the shared design (the screen catalogue and the route table list them) but whose code exists in the enterprise edition only (ENT-2: the connections to HPM and to Oracle EBS; ENT-4e: the equipment procurement view EQP).
  * The public manifest denies them by code, so a public process mounts none of their controllers and the public web build opens none of their routes; their code lives in the enterprise homes (`npm run edition:check`).
  */
-export const ENTERPRISE_ONLY_MODULES: readonly string[] = ['EBS', 'HPM', 'ORG'];
+export const ENTERPRISE_ONLY_MODULES: readonly string[] = ['EBS', 'HPM', 'ORG', 'LDR', 'RML'];
+export const ENTERPRISE_ONLY_MODULES: readonly string[] = ['EBS', 'EQP', 'HPM'];
 
 /** The public edition: everything the product has today, under the name it has today, but for the modules of the enterprise edition only. */
 export const PUBLIC_EDITION_MANIFEST: EditionManifest = defineEditionManifest({

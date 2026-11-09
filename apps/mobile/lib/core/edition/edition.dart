@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 import '../l10n/string_table.dart';
 import 'edition_strings.dart';
 
@@ -27,6 +29,8 @@ final class EditionProfile {
     required this.edition,
     required this.appTitle,
     this.overlay,
+    this.homeCards = const <WidgetBuilder>[],
+    this.homeStrings,
   });
 
   final Edition edition;
@@ -35,6 +39,12 @@ final class EditionProfile {
   final String appTitle;
 
   final StringTable? overlay;
+
+  /// Cards the edition adds to the home screens (read only), in order. The public edition has none.
+  final List<WidgetBuilder> homeCards;
+
+  /// The words of [homeCards]: new keys of the edition, in both languages (the overlay above only replaces base keys).
+  final StringTable? homeStrings;
 }
 
 /// The public edition: the name the application has always had, and no overlay.

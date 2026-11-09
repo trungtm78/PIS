@@ -109,7 +109,8 @@ function percent4(numerator: bigint, denominator: bigint): string | null {
   return `${digits.slice(0, -4)}.${digits.slice(-4)}`;
 }
 
-const DEFINITIONS: Readonly<{ [code: string]: ReportIndicatorDefinition }> = Object.freeze(
+/** The definitions of the indicators of the pack, written on every fill data (illustrative or from a snapshot). */
+export const ENTERPRISE_DEFINITIONS: Readonly<{ [code: string]: ReportIndicatorDefinition }> = Object.freeze(
   Object.fromEntries(
     ENTERPRISE_KPI_SEEDS.map((seed) => [
       seed.code,
@@ -193,7 +194,7 @@ export function illustrativeFillData(form: DemoFormSpec, period: FormPeriod): Re
       SIGN_CHECKER: TEXTS.meta.SIGN_CHECKER,
       SIGN_APPROVER: TEXTS.meta.SIGN_APPROVER,
     },
-    definitions: DEFINITIONS,
+    definitions: ENTERPRISE_DEFINITIONS,
     figures: illustrativeFigures(reported, day),
     datasets,
   };

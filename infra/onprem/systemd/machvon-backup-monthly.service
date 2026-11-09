@@ -1,0 +1,13 @@
+[Unit]
+Description=MACHVON monthly full backup (archive repository, repo2)
+Requires=docker.service
+After=docker.service
+# The month has one run: when another backup holds the stanza lock the run fails and systemd tries again after the delay (Persistent=true in the timer covers a host that was off).
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker compose --env-file /etc/machvon/compose.env -f /opt/machvon/current/infra/onprem/compose/compose.yaml --profile tools run --rm backup backup --type=full --repo=2
+Restart=on-failure
+RestartSec=30min
+TimeoutStartSec=8h
+Nice=10

@@ -15,6 +15,7 @@ import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_S
 import { MILESTONE_KINDS } from './procurement-file.ts';
 import { FEED_TEXT } from './messages/finance-feed-texts.ts';
 import { APPROVAL_WORKFLOW_RULE_TYPE, REPORT_STEP_ASSIGNEE_TYPES, REPORT_STEP_KINDS, REPORT_WORKFLOW_RULE_CODE, WORKFLOW_MODES, defaultReportWorkflowParams, reportWorkflowDefect } from './dis-report-workflow.ts';
+import { FND_FIGURE_RULE_CODE, IND_ENTRY_RULE_CODE } from './staged-approval.ts';
 import { DATA_ENTRY_EXTRA_DEFAULTS, DATA_ENTRY_RULE_FIELDS, INDICATOR_IMPORT_FIELDS, INDICATOR_IMPORT_RULE_TYPE, INDICATOR_KPI_FIELDS, INDICATOR_SEEDS, indicatorSeedParams, refineDataEntryRule, refineImportMapping, sampleMappingParams } from './ind-definitions.ts';
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
 import type { MoneyRuleType } from './money-control-policy.ts';
@@ -52,6 +53,8 @@ import { TEXT as MR1_TEXT } from './messages/mr1-texts.ts';
 import { RISK_INDICATORS, RISK_SIGNAL_DEFAULTS, RISK_SIGNAL_KINDS, RISK_SIGNAL_RULE_CODE, RISK_SIGNAL_RULE_TYPE, parseRiskSignalPolicy, riskSignalParams } from './risk-signals.ts';
 import { CALENDAR_DEFAULTS, EFFECT_ANCHORS, EFFECT_CALENDAR_RULE_TYPE, EFFECT_EVALUATION_KINDS, EFFECT_POLICY_DEFAULTS, EFFECT_POLICY_RULE_CODE, EFFECT_POLICY_RULE_TYPE, EFFECT_PROJECT_GROUPS, calendarRuleCode, calendarRuleParams, effectPolicyParams, parseCalendarRule, parseEffectPolicy } from './effect-target.ts';
 import { gov12RuleTypes } from './gov12-rule-types.ts';
+import { ENT4C_ALERT_SEEDS, ent4cScheduleType } from './ent4c-rule-types.ts';
+import { ENT4C_TEXT } from './messages/ent4c-texts.ts';
 import { VND3_TEXT } from './messages/vnd3-texts.ts';
 import { INVESTIGATION_POLICY_DEFAULTS, investigationPolicyOf } from './vnd-investigation.ts';
 import { LINK_KINDS, LINK_PARAM_DEFAULTS, linkPolicyOf } from './vnd-link-graph.ts';
@@ -1431,7 +1434,7 @@ export const registerApprovalWorkflowRules = (): void =>
     registerRuleType({
       type: APPROVAL_WORKFLOW_RULE_TYPE,
       ownerModule: 'ADM',
-      modules: ['ADM', 'DIS'],
+      modules: ['ADM', 'DIS', 'FND', 'IND'],
       formula: message('gov.rules.register_approval_workflow_rules.formula'),
       source: message('gov.rules.register_approval_workflow_rules.source'),
       asOf: AS_OF,
@@ -1457,7 +1460,11 @@ export const registerApprovalWorkflowRules = (): void =>
         ),
       },
       refine: reportWorkflowDefect,
-      defaults: { [REPORT_WORKFLOW_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.report_accept.formula') }) },
+      defaults: {
+        [REPORT_WORKFLOW_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.report_accept.formula') }),
+        [FND_FIGURE_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.fnd_figure_accept.formula') }),
+        [IND_ENTRY_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.ind_entry_accept.formula') }),
+      },
     });
   });
 
@@ -2514,6 +2521,14 @@ export const registerGov12Rules = (): void =>
     for (const type of gov12RuleTypes()) registerRuleType(type);
   });
 
+/** The reporting schedule with a deadline per step and the alert types of its reminders (QT.02, ENT-4c); the data is in ent4c-rule-types.ts. */
+export const registerEnt4cRules = (): void =>
+  once('ent4c', () => {
+    registerCoreRules();
+    registerRuleType(ent4cScheduleType());
+    registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(ENT4C_ALERT_SEEDS, { source: ENT4C_TEXT.alert_source }));
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -2548,6 +2563,7 @@ export function registerAllGovernanceRules(): void {
   registerFinanceFeedRules();
   registerRiskEffectRules();
   registerGov12Rules();
+  registerEnt4cRules();
 }
 
 registerAllGovernanceRules();

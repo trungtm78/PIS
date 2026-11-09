@@ -30,11 +30,12 @@ bool isPublicScreen(String screenId) => kPublicScreenIds.contains(screenId);
 /// The screens that show money or a decision: the approvals (MOB-23 to 26), the signing of a document (MOB-67, and DOC-22 which is the same
 /// signing view with the return of the document), the payments
 /// (MOB-27 and 60) and the amounts of the weekly report (MOB-14 to 17, the review MOB-20, its result MOB-21 and the estimate
-/// MOB-56). The window is protected against screenshots, screen recording and the thumbnail of the app switcher while one of them
+/// MOB-56), then the decision papers of an acceptance (MOB-65), the confidential committee workspace (MOB-72) and the grades of risk of
+/// the contractors (MOB-73 and MOB-74: a grade is a finding about a named company, not for a picture that leaves the phone). The window is protected against screenshots, screen recording and the thumbnail of the app switcher while one of them
 /// is shown (ST-MOB-041, SEC-04); the rest of the application is not, because a person legitimately needs a screenshot of a map,
 /// a photograph or a task.
 const Set<String> kSecureScreenIds = <String>{
-  'MOB-14', 'MOB-15', 'MOB-16', 'MOB-17', 'MOB-20', 'MOB-21', 'MOB-23', 'MOB-24', 'MOB-25', 'MOB-26', 'MOB-27', 'MOB-56', 'MOB-60', 'MOB-67', 'DOC-22',
+  'MOB-14', 'MOB-15', 'MOB-16', 'MOB-17', 'MOB-20', 'MOB-21', 'MOB-23', 'MOB-24', 'MOB-25', 'MOB-26', 'MOB-27', 'MOB-56', 'MOB-60', 'MOB-65', 'MOB-67', 'MOB-72', 'MOB-73', 'MOB-74', 'DOC-22',
 };
 
 /// The screens whose action a phone that looks modified may not take without the second factor, under a tenant that restricts such

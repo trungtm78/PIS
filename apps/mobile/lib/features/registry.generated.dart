@@ -17,6 +17,7 @@ import 'field_evidence/field_evidence_feature.dart' as f_field_evidence;
 import 'field_issues/field_issues_feature.dart' as f_field_issues;
 import 'field_quantities/field_quantities_feature.dart' as f_field_quantities;
 import 'foundation/foundation_feature.dart' as f_foundation;
+import 'governance_reads/governance_reads_feature.dart' as f_governance_reads;
 import 'notification_inbox/notification_inbox_feature.dart' as f_notification_inbox;
 import 'offline/offline_feature.dart' as f_offline;
 import 'payment_tracking/payment_tracking_feature.dart' as f_payment_tracking;
@@ -54,6 +55,7 @@ final List<MobileFeature> kAllFeatures = <MobileFeature>[
   f_field_issues.feature,
   f_field_quantities.feature,
   f_foundation.feature,
+  f_governance_reads.feature,
   f_notification_inbox.feature,
   f_offline.feature,
   f_payment_tracking.feature,

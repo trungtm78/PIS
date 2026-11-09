@@ -10203,6 +10203,60 @@
     ]
   },
   {
+    "requirement": "FR-MOB-75",
+    "screen": "MOB-75",
+    "title": "Ủy quyền và vắng mặt trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch MOBILE3, ADM-04, ADM-25, ADM-28; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-75",
+    "test_ids": [
+      "UI-MOB-75",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-76",
+    "screen": "MOB-76",
+    "title": "Sổ chỉ tiêu trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch MOBILE3, sổ chỉ tiêu G0-4; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-76",
+    "test_ids": [
+      "UI-MOB-76",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-77",
+    "screen": "MOB-77",
+    "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch MOBILE3, RPT-1; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-77",
+    "test_ids": [
+      "UI-MOB-77",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
     "requirement": "FR-DIR-01",
     "screen": "DIR-01",
     "title": "Các cuộc giao ban đầu tư",
@@ -11332,6 +11386,23 @@
       "UI-HPM-02",
       "UAT-PLAN-171",
       "UAT-PLAN-172"
+    ]
+  },
+  {
+    "requirement": "FR-RML-01",
+    "screen": "RML-01",
+    "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "HSKT BC.02, kế hoạch ENT-4d",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/RML.md §10–§11",
+    "backlog_id": "BL-RML-01",
+    "test_ids": [
+      "UI-RML-01"
     ]
   },
   {
@@ -12553,6 +12624,54 @@
       "UI-ORG-01",
       "UAT-PLAN-ORG-1",
       "UAT-PLAN-ORG-2"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 QT.02; docs/plans/ent4c.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-32",
+    "test_ids": [
+      "UI-DIS-32"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-29",
+    "screen": "ADM-29",
+    "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 QT.02; docs/plans/ent4c.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-29",
+    "test_ids": [
+      "UI-ADM-29"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-29",
+    "screen": "ADM-29",
+    "title": "Sao lưu và yêu cầu sao lưu thủ công",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "HSKT v0.3 YCK.06: sao lưu thủ công trên giao diện, giữ tối thiểu 03 bản, diễn tập khôi phục; kế hoạch INFRA-2",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ADM.md; 2 test",
+    "backlog_id": "BL-ADM-29",
+    "test_ids": [
+      "UI-ADM-29",
+      "UAT-INFRA2-01"
     ]
   },
   {

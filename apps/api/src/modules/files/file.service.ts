@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, MAX_PRESIGN_TTL_SECONDS, assertLinkable, objectKey, parseObjectKey, signUrl, validateUpload, verifyUrl } from '@machvon/kernel';
-import type { ObjectStoragePort, PresignedGrant, ScanPort, ScanStatus, StoredObject, TenantContext, UploadPurpose } from '@machvon/kernel';
+import { ScanUnavailableError } from './clamd-scan';
+import type { ObjectStoragePort, PresignedGrant, ScanPort, ScanStatus, ScanVerdict, StoredObject, TenantContext, UploadPurpose } from '@machvon/kernel';
 
 /** The internal caller of a redeemed presigned URL: the bearer of the link acts for the tenant that signed it, as no one in particular. */
 const LINK_MEMBERSHIP_ID = '00000000-0000-4000-8000-000000000000';
@@ -11,6 +12,16 @@ export interface FileServiceOptions {
   /** Signing key of presigned URLs, at least 16 bytes. */
   urlSecret: Uint8Array | string;
   now?: () => Date;
+  /** Told about every scan that ended INFECTED (quarantined) or could not be done (held): for the operator's log. */
+  onScanEvent?: (event: ScanEvent) => void;
+}
+
+export interface ScanEvent {
+  kind: 'QUARANTINED' | 'HELD';
+  tenantId: string;
+  key: string;
+  /** The reason the scan could not be done (HELD only). */
+  reason?: ScanUnavailableError['reason'];
 }
 
 export interface UploadInput {
@@ -37,12 +48,14 @@ export class FileService {
   private readonly scanner: ScanPort;
   private readonly urlSecret: Uint8Array | string;
   private readonly now: () => Date;
+  private readonly onScanEvent: (event: ScanEvent) => void;
 
   constructor(options: FileServiceOptions) {
     this.storage = options.storage;
     this.scanner = options.scanner;
     this.urlSecret = options.urlSecret;
     this.now = options.now ?? (() => new Date());
+    this.onScanEvent = options.onScanEvent ?? (() => undefined);
   }
 
   async upload(tenant: TenantContext, input: UploadInput): Promise<UploadResult> {
@@ -54,12 +67,23 @@ export class FileService {
     return { key, scanStatus: scanned.scanStatus };
   }
 
-  /** Scans a PENDING object and records the verdict; a file that was scanned already keeps its verdict. */
+  /**
+   * Scans a PENDING object and records the verdict; a file that was scanned already keeps its verdict. When the scanner cannot give a verdict (not configured, away, too slow, an error) the
+   * object stays PENDING, held: nothing can link or download it (409 SCAN_PENDING) until a later call of this method gets a verdict. An INFECTED verdict is final (quarantine).
+   */
   async scan(tenant: TenantContext, key: string): Promise<StoredObject> {
     const stored = await this.storage.get(tenant, key);
     if (stored === undefined) throw notFound();
     if (stored.object.scanStatus !== 'PENDING') return stored.object;
-    const verdict = await this.scanner.scan(stored.bytes);
+    let verdict: ScanVerdict;
+    try {
+      verdict = await this.scanner.scan(stored.bytes);
+    } catch (error) {
+      if (!(error instanceof ScanUnavailableError)) throw error;
+      this.onScanEvent({ kind: 'HELD', tenantId: tenant.tenantId, key, reason: error.reason });
+      return stored.object;
+    }
+    if (verdict === 'INFECTED') this.onScanEvent({ kind: 'QUARANTINED', tenantId: tenant.tenantId, key });
     // The verdict belongs to the bytes that were scanned: if the object was replaced meanwhile it stays PENDING for the next scan.
     return (await this.storage.setScanStatus(tenant, key, verdict, stored.object.sha256)) ?? stored.object;
   }

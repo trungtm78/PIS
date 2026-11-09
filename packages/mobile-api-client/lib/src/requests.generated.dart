@@ -1390,6 +1390,60 @@ final class AudVerification implements RequestModel {
       };
 }
 
+final class BackupRequestCreate implements RequestModel {
+  const BackupRequestCreate({
+    required this.kind,
+    required this.reason,
+    this.repository,
+  });
+
+  final String kind;
+  final int? repository;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        if (repository != null) 'repository': repository,
+        'reason': reason,
+      };
+}
+
+final class BackupRequestDecision implements RequestModel {
+  const BackupRequestDecision({
+    required this.decision,
+    this.reason,
+  });
+
+  final String decision;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class BackupRequestOutcome implements RequestModel {
+  const BackupRequestOutcome({
+    required this.outcome,
+    this.backupLabel,
+    this.note,
+  });
+
+  final String outcome;
+  final String? backupLabel;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        if (backupLabel != null) 'backup_label': backupLabel,
+        if (note != null) 'note': note,
+      };
+}
+
 final class BiAccessPolicyDraft implements RequestModel {
   const BiAccessPolicyDraft({
     required this.datasetId,
@@ -3236,6 +3290,31 @@ final class ConversationToIssue implements RequestModel {
         if (dueDate != null) 'due_date': dueDate,
         if (assigneeMembershipId != null) 'assignee_membership_id': assigneeMembershipId,
         'summary': summary,
+      };
+}
+
+final class CreateEquipmentLine implements RequestModel {
+  const CreateEquipmentLine({
+    required this.projectId,
+    required this.code,
+    required this.name,
+    required this.plannedValueVnd,
+    this.planRef,
+  });
+
+  final String projectId;
+  final String code;
+  final String name;
+  final String plannedValueVnd;
+  final String? planRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'code': code,
+        'name': name,
+        'planned_value_vnd': plannedValueVnd,
+        if (planRef != null) 'plan_ref': planRef,
       };
 }
 
@@ -7162,6 +7241,19 @@ final class EntConnectionState implements RequestModel {
       };
 }
 
+final class EnterpriseSnapshotBuild implements RequestModel {
+  const EnterpriseSnapshotBuild({
+    required this.periodId,
+  });
+
+  final String periodId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period_id': periodId,
+      };
+}
+
 final class EntitlementOverrideRequest implements RequestModel {
   const EntitlementOverrideRequest({
     required this.featureCode,
@@ -7733,23 +7825,32 @@ final class HpmCorrectionPropose implements RequestModel {
     required this.layoutCode,
     required this.period,
     required this.fromRevision,
-    required this.periodReopenId,
     required this.reason,
+    this.periodReopenId,
+    this.mode,
+    this.subjectCode,
+    this.amountVnd,
   });
 
   final String layoutCode;
   final String period;
   final int fromRevision;
-  final String periodReopenId;
+  final String? periodReopenId;
   final String reason;
+  final String? mode;
+  final String? subjectCode;
+  final String? amountVnd;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'layout_code': layoutCode,
         'period': period,
         'from_revision': fromRevision,
-        'period_reopen_id': periodReopenId,
+        if (periodReopenId != null) 'period_reopen_id': periodReopenId,
         'reason': reason,
+        if (mode != null) 'mode': mode,
+        if (subjectCode != null) 'subject_code': subjectCode,
+        if (amountVnd != null) 'amount_vnd': amountVnd,
       };
 }
 
@@ -14874,6 +14975,44 @@ final class RptLayoutPreviewRequest implements RequestModel {
       };
 }
 
+final class RptMailScheduleCreate implements RequestModel {
+  const RptMailScheduleCreate({
+    required this.layoutCode,
+    required this.cron,
+    required this.format,
+    required this.recipients,
+    this.note,
+  });
+
+  final String layoutCode;
+  final String cron;
+  final String format;
+  final List<String> recipients;
+  final Object? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'layout_code': layoutCode,
+        'cron': cron,
+        'format': format,
+        'recipients': recipients,
+        if (note != null) 'note': note,
+      };
+}
+
+final class RptMailScheduleRetire implements RequestModel {
+  const RptMailScheduleRetire({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class RptPeriod implements RequestModel {
   const RptPeriod({
     required this.kind,
@@ -14893,6 +15032,65 @@ final class RptPeriod implements RequestModel {
         'year': year,
         if (index != null) 'index': index,
         if (day != null) 'day': day,
+      };
+}
+
+final class SaveAuditDetailPolicy implements RequestModel {
+  const SaveAuditDetailPolicy({
+    required this.resourceType,
+    required this.enabled,
+    required this.maxBytes,
+    required this.reason,
+    required this.expectedVersion,
+    this.sensitiveKeys,
+  });
+
+  final String resourceType;
+  final bool enabled;
+  final int maxBytes;
+  final List<String>? sensitiveKeys;
+  final String reason;
+  final int expectedVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'resource_type': resourceType,
+        'enabled': enabled,
+        'max_bytes': maxBytes,
+        if (sensitiveKeys != null) 'sensitive_keys': sensitiveKeys,
+        'reason': reason,
+        'expected_version': expectedVersion,
+      };
+}
+
+final class SaveLogCapacityPolicy implements RequestModel {
+  const SaveLogCapacityPolicy({
+    required this.recordClass,
+    required this.warnPct,
+    required this.active,
+    required this.reason,
+    required this.expectedVersion,
+    this.maxRows,
+    this.maxBytes,
+  });
+
+  final String recordClass;
+  final Object? maxRows;
+  final Object? maxBytes;
+  final int warnPct;
+  final bool active;
+  final String reason;
+  final int expectedVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'record_class': recordClass,
+        if (maxRows != null) 'max_rows': maxRows,
+        if (maxBytes != null) 'max_bytes': maxBytes,
+        'warn_pct': warnPct,
+        'active': active,
+        'reason': reason,
+        'expected_version': expectedVersion,
       };
 }
 
@@ -15972,6 +16170,31 @@ final class UnitReorganizationCreateSuccessorsItem implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         if (existingUnitId != null) 'existing_unit_id': existingUnitId,
         if (newUnit != null) 'new_unit': newUnit,
+      };
+}
+
+final class UpdateEquipmentLine implements RequestModel {
+  const UpdateEquipmentLine({
+    this.name,
+    this.planRef,
+    this.packageId,
+    this.contractId,
+    this.cancelReason,
+  });
+
+  final String? name;
+  final Object? planRef;
+  final String? packageId;
+  final String? contractId;
+  final String? cancelReason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (name != null) 'name': name,
+        if (planRef != null) 'plan_ref': planRef,
+        if (packageId != null) 'package_id': packageId,
+        if (contractId != null) 'contract_id': contractId,
+        if (cancelReason != null) 'cancel_reason': cancelReason,
       };
 }
 

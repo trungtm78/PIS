@@ -20,6 +20,8 @@ function scratch(edit = () => {}) {
     mkdirSync(dirname(join(root, file)), { recursive: true });
     writeFileSync(join(root, file), 'x');
   }
+  mkdirSync(join(root, 'docs/runbooks/infra'), { recursive: true });
+  cpSync(join(REPO_ROOT, 'docs/runbooks/infra/backup-immutable.md'), join(root, 'docs/runbooks/infra/backup-immutable.md'));
   const api = {
     root,
     json(path, change) {

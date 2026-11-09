@@ -396,6 +396,36 @@
       "slice": "WEBPUSH-1",
       "from": 2860,
       "to": 2879
+    },
+    {
+      "slice": "ENT-3",
+      "from": 2660,
+      "to": 2679
+    },
+    {
+      "slice": "ENT3C-1",
+      "from": 2700,
+      "to": 2719
+    },
+    {
+      "slice": "ENT4C-1",
+      "from": 2780,
+      "to": 2799
+    },
+    {
+      "slice": "ENT4D-1",
+      "from": 2820,
+      "to": 2839
+    },
+    {
+      "slice": "ENT4E-1",
+      "from": 2820,
+      "to": 2839
+    },
+    {
+      "slice": "INFRA-2",
+      "from": 2800,
+      "to": 2819
     }
   ]
 }

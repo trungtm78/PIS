@@ -82,10 +82,10 @@ function assigneeRuleOf(step: ReportWorkflowStep): AssigneeRule {
   return { type: 'DOA' };
 }
 
-/** The definition the ADM engine runs for these steps: the same fields, and the ends of the business type `report.accept`. */
-export function engineDefinitionOf(workflow: ReportWorkflow): WorkflowDefinition {
-  const spec = BUSINESS_TYPES.find((type) => type.code === REPORT_ACCEPT_BUSINESS_TYPE);
-  if (spec === undefined) throw new Error('the business type report.accept is not registered');
+/** The definition the ADM engine runs for these steps: the same fields, and the ends of the business type (`report.accept` unless the staged approval of another owner names its own, ENT-3c). */
+export function engineDefinitionOf(workflow: ReportWorkflow, businessType: string = REPORT_ACCEPT_BUSINESS_TYPE): WorkflowDefinition {
+  const spec = BUSINESS_TYPES.find((type) => type.code === businessType);
+  if (spec === undefined) throw new Error(`the business type ${businessType} is not registered`);
   return {
     steps: workflow.steps.map(
       (step): WorkflowStep => ({

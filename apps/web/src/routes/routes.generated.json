@@ -287,6 +287,7 @@
     {"id":"ADM-26","path":"/adm/adm-26","title":"Làm thay có người duyệt","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-26"},
     {"id":"ADM-27","path":"/adm/adm-27","title":"Phạm vi theo kỳ báo cáo","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-27"},
     {"id":"ADM-28","path":"/adm/adm-28","title":"Vắng mặt, người thay và độ phủ người nhận cảnh báo","kind":"list","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-28"},
+    {"id":"ADM-29","path":"/adm/adm-29","title":"Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"QT.02"},
     {"id":"SAS-01","path":"/sas/sas-01","title":"Danh sách tenant","kind":"list","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"workspace","parent":null,"req":"FR-SAS-01"},
     {"id":"SAS-02","path":"/sas/sas-02","title":"Khởi tạo tenant","kind":"form","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"detail","parent":"SAS-01","req":"FR-SAS-02"},
     {"id":"SAS-03","path":"/sas/sas-03","title":"Chi tiết tenant","kind":"detail","area":"admin","module":"SAS","group":"Tenant & thương hiệu","role":"detail","parent":"SAS-01","req":"FR-SAS-03"},
@@ -508,6 +509,7 @@
     {"id":"IND-03","path":"/ind/ind-03","title":"Bảng ánh xạ nhập Excel","kind":"table","area":"data","module":"IND","group":"Chỉ tiêu và nhập liệu","role":"workspace","parent":null,"req":"FR-IND-03"},
     {"id":"HPM-01","path":"/hpm/hpm-01","title":"Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận","kind":"table","area":"data","module":"HPM","group":"Báo cáo gửi HPM","role":"workspace","parent":null,"req":"FR-HPM-01"},
     {"id":"HPM-02","path":"/hpm/hpm-02","title":"Đính chính kỳ báo cáo đã được HPM nhận","kind":"table","area":"data","module":"HPM","group":"Báo cáo gửi HPM","role":"detail","parent":"HPM-01","req":"FR-HPM-02"},
+    {"id":"RML-01","path":"/rml/rml-01","title":"Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi","kind":"table","area":"data","module":"RML","group":"Gửi biểu mẫu qua email","role":"workspace","parent":null,"req":"FR-RML-01"},
     {"id":"EBS-01","path":"/ebs/ebs-01","title":"Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp","kind":"import","area":"data","module":"EBS","group":"Dữ liệu từ Oracle EBS","role":"workspace","parent":null,"req":"FR-EBS-01"},
     {"id":"EBS-02","path":"/ebs/ebs-02","title":"Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch","kind":"reconcile","area":"data","module":"EBS","group":"Dữ liệu từ Oracle EBS","role":"workspace","parent":null,"req":"FR-EBS-02"},
     {"id":"ORG-01","path":"/org/org-01","title":"Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)","kind":"dashboard","area":"data","module":"ORG","group":"Tổ chức và vai trò","role":"workspace","parent":null,"req":"FR-ADM-ENT3D"},
@@ -518,6 +520,7 @@
     {"id":"CAP-23","path":"/cap/cap-23","title":"Điều chuyển vốn theo hiệu suất và mô phỏng tác động","kind":"compare","area":"investment","module":"CAP","group":"Kế hoạch vốn","role":"workspace","parent":null,"req":"FR-CAP-23"},
     {"id":"DIS-30","path":"/dis/dis-30","title":"Dự báo tới các mốc chỉ đạo của giải ngân","kind":"dashboard","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"FR-DIS-30"},
     {"id":"DIS-31","path":"/dis/dis-31","title":"Độ chính xác dự báo giải ngân của từng chủ đầu tư","kind":"table","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"FR-DIS-31"},
+    {"id":"DIS-32","path":"/dis/dis-32","title":"Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối","kind":"table","area":"investment","module":"DIS","group":"Lập & gửi báo cáo","role":"workspace","parent":null,"req":"QT.02"},
     {"id":"PAY-22","path":"/pay/pay-22","title":"Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày","kind":"table","area":"investment","module":"PAY","group":"Hồ sơ thanh toán","role":"workspace","parent":null,"req":"FR-PAY-22"},
     {"id":"CTR-38","path":"/ctr/ctr-38","title":"Đồng hồ quyết toán hợp đồng 5 tháng và 4 tháng","kind":"table","area":"investment","module":"CTR","group":"Hợp đồng & điều khoản","role":"workspace","parent":null,"req":"FR-CTR-38"},
     {"id":"CTR-39","path":"/ctr/ctr-39","title":"Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh","kind":"record","area":"investment","module":"CTR","group":"Hợp đồng & điều khoản","role":"workspace","parent":null,"req":"FR-CTR-39"},
@@ -570,6 +573,10 @@
     {"id":"VND-22","path":"/vnd/vnd-22","title":"Kiến nghị, claim và xuất OCDS của nhà thầu","kind":"dashboard","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"detail","parent":null,"req":"FR-VND-22"},
     {"id":"VND-23","path":"/vnd/vnd-23","title":"Lời mời vào cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-23"},
     {"id":"VND-24","path":"/vnd/vnd-24","title":"Tệp đính kèm trên cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"detail","parent":"VND-16","req":"FR-VND-24"},
-    {"id":"BID-34","path":"/bid/bid-34","title":"Kết quả giải quyết kiến nghị của nhà thầu","kind":"table","area":"insights","module":"BID","group":"Nhà thầu & lựa chọn","role":"detail","parent":"BID-20","req":"FR-BID-34"}
+    {"id":"BID-34","path":"/bid/bid-34","title":"Kết quả giải quyết kiến nghị của nhà thầu","kind":"table","area":"insights","module":"BID","group":"Nhà thầu & lựa chọn","role":"detail","parent":"BID-20","req":"FR-BID-34"},
+    {"id":"ADM-29","path":"/adm/adm-29","title":"Nhật ký đủ trước và sau theo loại đối tượng","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-AUDIT-DETAIL"},
+    {"id":"ADM-30","path":"/adm/adm-30","title":"Giới hạn số lượng và dung lượng log","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-LOG-CAPACITY"},
+    {"id":"EQP-01","path":"/eqp/eqp-01","title":"Mua sắm trang thiết bị dự án","kind":"table","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"workspace","parent":null,"req":"FR-EQP-01"},
+    {"id":"EQP-02","path":"/eqp/eqp-02","title":"Chi tiết dòng mua sắm trang thiết bị","kind":"detail","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"detail","parent":"EQP-01","req":"FR-EQP-02"}
   ]
 }

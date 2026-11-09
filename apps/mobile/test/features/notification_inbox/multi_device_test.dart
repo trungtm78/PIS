@@ -102,7 +102,7 @@ void main() {
 
       final List<HttpCall> order = <HttpCall>[for (final HttpCall call in server.calls) if (call.url.path.endsWith('/devices') || call.url.path.endsWith('/me/devices')) call];
       final List<String> names = <String>[for (final HttpCall call in order) '${call.method} ${call.url.path.replaceFirst('/v1', '')}'];
-      expect(names.where((String n) => n == 'POST /devices'), hasLength(2), reason: 'the inbox registers at its opening and the card registers again before it reads');
+      expect(names.where((String n) => n == 'POST /devices'), hasLength(3), reason: 'the session registers at its start, the inbox at its opening and the card again before it reads (one intention: the server keeps one registration)');
       expect(names.last, 'GET /me/devices');
       expect(names[names.length - 2], 'POST /devices', reason: 'the registration comes right before the list');
       final Map<String, Object?> body = jsonDecode(order[order.length - 2].body!) as Map<String, Object?>;

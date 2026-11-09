@@ -1,4 +1,6 @@
-import { DomainError, isLate, monthlyPeriods, periodOfType, reportingPeriods } from '@machvon/kernel';
+import { DomainError, entryOffsetOf, isLate, monthlyPeriods, periodOfType, quarterlyPeriods, reportingPeriods, yearlyPeriods } from '@machvon/kernel';
+import type { ScheduleCode } from '@machvon/kernel';
+import { ReportingScheduleReader } from './reporting-schedule-reader.ts';
 import type { CalendarDefinition, ReportingPeriod } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -105,6 +107,8 @@ export interface BoundPeriod {
   startsOn: string;
   /** The type of the period: its deadline is judged by it (a month is due on the 5th of the next one). A week when none is named. */
   periodType?: string;
+  /** The deadline the period was generated with. A period of a kind that has a schedule rule is judged by it: the entry step of the rule in force when it was generated, never by a newer one. */
+  deadlineAt?: string;
 }
 
 const CALENDAR_KEY = 'DEFAULT';
@@ -127,6 +131,8 @@ interface Band {
  * here decides for the module; it returns the rule with its legal basis and whether it still waits for a confirmation.
  */
 export class MasterRules {
+  private readonly schedules = new ReportingScheduleReader();
+
   /** The rule of a type and key in force on `asOf`, or undefined when none is. The rules of the platform come before a tenant's own. */
   async read(tx: TenantTx, ruleType: string, businessKey: string, asOf: string): Promise<RuleReading | undefined> {
     const rows = await tx.query<RuleSqlRow>(
@@ -232,7 +238,12 @@ export class MasterRules {
   async calendarPeriods(tx: TenantTx, year: number, asOf: string, periodType = 'WEEK'): Promise<CalendarPeriods | undefined> {
     const rule = await this.read(tx, 'CALENDAR', CALENDAR_KEY, asOf);
     if (rule === undefined) return undefined;
-    const periods = (periodType === 'MONTH' ? monthlyPeriods : reportingPeriods)(definitionOf(rule), year).map((period) => ({ ...period, calendarVersionId: rule.versionId, calendarRevision: rule.revision }));
+    const definition = definitionOf(rule);
+    // The deadline of a month, a quarter or a year is the entry step of the schedule rule in force on the day (QT.02): the 5th of the next month is only the built-in default of the monthly one.
+    const kind = periodType === 'MONTH' || periodType === 'QUARTER' || periodType === 'YEAR' ? (periodType as ScheduleCode) : undefined;
+    const offset = kind === undefined ? undefined : entryOffsetOf((await this.schedules.get(tx, kind, asOf)).policy);
+    const generated = kind === 'MONTH' ? monthlyPeriods(definition, year, offset) : kind === 'QUARTER' ? quarterlyPeriods(definition, year, offset) : kind === 'YEAR' ? yearlyPeriods(definition, year, offset) : reportingPeriods(definition, year);
+    const periods = generated.map((period) => ({ ...period, calendarVersionId: rule.versionId, calendarRevision: rule.revision }));
     return { reading: rule, periods };
   }
 
@@ -243,6 +254,8 @@ export class MasterRules {
   async boundDeadline(tx: TenantTx, bound: BoundPeriod): Promise<string> {
     const rule = await this.readVersion(tx, 'CALENDAR', bound.calendarVersionId);
     if (rule === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'calendar_version_id');
+    // A period of a kind with a schedule rule keeps the deadline it was generated with.
+    if (bound.deadlineAt !== undefined && bound.periodType !== undefined && bound.periodType !== 'WEEK') return bound.deadlineAt;
     return periodOfType(definitionOf(rule), bound.periodType ?? 'WEEK', bound.startsOn).deadlineAt;
   }
 

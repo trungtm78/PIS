@@ -1,9 +1,12 @@
-import type { ApprovalTaskRecord as TaskRecord, WorkflowInstanceRecord as InstanceRecord } from '@machvon/db';
+import type { ApprovalTaskRecord as TaskRecord, HoldRecord, WorkflowInstanceRecord as InstanceRecord } from '@machvon/db';
 import type { ApprovalWorkflowDefinition, ReportStepKind, ReportWorkflow, RevisionStatus } from '@machvon/kernel';
 import { REPORT_STEP_KINDS } from '@machvon/kernel';
 import type { GovernedWorkflow } from './report-approval.flow';
 
-export type StepStatus = 'WAITING' | 'CURRENT' | 'DONE' | 'CANCELLED';
+export type StepStatus = 'WAITING' | 'CURRENT' | 'AWAITING_RECEIPT' | 'PUSH_FAILED' | 'DONE' | 'CANCELLED';
+
+/** The screen where the receipt of a held PUSH step is recorded. */
+const RECEIPT_SCREEN = 'HPM-01';
 
 interface StepFacts {
   id: string;
@@ -46,6 +49,7 @@ export function workflowView(input: {
   instance: InstanceRecord | undefined;
   definition: ApprovalWorkflowDefinition | undefined;
   tasks: TaskRecord[];
+  holds?: HoldRecord[];
   now: Date;
 }): Record<string, unknown> {
   const { governed, instance, definition, now } = input;
@@ -54,8 +58,11 @@ export function workflowView(input: {
       ? definition.steps.map((step, index) => ({ id: step.id, kind: kindOf(step.tag, REPORT_STEP_KINDS[Math.min(index, REPORT_STEP_KINDS.length - 1)] ?? 'UNIT_APPROVER'), name: step.name, slaWorkingHours: step.sla_working_hours }))
       : (governed.workflow as ReportWorkflow).steps.map((step) => ({ id: step.id, kind: step.kind, name: step.name, slaWorkingHours: step.slaWorkingHours }));
   const steps = facts.map((fact, index) => {
-    const status = instance === undefined ? plainStatus(input.report, index) : instanceStatus(instance, index);
+    const plain = instance === undefined ? plainStatus(input.report, index) : instanceStatus(instance, index);
     const tasks = input.tasks.filter((task) => task.stepIndex === index && task.status !== 'Reassigned');
+    // A PUSH step that handed its package over is waiting for the receipt, never done (R22): the hold of its newest task says so.
+    const hold = (input.holds ?? []).find((one) => tasks.some((task) => task.id === one.taskId));
+    const status: StepStatus = hold !== undefined && (hold.state === 'AWAITING_RECEIPT' || hold.state === 'PUSH_FAILED') && instance?.status === 'Running' ? hold.state : plain;
     // Only the traversal of the step the instance is in now counts for its deadline: the tasks of an earlier pass (after a return) are history.
     const open = tasks.filter((task) => task.status === 'Pending');
     const dueSource = open.length > 0 ? open : tasks.filter((task) => task.status === 'Decided');
@@ -68,6 +75,10 @@ export function workflowView(input: {
       sla_working_hours: fact.slaWorkingHours,
       due_at: due,
       overdue: status === 'CURRENT' && due !== null && Date.parse(due) < now.getTime(),
+      receipt:
+        hold === undefined
+          ? null
+          : { state: hold.state, push_id: hold.pushId, push_key: hold.pushKey, push_status: hold.pushStatus, attempts: hold.attempts, held_by: hold.heldBy, held_at: hold.createdAt, receipt_at: hold.receiptAt, receiver_screen: RECEIPT_SCREEN },
       tasks: tasks.map((task) => ({
         task_id: task.id,
         assignee: { id: task.assigneeId, name: task.assigneeName },

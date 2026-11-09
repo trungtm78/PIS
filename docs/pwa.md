@@ -11,29 +11,23 @@ They sit under `/m` in the same application, behind the same sign-in and tenant 
 | PWA-01 | `/m` | The start page the installed application opens (`start_url` of the manifest): three entries, how to install, how to turn on notifications | the count of the approval queue; nothing else |
 | PWA-02 | `/m/approvals` | The approval queue of the period data: approve (the comment is optional) or return for correction (the comment is required) | `get_resources_approval_task` (`mine`, `Pending`) and `decideApprovalTask` (`If-Match` the version of the task, `aal2`), the same operations as the approval inbox of the phone application and the monitor ADM-18 |
 | PWA-03 | `/m/dashboard` | The leader dashboard: the context of every figure, the amount disbursed with its ring, the two rates side by side, the plan, what waits, "Cần xử lý ngay" | `getCommandCenter` and the alert source of the bell, through the model, hooks and kit of HOME-09, so the figures cannot differ from the full screen |
-| PWA-04 | `/m/directives` | The directive tracking: counts of the scope, filters (status, overdue, unit), the unit, the deadline as the server counts it | `listDirectives`, `getDirectiveSummary` through the hooks of DIR-03 (`useDirectives`, below) |
+| PWA-04 | `/m/directives`, `/m/directives/:id` | The directive tracking: the steering meeting that gave it, the unit, the deadline, the status (open, in progress, done, overdue, cancelled), the progress; the detail shows the latest progress and the timeline, read only | `listDirectives` (status filter, pages by cursor) and `getDirective` of the directive module (DIR-1) through `src/pwa/screens/directives-api-source.ts`, provided by `PwaRoutes` |
 | PWA-05 | `/m/approvals/:taskId` | The detail of a task: project, period and unit by name; the six cells against the plan and the period before; the changed cells against the revision it corrects; the evidence (name, type, size, head of the digest); the step history; approve or return | `get_resources_approval_task_id`, `getReportRevision` (the revision and the one it corrects), `get_resources_approval_task?workflow_instance_id`, `get_resources_organization_unit`; the decision as in PWA-02 |
-| PWA-06 | `/m/directives/:id` | A directive: text, unit, assignee, meeting, original and current due day, latest progress (or "not reported"), timeline newest first, extension requests, evidence; read-only | `getDirective` |
+| PWA-06 | `/m/directives/:id` | The detail of a directive (built with PWA-04 by ENT-4c); see PWA-04 | `getDirective` |
 | PWA-07 | `/m/settings` | Sessions and devices (end one with a reason of at least 10 characters), language (saved to the profile under its version), notifications per category (inbox, push, mail), digest, quiet hours | `listMySessions`, `listMyDevices`, `revokeMySession`, `revokeMyDevice`, `getMyProfile`, `updateMyProfile`, `getMyNotificationPreferences`, `updateMyNotificationPreferences` |
 | PWA-08 | `/m/dashboard/detail` | The drill-down of HOME-09 for a phone: amounts of the snapshot, ranking, causes, cash flow, changes, warning band, one card each, one column | the cards of HOME-09 (`getCommandCenter` and the readings of the cards) |
 | PWA-09 | `/m/progress` | The drill-down of BID-27 for a phone: counts, each method with its steps in order, the packages of a step on a tap | `getPackageProcessTree`, `listPackageProcessTreeNodePackages` |
+| PWA-10 | `/m/notifications` | Push permission, subscribe, unsubscribe and a test notification to myself | `registerDevice`, `revokeMyDevice`, `sendMyTestPush` |
 
 States (design.md): loading is a skeleton and never a 0; empty has its kinds (nothing waits / the filter found nothing / the module is not built); an error names itself and retries in place; stale says when the list was read ("Số liệu cũ ... lúc HH:mm") and keeps the list; denied says the scope is hidden and names nothing; offline is the standard offline card; submitting locks the sheet (one request however often it is tapped); success is a receipt (record, step, time, next step); version conflict and "already decided" offer to reload the list and decide again; period locked, licence expired, self-approval and "second factor needed" are said in words, with the second factor asked for in place. A read-only session shows no decision control.
 
 A decision is one request, sent while the page is online, under the version of the task on the screen. It is never queued, never retried by the page on its own, and never sent from a notification. A repeat of the same intention after a lost answer reuses the idempotency key, so the server records it once.
 
-### Directives (PWA-04, PWA-06)
+### Directives contract (wired to the directive module by ENT-4c)
 
-The screens read the real operations of the directive module through the hooks of DIR-03 (`src/pwa/screens/directives-source.ts`: `useDirectives({ status, overdue, unitId })` returns `loading`, `error` or `ready` with the items, the summary, whether the counts could be read, the time they were read, whether the list is stale and the next page). The first design of this file invented a `GET /directives?...` contract with a progress percentage on every item; the real list carries no progress (it lives in the timeline of the detail) and carries the clock instead.
+The list of the API does not carry the progress that was reported, so a card says "open the detail to see the progress" (`progressKnown: false`) and the detail shows the latest progress of the timeline; "not reported" is said only where the timeline is known. Without a provider (a screen mounted alone) the default source still says `notBuilt`.
 
-```
-listDirectives      GET /directives?status&unit_id&overdue&cursor&limit   -> { items: DirectiveLine[], next_cursor, as_of }
-getDirectiveSummary GET /directives/summary?unit_id                       -> { total, by_status, due_soon, escalated, definitions, policy, truncated, as_of }
-getDirective        GET /directives/{id}                                  -> { directive, timeline, extensions, evidence, policy, actions, as_of }
-DirectiveLine { id, code, text, status, phase, due_on, days_to_due, overdue_days, assignee_unit, assignee, project, open_extension, ... }
-```
-
-`as_of` and the clock (`phase`, `days_to_due`, `overdue_days`) are the server's. "Not reported" is said when the timeline holds no progress event, never 0%. Counts that could not be read are said so (the list stands). Directive text is shown in the application only, never in a notification. The thresholds of reminders and escalation are flagged when the policy is unconfirmed (`policy.unverified`).
+The tracking view also narrows the list by overdue and by unit and shows the counts of the scope (`getDirectiveSummary`, with the formula of each number): a count that cannot be read is said so and never shown as 0.
 
 ### Drill-downs and layout at 360 px
 
