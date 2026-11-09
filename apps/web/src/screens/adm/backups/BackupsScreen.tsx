@@ -193,8 +193,8 @@ function BackupDialog({ dialog, onClose }: { dialog: Dialog; onClose: () => void
                   if (!kindsFor(next).includes(kind)) setKind('full');
                 }}
               >
-                <option value={1}>{t('adm.backups.repository.1')}</option>
-                <option value={2}>{t('adm.backups.repository.2')}</option>
+                <option value={1}>{t('adm.backups.repository.operational')}</option>
+                <option value={2}>{t('adm.backups.repository.archive')}</option>
               </select>
             </Field>
             <Field id="backup-kind" label={t('adm.backups.form.kind')}>
