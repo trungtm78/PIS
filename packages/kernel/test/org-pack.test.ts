@@ -230,6 +230,14 @@ describe('the organisation pack (ENT-3d, HT.02 HT.03 QT.01)', () => {
       expect(judgeOrgPackRows(rowsOf(pack))).toEqual([]);
     });
 
+    it('keeps the chain in the order the file states, whatever order the rows come back in', () => {
+      const pack = basePack();
+      const shuffled = [...rowsOf(pack)].reverse();
+      expect(orgPackOfRows(shuffled).pack.steps.map((step) => step.id)).toEqual(['unit-approver', 'planning-review', 'period-close', 'push']);
+      const twice = rowsOf(pack).map((row) => (row.businessKey === 'STEP:push' ? { ...row, payload: { ...row.payload, data: row.payload.data?.replace('"order":4', '"order":3') } } : row));
+      expect(judgeOrgPackRows(twice as PackRow[]).map((defect) => defect.code)).toContain('STEP_ORDER');
+    });
+
     it('has a digest that follows the content and not the order of the rows', () => {
       const pack = basePack();
       expect(orgPackDigest(pack)).toBe(orgPackDigest({ ...pack, units: [...pack.units].reverse() }));
@@ -293,9 +301,11 @@ describe('the organisation pack (ENT-3d, HT.02 HT.03 QT.01)', () => {
       };
     }
 
-    it('creates everything in an empty tenant', () => {
-      const plan = planOrgPack(basePack(), emptyState());
-      expect(new Set(plan.map((item) => item.action))).toEqual(new Set(['CREATE']));
+    it('creates everything in a tenant that has only its root, and adopts the root under the name it has', () => {
+      const root = { id: 'r', name: 'Whatever the tenant calls its root', parentCode: null, active: true };
+      const plan = planOrgPack(basePack(), { ...emptyState(), units: new Map([['ROOT', root]]) });
+      expect(plan.find((item) => item.key === 'UNIT:ROOT')?.action).toBe('UNCHANGED');
+      expect(new Set(plan.filter((item) => item.key !== 'UNIT:ROOT').map((item) => item.action))).toEqual(new Set(['CREATE']));
       expect(plan.filter((item) => item.section === 'UNIT')).toHaveLength(6);
       expect(plan.map((item) => item.section)).toEqual(expect.arrayContaining(['UNIT', 'ROLE', 'WORKFLOW', 'ABSENCE', 'DOA', 'ENTRY']));
     });
@@ -331,6 +341,16 @@ describe('the organisation pack (ENT-3d, HT.02 HT.03 QT.01)', () => {
       expect(plan.find((item) => item.key === 'ENTRY:ISSUE_CATEGORY:CAUSE_LAND')?.action).toBe('BLOCKED');
       expect(plan.find((item) => item.section === 'DOA')?.action).toBe('PENDING');
       expect(plan.find((item) => item.section === 'ABSENCE')?.action).toBe('PENDING');
+    });
+
+    it('refuses to load into a tenant that has no root unit', () => {
+      expect(planOrgPack(basePack(), emptyState()).find((item) => item.key === 'UNIT:ROOT')).toMatchObject({ action: 'BLOCKED', detail: expect.stringContaining('no root') });
+    });
+
+    it('counts the grants of the roles of the pack that sit in no seat', () => {
+      const pack = basePack();
+      expect(verifyOrgPack(pack, { ...fullState(pack), strayGrants: 3 }).strayGrants).toBe(3);
+      expect(verifyOrgPack(pack, fullState(pack)).strayGrants).toBe(0);
     });
 
     it('can go red: a seat nobody holds is vacant, a seat over its limit is over', () => {

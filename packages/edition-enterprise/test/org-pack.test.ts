@@ -174,11 +174,12 @@ describe('the PVFCCo template pack (HT.02, HT.03, MD.03, QT.01)', () => {
     });
   });
 
-  it('reports a tenant that has nothing as all to create, and the seats as vacant', () => {
+  it('reports a tenant that has nothing as all to create (its root is wanted first), and the seats as vacant', () => {
     const empty: OrgPackState = { units: new Map(), roles: new Map(), workflowVersions: [], absenceVersions: [], doa: 'NONE', entries: new Map(), holders: new Map() };
     const report = verifyOrgPack(pack, empty);
     expect(report.counts.UNCHANGED).toBe(0);
-    expect(report.counts.CREATE).toBe(report.items.length);
+    expect(report.counts.BLOCKED).toBe(1);
+    expect(report.counts.CREATE).toBe(report.items.length - 1);
     expect(report.seatCounts).toEqual({ VACANT: pack.seats.length, FILLED: 0, OVER: 0 });
     expect(report.structureComplete).toBe(false);
   });

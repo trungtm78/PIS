@@ -41,10 +41,10 @@ SEAT:ENT_PLANNING_REVIEWER@KHDT,SEAT,,,"{""role"":""ENT_PLANNING_REVIEWER"",""un
 SEAT:ENT_LEADERSHIP_VIEWER@BTGD,SEAT,,,"{""role"":""ENT_LEADERSHIP_VIEWER"",""unit"":""BTGD"",""scope"":""TENANT"",""min"":1,""max"":10}",PVFCCO-TEMPLATE
 SEAT:ENT_LEADERSHIP_VIEWER@HDQT,SEAT,,,"{""role"":""ENT_LEADERSHIP_VIEWER"",""unit"":""HDQT"",""scope"":""TENANT"",""min"":1,""max"":10}",PVFCCO-TEMPLATE
 SEAT:ENT_EDITION_ADMIN@CDS_CNTT,SEAT,,,"{""role"":""ENT_EDITION_ADMIN"",""unit"":""CDS_CNTT"",""scope"":""TENANT"",""min"":2,""max"":4}",PVFCCO-TEMPLATE
-STEP:unit-approver,STEP,Người có thẩm quyền tại đầu mối phê duyệt,,"{""kind"":""UNIT_APPROVER"",""assignee"":""DOA"",""sla_working_hours"":24,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
-STEP:planning-review,STEP,"Ban Kế hoạch và Đầu tư rà soát, kiểm tra",,"{""kind"":""PLANNING_REVIEW"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":24,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
-STEP:period-close,STEP,Chốt kỳ,,"{""kind"":""PERIOD_CLOSE"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":8,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
-STEP:push,STEP,Đẩy số liệu sang HPM,,"{""kind"":""PUSH"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":8,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:unit-approver,STEP,Người có thẩm quyền tại đầu mối phê duyệt,,"{""order"":1,""kind"":""UNIT_APPROVER"",""assignee"":""DOA"",""sla_working_hours"":24,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:planning-review,STEP,"Ban Kế hoạch và Đầu tư rà soát, kiểm tra",,"{""order"":2,""kind"":""PLANNING_REVIEW"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":24,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:period-close,STEP,Chốt kỳ,,"{""order"":3,""kind"":""PERIOD_CLOSE"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":8,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:push,STEP,Đẩy số liệu sang HPM,,"{""order"":4,""kind"":""PUSH"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":8,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
 POLICY:DELEGATION,POLICY,,,"{""delegable_roles"":[""ENT_DATA_ENTRY"",""ENT_UNIT_APPROVER""],""max_days"":90,""standing_review_days"":180}",PVFCCO-TEMPLATE
 POLICY:ABSENCE,POLICY,,,"{""max_absence_days"":180,""max_cover_days"":90,""max_chain_depth"":2,""uncovered_after_working_hours"":8,""warn_before_days"":3,""deputy_rank_rule"":""AT_LEAST_PEER"",""min_role_holders"":1,""position_min_rank"":40}",PVFCCO-TEMPLATE
 DOA:REPORT_ACCEPT,DOA,,,"{""unit"":""PVFCCO"",""role"":""ENT_UNIT_APPROVER"",""approval_levels"":1}",PVFCCO-TEMPLATE

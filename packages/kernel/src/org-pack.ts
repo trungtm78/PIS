@@ -201,7 +201,7 @@ export function orgPackOfRows(rows: readonly PackRow[]): { pack: OrgPack; defect
   const units: PackUnit[] = [];
   const roles: PackRole[] = [];
   const seats: PackSeat[] = [];
-  const steps: PackStep[] = [];
+  const orderedSteps: Array<{ order: number; step: PackStep }> = [];
   const entries: PackEntry[] = [];
   const labels = new Set<string>();
   let directoryPrefix = '';
@@ -262,7 +262,8 @@ export function orgPackOfRows(rows: readonly PackRow[]): { pack: OrgPack; defect
       if (assignee === undefined) bad('STEP_ASSIGNEE', key, 'data.assignee', 'assignee is DOA or ROLE_IN_UNIT');
       const onTimeout = data.on_timeout === 'EXPIRE' ? 'EXPIRE' : data.on_timeout === 'REMIND' ? 'REMIND' : undefined;
       if (onTimeout === undefined) bad('STEP_TIMEOUT', key, 'data.on_timeout', 'on_timeout is REMIND or EXPIRE (an escalation names a person, which a template cannot)');
-      steps.push({
+      if (!Number.isInteger(data.order) || (data.order as number) < 1) bad('STEP_ORDER', key, 'data.order', 'order is the place of the step in the chain, a whole number from 1');
+      orderedSteps.push({ order: Number(data.order), step: {
         id,
         kind: stepKind ?? 'UNIT_APPROVER',
         name,
@@ -271,7 +272,7 @@ export function orgPackOfRows(rows: readonly PackRow[]): { pack: OrgPack; defect
         ...(typeof data.unit === 'string' ? { unitCode: data.unit } : {}),
         slaWorkingHours: Number(data.sla_working_hours),
         onTimeout: onTimeout ?? 'REMIND',
-      });
+      } });
     } else if (kind === 'POLICY') {
       const which = key.slice('POLICY:'.length);
       if (which === 'ABSENCE') {
@@ -297,6 +298,9 @@ export function orgPackOfRows(rows: readonly PackRow[]): { pack: OrgPack; defect
       entries.push({ masterType, key: entry, label: name, parentKey: parent === '' ? null : parent, attributes: isRecord(data.attributes) ? data.attributes : {} });
     }
   }
+  // The rows of a pack come back from the database in no order: the chain is the order the file states.
+  const steps = orderedSteps.sort((a, b) => a.order - b.order).map((one) => one.step);
+  if (new Set(orderedSteps.map((one) => one.order)).size !== orderedSteps.length) bad('STEP_ORDER', 'PACK', 'steps', 'every step has its own place in the chain');
   const label = [...labels][0] ?? '';
   if (labels.size > 1) bad('PACK_LABEL', 'PACK', 'pack', 'all rows carry the same label of the pack');
   return { pack: { label, directoryPrefix, units, roles, seats, steps, delegation, absence, doa, entries }, defects };
@@ -319,8 +323,9 @@ export function orgPackRows(pack: OrgPack): Array<Record<(typeof ORG_PACK_COLUMN
     ...pack.units.map((unit) => ({ ...row(unitKey(unit.code), 'UNIT', unit.name, unit.parentCode ?? '', {}), data: dataOfUnit(unit) })),
     ...pack.roles.map((role) => row(roleKey(role.code), 'ROLE', role.name, '', { kind: role.kind, rank: role.rank, permissions: role.permissions })),
     ...pack.seats.map((seat) => row(seatKey(seat.roleCode, seat.unitCode), 'SEAT', '', '', { role: seat.roleCode, unit: seat.unitCode, scope: seat.scope, min: seat.minHolders, max: seat.maxHolders })),
-    ...pack.steps.map((step) =>
+    ...pack.steps.map((step, at) =>
       row(stepKey(step.id), 'STEP', step.name, '', {
+        order: at + 1,
         kind: step.kind,
         assignee: step.assignee,
         ...(step.roleCode === undefined ? {} : { role: step.roleCode }),
@@ -642,6 +647,8 @@ export interface OrgPackState {
   entries: ReadonlyMap<string, { label: string; parentKey: string | null; status: string }>;
   /** The number of active holders of each seat, by `ROLE@UNIT`. */
   holders: ReadonlyMap<string, number>;
+  /** Active grants of the roles of the pack that sit in no seat: a role held with a scope or in a unit the pack does not give it. */
+  strayGrants?: number;
 }
 
 const PENDING_RULE = ['DRAFT', 'SUBMITTED'];
@@ -662,7 +669,9 @@ export function planOrgPack(pack: OrgPack, state: OrgPackState): PlanItem[] {
   for (const unit of pack.units) {
     const key = unitKey(unit.code);
     const have = state.units.get(unit.code);
-    if (have === undefined) items.push({ section: 'UNIT', key, action: 'CREATE', detail: '' });
+    // The root of the organisation is the root the tenant was provisioned with: it is adopted under whatever name and code it has, never renamed or created.
+    if (unit.parentCode === null) items.push(have === undefined ? { section: 'UNIT', key, action: 'BLOCKED', detail: 'the tenant has no root unit' } : { section: 'UNIT', key, action: 'UNCHANGED', detail: '' });
+    else if (have === undefined) items.push({ section: 'UNIT', key, action: 'CREATE', detail: '' });
     else if (!have.active) items.push({ section: 'UNIT', key, action: 'BLOCKED', detail: 'the unit exists but is not active' });
     else if (have.name !== unit.name || have.parentCode !== unit.parentCode) items.push({ section: 'UNIT', key, action: 'DRIFT', detail: have.name !== unit.name ? 'the name differs' : 'the parent differs' });
     else items.push({ section: 'UNIT', key, action: 'UNCHANGED', detail: '' });
@@ -747,6 +756,8 @@ export interface VerificationReport {
   seats: SeatReport[];
   counts: Record<PlanAction, number>;
   seatCounts: Record<SeatState, number>;
+  /** Grants of the roles of the pack outside every seat: wider or elsewhere than the pack says. */
+  strayGrants: number;
   /** True when every object stands as the pack says (nothing to create, no drift, nothing blocked); a pending approval does not make it false but is counted. */
   structureComplete: boolean;
 }
@@ -759,5 +770,5 @@ export function verifyOrgPack(pack: OrgPack, state: OrgPackState): VerificationR
   for (const item of items) counts[item.action] += 1;
   const seatCounts: Record<SeatState, number> = { VACANT: 0, FILLED: 0, OVER: 0 };
   for (const seat of seats) seatCounts[seat.state] += 1;
-  return { label: pack.label, digest: orgPackDigest(pack), items, seats, counts, seatCounts, structureComplete: counts.CREATE === 0 && counts.DRIFT === 0 && counts.BLOCKED === 0 };
+  return { label: pack.label, digest: orgPackDigest(pack), items, seats, counts, seatCounts, strayGrants: state.strayGrants ?? 0, structureComplete: counts.CREATE === 0 && counts.DRIFT === 0 && counts.BLOCKED === 0 };
 }
