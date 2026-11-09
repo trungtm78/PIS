@@ -95,6 +95,15 @@ async function settleActual(projectId: string, ordinal: number, amountVnd: strin
   await as((tx) => figures.accept(tx, drafted.batchId, submitted.version, memberId(CHECKER), PACK, everything, ENTRY_TIME), CHECKER);
 }
 
+/** Accepted actuals of zero for the months given, written as the books of the test (the months before the period are closed already). */
+async function acceptedZeros(projectId: string, from: number, to: number): Promise<void> {
+  await seedAs(harness, [[
+    `insert into machvon.plan_figure_revision (tenant_id, id, batch_id, project_id, taxonomy_pack, bucket, budget_level, measure, figure_kind, period_grain, plan_year, period_ordinal, amount_vnd, basis, as_of_date, status, prepared_by, approved_by, approved_at, updated_by)
+     select $1::uuid, gen_random_uuid(), $2::uuid, $3::uuid, 'ENTERPRISE', 'EQUITY', 'ALL', 'DISBURSED', 'ACTUAL', 'MONTH', 2026, m::smallint, 0, 'REPORTED', '2026-04-03'::date, 'ACCEPTED', $4::uuid, $5::uuid, now(), $4::uuid from generate_series($6::int, $7::int) as m`,
+    [TENANT_A, randomUUID(), projectId, memberId(MAKER), memberId(CHECKER), from, to],
+  ]]);
+}
+
 const periodOf = async (periodId: string): Promise<PeriodRow> => (await as((tx) => periodsStore.find(tx, periodId))) as PeriodRow;
 const build = async (periodId: string, member: number, when: Date) => {
   const period = await periodOf(periodId);
@@ -165,6 +174,8 @@ describe('the enterprise period snapshot (ENT-3a, DL.03)', () => {
   });
 
   it('lists only the units that have not submitted: one unit hands in and is not listed again', async () => {
+    // A year to date needs every month up to the period: January and February are accepted zeros, March is the figure.
+    await acceptedZeros(projects.A, 1, 2);
     await settleActual(projects.A, 3, '100');
     await lock(march);
     const refused = await refusal(build(march, MAKER, at(0)));
@@ -174,11 +185,7 @@ describe('the enterprise period snapshot (ENT-3a, DL.03)', () => {
 
   it('a gap is a gap and an accepted zero is a submission: with the zero of the other unit the period builds, for review', async () => {
     // The period is locked already, so the zero of unit two is seeded as an accepted row dated before the lock.
-    await seedAs(harness, [[
-      `insert into machvon.plan_figure_revision (tenant_id, id, batch_id, project_id, taxonomy_pack, bucket, budget_level, measure, figure_kind, period_grain, plan_year, period_ordinal, amount_vnd, basis, as_of_date, status, prepared_by, approved_by, approved_at, updated_by)
-       values ($1, gen_random_uuid(), $2, $3, 'ENTERPRISE', 'EQUITY', 'ALL', 'DISBURSED', 'ACTUAL', 'MONTH', 2026, 3, 0, 'REPORTED', '2026-04-03', 'ACCEPTED', $4, $5, now(), $4)`,
-      [TENANT_A, randomUUID(), projects.B, memberId(MAKER), memberId(CHECKER)],
-    ]]);
+    await acceptedZeros(projects.B, 1, 3);
     const built = await build(march, MAKER, at(0));
     expect(built.snapshot).toMatchObject({ status: 'BUILDING', revision: 1, taxonomyPack: 'ENTERPRISE', hashSchema: 2, version: 1, payloadSha256: null });
     expect(built.projects).toBe(2);

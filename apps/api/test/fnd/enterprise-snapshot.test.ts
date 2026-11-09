@@ -103,12 +103,12 @@ describe('the enterprise period snapshot: build, freeze and read (ENT-3a, DL.03,
     ]);
   };
 
-  /** An accepted actual of March, as the figure store leaves it after a preparer and a checker (the batch is covered by the tests of FND-1). */
+  /** The accepted actuals up to March (zeros before it, the figure in March), as the figure store leaves them after a preparer and a checker (the batch is covered by the tests of FND-1). */
   const actual = async (projectId: string, amount: string): Promise<void> => {
     await seed([
       [
         `insert into machvon.plan_figure_revision (tenant_id, id, batch_id, project_id, taxonomy_pack, bucket, budget_level, measure, figure_kind, period_grain, plan_year, period_ordinal, amount_vnd, basis, as_of_date, status, prepared_by, approved_by, approved_at, updated_by)
-         values ($1, gen_random_uuid(), $2, $3, 'ENTERPRISE', 'EQUITY', 'ALL', 'DISBURSED', 'ACTUAL', 'MONTH', 2026, 3, $4::numeric, 'REPORTED', '2026-04-03', 'ACCEPTED', $5, $6, now(), $5)`,
+         select $1::uuid, gen_random_uuid(), $2::uuid, $3::uuid, 'ENTERPRISE', 'EQUITY', 'ALL', 'DISBURSED', 'ACTUAL', 'MONTH', 2026, m::smallint, case when m = 3 then $4::numeric else 0 end, 'REPORTED', '2026-04-03'::date, 'ACCEPTED', $5::uuid, $6::uuid, now(), $5::uuid from generate_series(1, 3) as m`,
         [TENANT_A, randomUUID(), projectId, amount, memberId(BUILDER), memberId(FREEZER)],
       ],
     ]);
