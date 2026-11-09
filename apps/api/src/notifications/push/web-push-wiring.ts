@@ -1,6 +1,6 @@
 import { PushChannelAdapter } from './push-adapter';
 import { MockPushProvider } from './ports';
-import type { PushProviderAnswer, PushProviderMessage, PushProviderPort } from './ports';
+import type { PushProviderAnswer, PushProviderPort } from './ports';
 import { WebAwarePushProvider, webPushProviderFromEnv } from './web-push';
 import type { Environment } from './web-push-config';
 
@@ -31,7 +31,7 @@ export function webPushRuntime(variables: Environment): WebPushRuntime {
  * delete the registration of an Android phone for a reason that is ours; the device stays registered for the day a native provider is.
  */
 export class NoNativePushProvider implements PushProviderPort {
-  async send(_message: PushProviderMessage): Promise<PushProviderAnswer> {
+  async send(): Promise<PushProviderAnswer> {
     return { ok: false, code: 'NATIVE_PROVIDER_MISSING' };
   }
 }

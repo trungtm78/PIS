@@ -1,6 +1,6 @@
 import { PERMISSIONS } from '@machvon/contracts';
-import { DisPeriodStore, IndDictionaryStore, IndEntryRuleStore, IndFigureStore, figureFacts, projectScope } from '@machvon/db';
-import type { IndProjectFacts } from '@machvon/db';
+import { figureFacts, projectScope } from '@machvon/db';
+import type { DisPeriodStore, IndDictionaryStore, IndEntryRuleStore, IndFigureStore, IndProjectFacts } from '@machvon/db';
 import { DomainError, assertEntryAllowed, figureFitsUnit, isEnterable, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, EntryVerdict, IndicatorEntry } from '@machvon/kernel';
 import type { CommandScope } from '../../command-scope';

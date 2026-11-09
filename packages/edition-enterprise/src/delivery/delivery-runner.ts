@@ -76,8 +76,10 @@ export class ReportMailRunner {
   private readonly reports: NonNullable<MailRunnerDeps['reports']>;
   private readonly metrics: MetricsSink;
   private readonly clock: () => Date;
+  private readonly deps: MailRunnerDeps;
 
-  constructor(private readonly deps: MailRunnerDeps) {
+  constructor(deps: MailRunnerDeps) {
+    this.deps = deps;
     this.store = deps.store ?? new ReportMailStore();
     this.reports = deps.reports ?? new ReportStore();
     this.metrics = deps.metrics ?? NOOP_METRICS;

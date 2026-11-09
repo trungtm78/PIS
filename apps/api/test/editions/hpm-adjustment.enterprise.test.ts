@@ -1,11 +1,9 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
-import net from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { strFromU8, unzipSync } from 'fflate';
 import { APP_FILTER } from '@nestjs/core';
-import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { registerEnterpriseIntegrationRules } from '@machvon/edition-enterprise/src/server.ts';
@@ -14,7 +12,6 @@ import type { PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
-import { hpmModule } from '../../src/editions/enterprise';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from '../../src/editions/enterprise/hpm.controller';
 import { HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from '../../src/editions/enterprise/tokens';
 import { FileService } from '../../src/modules/files/file.service';
@@ -83,7 +80,6 @@ describe('the adjustment in the next period (ENT-3c, TH.01)', () => {
 
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
   const audits = (resourceId: string, action: string) => rows<{ safe_diff: Record<string, unknown>; reason: string | null; actor_id: string }>('select safe_diff, reason, actor_id from machvon.audit_event where resource_id = $1 and action = $2', [resourceId, action]);
-  const events = (aggregateId: string, type: string) => rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2 order by aggregate_version', [aggregateId, type]);
 
   /** A report put through the shared pipeline the way an issued copy is stored: the answer names the key and the hash. */
   async function report(content = `row-${(counter += 1)}`, tenantId = TENANT_A): Promise<{ key: string; sha: string }> {
@@ -103,9 +99,6 @@ describe('the adjustment in the next period (ENT-3c, TH.01)', () => {
   };
   const pushOf = (reply: Reply): Record<string, unknown> => reply.json.push as Record<string, unknown>;
   const receipt = (member: number, pushId: string, version: number | string, body: Record<string, unknown>): Promise<Reply> => call('POST', `/hpm/pushes/${pushId}/receipt`, { member, ifMatch: `"${version}"`, body });
-  const retry = (member: number, pushId: string, version: number | string): Promise<Reply> => call('POST', `/hpm/pushes/${pushId}/retry`, { member, ifMatch: `"${version}"`, body: {} });
-  const propose = (member: number, period: string, fromRevision: number, reopenId: string): Promise<Reply> =>
-    call('POST', '/hpm/corrections', { member, body: { layout_code: LAYOUT, period, from_revision: fromRevision, period_reopen_id: reopenId, reason: 'A late invoice changed the executed value of the month' } });
   const decide = (member: number, correctionId: string, version: number | string, decision: string, reason = 'The invoice and the reopening are in order'): Promise<Reply> =>
     call('POST', `/hpm/corrections/${correctionId}/decision`, { member, ifMatch: `"${version}"`, body: { decision, reason } });
 

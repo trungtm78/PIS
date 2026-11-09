@@ -8,10 +8,8 @@ import { APPROVAL_PUSH_PORT, APPROVAL_PUSH_SOURCES, ApprovalHoldService, Approva
 import type { ApprovalPushCall, ApprovalPushPort, ApprovalPushResult } from '../../src/modules/adm/approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, FinalCommandRegistry } from '../../src/modules/adm/approval.service';
 import { DisReportApprovalBinding } from '../../src/modules/dis/report-approval.binding';
-import { CLAIMS_HEADER, TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ReportWorkflowReadsController } from '../../src/modules/dis/report-workflow.controller';
-import { B_MAKER, DisFlow, MAKER, READER, REVIEWER, ROOT, TENANT_A, TENANT_B, id, memberId, unitId } from './support/dis-flow-app';
-import type { Reply } from './support/dis-flow-app';
+import { DisFlow, READER, ROOT, TENANT_A, id, memberId, unitId } from './support/dis-flow-app';
 
 jest.setTimeout(300_000);
 
@@ -104,23 +102,6 @@ describe('the PUSH step of the staged approval waits for the receipt (ENT-3c)', 
       [TENANT_A, randomUUID(), code, JSON.stringify({ mode, steps }), memberId(WRITER), memberId(CHECKER)],
     );
   };
-  const instanceOf = async (reportId: string) => (await flow.rows<{ id: string; status: string; outcome: string | null; current_step: number; version: string }>('select id, status, outcome, current_step, version::text from machvon.workflow_instance where resource_id = $1 order by started_at desc', [reportId]))[0];
-  const pending = (instanceId: string) => flow.rows<{ id: string; step_id: string; assignee_id: string; due_at: string; version: string }>("select id, step_id, assignee_id, due_at::text, version::text from machvon.approval_task where workflow_instance_id = $1 and status = 'Pending' order by step_index, assignee_id", [instanceId]);
-  const actions = async (reportId: string, instanceId: string) =>
-    (
-      await flow.rows<{ action: string }>(
-        'select action from machvon.audit_event where resource_id::text = any($1::text[]) or resource_id::text in (select id::text from machvon.approval_task where workflow_instance_id = $2::uuid) order by occurred_at, id',
-        [[reportId, instanceId], instanceId],
-      )
-    ).map((row) => row.action);
-  const adm = (taskId: string, version: string, member: number, body: Record<string, unknown>): Promise<Reply> =>
-    fetch(`${flow.app.baseUrl}/approval-tasks/${taskId}/decision`, {
-      method: 'POST',
-      headers: { [TENANT_HEADER]: DisFlow.tokenOf(member), 'content-type': 'application/json', 'idempotency-key': `key-${randomUUID()}`, 'if-match': `"${version}"`, [CLAIMS_HEADER]: JSON.stringify({ aal: 'aal2', aal2At: new Date().toISOString() }) },
-      body: JSON.stringify(body),
-    }).then(async (response) => ({ status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> }));
-
-
   const holdOf = (reportId: string) =>
     flow.rows<{ state: string; push_status: string | null; attempts: number; held_by: string }>(
       'select h.state, h.push_status, h.attempts, h.held_by from machvon.approval_step_hold h join machvon.workflow_instance i on i.id = h.workflow_instance_id where i.resource_id = $1 order by h.created_at desc',
