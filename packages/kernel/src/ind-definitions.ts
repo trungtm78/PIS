@@ -9,8 +9,8 @@ import { message } from './messages.ts';
  * optional members that say how the figure is obtained and entered. Everything below is a starting value to be replaced by the customer's dictionary (DL.01, DL.02).
  */
 
-/** Where a figure is typed or loaded: the weekly and monthly report of DIS, the project register, the entry of indicator figures and the import of an Excel file. */
-export const ENTRY_SURFACES = ['DIS_REPORT', 'PRJ_PROJECT', 'INDICATOR_ENTRY', 'INDICATOR_IMPORT'] as const;
+/** Where a figure is typed or loaded: the weekly and monthly report of DIS, the project register, the entry of indicator figures, the import of an Excel file, and (ENT-3b) the structured narrative of a period. */
+export const ENTRY_SURFACES = ['DIS_REPORT', 'PRJ_PROJECT', 'INDICATOR_ENTRY', 'INDICATOR_IMPORT', 'PERIOD_NARRATIVE'] as const;
 export type EntrySurface = (typeof ENTRY_SURFACES)[number];
 export const isEntrySurface = (value: unknown): value is EntrySurface => (ENTRY_SURFACES as readonly unknown[]).includes(value);
 
@@ -68,7 +68,7 @@ export const INDICATOR_KPI_FIELDS: Readonly<Record<string, FieldSpec>> = {
   /** The names under which the figure appears in the customer's forms, matched without regard to case and spaces. */
   aliases: list(text(120), 10, 0, true),
   /** The surfaces where the figure must be given. */
-  required_on: list(oneOf(ENTRY_SURFACES), 4, 0, true),
+  required_on: list(oneOf(ENTRY_SURFACES), 5, 0, true),
 };
 
 // ---- the entry rules ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ export const DATA_ENTRY_RULE_FIELDS: Readonly<Record<string, FieldSpec>> = {
   tolerance: { kind: 'number', min: 0, max: 1_000_000, optional: true },
   message: text(300),
   /** Where the rule applies; a rule with no list applies on every surface. */
-  surfaces: list(oneOf(ENTRY_SURFACES), 4, 1, true),
+  surfaces: list(oneOf(ENTRY_SURFACES), 5, 1, true),
   /** `VALUE_IN_RANGE`: decimal text, so a range of money is exact. */
   min: decimalText(),
   max: decimalText(),
@@ -119,6 +119,7 @@ export function refineDataEntryRule(params: Record<string, unknown>): string | u
 export const DATA_ENTRY_EXTRA_DEFAULTS: Readonly<Record<string, Record<string, unknown>>> = {
   PROGRESS_PERCENT_IN_RANGE: { check: 'VALUE_IN_RANGE', severity: 'BLOCK', fields: ['PHYSICAL_PROGRESS'], min: '0', max: '100', message: message('ind.rule.progress_percent_in_range.message') },
   CUMULATIVE_NOT_NEGATIVE: { check: 'VALUE_IN_RANGE', severity: 'WARN', fields: ['CUMULATIVE'], min: '0', message: message('ind.rule.cumulative_not_negative.message') },
+  NARRATIVE_MANDATORY_FIELDS: { check: 'FIELD_REQUIRED', severity: 'BLOCK', fields: [MANDATORY_FIELDS_TOKEN], surfaces: ['PERIOD_NARRATIVE'], message: message('ind.rule.narrative_mandatory_fields.message') },
 };
 
 // ---- the import mapping ----------------------------------------------------------------------------------------------------------------------------------------

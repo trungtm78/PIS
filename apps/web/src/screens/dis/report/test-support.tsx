@@ -203,6 +203,8 @@ export interface World {
   periods: Array<Record<string, unknown>>;
   projects: Array<Record<string, unknown>>;
   plans: Array<Record<string, unknown>>;
+  /** The answer of `getReportNarrativeContext` (ENT-3b); none answers 404. */
+  narrativeContext?: Record<string, unknown> | undefined;
   /** Reads that fail, by operation, with the error they fail with. */
   failing: Map<string, Error>;
 }
@@ -242,6 +244,7 @@ export function client(state: World, command: (operation: string, input: unknown
     if (operation === 'getReportRevision') {
       return state.details[(input as { path: { id: string } }).path.id] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     }
+    if (operation === 'getReportNarrativeContext') return state.narrativeContext ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     if (operation === 'getReportImport') {
       return state.imports[(input as { path: { id: string } }).path.id] ?? new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND', correlationId: 'c' });
     }
@@ -347,6 +350,8 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
                 <Route path="/dis/dis-08" element={screen} />
                 <Route path="/dis/dis-09" element={screen} />
                 <Route path="/dis/dis-10" element={screen} />
+                <Route path="/dis/dis-34" element={screen} />
+                <Route path="/dis/dis-35" element={screen} />
                 <Route path="/dis/dis-11" element={screen} />
                 <Route path="/dis/dis-18" element={screen} />
                 <Route path="/dis/dis-13" element={screen} />

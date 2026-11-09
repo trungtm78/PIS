@@ -1761,7 +1761,6 @@ export { ActingStore } from './iam-acting-store.ts';
 export type { ActingRecord, NewActing } from './iam-acting-store.ts';
 export { PeriodScopeStore } from './iam-period-scope-store.ts';
 export type { PeriodScopeRecord, PeriodScopeStatus } from './iam-period-scope-store.ts';
-// AI-2: the AI assistant (runs, decisions, checklists, criteria), the readers of its sources and the exceptions to the routing of an edition.
 // The Integration Hub (lane HUB-1): the read model over the connectors, the run log, incidents, snapshots, mappings, rejects, lineage and collector agents.
 export { HubStore } from './hub-store.ts';
 export type { HubAgentRow, HubConnectorReading, HubIncidentRow, HubKpiReading, HubMappingRow, HubRejectRow, HubRuleInfo, HubRunView, HubSnapshotRow, HubSweepChange } from './hub-store.ts';
@@ -1790,7 +1789,6 @@ export type { ConnectorAlertReader } from './home-connector-sources.ts';
 export { base as workSourceBase } from './home-work-sources.ts';
 export type { SourceContext as WorkSourceContext, SourceRow as WorkSourceRow } from './home-work-sources.ts';
 export { timestampKey } from './keyset.ts';
-// IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
 // CA-3: the registers of the contract reports and the proposals of a rating of the contractor (docs/ctr-analytics-registers.md).
 export { CtrRegisterReader, REGISTER_ROW_CAP, ratingInputsOf } from './ctr-register-reader.ts';
 export type { RegisterReaderContext } from './ctr-register-reader.ts';
@@ -1816,7 +1814,6 @@ export { LOOK_AHEAD_CONSTRAINT_RESOURCE, LOOK_AHEAD_ITEM_RESOURCE, LOOK_AHEAD_RE
 export type { ConstraintView as LookAheadConstraintView, ItemView as LookAheadItemView, LookAheadPolicyReading, LookAheadView, PlanView as LookAheadPlanView } from './prj-look-ahead-store.ts';
 export { LESSON_RESOURCE, LESSON_WAIVER_RESOURCE, PrjLessonsStore } from './prj-lessons-store.ts';
 export type { LessonRow, LessonsPolicyReading, LessonsView, WaiverRow as LessonWaiverRow } from './prj-lessons-store.ts';
-// FND-1: the stored figures of the funding model (phased plan, estimates, actuals) with their lineage and the conversion of an estimate.
 export { AnaOutlookStore } from './ana-outlook-store.ts';
 export type { OutlookPlanBasis, OutlookPolicy, OutlookSeries } from './ana-outlook-store.ts';
 export { AnaDecisionStore, DECISION_LIST_MAX, DECISION_RESOURCE } from './ana-decision-store.ts';
@@ -1916,3 +1913,7 @@ export { EquipmentProcurementStore } from './equipment-procurement-store.ts';
 export type { EquipmentCreateInput, EquipmentLine, EquipmentListFilter, EquipmentPatch } from './equipment-procurement-store.ts';
 export { BackupRequestStore } from './backup-request-store.ts';
 export type { BackupDecision, BackupRequestRow } from './backup-request-store.ts';
+
+export { EntNarrativeStore } from './ent-narrative-store.ts';
+export type { CauseEntry, NarrativeImportContext, NarrativeImportTarget, NarrativeJudgement, PreviousNarrative } from './ent-narrative-store.ts';
+export { enterpriseBlockOf } from './ent-narrative-codec.ts';

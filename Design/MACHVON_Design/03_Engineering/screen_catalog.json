@@ -14203,5 +14203,30 @@
     "platform": "web",
     "req": "YCK.01",
     "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy); docs/pwa.md"
+  },
+  {
+    "id": "DIS-35",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)",
+    "kind": "form",
+    "fields": [
+      "Tình hình thực hiện",
+      "Đánh giá các mốc tiến độ",
+      "Đánh giá giải ngân",
+      "Nguyên nhân",
+      "Khó khăn vướng mắc",
+      "Giải pháp",
+      "Kế hoạch kỳ tới",
+      "Kiến nghị",
+      "Nguyên nhân chuẩn (MDM-17)",
+      "Chỉ đạo giao ban của kỳ"
+    ],
+    "role": "Người lập báo cáo của đầu mối; người xem báo cáo xem ở chế độ chỉ đọc",
+    "rule": "Chỉ sửa khi báo cáo còn là bản nháp; kế thừa chỉ điền trường trống và ghi dấu vết; quy tắc nhập liệu đã duyệt (trường bắt buộc) được xét khi lưu và khi gửi",
+    "phase": "P1",
+    "platform": "web",
+    "req": "DL.01",
+    "source": "HSKT v0.3 DL.01, CN.02, CN.03; ENT-3b"
   }
 ]

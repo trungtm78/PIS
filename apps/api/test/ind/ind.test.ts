@@ -207,7 +207,7 @@ describe('the indicator dictionary, the entry rules, the figures and the import 
       const rules = await call('GET', '/indicator-entry-rules', { member: READER });
       expect(rules.status).toBe(200);
       expect(list(rules).every((rule) => rule.active === false && rule.origin === 'DEFAULT' && rule.unverified === true)).toBe(true);
-      expect(rules.json.surfaces).toEqual(['DIS_REPORT', 'PRJ_PROJECT', 'INDICATOR_ENTRY', 'INDICATOR_IMPORT']);
+      expect(rules.json.surfaces).toEqual(['DIS_REPORT', 'PRJ_PROJECT', 'INDICATOR_ENTRY', 'INDICATOR_IMPORT', 'PERIOD_NARRATIVE']);
       expect(list(rules).map((rule) => rule.code)).toEqual(expect.arrayContaining(['CUMULATIVE_NOT_ABOVE_TOTAL', 'EQUITY_PLUS_DEBT_EQUALS_TOTAL', 'PROGRESS_PERCENT_IN_RANGE']));
       const mappings = await call('GET', '/indicator-import-mappings', { member: READER });
       expect(list(mappings).map((mapping) => [mapping.code, mapping.active, mapping.problems])).toEqual([

@@ -164,7 +164,27 @@ export function draftHash(content: DraftContent): string {
     measurement_basis: content.measurementBasis,
     negative_delta_explanation: content.negativeDeltaExplanation,
     progress: content.progress === null ? null : { construction_vnd: content.progress.constructionVnd, acceptance_vnd: content.progress.acceptanceVnd, treasury_submitted_vnd: content.progress.treasurySubmittedVnd, preparing_dossier_vnd: content.progress.preparingDossierVnd, physical_progress_pct: content.progress.physicalProgressPct },
-    narrative: content.narrative === null ? null : { results: content.narrative.resultsText, causes: content.narrative.causesText, solutions: content.narrative.solutionsText, proposals: content.narrative.proposalsText, linked_issue_ids: content.narrative.linkedIssueIds },
+    narrative:
+      content.narrative === null
+        ? null
+        : {
+            results: content.narrative.resultsText,
+            causes: content.narrative.causesText,
+            solutions: content.narrative.solutionsText,
+            proposals: content.narrative.proposalsText,
+            linked_issue_ids: content.narrative.linkedIssueIds,
+            // The block of the enterprise pack joins the hash only when there is one, so the hash of every report without it stays as it was.
+            ...(content.narrative.enterprise === undefined
+              ? {}
+              : {
+                  enterprise: {
+                    pack_version: content.narrative.enterprise.packVersion,
+                    fields: content.narrative.enterprise.fields,
+                    cause_codes: content.narrative.enterprise.causeCodes,
+                    directive_refs: content.narrative.enterprise.directiveRefs.map((ref) => ({ id: ref.id, code: ref.code, status_at_end: ref.statusAtEnd })),
+                  },
+                }),
+          },
     attachments: content.attachments.map((ref) => ({ file_object_id: ref.fileObjectId, file_sha256: ref.fileSha256, file_name: ref.fileName })),
     funding_lines: content.cells.map((cell) => ({
       bucket: cell.bucket,

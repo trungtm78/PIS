@@ -8244,6 +8244,22 @@ final class IndImportRequest implements RequestModel {
       };
 }
 
+final class InheritReportNarrative implements RequestModel {
+  const InheritReportNarrative({
+    this.fields,
+    this.includeCauses,
+  });
+
+  final List<String>? fields;
+  final bool? includeCauses;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (fields != null) 'fields': fields,
+        if (includeCauses != null) 'include_causes': includeCauses,
+      };
+}
+
 final class InvitationAccept implements RequestModel {
   const InvitationAccept({
     required this.token,
@@ -14671,6 +14687,7 @@ final class ReportNarrative implements RequestModel {
     this.solutions,
     this.proposals,
     this.linkedIssueIds,
+    this.enterprise,
   });
 
   final String? results;
@@ -14678,6 +14695,7 @@ final class ReportNarrative implements RequestModel {
   final String? solutions;
   final String? proposals;
   final List<String>? linkedIssueIds;
+  final ReportNarrativeEnterprise? enterprise;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14686,6 +14704,66 @@ final class ReportNarrative implements RequestModel {
         if (solutions != null) 'solutions': solutions,
         if (proposals != null) 'proposals': proposals,
         if (linkedIssueIds != null) 'linked_issue_ids': linkedIssueIds,
+        if (enterprise != null) 'enterprise': enterprise,
+      };
+}
+
+final class ReportNarrativeEnterprise implements RequestModel {
+  const ReportNarrativeEnterprise({
+    this.status,
+    this.schedule,
+    this.disbursement,
+    this.causes,
+    this.difficulties,
+    this.solutions,
+    this.nextPlan,
+    this.proposals,
+    this.causeCodes,
+    this.directiveRefs,
+  });
+
+  final String? status;
+  final String? schedule;
+  final String? disbursement;
+  final String? causes;
+  final String? difficulties;
+  final String? solutions;
+  final String? nextPlan;
+  final String? proposals;
+  final List<String>? causeCodes;
+  final List<ReportNarrativeEnterpriseDirectiveRefsItem>? directiveRefs;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (status != null) 'status': status,
+        if (schedule != null) 'schedule': schedule,
+        if (disbursement != null) 'disbursement': disbursement,
+        if (causes != null) 'causes': causes,
+        if (difficulties != null) 'difficulties': difficulties,
+        if (solutions != null) 'solutions': solutions,
+        if (nextPlan != null) 'next_plan': nextPlan,
+        if (proposals != null) 'proposals': proposals,
+        if (causeCodes != null) 'cause_codes': causeCodes,
+        if (directiveRefs != null) 'directive_refs': directiveRefs,
+      };
+}
+
+final class ReportNarrativeEnterpriseDirectiveRefsItem implements RequestModel {
+  const ReportNarrativeEnterpriseDirectiveRefsItem({
+    required this.id,
+    required this.code,
+    required this.statusAtEnd,
+  });
+
+  final String id;
+  final String code;
+  final String statusAtEnd;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'status_at_end': statusAtEnd,
       };
 }
 

@@ -2888,7 +2888,7 @@ export { DATA_ENTRY_CHECKS, DATA_ENTRY_RULE_TYPE, DATA_ENTRY_SEVERITIES, ENTRY_S
 export type { DataEntryCheck, DataEntrySeverity, EntrySurface, ImportLayout, ImportScale, IndicatorCategory, IndicatorSeed, IndicatorValueKind, NumberFormat, PeriodState, VatBasis } from './ind-definitions.ts';
 export { INDICATOR_RULE_TYPE, dictionaryFindings, filterDictionary, indicatorOf, isEnterable, mandatoryFieldsOf, normalizeLabel } from './ind-dictionary.ts';
 export type { DictionaryFilter, DictionaryFinding, IndicatorEntry } from './ind-dictionary.ts';
-export { assertEntryAllowed, entryRefusal, entryRuleOf, evaluateEntryRules, verdictTrail } from './ind-entry.ts';
+export { assertEntryAllowed, entryRefusal, entryRuleOf, evaluateEntryRules, verdictTrail, withoutRequiredChecks } from './ind-entry.ts';
 export type { EntryFacts, EntryRule, EntrySkip, EntryVerdict, EntryViolation } from './ind-entry.ts';
 export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, mappingProblems, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
 export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, MappingProblem, ScaleOutcome } from './ind-import-mapping.ts';
@@ -3300,3 +3300,6 @@ export { EQUIPMENT_GUIDE_STEPS, EQUIPMENT_STAGES, disbursementPercent, equipment
 export type { EquipmentDataGuide, EquipmentDataState, EquipmentFacts, EquipmentFigures, EquipmentGuideStep, EquipmentStage, MaskedFigure } from './equipment-procurement.ts';
 export { BACKUP_KINDS, BACKUP_LABEL_PATTERN, BACKUP_MAX_AGE_HOURS, BACKUP_REASON_MAX, BACKUP_REASON_MIN, BACKUP_REPOSITORIES, backupHealthOf, backupKindOfLabel, backupRequestDefects } from './backup-request.ts';
 export type { BackupHealth, BackupKind, BackupRepository, BackupRequestInput, BackupRequestStatus, BackupState, BackupStateEntry } from './backup-request.ts';
+
+export { NARRATIVE_CAUSE_CODES_FACT, NARRATIVE_FIELDS, NARRATIVE_FIELD_MAX_CHARS, NARRATIVE_IMPORT_COLUMNS, NARRATIVE_IMPORT_FAULTS, NARRATIVE_IMPORT_MAPPING, NARRATIVE_MANDATORY_FACTS, NARRATIVE_MAX_CAUSE_CODES, NARRATIVE_MAX_DIRECTIVES, NARRATIVE_PACK_ENTERPRISE, NARRATIVE_PACK_VERSION, NARRATIVE_PROJECTS_TOKEN, directiveLine, directiveRefOf, enterpriseNarrativeOf, fieldHash, filledFields, inheritNarrative, inheritanceHashes, isEmptyBlock, isNarrativeField, narrativeEntryValues, narrativeFactName, parseNarrativeImport, projectNarrativeBlocks, unchangedInherited } from './ent-narrative.ts';
+export type { DirectiveForNarrative, DirectiveRef, EnterpriseNarrative, InheritedDraft, NarrativeField, NarrativeImportRow, NarrativeInheritance, NarrativeRowFault, ParsedNarrativeImport, ProjectNarrativeText, RawEnterpriseNarrative } from './ent-narrative.ts';

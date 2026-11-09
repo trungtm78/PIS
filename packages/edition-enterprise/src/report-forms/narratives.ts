@@ -1,3 +1,4 @@
+import { NARRATIVE_PROJECTS_TOKEN } from '@machvon/kernel/src/ent-narrative.ts';
 import { DEMO_MARK } from '@machvon/kernel/src/report-layout.ts';
 import type { NarrativeBlock } from '@machvon/kernel/src/report-layout.ts';
 import { formTexts } from './common.ts';
@@ -6,16 +7,15 @@ import { textsOf } from './texts.ts';
 /**
  * The narrative parts (the Word "thuyet minh") of the demo report forms that have one: the skeleton of the Word document, as blocks the kernel resolves (`fillNarrative` puts the figure of the indicator register
  * into every `{{indicator:CODE@BASIS}}` token, so the sentence and the table of the form cannot give two numbers for one indicator). The parts the people write (reasons, difficulties and solutions, requests) are
- * numbered placeholders in square brackets: a skeleton never invents a reason or a request. The demo mark is the first paragraph, and the Word writer repeats it in the header of every page.
+ * the eight structured fields of each project (ENT-3b: status, milestones, disbursement, causes, difficulties, solutions, plan of the next period, proposals), laid out by `fillNarrative` at the token
+ * `{{narrative:PROJECTS}}`; a field nobody wrote keeps a square-bracket hint, so a skeleton never invents a reason or a request. The demo mark is the first paragraph, and the Word writer repeats it in the header of every page.
  * The Vietnamese sentences are in `messages/narratives.vi.json`; the order of the blocks and the indicator codes of the capital table are here.
  */
 
 interface SectionText {
   heading: string;
-  /** The hint of a placeholder paragraph the people replace (written in square brackets). */
-  hint?: string;
-  /** The key of a shared list of numbered placeholders. */
-  list?: string;
+  /** The section lays out the narratives of the projects of the period (the token of the kernel). */
+  projects: true;
 }
 
 interface NarrativeFormText {
@@ -36,13 +36,10 @@ interface NarrativeTexts {
     heading3: string;
     scheduleParagraph: string;
   };
-  lists: Readonly<Record<string, readonly string[]>>;
   forms: Readonly<Record<string, NarrativeFormText>>;
 }
 
 const texts = textsOf<NarrativeTexts>('narratives');
-
-const sectionPlaceholder = (hint: string): NarrativeBlock => ({ type: 'PARAGRAPH', text: `[${hint}]`, italic: true });
 
 const head = (title: string): NarrativeBlock[] => [
   { type: 'PARAGRAPH', text: DEMO_MARK, align: 'CENTER', bold: true },
@@ -80,13 +77,12 @@ const signatures: NarrativeBlock = {
   slots: ['{{meta:SIGN_PREPARER}}', '{{meta:SIGN_CHECKER}}', '{{meta:SIGN_APPROVER}}'].map((name, index) => ({ role: formTexts().layout.signRoles[index] as string, name })),
 };
 
-const sectionBlocks = (section: SectionText): NarrativeBlock[] => {
-  const heading: NarrativeBlock = { type: 'HEADING', level: 2, text: section.heading };
-  if (section.list !== undefined) return [heading, { type: 'LIST', ordered: true, items: [...(texts.lists[section.list] as readonly string[])] }];
-  return [heading, sectionPlaceholder(section.hint as string)];
-};
+const sectionBlocks = (section: SectionText): NarrativeBlock[] => [
+  { type: 'HEADING', level: 2, text: section.heading },
+  { type: 'PARAGRAPH', text: NARRATIVE_PROJECTS_TOKEN },
+];
 
-/** The blocks of a form: the head, the figures (and the sentences after them), the sections the people write, the signatures. */
+/** The blocks of a form: the head, the figures (and the sentences after them), the narratives of the projects, the signatures. */
 function narrativeOf(code: string): readonly NarrativeBlock[] {
   const form = texts.forms[code] as NarrativeFormText;
   return Object.freeze([
@@ -98,6 +94,12 @@ function narrativeOf(code: string): readonly NarrativeBlock[] {
     signatures,
   ]);
 }
+
+/** The monthly report to the parent group: the narrative that goes with the table. */
+export const PVN_MONTHLY_NARRATIVE: readonly NarrativeBlock[] = narrativeOf('PVN-MONTHLY');
+
+/** The monthly report pushed to HPM: the narrative that goes with the table. */
+export const HPM_MONTHLY_NARRATIVE: readonly NarrativeBlock[] = narrativeOf('HPM-MONTHLY');
 
 /** The quarterly report to the parent group (Form 2): the narrative that goes with the table. */
 export const PVN_QUARTERLY_NARRATIVE: readonly NarrativeBlock[] = narrativeOf('PVN-QUARTERLY-F2');

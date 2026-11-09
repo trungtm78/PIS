@@ -155,7 +155,7 @@ export const RULES = {
     rule('PROGRESS_PERCENT_IN_RANGE', { check: 'VALUE_IN_RANGE', fields: ['PHYSICAL_PROGRESS'], total_field: null, min: '0', max: '100', severity: 'WARN' }),
     rule('EQUITY_PLUS_DEBT_EQUALS_TOTAL', { check: 'PARTS_EQUAL_TOTAL', fields: ['EQUITY', 'DEBT'], total_field: 'TOTAL', tolerance: '0' }),
   ],
-  surfaces: ['DIS_REPORT', 'PRJ_PROJECT', 'INDICATOR_ENTRY', 'INDICATOR_IMPORT'],
+  surfaces: ['DIS_REPORT', 'PRJ_PROJECT', 'INDICATOR_ENTRY', 'INDICATOR_IMPORT', 'PERIOD_NARRATIVE'],
   checks: [],
   as_of: AS_OF,
 };

@@ -241,6 +241,11 @@ export class DisImportStore {
       }
     }
     const created = drafts.filter((draft) => draft.action === 'CREATED').length;
+    return { batch: await this.markApplied(tx, batch.id, context, created, drafts.length - created), drafts };
+  }
+
+  /** Closes a validated batch as applied, once for the file (the table says so): the counts of the drafts it made and of the ones it brought up to date. */
+  async markApplied(tx: TenantTx, batchId: string, context: Pick<ImportScope, 'actor' | 'now'>, created: number, updated: number): Promise<ImportBatchRow> {
     const [row] = await withUniqueClaim(tx, { constraint: 'report_import_applied_uq', code: 'IMPORT_FILE_ALREADY_APPLIED' }, () =>
       tx.query<BatchSql>(
         `with updated as (
@@ -248,10 +253,10 @@ export class DisImportStore {
               set status = 'APPLIED', applied_at = $2::timestamptz, applied_by = $3::uuid, drafts_created = $4::int, drafts_updated = $5::int, updated_at = now(), updated_by = $3::uuid, version = version + 1
             where id = $1::uuid and status = 'VALIDATED' returning *)
          select ${BATCH_COLUMNS} from updated b`,
-        [batch.id, context.now.toISOString(), context.actor, created, drafts.length - created],
+        [batchId, context.now.toISOString(), context.actor, created, updated],
       ),
     );
     if (row === undefined) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
-    return { batch: toBatch(row), drafts };
+    return toBatch(row);
   }
 }

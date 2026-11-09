@@ -7499,6 +7499,14 @@
       "module": "ADM",
       "statusBasis": "spec",
       "source": "spec:ADM"
+    },
+    "NARRATIVE_NOTHING_TO_INHERIT": {
+      "status": 409,
+      "title": "Nothing to inherit",
+      "meaning": "Không có thuyết minh kỳ trước để kế thừa: dự án chưa có báo cáo đã gửi của kỳ trước có thuyết minh có cấu trúc, hoặc mọi trường được chọn đã có nội dung.",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
     }
   }
 }

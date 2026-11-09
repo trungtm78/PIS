@@ -141,8 +141,8 @@ describe('the Word narrative of the demo forms', () => {
     });
   }
 
-  it('is the narrative the catalogue says, for the four forms that have one', () => {
+  it('is the narrative the catalogue says, for all six forms', () => {
     expect((demoFormOf('PVN-QUARTERLY-F2') as DemoFormSpec).narrative).not.toBeNull();
-    expect((demoFormOf('PVN-MONTHLY') as DemoFormSpec).narrative).toBeNull();
+    expect((demoFormOf('PVN-MONTHLY') as DemoFormSpec).narrative).not.toBeNull();
   });
 });

@@ -5,11 +5,12 @@ import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
 import { BASELINE_PACK, DisPeriodStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, applyBaseline } from '@machvon/db';
-import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { loadErrorRegistry, readTabularFile, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { disModule } from '../../src/modules/dis';
 import { ReportDecisionController } from '../../src/modules/dis/report-decision.controller';
 import { RegistrationConsumer } from '../../src/modules/dis/registration.consumer';
+import { ReportNarrativeController } from '../../src/modules/dis/narrative.controller';
 import { ReportImportController } from '../../src/modules/dis/report-import.controller';
 import { ReportLifecycleController } from '../../src/modules/dis/report-lifecycle.controller';
 import { ReportController, ReportReadsController } from '../../src/modules/dis/report.controller';
@@ -236,7 +237,7 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController],
+      controllers: [ReportController, ReportReadsController, ReportSubmitController, ReportDecisionController, ReportLifecycleController, ReportImportController, ReportNarrativeController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: FileService, useValue: files },
@@ -907,6 +908,128 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       expect(foreign.status).toBe(404);
       expect((await call('POST', `/reports/${idOf(made)}/submit`, { member: B_MAKER, tenantId: TENANT_B, body: {}, ifMatch: '"1"' })).status).toBe(404);
       expect(await state(idOf(made))).toEqual(before);
+    });
+  });
+  describe('the structured narrative of a period (ENT-3b: DL.01, CN.02)', () => {
+    const CAUSE = 'SITE_HANDOVER';
+    const block = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({ enterprise: { status: 'Works continue.', schedule: 'Milestone 3 is late.', cause_codes: [CAUSE], ...extra } });
+    const context = (reportId: string, member = MAKER): Promise<Reply> => call('GET', `/reports/${reportId}/narrative-context`, { member });
+    const inherit = (reportId: string, version: number, body: Record<string, unknown> = {}, member = MAKER): Promise<Reply> => call('POST', `/reports/${reportId}/narrative-inheritance`, { member, body, ifMatch: `"${version}"` });
+    const csv = (lines: readonly string[]): Uint8Array => new TextEncoder().encode(`${lines.join('\n')}\n`);
+    async function upload(bytes: Uint8Array): Promise<Reply> {
+      const form = new FormData();
+      form.append('file', new Blob([bytes], { type: 'text/csv' }), 'narratives.csv');
+      const response = await fetch(`${app.baseUrl}/report-imports/files`, { method: 'POST', headers: { [TENANT_HEADER]: tokenOf(MAKER), 'idempotency-key': `key-${randomUUID()}` }, body: form });
+      return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
+    }
+
+    beforeAll(async () => {
+      await seedReplica([
+        [
+          "insert into machvon.master_record (tenant_id, id, namespace, master_type, business_key, status, current_version_id, created_by, updated_by) values ($1, $2, 'TENANT', 'ISSUE_CATEGORY', $4, 'EFFECTIVE', $3, $5, $5)",
+          [TENANT_A, id(FAMILY, 60), id(FAMILY, 61), CAUSE, memberId(MAKER)],
+        ],
+        [
+          `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, status, namespace, published_at, created_by, updated_by)
+           values ($1, $2, $3, 'ISSUE_CATEGORY', $4, 1, 'Site handover', '{}', date '2024-01-01', 'EFFECTIVE', 'TENANT', now(), $5, $5)`,
+          [TENANT_A, id(FAMILY, 61), id(FAMILY, 60), CAUSE, memberId(MAKER)],
+        ],
+      ]);
+    });
+
+    it('keeps the eight fields and the standard causes with the draft and gives them back in the detail', async () => {
+      const { projectId, planId } = await seedProject();
+      const made = await create(draft(projectId, week(), planId, { narrative: block({ difficulties: 'Compensation is not agreed.', next_plan: 'Hand over the site.' }) }));
+      expect(made.status).toBe(200);
+      const found = await read(idOf(made));
+      expect(found.json.narrative).toMatchObject({ enterprise: { status: 'Works continue.', schedule: 'Milestone 3 is late.', difficulties: 'Compensation is not agreed.', next_plan: 'Hand over the site.', disbursement: null, cause_codes: [CAUSE], directive_refs: [], inheritance: null } });
+      const audit = (await trail(idOf(made))).find((row) => row.action === 'dis.report_created');
+      expect(audit?.safe_diff).toMatchObject({ enterprise_fields: 4, enterprise_causes: 1, enterprise_directives: 0 });
+      expect(JSON.stringify(audit?.safe_diff)).not.toContain('Works continue');
+    });
+
+    it('refuses a cause that is not on the list and a directive the register does not show, and writes nothing', async () => {
+      const { projectId, planId } = await seedProject();
+      const period = week();
+      const unknown = await create(draft(projectId, period, planId, { narrative: block({ cause_codes: ['NOT_ON_THE_LIST'] }) }));
+      expect(unknown).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(JSON.stringify(unknown.json)).toContain('narrative.enterprise.cause_codes[0]');
+      const directive = await create(draft(projectId, period, planId, { narrative: block({ directive_refs: [{ id: randomUUID(), code: 'CD-1', status_at_end: 'DONE' }] }) }));
+      expect(directive).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+      expect(JSON.stringify(directive.json)).toContain('narrative.enterprise.directive_refs[0].id');
+      expect(await rows('select id from machvon.report_revision where project_id = $1', [projectId])).toHaveLength(0);
+    });
+
+    it('gives the context of a report: the fields, the standard causes, the rules and the previous period that can be inherited', async () => {
+      const { projectId, planId } = await seedProject();
+      const made = await create(draft(projectId, week(), planId, { narrative: block() }));
+      const found = await context(idOf(made));
+      expect(found.status).toBe(200);
+      expect(found.json).toMatchObject({ report_id: idOf(made), causes: [{ code: CAUSE, label: 'Site handover' }], previous: null, inheritance: null, unchanged_inherited: [], directives: { items: [] }, verdict: { blocking: [], warnings: [] } });
+      expect(found.json.fields).toEqual(['status', 'schedule', 'disbursement', 'causes', 'difficulties', 'solutions', 'next_plan', 'proposals']);
+      expect(found.json.mandatory).toContain('NARRATIVE_STATUS');
+      expect((await context(idOf(made), READER)).status).toBe(200);
+      expect((await call('GET', `/reports/${idOf(made)}/narrative-context`, { member: B_MAKER, tenantId: TENANT_B })).status).toBe(404);
+    });
+
+    it('copies the words of the previous period into the empty fields with a trace, never over what was written, and says when there is nothing to copy', async () => {
+      const { projectId, planId } = await seedProject();
+      const first = await submitted({ project: { projectId, planId }, extra: { narrative: block({ proposals: 'Ask the group for support.' }) } });
+      const next = await create(draft(projectId, week(), planId, { narrative: { enterprise: { status: 'New status of this period.' } } }));
+      expect(next.status).toBe(200);
+      const before = await context(idOf(next));
+      expect(before.json.previous).toMatchObject({ report_id: first.reportId, fields: ['status', 'schedule', 'proposals'], cause_codes: [CAUSE] });
+      const copied = await inherit(idOf(next), 1);
+      expect(copied).toMatchObject({ status: 200, json: { resource_version: 2 } });
+      const detail = await read(idOf(next));
+      expect(detail.json.narrative).toMatchObject({ enterprise: { status: 'New status of this period.', schedule: 'Milestone 3 is late.', proposals: 'Ask the group for support.', cause_codes: [CAUSE], inheritance: { from_report_id: first.reportId, fields: ['schedule', 'proposals'], unchanged_fields: ['schedule', 'proposals'] } } });
+      expect((await trail(idOf(next))).some((row) => row.action === 'dis.report_narrative_inherited')).toBe(true);
+      // The words that were copied and then rewritten stop counting as inherited, and a second copy has nothing left to fill.
+      const period = (detail.json.period as { id: string }).id;
+      const rewritten = await save(idOf(next), draft(projectId, period, planId, { narrative: { enterprise: { status: 'New status of this period.', schedule: 'Rewritten.', proposals: 'Ask the group for support.', cause_codes: [CAUSE] } } }), 2);
+      expect(rewritten.status).toBe(200);
+      expect((await context(idOf(next))).json).toMatchObject({ inheritance: { from_report_id: first.reportId }, unchanged_inherited: ['proposals'] });
+      expect(await inherit(idOf(next), 3)).toMatchObject({ status: 409, json: { code: 'NARRATIVE_NOTHING_TO_INHERIT' } });
+    });
+
+    it('does not copy from a project with no report handed in, and not into a report that was handed in', async () => {
+      const { projectId, planId } = await seedProject();
+      const only = await create(draft(projectId, week(), planId, { narrative: block() }));
+      expect(await inherit(idOf(only), 1)).toMatchObject({ status: 409, json: { code: 'NARRATIVE_NOTHING_TO_INHERIT' } });
+      const sent = await submitted();
+      expect(await inherit(sent.reportId, 2)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
+    });
+
+    it('serves the Excel template prefilled with the projects that have a draft, and the file is read back by the import: dry run, fault by line, then apply once', async () => {
+      const { projectId, planId } = await seedProject();
+      const period = week();
+      const made = await create(draft(projectId, period, planId));
+      const code = (await rows<{ code: string }>('select code from machvon.project where id = $1', [projectId]))[0]?.code as string;
+      const template = await call('GET', `/report-narrative-template?period_id=${period}`, { member: MAKER });
+      expect(template.status).toBe(200);
+      expect(template.json).toMatchObject({ mapping_version: 'ENT-NARRATIVE-1', causes: [{ code: CAUSE, label: 'Site handover' }] });
+      expect(template.json.columns).toEqual(['project_code', 'status', 'schedule', 'disbursement', 'causes', 'difficulties', 'solutions', 'next_plan', 'proposals', 'cause_codes']);
+      const table = readTabularFile(new Uint8Array(Buffer.from(template.json.content_base64 as string, 'base64')));
+      expect(table.headers.slice(0, 2)).toEqual(['project_code', 'status']);
+      expect(table.rows.map((row) => row[0])).toContain(code);
+
+      const startImport = (stored: Reply): Promise<Reply> => call('POST', '/report-imports', { member: MAKER, body: { period_id: period, file_object_key: stored.json.file_object_key, file_sha256: stored.json.file_sha256, mapping_version: 'ENT-NARRATIVE-1' } });
+      const bad = await startImport(await upload(csv(['project_code,status,cause_codes', `${code},From the file,NOT_ON_THE_LIST`, 'NO-SUCH,x,'])));
+      const failed = await call('GET', `/report-imports/${idOf(bad)}`, { member: MAKER });
+      expect(failed.json).toMatchObject({ status: 'DRY_RUN', error_rows: 2 });
+      expect((failed.json.errors as Array<{ line: number; code: string }>).map((one) => `${one.line}:${one.code}`)).toEqual(['2:CAUSE_CODE_UNKNOWN', '3:PROJECT_NOT_FOUND']);
+      expect(await call('POST', `/report-imports/${idOf(bad)}/apply`, { member: MAKER, body: {}, ifMatch: '"1"' })).toMatchObject({ status: 422, json: { code: 'IMPORT_HAS_ERRORS' } });
+
+      const good = await startImport(await upload(csv(['project_code,status,schedule,disbursement,next_plan,cause_codes', `${code},From the file,On time,Half of the plan,Finish the roof,${CAUSE}`])));
+      expect((await call('GET', `/report-imports/${idOf(good)}`, { member: MAKER })).json).toMatchObject({ status: 'VALIDATED', valid_rows: 1, error_rows: 0 });
+      const before = await state(idOf(made));
+      const applied = await call('POST', `/report-imports/${idOf(good)}/apply`, { member: MAKER, body: {}, ifMatch: '"1"' });
+      expect(applied).toMatchObject({ status: 200, json: { status: 'APPLIED' } });
+      const after = await state(idOf(made));
+      expect(Number(after?.version)).toBe(Number(before?.version) + 1);
+      expect(after?.payload_hash).not.toBe(before?.payload_hash);
+      expect((await read(idOf(made))).json.narrative).toMatchObject({ enterprise: { status: 'From the file', schedule: 'On time', disbursement: 'Half of the plan', next_plan: 'Finish the roof', cause_codes: [CAUSE] } });
+      expect(await call('POST', `/report-imports/${idOf(good)}/apply`, { member: MAKER, body: {}, ifMatch: '"2"' })).toMatchObject({ status: 409, json: { code: 'IMPORT_FILE_ALREADY_APPLIED' } });
     });
   });
 

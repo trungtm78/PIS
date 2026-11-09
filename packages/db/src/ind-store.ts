@@ -4,6 +4,7 @@ import {
   DomainError,
   INDICATOR_IMPORT_RULE_TYPE,
   INDICATOR_RULE_TYPE,
+  NARRATIVE_MANDATORY_FACTS,
   builtInCodes,
   compareDecimal,
   entryRuleOf,
@@ -232,7 +233,9 @@ export class IndEntryRuleStore {
         : await this.inForce(tx, input.asOf, input.surface);
     if (rules.length === 0) return { violations: [], blocking: [], warnings: [], evaluated: [], skipped: [] };
     const asksMandatory = rules.some((rule) => rule.check === 'FIELD_REQUIRED' && rule.fields.includes('MANDATORY_FIELDS'));
-    const mandatory = asksMandatory ? mandatoryFieldsOf(await new IndDictionaryStore().list(tx, input.asOf), input.surface) : [];
+    const dictionary = asksMandatory ? mandatoryFieldsOf(await new IndDictionaryStore().list(tx, input.asOf), input.surface) : [];
+    // The narrative of a period asks for its own mandatory fields (ENT-3b) before the ones the dictionary requires on that surface.
+    const mandatory = input.surface === 'PERIOD_NARRATIVE' ? [...NARRATIVE_MANDATORY_FACTS, ...dictionary] : dictionary;
     return evaluateEntryRules(rules, { ...input.facts, surface: input.surface, mandatory });
   }
 }

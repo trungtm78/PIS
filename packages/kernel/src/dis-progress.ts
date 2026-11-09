@@ -1,5 +1,7 @@
 import { wholeDong } from './aud-conclusion.ts';
 import { DomainError } from './errors.ts';
+import { enterpriseNarrativeOf, isEmptyBlock } from './ent-narrative.ts';
+import type { EnterpriseNarrative, RawEnterpriseNarrative } from './ent-narrative.ts';
 import { asUuid } from './tenant-context.ts';
 
 /** The volumes of a weekly report (DIS 3 F1 step 3, DIS-03): what was built, accepted, sent to the Treasury and is being prepared, in whole dong. */
@@ -54,6 +56,8 @@ export interface NarrativeInput {
   proposalsText: string | null;
   /** Issues of the project the report speaks about (ISS), each once, in the order they were named. */
   linkedIssueIds: readonly string[];
+  /** The block of the enterprise pack (ENT-3b): the eight structured fields; absent in the public edition and in a report that has none. */
+  enterprise?: EnterpriseNarrative | undefined;
 }
 
 export interface RawNarrative {
@@ -62,6 +66,7 @@ export interface RawNarrative {
   solutions?: string | undefined;
   proposals?: string | undefined;
   linked_issue_ids?: readonly string[] | undefined;
+  enterprise?: RawEnterpriseNarrative | undefined;
 }
 
 export const NARRATIVE_MAX_CHARS = 4000;
@@ -99,14 +104,16 @@ export function narrativeOf(raw: RawNarrative | undefined): NarrativeInput | nul
     if (parsed === undefined || issues.includes(parsed)) throw new DomainError('VALIDATION_FAILED', 422, `narrative.linked_issue_ids[${index}]`);
     issues.push(parsed);
   });
+  const enterprise = enterpriseNarrativeOf(raw.enterprise);
   const narrative: NarrativeInput = {
     resultsText: sections.resultsText ?? null,
     causesText: sections.causesText ?? null,
     solutionsText: sections.solutionsText ?? null,
     proposalsText: sections.proposalsText ?? null,
     linkedIssueIds: issues,
+    ...(enterprise === null ? {} : { enterprise }),
   };
-  const empty = NARRATIVE_SECTIONS.every(([, field]) => narrative[field] === null) && issues.length === 0;
+  const empty = NARRATIVE_SECTIONS.every(([, field]) => narrative[field] === null) && issues.length === 0 && (enterprise === null || isEmptyBlock(enterprise));
   return empty ? null : narrative;
 }
 

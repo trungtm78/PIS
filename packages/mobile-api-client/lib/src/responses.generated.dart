@@ -783,6 +783,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getReportingCalendarBoard': DisReportingCalendarBoardResponse.fromJson,
   'getReportIssue': RptIssueResponse.fromJson,
   'getReportIssueFile': RptFileContentResponse.fromJson,
+  'getReportNarrativeContext': ReportNarrativeContextResponse.fromJson,
+  'getReportNarrativeTemplate': ReportNarrativeTemplateResponse.fromJson,
   'getReportRevision': asObject,
   'getReportSignature': asObject,
   'getReportWorkflow': DisReportWorkflowResponse.fromJson,
@@ -846,6 +848,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'importTreasuryStatement': CommandResultResponse.fromJson,
   'importVendorScreeningList': CommandResultResponse.fromJson,
   'indexAiKnowledgeItem': CommandResultResponse.fromJson,
+  'inheritReportNarrative': CommandResultResponse.fromJson,
   'inviteGuestContractor': CommandResultResponse.fromJson,
   'inviteMember': CommandResultResponse.fromJson,
   'issueContractEarlyWarningRegister': CommandResultResponse.fromJson,
@@ -58887,6 +58890,468 @@ final class QmsInspectionListResponse implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'items': items.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponse implements ResponseModel {
+  const ReportNarrativeContextResponse({
+    required this.asOf,
+    required this.reportId,
+    required this.fields,
+    required this.causes,
+    required this.directives,
+    required this.previous,
+    required this.inheritance,
+    required this.unchangedInherited,
+    required this.mandatory,
+    required this.verdict,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponse.fromJson(Object? json, [String path = 'ReportNarrativeContextResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponse(
+      asOf: requiredField(map, path, 'as_of', asString),
+      reportId: requiredField(map, path, 'report_id', asString),
+      fields: requiredField(map, path, 'fields', asList(asString)),
+      causes: requiredField(map, path, 'causes', asList(ReportNarrativeContextResponseCausesItem.fromJson)),
+      directives: requiredField(map, path, 'directives', ReportNarrativeContextResponseDirectives.fromJson),
+      previous: requiredField(map, path, 'previous', nullable(ReportNarrativeContextResponsePrevious.fromJson)),
+      inheritance: requiredField(map, path, 'inheritance', nullable(ReportNarrativeContextResponseInheritance.fromJson)),
+      unchangedInherited: requiredField(map, path, 'unchanged_inherited', asList(asString)),
+      mandatory: requiredField(map, path, 'mandatory', asList(asString)),
+      verdict: requiredField(map, path, 'verdict', ReportNarrativeContextResponseVerdict.fromJson),
+      extra: unknownFields(map, path, const <String>{'as_of', 'report_id', 'fields', 'causes', 'directives', 'previous', 'inheritance', 'unchanged_inherited', 'mandatory', 'verdict'}, strict: false),
+    );
+  }
+
+  final String asOf;
+  final String reportId;
+  final List<String> fields;
+  final List<ReportNarrativeContextResponseCausesItem> causes;
+  final ReportNarrativeContextResponseDirectives directives;
+  final ReportNarrativeContextResponsePrevious? previous;
+  final ReportNarrativeContextResponseInheritance? inheritance;
+  final List<String> unchangedInherited;
+  final List<String> mandatory;
+  final ReportNarrativeContextResponseVerdict verdict;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'as_of': asOf,
+        'report_id': reportId,
+        'fields': fields,
+        'causes': causes.map((e0) => e0.toJson()).toList(),
+        'directives': directives.toJson(),
+        'previous': (previous == null ? null : previous!.toJson()),
+        'inheritance': (inheritance == null ? null : inheritance!.toJson()),
+        'unchanged_inherited': unchangedInherited,
+        'mandatory': mandatory,
+        'verdict': verdict.toJson(),
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseCausesItem implements ResponseModel {
+  const ReportNarrativeContextResponseCausesItem({
+    required this.code,
+    required this.label,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseCausesItem.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseCausesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseCausesItem(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'label'}, strict: false),
+    );
+  }
+
+  final String code;
+  final String label;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseDirectives implements ResponseModel {
+  const ReportNarrativeContextResponseDirectives({
+    required this.from,
+    required this.to,
+    required this.truncated,
+    required this.items,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseDirectives.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseDirectives']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseDirectives(
+      from: requiredField(map, path, 'from', asString),
+      to: requiredField(map, path, 'to', asString),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      items: requiredField(map, path, 'items', asList(ReportNarrativeContextResponseDirectivesItemsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'from', 'to', 'truncated', 'items'}, strict: false),
+    );
+  }
+
+  final String from;
+  final String to;
+  final bool truncated;
+  final List<ReportNarrativeContextResponseDirectivesItemsItem> items;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'from': from,
+        'to': to,
+        'truncated': truncated,
+        'items': items.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseDirectivesItemsItem implements ResponseModel {
+  const ReportNarrativeContextResponseDirectivesItemsItem({
+    required this.id,
+    required this.code,
+    required this.statusAtEnd,
+    required this.line,
+    this.meetingDate,
+    this.text,
+    this.assigneeUnit,
+    this.dueOn,
+    this.lastNote,
+    this.rolledUp,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseDirectivesItemsItem.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseDirectivesItemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseDirectivesItemsItem(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      meetingDate: optionalField(map, path, 'meeting_date', asString),
+      text: optionalField(map, path, 'text', asString),
+      assigneeUnit: optionalField(map, path, 'assignee_unit', asString),
+      dueOn: optionalField(map, path, 'due_on', asString),
+      statusAtEnd: requiredField(map, path, 'status_at_end', asString),
+      lastNote: optionalField(map, path, 'last_note', nullable(asString)),
+      line: requiredField(map, path, 'line', asString),
+      rolledUp: optionalField(map, path, 'rolled_up', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'meeting_date', 'text', 'assignee_unit', 'due_on', 'status_at_end', 'last_note', 'line', 'rolled_up'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String? meetingDate;
+  final String? text;
+  final String? assigneeUnit;
+  final String? dueOn;
+  final String statusAtEnd;
+  final String? lastNote;
+  final String line;
+  final bool? rolledUp;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        if (meetingDate != null) 'meeting_date': meetingDate,
+        if (text != null) 'text': text,
+        if (assigneeUnit != null) 'assignee_unit': assigneeUnit,
+        if (dueOn != null) 'due_on': dueOn,
+        'status_at_end': statusAtEnd,
+        if (lastNote != null) 'last_note': lastNote,
+        'line': line,
+        if (rolledUp != null) 'rolled_up': rolledUp,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseInheritance implements ResponseModel {
+  const ReportNarrativeContextResponseInheritance({
+    this.fromReportId,
+    this.fromPeriodId,
+    this.at,
+    this.by,
+    this.fields,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseInheritance.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseInheritance']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseInheritance(
+      fromReportId: optionalField(map, path, 'from_report_id', asString),
+      fromPeriodId: optionalField(map, path, 'from_period_id', nullable(asString)),
+      at: optionalField(map, path, 'at', asString),
+      by: optionalField(map, path, 'by', asString),
+      fields: optionalField(map, path, 'fields', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'from_report_id', 'from_period_id', 'at', 'by', 'fields'}, strict: false),
+    );
+  }
+
+  final String? fromReportId;
+  final String? fromPeriodId;
+  final String? at;
+  final String? by;
+  final List<String>? fields;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (fromReportId != null) 'from_report_id': fromReportId,
+        if (fromPeriodId != null) 'from_period_id': fromPeriodId,
+        if (at != null) 'at': at,
+        if (by != null) 'by': by,
+        if (fields != null) 'fields': fields,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponsePrevious implements ResponseModel {
+  const ReportNarrativeContextResponsePrevious({
+    this.reportId,
+    this.periodCode,
+    this.status,
+    this.fields,
+    this.causeCodes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponsePrevious.fromJson(Object? json, [String path = 'ReportNarrativeContextResponsePrevious']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponsePrevious(
+      reportId: optionalField(map, path, 'report_id', asString),
+      periodCode: optionalField(map, path, 'period_code', asString),
+      status: optionalField(map, path, 'status', asString),
+      fields: optionalField(map, path, 'fields', asList(asString)),
+      causeCodes: optionalField(map, path, 'cause_codes', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'report_id', 'period_code', 'status', 'fields', 'cause_codes'}, strict: false),
+    );
+  }
+
+  final String? reportId;
+  final String? periodCode;
+  final String? status;
+  final List<String>? fields;
+  final List<String>? causeCodes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (reportId != null) 'report_id': reportId,
+        if (periodCode != null) 'period_code': periodCode,
+        if (status != null) 'status': status,
+        if (fields != null) 'fields': fields,
+        if (causeCodes != null) 'cause_codes': causeCodes,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseVerdict implements ResponseModel {
+  const ReportNarrativeContextResponseVerdict({
+    required this.blocking,
+    required this.warnings,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseVerdict.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseVerdict']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseVerdict(
+      blocking: requiredField(map, path, 'blocking', asList(ReportNarrativeContextResponseVerdictBlockingItem.fromJson)),
+      warnings: requiredField(map, path, 'warnings', asList(ReportNarrativeContextResponseVerdictWarningsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'blocking', 'warnings'}, strict: false),
+    );
+  }
+
+  final List<ReportNarrativeContextResponseVerdictBlockingItem> blocking;
+  final List<ReportNarrativeContextResponseVerdictWarningsItem> warnings;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'blocking': blocking.map((e0) => e0.toJson()).toList(),
+        'warnings': warnings.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseVerdictBlockingItem implements ResponseModel {
+  const ReportNarrativeContextResponseVerdictBlockingItem({
+    this.ruleCode,
+    this.check,
+    this.fields,
+    this.message,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseVerdictBlockingItem.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseVerdictBlockingItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseVerdictBlockingItem(
+      ruleCode: optionalField(map, path, 'rule_code', asString),
+      check: optionalField(map, path, 'check', asString),
+      fields: optionalField(map, path, 'fields', asList(asString)),
+      message: optionalField(map, path, 'message', asString),
+      extra: unknownFields(map, path, const <String>{'rule_code', 'check', 'fields', 'message'}, strict: false),
+    );
+  }
+
+  final String? ruleCode;
+  final String? check;
+  final List<String>? fields;
+  final String? message;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (ruleCode != null) 'rule_code': ruleCode,
+        if (check != null) 'check': check,
+        if (fields != null) 'fields': fields,
+        if (message != null) 'message': message,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeContextResponseVerdictWarningsItem implements ResponseModel {
+  const ReportNarrativeContextResponseVerdictWarningsItem({
+    this.ruleCode,
+    this.check,
+    this.fields,
+    this.message,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeContextResponseVerdictWarningsItem.fromJson(Object? json, [String path = 'ReportNarrativeContextResponseVerdictWarningsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeContextResponseVerdictWarningsItem(
+      ruleCode: optionalField(map, path, 'rule_code', asString),
+      check: optionalField(map, path, 'check', asString),
+      fields: optionalField(map, path, 'fields', asList(asString)),
+      message: optionalField(map, path, 'message', asString),
+      extra: unknownFields(map, path, const <String>{'rule_code', 'check', 'fields', 'message'}, strict: false),
+    );
+  }
+
+  final String? ruleCode;
+  final String? check;
+  final List<String>? fields;
+  final String? message;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (ruleCode != null) 'rule_code': ruleCode,
+        if (check != null) 'check': check,
+        if (fields != null) 'fields': fields,
+        if (message != null) 'message': message,
+        ...extra,
+      };
+}
+
+final class ReportNarrativeTemplateResponse implements ResponseModel {
+  const ReportNarrativeTemplateResponse({
+    required this.fileName,
+    required this.contentType,
+    required this.sha256,
+    required this.contentBase64,
+    required this.mappingVersion,
+    required this.columns,
+    required this.causes,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeTemplateResponse.fromJson(Object? json, [String path = 'ReportNarrativeTemplateResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeTemplateResponse(
+      fileName: requiredField(map, path, 'file_name', asString),
+      contentType: requiredField(map, path, 'content_type', asString),
+      sha256: requiredField(map, path, 'sha256', asString),
+      contentBase64: requiredField(map, path, 'content_base64', asString),
+      mappingVersion: requiredField(map, path, 'mapping_version', asString),
+      columns: requiredField(map, path, 'columns', asList(asString)),
+      causes: requiredField(map, path, 'causes', asList(ReportNarrativeTemplateResponseCausesItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'file_name', 'content_type', 'sha256', 'content_base64', 'mapping_version', 'columns', 'causes'}, strict: false),
+    );
+  }
+
+  final String fileName;
+  final String contentType;
+  final String sha256;
+  final String contentBase64;
+  final String mappingVersion;
+  final List<String> columns;
+  final List<ReportNarrativeTemplateResponseCausesItem> causes;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_name': fileName,
+        'content_type': contentType,
+        'sha256': sha256,
+        'content_base64': contentBase64,
+        'mapping_version': mappingVersion,
+        'columns': columns,
+        'causes': causes.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ReportNarrativeTemplateResponseCausesItem implements ResponseModel {
+  const ReportNarrativeTemplateResponseCausesItem({
+    required this.code,
+    required this.label,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ReportNarrativeTemplateResponseCausesItem.fromJson(Object? json, [String path = 'ReportNarrativeTemplateResponseCausesItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ReportNarrativeTemplateResponseCausesItem(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'label'}, strict: false),
+    );
+  }
+
+  final String code;
+  final String label;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
         ...extra,
       };
 }

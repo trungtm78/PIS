@@ -1,4 +1,4 @@
-import { COMMITTEE_PERIODIC_NARRATIVE, INVEST_STEERING_NARRATIVE, PLANT_PHU_MY_NARRATIVE, PVN_QUARTERLY_NARRATIVE } from './narratives.ts';
+import { COMMITTEE_PERIODIC_NARRATIVE, HPM_MONTHLY_NARRATIVE, INVEST_STEERING_NARRATIVE, PLANT_PHU_MY_NARRATIVE, PVN_MONTHLY_NARRATIVE, PVN_QUARTERLY_NARRATIVE } from './narratives.ts';
 import { buildTableForm, formTexts } from './common.ts';
 import type { ColumnKey, DemoFormSpec, StripItem } from './common.ts';
 
@@ -51,6 +51,7 @@ export const PVN_MONTHLY: DemoFormSpec = buildTableForm({
     strip('rateDisbursedYtd', 'ENT_RATE_DISBURSED_YTD', 'YEAR_TO_DATE'),
   ],
   notes: [NOTE_RATE, NOTE_CAPITAL, NOTE_SCHEDULE, NOTE_DEMO],
+  narrative: PVN_MONTHLY_NARRATIVE,
   print: A3,
 });
 
@@ -95,6 +96,7 @@ export const HPM_MONTHLY: DemoFormSpec = buildTableForm({
     strip('rateDisbursedYtd', 'ENT_RATE_DISBURSED_YTD', 'YEAR_TO_DATE'),
   ],
   notes: [NOTE_RATE, note('hpmKind'), NOTE_DEMO],
+  narrative: HPM_MONTHLY_NARRATIVE,
   print: A3,
 });
 
