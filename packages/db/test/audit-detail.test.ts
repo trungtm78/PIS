@@ -1,3 +1,4 @@
+import { Client } from 'pg';
 import { sha256Hex, canonicalJson } from '@machvon/kernel';
 import { AuditDetailPolicyStore, AuditDetailReads } from '../src/audit-detail-store';
 import { MEMBERSHIP, RESOURCE, TENANT_A, TENANT_B, contextOf, entryOf, startAuditHarness } from './support/audit-fixtures';
@@ -60,5 +61,17 @@ describe('the full before and after of the audit trail (HT.06)', () => {
     await expect(
       harness.tenantDatabase.withTenant(contextOf(TENANT_A), (tx) => tx.query("update machvon.audit_event_detail set after_value = '{}'::jsonb where audit_event_id = $1::uuid", [id])),
     ).rejects.toThrow();
+  });
+
+  it('keeps the detail and the policy history append-only for a superuser too: no TRUNCATE, not even with CASCADE', async () => {
+    const admin = new Client({ connectionString: harness.database.adminUrl });
+    await admin.connect();
+    try {
+      for (const statement of ['truncate machvon.audit_event_detail', 'truncate machvon.audit_detail_policy_event', 'truncate machvon.audit_event cascade', 'truncate machvon.audit_detail_policy cascade']) {
+        await expect(admin.query(statement)).rejects.toMatchObject({ code: expect.stringMatching(/^(23514|42501)$/) });
+      }
+    } finally {
+      await admin.end();
+    }
   });
 });

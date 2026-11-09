@@ -85,7 +85,10 @@ describe('migration V003 platform services', () => {
       try {
         expect(await failureCode(admin, `update machvon.${table} set tenant_id = tenant_id`)).toBe('42501');
         expect(await failureCode(admin, `delete from machvon.${table}`)).toBe('42501');
-        expect(await failureCode(admin, `truncate machvon.${table}`)).toBe('42501');
+        // audit_event is referenced by audit_event_detail (ENT-4e): a plain TRUNCATE is refused by the engine (0A000) before the trigger runs.
+        expect(await failureCode(admin, `truncate machvon.${table}`)).toBe(table === 'audit_event' ? '0A000' : '42501');
+        // With CASCADE the engine lets it through to the BEFORE TRUNCATE trigger, which is the guard that the superuser meets.
+        expect(await failureCode(admin, `truncate machvon.${table} cascade`)).toBe('42501');
       } finally {
         await admin.end();
       }
