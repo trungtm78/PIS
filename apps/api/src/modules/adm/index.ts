@@ -1,6 +1,8 @@
 import { InboxHandlerRegistry, IntegrationInboxProcessor, TenantDatabase } from '@machvon/db';
 import { defineModule } from '../module-descriptor';
 import { ActingCommandsController, ActingReadsController } from './acting.controller';
+import { BackupRequestCommandsController, BackupRequestReadsController } from './backup-request.controller';
+import { BACKUP_STATE_PORT, backupStateFromEnvironment } from './backup-state.port';
 import { PeriodScopeCommandsController, PeriodScopeReadsController } from './period-scope.controller';
 import { StandingDelegationCommandsController, StandingDelegationReadsController } from './standing-delegation.controller';
 import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
@@ -81,6 +83,8 @@ export const admModule = defineModule({
     ActingReadsController,
     PeriodScopeCommandsController,
     PeriodScopeReadsController,
+    BackupRequestCommandsController,
+    BackupRequestReadsController,
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [
@@ -98,5 +102,7 @@ export const admModule = defineModule({
     { provide: ADM_INBOX_PROCESSOR, useFactory: (database: TenantDatabase, registry: InboxHandlerRegistry) => new IntegrationInboxProcessor(database, registry), inject: [TenantDatabase, ADM_INBOX_HANDLERS] },
     // MACHVON_ENVIRONMENT names the deployment (infra/environments); unset or unknown means production, where a MOCK adapter is never Active.
     { provide: ADM_ENVIRONMENT, useFactory: () => process.env.MACHVON_ENVIRONMENT },
+    // Where the screen of the backups reads the last backup and verification from (INFRA-2): files the host writes; none configured means UNKNOWN.
+    { provide: BACKUP_STATE_PORT, useFactory: () => backupStateFromEnvironment() },
   ],
 });

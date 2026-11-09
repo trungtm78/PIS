@@ -203,6 +203,7 @@ describe('maker-checker and MFA replay cases', () => {
       'approveCriteriaVersion',
       'grantPermitGateWaiver',
       'approveQualityRuleVersion',
+      'decideBackupRequest',
     ]);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
     expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual([
@@ -212,6 +213,8 @@ describe('maker-checker and MFA replay cases', () => {
       'TENANT_ADMIN',
       'TENANT_ADMIN',
       'TENANT_ADMIN',
+      'TENANT_ADMIN',
+      'TENANT_OWNER',
       'TENANT_OWNER',
       'TENANT_OWNER',
       'TENANT_OWNER',
