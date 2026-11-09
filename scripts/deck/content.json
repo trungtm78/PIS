@@ -1,0 +1,357 @@
+{
+  "meta": {
+    "title": "Phần mềm quản lý đầu tư xây dựng - Mạch Vốn - Giới thiệu hệ thống cho Phú Mỹ (PVFCCo)",
+    "subject": "Bản trình bày giới thiệu hệ thống",
+    "keywords": "Mạch Vốn, quản lý đầu tư xây dựng, Phú Mỹ, PVFCCo, HPM, EBS",
+    "footer": "Mạch Vốn  |  Phần mềm quản lý đầu tư xây dựng  |  Phú Mỹ - PVFCCo",
+    "date": "Tháng 11/2026"
+  },
+  "slides": [
+    {
+      "id": "cover",
+      "eyebrow": "GIỚI THIỆU HỆ THỐNG",
+      "title": "Phần mềm quản lý đầu tư xây dựng",
+      "title2": "Phú Mỹ - PVFCCo",
+      "subtitle": "Một nguồn số liệu duy nhất: nhập một lần, duyệt, chốt kỳ, đẩy sang HPM và ra báo cáo",
+      "label_customer": "KHÁCH HÀNG: TỔNG CÔNG TY PHÂN BÓN VÀ HÓA CHẤT DẦU KHÍ",
+      "label_product": "SẢN PHẨM GIỚI THIỆU",
+      "confidential": "Bản trình bày giới thiệu hệ thống dành cho lãnh đạo Phú Mỹ - PVFCCo, tháng 11/2026",
+      "notes": "Kính chào quý lãnh đạo. Hôm nay tôi giới thiệu Mạch Vốn, phần mềm quản lý đầu tư xây dựng được thiết kế theo hồ sơ kỹ thuật v0.3 của PVFCCo. Tôi sẽ đi từ bài toán hiện tại, nguyên tắc nhập một lần, kiến trúc, chức năng, rồi nói rõ mức đáp ứng thật và những việc cần Tổng công ty cung cấp."
+    },
+    {
+      "id": "problem",
+      "eyebrow": "BỐI CẢNH VÀ VẤN ĐỀ",
+      "title": "Số liệu đầu tư đang đi qua năm biểu Excel",
+      "subtitle": "Báo cáo đầu tư xây dựng và mua sắm trang thiết bị dự án hiện làm hoàn toàn thủ công",
+      "panel_title": "Năm biểu mẫu báo cáo lập song song",
+      "forms": [
+        "Báo cáo thực hiện kế hoạch ĐTXDCB và mua sắm trang thiết bị theo tháng, gửi Tập đoàn (PVN)",
+        "Báo cáo thực hiện kế hoạch ĐTXDCB và mua sắm trang thiết bị theo quý, gửi PVN",
+        "Báo cáo tháng nhập trên hệ thống HPM",
+        "Báo cáo định kỳ cho Ủy ban Đầu tư phát triển - KHCN",
+        "Báo cáo họp giao ban đầu tư hàng tháng"
+      ],
+      "stats": [
+        {"num": "09", "label": "đầu mối nhập liệu", "desc": "07 Ban/Đơn vị và 02 Tổ dự án cùng nhập số liệu đầu tư"},
+        {"num": "05", "label": "biểu mẫu song song", "desc": "Nội dung gần như nhau nhưng khác cách bố trí hàng, cột"},
+        {"num": "10-18", "label": "ngày chốt số mỗi tháng", "desc": "Ngày 10-15 chốt số ước, ngày 15-18 nhập lại trên HPM"},
+        {"num": "100%", "label": "làm thủ công trên Excel", "desc": "Dữ liệu nằm rải trong các tệp, không lưu vết điều chỉnh"}
+      ],
+      "notes": "Theo rà soát của Tổ chuẩn hóa dữ liệu, có 09 đầu mối đang lập song song 05 loại biểu mẫu. Các biểu giống nhau về nội dung nhưng khác bố cục và thời điểm chốt. Toàn bộ làm tay trên Excel."
+    },
+    {
+      "id": "issues",
+      "eyebrow": "BỐI CẢNH VÀ VẤN ĐỀ",
+      "title": "Năm hệ quả lặp lại mỗi kỳ báo cáo",
+      "subtitle": "Từ cùng một bộ số liệu, mỗi kỳ phải nhập lại nhiều lần",
+      "items": [
+        ["Nhập lại nhiều lần.", "Cùng một bộ số liệu được nhập vào nhiều biểu mỗi kỳ"],
+        ["Số liệu lệch nhau.", "Giải ngân và thuyết minh của một số dự án chưa thống nhất giữa báo cáo nội bộ và báo cáo gửi PVN"],
+        ["Rà soát kéo dài.", "Các Ban/Đơn vị mất nhiều thời gian đối chiếu, chỉnh sửa"],
+        ["Không có vết.", "Dữ liệu phân tán trong các tệp, không lưu vết điều chỉnh, khó truy xuất khi lãnh đạo hỏi"],
+        ["HPM chỉ nhận ở bước cuối.", "Chưa hỗ trợ quy trình nhập, duyệt, rà soát tại các đơn vị"]
+      ],
+      "panel_title": "Kết luận của Tổ chuẩn hóa dữ liệu",
+      "panel_sub": "Biên bản họp 43/BBH-KHĐT ngày 12/10/2026",
+      "panel_items": [
+        "Mỗi đầu mối bố trí 01 người nhập liệu và 01 người phê duyệt",
+        "Số liệu đã duyệt chuyển Ban KHĐT rà soát rồi mới lên HPM",
+        "Hệ thống phải cảnh báo sai sót đến người nhập và người duyệt",
+        "Phần mềm có kết nối vào HPM và Data Lakehouse của Tổng công ty"
+      ],
+      "panel_bottom": "Rà soát của Ban CĐS&CNTT: hệ thống hiện hữu chưa đáp ứng quy trình này",
+      "notes": "Hệ quả là số liệu giải ngân có thể lệch giữa báo cáo nội bộ và báo cáo gửi PVN, và không truy được ai sửa gì. Biên bản họp ngày 12/10/2026 đã chốt cách làm: mỗi đầu mối một người nhập, một người duyệt, Ban KHĐT rà soát rồi mới lên HPM."
+    },
+    {
+      "id": "goals",
+      "eyebrow": "MỤC TIÊU VÀ NGUYÊN TẮC",
+      "title": "Nhập một lần, dùng cho mọi báo cáo",
+      "subtitle": "Bốn nguyên tắc và một quy trình duy nhất cho mọi đầu mối",
+      "cards": [
+        {"big": "1 lần", "title": "Nhập tại đầu mối", "desc": "Mỗi số liệu chỉ nhập một lần tại đơn vị sở hữu số liệu"},
+        {"big": "1 nguồn", "title": "Số liệu duy nhất", "desc": "Kế hoạch, thực hiện, giải ngân của mọi dự án ở một nơi"},
+        {"big": "Có vết", "title": "Mọi thao tác ghi lại", "desc": "Người làm, thời điểm, lý do cho tạo, sửa, duyệt, chốt, mở lại kỳ"},
+        {"big": "Tự động", "title": "Biểu mẫu sinh từ cùng số liệu", "desc": "Báo cáo PVN, Ủy ban, giao ban và nội bộ cùng một nguồn"}
+      ],
+      "flow_title": "Quy trình duyệt số liệu kỳ",
+      "flow": [
+        ["Nhập liệu", "Đầu mối nhập số liệu kỳ, kiểm tra ngay khi nhập"],
+        ["Phê duyệt", "Người có thẩm quyền tại đơn vị duyệt hoặc trả về"],
+        ["Rà soát", "Ban KHĐT rà soát, kiểm tra, đối chiếu"],
+        ["Chốt kỳ", "Đóng băng bản chốt, số liệu không sửa lặng lẽ"],
+        ["Đẩy HPM", "Gói số liệu đã chốt đẩy sang HPM, ghi biên nhận"]
+      ],
+      "callout": "Dữ liệu sai sót được trả về đúng đầu mối kèm cảnh báo; mọi bước đều lưu người làm, thời điểm và lý do.",
+      "notes": "Nguyên tắc cốt lõi là nhập một lần. Quy trình năm bước nhập, duyệt, rà soát, chốt kỳ, đẩy HPM đúng như kết luận của biên bản họp 43. Sau khi chốt, mọi biểu mẫu và dashboard đều đọc cùng một bản chốt."
+    },
+    {
+      "id": "architecture",
+      "eyebrow": "KIẾN TRÚC NỀN TẢNG",
+      "title": "Một lõi nghiệp vụ, nhiều cửa vào",
+      "subtitle": "Người dùng vào bằng web hoặc điện thoại; các kết nối ra hệ thống hiện hữu đi qua một hub tích hợp",
+      "col_users": "NGƯỜI DÙNG",
+      "col_core": "NỀN TẢNG MẠCH VỐN",
+      "col_hub": "KẾT NỐI RA",
+      "users": [
+        ["Web trên máy tính", "Nhập liệu, duyệt, rà soát, báo cáo"],
+        ["Điện thoại (PWA)", "Duyệt, dashboard, chỉ đạo"],
+        ["Quản trị", "Phân quyền, danh mục, tham số"]
+      ],
+      "identity": ["Keycloak", "Đăng nhập một lần (SSO), xác thực đa yếu tố (MFA), liên kết AD"],
+      "core_api": "API (OpenAPI) và lõi nghiệp vụ",
+      "chips": ["Dự án và master data", "Kế hoạch vốn, giải ngân", "Quy trình duyệt, kỳ báo cáo", "Báo cáo biểu mẫu", "Dashboard, cảnh báo", "Chỉ đạo giao ban"],
+      "snapshot": "Bản chốt kỳ: đóng băng, băm SHA-256",
+      "stores": [["PostgreSQL 16+", "Cách ly theo tổ chức (RLS)"], ["Kho tệp kiểu S3", "Quét tệp trước khi liên kết"]],
+      "audit": "Nhật ký kiểm toán chuỗi băm có niêm phong",
+      "hub_title": "Integration Hub",
+      "hub": [
+        ["HPM", "Đẩy gói số liệu đã chốt"],
+        ["Oracle EBS", "Nạp tệp, đối chiếu giải ngân"],
+        ["Data Lakehouse, Power BI", "API mở và đăng nhập DB chỉ đọc"],
+        ["eProcurement, văn thư", "Nhập tay hoặc tệp, chờ đặc tả"],
+        ["Email, Microsoft Teams", "Nhắc việc, cảnh báo quá hạn"]
+      ],
+      "foot": "Thiết kế để cài tại máy chủ của Tổng công ty bằng gói cài ngoại tuyến; hai môi trường UAT và Production.",
+      "notes": "Đây là bức tranh tổng thể. Người dùng vào bằng web hoặc điện thoại, đăng nhập qua Keycloak liên kết AD. Lõi nghiệp vụ lưu trong PostgreSQL. Mọi kết nối ra HPM, EBS, Lakehouse, Teams đi qua một hub tích hợp nên thêm hoặc đổi kết nối không phải sửa lõi."
+    },
+    {
+      "id": "integration",
+      "eyebrow": "KIẾN TRÚC NỀN TẢNG",
+      "title": "Cách kết nối các dịch vụ",
+      "subtitle": "Mỗi kết nối có cách làm, trạng thái hiện tại và điều đang chờ từ phía Tổng công ty",
+      "cols": ["Dịch vụ", "Cách kết nối", "Trạng thái"],
+      "rows": [
+        ["HPM", "Cổng HpmPort; hiện ghi gói số liệu ra tệp chuẩn, thay bằng bộ chuyển tiếp API khi có đặc tả; khóa đẩy chống trùng, thử lại an toàn", "wait|Chờ đặc tả HPM (PX-03)"],
+        ["Oracle EBS", "Nạp tệp xuất, chạy thử không ghi, đối chiếu theo mã dự án và kỳ chính xác đến đồng; chênh lệch có chủ, hạn, giải trình", "wait|Chờ mẫu tệp và quyền đọc (PX-04)"],
+        ["Data Lakehouse, Power BI", "API mở /open/v1 với token ngắn hạn, tập dữ liệu chứng nhận lấy từ bản chốt; đăng nhập cơ sở dữ liệu chỉ đọc cho BI", "ok|Có sẵn; mô hình Power BI mẫu chưa có"],
+        ["SSO, MFA, AD", "Keycloak (OIDC) liên kết Active Directory, bảng ánh xạ nhóm AD sang vai trò; MFA khi truy cập từ ngoài mạng nội bộ", "wait|Chờ thông tin AD, SMTP, Teams (PX-16)"],
+        ["eProcurement, văn thư", "Hiện nhập tay hoặc nhập tệp theo biểu mẫu; tệp đính kèm cho văn bản pháp lý", "wait|Chờ đặc tả (PX-06, PX-07)"],
+        ["Email, Teams", "Nhắc việc và cảnh báo quá hạn; hiện nhắc trong hệ thống", "wait|Chờ SMTP, Teams (PX-16)"]
+      ],
+      "foot": "Mọi kết nối dùng chung một khung: mô tả bằng một tệp, theo dõi sức khỏe, cảnh báo khi lỗi, không ra ngoài khi chưa được duyệt.",
+      "notes": "Điểm cần nói thẳng: phần mềm đã sẵn sàng phía mình, nhưng nghiệm thu đẩy HPM và đối chiếu EBS chỉ làm được khi Ban CĐS&CNTT cung cấp đặc tả HPM và mẫu tệp EBS. Trong lúc chờ, hệ thống chạy với bố cục giả định ghi rõ trong tài liệu."
+    },
+    {
+      "id": "readpath",
+      "eyebrow": "KIẾN TRÚC NỀN TẢNG",
+      "title": "Một bản chốt, nhiều đầu ra",
+      "subtitle": "Biểu mẫu, dashboard, gói HPM và đối chiếu EBS cùng đọc một bản chốt, không đọc thẳng bảng gốc",
+      "source": ["Đầu mối nhập liệu", "Nhập, duyệt tại đơn vị, Ban KHĐT rà soát"],
+      "snap_title": "Bản chốt kỳ",
+      "snap_items": ["Đóng băng, băm SHA-256", "Không sửa sau khi chốt", "Mở lại kỳ phải có đề nghị và duyệt"],
+      "outputs": [
+        ["Biểu mẫu Excel, Word, PDF", "Bản phát hành bất biến, có mã băm; đúng bố cục biểu mẫu"],
+        ["Dashboard lãnh đạo", "Cùng một số liệu với biểu mẫu, truy nguồn từng chỉ tiêu"],
+        ["Gói số liệu đẩy HPM", "Khóa đẩy chống trùng, bản cũ hơn bị từ chối"],
+        ["Đối chiếu Oracle EBS", "Giải ngân lũy kế theo mã dự án và kỳ, chính xác đến đồng"]
+      ],
+      "honest_title": "Đang hoàn thiện",
+      "honest": "Dựng bản chốt riêng cho bản enterprise và bộ đọc đang làm; hiện sáu biểu mẫu chạy trên dữ liệu minh họa có dấu. Bố cục chính thức của biểu mẫu chờ Ban KHĐT cung cấp (PX-01).",
+      "notes": "Lý do số liệu luôn thống nhất là mọi đầu ra đọc cùng bản chốt. Nói thật: hiện biểu mẫu chạy bằng dữ liệu minh họa có dấu, vì bố cục chính thức và danh mục dự án thật chưa được cung cấp."
+    },
+    {
+      "id": "features-a",
+      "eyebrow": "CHỨC NĂNG NỔI BẬT",
+      "title": "Dữ liệu nền, quy trình và số liệu kỳ",
+      "subtitle": "Bốn nhóm chức năng làm nên chuỗi nhập, duyệt, chốt",
+      "cards": [
+        {"title": "Master data và danh mục dự án", "bullets": ["Mã dự án thống nhất, ánh xạ mã HPM và EBS", "Phân loại nhóm A/B/C, loại hình, giai đoạn", "Hồ sơ pháp lý, mốc vòng đời, lịch sử thay đổi"]},
+        {"title": "Bộ dữ liệu nền và từ điển chỉ tiêu", "bullets": ["Chỉ tiêu, công thức, quy tắc kiểm tra khi nhập", "Nhập trực tiếp hoặc nhập từ Excel", "Quản trị tự đổi qua màn hình, không cần lập trình"]},
+        {"title": "Quy trình To-Be và kỳ báo cáo", "bullets": ["Nhập, duyệt, rà soát, chốt kỳ, đẩy HPM", "Lịch kỳ, theo dõi từng đầu mối nhập, nhắc quá hạn", "Mở lại kỳ đã chốt có đề nghị và duyệt"]},
+        {"title": "Kế hoạch, giải ngân, thuyết minh", "bullets": ["Kế hoạch vốn năm và các phiên bản điều chỉnh", "Tự tính lũy kế và tỷ lệ so kế hoạch, so cùng kỳ", "Thuyết minh, khó khăn vướng mắc theo dự án"]}
+      ],
+      "foot": "Mức đáp ứng từng yêu cầu của hồ sơ kỹ thuật nêu ở trang \"Mức đáp ứng so với hồ sơ kỹ thuật\".",
+      "notes": "Bốn nhóm này là phần lõi của chuỗi nhập một lần. Từ điển chỉ tiêu và quy tắc nhập hiện chạy bằng bộ khởi điểm, thay bằng bản chính thức của Tổ chuẩn hóa dữ liệu qua màn hình quản trị mà không phải sửa mã."
+    },
+    {
+      "id": "features-b",
+      "eyebrow": "CHỨC NĂNG NỔI BẬT",
+      "title": "Chỉ đạo giao ban, đẩy HPM, đối chiếu EBS",
+      "subtitle": "Từ cuộc họp đến số liệu đã chốt và đối chiếu với kế toán",
+      "shots": [
+        {"img": "shot-directives.jpg", "title": "Chỉ đạo giao ban", "desc": "Chỉ đạo ghi từ cuộc họp: đơn vị thực hiện, hạn, trạng thái (mở, đang làm, hoàn thành, quá hạn, hủy), tiến độ và dòng thời gian. Danh sách cập nhật được cả trên điện thoại.", "alt": "Màn hình các cuộc giao ban đầu tư"},
+        {"img": "shot-hpm.jpg", "title": "Đẩy HPM và đối chiếu EBS", "desc": "Kỳ đã chốt đẩy sang HPM kèm biên nhận. Nạp tệp từ Oracle EBS, đối chiếu giải ngân theo mã dự án và kỳ; mục chênh lệch có chủ, hạn và giải trình (lỗi bên mình, lỗi EBS, lệch thời điểm, miễn).", "alt": "Màn hình đẩy số liệu kỳ sang HPM"}
+      ],
+      "notes": "Chỉ đạo từ họp giao ban được ghi thành việc có người, có hạn, có trạng thái và hiện trên trang chủ lãnh đạo. Bên phải là đẩy HPM và đối chiếu EBS. Ảnh chụp từ clip giới thiệu bản enterprise, dữ liệu minh họa."
+    },
+    {
+      "id": "features-c",
+      "eyebrow": "CHỨC NĂNG NỔI BẬT",
+      "title": "Báo cáo biểu mẫu và dashboard lãnh đạo",
+      "subtitle": "Ra đúng biểu mẫu quy định và cho lãnh đạo xem số liệu ngay",
+      "shots": [
+        {"img": "shot-reports.jpg", "title": "Báo cáo theo biểu mẫu", "desc": "Bộ sinh báo cáo điền thẳng vào tệp Excel mẫu, giữ nguyên bố cục; xuất Excel, Word, PDF. Biểu mẫu đã phát hành bất biến, có mã băm.", "alt": "Màn hình danh mục biểu mẫu báo cáo gửi Tập đoàn"},
+        {"img": "shot-leader.jpg", "title": "Dashboard và trình chiếu", "desc": "Trang chủ lãnh đạo: số liệu truy nguồn từng bước, màu xanh vàng đỏ có giải thích. Chế độ trình chiếu chuyển từng bảng điều hành sang toàn màn hình cho họp giao ban.", "alt": "Màn hình giải thích màu xanh vàng đỏ của dashboard"}
+      ],
+      "notes": "Biểu mẫu không phải dựng lại bố cục: bộ sinh báo cáo điền vào tệp Excel mẫu. Dashboard cho lãnh đạo có chế độ trình chiếu để dùng ngay trong họp giao ban. Lưu ý bố cục chính thức của biểu mẫu đang chờ Ban KHĐT cung cấp."
+    },
+    {
+      "id": "features-d",
+      "eyebrow": "CHỨC NĂNG NỔI BẬT",
+      "title": "Cảnh báo, nhà thầu và cây tiến độ",
+      "subtitle": "Phát hiện sớm điểm nghẽn và theo dõi gói thầu đến cùng",
+      "shots": [
+        {"img": "shot-alerts.jpg", "title": "Cảnh báo", "desc": "Theo dõi việc quá hạn, việc bị hoãn, các loại cảnh báo nhiều nhất và việc cần xử lý ngay; nhắc việc đến đúng người.", "alt": "Màn hình thống kê cảnh báo"},
+        {"img": "shot-contractors.jpg", "title": "Nhà thầu", "desc": "Mỗi nhà thầu một hồ sơ chủ, kiểm mã số thuế, gắn với gói thầu và hợp đồng.", "alt": "Màn hình hồ sơ nhà thầu"},
+        {"img": "shot-tree.jpg", "title": "Cây tiến độ", "desc": "Mọi gói thầu xếp thành một cây trạng thái theo hình thức lựa chọn nhà thầu và từng bước; nhấn vào bước để xem các gói.", "alt": "Màn hình cây tiến độ gói thầu"}
+      ],
+      "notes": "Ba chức năng giúp lãnh đạo thấy điểm nghẽn: cảnh báo quá hạn, hồ sơ nhà thầu một nơi, và cây tiến độ cho thấy gói thầu đang ở bước nào."
+    },
+    {
+      "id": "phone",
+      "eyebrow": "ĐIỆN THOẠI VÀ PWA",
+      "title": "Lãnh đạo xử lý việc ngay trên điện thoại",
+      "subtitle": "Phần di động theo hồ sơ kỹ thuật dành cho người quản lý, không dành cho nhập liệu",
+      "phones": [["phone-home.jpg", "Trang chủ lãnh đạo"], ["phone-projects.jpg", "Danh sách dự án"]],
+      "bullets": [
+        "**Hàng đợi phê duyệt:** xem tóm tắt, duyệt hoặc trả về kèm ý kiến",
+        "**Dashboard lãnh đạo:** số liệu kỳ, việc cần xử lý ngay",
+        "**Chỉ đạo giao ban:** theo dõi hạn, trạng thái, tiến độ",
+        "**Thông báo đẩy** mở đúng màn hình cần xử lý",
+        "**Cài lên màn hình điện thoại** như một ứng dụng (PWA), truy cập từ ngoài mạng nội bộ qua SSO và MFA"
+      ],
+      "callout": "Ứng dụng native iOS/Android không thuộc phạm vi giai đoạn 1 của hồ sơ kỹ thuật, được ghi nhận là mở rộng. Ảnh điện thoại lấy từ ứng dụng di động của hệ thống.",
+      "notes": "Theo hồ sơ kỹ thuật, phần di động dành cho người quản lý theo chuẩn PWA: duyệt số liệu, xem dashboard, theo dõi chỉ đạo. Một quyết định duyệt luôn gửi khi đang online, không xếp hàng ngầm. Ứng dụng native là phần mở rộng sau giai đoạn 1."
+    },
+    {
+      "id": "security",
+      "eyebrow": "AN TOÀN THÔNG TIN VÀ SAO LƯU",
+      "title": "An toàn thông tin và sao lưu",
+      "subtitle": "Hai yêu cầu YCK.07 và YCK.06 của hồ sơ kỹ thuật: điều đã có và điều còn lại",
+      "left": {
+        "title": "An toàn thông tin (YCK.07)",
+        "have": [
+          "Đăng nhập một lần qua Keycloak (OIDC), xác thực đa yếu tố, liên kết AD",
+          "TLS 1.2 trở lên và tiêu đề bảo mật",
+          "Quyền theo hành động, phạm vi đơn vị, dự án, kỳ",
+          "Cách ly dữ liệu theo tổ chức ngay ở cơ sở dữ liệu",
+          "Nhật ký kiểm toán chuỗi băm; quét phụ thuộc, SBOM"
+        ],
+        "todo": [
+          "Rà soát mã nguồn và kiểm thử xâm nhập bởi đơn vị độc lập được PVFCCo chấp thuận chưa chạy (PX-09)",
+          "Chưa nhập thử realm Keycloak lên máy chủ thật (PX-16)",
+          "Chưa quét mã độc tệp tải lên; kịch bản ransomware chưa đủ trong gói pentest"
+        ]
+      },
+      "right": {
+        "title": "Sao lưu và khôi phục (YCK.06)",
+        "have": [
+          "Sao lưu bất biến, quy trình diễn tập khôi phục đã viết thành sổ tay",
+          "Khôi phục dữ liệu theo từng tổ chức qua đề nghị và phê duyệt",
+          "Gói cài ngoại tuyến, quy trình nâng cấp và quay lui"
+        ],
+        "todo": [
+          "Chưa có chu kỳ sao lưu tuần, tháng và bản khác biệt (differential)",
+          "Chưa có quy tắc giữ tối thiểu 03 bản và sao lưu thủ công trên màn hình quản trị",
+          "Chưa có bản sao lưu ngoại tuyến và chưa có bằng chứng diễn tập khôi phục trên máy của Tổng công ty (PX-11)"
+        ]
+      },
+      "have_label": "ĐÃ CÓ",
+      "todo_label": "CÒN LẠI HOẶC CHỜ",
+      "notes": "Cả hai yêu cầu đều ở mức đáp ứng một phần và tôi nói rõ phần còn thiếu. Điều kiện nghiệm thu bắt buộc là kiểm tra an toàn thông tin bởi đơn vị độc lập do PVFCCo chấp thuận. Sao lưu chưa đủ chu kỳ tuần, tháng, bản khác biệt và bản ngoại tuyến."
+    },
+    {
+      "id": "compliance",
+      "eyebrow": "MỨC ĐÁP ỨNG SO VỚI HỒ SƠ KỸ THUẬT",
+      "title": "Mức đáp ứng so với hồ sơ kỹ thuật",
+      "subtitle_fmt": "{total} dòng của ma trận truy vết theo hồ sơ kỹ thuật v0.3, đánh giá ngày {date}",
+      "labels": {"DONE": "Đáp ứng đủ (DONE)", "PARTIAL": "Đáp ứng một phần (PARTIAL)", "PENDING-EXTERNAL": "Chờ khách cung cấp (PENDING-EXTERNAL)", "MISSING": "Chưa có (MISSING)"},
+      "groups": {"MD": "Danh mục dự án", "DL": "Dữ liệu nền", "QT": "Quy trình To-Be", "CN": "Chức năng nghiệp vụ", "BC": "Báo cáo", "TH": "Tích hợp", "HT": "Quản trị hệ thống", "YCK": "Yêu cầu khác", "TK": "Triển khai", "GD": "7 giai đoạn", "SP": "11 sản phẩm bàn giao"},
+      "read_title": "Cách đọc",
+      "read": [
+        "Đáp ứng một phần nghĩa là đã có mã, màn hình, kiểm thử; khoảng trống từng dòng ghi trong ma trận",
+        "Chờ khách cung cấp: phần mềm sẵn sàng nhưng chưa nghiệm thu được khi chưa có tài liệu hoặc quyết định của Tổng công ty",
+        "Hai dòng đáp ứng đủ: ủy quyền xử lý công việc (HT.03) và khả năng mở rộng (YCK.05)",
+        "Chưa có dòng nào ở mức \"chưa có\""
+      ],
+      "foot": "Nguồn: docs/hskt/TRACEABILITY.md, sinh từ docs/hskt/requirements.json.",
+      "notes": "Đây là bảng trung thực. Trên 53 dòng, chỉ 2 dòng đáp ứng đủ, 45 dòng đáp ứng một phần, 6 dòng chờ Tổng công ty cung cấp tài liệu hoặc quyết định, và không dòng nào hoàn toàn chưa có. Tôi không tính nghiệm thu cho những mục còn chờ."
+    },
+    {
+      "id": "roadmap",
+      "eyebrow": "LỘ TRÌNH TRIỂN KHAI",
+      "title": "Bảy giai đoạn Waterfall",
+      "subtitle": "Giai đoạn sau chỉ bắt đầu khi PVFCCo đã xác nhận sản phẩm của giai đoạn trước",
+      "stages": [
+        ["Khảo sát, phân tích yêu cầu", "Báo cáo khảo sát As-Is; tài liệu yêu cầu người dùng (URD)", "Có"],
+        ["Thiết kế tương lai", "Quy trình To-Be; đặc tả SRS; thiết kế hệ thống và tích hợp", "Có"],
+        ["Xây dựng, cấu hình", "Phần mềm trên UAT; kịch bản kiểm thử SIT, UAT", "Kịch bản"],
+        ["Kiểm nghiệm", "Biên bản UAT; danh sách lỗi và kết quả khắc phục", "Có"],
+        ["Chuyển đổi dữ liệu, đào tạo", "Biên bản chuyển đổi; biên bản đào tạo; tài liệu, video hướng dẫn", "Có"],
+        ["Vận hành thử, nghiệm thu", "Chạy song song 02 kỳ với Excel; biên bản nghiệm thu; bộ bàn giao", "Có"],
+        ["Bảo hành, bảo trì", "Báo cáo bảo trì định kỳ; hỗ trợ các kỳ chốt số liệu", "không"]
+      ],
+      "approve_label": "PVFCCo phê duyệt",
+      "status_title": "Hiện trạng tài liệu giai đoạn",
+      "status": "Bộ tài liệu giao nhận số 01 đến 10 (khảo sát, To-Be, SRS, thiết kế, kịch bản SIT/UAT, chuyển đổi dữ liệu, đào tạo, chạy song song, biên bản nghiệm thu, bàn giao) đã có khung hoặc bản nháp. Chưa có phê duyệt nào của PVFCCo (PX-12), nên chưa thể chuyển giai đoạn theo nguyên tắc Waterfall.",
+      "plan": "Kế hoạch chi tiết theo 7 giai đoạn trình PVFCCo trong 10 ngày sau khi ký hợp đồng.",
+      "notes": "Bảy giai đoạn đúng mục II.2.3 của hồ sơ. Tài liệu các giai đoạn đầu đã soạn ở dạng nháp, nhưng chưa có chữ ký phê duyệt của PVFCCo nên đây là điểm cần quyết định sớm."
+    },
+    {
+      "id": "customer",
+      "eyebrow": "LỘ TRÌNH TRIỂN KHAI",
+      "title": "Việc cần Tổng công ty cung cấp",
+      "subtitle": "17 mục trong sổ chờ khách; nhóm theo giai đoạn cần dùng",
+      "cols": [
+        {"head": "Giai đoạn 1: trước khóa thiết kế", "items": ["PX-01 Bố cục chính thức các biểu mẫu báo cáo", "PX-02 Từ điển chỉ tiêu và nguyên tắc nhập liệu", "PX-05 Danh sách 09 đầu mối, người nhập, người duyệt", "PX-14 Danh mục dự án chính thức, mã HPM, mã EBS", "PX-08 Phạm vi dữ liệu lịch sử cần chuyển"]},
+        {"head": "Giai đoạn 2: thiết kế tích hợp", "items": ["PX-03 Thông tin kỹ thuật HPM", "PX-04 Mẫu tệp Oracle EBS và quyền đọc", "PX-06, PX-07 Đặc tả eProcurement, văn thư", "PX-15 Mẫu báo cáo Sở/Ban/Ngành", "PX-17 Ước tính số người dùng"]},
+        {"head": "Giai đoạn 3: môi trường", "items": ["PX-11 Máy chủ UAT và Production, tài khoản HPM, EBS, Lakehouse, SMTP, Teams", "PX-16 Thông tin SSO, LDAP, AD, SMTP, địa chỉ Teams"]},
+        {"head": "Giai đoạn 4 đến 6: nghiệm thu", "items": ["PX-09 Đơn vị độc lập rà soát mã nguồn và kiểm thử xâm nhập", "PX-10 Cấu hình máy chủ thật để đo hiệu năng", "PX-13 Hai kỳ báo cáo thật chạy song song với Excel", "PX-12 Phê duyệt từng giai đoạn và sản phẩm"]}
+      ],
+      "foot": "Khi chưa có, hệ thống dùng giả định ghi rõ và dữ liệu minh họa có dấu; mục chờ không được tính vào nghiệm thu.",
+      "notes": "Đây là danh sách việc cần Tổng công ty. Nhóm quan trọng nhất cho giai đoạn đầu là biểu mẫu chính thức, từ điển chỉ tiêu, danh sách 09 đầu mối và danh mục dự án. Xin lãnh đạo giao đầu mối cho từng mục."
+    },
+    {
+      "id": "demo",
+      "eyebrow": "DEMO VÀ CLIP",
+      "title": "Xem hệ thống chạy thực tế",
+      "subtitle": "Sáu màn hình theo thứ tự trình diễn; ảnh lấy từ clip giới thiệu bản enterprise",
+      "shots": [
+        ["shot-leader.jpg", "1. Tổng quan lãnh đạo"],
+        ["shot-directives.jpg", "2. Chỉ đạo giao ban"],
+        ["shot-hpm.jpg", "3. Kỳ chốt đẩy sang HPM"],
+        ["shot-reports.jpg", "4. Báo cáo gửi Tập đoàn"],
+        ["shot-analytics.jpg", "5. Trung tâm báo cáo phân tích"],
+        ["shot-tree.jpg", "6. Cây tiến độ gói thầu"]
+      ],
+      "foot": "Clip đầy đủ: tệp enterprise-phu-my.main.mp4 (khoảng 11 phút, chỉ tiếng Việt), kèm các clip chương riêng. Dữ liệu trên màn hình là dữ liệu minh họa.",
+      "notes": "Đến đây có thể mở hệ thống hoặc chiếu clip. Thứ tự gợi ý: trang chủ lãnh đạo, chỉ đạo giao ban, kỳ chốt đẩy HPM, báo cáo gửi Tập đoàn, trung tâm báo cáo, cây tiến độ. Dữ liệu là dữ liệu minh họa."
+    },
+    {
+      "id": "appendix-divider",
+      "eyebrow": "PHỤ LỤC",
+      "title": "Phụ lục: bản đầu tư công",
+      "body": "Cùng nền tảng Mạch Vốn, dành cho cơ quan quản lý đầu tư công",
+      "notes": "Phụ lục này chỉ để lãnh đạo thấy cùng nền tảng còn có bản dành cho đầu tư công, không thuộc phạm vi hồ sơ kỹ thuật của Phú Mỹ."
+    },
+    {
+      "id": "public",
+      "eyebrow": "PHỤ LỤC",
+      "title": "Hệ thống quản lý đầu tư công",
+      "subtitle": "Mạch vốn thông suốt, đầu tư công minh bạch",
+      "points": [
+        ["Định hướng", "Nền tảng điều hành đầu tư công dạng dịch vụ (SaaS): mỗi tổ chức ký hợp đồng là một tenant, bên trong có nhiều đơn vị và chủ đầu tư"],
+        ["Chuỗi truy vết", "Nối kế hoạch vốn, tiến độ, báo cáo, chứng từ và quyết định thành một chuỗi truy vết được"],
+        ["Dùng chung lõi", "Dự án, kế hoạch vốn, quy trình duyệt, báo cáo, dashboard, danh tính, nhật ký kiểm toán dùng chung với bản đầu tư xây dựng"],
+        ["Tách bản", "Mã riêng của PVFCCo (HPM, EBS) chỉ nằm ở bản enterprise, bản đầu tư công không chứa"],
+        ["Căn cứ pháp lý", "Đang theo dõi Luật 58/2024/QH15 (hiệu lực 01/01/2025) và Nghị định 254/2025/NĐ-CP; danh mục căn cứ ban đầu, chưa phải xác nhận đầy đủ"]
+      ],
+      "notes": "Bản đầu tư công dùng chung lõi với bản dành cho Phú Mỹ nhưng tách mã riêng của PVFCCo. Căn cứ pháp lý là danh mục ban đầu, chưa phải xác nhận đầy đủ."
+    },
+    {
+      "id": "closing",
+      "title": "Trân trọng cảm ơn",
+      "subtitle": "Mong được đồng hành cùng Phú Mỹ - PVFCCo",
+      "next_title": "Đề nghị lãnh đạo quyết định",
+      "next": [
+        "Giao đầu mối cho 09 đơn vị nhập liệu và Ban KHĐT",
+        "Cung cấp biểu mẫu chính thức, từ điển chỉ tiêu, danh mục dự án",
+        "Chỉ định đầu mối kỹ thuật cho HPM, EBS, AD và hạ tầng UAT"
+      ],
+      "org": "TỔNG CÔNG TY PHÂN BÓN VÀ HÓA CHẤT DẦU KHÍ - CTCP",
+      "contact": [["Điện thoại", "(028) 38.256.258"], ["Email", "lienhe@pvfcco.com.vn"], ["Địa chỉ", "43 Mạc Đĩnh Chi, Phường Sài Gòn, Thành phố Hồ Chí Minh"]],
+      "source_note": "Thông tin Tổng công ty theo trang dpm.vn",
+      "notes": "Xin cảm ơn quý lãnh đạo. Ba đề nghị cuối: giao đầu mối cho 09 đơn vị, cung cấp biểu mẫu và danh mục dự án chính thức, và chỉ định đầu mối kỹ thuật cho HPM, EBS, AD và hạ tầng thử nghiệm."
+    }
+  ]
+}
