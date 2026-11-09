@@ -14,6 +14,8 @@
     "persona": "Đăng nhập bằng tài khoản {persona}",
     "command": "Chạy thao tác thật {operation} bằng tài khoản {persona}",
     "upload": "Tải tệp mẫu {fixture} lên thao tác {operation}",
+    "planned": "Màn {title} ({id}) chưa có trên bản chính, thuộc làn {lane}: mở bằng màn thật sau khi làn được gộp",
+    "requires": "Cảnh chờ làn {lanes}: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged",
     "global": "Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm"
   },
   "book": {
@@ -35,6 +37,9 @@
     "proof": "Bằng chứng",
     "chapterData": "Chương cần nhóm nào",
     "gaps": "Khoảng trống",
+    "plannedGroups": "Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)",
+    "needs": "Nhóm phải tạo",
+    "requires": "chờ làn",
     "atRisk": "Cảnh có nhóm dữ liệu chưa chạy trọn",
     "music": "Bảng nhạc nền",
     "musicNote": "Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện dùng một tệp nhạc cho cả đoạn phim; mức nhạc theo chương là hướng dẫn cho chủ sở hữu và cho bản trộn sau.",

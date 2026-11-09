@@ -1,0 +1,197 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "monitoring",
+  "title": "Báo cáo giám sát và nộp lên hệ thống quốc gia",
+  "summary": "The monitoring and evaluation reporting duties calendar, the form catalogue, periodic and project reports, the quick weekly report, review, approval and issue, file export and submission confirmation to the national system, submission progress, corrections, and the report engine forms to the Ministry of Finance with the delivery log.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "mon-calendar",
+      "chapter": "monitoring",
+      "main": false,
+      "narration": "Lịch nghĩa vụ báo cáo giám sát liệt kê báo cáo nào phải nộp, cho ai, vào ngày nào. Danh mục mẫu biểu giám sát giữ phiên bản của từng mẫu. Hạn nộp nhắc trước khi đến.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "MNE-01",
+          "MNE-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-01"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.duty-calendar"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-02"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.form-catalogue"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "mon-draft",
+      "chapter": "monitoring",
+      "main": false,
+      "narration": "Báo cáo giám sát tổng thể định kỳ và báo cáo theo từng dự án được lập từ số liệu có sẵn, không nhập lại. Báo cáo nhanh tuần giúp lãnh đạo nắm tình hình giữa hai kỳ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "MNE-03",
+          "MNE-04",
+          "MNE-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-03"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.periodic-report"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-04"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.project-report"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-07"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.weekly-quick"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "mon-issue",
+      "chapter": "monitoring",
+      "main": false,
+      "narration": "Báo cáo được rà soát, phê duyệt và phát hành. Hệ thống xuất tệp để nộp lên hệ thống quốc gia và ghi xác nhận đã nộp. Tiến độ nộp theo dõi từng đơn vị, và đính chính để lại lịch sử phiên bản.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "MNE-05",
+          "MNE-06",
+          "MNE-09",
+          "MNE-10"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-05"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.review-approve-issue"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-06"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.export-confirm"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-09"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.submission-progress"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-10"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.monitoring.corrections"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "mon-mof-forms",
+      "chapter": "monitoring",
+      "main": false,
+      "narration": "Biểu mẫu báo cáo gửi Bộ Tài chính do công cụ sinh báo cáo lập từ số liệu đã chốt. Nhật ký giao báo cáo cho bên nhận ghi ai gửi, gửi cho ai, lúc nào, và tệp nào. Mẫu theo quy định là cấu hình mặc định, chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "RPT-05",
+          "RPT-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "RPT-05"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.mof.form"
+        },
+        {
+          "do": "open",
+          "screen": "RPT-04"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.mof.delivery-log"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 3,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 17.3,
+      "stamps": [
+        "unverified-legal"
+      ]
+    }
+  ]
+}
