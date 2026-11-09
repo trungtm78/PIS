@@ -7,6 +7,7 @@
 | Chromium (Google Chrome where installed, else Playwright's Chromium) | `browser.yml`, developer machines | the whole suite: route walk (406 routes at 1440 and 390 px), flows, accessibility, pixel regions |
 | Firefox | `browsers.yml` (matrix leg `firefox`) | the smoke subset |
 | WebKit (Safari's engine) | `browsers.yml` (matrix leg `webkit`) | the smoke subset |
+| Microsoft Edge (the Chromium engine through the `msedge` channel, installed with `playwright install msedge`) | `browsers.yml` (matrix leg `edge`) | the smoke subset |
 
 The smoke subset is `CROSS_BROWSER_SMOKE` in `apps/web/e2e/support/browsers.ts`: the real sign-in with its redirects and PKCE (`session-flows`), a list and form screen of the administration (`adm-flows`), a project screen with a form (`prj-flows`) and the accessibility check (`a11y`). The pixel baselines were rendered by Google Chrome on Windows and the route walk is a Chromium check, so `visual.spec.ts` and `route-walk.spec.ts` never run on the other engines (`BASELINE_ONLY`).
 
@@ -15,6 +16,7 @@ Locally, with the stack as usual (see `web-e2e.md`):
 ```bash
 E2E_BROWSERS=firefox npm run e2e:smoke -w @machvon/web
 E2E_BROWSERS=webkit  npm run e2e:smoke -w @machvon/web
+E2E_BROWSERS=edge    npm run e2e:smoke -w @machvon/web
 E2E_BROWSERS=chromium,firefox,webkit E2E_BROWSER_SCOPE=full npx playwright test      # everything on all three (release candidate; slow)
 npx playwright install firefox webkit                                                  # once; browsers are never committed
 ```

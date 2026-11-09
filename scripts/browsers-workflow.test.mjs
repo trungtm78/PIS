@@ -9,7 +9,7 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WORKFLOW = join(REPO_ROOT, '.github', 'workflows', 'browsers.yml');
 const workflow = () => load(readFileSync(WORKFLOW, 'utf8'));
 
-/** What the cross-browser leg must be: a matrix of the two engines that browser.yml does not run, smoke only, one engine for each runner. */
+/** What the cross-browser leg must be: a matrix of the engines that browser.yml does not run (Firefox, WebKit and Microsoft Edge), smoke only, one engine for each runner. */
 export function browsersWorkflowProblems(parsed) {
   const problems = [];
   const jobs = Object.entries(parsed.jobs ?? {});
@@ -19,13 +19,13 @@ export function browsersWorkflowProblems(parsed) {
   const runs = steps.map((step) => String(step.run ?? ''));
   if (!String(job['runs-on'] ?? '').startsWith('ubuntu')) problems.push('the job runs on an ubuntu runner');
   const engines = job.strategy?.matrix?.engine;
-  if (!Array.isArray(engines) || [...engines].sort().join(',') !== 'firefox,webkit') problems.push('the matrix is firefox and webkit');
+  if (!Array.isArray(engines) || [...engines].sort().join(',') !== 'edge,firefox,webkit') problems.push('the matrix is firefox, webkit and edge');
   if (job.strategy?.['fail-fast'] !== false) problems.push('one engine failing does not cancel the other');
   if (job.env?.E2E_BROWSERS !== '${{ matrix.engine }}') problems.push('E2E_BROWSERS is the engine of the leg');
   if (!steps.some((step) => String(step.uses ?? '').startsWith('actions/checkout'))) problems.push('the job checks the code out');
   if (!steps.some((step) => String(step.uses ?? '').startsWith('actions/setup-node') && step.with?.['node-version'] === 24)) problems.push('the job sets up Node 24');
   const install = runs.findIndex((run) => /^npm ci\b/.test(run.trim()));
-  const browser = runs.findIndex((run) => /playwright install --with-deps \$\{\{ matrix\.engine \}\}/.test(run));
+  const browser = runs.findIndex((run) => /playwright install --with-deps \$\{\{ matrix\.engine == 'edge' && 'msedge' \|\| matrix\.engine \}\}/.test(run));
   const smoke = runs.findIndex((run) => /npm run e2e:smoke -w @machvon\/web\s*$/.test(run.trim()));
   if (install < 0) problems.push('the job installs the dependencies with npm ci');
   if (browser < 0) problems.push('the job installs the engine of the leg with its system libraries');
