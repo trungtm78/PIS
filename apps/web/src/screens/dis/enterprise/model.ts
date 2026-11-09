@@ -12,6 +12,8 @@ export type { Money, Rate };
 export const BUILD_PERMISSION = 'funding.snapshot.build';
 export const FREEZE_PERMISSION = 'funding.snapshot.freeze';
 export const READ_PERMISSION = 'funding.snapshot.read';
+/** The calendar of the enterprise edition (months, quarters, years): the periods a snapshot can be built for. */
+export const ENTERPRISE_CALENDAR = 'ENTERPRISE';
 export const BUILD_PATH = '/dis/dis-32';
 export const DETAIL_PATH = '/dis/dis-33';
 /** The screen that asks for a locked period to be reopened (DIS-22): a frozen snapshot is rebuilt only after an approved reopening. */

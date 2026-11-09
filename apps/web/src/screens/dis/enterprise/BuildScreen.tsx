@@ -12,7 +12,7 @@ import '../dis.css';
 import { Banner } from '../funding/components';
 import { useBuild, useReadiness, useSnapshots } from './hooks';
 import { MissingUnits, STATUS_TONES, SnapshotLink, WaitingBatches } from './components';
-import { BUILD_PERMISSION, DETAIL_PATH, NONE, REOPEN_PATH, camel, describeProblem, missingUnitsOf, shortHash, waitingBatchesOf } from './model';
+import { BUILD_PERMISSION, DETAIL_PATH, ENTERPRISE_CALENDAR, NONE, REOPEN_PATH, camel, describeProblem, missingUnitsOf, shortHash, waitingBatchesOf } from './model';
 import type { Snapshot } from './model';
 import { usePeriods } from '../hooks';
 import { statusLabel } from '../labels';
@@ -47,7 +47,7 @@ function BuildContent({ route }: ScreenProps) {
   const refusedUnits = missingUnitsOf(build.error);
   const refusedBatches = waitingBatchesOf(build.error);
   const created = (build.data as { resource_id?: string } | undefined)?.resource_id;
-  const options = [...(periods.data ?? [])].sort((left, right) => right.startDate.localeCompare(left.startDate));
+  const options = (periods.data ?? []).filter((one) => one.calendarCode === ENTERPRISE_CALENDAR).sort((left, right) => right.startDate.localeCompare(left.startDate));
   const canStart = ready !== undefined && ready.actions.build && ready.complete && (ready.frozen === null || ready.rebuild_allowed);
 
   const columns: DataTableColumn<Snapshot>[] = [
