@@ -6,6 +6,9 @@ const StringTable accountStrings = StringTable(
     'mob.account.title.text': 'Tài khoản',
     'mob.account.tenant.label': 'Tổ chức đang dùng',
     'mob.account.role.label': 'Vai trò: {role}',
+    'mob.account.membershipType.staff': 'Cán bộ của tổ chức',
+    'mob.account.membershipType.guestContractor': 'Nhà thầu được mời',
+    'mob.account.membershipType.serviceAccount': 'Tài khoản dịch vụ',
     'mob.account.readOnly.text':
         'Tổ chức đang ở chế độ chỉ đọc. Các thao tác thay đổi tạm dừng.',
     'mob.account.language.label': 'Ngôn ngữ',
@@ -78,6 +81,9 @@ const StringTable accountStrings = StringTable(
     'mob.account.title.text': 'Account',
     'mob.account.tenant.label': 'Current organisation',
     'mob.account.role.label': 'Role: {role}',
+    'mob.account.membershipType.staff': 'Staff of the organisation',
+    'mob.account.membershipType.guestContractor': 'Invited contractor',
+    'mob.account.membershipType.serviceAccount': 'Service account',
     'mob.account.readOnly.text':
         'The organisation is read-only. Changes are paused.',
     'mob.account.language.label': 'Language',

@@ -10,7 +10,7 @@
     <!-- The biometric unlock of the stored session (MOB-47). -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <application
-        android:label="Hệ thống quản lý đầu tư công"
+        android:label="@string/app_name"
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
         android:fullBackupContent="false"

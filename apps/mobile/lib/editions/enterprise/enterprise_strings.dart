@@ -10,6 +10,7 @@ const StringTable kEnterpriseStrings = StringTable(
   vi: <String, String>{
     'mob.account.biometric.reason':
         'Bật mở khóa Phần mềm quản lý đầu tư xây dựng bằng sinh trắc học',
+    'mob.home.leader.title': 'Trang chủ điều hành',
     'mob.release.upgrade.failed': 'Chưa mở được trang cập nhật. Thử lại hoặc tìm Phần mềm quản lý đầu tư xây dựng trong cửa hàng ứng dụng.',
     'mob.signIn.unlock.reason': 'Mở khóa Phần mềm quản lý đầu tư xây dựng',
     'mob.welcome.logo.label': 'Biểu trưng Phần mềm quản lý đầu tư xây dựng',
@@ -17,6 +18,7 @@ const StringTable kEnterpriseStrings = StringTable(
   },
   en: <String, String>{
     'mob.account.biometric.reason': 'Turn on biometric unlock for the Construction Investment Management Software',
+    'mob.home.leader.title': 'Executive home',
     'mob.release.upgrade.failed': 'The update page could not be opened. Try again or look for the Construction Investment Management Software in the app store.',
     'mob.signIn.unlock.reason':
         'Unlock the Construction Investment Management Software',

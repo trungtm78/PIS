@@ -4,9 +4,13 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../core/di/providers.dart';
 import '../../core/l10n/app_strings.dart';
+import '../../core/session/session.dart';
+import '../../features/account/account_providers.dart';
 import '../../features/read_support/moment.dart';
 import '../../features/read_support/widgets.dart';
 import '../../features/read_support/wire.dart';
+import '../../features/session/auth/identity_api.dart';
+import '../../features/session/membership_label.dart';
 
 /// The enterprise home on the phone, read only: the period status, the HPM push status and the EBS reconciliation status, each from the real
 /// read operations of ENT-2 (`get_resources_reporting_period`, `getHpmConnection`, `getEbsConnection`, `listEbsDifferences`). A card whose read
@@ -140,4 +144,39 @@ String vietnamTodayText() {
   final DateTime now = DateTime.now().toUtc().add(const Duration(hours: 7));
   String two(int value) => value.toString().padLeft(2, '0');
   return '${now.year.toString().padLeft(4, '0')}-${two(now.month)}-${two(now.day)}';
+}
+
+/// The head of the enterprise home screens: the name of the product and, under it, the organisation and the role of the signed-in session
+/// (read from the memberships of the person, as the account screen does; nothing is named here that the server did not say).
+Widget buildEnterpriseHomeHeader(BuildContext context) => const _EnterpriseHomeHeader();
+
+class _EnterpriseHomeHeader extends ConsumerWidget {
+  const _EnterpriseHomeHeader();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final SessionSnapshot session = ref.watch(sessionProvider);
+    final MembershipChoice? current = ref.watch(myMembershipsProvider).asData?.value.where((MembershipChoice m) => isCurrentMembership(m, session)).firstOrNull;
+    final ThemeData theme = Theme.of(context);
+    final String product = context.t('mob.ent.brand.product');
+    final String? line = current == null
+        ? null
+        : context.t('mob.ent.brand.role', <String, Object>{'organisation': current.tenantName, 'role': membershipTypeLabel(context, current.membershipType)});
+    return Semantics(
+      container: true,
+      label: line == null ? product : '$product. $line',
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(product, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary)),
+              if (line != null) Text(line, style: theme.textTheme.titleMedium),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

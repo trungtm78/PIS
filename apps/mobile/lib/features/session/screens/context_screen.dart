@@ -16,6 +16,7 @@ import '../../../core/state/state_card.dart';
 import '../auth/auth_service.dart';
 import '../auth/identity_api.dart';
 import '../flow.dart';
+import '../membership_label.dart';
 import '../session_providers.dart';
 
 /// The memberships the person can enter, read once per visit of MOB-04 (and again on retry).
@@ -116,7 +117,7 @@ class _MembershipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final String role = '${context.t('mob.context.role.label')}: ${item.membershipType}';
+    final String role = '${context.t('mob.context.role.label')}: ${membershipTypeLabel(context, item.membershipType)}';
     final String? until = item.validUntil == null ? null : context.t('mob.context.validUntil.label', <String, Object>{'date': _date(item.validUntil!)});
     final String? unavailable = item.selectable ? null : context.t('mob.context.unavailable.label', <String, Object>{'status': _unavailableStatus(item)});
     return Card(

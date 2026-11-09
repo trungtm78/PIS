@@ -1,3 +1,4 @@
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -6,6 +7,18 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// The edition of this build. `flutter build ... --dart-define=MACHVON_EDITION=enterprise` hands the defines to Gradle (base64 of `NAME=value`, comma
+// separated); an enterprise build puts src/enterprise/res (the icon, the splash logo, the name under the icon) over the main resources.
+val dartDefines: Map<String, String> =
+    (project.findProperty("dart-defines") as String?)
+        ?.split(",")
+        ?.filter { it.isNotEmpty() }
+        ?.map { String(Base64.getDecoder().decode(it), Charsets.UTF_8) }
+        ?.filter { it.contains("=") }
+        ?.associate { it.substringBefore("=") to it.substringAfter("=") }
+        ?: emptyMap()
+val enterpriseBuild = dartDefines["MACHVON_EDITION"] == "enterprise"
 
 android {
     namespace = "vn.machvon.machvon_mobile"
@@ -44,6 +57,13 @@ android {
                 storeFile = file(keyProperties.getProperty("storeFile"))
                 storePassword = keyProperties.getProperty("storePassword")
             }
+        }
+    }
+
+    // The resources of a build type win over the main ones, so the enterprise files replace the public ones without a duplicate-resource error.
+    if (enterpriseBuild) {
+        for (buildType in listOf("debug", "profile", "release")) {
+            sourceSets.maybeCreate(buildType).res.srcDir("src/enterprise/res")
         }
     }
 

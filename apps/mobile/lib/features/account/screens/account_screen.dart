@@ -19,6 +19,7 @@ import '../../read_support/widgets.dart' show MachvonTone, StatusPill;
 import '../../release/app_info.dart';
 import '../../session/auth/auth_service.dart';
 import '../../session/auth/identity_api.dart';
+import '../../session/membership_label.dart';
 import '../../session/session_providers.dart';
 import '../account_providers.dart';
 
@@ -89,7 +90,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       reachability,
     );
     final MembershipChoice? current = memberships.asData?.value
-        .where((MembershipChoice m) => m.membershipId == session.membershipId)
+        .where((MembershipChoice m) => isCurrentMembership(m, session))
         .firstOrNull;
     final ThemeData theme = Theme.of(context);
     return Scaffold(
@@ -134,7 +135,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 if (current != null)
                   Text(
                     context.t('mob.account.role.label', <String, Object>{
-                      'role': current.membershipType,
+                      'role': membershipTypeLabel(context, current.membershipType),
                     }),
                   ),
                 if (session.isReadOnly) ...<Widget>[

@@ -29,6 +29,7 @@ final class EditionProfile {
     required this.edition,
     required this.appTitle,
     this.overlay,
+    this.homeHeader,
     this.homeCards = const <WidgetBuilder>[],
     this.homeStrings,
   });
@@ -39,6 +40,9 @@ final class EditionProfile {
   final String appTitle;
 
   final StringTable? overlay;
+
+  /// The line the edition draws at the top of the home screens: the product and the organisation of the session. The public edition has none.
+  final WidgetBuilder? homeHeader;
 
   /// Cards the edition adds to the home screens (read only), in order. The public edition has none.
   final List<WidgetBuilder> homeCards;

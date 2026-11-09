@@ -17,6 +17,7 @@ import '../../session/auth/auth_service.dart';
 import '../../session/auth/identity_api.dart';
 import '../../session/auth/session_vault.dart';
 import '../../session/flow.dart';
+import '../../session/membership_label.dart';
 import '../../session/session_providers.dart';
 import '../account_providers.dart';
 
@@ -116,7 +117,7 @@ class _TenantSwitchScreenState extends ConsumerState<TenantSwitchScreen> {
     final bool alone = items
         .where(
           (MembershipChoice m) =>
-              m.selectable && m.membershipId != session.membershipId,
+              m.selectable && !isCurrentMembership(m, session),
         )
         .isEmpty;
     return Scaffold(
@@ -155,8 +156,7 @@ class _TenantSwitchScreenState extends ConsumerState<TenantSwitchScreen> {
                             for (final MembershipChoice item in items)
                               _Option(
                                 item: item,
-                                current:
-                                    item.membershipId == session.membershipId,
+                                current: isCurrentMembership(item, session),
                               ),
                           ],
                         ),
@@ -282,7 +282,7 @@ class _Option extends StatelessWidget {
           children: <Widget>[
             Text(
               context.t('mob.account.role.label', <String, Object>{
-                'role': item.membershipType,
+                'role': membershipTypeLabel(context, item.membershipType),
               }),
             ),
             if (current)

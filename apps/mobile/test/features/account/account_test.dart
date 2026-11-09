@@ -650,6 +650,25 @@ void main() {
       expect(find.text('App version: 1.4.0+27'), findsOneWidget);
     });
 
+    testWidgets('MOB-ENT-03 the organisation is the one of the session even when two organisations give the person the same membership id; a known type is said in words', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      // The first membership listed (organisation A) carries the same id as the one the session holds (organisation B).
+      world = World(
+        memberships: <String, List<FakeMembership>>{
+          'sub-ana': <FakeMembership>[
+            const FakeMembership('tenant-a', 'Hà Giang', 'm-same', 'GUEST_CONTRACTOR'),
+            const FakeMembership('tenant-b', 'Đạm Phú Mỹ', 'm-same', 'STAFF'),
+          ],
+        },
+      );
+      await _signedIn(tester, world, location: '/account', tenantId: 'tenant-b');
+
+      expect(find.text('Đạm Phú Mỹ'), findsOneWidget);
+      expect(find.text('Hà Giang'), findsNothing);
+      expect(find.text('Vai trò: Cán bộ của tổ chức'), findsOneWidget);
+      expect(find.text('Vai trò: STAFF'), findsNothing);
+    });
+
     testWidgets('AC-ST-MOB-040-3 NAV-01 the rows lead to the tenant switch, the devices, the send queue (MOB-41), the offline settings (MOB-43), the help and the push state', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
       world = World();
@@ -786,11 +805,12 @@ Future<ProviderContainer> _signedIn(
   _Pending? pending,
   FakePermissions? phone,
   void Function(World world)? afterSeed,
+  String tenantId = 'tenant-a',
 }) async {
   final AuthService seed = world.service();
   await seed.signIn(kOidcConfig);
   if (seed.snapshot.status != SessionStatus.signedIn) {
-    await seed.selectContext((await seed.candidates()).firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+    await seed.selectContext((await seed.candidates()).firstWhere((MembershipChoice c) => c.tenantId == tenantId));
   }
   afterSeed?.call(world);
   return _pumpAccount(tester, world, location: location, pending: pending, phone: phone);

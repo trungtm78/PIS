@@ -14,8 +14,11 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/theme/app_theme.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_home.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_profile.dart';
+import 'package:machvon_mobile/features/account/account_providers.dart';
+import 'package:machvon_mobile/features/account/account_strings.dart';
 import 'package:machvon_mobile/features/dashboard/widgets/edition_cards.dart';
 import 'package:machvon_mobile/features/read_support/read_support_strings.dart';
+import 'package:machvon_mobile/features/session/auth/identity_api.dart';
 
 import '../features/support/scripted_server.dart';
 import '../support/harness.dart';
@@ -75,6 +78,64 @@ void main() {
       expect(currentPeriod(items, '2026-11-09')!['code'], '2026-11');
       expect(currentPeriod(items, '2026-12-15')!['code'], '2027-01');
       expect(currentPeriod(items, '2027-03-01'), isNull);
+    });
+
+    testWidgets('MOB-ENT-03 the enterprise head names the product, the organisation and the role of the session, and the public edition has none', (WidgetTester tester) async {
+      final MembershipChoice mine = MembershipChoice(
+        tenantId: 'tenant-b',
+        tenantName: 'Tổng công ty Đạm Phú Mỹ',
+        tenantStatus: 'Active',
+        membershipId: 'm-1',
+        membershipType: 'STAFF',
+        status: 'Active',
+        validFrom: DateTime(2026),
+      );
+      final MembershipChoice other = MembershipChoice(
+        tenantId: 'tenant-a',
+        tenantName: 'Hà Giang',
+        tenantStatus: 'Active',
+        membershipId: 'm-1',
+        membershipType: 'GUEST_CONTRACTOR',
+        status: 'Active',
+        validFrom: DateTime(2026),
+      );
+      Future<void> pump(EditionProfile profile) async {
+        final ProviderContainer container = ProviderContainer(
+          overrides: <Override>[
+            appConfigProvider.overrideWithValue(testConfig),
+            editionProfileProvider.overrideWithValue(profile),
+            sessionProvider.overrideWith(() => FakeSession(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-b', userId: 'user-1', membershipId: 'm-1'))),
+            myMembershipsProvider.overrideWith((Ref ref) async => <MembershipChoice>[other, mine]),
+          ],
+        );
+        addTearDown(container.dispose);
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: buildAppTheme(),
+              locale: const Locale('vi'),
+              supportedLocales: const <Locale>[Locale('vi'), Locale('en')],
+              localizationsDelegates: <LocalizationsDelegate<Object?>>[
+                AppStringsDelegate(StringCatalogue(<StringTable>[kCoreStrings, accountStrings, if (profile.homeStrings != null) profile.homeStrings!])),
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: const Scaffold(body: EditionHomeHeader()),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await pump(kEnterpriseEditionProfile);
+      expect(find.text('Phần mềm quản lý đầu tư xây dựng'), findsOneWidget);
+      expect(find.text('Tổng công ty Đạm Phú Mỹ, Cán bộ của tổ chức'), findsOneWidget);
+      expect(find.textContaining('Hà Giang'), findsNothing);
+
+      await pump(kPublicEditionProfile);
+      expect(find.byType(Text), findsNothing);
     });
 
     testWidgets('the public edition draws nothing', (WidgetTester tester) async {

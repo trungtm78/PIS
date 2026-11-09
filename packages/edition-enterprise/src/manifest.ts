@@ -20,7 +20,7 @@ export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifes
   menu: ALLOW_ALL,
   terminology: {
     web: ['shell.app.name.title', 'shell.brand.home.label', 'shell.brand.mark.text', 'shell.brand.name.text'],
-    mobile: ['mob.account.biometric.reason', 'mob.release.upgrade.failed', 'mob.signIn.unlock.reason', 'mob.welcome.logo.label', 'mob.welcome.title.text'],
+    mobile: ['mob.account.biometric.reason', 'mob.home.leader.title', 'mob.release.upgrade.failed', 'mob.signIn.unlock.reason', 'mob.welcome.logo.label', 'mob.welcome.title.text'],
   },
   rulePacks: ['enterprise-investment'],
 });
