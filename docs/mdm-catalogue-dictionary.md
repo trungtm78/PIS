@@ -27,6 +27,11 @@ Every entry of these catalogues is a `master_record` with effective-dated `maste
 | `LANGUAGE` | MDM-22 | Platform only | `native_name` | the key is a language code (`vi`, `pt-BR`) |
 | `SHARED_TEXT` | MDM-22 | The tenant's own | `translations`: a text per language code | language codes are valid, texts are not empty |
 | `DECISION_TYPE` | MDM-10 | Platform, extended by the tenant | `required_fields` (lower-case identifiers), `template` | identifiers are unique |
+| `REPORTING_PERIOD_KIND` | generic (MDM-01, MDM-23) | The tenant's own | `grain` (MONTH, QUARTER, YEAR, MEETING), `months` (0..12), `entry_deadline_working_days` (1..60) | the length follows the grain: a month is 1, a quarter 3, a year 12, a meeting 0 (MD.03, ENT-3d) |
+| `REPORT_TYPE` | generic | The tenant's own | `period_kind_key` (a `REPORTING_PERIOD_KIND`), `audience` (INTERNAL, PARENT_GROUP, EXTERNAL_AGENCY), `form_code` | the period kind must exist; replaces the report types that were constants of the code |
+| `RECEIVING_AGENCY` | generic | The tenant's own | `agency_kind` (PARENT_GROUP, COMMITTEE, DEPARTMENT, INTERNAL_MEETING), `report_type_keys` (`REPORT_TYPE` keys), `channel` (HPM, FILE, EMAIL, MEETING) | every report type named must exist |
+| `CAPITAL_SOURCE` | generic | The tenant's own | `fnd_class_code` (the code of a class of the funding taxonomy pack of the edition: EQUITY, LOAN, OTHER for the enterprise), `repayable` | a test of the enterprise package holds the codes equal to the classes of the pack |
+| `REPORT_UNIT` | generic | The tenant's own | `kind` (MONEY, RATIO, COUNT, AREA, OTHER), `symbol`, `factor` (positive decimal string to the base of its kind), `scale` (0..8), `rounding` | the factor is not zero |
 
 A type without a definition (areas, agencies, ...) takes free attributes; the areas, administrative units and agencies that the 2025 reform merged, split or moved are linked by successions (`docs/mdm-succession.md`, MDM-02, MDM-03, MDM-37). An entry that breaks a rule is refused with 422 `VALIDATION_FAILED` naming the field (`attributes.<name>`, `parent_record_id`, `legal_basis`); nothing is written.
 

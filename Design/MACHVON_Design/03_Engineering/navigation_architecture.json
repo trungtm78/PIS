@@ -73,6 +73,7 @@
         "IND",
         "HPM",
         "EBS",
+        "ORG",
         "FEED"
       ]
     },
@@ -2428,6 +2429,22 @@
           "parents": {}
         }
       ]
+    },
+    "ORG": {
+      "name": "Tổ chức enterprise",
+      "groups": [
+        {
+          "title": "Tổ chức và vai trò",
+          "description": "Đơn vị, vai trò, chỗ ngồi, quy trình duyệt và danh mục dùng chung của gói cấu hình",
+          "ids": [
+            1
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2939,7 +2956,8 @@
     "IND": "Từ điển chỉ tiêu của doanh nghiệp, quy tắc kiểm số liệu ngay khi nhập và bảng ánh xạ nhập tệp Excel có phiên bản và người duyệt.",
     "HPM": "Đẩy báo cáo đã phát hành lên HPM theo khóa chống trùng, biên nhận và đính chính kỳ đã được nhận.",
     "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch.",
-    "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu."
+    "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu.",
+    "ORG": "Xem tổ chức và vai trò của bản enterprise: đơn vị đầu mối, vai trò theo phạm vi, chỗ ngồi và nhóm thư mục, quy trình duyệt, kế hoạch nạp và báo cáo kiểm chứng."
   },
   "adminLibraryModules": [
     "IAM",
@@ -2950,7 +2968,8 @@
     "SAS",
     "INT",
     "HPM",
-    "EBS"
+    "EBS",
+    "ORG"
   ],
   "fallback": {
     "rule": "Module without a hand-written entry: workspaceSeeds[module] if present, otherwise three task groups by screen kind (Tổng quan & theo dõi / Lập & xử lý / Kiểm soát & phê duyệt). Screen number not in any group: joins the group of the nearest lower (else higher) placed screen of the same module. Modules not listed in an area go to area \"Phân hệ mở rộng\". Ids without a catalog screen are dropped and reported.",
@@ -8274,6 +8293,16 @@
       "area": "data",
       "module": "EBS",
       "group": "Dữ liệu từ Oracle EBS",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ORG-01",
+      "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+      "kind": "dashboard",
+      "area": "data",
+      "module": "ORG",
+      "group": "Tổ chức và vai trò",
       "role": "workspace",
       "parent": null
     },

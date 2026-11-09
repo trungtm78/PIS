@@ -215,6 +215,12 @@
       "module": "FEED",
       "title": "Data feed of the Finance Department into the public investment system",
       "goal": "Take the records of the Finance Department application in by file, by push and from a data generator through one judgement, map its project codes to ours with a maker and a checker, compare it with our own figures and give every difference an owner, show how fresh and how good the data is, and keep every figure behind an \"i\" with formula, source and day."
+    },
+    {
+      "id": "EP-ORG",
+      "module": "ORG",
+      "title": "Organisation and roles of the enterprise edition (PVFCCo template pack)",
+      "goal": "Load the organisation of the customer as template data in one tenant through the batch import, with scoped roles, a staged approval, delegation defaults, directory groups and the shared catalogues; no person, no account; verify it at any time."
     }
   ],
   "features": [
@@ -1082,6 +1088,11 @@
       "id": "FT-VND-04",
       "epic": "EP-VND",
       "title": "Contractor portal, annual re-confirmation, remediation plans, disputes and the OCDS parties"
+    },
+    {
+      "id": "FT-ORG-01",
+      "epic": "EP-ORG",
+      "title": "Template pack, batch load, materialisation and verification"
     }
   ],
   "stories": [
@@ -58027,6 +58038,110 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-BID-34"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ORG-001",
+      "epic": "EP-ORG",
+      "feature": "FT-ORG-01",
+      "module": "ORG",
+      "title": "PVFCCo configuration pack: units, scoped roles, seats, staged approval, delegation defaults and shared catalogues loaded through the batch import and verified",
+      "narrative": "As an administrator of the digital transformation board I can load the template organisation through the batch import (dry run, then apply by another person), turn the applied batch into units and roles and proposals, and see at any time what stands, what waits for approval and who sits in each seat.",
+      "release": "R3",
+      "screens": [
+        "ORG-01"
+      ],
+      "operations": [
+        "getEnterpriseOrgPack",
+        "materialiseEnterpriseOrgPack"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ORG-001-1",
+          "given": "The enterprise edition and the template file of the pack",
+          "when": "The file is registered, dry run, applied by another person and materialised twice",
+          "then": "The first run creates the units and roles and only proposes the rules, the matrix rule and the catalogue entries; the second creates nothing; a pack that breaks a rule stops at the dry run on its row",
+          "test_id": "UAT-PLAN-ORG-1"
+        },
+        {
+          "id": "AC-ST-ORG-001-2",
+          "given": "People holding the roles of the pack in their seats",
+          "when": "They read and enter in the units",
+          "then": "An input point sees and enters its own unit only, the planning unit and the leadership see every unit, the leadership role writes nothing",
+          "test_id": "UAT-PLAN-ORG-2"
+        },
+        {
+          "id": "AC-ST-ORG-001-ORG-01",
+          "given": "ORG-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty, validation error, service error with retry, permission denied and stale marker all render and the template note is shown",
+          "test_id": "UI-ORG-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-020"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The pack is template data; names of the two project teams and the staff wait for the customer (PENDING-EXTERNAL)."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ORG-001-1",
+          "kind": "backend",
+          "title": "Pure pack rules, store, controller and authorization",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ORG-001-2",
+          "kind": "web",
+          "title": "ORG-01 with the kit in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ORG-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ORG-001-4",
+          "kind": "qa",
+          "title": "Domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-ORG-1",
+            "UAT-PLAN-ORG-2"
+          ]
+        },
+        {
+          "id": "TK-ORG-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-ORG-01"
           ]
         }
       ]

@@ -439,6 +439,37 @@ function checkRoleMap(root, policy, realm, ldap, findings) {
   const platformRoles = readJson(root, 'infra/keycloak/realm-template.json')?.realmRoles ?? [];
   const covered = new Set([...mapped.values()].flat());
   for (const role of platformRoles) if (!covered.has(role)) findings.push(finding('ROLE_MAP', rule.roleMapFile, `the platform role ${role} has no directory group`));
+  checkTenantMappings(rule, map, mapped, groups, roles, prefix, findings);
+}
+
+/**
+ * The directory groups that fill the seats of the organisation pack of a tenant (ENT-3d): each one names a role of the tenant and the unit it is held in or the whole tenant. They grant no realm role and no control-plane
+ * role, they live inside the same `MACHVON-*` import filter, no group is named twice or is also a control-plane group or a group the realm holds, and the scope is one a seat can have.
+ */
+function checkTenantMappings(rule, map, mapped, groups, roles, prefix, findings) {
+  if (map.tenantMappings === undefined) return;
+  const bad = (detail) => findings.push(finding('ROLE_MAP', rule.roleMapFile, detail));
+  if (!Array.isArray(map.tenantMappings)) {
+    bad('tenantMappings must be a list');
+    return;
+  }
+  const seen = new Set();
+  for (const entry of map.tenantMappings) {
+    const group = entry?.adGroup;
+    if (typeof group !== 'string' || !/^MACHVON-[A-Z0-9][A-Z0-9-]{1,56}$/.test(group)) {
+      bad(`tenantMappings: ${String(group)} is not a MACHVON- group name`);
+      continue;
+    }
+    if (prefix !== undefined && !group.startsWith(prefix)) bad(`tenantMappings: ${group} is outside the filter ${map.groupFilter}`);
+    if (seen.has(group)) bad(`tenantMappings: ${group} is named twice`);
+    seen.add(group);
+    if (mapped.has(group)) bad(`tenantMappings: ${group} is also a control-plane group`);
+    if (groups.some((candidate) => candidate.name === group)) bad(`tenantMappings: ${group} is a group of the realm; a tenant group grants no realm role`);
+    if (typeof entry.tenantRole !== 'string' || !/^[A-Z][A-Z0-9_]{1,59}$/.test(entry.tenantRole) || roles.has(entry.tenantRole)) bad(`tenantMappings: ${group} names no tenant role (a realm role is not one)`);
+    if (!['UNIT_ONLY', 'UNIT_SUBTREE', 'TENANT'].includes(entry.scopeKind)) bad(`tenantMappings: ${group} has a scope a seat cannot have`);
+    if (typeof entry.unit !== 'string' || !/^[A-Z][A-Z0-9_]{1,39}$/.test(entry.unit)) bad(`tenantMappings: ${group} names no unit`);
+    if (typeof entry.pack !== 'string' || !/^[A-Z][A-Z0-9-]{2,39}$/.test(entry.pack)) bad(`tenantMappings: ${group} names no pack`);
+  }
 }
 
 function checkWorkflows(root, policy, yaml, findings) {

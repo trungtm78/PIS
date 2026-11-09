@@ -7,3 +7,5 @@ export * from './report-forms/exports.ts';
 export { ENTERPRISE_AI_POLICY, clearEnterpriseAiPolicy, registerEnterpriseAiPolicy } from './ai-policy.ts';
 // The connections of the enterprise edition (ENT-2): the push of issued reports to HPM and the file import and reconciliation of Oracle EBS; the rules, the ports and the stores, with the rules and alert types they register.
 export * from './integration/exports.ts';
+// The organisation pack of the enterprise edition (ENT-3d): the PVFCCo template, the store that loads and verifies it, and the registration of its mapping and verifier in the batch import.
+export * from './org-pack/exports.ts';

@@ -7427,6 +7427,14 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "ORG_PACK_INVALID": {
+      "status": 422,
+      "title": "Organisation pack invalid",
+      "meaning": "Gói tổ chức của lô nhập không hợp lệ: lô không phải của gói, hoặc các dòng đã áp dụng không còn đúng quy tắc của gói",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
     }
   }
 }

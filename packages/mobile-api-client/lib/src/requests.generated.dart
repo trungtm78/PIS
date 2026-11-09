@@ -7190,6 +7190,19 @@ final class EntitlementOverrideRequest implements RequestModel {
       };
 }
 
+final class EntOrgPackMaterialiseRequest implements RequestModel {
+  const EntOrgPackMaterialiseRequest({
+    required this.batchId,
+  });
+
+  final String batchId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'batch_id': batchId,
+      };
+}
+
 final class ExportDatasetSet implements RequestModel {
   const ExportDatasetSet({
     required this.datasetCode,

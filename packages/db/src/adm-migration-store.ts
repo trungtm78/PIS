@@ -1,5 +1,5 @@
-import { DomainError, MIGRATION_MAPPINGS, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch, versionConflict } from '@machvon/kernel';
-import type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping } from '@machvon/kernel';
+import { DomainError, MIGRATION_MAPPINGS, addRowErrors, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch, versionConflict } from '@machvon/kernel';
+import type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping, RowError } from '@machvon/kernel';
 import { cursorFor, cursorOf } from './dgv-keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -9,6 +9,16 @@ import type { TenantTx } from './tenant-database.ts';
  * is added up and compared with what the file said before the batch is Applied.
  */
 export const MIGRATION_BATCH_RESOURCE = 'migration_batch';
+
+/** The rules of a mapping that need the database (does a catalogue entry meet the rules of its type, does the unit exist): run in the dry run on the rows that passed the judge, each error on its row. An edition registers its own when it loads. */
+export type MigrationVerifier = (tx: TenantTx, rows: readonly JudgedRow[]) => Promise<RowError[]>;
+const VERIFIERS = new Map<string, MigrationVerifier>();
+
+export function registerMigrationVerifier(mappingVersion: string, verifier: MigrationVerifier): void {
+  const taken = VERIFIERS.get(mappingVersion);
+  if (taken !== undefined && taken !== verifier) throw new Error(`the migration verifier of ${mappingVersion} is already registered`);
+  VERIFIERS.set(mappingVersion, verifier);
+}
 const MAX_PAGE = 200;
 const MAX_ERRORS_SHOWN = 1000;
 const UNIQUE_VIOLATION = '23505';
@@ -227,7 +237,9 @@ export class AdmMigrationStore {
     if (batch.status !== 'Validating') return undefined;
     const mapping = this.mappingOf(batch.mappingVersion);
     const base = judgeMigrationFile(table, mapping);
-    const judgement = checkReferences(base, mapping, await this.knownKeys(tx, base));
+    const referenced = checkReferences(base, mapping, await this.knownKeys(tx, base));
+    const verifier = VERIFIERS.get(batch.mappingVersion);
+    const judgement = verifier === undefined ? referenced : addRowErrors(referenced, await verifier(tx, referenced.rows));
     const status = judgement.errorCount === 0 ? 'DryRunPassed' : 'DryRunFailed';
     await tx.query('delete from machvon.migration_batch_error where batch_id = $1::uuid', [id]);
     for (const error of judgement.errors) {

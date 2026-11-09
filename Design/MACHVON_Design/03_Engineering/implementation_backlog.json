@@ -22467,5 +22467,41 @@
     "stories": [
       "ST-BID-033"
     ]
+  },
+  {
+    "id": "BL-ORG-01",
+    "requirement": "FR-ADM-ENT3D",
+    "screen": "ORG-01",
+    "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+    "module": "ORG",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM, IAM, MDM",
+    "fields": [
+      "Đơn vị và 09 đầu mối",
+      "Vai trò và phạm vi",
+      "Chỗ ngồi và nhóm thư mục",
+      "Quy trình duyệt từng bước",
+      "Ủy quyền",
+      "Danh mục dùng chung",
+      "Kế hoạch nạp và báo cáo kiểm chứng"
+    ],
+    "rule": "Gói mẫu PVFCCO-TEMPLATE không có người, không có tài khoản; nạp qua lô nhập ADM (chạy thử, áp dụng bởi người khác); chạy lại không đổi gì; khác biệt chỉ báo, không ghi đè; quy tắc, ma trận và danh mục chỉ được đề xuất",
+    "test_ids": [
+      "UI-ORG-01",
+      "UAT-PLAN-ORG-1",
+      "UAT-PLAN-ORG-2"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ORG-001"
+    ]
   }
 ]

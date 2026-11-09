@@ -12499,5 +12499,24 @@
       "UI-BID-34",
       "UAT-PORTAL2-04"
     ]
+  },
+  {
+    "requirement": "FR-ADM-ENT3D",
+    "screen": "ORG-01",
+    "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "HSKT v0.3 HT.02, HT.03, MD.03, QT.01; kế hoạch ENT-3d; eng-review R24",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ORG.md §10–§11; 3 test",
+    "backlog_id": "BL-ORG-01",
+    "test_ids": [
+      "UI-ORG-01",
+      "UAT-PLAN-ORG-1",
+      "UAT-PLAN-ORG-2"
+    ]
   }
 ]

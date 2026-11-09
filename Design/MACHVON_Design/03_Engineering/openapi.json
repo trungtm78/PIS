@@ -228550,6 +228550,259 @@
           "vnd.portal.attachment.uploaded.v1"
         ]
       }
+    },
+    "/enterprise/org-pack": {
+      "get": {
+        "operationId": "getEnterpriseOrgPack",
+        "summary": "Tổ chức và vai trò của bản enterprise: gói mẫu PVFCCo hoặc gói của một lô đã áp dụng, kế hoạch nạp và báo cáo kiểm chứng (ENT-3d)",
+        "tags": [
+          "ORG"
+        ],
+        "x-permission": "adm.migration.read",
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntOrgPack"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/enterprise/org-pack/materialisations": {
+      "post": {
+        "operationId": "materialiseEnterpriseOrgPack",
+        "summary": "Biến lô gói tổ chức đã áp dụng thành đơn vị, vai trò và đề xuất quy tắc, danh mục chờ duyệt; chạy lại không đổi gì (ENT-3d)",
+        "tags": [
+          "ORG"
+        ],
+        "x-permission": "adm.migration.approve",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntOrgPackMaterialiseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntOrgPackMaterialisation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "MIGRATION_STATE_INVALID",
+          "ORG_PACK_INVALID",
+          "SCOPE_DENIED",
+          "ROLE_ESCALATION_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ent.org_pack.materialised.v1"
+        ]
+      }
     }
   },
   "components": {
@@ -308516,6 +308769,605 @@
             "type": "integer"
           },
           "direct_fallback": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntOrgPack": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "digest",
+          "source",
+          "batch_id",
+          "directory_prefix",
+          "loader",
+          "file_csv",
+          "units",
+          "roles",
+          "seats",
+          "steps",
+          "delegation",
+          "absence",
+          "doa",
+          "catalogue",
+          "plan",
+          "counts",
+          "seat_counts",
+          "stray_grants",
+          "structure_complete",
+          "defects",
+          "as_of"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "TEMPLATE",
+              "BATCH"
+            ]
+          },
+          "batch_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "directory_prefix": {
+            "type": "string"
+          },
+          "loader": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_entity",
+              "mapping_version",
+              "source_system",
+              "file_name",
+              "file_sha256",
+              "row_count"
+            ],
+            "properties": {
+              "target_entity": {
+                "type": "string"
+              },
+              "mapping_version": {
+                "type": "string"
+              },
+              "source_system": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "file_sha256": {
+                "type": "string"
+              },
+              "row_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "file_csv": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "parent_code",
+                "unit_function",
+                "placeholder",
+                "present"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parent_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unit_function": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "boolean"
+                },
+                "present": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "kind",
+                "rank",
+                "permissions",
+                "present"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "rank": {
+                  "type": "integer"
+                },
+                "permissions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "present": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "seats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "ad_group",
+                "role_code",
+                "unit_code",
+                "scope_kind",
+                "min_holders",
+                "max_holders",
+                "holders",
+                "state"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "ad_group": {
+                  "type": "string"
+                },
+                "role_code": {
+                  "type": "string"
+                },
+                "unit_code": {
+                  "type": "string"
+                },
+                "scope_kind": {
+                  "type": "string"
+                },
+                "min_holders": {
+                  "type": "integer"
+                },
+                "max_holders": {
+                  "type": "integer"
+                },
+                "holders": {
+                  "type": "integer"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "VACANT",
+                    "FILLED",
+                    "OVER"
+                  ]
+                }
+              }
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind",
+                "name",
+                "assignee",
+                "role_code",
+                "unit_code",
+                "sla_working_hours",
+                "on_timeout"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "assignee": {
+                  "type": "string"
+                },
+                "role_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unit_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sla_working_hours": {
+                  "type": "integer"
+                },
+                "on_timeout": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "delegation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "delegable_roles",
+              "max_days",
+              "standing_review_days"
+            ],
+            "properties": {
+              "delegable_roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "max_days": {
+                "type": "integer"
+              },
+              "standing_review_days": {
+                "type": "integer"
+              }
+            }
+          },
+          "absence": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "doa": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document_type",
+              "unit_code",
+              "role_code",
+              "approval_levels"
+            ],
+            "properties": {
+              "document_type": {
+                "type": "string"
+              },
+              "unit_code": {
+                "type": "string"
+              },
+              "role_code": {
+                "type": "string"
+              },
+              "approval_levels": {
+                "type": "integer"
+              }
+            }
+          },
+          "catalogue": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "master_type",
+                "key",
+                "label",
+                "parent_key"
+              ],
+              "properties": {
+                "master_type": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "parent_key": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "plan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "section",
+                "key",
+                "action",
+                "detail"
+              ],
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "CREATE",
+                    "UNCHANGED",
+                    "PENDING",
+                    "DRIFT",
+                    "BLOCKED"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "CREATE",
+              "UNCHANGED",
+              "PENDING",
+              "DRIFT",
+              "BLOCKED"
+            ],
+            "properties": {
+              "CREATE": {
+                "type": "integer"
+              },
+              "UNCHANGED": {
+                "type": "integer"
+              },
+              "PENDING": {
+                "type": "integer"
+              },
+              "DRIFT": {
+                "type": "integer"
+              },
+              "BLOCKED": {
+                "type": "integer"
+              }
+            }
+          },
+          "seat_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "VACANT",
+              "FILLED",
+              "OVER"
+            ],
+            "properties": {
+              "VACANT": {
+                "type": "integer"
+              },
+              "FILLED": {
+                "type": "integer"
+              },
+              "OVER": {
+                "type": "integer"
+              }
+            }
+          },
+          "stray_grants": {
+            "type": "integer"
+          },
+          "structure_complete": {
+            "type": "boolean"
+          },
+          "defects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "key",
+                "field",
+                "message"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "EntOrgPackMaterialiseRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "batch_id"
+        ],
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EntOrgPackMaterialisation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "digest",
+          "batch_id",
+          "items",
+          "counts",
+          "seat_counts",
+          "stray_grants",
+          "structure_complete"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "batch_id": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "section",
+                "key",
+                "result",
+                "detail",
+                "id"
+              ],
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "CREATED",
+                    "UNCHANGED",
+                    "PENDING",
+                    "DRIFT",
+                    "BLOCKED"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "CREATED",
+              "UNCHANGED",
+              "PENDING",
+              "DRIFT",
+              "BLOCKED"
+            ],
+            "properties": {
+              "CREATED": {
+                "type": "integer"
+              },
+              "UNCHANGED": {
+                "type": "integer"
+              },
+              "PENDING": {
+                "type": "integer"
+              },
+              "DRIFT": {
+                "type": "integer"
+              },
+              "BLOCKED": {
+                "type": "integer"
+              }
+            }
+          },
+          "seat_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "VACANT",
+              "FILLED",
+              "OVER"
+            ],
+            "properties": {
+              "VACANT": {
+                "type": "integer"
+              },
+              "FILLED": {
+                "type": "integer"
+              },
+              "OVER": {
+                "type": "integer"
+              }
+            }
+          },
+          "stray_grants": {
+            "type": "integer"
+          },
+          "structure_complete": {
             "type": "boolean"
           }
         }

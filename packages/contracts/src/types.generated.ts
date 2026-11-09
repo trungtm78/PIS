@@ -26043,6 +26043,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/enterprise/org-pack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tổ chức và vai trò của bản enterprise: gói mẫu PVFCCo hoặc gói của một lô đã áp dụng, kế hoạch nạp và báo cáo kiểm chứng (ENT-3d) */
+        get: operations["getEnterpriseOrgPack"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/enterprise/org-pack/materialisations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Biến lô gói tổ chức đã áp dụng thành đơn vị, vai trò và đề xuất quy tắc, danh mục chờ duyệt; chạy lại không đổi gì (ENT-3d) */
+        post: operations["materialiseEnterpriseOrgPack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -46444,6 +46478,140 @@ export interface components {
             proposed: number;
             shadows: number;
             direct_fallback: boolean;
+        };
+        EntOrgPack: {
+            label: string;
+            digest: string;
+            /** @enum {string} */
+            source: "TEMPLATE" | "BATCH";
+            batch_id: string | null;
+            directory_prefix: string;
+            loader: {
+                target_entity: string;
+                mapping_version: string;
+                source_system: string;
+                file_name: string;
+                file_sha256: string;
+                row_count: number;
+            };
+            file_csv: string | null;
+            units: {
+                code: string;
+                name: string;
+                parent_code: string | null;
+                unit_function: string;
+                placeholder: boolean;
+                present: boolean;
+            }[];
+            roles: {
+                code: string;
+                name: string;
+                kind: string;
+                rank: number;
+                permissions: string[];
+                present: boolean;
+            }[];
+            seats: {
+                key: string;
+                ad_group: string;
+                role_code: string;
+                unit_code: string;
+                scope_kind: string;
+                min_holders: number;
+                max_holders: number;
+                holders: number;
+                /** @enum {string} */
+                state: "VACANT" | "FILLED" | "OVER";
+            }[];
+            steps: {
+                id: string;
+                kind: string;
+                name: string;
+                assignee: string;
+                role_code: string | null;
+                unit_code: string | null;
+                sla_working_hours: number;
+                on_timeout: string;
+            }[];
+            delegation: {
+                delegable_roles: string[];
+                max_days: number;
+                standing_review_days: number;
+            };
+            absence: {
+                [key: string]: unknown;
+            };
+            doa: {
+                document_type: string;
+                unit_code: string;
+                role_code: string;
+                approval_levels: number;
+            };
+            catalogue: {
+                master_type: string;
+                key: string;
+                label: string;
+                parent_key: string | null;
+            }[];
+            plan: {
+                section: string;
+                key: string;
+                /** @enum {string} */
+                action: "CREATE" | "UNCHANGED" | "PENDING" | "DRIFT" | "BLOCKED";
+                detail: string;
+            }[];
+            counts: {
+                CREATE: number;
+                UNCHANGED: number;
+                PENDING: number;
+                DRIFT: number;
+                BLOCKED: number;
+            };
+            seat_counts: {
+                VACANT: number;
+                FILLED: number;
+                OVER: number;
+            };
+            stray_grants: number;
+            structure_complete: boolean;
+            defects: {
+                code: string;
+                key: string;
+                field: string;
+                message: string;
+            }[];
+            as_of: string;
+        };
+        EntOrgPackMaterialiseRequest: {
+            /** Format: uuid */
+            batch_id: string;
+        };
+        EntOrgPackMaterialisation: {
+            label: string;
+            digest: string;
+            batch_id: string;
+            items: {
+                section: string;
+                key: string;
+                /** @enum {string} */
+                result: "CREATED" | "UNCHANGED" | "PENDING" | "DRIFT" | "BLOCKED";
+                detail: string;
+                id: string | null;
+            }[];
+            counts: {
+                CREATED: number;
+                UNCHANGED: number;
+                PENDING: number;
+                DRIFT: number;
+                BLOCKED: number;
+            };
+            seat_counts: {
+                VACANT: number;
+                FILLED: number;
+                OVER: number;
+            };
+            stray_grants: number;
+            structure_complete: boolean;
         };
     };
     responses: never;
@@ -206361,6 +206529,198 @@ export interface operations {
             };
             /** @description Rate limit */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getEnterpriseOrgPack: {
+        parameters: {
+            query?: {
+                batch_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntOrgPack"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    materialiseEnterpriseOrgPack: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntOrgPackMaterialiseRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntOrgPackMaterialisation"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
