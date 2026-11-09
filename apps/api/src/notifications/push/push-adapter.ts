@@ -59,6 +59,9 @@ export class PushChannelAdapter implements ChannelAdapter {
           data: silent ? { kind: 'refresh', what: (request.silent as { what: string }).what } : { deep_link: request.deepLink ?? '' },
           silent,
           idempotencyKey: `${request.idempotencyKey}:${target.deviceId}`,
+          deviceId: target.deviceId,
+          ...(request.tenantId === undefined ? {} : { tenantId: request.tenantId }),
+          ...(request.priority === undefined ? {} : { priority: request.priority }),
         });
       } catch {
         // The call to this device may have gone out: what the other devices answered still stands, and the rest are still tried.
@@ -69,7 +72,9 @@ export class PushChannelAdapter implements ChannelAdapter {
         accepted.push(answer.messageId);
         continue;
       }
-      const failure = classify(answer.code);
+      const classified = classify(answer.code);
+      // The pause the push service asked for wins over the default of the class, within an hour (a service that asks for a day is asked again in an hour).
+      const failure = answer.retryAfterSeconds !== undefined && classified.failureClass === 'RETRYABLE' ? { ...classified, retryAfterSeconds: Math.min(3600, Math.max(1, Math.ceil(answer.retryAfterSeconds))) } : classified;
       if (failure.revoke) dead.push(target.deviceId);
       first ??= { code: errorCodeOf(answer.code), failureClass: failure.failureClass, ...(failure.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: failure.retryAfterSeconds }) };
       if (failure.failureClass === 'RETRYABLE') retryable ??= { code: errorCodeOf(answer.code), ...(failure.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: failure.retryAfterSeconds }) };

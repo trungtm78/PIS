@@ -1,0 +1,34 @@
+import { PushChannelAdapter } from './push-adapter';
+import { MockPushProvider } from './ports';
+import type { PushProviderAnswer, PushProviderMessage, PushProviderPort } from './ports';
+import { WebAwarePushProvider, webPushProviderFromEnv } from './web-push';
+import type { Environment } from './web-push-config';
+
+/** The provider name of the web-push channel where real data lives. */
+export const WEB_PUSH_PROVIDER = 'web-push';
+
+/**
+ * The token of a native device where no native provider exists (FCM and APNs are not built): refused for good, but not revoked. A refusal that revoked would
+ * delete the registration of an Android phone for a reason that is ours; the device stays registered for the day a native provider is.
+ */
+export class NoNativePushProvider implements PushProviderPort {
+  async send(_message: PushProviderMessage): Promise<PushProviderAnswer> {
+    return { ok: false, code: 'NATIVE_PROVIDER_MISSING' };
+  }
+}
+
+/** Outside production: the web provider is the real one when the keys are set (state `PENDING_SPIKE`, usable for the spike itself), else the stand-in; native tokens go to the stand-in. */
+export function webPushDevelopmentAdapter(variables: Environment): PushChannelAdapter {
+  const { provider } = webPushProviderFromEnv(variables);
+  return new PushChannelAdapter('mock-fcm', 'PUSH_FCM', new WebAwarePushProvider(new MockPushProvider(), provider));
+}
+
+/**
+ * In production: the web channel only when the operator has run the spike and said so (`MACHVON_WEBPUSH_SPIKE_VERIFIED=true`) with real keys. `MOCK` and
+ * `PENDING_SPIKE` register nothing there, so a notification is never reported as sent by a channel nobody has seen deliver.
+ */
+export function webPushProductionAdapters(variables: Environment): PushChannelAdapter[] {
+  const { provider, state } = webPushProviderFromEnv(variables);
+  if (state !== 'VERIFIED') return [];
+  return [new PushChannelAdapter(WEB_PUSH_PROVIDER, 'PUSH_FCM', new WebAwarePushProvider(new NoNativePushProvider(), provider), 'VERIFIED')];
+}

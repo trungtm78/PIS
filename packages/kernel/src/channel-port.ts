@@ -27,6 +27,9 @@ export interface ChannelSendRequest {
   deepLink?: string;
   /** A data message with no text, to make the app read again what changed (entitlements, access); never shown. */
   silent?: { what: string };
+  /** A push is made for one tenant and one priority (the urgency header and the receipt of a web push depend on them). */
+  tenantId?: string;
+  priority?: string;
 }
 
 export type ChannelSendResult =
