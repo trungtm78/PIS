@@ -51,7 +51,8 @@
         "MNE",
         "AUD",
         "RPT",
-        "VND"
+        "VND",
+        "EQP"
       ]
     },
     {
@@ -75,7 +76,8 @@
         "HPM",
         "EBS",
         "ORG",
-        "FEED"
+        "FEED",
+        "RML"
       ]
     },
     {
@@ -87,34 +89,6 @@
         "LLM",
         "SAS",
         "INT"
-      ]
-    },
-    {
-      "id": "insights",
-      "name": "Phân tích",
-      "icon": "insights",
-      "modules": [
-        "BID",
-        "BI",
-        "MNE",
-        "AUD",
-        "RPT",
-        "VND",
-        "EQP"
-      ]
-    },
-    {
-      "id": "data",
-      "name": "Dữ liệu",
-      "icon": "data",
-      "modules": [
-        "MDM",
-        "DGV",
-        "HUB",
-        "IND",
-        "HPM",
-        "EBS",
-        "FEED"
       ]
     }
   ],
@@ -2129,11 +2103,15 @@
           "description": "Biểu mẫu báo cáo kỳ, khóa kỳ và chữ ký số",
           "ids": [
             5,
-            6
+            6,
+            7,
+            8
           ],
           "primary": [
             5,
-            6
+            6,
+            7,
+            8
           ],
           "parents": {}
         }
@@ -2560,6 +2538,22 @@
             "6": 4,
             "10": 7
           }
+        }
+      ]
+    },
+    "RML": {
+      "name": "Gửi biểu mẫu báo cáo qua email theo lịch",
+      "groups": [
+        {
+          "title": "Gửi biểu mẫu qua email",
+          "description": "Lịch gửi và nhật ký gửi biểu mẫu đã phát hành",
+          "ids": [
+            1
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {}
         }
       ]
     }
@@ -3076,7 +3070,8 @@
     "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu.",
     "ORG": "Xem tổ chức và vai trò của bản enterprise: đơn vị đầu mối, vai trò theo phạm vi, chỗ ngồi và nhóm thư mục, quy trình duyệt, kế hoạch nạp và báo cáo kiểm chứng.",
     "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân.",
-    "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy."
+    "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy.",
+    "RML": "Lịch gửi email biểu mẫu đã phát hành tới các thành viên, kèm tệp phát hành, mã băm SHA-256 và nhật ký từng thư (chỉ bản doanh nghiệp)."
   },
   "adminLibraryModules": [
     "IAM",

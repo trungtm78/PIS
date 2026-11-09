@@ -87,7 +87,7 @@ describe('CorrectionScreen (HPM-02): the corrections that let an accepted period
     fireEvent.click(within(dialog).getByRole('button', { name: word('hpm.correction.propose.confirm') }));
     await waitFor(() => expect(h.command).toHaveBeenCalled());
     expect(h.command.mock.calls[0]?.[0]).toBe('proposeHpmCorrection');
-    expect((h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body).toEqual({ layout_code: 'HPM-MONTHLY', period: '2026-M09', from_revision: 1, period_reopen_id: uuid(750), reason: 'A late invoice changed the executed value' });
+    expect((h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body).toEqual({ layout_code: 'HPM-MONTHLY', period: '2026-M09', from_revision: 1, period_reopen_id: uuid(750), reason: 'A late invoice changed the executed value', mode: 'OVERWRITE' });
     expect((await screen.findByTestId('action-receipt')).textContent).toBe(word('hpm.correction.propose.done'));
   });
 

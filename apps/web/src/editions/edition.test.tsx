@@ -51,10 +51,10 @@ describe('the public edition as the default', () => {
     expect(getEdition()).toBe(PUBLIC_BUNDLE);
     expect(getEdition().manifest).toBe(PUBLIC_EDITION_MANIFEST);
     expect(getEdition().overlay).toBeUndefined();
-    // Every route and every module of the public product; the modules of the enterprise edition only (HPM, EBS) are not part of it.
+    // Every route and every module of the public product; the modules of the enterprise edition only (HPM, EBS, EQP, ORG, RML) are not part of it.
     const publicRoutes = WEB_ROUTES.filter((route) => !ENTERPRISE_ONLY_MODULES.includes(route.module));
     expect(editionRoutes(WEB_ROUTES)).toEqual(publicRoutes);
-    expect(WEB_ROUTES.length - publicRoutes.length).toBe(4);
+    expect(WEB_ROUTES.length - publicRoutes.length).toBe(8);
     expect(WEB_ROUTES.every((route) => routeInEdition(route) === !ENTERPRISE_ONLY_MODULES.includes(route.module))).toBe(true);
     expect(editionAccess(ALL_MODULES_VISIBLE).isModuleVisible('HPM')).toBe(false);
     expect(editionAccess(ALL_MODULES_VISIBLE).isModuleVisible('PRJ')).toBe(true);
