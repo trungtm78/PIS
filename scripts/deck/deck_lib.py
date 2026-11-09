@@ -277,7 +277,7 @@ class Canvas:
                     d.rectangle(box, fill=f, outline=o, width=int(lw))
             elif k == "pic":
                 _, p, x, y, w, h, mode, full = pr
-                im2 = Image.open(p).convert("RGB")
+                im2 = Image.open(p).convert("RGBA")
                 if mode == "cover":
                     fx, fy, fw, fh = full
                     ar_b, ar_i = fw / fh, im2.width / im2.height
@@ -288,7 +288,7 @@ class Canvas:
                         nh = im2.width / ar_b
                         im2 = im2.crop((0, int((im2.height - nh) / 2), im2.width, int((im2.height + nh) / 2)))
                 im2 = im2.resize((max(1, int(S(w))), max(1, int(S(h)))))
-                im.paste(im2, (int(S(x)), int(S(y))))
+                im.paste(im2.convert("RGB"), (int(S(x)), int(S(y))), im2.split()[3])
             elif k == "line":
                 _, x1, y1, x2, y2, c, lw, ar = pr
                 d.line([(S(x1), S(y1)), (S(x2), S(y2))], fill="#" + c, width=max(1, int(lw)))

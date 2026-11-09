@@ -279,7 +279,7 @@
         ["Kiểm nghiệm", "Biên bản UAT; danh sách lỗi và kết quả khắc phục", "Có"],
         ["Chuyển đổi dữ liệu, đào tạo", "Biên bản chuyển đổi; biên bản đào tạo; tài liệu, video hướng dẫn", "Có"],
         ["Vận hành thử, nghiệm thu", "Chạy song song 02 kỳ với Excel; biên bản nghiệm thu; bộ bàn giao", "Có"],
-        ["Bảo hành, bảo trì", "Báo cáo bảo trì định kỳ; hỗ trợ các kỳ chốt số liệu", "-"]
+        ["Bảo hành, bảo trì", "Báo cáo bảo trì định kỳ; hỗ trợ các kỳ chốt số liệu", "không"]
       ],
       "approve_label": "PVFCCo phê duyệt",
       "status_title": "Hiện trạng tài liệu giai đoạn",

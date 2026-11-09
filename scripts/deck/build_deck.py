@@ -373,15 +373,15 @@ def s_cards4():
         cv.shape(x, y, 594, 5, fill=TEAL)
         circle(cv, x + 20, y + 22, 42, i + 1, size=17)
         cv.text(x + 74, y + 18, 500, 50, c["title"], size=17, bold=True, color=TEAL_D, anchor="m")
-        cv.text(x + 20, y + 78, 556, 150, [Para(b, bullet=True, after=7) for b in c["bullets"]], size=14)
-    cv.text(60, 672, 1213, 24, d["foot"], size=11.5, color=GREY, anchor="m", minsize=10)
+        cv.text(x + 20, y + 78, 556, 150, [Para(b, bullet=True, after=8) for b in c["bullets"]], size=15)
+    cv.text(60, 668, 1213, 30, d["foot"], size=11.5, color=GREY, anchor="m", minsize=10)
 
 
 def s_shots(sid):
     s, cv, d = content_slide(sid)
     n = len(d["shots"])
     if n == 2:
-        w, gap, ih, ty, dy, dh, ts, ds_ = 594, 25, 349, 518, 552, 135, 17, 13.5
+        w, gap, ih, ty, dy, dh, ts, ds_ = 594, 25, 349, 518, 552, 135, 18, 15.5
     else:
         w, gap, ih, ty, dy, dh, ts, ds_ = 388, 24.5, 228, 398, 432, 255, 16, 14
     for i, sh in enumerate(d["shots"]):
@@ -398,7 +398,7 @@ def s_phone():
         x = 60 + i * 270
         cv.pic(img, x, 160, 248, 480, mode="cover", alt=cap)
         cv.text(x, 646, 248, 28, cap, size=12, color=GREY, align="c", anchor="m")
-    cv.text(630, 165, 643, 340, [Para(b, bullet=True, after=11) for b in d["bullets"]], size=15)
+    cv.text(630, 165, 643, 340, [Para(b, bullet=True, after=12) for b in d["bullets"]], size=16.5)
     cv.shape(630, 520, 643, 150, fill=O100, kind="round", r=10)
     cv.shape(630, 520, 6, 150, fill=ORANGE)
     cv.text(652, 520, 610, 150, d["callout"], size=13.5, anchor="m")
@@ -410,10 +410,10 @@ def s_security():
         p = d[key]
         cv.shape(x, 160, 594, 524, fill=WHITE, line=T300, lw=1.25)
         cv.shape(x, 160, 594, 44, fill=TEAL_D, text=p["title"], size=16, bold=True, color=WHITE, align="l")
-        cv.text(x + 14, 212, 300, 22, d["have_label"], size=11, bold=True, color=TEAL_D, anchor="m")
+        cv.text(x + 14, 211, 300, 25, d["have_label"], size=11, bold=True, color=TEAL_D, anchor="m")
         cv.text(x + 10, 236, 574, 215, [Para(t, bullet=True, after=6) for t in p["have"]], size=13)
         cv.shape(x + 14, 458, 566, 1, fill=T200)
-        cv.text(x + 14, 464, 300, 22, d["todo_label"], size=11, bold=True, color=ORANGE_D, anchor="m")
+        cv.text(x + 14, 463, 300, 25, d["todo_label"], size=11, bold=True, color=ORANGE_D, anchor="m")
         cv.text(x + 10, 488, 574, 190, [Para(t, bullet=True, after=6) for t in p["todo"]], size=13)
 
 
@@ -446,7 +446,7 @@ def s_compliance():
     order = ["MD", "DL", "QT", "CN", "BC", "TH", "HT", "YCK", "TK", "GD", "SP"]
     unit = 50
     for i, g in enumerate(order):
-        y = 262 + i * 38
+        y = 256 + i * 36
         cv.text(60, y, 215, 32, d["groups"][g], size=13, anchor="m")
         xx = 280.0
         for k in ("DONE", "PARTIAL", "PENDING-EXTERNAL", "MISSING"):
@@ -454,10 +454,10 @@ def s_compliance():
             if c:
                 cv.shape(xx, y + 2, unit * c - 2, 28, fill=col[k][0], text=str(c), size=12, bold=True, color=col[k][1])
                 xx += unit * c
-    cv.shape(860, 262, 413, 410, fill=T100, kind="round", r=12)
-    cv.text(878, 272, 380, 28, d["read_title"], size=16, bold=True, color=TEAL_D, anchor="m")
-    cv.text(878, 306, 380, 360, [Para(t, bullet=True, after=9) for t in d["read"]], size=13)
-    cv.text(60, 676, 1213, 20, d["foot"], size=10.5, color=GREY, anchor="m", minsize=9)
+    cv.shape(860, 256, 413, 395, fill=T100, kind="round", r=12)
+    cv.text(878, 266, 380, 28, d["read_title"], size=16, bold=True, color=TEAL_D, anchor="m")
+    cv.text(878, 300, 380, 345, [Para(t, bullet=True, after=9) for t in d["read"]], size=13)
+    cv.text(60, 664, 1213, 26, d["foot"], size=10.5, color=GREY, anchor="m", minsize=9)
     return cnt, total
 
 
@@ -512,9 +512,9 @@ def s_divider():
 
 def s_public():
     s, cv, d = content_slide("public")
-    cv.text(60, 158, 430, 22, "BẢN ĐẦU TƯ CÔNG", size=11, bold=True, color=GREY, anchor="m")
+    cv.text(60, 156, 430, 26, "BẢN ĐẦU TƯ CÔNG", size=11, bold=True, color=GREY, anchor="m")
     cv.pic("machvon-logo-public-horizontal.png", 60, 182, 430, 120, mode="contain", border=T200, alt="Logo Mạch Vốn - Hệ thống quản lý đầu tư công")
-    cv.text(60, 330, 430, 22, "BẢN DÀNH CHO PHÚ MỸ (ENTERPRISE)", size=11, bold=True, color=GREY, anchor="m")
+    cv.text(60, 328, 430, 26, "BẢN DÀNH CHO PHÚ MỸ (ENTERPRISE)", size=11, bold=True, color=GREY, anchor="m")
     cv.pic("machvon-logo-enterprise-horizontal.png", 60, 354, 430, 120, mode="contain", border=T200, alt="Logo Mạch Vốn - Phần mềm quản lý đầu tư xây dựng")
     cv.shape(60, 500, 430, 150, fill=T100, kind="round", r=10)
     cv.text(76, 500, 400, 150, "Hai bản dùng chung một nền tảng và một lõi mã; khác nhau ở phần mã riêng của khách và các kết nối.", size=14, anchor="m")
