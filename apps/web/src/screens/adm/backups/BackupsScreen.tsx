@@ -10,7 +10,7 @@ import { Field } from '../../dgv/components';
 import { CommandFrame } from '../../qms/CommandFrame';
 import { KitTable } from '../KitTable';
 import { useBackupPage, useCancelBackup, useDecideBackup, useRecordBackup, useRequestBackup } from './hooks';
-import { BACKUP_DECIDE, BACKUP_READ, BACKUP_RECORD, BACKUP_REQUEST, REASON_MIN, healthTone, kindsFor, refusalOf, statusTone } from './model';
+import { BACKUP_DECIDE, detailKey, BACKUP_READ, BACKUP_RECORD, BACKUP_REQUEST, REASON_MIN, healthTone, kindsFor, refusalOf, statusTone } from './model';
 import type { BackupKind, BackupRequestView } from './model';
 import '../adm-kit.css';
 
@@ -55,8 +55,8 @@ function BackupsContent({ route }: ScreenProps) {
         {backupState === undefined ? null : (
           <SectionCard title={t('adm.backups.state.title')}>
             <p data-testid="backup-health" data-health={backupState.health}>
-              <StatusPill tone={healthTone(backupState.health)}>{t(`adm.backups.health.${backupState.health}`)}</StatusPill>{' '}
-              {backupState.detail === null ? null : <span className="sub">{t(`adm.backups.detail.${backupState.detail}`)}</span>}
+              <StatusPill tone={healthTone(backupState.health)}>{t(`adm.backups.health.${backupState.health.toLowerCase()}`)}</StatusPill>{' '}
+              {backupState.detail === null ? null : <span className="sub">{t(`adm.backups.detail.${detailKey(backupState.detail)}`)}</span>}
             </p>
             <p>{backupState.lastVerifyAt === null ? t('adm.backups.verify.none') : t('adm.backups.verify.at', { at: moment(backupState.lastVerifyAt) })}</p>
             {backupState.backups.length === 0 ? (
@@ -112,7 +112,7 @@ function BackupsContent({ route }: ScreenProps) {
                     <td>{moment(row.requestedAt)}</td>
                     <td>{row.backupLabel ?? ''}</td>
                     <td>
-                      <StatusPill tone={statusTone(row.status)}>{t(`adm.backups.status.${row.status}`)}</StatusPill>
+                      <StatusPill tone={statusTone(row.status)}>{t(`adm.backups.status.${row.status.toLowerCase()}`)}</StatusPill>
                     </td>
                     <td>
                       {row.status === 'Requested' && holds(BACKUP_DECIDE) && writable ? (

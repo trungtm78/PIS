@@ -131,3 +131,19 @@ export function refusalOf(error: unknown): RefusalReason {
       return 'general';
   }
 }
+
+/** The part of the translation key for the reason the server gives for an unknown state; an unforeseen reason reads as not configured. */
+export function detailKey(detail: string): 'notConfigured' | 'fileOld' | 'fileUnreadable' | 'fileMalformed' | 'noBackup' {
+  switch (detail) {
+    case 'STATE_FILE_OLD':
+      return 'fileOld';
+    case 'STATE_FILE_UNREADABLE':
+      return 'fileUnreadable';
+    case 'STATE_FILE_MALFORMED':
+      return 'fileMalformed';
+    case 'NO_BACKUP':
+      return 'noBackup';
+    default:
+      return 'notConfigured';
+  }
+}

@@ -61,7 +61,7 @@ describe('BackupsScreen (ADM-29, HSKT YCK.06)', () => {
   it('shows the state the server read and the requests with the actions each status allows', async () => {
     open(page([request(1, 'Requested'), request(2, 'Approved', { kind: 'diff' }), request(3, 'Completed', { backup_label: '20261109-013000F_20261109-123000D', kind: 'diff' })]));
     expect((await screen.findByTestId('backup-health')).getAttribute('data-health')).toBe('OK');
-    expect(screen.getByText(word('adm.backups.health.OK'))).toBeTruthy();
+    expect(screen.getByText(word('adm.backups.health.ok'))).toBeTruthy();
     expect(document.querySelector('[data-backup="20261109-013000F"]')).not.toBeNull();
     const row = (n: number): HTMLElement => document.querySelector(`[data-request="${id(n)}"]`) as HTMLElement;
     expect(row(1).querySelector('[data-action="decide"]')).not.toBeNull();
@@ -74,7 +74,7 @@ describe('BackupsScreen (ADM-29, HSKT YCK.06)', () => {
   it('never invents a state: no source is UNKNOWN with the reason, a failed or stale repository is shown as a problem', async () => {
     open(page([], { source: 'NONE', health: 'UNKNOWN', detail: 'NOT_CONFIGURED', backups: [], last_verify_at: null }));
     expect((await screen.findByTestId('backup-health')).getAttribute('data-health')).toBe('UNKNOWN');
-    expect(screen.getByText(word('adm.backups.detail.NOT_CONFIGURED'))).toBeTruthy();
+    expect(screen.getByText(word('adm.backups.detail.notConfigured'))).toBeTruthy();
     expect(screen.getByTestId('backup-none')).toBeTruthy();
     expect(screen.getByTestId('request-none')).toBeTruthy();
     expect(screen.getByText(word('adm.backups.verify.none'))).toBeTruthy();
