@@ -63,7 +63,7 @@ LƯU Ý: nếu bấm F5 hoặc gõ lại địa chỉ, phải giữ `?devUser=..
 | `owner` | Nguyễn Văn An | Chủ tenant (TENANT_OWNER), là "người thứ hai" của mọi cặp lập / duyệt | Trung tâm điều hành HOME-09, cơ cấu vốn HOME-07, giao ban và chỉ đạo DIR, nhà thầu, cảnh báo, trình chiếu. Vai trò mặc định để mở demo. |
 | `capApprover` | Trần Thị Bích | Lãnh đạo (LANH_DAO_SO + LEADER) | Duyệt kế hoạch vốn CAP, kỳ báo cáo và khóa số liệu DIS, ký duyệt báo cáo. |
 | `projectManager` | Phạm Quốc Dũng | Cán bộ ban quản lý dự án | Dự án PRJ, mua sắm thiết bị EQP, hồ sơ dự án DOC, trợ lý AI LLM. |
-| `docHead` | Trần Văn Hùng | Trưởng phòng soạn thảo (COMMITTEE_HEAD) | Biểu mẫu báo cáo RPT, so sánh chéo RPT-09, phát hành, đẩy HPM. |
+| `docHead` | Trần Văn Hùng | Trưởng phòng soạn thảo (COMMITTEE_HEAD) | Biểu mẫu báo cáo RPT-01 đến RPT-03, so sánh chéo RPT-09. KHÔNG vào được màn hình đẩy HPM (HPM-01, HPM-02): dùng `owner` cho phần HPM. |
 | `unitAdmin` | Lê Minh Cường | Quản trị đơn vị | Quản trị đơn vị, lịch nhắc, thành viên. |
 | `treasuryMaker` | Hoàng Thị Lan | Kế toán | Thanh toán, đối chiếu kế toán. |
 | `auditor` | Vũ Đức Minh | Kiểm toán | Chỉ đọc, nhật ký kiểm toán. |
@@ -81,10 +81,10 @@ Mở Chrome toàn màn hình, thu nhỏ chữ nếu cần (Ctrl và dấu trừ)
 | 2 | `owner` | `/home/home-07` | Cơ cấu các nguồn vốn (HOME-07): vốn chủ sở hữu và vốn vay, so sánh số ước với số thực. Nói về hai loại vốn của doanh nghiệp, không phải ngân sách tỉnh. |
 | 3 | `capApprover` | `/cap/cap-03`, `/cap/cap-07`, `/cap/cap-12` | Kế hoạch vốn năm, điều chỉnh và điều chuyển giữa các phiên bản, kế hoạch ước giải ngân. Có thể bấm so sánh phiên bản. |
 | 4 | `projectManager` | `/prj/prj-01`, `/prj/prj-14`, `/prj/prj-15` | 12 dự án (6 đầu tư xây dựng, 6 mua sắm thiết bị) ở các giai đoạn: danh sách, cổng giai đoạn (ngân hàng dự án và vòng đời), chấm điểm thẩm định. Mở một dự án để xem hồ sơ. |
-| 5 | `docHead` | `/rpt/rpt-01?devUser=docHead` | Báo cáo gửi Tập đoàn (PVN) và Hệ thống HPM: danh mục sáu biểu mẫu demo (cột trạng thái, nhãn "MẪU DEMO - chờ mẫu chính thức"). Chọn một biểu mẫu, bấm lập báo cáo, xem bản xem trước. |
+| 5 | `docHead` | `/rpt/rpt-01?devUser=docHead` | Báo cáo gửi Tập đoàn (PVN) và HPM: danh mục sáu biểu mẫu demo (cột trạng thái, nhãn "MẪU DEMO - chờ mẫu chính thức"). Chọn một biểu mẫu, bấm lập báo cáo, xem bản xem trước. |
 | 6 | `docHead` | `/rpt/rpt-02`, `/rpt/rpt-03` | Luồng kiểm tra, phê duyệt, phát hành và các bản đã phát hành (người lập khác người kiểm khác người duyệt, mỗi bản có mã băm, tên tệp theo quy tắc). |
 | 7 | `docHead` | `/rpt/rpt-09` | So sánh chéo báo cáo cùng kỳ trước khi phát hành (RPT-09): phát hiện số liệu lệch giữa các biểu mẫu. |
-| 8 | `docHead` | `/hpm/hpm-01`, `/hpm/hpm-02` | Đẩy lên HPM: nhật ký đẩy (2 lần đã đẩy), khóa chống đẩy trùng, từ chối bản cũ, đẩy lại, đính chính kỳ đã được nhận. Nói rõ: kết nối là tệp giả định, xem mục 6. |
+| 8 | `owner` | `/hpm/hpm-01?devUser=owner`, `/hpm/hpm-02` | Đẩy lên HPM: nhật ký đẩy (2 lần đã đẩy), khóa chống đẩy trùng, từ chối bản cũ, đẩy lại, đính chính kỳ đã được nhận. Nói rõ: kết nối là tệp giả định, xem mục 6. |
 | 9 | `owner` | `/ebs/ebs-01`, `/ebs/ebs-02` | Đối chiếu Oracle EBS theo mã dự án (khoảng 32 chênh lệch minh họa, có giải trình). Nói rõ: nhập từ tệp, chờ đặc tả chính thức của EBS, xem mục 6. |
 | 10 | `owner` | `/dir/dir-01`, `/dir/dir-03`, `/dir/dir-04`, `/dir/dir-05` | Giao ban và chỉ đạo: các cuộc giao ban, bảng theo dõi chỉ đạo (có chỉ đạo quá hạn), dòng thời gian một chỉ đạo, và chỉ đạo của kỳ trở thành đầu vào báo cáo kỳ sau. |
 | 11 | `projectManager` | `/eqp/eqp-01`, `/eqp/eqp-02` | Mua sắm trang thiết bị dự án: danh sách dòng mua sắm và chi tiết. Rồi gói thầu `/bid/bid-03` và kế hoạch lựa chọn nhà thầu `/bid/bid-15`. |
@@ -119,6 +119,6 @@ Thứ tự gợi ý nếu chỉ có 10 phút: bước 1, 2, 4, 5, 7, 8, 10, 13.
 - Mẫu thanh toán Kho bạc và các màn hình của bản công khai không thuộc dữ liệu enterprise; không dùng chúng trong demo này.
 - Con số cấu hình pháp lý ở một số quy tắc là mặc định chưa kiểm chứng; dữ liệu cũng là minh họa. Hãy nói điều này khi được hỏi.
 
-## 7. Kiểm tra chạy thử đã làm trên máy của đội phát triển
+## 7. Kết quả chạy thử trên máy dựng (2026-11-09)
 
-Xem phần "Kết quả chạy thử" cuối tài liệu (cập nhật sau khi chạy trực tiếp trên máy dựng).
+Chạy `npm run demo:enterprise` trên Windows 11, Node 24.20: API lên, nạp dữ liệu enterprise xong (có hai thông báo từ chối mà các nhóm nạp chấp nhận: xác minh chữ ký văn bản và công bố hai bảng BI; không ảnh hưởng kịch bản), web lên, `/__e2e/health` trả 200. Chrome headless (Playwright) mở được Trung tâm điều hành HOME-09 với `owner` (thương hiệu Đạm Phú Mỹ, 10 dự án, chỉ đạo quá hạn) và 21 màn hình của kịch bản tải được, 0 lỗi JavaScript. Riêng `docHead` bị từ chối ở HPM-01 và HPM-02, nên bước 8 dùng `owner`. Bước 15 (cài PWA thật) không thử được ở bản dev, xem lưu ý ở mục 4.
