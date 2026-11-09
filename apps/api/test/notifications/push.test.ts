@@ -168,7 +168,7 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
       expect(message?.data).toEqual({ deep_link: `/r/${notificationId}` });
       expect(JSON.stringify(message)).not.toMatch(/\{\{|amount|đồng|VND/i);
       // The generic sentence and the opaque reference are all the provider is given: no title of the record, no event type, no resource.
-      expect(Object.keys(message ?? {}).sort()).toEqual(['body', 'data', 'idempotencyKey', 'silent', 'token']);
+      expect(Object.keys(message ?? {}).sort()).toEqual(['body', 'data', 'deviceId', 'idempotencyKey', 'priority', 'silent', 'tenantId', 'token']);
       expect(JSON.stringify(message)).not.toContain('report.overdue');
     });
 

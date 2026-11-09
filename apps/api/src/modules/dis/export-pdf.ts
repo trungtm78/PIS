@@ -22,10 +22,11 @@ const WEIGHTS: Readonly<Record<string, number>> = { label: 2.4, value: 3.2, unit
 const DEFAULT_WEIGHT = 1.2;
 
 let cachedFonts: FontSet | undefined;
-const fontsOf = (): FontSet => (cachedFonts ??= loadRendererResources().fonts);
+/** The embedded-font bytes of the document renderer, read once (the PDF of a report form draws with the same fonts). */
+export const fontsOf = (): FontSet => (cachedFonts ??= loadRendererResources().fonts);
 
 /** The text cut to a width with an ellipsis, so that a long name never runs into the next column. */
-function fitted(text: string, font: PDFFont, size: number, width: number): string {
+export function fitted(text: string, font: PDFFont, size: number, width: number): string {
   if (font.widthOfTextAtSize(text, size) <= width) return text;
   let cut = text;
   while (cut.length > 0 && font.widthOfTextAtSize(`${cut}…`, size) > width) cut = cut.slice(0, -1);
@@ -33,7 +34,7 @@ function fitted(text: string, font: PDFFont, size: number, width: number): strin
 }
 
 /** A line broken into pieces that each fit the width, for a word that is longer than a column (an address, a code): nothing is cut off, it goes on the next line. */
-function broken(line: string, font: PDFFont, size: number, width: number): string[] {
+export function broken(line: string, font: PDFFont, size: number, width: number): string[] {
   if (font.widthOfTextAtSize(line, size) <= width) return [line];
   const pieces: string[] = [];
   let piece = '';
@@ -49,7 +50,7 @@ function broken(line: string, font: PDFFont, size: number, width: number): strin
   return pieces;
 }
 
-function wrapped(text: string, font: PDFFont, size: number, width: number): string[] {
+export function wrapped(text: string, font: PDFFont, size: number, width: number): string[] {
   const lines: string[] = [];
   let line = '';
   for (const word of text.split(/\s+/)) {

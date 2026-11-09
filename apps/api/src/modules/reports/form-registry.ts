@@ -1,4 +1,4 @@
-import { DIS_WEEKLY_LAYOUT, DomainError, MOF_LAYOUTS, MOF_RECEIVER, mofFormOf, validateLayout } from '@machvon/kernel';
+import { CONFIG_CODE_PREFIX, DIS_WEEKLY_LAYOUT, DomainError, MOF_LAYOUTS, MOF_RECEIVER, mofFormOf, validateLayout } from '@machvon/kernel';
 import type { EffectiveAccess, ReportFormBundle } from '@machvon/kernel';
 import { buildBlankTemplate } from './blank-template';
 import { DIS_HOME_PROVIDER, DisHomeProvider } from './figure-provider';
@@ -20,6 +20,8 @@ export class ReportFormRegistry {
   register(bundle: ReportFormBundle): void {
     validateLayout(bundle.layout);
     const code = bundle.layout.code;
+    // The codes that start with CFG_ belong to the layouts a tenant configures without code (REPORT_LAYOUT rules): a form owned by code never takes one, so the two can never meet (R23).
+    if (code.startsWith(CONFIG_CODE_PREFIX)) throw new DomainError('VALIDATION_FAILED', 422, 'report_form_code_reserved');
     const known = this.forms.get(code);
     if (known !== undefined) {
       if (known.layout.version === bundle.layout.version && known.edition === bundle.edition) return;

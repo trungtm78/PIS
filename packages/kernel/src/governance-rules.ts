@@ -256,6 +256,8 @@ export interface RuleTypeDefinition extends Provenance {
   schema: Readonly<Record<string, FieldSpec>>;
   /** A rule across fields that the closed schema cannot say; returns the offending field. */
   refine?: (params: Record<string, unknown>) => string | undefined;
+  /** The shape every code of the type must have (a regular expression source): a type whose codes name something the code owns (a configured report layout) keeps the codes of the code-owned things out. */
+  codePattern?: string | undefined;
   /** What applies when the tenant approved no rule of this code. A code that is not here has no default: a caller that needs it must handle `undefined`. */
   defaults: Readonly<Record<string, BuiltInDefault>>;
 }
@@ -266,6 +268,7 @@ export interface RuleTypeInput extends Provenance {
   modules: readonly string[];
   schema: Readonly<Record<string, FieldSpec>>;
   refine?: (params: Record<string, unknown>) => string | undefined;
+  codePattern?: string | undefined;
   defaults: Readonly<Record<string, DefaultInput>>;
 }
 
@@ -291,6 +294,7 @@ function judge(schema: Readonly<Record<string, FieldSpec>>, refine: RuleTypeDefi
 
 function completeDefault(type: string, code: string, input: DefaultInput, definition: Omit<RuleTypeDefinition, 'defaults'>): BuiltInDefault {
   if (!isRuleCode(code)) throw flawOf(`${type} has a default whose code is not a rule code`);
+  if (definition.codePattern !== undefined && !patternOf(definition.codePattern).test(code)) throw flawOf(`${type} has a default whose code does not fit the code pattern of the type`);
   assertProvenance(`${type}/${code}`, input, false);
   try {
     judge(definition.schema, definition.refine, input.params);
@@ -1297,6 +1301,7 @@ export const registerEnterpriseRules = (): void =>
         tags: list(shape({ code: codeText(), label: text(120), carries_amount: bool }), 20),
         measures: list(oneOf(...MEASURES), 2, 1),
         origin_groups: shape({ PRIMARY: list(codeText(), 12), ADDED: list(codeText(), 12) }),
+        origin_decisions: optionally(list(shape({ origin: codeText(), kinds: list(codeText(), 12, 1) }), 12)),
         entry_mode: oneOf(...ENTRY_MODES),
         phasing_must_sum: bool,
         actuals_source: list(shape({ class_codes: list(codeText(), 12, 1), source: oneOf(...ACTUAL_SOURCES) }), 12, 1),

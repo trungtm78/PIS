@@ -383,14 +383,24 @@
       "to": 2659
     },
     {
+      "slice": "ENT-3",
+      "from": 2740,
+      "to": 2759
+    },
+    {
+      "slice": "ENT4B-1",
+      "from": 2760,
+      "to": 2779
+    },
+    {
+      "slice": "WEBPUSH-1",
+      "from": 2860,
+      "to": 2879
+    },
+    {
       "slice": "ENT3C-1",
       "from": 2700,
       "to": 2719
-    },
-    {
-      "slice": "ENT-3",
-      "from": 2660,
-      "to": 2679
     }
   ]
 }

@@ -95,6 +95,7 @@ export function decodeBase64(text: string): Uint8Array {
 const MEDIA: Readonly<Record<string, string>> = {
   XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   DOCX: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  PDF: 'application/pdf',
 };
 
 /** Hands the file to the browser as a download; the bytes are those the server checked against the recorded hash. */

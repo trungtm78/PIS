@@ -75,8 +75,8 @@ export function useDeliveries(layoutCode: string | undefined, receiver: string |
 export function useFileReader() {
   const client = useApiClient();
   return {
-    draftFile: (id: string, format: 'XLSX' | 'DOCX') => client.read('getReportDraftFile', { path: { id, format } as never }) as Promise<FileContent>,
-    issueFile: (id: string, format: 'XLSX' | 'DOCX') => client.read('getReportIssueFile', { path: { id, format } as never }) as Promise<FileContent>,
+    draftFile: (id: string, format: 'XLSX' | 'DOCX' | 'PDF') => client.read('getReportDraftFile', { path: { id, format } as never }) as Promise<FileContent>,
+    issueFile: (id: string, format: 'XLSX' | 'DOCX' | 'PDF') => client.read('getReportIssueFile', { path: { id, format } as never }) as Promise<FileContent>,
   };
 }
 

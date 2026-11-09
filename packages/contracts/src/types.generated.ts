@@ -26043,6 +26043,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/enterprise/org-pack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tổ chức và vai trò của bản enterprise: gói mẫu PVFCCo hoặc gói của một lô đã áp dụng, kế hoạch nạp và báo cáo kiểm chứng (ENT-3d) */
+        get: operations["getEnterpriseOrgPack"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/enterprise/org-pack/materialisations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Biến lô gói tổ chức đã áp dụng thành đơn vị, vai trò và đề xuất quy tắc, danh mục chờ duyệt; chạy lại không đổi gì (ENT-3d) */
+        post: operations["materialiseEnterpriseOrgPack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/report-engine/layout-previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Xem trước bố cục biểu mẫu đang soạn bằng số liệu minh họa, không lưu gì (ENT-4b) */
+        post: operations["previewReportLayout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/push/receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Biên nhận của thiết bị: thông báo đẩy web đã hiện (SHOWN) hoặc đã được chạm (CLICKED); xác thực bằng receipt token, idempotent */
+        post: operations["acknowledgePush"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/devices/{deviceId}/test-push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Gui thong bao thu den thiet bi web cua chinh minh (cai dat thong bao day, YCK.01) */
+        post: operations["sendMyTestPush"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/enterprise-snapshots": {
         parameters: {
             query?: never;
@@ -26877,7 +26962,7 @@ export interface components {
             /** Format: uuid */
             appropriation_id: string;
             /** @enum {string} */
-            bucket: "CURRENT_YEAR" | "CARRYOVER" | "OTHER";
+            bucket: "CURRENT_YEAR" | "CARRYOVER" | "OTHER" | "EQUITY" | "LOAN";
             source_year: number;
             amount_vnd: components["schemas"]["Money"];
             ctmtqg_subset_vnd?: components["schemas"]["Money"];
@@ -26906,9 +26991,9 @@ export interface components {
             fund_source_version_id: string;
             plan_year: number;
             /** @enum {string} */
-            origin: "PM_ASSIGNED" | "LOCAL_ADDED" | "CARRYOVER" | "CENTRAL_SUPPORT" | "REVENUE_INCREASE";
+            origin: "PM_ASSIGNED" | "LOCAL_ADDED" | "CARRYOVER" | "CENTRAL_SUPPORT" | "REVENUE_INCREASE" | "GROUP_ASSIGNED" | "BOARD_APPROVED";
             /** @enum {string} */
-            budget_level: "CENTRAL" | "LOCAL";
+            budget_level: "CENTRAL" | "LOCAL" | "ALL";
             /** Format: uuid */
             program_master_version_id?: string;
             amount_vnd: components["schemas"]["Money"];
@@ -26924,6 +27009,7 @@ export interface components {
             supersedes_id?: string;
             /** Format: uuid */
             capital_plan_id?: string;
+            decision_kind?: string;
         };
         CapReservation: {
             /** Format: uuid */
@@ -37916,7 +38002,7 @@ export interface components {
         };
         RptFileInfo: {
             /** @enum {string} */
-            format: "XLSX" | "DOCX";
+            format: "XLSX" | "DOCX" | "PDF";
             sha256: string;
             /** @description The file name of an issued copy; a draft has none yet */
             name: string | null;
@@ -37995,6 +38081,8 @@ export interface components {
             /** @description Only on the single read */
             preview: components["schemas"]["RptPreview"] | null;
             issues: components["schemas"]["RptGridIssue"][];
+            /** @description The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded */
+            layout_sha256?: string | null;
         };
         RptDraftPage: {
             items: components["schemas"]["RptDraft"][];
@@ -38074,6 +38162,8 @@ export interface components {
             issues: components["schemas"]["RptGridIssue"][];
             can_deliver: boolean;
             can_answer: boolean;
+            /** @description The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded */
+            layout_sha256?: string | null;
         };
         RptIssuePage: {
             items: components["schemas"]["RptIssue"][];
@@ -38118,7 +38208,7 @@ export interface components {
         };
         RptFileContent: {
             /** @enum {string} */
-            format: "XLSX" | "DOCX";
+            format: "XLSX" | "DOCX" | "PDF";
             sha256: string;
             name: string;
             size_bytes: number;
@@ -42089,6 +42179,7 @@ export interface components {
             systems: components["schemas"]["ProjectCodeSystem"][];
             can_propose: boolean;
             as_of: string;
+            coverage?: components["schemas"]["ProjectCodeCoverage"][];
         };
         ProjectCodePropose: {
             source_system: string;
@@ -46540,6 +46631,178 @@ export interface components {
                 mimes: string[];
             };
             as_of: string;
+        };
+        ProjectCodeCoverage: {
+            source_system: string;
+            projects: number;
+            mapped: number;
+            direct_only: number;
+            unmapped: number;
+            proposed: number;
+            shadows: number;
+            direct_fallback: boolean;
+        };
+        EntOrgPack: {
+            label: string;
+            digest: string;
+            /** @enum {string} */
+            source: "TEMPLATE" | "BATCH";
+            batch_id: string | null;
+            directory_prefix: string;
+            loader: {
+                target_entity: string;
+                mapping_version: string;
+                source_system: string;
+                file_name: string;
+                file_sha256: string;
+                row_count: number;
+            };
+            file_csv: string | null;
+            units: {
+                code: string;
+                name: string;
+                parent_code: string | null;
+                unit_function: string;
+                placeholder: boolean;
+                present: boolean;
+            }[];
+            roles: {
+                code: string;
+                name: string;
+                kind: string;
+                rank: number;
+                permissions: string[];
+                present: boolean;
+            }[];
+            seats: {
+                key: string;
+                ad_group: string;
+                role_code: string;
+                unit_code: string;
+                scope_kind: string;
+                min_holders: number;
+                max_holders: number;
+                holders: number;
+                /** @enum {string} */
+                state: "VACANT" | "FILLED" | "OVER";
+            }[];
+            steps: {
+                id: string;
+                kind: string;
+                name: string;
+                assignee: string;
+                role_code: string | null;
+                unit_code: string | null;
+                sla_working_hours: number;
+                on_timeout: string;
+            }[];
+            delegation: {
+                delegable_roles: string[];
+                max_days: number;
+                standing_review_days: number;
+            };
+            absence: {
+                [key: string]: unknown;
+            };
+            doa: {
+                document_type: string;
+                unit_code: string;
+                role_code: string;
+                approval_levels: number;
+            };
+            catalogue: {
+                master_type: string;
+                key: string;
+                label: string;
+                parent_key: string | null;
+            }[];
+            plan: {
+                section: string;
+                key: string;
+                /** @enum {string} */
+                action: "CREATE" | "UNCHANGED" | "PENDING" | "DRIFT" | "BLOCKED";
+                detail: string;
+            }[];
+            counts: {
+                CREATE: number;
+                UNCHANGED: number;
+                PENDING: number;
+                DRIFT: number;
+                BLOCKED: number;
+            };
+            seat_counts: {
+                VACANT: number;
+                FILLED: number;
+                OVER: number;
+            };
+            stray_grants: number;
+            structure_complete: boolean;
+            defects: {
+                code: string;
+                key: string;
+                field: string;
+                message: string;
+            }[];
+            as_of: string;
+        };
+        EntOrgPackMaterialiseRequest: {
+            /** Format: uuid */
+            batch_id: string;
+        };
+        EntOrgPackMaterialisation: {
+            label: string;
+            digest: string;
+            batch_id: string;
+            items: {
+                section: string;
+                key: string;
+                /** @enum {string} */
+                result: "CREATED" | "UNCHANGED" | "PENDING" | "DRIFT" | "BLOCKED";
+                detail: string;
+                id: string | null;
+            }[];
+            counts: {
+                CREATED: number;
+                UNCHANGED: number;
+                PENDING: number;
+                DRIFT: number;
+                BLOCKED: number;
+            };
+            seat_counts: {
+                VACANT: number;
+                FILLED: number;
+                OVER: number;
+            };
+            stray_grants: number;
+            structure_complete: boolean;
+        };
+        RptLayoutPreviewRequest: {
+            /** @description The params of a REPORT_LAYOUT rule as the user is editing them; nothing is stored */
+            params: {
+                [key: string]: unknown;
+            };
+            period?: components["schemas"]["RptPeriod"];
+        };
+        RptLayoutPreview: {
+            valid: boolean;
+            /** @description The first field the layout is refused for */
+            problem: string | null;
+            form_name: string | null;
+            /** @enum {string|null} */
+            status: "PENDING_EXTERNAL" | "DEMO" | "DRAFT" | "READY" | null;
+            /** @description The datasets the project groups read from the provider of the figures */
+            datasets: string[];
+            preview: components["schemas"]["RptPreview"] | null;
+            issues: components["schemas"]["RptGridIssue"][];
+        };
+        PushReceipt: {
+            /** @description Opaque receipt token carried by the push; bound to tenant, notification and device; valid 48 hours. */
+            receipt: string;
+            /** @enum {string} */
+            event: "SHOWN" | "CLICKED";
+        };
+        PushReceiptAck: {
+            acknowledged: boolean;
         };
         EnterpriseSnapshotBuild: {
             /** Format: uuid */
@@ -157509,7 +157772,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                format: "XLSX" | "DOCX";
+                format: "XLSX" | "DOCX" | "PDF";
             };
             cookie?: never;
         };
@@ -158090,7 +158353,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                format: "XLSX" | "DOCX";
+                format: "XLSX" | "DOCX" | "PDF";
             };
             cookie?: never;
         };
@@ -206532,6 +206795,471 @@ export interface operations {
                 };
             };
             /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getEnterpriseOrgPack: {
+        parameters: {
+            query?: {
+                batch_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntOrgPack"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    materialiseEnterpriseOrgPack: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntOrgPackMaterialiseRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntOrgPackMaterialisation"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    previewReportLayout: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RptLayoutPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RptLayoutPreview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    acknowledgePush: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushReceipt"];
+            };
+        };
+        responses: {
+            /** @description Committed result (replayed on idempotent retry) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushReceiptAck"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED / SIGNATURE_INVALID */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND within authorized scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VALIDATION_FAILED / domain invariant */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    sendMyTestPush: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                deviceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Committed result (replayed on idempotent retry) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED / SIGNATURE_INVALID */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND within authorized scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VALIDATION_FAILED / domain invariant */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
             429: {
                 headers: {
                     [name: string]: unknown;

@@ -241,7 +241,7 @@ export class DeliveryDispatcher {
         ownerId = owner.id;
         ownerRef = owner.secretRef;
         const message = renderTemplate(send.template.contentAst, send.template.variableSchema, {});
-        request = { idempotencyKey: send.idempotencyKey, accountId: send.accountId, to: 'devices', text: message.text, targets: [{ deviceId: owner.id, token }], deepLink: opaqueLinkOf(send.notification.id) };
+        request = { idempotencyKey: send.idempotencyKey, accountId: send.accountId, to: 'devices', text: message.text, targets: [{ deviceId: owner.id, token }], deepLink: opaqueLinkOf(send.notification.id), tenantId: ctx.tenantId, priority: send.notification.priority };
       } catch (error) {
         return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: error instanceof DomainError && error.code === 'TEMPLATE_INVALID' ? 'TEMPLATE_RENDER_FAILED' : 'SEND_PREPARATION_FAILED' };
       }

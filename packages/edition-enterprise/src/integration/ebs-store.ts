@@ -18,6 +18,8 @@ import {
   resolveEbsItem,
 } from './ebs-rules.ts';
 import type { EbsDifferenceKind, EbsFigures, EbsItem, EbsMeasure, EbsRecord, EbsResolutionKind } from './ebs-rules.ts';
+import { EBS_CODE_SYSTEM } from './project-codes.ts';
+import { ProjectCodeResolver } from './project-code-resolver.ts';
 
 const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
 const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'`;
@@ -26,6 +28,9 @@ export const EBS_RECONCILE_RULE_CODE = 'DEFAULT';
 export const EBS_FRESHNESS_RULE_CODE = 'EBS_FILE';
 /** The commitments we hold: the price in force of the contracts that were signed and are not terminated or cancelled (the same statuses as the estimate at completion of CAP); a draft or one in review commits nobody. */
 const COMMITTING_STATUSES = ['SIGNED', 'ACTIVE', 'SUSPENDED', 'COMPLETED', 'CLOSED'];
+
+/** Reads the code of a project through the crosswalk first and the direct match as the fallback for one version (ENT-3e, R25). */
+const PROJECT_CODES = new ProjectCodeResolver();
 
 /** What the apply of a valid row does (the dry run says it): keeps the record; or keeps it for a project code the register does not hold, which the reconciliation reports as a difference with an owner. */
 export type EbsRowOutcome = 'RECORD' | 'RECORD_PROJECT_UNKNOWN';
@@ -53,8 +58,7 @@ export class EbsImportAdapter implements PreviewableAdapter<EbsRecord> {
   mask = (values: Readonly<Record<string, string>>): Record<string, string> => (EBS_FORMAT.mask === undefined ? {} : EBS_FORMAT.mask(values));
 
   private async known(tx: TenantTx, projectCode: string): Promise<boolean> {
-    const rows = await tx.query('select 1 from machvon.project where code = $1', [projectCode]);
-    return rows.length > 0;
+    return (await PROJECT_CODES.inbound(tx, EBS_CODE_SYSTEM, projectCode, new Date())).projectId !== null;
   }
 
   async outcomeOf(tx: TenantTx, entry: ImportEntry<EbsRecord>): Promise<EbsRowOutcome> {
@@ -311,9 +315,13 @@ export class EbsReconciliationStore {
 
   // ---- our side -------------------------------------------------------------------------------------------------------------------------------------
 
-  /** Our figures for a project code to the end of a period; a measure we hold nothing for is null (no data is not zero). */
-  async figuresOf(tx: TenantTx, projectCode: string, period: string): Promise<{ projectId: string | null; figures: EbsFigures }> {
-    const [project] = await tx.query<{ id: string }>('select id from machvon.project where code = $1', [projectCode]);
+  /**
+   * Our figures for the project a code of EBS stands for, to the end of a period; a measure we hold nothing for is null (no data is not zero). The code is read through the crosswalk of the day `at` first and by
+   * direct match against the code of one of our projects after it (ENT-3e, R25), so a code that was reconciled by direct match is read as before.
+   */
+  async figuresOf(tx: TenantTx, projectCode: string, period: string, at: Date | string = new Date()): Promise<{ projectId: string | null; figures: EbsFigures }> {
+    const resolved = await PROJECT_CODES.inbound(tx, EBS_CODE_SYSTEM, projectCode, at);
+    const project = resolved.projectId === null ? undefined : { id: resolved.projectId };
     if (project === undefined) return { projectId: null, figures: { DISBURSED_VND: null, COMMITTED_VND: null } };
     const end = ebsPeriodEnd(period);
     const [paid] = await tx.query<{ n: string; vnd: string }>(
@@ -364,7 +372,7 @@ export class EbsReconciliationStore {
     const outcome: EbsReconcileOutcome = { examined: 0, differences: 0, opened: 0, refreshed: 0, unchanged: 0, settledAlready: 0, noOwner: 0, rows: [] };
     for (const record of records) {
       outcome.examined += 1;
-      const held = await this.figuresOf(tx, record.project_code, record.period);
+      const held = await this.figuresOf(tx, record.project_code, record.period, today);
       const theirs: EbsFigures = { DISBURSED_VND: plain(record.disbursed_vnd), COMMITTED_VND: plain(record.committed_vnd) };
       const differences = diffEbs(held.figures, theirs);
       outcome.differences += differences.length;

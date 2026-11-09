@@ -372,7 +372,7 @@ export type {
   TypePolicySummary,
   TypeScope,
 } from './master-store.ts';
-export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, packDigest, sealPack } from './master-baseline.ts';
+export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, editionBaselines, packDigest, registerEditionBaseline, sealPack } from './master-baseline.ts';
 export type { BaselineEntry, BaselinePack, BaselineResult } from './master-baseline.ts';
 export { MasterRules } from './master-rules.ts';
 export type { BoundPeriod, CalendarPeriods, NationalCodeRule, RuleReading, SuggestedGroup, AppraisalCriteriaSet, AppraisalCriterionRule } from './master-rules.ts';
@@ -1747,8 +1747,8 @@ export { BiReaderStore } from './int-bi-reader-store.ts';
 export type { BiReaderEventRow, BiReaderRow } from './int-bi-reader-store.ts';
 export { AccessLogStore, AccessOverviewReads, ExportDatasetStore, MachineAccountStore, OpenReads, liveAccount, lookupClient } from './int-open-api-store.ts';
 export type { AccessLogFilter, AccessLogRow, ClientLookup, ExportDatasetRow, LiveAccount, MachineAccountFilter, MachineAccountRow, MachineCredentialRow, OpenPage, ProductChoice } from './int-open-api-store.ts';
-export { ProjectCodeStore, SourceSystemStore } from './int-project-code-store.ts';
-export type { ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
+export { ProjectCodeStore, SourceSystemStore, isDirectMatchSystem, registerDirectMatchSystem } from './int-project-code-store.ts';
+export type { ProjectCodeCoverage, ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
 export { StandingRequestStore } from './iam-standing-store.ts';
 export type { NewStandingRequest, StandingRequestRecord, StandingRequestStatus } from './iam-standing-store.ts';
 export { ActingStore } from './iam-acting-store.ts';
@@ -1900,3 +1900,5 @@ export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-atta
 // ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
 export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
 export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';
+export { registerMigrationVerifier } from './adm-migration-store.ts';
+export type { MigrationVerifier } from './adm-migration-store.ts';

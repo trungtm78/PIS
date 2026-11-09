@@ -1,0 +1,92 @@
+{
+  "label": "PVFCCO-TEMPLATE",
+  "unit": {
+    "PVFCCO": "Tổng công ty (mẫu PVFCCo)",
+    "KHDT": "Ban Kế hoạch và Đầu tư",
+    "CN_QLPTDA": "Chi nhánh Quản lý và Phát triển dự án",
+    "NM_DPM": "Nhà máy Đạm Phú Mỹ",
+    "TM": "Ban Thương mại",
+    "KTAT": "Ban Kỹ thuật An toàn",
+    "TH": "Ban Tổng hợp",
+    "TCKT": "Ban Tài chính Kế toán",
+    "TT_NCUD": "Trung tâm Nghiên cứu và Ứng dụng",
+    "TDA_1": "[tên Tổ dự án 1]",
+    "TDA_2": "[tên Tổ dự án 2]",
+    "BTGD": "Ban Tổng Giám đốc",
+    "HDQT": "Hội đồng quản trị",
+    "CDS_CNTT": "Ban Chuyển đổi số và Công nghệ thông tin"
+  },
+  "role": {
+    "ENT_DATA_ENTRY": "Người nhập liệu của đầu mối (mẫu PVFCCo)",
+    "ENT_UNIT_APPROVER": "Người phê duyệt của đầu mối (mẫu PVFCCo)",
+    "ENT_PLANNING_REVIEWER": "Người rà soát và chốt kỳ của Ban Kế hoạch và Đầu tư (mẫu PVFCCo)",
+    "ENT_LEADERSHIP_VIEWER": "Lãnh đạo xem báo cáo và dashboard (mẫu PVFCCo)",
+    "ENT_EDITION_ADMIN": "Quản trị hệ thống của Ban Chuyển đổi số và Công nghệ thông tin (mẫu PVFCCo)"
+  },
+  "step": {
+    "unit-approver": "Người có thẩm quyền tại đầu mối phê duyệt",
+    "planning-review": "Ban Kế hoạch và Đầu tư rà soát, kiểm tra",
+    "period-close": "Chốt kỳ",
+    "push": "Đẩy số liệu sang HPM"
+  },
+  "entry": {
+    "REPORTING_PERIOD_KIND": {
+      "MONTH": "Tháng",
+      "QUARTER": "Quý",
+      "YEAR": "Năm",
+      "MEETING": "Giao ban"
+    },
+    "REPORT_TYPE": {
+      "PVN_MONTHLY": "Báo cáo tháng gửi Tập đoàn Dầu khí Việt Nam",
+      "PVN_QUARTERLY": "Báo cáo quý gửi Tập đoàn Dầu khí Việt Nam",
+      "HPM_MONTHLY": "Báo cáo tháng đẩy lên HPM",
+      "COMMITTEE_PERIODIC": "Báo cáo định kỳ gửi Ủy ban Đầu tư phát triển và Khoa học công nghệ",
+      "DEPARTMENT_PERIODIC": "Báo cáo định kỳ gửi Sở, Ban, Ngành",
+      "INVEST_STEERING": "Báo cáo giao ban đầu tư",
+      "PLANT_PHU_MY": "Báo cáo của Nhà máy Đạm Phú Mỹ"
+    },
+    "RECEIVING_AGENCY": {
+      "PVN": "Tập đoàn Dầu khí Việt Nam",
+      "HPM": "Hệ thống báo cáo HPM của Tập đoàn",
+      "UB_DTPT_KHCN": "Ủy ban Đầu tư phát triển và Khoa học công nghệ",
+      "SO_BAN_NGANH": "Sở, Ban, Ngành",
+      "GIAO_BAN": "Giao ban đầu tư của Tổng công ty"
+    },
+    "CAPITAL_SOURCE": {
+      "EQUITY": "Vốn chủ sở hữu",
+      "LOAN": "Vốn vay",
+      "OTHER": "Nguồn vốn khác"
+    },
+    "REPORT_UNIT": {
+      "VND": "Đồng",
+      "MILLION_VND": "Triệu đồng",
+      "BILLION_VND": "Tỷ đồng",
+      "PERCENT": "Phần trăm",
+      "PROJECT": "Dự án",
+      "ITEM": "Hạng mục",
+      "HECTARE": "Héc-ta"
+    },
+    "REPORT_UNIT_SYMBOL": {
+      "VND": "đồng",
+      "MILLION_VND": "triệu đồng",
+      "BILLION_VND": "tỷ đồng",
+      "PERCENT": "%",
+      "PROJECT": "dự án",
+      "ITEM": "hạng mục",
+      "HECTARE": "ha"
+    },
+    "ISSUE_CATEGORY": {
+      "DELAY_CAUSE": "Nguyên nhân chậm tiến độ",
+      "DC_SITE_CLEARANCE": "Giải phóng mặt bằng",
+      "DC_PROCEDURES": "Thủ tục, phê duyệt, thẩm định",
+      "DC_FUNDING": "Nguồn vốn, giải ngân",
+      "DC_DESIGN_CHANGE": "Điều chỉnh thiết kế, phát sinh khối lượng",
+      "DC_PROCUREMENT": "Lựa chọn nhà thầu, mua sắm",
+      "DC_CONTRACTOR": "Năng lực nhà thầu",
+      "DC_EQUIPMENT_SUPPLY": "Cung ứng thiết bị, vật tư",
+      "DC_WEATHER": "Thời tiết, điều kiện thi công",
+      "DC_FORCE_MAJEURE": "Bất khả kháng",
+      "DC_OTHER": "Nguyên nhân khác"
+    }
+  }
+}

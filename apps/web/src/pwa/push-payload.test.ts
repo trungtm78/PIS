@@ -1,8 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_LINK, TITLE_MAX, isGenericTitle, notificationFromPush, pushDataOf, safeDeepLink } from './push-payload';
+import { DEFAULT_LINK, RECEIPT_LENGTH, TITLE_MAX, isGenericTitle, notificationFromPush, pushDataOf, receiptFromPush, safeDeepLink } from './push-payload';
 
 const WORDS = { appName: 'Hệ thống quản lý đầu tư công', body: 'Bạn có một thông báo mới. Mở để xem.' };
 const ID = 'AbCdEfGhIjKlMnOpQrSt1234';
+
+describe('the receipt a push carries (YCK.01)', () => {
+  const TOKEN = 'A'.repeat(RECEIPT_LENGTH - 1) + '_';
+
+  it('takes the token only when it has the size and the alphabet of one', () => {
+    expect(receiptFromPush(JSON.stringify({ v: 1, title: '', url: '/m', rcpt: TOKEN }))).toBe(TOKEN);
+    for (const rcpt of ['', 'short', TOKEN + 'A', TOKEN.slice(1) + '+', 7, null, { a: 1 }, 'Nguyen Van A '.repeat(9)]) expect(receiptFromPush(JSON.stringify({ rcpt }))).toBeUndefined();
+    for (const data of [undefined, '', 'not json', '[]', 'null']) expect(receiptFromPush(data)).toBeUndefined();
+  });
+
+  it('never changes what is shown: the notification still has exactly three members', () => {
+    const shown = notificationFromPush(pushDataOf('Viec moi', '/m', TOKEN), WORDS);
+    expect(Object.keys(shown).sort()).toEqual(['body', 'title', 'url']);
+    expect(JSON.stringify(shown)).not.toContain(TOKEN);
+    expect(JSON.parse(pushDataOf('Viec moi', '/m', 'bad'))).toEqual({ v: 1, title: 'Viec moi', url: '/m' });
+  });
+});
 
 describe('what a push may carry (R7): a generic title and a link, nothing else', () => {
   it('shows the generic title and the link of the notification', () => {

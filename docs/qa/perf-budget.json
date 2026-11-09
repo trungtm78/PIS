@@ -21,7 +21,7 @@
     "projectId": "id of a project of the measured tenant that has contracts and payments",
     "isoWeek": "ISO week such as 2026-W42",
     "reportDraftId": "id of a report draft that has an XLSX file",
-    "reportIssueId": "id of an issued report that has a DOCX file",
+    "reportIssueId": "id of an issued report that has a PDF file (the heaviest of its files, ENT-4b)",
     "reportExportId": "id of a finished report export",
     "mneReportId": "id of a monitoring and evaluation report",
     "evaluationReportId": "id of a bid evaluation report"
@@ -101,7 +101,7 @@
     {"id":"PB-R005","operationId":"exportContractReport","method":"GET","path":"/contracts/analytics/reports/{code}/export","permission":"contract.analytics.read","class":"REPORT","area":"CTR","pathFixed":{"code":"portfolio-status"},"query":{"format":"xlsx"}},
     {"id":"PB-R006","operationId":"getContractReport","method":"GET","path":"/contracts/analytics/reports/{code}","permission":"contract.analytics.read","class":"REPORT","area":"CTR","pathFixed":{"code":"schedule-delay"}},
     {"id":"PB-R007","operationId":"getReportDraftFile","method":"GET","path":"/report-engine/drafts/{id}/files/{format}","permission":"rpt.read","class":"REPORT","area":"RPT","pathVars":{"id":"reportDraftId"},"pathFixed":{"format":"XLSX"}},
-    {"id":"PB-R008","operationId":"getReportIssueFile","method":"GET","path":"/report-engine/issues/{id}/files/{format}","permission":"rpt.read","class":"REPORT","area":"RPT","pathVars":{"id":"reportIssueId"},"pathFixed":{"format":"DOCX"}},
+    {"id":"PB-R008","operationId":"getReportIssueFile","method":"GET","path":"/report-engine/issues/{id}/files/{format}","permission":"rpt.read","class":"REPORT","area":"RPT","pathVars":{"id":"reportIssueId"},"pathFixed":{"format":"PDF"}},
     {"id":"PB-R009","operationId":"getReportExportDownload","method":"GET","path":"/report-exports/{id}/download","permission":"report.export","class":"REPORT","area":"DIS","pathVars":{"id":"reportExportId"}},
     {"id":"PB-R010","operationId":"getDirectivesForReport","method":"GET","path":"/directives/for-report","permission":"directive.read","class":"REPORT","area":"DIR"},
     {"id":"PB-R011","operationId":"getMneReport","method":"GET","path":"/mne-reports/{id}","permission":"mne.read","class":"REPORT","area":"MNE","pathVars":{"id":"mneReportId"}},

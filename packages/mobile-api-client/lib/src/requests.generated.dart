@@ -2399,6 +2399,7 @@ final class CapAppropriation implements RequestModel {
     this.extensionDocumentId,
     this.supersedesId,
     this.capitalPlanId,
+    this.decisionKind,
   });
 
   final String fundSourceVersionId;
@@ -2414,6 +2415,7 @@ final class CapAppropriation implements RequestModel {
   final String? extensionDocumentId;
   final String? supersedesId;
   final String? capitalPlanId;
+  final String? decisionKind;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -2430,6 +2432,7 @@ final class CapAppropriation implements RequestModel {
         if (extensionDocumentId != null) 'extension_document_id': extensionDocumentId,
         if (supersedesId != null) 'supersedes_id': supersedesId,
         if (capitalPlanId != null) 'capital_plan_id': capitalPlanId,
+        if (decisionKind != null) 'decision_kind': decisionKind,
       };
 }
 
@@ -7197,6 +7200,19 @@ final class EntitlementOverrideRequest implements RequestModel {
         'valid_from': validFrom,
         'valid_until': validUntil,
         'reason': reason,
+      };
+}
+
+final class EntOrgPackMaterialiseRequest implements RequestModel {
+  const EntOrgPackMaterialiseRequest({
+    required this.batchId,
+  });
+
+  final String batchId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'batch_id': batchId,
       };
 }
 
@@ -13662,6 +13678,22 @@ final class PublishPortalRecord implements RequestModel {
       };
 }
 
+final class PushReceipt implements RequestModel {
+  const PushReceipt({
+    required this.receipt,
+    required this.event,
+  });
+
+  final String receipt;
+  final String event;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'receipt': receipt,
+        'event': event,
+      };
+}
+
 final class QmsAddSupervisorRemark implements RequestModel {
   const QmsAddSupervisorRemark({
     required this.remark,
@@ -14845,6 +14877,22 @@ final class RptGenerate implements RequestModel {
         'layout_code': layoutCode,
         'period': period,
         if (reason != null) 'reason': reason,
+      };
+}
+
+final class RptLayoutPreviewRequest implements RequestModel {
+  const RptLayoutPreviewRequest({
+    required this.params,
+    this.period,
+  });
+
+  final Map<String, Object?> params;
+  final RptPeriod? period;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'params': params,
+        if (period != null) 'period': period,
       };
 }
 
