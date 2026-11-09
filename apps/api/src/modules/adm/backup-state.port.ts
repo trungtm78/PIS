@@ -53,7 +53,7 @@ export function backupsFromPgbackrestInfo(text: string, stanza: string): BackupS
   return entries
     .sort((a, b) => b.stop - a.stop)
     .slice(0, MAX_ENTRIES)
-    .map(({ stop: _stop, ...entry }) => entry);
+    .map((entry) => ({ label: entry.label, kind: entry.kind, finishedAt: entry.finishedAt, repository: entry.repository, failed: entry.failed }));
 }
 
 /** Reads the two state files the host writes. A missing, old or unreadable file is UNKNOWN with the reason in `detail`. */
