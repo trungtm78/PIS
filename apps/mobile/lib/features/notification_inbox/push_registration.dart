@@ -7,70 +7,35 @@ import '../../core/di/providers.dart';
 import '../../core/session/session.dart';
 import '../read_support/attempts.dart';
 import '../read_support/wire.dart';
+import '../session/session_providers.dart' show secureValueStoreProvider;
+import 'push_config.dart';
+import 'push_device.dart';
+import 'push_gateway.dart';
+import 'push_port.dart';
 
-/// What the operating system allows the application to do with notifications.
-enum PushPermission { granted, denied, provisional, unknown }
+export 'push_port.dart';
 
-/// The operating-system side of push, behind a port: the token of the provider (FCM on Android, APNs on iOS), the stream of
-/// refreshed tokens, the permission, and an identity of this installation that survives a restart.
-///
-/// The adapter on `firebase_messaging` and the secure store needs a device with its provider configuration and is not part of
-/// this slice's tests; everything above this port (what is sent to the server, how a refresh is made idempotent, how sign-out
-/// revokes) is real and tested with a fake. Until the adapter is plugged in, [NoPushPlatform] has no token and in-app
-/// notifications work on their own.
-abstract interface class PushPlatform {
-  /// `ios` or `android`.
-  String get platform;
+/// The push port of the application: the device adapter on `firebase_messaging` when the build configuration asks for it (and carries
+/// the options, see `push_config.dart`), else the null adapter, which has no token and asks for nothing.
+final Provider<PushPlatform> pushPlatformProvider = Provider<PushPlatform>((Ref ref) {
+  final PushConfig config = ref.watch(pushConfigProvider);
+  if (!config.enabled) return const NoPushPlatform();
+  final DevicePushPlatform platform = DevicePushPlatform(gateway: ref.watch(pushGatewayProvider), config: config, store: ref.watch(secureValueStoreProvider));
+  ref.onDispose(platform.dispose);
+  return platform;
+});
 
-  /// The version of the application, as the server records it with the device.
-  String get appVersion;
+/// What arrives from the provider in the foreground and what the person taps: the payload is id-only (`PushPayload`). The null inbound
+/// has nothing and ends at once.
+final Provider<PushInbound> pushInboundProvider = Provider<PushInbound>((Ref ref) {
+  final PushPlatform platform = ref.watch(pushPlatformProvider);
+  return platform is PushInbound ? platform as PushInbound : const NoPushInbound();
+});
 
-  /// A stable public identity of this installation (16 to 128 characters). It is not the push token and not a hardware id.
-  Future<String> installId();
-
-  Future<PushPermission> permission();
-
-  /// The current token of the provider, or null when there is none (no permission, no provider).
-  Future<String?> token();
-
-  /// A token the provider issued after the first one (it rotates).
-  Stream<String> get tokenRefreshes;
-}
-
-/// No push on this build: no token, no permission asked. In-app notifications are unaffected.
-final class NoPushPlatform implements PushPlatform {
-  const NoPushPlatform();
-
-  @override
-  String get platform => 'android';
-
-  @override
-  String get appVersion => '0.0.0';
-
-  @override
-  Future<String> installId() async => 'no-push-installation';
-
-  @override
-  Future<PushPermission> permission() async => PushPermission.unknown;
-
-  @override
-  Future<String?> token() async => null;
-
-  @override
-  Stream<String> get tokenRefreshes => const Stream<String>.empty();
-}
-
-/// The push port of the application; the device adapter overrides it.
-final Provider<PushPlatform> pushPlatformProvider = Provider<PushPlatform>((Ref ref) => const NoPushPlatform());
-
-/// A push that arrived while the application runs (in the foreground, or one the person tapped to open it). The device adapter
-/// overrides this with the stream of the provider; it carries nothing of the message (no title, no amount): the screens only
-/// read again what the server holds, so the tab badge and the alert list follow the push.
-///
-/// GAP: no device adapter exists yet (the project has no push plugin: no `firebase_messaging` in pubspec.yaml, no FCM or APNs wiring in
-/// `android/` or `ios/`), so the default is an empty stream that ends at once: nothing arrives, nothing is held open, and the badge and the
-/// list follow a push only through the refresh on resume. `test/features/notification_inbox/push_registration_test.dart` pins this default.
-final Provider<Stream<void>> pushArrivalsProvider = Provider<Stream<void>>((Ref ref) => const Stream<void>.empty());
+/// A push that arrived while the application runs. It carries nothing of the message (no title, no amount): the screens only read again
+/// what the server holds, so the tab badge and the alert list follow the push. Empty and ended at once on a build without push, so nothing
+/// is held open; `test/features/notification_inbox/push_registration_test.dart` pins this default.
+final Provider<Stream<void>> pushArrivalsProvider = Provider<Stream<void>>((Ref ref) => ref.watch(pushInboundProvider).received.map((PushPayload payload) {}));
 
 /// The reason the server records with the revocation (it asks for at least ten characters).
 const String signOutReason = 'Signed out on this device';
@@ -145,6 +110,7 @@ class PushRegistration {
       if (id == null) return false;
       await client.revokeMyDevice(const ReasonOnly(reason: signOutReason), deviceId: id, attempt: _revokeAttempt);
       _serverDeviceId = null;
+      await platform.forgetToken();
       return true;
     } on ApiError {
       return false;
@@ -171,4 +137,17 @@ final Provider<StreamSubscription<String>> pushRefreshListenerProvider = Provide
   });
   ref.onDispose(subscription.cancel);
   return subscription;
+});
+
+/// What sign-out runs while the session is still valid: the server revokes this device's registration (so it sends nothing to its token),
+/// then the provider forgets the token. It never fails and never waits long: a sign-out must not be held by a push that cannot be revoked
+/// (the server also stops sending to a device whose session ended, and the registration expires).
+final Provider<Future<void> Function()> pushSignOutProvider = Provider<Future<void> Function()>((Ref ref) {
+  return () async {
+    try {
+      await ref.read(pushRegistrationProvider).revoke().timeout(const Duration(seconds: 5), onTimeout: () => false);
+    } on Object {
+      // Nothing to revoke or the server could not be reached: the sign-out goes on.
+    }
+  };
 });

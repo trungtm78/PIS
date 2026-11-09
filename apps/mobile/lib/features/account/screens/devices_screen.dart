@@ -11,6 +11,7 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/state/state_card.dart';
+import '../../notification_inbox/push_registration.dart' show pushSignOutProvider;
 import '../../session/auth/auth_service.dart';
 import '../../session/flow.dart';
 import '../../session/session_providers.dart';
@@ -82,10 +83,12 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                 deviceId: device.id,
                 attempt: attempt,
               );
-          if (thisPhone)
+          if (thisPhone) {
+            await ref.read(pushSignOutProvider)();
             await ref
                 .read(authServiceProvider)
                 .signOut(discardPending: true, scope: SignOutScope.allTenants);
+          }
           return true;
         },
       );
@@ -164,12 +167,15 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     await ref
         .read(devicesFlowProvider.notifier)
         .run(
-          () => service.signOut(
-            discardPending: pending > 0,
-            scope: answer.everything
-                ? SignOutScope.allTenants
-                : SignOutScope.activeTenant,
-          ),
+          () async {
+            await ref.read(pushSignOutProvider)();
+            await service.signOut(
+              discardPending: pending > 0,
+              scope: answer.everything
+                  ? SignOutScope.allTenants
+                  : SignOutScope.activeTenant,
+            );
+          },
         );
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/offline/offline_providers.dart';
 import '../core/session/session.dart';
+import '../features/notification_inbox/push_lifecycle.dart';
 import '../features/release/integrity_monitor.dart';
 import '../features/session/session_providers.dart';
 
@@ -38,6 +39,7 @@ class SessionServices extends ConsumerWidget {
       ref.watch(uploadRunnerProvider);
       ref.watch(syncStatusPublisherProvider);
       ref.watch(syncCoordinatorProvider);
+      ref.watch(pushLifecycleProvider);
     }
     return child;
   }

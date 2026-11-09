@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,7 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../notification_inbox/push_registration.dart' show pushRegistrationProvider;
 import '../permission_providers.dart';
 import '../permission_service.dart';
 
@@ -84,6 +87,8 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
   Future<void> _allow(AppPermission permission) async {
     try {
       final PermissionState answer = await ref.read(permissionServiceProvider).request(permission);
+      // Once notifications are allowed the device is registered for push at once, not at the next start.
+      if (permission == AppPermission.notifications && answer == PermissionState.granted) unawaited(ref.read(pushRegistrationProvider).sync());
       if (mounted) setState(() => _states = <AppPermission, PermissionState>{...?_states, permission: answer});
     } on Object catch (error) {
       if (mounted) setState(() => _problem = ProblemView.from(error));
