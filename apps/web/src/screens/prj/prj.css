@@ -201,3 +201,9 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* The registers of PRJ-17 and PRJ-18 keep their wide tables inside their card: the page never scrolls sideways (WCAG 1.4.10), whatever the length of a name or a reason. */
+[data-screen-id="PRJ-17"] .card,
+[data-screen-id="PRJ-18"] .card {
+  overflow-x: auto;
+}

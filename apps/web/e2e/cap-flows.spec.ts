@@ -18,9 +18,9 @@ import { membershipOf, sql } from './support/stack.ts';
 const ENTERPRISE = (process.env.MACHVON_EDITION ?? process.env.VITE_EDITION) === 'enterprise';
 /** The line the form opens on, in the words of the database and of the screen. */
 const FIRST = ENTERPRISE ? { origin: 'GROUP_ASSIGNED', level: 'ALL', kind: 'GROUP_RESOLUTION' } : { origin: 'PM_ASSIGNED', level: 'CENTRAL', kind: null };
-/** A second kind of line, chosen on the form. */
+/** A second kind of line, chosen on the form: a board-approved line opens on the first kind the pack lists for it, the resolution of the company (fnd-taxonomy origin_decisions). */
 const SECOND = ENTERPRISE
-  ? { origin: 'BOARD_APPROVED', originLabel: vi['cap.origin.boardApproved.label'], level: 'ALL', levelLabel: vi['cap.level.all.label'], kind: 'COMPANY_DECISION' }
+  ? { origin: 'BOARD_APPROVED', originLabel: vi['cap.origin.boardApproved.label'], level: 'ALL', levelLabel: vi['cap.level.all.label'], kind: 'COMPANY_RESOLUTION' }
   : { origin: 'LOCAL_ADDED', originLabel: vi['cap.origin.localAdded.label'], level: 'LOCAL', levelLabel: vi['cap.level.local.label'], kind: null };
 
 /** The decision documents the stack seeds in tenant A (apps/api/test/e2e-stack): 1 to 4. */

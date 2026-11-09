@@ -93,6 +93,8 @@ test.describe('PRJ-17 and PRJ-18 accountability and task forces', () => {
 
     // PRJ-01 shows the name of the leader in charge.
     await page.goto('/prj/prj-01?devUser=accountabilityAdmin');
+    // The register pages by code (20 a page) and the run holds many projects: the code is looked up.
+    await page.getByLabel(vi['prj.list.query.label'], { exact: true }).fill(code);
     await expect(page.locator('tr[data-project-id]', { hasText: code })).toContainText(LEADER_NAME);
 
     // Ending needs a day and a reason; the row stays as history and the project has no leader in charge for the register.
