@@ -119,7 +119,7 @@ const text = (value: unknown, max: number): value is string => typeof value === 
 export const FUND_CATEGORIES = ['NSTW', 'NSDP', 'ODA', 'CTMTQG', 'OTHER'] as const;
 export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
-export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
+export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER', 'MAJOR_REPAIR'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
 export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID', 'QMS', 'AST'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;

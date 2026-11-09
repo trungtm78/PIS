@@ -10,3 +10,6 @@ export { HPM_CONNECTION_DESCRIPTOR } from './hpm-connection.ts';
 export { EBS_CONNECTION_DESCRIPTOR } from './ebs-connection.ts';
 export * from './issued-reports.ts';
 export { ENTERPRISE_CONNECTORS, EBS_DESCRIPTOR, HPM_DESCRIPTOR, HPM_FRESHNESS_RULE_CODE } from './hub-descriptors.ts';
+export * from './project-codes.ts';
+export * from './project-code-resolver.ts';
+export * from './ent-catalogue.ts';

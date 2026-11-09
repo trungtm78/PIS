@@ -8,6 +8,16 @@ const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
 const UNIQUE_VIOLATION = '23505';
 const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`;
 
+/**
+ * The systems whose project codes are also read by direct match against the code of our own projects while the crosswalk is being introduced (ENT-3e: Oracle EBS and HPM, expand then contract). A code of such a
+ * system may not be mapped to a project when it is, as text, the code of ANOTHER project: the direct reading would have meant that other project and the mapping would move its history. A public process registers none.
+ */
+const DIRECT_MATCH_SYSTEMS = new Set<string>();
+export function registerDirectMatchSystem(code: string): void {
+  DIRECT_MATCH_SYSTEMS.add(code);
+}
+export const isDirectMatchSystem = (code: string): boolean => DIRECT_MATCH_SYSTEMS.has(code);
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // The systems whose codes we map.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -246,6 +256,7 @@ export class ProjectCodeStore {
       [request.sourceSystem, request.externalCode, projectId],
     );
     if (taken.length > 0) throw new DomainError('CROSSWALK_DUPLICATE', 409, 'external_code', { extensions: { reason: taken.some((row) => row.subject_id !== projectId) ? 'EXTERNAL_CODE_TAKEN' : 'SUBJECT_HAS_OTHER_CODE' } });
+    await this.assertKeepsHistory(tx, request.sourceSystem, request.externalCode, projectId);
     const id = randomUUID();
     try {
       await tx.query(
@@ -259,6 +270,13 @@ export class ProjectCodeStore {
       throw error;
     }
     return (await this.find(tx, id)) as ProjectCodeRow;
+  }
+
+  /** For a system that is also read by direct match: the code may not be the code of another project (409 `CROSSWALK_DUPLICATE`, reason `EXTERNAL_CODE_IS_OTHER_PROJECT`). */
+  private async assertKeepsHistory(tx: TenantTx, sourceSystem: string, externalCode: string, projectId: string): Promise<void> {
+    if (!isDirectMatchSystem(sourceSystem)) return;
+    const other = await tx.query<{ id: string }>('select id from machvon.project where code = $1 and id <> $2::uuid', [externalCode, projectId]);
+    if (other.length > 0) throw new DomainError('CROSSWALK_DUPLICATE', 409, 'external_code', { extensions: { reason: 'EXTERNAL_CODE_IS_OTHER_PROJECT' } });
   }
 
   /** Approves, rejects or retires a code (a versioned command). The kernel decides the edge, the maker-checker rule and the reason; an approval is judged once more against the ACTIVE codes. */
@@ -283,6 +301,7 @@ export class ProjectCodeStore {
           if (before.validUntil !== null && before.validUntil <= today) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
           const system = await new SourceSystemStore().byCode(tx, before.sourceSystem);
           if (system === undefined || system.status !== 'ACTIVE') throw new DomainError('VALIDATION_FAILED', 422, 'source_system');
+          await this.assertKeepsHistory(tx, before.sourceSystem, before.externalCode, before.projectId);
         }
         await tx.query(
           `update machvon.master_crosswalk set status = $2, approved_by = $3::uuid, approved_at = $5::timestamptz, decision_reason = $4, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,
