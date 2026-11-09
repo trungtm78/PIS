@@ -2,7 +2,7 @@ import { canonicalJson, sha256Hex } from './canonical-json.ts';
 import { DomainError } from './errors.ts';
 import { percentOf } from './fnd-figures.ts';
 import { ENT4A_TEXT, fillCrosscheckText } from './messages/ent4a-texts.ts';
-import { decimalTextOf, isMoneyScale, periodCode } from './report-layout.ts';
+import { decimalTextOf, periodCode } from './report-layout.ts';
 import type { FormPeriod, MoneyScale } from './report-layout.ts';
 
 /**
@@ -42,6 +42,8 @@ export const SNAPSHOT_ROLE = 'SNAPSHOT';
 
 /** The money scales of the report engine, listed here (and kept in step by the type) because the rule schema is built while the report layout module may still be loading. */
 export const CROSSCHECK_SCALES = ['VND', 'THOUSAND_VND', 'MILLION_VND', 'BILLION_VND'] as const satisfies readonly MoneyScale[];
+/** Not report-layout's isMoneyScale: this module is loaded while report-layout is still loading (kpi-register -> governance-rules registers the rule at load), so a binding of report-layout may not exist yet when the default is checked. */
+const isCrosscheckScale = (value: unknown): value is MoneyScale => (CROSSCHECK_SCALES as readonly unknown[]).includes(value);
 const SCALE_PLACES: Readonly<Record<MoneyScale, number>> = { VND: 0, THOUSAND_VND: 3, MILLION_VND: 6, BILLION_VND: 9 };
 
 // -- the policy (params of the rule) ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -213,7 +215,7 @@ export function crosscheckPolicyOf(params: Record<string, unknown>): CrosscheckP
             return isCrosscheckRole(both['left']) && isCrosscheckRole(both['right']) ? [{ left: both['left'], right: both['right'] }] : [];
           }),
           absoluteVnd: typeof entry['absolute_vnd'] === 'number' ? entry['absolute_vnd'] : 0,
-          scale: isMoneyScale(scale) ? scale : 'VND',
+          scale: isCrosscheckScale(scale) ? scale : 'VND',
           pctTolerance: typeof entry['pct_tolerance'] === 'number' ? entry['pct_tolerance'] : 0.01,
         },
       ];
