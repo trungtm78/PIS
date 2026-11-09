@@ -96,10 +96,13 @@ const isRange = (operand: Operand): operand is Range => typeof operand === 'obje
 
 class Parser {
   private at = 0;
-  constructor(
-    private readonly tokens: Token[],
-    private readonly lookup: CellLookup,
-  ) {}
+  private readonly tokens: Token[];
+  private readonly lookup: CellLookup;
+
+  constructor(tokens: Token[], lookup: CellLookup) {
+    this.tokens = tokens;
+    this.lookup = lookup;
+  }
 
   done(): boolean {
     return this.at >= this.tokens.length;
