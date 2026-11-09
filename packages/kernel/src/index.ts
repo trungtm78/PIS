@@ -2178,6 +2178,11 @@ export type { IssueAction, IssueActors, IssueRole, IssueSignatories, IssueState,
 export { PREVIEW_ROW_CAP, RECEIVER_CODE, REPORT_CHANNELS, REPORT_FILE_FORMATS, assertDeliveryTarget, assertPeriodFitsForm, packageDigestOf, previewOf } from './report-form.ts';
 export type { PreviewCell, PreviewRow, ReportChannel, ReportDataSourceKind, ReportFileFormat, ReportFormBundle, ReportPreview, ReportTemplateBytes } from './report-form.ts';
 export { DIS_WEEKLY_CODE, DIS_WEEKLY_FORM_REF, DIS_WEEKLY_INDICATORS, DIS_WEEKLY_LAYOUT, DIS_WEEKLY_SHEET, DIS_WEEKLY_VERSION, WEEKLY_ORG_FALLBACK, weeklySnapshotLine } from './report-public-forms.ts';
+export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, reportDocumentOf } from './report-document.ts';
+export type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from './report-document.ts';
+export { columnNumberOf, evaluateFormula, roundHalfAway } from './report-formula.ts';
+export { ENT4B_TEXT } from './messages/ent4b-texts.ts';
+export type { CellLookup, FormulaValue } from './report-formula.ts';
 // The directives of the steering meetings (lane DIR-1).
 export { DIRECTIVE_ALERT_SOURCE, DIRECTIVE_EVENT_TYPES, DIRECTIVE_POLICY_DEFAULTS, DIRECTIVE_POLICY_DEFAULT_CODE, DIRECTIVE_RULE_TYPES, DIRECTIVE_SCOPE_KINDS, DIRECTIVE_STATUSES, MEETING_TYPES, STORED_DIRECTIVE_STATUSES, assertCloseEvidence, assertDirectiveCloser, assertExtension, assertExtensionDecider, defaultDirectivePolicy, directiveClock, directiveScopeKindOf, directiveStateAt, directiveStatusOf, effectiveDirectiveStatus, meetingTypeOf, nextDirectiveStatus, parseDirectivePolicy, periodCounts, periodFacts, addDaysTo as addDirectiveDays, daysBetweenDays as directiveDaysBetween, isDay as isDirectiveDay } from './directive.ts';
 export type { DirectiveClock, DirectiveEventType, DirectiveHistory, DirectiveHistoryEvent, DirectiveMove, DirectivePhase, DirectivePolicy, DirectivePolicyReading, DirectiveRuleType, DirectiveScopeKind, DirectiveStateAt, DirectiveStatus, MeetingType, PeriodCounts, PeriodDirectiveFacts, StoredDirectiveStatus } from './directive.ts';
