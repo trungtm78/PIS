@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { DEFAULT_BUDGET, budgetProblems, buildRequest, evaluateEntry, exitCode, formatLine, main, percentile, runBudget, selectOperations, summarize, summaryOf } from './perf-budget.mjs';
+import { DEFAULT_BUDGET, budgetProblems, buildRequest, discoverVariables, evaluateEntry, exitCode, formatLine, main, percentile, pickValue, runBudget, selectOperations, summarize, summaryOf } from './perf-budget.mjs';
 
 const budget = {
   version: 1,
@@ -80,6 +80,98 @@ test('budgetProblems accepts a good table and names each way a table is wrong', 
     'D has no operationId',
   ]) assert.ok(problems.includes(expected), `missing: ${expected}\n${problems.join('\n')}`);
   assert.deepEqual(budgetProblems({ classes: {}, operations: [] }), ['no classes', 'no operations']);
+});
+
+const discoveringBudget = {
+  ...budget,
+  discovery: {
+    projectId: { path: '/resources/project', query: { limit: '1' }, pick: 'items.0.id' },
+    week: { path: '/weeks', pick: 'current' },
+  },
+};
+const jsonAnswer = (body, status = 200) => ({ status, json: async () => body, arrayBuffer: async () => new ArrayBuffer(4) });
+
+test('pickValue follows a dotted path through objects and lists and gives undefined where there is nothing', () => {
+  const answerOf = { items: [{ id: 'a-1' }], page: { next: null } };
+  assert.equal(pickValue(answerOf, 'items.0.id'), 'a-1');
+  assert.equal(pickValue(answerOf, 'items.1.id'), undefined);
+  assert.equal(pickValue(answerOf, 'page.next.x'), undefined);
+  assert.equal(pickValue(null, 'items'), undefined);
+});
+
+test('budgetProblems checks the discovery of the table: a declared variable, a fixed path and a pick', () => {
+  assert.deepEqual(budgetProblems(discoveringBudget), []);
+  const wrong = { ...budget, discovery: { nothing: { path: '/x', pick: 'a' }, projectId: { path: '/p/{id}', pick: 'a' }, week: { path: '/w' } } };
+  assert.deepEqual(budgetProblems(wrong), [
+    'discovery of nothing names a variable the table does not declare',
+    'discovery of projectId has no fixed path',
+    'discovery of week has no pick',
+  ]);
+});
+
+test('discoverVariables reads the first row of a list for each variable that is not given, keeps the given ones and says why one is not found', async () => {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url, authorization: init.headers.authorization });
+    if (url.includes('/resources/project')) return jsonAnswer({ items: [{ id: 'p-9' }] });
+    return jsonAnswer({}, 403);
+  };
+  const first = await discoverVariables({ budget: discoveringBudget, baseUrl: 'https://h/v1/', token: 't', fetchImpl });
+  assert.deepEqual(first.found, { projectId: 'p-9' });
+  assert.deepEqual(first.problems, ['week: /weeks answered 403']);
+  assert.deepEqual(calls.map((call) => call.url), ['https://h/v1/resources/project?limit=1', 'https://h/v1/weeks']);
+  assert.ok(calls.every((call) => call.authorization === 'Bearer t'));
+
+  calls.length = 0;
+  const kept = await discoverVariables({ budget: discoveringBudget, baseUrl: 'https://h/v1', vars: { projectId: 'mine' }, fetchImpl: async () => jsonAnswer({ current: '2026-W42' }) });
+  assert.deepEqual(kept.found, { week: '2026-W42' });
+  assert.deepEqual(kept.problems, []);
+
+  const empty = await discoverVariables({ budget: discoveringBudget, baseUrl: 'https://h/v1', fetchImpl: async () => jsonAnswer({ items: [] }) });
+  assert.deepEqual(empty.found, {});
+  assert.equal(empty.problems.length, 2);
+  assert.match(empty.problems[0], /^projectId: \/resources\/project has nothing at items\.0\.id/);
+  const unreachable = await discoverVariables({ budget: discoveringBudget, baseUrl: 'https://h/v1', fetchImpl: async () => { throw new Error('down'); } });
+  assert.deepEqual(unreachable.problems, ['projectId: /resources/project could not be read', 'week: /weeks could not be read']);
+});
+
+test('main --discover measures the operations whose ids it found in the tenant and writes the variables it used with --vars-out', async () => {
+  const dir = scratch();
+  try {
+    writeFileSync(join(dir, 'budget.json'), JSON.stringify(discoveringBudget));
+    const lines = [];
+    const urls = [];
+    const fetchImpl = async (url) => {
+      urls.push(url);
+      return url.includes('/resources/project') ? jsonAnswer({ items: [{ id: 'p-9' }] }) : answer();
+    };
+    const out = join(dir, 'vars.json');
+    const code = await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--discover', '--var', 'week=2026-W42', '--samples', '1', '--warmup', '0', '--vars-out', out], { log: (line) => lines.push(line), fetchImpl, now: clockOf([10]) });
+    assert.equal(code, 0);
+    assert.ok(lines.includes('found projectId = p-9'));
+    assert.ok(urls.includes('https://h/v1/projects/p-9/export/xlsx'));
+    assert.deepEqual(JSON.parse(readFileSync(out, 'utf8')), { week: '2026-W42', projectId: 'p-9' });
+    assert.equal(lines.at(-1), '3 operations: 3 within budget, 0 over budget or failed, 0 not measured');
+
+    lines.length = 0;
+    assert.equal(await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--discover', '--strict', '--samples', '1', '--warmup', '0'], { log: (line) => lines.push(line), fetchImpl: async (url) => (url.includes('/resources/project') ? jsonAnswer({}, 404) : answer()), now: clockOf([10]) }), 3);
+    assert.ok(lines.some((line) => line.startsWith('not found projectId: /resources/project answered 404')));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the discovery of the committed budget reads lists of the contract and gives the variables that the operations lacked', () => {
+  const contract = operationsOfContract();
+  const reads = new Set([...contract.values()].map((found) => `${found.method.toLowerCase()} ${found.path}`));
+  for (const [name, rule] of Object.entries(committed.discovery)) {
+    assert.ok(reads.has(`get ${rule.path}`), `${name}: ${rule.path} is not a read of the contract`);
+  }
+  const used = new Set(committed.operations.flatMap((entry) => [...Object.values(entry.pathVars ?? {}), ...Object.values(entry.query ?? {}).flatMap((value) => /^\$(\w+)$/.exec(String(value))?.slice(1) ?? [])]));
+  for (const name of ['projectId', 'allocationLineId', 'reportDraftId', 'reportIssueId']) {
+    assert.ok(used.has(name), `${name} is used by an operation`);
+    assert.ok(committed.discovery[name] !== undefined, `${name} can be discovered`);
+  }
 });
 
 test('buildRequest fills the path and the query, encodes values and lists the missing variables', () => {
@@ -340,7 +432,7 @@ async function loadK6Lib(environment) {
 }
 
 test('the k6 library builds the same URLs as the node runner and leaves out an operation whose variable is missing', async () => {
-  const vars = { projectId: 'p-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1' };
+  const vars = { projectId: 'p-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1' };
   const { api } = await loadK6Lib({ BASE_URL: 'https://h/v1/', TOKEN: 't', VARS: JSON.stringify(vars) });
   assert.equal(api.operations.length, committed.operations.length);
   for (const item of api.operations) {
