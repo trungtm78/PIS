@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PeriodReportStore, TenantDatabase, copyRefOf } from '@machvon/db';
+import { PeriodReportStore, ReportCrosscheckStore, TenantDatabase, copyRefOf } from '@machvon/db';
 import type { ReportDeliveryRow, ReportDraftRow, ReportIssueRow } from '@machvon/db';
 import {
   DomainError,
@@ -25,6 +25,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { configuredFormOf } from './configured-forms';
+import { blockingSummaryOf, recordFigureSetOf, releaseCheckOf } from './crosscheck';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess } from './form-registry';
 import { renderReport } from './render';
@@ -40,6 +41,8 @@ const RESERVED_CHANNEL = 'HPM_PUSH';
 
 /** The lock of a period and the signature of a copy (GOV-12, G4-6): a locked period takes no new copy, and a copy goes to a receiver that requires a signature only when it is signed. */
 const periodStore = new PeriodReportStore();
+/** The comparison of the reports of one period before release (ENT-4a, CN.04): the figures a draft was filled with, and the evidence kept with an issued copy. */
+const crosscheckStore = new ReportCrosscheckStore();
 
 const periodOf = (body: Schemas['RptPeriod']): FormPeriod => ({ kind: body.kind, year: body.year, ...(body.index === undefined ? {} : { index: body.index }), ...(body.day === undefined ? {} : { day: body.day }) });
 
@@ -165,6 +168,8 @@ export class ReportController {
     }
     const existing = await reportStore.openDraftWith(tx, layout.code, code, packageSha);
     if (existing !== undefined) {
+      // The same files were made from the same figures: a draft from before the comparison existed gets its figure set now (a set that is there stays).
+      await recordFigureSetOf(tx, today, existing.id, layout.code, data);
       await this.auditRepeat(scope, 'EXISTING', existing.id, layout.code, code, packageSha);
       return { outcome: 'EXISTING', draft_id: existing.id, issue_id: null, revision: next.revision, package_sha256: packageSha, issue_count: existing.gridIssues.length };
     }
@@ -186,6 +191,7 @@ export class ReportController {
       preview: { columns: rendered.preview.columns, rows: rendered.preview.rows, row_count: rendered.preview.rowCount, truncated: rendered.preview.truncated, narrative: rendered.preview.narrative, stamp: rendered.preview.stamp },
       preparedBy: by,
     });
+    await recordFigureSetOf(tx, today, draft.id, layout.code, data);
     await this.announceDraft(scope, draft, 'rpt.report_generated', 'rpt.report.generated.v1', { data_source: draft.dataSource, issue_count: rendered.issues.length, base_revision: draft.baseRevision, snapshot_id: snapshot?.snapshotId ?? null, snapshot_revision: snapshot?.revision ?? null });
     return { outcome: 'CREATED', draft_id: draft.id, issue_id: null, revision: next.revision, package_sha256: packageSha, issue_count: rendered.issues.length };
   }
@@ -228,6 +234,15 @@ export class ReportController {
     if (layout === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout');
     // Demo mode is judged again at the moment of issue: a form switched off since the draft was made is not issued (R18).
     assertLayoutIssuable(layout.layout, { demoMode: await demoModeOf(tx, vietnamDateOf(this.clock()), layout.status) });
+    // ENT-4a, CN.04: the reports of the same period must agree before one goes out; a difference at the BLOCKING level stops the release until someone other than the preparer has explained it.
+    const now = this.clock();
+    const crosscheck = await releaseCheckOf({ database: this.database, tenant: scope.tenant, access, tx, now, today: vietnamDateOf(now) }, draft);
+    if (crosscheck !== null && !crosscheck.decision.passed) {
+      const blocking = crosscheck.decision.blocking;
+      await scope.audit({ action: 'rpt.report_issue_blocked', resourceType: DRAFT_RESOURCE, resourceId: draft.id, classification: CLASSIFICATION, diff: { layout_code: draft.layoutCode, period_code: draft.periodCode, result_sha256: crosscheck.run.result.sha256, blocking: blockingSummaryOf(blocking) } });
+      scope.refuseAfterCommit(new DomainError('REPORT_CROSSCHECK_BLOCKED', 409, undefined, { extensions: { period_code: draft.periodCode, blocking_count: blocking.length, findings: blockingSummaryOf(blocking) } }));
+      return commandResult(scope, 'BLOCKED', draft.version, draft.id);
+    }
     const issued = await reportStore.issue(
       tx,
       {
@@ -247,6 +262,21 @@ export class ReportController {
       return commandResult(scope, 'DUPLICATE', issued.row.revision, issued.row.id);
     }
     await this.announceIssue(scope, issued.row);
+    if (crosscheck !== null) {
+      // The evidence of what was compared goes with the copy: how many comparisons, which findings were explained, the hash of the whole result.
+      const evidence = await crosscheckStore.recordRelease(tx, {
+        issueId: issued.row.id,
+        draftId: draft.id,
+        periodCode: draft.periodCode,
+        resultSha256: crosscheck.run.result.sha256,
+        comparisons: crosscheck.run.result.coverage.comparisons,
+        skipped: crosscheck.run.result.coverage.skipped,
+        warnings: crosscheck.decision.warnings.length,
+        explainedFingerprints: crosscheck.decision.explained.map((one) => one.fingerprint).sort(),
+        releasedBy: scope.tenant.membershipId,
+      });
+      await scope.audit({ action: 'rpt.crosscheck_evidence_recorded', resourceType: ISSUE_RESOURCE, resourceId: issued.row.id, classification: CLASSIFICATION, diff: { outcome: evidence.outcome, result_sha256: evidence.resultSha256, comparisons: evidence.comparisons, skipped: evidence.skipped, blocking_explained: evidence.blockingExplained, warnings: evidence.warnings } });
+    }
     return commandResult(scope, 'ISSUED', 1, issued.row.id);
   }
 

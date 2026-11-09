@@ -3029,6 +3029,8 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   checkReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/check', ifMatch: '"1"', body: {} }) },
   approveReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/approve', ifMatch: '"1"', body: {} }) },
   issueReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/issue', ifMatch: '"1"', body: {} }) },
+  // ENT-4a: the explanation of a difference between the reports of one period; a caller who is refused records nothing.
+  explainCrosscheckFinding: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/report-engine/crosscheck/explanations', body: { period: { kind: 'QUARTER', year: 2026, index: 4 }, fingerprint: 'a'.repeat(64), reason: REASON } }) },
   deliverReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/deliveries', body: { receiver: 'MOF', channel: 'MANUAL' } }) },
   answerReportDelivery: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/issues/00000000-0000-4000-8000-0000000000f1/answers', body: { receiver: 'MOF', outcome: 'ACCEPTED' } }) },
   // EGP-2: the duties of posting to the national procurement network and the reconciliation of the fields; a caller who is refused opens, moves and settles nothing.

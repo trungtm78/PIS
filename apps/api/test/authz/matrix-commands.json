@@ -446,6 +446,7 @@
     "checkReport",
     "approveReport",
     "issueReport",
+    "explainCrosscheckFinding",
     "deliverReport",
     "answerReportDelivery",
     "setHubConnectorState",
