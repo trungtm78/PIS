@@ -18,13 +18,13 @@ Branch `lane/webpush`, worktree `D:\PIS-webpush`, migration block `WEBPUSH-1` 28
 
 ## Steps
 
-- [ ] 0. Plan, migration block registered.
-- [ ] 1. Sender: key files, state of the channel, per-tenant limiter, retry-after, urgency; tests against a fake push service server (HTTP over a local TLS-less allowlisted host in the test), unit tests.
-- [ ] 2. Probe and runbook: `scripts/web-push-probe.mjs`, `docs/runbooks/web-push-spike.md`, docs `pwa.md` and `not-push.md`.
-- [ ] 3. Receipt token (pure, kernel-free module in the API), `DeliveryEngine.acknowledgePush`, controller `acknowledgePush`, contract by `contract-patch`, authz matrix, error codes; payload carries `rcpt`.
-- [ ] 4. Service worker posts the acknowledgement on show and on click; web tests.
-- [ ] 5. Ladder: `TEAMS` rung channel (kernel, migration, engine mapping), tests.
-- [ ] 6. Settings page, i18n part, route, tests.
+- [x] 0. Plan, migration block registered.
+- [x] 1. Sender: key files, state of the channel, per-tenant limiter, retry-after, urgency; tests against a fake push service server (HTTP over a local TLS-less allowlisted host in the test), unit tests.
+- [x] 2. Probe and runbook: `scripts/web-push-probe.mjs`, `docs/runbooks/web-push-spike.md`, docs `pwa.md` and `not-push.md`.
+- [x] 3. Receipt token (pure, kernel-free module in the API), `DeliveryEngine.acknowledgePush`, controller `acknowledgePush`, contract by `contract-patch`, authz matrix, error codes; payload carries `rcpt`.
+- [x] 4. Service worker posts the acknowledgement on show and on click; web tests.
+- [x] 5. Ladder: `TEAMS` rung channel (kernel, migration, engine mapping), tests.
+- [x] 6. Settings page, i18n part, route, tests.
 - [ ] 7. Shared suite lists (isolation, conformance counts, authz matrix, workers/jobs) added, not run; lint/typecheck of what is touched; independent review of `git diff main...HEAD` (Codex is rate limited until 2026-11-10 23:17); `git merge main`.
 
 ## Tests per step
