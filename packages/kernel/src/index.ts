@@ -217,7 +217,7 @@ export { VND_SCALE, creditAmount, debitAmount, entriesInForce, netOfEntries, ord
 export type { LedgerEntry, LockTarget } from './money-ledger.ts';
 export { assertOneWinner, outcomeLabel, outcomeOfError, runConcurrently, runLoops, succeeded, tallyOutcomes } from './concurrency-harness.ts';
 export type { CommandOutcome, LoopOptions, LoopRound } from './concurrency-harness.ts';
-export { CALENDAR_TIMEZONES, MONTHLY_DEADLINE_DAY, WEEKDAYS, assertCalendar, isLate, monthlyPeriodOf, monthlyPeriods, periodOf, periodOfType, reportingPeriods } from './reporting-calendar.ts';
+export { CALENDAR_TIMEZONES, MONTHLY_DEADLINE_DAY, QUARTERLY_DEADLINE_OFFSET_DAYS, WEEKDAYS, YEARLY_DEADLINE_OFFSET_DAYS, assertCalendar, isLate, monthlyPeriodOf, monthlyPeriods, periodOf, periodOfType, quarterlyPeriodOf, quarterlyPeriods, reportingPeriods, yearlyPeriodOf, yearlyPeriods } from './reporting-calendar.ts';
 export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';
 export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
 export { assertRuleVersions, resolveRule, ruleOfRevision } from './rule-resolver.ts';
@@ -3223,3 +3223,5 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
+export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_REMINDER_EVENT, SCHEDULE_DUE_SOON_DAYS, REMINDER_ALERT_TYPES, SCHEDULE_REMINDER_KINDS, SCHEDULE_CODES, SCHEDULE_RULE_TYPE, SCHEDULE_STEP_KINDS, SCHEDULE_STEP_STATES, daysOverdue, entryDeadline, entryOffsetOf, isScheduleCode, meetingPeriod, reminderDue, scheduleCodeOf, scheduleDefaults, scheduleDefect, schedulePeriods, schedulePolicyOf, stepDeadlines, scheduleStepState } from './reporting-schedule.ts';
+export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
