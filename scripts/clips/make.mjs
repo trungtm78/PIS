@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FFMPEG } from '../hdsd/tts.mjs';
 import { CLIPS_DIR, REPO_ROOT, argument, flag, loadSpec, positionals, readJson } from './common.mjs';
-import { loadScenario, selectScenes } from './scenario.mjs';
+import { loadScenario, recordableScenes } from './scenario.mjs';
 import { assColour } from './mix.mjs';
 import { CURSOR_SCRIPT } from './record/cursor.mjs';
 import { Ui } from './record/ui.mjs';
@@ -323,11 +323,11 @@ async function main(argv) {
   const manifestPath = argument(argv, 'manifest');
   const out = argument(argv, 'out');
   if (clip === undefined || audioPath === undefined || manifestPath === undefined || out === undefined) {
-    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps] [--no-compose] [--no-quality] [--phone-dir <dir with <scene id>.mp4 films of the phone; default CLIPS_PHONE_DIR or D:/PIS-clips-out/phone>]');
+    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps] [--no-compose] [--no-quality] [--include-pending] [--phone-dir <dir with <scene id>.mp4 films of the phone; default CLIPS_PHONE_DIR or D:/PIS-clips-out/phone>]');
     return 2;
   }
   const scenario = loadScenario(clip);
-  const scenes = selectScenes(scenario, cut);
+  const scenes = recordableScenes(scenario, cut, { includePending: flag(argv, 'include-pending') });
   const audio = JSON.parse(readFileSync(audioPath, 'utf8')).scenes;
   const manifest = readJson(manifestPath);
   const timeline = buildTimeline(scenes, audio, { figures: scenario.figures, manifest, estimate: () => 0 });

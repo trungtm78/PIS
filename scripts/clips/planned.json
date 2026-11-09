@@ -1,6 +1,6 @@
 {
   "schema": "clip-planned/1",
-  "note": "Screens and operations used by the scenarios that are not in the contract or the screen catalogue of this branch, with the lane that builds them (none are left except the installed-application screens, built outside the catalogue). `scenario.mjs check --strict` turns each entry still missing into an error; run it before the recording starts. Entries marked status built exist in the application but outside the screen catalogue.",
+  "note": "Screens and operations used by the scenarios that are not in the contract or the screen catalogue of this branch, with the lane that builds them (none are left except the installed-application screens, built outside the catalogue). `scenario.mjs check --strict` turns each entry still missing into an error; run it before the recording starts. Entries marked status built exist in the application but outside the screen catalogue. `lanes` lists the lanes that scenes wait for (`requires` of a scene): a scene with a lane that is not `merged` is accepted by the checks, left out of a recording (use --include-pending to force it) and reported as waiting; flip the lane to `merged` when it is on main, then the scene is recorded and checked as any other. A screen entry with status `planned` and no catalogue row is a screen that a pending lane will add; the recording agent binds its real id at merge.",
   "operations": {},
   "screens": {
     "PWA-01": {
@@ -22,6 +22,83 @@
       "lane": "ENT-0",
       "status": "built",
       "note": "directive tracking"
+    },
+    "planned:ent-org-pack": {
+      "lane": "ENT-3d",
+      "status": "planned",
+      "platform": "web",
+      "route": null,
+      "title": "Gói tổ chức và vai trò của bản doanh nghiệp"
+    },
+    "planned:ent-cross-compare": {
+      "lane": "ENT-4a",
+      "status": "planned",
+      "platform": "web",
+      "route": null,
+      "title": "So sánh chéo số liệu cùng kỳ giữa các loại báo cáo"
+    },
+    "planned:ent-layout-config": {
+      "lane": "ENT-4b",
+      "status": "planned",
+      "platform": "web",
+      "route": null,
+      "title": "Cấu hình bố cục biểu mẫu không cần lập trình"
+    },
+    "planned:ent-calendar-board": {
+      "lane": "ENT-4c",
+      "status": "planned",
+      "platform": "web",
+      "route": null,
+      "title": "Lịch kỳ báo cáo và bảng tiến độ từng đầu mối"
+    },
+    "planned:ent-equipment-procurement": {
+      "lane": "ENT-4e",
+      "status": "planned",
+      "platform": "web",
+      "route": null,
+      "title": "Mua sắm trang thiết bị theo Ban Thương mại"
+    }
+  },
+  "lanes": {
+    "ENT-3a": {
+      "status": "pending",
+      "note": "enterprise period snapshot built and closed, one figure reader for forms, dashboards and the push"
+    },
+    "ENT-3b": {
+      "status": "pending",
+      "note": "structured narrative of eight fields, inheritance from the previous period, standard cause list, directive results"
+    },
+    "ENT-3c": {
+      "status": "pending",
+      "note": "PUSH step of the approval flow waits for the HPM receipt, one staged flow for report, funding batch and indicator entry"
+    },
+    "ENT-3d": {
+      "status": "pending",
+      "note": "PVFCCo organisation pack: nine input points, entering and approving persons, planning review, leadership roles"
+    },
+    "ENT-3e": {
+      "status": "pending",
+      "note": "project codes of EBS and HPM through the crosswalk, project type catalogue, fund source origins"
+    },
+    "ENT-4a": {
+      "status": "pending",
+      "note": "cross-report comparison of one period before issue, blocks issue on a gap until explained"
+    },
+    "ENT-4b": {
+      "status": "pending",
+      "note": "PDF of the report forms, Department form, layout configuration without code"
+    },
+    "ENT-4c": {
+      "status": "pending",
+      "note": "reporting calendar with a deadline per step, e-mail and Teams reminders, PWA directive screen"
+    },
+    "ENT-4d": {
+      "status": "pending",
+      "note": "presentation mode of dashboards, enterprise rates by company, unit and project, scheduled delivery of issued forms"
+    },
+    "ENT-4e": {
+      "status": "pending",
+      "note": "audit detail and log caps, exchange rate catalogue, equipment procurement view of the commercial division"
     }
   }
 }

@@ -1,0 +1,247 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "contract-delivery",
+  "title": "Thực hiện hợp đồng và nghiệm thu",
+  "summary": "Contract drafting and versions, bill of quantities and payment milestones, advance and recovery schedule, change requests and adjustments, suspension and termination, site records, quantities, quality, acceptance and payment value, delay and compensation, completion, warranty and the contractor file export.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "ctr-draft",
+      "chapter": "contract-delivery",
+      "main": false,
+      "narration": "Hợp đồng được soạn và ký theo từng bước. Bảng khối lượng gắn với các mốc thanh toán. Tạm ứng có lịch thu hồi. Mỗi lần điều chỉnh là một phiên bản có hiệu lực từ ngày rõ ràng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-02",
+          "CTR-04",
+          "CTR-06",
+          "CTR-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-02"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.contract.drafting-signing"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-04"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.contract.boq-milestones"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-06"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.contract.advance-schedule"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-26"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.contract.versions"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14
+    },
+    {
+      "id": "ctr-change",
+      "chapter": "contract-delivery",
+      "main": false,
+      "narration": "Yêu cầu thay đổi và phát sinh đi qua so sánh phụ lục trước khi duyệt. Số tầng thay đổi cấu hình theo từng dự án. Tạm dừng, tiếp tục và chấm dứt hợp đồng đều có lý do và người quyết định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-07",
+          "CTR-08",
+          "CTR-20",
+          "CTR-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-07"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.change.request"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-08"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.change.addendum-compare"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-20"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.change.tier-config"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-22"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.change.suspend-terminate"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "ctr-site",
+      "chapter": "contract-delivery",
+      "main": false,
+      "narration": "Khối lượng thực hiện được ghi từ nhật ký công trường, kiểm tra chất lượng, rồi nghiệm thu. Bảng xác định giá trị thanh toán lấy đúng khối lượng đã nghiệm thu, nên không thanh toán vượt phần đã làm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-09",
+          "CTR-10",
+          "CTR-11",
+          "CTR-12",
+          "CTR-13"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-09"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.site.diary"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-10"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.site.quantities"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-11"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.site.quality-ncr"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-12"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.site.acceptance"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-13"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.site.payment-value"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "ctr-closeout",
+      "chapter": "contract-delivery",
+      "main": false,
+      "narration": "Chậm tiến độ có yêu cầu bồi hoàn. Hoàn thành thì bàn giao, rồi vào giai đoạn bảo hành và khắc phục tồn tại. Hồ sơ nhà thầu xuất được cho cơ sở dữ liệu quốc gia từ đúng dữ liệu đã có.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-14",
+          "CTR-15",
+          "CTR-16",
+          "CTR-18",
+          "CTR-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-14"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.closeout.delay-compensation"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-15"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.closeout.completion-handover"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-16"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.closeout.warranty"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-18"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-24"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.closeout.contractor-export"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    }
+  ]
+}
