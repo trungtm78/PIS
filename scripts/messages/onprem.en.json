@@ -87,5 +87,9 @@
   "backupVerify.code.BACKUP_ARCHIVE": "the archive repository is not separate, encrypted and locked as the policy says: {detail}",
   "backupVerify.code.BACKUP_OFFLINE_COPY": "the offline copy is not declared with its custodians and its runbook section: {detail}",
   "backupVerify.code.BACKUP_DRILL_LEDGER": "the restore drill ledger is malformed: {detail}",
-  "backupVerify.code.BACKUP_DRILL_OVERDUE": "the restore drill is overdue or failed: {detail}"
+  "backupVerify.code.BACKUP_DRILL_OVERDUE": "the restore drill is overdue or failed: {detail}",
+  "infra.MALWARE_SCAN": "the malware scan is not wired as required (clamav service on the app network, the API and workers told to use it): {detail}",
+  "infra.EGRESS_RULES": "the egress firewall script does not end in a drop of everything not allowlisted: {detail}",
+  "infra.RANSOMWARE_CATALOGUE": "the ransomware scenario catalogue is incomplete or cites evidence that does not exist: {detail}",
+  "infra.REALM_IMPORT": "the Keycloak realm file breaks an import rule: {detail}"
 }

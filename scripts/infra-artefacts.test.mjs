@@ -7,13 +7,16 @@ import { fileURLToPath } from 'node:url';
 import { ARTEFACT_FINDING_CODES, checkArtefacts, dockerfileImages, splitImage, workflowDockerImages } from './infra-artefacts.mjs';
 import { infraCheck, main } from './infra-check.mjs';
 import { loadOnpremMessages } from './onprem-messages.mjs';
+import { ransomwareEvidencePaths } from './infra-security.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cleanups = [];
 process.on('exit', () => cleanups.forEach((clean) => clean()));
 
 const COPIED = ['infra', '.zap', '.gitleaks.toml', '.github/workflows', 'docs/runbooks/infra', 'docs/security', 'supply-chain.json', 'package.json', 'package-lock.json', 'apps/api/src/security/security-headers.ts', 'apps/api/src/bootstrap.ts', 'apps/api/scripts/ts-loader.mjs', 'apps/api/package.json', 'db/migrations/V001__roles_and_grants.sql'];
-const PLACEHOLDERS = ['scripts/onprem-bundle.mjs', 'scripts/backup-verify.mjs', 'scripts/restore-drill.mjs', 'scripts/native-deps-check.mjs'];
+const PLACEHOLDERS = ['scripts/onprem-bundle.mjs', 'scripts/backup-verify.mjs', 'scripts/restore-drill.mjs', 'scripts/native-deps-check.mjs', 'scripts/infra-security.mjs', 'apps/api/src/modules/files/clamd-scan.ts'];
+/** The files the ransomware catalogue cites: copied so that the catalogue check finds its evidence. */
+const CATALOGUE_FILES = ransomwareEvidencePaths(JSON.parse(readFileSync(join(REPO_ROOT, 'docs/security/ransomware-scenarios.json'), 'utf8')));
 
 /** A scratch repository: everything the artefact check reads, copied from the real one, and the edits of one case. */
 function scratch(edit = () => {}) {
@@ -22,6 +25,11 @@ function scratch(edit = () => {}) {
   for (const path of COPIED) {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     cpSync(join(REPO_ROOT, path), join(root, path), { recursive: true });
+  }
+  for (const path of CATALOGUE_FILES) {
+    if (existsSync(join(root, path))) continue;
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    cpSync(join(REPO_ROOT, path), join(root, path));
   }
   for (const path of PLACEHOLDERS) {
     mkdirSync(dirname(join(root, path)), { recursive: true });

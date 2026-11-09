@@ -1,6 +1,9 @@
 {
   "description": "Pinned images of the on-prem deployment. Third-party images carry tag and digest of the multi-platform index; the images of the product are built from infra/onprem/docker and carry the release version. Every image is built or pulled for both platforms and exported into the offline bundle (scripts/onprem-bundle.mjs).",
-  "platforms": ["linux/amd64", "linux/arm64"],
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
   "digestsResolvedOn": "2026-11-08",
   "thirdParty": [
     {
@@ -8,7 +11,11 @@
       "reference": "docker.io/library/node",
       "tag": "24.14.0-bookworm-slim",
       "digest": "sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8",
-      "usedBy": ["api", "workers", "web"],
+      "usedBy": [
+        "api",
+        "workers",
+        "web"
+      ],
       "role": "base"
     },
     {
@@ -16,7 +23,9 @@
       "reference": "docker.io/nginxinc/nginx-unprivileged",
       "tag": "1.30.1-alpine",
       "digest": "sha256:acc3239879a65d9e3d250b21847ec3f34f33367017394d22830242af15cf1cb0",
-      "usedBy": ["web"],
+      "usedBy": [
+        "web"
+      ],
       "role": "base"
     },
     {
@@ -24,7 +33,9 @@
       "reference": "docker.io/library/postgres",
       "tag": "18.3-bookworm",
       "digest": "sha256:80630f83606d8db77d30b3851b16a9f78be2d0d4dda6f7b82a1fdca5ebe3acba",
-      "usedBy": ["db"],
+      "usedBy": [
+        "db"
+      ],
       "role": "base"
     },
     {
@@ -32,14 +43,50 @@
       "reference": "quay.io/keycloak/keycloak",
       "tag": "26.5.2",
       "digest": "sha256:fb31a59deb46f746f2aaa25adc5da39ceccac4fd22d36a519562b0bf02e8df20",
-      "usedBy": ["keycloak"],
+      "usedBy": [
+        "keycloak"
+      ],
+      "role": "runtime"
+    },
+    {
+      "name": "clamav",
+      "reference": "docker.io/clamav/clamav",
+      "tag": "1.4.6",
+      "digest": "sha256:cbc30de94b6e9b33ac14136ff45306cee02a1f9ae522394a3cc5b9215d1affe9",
+      "usedBy": [
+        "clamav"
+      ],
       "role": "runtime"
     }
   ],
   "built": [
-    { "name": "api", "repository": "machvon/api", "dockerfile": "infra/onprem/docker/api.Dockerfile", "customerSpecific": false },
-    { "name": "workers", "repository": "machvon/workers", "dockerfile": "infra/onprem/docker/workers.Dockerfile", "customerSpecific": false },
-    { "name": "web", "repository": "machvon/web", "dockerfile": "infra/onprem/docker/web.Dockerfile", "customerSpecific": true, "buildArgs": ["PUBLIC_HOST", "MACHVON_EDITION"] },
-    { "name": "db", "repository": "machvon/db", "dockerfile": "infra/onprem/docker/db.Dockerfile", "customerSpecific": false }
+    {
+      "name": "api",
+      "repository": "machvon/api",
+      "dockerfile": "infra/onprem/docker/api.Dockerfile",
+      "customerSpecific": false
+    },
+    {
+      "name": "workers",
+      "repository": "machvon/workers",
+      "dockerfile": "infra/onprem/docker/workers.Dockerfile",
+      "customerSpecific": false
+    },
+    {
+      "name": "web",
+      "repository": "machvon/web",
+      "dockerfile": "infra/onprem/docker/web.Dockerfile",
+      "customerSpecific": true,
+      "buildArgs": [
+        "PUBLIC_HOST",
+        "MACHVON_EDITION"
+      ]
+    },
+    {
+      "name": "db",
+      "repository": "machvon/db",
+      "dockerfile": "infra/onprem/docker/db.Dockerfile",
+      "customerSpecific": false
+    }
   ]
 }

@@ -43,6 +43,11 @@ x-api-environment: &api-environment
   FIELD_ENCRYPTION_KEYS_FILE: /run/secrets/field_encryption_keys
   LICENSE_SIGNING_KEY_ID: ${LICENSE_SIGNING_KEY_ID}
   LICENSE_SIGNING_KEY_PEM_PATH: /run/secrets/license_signing_key
+  # Malware scan of every upload (HSKT YCK.07): clamd on the app network; unreachable or unconfigured means files stay PENDING and portal uploads are refused.
+  MACHVON_SCAN_ADAPTER: clamav
+  MACHVON_PORTAL_SCAN: CLAMAV
+  MACHVON_CLAMD_HOST: clamav
+  MACHVON_CLAMD_PORT: "3310"
 
 x-backup-environment: &backup-environment
   PGBACKREST_REPO1_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT}
@@ -186,6 +191,33 @@ services:
         reservations:
           memory: 1g
     pids_limit: 512
+
+  # clamd for the malware scan of uploads. The app network has no route out, so signatures are NOT fetched here: they ship in the image of the release (the bundle is rebuilt at least monthly,
+  # docs/runbooks/infra/malware-scan.md) or are placed in the clamav_db volume by the operator.
+  clamav:
+    image: docker.io/clamav/clamav:1.4.6@sha256:cbc30de94b6e9b33ac14136ff45306cee02a1f9ae522394a3cc5b9215d1affe9
+    <<: *hardening
+    networks: [app]
+    environment:
+      CLAMAV_NO_FRESHCLAMD: "true"
+      CLAMAV_NO_MILTERD: "true"
+    volumes:
+      - clamav_db:/var/lib/clamav
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+      - /run/clamav:size=16m
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s
+    deploy:
+      resources:
+        limits:
+          cpus: "${CLAMAV_CPUS}"
+          memory: ${CLAMAV_MEMORY}
+    pids_limit: 256
 
   api:
     image: machvon/api:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
@@ -370,6 +402,7 @@ networks:
 
 volumes:
   pgdata: {}
+  clamav_db: {}
   pgsocket: {}
 
 secrets:

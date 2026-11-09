@@ -34,7 +34,12 @@
     "infra/backup/bucket/archive/object-lock-configuration.json",
     "infra/onprem/systemd/machvon-backup-diff.timer",
     "infra/onprem/systemd/machvon-backup-monthly.timer",
-    "infra/onprem/systemd/machvon-backup-monthly.service"
+    "infra/onprem/systemd/machvon-backup-monthly.service",
+    "docs/security/ransomware-scenarios.md",
+    "docs/security/ransomware-scenarios.json",
+    "docs/runbooks/infra/malware-scan.md",
+    "docs/runbooks/infra/lab-install-checklist.md",
+    "docs/runbooks/infra/sizing-uat-prod.md"
   ],
   "repositoryRequired": [
     ".github/workflows/security.yml",
@@ -46,7 +51,9 @@
     "scripts/backup-verify.mjs",
     "scripts/restore-drill.mjs",
     "scripts/native-deps-check.mjs",
-    "apps/api/src/security/security-headers.ts"
+    "apps/api/src/security/security-headers.ts",
+    "scripts/infra-security.mjs",
+    "apps/api/src/modules/files/clamd-scan.ts"
   ],
   "images": {
     "platforms": [
@@ -240,5 +247,44 @@
       "CRITICAL"
     ],
     "exitCode": 1
+  },
+  "security": {
+    "malwareScan": {
+      "service": "clamav",
+      "consumers": [
+        "api",
+        "workers"
+      ],
+      "adapterVariable": "MACHVON_SCAN_ADAPTER",
+      "adapter": "clamav",
+      "portalVariable": "MACHVON_PORTAL_SCAN",
+      "portalAdapter": "CLAMAV",
+      "hostVariable": "MACHVON_CLAMD_HOST",
+      "portVariable": "MACHVON_CLAMD_PORT",
+      "port": 3310
+    },
+    "egress": {
+      "script": "infra/onprem/config/egress-firewall.sh",
+      "subnet": "172.29.250.0/24"
+    },
+    "realmImport": {
+      "service": "keycloak"
+    },
+    "ransomware": {
+      "catalogue": "docs/security/ransomware-scenarios.json",
+      "document": "docs/security/ransomware-scenarios.md",
+      "pentestPack": "docs/security/pentest-readiness.md",
+      "requiredVectors": [
+        "file-upload-exec",
+        "rce",
+        "injection",
+        "privilege-escalation",
+        "session-takeover",
+        "password-guessing",
+        "third-party-cve",
+        "direct-db-backup-access",
+        "egress-exfiltration"
+      ]
+    }
   }
 }

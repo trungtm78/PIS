@@ -87,5 +87,9 @@
   "backupVerify.code.BACKUP_ARCHIVE": "kho lưu trữ chưa tách biệt, mã hóa và khóa bất biến như chính sách quy định: {detail}",
   "backupVerify.code.BACKUP_OFFLINE_COPY": "bản sao ngoại tuyến chưa được khai báo đủ người giữ và mục hướng dẫn vận hành: {detail}",
   "backupVerify.code.BACKUP_DRILL_LEDGER": "sổ diễn tập khôi phục sai cấu trúc: {detail}",
-  "backupVerify.code.BACKUP_DRILL_OVERDUE": "diễn tập khôi phục quá hạn hoặc không đạt: {detail}"
+  "backupVerify.code.BACKUP_DRILL_OVERDUE": "diễn tập khôi phục quá hạn hoặc không đạt: {detail}",
+  "infra.MALWARE_SCAN": "quét mã độc chưa được nối đúng yêu cầu (dịch vụ clamav trên mạng app, API và workers dùng nó): {detail}",
+  "infra.EGRESS_RULES": "script tường lửa đầu ra không kết thúc bằng việc chặn mọi đích ngoài danh sách cho phép: {detail}",
+  "infra.RANSOMWARE_CATALOGUE": "danh mục kịch bản ransomware chưa đủ hoặc dẫn chứng không tồn tại: {detail}",
+  "infra.REALM_IMPORT": "tệp realm Keycloak vi phạm quy tắc nhập: {detail}"
 }

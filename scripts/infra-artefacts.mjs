@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { checkBackupPolicy } from './backup-verify.mjs';
 import { checkNativeDeps } from './native-deps-check.mjs';
+import { checkEgressScript, checkMalwareScan, checkRansomwareCatalogue, checkRealmImport } from './infra-security.mjs';
 
 const POLICY_FILE = 'infra/policies/artefacts.json';
 const DIGEST = /@sha256:[0-9a-f]{64}$/;
@@ -39,6 +40,10 @@ export const ARTEFACT_FINDING_CODES = [
   'SCAN_WORKFLOW',
   'WORKFLOW_FLOATING_ACTION',
   'NATIVE_DEPS',
+  'MALWARE_SCAN',
+  'EGRESS_RULES',
+  'RANSOMWARE_CATALOGUE',
+  'REALM_IMPORT',
 ];
 
 const finding = (code, file, detail = '') => ({ code, file, detail });
@@ -441,6 +446,27 @@ function checkRoleMap(root, policy, realm, ldap, findings) {
   for (const role of platformRoles) if (!covered.has(role)) findings.push(finding('ROLE_MAP', rule.roleMapFile, `the platform role ${role} has no directory group`));
 }
 
+/** The checks of HSKT YCK.07 that read several artefacts at once: the malware scan wiring, the egress script, the ransomware catalogue and the Keycloak import rules. */
+function checkSecurityEvidence(root, policy, yaml, findings) {
+  const rule = policy.security;
+  if (rule === undefined) return;
+  const compose = yaml === undefined ? undefined : parseYaml(yaml, readText(root, policy.compose.file) ?? '');
+  if (compose !== undefined) {
+    for (const detail of checkMalwareScan(compose, rule.malwareScan)) findings.push(finding('MALWARE_SCAN', policy.compose.file, detail));
+    const realm = readJson(root, policy.identity.realmFile);
+    if (realm !== undefined) {
+      const environment = new Set(Object.keys(compose.services?.[rule.realmImport.service]?.environment ?? {}));
+      for (const detail of checkRealmImport(realm, { environment })) findings.push(finding('REALM_IMPORT', policy.identity.realmFile, detail));
+    }
+  }
+  const script = readText(root, rule.egress.script);
+  if (script !== undefined) {
+    const subnet = compose?.networks?.[policy.compose.egress.network]?.ipam?.config?.[0]?.subnet;
+    for (const detail of checkEgressScript(script, yaml === undefined ? rule.egress.subnet : subnet)) findings.push(finding('EGRESS_RULES', rule.egress.script, detail));
+  }
+  for (const detail of checkRansomwareCatalogue(root, rule.ransomware)) findings.push(finding('RANSOMWARE_CATALOGUE', rule.ransomware.catalogue, detail));
+}
+
 function checkWorkflows(root, policy, yaml, findings) {
   const workflowsDir = join(root, '.github', 'workflows');
   if (!existsSync(workflowsDir)) return;
@@ -518,5 +544,6 @@ export function checkArtefacts(root, options = {}) {
     for (const entry of checkNativeDeps(root).findings) findings.push(finding('NATIVE_DEPS', 'infra/onprem/native-deps.json', `${entry.code}: ${entry.detail}`));
   }
   checkWorkflows(root, policy, yaml, findings);
+  checkSecurityEvidence(root, policy, yaml, findings);
   return { checked: true, yamlSkipped: yaml === undefined, findings };
 }
