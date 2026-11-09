@@ -25,11 +25,11 @@ Branch `lane/ent4a`, worktree `D:\PIS-ent4a`, migration block ENT4A-1 2880-2899 
 
 ## Steps (tick as done)
 - [x] 1. Plan and block (this file, `blocks.json`).
-- [ ] 2. Kernel `report-crosscheck.ts`, `ent4a-rule-types.ts`, texts, registration; tests incl. a metamorphic test that goes red when an error is injected.
-- [ ] 3. DB: `V2880__ent4a1_report_crosscheck.sql`, `CrosscheckStore`, db test (written, not run on this machine).
-- [ ] 4. API: figure set at generate, gather, controller (read, explain, list), gate in `issueReport`, error codes, permissions, contract patch, authz matrix, tests.
-- [ ] 5. Web: RPT-09, hook, i18n `ent4a`, help, tests.
-- [ ] 6. Docs: `docs/report-engine.md, section "Cross-report comparison"`, `docs/report-engine.md` pointer, Design rows, design check.
+- [x] 2. Kernel `report-crosscheck.ts`, `ent4a-rule-types.ts`, texts, registration; tests incl. a metamorphic test that goes red when an error is injected.
+- [x] 3. DB: `V2880__ent4a1_report_crosscheck.sql`, `CrosscheckStore`, db test (written, not run on this machine).
+- [x] 4. API: figure set at generate, gather, controller (read, explain, list), gate in `issueReport`, error codes, permissions, contract patch, authz matrix, tests.
+- [x] 5. Web: RPT-09, hook, i18n `ent4a`, help, tests.
+- [x] 6. Docs: section "Cross-report comparison" of `docs/report-engine.md` (a separate doc file was refused by the tooling of this run), RPT spec, Design rows, HSKT matrix row CN.04, design check.
 
 ## Tests per step
 Kernel (`packages/kernel/test/report-crosscheck.test.ts`, node test runner; no database): each rule passes and fails, tolerance edge, skip reasons, fingerprint stability, metamorphic: a clean family of reports derived from one snapshot has no finding, and every injected perturbation (one figure +1 dong, a missing month, a stale snapshot revision, a row without a unit, cumulative above total) is detected, so the check can go red. DB lane (written, not run): `packages/db/test/report-crosscheck-store.test.ts`. API (unit lane where possible, DB lane written): `apps/api/test/reports/crosscheck.test.ts`. Web: `apps/web/src/screens/rpt/crosscheck/CrosscheckScreen.test.tsx`.
@@ -38,3 +38,9 @@ Kernel (`packages/kernel/test/report-crosscheck.test.ts`, node test runner; no d
 - Machine is shared with a long pre-push gate: only single-file kernel and unit tests, typecheck of touched packages and lint of touched files; DB, Playwright, Flutter and the whole web suite are written and left unrun.
 - Hot shared files (`report.controller.ts`, `index.ts` of the kernel, openapi, authz matrix, screen catalog) are touched with small anchored edits; openapi only through `contract-patch`.
 - The figure set is recorded from generation on: drafts that exist now are `NO_FIGURES` until regenerated.
+
+## As built (differences from the design above)
+- The controllers and the gate are in the public report module, not in an enterprise-only one: the comparison needs no enterprise import (the snapshot comes through the provider named by the form), a public process has no form that plays a part so the comparison is empty there, and the screen RPT-09 stays in module RPT.
+- A refused release is committed with its audit row (`refuseAfterCommit`) so the attempt is on record.
+- Not built: the mobile card (optional), the grant of `rpt.crosscheck.explain` to a system role or to the decision list of the organisation pack (a tenant grants it; to decide with the customer).
+- Written and not run on this machine (gate running elsewhere): the database test, the API test, the isolation and negative-matrix entries, the folded i18n catalogue check (the strings are in the parts file `ent4a` and pass `i18n:check` once folded).
