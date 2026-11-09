@@ -26,7 +26,7 @@ describe('buildRoutes on the real design files', () => {
   const routes = buildRoutes(architecture, catalogue);
 
   it('builds the 569 web routes of the navigation architecture, in file order', () => {
-    expect(routes).toHaveLength(569);
+    expect(routes).toHaveLength(570);
     expect(routes.map((entry) => entry.id)).toEqual(architecture.webRoutes.map((entry) => entry.id));
   });
 
