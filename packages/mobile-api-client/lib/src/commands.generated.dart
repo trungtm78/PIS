@@ -1768,6 +1768,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getReportWorkflow({required String id, Map<String, Object?>? query}) =>
       execute('getReportWorkflow', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getReportingCalendar({Map<String, Object?>? query}) =>
+      execute('getReportingCalendar', query: query);
+
+  Future<Object?> getReportingCalendarBoard({required String id, Map<String, Object?>? query}) =>
+      execute('getReportingCalendarBoard', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getRiskSignalBoard({Map<String, Object?>? query}) =>
       execute('getRiskSignalBoard', query: query);
 

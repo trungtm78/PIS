@@ -58250,6 +58250,225 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-NOT-007",
+      "epic": "EP-NOT",
+      "feature": "FT-NOT-04",
+      "module": "NOT",
+      "title": "[MOBILE: PUSH-ADAPTER] FCM and APNs push adapter with lock-screen safety and silent entitlement push",
+      "narrative": "As a mobile user I receive push messages that never show confidential data on the lock screen, and my app refreshes its entitlements through a silent push when they change.",
+      "release": "R1",
+      "screens": [],
+      "operations": [],
+      "tables": [],
+      "nfr": [
+        "NFR-PRIVACY-02",
+        "NFR-AVAILABILITY-04",
+        "NFR-LEGAL-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-NOT-007-1",
+          "given": "a device token reported UNREGISTERED by the provider",
+          "when": "a push is sent",
+          "then": "the failure is PERMANENT and the device is revoked",
+          "test_id": "UAT-AC179"
+        },
+        {
+          "id": "AC-ST-NOT-007-2",
+          "given": "a push for a confidential record",
+          "when": "sent through the mock FCM and APNs adapters",
+          "then": "the payload holds only a neutral sentence and an opaque deep link, never an amount or name",
+          "test_id": "UAT-AC28"
+        },
+        {
+          "id": "AC-ST-NOT-007-3",
+          "given": "a push accepted or delivered by the provider",
+          "when": "the inbox is inspected",
+          "then": "the notification is not marked read and the deep link discloses nothing",
+          "test_id": "NOT02"
+        },
+        {
+          "id": "AC-ST-NOT-007-4",
+          "given": "the push device screen",
+          "when": "opened after a permanent failure",
+          "then": "the device shows as revoked with the reason; the seven UI states render and the screen contract checks of UI-NOT-14 report 0 failures",
+          "test_id": "UI-NOT-14"
+        }
+      ],
+      "dependencies": [
+        "ST-NOT-006",
+        "ST-NOT-005",
+        "ST-SAS-002"
+      ],
+      "review": {
+        "required": [
+          "privacy"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 48
+        },
+        "confidence": "medium",
+        "assumption": "FCM and APNs adapters follow the public provider documentation and are VERIFIED only after a sandbox spike; silent push for sas.entitlement.changed.v1 depends on the entitlement foundation."
+      },
+      "mobile": "flutter-screen",
+      "tasks": [
+        {
+          "id": "TK-NOT-007-1",
+          "kind": "backend",
+          "title": "FcmPort and ApnsPort adapters with error classification (RETRYABLE/PERMANENT), token revocation and delivery receipts",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-007-2",
+          "kind": "backend",
+          "title": "Silent data message on entitlement change and iam.access.changed so the app refetches /me/entitlements",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-007-3",
+          "kind": "mobile",
+          "title": "Flutter handlers for notification tap deep links (opaque id, permission re-check) and silent data refresh",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-007-4",
+          "kind": "qa",
+          "title": "Adapter contract tests with provider mocks including token and quota errors",
+          "test_ids": [
+            "UAT-AC179",
+            "UAT-AC28",
+            "NOT02",
+            "UI-NOT-14"
+          ]
+        },
+        {
+          "id": "TK-NOT-007-5",
+          "kind": "qa",
+          "title": "Automate and run acceptance tests UAT-AC179, UAT-AC28, NOT02, UI-NOT-14 in CI with evidence",
+          "test_ids": [
+            "UAT-AC179",
+            "UAT-AC28",
+            "NOT02",
+            "UI-NOT-14"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DIS-028",
+      "epic": "EP-DIS",
+      "feature": "FT-DIS-10",
+      "module": "DIS",
+      "title": "Configurable reporting calendar with a deadline per step, the status board by input point, and reminders by e-mail and Teams",
+      "narrative": "As the planning board I can set the calendar of the month, quarter, year and steering-meeting periods with a deadline for each step, see where every input point stands, and have people reminded and the unit leader told when a step is late.",
+      "release": "R2",
+      "screens": [
+        "DIS-32",
+        "ADM-29"
+      ],
+      "operations": [
+        "getReportingCalendar",
+        "getReportingCalendarBoard"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-DIS-028-1",
+          "given": "A tenant on the built-in schedule and one that approved a new version of the rule",
+          "when": "periods of a month, a quarter and a year are generated and the calendar is read",
+          "then": "the entry deadline of a generated period is the one of the rule in force on the day it was generated and never changes afterwards; the deadlines of the other steps follow the rule in force; a step with no fact is shown as not tracked, never as open or done",
+          "test_id": "UAT-DIS-ENT4C-1"
+        },
+        {
+          "id": "AC-ST-DIS-028-2",
+          "given": "A step that is not finished, before and after its deadline",
+          "when": "the job calendar-reminder runs, once or twice",
+          "then": "one reminder of each kind is recorded and sent as an event per series, the leader of the unit is told once when the step is days overdue, and a finished step is never reminded",
+          "test_id": "UAT-DIS-ENT4C-2"
+        },
+        {
+          "id": "AC-ST-DIS-028-3",
+          "given": "DIS-32 and ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message, and a default nobody confirmed says so",
+          "test_id": "UAT-DIS-ENT4C-3"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 50
+        },
+        "confidence": "low",
+        "assumption": "The deadlines are default rules flagged not confirmed (D03) until the tenant approves its own; nothing is hard-coded."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DIS-028-1",
+          "kind": "backend",
+          "title": "Kernel schedule rule, store, migration, job and API behind DIS-32, ADM-29",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-028-2",
+          "kind": "web",
+          "title": "DIS-32, ADM-29 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-028-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DIS-32, ADM-29",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-028-4",
+          "kind": "qa",
+          "title": "Kernel, store, API and adapter tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-DIS-ENT4C-1",
+            "UAT-DIS-ENT4C-2"
+          ]
+        },
+        {
+          "id": "TK-DIS-028-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-DIS-32",
+            "UI-ADM-29"
+          ]
+        }
+      ]
     }
   ]
 }

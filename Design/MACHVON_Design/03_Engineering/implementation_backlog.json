@@ -22553,5 +22553,56 @@
     "stories": [
       "ST-ORG-001"
     ]
+  },
+  {
+    "id": "BL-DIS-32",
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,ADM,HOME",
+    "fields": [
+      "Năm và loại kỳ",
+      "Hạn từng bước",
+      "Trạng thái từng đầu mối theo bước",
+      "Dự án đã nhập và đã duyệt",
+      "Các lần nhắc đã gửi"
+    ],
+    "rule": "Hạn của từng bước lấy từ quy tắc quản trị REPORTING_SCHEDULE đang hiệu lực; kỳ đã sinh giữ hạn nhập liệu lúc sinh; bước chưa có dữ kiện hiển thị là CHƯA THEO DÕI, không hiển thị là xong hay mở.",
+    "test_ids": [
+      "UI-DIS-32"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
+  },
+  {
+    "id": "BL-ADM-29",
+    "requirement": "FR-ADM-29",
+    "screen": "ADM-29",
+    "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,ADM,HOME",
+    "fields": [
+      "Loại kỳ",
+      "Số ngày và giờ hạn của từng bước",
+      "Mốc nhắc và báo lãnh đạo",
+      "Phiên bản và nhãn chưa xác nhận"
+    ],
+    "rule": "Đề xuất, trình và duyệt phiên bản mới bằng kho quy tắc quản trị (người duyệt khác người đề xuất); màn chỉ hiển thị phiên bản đang hiệu lực.",
+    "test_ids": [
+      "UI-ADM-29"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả trong 05_modules, màn trong screen_catalog, thao tác trong openapi."
   }
 ]

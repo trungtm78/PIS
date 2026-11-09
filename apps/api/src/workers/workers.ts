@@ -93,6 +93,7 @@ import {
   applyBaseline,
   registeredTenantIds,
   sharedMockEInvoiceProvider,
+  runCalendarReminders,
   standardJobs,
 } from '@machvon/db';
 import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, PlacementMover, ReorganizationProjectPort, TenantDatabase, TenantRestoreEngine } from '@machvon/db';
@@ -387,6 +388,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
           settlementClocks.sync(tx, ctx.membershipId, audit, async (event) => void (await enqueueSettlementClockEvent(tx, { aggregateType: 'contract_settlement_clock', aggregateVersion: 1, schemaVersion: 1, ...event })), now),
         ),
     },
+    calendarReminder: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => runCalendarReminders(tx, ctx.tenantId, now, (name, labels) => deps.metrics?.increment(name, labels))) },
     accessCache: deps.accessCache,
   });
 

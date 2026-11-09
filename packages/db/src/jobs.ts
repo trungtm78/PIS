@@ -185,6 +185,8 @@ export const JOB_INTERVAL_SECONDS = {
   'alert-coverage': 900,
   // Hourly: the clock of the settlement file of a completed contract is started and the clock of a contract whose file was handed in is ended (G1-18); the state near or overdue is read from the day, not stored.
   'contract-settlement-clock': 3600,
+  // Every 15 minutes: the reminders of the steps of the reporting schedule (QT.02): before a deadline, after it, and the escalation to the leader of the unit; each is recorded once with its event (ENT-4c).
+  'calendar-reminder': 900,
   'access-cache-expiry': 60,
 } as const;
 
@@ -390,6 +392,8 @@ export interface StandardJobDeps {
   audRecoveryReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reminds the settlements whose verification deadline is near and reports the ones that are past it, once each (ST-PAY-009); sets the gauge of the late ones. */
   contractSettlementClock?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The reminders of the steps of the reporting schedule (QT.02): records each reminder that is due with its event, once. */
+  calendarReminder?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Alerts the advances that are owed and not recovered in time, each level once, asks ISS for one issue and escalates it a week later (ST-PAY-011); sets the gauge of the overdue ones. */
   advanceOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
@@ -1402,6 +1406,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await settlementClocks.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const calendarReminder = deps.calendarReminder;
+  if (calendarReminder !== undefined) {
+    handlers.push({
+      name: 'calendar-reminder',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await calendarReminder.run(workerContext(tenantId), now)));
       },
     });
   }

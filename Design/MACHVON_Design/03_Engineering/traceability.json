@@ -12554,5 +12554,35 @@
       "UAT-PLAN-ORG-1",
       "UAT-PLAN-ORG-2"
     ]
+  },
+  {
+    "requirement": "FR-DIS-32",
+    "screen": "DIS-32",
+    "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 QT.02; docs/plans/ent4c.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-32",
+    "test_ids": [
+      "UI-DIS-32"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-29",
+    "screen": "ADM-29",
+    "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 QT.02; docs/plans/ent4c.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-29",
+    "test_ids": [
+      "UI-ADM-29"
+    ]
   }
 ]

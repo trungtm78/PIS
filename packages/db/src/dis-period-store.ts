@@ -31,8 +31,8 @@ export const DIS_PERIOD_TRANSITION_METRIC = 'dis_period_transition_total';
 
 export const PERIOD_TYPES = ['WEEK', 'MONTH', 'QUARTER', 'HALF_YEAR', 'YEAR'] as const;
 export type PeriodType = (typeof PERIOD_TYPES)[number];
-/** The types the reporting calendar can produce: it counts weeks; the other types wait for a rule of the business owner. */
-const GENERATED_TYPES: ReadonlySet<PeriodType> = new Set(['WEEK', 'MONTH']);
+/** The types the reporting calendar can produce: weeks by the calendar, and months, quarters and years by the schedule rule (QT.02); the half-year waits for a rule of the business owner. */
+const GENERATED_TYPES: ReadonlySet<PeriodType> = new Set(['WEEK', 'MONTH', 'QUARTER', 'YEAR']);
 export type PeriodStatus = 'OPEN' | 'SOFT_CLOSED' | 'LOCKED';
 
 export interface PeriodRow {
@@ -363,7 +363,7 @@ export class DisPeriodStore {
     if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const reopen = period.status === 'LOCKED' ? await this.openWindow(tx, periodId, projectId, at) : null;
     if (period.status === 'LOCKED' && reopen === null) throw new DomainError('PERIOD_LOCKED', 409);
-    const bound = { calendarVersionId: period.calendarVersionId, startsOn: period.startDate, periodType: period.periodType };
+    const bound = { calendarVersionId: period.calendarVersionId, startsOn: period.startDate, periodType: period.periodType, deadlineAt: period.deadlineAt };
     const deadlineAt = await this.rules.boundDeadline(tx, bound);
     return { period, late: await this.rules.isLate(tx, bound, at), deadlineAt, reopen };
   }

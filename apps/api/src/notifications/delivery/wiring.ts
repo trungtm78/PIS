@@ -8,8 +8,10 @@ import { PushChannelAdapter } from '../push/push-adapter';
 import { MockPushProvider } from '../push/ports';
 import { webPushDevelopmentAdapter, webPushProductionAdapters } from '../push/web-push-wiring';
 import { ChannelAdapterRegistry, inMemoryEmailAdapter } from './channel-adapters';
+import { smtpAdapterFromEnv } from './smtp-adapter';
 import { SmsHoursAdapter } from './sms-adapter';
 import { FileTeamsCardSink, TeamsOutboxChannelAdapter } from './teams-adapter';
+import { teamsWebhookAdapterFromEnv } from './teams-webhook-adapter';
 import type { WebhookPayloadStore } from './webhook-support';
 
 /**
@@ -20,13 +22,22 @@ import type { WebhookPayloadStore } from './webhook-support';
 export function defaultChannelAdapters(environment: string | undefined, variables: Readonly<Record<string, string | undefined>> = process.env): ChannelAdapterRegistry {
   // The Teams channel (WF-1) hands its cards to an outbox directory a relay of the operator reads: it exists only where the directory is named, and where real data lives it is PROPOSED (never sends) until the relay is contracted.
   const teamsDirectory = variables[TEAMS_OUTBOX_VARIABLE];
-  const teams = teamsDirectory === undefined || teamsDirectory === '' ? [] : [new TeamsOutboxChannelAdapter(new FileTeamsCardSink(teamsDirectory), isProductionEnvironment(environment) ? 'PROPOSED' : 'MOCK')];
+  // A webhook of Teams (ENT-4c) posts the card itself and takes the channel when it is configured; the outbox stays for an operator who runs a relay.
+  const webhook = teamsWebhookAdapterFromEnv(variables, environment);
+  const teams = webhook !== undefined ? [webhook] : teamsDirectory === undefined || teamsDirectory === '' ? [] : [new TeamsOutboxChannelAdapter(new FileTeamsCardSink(teamsDirectory), isProductionEnvironment(environment) ? 'PROPOSED' : 'MOCK')];
+  // The e-mail channel (ENT-4c): a real SMTP relay when one is configured; where real data lives it is PROPOSED (never sends) until the operator attests that the relay was verified. Without one, outside production, the in-memory stand-in.
+  const smtp = smtpAdapterFromEnv(variables, environment);
+  const email = smtp === undefined ? [] : [smtp];
   return new ChannelAdapterRegistry(
     isProductionEnvironment(environment)
+<<<<<<< HEAD
       ? [...teams, ...webPushProductionAdapters(variables)]
+=======
+      ? [...teams, ...email]
+>>>>>>> lane/ent4c
       : [
           ...teams,
-          inMemoryEmailAdapter(),
+          ...(smtp === undefined ? [inMemoryEmailAdapter()] : email),
           // PUSH_FCM serves Android and the web: a token that is a web subscription (the installed manager application, YCK.01) goes to the web provider, which is the
           // stand-in until the VAPID keys are configured; every other token to the native one.
           webPushDevelopmentAdapter(variables),

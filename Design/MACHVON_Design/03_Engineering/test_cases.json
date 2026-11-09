@@ -25918,5 +25918,91 @@
     "covers": [
       "FR-ADM-ENT3D"
     ]
+  },
+  {
+    "id": "UI-DIS-32",
+    "source": "FR-DIS-32",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối; user có quyền và user không có quyền; route DIS-32",
+    "steps": [
+      "Mở DIS-32 từ menu và liên kết sâu; kiểm nhãn trường: Năm và loại kỳ, Hạn từng bước, Trạng thái từng đầu mối theo bước, Dự án đã nhập và đã duyệt, Các lần nhắc đã gửi",
+      "Thực hiện thao tác chính theo quy tắc: Hạn của từng bước lấy từ quy tắc REPORTING_SCHEDULE đang hiệu lực; bước chưa có dữ kiện là CHƯA THEO DÕI",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và nhãn \"mặc định, chưa kiểm chứng\" trên DIS-32"
+    ],
+    "expected": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối: hiển thị đủ các trường, áp quy tắc \"Hạn của từng bước lấy từ quy tắc REPORTING_SCHEDULE đang hiệu lực; bước chưa có dữ kiện là CHƯA THEO DÕI\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UI-ADM-29",
+    "source": "FR-ADM-29",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hạn từng bước của lịch kỳ báo cáo; user có quyền và user không có quyền; route ADM-29",
+    "steps": [
+      "Mở ADM-29 từ menu và liên kết sâu; kiểm nhãn trường: Loại kỳ, Số ngày và giờ hạn của từng bước, Mốc nhắc và báo lãnh đạo, Phiên bản và nhãn chưa xác nhận",
+      "Thực hiện thao tác chính theo quy tắc: Hiển thị phiên bản đang hiệu lực của quy tắc REPORTING_SCHEDULE; đề xuất phiên bản mới trong kho quy tắc",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và nhãn \"mặc định, chưa kiểm chứng\" trên ADM-29"
+    ],
+    "expected": "Hạn từng bước của lịch kỳ báo cáo: hiển thị đủ các trường, áp quy tắc \"Hiển thị phiên bản đang hiệu lực của quy tắc REPORTING_SCHEDULE; đề xuất phiên bản mới trong kho quy tắc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-29"
+    ]
+  },
+  {
+    "id": "UAT-DIS-ENT4C-1",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A tenant on the built-in schedule and one that approved a new version of the rule",
+    "steps": [
+      "Periods of a month, a quarter and a year are generated and the calendar is read"
+    ],
+    "expected": "The entry deadline of a generated period is the one of the rule in force on the day it was generated and never changes afterwards; the other steps follow the rule in force; a step with no fact is shown as not tracked",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32",
+      "FR-ADM-29"
+    ]
+  },
+  {
+    "id": "UAT-DIS-ENT4C-2",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A step that is not finished, before and after its deadline",
+    "steps": [
+      "The job calendar-reminder runs, once or twice"
+    ],
+    "expected": "One reminder of each kind is recorded and sent as an event per series, the leader of the unit is told once when the step is days overdue, and a finished step is never reminded",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-DIS-ENT4C-3",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "DIS-32 and ADM-29 opened at 1440 px and 390 px by a reader with the read permission and one without",
+    "steps": [
+      "Each of the seven standard states is forced in turn"
+    ],
+    "expected": "Loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32",
+      "FR-ADM-29"
+    ]
   }
 ]

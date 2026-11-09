@@ -87,35 +87,93 @@ export function reportingPeriods(calendar: CalendarDefinition, year: number): Re
 export const isLate = (period: Pick<ReportingPeriod, 'deadlineAt'>, at: Date): boolean => at.getTime() > Date.parse(period.deadlineAt);
 
 /**
- * The monthly period (ST-DIS-015, an assumption of the first release until the business owner signs the deadline, D03): a calendar month, due on the 5th of the next month at the deadline time of
- * the calendar, in its time zone. The calendar definition holds the weekly rule only; the monthly one is a constant until it is data.
+ * The monthly period (ST-DIS-015): a calendar month, due `entryOffsetDays` after its last day (the 5th of the next month by default) at the deadline time of the calendar, in its time zone. The offset is the entry
+ * step of the governance rule `REPORTING_SCHEDULE` (QT.02, ENT-4c): this constant is only the built-in default of that rule and what a caller that reads no rule gets.
  */
 export const MONTHLY_DEADLINE_DAY = 5;
+/** The built-in entry offsets of the quarter and the year (assumptions of the first release until the business owner signs them; the rule `REPORTING_SCHEDULE` carries the tenant's own). */
+export const QUARTERLY_DEADLINE_OFFSET_DAYS = 10;
+export const YEARLY_DEADLINE_OFFSET_DAYS = 20;
 
-function monthPeriod(calendar: CalendarDefinition, year: number, month: number): ReportingPeriod {
-  const first = Math.floor(Date.UTC(year, month - 1, 1) / DAY_MS);
-  const last = Math.floor(Date.UTC(year, month, 1) / DAY_MS) - 1;
+/** A period of any length ending on `endDay`, due `offsetDays` after it at the deadline time of the calendar. */
+function periodEndingOn(calendar: CalendarDefinition, code: string, year: number, number: number, firstDay: number, endDay: number, offsetDays: number): ReportingPeriod {
   const [hours, minutes] = calendar.deadlineTime.split(':').map(Number) as [number, number];
   const zone = CALENDAR_TIMEZONES[calendar.timezone] as number;
-  const deadline = new Date(Date.UTC(year, month, MONTHLY_DEADLINE_DAY) + (hours * 60 + minutes - zone) * 60_000);
-  return { code: `M${year}-${pad(month)}`, year, number: month, startsOn: isoOf(first), endsOn: isoOf(last), deadlineAt: deadline.toISOString() };
+  const deadline = new Date((endDay + offsetDays) * DAY_MS + (hours * 60 + minutes - zone) * 60_000);
+  return { code, year, number, startsOn: isoOf(firstDay), endsOn: isoOf(endDay), deadlineAt: deadline.toISOString() };
+}
+
+const assertYear = (year: number): void => {
+  if (!Number.isInteger(year) || year < 1970 || year > 9999) throw new DomainError('VALIDATION_FAILED', 422, 'year');
+};
+const assertOffset = (offsetDays: number): void => {
+  if (!Number.isInteger(offsetDays) || offsetDays < 0 || offsetDays > 366) throw new DomainError('VALIDATION_FAILED', 422, 'offset_days');
+};
+const monthStart = (year: number, month: number): number => Math.floor(Date.UTC(year, month - 1, 1) / DAY_MS);
+
+function monthPeriod(calendar: CalendarDefinition, year: number, month: number, offsetDays: number): ReportingPeriod {
+  return periodEndingOn(calendar, `M${year}-${pad(month)}`, year, month, monthStart(year, month), monthStart(year, month + 1) - 1, offsetDays);
 }
 
 /** The twelve monthly periods of a year, in order, with no gap and no overlap. */
-export function monthlyPeriods(calendar: CalendarDefinition, year: number): ReportingPeriod[] {
+export function monthlyPeriods(calendar: CalendarDefinition, year: number, entryOffsetDays: number = MONTHLY_DEADLINE_DAY): ReportingPeriod[] {
   assertCalendar(calendar);
-  if (!Number.isInteger(year) || year < 1970 || year > 9999) throw new DomainError('VALIDATION_FAILED', 422, 'year');
-  return Array.from({ length: 12 }, (_, n) => monthPeriod(calendar, year, n + 1));
+  assertYear(year);
+  assertOffset(entryOffsetDays);
+  return Array.from({ length: 12 }, (_, n) => monthPeriod(calendar, year, n + 1, entryOffsetDays));
 }
 
 /** The monthly period that contains a business date (`YYYY-MM-DD`). */
-export function monthlyPeriodOf(calendar: CalendarDefinition, date: string): ReportingPeriod {
+export function monthlyPeriodOf(calendar: CalendarDefinition, date: string, entryOffsetDays: number = MONTHLY_DEADLINE_DAY): ReportingPeriod {
   assertCalendar(calendar);
+  assertOffset(entryOffsetDays);
   const [year, month] = date.split('-').map(Number) as [number, number];
-  return monthPeriod(calendar, year, month);
+  return monthPeriod(calendar, year, month, entryOffsetDays);
 }
 
-/** The period of a type that contains a date: the deadline of a period is judged by its type. */
-export function periodOfType(calendar: CalendarDefinition, periodType: string, date: string): ReportingPeriod {
-  return periodType === 'MONTH' ? monthlyPeriodOf(calendar, date) : periodOf(calendar, date);
+function quarterPeriod(calendar: CalendarDefinition, year: number, quarter: number, offsetDays: number): ReportingPeriod {
+  return periodEndingOn(calendar, `Q${year}-${quarter}`, year, quarter, monthStart(year, quarter * 3 - 2), monthStart(year, quarter * 3 + 1) - 1, offsetDays);
+}
+
+/** The four quarterly periods of a year (`Q2027-1` to `Q2027-4`), in order, with no gap and no overlap. */
+export function quarterlyPeriods(calendar: CalendarDefinition, year: number, entryOffsetDays: number = QUARTERLY_DEADLINE_OFFSET_DAYS): ReportingPeriod[] {
+  assertCalendar(calendar);
+  assertYear(year);
+  assertOffset(entryOffsetDays);
+  return [1, 2, 3, 4].map((quarter) => quarterPeriod(calendar, year, quarter, entryOffsetDays));
+}
+
+/** The quarterly period that contains a business date. */
+export function quarterlyPeriodOf(calendar: CalendarDefinition, date: string, entryOffsetDays: number = QUARTERLY_DEADLINE_OFFSET_DAYS): ReportingPeriod {
+  assertCalendar(calendar);
+  assertOffset(entryOffsetDays);
+  const [year, month] = date.split('-').map(Number) as [number, number];
+  return quarterPeriod(calendar, year, Math.floor((month - 1) / 3) + 1, entryOffsetDays);
+}
+
+function yearPeriod(calendar: CalendarDefinition, year: number, offsetDays: number): ReportingPeriod {
+  return periodEndingOn(calendar, `Y${year}`, year, 1, monthStart(year, 1), monthStart(year + 1, 1) - 1, offsetDays);
+}
+
+/** The yearly period of a year (`Y2027`): one, the calendar year. */
+export function yearlyPeriods(calendar: CalendarDefinition, year: number, entryOffsetDays: number = YEARLY_DEADLINE_OFFSET_DAYS): ReportingPeriod[] {
+  assertCalendar(calendar);
+  assertYear(year);
+  assertOffset(entryOffsetDays);
+  return [yearPeriod(calendar, year, entryOffsetDays)];
+}
+
+/** The yearly period that contains a business date. */
+export function yearlyPeriodOf(calendar: CalendarDefinition, date: string, entryOffsetDays: number = YEARLY_DEADLINE_OFFSET_DAYS): ReportingPeriod {
+  assertCalendar(calendar);
+  assertOffset(entryOffsetDays);
+  return yearPeriod(calendar, Number(date.slice(0, 4)), entryOffsetDays);
+}
+
+/** The period of a type that contains a date: the deadline of a period is judged by its type. `entryOffsetDays` is the entry step of the schedule rule of the type, when the caller read one. */
+export function periodOfType(calendar: CalendarDefinition, periodType: string, date: string, entryOffsetDays?: number): ReportingPeriod {
+  if (periodType === 'MONTH') return monthlyPeriodOf(calendar, date, entryOffsetDays);
+  if (periodType === 'QUARTER') return quarterlyPeriodOf(calendar, date, entryOffsetDays);
+  if (periodType === 'YEAR') return yearlyPeriodOf(calendar, date, entryOffsetDays);
+  return periodOf(calendar, date);
 }

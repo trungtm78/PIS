@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
@@ -14,6 +15,7 @@ import { PwaBackLink } from './PwaBackLink';
 import './pwa.css';
 
 const START_PATH = '/m';
+const DIRECTIVE_PATH = '/m/directives';
 
 type T = Translator['t'];
 
@@ -129,6 +131,11 @@ function DirectivesContent() {
                 ))}
               </ul>
             )}
+            {reading.hasMore === true && reading.loadMore !== undefined ? (
+              <button type="button" className="ui-button ui-button--outline pwa-touch" data-testid="more" disabled={reading.loadingMore === true} onClick={reading.loadMore}>
+                {t('pwa.directives.more.action')}
+              </button>
+            ) : null}
           </>
         ) : null}
       </StateBoundary>
@@ -155,7 +162,9 @@ function DirectiveCard({ item, today }: { item: DirectiveItem; today: string }) 
         </dd>
         <dt>{t('pwa.directives.field.progress')}</dt>
         <dd>
-          {item.progressPercent === null ? (
+          {item.progressKnown === false ? (
+            <span data-testid="progress-detail">{t('pwa.directives.progress.inDetail')}</span>
+          ) : item.progressPercent === null ? (
             <span data-testid="progress-none">{t('pwa.directives.progress.none')}</span>
           ) : (
             <span className="pwa-progress">
@@ -171,6 +180,9 @@ function DirectiveCard({ item, today }: { item: DirectiveItem; today: string }) 
           </>
         )}
       </dl>
+      <Link to={`${DIRECTIVE_PATH}/${item.id}`} className="ui-button ui-button--outline pwa-touch" data-testid="open-detail">
+        {t('pwa.directives.detail.open')}
+      </Link>
     </li>
   );
 }

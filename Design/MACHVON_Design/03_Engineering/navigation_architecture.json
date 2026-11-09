@@ -3159,7 +3159,9 @@
         "AUD-19",
         "DOC-28",
         "DOC-29",
-        "QMS-12"
+        "QMS-12",
+        "ADM-29",
+        "DIS-32"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -6059,6 +6061,16 @@
       "parent": null
     },
     {
+      "id": "ADM-29",
+      "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
       "id": "SAS-01",
       "title": "Danh sách tenant",
       "kind": "list",
@@ -8371,6 +8383,16 @@
     {
       "id": "DIS-31",
       "title": "Độ chính xác dự báo giải ngân của từng chủ đầu tư",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-32",
+      "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
       "kind": "table",
       "area": "investment",
       "module": "DIS",

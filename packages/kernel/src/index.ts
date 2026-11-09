@@ -217,7 +217,7 @@ export { VND_SCALE, creditAmount, debitAmount, entriesInForce, netOfEntries, ord
 export type { LedgerEntry, LockTarget } from './money-ledger.ts';
 export { assertOneWinner, outcomeLabel, outcomeOfError, runConcurrently, runLoops, succeeded, tallyOutcomes } from './concurrency-harness.ts';
 export type { CommandOutcome, LoopOptions, LoopRound } from './concurrency-harness.ts';
-export { CALENDAR_TIMEZONES, MONTHLY_DEADLINE_DAY, WEEKDAYS, assertCalendar, isLate, monthlyPeriodOf, monthlyPeriods, periodOf, periodOfType, reportingPeriods } from './reporting-calendar.ts';
+export { CALENDAR_TIMEZONES, MONTHLY_DEADLINE_DAY, QUARTERLY_DEADLINE_OFFSET_DAYS, WEEKDAYS, YEARLY_DEADLINE_OFFSET_DAYS, assertCalendar, isLate, monthlyPeriodOf, monthlyPeriods, periodOf, periodOfType, quarterlyPeriodOf, quarterlyPeriods, reportingPeriods, yearlyPeriodOf, yearlyPeriods } from './reporting-calendar.ts';
 export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-calendar.ts';
 export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
 export { assertRuleVersions, resolveRule, ruleOfRevision } from './rule-resolver.ts';
@@ -3260,5 +3260,12 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
+<<<<<<< HEAD
 export { ADMIN_MIN_HOLDERS, DECISION_PERMISSIONS, GROUP_SUFFIX, ORG_PACK_COLUMNS, ORG_PACK_ENTITY, ORG_PACK_MAPPING, ORG_PACK_MAPPING_VERSION, ORG_PACK_ROW_KINDS, PLANNING_MIN_HOLDERS, ROLE_KINDS, SEAT_SCOPES, UNIT_FUNCTIONS, directoryGroupOf, directoryMappings, doaKey, doaRuleContent, entryKey, judgeOrgPack, judgeOrgPackRows, orgPackCsv, orgPackDigest, orgPackOfRows, orgPackRows, planOrgPack, policyKey, roleKey, seatKey, seatReports, stepKey, unitKey, verifyOrgPack, workflowRuleParams } from './org-pack.ts';
 export type { OrgPack, OrgPackRowKind, OrgPackState, OrgPackVerification, PackAbsence, PackDefect, PackDelegation, PackDoa, PackEntry, PackRole, PackRow, PackSeat, PackStep, PackUnit, PlanAction, PlanItem, PlanSection, RoleKind, SeatReport, SeatScope, SeatState, UnitFunction } from './org-pack.ts';
+=======
+export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_ESCALATION_EVENT, CALENDAR_REMINDER_EVENT, SCHEDULE_DUE_SOON_DAYS, REMINDER_ALERT_TYPES, SCHEDULE_REMINDER_KINDS, SCHEDULE_CODES, SCHEDULE_RULE_TYPE, SCHEDULE_STEP_KINDS, SCHEDULE_STEP_STATES, daysOverdue, entryDeadline, entryOffsetOf, isScheduleCode, meetingPeriod, reminderDue, localTimeOf, reminderEventOf, scheduleCodeOf, scheduleDefaults, scheduleDefect, schedulePeriods, schedulePolicyOf, stepDeadlines, scheduleStepState } from './reporting-schedule.ts';
+export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
+export { buildBoard } from './reporting-board.ts';
+export type { PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
+>>>>>>> lane/ent4c

@@ -588,6 +588,8 @@ export const OPERATIONS = {
   "getReportRevision": { method: "get", path: "/reports/{id}", versioned: false, stepUp: null, permission: "report.read" },
   "getReportSignature": { method: "get", path: "/report-engine/issues/{id}/signature", versioned: false, stepUp: null, permission: "rpt.read" },
   "getReportWorkflow": { method: "get", path: "/reports/{id}/workflow", versioned: false, stepUp: null, permission: "report.read" },
+  "getReportingCalendar": { method: "get", path: "/reporting-calendar", versioned: false, stepUp: null, permission: "report.read" },
+  "getReportingCalendarBoard": { method: "get", path: "/reporting-calendar/periods/{id}/board", versioned: false, stepUp: null, permission: "report.read" },
   "getRiskSignalBoard": { method: "get", path: "/risk-signals/board", versioned: false, stepUp: null, permission: "project.read" },
   "getSitePhotoChecks": { method: "get", path: "/site-photos/{id}/checks", versioned: false, stepUp: null, permission: "photo.read" },
   "getSnoozedWork": { method: "get", path: "/home/work-actions/snoozed", versioned: false, stepUp: null, permission: "home.read" },
