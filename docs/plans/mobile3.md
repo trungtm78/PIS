@@ -20,8 +20,8 @@ Branch `lane/mobile3`, worktree `D:\PIS-mobile3`. Owner rule 2026-11-08: decide 
 | 3 | Secure screens MOB-65, 72, 73, 74 and not-filmed ledger | `test/hardening/secure_window_test.dart`, `scripts/hdsd` node tests | [x] |
 | 4 | Alert routing for payment, contract, issue, permit, audit, report, diary, claim sources | `test/features/dashboard/alert_routing_test.dart` | [x] |
 | 5 | Push adapter, permission flow, token refresh, revoke, payload deep link, receipt port | `test/features/notification_inbox/push_adapter_test.dart` | [x] |
-| 6 | MOB-75 delegations and absences, MOB-76 KPI register, MOB-77 report catalogue | `test/features/governance_reads` | [ ] |
-| 7 | Enterprise home cards | `test/editions/enterprise_home_test.dart` | [ ] |
+| 6 | MOB-75 delegations and absences, MOB-76 KPI register, MOB-77 report catalogue | `test/features/governance_reads` | [x] |
+| 7 | Enterprise home cards | `test/editions/enterprise_home_enterprise_test.dart` | [x] |
 | 8 | Design rows, hdsd ledger, routes regenerated, shared suites entries | `check-cli`, `baseline-cli`, `generate_routes --check` | [ ] |
 | 9 | `flutter analyze`, tests of the touched directories, independent review, merge main | | [ ] |
 
