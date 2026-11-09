@@ -1,0 +1,806 @@
+{
+  "steps": [
+    {
+      "command": "add-schema",
+      "name": "LeaderRateRow",
+      "schema": {
+        "type": "object",
+        "required": [
+          "level",
+          "projects",
+          "plan_vnd",
+          "rate_pct",
+          "null_reason",
+          "last_year",
+          "delta_points",
+          "trend"
+        ],
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "COMPANY",
+              "UNIT",
+              "PROJECT"
+            ]
+          },
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projects": {
+            "type": "integer"
+          },
+          "plan_vnd": {
+            "type": "string",
+            "description": "Annual plan in force, whole dong"
+          },
+          "disbursed_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rate_pct": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Percent with four places"
+          },
+          "null_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_year": {
+            "type": "object",
+            "required": [
+              "rate_pct",
+              "disbursed_vnd",
+              "null_reason"
+            ],
+            "properties": {
+              "rate_pct": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "disbursed_vnd": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "null_reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "delta_points": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "This rate minus last year's, in percentage points"
+          },
+          "trend": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "UP",
+              "DOWN",
+              "FLAT",
+              null
+            ]
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "LeaderRates",
+      "schema": {
+        "type": "object",
+        "required": [
+          "snapshot_id",
+          "as_of_date",
+          "company",
+          "units",
+          "projects",
+          "as_of"
+        ],
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "snapshot_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "prior_snapshot_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "prior_as_of_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "definition_status": {
+            "type": "string"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "company": {
+            "$ref": "#/components/schemas/LeaderRateRow"
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderRateRow"
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderRateRow"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "LeaderBlockedProject",
+      "schema": {
+        "type": "object",
+        "required": [
+          "project_id",
+          "project_code",
+          "sources",
+          "items",
+          "since",
+          "days"
+        ],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project_code": {
+            "type": "string"
+          },
+          "project_name": {
+            "type": "string"
+          },
+          "unit_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "unit_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PERMIT",
+                "ISSUE",
+                "LAND",
+                "PROCUREMENT"
+              ]
+            }
+          },
+          "items": {
+            "type": "integer"
+          },
+          "since": {
+            "type": "string",
+            "format": "date"
+          },
+          "days": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "LeaderBlockedProjects",
+      "schema": {
+        "type": "object",
+        "required": [
+          "as_of_date",
+          "total",
+          "by_source",
+          "projects",
+          "truncated",
+          "as_of"
+        ],
+        "properties": {
+          "as_of_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "by_source": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "cut_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stalled_days": {
+            "type": "integer"
+          },
+          "definition_status": {
+            "type": "string"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderBlockedProject"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptMailScheduleCreate",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "layout_code",
+          "cron",
+          "format",
+          "recipients"
+        ],
+        "properties": {
+          "layout_code": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{2,80}$"
+          },
+          "cron": {
+            "type": "string",
+            "minLength": 9,
+            "maxLength": 120,
+            "description": "Five fields, time zone Asia/Ho_Chi_Minh"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "XLSX",
+              "DOCX",
+              "PDF"
+            ]
+          },
+          "recipients": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptMailScheduleRetire",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptMailSchedule",
+      "schema": {
+        "type": "object",
+        "required": [
+          "id",
+          "layout_code",
+          "cron",
+          "format",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "layout_code": {
+            "type": "string"
+          },
+          "cron": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "recipient_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "recipient_count": {
+            "type": "integer"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "RETIRED"
+            ]
+          },
+          "last_run_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "retired_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "retire_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptMailSchedulePage",
+      "schema": {
+        "type": "object",
+        "required": [
+          "items",
+          "truncated",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptMailSchedule"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "may_manage": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptMailing",
+      "schema": {
+        "type": "object",
+        "required": [
+          "id",
+          "schedule_id",
+          "issue_id",
+          "recipient_id",
+          "status",
+          "attempts"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "issue_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipient_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "file_format": {
+            "type": "string"
+          },
+          "file_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SENDING",
+              "SENT",
+              "FAILED",
+              "REFUSED",
+              "UNKNOWN",
+              "SKIPPED"
+            ]
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sent_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "last_attempt_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptMailingPage",
+      "schema": {
+        "type": "object",
+        "required": [
+          "items",
+          "truncated",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptMailing"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/leader/rates",
+      "method": "get",
+      "build": {
+        "operationId": "getLeaderRates",
+        "summary": "Tỷ lệ giải ngân so với kế hoạch năm theo Tổng công ty, đơn vị, dự án và so với cùng kỳ năm trước, đọc từ bản chốt enterprise qua bộ đọc duy nhất (ENT-4d, HSKT BC.02)",
+        "tags": [
+          "HOME"
+        ],
+        "permission": "home.read",
+        "responseRef": "LeaderRates",
+        "query": [
+          {
+            "name": "snapshot_id",
+            "type": "string"
+          }
+        ],
+        "errorCodes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "SNAPSHOT_NOT_FROZEN",
+          "SCOPE_DENIED"
+        ]
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/leader/blocked-projects",
+      "method": "get",
+      "build": {
+        "operationId": "getBlockedProjects",
+        "summary": "Dự án vướng thủ tục: giấy phép quá hạn quyết định, vướng mắc chưa xử lý quá hạn, đền bù đến hạn chưa chi, gói thầu đứng yên (ENT-4d, HSKT CN.03 và BC.02)",
+        "tags": [
+          "HOME"
+        ],
+        "permission": "home.read",
+        "responseRef": "LeaderBlockedProjects",
+        "errorCodes": [
+          "SCOPE_DENIED"
+        ]
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/report-engine/mail-schedules",
+      "method": "get",
+      "build": {
+        "operationId": "listReportMailSchedules",
+        "summary": "Các lịch gửi email biểu mẫu báo cáo đã phát hành (ENT-4d, RML-01)",
+        "tags": [
+          "RPT"
+        ],
+        "permission": "rpt.mail.read",
+        "responseRef": "RptMailSchedulePage",
+        "query": [
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "layout_code",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "type": "integer"
+          }
+        ],
+        "errorCodes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ]
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/report-engine/mailings",
+      "method": "get",
+      "build": {
+        "operationId": "listReportMailings",
+        "summary": "Nhật ký gửi email biểu mẫu đã phát hành: người nhận, bản phát hành, mã băm tệp đính kèm, trạng thái (ENT-4d, RML-01)",
+        "tags": [
+          "RPT"
+        ],
+        "permission": "rpt.mail.read",
+        "responseRef": "RptMailingPage",
+        "query": [
+          {
+            "name": "schedule_id",
+            "type": "string"
+          },
+          {
+            "name": "issue_id",
+            "type": "string"
+          },
+          {
+            "name": "recipient_id",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "type": "integer"
+          }
+        ],
+        "errorCodes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ]
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/report-engine/mail-schedules",
+      "method": "post",
+      "build": {
+        "operationId": "createReportMailSchedule",
+        "summary": "Lập lịch gửi email một biểu mẫu đã phát hành tới danh sách thành viên: tệp đính kèm là bản phát hành, mã băm trong thư, bản DEMO không bao giờ được gửi (ENT-4d, RML-01)",
+        "tags": [
+          "RPT"
+        ],
+        "permission": "rpt.mail.manage",
+        "requestRef": "RptMailScheduleCreate",
+        "errorCodes": [
+          "VALIDATION_FAILED",
+          "CRON_INVALID",
+          "RECIPIENT_OUT_OF_TENANT",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED"
+        ],
+        "domainEvents": [
+          "rpt.mail_schedule.created.v1"
+        ]
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/report-engine/mail-schedules/{id}/retire",
+      "method": "post",
+      "build": {
+        "operationId": "retireReportMailSchedule",
+        "summary": "Chấm dứt một lịch gửi email biểu mẫu, không hoàn lại, kèm lý do (ENT-4d, RML-01)",
+        "tags": [
+          "RPT"
+        ],
+        "permission": "rpt.mail.manage",
+        "requestRef": "RptMailScheduleRetire",
+        "ifMatch": true,
+        "errorCodes": [
+          "VALIDATION_FAILED",
+          "VERSION_CONFLICT",
+          "STAGE_TRANSITION_DENIED",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED"
+        ],
+        "domainEvents": [
+          "rpt.mail_schedule.retired.v1"
+        ]
+      }
+    },
+    {
+      "command": "add-screen",
+      "module": "RML",
+      "moduleName": "Gửi biểu mẫu báo cáo qua email theo lịch",
+      "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+      "kind": "table",
+      "fields": [
+        "Mẫu biểu, lịch (cron), định dạng tệp, người nhận, ghi chú",
+        "Lần chạy gần nhất, trạng thái, người lập",
+        "Nhật ký gửi: người nhận, bản phát hành, mã băm SHA-256 tệp đính kèm, trạng thái, số lần thử, mã lỗi",
+        "Lập lịch mới, chấm dứt lịch kèm lý do"
+      ],
+      "role": "Người lập lịch (rpt.mail.manage), người đọc (rpt.mail.read)",
+      "rule": "Lịch chỉ gửi các bản phát hành sau khi lịch được lập; mỗi (lịch, bản phát hành, người nhận) gửi một lần; bản DEMO không bao giờ được gửi; người nhận được xét lại quyền ở mỗi lần gửi; lịch không sửa được, muốn đổi thì chấm dứt và lập lịch khác",
+      "phase": "P1",
+      "platform": "web",
+      "req": "FR-RML-01",
+      "source": "HSKT BC.02 (hỗ trợ gửi báo cáo tự động qua email theo lịch), kế hoạch ENT-4d"
+    }
+  ]
+}

@@ -5,6 +5,8 @@ import type { HpmFileSink } from '@machvon/edition-enterprise/src/server.ts';
 import { defineModule } from '../../modules/module-descriptor';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
 import { directoryFileSink } from './file-sink';
+import { LeaderReadsController } from './leader.controller';
+import { ReportMailCommandController, ReportMailReadsController } from './report-mail.controller';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from './hpm.controller';
 import { HPM_FILE_SINK, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
 
@@ -37,5 +39,11 @@ export const ebsModule = defineModule({
   controllers: [EbsReadsController, EbsImportController, EbsReconciliationController],
 });
 
+/** The leadership dashboard of the enterprise edition (ENT-4d): the rates against the annual plan with last year, read from the frozen enterprise snapshot, and the projects blocked on procedure. */
+export const leaderModule = defineModule({ code: 'LDR', editions: ['enterprise'], controllers: [LeaderReadsController] });
+
+/** The e-mail schedules of the issued report forms and their log (ENT-4d); the job that sends is bound by the process (`report-mail-job.ts`). */
+export const reportMailModule = defineModule({ code: 'RML', editions: ['enterprise'], controllers: [ReportMailReadsController, ReportMailCommandController] });
+
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
-export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule];
+export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, leaderModule, reportMailModule];

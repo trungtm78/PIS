@@ -739,6 +739,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> createReportImport(DisImportRequest body, {CommandAttempt? attempt}) =>
       execute('createReportImport', body: body, attempt: attempt);
 
+  Future<Object?> createReportMailSchedule(RptMailScheduleCreate body, {CommandAttempt? attempt}) =>
+      execute('createReportMailSchedule', body: body, attempt: attempt);
+
   Future<Object?> createRetentionPolicyVersion(RetentionPolicyDraft body, {CommandAttempt? attempt}) =>
       execute('createRetentionPolicyVersion', body: body, attempt: attempt);
 
@@ -1270,6 +1273,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getBidClarification({required String id, Map<String, Object?>? query}) =>
       execute('getBidClarification', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getBlockedProjects({Map<String, Object?>? query}) =>
+      execute('getBlockedProjects', query: query);
+
   Future<Object?> getBottleneckAnalysis({Map<String, Object?>? query}) =>
       execute('getBottleneckAnalysis', query: query);
 
@@ -1542,6 +1548,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getLandProgress({required String id, Map<String, Object?>? query}) =>
       execute('getLandProgress', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getLeaderRates({Map<String, Object?>? query}) =>
+      execute('getLeaderRates', query: query);
 
   Future<Object?> getLineageGraph({Map<String, Object?>? query}) =>
       execute('getLineageGraph', query: query);
@@ -3241,6 +3250,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listReportIssues({Map<String, Object?>? query}) =>
       execute('listReportIssues', query: query);
 
+  Future<Object?> listReportMailSchedules({Map<String, Object?>? query}) =>
+      execute('listReportMailSchedules', query: query);
+
+  Future<Object?> listReportMailings({Map<String, Object?>? query}) =>
+      execute('listReportMailings', query: query);
+
   Future<Object?> listReportPeriodLocks({Map<String, Object?>? query}) =>
       execute('listReportPeriodLocks', query: query);
 
@@ -4323,6 +4338,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> retireProjectCode(ProjectCodeRetire body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('retireProjectCode', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> retireReportMailSchedule(RptMailScheduleRetire body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('retireReportMailSchedule', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> retireSourceSystem(SourceSystemRetire body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('retireSourceSystem', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

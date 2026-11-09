@@ -961,6 +961,8 @@
     "importEbsFile",
     "reconcileEbs",
     "resolveEbsDifference",
-    "reassignEbsDifference"
+    "reassignEbsDifference",
+    "createReportMailSchedule",
+    "retireReportMailSchedule"
   ]
 }

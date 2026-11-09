@@ -50,6 +50,11 @@ export class LeaderStore {
     return { current, prior: priorSnapshotOf(current.asOfDate, candidates) };
   }
 
+  /** The snapshot loaded for the one reader. */
+  view(tx: TenantTx, row: EnterpriseSnapshotRow): ReturnType<EnterpriseSnapshotStore['view']> {
+    return this.snapshots.view(tx, row);
+  }
+
   /** The ids of the projects the reader may read; undefined when they may read all (the scope is the whole tenant). */
   async visibleProjects(tx: TenantTx, scope: ScopeBuilder): Promise<string[] | undefined> {
     const visible = scope(1);

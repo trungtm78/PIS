@@ -133,6 +133,8 @@ export interface WorkersDeps {
   exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind' | 'remove'>;
   /** The store of the document module: the files that rows refer to and the file service does not hold are read from it for the export. */
   documentFiles?: { get(key: string): Promise<{ bytes: Uint8Array } | undefined> };
+  /** The e-mail delivery of issued report forms by schedule (ENT-4d): bound only by an enterprise process, on the channel port; without it the job `report-mail-runner` is not scheduled. */
+  reportMailRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The DNS lookup and the certificate authority of the domains of the tenants (ST-SAS-017); the MOCK pair of the process when none is given. */
   domainPorts?: DomainPorts;
   /** The data path of the promotions of tenants to a silo (ST-SAS-018); the stand-in of the process outside production, none in production until the replication on the chosen cloud is confirmed (D02). */
@@ -300,6 +302,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
               ),
           },
         }),
+    ...(deps.reportMailRunner === undefined ? {} : { reportMailRunner: deps.reportMailRunner }),
     // The heavy queries of BI are answered by the worker, for the person who asked, and what they kept is taken away after its hour.
     biQueryJobs: { run: (ctx, now) => runQueryJobsIn(deps.tenants, ctx, now, { audit, clock: () => new Date(), ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) }) },
     biQueryAnswerExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => expireQueryAnswers(tx, now)) },

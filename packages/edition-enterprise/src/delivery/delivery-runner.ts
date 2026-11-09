@@ -187,6 +187,8 @@ export class ReportMailRunner {
         resourceId: row.id,
         classification: 'INTERNAL',
         diff: { schedule_id: schedule.id, issue_id: copy.id, recipient_id: mailing.recipientId, status: row.status, file_format: schedule.format, file_sha256: row.fileSha256, code: row.errorCode, attempt: row.attempts },
+        correlationId: mailing.id,
+        requestId: mailing.id,
       });
     });
     this.metrics.increment(outcome.status === 'SENT' ? MAILING_SENT_METRIC : MAILING_FAILED_METRIC);

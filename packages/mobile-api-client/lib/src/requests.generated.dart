@@ -14839,6 +14839,44 @@ final class RptGenerate implements RequestModel {
       };
 }
 
+final class RptMailScheduleCreate implements RequestModel {
+  const RptMailScheduleCreate({
+    required this.layoutCode,
+    required this.cron,
+    required this.format,
+    required this.recipients,
+    this.note,
+  });
+
+  final String layoutCode;
+  final String cron;
+  final String format;
+  final List<String> recipients;
+  final Object? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'layout_code': layoutCode,
+        'cron': cron,
+        'format': format,
+        'recipients': recipients,
+        if (note != null) 'note': note,
+      };
+}
+
+final class RptMailScheduleRetire implements RequestModel {
+  const RptMailScheduleRetire({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class RptPeriod implements RequestModel {
   const RptPeriod({
     required this.kind,
