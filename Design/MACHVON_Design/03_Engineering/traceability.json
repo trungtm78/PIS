@@ -12955,5 +12955,22 @@
       "UI-DIS-35",
       "UAT-DIS-ENT3B-1"
     ]
+  },
+  {
+    "requirement": "FR-RPT-09",
+    "screen": "RPT-09",
+    "title": "So sánh chéo báo cáo cùng kỳ trước khi phát hành",
+    "use_cases": [],
+    "source": "Làn ENT-4a; kế hoạch ENT-3 G4; HSKT PVFCCo v0.3, yêu cầu CN.04; docs/plans/ent4a.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "packages/kernel/test/report-crosscheck.test.ts; apps/web/src/screens/rpt/crosscheck/CrosscheckScreen.test.tsx; DB and API tests written, NOT_RUN",
+    "backlog_id": "BL-RPT-09",
+    "test_ids": [
+      "UI-RPT-09",
+      "UAT-RPT-ENT4A-1",
+      "UAT-RPT-ENT4A-2"
+    ]
   }
 ]

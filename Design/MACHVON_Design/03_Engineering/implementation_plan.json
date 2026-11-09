@@ -59726,6 +59726,113 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-RPT-141",
+      "epic": "EP-RPT",
+      "feature": "FT-RPT-01",
+      "module": "RPT",
+      "title": "Cross-report comparison of the same period before release, with a gate and an explanation by someone other than the preparer",
+      "narrative": "As a reporting officer I see the monthly, quarterly, steering meeting and HPM reports of one period and the frozen snapshot set against each other, with the formula, source and time of every number; as an approver I cannot issue a report while a difference at the blocking level has no explanation; as someone other than the preparer I can record why a difference is right, once, for exactly those figures.",
+      "release": "R2",
+      "screens": [
+        "RPT-09"
+      ],
+      "operations": [
+        "getReportCrosscheck",
+        "listCrosscheckExplanations",
+        "explainCrosscheckFinding",
+        "issueReport",
+        "generateReport"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-RPT-141-1",
+          "given": "The reports of one quarter and its three months, all filled from the same frozen snapshot",
+          "when": "They are compared, then one figure of one month is changed by one dong, a month is left out, a project row loses its unit, or a cumulative exceeds the total investment",
+          "then": "The consistent set gives no difference; each change is found by its rule (months to quarter, snapshot, same indicator, unit sum, cumulative within total); a missing report is skipped with its reason and never counted as agreeing; the result says how many comparisons were made",
+          "test_id": "UAT-RPT-ENT4A-1"
+        },
+        {
+          "id": "AC-ST-RPT-141-2",
+          "given": "A difference at the BLOCKING level involving an approved draft",
+          "when": "The approver issues the draft, then someone other than the preparer records an explanation for the fingerprint of the difference, then the approver issues again",
+          "then": "The first issue is 409 REPORT_CROSSCHECK_BLOCKED and is audited; the preparer is refused as explainer with 403 SELF_APPROVAL_DENIED; the second issue succeeds and the copy keeps the evidence of what was compared; a repeat of the explanation returns the first",
+          "test_id": "UAT-RPT-ENT4A-2"
+        },
+        {
+          "id": "AC-ST-RPT-141-3",
+          "given": "RPT-09 opened at 1440 px and 390 px by a reader and by a person who may explain",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error on the reason, service error with retry, permission denied and stale marker all render, every labelled field of the screen is shown, and the explanation form is hidden for a reader and for a preparer of an involved report",
+          "test_id": "UI-RPT-09"
+        }
+      ],
+      "dependencies": [
+        "ST-RPT-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 48
+        },
+        "confidence": "medium",
+        "assumption": "The tolerances, the blocking levels and the pairs of reports are starting values of the governance rule REPORT_CROSSCHECK (UNVERIFIED) until the customer confirms them; the forms stay DEMO and nothing here counts as acceptance of an official form (R18)."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-RPT-141-1",
+          "kind": "backend",
+          "title": "Kernel comparison rules XR-01 to XR-06, the rule type REPORT_CROSSCHECK, the gate on issueReport, the figure set of a draft, the explanation and the evidence of a release",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-141-2",
+          "kind": "web",
+          "title": "RPT-09 built with the kit and the seven standard states, link from the draft screen",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-141-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for RPT-09",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-141-4",
+          "kind": "qa",
+          "title": "Kernel tests with a metamorphic test that can go red, database, API and authorization tests for the gate and the explanation",
+          "test_ids": [
+            "UAT-RPT-ENT4A-1",
+            "UAT-RPT-ENT4A-2"
+          ]
+        },
+        {
+          "id": "TK-RPT-141-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-RPT-09"
+          ]
+        }
+      ]
     }
   ]
 }

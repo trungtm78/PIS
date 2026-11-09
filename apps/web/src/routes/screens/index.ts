@@ -594,6 +594,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   // ENT-4b: layouts of forms configured without code (REPORT_LAYOUT rules): the list with its versions, and the editor with the live preview.
   'RPT-07': () => import('../../screens/rpt/layout/LayoutListScreen'),
   'RPT-08': () => import('../../screens/rpt/layout/LayoutEditorScreen'),
+  'RPT-09': () => import('../../screens/rpt/crosscheck/CrosscheckScreen'),
   'PRJ-31': () => import('../../screens/gov12/prj/MonitoringListScreen'),
   'PRJ-32': () => import('../../screens/gov12/prj/MonitoringDetailScreen'),
   'PRJ-33': () => import('../../screens/gov12/prj/PortalAdminScreen'),

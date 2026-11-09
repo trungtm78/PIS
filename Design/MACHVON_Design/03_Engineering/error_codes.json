@@ -7507,6 +7507,22 @@
       "module": "DIS",
       "statusBasis": "spec",
       "source": "spec:DIS"
+    },
+    "REPORT_CROSSCHECK_BLOCKED": {
+      "status": 409,
+      "title": "The reports of this period do not agree and the release is blocked",
+      "meaning": "Các báo cáo cùng kỳ chưa khớp nhau: còn số lệch ở mức chặn chưa có giải trình của người khác người lập, nên chưa phát hành được (ENT-4a, CN.04).",
+      "module": "RPT",
+      "statusBasis": "spec",
+      "source": "spec:RPT"
+    },
+    "CROSSCHECK_FINDING_NOT_FOUND": {
+      "status": 404,
+      "title": "No such difference is open for this period",
+      "meaning": "Kỳ này không có số lệch với dấu vân tay đã gửi: số liệu có thể đã đổi, hãy so sánh lại (ENT-4a, CN.04).",
+      "module": "RPT",
+      "statusBasis": "spec",
+      "source": "spec:RPT"
     }
   }
 }

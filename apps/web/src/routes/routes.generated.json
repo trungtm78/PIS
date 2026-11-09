@@ -550,6 +550,7 @@
     {"id":"RPT-06","path":"/rpt/rpt-06","title":"Khóa kỳ và chữ ký số báo cáo","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-06"},
     {"id":"RPT-07","path":"/rpt/rpt-07","title":"Bố cục biểu mẫu cấu hình","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-07"},
     {"id":"RPT-08","path":"/rpt/rpt-08","title":"Soạn bố cục biểu mẫu","kind":"form","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"FR-RPT-08"},
+    {"id":"RPT-09","path":"/rpt/rpt-09","title":"So sánh chéo báo cáo cùng kỳ trước khi phát hành","kind":"table","area":"insights","module":"RPT","group":"Báo cáo kỳ","role":"workspace","parent":null,"req":"CN.04"},
     {"id":"PRJ-31","path":"/prj/prj-31","title":"Hồ sơ giám sát cộng đồng","kind":"table","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-31"},
     {"id":"PRJ-32","path":"/prj/prj-32","title":"Chi tiết hồ sơ giám sát cộng đồng","kind":"detail","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-32"},
     {"id":"PRJ-33","path":"/prj/prj-33","title":"Quản trị cổng công khai","kind":"form","area":"investment","module":"PRJ","group":"Minh bạch & giám sát","role":"workspace","parent":null,"req":"FR-PRJ-33"},

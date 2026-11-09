@@ -23336,5 +23336,38 @@
     "stories": [
       "ST-DIS-030"
     ]
+  },
+  {
+    "id": "BL-RPT-09",
+    "requirement": "FR-RPT-09",
+    "screen": "RPT-09",
+    "title": "So sánh chéo báo cáo cùng kỳ trước khi phát hành",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "RPT,DIS,ADM",
+    "fields": [
+      "Kỳ (tháng hoặc quý) và các báo cáo cùng kỳ được so sánh: báo cáo tháng PVN, quý, giao ban, HPM và bản chốt kỳ",
+      "Độ phủ: số quy tắc đã chạy, số phép so sánh, số phép bị bỏ qua và lý do",
+      "Từng số lệch: quy tắc, chỉ tiêu, số kỳ vọng, số thực tế, chênh lệch, dung sai, mức chặn hoặc cảnh báo",
+      "Công thức, nguồn và thời điểm của từng số hạng",
+      "Đường giải trình (lập lại báo cáo, gán đơn vị, hoàn tất tháng còn thiếu, giải trình)",
+      "Giải trình đã ghi: người, lý do, thời điểm"
+    ],
+    "rule": "Số lệch ở mức CHẶN làm chặn phát hành báo cáo liên quan cho tới khi có giải trình của người khác người lập; giải trình chỉ có giá trị cho đúng số liệu hiện tại (dấu vân tay) và không sửa số; cảnh báo không chặn; phép so sánh không đủ dữ liệu được ghi là bỏ qua kèm lý do, không bao giờ là khớp.",
+    "test_ids": [
+      "UI-RPT-09",
+      "UAT-RPT-ENT4A-1",
+      "UAT-RPT-ENT4A-2"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-RPT-141"
+    ]
   }
 ]

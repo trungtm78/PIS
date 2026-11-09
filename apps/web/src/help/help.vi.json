@@ -12451,6 +12451,24 @@
       "req": "FR-RPT-08",
       "rule": "Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do. Xem trước dùng số liệu minh họa ghi rõ. Lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc."
     },
+    "RPT-09": {
+      "title": "So sánh chéo báo cáo cùng kỳ trước khi phát hành",
+      "module": "RPT",
+      "moduleName": "Bộ sinh báo cáo",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Người lập, kiểm tra và phê duyệt báo cáo",
+      "fields": [
+        "Kỳ và các báo cáo cùng kỳ được so sánh: báo cáo tháng PVN, quý, giao ban, HPM và bản chốt kỳ",
+        "Độ phủ: số quy tắc đã chạy, số phép so sánh, số phép bị bỏ qua và lý do",
+        "Từng số lệch: quy tắc, chỉ tiêu, số kỳ vọng, số thực tế, chênh lệch, dung sai, mức chặn hoặc cảnh báo",
+        "Công thức, nguồn và thời điểm của từng số hạng",
+        "Đường giải trình",
+        "Giải trình đã ghi: người, lý do, thời điểm"
+      ],
+      "req": "CN.04",
+      "rule": "Số lệch ở mức CHẶN làm chặn phát hành báo cáo liên quan cho tới khi có giải trình của người khác người lập. Giải trình chỉ có giá trị cho đúng số liệu hiện tại (dấu vân tay) và không sửa số. Cảnh báo không chặn. Phép so sánh không đủ dữ liệu được ghi là bỏ qua kèm lý do, không bao giờ là khớp."
+    },
     "PRJ-31": {
       "title": "Hồ sơ giám sát cộng đồng",
       "module": "PRJ",

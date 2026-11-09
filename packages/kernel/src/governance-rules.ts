@@ -54,6 +54,7 @@ import { RISK_INDICATORS, RISK_SIGNAL_DEFAULTS, RISK_SIGNAL_KINDS, RISK_SIGNAL_R
 import { CALENDAR_DEFAULTS, EFFECT_ANCHORS, EFFECT_CALENDAR_RULE_TYPE, EFFECT_EVALUATION_KINDS, EFFECT_POLICY_DEFAULTS, EFFECT_POLICY_RULE_CODE, EFFECT_POLICY_RULE_TYPE, EFFECT_PROJECT_GROUPS, calendarRuleCode, calendarRuleParams, effectPolicyParams, parseCalendarRule, parseEffectPolicy } from './effect-target.ts';
 import { gov12RuleTypes } from './gov12-rule-types.ts';
 import { ENT4C_ALERT_SEEDS, ent4cScheduleType } from './ent4c-rule-types.ts';
+import { ent4aCrosscheckType } from './ent4a-rule-types.ts';
 import { ENT4C_TEXT } from './messages/ent4c-texts.ts';
 import { VND3_TEXT } from './messages/vnd3-texts.ts';
 import { INVESTIGATION_POLICY_DEFAULTS, investigationPolicyOf } from './vnd-investigation.ts';
@@ -2529,6 +2530,13 @@ export const registerEnt4cRules = (): void =>
     registerRuleDefaults('ALERT_TYPE', alertTypeDefaults(ENT4C_ALERT_SEEDS, { source: ENT4C_TEXT.alert_source }));
   });
 
+/** The rule set of the comparison of the reports of one period before release (CN.04, ENT-4a); the data is in ent4a-rule-types.ts. */
+export const registerEnt4aRules = (): void =>
+  once('ent4a', () => {
+    registerCoreRules();
+    registerRuleType(ent4aCrosscheckType());
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -2564,6 +2572,7 @@ export function registerAllGovernanceRules(): void {
   registerRiskEffectRules();
   registerGov12Rules();
   registerEnt4cRules();
+  registerEnt4aRules();
 }
 
 registerAllGovernanceRules();

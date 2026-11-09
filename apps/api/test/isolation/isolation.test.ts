@@ -1288,6 +1288,10 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'deliverReport',
         'answerReportDelivery',
         'listReportDeliveries',
+        // ENT-4a: the comparison of the reports of one period before release
+        'getReportCrosscheck',
+        'listCrosscheckExplanations',
+        'explainCrosscheckFinding',
         // FND-1: the funding figures
         'getFundingTaxonomy',
         'getFundingFigureBoard',

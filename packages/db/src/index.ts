@@ -1685,6 +1685,8 @@ export { CtrMoneyStore, EVM_SELECTION_CAP } from './ctr-money-store.ts';
 export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from './ctr-money-store.ts';
 // RPT-1, part 2: the report engine's layouts, files, drafts, issued copies and delivery log.
 export { ReportStore, copyRefOf } from './report-store.ts';
+export { ReportCrosscheckStore, figureSetSha256 } from './report-crosscheck-store.ts';
+export type { CandidateRow as ReportCandidateRow, ExplanationRow as ReportCrosscheckExplanationRow, FigureSetRow as ReportFigureSetRow, NewExplanation as ReportNewExplanation, NewRelease as ReportNewRelease, ReleaseRow as ReportCrosscheckReleaseRow } from './report-crosscheck-store.ts';
 export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
 export { ENTRY_BATCH_STATUSES, IND_ENTRY_BATCH_RESOURCE, IndEntryBatchStore } from './ind-entry-batch-store.ts';

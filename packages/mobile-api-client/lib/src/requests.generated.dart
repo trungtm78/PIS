@@ -14996,6 +14996,25 @@ final class RptAnswer implements RequestModel {
       };
 }
 
+final class RptCrosscheckExplain implements RequestModel {
+  const RptCrosscheckExplain({
+    required this.period,
+    required this.fingerprint,
+    required this.reason,
+  });
+
+  final RptPeriod period;
+  final String fingerprint;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period': period,
+        'fingerprint': fingerprint,
+        'reason': reason,
+      };
+}
+
 final class RptDeliver implements RequestModel {
   const RptDeliver({
     required this.receiver,

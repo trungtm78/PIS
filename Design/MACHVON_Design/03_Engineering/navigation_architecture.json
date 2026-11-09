@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 593,
-    "webCatalog": 593,
+    "webRoutes": 594,
+    "webCatalog": 594,
     "webModules": 38,
     "mobileRoutes": 82,
     "mobileCatalog": 82,
@@ -2107,13 +2107,15 @@
             5,
             6,
             7,
-            8
+            8,
+            9
           ],
           "primary": [
             5,
             6,
             7,
-            8
+            8,
+            9
           ],
           "parents": {}
         }
@@ -3266,6 +3268,7 @@
         "RPT-06",
         "RPT-07",
         "RPT-08",
+        "RPT-09",
         "PRJ-31",
         "PRJ-32",
         "PRJ-33",
@@ -8815,6 +8818,16 @@
       "id": "RPT-08",
       "title": "Soạn bố cục biểu mẫu",
       "kind": "form",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Báo cáo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-09",
+      "title": "So sánh chéo báo cáo cùng kỳ trước khi phát hành",
+      "kind": "table",
       "area": "insights",
       "module": "RPT",
       "group": "Báo cáo kỳ",

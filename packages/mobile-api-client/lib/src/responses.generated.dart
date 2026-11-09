@@ -370,6 +370,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'evaluateIndicatorEntry': IndEntryVerdictResponse.fromJson,
   'evaluatePermitGates': asObject,
   'explainBiMetric': BiDrillExplanationResponse.fromJson,
+  'explainCrosscheckFinding': RptCrosscheckExplainedResponse.fromJson,
   'explainHomeMetric': HomeDrillExplanationResponse.fromJson,
   'exportAuditLog': CommandResultResponse.fromJson,
   'exportContractorRecords': CommandResultResponse.fromJson,
@@ -775,6 +776,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getReconciliationItem': PayReconciliationItemResponse.fromJson,
   'getRedFlag': asObject,
   'getRedFlagSummary': asObject,
+  'getReportCrosscheck': RptCrosscheckResponse.fromJson,
   'getReportDraft': RptDraftResponse.fromJson,
   'getReportDraftFile': RptFileContentResponse.fromJson,
   'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
@@ -939,6 +941,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listContractRatingProposals': CtrContractRatingProposalsResponse.fromJson,
   'listContractSettlementClocks': CtrSettlementClockBoardResponse.fromJson,
   'listConversationAssignees': ConversationAssigneeListResponse.fromJson,
+  'listCrosscheckExplanations': RptCrosscheckExplanationPageResponse.fromJson,
   'listDashboards': asObject,
   'listDataProducts': DgvDataProductsResponse.fromJson,
   'listDatasetGlossaryBindings': DgvGlossaryBindingsResponse.fromJson,
@@ -59736,6 +59739,664 @@ final class RptChainLinkResponse implements ResponseModel {
         'sha256': sha256,
         'issued_at': issuedAt,
         'reason': reason,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckExplainedResponse implements ResponseModel {
+  const RptCrosscheckExplainedResponse({
+    required this.outcome,
+    required this.explanation,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckExplainedResponse.fromJson(Object? json, [String path = 'RptCrosscheckExplainedResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckExplainedResponse(
+      outcome: requiredField(map, path, 'outcome', asString),
+      explanation: requiredField(map, path, 'explanation', RptCrosscheckExplanationResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'outcome', 'explanation'}, strict: false),
+    );
+  }
+
+  final String outcome;
+  final RptCrosscheckExplanationResponse explanation;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'explanation': explanation.toJson(),
+        ...extra,
+      };
+}
+
+final class RptCrosscheckExplanationPageResponse implements ResponseModel {
+  const RptCrosscheckExplanationPageResponse({
+    required this.items,
+    required this.truncated,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckExplanationPageResponse.fromJson(Object? json, [String path = 'RptCrosscheckExplanationPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckExplanationPageResponse(
+      items: requiredField(map, path, 'items', asList(RptCrosscheckExplanationResponse.fromJson)),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'truncated', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<RptCrosscheckExplanationResponse> items;
+  final bool truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckExplanationResponse implements ResponseModel {
+  const RptCrosscheckExplanationResponse({
+    required this.id,
+    required this.fingerprint,
+    required this.ruleId,
+    required this.figureCode,
+    required this.periodCode,
+    required this.severity,
+    required this.involves,
+    required this.reason,
+    required this.explainedBy,
+    required this.createdAt,
+    this.explainedByName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckExplanationResponse.fromJson(Object? json, [String path = 'RptCrosscheckExplanationResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckExplanationResponse(
+      id: requiredField(map, path, 'id', asString),
+      fingerprint: requiredField(map, path, 'fingerprint', asString),
+      ruleId: requiredField(map, path, 'rule_id', asString),
+      figureCode: requiredField(map, path, 'figure_code', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      involves: requiredField(map, path, 'involves', asList(asString)),
+      reason: requiredField(map, path, 'reason', asString),
+      explainedBy: requiredField(map, path, 'explained_by', asString),
+      explainedByName: optionalField(map, path, 'explained_by_name', nullable(asString)),
+      createdAt: requiredField(map, path, 'created_at', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'fingerprint', 'rule_id', 'figure_code', 'period_code', 'severity', 'involves', 'reason', 'explained_by', 'explained_by_name', 'created_at'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String fingerprint;
+  final String ruleId;
+  final String figureCode;
+  final String periodCode;
+  final String severity;
+  final List<String> involves;
+  final String reason;
+  final String explainedBy;
+  final String? explainedByName;
+  final String createdAt;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'fingerprint': fingerprint,
+        'rule_id': ruleId,
+        'figure_code': figureCode,
+        'period_code': periodCode,
+        'severity': severity,
+        'involves': involves,
+        'reason': reason,
+        'explained_by': explainedBy,
+        if (explainedByName != null) 'explained_by_name': explainedByName,
+        'created_at': createdAt,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckFindingResponse implements ResponseModel {
+  const RptCrosscheckFindingResponse({
+    required this.ruleId,
+    required this.ruleName,
+    required this.severity,
+    required this.code,
+    required this.periodCode,
+    required this.formula,
+    required this.expected,
+    required this.actual,
+    required this.difference,
+    required this.tolerance,
+    required this.unit,
+    required this.terms,
+    required this.involves,
+    required this.path,
+    required this.fingerprint,
+    required this.status,
+    this.units,
+    this.explanation,
+    this.blocksRelease,
+    this.canExplain,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckFindingResponse.fromJson(Object? json, [String path = 'RptCrosscheckFindingResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckFindingResponse(
+      ruleId: requiredField(map, path, 'rule_id', asString),
+      ruleName: requiredField(map, path, 'rule_name', asString),
+      severity: requiredField(map, path, 'severity', asString),
+      code: requiredField(map, path, 'code', asString),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      formula: requiredField(map, path, 'formula', asString),
+      expected: requiredField(map, path, 'expected', nullable(asString)),
+      actual: requiredField(map, path, 'actual', nullable(asString)),
+      difference: requiredField(map, path, 'difference', asString),
+      tolerance: requiredField(map, path, 'tolerance', asString),
+      unit: requiredField(map, path, 'unit', asString),
+      terms: requiredField(map, path, 'terms', asList(RptCrosscheckTermResponse.fromJson)),
+      units: optionalField(map, path, 'units', nullable(asList(RptCrosscheckFindingResponseUnitsItem.fromJson))),
+      involves: requiredField(map, path, 'involves', asList(asString)),
+      path: requiredField(map, path, 'path', asList(RptCrosscheckPathStepResponse.fromJson)),
+      fingerprint: requiredField(map, path, 'fingerprint', asString),
+      status: requiredField(map, path, 'status', asString),
+      explanation: optionalField(map, path, 'explanation', asAny),
+      blocksRelease: optionalField(map, path, 'blocks_release', asBool),
+      canExplain: optionalField(map, path, 'can_explain', asBool),
+      extra: unknownFields(map, path, const <String>{'rule_id', 'rule_name', 'severity', 'code', 'period_code', 'formula', 'expected', 'actual', 'difference', 'tolerance', 'unit', 'terms', 'units', 'involves', 'path', 'fingerprint', 'status', 'explanation', 'blocks_release', 'can_explain'}, strict: false),
+    );
+  }
+
+  final String ruleId;
+  final String ruleName;
+  final String severity;
+  final String code;
+  final String periodCode;
+  final String formula;
+  final String? expected;
+  final String? actual;
+  final String difference;
+  final String tolerance;
+  final String unit;
+  final List<RptCrosscheckTermResponse> terms;
+  final List<RptCrosscheckFindingResponseUnitsItem>? units;
+  final List<String> involves;
+  final List<RptCrosscheckPathStepResponse> path;
+  final String fingerprint;
+  final String status;
+  final Object? explanation;
+  final bool? blocksRelease;
+  final bool? canExplain;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rule_id': ruleId,
+        'rule_name': ruleName,
+        'severity': severity,
+        'code': code,
+        'period_code': periodCode,
+        'formula': formula,
+        'expected': expected,
+        'actual': actual,
+        'difference': difference,
+        'tolerance': tolerance,
+        'unit': unit,
+        'terms': terms.map((e0) => e0.toJson()).toList(),
+        if (units != null) 'units': units!.map((e0) => e0.toJson()).toList(),
+        'involves': involves,
+        'path': path.map((e0) => e0.toJson()).toList(),
+        'fingerprint': fingerprint,
+        'status': status,
+        if (explanation != null) 'explanation': explanation,
+        if (blocksRelease != null) 'blocks_release': blocksRelease,
+        if (canExplain != null) 'can_explain': canExplain,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckFindingResponseUnitsItem implements ResponseModel {
+  const RptCrosscheckFindingResponseUnitsItem({
+    required this.unit,
+    required this.sum,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckFindingResponseUnitsItem.fromJson(Object? json, [String path = 'RptCrosscheckFindingResponseUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckFindingResponseUnitsItem(
+      unit: requiredField(map, path, 'unit', asString),
+      sum: requiredField(map, path, 'sum', asString),
+      extra: unknownFields(map, path, const <String>{'unit', 'sum'}, strict: false),
+    );
+  }
+
+  final String unit;
+  final String sum;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit': unit,
+        'sum': sum,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckPathStepResponse implements ResponseModel {
+  const RptCrosscheckPathStepResponse({
+    required this.step,
+    this.layoutCode,
+    this.ref,
+    this.periodCode,
+    this.rows,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckPathStepResponse.fromJson(Object? json, [String path = 'RptCrosscheckPathStepResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckPathStepResponse(
+      step: requiredField(map, path, 'step', asString),
+      layoutCode: optionalField(map, path, 'layout_code', asString),
+      ref: optionalField(map, path, 'ref', asString),
+      periodCode: optionalField(map, path, 'period_code', asString),
+      rows: optionalField(map, path, 'rows', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'step', 'layout_code', 'ref', 'period_code', 'rows'}, strict: false),
+    );
+  }
+
+  final String step;
+  final String? layoutCode;
+  final String? ref;
+  final String? periodCode;
+  final List<String>? rows;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'step': step,
+        if (layoutCode != null) 'layout_code': layoutCode,
+        if (ref != null) 'ref': ref,
+        if (periodCode != null) 'period_code': periodCode,
+        if (rows != null) 'rows': rows,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckRefResponse implements ResponseModel {
+  const RptCrosscheckRefResponse({
+    required this.kind,
+    required this.id,
+    this.revision,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckRefResponse.fromJson(Object? json, [String path = 'RptCrosscheckRefResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckRefResponse(
+      kind: requiredField(map, path, 'kind', asString),
+      id: requiredField(map, path, 'id', asString),
+      revision: optionalField(map, path, 'revision', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'kind', 'id', 'revision'}, strict: false),
+    );
+  }
+
+  final String kind;
+  final String id;
+  final int? revision;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'id': id,
+        if (revision != null) 'revision': revision,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckReportResponse implements ResponseModel {
+  const RptCrosscheckReportResponse({
+    required this.role,
+    required this.layoutCode,
+    required this.ref,
+    required this.periodCode,
+    required this.dataSource,
+    required this.hasFigures,
+    this.state,
+    this.snapshotId,
+    this.snapshotRevision,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckReportResponse.fromJson(Object? json, [String path = 'RptCrosscheckReportResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckReportResponse(
+      role: requiredField(map, path, 'role', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      ref: requiredField(map, path, 'ref', RptCrosscheckRefResponse.fromJson),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      state: optionalField(map, path, 'state', nullable(asString)),
+      dataSource: requiredField(map, path, 'data_source', asString),
+      hasFigures: requiredField(map, path, 'has_figures', asBool),
+      snapshotId: optionalField(map, path, 'snapshot_id', nullable(asString)),
+      snapshotRevision: optionalField(map, path, 'snapshot_revision', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'role', 'layout_code', 'ref', 'period_code', 'state', 'data_source', 'has_figures', 'snapshot_id', 'snapshot_revision'}, strict: false),
+    );
+  }
+
+  final String role;
+  final String layoutCode;
+  final RptCrosscheckRefResponse ref;
+  final String periodCode;
+  final String? state;
+  final String dataSource;
+  final bool hasFigures;
+  final String? snapshotId;
+  final int? snapshotRevision;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'role': role,
+        'layout_code': layoutCode,
+        'ref': ref.toJson(),
+        'period_code': periodCode,
+        if (state != null) 'state': state,
+        'data_source': dataSource,
+        'has_figures': hasFigures,
+        if (snapshotId != null) 'snapshot_id': snapshotId,
+        if (snapshotRevision != null) 'snapshot_revision': snapshotRevision,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckResponse implements ResponseModel {
+  const RptCrosscheckResponse({
+    required this.periodCode,
+    required this.rule,
+    required this.reports,
+    required this.findings,
+    required this.skipped,
+    required this.coverage,
+    required this.sha256,
+    required this.canExplain,
+    required this.asOf,
+    this.gate,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckResponse.fromJson(Object? json, [String path = 'RptCrosscheckResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckResponse(
+      periodCode: requiredField(map, path, 'period_code', asString),
+      rule: requiredField(map, path, 'rule', RptCrosscheckResponseRule.fromJson),
+      reports: requiredField(map, path, 'reports', asList(RptCrosscheckReportResponse.fromJson)),
+      findings: requiredField(map, path, 'findings', asList(RptCrosscheckFindingResponse.fromJson)),
+      skipped: requiredField(map, path, 'skipped', asList(RptCrosscheckSkipResponse.fromJson)),
+      coverage: requiredField(map, path, 'coverage', RptCrosscheckResponseCoverage.fromJson),
+      sha256: requiredField(map, path, 'sha256', asString),
+      gate: optionalField(map, path, 'gate', asAny),
+      canExplain: requiredField(map, path, 'can_explain', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'period_code', 'rule', 'reports', 'findings', 'skipped', 'coverage', 'sha256', 'gate', 'can_explain', 'as_of'}, strict: false),
+    );
+  }
+
+  final String periodCode;
+  final RptCrosscheckResponseRule rule;
+  final List<RptCrosscheckReportResponse> reports;
+  final List<RptCrosscheckFindingResponse> findings;
+  final List<RptCrosscheckSkipResponse> skipped;
+  final RptCrosscheckResponseCoverage coverage;
+  final String sha256;
+  final Object? gate;
+  final bool canExplain;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period_code': periodCode,
+        'rule': rule.toJson(),
+        'reports': reports.map((e0) => e0.toJson()).toList(),
+        'findings': findings.map((e0) => e0.toJson()).toList(),
+        'skipped': skipped.map((e0) => e0.toJson()).toList(),
+        'coverage': coverage.toJson(),
+        'sha256': sha256,
+        if (gate != null) 'gate': gate,
+        'can_explain': canExplain,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckResponseCoverage implements ResponseModel {
+  const RptCrosscheckResponseCoverage({
+    required this.reports,
+    required this.usable,
+    required this.rulesRun,
+    required this.comparisons,
+    required this.skipped,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckResponseCoverage.fromJson(Object? json, [String path = 'RptCrosscheckResponseCoverage']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckResponseCoverage(
+      reports: requiredField(map, path, 'reports', asInt),
+      usable: requiredField(map, path, 'usable', asInt),
+      rulesRun: requiredField(map, path, 'rules_run', asInt),
+      comparisons: requiredField(map, path, 'comparisons', asInt),
+      skipped: requiredField(map, path, 'skipped', asInt),
+      extra: unknownFields(map, path, const <String>{'reports', 'usable', 'rules_run', 'comparisons', 'skipped'}, strict: false),
+    );
+  }
+
+  final int reports;
+  final int usable;
+  final int rulesRun;
+  final int comparisons;
+  final int skipped;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reports': reports,
+        'usable': usable,
+        'rules_run': rulesRun,
+        'comparisons': comparisons,
+        'skipped': skipped,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckResponseRule implements ResponseModel {
+  const RptCrosscheckResponseRule({
+    required this.code,
+    required this.version,
+    required this.source,
+    required this.unverified,
+    required this.formula,
+    this.origin,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckResponseRule.fromJson(Object? json, [String path = 'RptCrosscheckResponseRule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckResponseRule(
+      code: requiredField(map, path, 'code', asString),
+      version: requiredField(map, path, 'version', asInt),
+      source: requiredField(map, path, 'source', asString),
+      unverified: requiredField(map, path, 'unverified', asBool),
+      formula: requiredField(map, path, 'formula', asString),
+      origin: optionalField(map, path, 'origin', nullable(asString)),
+      asOf: optionalField(map, path, 'as_of', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'version', 'source', 'unverified', 'formula', 'origin', 'as_of'}, strict: false),
+    );
+  }
+
+  final String code;
+  final int version;
+  final String source;
+  final bool unverified;
+  final String formula;
+  final String? origin;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'version': version,
+        'source': source,
+        'unverified': unverified,
+        'formula': formula,
+        if (origin != null) 'origin': origin,
+        if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckSkipResponse implements ResponseModel {
+  const RptCrosscheckSkipResponse({
+    required this.ruleId,
+    required this.reason,
+    required this.text,
+    this.role,
+    this.layoutCode,
+    this.periodCode,
+    this.code,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckSkipResponse.fromJson(Object? json, [String path = 'RptCrosscheckSkipResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckSkipResponse(
+      ruleId: requiredField(map, path, 'rule_id', asString),
+      reason: requiredField(map, path, 'reason', asString),
+      role: optionalField(map, path, 'role', nullable(asString)),
+      layoutCode: optionalField(map, path, 'layout_code', nullable(asString)),
+      periodCode: optionalField(map, path, 'period_code', nullable(asString)),
+      code: optionalField(map, path, 'code', nullable(asString)),
+      text: requiredField(map, path, 'text', asString),
+      extra: unknownFields(map, path, const <String>{'rule_id', 'reason', 'role', 'layout_code', 'period_code', 'code', 'text'}, strict: false),
+    );
+  }
+
+  final String ruleId;
+  final String reason;
+  final String? role;
+  final String? layoutCode;
+  final String? periodCode;
+  final String? code;
+  final String text;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'rule_id': ruleId,
+        'reason': reason,
+        if (role != null) 'role': role,
+        if (layoutCode != null) 'layout_code': layoutCode,
+        if (periodCode != null) 'period_code': periodCode,
+        if (code != null) 'code': code,
+        'text': text,
+        ...extra,
+      };
+}
+
+final class RptCrosscheckTermResponse implements ResponseModel {
+  const RptCrosscheckTermResponse({
+    required this.role,
+    required this.layoutCode,
+    required this.ref,
+    required this.periodCode,
+    required this.code,
+    required this.value,
+    required this.source,
+    this.rowKey,
+    this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptCrosscheckTermResponse.fromJson(Object? json, [String path = 'RptCrosscheckTermResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptCrosscheckTermResponse(
+      role: requiredField(map, path, 'role', asString),
+      layoutCode: requiredField(map, path, 'layout_code', asString),
+      ref: requiredField(map, path, 'ref', RptCrosscheckRefResponse.fromJson),
+      periodCode: requiredField(map, path, 'period_code', asString),
+      code: requiredField(map, path, 'code', asString),
+      rowKey: optionalField(map, path, 'row_key', nullable(asString)),
+      value: requiredField(map, path, 'value', nullable(asString)),
+      source: requiredField(map, path, 'source', asString),
+      asOf: optionalField(map, path, 'as_of', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'role', 'layout_code', 'ref', 'period_code', 'code', 'row_key', 'value', 'source', 'as_of'}, strict: false),
+    );
+  }
+
+  final String role;
+  final String layoutCode;
+  final RptCrosscheckRefResponse ref;
+  final String periodCode;
+  final String code;
+  final String? rowKey;
+  final String? value;
+  final String source;
+  final String? asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'role': role,
+        'layout_code': layoutCode,
+        'ref': ref.toJson(),
+        'period_code': periodCode,
+        'code': code,
+        if (rowKey != null) 'row_key': rowKey,
+        'value': value,
+        'source': source,
+        if (asOf != null) 'as_of': asOf,
         ...extra,
       };
 }

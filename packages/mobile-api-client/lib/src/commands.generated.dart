@@ -1105,6 +1105,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> explainBiMetric({Map<String, Object?>? query}) =>
       execute('explainBiMetric', query: query);
 
+  Future<Object?> explainCrosscheckFinding(RptCrosscheckExplain body, {CommandAttempt? attempt}) =>
+      execute('explainCrosscheckFinding', body: body, attempt: attempt);
+
   Future<Object?> explainHomeMetric({Map<String, Object?>? query}) =>
       execute('explainHomeMetric', query: query);
 
@@ -1767,6 +1770,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getRedFlagSummary({Map<String, Object?>? query}) =>
       execute('getRedFlagSummary', query: query);
+
+  Future<Object?> getReportCrosscheck({Map<String, Object?>? query}) =>
+      execute('getReportCrosscheck', query: query);
 
   Future<Object?> getReportDraft({required String id, Map<String, Object?>? query}) =>
       execute('getReportDraft', path: <String, Object?>{'id': id}, query: query);
@@ -2811,6 +2817,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listConversationAssignees({required String conversationId, Map<String, Object?>? query}) =>
       execute('listConversationAssignees', path: <String, Object?>{'conversationId': conversationId}, query: query);
+
+  Future<Object?> listCrosscheckExplanations({Map<String, Object?>? query}) =>
+      execute('listCrosscheckExplanations', query: query);
 
   Future<Object?> listDashboards({Map<String, Object?>? query}) =>
       execute('listDashboards', query: query);

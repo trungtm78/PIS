@@ -3,6 +3,7 @@ import { registerMofReportForms, registerPublicReportForms } from './form-regist
 import { LayoutPreviewController } from './layout-preview.controller';
 import { PeriodReportController, PeriodReportReadsController } from './period-report.controller';
 import { ReportController } from './report.controller';
+import { ReportCrosscheckController } from './report-crosscheck.controller';
 import { ReportReadsController } from './report-reads.controller';
 
 // The generic forms of the public edition are known to every process; the enterprise forms are added by the enterprise seam of the API when that edition loads.
@@ -15,5 +16,5 @@ registerMofReportForms();
  */
 export const rptModule = defineModule({
   code: 'RPT',
-  controllers: [ReportController, ReportReadsController, LayoutPreviewController, PeriodReportController, PeriodReportReadsController],
+  controllers: [ReportController, ReportReadsController, ReportCrosscheckController, LayoutPreviewController, PeriodReportController, PeriodReportReadsController],
 });

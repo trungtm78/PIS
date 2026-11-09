@@ -160244,7 +160244,8 @@
           "SELF_APPROVAL_DENIED",
           "REPORT_OUT_OF_DATE",
           "TEMPLATE_UNCONFIRMED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "REPORT_CROSSCHECK_BLOCKED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -233076,6 +233077,409 @@
         },
         "x-error-codes": [
           "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/report-engine/crosscheck": {
+      "get": {
+        "operationId": "getReportCrosscheck",
+        "summary": "So sánh chéo các báo cáo cùng kỳ (báo cáo tháng, quý, giao ban, HPM và bản chốt kỳ): số lệch, công thức, nguồn và thời điểm của từng số, đường giải trình (ENT-4a, CN.04)",
+        "tags": [
+          "RPT"
+        ],
+        "x-permission": "rpt.crosscheck.read",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "index",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "draft_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RptCrosscheck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "SCOPE_DENIED"
+        ]
+      }
+    },
+    "/report-engine/crosscheck/explanations": {
+      "get": {
+        "operationId": "listCrosscheckExplanations",
+        "summary": "Các giải trình số lệch giữa báo cáo cùng kỳ: ai, khi nào, lý do (ENT-4a, CN.04)",
+        "tags": [
+          "RPT"
+        ],
+        "x-permission": "rpt.crosscheck.read",
+        "parameters": [
+          {
+            "name": "period_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RptCrosscheckExplanationPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ]
+      },
+      "post": {
+        "operationId": "explainCrosscheckFinding",
+        "summary": "Ghi giải trình cho một số lệch giữa báo cáo cùng kỳ để cho phép phát hành: người giải trình không phải người lập báo cáo liên quan, một giải trình cho mỗi dấu vân tay (ENT-4a, CN.04)",
+        "tags": [
+          "RPT"
+        ],
+        "x-permission": "rpt.crosscheck.explain",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RptCrosscheckExplain"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RptCrosscheckExplained"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "CROSSCHECK_FINDING_NOT_FOUND",
+          "SELF_APPROVAL_DENIED",
+          "SCOPE_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "rpt.crosscheck.explained.v1"
         ]
       }
     }
@@ -316349,6 +316753,651 @@
                 }
               }
             }
+          }
+        }
+      },
+      "RptCrosscheckRef": {
+        "type": "object",
+        "required": [
+          "kind",
+          "id"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ISSUE",
+              "SNAPSHOT"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "RptCrosscheckTerm": {
+        "type": "object",
+        "required": [
+          "role",
+          "layout_code",
+          "ref",
+          "period_code",
+          "code",
+          "value",
+          "source"
+        ],
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "layout_code": {
+            "type": "string"
+          },
+          "ref": {
+            "$ref": "#/components/schemas/RptCrosscheckRef"
+          },
+          "period_code": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "row_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Whole dong, a count, or a rate in percent, as decimal text"
+          },
+          "source": {
+            "type": "string",
+            "description": "Where the number comes from: the report as filled, its project rows, or the frozen snapshot with its revision"
+          },
+          "as_of": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "RptCrosscheckPathStep": {
+        "type": "object",
+        "required": [
+          "step"
+        ],
+        "properties": {
+          "step": {
+            "type": "string",
+            "enum": [
+              "REGENERATE_REPORT",
+              "COMPLETE_MONTH",
+              "ASSIGN_UNIT",
+              "CHECK_SOURCE",
+              "EXPLAIN"
+            ]
+          },
+          "layout_code": {
+            "type": "string"
+          },
+          "ref": {
+            "type": "string"
+          },
+          "period_code": {
+            "type": "string"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RptCrosscheckExplanation": {
+        "type": "object",
+        "required": [
+          "id",
+          "fingerprint",
+          "rule_id",
+          "figure_code",
+          "period_code",
+          "severity",
+          "involves",
+          "reason",
+          "explained_by",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "figure_code": {
+            "type": "string"
+          },
+          "period_code": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "BLOCKING",
+              "WARNING"
+            ]
+          },
+          "involves": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reason": {
+            "type": "string"
+          },
+          "explained_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "explained_by_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RptCrosscheckFinding": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "rule_name",
+          "severity",
+          "code",
+          "period_code",
+          "formula",
+          "expected",
+          "actual",
+          "difference",
+          "tolerance",
+          "unit",
+          "terms",
+          "involves",
+          "path",
+          "fingerprint",
+          "status"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "enum": [
+              "XR-01",
+              "XR-02",
+              "XR-03",
+              "XR-04",
+              "XR-05",
+              "XR-06"
+            ]
+          },
+          "rule_name": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "BLOCKING",
+              "WARNING"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "period_code": {
+            "type": "string"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "expected": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "actual": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "difference": {
+            "type": "string"
+          },
+          "tolerance": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "VND",
+              "COUNT",
+              "PCT"
+            ]
+          },
+          "terms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptCrosscheckTerm"
+            }
+          },
+          "units": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "required": [
+                "unit",
+                "sum"
+              ],
+              "properties": {
+                "unit": {
+                  "type": "string"
+                },
+                "sum": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "involves": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptCrosscheckPathStep"
+            }
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "EXPLAINED"
+            ]
+          },
+          "explanation": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RptCrosscheckExplanation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "blocks_release": {
+            "type": "boolean",
+            "description": "Only when a draft is named: this finding involves it, is BLOCKING and has no explanation"
+          },
+          "can_explain": {
+            "type": "boolean",
+            "description": "The caller may explain it: holds the permission and prepared none of the reports involved"
+          }
+        }
+      },
+      "RptCrosscheckSkip": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "reason",
+          "text"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "NO_FIGURES",
+              "ILLUSTRATIVE",
+              "MISSING_REPORT",
+              "NO_VALUE",
+              "NO_SNAPSHOT",
+              "DUPLICATE"
+            ]
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "layout_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "period_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "RptCrosscheckReport": {
+        "type": "object",
+        "required": [
+          "role",
+          "layout_code",
+          "ref",
+          "period_code",
+          "data_source",
+          "has_figures"
+        ],
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "layout_code": {
+            "type": "string"
+          },
+          "ref": {
+            "$ref": "#/components/schemas/RptCrosscheckRef"
+          },
+          "period_code": {
+            "type": "string"
+          },
+          "state": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "data_source": {
+            "type": "string",
+            "enum": [
+              "LIVE",
+              "ILLUSTRATIVE"
+            ]
+          },
+          "has_figures": {
+            "type": "boolean"
+          },
+          "snapshot_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "snapshot_revision": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "RptCrosscheckGate": {
+        "type": "object",
+        "required": [
+          "draft_id",
+          "blocking_open",
+          "blocking_explained",
+          "warnings",
+          "passed"
+        ],
+        "properties": {
+          "draft_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "blocking_open": {
+            "type": "integer"
+          },
+          "blocking_explained": {
+            "type": "integer"
+          },
+          "warnings": {
+            "type": "integer"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RptCrosscheck": {
+        "type": "object",
+        "required": [
+          "period_code",
+          "rule",
+          "reports",
+          "findings",
+          "skipped",
+          "coverage",
+          "sha256",
+          "can_explain",
+          "as_of"
+        ],
+        "properties": {
+          "period_code": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "object",
+            "required": [
+              "code",
+              "version",
+              "source",
+              "unverified",
+              "formula"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "RULE",
+                  "DEFAULT"
+                ]
+              },
+              "unverified": {
+                "type": "boolean"
+              },
+              "formula": {
+                "type": "string"
+              },
+              "origin": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "as_of": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptCrosscheckReport"
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptCrosscheckFinding"
+            }
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptCrosscheckSkip"
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "required": [
+              "reports",
+              "usable",
+              "rules_run",
+              "comparisons",
+              "skipped"
+            ],
+            "properties": {
+              "reports": {
+                "type": "integer"
+              },
+              "usable": {
+                "type": "integer"
+              },
+              "rules_run": {
+                "type": "integer"
+              },
+              "comparisons": {
+                "type": "integer"
+              },
+              "skipped": {
+                "type": "integer"
+              }
+            }
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "gate": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RptCrosscheckGate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_explain": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RptCrosscheckExplain": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "period",
+          "fingerprint",
+          "reason"
+        ],
+        "properties": {
+          "period": {
+            "$ref": "#/components/schemas/RptPeriod"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The fingerprint of an open difference of the period, as the comparison gave it"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 2000
+          }
+        }
+      },
+      "RptCrosscheckExplained": {
+        "type": "object",
+        "required": [
+          "outcome",
+          "explanation"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "EXISTING"
+            ]
+          },
+          "explanation": {
+            "$ref": "#/components/schemas/RptCrosscheckExplanation"
+          }
+        }
+      },
+      "RptCrosscheckExplanationPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "truncated",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptCrosscheckExplanation"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }
