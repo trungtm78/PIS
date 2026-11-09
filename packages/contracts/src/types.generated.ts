@@ -37826,7 +37826,7 @@ export interface components {
         };
         RptFileInfo: {
             /** @enum {string} */
-            format: "XLSX" | "DOCX";
+            format: "XLSX" | "DOCX" | "PDF";
             sha256: string;
             /** @description The file name of an issued copy; a draft has none yet */
             name: string | null;
@@ -37905,6 +37905,8 @@ export interface components {
             /** @description Only on the single read */
             preview: components["schemas"]["RptPreview"] | null;
             issues: components["schemas"]["RptGridIssue"][];
+            /** @description The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded */
+            layout_sha256?: string | null;
         };
         RptDraftPage: {
             items: components["schemas"]["RptDraft"][];
@@ -37984,6 +37986,8 @@ export interface components {
             issues: components["schemas"]["RptGridIssue"][];
             can_deliver: boolean;
             can_answer: boolean;
+            /** @description The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded */
+            layout_sha256?: string | null;
         };
         RptIssuePage: {
             items: components["schemas"]["RptIssue"][];
@@ -38028,7 +38032,7 @@ export interface components {
         };
         RptFileContent: {
             /** @enum {string} */
-            format: "XLSX" | "DOCX";
+            format: "XLSX" | "DOCX" | "PDF";
             sha256: string;
             name: string;
             size_bytes: number;
@@ -157325,7 +157329,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                format: "XLSX" | "DOCX";
+                format: "XLSX" | "DOCX" | "PDF";
             };
             cookie?: never;
         };
@@ -157906,7 +157910,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                format: "XLSX" | "DOCX";
+                format: "XLSX" | "DOCX" | "PDF";
             };
             cookie?: never;
         };
