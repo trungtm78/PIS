@@ -21,6 +21,7 @@ import '../home_data.dart';
 import '../widgets/alert_list.dart';
 import '../widgets/changes_block.dart';
 import '../widgets/committee_card.dart';
+import '../widgets/edition_cards.dart';
 import '../widgets/rag_card.dart';
 
 /// MOB-07: the home of a leader, work before figures. From the top: one line of context (scope, closing day, freshness); the
@@ -93,6 +94,7 @@ class _HomeBody extends StatelessWidget {
         ),
         if (center != null) _CommandBlock(center: center, pair: pair) else _CommandBlockProblem(code: home.centerError ?? 'UNKNOWN', onRetry: onRetry),
         const CommitteeCard(key: ValueKey<String>('committee-workspace')),
+        const EditionHomeCards(),
         ChangesBlock(changes: home.changes, errorCode: home.changesError, onRetry: onRetry),
         RagCard(reading: home.rag, errorCode: home.ragError, onRetry: onRetry),
         DirectiveWidgetCard(data: home.directives, errorCode: home.directivesError, onRetry: onRetry),
