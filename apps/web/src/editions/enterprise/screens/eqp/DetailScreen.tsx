@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { camel } from '../../../../screens/mdm/catalogues';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../../i18n';
@@ -47,7 +48,7 @@ function EquipmentDetailContent({ route }: ScreenProps) {
       <StateBoundary state={id === undefined ? 'empty' : state} onRetry={() => void found.refetch()}>
         {line === undefined || detail === undefined ? null : (
           <>
-            <SectionCard title={`${line.code} · ${line.name}`} status={<StatusPill tone={stageTone(line.stage)}>{t(`eqp.stage.${line.stage}`)}</StatusPill>}>
+            <SectionCard title={`${line.code} · ${line.name}`} status={<StatusPill tone={stageTone(line.stage)}>{t(`eqp.stage.${camel(line.stage)}`)}</StatusPill>}>
               <dl className="ent2-facts">
                 <Fact label={t('eqp.col.project')} testId="fact-project">
                   {line.project.code} · {line.project.name}
@@ -66,7 +67,7 @@ function EquipmentDetailContent({ route }: ScreenProps) {
                   {line.externalLink === null ? t('eqp.detail.none') : `${line.externalLink.externalCode} (${line.externalLink.diffStatus})`}
                 </Fact>
                 <Fact label={t('eqp.col.selection')} testId="fact-selection">
-                  {line.selection === null ? t('eqp.detail.none') : `${t(`eqp.outcome.${line.selection.outcome}`)} · ${line.selection.status}`}
+                  {line.selection === null ? t('eqp.detail.none') : `${t(`eqp.outcome.${camel(line.selection.outcome)}`)} · ${line.selection.status}`}
                 </Fact>
                 <Fact label={t('eqp.detail.winner')} testId="fact-winner">
                   {line.selection?.winnerName ?? t('eqp.detail.none')}

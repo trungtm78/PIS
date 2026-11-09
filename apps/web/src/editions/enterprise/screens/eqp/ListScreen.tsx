@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { camel } from '../../../../screens/mdm/catalogues';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../../i18n';
@@ -54,7 +55,7 @@ function EquipmentListContent({ route }: ScreenProps) {
                 <option value="">{t('eqp.filter.allStages')}</option>
                 {EQUIPMENT_STAGES.map((name) => (
                   <option key={name} value={name}>
-                    {t(`eqp.stage.${name}`)}
+                    {t(`eqp.stage.${camel(name)}`)}
                   </option>
                 ))}
               </select>
@@ -93,7 +94,7 @@ function EquipmentListContent({ route }: ScreenProps) {
                     <td>{line.ownerUnit.name}</td>
                     <td>{moneyText(line.plannedValueVnd, locale)}</td>
                     <td>{line.package === null ? '–' : line.package.code}</td>
-                    <td>{line.selection === null ? '–' : t(`eqp.outcome.${line.selection.outcome}`)}</td>
+                    <td>{line.selection === null ? '–' : t(`eqp.outcome.${camel(line.selection.outcome)}`)}</td>
                     <td>{line.masked.includes('CONTRACT') ? <span className="sub">{t('eqp.list.masked')}</span> : moneyText(line.contractValueVnd, locale)}</td>
                     <td>
                       {line.masked.includes('PAYMENT') ? (
@@ -106,7 +107,7 @@ function EquipmentListContent({ route }: ScreenProps) {
                       )}
                     </td>
                     <td>
-                      <StatusPill tone={stageTone(line.stage)}>{t(`eqp.stage.${line.stage}`)}</StatusPill>
+                      <StatusPill tone={stageTone(line.stage)}>{t(`eqp.stage.${camel(line.stage)}`)}</StatusPill>
                     </td>
                   </tr>
                 ))}

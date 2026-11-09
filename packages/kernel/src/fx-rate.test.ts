@@ -63,7 +63,7 @@ describe('convertCurrency (golden)', () => {
   });
 
   it('rounds once, with the mode of the target currency', () => {
-    const down = { ...FORMATS, USD: { scale: 2, rounding: 'DOWN' as const } };
+    const down: Record<string, CurrencyFormat> = { ...FORMATS, USD: { scale: 2, rounding: 'DOWN' } };
     const out = convertCurrency({ amount: '1000000', from: 'VND', to: 'USD', day: '2026-10-15', rateKind: 'OFFICIAL_AVERAGE', rates: TABLE, formatOf: (code) => down[code] ?? formatOf(code) });
     expect(out.amount).toBe('39.44');
   });

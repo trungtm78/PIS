@@ -419,6 +419,15 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       },
     }),
   },
+  // The audit settings (HT.06): a caller that is refused changes neither the opt-in of a class nor a cap.
+  saveAuditDetailPolicy: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/audit-detail-policies', body: { resource_type: 'period_reopen', enabled: true, max_bytes: 16384, sensitive_keys: [], reason: REASON, expected_version: 0 } }),
+  },
+  saveLogCapacityPolicy: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/log-capacity', body: { record_class: 'outbox_event', max_rows: 1000000, max_bytes: null, warn_pct: 80, active: true, reason: REASON, expected_version: 0 } }),
+  },
   publishRetentionPolicy: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/retention-policies/${t.retentionDraftId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),

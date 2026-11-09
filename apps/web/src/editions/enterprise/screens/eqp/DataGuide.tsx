@@ -1,4 +1,5 @@
 import { useTranslation } from '../../../../i18n';
+import { camel } from '../../../../screens/mdm/catalogues';
 import { SectionCard, StatusPill } from '../../../../ui';
 import type { Guide } from './model';
 
@@ -11,7 +12,7 @@ const TONE = { NEVER_IMPORTED: 'warning', FRESH: 'success', AGING: 'warning', ST
 export function DataGuide({ guide }: { guide: Guide }) {
   const { t } = useTranslation();
   return (
-    <SectionCard title={t('eqp.guide.title')} status={<StatusPill tone={TONE[guide.state]}>{t(`eqp.guide.state.${guide.state}`)}</StatusPill>}>
+    <SectionCard title={t('eqp.guide.title')} status={<StatusPill tone={TONE[guide.state]}>{t(`eqp.guide.state.${camel(guide.state)}`)}</StatusPill>}>
       <div data-testid="data-guide" data-state={guide.state}>
         <p className="ent2-note">
           {guide.ageHours === null ? t('eqp.guide.never') : t('eqp.guide.age', { hours: Math.round(guide.ageHours) })} {t('eqp.guide.layout', { layout: guide.layoutVersion })}
@@ -23,7 +24,7 @@ export function DataGuide({ guide }: { guide: Guide }) {
         ) : null}
         <ol>
           {guide.steps.map((step) => (
-            <li key={step}>{t(`eqp.guide.step.${step}`)}</li>
+            <li key={step}>{t(`eqp.guide.step.${camel(step)}`)}</li>
           ))}
         </ol>
       </div>

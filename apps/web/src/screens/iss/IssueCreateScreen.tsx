@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { camel } from '../mdm/catalogues';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { isDefinitiveRefusal } from '../../api/attempt-registry';
@@ -150,7 +151,7 @@ function IssueCreateContent({ route }: ScreenProps) {
               <select id="issue-category" value={form.categoryVersionId} aria-invalid={problemOf('categoryVersionId') !== undefined} onChange={(event) => change({ categoryVersionId: event.target.value })}>
                 <option value="">{t('iss.create.choose.option')}</option>
                 {split.causes.map((family) => (
-                  <optgroup key={family.group} label={`${t('iss.create.category.causes')} · ${t(`iss.delayCause.group.${family.group}`)}`}>
+                  <optgroup key={family.group} label={`${t('iss.create.category.causes')} · ${t(`iss.delayCause.group.${camel(family.group)}`)}`}>
                     {family.items.map((category) => (
                       <option key={category.versionId} value={category.versionId}>
                         {category.key} · {category.label}

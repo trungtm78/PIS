@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { camel } from '../../mdm/catalogues';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -74,7 +75,7 @@ function LogCapacityContent({ route }: ScreenProps) {
                       : t('adm.logCapacity.capText', { rows: row.policy.maxRows ?? '-', bytes: row.policy.maxBytes === null ? '-' : byteText(row.policy.maxBytes), warn: row.policy.warnPct, usedRows: pctText(row.rowsPct), usedBytes: pctText(row.bytesPct) })}
                   </td>
                   <td>
-                    <StatusPill tone={TONE[row.state]}>{t(`adm.logCapacity.state.${row.state}`)}</StatusPill>
+                    <StatusPill tone={TONE[row.state]}>{t(`adm.logCapacity.state.${camel(row.state)}`)}</StatusPill>
                   </td>
                   <td>{row.kind === 'MONITOR_ONLY' ? t('adm.logCapacity.neverPurged') : (row.reading?.eligibleRows ?? '-')}</td>
                   <td>{row.reading?.protectedRows ?? '-'}</td>
