@@ -106,11 +106,17 @@ describe('NotFound', () => {
     expect(screen.getByRole('heading', { level: 1, name: vi['shell.notFound.title'] })).toBeInTheDocument();
     expect(screen.getByText(vi['shell.notFound.body'])).toBeInTheDocument();
   });
+
+  it('is the standard state card and offers the way back to the home screen', () => {
+    render(<NotFound />);
+    expect(screen.getByRole('alert')).toHaveClass('statecard');
+    expect(screen.getByRole('link', { name: vi['shell.notFound.home'] })).toHaveAttribute('href', '/');
+  });
 });
 
 describe('catalogues', () => {
   it('hold the shell route keys in both languages', () => {
-    for (const key of ['shell.screen.notImplemented.title', 'shell.screen.notImplemented.body', 'shell.notFound.title', 'shell.notFound.body'] as const) {
+    for (const key of ['shell.screen.notImplemented.title', 'shell.screen.notImplemented.body', 'shell.notFound.title', 'shell.notFound.body', 'shell.notFound.home', 'states.crash.title', 'states.crash.body', 'states.crash.reload', 'states.crash.home'] as const) {
       expect(vi[key]).toBeTruthy();
       expect(en[key]).toBeTruthy();
     }

@@ -38034,5 +38034,10 @@
   "cap.decisionKind.groupResolution.label": "Nghị quyết của Tập đoàn",
   "cap.decisionKind.groupDecision.label": "Quyết định của Tập đoàn",
   "cap.decisionKind.companyResolution.label": "Nghị quyết của Tổng công ty",
-  "cap.decisionKind.companyDecision.label": "Quyết định của Tổng công ty"
+  "cap.decisionKind.companyDecision.label": "Quyết định của Tổng công ty",
+  "states.crash.title": "Màn hình này gặp sự cố",
+  "states.crash.body": "Hệ thống chưa hiển thị được nội dung. Thông tin đã lưu không bị mất. Hãy tải lại màn hình hoặc quay về trang chủ.",
+  "states.crash.reload": "Tải lại màn hình",
+  "states.crash.home": "Về trang chủ",
+  "shell.notFound.home": "Về trang chủ"
 }

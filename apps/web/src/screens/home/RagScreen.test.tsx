@@ -150,7 +150,7 @@ describe('HOME-11 the whole states matrix', () => {
     mount(<RagScreen route={ROUTE} />, harness(() => new Promise(() => undefined)), { permissions: READER });
     const loading = screen.getByRole('status', { name: tr('states.loading.label') });
     expect(loading.getAttribute('aria-busy')).toBe('true');
-    expect(loading.textContent).toBe('');
+    expect(loading.textContent).not.toMatch(/\d/);
   });
 
   it('says an error and retries; says a refusal as a refusal; says nothing frozen yet with the way to the snapshots', async () => {

@@ -1,8 +1,9 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { routeByPath } from '../../../routes/registry';
 import { useSession } from '../../../session/SessionContext';
 import { HelpButton } from '../../../shell/HelpDrawer';
+import { GuardedOutlet } from '../../../states/ScreenErrorBoundary';
 import './portal.css';
 
 /**
@@ -21,7 +22,7 @@ export function PortalFrame() {
         <HelpButton screenId={route?.id} title={route?.title ?? t('vnp.frame.product.text')} />
       </header>
       <main className="portal-frame__body">
-        <Outlet />
+        <GuardedOutlet />
       </main>
     </div>
   );

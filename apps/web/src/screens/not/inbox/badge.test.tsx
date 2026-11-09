@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ApiClientProvider } from '../../../api/ApiClientContext';
 import { AppRoutes } from '../../../App';
 import vi_ from '../../../i18n/vi.json';
@@ -105,5 +105,20 @@ describe('the unread badge of the sidebar follows the inbox', () => {
     const { container } = app(harness([{ items: [], next_cursor: null }]), '/not/not-01');
     await screen.findByText('Chưa có dữ liệu');
     expect(badge(container)).toBe('3');
+  });
+
+  it('never sets the state of the shell while the inbox screen renders (no "Cannot update a component" warning)', async () => {
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const user = userEvent.setup();
+      const { container } = app(harness([{ items: inbox(), next_cursor: null }, { items: inbox(), next_cursor: null }]), '/not/not-01');
+      await screen.findByRole('group', { name: 'Lọc hộp thông báo' });
+      await waitFor(() => expect(badge(container)).toBe('3'));
+      // A second look at an inbox that is already in the cache: the screen builds and reads the same query while it renders.
+      await user.click(screen.getByRole('button', { name: /Hồ sơ thanh toán đang chờ phê duyệt/ }));
+      expect(errors.mock.calls.filter((call) => String(call[0]).includes('Cannot update a component'))).toEqual([]);
+    } finally {
+      errors.mockRestore();
+    }
   });
 });

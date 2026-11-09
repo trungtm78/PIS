@@ -38034,5 +38034,10 @@
   "cap.decisionKind.groupResolution.label": "Resolution of the group",
   "cap.decisionKind.groupDecision.label": "Decision of the group",
   "cap.decisionKind.companyResolution.label": "Resolution of the company",
-  "cap.decisionKind.companyDecision.label": "Decision of the company"
+  "cap.decisionKind.companyDecision.label": "Decision of the company",
+  "states.crash.title": "This screen ran into a problem",
+  "states.crash.body": "The system could not show the content. Saved information is not lost. Reload the screen or go back to the home page.",
+  "states.crash.reload": "Reload the screen",
+  "states.crash.home": "Back to the home page",
+  "shell.notFound.home": "Back to the home page"
 }

@@ -23,6 +23,7 @@ import { OidcCallback } from './session/oidc/OidcCallback';
 import { SignInGate } from './session/oidc/SignInGate';
 import { useSession } from './session/SessionContext';
 import { StateBoundary } from './states/StateBoundary';
+import { ScreenErrorBoundary } from './states/ScreenErrorBoundary';
 import type { ScreenState } from './states/StateBoundary';
 import { PublishedThemeProvider } from './theme/PublishedThemeProvider';
 
@@ -152,7 +153,7 @@ function AppSession({ children }: { children: ReactNode }) {
   }
   if (DevSessionProvider === undefined) return <>{children}</>;
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<StateBoundary state="loading" />}>
       <DevSessionProvider>{children}</DevSessionProvider>
     </Suspense>
   );
@@ -173,15 +174,17 @@ function DocumentTitle() {
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <DocumentTitle />
-      <AppSession>
-        <PwaSessionGuard>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </PwaSessionGuard>
-      </AppSession>
-    </QueryClientProvider>
+    <ScreenErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <DocumentTitle />
+        <AppSession>
+          <PwaSessionGuard>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </PwaSessionGuard>
+        </AppSession>
+      </QueryClientProvider>
+    </ScreenErrorBoundary>
   );
 }

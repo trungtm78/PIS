@@ -33,6 +33,23 @@ describe('main', () => {
     resetEdition();
   }, COLD_IMPORT_TIMEOUT_MS);
 
+  it('shows the error card, never an empty page, when the bundle of the edition does not load', async () => {
+    vi.stubEnv('VITE_EDITION', 'enterprise');
+    vi.doMock('./editions/load', () => ({ loadWebEdition: () => Promise.reject(new Error('chunk lost')) }));
+    document.body.innerHTML = '<div id="root"><p data-boot>placeholder</p></div>';
+    const unhandled = vi.fn();
+    process.on('unhandledRejection', unhandled);
+    try {
+      await import('./main');
+      expect(await screen.findByText(viCatalogue['states.crash.title'], undefined, { timeout: COLD_IMPORT_TIMEOUT_MS })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: viCatalogue['states.crash.home'] })).toBeInTheDocument();
+      expect(document.querySelector('[data-boot]')).toBeNull();
+    } finally {
+      process.off('unhandledRejection', unhandled);
+      vi.doUnmock('./editions/load');
+    }
+  }, COLD_IMPORT_TIMEOUT_MS);
+
   it('stops the start for a VITE_EDITION that is not an edition', async () => {
     vi.stubEnv('VITE_EDITION', 'enterprise-plus');
     document.body.innerHTML = '<div id="root"></div>';
