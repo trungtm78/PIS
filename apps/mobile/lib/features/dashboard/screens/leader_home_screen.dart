@@ -82,6 +82,7 @@ class _HomeBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
       children: <Widget>[
+        const EditionHomeHeader(),
         _ContextLine(center: center, loaded: loaded),
         AlertsPanel(
           feed: home.alerts,

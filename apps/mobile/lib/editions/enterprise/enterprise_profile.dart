@@ -10,6 +10,7 @@ const EditionProfile kEnterpriseEditionProfile = EditionProfile(
   edition: Edition.enterprise,
   appTitle: kEnterpriseProductNameVi,
   overlay: kEnterpriseStrings,
+  homeHeader: buildEnterpriseHomeHeader,
   homeCards: <WidgetBuilder>[buildPeriodStatusCard, buildHpmStatusCard, buildEbsStatusCard],
   homeStrings: kEnterpriseHomeStrings,
 );

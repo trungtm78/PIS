@@ -98,6 +98,7 @@ class _WorkBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
       children: <Widget>[
+        const EditionHomeHeader(),
         AlertsPanel(
           feed: home.alerts,
           onReload: onRetry,
