@@ -1,5 +1,5 @@
 {
-  "description": "AD group to system role mapping (source of truth for the groups of machvon-realm.json). Only groups named MACHVON-* are imported from the directory (the group mapper filter); every other directory group is ignored. A person gets a control-plane role only through membership of the matching directory group, so the directory team grants and removes it; every grant is audited by the directory and by the application.",
+  "description": "AD group to system role mapping (source of truth for the groups of machvon-realm.json). Only groups named MACHVON-* are imported from the directory (the group mapper filter); every other directory group is ignored. A person gets a control-plane role only through membership of the matching directory group, so the directory team grants and removes it; every grant is audited by the directory and by the application. tenantMappings states the directory groups that fill the seats of the organisation pack of a tenant (ENT-3d): each names one role of that tenant and the unit it is held in or the whole tenant; they grant no control-plane role and no realm role, and the directory import filter takes them like the groups above; a tenant administrator gives the role to the members of the group in the tenant, and the pack file (packages/edition-enterprise/templates/org-pack) is the source they are generated from (npm run org-pack:build -w @machvon/edition-enterprise).",
   "groupFilter": "(cn=MACHVON-*)",
   "webauthnMarkerRole": "mfa-webauthn-required",
   "mappings": [
@@ -30,6 +30,162 @@
         "SupportOperator"
       ],
       "approver": "platform-operations"
+    }
+  ],
+  "tenantMappings": [
+    {
+      "adGroup": "MACHVON-PVFCCO-CN-QLPTDA-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "CN_QLPTDA",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-CN-QLPTDA-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "CN_QLPTDA",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-NM-DPM-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "NM_DPM",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-NM-DPM-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "NM_DPM",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TM-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TM",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TM-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TM",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-KTAT-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "KTAT",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-KTAT-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "KTAT",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TH-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TH",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TH-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TH",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TCKT-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TCKT",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TCKT-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TCKT",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TT-NCUD-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TT_NCUD",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TT-NCUD-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TT_NCUD",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TDA-1-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TDA_1",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TDA-1-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TDA_1",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TDA-2-ENTRY",
+      "tenantRole": "ENT_DATA_ENTRY",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TDA_2",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-TDA-2-APPROVER",
+      "tenantRole": "ENT_UNIT_APPROVER",
+      "scopeKind": "UNIT_ONLY",
+      "unit": "TDA_2",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-KHDT-REVIEW",
+      "tenantRole": "ENT_PLANNING_REVIEWER",
+      "scopeKind": "TENANT",
+      "unit": "KHDT",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-BTGD-LEADER",
+      "tenantRole": "ENT_LEADERSHIP_VIEWER",
+      "scopeKind": "TENANT",
+      "unit": "BTGD",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-HDQT-LEADER",
+      "tenantRole": "ENT_LEADERSHIP_VIEWER",
+      "scopeKind": "TENANT",
+      "unit": "HDQT",
+      "pack": "PVFCCO-TEMPLATE"
+    },
+    {
+      "adGroup": "MACHVON-PVFCCO-CDS-CNTT-ADMIN",
+      "tenantRole": "ENT_EDITION_ADMIN",
+      "scopeKind": "TENANT",
+      "unit": "CDS_CNTT",
+      "pack": "PVFCCO-TEMPLATE"
     }
   ]
 }
