@@ -6742,6 +6742,22 @@
       "req": "FR-ADM-28",
       "rule": "Người cho phép là người thứ ba (không phải người đề nghị, người vắng hay người thay). Người vắng không có người thay quá số giờ làm việc thì thành khoảng trống, cảnh báo của họ rơi lên lãnh đạo trực tiếp và vào chỉ số cảnh báo mồ côi."
     },
+    "ADM-31": {
+      "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+      "module": "ADM",
+      "moduleName": "Quản trị tenant",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Quản trị hệ thống, Ban KHĐT và người duyệt khác người đề xuất",
+      "fields": [
+        "Loại kỳ",
+        "Số ngày và giờ hạn của từng bước",
+        "Mốc nhắc trước hạn, chu kỳ nhắc quá hạn, số ngày báo lãnh đạo đơn vị",
+        "Phiên bản đang hiệu lực, nguồn và nhãn chưa xác nhận"
+      ],
+      "req": "QT.02",
+      "rule": "Đề xuất, trình và duyệt phiên bản mới bằng màn quy tắc quản trị (người duyệt khác người đề xuất). Màn này chỉ hiển thị phiên bản đang hiệu lực và dẫn tới màn đề xuất."
+    },
     "SAS-01": {
       "title": "Danh sách tenant",
       "module": "SAS",
@@ -11627,6 +11643,22 @@
       "req": "FR-HPM-02",
       "rule": "Một đính chính chỉ dùng một lần. Một đề nghị chờ cho một phiên bản tại một thời điểm."
     },
+    "RML-01": {
+      "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+      "module": "RML",
+      "moduleName": "Gửi biểu mẫu báo cáo qua email theo lịch",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Người lập lịch và người đọc",
+      "fields": [
+        "Mẫu biểu, lịch, định dạng tệp, người nhận, ghi chú",
+        "Lần chạy gần nhất, trạng thái, người lập",
+        "Nhật ký gửi: người nhận, bản phát hành, mã băm SHA-256 tệp đính kèm, trạng thái, số lần thử, mã lỗi",
+        "Lập lịch mới, chấm dứt lịch kèm lý do"
+      ],
+      "req": "FR-RML-01",
+      "rule": "Lịch chỉ gửi các bản phát hành sau khi lịch được lập. Mỗi (lịch, bản phát hành, người nhận) gửi một lần. Người nhận được xét lại quyền ở mỗi lần gửi. Lịch không sửa được, muốn đổi thì chấm dứt và lập lịch khác."
+    },
     "EBS-01": {
       "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",
       "module": "EBS",
@@ -11661,6 +11693,25 @@
       ],
       "req": "FR-EBS-02",
       "rule": "Mỗi chênh lệch là một hạng mục có chủ và hạn. Chủ hạng mục không phải người nạp tệp hay người chạy đối chiếu."
+    },
+    "ORG-01": {
+      "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+      "module": "ORG",
+      "moduleName": "Tổ chức enterprise",
+      "kind": "dashboard",
+      "purpose": "Đây là bảng điều hành.",
+      "audience": "Ban KHĐT và lãnh đạo xem",
+      "fields": [
+        "Đơn vị và 09 đầu mối",
+        "Vai trò và phạm vi",
+        "Chỗ ngồi và nhóm thư mục",
+        "Quy trình duyệt từng bước",
+        "Ủy quyền",
+        "Danh mục dùng chung",
+        "Kế hoạch nạp và báo cáo kiểm chứng"
+      ],
+      "req": "FR-ADM-ENT3D",
+      "rule": "Chỉ đọc. Không ghi đè khác biệt."
     },
     "DOC-24": {
       "title": "Kho hồ sơ dự án",
@@ -11798,6 +11849,67 @@
       ],
       "req": "FR-DIS-31",
       "rule": "So dự báo gần nhất lập trước mỗi tháng (lịch sử đăng ký không bị ghi đè) với số Kho bạc chi trong tháng."
+    },
+    "DIS-32": {
+      "title": "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt",
+      "module": "DIS",
+      "moduleName": "Báo cáo giải ngân",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Người dựng: chuyên viên kế hoạch có quyền trên toàn đơn vị, người chốt: lãnh đạo hoặc trưởng phòng kế hoạch và khác người dựng",
+      "fields": [
+        "Kỳ doanh nghiệp",
+        "Trạng thái kỳ",
+        "Đủ số liệu hay chưa",
+        "Đơn vị chưa nộp",
+        "Dự án và ô còn thiếu",
+        "Lô chờ duyệt",
+        "Bản đã chốt và phiên bản",
+        "Điều kiện dựng lại",
+        "Người dựng"
+      ],
+      "req": "DL.03",
+      "rule": "Chỉ dựng khi kỳ đã khóa. Thiếu số thực của một ô kế hoạch thì từ chối kèm danh sách đơn vị."
+    },
+    "DIS-33": {
+      "title": "Bản chốt kỳ doanh nghiệp: số liệu theo đơn vị và dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản, chốt",
+      "module": "DIS",
+      "moduleName": "Báo cáo giải ngân",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Chuyên viên kế hoạch, lãnh đạo và kiểm toán nội bộ",
+      "fields": [
+        "Kỳ và phiên bản",
+        "Trạng thái và mã băm",
+        "Kế hoạch năm gốc, điều chỉnh, trong hiệu lực",
+        "Ước và thực của kỳ",
+        "Lũy kế năm và từ đầu dự án",
+        "Tỷ lệ kèm tử số, mẫu số",
+        "Theo nhóm vốn",
+        "Theo đơn vị",
+        "Theo dự án",
+        "Chỉ tiêu đã nhập",
+        "Dòng dõi phiên bản"
+      ],
+      "req": "BC.01",
+      "rule": "Mọi số đọc qua một bộ đọc duy nhất trên bản chốt. Ô không có số là trống kèm lý do, không bao giờ là 0. Bản chốt không sửa, bản mới là phiên bản kế tiếp nối với bản cũ."
+    },
+    "DIS-34": {
+      "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
+      "module": "DIS",
+      "moduleName": "Báo cáo giải ngân",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Ban KHĐT, người duyệt đơn vị và lãnh đạo",
+      "fields": [
+        "Năm và loại kỳ",
+        "Hạn từng bước",
+        "Trạng thái từng đầu mối theo bước",
+        "Số dự án đã nhập và đã duyệt trên số dự án phải báo cáo",
+        "Các lần nhắc đã gửi"
+      ],
+      "req": "QT.02",
+      "rule": "Kỳ đã sinh giữ hạn nhập liệu lúc sinh."
     },
     "PAY-22": {
       "title": "Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày",
@@ -12276,6 +12388,46 @@
       ],
       "req": "FR-RPT-06",
       "rule": "Kỳ bị khóa khi bản được ký (hoặc được nhận). Kỳ khóa không nhận bản mới. Mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng."
+    },
+    "RPT-07": {
+      "title": "Bố cục biểu mẫu cấu hình",
+      "module": "RPT",
+      "moduleName": "Bộ sinh báo cáo",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Người lập báo cáo và lãnh đạo duyệt",
+      "fields": [
+        "Mã bố cục",
+        "Loại",
+        "Phiên bản đang hiệu lực",
+        "Trạng thái phiên bản",
+        "Người lập",
+        "Người duyệt",
+        "Hiệu lực từ",
+        "Mã băm bố cục"
+      ],
+      "req": "FR-RPT-07",
+      "rule": "Bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành."
+    },
+    "RPT-08": {
+      "title": "Soạn bố cục biểu mẫu",
+      "module": "RPT",
+      "moduleName": "Bộ sinh báo cáo",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Người lập báo cáo",
+      "fields": [
+        "Loại và tên biểu mẫu",
+        "Đơn vị yêu cầu và văn bản yêu cầu",
+        "Chỉ tiêu, tiêu đề và cơ sở kỳ",
+        "Cột bảng dự án và thứ tự",
+        "Nhóm dự án",
+        "Tổng cộng và người ký",
+        "Xem trước bằng số liệu minh họa",
+        "Lý do và hiệu lực"
+      ],
+      "req": "FR-RPT-08",
+      "rule": "Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do. Xem trước dùng số liệu minh họa ghi rõ. Lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc."
     },
     "PRJ-31": {
       "title": "Hồ sơ giám sát cộng đồng",
@@ -12805,6 +12957,284 @@
       ],
       "req": "FR-BID-34",
       "rule": "Kết quả do một người ghi và người khác xác nhận hoặc trả lại có lý do. Kết quả đã xác nhận không đổi. Chỉ kết quả đã xác nhận vào tỷ lệ kiến nghị được chấp nhận. Xung đột lợi ích chặn cả hai người."
+    },
+    "ADM-29": {
+      "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+      "module": "ADM",
+      "moduleName": "Quản trị tenant",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Quản trị tenant và kiểm toán nội bộ",
+      "fields": [
+        "Loại đối tượng nghiệp vụ",
+        "Bật lưu đủ trước và sau",
+        "Dung lượng tối đa mỗi dòng",
+        "Khóa nhạy cảm thêm",
+        "Lý do",
+        "Phiên bản"
+      ],
+      "req": "FR-ADM-AUDIT-DETAIL",
+      "rule": "Mặc định tắt. Giá trị được che khóa bí mật và dữ kiện cá nhân, cắt theo dung lượng. Dòng nhật ký đã niêm phong mang băm của bản đầy đủ nên không đổi được sau này. Mọi thay đổi cần lý do và có ghi nhật ký (HT.06)."
+    },
+    "ADM-30": {
+      "title": "Giới hạn số lượng và dung lượng log",
+      "module": "ADM",
+      "moduleName": "Quản trị tenant",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Quản trị tenant",
+      "fields": [
+        "Loại log",
+        "Số dòng",
+        "Dung lượng",
+        "Giới hạn dòng",
+        "Giới hạn dung lượng",
+        "Ngưỡng cảnh báo",
+        "Trạng thái",
+        "Dòng được phép lưu trữ",
+        "Dòng được giữ theo hạn lưu",
+        "Lô đã lưu trữ"
+      ],
+      "req": "FR-ADM-LOG-CAPACITY",
+      "rule": "Cảnh báo khi đạt ngưỡng và khi vượt mà không xử lý được. Mọi thay đổi cần lý do (HT.06)."
+    },
+    "EQP-01": {
+      "title": "Mua sắm trang thiết bị dự án",
+      "module": "EQP",
+      "moduleName": "Mua sắm trang thiết bị",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Ban Thương mại và đơn vị chủ quản dự án và bid.plan.manage lập và gắn dòng",
+      "fields": [
+        "Dòng mua sắm",
+        "Dự án",
+        "Đơn vị",
+        "Giá trị kế hoạch",
+        "Gói thầu",
+        "Kết quả lựa chọn nhà thầu",
+        "Giá trị hợp đồng",
+        "Đã giải ngân",
+        "Tỷ lệ giải ngân",
+        "Giai đoạn",
+        "Mã trên mạng đấu thầu quốc gia",
+        "Cách lấy dữ liệu"
+      ],
+      "req": "FR-EQP-01",
+      "rule": "Số liệu bị che hiện là không có quyền, không phải số không. Khung Cách lấy dữ liệu nêu trạng thái nhập tệp e-GP (chưa nhập, mới, cũ) và các bước tải, nạp thử, áp dụng, gắn gói. Chỉ bản enterprise (CN.02)."
+    },
+    "EQP-02": {
+      "title": "Chi tiết dòng mua sắm trang thiết bị",
+      "module": "EQP",
+      "moduleName": "Mua sắm trang thiết bị",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Ban Thương mại và đơn vị chủ quản dự án, bid.plan.manage gắn gói thầu và hợp đồng",
+      "fields": [
+        "Dòng mua sắm",
+        "Giá trị kế hoạch",
+        "Gói thầu",
+        "Kết quả lựa chọn nhà thầu",
+        "Nhà thầu trúng",
+        "Hợp đồng",
+        "Giá trị hợp đồng",
+        "Chênh lệch so với kế hoạch",
+        "Đã giải ngân",
+        "Mã trên mạng đấu thầu quốc gia",
+        "Phiên bản"
+      ],
+      "req": "FR-EQP-02",
+      "rule": "Gắn gói thầu và hợp đồng một lần, cùng dự án, hợp đồng thuộc gói. Hủy cần lý do. Dòng đã hủy không đổi nữa (CN.02)."
+    },
+    "ADM-32": {
+      "title": "Sao lưu và yêu cầu sao lưu thủ công",
+      "module": "ADM",
+      "moduleName": "Quản trị tenant",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "quản trị hệ thống và quản trị tổ chức",
+      "fields": [
+        "Trạng thái bản sao lưu gần nhất",
+        "Lần kiểm tra gần nhất",
+        "Loại sao lưu",
+        "Kho lưu",
+        "Lý do",
+        "Người yêu cầu",
+        "Người duyệt",
+        "Nhãn bản sao lưu",
+        "Trạng thái"
+      ],
+      "req": "FR-ADM-32",
+      "rule": "Yêu cầu và duyệt do hai người khác nhau. Giao diện không chạy sao lưu, chỉ ghi yêu cầu và hiển thị trạng thái đọc từ nguồn trạng thái."
+    },
+    "PWA-01": {
+      "title": "Trang chủ ứng dụng cài đặt",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "cards",
+      "purpose": "Đây là các thẻ thông tin.",
+      "audience": "Lãnh đạo và người phê duyệt",
+      "fields": [
+        "Số việc chờ duyệt",
+        "Ba lối vào",
+        "Cách cài đặt",
+        "Bật thông báo đẩy"
+      ],
+      "req": "YCK.01",
+      "rule": "Chỉ hiện số việc chờ duyệt. Không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt. Thông báo chỉ mang tiêu đề chung và đường dẫn."
+    },
+    "PWA-02": {
+      "title": "Hàng đợi phê duyệt số liệu kỳ",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "approval",
+      "purpose": "Đây là màn hình phê duyệt.",
+      "audience": "Lãnh đạo và người phê duyệt",
+      "fields": [
+        "Loại hồ sơ",
+        "Bước",
+        "Đơn vị",
+        "Dự án",
+        "Số tiền",
+        "Hạn",
+        "Phê duyệt",
+        "Trả lại kèm ý kiến"
+      ],
+      "req": "YCK.01",
+      "rule": "Trả lại bắt buộc có ý kiến. Không xếp hàng, không gửi từ thông báo."
+    },
+    "PWA-03": {
+      "title": "Bảng điều hành của lãnh đạo",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "dashboard",
+      "purpose": "Đây là bảng điều hành.",
+      "audience": "Lãnh đạo",
+      "fields": [
+        "Phạm vi và ngày chốt",
+        "Giải ngân và tỷ lệ",
+        "Kế hoạch và việc chờ",
+        "Cần xử lý ngay",
+        "Tiến độ đấu thầu",
+        "Hội đồng"
+      ],
+      "req": "YCK.01",
+      "rule": "Số liệu không có thì nói rõ, không hiện 0. Số liệu thuộc về bản chốt đang xem."
+    },
+    "PWA-04": {
+      "title": "Theo dõi chỉ đạo",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "list",
+      "purpose": "Đây là danh sách.",
+      "audience": "Lãnh đạo và thư ký giao ban",
+      "fields": [
+        "Số liệu tổng hợp",
+        "Bộ lọc trạng thái, quá hạn, đơn vị",
+        "Danh sách chỉ đạo",
+        "Hạn và tiến độ"
+      ],
+      "req": "YCK.01",
+      "rule": "Tiến độ chưa báo cáo nói rõ, không hiện 0%. Nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo."
+    },
+    "PWA-05": {
+      "title": "Chi tiết phê duyệt số liệu kỳ",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "approval",
+      "purpose": "Đây là màn hình phê duyệt.",
+      "audience": "Lãnh đạo và người phê duyệt",
+      "fields": [
+        "Nội dung và số tiền",
+        "So sánh với kế hoạch",
+        "So sánh với lần báo cáo trước",
+        "Bằng chứng đính kèm",
+        "Lịch sử các bước",
+        "Phê duyệt hoặc trả lại"
+      ],
+      "req": "YCK.01",
+      "rule": "Tên đơn vị và dự án thay cho mã. Mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi."
+    },
+    "PWA-06": {
+      "title": "Chi tiết chỉ đạo và dòng thời gian",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "timeline",
+      "purpose": "Đây là dòng thời gian.",
+      "audience": "Lãnh đạo và thư ký giao ban",
+      "fields": [
+        "Nội dung chỉ đạo",
+        "Đơn vị và người thực hiện",
+        "Hạn gốc và hạn hiện tại",
+        "Dòng thời gian",
+        "Đề nghị gia hạn",
+        "Bằng chứng"
+      ],
+      "req": "YCK.01",
+      "rule": "Chỉ đọc trên điện thoại. Lịch sử không sửa. Số ngày quá hạn do máy chủ tính."
+    },
+    "PWA-07": {
+      "title": "Cài đặt ứng dụng cài đặt",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Mọi người dùng đã đăng nhập",
+      "fields": [
+        "Thiết bị và phiên đăng nhập",
+        "Ngôn ngữ",
+        "Thông báo theo nhóm sự kiện",
+        "Giờ yên lặng"
+      ],
+      "req": "YCK.01",
+      "rule": "Thu hồi phiên hiện tại bị từ chối. Lưu thông báo kèm phiên bản. Kênh bắt buộc không tắt được."
+    },
+    "PWA-08": {
+      "title": "Chi tiết số liệu bảng điều hành",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Lãnh đạo",
+      "fields": [
+        "Số tiền theo bản chốt",
+        "Xếp hạng",
+        "Nguyên nhân chậm giải ngân",
+        "Dòng tiền",
+        "Thay đổi so với bản chốt trước",
+        "Mức cảnh báo"
+      ],
+      "req": "YCK.01",
+      "rule": "Một cột, không cuộn ngang ở 360 px."
+    },
+    "PWA-09": {
+      "title": "Tiến độ đấu thầu trên điện thoại",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "tree",
+      "purpose": "Đây là sơ đồ dạng cây.",
+      "audience": "Lãnh đạo và chuyên viên đấu thầu",
+      "fields": [
+        "Số gói và việc quá hạn",
+        "Các bước của quy trình",
+        "Gói ở từng bước"
+      ],
+      "req": "YCK.01",
+      "rule": "Danh sách một cột thay cho cây đồ thị."
+    },
+    "PWA-10": {
+      "title": "Cài đặt thông báo đẩy",
+      "module": "PWA",
+      "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Mọi người dùng đã đăng nhập",
+      "fields": [
+        "Quyền thông báo của trình duyệt",
+        "Đăng ký và hủy đăng ký thiết bị",
+        "Thông báo thử gửi cho chính mình"
+      ],
+      "req": "YCK.01",
+      "rule": "Thông báo chỉ mang tiêu đề chung và đường dẫn. Thông báo thử chỉ gửi cho chính người dùng. Đăng ký bắt đầu từ thao tác chạm của người dùng."
     }
   }
 }
