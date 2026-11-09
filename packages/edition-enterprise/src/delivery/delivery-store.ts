@@ -118,7 +118,7 @@ const mailingOf = (row: MailingSql): MailingRow => ({
   createdAt: row.created_at,
 });
 
-/** The schedules that mail issued report forms, and the log of what they mailed (ENT-4d). The rules are in `delivery-rules.ts`; the database holds the invariants (V2820). */
+/** The schedules that mail issued report forms, and the log of what they mailed (ENT-4d). The rules are in `delivery-rules.ts`; the database holds the invariants (V2840). */
 export class ReportMailStore {
   async createSchedule(tx: TenantTx, request: DeliveryScheduleRequest, by: string): Promise<MailScheduleRow> {
     // Only members of this tenant who are active receive a form: a recipient who is not is refused when the schedule is made, and judged again every time a message is sent.
