@@ -36,3 +36,8 @@
 .ent2-columns { display: grid; gap: var(--mv-space-4); margin: 0; padding-left: var(--mv-space-16); }
 .ent2-flow { display: grid; gap: var(--mv-space-12); }
 .ent2-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }
+
+/* The row head of a KitTable is a cell of the row, not a second table head (it was drawn dark, with the sub line barely readable). */
+.ent2-page tbody th[scope='row']:not(.ui-table__head) { position: static; background: var(--mv-color-surface); color: var(--mv-color-ink); font-size: 14px; border-bottom: 1px solid var(--mv-color-border); }
+.ent2-page tbody th[scope='row'] .sub { color: var(--mv-color-text-secondary); font-weight: 400; }
+.ent2-page .eqp-unit { min-width: 11rem; }

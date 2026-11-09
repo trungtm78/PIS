@@ -74,7 +74,7 @@ function EquipmentListContent({ route }: ScreenProps) {
                 <tr>
                   <th scope="col">{t('eqp.col.line')}</th>
                   <th scope="col">{t('eqp.col.project')}</th>
-                  <th scope="col">{t('eqp.col.unit')}</th>
+                  <th scope="col" className="eqp-unit">{t('eqp.col.unit')}</th>
                   <th scope="col">{t('eqp.col.planned')}</th>
                   <th scope="col">{t('eqp.col.package')}</th>
                   <th scope="col">{t('eqp.col.selection')}</th>
@@ -91,7 +91,7 @@ function EquipmentListContent({ route }: ScreenProps) {
                       <div className="sub">{line.name}</div>
                     </th>
                     <td>{line.project.code}</td>
-                    <td>{line.ownerUnit.name}</td>
+                    <td className="eqp-unit">{line.ownerUnit.name}</td>
                     <td>{moneyText(line.plannedValueVnd, locale)}</td>
                     <td>{line.package === null ? '–' : line.package.code}</td>
                     <td>{line.selection === null ? '–' : t(`eqp.outcome.${camel(line.selection.outcome)}`)}</td>
