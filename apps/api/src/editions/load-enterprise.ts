@@ -37,3 +37,9 @@ export async function loadEnterpriseModules(): Promise<readonly ModuleDescriptor
   const { ENTERPRISE_API_MODULES } = await import('./enterprise/index.ts');
   return ENTERPRISE_API_MODULES;
 }
+
+/** The job that mails the issued report forms by schedule (ENT-4d): built only for the enterprise edition, on the channel port of the process. */
+export async function loadReportMailJob(deps: import('./enterprise/report-mail-job.ts').ReportMailJobDeps): Promise<{ run(ctx: import('@machvon/kernel').TenantContext, now: Date): Promise<unknown> }> {
+  const { createReportMailJob } = await import('./enterprise/report-mail-job.ts');
+  return createReportMailJob(deps);
+}

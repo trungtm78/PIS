@@ -125,6 +125,8 @@ export const JOB_INTERVAL_SECONDS = {
   'doc-interop-send': 60,
   // Every minute: a schedule of exports whose time has come makes one job for each recipient under that recipient's scope as it is then (ST-BI-008, BI.md F7); a schedule runs once for each of its times (its last run is kept).
   'bi-export-schedule-runner': 60,
+  // Every minute: a schedule that mails the issued copies of a report form whose time has come sends them, once for each (schedule, copy, recipient), with the log written before the send (ENT-4d); a send whose process died is settled as UNKNOWN and never repeated.
+  'report-mail-runner': 60,
   // Hourly: a file of an export whose seven days are over is removed and its job is EXPIRED, once (ST-BI-008, BI.md F7); the pass is idempotent.
   'bi-export-expiry': 3600,
   // Every 30 seconds: the queries of BI that were too heavy to wait for are run for the person who asked, under the scope they have now, oldest first, and each ends with how long it took (ST-BI-009, BI.md F3).
@@ -373,6 +375,8 @@ export interface StandardJobDeps {
   docInteropSend?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The runner of the schedules of exports and the expiry of their files (ST-BI-008). */
   biExportRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** The e-mail delivery of issued report forms by schedule (ENT-4d, enterprise edition only): without it the job is not scheduled. */
+  reportMailRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   biExportExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The jobs the heavy queries of BI become, and the expiry of their answers (ST-BI-009). */
   biQueryJobs?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -1075,6 +1079,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await exportRunner.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const mailRunner = deps.reportMailRunner;
+  if (mailRunner !== undefined) {
+    handlers.push({
+      name: 'report-mail-runner',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await mailRunner.run(workerContext(tenantId), now)));
       },
     });
   }

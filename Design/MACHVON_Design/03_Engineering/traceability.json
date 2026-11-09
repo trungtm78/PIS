@@ -11335,6 +11335,23 @@
     ]
   },
   {
+    "requirement": "FR-RML-01",
+    "screen": "RML-01",
+    "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "HSKT BC.02, kế hoạch ENT-4d",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/RML.md §10–§11",
+    "backlog_id": "BL-RML-01",
+    "test_ids": [
+      "UI-RML-01"
+    ]
+  },
+  {
     "requirement": "FR-EBS-01",
     "screen": "EBS-01",
     "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",

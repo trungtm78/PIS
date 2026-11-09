@@ -1,0 +1,12 @@
+.leader-panel {
+  display: grid;
+  gap: var(--mv-space-16);
+  margin-block: var(--mv-space-16);
+}
+.leader-blocked-list {
+  margin: var(--mv-space-8) 0 0;
+  padding-left: var(--mv-space-20);
+}
+.leader-blocked-list li {
+  margin-block: var(--mv-space-4);
+}

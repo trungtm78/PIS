@@ -1,0 +1,11 @@
+{
+  "subject": "Báo cáo {form} kỳ {period}, phiên bản {revision}",
+  "greeting": "Kính gửi Anh/Chị,",
+  "intro": "Hệ thống gửi kèm báo cáo {form} kỳ {period}, phiên bản {revision}, đã được phát hành ngày {issuedOn}.",
+  "correction": "Phiên bản này thay thế phiên bản trước của cùng kỳ.",
+  "file": "Tệp đính kèm: {fileName}.",
+  "hash": "Mã băm SHA-256 của tệp đính kèm: {sha256}. Đối chiếu mã này với bản lưu trong hệ thống để bảo đảm tệp nhận được không bị thay đổi.",
+  "noteLead": "Ghi chú của người lập lịch gửi:",
+  "closing": "Thư này do hệ thống tự gửi theo lịch đã cấu hình; vui lòng không trả lời.",
+  "source": "Kế hoạch ENT-4d (gửi biểu mẫu đã phát hành qua email theo lịch); thời điểm gửi là cấu hình của người lập lịch"
+}

@@ -9,7 +9,9 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useOrgUnits } from '../adm/org-tree/hooks';
 import { Field } from '../mne/components';
-import { AlertBand, ContextBar, FilterPanel } from '../../ui';
+import { AlertBand, ContextBar, FilterPanel, PresentButton, PresentationMode } from '../../ui';
+import type { PresentationBoard } from '../../ui';
+import { useEdition } from '../../editions/EditionContext';
 import '../dis/dis.css';
 import './home.css';
 import { MetricTile, NewDataBanner, ProblemCard, QualityBadgeLabel } from './components';
@@ -174,11 +176,57 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
   const pair = ratePair(center);
   const amounts = amountTiles(center);
   const year = center.asOfDate.slice(0, 4);
+  const [presenting, setPresenting] = useState(false);
+  const LeaderPanel = useEdition().slots?.leaderPanel;
+  // The boards of the presentation: the figures only, one idea to a board; the enterprise edition adds its own two.
+  const boards: PresentationBoard[] = [
+    {
+      id: 'rates',
+      title: t('home.present.rates.title'),
+      content: (
+        <>
+          <Hero center={center} year={year} />
+          <Kpis center={center} waiting={waiting} counts={counts} />
+        </>
+      ),
+    },
+    {
+      id: 'changes',
+      title: t('home.present.changes.title'),
+      content: (
+        <div className="home-pair">
+          <ChangesCard snapshotId={center.snapshotId} unitId={unitId} />
+          <RagSummaryCard snapshotId={center.snapshotId} unitId={unitId} />
+        </div>
+      ),
+    },
+    {
+      id: 'cash',
+      title: t('home.present.cash.title'),
+      content: (
+        <div className="home-pair">
+          <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />
+          <RankingCard />
+        </div>
+      ),
+    },
+    ...(LeaderPanel === undefined
+      ? []
+      : [
+          { id: 'leader-rates', title: t('home.present.leaderRates.title'), content: <LeaderPanel part="rates" /> },
+          { id: 'leader-tiles', title: t('home.present.leaderTiles.title'), content: <LeaderPanel part="tiles" /> },
+        ]),
+  ];
   return (
     <>
+      <div className="home-actions">
+        <PresentButton onOpen={() => setPresenting(true)} />
+      </div>
+      {presenting ? <PresentationMode title={t('home.present.page.title')} boards={boards} onExit={() => setPresenting(false)} /> : null}
       <ExportActions snapshotId={center.snapshotId} unitId={unitId} />
       <Hero center={center} year={year} />
       <Kpis center={center} waiting={waiting} counts={counts} />
+      {LeaderPanel === undefined ? null : <LeaderPanel part="all" />}
       <div className="home-pair">
         <ChangesCard snapshotId={center.snapshotId} unitId={unitId} />
         <RagSummaryCard snapshotId={center.snapshotId} unitId={unitId} />

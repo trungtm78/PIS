@@ -13807,5 +13807,24 @@
     "platform": "web",
     "req": "QT.02",
     "source": "HSKT PVFCCo v0.3, yêu cầu QT.02"
+  },
+  {
+    "id": "RML-01",
+    "module": "RML",
+    "moduleName": "Gửi biểu mẫu báo cáo qua email theo lịch",
+    "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+    "kind": "table",
+    "fields": [
+      "Mẫu biểu, lịch (cron), định dạng tệp, người nhận, ghi chú",
+      "Lần chạy gần nhất, trạng thái, người lập",
+      "Nhật ký gửi: người nhận, bản phát hành, mã băm SHA-256 tệp đính kèm, trạng thái, số lần thử, mã lỗi",
+      "Lập lịch mới, chấm dứt lịch kèm lý do"
+    ],
+    "role": "Người lập lịch (rpt.mail.manage), người đọc (rpt.mail.read)",
+    "rule": "Lịch chỉ gửi các bản phát hành sau khi lịch được lập; mỗi (lịch, bản phát hành, người nhận) gửi một lần; bản DEMO không bao giờ được gửi; người nhận được xét lại quyền ở mỗi lần gửi; lịch không sửa được, muốn đổi thì chấm dứt và lập lịch khác",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RML-01",
+    "source": "HSKT BC.02 (hỗ trợ gửi báo cáo tự động qua email theo lịch), kế hoạch ENT-4d"
   }
 ]

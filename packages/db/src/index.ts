@@ -1902,6 +1902,7 @@ export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-atta
 export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
 export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> lane/ent3c
 =======
@@ -1912,3 +1913,5 @@ export type { CalendarMeetingRow, CalendarPeriodRow, ScheduleReminderRecord, Uni
 export { ReportingScheduleReader } from './reporting-schedule-reader.ts';
 export type { ScheduleReading } from './reporting-schedule-reader.ts';
 >>>>>>> lane/ent4c
+=======
+>>>>>>> lane/ent4d

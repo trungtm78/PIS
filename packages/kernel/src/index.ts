@@ -280,7 +280,7 @@ export {
   rollupNotificationStatus,
 } from './delivery.ts';
 export type { CircuitState, CircuitVerdict, DeliveryStatus, RetryDecision, RetryInput, RollupInput } from './delivery.ts';
-export type { ChannelAdapter, ChannelLookupResult, ChannelSendRequest, ChannelSendResult, ParsedChannelCallback, ParsedInboundMessage } from './channel-port.ts';
+export type { ChannelAdapter, ChannelAttachment, ChannelLookupResult, ChannelSendRequest, ChannelSendResult, ParsedChannelCallback, ParsedInboundMessage } from './channel-port.ts';
 export {
   BUSINESS_KEY_INVALID_CODE,
   BUSINESS_KEY_MAX_LENGTH,

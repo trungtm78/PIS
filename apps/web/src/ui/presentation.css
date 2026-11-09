@@ -1,0 +1,144 @@
+/* Presentation mode (ENT-4d). A projector washes colours out, so the overlay is plain ink on the surface, with no animation, no hover-only meaning and type that grows with --ui-present-scale. */
+
+html[data-presenting='true'],
+html[data-presenting='true'] body {
+  overflow: hidden;
+}
+
+.ui-present {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mv-space-16);
+  padding: var(--mv-space-24);
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  color-scheme: light;
+  font-size: calc(1.125rem * var(--ui-present-scale, 1.25));
+  line-height: 1.4;
+  overflow: hidden;
+}
+.ui-present:focus-visible {
+  outline: 3px solid var(--mv-color-focus);
+  outline-offset: -3px;
+}
+.ui-present *,
+.ui-present *::before,
+.ui-present *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+.ui-present__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mv-space-12);
+  border-bottom: 2px solid var(--mv-color-border);
+  padding-bottom: var(--mv-space-12);
+  /* The controls keep the size of the page: the type grows for the board, not for the buttons. */
+  font-size: 1rem;
+}
+.ui-present__title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--mv-color-ink);
+}
+.ui-present__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mv-space-8);
+}
+.ui-present__controls button:focus-visible,
+.ui-present__controls select:focus-visible,
+.ui-present__dot:focus-visible {
+  outline: 3px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.ui-present__interval {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mv-space-8);
+  color: var(--mv-color-text-secondary);
+}
+
+.ui-present__board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mv-space-16);
+  overflow: hidden;
+}
+.ui-present__board-title {
+  margin: 0;
+  font-size: 1.6em;
+  color: var(--mv-color-ink);
+}
+.ui-present__content {
+  flex: 1;
+  min-height: 0;
+  /* A board longer than the screen at the larger sizes is scrolled, never cut (WCAG 1.4.4). */
+  overflow: auto;
+}
+/* A link in a board only reads: a stray click on a projector must not leave the presentation. */
+.ui-present__content a {
+  pointer-events: none;
+  color: inherit;
+  text-decoration: none;
+}
+.ui-present__content .ui-kpi__value {
+  font-size: 2.4em;
+}
+.ui-present__content .ui-kpi__label,
+.ui-present__content .ui-kpi__unit,
+.ui-present__content .ui-kpi__sub {
+  font-size: 0.8em;
+}
+.ui-present__content table {
+  font-size: 0.9em;
+}
+.ui-present__empty {
+  font-size: 1.2em;
+  color: var(--mv-color-text-secondary);
+}
+
+.ui-present__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mv-space-16);
+  border-top: 2px solid var(--mv-color-border);
+  padding-top: var(--mv-space-12);
+  font-size: 1rem;
+}
+.ui-present__dots {
+  display: flex;
+  gap: var(--mv-space-8);
+}
+.ui-present__dot {
+  /* 24 by 24 pixels at least (WCAG 2.2 target size). */
+  width: 24px;
+  height: 24px;
+  border-radius: var(--mv-radius-pill);
+  border: 2px solid var(--mv-color-primary);
+  background: var(--mv-color-surface);
+  padding: 0;
+  cursor: pointer;
+}
+.ui-present__dot[aria-current='step'] {
+  background: var(--mv-color-primary);
+}
+.ui-present__status,
+.ui-present__hint {
+  margin: 0;
+}
+.ui-present__hint {
+  margin-left: auto;
+  color: var(--mv-color-text-secondary);
+}

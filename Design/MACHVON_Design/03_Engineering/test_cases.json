@@ -23278,6 +23278,24 @@
     ]
   },
   {
+    "id": "UI-RML-01",
+    "source": "FR-RML-01",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise, synthetic data of the e-mail schedules; a user with the permission and a read-only user; route RML-01",
+    "steps": [
+      "Open RML-01 from the menu and by deep link; check the labelled fields: Kỳ, mẫu và phiên bản đã được nhận; Kỳ đã mở lại (yêu cầu mở lại của DIS); Lý do đính chính; Người đề nghị, người duyệt, trạng thái; Lần đẩy đã dùng đính chính",
+      "Do the main action under the rule: Thay kỳ đã được nhận cần kỳ đã mở lại và đính chính do người khác duyệt, ghi ADM-11; một đính chính chỉ dùng một lần; một đề nghị chờ cho một phiên bản tại một thời điểm",
+      "Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on RML-01"
+    ],
+    "expected": "Đính chính kỳ báo cáo đã được HPM nhận: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
     "id": "UAT-PLAN-171",
     "source": "HPM.md",
     "type": "integration",

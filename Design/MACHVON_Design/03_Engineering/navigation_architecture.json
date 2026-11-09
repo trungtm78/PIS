@@ -8291,6 +8291,16 @@
       "parent": "HPM-01"
     },
     {
+      "id": "RML-01",
+      "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi",
+      "kind": "table",
+      "area": "data",
+      "module": "RML",
+      "group": "Gửi biểu mẫu qua email",
+      "role": "workspace",
+      "parent": null
+    },
+    {
       "id": "EBS-01",
       "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp",
       "kind": "import",

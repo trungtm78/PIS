@@ -213,3 +213,27 @@ describe('BAN-01, the workspace of the head of the committee', () => {
     expect(await screen.findByTestId(`alert-${uuid(307)}`)).toBeTruthy();
   });
 });
+
+describe('BAN-01: presentation mode (ENT-4d, BC.02)', () => {
+  it('presents the figures board by board without the filters, and the page comes back on leaving', async () => {
+    open();
+    await screen.findByTestId('figure-COMMITTEE_DISBURSEMENT_RATE');
+    fireEvent.click(screen.getByTestId('present-open'));
+    const presentation = await screen.findByRole('dialog', { name: word('ban.present.page.title') });
+    expect(within(presentation).getByRole('heading', { level: 2, name: word('ban.present.figures.title') })).toBeTruthy();
+    expect(within(presentation).getByTestId('province')).toBeTruthy();
+    expect(within(presentation).queryByLabelText(word('ban.dash.filter.sector'))).toBeNull();
+    fireEvent.keyDown(presentation, { key: 'ArrowRight' });
+    expect(within(presentation).getByRole('heading', { level: 2, name: word('ban.present.dimension.title') })).toBeTruthy();
+    fireEvent.keyDown(presentation, { key: 'End' });
+    expect(within(presentation).getByRole('heading', { level: 2, name: word('ban.present.watch.title') })).toBeTruthy();
+    fireEvent.keyDown(presentation, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: word('ban.present.page.title') })).toBeNull());
+    expect(screen.getByTestId('figures')).toBeTruthy();
+  });
+
+  it('keeps the button off while the workspace is not read', () => {
+    open({ getCommitteeWorkspace: never() });
+    expect((screen.getByTestId('present-open') as HTMLButtonElement).disabled).toBe(true);
+  });
+});
