@@ -54,6 +54,9 @@ void main() {
       final LastContext last = (await vault.loadLast())!;
       expect((last.tenantCode, last.tenantId, last.membershipId, last.config), ('minh-ha', 'tenant-a', 'm-1', kOidcConfig));
       expect(last.copyWith(tenantCode: 'bo').tenantCode, 'bo');
+      await vault.saveLast(last.copyWith(tenantName: 'Tổng công ty Đạm Phú Mỹ'));
+      final LastContext named = (await vault.loadLast())!;
+      expect((named.tenantName, named.tenantCode, named.tenantId), ('Tổng công ty Đạm Phú Mỹ', 'minh-ha', 'tenant-a'));
       expect(last.copyWith(tenantCode: 'bo').tenantId, 'tenant-a');
 
       await vault.clearLast();

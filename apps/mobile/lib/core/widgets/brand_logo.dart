@@ -32,10 +32,9 @@ class BrandHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Edition edition = ref.watch(editionProfileProvider).edition;
-    final String tagline = edition == Edition.enterprise
-        ? context.t('mob.signIn.tagline.enterprise.text')
-        : context.t('mob.signIn.tagline.public.text');
+    final bool enterprise = ref.watch(editionProfileProvider).edition == Edition.enterprise;
+    final String tagline = enterprise ? context.t('mob.signIn.tagline.enterprise.text') : context.t('mob.signIn.tagline.public.text');
+    final ThemeData theme = Theme.of(context);
     // The logo gives way to the text: at a large text size it shrinks (to a floor) so the head does not push the controls off the screen.
     final double textScale = MediaQuery.textScalerOf(context).scale(1);
     final double logoSize = (56 / (textScale < 1 ? 1 : textScale)).clamp(32.0, 56.0);
@@ -43,7 +42,19 @@ class BrandHeader extends ConsumerWidget {
       children: <Widget>[
         BrandLogo(size: logoSize),
         const SizedBox(width: 12),
-        Expanded(child: Text(tagline, style: Theme.of(context).textTheme.titleSmall)),
+        Expanded(
+          child: enterprise
+              // The enterprise edition names the product (Mạch Vốn) and says what it is, then the tagline: the logo alone does not name it.
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(context.t('mob.ent.brand.name'), style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w700)),
+                    Text(context.t('mob.ent.brand.product'), style: theme.textTheme.titleSmall),
+                    Text(tagline, style: theme.textTheme.bodySmall),
+                  ],
+                )
+              : Text(tagline, style: theme.textTheme.titleSmall),
+        ),
       ],
     );
   }

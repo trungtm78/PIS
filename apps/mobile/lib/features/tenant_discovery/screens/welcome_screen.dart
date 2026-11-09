@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/edition/edition.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/deep_link_guard.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/widgets/brand_logo.dart';
 import '../../session/auth/session_vault.dart';
 import '../../session/flow.dart';
 import '../../session/session_providers.dart';
@@ -121,9 +123,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
   Future<void> _enter(TenantDiscovery found) async {
     ref.read(oidcConfigProvider.notifier).choose(found.oidc);
+    ref.read(tenantNameProvider.notifier).choose(found.tenantName);
     final SessionVault vault = ref.read(sessionVaultProvider);
     final LastContext? last = await vault.loadLast();
-    await vault.saveLast((last ?? const LastContext()).copyWith(config: found.oidc, tenantCode: found.code));
+    await vault.saveLast((last ?? const LastContext()).copyWith(config: found.oidc, tenantCode: found.code, tenantName: found.tenantName));
     final PublishedTheme? theme = found.theme;
     if (theme != null) await ref.read(tenantThemeServiceProvider).apply(theme, tenantId: theme.tenantId);
     if (!mounted) return;
@@ -150,11 +153,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
           children: <Widget>[
-            Semantics(
-              label: context.t('mob.welcome.logo.label'),
-              image: true,
-              child: ExcludeSemantics(child: Icon(Icons.account_balance_outlined, size: MachvonSpace.space48, color: theme.colorScheme.primary)),
-            ),
+            if (ref.watch(editionProfileProvider).edition == Edition.enterprise)
+              const BrandHeader()
+            else
+              Semantics(
+                label: context.t('mob.welcome.logo.label'),
+                image: true,
+                child: ExcludeSemantics(child: Icon(Icons.account_balance_outlined, size: MachvonSpace.space48, color: theme.colorScheme.primary)),
+              ),
             const SizedBox(height: MachvonSpace.space16),
             Semantics(header: true, child: Text(context.t('mob.welcome.title.text'), style: theme.textTheme.headlineSmall)),
             const SizedBox(height: MachvonSpace.space12),

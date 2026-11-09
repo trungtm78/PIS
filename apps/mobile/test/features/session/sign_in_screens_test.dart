@@ -36,7 +36,10 @@ void main() {
       expect(currentLocation(container), startsWith('/mob-02'));
       expect(Uri.parse(currentLocation(container)).queryParameters['return'], '/home');
       expect(find.text('Đăng nhập'), findsOneWidget);
-      expect(find.text('idp.test'), findsOneWidget);
+      // Only the provider is known here (idp.test): the screen does not show its host as if it were the organisation.
+      expect(find.text('idp.test'), findsNothing);
+      expect(find.text('Đăng nhập bằng tài khoản của tổ chức'), findsOneWidget);
+      expect(find.text('Tổ chức'), findsNothing);
       expect(find.byType(TextField), findsNothing, reason: 'the app never shows a password field');
 
       await tapText(tester, 'Đăng nhập bằng SSO');
@@ -46,6 +49,18 @@ void main() {
       expect(container.read(sessionProvider).status, SessionStatus.signedIn);
       expect(container.read(sessionProvider).tenantId, 'tenant-a');
       expect(world.browser.urls.single.queryParameters['code_challenge_method'], 'S256');
+    });
+
+    testWidgets('the sign-in screen names the organisation when discovery gave its name', (WidgetTester tester) async {
+      world = World();
+      useDevice(tester, kDeviceSizes[1]);
+      final ProviderContainer container = await pumpSessionApp(tester, world);
+      container.read(tenantNameProvider.notifier).choose('Tổng công ty Đạm Phú Mỹ');
+      await tester.pumpAndSettle();
+      expect(find.text('Tổng công ty Đạm Phú Mỹ'), findsOneWidget);
+      expect(find.text('Tổ chức'), findsOneWidget);
+      expect(find.text('Đăng nhập bằng tài khoản của tổ chức'), findsNothing);
+      expect(find.text('idp.test'), findsNothing);
     });
 
     testWidgets('without a known tenant the sign-in opens tenant discovery first', (WidgetTester tester) async {

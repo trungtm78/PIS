@@ -4,6 +4,7 @@ import '../../core/l10n/string_table.dart';
 /// New keys of the edition (the overlay in `enterprise_strings.dart` only replaces keys of the base).
 const StringTable kEnterpriseHomeStrings = StringTable(
   vi: <String, String>{
+    'mob.ent.brand.name': 'Mạch Vốn',
     'mob.ent.brand.product': 'Phần mềm quản lý đầu tư xây dựng',
     'mob.ent.brand.role': '{organisation}, {role}',
     'mob.ent.card.unavailable': 'Chưa đọc được phần này.',
@@ -28,6 +29,7 @@ const StringTable kEnterpriseHomeStrings = StringTable(
     'mob.ent.snapshot.title': 'Ảnh chụp số liệu doanh nghiệp',
   },
   en: <String, String>{
+    'mob.ent.brand.name': 'Mạch Vốn',
     'mob.ent.brand.product': 'Construction Investment Management Software',
     'mob.ent.brand.role': '{organisation}, {role}',
     'mob.ent.card.unavailable': 'This part could not be read.',

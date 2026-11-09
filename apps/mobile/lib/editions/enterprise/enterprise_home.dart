@@ -158,20 +158,22 @@ class _EnterpriseHomeHeader extends ConsumerWidget {
     final SessionSnapshot session = ref.watch(sessionProvider);
     final MembershipChoice? current = ref.watch(myMembershipsProvider).asData?.value.where((MembershipChoice m) => isCurrentMembership(m, session)).firstOrNull;
     final ThemeData theme = Theme.of(context);
+    final String name = context.t('mob.ent.brand.name');
     final String product = context.t('mob.ent.brand.product');
     final String? line = current == null
         ? null
         : context.t('mob.ent.brand.role', <String, Object>{'organisation': current.tenantName, 'role': membershipTypeLabel(context, current.membershipType)});
     return Semantics(
       container: true,
-      label: line == null ? product : '$product. $line',
+      label: line == null ? '$name. $product' : '$name. $product. $line',
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(product, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary)),
+              Text(name, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w700)),
+              Text(product, style: theme.textTheme.labelLarge),
               if (line != null) Text(line, style: theme.textTheme.titleMedium),
             ],
           ),
