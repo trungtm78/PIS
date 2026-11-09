@@ -2182,6 +2182,8 @@ export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, num
 export type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from './report-document.ts';
 export { columnNumberOf, evaluateFormula, roundHalfAway } from './report-formula.ts';
 export { ENT4B_TEXT } from './messages/ent4b-texts.ts';
+export { AGENCY_REQUEST_DEFAULT, CONFIG_CODE_PATTERN, CONFIG_CODE_PREFIX, CONFIG_COLUMN_KEYS, CONFIG_DEFAULT_PROVIDER, CONFIG_INTERNAL_RECEIVER, CONFIG_KINDS, CONFIG_LIMITS, CONFIG_MONEY_COLUMNS, CONFIG_SIGNATURES, INTERNAL_OVERVIEW_DEFAULT, PROTECTED_RECEIVERS, REPORT_LAYOUT_RULE_TYPE, REPORT_LAYOUT_SCHEMA, compileLayoutConfig, groupDatasetOf, illustrativeLayoutData, layoutConfigOf, refineLayoutConfig, registerReportLayoutRules } from './report-layout-config.ts';
+export type { CompileOptions, CompiledLayout, ConfigColumn, ConfigColumnKey, ConfigGroup, ConfigIndicator, ConfigKind, ConfigSignature, LayoutConfig } from './report-layout-config.ts';
 export type { CellLookup, FormulaValue } from './report-formula.ts';
 // The directives of the steering meetings (lane DIR-1).
 export { DIRECTIVE_ALERT_SOURCE, DIRECTIVE_EVENT_TYPES, DIRECTIVE_POLICY_DEFAULTS, DIRECTIVE_POLICY_DEFAULT_CODE, DIRECTIVE_RULE_TYPES, DIRECTIVE_SCOPE_KINDS, DIRECTIVE_STATUSES, MEETING_TYPES, STORED_DIRECTIVE_STATUSES, assertCloseEvidence, assertDirectiveCloser, assertExtension, assertExtensionDecider, defaultDirectivePolicy, directiveClock, directiveScopeKindOf, directiveStateAt, directiveStatusOf, effectiveDirectiveStatus, meetingTypeOf, nextDirectiveStatus, parseDirectivePolicy, periodCounts, periodFacts, addDaysTo as addDirectiveDays, daysBetweenDays as directiveDaysBetween, isDay as isDirectiveDay } from './directive.ts';
