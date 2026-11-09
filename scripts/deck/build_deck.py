@@ -7,7 +7,6 @@ import argparse
 import copy
 import json
 import sys
-from collections import Counter, defaultdict
 from pathlib import Path
 
 from lxml import etree
@@ -29,7 +28,6 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--template", default=DEFAULT_TEMPLATE)
 ap.add_argument("--assets", default="D:/PIS-clips-out/deck/assets")
 ap.add_argument("--content", default=str(HERE / "content.json"))
-ap.add_argument("--req", default=str(HERE.parent.parent / "docs/hskt/requirements.json"))
 ap.add_argument("--out", default="D:/PIS-clips-out/deck/Mach_Von_Gioi_Thieu_He_Thong_Phu_My.pptx")
 ap.add_argument("--preview", default="D:/PIS-clips-out/deck/preview")
 ap.add_argument("--font", default="Segoe UI", help="phong trong theme; do chu luon do bang Segoe UI")
@@ -39,6 +37,14 @@ content = json.load(open(args.content, encoding="utf-8"))
 META = content["meta"]
 SL = {s["id"]: s for s in content["slides"]}
 A = Path(args.assets)
+# Logo AIPOWER (don vi trinh bay): lay tu scripts/deck/assets/aipower-logo.png (hoac thu muc assets); khong co thi bo qua.
+AIP = next((p for p in (HERE / "assets" / "aipower-logo.png", A / "aipower-logo.png") if p.exists()), None)
+AIP_AR = 1694 / 721
+if AIP:
+    from PIL import Image as _I
+    AIP_AR = _I.open(AIP).size[0] / _I.open(AIP).size[1]
+else:
+    print("CANH BAO: khong thay aipower-logo.png; dung ma khong co logo AIPOWER (tha tep vao scripts/deck/assets/ roi dung lai).")
 
 prs = Presentation(args.template)
 
@@ -155,7 +161,9 @@ cv.shape(420, 0, 220, 12, fill=ORANGE)
 cv.pic("dpm-logo-wordmark.png", 1098, 30, 175, 32, mode="contain", alt="Logo Phú Mỹ")
 cv.shape(60, 700, 1213, 1, fill=T200)
 cv.text(60, 705, 900, 30, META["footer"], size=9, color=GREY, anchor="m")
-cv.pic("machvon-logo-enterprise-mark.png", 1196, 704, 30, 26, mode="contain", alt="Biểu tượng Mạch Vốn")
+if AIP:
+    cv.pic(AIP, 1112, 703, 64, 28, mode="contain", alt="Logo AIPOWER")
+cv.pic("machvon-logo-enterprise-mark.png", 1190, 704, 30, 26, mode="contain", alt="Biểu tượng Mạch Vốn")
 add_slidenum(cv, 1233, 705, 40, 30, GREY)
 LAYOUT_CV["Title Only"] = cv
 
@@ -234,11 +242,18 @@ def circle(cv, x, y, dia, label, fill=TEAL_D, size=16):
 def s_cover():
     d = SL["cover"]
     s, cv = new_slide("Title Slide", "cover")
-    cv.pic("dpm-logo-lockup.png", 85, 70, 330, 95, mode="contain", alt="Logo Phú Mỹ - Sẻ chia thịnh vượng")
-    cv.line(450, 80, 450, 175, color=T300, lw=1.5)
-    cv.pic("machvon-logo-enterprise-horizontal.png", 485, 78, 340, 95, mode="contain", alt="Logo Mạch Vốn - Phần mềm quản lý đầu tư xây dựng")
-    cv.text(85, 172, 350, 36, d["label_customer"], size=8, color=GREY, bold=True, minsize=7)
-    cv.text(485, 172, 340, 36, d["label_product"], size=8, color=GREY, bold=True, minsize=7)
+    x0 = 85
+    if AIP:
+        cv.pic(AIP, x0, 74, 188, 80, mode="contain", alt="Logo AIPOWER - Your AI Power Partner")
+        cv.text(x0, 172, 200, 24, d["label_supplier"], size=8, color=GREY, bold=True, minsize=7)
+        cv.line(x0 + 215, 80, x0 + 215, 175, color=T300, lw=1.5)
+        x0 += 240
+    cv.pic("dpm-logo-lockup.png", x0, 70, 270, 85, mode="contain", alt="Logo Phú Mỹ - Sẻ chia thịnh vượng")
+    cv.text(x0, 172, 270, 24, d["label_customer"], size=8, color=GREY, bold=True, minsize=7)
+    cv.line(x0 + 292, 80, x0 + 292, 175, color=T300, lw=1.5)
+    x0 += 318
+    cv.pic("machvon-logo-enterprise-horizontal.png", x0, 74, 290, 80, mode="contain", alt="Logo Mạch Vốn - Phần mềm quản lý đầu tư xây dựng")
+    cv.text(x0, 172, 290, 24, d["label_product"], size=8, color=GREY, bold=True, minsize=7)
     cv.shape(95, 252, 55, 3, fill=ORANGE)
     cv.text(165, 238, 600, 30, d["eyebrow"], size=14, bold=True, color=ORANGE_D, anchor="m")
     t = s.shapes.title
@@ -417,50 +432,6 @@ def s_security():
         cv.text(x + 10, 488, 574, 190, [Para(t, bullet=True, after=6) for t in p["todo"]], size=13)
 
 
-def s_compliance():
-    d = SL["compliance"]
-    req = json.load(open(args.req, encoding="utf-8"))
-    rows = req["rows"]
-    total = len(rows)
-    cnt = Counter(r["status"] for r in rows)
-    for k in ("DONE", "PARTIAL", "PENDING-EXTERNAL", "MISSING"):
-        cnt.setdefault(k, 0)
-    s, cv, _ = content_slide("compliance", subtitle=d["subtitle_fmt"].format(total=total, date=req.get("readOn", "")))
-    groups = defaultdict(Counter)
-    for r in rows:
-        groups[r["code"].split(".")[0]][r["status"]] += 1
-    col = {"DONE": (TEAL_D, WHITE), "PARTIAL": (T400, INK), "PENDING-EXTERNAL": (ORANGE_D, WHITE), "MISSING": (GREY, WHITE)}
-    x = 60.0
-    for k in ("DONE", "PARTIAL", "PENDING-EXTERNAL", "MISSING"):
-        if cnt[k]:
-            w = 1213 * cnt[k] / total
-            cv.shape(x, 160, w, 44, fill=col[k][0], text=str(cnt[k]), size=16, bold=True, color=col[k][1])
-            x += w
-    lx = 60
-    for k in ("DONE", "PARTIAL", "PENDING-EXTERNAL", "MISSING"):
-        lab = f"{d['labels'][k]}: **{cnt[k]}**"
-        wl = int(tw(lab.replace('**', ''), 12.5, True)) + 40
-        cv.shape(lx, 219, 14, 14, fill=col[k][0])
-        cv.text(lx + 18, 213, wl, 26, lab, size=12.5, anchor="m")
-        lx += wl + 22
-    order = ["MD", "DL", "QT", "CN", "BC", "TH", "HT", "YCK", "TK", "GD", "SP"]
-    unit = 50
-    for i, g in enumerate(order):
-        y = 256 + i * 36
-        cv.text(60, y, 215, 32, d["groups"][g], size=13, anchor="m")
-        xx = 280.0
-        for k in ("DONE", "PARTIAL", "PENDING-EXTERNAL", "MISSING"):
-            c = groups[g][k]
-            if c:
-                cv.shape(xx, y + 2, unit * c - 2, 28, fill=col[k][0], text=str(c), size=12, bold=True, color=col[k][1])
-                xx += unit * c
-    cv.shape(860, 256, 413, 395, fill=T100, kind="round", r=12)
-    cv.text(878, 266, 380, 28, d["read_title"], size=16, bold=True, color=TEAL_D, anchor="m")
-    cv.text(878, 300, 380, 345, [Para(t, bullet=True, after=9) for t in d["read"]], size=13)
-    cv.text(60, 664, 1213, 26, d["foot"], size=10.5, color=GREY, anchor="m", minsize=9)
-    return cnt, total
-
-
 def s_roadmap():
     s, cv, d = content_slide("roadmap")
     for i, (name, prod, ok) in enumerate(d["stages"]):
@@ -528,10 +499,16 @@ def s_public():
 def s_closing():
     d = SL["closing"]
     s, cv = new_slide("Section Header", "closing")
-    cv.shape(80, 60, 790, 130, fill=WHITE, kind="round", r=14)
-    cv.pic("dpm-logo-lockup.png", 105, 75, 330, 100, mode="contain", alt="Logo Phú Mỹ - Sẻ chia thịnh vượng")
-    cv.line(470, 80, 470, 170, color=T300, lw=1.5)
-    cv.pic("machvon-logo-enterprise-horizontal.png", 500, 75, 350, 100, mode="contain", alt="Logo Mạch Vốn")
+    cv.shape(80, 50, 1000, 130, fill=WHITE, kind="round", r=14)
+    x0 = 105
+    if AIP:
+        cv.pic(AIP, x0, 68, 190, 92, mode="contain", alt="Logo AIPOWER - Your AI Power Partner")
+        cv.line(x0 + 212, 72, x0 + 212, 158, color=T300, lw=1.5)
+        x0 += 235
+    cv.pic("dpm-logo-lockup.png", x0, 68, 300, 92, mode="contain", alt="Logo Phú Mỹ - Sẻ chia thịnh vượng")
+    cv.line(x0 + 322, 72, x0 + 322, 158, color=T300, lw=1.5)
+    x0 += 345
+    cv.pic("machvon-logo-enterprise-horizontal.png", x0, 68, 320, 92, mode="contain", alt="Logo Mạch Vốn")
     set_ph(s.shapes.title, d["title"], 40, True, cv, 1000, 120, minsize=28)
     cv.prims[-1] = cv.prims[-1][:5] + ([(Para(d["title"]), 40, True, WHITE, "l")],) + cv.prims[-1][6:]
     s.shapes.title.left, s.shapes.title.top, s.shapes.title.width, s.shapes.title.height = Emu(95 * EMU), Emu(215 * EMU), Emu(560 * EMU), Emu(110 * EMU)
@@ -565,7 +542,6 @@ s_shots("features-c")
 s_shots("features-d")
 s_phone()
 s_security()
-cnt, total = s_compliance()
 s_roadmap()
 s_customer()
 s_demo()
@@ -598,4 +574,4 @@ for cvl in LAYOUT_CV.values():
     for w_ in cvl.warn:
         print(w_)
         nwarn += 1
-print(f"Da luu {args.out}: {len(SLIDES)} trang; {nwarn} canh bao tran chu; DONE={cnt['DONE']} PARTIAL={cnt['PARTIAL']} PENDING={cnt['PENDING-EXTERNAL']} MISSING={cnt['MISSING']} tong={total}")
+print(f"Da luu {args.out}: {len(SLIDES)} trang; {nwarn} canh bao tran chu")
