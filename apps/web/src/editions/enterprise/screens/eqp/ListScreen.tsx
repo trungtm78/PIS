@@ -94,10 +94,10 @@ function EquipmentListContent({ route }: ScreenProps) {
                     <td>{moneyText(line.plannedValueVnd, locale)}</td>
                     <td>{line.package === null ? '–' : line.package.code}</td>
                     <td>{line.selection === null ? '–' : t(`eqp.outcome.${line.selection.outcome}`)}</td>
-                    <td>{line.masked.includes('CONTRACT') ? <span className="sub">{t('eqp.masked')}</span> : moneyText(line.contractValueVnd, locale)}</td>
+                    <td>{line.masked.includes('CONTRACT') ? <span className="sub">{t('eqp.list.masked')}</span> : moneyText(line.contractValueVnd, locale)}</td>
                     <td>
                       {line.masked.includes('PAYMENT') ? (
-                        <span className="sub">{t('eqp.masked')}</span>
+                        <span className="sub">{t('eqp.list.masked')}</span>
                       ) : (
                         <>
                           {moneyText(line.paidVnd, locale)}

@@ -32,7 +32,7 @@ function EquipmentDetailContent({ route }: ScreenProps) {
   const detail = found.data;
   const line = detail?.line;
   const masked = (what: 'CONTRACT' | 'PAYMENT'): boolean => line?.masked.includes(what) === true;
-  const money = (value: string | null, what: 'CONTRACT' | 'PAYMENT'): string => (masked(what) ? t('eqp.masked') : moneyText(value, locale));
+  const money = (value: string | null, what: 'CONTRACT' | 'PAYMENT'): string => (masked(what) ? t('eqp.list.masked') : moneyText(value, locale));
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title" className="ent2-page">
@@ -60,19 +60,19 @@ function EquipmentDetailContent({ route }: ScreenProps) {
                   {line.planRef === null ? '' : ` · ${line.planRef}`}
                 </Fact>
                 <Fact label={t('eqp.col.package')} testId="fact-package">
-                  {line.package === null ? t('eqp.none') : `${line.package.code}${line.package.title === null ? '' : ` · ${line.package.title}`} (${line.package.status})`}
+                  {line.package === null ? t('eqp.detail.none') : `${line.package.code}${line.package.title === null ? '' : ` · ${line.package.title}`} (${line.package.status})`}
                 </Fact>
                 <Fact label={t('eqp.detail.external')} testId="fact-external">
-                  {line.externalLink === null ? t('eqp.none') : `${line.externalLink.externalCode} (${line.externalLink.diffStatus})`}
+                  {line.externalLink === null ? t('eqp.detail.none') : `${line.externalLink.externalCode} (${line.externalLink.diffStatus})`}
                 </Fact>
                 <Fact label={t('eqp.col.selection')} testId="fact-selection">
-                  {line.selection === null ? t('eqp.none') : `${t(`eqp.outcome.${line.selection.outcome}`)} · ${line.selection.status}`}
+                  {line.selection === null ? t('eqp.detail.none') : `${t(`eqp.outcome.${line.selection.outcome}`)} · ${line.selection.status}`}
                 </Fact>
                 <Fact label={t('eqp.detail.winner')} testId="fact-winner">
-                  {line.selection?.winnerName ?? t('eqp.none')}
+                  {line.selection?.winnerName ?? t('eqp.detail.none')}
                 </Fact>
                 <Fact label={t('eqp.col.contract')} testId="fact-contract">
-                  {line.contract === null ? t('eqp.none') : `${line.contract.code} (${line.contract.status})`}
+                  {line.contract === null ? t('eqp.detail.none') : `${line.contract.code} (${line.contract.status})`}
                 </Fact>
                 <Fact label={t('eqp.detail.contractValue')} testId="fact-contract-value">
                   {money(line.contractValueVnd, 'CONTRACT')}
