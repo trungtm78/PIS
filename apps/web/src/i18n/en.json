@@ -3072,7 +3072,6 @@
   "shell.nav.pin.label": "Pin screen",
   "shell.nav.unpin.label": "Unpin screen",
   "shell.nav.pin.title": "Pin to the sidebar",
-  "shell.nav.help.label": "Help",
   "shell.tenant.workspace.text": "Workspace",
   "shell.tenant.home.label": "{monogram}: {name} home",
   "shell.tenant.switch.label": "Switch tenant",

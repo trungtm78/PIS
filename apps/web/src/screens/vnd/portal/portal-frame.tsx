@@ -1,6 +1,8 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { routeByPath } from '../../../routes/registry';
 import { useSession } from '../../../session/SessionContext';
+import { HelpButton } from '../../../shell/HelpDrawer';
 import './portal.css';
 
 /**
@@ -10,11 +12,13 @@ import './portal.css';
 export function PortalFrame() {
   const { t } = useTranslation();
   const { tenant } = useSession();
+  const route = routeByPath(useLocation().pathname);
   return (
     <div className="portal-frame" id="screen-capture" data-testid="portal-frame">
       <header className="portal-frame__bar">
         <strong>{t('vnp.frame.product.text')}</strong>
         {tenant !== undefined && <span className="portal-frame__tenant">{tenant.name}</span>}
+        <HelpButton screenId={route?.id} title={route?.title ?? t('vnp.frame.product.text')} />
       </header>
       <main className="portal-frame__body">
         <Outlet />

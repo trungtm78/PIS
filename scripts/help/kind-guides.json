@@ -1,0 +1,226 @@
+{
+  "comment": "Source texts of the on-screen help (DOC-3). scripts/help-index.mjs combines them with the screen catalogue and the hdsd tours into apps/web/src/help/help.vi.json. Edit the words here, never in the generated file.",
+  "common": {
+    "tips": [
+      "Bấm phím ? (hoặc nút dấu hỏi ở đầu trang) để mở hướng dẫn của màn hình đang xem; bấm Esc để đóng.",
+      "Bấm Ctrl K để tìm nhanh bản ghi trong toàn hệ thống.",
+      "Bấm ngôi sao ở đầu trang để ghim màn hình thường dùng vào thanh bên.",
+      "Nút chữ i cạnh một con số cho biết công thức, nguồn dữ liệu, ngày chốt số và người chịu trách nhiệm về con số đó.",
+      "Mọi thay đổi dữ liệu đều được ghi vào nhật ký hoạt động; cần tra cứu thì mở màn hình nhật ký của phân hệ quản trị."
+    ]
+  },
+  "text": {
+    "isA": "Đây là {noun}",
+    "forRole": ", dành cho {role}",
+    "unknownRole": "Người dùng được cấp quyền xem màn hình này"
+  },
+  "kindNoun": {
+    "board": "bảng theo dõi tổng hợp",
+    "reconcile": "màn hình đối chiếu số liệu",
+    "documents": "màn hình quản lý tài liệu",
+    "criteria": "màn hình tiêu chí chấm điểm",
+    "scenario": "màn hình mô phỏng kịch bản",
+    "allocation": "màn hình phân bổ",
+    "policy": "màn hình chính sách và quy tắc",
+    "funding": "màn hình theo dõi nguồn vốn",
+    "confirm": "màn hình xác nhận",
+    "success": "màn hình thông báo kết quả",
+    "ai": "màn hình trợ lý AI",
+    "conversation": "màn hình hội thoại",
+    "builder": "màn hình dựng cấu hình",
+    "workflow": "màn hình quy trình",
+    "editor": "màn hình soạn thảo",
+    "segments": "màn hình nhóm đối tượng",
+    "cost": "màn hình chi phí",
+    "keys": "màn hình khóa và chứng thư",
+    "brand": "màn hình nhận diện thương hiệu",
+    "license": "màn hình giấy phép sử dụng",
+    "record": "màn hình hồ sơ"
+  },
+  "default": {
+    "steps": [
+      "Đọc tiêu đề và dòng ngữ cảnh ở đầu trang để biết đang làm việc với đơn vị, kỳ và phạm vi nào.",
+      "Xem các khối thông tin trên màn hình; con số có nút chữ i thì bấm vào để biết công thức và nguồn.",
+      "Thao tác bằng các nút chính ở đầu hoặc cuối trang; thao tác nhạy cảm sẽ hỏi lại và có thể cần nhập lý do.",
+      "Nếu màn hình báo không đủ quyền, liên hệ quản trị tổ chức để được cấp vai trò phù hợp."
+    ]
+  },
+  "kinds": {
+    "dashboard": {
+      "steps": [
+        "Chọn kỳ báo cáo và phạm vi (công ty, đơn vị, dự án) ở dòng ngữ cảnh phía trên.",
+        "Đọc các ô chỉ số: mỗi ô có con số, so sánh với kế hoạch hoặc kỳ trước và trạng thái màu.",
+        "Bấm vào một ô hoặc một dòng để đi tới danh sách chi tiết đứng sau con số đó.",
+        "Bấm nút chữ i cạnh con số để xem công thức, nguồn và ngày chốt số trước khi dùng con số vào báo cáo."
+      ]
+    },
+    "table": {
+      "steps": [
+        "Dùng ô lọc và ô tìm kiếm phía trên bảng để thu hẹp danh sách; bộ lọc đang áp dụng được nêu ngay dưới ô lọc.",
+        "Bấm tiêu đề cột để sắp xếp; dùng nút phân trang ở cuối bảng để chuyển trang.",
+        "Bấm vào một dòng để mở chi tiết bản ghi.",
+        "Dùng nút ở đầu trang để thêm mới hoặc xuất dữ liệu; thao tác theo lô chỉ hiện khi đã chọn dòng và bạn có quyền."
+      ]
+    },
+    "list": {
+      "steps": [
+        "Lọc hoặc tìm kiếm để thu hẹp danh sách.",
+        "Bấm vào một mục để xem chi tiết và các thao tác tiếp theo.",
+        "Dùng nút ở đầu trang để tạo mục mới khi bạn có quyền."
+      ]
+    },
+    "form": {
+      "steps": [
+        "Điền các ô theo thứ tự từ trên xuống; ô có dấu sao là bắt buộc.",
+        "Ô báo lỗi sẽ được đưa con trỏ tới khi bấm lưu; sửa theo thông báo rồi lưu lại.",
+        "Bấm Lưu để ghi nhận. Dữ liệu đã nhập được lưu một lần và dùng lại ở mọi màn hình liên quan, không phải nhập lại.",
+        "Nếu rời trang khi chưa lưu, hệ thống hỏi lại để tránh mất dữ liệu."
+      ]
+    },
+    "detail": {
+      "steps": [
+        "Đọc phần tóm tắt ở đầu trang: tên, trạng thái, đơn vị phụ trách và các mốc chính.",
+        "Chuyển giữa các thẻ (thông tin, tài liệu, lịch sử) để xem từng nhóm nội dung.",
+        "Dùng nút ở đầu trang để sửa hoặc chuyển trạng thái khi bạn có quyền; mọi thay đổi được ghi vào lịch sử."
+      ]
+    },
+    "approval": {
+      "steps": [
+        "Chọn hồ sơ cần duyệt trong danh sách; hồ sơ do chính bạn lập không thể tự duyệt.",
+        "Đọc nội dung, tài liệu đính kèm và các bước duyệt đã qua.",
+        "Chọn Duyệt, Từ chối hoặc Trả lại; Từ chối và Trả lại yêu cầu nhập lý do.",
+        "Kết quả được ghi vào lịch sử duyệt cùng người duyệt và thời điểm."
+      ]
+    },
+    "review": {
+      "steps": [
+        "Chọn bản ghi cần rà soát; hệ thống nêu các điểm cần chú ý trước.",
+        "Đối chiếu số liệu với tài liệu căn cứ ở khung bên cạnh.",
+        "Ghi nhận ý kiến hoặc kết luận rồi chuyển bước tiếp theo."
+      ]
+    },
+    "workflow": {
+      "steps": [
+        "Xem các bước của quy trình theo thứ tự; mỗi bước nêu vai trò phụ trách và thời hạn.",
+        "Soạn bản nháp để thay đổi; bản đang chạy không bị ảnh hưởng cho đến khi công bố.",
+        "Người công bố phải khác người soạn; bản đã công bố có số phiên bản mới, hồ sơ đang chạy giữ phiên bản cũ."
+      ]
+    },
+    "policy": {
+      "steps": [
+        "Xem các quy tắc đang có hiệu lực cùng ngày bắt đầu và phiên bản.",
+        "Soạn thay đổi thành bản mới; không sửa trực tiếp bản đang hiệu lực.",
+        "Các ngưỡng pháp lý hiển thị kèm nhãn chưa xác thực cho đến khi đơn vị pháp chế xác nhận."
+      ]
+    },
+    "import": {
+      "steps": [
+        "Chọn tệp đúng mẫu quy định và bấm tải lên; mẫu tệp có thể tải ở nút Tải tệp mẫu.",
+        "Xem kết quả kiểm tra từng dòng: dòng lỗi nêu rõ cột và lý do.",
+        "Sửa tệp rồi tải lại, hoặc xác nhận nhập các dòng hợp lệ. Nhập lại cùng một tệp không tạo bản ghi trùng."
+      ]
+    },
+    "reconcile": {
+      "steps": [
+        "Chọn kỳ và nguồn cần đối chiếu.",
+        "Xem các dòng khớp và các dòng lệch; dòng lệch nêu chênh lệch và nguyên nhân gợi ý.",
+        "Xử lý từng dòng lệch: điều chỉnh, giải trình hoặc chuyển cho người phụ trách."
+      ]
+    },
+    "compare": {
+      "steps": [
+        "Chọn các đối tượng hoặc các kỳ cần so sánh.",
+        "Đọc bảng so sánh; ô lệch lớn được tô nổi.",
+        "Bấm vào ô để xem căn cứ của từng số."
+      ]
+    },
+    "timeline": {
+      "steps": [
+        "Xem các sự kiện theo thứ tự thời gian, sự kiện mới nhất ở trên.",
+        "Lọc theo loại sự kiện hoặc người thực hiện nếu cần.",
+        "Bấm vào một sự kiện để mở bản ghi liên quan."
+      ]
+    },
+    "board": {
+      "steps": [
+        "Chọn kỳ và phạm vi theo dõi.",
+        "Đọc từng khối: mỗi khối nêu số liệu, trạng thái và việc cần xử lý.",
+        "Bấm vào khối để xem danh sách chi tiết và giao việc."
+      ]
+    },
+    "kanban": {
+      "steps": [
+        "Mỗi cột là một trạng thái; mỗi thẻ là một việc hoặc hồ sơ.",
+        "Chuyển thẻ giữa các cột bằng nút chuyển trạng thái trên thẻ khi bạn có quyền.",
+        "Bấm vào thẻ để xem chi tiết."
+      ]
+    },
+    "documents": {
+      "steps": [
+        "Tìm tài liệu theo tên, loại hoặc thẻ phân loại.",
+        "Bấm vào tài liệu để xem phiên bản, người tải lên và quyền truy cập.",
+        "Tải tài liệu mới lên bằng nút ở đầu trang; hệ thống kiểm tra loại và dung lượng tệp trước khi nhận."
+      ]
+    },
+    "chart": {
+      "steps": [
+        "Chọn kỳ và chỉ tiêu cần xem.",
+        "Rê chuột hoặc dùng phím mũi tên để xem giá trị từng điểm.",
+        "Bảng số liệu đi kèm biểu đồ có thể xuất ra tệp."
+      ]
+    },
+    "calendar": {
+      "steps": [
+        "Chuyển tháng hoặc năm bằng các nút điều hướng.",
+        "Bấm vào một ngày để xem hoặc thêm mục.",
+        "Ngày nghỉ và ngày làm bù được tô khác để tránh nhầm khi tính thời hạn."
+      ]
+    },
+    "search": {
+      "steps": [
+        "Nhập từ khóa và bấm Enter; có thể thu hẹp theo loại bản ghi.",
+        "Kết quả chỉ gồm bản ghi bạn có quyền xem.",
+        "Bấm vào kết quả để mở bản ghi."
+      ]
+    },
+    "ai": {
+      "steps": [
+        "Nhập câu hỏi hoặc yêu cầu bằng tiếng Việt.",
+        "Kết quả của trợ lý AI chỉ là gợi ý và luôn nêu nguồn dữ liệu; người dùng kiểm tra và quyết định.",
+        "Có thể đánh giá câu trả lời để hệ thống cải thiện."
+      ]
+    },
+    "tree": {
+      "steps": [
+        "Mở hoặc thu gọn từng nhánh để xem cấp dưới.",
+        "Bấm vào một nút để xem chi tiết và thao tác với nút đó.",
+        "Thay đổi cơ cấu có hiệu lực theo ngày bạn chọn, không ghi đè lịch sử."
+      ]
+    },
+    "funding": {
+      "steps": [
+        "Chọn kỳ và nguồn vốn cần xem.",
+        "Đọc các cột kế hoạch, đã giao, giải ngân và còn lại; mỗi con số có nút chữ i giải thích cách tính.",
+        "Bấm vào dòng để xem các lần điều chỉnh và căn cứ pháp lý."
+      ]
+    },
+    "confirm": {
+      "steps": [
+        "Đọc kỹ nội dung cần xác nhận.",
+        "Chọn Xác nhận để thực hiện hoặc Hủy để quay lại; thao tác nhạy cảm yêu cầu xác thực lần hai."
+      ]
+    },
+    "auth": {
+      "steps": [
+        "Nhập thông tin đăng nhập hoặc mã xác thực theo hướng dẫn trên màn hình.",
+        "Sau nhiều lần nhập sai, tài khoản bị khóa tạm thời; liên hệ quản trị tổ chức nếu cần mở khóa."
+      ]
+    },
+    "success": {
+      "steps": [
+        "Màn hình xác nhận thao tác đã hoàn tất và nêu mã tham chiếu.",
+        "Dùng nút bên dưới để quay lại danh sách hoặc làm tiếp việc kế tiếp."
+      ]
+    }
+  }
+}

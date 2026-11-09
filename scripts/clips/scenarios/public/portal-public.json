@@ -1,0 +1,120 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "portal-public",
+  "title": "Cổng công khai và giám sát cộng đồng",
+  "summary": "Community monitoring files with a notice deadline, feedback and responses, the governance of the public portal with an allow list of fields, and the read-only public portal of projects with an open data export for infrastructure projects.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "portal-community",
+      "chapter": "portal-public",
+      "main": false,
+      "narration": "Hồ sơ giám sát cộng đồng ghi ý kiến của người dân và ban giám sát cộng đồng về từng dự án. Có hạn thông báo, và mỗi phản ánh có phản hồi kèm thời hạn trả lời. Phản hồi của chính quyền được công khai cùng với phản ánh, nên người dân thấy việc của mình có được giải quyết hay không.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-31",
+          "PRJ-32"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-31"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.community.files"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-32"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.community.feedback-responses"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 20.9
+    },
+    {
+      "id": "portal-governance",
+      "chapter": "portal-public",
+      "main": false,
+      "narration": "Quản trị cổng công khai chọn trường nào được phép công bố. Cổng không bao giờ đọc bảng nguồn. Người công bố ghi các bản ghi đã cắt theo danh sách trường cho phép. Danh sách ấy được áp dụng hai lần, khi công bố và khi trả ra.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-33"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-33"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.portal.allow-list"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.portal.publish"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Chỉ trường được phép mới ra cổng",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 17
+    },
+    {
+      "id": "portal-open-data",
+      "chapter": "portal-public",
+      "main": false,
+      "narration": "Cổng công khai đầu tư cho người dân xem dự án, tiến độ và nhà thầu mà không cần đăng nhập. Phản hồi không mang mã người dùng hay đơn vị. Dữ liệu xuất theo chuẩn dữ liệu mở về hạ tầng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-34"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-34"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.portal.public-projects"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.portal.open-data-export"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    }
+  ]
+}

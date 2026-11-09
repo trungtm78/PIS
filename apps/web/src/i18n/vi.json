@@ -3072,7 +3072,6 @@
   "shell.nav.pin.label": "Ghim màn hình",
   "shell.nav.unpin.label": "Bỏ ghim màn hình",
   "shell.nav.pin.title": "Ghim vào thanh bên",
-  "shell.nav.help.label": "Trợ giúp",
   "shell.tenant.workspace.text": "Không gian làm việc",
   "shell.tenant.home.label": "{monogram}: trang chủ {name}",
   "shell.tenant.switch.label": "Chuyển tenant",
