@@ -584,6 +584,8 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getReportRevision': OperationDescriptor(method: 'GET', path: '/reports/{id}', versioned: false, stepUp: null, permission: 'report.read'),
   'getReportSignature': OperationDescriptor(method: 'GET', path: '/report-engine/issues/{id}/signature', versioned: false, stepUp: null, permission: 'rpt.read'),
   'getReportWorkflow': OperationDescriptor(method: 'GET', path: '/reports/{id}/workflow', versioned: false, stepUp: null, permission: 'report.read'),
+  'getReportingCalendar': OperationDescriptor(method: 'GET', path: '/reporting-calendar', versioned: false, stepUp: null, permission: 'report.read'),
+  'getReportingCalendarBoard': OperationDescriptor(method: 'GET', path: '/reporting-calendar/periods/{id}/board', versioned: false, stepUp: null, permission: 'report.read'),
   'getRiskSignalBoard': OperationDescriptor(method: 'GET', path: '/risk-signals/board', versioned: false, stepUp: null, permission: 'project.read'),
   'getSitePhotoChecks': OperationDescriptor(method: 'GET', path: '/site-photos/{id}/checks', versioned: false, stepUp: null, permission: 'photo.read'),
   'getSnoozedWork': OperationDescriptor(method: 'GET', path: '/home/work-actions/snoozed', versioned: false, stepUp: null, permission: 'home.read'),

@@ -764,6 +764,8 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getReportDraftFile': RptFileContentResponse.fromJson,
   'getReportExportDownload': DisReportExportDownloadResponse.fromJson,
   'getReportImport': DisReportImportResponse.fromJson,
+  'getReportingCalendar': DisReportingCalendarResponse.fromJson,
+  'getReportingCalendarBoard': DisReportingCalendarBoardResponse.fromJson,
   'getReportIssue': RptIssueResponse.fromJson,
   'getReportIssueFile': RptFileContentResponse.fromJson,
   'getReportRevision': asObject,
@@ -22395,6 +22397,98 @@ final class DisReportImportResponseErrorsItem implements ResponseModel {
         'project_code': projectCode,
         'field': field,
         'code': code,
+        ...extra,
+      };
+}
+
+final class DisReportingCalendarBoardResponse implements ResponseModel {
+  const DisReportingCalendarBoardResponse({
+    required this.period,
+    required this.schedule,
+    required this.periodSteps,
+    required this.units,
+    required this.tally,
+    required this.asOf,
+    this.reminders,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportingCalendarBoardResponse.fromJson(Object? json, [String path = 'DisReportingCalendarBoardResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportingCalendarBoardResponse(
+      period: requiredField(map, path, 'period', asObject),
+      schedule: requiredField(map, path, 'schedule', asObject),
+      periodSteps: requiredField(map, path, 'period_steps', asList(asObject)),
+      units: requiredField(map, path, 'units', asList(asObject)),
+      tally: requiredField(map, path, 'tally', asObject),
+      reminders: optionalField(map, path, 'reminders', asList(asObject)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'period', 'schedule', 'period_steps', 'units', 'tally', 'reminders', 'as_of'}, strict: false),
+    );
+  }
+
+  final Map<String, Object?> period;
+  final Map<String, Object?> schedule;
+  final List<Map<String, Object?>> periodSteps;
+  final List<Map<String, Object?>> units;
+  final Map<String, Object?> tally;
+  final List<Map<String, Object?>>? reminders;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period': period,
+        'schedule': schedule,
+        'period_steps': periodSteps,
+        'units': units,
+        'tally': tally,
+        if (reminders != null) 'reminders': reminders,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class DisReportingCalendarResponse implements ResponseModel {
+  const DisReportingCalendarResponse({
+    required this.year,
+    required this.schedules,
+    required this.items,
+    required this.asOf,
+    this.calendarTime,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportingCalendarResponse.fromJson(Object? json, [String path = 'DisReportingCalendarResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportingCalendarResponse(
+      year: requiredField(map, path, 'year', asInt),
+      calendarTime: optionalField(map, path, 'calendar_time', asString),
+      schedules: requiredField(map, path, 'schedules', asList(asObject)),
+      items: requiredField(map, path, 'items', asList(asObject)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'year', 'calendar_time', 'schedules', 'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final int year;
+  final String? calendarTime;
+  final List<Map<String, Object?>> schedules;
+  final List<Map<String, Object?>> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'year': year,
+        if (calendarTime != null) 'calendar_time': calendarTime,
+        'schedules': schedules,
+        'items': items,
+        'as_of': asOf,
         ...extra,
       };
 }
