@@ -15,8 +15,8 @@ Requirements: HSKT v0.3 DL.01 (the data set per project and period includes the 
 
 ## Steps (tick when done; one commit per step)
 
-- [ ] 1. Plan and migration block (2680-2699 registered as `ENT3B-1`).
-- [ ] 2. Kernel: `ent-narrative.ts` (fields, validation, inheritance, directive lines, import parse, entry facts), `fillNarrative` token, entry surface `PERIOD_NARRATIVE`, messages. Tests: kernel unit tests.
+- [x] 1. Plan and migration block (2680-2699 registered as `ENT3B-1`).
+- [x] 2. Kernel: `ent-narrative.ts` (fields, validation, inheritance, directive lines, import parse, entry facts), `fillNarrative` token, entry surface `PERIOD_NARRATIVE`, messages. Tests: kernel unit tests.
 - [ ] 3. DB: migration 2680, store changes (read/write the block, previous report, cause catalogue, import judge/apply). Tests: db store test.
 - [ ] 4. API + contract: narrative in report create/save/detail, `inheritReportNarrative`, `getReportNarrativeContext`, `downloadReportNarrativeTemplate`, import mapping, rules on save/submit, authz/isolation entries. Tests: api tests (listed, not run in the shared suites).
 - [ ] 5. Enterprise package: six narrative skeletons, templates rebuilt, provider wiring of narratives in the report render. Tests: package tests.

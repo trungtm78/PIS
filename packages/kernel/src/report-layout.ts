@@ -1,4 +1,6 @@
 import { DomainError } from './errors.ts';
+import { NARRATIVE_PROJECTS_TOKEN, projectNarrativeBlocks } from './ent-narrative.ts';
+import type { ProjectNarrativeText } from './ent-narrative.ts';
 import { roundDecimalText } from './kpi-register.ts';
 import type { FigureFlag, KpiPeriod, KpiUnit } from './kpi-register.ts';
 import { message } from './messages.ts';
@@ -538,6 +540,8 @@ export interface ReportFillData {
   definitions: Readonly<Record<string, ReportIndicatorDefinition>>;
   figures: readonly ReportFigure[];
   datasets: Readonly<Record<string, ReadonlyArray<Readonly<Record<string, ReportScalar>>>>>;
+  /** The structured narratives of the projects of the period (ENT-3b): the words people wrote, which the token `{{narrative:PROJECTS}}` of a narrative skeleton lays out. Absent: the token says there is none. */
+  narratives?: readonly ProjectNarrativeText[] | undefined;
 }
 
 // ---- the filled grid ---------------------------------------------------------------------------------------------------------------------------
@@ -901,7 +905,7 @@ export function fillNarrative(blocks: readonly NarrativeBlock[], data: ReportFil
       const places = definition.unit === 'PERCENT' || definition.unit === 'RATIO' || definition.unit === 'DAYS' ? definition.decimals : 0;
       return groupDigits(roundDecimalText(raw, places), locale);
     });
-  const out: NarrativeBlock[] = blocks.map((block): NarrativeBlock => {
+  const fillBlock = (block: NarrativeBlock): NarrativeBlock => {
     switch (block.type) {
       case 'HEADING':
         return { ...block, text: resolve(block.text) };
@@ -916,7 +920,10 @@ export function fillNarrative(blocks: readonly NarrativeBlock[], data: ReportFil
       case 'PAGE_BREAK':
         return block;
     }
-  });
+  };
+  const out: NarrativeBlock[] = blocks.flatMap((block): NarrativeBlock[] =>
+    block.type === 'PARAGRAPH' && block.text.trim() === NARRATIVE_PROJECTS_TOKEN ? projectNarrativeBlocks(data.narratives ?? []) : [fillBlock(block)],
+  );
   return { blocks: out, issues };
 }
 

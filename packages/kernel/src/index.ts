@@ -3223,3 +3223,5 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
+export { NARRATIVE_CAUSE_CODES_FACT, NARRATIVE_FIELDS, NARRATIVE_FIELD_MAX_CHARS, NARRATIVE_IMPORT_COLUMNS, NARRATIVE_IMPORT_FAULTS, NARRATIVE_IMPORT_MAPPING, NARRATIVE_MANDATORY_FACTS, NARRATIVE_MAX_CAUSE_CODES, NARRATIVE_MAX_DIRECTIVES, NARRATIVE_PACK_ENTERPRISE, NARRATIVE_PACK_VERSION, NARRATIVE_PROJECTS_TOKEN, directiveLine, directiveRefOf, enterpriseNarrativeOf, fieldHash, filledFields, inheritNarrative, inheritanceHashes, isEmptyBlock, isNarrativeField, narrativeEntryValues, narrativeFactName, parseNarrativeImport, projectNarrativeBlocks, unchangedInherited } from './ent-narrative.ts';
+export type { DirectiveForNarrative, DirectiveRef, EnterpriseNarrative, InheritedDraft, NarrativeField, NarrativeImportRow, NarrativeInheritance, NarrativeRowFault, ParsedNarrativeImport, ProjectNarrativeText, RawEnterpriseNarrative } from './ent-narrative.ts';
