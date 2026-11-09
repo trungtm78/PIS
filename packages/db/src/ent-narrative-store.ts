@@ -118,7 +118,7 @@ export class EntNarrativeStore {
          join machvon.project p on p.tenant_id = r.tenant_id and p.id = r.project_id
          join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
          left join machvon.organization_unit iu on iu.tenant_id = p.tenant_id and iu.id = p.investor_unit_id
-        where r.period_id = $1::uuid and r.status = 'DRAFT' and r.is_current and r.deleted_at is null and ${visible.sql}
+        where r.period_id = $1::uuid and r.status = 'DRAFT' and r.deleted_at is null and ${visible.sql}
         order by p.code`,
       [periodId, ...visible.params],
     );

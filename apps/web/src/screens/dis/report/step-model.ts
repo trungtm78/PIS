@@ -200,7 +200,10 @@ export const validateNotes = (form: NotesForm): Partial<Record<NoteField, 'tooLo
 export function notesBody(detail: ReportDetail, form: NotesForm): ReportDraftBody {
   const sections = Object.fromEntries(NOTE_FIELDS.flatMap((field) => (form[field].trim() === '' ? [] : [[field, form[field].trim()] as const])));
   const issues = detail.narrative?.linkedIssueIds ?? [];
-  return { ...keepBody(detail), narrative: Object.keys(sections).length === 0 && issues.length === 0 ? {} : { ...sections, ...(issues.length === 0 ? {} : { linked_issue_ids: issues }) } };
+  // The block of the enterprise pack is not edited here: it goes back as it was, so saving the notes never takes the structured narrative away.
+  const held = detail.narrative?.enterprise ?? null;
+  const enterprise = held === null ? {} : { enterprise: Object.fromEntries(Object.entries(held).filter(([key, value]) => key !== 'inheritance' && value !== null)) };
+  return { ...keepBody(detail), narrative: Object.keys(sections).length === 0 && issues.length === 0 && held === null ? {} : { ...sections, ...(issues.length === 0 ? {} : { linked_issue_ids: issues }), ...enterprise } };
 }
 
 /** The save of the files: the whole list in the order it is shown. */

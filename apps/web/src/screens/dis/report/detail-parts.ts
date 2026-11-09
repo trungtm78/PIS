@@ -34,6 +34,8 @@ export interface Narrative {
   solutions: string | null;
   proposals: string | null;
   linkedIssueIds: string[];
+  /** The block of the enterprise pack (ENT-3b: the eight structured fields), as the server gave it; null when the report has none. */
+  enterprise: Record<string, unknown> | null;
 }
 
 export function toNarrative(raw: unknown): Narrative | null {
@@ -45,6 +47,7 @@ export function toNarrative(raw: unknown): Narrative | null {
     solutions: nullableText(row.solutions),
     proposals: nullableText(row.proposals),
     linkedIssueIds: (Array.isArray(row.linked_issue_ids) ? row.linked_issue_ids : []).filter((id): id is string => typeof id === 'string'),
+    enterprise: asRecord(row.enterprise) ?? null,
   };
 }
 

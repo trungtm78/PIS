@@ -33,8 +33,8 @@ describe('the parts of a report beyond its six cells', () => {
     expect(toProgress(progressRecord({ physical_progress_pct: null }))?.physicalProgressPct).toBeNull();
     for (const bad of [null, 'x', progressRecord({ construction_vnd: 5 }), progressRecord({ acceptance_vnd: '-1' }), progressRecord({ as_of_date: undefined })]) expect(toProgress(bad)).toBeNull();
 
-    expect(toNarrative({ results: 'Done', causes: null, solutions: 'More', proposals: null, linked_issue_ids: ['a', 5, 'b'] })).toEqual({ results: 'Done', causes: null, solutions: 'More', proposals: null, linkedIssueIds: ['a', 'b'] });
-    expect(toNarrative({})).toEqual({ results: null, causes: null, solutions: null, proposals: null, linkedIssueIds: [] });
+    expect(toNarrative({ results: 'Done', causes: null, solutions: 'More', proposals: null, linked_issue_ids: ['a', 5, 'b'] })).toEqual({ results: 'Done', causes: null, solutions: 'More', proposals: null, linkedIssueIds: ['a', 'b'], enterprise: null });
+    expect(toNarrative({})).toEqual({ results: null, causes: null, solutions: null, proposals: null, linkedIssueIds: [], enterprise: null });
     expect(toNarrative(null)).toBeNull();
 
     expect(toAttachment(fileRecord())).toEqual({ fileObjectId: FILE_ID, fileSha256: 'a'.repeat(64), fileName: 'voucher-1.pdf', contentType: 'application/pdf', sizeBytes: 2048 });
@@ -209,6 +209,11 @@ describe('the notes and the files of DIS-06 (AC-ST-DIS-004-4)', () => {
     expect(notesBody(detail, { results: '  New  ', causes: '', solutions: 'S', proposals: ' ' }).narrative).toEqual({ results: 'New', solutions: 'S', linked_issue_ids: [ISSUE] });
     expect(notesBody(detailOf(), { results: 'R', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ results: 'R' });
     expect(notesBody(detailOf(), { results: ' ', causes: '', solutions: '', proposals: '' }).narrative).toEqual({});
+  });
+
+  it('hands the structured narrative of the enterprise pack back as it was when the notes are saved, without the empty fields and the trace', () => {
+    const detail = detailOf({ narrative: { results: 'Old', enterprise: { status: 'Works', schedule: null, cause_codes: ['SITE_HANDOVER'], directive_refs: [], inheritance: { from_report_id: ISSUE } } } });
+    expect(notesBody(detail, { results: 'New', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ results: 'New', enterprise: { status: 'Works', cause_codes: ['SITE_HANDOVER'], directive_refs: [] } });
     expect(notesBody(detail, { results: '', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ linked_issue_ids: [ISSUE] });
   });
 
