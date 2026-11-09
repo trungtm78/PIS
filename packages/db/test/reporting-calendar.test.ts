@@ -131,7 +131,7 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     await seedReplica([
       [
         `insert into machvon.report_revision (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, submitted_at, accepted_at, payload_hash, submitted_by, accepted_by)
-         values ($1, $2, $3, $4, $5, 1, 'ACCEPTED', true, 1, '2027-10-01T01:00:00Z', '2027-10-02T01:00:00Z', repeat('a', 64), $10, $11), ($1, $6, $7, $4, $5, 1, 'SUBMITTED', true, 1, '2027-10-01T02:00:00Z', null, repeat('b', 64), $10, null), ($1, $8, $9, $4, $5, 1, 'DRAFT', true, 1, null, null, repeat('c', 64), null, null)`,
+         values ($1, $2, $3, $4, $5, 1, 'ACCEPTED', true, 1, '2027-10-01T01:00:00Z', '2027-10-02T01:00:00Z', repeat('a', 64), $10, $11), ($1, $6, $7, $4, $5, 1, 'SUBMITTED', false, 1, '2027-10-01T02:00:00Z', null, repeat('b', 64), $10, null), ($1, $8, $9, $4, $5, 1, 'DRAFT', false, 1, null, null, repeat('c', 64), null, null)`,
         [TENANT_A, randomUUID(), projectId(1), period.id, PLAN, randomUUID(), projectId(3), randomUUID(), projectId(2), memberId(ACTOR), memberId(APPROVER)],
       ],
     ]);
@@ -156,8 +156,8 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     expect(first[0]?.payload).toMatchObject({ alert_type: 'REPORTING_STEP_DUE_SOON', period_code: 'M2027-09', notification: { resource: { type: 'report', id: key, ownerUnitId: unitId(2), ownerUnitPath: '/u1/u2/' } } });
 
     // The same pass again records nothing new for the period, and another process at the same moment cannot double it either.
-    const again = await run('2027-10-02T04:30:00Z');
-    expect(again.reminders).toBe(0);
+    // (Earlier months that are already overdue are reminded on their own series: a pass sends the escalation first and the overdue reminder on the next one.)
+    await run('2027-10-02T04:30:00Z');
     expect((await events()).filter((event) => event.payload.step === 'ENTRY')).toHaveLength(1);
 
     // After the deadline: the overdue reminder, and three days later the escalation to the leader (its own event type).
