@@ -38383,6 +38383,8 @@ export interface components {
             /** @enum {string} */
             kind: "TEXT" | "NUMBER" | "FORMULA" | "EMPTY";
             text: string;
+            col_span?: number;
+            row_span?: number;
         };
         RptPreviewRow: {
             row: number;

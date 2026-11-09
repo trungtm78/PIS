@@ -1,4 +1,4 @@
-import { DIS_WEEKLY_LAYOUT, cellRef, dataRowOf, documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf, validateLayout } from '../src/index.ts';
+import { DIS_WEEKLY_LAYOUT, cellRef, dataRowOf, documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf, previewOfDocument, validateLayout } from '../src/index.ts';
 import type { LayoutColumn, ReportFillData, ReportLayout } from '../src/index.ts';
 
 const COLUMNS: LayoutColumn[] = [
@@ -139,5 +139,34 @@ describe('number formats and narrative lines', () => {
     });
     expect(lines).toEqual(['H', 'P', 'i1', 'i2', 'a | b', '1 | 2', 'x | y']);
     expect(narrativeLinesOf(null)).toEqual([]);
+  });
+});
+
+describe('the preview of a document shows values, not formulas, and keeps the merges (DEMO-04)', () => {
+  const preview = previewOfDocument(formDocumentOf(LAYOUT, null, DATA));
+  const cell = (row: number, col: number) => preview.rows.find((one) => one.row === row)?.cells.find((one) => one.col === col);
+
+  it('evaluates the rate formula of the total row and writes it with its one decimal and the thousands grouped', () => {
+    const total = preview.rows.find((one) => one.kind === 'TOTAL');
+    expect(total).toBeDefined();
+    const row = total?.row ?? 0;
+    expect(cell(row, 3)?.text).toBe('4.500');
+    expect(cell(row, 4)?.text).toBe('2.250');
+    expect(cell(row, 5)?.text).toBe('50,0');
+    for (const one of preview.rows) for (const shown of one.cells) expect(shown.text.startsWith('=')).toBe(false);
+  });
+
+  it('gives a merged cell its span, so the title is not squeezed into one column', () => {
+    expect(cell(1, 1)?.text).toBe('Report');
+    expect(cell(1, 1)?.col_span).toBe(5);
+    expect(preview.columns).toBe(5);
+    expect(cell(1, 2)?.col_span).toBeUndefined();
+  });
+
+  it('leaves a formula it cannot evaluate empty and never prints its text', () => {
+    const broken: ReportLayout = { ...LAYOUT, body: [{ kind: 'TOTAL', cells: [{ col: 3, binding: { kind: 'FORMULA', formula: 'NOSUCH(A1)' }, format: { numFmt: '#,##0' } }] }] };
+    const shown = previewOfDocument(formDocumentOf(broken, null, DATA));
+    const texts = shown.rows.flatMap((one) => one.cells.map((c) => c.text));
+    expect(texts.some((text) => text.includes('NOSUCH'))).toBe(false);
   });
 });

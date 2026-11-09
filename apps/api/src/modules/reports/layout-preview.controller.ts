@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { CONFIG_CODE_PREFIX, DomainError, REPORT_LAYOUT_RULE_TYPE, compileLayoutConfig, formDocumentOf, illustrativeLayoutData, layoutConfigOf, previewOf, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
+import { CONFIG_CODE_PREFIX, DomainError, REPORT_LAYOUT_RULE_TYPE, compileLayoutConfig, formDocumentOf, illustrativeLayoutData, layoutConfigOf, previewOfDocument, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, FormPeriod } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandScope } from '../../command-scope';
@@ -45,7 +45,7 @@ export class LayoutPreviewController {
       const period: FormPeriod = body.period === undefined ? (DEFAULT_PERIODS[config.period_kind] as FormPeriod) : { kind: body.period.kind, year: body.period.year, ...(body.period.index === undefined ? {} : { index: body.period.index }), ...(body.period.day === undefined ? {} : { day: body.period.day }) };
       if (period.kind !== config.period_kind) throw new DomainError('VALIDATION_FAILED', 422, 'period_kind');
       const document = formDocumentOf(compiled.layout, null, illustrativeLayoutData(config, period, definitions));
-      const shown = previewOf(document.grid, document.narrative);
+      const shown = previewOfDocument(document);
       result = {
         valid: true,
         problem: null,

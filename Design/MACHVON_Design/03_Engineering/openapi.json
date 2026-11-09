@@ -277297,6 +277297,14 @@
           },
           "text": {
             "type": "string"
+          },
+          "col_span": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "row_span": {
+            "type": "integer",
+            "minimum": 2
           }
         }
       },

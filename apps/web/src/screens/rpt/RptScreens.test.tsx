@@ -162,6 +162,30 @@ describe('RPT-02, the drafts and the flow of three people', () => {
     expect(within(detail).getByText(word('rpt.common.issue.noFigure'), { exact: false })).toBeTruthy();
   });
 
+  it('draws a merged title cell over its columns and leaves out the cells it covers, with values not formulas (DEMO-04)', async () => {
+    const merged = previewOf({
+      columns: 4,
+      rows: [
+        { row: 1, kind: 'TITLE', cells: [{ col: 1, kind: 'TEXT', text: 'BÁO CÁO TÌNH HÌNH GIẢI NGÂN THÁNG', col_span: 4 }] },
+        { row: 2, kind: 'HEADER', cells: [{ col: 1, kind: 'TEXT', text: 'Dự án', row_span: 2 }, { col: 2, kind: 'TEXT', text: 'Kế hoạch' }, { col: 3, kind: 'TEXT', text: 'Giải ngân' }, { col: 4, kind: 'TEXT', text: 'Tỷ lệ' }] },
+        { row: 3, kind: 'DATA', cells: [{ col: 2, kind: 'NUMBER', text: '1.200.000' }, { col: 3, kind: 'NUMBER', text: '900.000' }, { col: 4, kind: 'FORMULA', text: '75,0' }] },
+      ],
+      row_count: 3,
+    });
+    mountDrafts(draft(21, { preview: merged }));
+    await screen.findByTestId('hash-package');
+    const detail = screen.getByTestId('draft-detail');
+    const title = detail.querySelector('[data-cell="1:1"]') as HTMLTableCellElement;
+    expect(title.colSpan).toBe(4);
+    expect(detail.querySelector('[data-cell="1:2"]')).toBeNull();
+    const head = detail.querySelector('[data-cell="2:1"]') as HTMLTableCellElement;
+    expect(head.rowSpan).toBe(2);
+    expect(detail.querySelector('[data-cell="3:1"]')).toBeNull();
+    expect(detail.querySelector('[data-cell="3:4"]')?.textContent).toBe('75,0');
+    expect(detail.querySelector('[data-cell="3:4"]')?.textContent).not.toMatch(/^=/);
+    expect(detail.querySelectorAll('colgroup col').length).toBe(5);
+  });
+
   it('shows the step that is now, and the button of it only to the person who may take it', async () => {
     mountDrafts(draft(21, { can_check: true }));
     const flow = await screen.findByTestId('flow');

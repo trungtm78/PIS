@@ -1,4 +1,4 @@
-import { periodRange, previewOf, formDocumentOf } from '@machvon/kernel';
+import { periodRange, previewOfDocument, formDocumentOf } from '@machvon/kernel';
 import type { FilledGrid, FilledNarrative, NarrativeBlock, ReportDocument, ReportFillData, ReportLayout, ReportPreview } from '@machvon/kernel';
 import { renderDocx } from './docx-render';
 import { reportPdfOf } from './report-pdf';
@@ -39,5 +39,5 @@ export async function renderReport(input: RenderInput): Promise<RenderedReport> 
   const docx = narrative === null ? null : await renderDocx(narrative.blocks, { title: input.layout.name, creator: input.creator, issuedAt, stamp: grid.stamp, headerText: input.layout.name });
   const { bytes: pdf } = await reportPdfOf(document, { issuedAt, creator: input.creator });
   const issues = [...grid.issues.map((one) => ({ ref: one.ref, code: one.code, detail: one.detail })), ...(narrative?.issues ?? []).map((one) => ({ ref: one.token, code: one.code, detail: null }))];
-  return { xlsx, docx, pdf, document, grid, narrative, layoutSha256: document.layoutSha256, preview: previewOf(grid, narrative), issues };
+  return { xlsx, docx, pdf, document, grid, narrative, layoutSha256: document.layoutSha256, preview: previewOfDocument(document), issues };
 }
