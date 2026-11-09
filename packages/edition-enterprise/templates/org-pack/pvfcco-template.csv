@@ -1,0 +1,87 @@
+﻿business_key,kind,name,parent_key,data,pack
+POLICY:DIRECTORY,POLICY,,,"{""prefix"":""MACHVON-PVFCCO""}",PVFCCO-TEMPLATE
+UNIT:PVFCCO,UNIT,Tổng công ty (mẫu PVFCCo),,"{""function"":""ROOT""}",PVFCCO-TEMPLATE
+UNIT:KHDT,UNIT,Ban Kế hoạch và Đầu tư,PVFCCO,"{""function"":""AGGREGATOR""}",PVFCCO-TEMPLATE
+UNIT:CN_QLPTDA,UNIT,Chi nhánh Quản lý và Phát triển dự án,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:NM_DPM,UNIT,Nhà máy Đạm Phú Mỹ,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:TM,UNIT,Ban Thương mại,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:KTAT,UNIT,Ban Kỹ thuật An toàn,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:TH,UNIT,Ban Tổng hợp,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:TCKT,UNIT,Ban Tài chính Kế toán,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:TT_NCUD,UNIT,Trung tâm Nghiên cứu và Ứng dụng,PVFCCO,"{""function"":""INPUT_POINT""}",PVFCCO-TEMPLATE
+UNIT:TDA_1,UNIT,[tên Tổ dự án 1],PVFCCO,"{""function"":""INPUT_POINT"",""placeholder"":true}",PVFCCO-TEMPLATE
+UNIT:TDA_2,UNIT,[tên Tổ dự án 2],PVFCCO,"{""function"":""INPUT_POINT"",""placeholder"":true}",PVFCCO-TEMPLATE
+UNIT:BTGD,UNIT,Ban Tổng Giám đốc,PVFCCO,"{""function"":""LEADERSHIP""}",PVFCCO-TEMPLATE
+UNIT:HDQT,UNIT,Hội đồng quản trị,PVFCCO,"{""function"":""LEADERSHIP""}",PVFCCO-TEMPLATE
+UNIT:CDS_CNTT,UNIT,Ban Chuyển đổi số và Công nghệ thông tin,PVFCCO,"{""function"":""ADMINISTRATION""}",PVFCCO-TEMPLATE
+ROLE:ENT_DATA_ENTRY,ROLE,Người nhập liệu của đầu mối (mẫu PVFCCo),,"{""kind"":""ENTRY"",""rank"":30,""permissions"":[""ind.entry"",""ind.import"",""ind.import.preview"",""ind.read"",""funding.figure.prepare"",""funding.read"",""report.create"",""report.edit"",""report.import"",""report.submit"",""report.withdraw"",""report.read"",""project.read"",""home.read"",""iam.delegation.create"",""iam.delegation.read"",""iam.acting.request""]}",PVFCCO-TEMPLATE
+ROLE:ENT_UNIT_APPROVER,ROLE,Người phê duyệt của đầu mối (mẫu PVFCCo),,"{""kind"":""UNIT_APPROVER"",""rank"":45,""permissions"":[""approval.decide"",""approval_task.read"",""workflow_instance.read"",""report.review"",""report.read"",""report_revision.read"",""funding.figure.accept"",""funding.read"",""ind.read"",""project.read"",""home.read"",""iam.delegation.create"",""iam.delegation.read"",""iam.acting.request""]}",PVFCCO-TEMPLATE
+ROLE:ENT_PLANNING_REVIEWER,ROLE,Người rà soát và chốt kỳ của Ban Kế hoạch và Đầu tư (mẫu PVFCCo),,"{""kind"":""PLANNING_REVIEWER"",""rank"":55,""permissions"":[""approval.decide"",""approval_task.read"",""workflow_instance.read"",""report.review"",""report.read"",""report_revision.read"",""funding.figure.accept"",""funding.read"",""ind.read"",""project.read"",""home.read"",""iam.delegation.read"",""period.manage"",""period.lock"",""period.reopen.approve"",""hpm.read"",""hpm.push"",""hpm.receipt"",""ebs.read"",""ebs.reconcile"",""rpt.read"",""rpt.generate"",""rpt.check"",""directive.read"",""directive.manage"",""capital.read"",""master.read"",""reporting_period.read""]}",PVFCCO-TEMPLATE
+ROLE:ENT_LEADERSHIP_VIEWER,ROLE,Lãnh đạo xem báo cáo và dashboard (mẫu PVFCCo),,"{""kind"":""LEADERSHIP_VIEWER"",""rank"":35,""permissions"":[""home.read"",""report.read"",""report_revision.read"",""rpt.read"",""directive.read"",""bi.query"",""capital.read"",""funding.read"",""ind.read"",""project.read"",""hpm.read"",""ebs.read"",""reporting_period.read""]}",PVFCCO-TEMPLATE
+ROLE:ENT_EDITION_ADMIN,ROLE,Quản trị hệ thống của Ban Chuyển đổi số và Công nghệ thông tin (mẫu PVFCCo),,"{""kind"":""ADMINISTRATOR"",""rank"":85,""permissions"":[""iam.member.invite"",""iam.member.manage"",""iam.role.grant"",""iam.role.manage"",""iam.unit.manage"",""iam.delegation.read"",""adm.migration.read"",""adm.migration.manage"",""adm.migration.approve"",""adm.governance.read"",""adm.governance.manage"",""adm.governance.approve"",""adm.workflow.manage"",""adm.workflow.publish"",""adm.doa.read"",""adm.doa.manage"",""adm.doa.approve"",""adm.calendar.read"",""adm.calendar.manage"",""adm.integration.read"",""adm.integration.manage"",""adm.security.read"",""master.read"",""master.propose"",""master.review"",""master.publish"",""ebs.admin"",""hpm.admin"",""home.read""]}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@CN_QLPTDA,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""CN_QLPTDA"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@CN_QLPTDA,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""CN_QLPTDA"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@NM_DPM,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""NM_DPM"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@NM_DPM,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""NM_DPM"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@TM,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""TM"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@TM,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""TM"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@KTAT,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""KTAT"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@KTAT,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""KTAT"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@TH,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""TH"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@TH,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""TH"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@TCKT,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""TCKT"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@TCKT,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""TCKT"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@TT_NCUD,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""TT_NCUD"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@TT_NCUD,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""TT_NCUD"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@TDA_1,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""TDA_1"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@TDA_1,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""TDA_1"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_DATA_ENTRY@TDA_2,SEAT,,,"{""role"":""ENT_DATA_ENTRY"",""unit"":""TDA_2"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_UNIT_APPROVER@TDA_2,SEAT,,,"{""role"":""ENT_UNIT_APPROVER"",""unit"":""TDA_2"",""scope"":""UNIT_ONLY"",""min"":1,""max"":1}",PVFCCO-TEMPLATE
+SEAT:ENT_PLANNING_REVIEWER@KHDT,SEAT,,,"{""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""scope"":""TENANT"",""min"":2,""max"":4}",PVFCCO-TEMPLATE
+SEAT:ENT_LEADERSHIP_VIEWER@BTGD,SEAT,,,"{""role"":""ENT_LEADERSHIP_VIEWER"",""unit"":""BTGD"",""scope"":""TENANT"",""min"":1,""max"":10}",PVFCCO-TEMPLATE
+SEAT:ENT_LEADERSHIP_VIEWER@HDQT,SEAT,,,"{""role"":""ENT_LEADERSHIP_VIEWER"",""unit"":""HDQT"",""scope"":""TENANT"",""min"":1,""max"":10}",PVFCCO-TEMPLATE
+SEAT:ENT_EDITION_ADMIN@CDS_CNTT,SEAT,,,"{""role"":""ENT_EDITION_ADMIN"",""unit"":""CDS_CNTT"",""scope"":""TENANT"",""min"":2,""max"":4}",PVFCCO-TEMPLATE
+STEP:unit-approver,STEP,Người có thẩm quyền tại đầu mối phê duyệt,,"{""order"":1,""kind"":""UNIT_APPROVER"",""assignee"":""DOA"",""sla_working_hours"":24,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:planning-review,STEP,"Ban Kế hoạch và Đầu tư rà soát, kiểm tra",,"{""order"":2,""kind"":""PLANNING_REVIEW"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":24,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:period-close,STEP,Chốt kỳ,,"{""order"":3,""kind"":""PERIOD_CLOSE"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":8,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+STEP:push,STEP,Đẩy số liệu sang HPM,,"{""order"":4,""kind"":""PUSH"",""assignee"":""ROLE_IN_UNIT"",""role"":""ENT_PLANNING_REVIEWER"",""unit"":""KHDT"",""sla_working_hours"":8,""on_timeout"":""REMIND""}",PVFCCO-TEMPLATE
+POLICY:DELEGATION,POLICY,,,"{""delegable_roles"":[""ENT_DATA_ENTRY"",""ENT_UNIT_APPROVER""],""max_days"":90,""standing_review_days"":180}",PVFCCO-TEMPLATE
+POLICY:ABSENCE,POLICY,,,"{""max_absence_days"":180,""max_cover_days"":90,""max_chain_depth"":2,""uncovered_after_working_hours"":8,""warn_before_days"":3,""deputy_rank_rule"":""AT_LEAST_PEER"",""min_role_holders"":1,""position_min_rank"":40}",PVFCCO-TEMPLATE
+DOA:REPORT_ACCEPT,DOA,,,"{""unit"":""PVFCCO"",""role"":""ENT_UNIT_APPROVER"",""approval_levels"":1}",PVFCCO-TEMPLATE
+ENTRY:REPORTING_PERIOD_KIND:MONTH,ENTRY,Tháng,,"{""type"":""REPORTING_PERIOD_KIND"",""key"":""MONTH"",""attributes"":{""grain"":""MONTH"",""months"":1,""entry_deadline_working_days"":5}}",PVFCCO-TEMPLATE
+ENTRY:REPORTING_PERIOD_KIND:QUARTER,ENTRY,Quý,,"{""type"":""REPORTING_PERIOD_KIND"",""key"":""QUARTER"",""attributes"":{""grain"":""QUARTER"",""months"":3,""entry_deadline_working_days"":7}}",PVFCCO-TEMPLATE
+ENTRY:REPORTING_PERIOD_KIND:YEAR,ENTRY,Năm,,"{""type"":""REPORTING_PERIOD_KIND"",""key"":""YEAR"",""attributes"":{""grain"":""YEAR"",""months"":12,""entry_deadline_working_days"":10}}",PVFCCO-TEMPLATE
+ENTRY:REPORTING_PERIOD_KIND:MEETING,ENTRY,Giao ban,,"{""type"":""REPORTING_PERIOD_KIND"",""key"":""MEETING"",""attributes"":{""grain"":""MEETING"",""months"":0,""entry_deadline_working_days"":2}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:PVN_MONTHLY,ENTRY,Báo cáo tháng gửi Tập đoàn Dầu khí Việt Nam,,"{""type"":""REPORT_TYPE"",""key"":""PVN_MONTHLY"",""attributes"":{""period_kind_key"":""MONTH"",""audience"":""PARENT_GROUP"",""form_code"":""PVN-MONTHLY""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:PVN_QUARTERLY,ENTRY,Báo cáo quý gửi Tập đoàn Dầu khí Việt Nam,,"{""type"":""REPORT_TYPE"",""key"":""PVN_QUARTERLY"",""attributes"":{""period_kind_key"":""QUARTER"",""audience"":""PARENT_GROUP"",""form_code"":""PVN-QUARTERLY-F2""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:HPM_MONTHLY,ENTRY,Báo cáo tháng đẩy lên HPM,,"{""type"":""REPORT_TYPE"",""key"":""HPM_MONTHLY"",""attributes"":{""period_kind_key"":""MONTH"",""audience"":""PARENT_GROUP"",""form_code"":""HPM-MONTHLY""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:COMMITTEE_PERIODIC,ENTRY,Báo cáo định kỳ gửi Ủy ban Đầu tư phát triển và Khoa học công nghệ,,"{""type"":""REPORT_TYPE"",""key"":""COMMITTEE_PERIODIC"",""attributes"":{""period_kind_key"":""QUARTER"",""audience"":""EXTERNAL_AGENCY"",""form_code"":""COMMITTEE-PERIODIC""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:DEPARTMENT_PERIODIC,ENTRY,"Báo cáo định kỳ gửi Sở, Ban, Ngành",,"{""type"":""REPORT_TYPE"",""key"":""DEPARTMENT_PERIODIC"",""attributes"":{""period_kind_key"":""YEAR"",""audience"":""EXTERNAL_AGENCY""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:INVEST_STEERING,ENTRY,Báo cáo giao ban đầu tư,,"{""type"":""REPORT_TYPE"",""key"":""INVEST_STEERING"",""attributes"":{""period_kind_key"":""MEETING"",""audience"":""INTERNAL"",""form_code"":""INVEST-STEERING""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_TYPE:PLANT_PHU_MY,ENTRY,Báo cáo của Nhà máy Đạm Phú Mỹ,,"{""type"":""REPORT_TYPE"",""key"":""PLANT_PHU_MY"",""attributes"":{""period_kind_key"":""MONTH"",""audience"":""INTERNAL"",""form_code"":""PLANT-PHU-MY""}}",PVFCCO-TEMPLATE
+ENTRY:RECEIVING_AGENCY:PVN,ENTRY,Tập đoàn Dầu khí Việt Nam,,"{""type"":""RECEIVING_AGENCY"",""key"":""PVN"",""attributes"":{""agency_kind"":""PARENT_GROUP"",""report_type_keys"":[""PVN_MONTHLY"",""PVN_QUARTERLY""],""channel"":""FILE""}}",PVFCCO-TEMPLATE
+ENTRY:RECEIVING_AGENCY:HPM,ENTRY,Hệ thống báo cáo HPM của Tập đoàn,,"{""type"":""RECEIVING_AGENCY"",""key"":""HPM"",""attributes"":{""agency_kind"":""PARENT_GROUP"",""report_type_keys"":[""HPM_MONTHLY""],""channel"":""HPM""}}",PVFCCO-TEMPLATE
+ENTRY:RECEIVING_AGENCY:UB_DTPT_KHCN,ENTRY,Ủy ban Đầu tư phát triển và Khoa học công nghệ,,"{""type"":""RECEIVING_AGENCY"",""key"":""UB_DTPT_KHCN"",""attributes"":{""agency_kind"":""COMMITTEE"",""report_type_keys"":[""COMMITTEE_PERIODIC""],""channel"":""FILE""}}",PVFCCO-TEMPLATE
+ENTRY:RECEIVING_AGENCY:SO_BAN_NGANH,ENTRY,"Sở, Ban, Ngành",,"{""type"":""RECEIVING_AGENCY"",""key"":""SO_BAN_NGANH"",""attributes"":{""agency_kind"":""DEPARTMENT"",""report_type_keys"":[""DEPARTMENT_PERIODIC""],""channel"":""EMAIL""}}",PVFCCO-TEMPLATE
+ENTRY:RECEIVING_AGENCY:GIAO_BAN,ENTRY,Giao ban đầu tư của Tổng công ty,,"{""type"":""RECEIVING_AGENCY"",""key"":""GIAO_BAN"",""attributes"":{""agency_kind"":""INTERNAL_MEETING"",""report_type_keys"":[""INVEST_STEERING"",""PLANT_PHU_MY""],""channel"":""MEETING""}}",PVFCCO-TEMPLATE
+ENTRY:CAPITAL_SOURCE:EQUITY,ENTRY,Vốn chủ sở hữu,,"{""type"":""CAPITAL_SOURCE"",""key"":""EQUITY"",""attributes"":{""fnd_class_code"":""EQUITY"",""repayable"":false}}",PVFCCO-TEMPLATE
+ENTRY:CAPITAL_SOURCE:LOAN,ENTRY,Vốn vay,,"{""type"":""CAPITAL_SOURCE"",""key"":""LOAN"",""attributes"":{""fnd_class_code"":""LOAN"",""repayable"":true}}",PVFCCO-TEMPLATE
+ENTRY:CAPITAL_SOURCE:OTHER,ENTRY,Nguồn vốn khác,,"{""type"":""CAPITAL_SOURCE"",""key"":""OTHER"",""attributes"":{""fnd_class_code"":""OTHER"",""repayable"":false}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:VND,ENTRY,Đồng,,"{""type"":""REPORT_UNIT"",""key"":""VND"",""attributes"":{""kind"":""MONEY"",""symbol"":""đồng"",""factor"":""1"",""scale"":0,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:MILLION_VND,ENTRY,Triệu đồng,,"{""type"":""REPORT_UNIT"",""key"":""MILLION_VND"",""attributes"":{""kind"":""MONEY"",""symbol"":""triệu đồng"",""factor"":""1000000"",""scale"":1,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:BILLION_VND,ENTRY,Tỷ đồng,,"{""type"":""REPORT_UNIT"",""key"":""BILLION_VND"",""attributes"":{""kind"":""MONEY"",""symbol"":""tỷ đồng"",""factor"":""1000000000"",""scale"":2,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:PERCENT,ENTRY,Phần trăm,,"{""type"":""REPORT_UNIT"",""key"":""PERCENT"",""attributes"":{""kind"":""RATIO"",""symbol"":""%"",""factor"":""1"",""scale"":2,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:PROJECT,ENTRY,Dự án,,"{""type"":""REPORT_UNIT"",""key"":""PROJECT"",""attributes"":{""kind"":""COUNT"",""symbol"":""dự án"",""factor"":""1"",""scale"":0,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:ITEM,ENTRY,Hạng mục,,"{""type"":""REPORT_UNIT"",""key"":""ITEM"",""attributes"":{""kind"":""COUNT"",""symbol"":""hạng mục"",""factor"":""1"",""scale"":0,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:REPORT_UNIT:HECTARE,ENTRY,Héc-ta,,"{""type"":""REPORT_UNIT"",""key"":""HECTARE"",""attributes"":{""kind"":""AREA"",""symbol"":""ha"",""factor"":""10000"",""scale"":2,""rounding"":""HALF_UP""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DELAY_CAUSE,ENTRY,Nguyên nhân chậm tiến độ,,"{""type"":""ISSUE_CATEGORY"",""key"":""DELAY_CAUSE"",""attributes"":{""handler_unit_key"":""KHDT""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_SITE_CLEARANCE,ENTRY,Giải phóng mặt bằng,DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_SITE_CLEARANCE"",""attributes"":{""handler_unit_key"":""CN_QLPTDA""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_PROCEDURES,ENTRY,"Thủ tục, phê duyệt, thẩm định",DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_PROCEDURES"",""attributes"":{""handler_unit_key"":""KHDT""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_FUNDING,ENTRY,"Nguồn vốn, giải ngân",DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_FUNDING"",""attributes"":{""handler_unit_key"":""TCKT""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_DESIGN_CHANGE,ENTRY,"Điều chỉnh thiết kế, phát sinh khối lượng",DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_DESIGN_CHANGE"",""attributes"":{""handler_unit_key"":""KTAT""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_PROCUREMENT,ENTRY,"Lựa chọn nhà thầu, mua sắm",DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_PROCUREMENT"",""attributes"":{""handler_unit_key"":""TM""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_CONTRACTOR,ENTRY,Năng lực nhà thầu,DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_CONTRACTOR"",""attributes"":{""handler_unit_key"":""CN_QLPTDA""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_EQUIPMENT_SUPPLY,ENTRY,"Cung ứng thiết bị, vật tư",DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_EQUIPMENT_SUPPLY"",""attributes"":{""handler_unit_key"":""TM""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_WEATHER,ENTRY,"Thời tiết, điều kiện thi công",DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_WEATHER"",""attributes"":{""handler_unit_key"":""KTAT""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_FORCE_MAJEURE,ENTRY,Bất khả kháng,DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_FORCE_MAJEURE"",""attributes"":{""handler_unit_key"":""KHDT""}}",PVFCCO-TEMPLATE
+ENTRY:ISSUE_CATEGORY:DC_OTHER,ENTRY,Nguyên nhân khác,DELAY_CAUSE,"{""type"":""ISSUE_CATEGORY"",""key"":""DC_OTHER"",""attributes"":{""handler_unit_key"":""KHDT""}}",PVFCCO-TEMPLATE

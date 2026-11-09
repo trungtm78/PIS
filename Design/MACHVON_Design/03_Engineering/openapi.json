@@ -159716,7 +159716,8 @@
               "type": "string",
               "enum": [
                 "XLSX",
-                "DOCX"
+                "DOCX",
+                "PDF"
               ]
             }
           }
@@ -160547,7 +160548,8 @@
               "type": "string",
               "enum": [
                 "XLSX",
-                "DOCX"
+                "DOCX",
+                "PDF"
               ]
             }
           }
@@ -228550,6 +228552,620 @@
           "vnd.portal.attachment.uploaded.v1"
         ]
       }
+    },
+    "/enterprise/org-pack": {
+      "get": {
+        "operationId": "getEnterpriseOrgPack",
+        "summary": "Tổ chức và vai trò của bản enterprise: gói mẫu PVFCCo hoặc gói của một lô đã áp dụng, kế hoạch nạp và báo cáo kiểm chứng (ENT-3d)",
+        "tags": [
+          "ORG"
+        ],
+        "x-permission": "adm.migration.read",
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntOrgPack"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/enterprise/org-pack/materialisations": {
+      "post": {
+        "operationId": "materialiseEnterpriseOrgPack",
+        "summary": "Biến lô gói tổ chức đã áp dụng thành đơn vị, vai trò và đề xuất quy tắc, danh mục chờ duyệt; chạy lại không đổi gì (ENT-3d)",
+        "tags": [
+          "ORG"
+        ],
+        "x-permission": "adm.migration.approve",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntOrgPackMaterialiseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntOrgPackMaterialisation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "MIGRATION_STATE_INVALID",
+          "ORG_PACK_INVALID",
+          "SCOPE_DENIED",
+          "ROLE_ESCALATION_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "ent.org_pack.materialised.v1"
+        ]
+      }
+    },
+    "/report-engine/layout-previews": {
+      "post": {
+        "operationId": "previewReportLayout",
+        "summary": "Xem trước bố cục biểu mẫu đang soạn bằng số liệu minh họa, không lưu gì (ENT-4b)",
+        "tags": [
+          "RPT"
+        ],
+        "x-permission": "rpt.generate",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RptLayoutPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RptLayoutPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
+    },
+    "/push/receipts": {
+      "post": {
+        "operationId": "acknowledgePush",
+        "summary": "Biên nhận của thiết bị: thông báo đẩy web đã hiện (SHOWN) hoặc đã được chạm (CLICKED); xác thực bằng receipt token, idempotent",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "webhook.provider",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Committed result (replayed on idempotent retry)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushReceiptAck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED / SIGNATURE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND within authorized scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED / domain invariant",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SIGNATURE_INVALID",
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "RATE_LIMIT"
+        ],
+        "x-plane": "edge",
+        "x-public": true,
+        "security": [],
+        "x-auth": "push-receipt-token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushReceipt"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/devices/{deviceId}/test-push": {
+      "post": {
+        "operationId": "sendMyTestPush",
+        "summary": "Gui thong bao thu den thiet bi web cua chinh minh (cai dat thong bao day, YCK.01)",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "session.self",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Scope tenant+subject+operation+key; same key+same body replays the stored result; same key+different body -> 409 IDEMPOTENCY_CONFLICT; in-flight -> 409 IDEMPOTENCY_IN_PROGRESS."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed result (replayed on idempotent retry)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED / SIGNATURE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND within authorized scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED / domain invariant",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND",
+          "RATE_LIMIT"
+        ],
+        "x-plane": "tenant",
+        "x-audit-action": "device.test_push_sent"
+      }
     }
   },
   "components": {
@@ -231551,7 +232167,9 @@
             "enum": [
               "CURRENT_YEAR",
               "CARRYOVER",
-              "OTHER"
+              "OTHER",
+              "EQUITY",
+              "LOAN"
             ]
           },
           "source_year": {
@@ -231661,14 +232279,17 @@
               "LOCAL_ADDED",
               "CARRYOVER",
               "CENTRAL_SUPPORT",
-              "REVENUE_INCREASE"
+              "REVENUE_INCREASE",
+              "GROUP_ASSIGNED",
+              "BOARD_APPROVED"
             ]
           },
           "budget_level": {
             "type": "string",
             "enum": [
               "CENTRAL",
-              "LOCAL"
+              "LOCAL",
+              "ALL"
             ]
           },
           "program_master_version_id": {
@@ -231705,6 +232326,10 @@
           "capital_plan_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "decision_kind": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
           }
         }
       },
@@ -272232,7 +272857,8 @@
             "type": "string",
             "enum": [
               "XLSX",
-              "DOCX"
+              "DOCX",
+              "PDF"
             ]
           },
           "sha256": {
@@ -272582,6 +273208,14 @@
             "items": {
               "$ref": "#/components/schemas/RptGridIssue"
             }
+          },
+          "layout_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded"
           }
         }
       },
@@ -272937,6 +273571,14 @@
           },
           "can_answer": {
             "type": "boolean"
+          },
+          "layout_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded"
           }
         }
       },
@@ -273117,7 +273759,8 @@
             "type": "string",
             "enum": [
               "XLSX",
-              "DOCX"
+              "DOCX",
+              "PDF"
             ]
           },
           "sha256": {
@@ -290262,6 +290905,12 @@
           },
           "as_of": {
             "type": "string"
+          },
+          "coverage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectCodeCoverage"
+            }
           }
         }
       },
@@ -308462,6 +309111,763 @@
           },
           "as_of": {
             "type": "string"
+          }
+        }
+      },
+      "ProjectCodeCoverage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_system",
+          "projects",
+          "mapped",
+          "direct_only",
+          "unmapped",
+          "proposed",
+          "shadows",
+          "direct_fallback"
+        ],
+        "properties": {
+          "source_system": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "integer"
+          },
+          "mapped": {
+            "type": "integer"
+          },
+          "direct_only": {
+            "type": "integer"
+          },
+          "unmapped": {
+            "type": "integer"
+          },
+          "proposed": {
+            "type": "integer"
+          },
+          "shadows": {
+            "type": "integer"
+          },
+          "direct_fallback": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntOrgPack": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "digest",
+          "source",
+          "batch_id",
+          "directory_prefix",
+          "loader",
+          "file_csv",
+          "units",
+          "roles",
+          "seats",
+          "steps",
+          "delegation",
+          "absence",
+          "doa",
+          "catalogue",
+          "plan",
+          "counts",
+          "seat_counts",
+          "stray_grants",
+          "structure_complete",
+          "defects",
+          "as_of"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "TEMPLATE",
+              "BATCH"
+            ]
+          },
+          "batch_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "directory_prefix": {
+            "type": "string"
+          },
+          "loader": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_entity",
+              "mapping_version",
+              "source_system",
+              "file_name",
+              "file_sha256",
+              "row_count"
+            ],
+            "properties": {
+              "target_entity": {
+                "type": "string"
+              },
+              "mapping_version": {
+                "type": "string"
+              },
+              "source_system": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "file_sha256": {
+                "type": "string"
+              },
+              "row_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "file_csv": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "parent_code",
+                "unit_function",
+                "placeholder",
+                "present"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parent_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unit_function": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "boolean"
+                },
+                "present": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "kind",
+                "rank",
+                "permissions",
+                "present"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "rank": {
+                  "type": "integer"
+                },
+                "permissions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "present": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "seats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "ad_group",
+                "role_code",
+                "unit_code",
+                "scope_kind",
+                "min_holders",
+                "max_holders",
+                "holders",
+                "state"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "ad_group": {
+                  "type": "string"
+                },
+                "role_code": {
+                  "type": "string"
+                },
+                "unit_code": {
+                  "type": "string"
+                },
+                "scope_kind": {
+                  "type": "string"
+                },
+                "min_holders": {
+                  "type": "integer"
+                },
+                "max_holders": {
+                  "type": "integer"
+                },
+                "holders": {
+                  "type": "integer"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "VACANT",
+                    "FILLED",
+                    "OVER"
+                  ]
+                }
+              }
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind",
+                "name",
+                "assignee",
+                "role_code",
+                "unit_code",
+                "sla_working_hours",
+                "on_timeout"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "assignee": {
+                  "type": "string"
+                },
+                "role_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unit_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sla_working_hours": {
+                  "type": "integer"
+                },
+                "on_timeout": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "delegation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "delegable_roles",
+              "max_days",
+              "standing_review_days"
+            ],
+            "properties": {
+              "delegable_roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "max_days": {
+                "type": "integer"
+              },
+              "standing_review_days": {
+                "type": "integer"
+              }
+            }
+          },
+          "absence": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "doa": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document_type",
+              "unit_code",
+              "role_code",
+              "approval_levels"
+            ],
+            "properties": {
+              "document_type": {
+                "type": "string"
+              },
+              "unit_code": {
+                "type": "string"
+              },
+              "role_code": {
+                "type": "string"
+              },
+              "approval_levels": {
+                "type": "integer"
+              }
+            }
+          },
+          "catalogue": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "master_type",
+                "key",
+                "label",
+                "parent_key"
+              ],
+              "properties": {
+                "master_type": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "parent_key": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "plan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "section",
+                "key",
+                "action",
+                "detail"
+              ],
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "CREATE",
+                    "UNCHANGED",
+                    "PENDING",
+                    "DRIFT",
+                    "BLOCKED"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "CREATE",
+              "UNCHANGED",
+              "PENDING",
+              "DRIFT",
+              "BLOCKED"
+            ],
+            "properties": {
+              "CREATE": {
+                "type": "integer"
+              },
+              "UNCHANGED": {
+                "type": "integer"
+              },
+              "PENDING": {
+                "type": "integer"
+              },
+              "DRIFT": {
+                "type": "integer"
+              },
+              "BLOCKED": {
+                "type": "integer"
+              }
+            }
+          },
+          "seat_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "VACANT",
+              "FILLED",
+              "OVER"
+            ],
+            "properties": {
+              "VACANT": {
+                "type": "integer"
+              },
+              "FILLED": {
+                "type": "integer"
+              },
+              "OVER": {
+                "type": "integer"
+              }
+            }
+          },
+          "stray_grants": {
+            "type": "integer"
+          },
+          "structure_complete": {
+            "type": "boolean"
+          },
+          "defects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "key",
+                "field",
+                "message"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string"
+          }
+        }
+      },
+      "EntOrgPackMaterialiseRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "batch_id"
+        ],
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EntOrgPackMaterialisation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "digest",
+          "batch_id",
+          "items",
+          "counts",
+          "seat_counts",
+          "stray_grants",
+          "structure_complete"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "batch_id": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "section",
+                "key",
+                "result",
+                "detail",
+                "id"
+              ],
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "CREATED",
+                    "UNCHANGED",
+                    "PENDING",
+                    "DRIFT",
+                    "BLOCKED"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "CREATED",
+              "UNCHANGED",
+              "PENDING",
+              "DRIFT",
+              "BLOCKED"
+            ],
+            "properties": {
+              "CREATED": {
+                "type": "integer"
+              },
+              "UNCHANGED": {
+                "type": "integer"
+              },
+              "PENDING": {
+                "type": "integer"
+              },
+              "DRIFT": {
+                "type": "integer"
+              },
+              "BLOCKED": {
+                "type": "integer"
+              }
+            }
+          },
+          "seat_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "VACANT",
+              "FILLED",
+              "OVER"
+            ],
+            "properties": {
+              "VACANT": {
+                "type": "integer"
+              },
+              "FILLED": {
+                "type": "integer"
+              },
+              "OVER": {
+                "type": "integer"
+              }
+            }
+          },
+          "stray_grants": {
+            "type": "integer"
+          },
+          "structure_complete": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RptLayoutPreviewRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "params"
+        ],
+        "properties": {
+          "params": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The params of a REPORT_LAYOUT rule as the user is editing them; nothing is stored"
+          },
+          "period": {
+            "$ref": "#/components/schemas/RptPeriod"
+          }
+        }
+      },
+      "RptLayoutPreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "valid",
+          "problem",
+          "form_name",
+          "status",
+          "datasets",
+          "preview",
+          "issues"
+        ],
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "problem": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The first field the layout is refused for"
+          },
+          "form_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "PENDING_EXTERNAL",
+              "DEMO",
+              "DRAFT",
+              "READY",
+              null
+            ]
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The datasets the project groups read from the provider of the figures"
+          },
+          "preview": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RptPreview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptGridIssue"
+            }
+          }
+        }
+      },
+      "PushReceipt": {
+        "type": "object",
+        "required": [
+          "receipt",
+          "event"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "receipt": {
+            "type": "string",
+            "minLength": 100,
+            "maxLength": 160,
+            "description": "Opaque receipt token carried by the push; bound to tenant, notification and device; valid 48 hours."
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "SHOWN",
+              "CLICKED"
+            ]
+          }
+        }
+      },
+      "PushReceiptAck": {
+        "type": "object",
+        "required": [
+          "acknowledged"
+        ],
+        "properties": {
+          "acknowledged": {
+            "type": "boolean"
           }
         }
       }

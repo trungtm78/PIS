@@ -16,10 +16,15 @@ export function originLabel(t: Translate, origin: Origin): string {
       return t('cap.origin.centralSupport.label');
     case 'REVENUE_INCREASE':
       return t('cap.origin.revenueIncrease.label');
+    case 'GROUP_ASSIGNED':
+      return t('cap.origin.groupAssigned.label');
+    case 'BOARD_APPROVED':
+      return t('cap.origin.boardApproved.label');
   }
 }
 
 export function levelLabel(t: Translate, level: BudgetLevel): string {
+  if (level === 'ALL') return t('cap.level.all.label');
   return level === 'CENTRAL' ? t('cap.level.central.label') : t('cap.level.local.label');
 }
 

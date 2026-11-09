@@ -2753,6 +2753,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/me/devices/${t.otherDeviceId}/revoke`, body: { reason: REASON } }),
   },
+  sendMyTestPush: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/me/devices/${t.otherDeviceId}/test-push`, body: {} }),
+  },
   createWorkflowDraft: {
     referencesTenantIds: false,
     build: () => ({
@@ -2999,6 +3003,8 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   resolveFinanceFeedDifference: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/finance-feed/differences/00000000-0000-4000-8000-0000000000f1/resolution', ifMatch: '"1"', body: { kind: 'KEEP_OURS', reason: REASON } }) },
   // RPT-1: the report engine; a caller who is refused makes no draft, signs no step, issues nothing and records no delivery.
   generateReport: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/report-engine/drafts', body: { layout_code: 'DIS-WEEKLY', period: { kind: 'AS_OF', year: 2026, day: '2026-10-18' } } }) },
+  // ENT-4b: the preview of a layout that is being edited; a caller who is refused sees no form and leaves only the refusal.
+  previewReportLayout: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/report-engine/layout-previews', body: { params: {} } }) },
   checkReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/check', ifMatch: '"1"', body: {} }) },
   approveReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/approve', ifMatch: '"1"', body: {} }) },
   issueReport: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/report-engine/drafts/00000000-0000-4000-8000-0000000000f1/issue', ifMatch: '"1"', body: {} }) },

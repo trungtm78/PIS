@@ -372,6 +372,35 @@ export class DeliveryEngine {
   }
 
   /**
+   * The acknowledgement of a push by the device that showed it (SHOWN moves the push send to Delivered) or by the person who tapped it (CLICKED moves it
+   * to Read), YCK.01. It moves the same status item as a provider callback, through the same monotonic reducer, so a repeat, a late event or a SHOWN after a
+   * CLICKED changes nothing (idempotent). The device must be a device of the recipient of the notification. The ladder of the alert (NOT-30) reads the
+   * statuses of the sends as receipts, so this is what lets a push rung end instead of being waited out. APPLIED: a send moved; UNCHANGED: nothing to move;
+   * NOT_FOUND: no such notification, or the device is not the recipient's, or the notification has no push send that the provider took.
+   */
+  async acknowledgePush(tx: TenantTx, input: { notificationId: string; deviceId: string; event: 'SHOWN' | 'CLICKED'; at: Date }): Promise<'APPLIED' | 'UNCHANGED' | 'NOT_FOUND'> {
+    const notification = await this.store.lockNotification(tx, input.notificationId);
+    if (notification === undefined) return 'NOT_FOUND';
+    const [device] = await tx.query<{ id: string }>('select id from machvon.device_registration where id = $1::uuid and membership_id = $2::uuid', [input.deviceId, notification.recipientId]);
+    if (device === undefined) return 'NOT_FOUND';
+    const status: DeliveryStatus = input.event === 'CLICKED' ? 'READ' : 'DELIVERED';
+    const pushes = (await this.store.attemptsOf(tx, notification.id)).filter((attempt) => attempt.channel.startsWith('PUSH_') && ['ProviderAccepted', 'Delivered', 'Read'].includes(attempt.status));
+    if (pushes.length === 0) return 'NOT_FOUND';
+    let moved = false;
+    for (const found of pushes) {
+      const attempt = await this.store.lockAttempt(tx, found.id);
+      if (attempt === undefined) continue;
+      const ref = await this.refOf(tx, attempt.id);
+      const applied = await this.callbacks.recordResponse(tx, { ref, table: itemTable, status, occurredAt: input.at, metrics: this.metrics });
+      if (applied.outcome !== 'APPLIED') continue;
+      await this.resolveUncertainty(tx, notification, attempt, status, undefined, input.at, true);
+      this.metrics.increment(DELIVERY_ATTEMPTS_METRIC, { channel: attempt.channel, outcome: `acknowledged_${input.event.toLowerCase()}` });
+      moved = true;
+    }
+    return moved ? 'APPLIED' : 'UNCHANGED';
+  }
+
+  /**
    * Replays a notification that ended Failed or Unknown (NOT 3.6): the consent and access of the recipient are checked again when each send is
    * taken up; here the notification must still be open (not expired), its recipient a member, and an Unknown send must have been reconciled for a
    * day first (409 RECONCILE_REQUIRED). The new send continues the numbering of its channel; a channel that has had its five sends starts a new

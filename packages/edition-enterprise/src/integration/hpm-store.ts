@@ -4,7 +4,9 @@ import { GovernancePolicyPort, HubRunPort, timestampKey } from '@machvon/db';
 import type { TenantTx } from '@machvon/db';
 import { HPM_CONNECTOR_CODE, HPM_PACKAGE_FORMAT, copyRefOf, decideHpmPush, hpmCopyRequestOf, hpmCorrectionDecision, hpmCorrectionRequestOf, hpmHealthOf, hpmKeyOf, hpmPolicyParamsOf, hpmPeriodRange, hpmRangesTouch, hpmReceiptMove, hpmRequestHash } from './hpm-rules.ts';
 import type { HpmCopyRequest, HpmCorrectionState, HpmHealth, HpmPolicyParams, HpmPushState } from './hpm-rules.ts';
-import type { HpmPort } from './hpm-port.ts';
+import type { HpmPort, HpmProjectCode } from './hpm-port.ts';
+import { HPM_CODE_SYSTEM } from './project-codes.ts';
+import { ProjectCodeResolver } from './project-code-resolver.ts';
 
 const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
 const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'`;
@@ -446,7 +448,21 @@ export class HpmPushStore {
     );
   }
 
+  /**
+   * The code each project of the frozen snapshot goes under in HPM (ENT-3e): its mapping in the crosswalk, else its own code flagged as the fallback of this version. A copy without a snapshot names no project.
+   * Sorted by our code, so the same snapshot always gives the same list.
+   */
+  private async projectCodesOf(tx: TenantTx, request: HpmCopyRequest, now: Date): Promise<HpmProjectCode[] | undefined> {
+    if (request.snapshot === null) return undefined;
+    const rows = await tx.query<{ project_id: string }>('select distinct project_id from machvon.v_snapshot_figure where snapshot_id = $1::uuid', [request.snapshot.snapshotId]);
+    if (rows.length === 0) return undefined;
+    const resolved = await new ProjectCodeResolver().outbound(tx, HPM_CODE_SYSTEM, rows.map((one) => one.project_id), now);
+    return [...resolved.entries()].map(([projectId, one]) => ({ projectId, ourCode: one.ourCode, hpmCode: one.code, via: one.via })).sort((left, right) => (left.ourCode < right.ourCode ? -1 : left.ourCode > right.ourCode ? 1 : 0));
+  }
+
   private async deliver(tx: TenantTx, row: HpmPushRow, request: HpmCopyRequest, key: string, requestHash: string, attempt: number, input: HpmSendInput): Promise<HpmPushRow> {
+    // Read before the try: a database fault here must fail the request, never be recorded as a refusal of the receiver (it would leave the transaction aborted).
+    const projectCodes = await this.projectCodesOf(tx, request, input.now);
     let errorCode: string | null = null;
     let response: Record<string, unknown> | null = null;
     try {
@@ -455,7 +471,7 @@ export class HpmPushStore {
         requestHash,
         tenantId: input.tenantId,
         attempt,
-        copy: { orgId: request.orgId, layoutCode: request.layoutCode, period: request.period, revision: request.revision, sha256: request.sha256, snapshot: request.snapshot, marks: request.marks },
+        copy: { orgId: request.orgId, layoutCode: request.layoutCode, period: request.period, revision: request.revision, sha256: request.sha256, snapshot: request.snapshot, marks: request.marks, ...(projectCodes === undefined ? {} : { projectCodes }) },
         fileName: input.fileName,
         bytes: input.bytes,
         ...(input.attachments === undefined ? {} : { attachments: input.attachments }),

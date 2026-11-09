@@ -9,6 +9,7 @@ import DirectivesScreen from './screens/DirectivesScreen';
 import FiguresDetailScreen from './screens/FiguresDetailScreen';
 import LeaderDashboardScreen from './screens/LeaderDashboardScreen';
 import ProgressScreen from './screens/ProgressScreen';
+import PwaNotificationsScreen from './screens/PwaNotificationsScreen';
 import PwaStartScreen from './screens/PwaStartScreen';
 import SettingsScreen from './screens/SettingsScreen';
 
@@ -35,6 +36,7 @@ export function PwaRoutes() {
       <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
       <Route path="directives/:id" element={<Gated><DirectiveDetailScreen /></Gated>} />
       <Route path="settings" element={<Gated><SettingsScreen /></Gated>} />
+      <Route path="notifications" element={<Gated><PwaNotificationsScreen /></Gated>} />
       <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />
     </Routes>
   );

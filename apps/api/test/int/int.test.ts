@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
 import { Client, Pool } from 'pg';
-import { ControlDatabase, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { ControlDatabase, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, registerDirectMatchSystem } from '@machvon/db';
 import { MachineRateLimiter, loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { LocalTenantTokenIssuer, issuerKeyFromPem } from '../../src/auth/tenant-token-issuer';
 import { CommandModule } from '../../src/command.module';
@@ -553,6 +553,30 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect(((await call('GET', '/int/source-systems', { member: ADMIN, tenantId: TENANT_B })).json.items as unknown[]).length).toBe(0);
       expect((await call('POST', `/int/project-codes/${id}/decision`, { member: ADMIN, tenantId: TENANT_B, ifMatch: etag(1), body: { decision: 'APPROVE', reason: REASON } })).status).toBe(404);
       expect((await call('POST', `/int/source-systems/${registered.json.id as string}/retire`, { member: ADMIN, tenantId: TENANT_B, ifMatch: etag(1), body: { reason: REASON } })).status).toBe(404);
+    });
+
+    it('refuses a code of a system that is also read by direct match when it is the code of another project, and counts how far the codes reach (ENT-3e, R25)', async () => {
+      // The enterprise edition registers Oracle EBS and HPM this way when it loads; a public process registers none.
+      registerDirectMatchSystem('ORACLE_EBS');
+      const registered = await call('POST', '/int/source-systems', { member: ADMIN, body: { code: 'ORACLE_EBS', name: 'Oracle EBS', kind: 'ERP' } });
+      expect(registered.status).toBe(201);
+      const clash = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'ORACLE_EBS', our_code: 'AAA-1', external_code: 'AAA-2', reason: REASON } });
+      expect(clash.json).toMatchObject({ code: 'CROSSWALK_DUPLICATE', reason: 'EXTERNAL_CODE_IS_OTHER_PROJECT' });
+      // Its own code is no clash: the direct reading and the mapping mean the same project.
+      const own = await call('POST', '/int/project-codes', { member: ADMIN, body: { source_system: 'ORACLE_EBS', our_code: 'AAA-1', external_code: 'AAA-1', reason: REASON } });
+      expect(own.status).toBe(201);
+      const waiting = await call('GET', '/int/project-codes?source_system=ORACLE_EBS', { member: CHECKER });
+      const beforeApproval = (waiting.json.coverage as Array<Record<string, unknown>>).find((row) => row.source_system === 'ORACLE_EBS');
+      expect(beforeApproval).toMatchObject({ mapped: 0, proposed: 1, shadows: 0, direct_fallback: true, unmapped: 0 });
+      expect((await call('POST', `/int/project-codes/${own.json.id as string}/decision`, { member: CHECKER, ifMatch: etag(1), body: { decision: 'APPROVE', reason: REASON } })).json).toMatchObject({ status: 'ACTIVE' });
+      const approved = await call('GET', '/int/project-codes?source_system=ORACLE_EBS', { member: CHECKER });
+      const coverage = (approved.json.coverage as Array<{ source_system: string; projects: number; mapped: number; direct_only: number; proposed: number }>).find((row) => row.source_system === 'ORACLE_EBS');
+      expect(coverage).toMatchObject({ mapped: 1, proposed: 0, shadows: 0, direct_fallback: true });
+      expect(coverage?.projects).toBeGreaterThan(1);
+      expect(coverage?.direct_only).toBe((coverage?.projects ?? 0) - 1);
+      // A system nobody registered for direct match has no fallback: the rest is called unmapped.
+      const other = (approved.json.coverage as Array<{ source_system: string; direct_fallback: boolean; unmapped: number; projects: number }>).filter((row) => row.source_system !== 'ORACLE_EBS');
+      for (const row of other) expect(row).toMatchObject({ direct_fallback: false, unmapped: row.projects });
     });
 
     async function tokenWith(scopes: string[]): Promise<string> {

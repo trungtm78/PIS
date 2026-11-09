@@ -1,0 +1,345 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "docs-ai-plus",
+  "title": "Hồ sơ và AI nâng cao",
+  "summary": "The project document repository of DOC-2 (cited viewer, review board on the common approval flow, version comparison, transmittals), the grounded assistant of AI-2 (labelled statements, run and human decision records, review checklists), data class routing, external provider exceptions and the administration of the AI service.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "doc-viewer",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Màn xem hồ sơ có dẫn nguồn cho đọc văn bản, ghi chú vào đúng đoạn. Mỗi đoạn trích có mã cố định, nên người và trợ lý AI cùng trỏ được tới một chỗ. Tệp tải về qua đường dẫn ký sẵn sống năm phút.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-25"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-25"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.viewer.document"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.viewer.citation-id"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16
+    },
+    {
+      "id": "doc-review-board",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Luồng duyệt hồ sơ chạy trên quy trình phê duyệt chung: các bước, người duyệt song song và trả lại để bổ sung. Bản đã duyệt bị khóa, thay đổi tiếp theo là một bản mới. Bình luận vẫn được thêm vào bản đã khóa.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-26"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.review-board.stages"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.review-board.return"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "doc-compare",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "So sánh hai phiên bản hồ sơ cho thấy đoạn nào thêm, xóa hay sửa. Người duyệt biết bản mới khác bản cũ ở đâu mà không phải đọc lại từ đầu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-27"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.compare.diff-view"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.compare.versions"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.1
+    },
+    {
+      "id": "doc-transmittal",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Tài liệu dự án đi qua bốn trạng thái: đang soạn, đã chia sẻ, đã phát hành, lưu trữ. Phiếu chuyển giao tài liệu gửi cho từng người nhận kèm hạn xem xét, và biết ai đã xem.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-28",
+          "DOC-29"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-28"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.transmittal.state-board"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-29"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.transmittal.review-deadline"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "ai-grounded",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Trợ lý AI gắn nhãn từng câu: nguồn, giả định hay suy luận. Trích dẫn ngoài quyền đọc của người hỏi bị loại bỏ, chỉ được đếm. Mỗi lượt hỏi là một bản ghi riêng không sửa được, và quyết định của người là dòng ghi riêng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LLM-22",
+          "LLM-23"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-22"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.assistant.statements-labels"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-23"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.assistant.run-record"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.assistant.human-decision"
+        }
+      ],
+      "captions": [
+        {
+          "text": "AI đề xuất, người quyết định",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "ai-review-checklist",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Trước khi trình, hồ sơ được rà bằng danh mục kiểm: một phần là quy tắc chạy bằng mã, một phần là câu hỏi cho AI. Kết luận chỉ là lời khuyên, không chặn cũng không thay người duyệt. Bộ tiêu chí có trọng số do quản trị soạn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LLM-24",
+          "LLM-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-24"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.review.dossier-verdict"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-26"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.review.checklists"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17
+    },
+    {
+      "id": "ai-data-policy",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Chính sách phân loại dữ liệu quyết định bản ghi nào được đi đâu: dữ liệu mật chỉ chạy trên máy chủ của đơn vị. Nhà cung cấp bên ngoài chỉ qua ngoại lệ do hai người duyệt, tối đa chín mươi ngày, mỗi lần dùng đều được ghi. Nhật ký định tuyến và bản ghi quyết định đều xem lại được.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LLM-19",
+          "LLM-20",
+          "LLM-21",
+          "LLM-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-19"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.policy.data-classes"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-20"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-21"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.policy.routing-log"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-27"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.policy.exceptions"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 20.6
+    },
+    {
+      "id": "ai-admin",
+      "chapter": "docs-ai-plus",
+      "main": false,
+      "narration": "Quản trị AI gồm nhà cung cấp, kho model, hồ sơ model theo tác vụ, định tuyến và dự phòng, khóa ảo, ngân sách và hạn mức. Có bộ dữ liệu đánh giá để so sánh model, rào chắn dữ liệu, và nút dừng khẩn cấp khi có sự cố.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LLM-01",
+          "LLM-05",
+          "LLM-07",
+          "LLM-15",
+          "LLM-18"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-01"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.admin.overview"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-05"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.admin.routing-fallback"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-07"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.admin.budget"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-15"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.admin.guardrails"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-18"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.admin.emergency-stop"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.8
+    }
+  ]
+}

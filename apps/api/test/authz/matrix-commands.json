@@ -439,6 +439,7 @@
     "adoptContractRating",
     "withdrawContractRating",
     "generateReport",
+    "previewReportLayout",
     "checkReport",
     "approveReport",
     "issueReport",
@@ -529,7 +530,7 @@
     "runReconciliation",
     "updateMyProfile",
     "revokeMySession",
-    "revokeMyDevice",
+    "revokeMyDevice","sendMyTestPush",
     "createWorkflowDraft",
     "updateWorkflowDraft",
     "publishWorkflowVersion",
@@ -940,7 +941,7 @@
   "identityCommands": [
     "acceptInvitation",
     "issueOpenApiToken",
-    "receiveChannelWebhook",
+    "receiveChannelWebhook","acknowledgePush",
     "receiveEInvoiceWebhook",
     "receivePaymentWebhook",
     "selectTenantContext",
@@ -961,6 +962,7 @@
     "importEbsFile",
     "reconcileEbs",
     "resolveEbsDifference",
-    "reassignEbsDifference"
+    "reassignEbsDifference",
+    "materialiseEnterpriseOrgPack"
   ]
 }

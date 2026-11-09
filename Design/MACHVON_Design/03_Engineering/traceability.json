@@ -11969,6 +11969,42 @@
     ]
   },
   {
+    "requirement": "FR-RPT-07",
+    "screen": "RPT-07",
+    "title": "Bố cục biểu mẫu cấu hình",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn ENT-4b; kế hoạch ENT-3 G5, rà soát R23; HSKT BC.01",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/rpt/layout/LayoutScreens.test.tsx",
+    "backlog_id": "BL-RPT-07",
+    "test_ids": [
+      "UI-RPT-07",
+      "UAT-PLAN-3411"
+    ]
+  },
+  {
+    "requirement": "FR-RPT-08",
+    "screen": "RPT-08",
+    "title": "Soạn bố cục biểu mẫu",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn ENT-4b; kế hoạch ENT-3 G5, rà soát R23; HSKT BC.01",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/rpt/layout/LayoutScreens.test.tsx",
+    "backlog_id": "BL-RPT-08",
+    "test_ids": [
+      "UI-RPT-08",
+      "UAT-PLAN-3410"
+    ]
+  },
+  {
     "requirement": "FR-PRJ-31",
     "screen": "PRJ-31",
     "title": "Hồ sơ giám sát cộng đồng",
@@ -12501,6 +12537,25 @@
     ]
   },
   {
+    "requirement": "FR-ADM-ENT3D",
+    "screen": "ORG-01",
+    "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "HSKT v0.3 HT.02, HT.03, MD.03, QT.01; kế hoạch ENT-3d; eng-review R24",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ORG.md §10–§11; 3 test",
+    "backlog_id": "BL-ORG-01",
+    "test_ids": [
+      "UI-ORG-01",
+      "UAT-PLAN-ORG-1",
+      "UAT-PLAN-ORG-2"
+    ]
+  },
+  {
     "requirement": "YCK.01",
     "screen": "PWA-01",
     "title": "Trang chủ ứng dụng cài đặt",
@@ -12651,6 +12706,23 @@
     "backlog_id": "BL-PWA-09",
     "test_ids": [
       "UI-PWA-09"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-10",
+    "title": "Cài đặt thông báo đẩy",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy); docs/pwa.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/notifications",
+    "backlog_id": "BL-PWA-10",
+    "test_ids": [
+      "UI-PWA-10"
     ]
   }
 ]

@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 578,
-    "webCatalog": 578,
+    "webRoutes": 579,
+    "webCatalog": 579,
     "webModules": 35,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -74,6 +74,7 @@
         "IND",
         "HPM",
         "EBS",
+        "ORG",
         "FEED"
       ]
     },
@@ -2430,6 +2431,22 @@
         }
       ]
     },
+    "ORG": {
+      "name": "Tổ chức enterprise",
+      "groups": [
+        {
+          "title": "Tổ chức và vai trò",
+          "description": "Đơn vị, vai trò, chỗ ngồi, quy trình duyệt và danh mục dùng chung của gói cấu hình",
+          "ids": [
+            1
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {}
+        }
+      ]
+    },
     "PWA": {
       "name": "Ứng dụng cài đặt cho lãnh đạo",
       "groups": [
@@ -2471,14 +2488,16 @@
           "ids": [
             4,
             6,
-            7
+            7,
+            10
           ],
           "primary": [
             4,
             7
           ],
           "parents": {
-            "6": 4
+            "6": 4,
+            "10": 7
           }
         }
       ]
@@ -2994,6 +3013,7 @@
     "HPM": "Đẩy báo cáo đã phát hành lên HPM theo khóa chống trùng, biên nhận và đính chính kỳ đã được nhận.",
     "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch.",
     "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu.",
+    "ORG": "Xem tổ chức và vai trò của bản enterprise: đơn vị đầu mối, vai trò theo phạm vi, chỗ ngồi và nhóm thư mục, quy trình duyệt, kế hoạch nạp và báo cáo kiểm chứng.",
     "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy."
   },
   "adminLibraryModules": [
@@ -3005,7 +3025,8 @@
     "SAS",
     "INT",
     "HPM",
-    "EBS"
+    "EBS",
+    "ORG"
   ],
   "fallback": {
     "rule": "Module without a hand-written entry: workspaceSeeds[module] if present, otherwise three task groups by screen kind (Tổng quan & theo dõi / Lập & xử lý / Kiểm soát & phê duyệt). Screen number not in any group: joins the group of the nearest lower (else higher) placed screen of the same module. Modules not listed in an area go to area \"Phân hệ mở rộng\". Ids without a catalog screen are dropped and reported.",
@@ -3184,6 +3205,8 @@
         "CTR-39",
         "RPT-05",
         "RPT-06",
+        "RPT-07",
+        "RPT-08",
         "PRJ-31",
         "PRJ-32",
         "PRJ-33",
@@ -8333,6 +8356,16 @@
       "parent": null
     },
     {
+      "id": "ORG-01",
+      "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+      "kind": "dashboard",
+      "area": "data",
+      "module": "ORG",
+      "group": "Tổ chức và vai trò",
+      "role": "workspace",
+      "parent": null
+    },
+    {
       "id": "DOC-24",
       "title": "Kho hồ sơ dự án",
       "kind": "table",
@@ -8636,6 +8669,26 @@
       "id": "RPT-06",
       "title": "Khóa kỳ và chữ ký số báo cáo",
       "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Báo cáo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-07",
+      "title": "Bố cục biểu mẫu cấu hình",
+      "kind": "table",
+      "area": "insights",
+      "module": "RPT",
+      "group": "Báo cáo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "RPT-08",
+      "title": "Soạn bố cục biểu mẫu",
+      "kind": "form",
       "area": "insights",
       "module": "RPT",
       "group": "Báo cáo kỳ",
@@ -9021,6 +9074,16 @@
       "group": "Bảng điều hành trên điện thoại",
       "role": "detail",
       "parent": "PWA-03"
+    },
+    {
+      "id": "PWA-10",
+      "title": "Cài đặt thông báo đẩy",
+      "kind": "form",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Chỉ đạo và cài đặt",
+      "role": "detail",
+      "parent": "PWA-07"
     }
   ],
   "mobileRoutes": [

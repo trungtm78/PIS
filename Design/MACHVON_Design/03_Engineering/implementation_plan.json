@@ -217,6 +217,12 @@
       "goal": "Take the records of the Finance Department application in by file, by push and from a data generator through one judgement, map its project codes to ours with a maker and a checker, compare it with our own figures and give every difference an owner, show how fresh and how good the data is, and keep every figure behind an \"i\" with formula, source and day."
     },
     {
+      "id": "EP-ORG",
+      "module": "ORG",
+      "title": "Organisation and roles of the enterprise edition (PVFCCo template pack)",
+      "goal": "Load the organisation of the customer as template data in one tenant through the batch import, with scoped roles, a staged approval, delegation defaults, directory groups and the shared catalogues; no person, no account; verify it at any time."
+    },
+    {
       "id": "EP-PWA",
       "module": "PWA",
       "title": "The installed manager application",
@@ -1088,6 +1094,11 @@
       "id": "FT-VND-04",
       "epic": "EP-VND",
       "title": "Contractor portal, annual re-confirmation, remediation plans, disputes and the OCDS parties"
+    },
+    {
+      "id": "FT-ORG-01",
+      "epic": "EP-ORG",
+      "title": "Template pack, batch load, materialisation and verification"
     },
     {
       "id": "FT-PWA-01",
@@ -34065,7 +34076,10 @@
       "narrative": "As a mobile user I receive push messages that never show confidential data on the lock screen, and my app refreshes its entitlements through a silent push when they change.",
       "release": "R1",
       "screens": [],
-      "operations": [],
+      "operations": [
+        "acknowledgePush",
+        "sendMyTestPush"
+      ],
       "tables": [],
       "nfr": [
         "NFR-PRIVACY-02",
@@ -55764,6 +55778,108 @@
       ]
     },
     {
+      "id": "ST-RPT-131",
+      "epic": "EP-RPT",
+      "feature": "FT-RPT-01",
+      "module": "RPT",
+      "title": "PDF of the report forms and report layouts chosen without code",
+      "narrative": "As a reporting officer I get the PDF of a report form next to its workbook and Word file, made from the same document, and I choose the indicators, columns and project groups of an internal form or of a form a Department, Board or Sector asked for without code, with versions, a maker and an approver, and a preview.",
+      "release": "R2",
+      "screens": [
+        "RPT-07",
+        "RPT-08"
+      ],
+      "operations": [
+        "previewReportLayout",
+        "getReportDraftFile",
+        "getReportIssueFile",
+        "generateReport"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01",
+        "NFR-PERFORMANCE-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-RPT-131-1",
+          "given": "A form of the enterprise edition or the weekly form, and the same data",
+          "when": "The workbook, the Word file and the PDF are made",
+          "then": "The cells, formulas, words of the narrative and the number of pages agree; the PDF is kept with its own hash and the name rule, the digest of the copy stays that of the workbook and the Word file, and the copy records the hash of the layout",
+          "test_id": "UAT-PLAN-3410"
+        },
+        {
+          "id": "AC-ST-RPT-131-2",
+          "given": "A layout drafted as a rule of the type REPORT_LAYOUT by one person",
+          "when": "It is submitted and approved by two other people, then a report is generated and issued, then a newer version of the layout is approved",
+          "then": "The configured form is offered from the day the version is in force; the issued copy keeps the version and the hash of the layout it was made from; a rule cannot take the code of a form owned by code and a form for PVN, HPM or the Ministry cannot be configured",
+          "test_id": "UAT-PLAN-3411"
+        }
+      ],
+      "dependencies": [
+        "ST-RPT-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "The official forms of the Departments, Boards and Sectors are not supplied: a configured form is a layout the tenant chooses, and project group data comes from the provider of the figures of the enterprise edition when it is connected."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-RPT-131-1",
+          "kind": "backend",
+          "title": "One document model for the three writers, the PDF writer, the layout hash and the rule type REPORT_LAYOUT",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-131-2",
+          "kind": "web",
+          "title": "RPT-07 and RPT-08 screens built with the kit, with the live preview from illustrative data",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-131-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for RPT-07, RPT-08",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-131-4",
+          "kind": "qa",
+          "title": "Golden tests that the workbook, the Word file and the PDF agree; API and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-3410",
+            "UAT-PLAN-3411"
+          ]
+        },
+        {
+          "id": "TK-RPT-131-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the standard UI states and accessibility",
+          "test_ids": [
+            "UI-RPT-07",
+            "UI-RPT-08"
+          ]
+        }
+      ]
+    },
+    {
       "id": "ST-PRJ-121",
       "epic": "EP-PRJ",
       "feature": "FT-PRJ-07",
@@ -58053,6 +58169,110 @@
       ]
     },
     {
+      "id": "ST-ORG-001",
+      "epic": "EP-ORG",
+      "feature": "FT-ORG-01",
+      "module": "ORG",
+      "title": "PVFCCo configuration pack: units, scoped roles, seats, staged approval, delegation defaults and shared catalogues loaded through the batch import and verified",
+      "narrative": "As an administrator of the digital transformation board I can load the template organisation through the batch import (dry run, then apply by another person), turn the applied batch into units and roles and proposals, and see at any time what stands, what waits for approval and who sits in each seat.",
+      "release": "R3",
+      "screens": [
+        "ORG-01"
+      ],
+      "operations": [
+        "getEnterpriseOrgPack",
+        "materialiseEnterpriseOrgPack"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ORG-001-1",
+          "given": "The enterprise edition and the template file of the pack",
+          "when": "The file is registered, dry run, applied by another person and materialised twice",
+          "then": "The first run creates the units and roles and only proposes the rules, the matrix rule and the catalogue entries; the second creates nothing; a pack that breaks a rule stops at the dry run on its row",
+          "test_id": "UAT-PLAN-ORG-1"
+        },
+        {
+          "id": "AC-ST-ORG-001-2",
+          "given": "People holding the roles of the pack in their seats",
+          "when": "They read and enter in the units",
+          "then": "An input point sees and enters its own unit only, the planning unit and the leadership see every unit, the leadership role writes nothing",
+          "test_id": "UAT-PLAN-ORG-2"
+        },
+        {
+          "id": "AC-ST-ORG-001-ORG-01",
+          "given": "ORG-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty, validation error, service error with retry, permission denied and stale marker all render and the template note is shown",
+          "test_id": "UI-ORG-01"
+        }
+      ],
+      "dependencies": [
+        "ST-ADM-020"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "The pack is template data; names of the two project teams and the staff wait for the customer (PENDING-EXTERNAL)."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ORG-001-1",
+          "kind": "backend",
+          "title": "Pure pack rules, store, controller and authorization",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ORG-001-2",
+          "kind": "web",
+          "title": "ORG-01 with the kit in the enterprise web layer",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ORG-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ORG-001-4",
+          "kind": "qa",
+          "title": "Domain, API, isolation and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-ORG-1",
+            "UAT-PLAN-ORG-2"
+          ]
+        },
+        {
+          "id": "TK-ORG-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-ORG-01"
+          ]
+        }
+      ]
+    },
+    {
       "id": "ST-PWA-001",
       "epic": "EP-PWA",
       "feature": "FT-PWA-01",
@@ -58340,7 +58560,8 @@
       "narrative": "As a user I see where I am signed in, end a session or remove a device with a reason, choose my language and decide which kinds of events reach my inbox, my push and my mail.",
       "release": "R2",
       "screens": [
-        "PWA-07"
+        "PWA-07",
+        "PWA-10"
       ],
       "operations": [
         "listMySessions",
@@ -58350,7 +58571,8 @@
         "getMyProfile",
         "updateMyProfile",
         "getMyNotificationPreferences",
-        "updateMyNotificationPreferences"
+        "updateMyNotificationPreferences",
+        "sendMyTestPush"
       ],
       "tables": [],
       "nfr": [
@@ -58400,13 +58622,13 @@
         {
           "id": "TK-PWA-004-1",
           "kind": "web",
-          "title": "PWA-07 built with the kit, the seven standard states and 44 px targets",
+          "title": "PWA-07, PWA-10 built with the kit, the seven standard states and 44 px targets",
           "test_ids": []
         },
         {
           "id": "TK-PWA-004-2",
           "kind": "i18n",
-          "title": "Message keys in vi and en for PWA-07; no hard-coded display strings",
+          "title": "Message keys in vi and en for PWA-07, PWA-10; no hard-coded display strings",
           "test_ids": []
         },
         {
@@ -58415,7 +58637,8 @@
           "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
           "test_ids": [
             "UAT-PWA-04",
-            "UI-PWA-07"
+            "UI-PWA-07",
+            "UI-PWA-10"
           ]
         }
       ]

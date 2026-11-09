@@ -43,6 +43,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> acknowledgeProjectRiskAlert(PrjRiskAlertAck body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeProjectRiskAlert', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> acknowledgePush(PushReceipt body, {CommandAttempt? attempt}) =>
+      execute('acknowledgePush', body: body, attempt: attempt);
+
   Future<Object?> acknowledgeWarrantyClaim(AstAcknowledgeWarrantyClaim body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeWarrantyClaim', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -1443,6 +1446,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getEgpObligation({required String id, Map<String, Object?>? query}) =>
       execute('getEgpObligation', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getEnterpriseOrgPack({Map<String, Object?>? query}) =>
+      execute('getEnterpriseOrgPack', query: query);
 
   Future<Object?> getEvaluationReport({required String id, Map<String, Object?>? query}) =>
       execute('getEvaluationReport', path: <String, Object?>{'id': id}, query: query);
@@ -3403,6 +3409,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> matchTreasuryTransaction(PayMatchTreasuryTransaction body, {required String id, CommandAttempt? attempt}) =>
       execute('matchTreasuryTransaction', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 
+  Future<Object?> materialiseEnterpriseOrgPack(EntOrgPackMaterialiseRequest body, {CommandAttempt? attempt}) =>
+      execute('materialiseEnterpriseOrgPack', body: body, attempt: attempt);
+
   Future<Object?> mergeContacts(ContactMerge body, {CommandAttempt? attempt}) =>
       execute('mergeContacts', body: body, attempt: attempt);
 
@@ -3591,6 +3600,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> previewPlanChange(PlanChange body, {required String subscriptionId, CommandAttempt? attempt}) =>
       execute('previewPlanChange', path: <String, Object?>{'subscriptionId': subscriptionId}, body: body, attempt: attempt);
+
+  Future<Object?> previewReportLayout(RptLayoutPreviewRequest body, {CommandAttempt? attempt}) =>
+      execute('previewReportLayout', body: body, attempt: attempt);
 
   Future<Object?> promoteAllocationScenario({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('promoteAllocationScenario', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -4572,6 +4584,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> sendMonitoringNotice(SendMonitoringNotice body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('sendMonitoringNotice', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> sendMyTestPush({required String deviceId, CommandAttempt? attempt}) =>
+      execute('sendMyTestPush', path: <String, Object?>{'deviceId': deviceId}, attempt: attempt);
 
   Future<Object?> sendTestNotification(TestSendRequest body, {required String templateId, CommandAttempt? attempt}) =>
       execute('sendTestNotification', path: <String, Object?>{'templateId': templateId}, body: body, attempt: attempt);

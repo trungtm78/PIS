@@ -11,9 +11,13 @@ export async function loadEnterpriseManifest(): Promise<EditionManifest> {
   const { ENTERPRISE_EDITION } = await import('@machvon/edition-enterprise');
   // The server entry of the package (RPT-1): adds the enterprise indicator pack and the rule type REPORT_FORM_MODE to the rule registry of this process. The web build never reads it.
   // ENT-2 adds the rules, the alert types and the alert readers of the connections to HPM and Oracle EBS (registered once, like the rules of the forms).
-  const { enterpriseReportBundles, registerEnterpriseAiPolicy, registerEnterpriseIntegrationRules, registerEnterpriseReportRules } = await import('@machvon/edition-enterprise/src/server.ts');
+  const { enterpriseReportBundles, registerEnterpriseAiPolicy, registerEnterpriseCatalogueRules, registerEnterpriseIntegrationRules, registerEnterpriseOrgPack, registerEnterpriseReportRules } = await import('@machvon/edition-enterprise/src/server.ts');
   registerEnterpriseReportRules();
   registerEnterpriseIntegrationRules();
+  // The catalogues of the enterprise project register (ENT-3e): types of project, flag of the stage, milestones of the investment life, types of legal document, and the project types for the master catalogue.
+  registerEnterpriseCatalogueRules();
+  // ENT-3d: the mapping and the verifier of the organisation pack file join the batch import of this process (the workers run in it).
+  registerEnterpriseOrgPack();
   // Where the AI of the process runs (R5): on the servers of the customer, an outside provider only under an approved exception; the gateway reads the policy at every request.
   registerEnterpriseAiPolicy();
   // The six demo forms join the catalogue of this process (RPT-1 part 2); a public process never reaches this line.

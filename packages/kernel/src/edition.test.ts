@@ -103,7 +103,7 @@ describe('the public manifest', () => {
     expect(PUBLIC_EDITION_MANIFEST.productName).toEqual({ vi: 'Hệ thống quản lý đầu tư công', en: 'Public Investment Management System' });
     expect(PUBLIC_EDITION_MANIFEST.brand.mark).toEqual({ vi: 'ĐT', en: 'PI' });
     expect(PUBLIC_EDITION_MANIFEST.modules).toEqual({ allow: '*', deny: ['EBS', 'HPM'] });
-    expect(ENTERPRISE_ONLY_MODULES).toEqual(['EBS', 'HPM']);
+    expect(ENTERPRISE_ONLY_MODULES).toEqual(['EBS', 'HPM', 'ORG']);
     expect(PUBLIC_EDITION_MANIFEST.screens).toEqual(ALLOW_ALL);
     expect(PUBLIC_EDITION_MANIFEST.menu).toEqual(ALLOW_ALL);
     expect(PUBLIC_EDITION_MANIFEST.terminology).toEqual({ web: [], mobile: [] });

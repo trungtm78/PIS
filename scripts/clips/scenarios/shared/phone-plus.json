@@ -1,0 +1,744 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "phone-plus",
+  "title": "Điện thoại và PWA nâng cao",
+  "summary": "The rest of the phone application: staff home, project detail and map, the weekly report entry screens, monthly narrative and funding structure, contract field work with evidence, quality and acceptance, offline diary with photo checks, document signing, contractor risk ranking, conversations, the system states and the first-run screens, plus the directive screen of the installed application.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "pp-staff-home",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Trang chủ cán bộ gom việc của tôi, dự án đang phụ trách và cảnh báo. Chạm vào dự án thấy chi tiết, bản đồ hiện trường và kế hoạch vốn ngay trên điện thoại.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-08",
+          "MOB-10",
+          "MOB-11",
+          "MOB-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-08"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.home.staff"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-10"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.home.project-detail"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-11"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.home.field-map"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-12"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.home.capital-plan"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.1
+    },
+    {
+      "id": "pp-weekly-entry",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Báo cáo tuần nhập ngay trên điện thoại: khối lượng, vốn năm, vốn kéo dài, vốn khác và đăng ký tháng sau. Chứng từ đính kèm bằng ảnh chụp. Bản nháp lưu lại, mất mạng cũng không mất.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-14",
+          "MOB-15",
+          "MOB-16",
+          "MOB-17",
+          "MOB-18",
+          "MOB-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-14"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.entry.quantities"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-15"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.entry.year-capital"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-16"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-17"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-18"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.entry.next-month"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-19"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.entry.attachments"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.3
+    },
+    {
+      "id": "pp-monthly",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Lãnh đạo đọc ngay trên điện thoại thuyết minh tháng, ước giải ngân cuối kỳ và danh sách dự án chưa nộp báo cáo. Cơ cấu nguồn vốn và vướng mắc theo tuần cũng có ở đó. Mỗi số vẫn có nguồn và thời điểm cập nhật.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-55",
+          "MOB-56",
+          "MOB-57",
+          "MOB-58",
+          "MOB-59"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-55"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.monthly.narrative"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-56"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.monthly.end-estimate"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-57"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.monthly.not-submitted"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-58"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.monthly.funding-structure"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-59"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.monthly.weekly-issues"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16
+    },
+    {
+      "id": "pp-field-contract",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Ghi nhận khối lượng kèm bằng chứng, kiểm tra chất lượng, duyệt nghiệm thu, bàn giao và bảo hành đều làm được ngay ở hiện trường. Người duyệt xem đúng bằng chứng rồi mới duyệt.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-63",
+          "MOB-64",
+          "MOB-65",
+          "MOB-66"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-63"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.field.quantity-evidence"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-64"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.field.quality-check"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-65"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.field.acceptance-approval"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-66"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.field.handover-warranty"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.1
+    },
+    {
+      "id": "pp-diary-photos",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Nhật ký thi công viết được khi ngoại tuyến và tự đồng bộ. Ảnh chụp được kiểm thông tin ảnh và vị trí, ảnh không khớp bị đánh dấu. Nhiệm vụ giải phóng mặt bằng hiện trường cũng nằm trên điện thoại.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "QMS-09",
+          "QMS-10",
+          "MOB-68"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "phone-open",
+          "screen": "QMS-09"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.diary.offline"
+        },
+        {
+          "do": "phone-open",
+          "screen": "QMS-10"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.diary.photo-checks"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-68"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.diary.land-tasks"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "pp-sign-directives",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Lãnh đạo duyệt và ký văn bản, xem văn bản đến cần xử lý và theo dõi chỉ đạo giao ban trên điện thoại. Việc ký luôn qua màn xác nhận, và có dấu vết đầy đủ trên hệ thống.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "DOC-22",
+          "DOC-23",
+          "MOB-67",
+          "DIR-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "DOC-22"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.sign.documents"
+        },
+        {
+          "do": "phone-open",
+          "screen": "DOC-23"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.sign.incoming"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-67"
+        },
+        {
+          "do": "phone-open",
+          "screen": "DIR-06"
+        },
+        {
+          "do": "spot",
+          "ref": "dir.sign.directives"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "pp-risk-bi",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Xếp hạng rủi ro nhà thầu và kết quả thực hiện của từng nhà thầu xem được trên điện thoại. Tóm tắt phân tích nhà thầu và dashboard BI cá nhân đi theo người dùng, đúng quyền của họ.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-73",
+          "MOB-74",
+          "MOB-38",
+          "MOB-40"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-73"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.risk.contractor-ranking"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-74"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.risk.contractor-detail"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-38"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.risk.analysis-summary"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-40"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.risk.my-dashboard"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "pp-conversation",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Hộp hội thoại và trao đổi theo từng hồ sơ nằm ngay trong ứng dụng. Cài đặt thông báo, tìm kiếm trên điện thoại, trợ giúp và gửi phản hồi đều có sẵn.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-35",
+          "MOB-36",
+          "MOB-34",
+          "MOB-51",
+          "MOB-50"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-35"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.chat.inbox"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-36"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.chat.record-thread"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-34"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.chat.notification-settings"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-51"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.chat.search"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-50"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.5
+    },
+    {
+      "id": "pp-system-states",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Ứng dụng xử lý rõ mọi trạng thái: hết phiên, không đủ quyền, giấy phép hết hạn, danh sách trống, lỗi dịch vụ và bảo trì cần cập nhật. Mỗi trạng thái nói đúng chuyện gì xảy ra và làm gì tiếp. Người thuộc nhiều đơn vị đổi đơn vị ngay trong ứng dụng.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-44",
+          "MOB-45",
+          "MOB-46",
+          "MOB-52",
+          "MOB-53",
+          "MOB-54",
+          "MOB-48"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-44"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.states.session-expired"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-45"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.states.no-permission"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-46"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-52"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-53"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.states.service-error"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-54"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.states.maintenance"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-48"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "pp-first-run",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Lần đầu mở ứng dụng, người dùng thấy màn chào mang tên đơn vị, rồi chọn đơn vị và vai trò. Sau đó mới được hỏi quyền thông báo, máy ảnh và vị trí. Mỗi quyền có lời giải thích vì sao cần.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-01",
+          "MOB-04",
+          "MOB-05",
+          "MOB-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-01"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.first-run.welcome"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-04"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.first-run.choose-unit-role"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-05"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.first-run.notification-permission"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-06"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.first-run.camera-location-permission"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "pwa-approval-detail",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Trong ứng dụng cài đặt, hàng chờ duyệt dữ liệu kỳ cho mở từng việc. Duyệt thì ghi chú là tùy chọn. Trả lại để sửa thì bắt buộc có ghi chú. Mỗi quyết định cần xác thực hai lớp và chỉ ghi khi phiên bản việc còn đúng, nên hai người không duyệt chồng nhau.",
+      "screen": {
+        "platform": "pwa",
+        "screens": [
+          "PWA-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-02"
+        },
+        {
+          "do": "spot",
+          "ref": "pwa.approvals.queue-item"
+        },
+        {
+          "do": "click",
+          "ref": "pwa.approvals.approve"
+        },
+        {
+          "do": "click",
+          "ref": "pwa.approvals.return-comment"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Trả lại bắt buộc có ghi chú",
+          "atSec": 6,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 19.1,
+      "layout": "phone-right",
+      "headline": "Duyệt hoặc trả lại ngay trong PWA"
+    },
+    {
+      "id": "pp-alert-routing",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Cảnh báo tới điện thoại theo thang kênh của đơn vị. Chạm vào thông báo là mở đúng màn hình có việc cần làm, không phải đi tìm. Người dùng đặt kênh và giờ yên lặng cho mình. Cảnh báo chưa ai nhận sẽ leo thang lên cấp trên.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-32",
+          "MOB-33",
+          "MOB-34"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-32"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.alerts.inbox"
+        },
+        {
+          "do": "phone-tap",
+          "ref": "mob.MOB-33>alerts.open-from-notice"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-33"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-34"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.alerts.channel-settings"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17
+    },
+    {
+      "id": "pp-push-devices",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Thông báo đẩy chỉ gửi tới thiết bị đã đăng ký của đúng người. Quản trị xem được danh sách thiết bị và thu hồi một thiết bị mất. Đăng xuất là xóa đăng ký ngay. Nội dung đẩy chỉ có một câu cố định, một con số và một đường dẫn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-14"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-14"
+        },
+        {
+          "do": "spot",
+          "ref": "not.push.devices"
+        },
+        {
+          "do": "spot",
+          "ref": "not.push.revoke"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.9
+    },
+    {
+      "id": "pp-pwa-directives",
+      "chapter": "phone-plus",
+      "main": false,
+      "narration": "Ứng dụng cài đặt PWA có thêm màn theo dõi chỉ đạo giao ban: chỉ đạo đang mở, quá hạn và đã leo thang. Lãnh đạo mở thẳng từ thông báo đẩy, chỉ mang đường dẫn, không mang số liệu.",
+      "screen": {
+        "platform": "pwa",
+        "screens": [
+          "PWA-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-04"
+        },
+        {
+          "do": "spot",
+          "ref": "pwa.directives.tracking"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5,
+      "layout": "phone-right",
+      "headline": "Chỉ đạo trong ứng dụng cài đặt",
+      "requires": [
+        "ENT-4c"
+      ]
+    }
+  ]
+}

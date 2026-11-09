@@ -9,8 +9,11 @@ export const PLAN_KINDS = ['ANNUAL', 'MEDIUM_TERM'] as const;
 export type PlanKind = (typeof PLAN_KINDS)[number];
 export const PLAN_STATUSES = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'SUPERSEDED', 'REJECTED'] as const;
 export type PlanStatus = (typeof PLAN_STATUSES)[number];
+/** The classes of a plan line of the public pack. */
 export const LINE_BUCKETS = ['CURRENT_YEAR', 'CARRYOVER', 'OTHER'] as const;
-export type LineBucket = (typeof LINE_BUCKETS)[number];
+/** The classes of a plan line of the enterprise pack (ENT-3e): own equity, loan, other. */
+export const ENTERPRISE_LINE_BUCKETS = ['EQUITY', 'LOAN', 'OTHER'] as const;
+export type LineBucket = (typeof LINE_BUCKETS)[number] | (typeof ENTERPRISE_LINE_BUCKETS)[number];
 
 /** What a reader who cannot draft sees of the plans: the revisions in force and the ones that were replaced. */
 const READER_STATUSES: readonly string[] = ['PUBLISHED', 'SUPERSEDED'];

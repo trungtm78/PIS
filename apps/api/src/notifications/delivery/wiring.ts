@@ -6,7 +6,7 @@ import { dedupeKeyOf } from '../dedupe';
 import { channelCallbackHandler } from './callback-handler';
 import { PushChannelAdapter } from '../push/push-adapter';
 import { MockPushProvider } from '../push/ports';
-import { WebAwarePushProvider, WebPushProvider, allowedSuffixesFromEnv, webPushSenderFromEnv } from '../push/web-push';
+import { webPushDevelopmentAdapter, webPushProductionAdapters } from '../push/web-push-wiring';
 import { ChannelAdapterRegistry, inMemoryEmailAdapter } from './channel-adapters';
 import { SmsHoursAdapter } from './sms-adapter';
 import { FileTeamsCardSink, TeamsOutboxChannelAdapter } from './teams-adapter';
@@ -23,13 +23,13 @@ export function defaultChannelAdapters(environment: string | undefined, variable
   const teams = teamsDirectory === undefined || teamsDirectory === '' ? [] : [new TeamsOutboxChannelAdapter(new FileTeamsCardSink(teamsDirectory), isProductionEnvironment(environment) ? 'PROPOSED' : 'MOCK')];
   return new ChannelAdapterRegistry(
     isProductionEnvironment(environment)
-      ? teams
+      ? [...teams, ...webPushProductionAdapters(variables)]
       : [
           ...teams,
           inMemoryEmailAdapter(),
           // PUSH_FCM serves Android and the web: a token that is a web subscription (the installed manager application, YCK.01) goes to the web provider, which is the
           // stand-in until the VAPID keys are configured; every other token to the native one.
-          new PushChannelAdapter('mock-fcm', 'PUSH_FCM', new WebAwarePushProvider(new MockPushProvider(), new WebPushProvider(webPushSenderFromEnv(variables).sender, allowedSuffixesFromEnv(variables)))),
+          webPushDevelopmentAdapter(variables),
           new PushChannelAdapter('mock-apns', 'PUSH_APNS', new MockPushProvider()),
           new SmsHoursAdapter(),
         ],
