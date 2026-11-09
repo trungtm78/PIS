@@ -33,7 +33,7 @@ Lịch: ACTIVE rồi RETIRED (cuối cùng). Dòng nhật ký: SENDING rồi SEN
 
 ## 6. Dữ liệu
 
-Bảng `report_mail_schedule` và `report_mailing` (migration V2820, RLS bắt buộc, không xóa). Tỷ lệ và dự án vướng thủ tục không có bảng riêng: đọc từ bản chốt enterprise (ENT-3a) và sổ của PMT, ISS, LND, BID.
+Bảng `report_mail_schedule` và `report_mailing` (migration V2840, RLS bắt buộc, không xóa). Tỷ lệ và dự án vướng thủ tục không có bảng riêng: đọc từ bản chốt enterprise (ENT-3a) và sổ của PMT, ISS, LND, BID.
 
 ## 7. API / command
 
