@@ -1890,6 +1890,10 @@ export type { AccountCreator, PortalInvitationRow } from './vnd-portal-invitatio
 export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
-export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { EntNarrativeStore } from './ent-narrative-store.ts';
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
+// ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
+export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
+export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';
+export { EntNarrativeStore } from './ent-narrative-store.ts';
 export type { CauseEntry, NarrativeImportContext, NarrativeImportTarget, NarrativeJudgement, PreviousNarrative } from './ent-narrative-store.ts';
 export { enterpriseBlockOf } from './ent-narrative-codec.ts';

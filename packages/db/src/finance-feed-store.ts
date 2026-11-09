@@ -559,7 +559,7 @@ export class FeedRecordStore {
       `select p.code, p.name, sum(l.plan_total_vnd)::text as plan, sum(l.disbursed_reported_vnd)::text as disbursed
          from machvon.period_snapshot s join machvon.period_snapshot_line l on l.tenant_id = s.tenant_id and l.snapshot_id = s.id join machvon.project p on p.tenant_id = l.tenant_id and p.id = l.project_id
         where s.status = 'FROZEN' and s.as_of_date between make_date($1::int, 1, 1) and make_date($1::int, 12, 31)
-          and s.id = (select s2.id from machvon.period_snapshot s2 where s2.status = 'FROZEN' and s2.as_of_date between make_date($1::int, 1, 1) and make_date($1::int, 12, 31) order by s2.as_of_date desc, s2.id limit 1)
+          and s.id = (select s2.id from machvon.period_snapshot s2 where s2.status = 'FROZEN' and s2.snapshot_kind <> 'ENTERPRISE_CLOSE' and s2.as_of_date between make_date($1::int, 1, 1) and make_date($1::int, 12, 31) order by s2.as_of_date desc, s2.id limit 1)
         group by p.code, p.name having sum(l.plan_total_vnd) > 0 order by p.code limit $2`,
       [fiscalYear, limit],
     );

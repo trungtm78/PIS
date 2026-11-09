@@ -17,6 +17,9 @@ export async function loadEnterpriseManifest(): Promise<EditionManifest> {
   // Where the AI of the process runs (R5): on the servers of the customer, an outside provider only under an approved exception; the gateway reads the policy at every request.
   registerEnterpriseAiPolicy();
   // The six demo forms join the catalogue of this process (RPT-1 part 2); a public process never reaches this line.
+  // ENT-3a: the provider that fills them from the frozen enterprise period snapshot of the period when there is one.
+  const { EnterpriseSnapshotProvider } = await import('./enterprise/snapshot-provider.ts');
+  REPORT_FORMS.registerProvider(new EnterpriseSnapshotProvider());
   for (const bundle of enterpriseReportBundles()) REPORT_FORMS.register(bundle);
   return ENTERPRISE_EDITION.manifest;
 }
