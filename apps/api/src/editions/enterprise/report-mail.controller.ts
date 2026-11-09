@@ -16,6 +16,8 @@ import { layoutReadable } from '../../modules/reports/form-registry';
 
 export const MAIL_MANAGE = 'rpt.mail.manage';
 export const MAIL_READ = 'rpt.mail.read';
+/** The right the issued copies are read under: a recipient needs it, since the message carries the file. */
+export const REPORT_READ = 'rpt.read';
 const RESOURCE = 'report_mail_schedule';
 const MAX_LIST = 200;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -109,7 +111,13 @@ export class ReportMailReadsController {
     const limit = limitOf(query.limit);
     return this.database.withTenant(tenant, async (tx) => {
       const rows = await this.store.list(tx, { scheduleId: uuidOf(query.schedule_id, 'schedule_id'), issueId: uuidOf(query.issue_id, 'issue_id'), recipientId: uuidOf(query.recipient_id, 'recipient_id'), status }, limit + 1);
-      const shown = rows.slice(0, limit);
+      // A row of a form the reader may not read is not shown: its file name, hash and copy id would tell what the form holds.
+      const readable = new Map<string, boolean>();
+      for (const id of new Set(rows.map((row) => row.scheduleId))) {
+        const schedule = await this.store.findSchedule(tx, id);
+        readable.set(id, schedule !== undefined && layoutReadable(access, schedule.layoutCode));
+      }
+      const shown = rows.filter((row) => readable.get(row.scheduleId) === true).slice(0, limit);
       return { items: shown.map(mailingDto), truncated: rows.length > limit, as_of: now.toISOString() };
     });
   }
@@ -131,6 +139,8 @@ export class ReportMailCommandController {
   async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Record<string, unknown>): Promise<CommandResult> {
     if (!holdsOnWholeTenant(access, MAIL_MANAGE)) throw new DomainError('SCOPE_DENIED', 403);
     const request = scheduleRequestOf(body);
+    // The PDF of an issued copy comes with the PDF engine of ENT-4b; until it is wired a schedule for PDF would only log skipped copies, and a skipped copy is final.
+    if (request.format === 'PDF') throw new DomainError('VALIDATION_FAILED', 422, 'format');
     if (!layoutReadable(access, request.layoutCode)) throw new DomainError('SCOPE_DENIED', 403);
     if ((await this.reports.findLayout(scope.tx, request.layoutCode)) === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout_code');
     const now = new Date();

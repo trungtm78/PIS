@@ -6,7 +6,7 @@ import { ReportMailRunner } from '@machvon/edition-enterprise/src/server.ts';
 import type { ReportMailer } from '@machvon/edition-enterprise/src/server.ts';
 import type { ChannelAdapterRegistry } from '../../notifications/delivery/channel-adapters';
 import { layoutReadable } from '../../modules/reports/form-registry';
-import { MAIL_READ } from './report-mail.controller';
+import { REPORT_READ } from './report-mail.controller';
 
 /** The channel the forms are mailed on: the e-mail channel of the delivery engine (its adapter is the SMTP one of ENT-4c in production, the in-memory one in development). */
 const CHANNEL = 'EMAIL';
@@ -41,9 +41,9 @@ export class ChannelReportMailer implements ReportMailer {
   }
 }
 
-/** The recipient may read the form when they hold the right to read mailed forms over the whole tenant and the guard of the form lets them in. */
+/** The recipient may read the form when they hold the right to read issued copies (`rpt.read`) over the whole tenant and the guard of the form lets them in. */
 export function recipientMayRead(access: EffectiveAccess, layoutCode: string, now: Date): boolean {
-  const wholeTenant = activeGrants(access, now).some((grant) => grant.scope.kind === 'TENANT' && holdsPermission(new Set(grant.permissions), MAIL_READ));
+  const wholeTenant = activeGrants(access, now).some((grant) => grant.scope.kind === 'TENANT' && holdsPermission(new Set(grant.permissions), REPORT_READ));
   return wholeTenant && layoutReadable(access, layoutCode);
 }
 

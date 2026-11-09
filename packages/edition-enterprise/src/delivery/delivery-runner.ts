@@ -33,7 +33,7 @@ export interface MailRunnerDeps {
   mayRead(access: EffectiveAccess, layoutCode: string, now: Date): boolean;
   pdf?: IssuedPdfSource;
   /** The stores and the reading of a member's access; the real ones unless a test gives its own. */
-  store?: Pick<ReportMailStore, 'settleLost' | 'activeForRun' | 'markRun' | 'held' | 'begin' | 'skip' | 'settle' | 'addressOf'>;
+  store?: Pick<ReportMailStore, 'findSchedule' | 'settleLost' | 'activeForRun' | 'markRun' | 'held' | 'begin' | 'skip' | 'settle' | 'addressOf'>;
   reports?: Pick<ReportStore, 'listIssues' | 'outputBytes' | 'findLayout'>;
   accessOf?: (tx: TenantTx, membershipId: string) => Promise<EffectiveAccess>;
   audit?: Pick<AuditWriter, 'recordInTx'>;
@@ -104,10 +104,16 @@ export class ReportMailRunner {
       }
     });
     for (const send of sends) {
-      const outcome = await this.deliver(ctx, send, now);
       const run = runs.get(send.schedule.id) as MailRun;
-      if (outcome.status === 'SENT') run.sent += 1;
-      else run.failed += 1;
+      try {
+        const outcome = await this.deliver(ctx, send, now);
+        if (outcome.status === 'SENT') run.sent += 1;
+        else run.failed += 1;
+      } catch {
+        // One message that could not be settled does not stop the others of the run: its row stays SENDING and is settled as UNKNOWN after the wait, never sent again on its own.
+        run.failed += 1;
+        this.metrics.increment(MAILING_FAILED_METRIC);
+      }
     }
     return [...runs.values()];
   }
@@ -151,6 +157,9 @@ export class ReportMailRunner {
     const refused = (errorCode: string): DeliveryOutcome => ({ status: 'REFUSED', errorCode, providerMessageId: null });
     // The read: the recipient as they are now, the file, the address. Closed before the call is made.
     const prepared = await this.deps.database.withTenant(ctx, async (tx) => {
+      // A schedule retired after its rows were planned sends nothing more.
+      const current = await this.store.findSchedule(tx, schedule.id);
+      if (current === undefined || current.status !== 'ACTIVE') return refused('SCHEDULE_RETIRED');
       const access = await (this.deps.accessOf ?? loadAccessIn)(tx, mailing.recipientId);
       if (!access.membershipActive || !this.deps.mayRead(access, copy.layoutCode, now)) return refused('RECIPIENT_NOT_ALLOWED');
       const file = await this.fileOf(tx, copy, schedule.format);

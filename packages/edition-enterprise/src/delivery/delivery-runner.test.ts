@@ -53,6 +53,7 @@ function fakes(options: { schedules?: MailScheduleRow[]; copies?: Array<ReturnTy
   const schedules = options.schedules ?? [schedule()];
   const copies = options.copies ?? [copy()];
   const store: NonNullable<MailRunnerDeps['store']> = {
+    findSchedule: async (_tx, id) => schedules.find((one) => one.id === id),
     settleLost: async () => 0,
     activeForRun: async () => schedules,
     markRun: async (_tx, id) => void marked.push(id),
@@ -209,6 +210,16 @@ describe('ReportMailRunner', () => {
     await world.runner.run(TENANT, NOW);
     expect(world.calls).toHaveLength(7);
     expect(world.marked).toEqual(['sch-1']);
+  });
+
+  it('sends nothing for a schedule retired after its rows were planned, and goes on with the others when one cannot be settled', async () => {
+    const world = fakes();
+    const retired = schedule({ status: 'RETIRED' });
+    const store = world.runner as unknown as { store: { findSchedule: unknown } };
+    store.store.findSchedule = async () => retired;
+    await world.runner.run(TENANT, NOW);
+    expect(world.calls).toHaveLength(0);
+    expect([...world.log.values()][0]).toMatchObject({ status: 'REFUSED', errorCode: 'SCHEDULE_RETIRED' });
   });
 
   it('gives the channel a key that names the mailing and its attempt', async () => {

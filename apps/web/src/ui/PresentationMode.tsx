@@ -170,6 +170,7 @@ export function PresentationMode({ title, boards, onExit, intervalSeconds = DEFA
       case 'ArrowRight':
       case 'PageDown':
       case 'n':
+        if (onControl) return;
         event.preventDefault();
         go(current + 1);
         return;
@@ -193,24 +194,28 @@ export function PresentationMode({ title, boards, onExit, intervalSeconds = DEFA
         setPaused((value) => !value);
         return;
       case 'p':
+        if (onControl) return;
         event.preventDefault();
         setPaused((value) => !value);
         return;
       case 'f':
+        if (onControl) return;
         event.preventDefault();
         toggleFullscreen();
         return;
       case '+':
       case '=':
+        if (onControl) return;
         event.preventDefault();
         setSize((value) => PRESENTATION_SIZES.find((step) => step > value) ?? value);
         return;
       case '-':
+        if (onControl) return;
         event.preventDefault();
         setSize((value) => [...PRESENTATION_SIZES].reverse().find((step) => step < value) ?? value);
         return;
       default:
-        if (/^[1-9]$/.test(event.key) && Number(event.key) <= total) {
+        if (!onControl && /^[1-9]$/.test(event.key) && Number(event.key) <= total) {
           event.preventDefault();
           go(Number(event.key) - 1);
         }
@@ -284,7 +289,14 @@ export function PresentationMode({ title, boards, onExit, intervalSeconds = DEFA
             <h2 id="ui-present-board-title" className="ui-present__board-title">
               {board.title}
             </h2>
-            <div className="ui-present__content" data-board-id={board.id}>
+            <div
+              className="ui-present__content"
+              data-board-id={board.id}
+              // A link in a board only reads: a click, or Enter on a focused link, must not leave the presentation.
+              onClickCapture={(event) => {
+                if (event.target instanceof Element && event.target.closest('a') !== null) event.preventDefault();
+              }}
+            >
               {board.content}
             </div>
           </>

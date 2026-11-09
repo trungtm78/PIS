@@ -83,7 +83,8 @@ html[data-presenting='true'] body {
 .ui-present__content {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  /* A board longer than the screen at the larger sizes is scrolled, never cut (WCAG 1.4.4). */
+  overflow: auto;
 }
 /* A link in a board only reads: a stray click on a projector must not leave the presentation. */
 .ui-present__content a {
