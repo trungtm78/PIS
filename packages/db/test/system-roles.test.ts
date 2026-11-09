@@ -66,6 +66,10 @@ describe('SYSTEM_ROLES', () => {
       expect(role.guestAllowed).toBe(false);
     }
     expect(SYSTEM_ROLES.find((role) => role.code === 'COMMITTEE_HEAD')?.permissions).toEqual(expect.arrayContaining(['directive.manage', 'directive.meeting.manage', 'rpt.approve']));
+    // ENT-4a: all three read the comparison of the reports of a period; only the head, who never prepares a report, may explain a blocking difference.
+    expect(committee.filter((role) => role.permissions.includes('rpt.crosscheck.read')).map((role) => role.code)).toEqual(['COMMITTEE_HEAD', 'COMMITTEE_MEMBER', 'COMMITTEE_SECRETARIAT']);
+    expect(committee.filter((role) => role.permissions.includes('rpt.crosscheck.explain')).map((role) => role.code)).toEqual(['COMMITTEE_HEAD']);
+    expect(committee.filter((role) => role.permissions.includes('rpt.generate')).some((role) => role.permissions.includes('rpt.crosscheck.explain'))).toBe(false);
     // Reading the audit of who viewed the workspace is for the security administrator and the auditor, never for the committee.
     for (const role of committee) expect(role.permissions).not.toContain('committee.audit.read');
     expect(SYSTEM_ROLES.find((role) => role.code === 'SECURITY_ADMIN')?.permissions).toContain('committee.audit.read');

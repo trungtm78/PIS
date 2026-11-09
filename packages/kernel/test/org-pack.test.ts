@@ -116,6 +116,11 @@ describe('the organisation pack (ENT-3d, HT.02 HT.03 QT.01)', () => {
       expect(judgeOrgPack({ ...pack, roles: [entry, ...roles.slice(1)] }).filter((defect) => defect.code === 'SOD_DECIDES')).toHaveLength(1);
       const admin = { ...(roles[4] as PackRole), permissions: ['iam.role.manage', 'rpt.*'] };
       expect(codes({ ...pack, roles: [...roles.slice(0, 4), admin] })).toContain('SOD_DECIDES');
+      // ENT-4a: explaining a blocking difference between reports lets a release pass, so it is a decision: the viewers and the entry role never hold it.
+      const viewerExplains = { ...(roles[3] as PackRole), permissions: ['home.read', 'rpt.crosscheck.explain'] };
+      expect(codes({ ...pack, roles: [...roles.slice(0, 3), viewerExplains, roles[4] as PackRole] })).toContain('SOD_DECIDES');
+      const entryExplains = { ...(roles[0] as PackRole), permissions: [...ENTRY_PERMISSIONS, 'rpt.crosscheck.explain'] };
+      expect(codes({ ...pack, roles: [entryExplains, ...roles.slice(1)] })).toContain('SOD_DECIDES');
     });
 
     it('keeps the approver from entering and from closing the period, and the planner from entering', () => {

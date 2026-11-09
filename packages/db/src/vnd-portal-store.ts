@@ -80,6 +80,18 @@ export interface PortalEvaluationRow {
   openRequestId: string | null;
 }
 
+/** The object an id of a portal path names, looked up in the tenant before the caller is asked to be a contractor. */
+export interface PortalTarget {
+  kind: 'REQUEST' | 'REMEDIATION_PLAN' | 'REMEDIATION_ACTION';
+  id: string;
+}
+
+const PORTAL_TARGET_TABLES: Readonly<Record<PortalTarget['kind'], string>> = {
+  REQUEST: 'contractor_portal_request',
+  REMEDIATION_PLAN: 'contractor_remediation_plan',
+  REMEDIATION_ACTION: 'contractor_remediation_action',
+};
+
 export interface PortalCaller {
   contractorId: string;
   membershipId: string;
@@ -160,7 +172,12 @@ export class VendorPortalStore {
   // -- The portal path ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   /** Puts the transaction on the portal path of the contractor the caller is bound to: 403 `PORTAL_CONTRACTOR_REQUIRED` for anybody who is not a guest contractor with a contractor. */
-  async enter(tx: TenantTx, membershipId: string): Promise<PortalCaller> {
+  async enter(tx: TenantTx, membershipId: string, target?: PortalTarget): Promise<PortalCaller> {
+    // An id in the path comes first: an object that is not in this tenant (or does not exist) is 404 for everybody, so that the 403 below never tells that an id of another tenant exists.
+    if (target !== undefined) {
+      const found = await tx.query<{ id: string }>(`select id from machvon.${PORTAL_TARGET_TABLES[target.kind]} where id = $1::uuid`, [target.id]);
+      if (found[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    }
     const standing = await this.contractors.callerOf(tx, membershipId);
     if (!standing.guest || standing.contractorId === ZERO_CONTRACTOR) throw new DomainError('PORTAL_CONTRACTOR_REQUIRED', 403);
     await enterPortalPath(tx, standing.contractorId);

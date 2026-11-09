@@ -167,6 +167,16 @@ describe('the contractor portal, the re-confirmation, the plans of remediation, 
       const caller = await as((tx) => portal.enter(tx, memberId(GUEST_A)), GUEST_A);
       expect(caller.contractorId).toBe(a);
     });
+
+    it('looks the object of a portal path up before it asks the caller to be a contractor: an id that is not in the tenant is 404 for staff too, an id that exists is 403', async () => {
+      const request = await as((tx) => portal.create(tx, a, { kind: 'INFORMATION', title: 'An object that exists' }, memberId(STAFF), NOW));
+      for (const kind of ['REQUEST', 'REMEDIATION_PLAN', 'REMEDIATION_ACTION'] as const) {
+        expect((await refusal(as((tx) => portal.enter(tx, memberId(STAFF), { kind, id: randomUUID() })))).code).toBe('RESOURCE_NOT_FOUND');
+      }
+      expect((await refusal(as((tx) => portal.enter(tx, memberId(STAFF), { kind: 'REQUEST', id: request.id })))).code).toBe('PORTAL_CONTRACTOR_REQUIRED');
+      const caller = await as((tx) => portal.enter(tx, memberId(GUEST_A), { kind: 'REQUEST', id: request.id }), GUEST_A);
+      expect(caller.contractorId).toBe(a);
+    });
   });
 
   describe('the requests', () => {
