@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import enterpriseOverlay from '../src/editions/enterprise/overlay.vi.json' with { type: 'json' };
 import vi from '../src/i18n/vi.json' with { type: 'json' };
 
 /**
@@ -15,7 +14,7 @@ import vi from '../src/i18n/vi.json' with { type: 'json' };
 
 /** The edition the stack serves and the browser build reads (MACHVON_EDITION, then VITE_EDITION; public when unset): its overlay names the product. */
 const ENTERPRISE = (process.env.MACHVON_EDITION ?? process.env.VITE_EDITION) === 'enterprise';
-const PRODUCT_NAME = ENTERPRISE ? enterpriseOverlay['shell.app.name.title'] : vi['shell.app.name.title'];
+const PUBLIC_PRODUCT_NAME = vi['shell.app.name.title'];
 
 const PHONE = { width: 360, height: 780 };
 const TOUCH_TARGET = 44;
@@ -42,8 +41,13 @@ test.describe('the manifest makes the page installable', () => {
     expect(response.ok()).toBe(true);
     expect(response.headers()['content-type']).toContain('manifest+json');
     const manifest = (await response.json()) as { name: string; short_name: string; start_url: string; scope: string; display: string; theme_color: string; icons: Array<{ src: string; sizes: string; type: string; purpose?: string }>; shortcuts: Array<{ url: string }> };
-    // The name of the product of the edition that is built: the public edition says it as the shell does, the enterprise edition by its overlay.
-    expect(manifest.name).toBe(PRODUCT_NAME);
+    // The public edition says the name as the shell does; the enterprise edition names its own product (the public specs never import the enterprise overlay, edition:check).
+    if (ENTERPRISE) {
+      expect(manifest.name.length).toBeGreaterThan(0);
+      expect(manifest.name).not.toBe(PUBLIC_PRODUCT_NAME);
+    } else {
+      expect(manifest.name).toBe(PUBLIC_PRODUCT_NAME);
+    }
     expect(manifest.short_name.length).toBeLessThanOrEqual(12);
     expect(manifest.display).toBe('standalone');
     expect(manifest.scope).toBe('/');
