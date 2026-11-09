@@ -5,16 +5,16 @@ Branch `lane/delivery1`, worktree `D:\PIS-delivery1`. Source: plan "ENT-3" gap G
 ## Decisions (owner rule 2026-11-08: deepest governance, best extensibility, no scope cut)
 - One source of truth: `docs/hskt/requirements.json` holds every requirement code of the dossier (MD, DL, QT, CN, BC, TH, HT, YCK, TK), the 7 phases (GD.1 to GD.7) and the 11 deliverables (SP.01 to SP.11). `docs/hskt/TRACEABILITY.md` is generated from it and never edited by hand.
 - The checker is closed: a code of the dossier without a row, a row naming a screen, operation, story, document or test that does not exist, a DONE row without evidence, a PARTIAL or MISSING row without a gap and an owning lane, a PENDING-EXTERNAL row without a register item, a register item missing from the register document, or a stale generated file, each fail `node scripts/hskt-trace.mjs check`, which is part of `npm run qa:check`.
-- The 11 delivery documents are skeletons written from what the repository already has (design documents, workflow code, UAT ledgers, runbooks, help chapters). A field only the customer knows is written as `[khach dien: ...]` in the form `[khách điền]`; nothing else is invented.
+- The 11 delivery documents are skeletons written from what the repository already has (design documents, workflow code, UAT ledgers, runbooks, help chapters). A field only the customer knows is written as `[khách điền: ...]`; nothing else is invented.
 
 ## Steps
-- [ ] 1. This plan, committed first.
-- [ ] 2. `docs/hskt/requirements.json` (all codes, status, evidence, gap, owner), `scripts/hskt-trace.mjs` (generate, check), `scripts/hskt-trace.test.mjs`, wiring into `qa:check`, generated `docs/hskt/TRACEABILITY.md`. Tests: valid repository passes; each failure class above is reproduced on a mutated copy and must fail (the checker can go red).
-- [ ] 3. Documents 01 and 02 (As-Is and URD; To-Be process with flows).
-- [ ] 4. Documents 03 and 04 (SRS mapping; system and integration design index).
-- [ ] 5. Documents 05 and 06 (SIT/UAT scripts by requirement code; data conversion plan and the mapping of the 05 Excel forms).
-- [ ] 6. Documents 07 and 08 (training; parallel run for two periods).
-- [ ] 7. Documents 09, 10, 11 and `docs/delivery/README.md` (acceptance minutes, handover checklist, PENDING-EXTERNAL register, index with the 7 phases and approvals).
+- [x] 1. This plan, committed first.
+- [x] 2. `docs/hskt/requirements.json` (all codes, status, evidence, gap, owner), `scripts/hskt-trace.mjs` (generate, check), `scripts/hskt-trace.test.mjs`, wiring into `qa:check`, generated `docs/hskt/TRACEABILITY.md`. Tests: valid repository passes; each failure class above is reproduced on a mutated copy and must fail (the checker can go red).
+- [x] 3. Documents 01 and 02 (As-Is and URD; To-Be process with flows).
+- [x] 4. Documents 03 and 04 (SRS mapping; system and integration design index).
+- [x] 5. Documents 05 and 06 (SIT/UAT scripts by requirement code; data conversion plan and the mapping of the 05 Excel forms).
+- [x] 6. Documents 07 and 08 (training; parallel run for two periods).
+- [x] 7. Documents 09, 10, 11 and `docs/delivery/README.md` (acceptance minutes, handover checklist, PENDING-EXTERNAL register, index with the 7 phases and approvals).
 - [ ] 8. Independent review of `git diff main...HEAD` (Codex if the limit is lifted, else a fresh read-only subagent), triage, fixes, `git merge main`, final report.
 
 ## Tests per step

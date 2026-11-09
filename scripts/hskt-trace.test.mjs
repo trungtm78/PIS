@@ -137,3 +137,14 @@ test('the repository matrix is closed: every reference exists and the generated 
   const generated = readFileSync(new URL('../docs/hskt/TRACEABILITY.md', import.meta.url), 'utf8').replace(/\r\n/gu, '\n');
   assert.equal(generated, render(JSON.parse(readFileSync(new URL('../docs/hskt/requirements.json', import.meta.url), 'utf8'))));
 });
+
+test('the checker can go red on the real matrix: a dropped row, a renamed screen and an emptied evidence each fail', () => {
+  const data = JSON.parse(readFileSync(new URL('../docs/hskt/requirements.json', import.meta.url), 'utf8'));
+  const real = loadSources();
+  assert.deepEqual(validate(data, real), []);
+  assert.match(validate({ ...data, rows: data.rows.filter((one) => one.code !== 'TK.04') }, real).join('\n'), /TK\.04: the code of the dossier has no row/u);
+  const renamed = { ...data, rows: data.rows.map((one) => (one.code === 'DL.02' ? { ...one, evidence: { ...one.evidence, screens: ['IND-99'] } } : one)) };
+  assert.match(validate(renamed, real).join('\n'), /DL\.02: screen IND-99/u);
+  const emptied = { ...data, rows: data.rows.map((one) => (one.code === 'HT.03' ? { ...one, evidence: {} } : one)) };
+  assert.match(validate(emptied, real).join('\n'), /HT\.03: status DONE but no evidence/u);
+});

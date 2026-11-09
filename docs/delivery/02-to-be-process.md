@@ -2,7 +2,7 @@
 
 Giai đoạn 2, sản phẩm 2 của mục II.5. Dòng ma trận: GD.2, SP.02. Mã yêu cầu: QT.01, QT.02 (và CN.02, CN.03, CN.04, TH.01, HT.03, HT.06 ở các điểm giao). PVFCCo phê duyệt: có (quy trình To-Be).
 
-Nguồn: Hồ sơ kỹ thuật mục II.3 (QT.01, QT.02) và kết luận Biên bản họp 43/BBH-KHĐT; `docs/adm-approval-workflow.md`; `packages/kernel/src/dis-report-workflow.ts` (quy trình duyệt báo cáo có bước: `UNIT_APPROVER`, `PLANNING_REVIEW`, `PERIOD_CLOSE`, `PUSH`); `docs/dis-report-decision.md`; `docs/dis-snapshot.md`; `docs/hpm-ebs-connectors.md`; `Design/MACHVON_Design/01_Documents/05_modules/{ADM,DIS,DIR,HPM,EBS}.md`. Điều đã có trong mã ghi "Có"; điều thuộc làn đang làm ghi tên làn.
+Nguồn: Hồ sơ kỹ thuật mục II.3 (QT.01, QT.02) và kết luận Biên bản họp 43/BBH-KHĐT; `docs/adm-approval-workflow.md`; `packages/kernel/src/dis-report-workflow.ts` (quy trình duyệt báo cáo có bước: `UNIT_APPROVER`, `PLANNING_REVIEW`, `PERIOD_CLOSE`, `PUSH`); `docs/dis-report-decision.md`; `docs/dis-snapshot.md`; `docs/hpm-ebs-connectors.md`; `Design/MACHVON_Design/01_Documents/05_modules/` (các tệp ADM.md, DIS.md, DIR.md, HPM.md, EBS.md). Điều đã có trong mã ghi "Có"; điều thuộc làn đang làm ghi tên làn.
 
 Trạng thái tệp: KHUNG quy trình dựng từ cơ chế đã có; hạn từng bước, người giữ vai trò và các điểm `[khách điền]` do Tổ chuẩn hóa dữ liệu quyết định trước khi trình phê duyệt.
 
