@@ -30,8 +30,7 @@ export function defaultChannelAdapters(environment: string | undefined, variable
   const email = smtp === undefined ? [] : [smtp];
   return new ChannelAdapterRegistry(
     isProductionEnvironment(environment)
-      ? [...teams, ...webPushProductionAdapters(variables)]
-      ? [...teams, ...email]
+      ? [...teams, ...email, ...webPushProductionAdapters(variables)]
       : [
           ...teams,
           ...(smtp === undefined ? [inMemoryEmailAdapter()] : email),
