@@ -17,6 +17,8 @@ export function refusalText(t: Translator['t'], error: unknown): string {
       return t('rpt.common.error.alreadyDelivered.text');
     case 'TEMPLATE_UNCONFIRMED':
       return refusal.detail === 'demo_not_acceptable' ? t('rpt.common.error.demoNotAcceptable.text') : t('rpt.common.error.demoOff.text');
+    case 'REPORT_CROSSCHECK_BLOCKED':
+      return t('rpt.common.error.crosscheckBlocked.text');
     case 'SELF_APPROVAL_DENIED':
       return t('rpt.common.error.selfApproval.text');
     case 'REPORT_STATE_INVALID':

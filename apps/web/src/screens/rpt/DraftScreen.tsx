@@ -113,6 +113,11 @@ function DraftDetail({ id, onClose }: { id: string; onClose: () => void }) {
                   {t('rpt.draft.issued.text')} <Link to={`/rpt/rpt-03?issue=${data.issue_id}`}>{t('rpt.draft.issued.open')}</Link>
                 </p>
               ) : null}
+              {data.state !== 'ISSUED' && (data.period.kind === 'MONTH' || data.period.kind === 'QUARTER') && data.period.index !== undefined ? (
+                <p data-testid="crosscheck-link">
+                  <Link to={`/rpt/rpt-09?kind=${data.period.kind}&year=${data.period.year}&index=${data.period.index}&draft=${data.id}`}>{t('rpt.draft.crosscheck.open')}</Link>
+                </p>
+              ) : null}
               <h3>{t('rpt.draft.files.title')}</h3>
               {notice === undefined ? null : <p className="callout warning" role="alert">{notice}</p>}
               <FileList files={data.files} onDownload={download} busy={busy} />
