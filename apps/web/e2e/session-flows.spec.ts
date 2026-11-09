@@ -53,6 +53,7 @@ test.describe('sign in with the identity provider and choose a tenant (IAM-04)',
       if (request.method() === 'GET' && request.url().includes('/api/resources/organization_unit')) reads.push(request);
     });
 
+    const earlier = (await sql<{ id: string }>('select id from machvon.user_session where tenant_id = $1 and membership_id = $2', [tenants.A, membershipOf('owner')])).map((row) => row.id);
     await openSignIn(page);
     await signIn(page);
 
@@ -74,9 +75,10 @@ test.describe('sign in with the identity provider and choose a tenant (IAM-04)',
     // What the API saw was a real tenant token of Cao Bằng, issued after the second factor.
     const claims = claimsOf(reads[reads.length - 1] as Request);
     expect(claims).toMatchObject({ tid: tenants.A, mid: membershipOf('owner'), mode: 'FULL', acr: 'aal2' });
+    // Sessions of the owner that earlier specs of the same run left behind (the manager application signs in as the owner too) are not this sign-in's.
     const sessions = await sql<{ assurance_level: string; revoked_at: string | null }>(
-      'select assurance_level, revoked_at from machvon.user_session where tenant_id = $1 and membership_id = $2',
-      [tenants.A, membershipOf('owner')],
+      'select assurance_level, revoked_at from machvon.user_session where tenant_id = $1 and membership_id = $2 and id <> all($3::uuid[])',
+      [tenants.A, membershipOf('owner'), earlier],
     );
     expect(sessions).toEqual([{ assurance_level: 'aal2', revoked_at: null }]);
   });
