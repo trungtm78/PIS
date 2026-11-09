@@ -949,6 +949,8 @@
   "gov.rules.register_approval_workflow_rules.formula": "Mỗi mã là một loại nghiệp vụ duyệt trên bộ máy quy trình ADM (REPORT_ACCEPT: báo cáo giải ngân tuần). Chế độ SINGLE_DECISION giữ một quyết định của người duyệt đơn vị như hiện nay; chế độ STAGED chạy các bước theo thứ tự (người duyệt đơn vị, Ban KHĐT rà soát, chốt kỳ, đẩy số), mỗi bước có hạn tính theo giờ làm việc trên lịch làm việc và được nhắc khi gần hạn hoặc quá hạn",
   "gov.rules.register_approval_workflow_rules.source": "Quy trình duyệt báo cáo giải ngân tuần (WF-1, ST-DIS-006, ADM 3.7). Hạn từng bước là giả định chờ đơn vị vận hành xác nhận",
   "gov.rules.approval_workflow.report_accept.formula": "Mặc định là một quyết định của người duyệt đơn vị, đúng như cách duyệt báo cáo tuần hiện nay: duyệt thì báo cáo được chấp nhận, trả lại thì về người lập. Bộ máy quy trình không chạy cho tới khi đơn vị phê duyệt chế độ STAGED",
+  "gov.rules.approval_workflow.fnd_figure_accept.formula": "Mặc định là một quyết định của người duyệt đơn vị, đúng như cách chấp nhận lô số liệu vốn hiện nay: duyệt thì lô được chấp nhận, trả lại thì về người lập. Bộ máy quy trình không chạy cho tới khi đơn vị phê duyệt chế độ STAGED; bước PUSH chờ biên nhận của nơi nhận trước khi lô được chấp nhận",
+  "gov.rules.approval_workflow.ind_entry_accept.formula": "Mặc định là nhập trực tiếp từng chỉ tiêu như hiện nay. Khi đơn vị phê duyệt chế độ STAGED, người nhập trình một lô nhập, lô đi qua các bước duyệt và chỉ được ghi vào sổ chỉ tiêu khi bước cuối hoàn tất; cảnh báo không chặn được giữ lại và gửi kèm khi trả lại",
   "dis.workflow.step.unit_approver": "Người duyệt đơn vị",
   "dis.workflow.step.planning_review": "Ban KHĐT rà soát",
   "dis.workflow.step.period_close": "Chốt kỳ báo cáo",

@@ -2401,6 +2401,30 @@ export {
   reportWorkflowOf,
 } from './dis-report-workflow.ts';
 export type { ReportStepKind, ReportWorkflow, ReportWorkflowStep, WorkflowMode } from './dis-report-workflow.ts';
+export {
+  FND_FIGURE_BUSINESS_TYPE,
+  FND_FIGURE_RESOURCE,
+  FND_FIGURE_RULE_CODE,
+  HOLD_STATES,
+  HOLD_STEP_KIND,
+  IND_ENTRY_BUSINESS_TYPE,
+  IND_ENTRY_RESOURCE,
+  IND_ENTRY_RULE_CODE,
+  OPEN_HOLD_STATES,
+  STAGED_APPROVALS,
+  STAGED_OWNERS,
+  approvalPushKeyOf,
+  holdMoveOnReceipt,
+  holdStateAfterPush,
+  holdsStep,
+  isOpenHold,
+  pushLayoutCodeOf,
+  pushPackageOf,
+  stagedApprovalOf,
+  stagedApprovalOfBusinessType,
+  stepStateOf,
+} from './staged-approval.ts';
+export type { HoldState, PushPackage, PushStatus, StagedApprovalSpec, StagedOwner } from './staged-approval.ts';
 export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } from './teams-channel.ts';
 export type { TeamsCard } from './teams-channel.ts';
 export {
