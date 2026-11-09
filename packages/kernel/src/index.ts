@@ -3223,3 +3223,35 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
+export {
+  AUDIT_DETAIL_DEFAULT_BYTES,
+  AUDIT_DETAIL_MAX_BYTES,
+  AUDIT_DETAIL_MIN_BYTES,
+  PERSONAL_VALUE,
+  REDACTED_VALUE,
+  TRUNCATED_VALUE,
+  auditDetailChangedPaths,
+  auditDetailMatches,
+  auditDetailPolicyFindings,
+  auditDetailRef,
+  prepareAuditDetail,
+} from './audit-detail.ts';
+export type { AuditDetailFinding, AuditDetailInput, AuditDetailPolicy, AuditDetailRef, PreparedAuditDetail } from './audit-detail.ts';
+export {
+  CAPACITY_CLASSES,
+  DEFAULT_WARN_PCT,
+  LOW_WATER_PCT,
+  MONITOR_ONLY_CLASSES,
+  capacityAlert,
+  capacityKindOf,
+  evaluateCapacity,
+  logCapFindings,
+  planArchive,
+} from './log-capacity.ts';
+export type { ArchivePlan, CapacityAlertCode, CapacityClass, CapacityEvaluation, CapacityKind, CapacityState, LogCapPolicy, LogCapacityFinding, LogReading } from './log-capacity.ts';
+export { FX_PERIOD_KINDS, FX_PIVOT_CURRENCY, FX_RATE_KINDS, FX_SOURCES, convertCurrency, fxRateFindings, fxRateInForce, periodEndFor } from './fx-rate.ts';
+export type { ConvertRequest, CurrencyFormat, FxConversion, FxFinding, FxLeg, FxPeriodKind, FxRate, FxRateKind, FxSource } from './fx-rate.ts';
+export { DELAY_CAUSE_GROUPS, causeGroupOf, delayCauseGroups, delayCauseOptions, isDelayCause, isKnownDelayCause } from './delay-cause.ts';
+export type { DelayCauseGroup, DelayCauseGroupList, DelayCauseOption, IssueCategoryEntry } from './delay-cause.ts';
+export { EQUIPMENT_GUIDE_STEPS, EQUIPMENT_STAGES, disbursementPercent, equipmentDataGuide, equipmentStage, maskEquipmentFigures, planVariance } from './equipment-procurement.ts';
+export type { EquipmentDataGuide, EquipmentDataState, EquipmentFacts, EquipmentFigures, EquipmentGuideStep, EquipmentStage, MaskedFigure } from './equipment-procurement.ts';
