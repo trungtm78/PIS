@@ -240,7 +240,7 @@ describe('the six demo forms', () => {
       const tokens = JSON.stringify(form.narrative ?? []).match(/\{\{indicator:([A-Z_]+)@/g) ?? [];
       for (const token of tokens) expect(codes.has(token.replace('{{indicator:', '').replace('@', ''))).toBe(true);
     }
-    expect(DEMO_FORMS.filter((form) => form.narrative !== null).map((form) => form.layout.code)).toEqual(['PVN-QUARTERLY-F2', 'COMMITTEE-PERIODIC', 'INVEST-STEERING', 'PLANT-PHU-MY']);
+    expect(DEMO_FORMS.filter((form) => form.narrative !== null).map((form) => form.layout.code)).toEqual(['PVN-MONTHLY', 'PVN-QUARTERLY-F2', 'HPM-MONTHLY', 'COMMITTEE-PERIODIC', 'INVEST-STEERING', 'PLANT-PHU-MY']);
   });
 });
 
@@ -406,6 +406,17 @@ describe('the narrative skeletons', () => {
       const grouped = String(millions(rows, 'plan_force')).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
       expect(text).toContain(`${grouped} triệu đồng`);
     });
+
+    it(`${form.layout.code}: lays out the eight structured fields of each project at the token, and keeps a hint for a field nobody wrote`, () => {
+      const data = illustrativeFillData(form, periodOf(form));
+      const narratives = [{ projectCode: 'PRJ-1', projectName: 'Mẫu', fields: { status: 'Đang thi công', proposals: 'Đề nghị hỗ trợ' }, causeLabels: ['Bàn giao mặt bằng'], directiveLines: ['CD-1: chỉ đạo mẫu'] }];
+      const filled = fillNarrative(form.narrative ?? [], { ...data, narratives }, 'MILLION_VND');
+      const lines = filled.blocks.flatMap((block) => (block.type === 'PARAGRAPH' || block.type === 'HEADING' ? [block.text] : block.type === 'LIST' ? block.items : []));
+      expect(filled.issues).toEqual([]);
+      expect(lines).toEqual(expect.arrayContaining(['PRJ-1 - Mẫu', 'Đang thi công', 'Đề nghị hỗ trợ', 'CD-1: chỉ đạo mẫu']));
+      expect(lines.filter((line) => /^\[.+\]$/.test(line))).toHaveLength(6);
+      expect(JSON.stringify(form.narrative)).toContain('{{narrative:PROJECTS}}');
+    });
   }
 });
 
@@ -420,9 +431,11 @@ describe('the demo templates', () => {
   it('are one workbook per form and one Word skeleton per form with a narrative', () => {
     expect(built.map((file) => file.name)).toEqual([
       'PVN-MONTHLY.demo.xlsx',
+      'PVN-MONTHLY.demo.docx',
       'PVN-QUARTERLY-F2.demo.xlsx',
       'PVN-QUARTERLY-F2.demo.docx',
       'HPM-MONTHLY.demo.xlsx',
+      'HPM-MONTHLY.demo.docx',
       'COMMITTEE-PERIODIC.demo.xlsx',
       'COMMITTEE-PERIODIC.demo.docx',
       'INVEST-STEERING.demo.xlsx',
@@ -511,7 +524,7 @@ describe('the demo templates', () => {
 
   it('are refused for a form without a narrative', async () => {
     const { buildDocxSkeleton } = server;
-    await expect(buildDocxSkeleton(demoFormOf('HPM-MONTHLY') as DemoFormSpec)).rejects.toThrow('no narrative');
+    await expect(buildDocxSkeleton({ ...(demoFormOf('HPM-MONTHLY') as DemoFormSpec), narrative: null })).rejects.toThrow('no narrative');
   });
 });
 

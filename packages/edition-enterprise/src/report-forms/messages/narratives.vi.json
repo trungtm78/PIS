@@ -9,48 +9,44 @@
     "heading3": "3. Đánh giá tiến độ",
     "scheduleParagraph": "Trong {{indicator:ENT_PROJECTS_TOTAL@AS_OF_END}} dự án và hạng mục có {{indicator:ENT_PROJECTS_ON_TRACK@AS_OF_END}} dự án đúng hoặc vượt tiến độ và {{indicator:ENT_PROJECTS_DELAYED@AS_OF_END}} dự án chậm tiến độ."
   },
-  "lists": {
-    "difficulties": ["[Khó khăn, vướng mắc thứ nhất và giải pháp]", "[Khó khăn, vướng mắc thứ hai và giải pháp]"],
-    "steeringRequests": ["[Dự án, vấn đề, đề nghị chỉ đạo thứ nhất]", "[Dự án, vấn đề, đề nghị chỉ đạo thứ hai]"]
-  },
+  "lists": {},
   "forms": {
     "PVN-QUARTERLY-F2": {
       "title": "THUYẾT MINH BIỂU 2 - TÌNH HÌNH THỰC HIỆN KẾ HOẠCH ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ MUA SẮM TRANG THIẾT BỊ",
       "afterFigures": ["Ước thực hiện cả năm là {{indicator:ENT_OUTLOOK_YEAR@FULL_YEAR}} triệu đồng, bằng {{indicator:ENT_RATE_OUTLOOK_YEAR@FULL_YEAR}}% kế hoạch vốn năm hiện hành."],
       "sections": [
-        { "heading": "4. Nguyên nhân", "hint": "Nêu nguyên nhân chính của các dự án chậm tiến độ hoặc giải ngân thấp" },
-        { "heading": "5. Khó khăn, vướng mắc và giải pháp", "list": "difficulties" },
-        { "heading": "6. Kế hoạch quý tới", "hint": "Nêu khối lượng và giải ngân dự kiến của quý tới" },
-        { "heading": "7. Kiến nghị", "hint": "Nêu kiến nghị đối với Tập đoàn" }
+        { "heading": "4. Thuyết minh theo dự án", "projects": true }
       ]
     },
     "COMMITTEE-PERIODIC": {
       "title": "BÁO CÁO ĐỊNH KỲ GỬI ỦY BAN ĐẦU TƯ PHÁT TRIỂN VÀ KHOA HỌC CÔNG NGHỆ",
       "addressee": "Kính gửi: Ủy ban Đầu tư phát triển và Khoa học công nghệ.",
       "sections": [
-        { "heading": "4. Đánh giá chung", "hint": "Đánh giá chung về việc thực hiện kế hoạch đầu tư trong kỳ so với kế hoạch năm" },
-        { "heading": "5. Nguyên nhân", "hint": "Nêu nguyên nhân của các chênh lệch lớn so với kế hoạch" },
-        { "heading": "6. Khó khăn, vướng mắc và giải pháp", "list": "difficulties" },
-        { "heading": "7. Kế hoạch kỳ tới", "hint": "Nêu các việc chính và mục tiêu thực hiện, giải ngân của kỳ tới" },
-        { "heading": "8. Kiến nghị, đề xuất với Ủy ban", "hint": "Nêu các vấn đề đề nghị Ủy ban cho ý kiến hoặc chỉ đạo" }
+        { "heading": "4. Thuyết minh theo dự án", "projects": true }
       ]
     },
     "INVEST-STEERING": {
       "title": "BÁO CÁO GIAO BAN ĐẦU TƯ",
       "sections": [
-        { "heading": "4. Các dự án cần lãnh đạo chỉ đạo", "list": "steeringRequests" },
-        { "heading": "5. Kết quả thực hiện các nội dung chỉ đạo của kỳ trước", "hint": "Nêu kết quả thực hiện các chỉ đạo của cuộc giao ban trước" },
-        { "heading": "6. Kế hoạch tháng tới", "hint": "Nêu các việc chính của tháng tới" }
+        { "heading": "4. Thuyết minh theo dự án", "projects": true }
       ]
     },
     "PLANT-PHU-MY": {
       "title": "BÁO CÁO NHÀ MÁY ĐẠM PHÚ MỸ - ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ SỬA CHỮA LỚN",
       "sections": [
-        { "heading": "4. Tình hình các hạng mục sửa chữa lớn", "hint": "Nêu tiến độ các hạng mục sửa chữa lớn, thời gian dừng máy và việc nghiệm thu" },
-        { "heading": "5. Nguyên nhân", "hint": "Nêu nguyên nhân của các hạng mục chậm tiến độ" },
-        { "heading": "6. Khó khăn, vướng mắc và giải pháp", "list": "difficulties" },
-        { "heading": "7. Kế hoạch kỳ tới", "hint": "Nêu kế hoạch đầu tư và sửa chữa lớn của kỳ tới" },
-        { "heading": "8. Kiến nghị", "hint": "Nêu kiến nghị đối với Tổng công ty" }
+        { "heading": "4. Thuyết minh theo dự án", "projects": true }
+      ]
+    },
+    "PVN-MONTHLY": {
+      "title": "THUYẾT MINH BÁO CÁO THÁNG - KẾ HOẠCH ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ MUA SẮM TRANG THIẾT BỊ",
+      "sections": [
+        { "heading": "4. Thuyết minh theo dự án", "projects": true }
+      ]
+    },
+    "HPM-MONTHLY": {
+      "title": "THUYẾT MINH BÁO CÁO THÁNG ĐẨY LÊN HỆ THỐNG HPM",
+      "sections": [
+        { "heading": "4. Thuyết minh theo dự án", "projects": true }
       ]
     }
   }

@@ -203,9 +203,9 @@ describe('EntNarrativeStore (the structured narrative of a period, ENT-3b)', () 
     const janReport = (await owner<{ id: string }>('select id from machvon.report_revision where project_id = $1 and period_id = $2', [project.a, month.jan]))[0]?.id as string;
     const mar = await draft(project.a, month.mar, plan.a, null);
     expect(await as((tx) => store.previousOf(tx, mar.id))).toBeUndefined();
-    await owner("update machvon.report_revision set status = 'ACCEPTED' where id = $1", [janReport]);
+    await owner("update machvon.report_revision set status = 'SUBMITTED', submitted_at = now(), submitted_by = created_by where id = $1", [janReport]);
     const found = await as((tx) => store.previousOf(tx, mar.id));
-    expect(found).toMatchObject({ reportId: janReport, periodCode: '2041-M01', status: 'ACCEPTED' });
+    expect(found).toMatchObject({ reportId: janReport, periodCode: '2041-M01', status: 'SUBMITTED' });
     expect(found?.block.fields.status).toBe('Works on schedule');
     expect(found?.block.directiveRefs).toHaveLength(1);
     const other = (await owner<{ id: string }>('select id from machvon.report_revision where project_id = $1 and period_id = $2', [project.b, month.jan]))[0]?.id as string;
@@ -229,7 +229,7 @@ describe('EntNarrativeStore (the structured narrative of a period, ENT-3b)', () 
       }
     };
     expect(await attempt(`update machvon.report_narrative set pack_fields = '{"bogus":"x"}'::jsonb where report_revision_id = $1`)).toBe('report_narrative_enterprise_fields_chk');
-    expect(await attempt(`update machvon.report_narrative set pack_code = null where report_revision_id = $1`)).toBe('report_narrative_pack_chk');
+    expect(await attempt(`update machvon.report_narrative set pack_version = null where report_revision_id = $1`)).toBe('report_narrative_pack_chk');
     expect(await attempt(`update machvon.report_narrative set pack_fields = '{}'::jsonb where report_revision_id = $1`)).toBe('report_narrative_not_empty_chk');
     expect(await attempt(`update machvon.report_narrative set inherited_from_report_id = report_revision_id, inherited_at = now(), inherited_by = updated_by, inherited_hashes = '{}'::jsonb where report_revision_id = $1`)).toBe('report_narrative_inherited_chk');
   });

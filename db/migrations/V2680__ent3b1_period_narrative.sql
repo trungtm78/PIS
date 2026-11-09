@@ -22,16 +22,17 @@ ALTER TABLE machvon.report_narrative
   ADD COLUMN inherited_by uuid,
   ADD COLUMN inherited_hashes jsonb;
 
+-- Every test below is written so that a missing value fails it (a comparison with NULL would pass a CHECK).
 ALTER TABLE machvon.report_narrative
   ADD CONSTRAINT report_narrative_pack_chk CHECK (
     (pack_code IS NULL AND pack_version IS NULL AND pack_fields IS NULL AND cause_codes IS NULL AND directive_refs IS NULL)
     OR (
-      pack_code ~ '^[A-Z][A-Z0-9_]{1,31}$'
-      AND pack_version >= 1
-      AND jsonb_typeof(pack_fields) = 'object'
+      coalesce(pack_code ~ '^[A-Z][A-Z0-9_]{1,31}$', false)
+      AND coalesce(pack_version, 0) >= 1
+      AND coalesce(jsonb_typeof(pack_fields), '') = 'object'
       AND pg_column_size(pack_fields) <= 65536
       AND cause_codes IS NOT NULL AND cardinality(cause_codes) <= 20
-      AND jsonb_typeof(directive_refs) = 'array' AND jsonb_array_length(directive_refs) <= 50
+      AND coalesce(jsonb_typeof(directive_refs), '') = 'array' AND jsonb_array_length(directive_refs) <= 50
     )
   ),
   ADD CONSTRAINT report_narrative_enterprise_fields_chk CHECK (
@@ -43,7 +44,7 @@ ALTER TABLE machvon.report_narrative
     OR (
       inherited_from_report_id IS NOT NULL AND inherited_at IS NOT NULL AND inherited_by IS NOT NULL
       AND pack_code IS NOT NULL
-      AND jsonb_typeof(inherited_hashes) = 'object'
+      AND coalesce(jsonb_typeof(inherited_hashes), '') = 'object'
       AND inherited_from_report_id <> report_revision_id
     )
   ),
