@@ -24,14 +24,6 @@ function Gated({ children }: { children: ReactNode }) {
 /** The manager screens of the installed application, behind the same sign-in and tenant gate as every other screen. The directive tracking reads the directive module (PWA-04). */
 export function PwaRoutes() {
   return (
-    <Routes>
-      <Route index element={<Gated><PwaStartScreen /></Gated>} />
-      <Route path="approvals" element={<Gated><ApprovalQueueScreen /></Gated>} />
-      <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
-      <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
-      <Route path="notifications" element={<Gated><PwaNotificationsScreen /></Gated>} />
-      <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />
-    </Routes>
     <DirectivesSourceContext.Provider value={useApiDirectives}>
       <Routes>
         <Route index element={<Gated><PwaStartScreen /></Gated>} />
@@ -39,6 +31,7 @@ export function PwaRoutes() {
         <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
         <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
         <Route path="directives/:id" element={<Gated><DirectiveDetailScreen /></Gated>} />
+        <Route path="notifications" element={<Gated><PwaNotificationsScreen /></Gated>} />
         <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />
       </Routes>
     </DirectivesSourceContext.Provider>
