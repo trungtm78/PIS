@@ -9,6 +9,7 @@ import {
   daysOverdue,
   entryDeadline,
   entryOffsetOf,
+  localTimeOf,
   meetingPeriod,
   reminderDue,
   scheduleDefaults,
@@ -85,6 +86,17 @@ describe('the reporting schedule rule (QT.02)', () => {
     expect(deadlines[1]?.dueAt).toBe('2027-10-07T09:30:00.000Z');
     expect(() => stepDeadlines(policy, { endsOn: '2027-09-30' }, '25:00')).toThrow();
     expect(() => stepDeadlines(policy, { endsOn: '2027-09-30' }, '10:00', 'Mars/Base')).toThrow();
+  });
+
+  it('keeps the entry deadline a period was generated with when the rule has moved since, and reads the calendar time from it', () => {
+    const policy = schedulePolicyOf({ ...scheduleDefaults('MONTH'), steps: [{ kind: 'ENTRY', offset_days: 9 }, { kind: 'UNIT_APPROVAL', offset_days: 10 }, { kind: 'PLANNING_REVIEW', offset_days: 11 }, { kind: 'PERIOD_CLOSE', offset_days: 12 }, { kind: 'PUSH', offset_days: 13 }] });
+    const generated = '2027-10-05T03:00:00.000Z';
+    expect(localTimeOf(generated)).toBe('10:00');
+    expect(localTimeOf('2027-10-05T17:30:00.000Z')).toBe('00:30');
+    const kept = stepDeadlines(policy, { endsOn: '2027-09-30' }, localTimeOf(generated), undefined, generated);
+    expect(kept[0]).toMatchObject({ kind: 'ENTRY', dueAt: generated, dueOn: '2027-10-05', dueTime: '10:00' });
+    expect(kept[1]).toMatchObject({ dueOn: '2027-10-10', dueTime: '10:00' });
+    expect(stepDeadlines(policy, { endsOn: '2027-09-30' }, '10:00')[0]?.dueOn).toBe('2027-10-09');
   });
 
   it('refuses a schedule that cannot be run: wrong chain, a deadline that goes back, reminders out of order', () => {

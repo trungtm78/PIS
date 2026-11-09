@@ -146,12 +146,17 @@ export interface StepDeadline {
 }
 
 /** The deadline of each step of a period: the end of the period plus the offset of the step, at the time of the step or, with none, the deadline time of the calendar, in the zone of the calendar. */
-export function stepDeadlines(policy: SchedulePolicy, period: Pick<SchedulePeriod, 'endsOn'>, calendarTime: string, timezone: string = SCHEDULE_TIMEZONE): StepDeadline[] {
+export function stepDeadlines(policy: SchedulePolicy, period: Pick<SchedulePeriod, 'endsOn'>, calendarTime: string, timezone: string = SCHEDULE_TIMEZONE, entryDueAt?: string): StepDeadline[] {
   if (!Object.hasOwn(CALENDAR_TIMEZONES, timezone)) throw new DomainError('VALIDATION_FAILED', 422, 'timezone');
   if (!TIME.test(calendarTime)) throw new DomainError('VALIDATION_FAILED', 422, 'deadline_time');
   const zone = CALENDAR_TIMEZONES[timezone] as number;
   const end = dayOf(period.endsOn);
   return policy.steps.map((step) => {
+    // A period that exists keeps the entry deadline it was generated with: a newer rule moves the periods generated after it and none that exist (no retroactive change).
+    if (step.kind === 'ENTRY' && entryDueAt !== undefined) {
+      const local = new Date(Date.parse(entryDueAt) + zone * 60_000);
+      return { kind: step.kind, dueAt: new Date(entryDueAt).toISOString(), dueOn: isoOf(Math.floor(local.getTime() / DAY_MS)), dueTime: localTimeOf(entryDueAt, timezone) };
+    }
     const time = step.time ?? calendarTime;
     const [hours, minutes] = time.split(':').map(Number) as [number, number];
     const day = end + step.offsetDays;
@@ -238,8 +243,10 @@ export function reminderDue(policy: SchedulePolicy, dueAt: string, now: Date, se
 /** The alert type that stands for each kind of reminder (rule type `ALERT_TYPE`): who owns it, what is expected and what happens when nothing is done. */
 export const REMINDER_ALERT_TYPES: Readonly<Record<ScheduleReminderKind, string>> = { BEFORE_DUE: 'REPORTING_STEP_DUE_SOON', OVERDUE: 'REPORTING_STEP_OVERDUE', ESCALATED: 'REPORTING_STEP_ESCALATED' };
 
-/** The event the reminder job writes to the outbox; a tenant picks the channels with a notification workflow of this type. */
+/** The events the reminder job writes to the outbox; a tenant picks the channels, and the people the escalation goes to, with a notification workflow of each type. */
 export const CALENDAR_REMINDER_EVENT = 'dis.calendar_step.reminded.v1';
+export const CALENDAR_ESCALATION_EVENT = 'dis.calendar_step.escalated.v1';
+export const reminderEventOf = (kind: ScheduleReminderKind): string => (kind === 'ESCALATED' ? CALENDAR_ESCALATION_EVENT : CALENDAR_REMINDER_EVENT);
 
 // -- The calendar --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -252,4 +259,14 @@ export function scheduleCodeOf(kind: CalendarItemKind, basis: ScheduleBasis): Sc
   if (kind === 'PLAN_ADJUSTMENT') return 'PLAN_ADJUSTMENT';
   if (kind === 'MEETING') return 'MEETING';
   return undefined;
+}
+
+/**
+ * The local time of day of an instant in the zone of the calendar, `HH:MM`. A period stores the instant its entry step is due; that instant carries the deadline time of the reporting calendar it was generated with, which the steps
+ * without a time of their own follow.
+ */
+export function localTimeOf(instant: string, timezone: string = SCHEDULE_TIMEZONE): string {
+  if (!Object.hasOwn(CALENDAR_TIMEZONES, timezone)) throw new DomainError('VALIDATION_FAILED', 422, 'timezone');
+  const local = new Date(Date.parse(instant) + (CALENDAR_TIMEZONES[timezone] as number) * 60_000);
+  return `${String(local.getUTCHours()).padStart(2, '0')}:${String(local.getUTCMinutes()).padStart(2, '0')}`;
 }

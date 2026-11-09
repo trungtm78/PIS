@@ -3223,5 +3223,7 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
-export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_REMINDER_EVENT, SCHEDULE_DUE_SOON_DAYS, REMINDER_ALERT_TYPES, SCHEDULE_REMINDER_KINDS, SCHEDULE_CODES, SCHEDULE_RULE_TYPE, SCHEDULE_STEP_KINDS, SCHEDULE_STEP_STATES, daysOverdue, entryDeadline, entryOffsetOf, isScheduleCode, meetingPeriod, reminderDue, scheduleCodeOf, scheduleDefaults, scheduleDefect, schedulePeriods, schedulePolicyOf, stepDeadlines, scheduleStepState } from './reporting-schedule.ts';
+export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_ESCALATION_EVENT, CALENDAR_REMINDER_EVENT, SCHEDULE_DUE_SOON_DAYS, REMINDER_ALERT_TYPES, SCHEDULE_REMINDER_KINDS, SCHEDULE_CODES, SCHEDULE_RULE_TYPE, SCHEDULE_STEP_KINDS, SCHEDULE_STEP_STATES, daysOverdue, entryDeadline, entryOffsetOf, isScheduleCode, meetingPeriod, reminderDue, localTimeOf, reminderEventOf, scheduleCodeOf, scheduleDefaults, scheduleDefect, schedulePeriods, schedulePolicyOf, stepDeadlines, scheduleStepState } from './reporting-schedule.ts';
 export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
+export { buildBoard } from './reporting-board.ts';
+export type { PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
