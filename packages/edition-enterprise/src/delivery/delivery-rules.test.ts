@@ -73,7 +73,7 @@ describe('decideDelivery', () => {
   });
 
   it('is done for a delivery that was sent, refused, skipped or is in doubt, and tries a failed one again until the attempts are used', () => {
-    for (const status of ['SENT', 'REFUSED', 'SKIPPED', 'UNKNOWN'] as const) expect(decide({ held: { status, attempts: 1 } })).toEqual({ kind: 'DONE' });
+    for (const status of ['SENDING', 'SENT', 'REFUSED', 'SKIPPED', 'UNKNOWN'] as const) expect(decide({ held: { status, attempts: 1 } })).toEqual({ kind: 'DONE' });
     expect(decide({ held: { status: 'FAILED', attempts: 1 } })).toEqual({ kind: 'SEND' });
     expect(decide({ held: { status: 'FAILED', attempts: DELIVERY_MAX_ATTEMPTS } })).toEqual({ kind: 'DONE' });
   });

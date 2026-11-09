@@ -11,7 +11,7 @@ import { textsOf } from '../report-forms/texts.ts';
 
 export const DELIVERY_FORMATS = ['XLSX', 'DOCX', 'PDF'] as const;
 export type DeliveryFormat = (typeof DELIVERY_FORMATS)[number];
-export const DELIVERY_STATUSES = ['SENT', 'FAILED', 'REFUSED', 'UNKNOWN', 'SKIPPED'] as const;
+export const DELIVERY_STATUSES = ['SENDING', 'SENT', 'FAILED', 'REFUSED', 'UNKNOWN', 'SKIPPED'] as const;
 export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
 
 export const DELIVERY_MAX_RECIPIENTS = 50;
@@ -19,7 +19,9 @@ export const DELIVERY_MAX_NOTE = 1000;
 /** A send that failed for a reason that may pass (the relay was busy) is tried again on the next runs, up to this many attempts in all. */
 export const DELIVERY_MAX_ATTEMPTS = 3;
 /** How many head copies one run of one schedule takes up (the oldest first), so a schedule made over a long backlog is delivered over several runs. */
-export const DELIVERY_BATCH = 20;
+export const DELIVERY_BATCH = 5;
+/** A send that has been SENDING this long without an answer was lost with its process: it is settled as UNKNOWN and never sent again on its own. */
+export const DELIVERY_LOST_AFTER_MINUTES = 15;
 export const DELIVERY_MEDIA_TYPES: Readonly<Record<DeliveryFormat, string>> = {
   XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   DOCX: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -87,12 +89,12 @@ export type DeliveryDecision =
   | { kind: 'SEND' }
   /** Not sent now and not sent later either: the reason is recorded once (the log is the answer to "why did I not get it"). */
   | { kind: 'SKIP'; reason: 'DEMO_FORM' | 'FORMAT_UNAVAILABLE' }
-  /** Nothing to do for this recipient: already sent, or refused for good, or the send is in doubt and never repeated on its own, or the attempts are used. */
+  /** Nothing to do for this recipient: already sent, being sent, refused for good, in doubt (never repeated on its own), or the attempts are used. */
   | { kind: 'DONE' };
 
 /**
  * What to do with one (copy, recipient): copies issued before the schedule was made are history and are not sent (`DONE`, nothing is written); a copy of a DEMO form is skipped with its reason; a format the copy does
- * not have (a form with no Word narrative asked in DOCX) is skipped with its reason; a delivery that was SENT, REFUSED, SKIPPED or UNKNOWN is done; one that FAILED is tried again until the attempts are used.
+ * not have (a form with no Word narrative asked in DOCX) is skipped with its reason; a delivery that is SENDING, SENT, REFUSED, SKIPPED or UNKNOWN is done; one that FAILED is tried again until the attempts are used.
  */
 export function decideDelivery(input: { copy: IssuedHead; format: DeliveryFormat; scheduleCreatedAt: string; held: HeldDelivery | undefined; pdfAvailable: boolean }): DeliveryDecision {
   const { copy, held } = input;
@@ -104,7 +106,7 @@ export function decideDelivery(input: { copy: IssuedHead; format: DeliveryFormat
 }
 
 export interface DeliveryOutcome {
-  status: Exclude<DeliveryStatus, 'SKIPPED'>;
+  status: Exclude<DeliveryStatus, 'SKIPPED' | 'SENDING'>;
   errorCode: string | null;
   providerMessageId: string | null;
 }
