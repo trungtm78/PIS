@@ -31298,6 +31298,7 @@
   "ind.surface.prjProject.label": "Project record",
   "ind.surface.indicatorEntry.label": "Indicator figure entry",
   "ind.surface.indicatorImport.label": "Form file import",
+  "ind.surface.periodNarrative.label": "Enterprise period narrative",
   "ind.severity.block.label": "Block",
   "ind.severity.warn.label": "Warning",
   "ind.layout.columns.label": "By columns: one row for each project",
