@@ -1,0 +1,275 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "correspondence",
+  "title": "Văn thư và ký số",
+  "summary": "Outgoing documents from templates and layout rules, review and digital signing by the leader and by the agency, signature verification, issue and distribution, registers, recall and correction, incoming documents, records and retention.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "doc-draft",
+      "chapter": "correspondence",
+      "main": false,
+      "narration": "Văn bản đi được soạn từ thư viện mẫu, mỗi mẫu có phiên bản. Thể thức và bố cục theo quy định về công tác văn thư được kiểm tự động, nên văn bản sai thể thức bị báo trước khi trình ký.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-02",
+          "DOC-14",
+          "DOC-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-02"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.outgoing.draft"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-14"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.templates.library"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-16"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.templates.layout-rules"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "doc-sign",
+      "chapter": "correspondence",
+      "main": false,
+      "narration": "Văn bản đi qua rà soát, trình ký, ký số lãnh đạo, rồi cấp số và ký số cơ quan. Màn xác minh cho biết chữ ký và chứng thư còn hiệu lực hay không. Người soạn không tự ký thay lãnh đạo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-04",
+          "DOC-05",
+          "DOC-06",
+          "DOC-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-04"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.signing.review"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-05"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.signing.leader-sign"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-06"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.signing.number-and-seal"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-07"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.signing.verify"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "doc-issue",
+      "chapter": "correspondence",
+      "main": false,
+      "narration": "Phát hành và phân phối văn bản, tải lên văn bản đã ký bên ngoài khi cần. Sổ đăng ký văn bản đi ghi số và ngày. Thu hồi, thay thế hay đính chính đều để lại vết, và văn bản liên thông được với hệ thống văn bản quốc gia.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-08",
+          "DOC-09",
+          "DOC-10",
+          "DOC-19",
+          "DOC-20"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-08"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.issue.distribution"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-09"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-10"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.issue.outgoing-register"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-19"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.issue.recall-correct"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-20"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.issue.interconnect"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.3
+    },
+    {
+      "id": "doc-incoming",
+      "chapter": "correspondence",
+      "main": false,
+      "narration": "Văn bản đến được tiếp nhận, vào sổ, phân công người xử lý và theo dõi đến khi có kết quả. Việc chờ xử lý hiện trong danh sách việc của người nhận, và quá hạn thì cảnh báo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-11",
+          "DOC-12",
+          "DOC-13"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-11"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.incoming.intake"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-12"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.incoming.register-assign"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-13"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.incoming.handling"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.3
+    },
+    {
+      "id": "doc-archive",
+      "chapter": "correspondence",
+      "main": false,
+      "narration": "Hồ sơ được lập và lưu trữ theo quy tắc bảo quản, mỗi loại tài liệu có thời hạn giữ riêng. Sổ cấp số và loại văn bản cấu hình được. Màn tổng quan cho biết khối lượng văn bản và việc đang tồn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DOC-01",
+          "DOC-17",
+          "DOC-18",
+          "DOC-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-01"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.archive.overview"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-17"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.archive.files"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-18"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.archive.retention-rules"
+        },
+        {
+          "do": "open",
+          "screen": "DOC-21"
+        },
+        {
+          "do": "spot",
+          "ref": "doc.archive.numbering-books"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    }
+  ]
+}

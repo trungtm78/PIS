@@ -4,68 +4,920 @@
   "datasets": {
     "public": {
       "groups": {
-        "base": { "proof": "RUN_VERIFIED" },
-        "capital": { "proof": "RUN_VERIFIED" },
-        "clip-public-documents": { "proof": "RUN_VERIFIED" },
-        "clip-public-procurement": { "proof": "RUN_VERIFIED" },
-        "clip-public-contracts": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-payments": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-workflow": { "proof": "RUN_VERIFIED" },
-        "clip-public-alerts": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-egp": { "proof": "RUN_VERIFIED" },
-        "clip-public-disbursement": { "proof": "RUN_VERIFIED" },
-        "clip-public-feed": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-bi": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-directives": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-committee": { "proof": "RUN_VERIFIED" },
-        "clip-public-extras": { "proof": "WRITTEN_NOT_RUN" }
+        "base": {
+          "proof": "RUN_VERIFIED"
+        },
+        "capital": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-documents": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-procurement": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-contracts": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-payments": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-workflow": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-alerts": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-egp": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-disbursement": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-feed": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-bi": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-directives": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-committee": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-public-extras": {
+          "proof": "WRITTEN_NOT_RUN"
+        }
       },
       "chapters": {
-        "intro": { "groups": [] },
-        "leader-home": { "groups": ["capital", "clip-public-disbursement"] },
-        "disbursement": { "groups": ["capital", "clip-public-disbursement"], "gaps": ["Chưa có seed cho nghiệm thu khối lượng, thanh toán và tạm ứng, nên các cảnh điều kiện thanh toán và tạm ứng cần dữ liệu bổ sung."] },
-        "contracts": { "groups": ["clip-public-procurement", "clip-public-contracts"], "gaps": ["Chưa có seed cho nghiệm thu, thanh toán và tạm ứng của hợp đồng."] },
-        "analytics": { "groups": ["capital", "clip-public-procurement", "clip-public-contracts"], "gaps": ["Chưa nạp được gói chỉ tiêu BI vì chưa có đường HTTP lưu tệp gói chỉ tiêu: các cảnh dashboard BI cần dữ liệu bổ sung."] },
-        "alerts": { "groups": ["clip-public-alerts", "clip-public-disbursement"] },
-        "contractors": { "groups": ["clip-public-procurement", "clip-public-contracts"] },
-        "egp": { "groups": ["clip-public-egp", "clip-public-workflow"] },
-        "province-committee": { "groups": ["clip-public-committee", "clip-public-disbursement", "clip-public-feed", "clip-public-directives"], "gaps": ["Không gian làm việc của Ban chỉ đạo đọc ảnh chụp kỳ đã chốt, chưa đọc bản ghi nguồn cấp; nguồn cấp được quay qua các chỉ số chất lượng, sai lệch và cảnh báo của chính nó."] },
-        "process-tree": { "groups": ["clip-public-workflow", "clip-public-procurement"] },
-        "phone": { "groups": ["clip-public-procurement", "clip-public-alerts", "clip-public-contracts"], "gaps": ["Cảnh điện thoại quay bằng máy ảo; màn Phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại."] },
-        "close": { "groups": [] }
+        "intro": {
+          "groups": []
+        },
+        "leader-home": {
+          "groups": [
+            "capital",
+            "clip-public-disbursement"
+          ]
+        },
+        "disbursement": {
+          "groups": [
+            "capital",
+            "clip-public-disbursement"
+          ],
+          "gaps": [
+            "Chưa có seed cho nghiệm thu khối lượng, thanh toán và tạm ứng, nên các cảnh điều kiện thanh toán và tạm ứng cần dữ liệu bổ sung."
+          ]
+        },
+        "contracts": {
+          "groups": [
+            "clip-public-procurement",
+            "clip-public-contracts"
+          ],
+          "gaps": [
+            "Chưa có seed cho nghiệm thu, thanh toán và tạm ứng của hợp đồng."
+          ]
+        },
+        "analytics": {
+          "groups": [
+            "capital",
+            "clip-public-procurement",
+            "clip-public-contracts"
+          ],
+          "gaps": [
+            "Chưa nạp được gói chỉ tiêu BI vì chưa có đường HTTP lưu tệp gói chỉ tiêu: các cảnh dashboard BI cần dữ liệu bổ sung."
+          ]
+        },
+        "alerts": {
+          "groups": [
+            "clip-public-alerts",
+            "clip-public-disbursement"
+          ]
+        },
+        "contractors": {
+          "groups": [
+            "clip-public-procurement",
+            "clip-public-contracts"
+          ]
+        },
+        "egp": {
+          "groups": [
+            "clip-public-egp",
+            "clip-public-workflow"
+          ]
+        },
+        "province-committee": {
+          "groups": [
+            "clip-public-committee",
+            "clip-public-disbursement",
+            "clip-public-feed",
+            "clip-public-directives"
+          ],
+          "gaps": [
+            "Không gian làm việc của Ban chỉ đạo đọc ảnh chụp kỳ đã chốt, chưa đọc bản ghi nguồn cấp; nguồn cấp được quay qua các chỉ số chất lượng, sai lệch và cảnh báo của chính nó."
+          ]
+        },
+        "process-tree": {
+          "groups": [
+            "clip-public-workflow",
+            "clip-public-procurement"
+          ]
+        },
+        "phone": {
+          "groups": [
+            "clip-public-procurement",
+            "clip-public-alerts",
+            "clip-public-contracts"
+          ],
+          "gaps": [
+            "Cảnh điện thoại quay bằng máy ảo; màn Phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại."
+          ]
+        },
+        "close": {
+          "groups": []
+        },
+        "contractors-plus": {
+          "groups": [
+            "clip-public-vendor-controls",
+            "clip-public-vendor-investigation",
+            "clip-public-procurement",
+            "clip-public-contracts"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "contractor-portal": {
+          "groups": [
+            "clip-public-contractor-portal",
+            "clip-public-procurement"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "claims-warnings": {
+          "groups": [
+            "clip-public-claims",
+            "clip-public-contracts"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "alerts-plus": {
+          "groups": [
+            "clip-public-alert-governance",
+            "clip-public-alerts"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "delegation": {
+          "groups": [
+            "clip-public-alert-governance",
+            "clip-public-extras"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "audit-controls": {
+          "groups": [
+            "clip-public-audit-controls"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "risk-forecast": {
+          "groups": [
+            "clip-public-fund-forecast",
+            "clip-public-risk-lookahead",
+            "clip-public-bi",
+            "clip-public-disbursement"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "project-life": {
+          "groups": [
+            "base",
+            "clip-public-lifecycle"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "capital-control": {
+          "groups": [
+            "capital",
+            "clip-public-capital-control"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "payments": {
+          "groups": [
+            "clip-public-payments",
+            "clip-public-payments-extra"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "reports-close": {
+          "groups": [
+            "clip-public-disbursement",
+            "clip-public-reports-close"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "monitoring": {
+          "groups": [
+            "clip-public-reports-close"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "procurement-desk": {
+          "groups": [
+            "clip-public-procurement",
+            "clip-public-bid-analysis"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "contract-delivery": {
+          "groups": [
+            "clip-public-contracts",
+            "clip-public-contract-site"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "field-ops": {
+          "groups": [
+            "clip-public-field"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "docs-ai-plus": {
+          "groups": [
+            "clip-public-docs-ai"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "correspondence": {
+          "groups": [
+            "clip-public-correspondence"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "integration": {
+          "groups": [
+            "clip-public-integration"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "portal-public": {
+          "groups": [
+            "clip-public-portal"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "platform": {
+          "groups": [
+            "clip-public-platform"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "phone-plus": {
+          "groups": [
+            "clip-public-phone-extra",
+            "clip-public-procurement"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "features-tour": {
+          "groups": []
+        }
+      },
+      "plannedGroups": {
+        "clip-public-vendor-controls": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Kỳ tài chính đã xác minh cho vài nhà thầu, kể cả liên danh.",
+            "Khai quan hệ cá nhân để có một phát hiện độc lập mạnh chưa quyết định và một phát hiện đã người khác quyết định.",
+            "Sổ bảo đảm dự thầu: thư đã nhận, đã xác nhận bởi người thứ hai, một đề xuất tịch thu.",
+            "Chạy hạng rủi ro nhà thầu, đề xuất xếp hạng thực hiện hợp đồng có điểm AI, chứng chỉ sắp hết hạn, sự kiện uy tín và một hồ sơ cấm."
+          ]
+        },
+        "clip-public-vendor-investigation": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Một số nhà thầu dùng chung mã số thuế đầu, địa chỉ hoặc điện thoại; dấu vết nộp hồ sơ của từng đề xuất.",
+            "Đầu mối điều tra ở trạng thái mới và đang rà soát.",
+            "Danh sách bên bị cấm nạp qua đường nhập tệp, một lần sàng lọc và một kết quả tạm giữ."
+          ]
+        },
+        "clip-public-contractor-portal": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Tài khoản thành viên khách tên contractorUser gắn với một nhà thầu (thêm vào docs-people).",
+            "Thư mời, yêu cầu mở và đã trả lời, chứng chỉ tải lên chờ xác minh, đánh giá có kế hoạch khắc phục, thống kê kiến nghị."
+          ]
+        },
+        "clip-public-claims": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Điều khoản claim đã duyệt cho vài hợp đồng và một hợp đồng chưa có điều khoản.",
+            "Claim của cả hai bên ở nhiều trạng thái, có dòng thời gian.",
+            "Cảnh báo sớm có đánh giá tác động, biện pháp, một cuộc họp rà soát, một cảnh báo chưa có người phụ trách; đồng hồ quyết toán hợp đồng."
+          ]
+        },
+        "clip-public-alert-governance": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Cảnh báo bị leo thang qua chính sách, người vắng mặt có người thay đã được cho phép.",
+            "Thiết lập nhận cảnh báo cá nhân, thang kênh có biên nhận, phản hồi cảnh báo sai, cảnh báo đã đóng rồi mở lại, một nhóm cảnh báo dồn dập, việc bị hoãn."
+          ]
+        },
+        "clip-public-audit-controls": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Cuộc thanh tra có phát hiện, kiến nghị phân công, thu hồi tài chính đối chiếu thanh toán, bằng chứng khắc phục.",
+            "Chạy quét red flag và có sổ chỉ báo; một tố giác ẩn danh và vài dòng sổ quà tặng."
+          ]
+        },
+        "clip-public-fund-forecast": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Lô số liệu vốn theo kỳ: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn, do người khác duyệt.",
+            "Dự báo tới mốc chỉ đạo, độ chính xác dự báo vài tháng, nhật ký quyết định, một dự án dừng có kế hoạch khởi động lại, ghi chú và khiếu nại xếp hạng."
+          ]
+        },
+        "clip-public-risk-lookahead": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Chạy chấm lại rủi ro dự án để có tín hiệu và lịch sử điểm.",
+            "Kế hoạch nhìn trước đã công bố có ràng buộc, bài học kinh nghiệm, bộ chỉ tiêu hiệu quả đã chốt kèm số thực."
+          ]
+        },
+        "clip-public-docs-ai": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Tài liệu dự án có nhiều phiên bản, luồng duyệt có bước song song, phiếu chuyển giao có hạn.",
+            "Lượt hỏi trợ lý AI có trích dẫn và quyết định của người, danh mục kiểm đã chạy, một ngoại lệ nhà cung cấp ngoài đã duyệt."
+          ]
+        },
+        "clip-public-correspondence": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Văn bản đi ở các bước soạn, ký, cấp số; văn bản đến đã phân công; quy tắc bảo quản; một văn bản bị thu hồi hoặc đính chính."
+          ]
+        },
+        "clip-public-integration": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Bộ kết nối đã chạy, có một sự cố đã mở; tài khoản máy và tài khoản BI; mục đối chiếu mã dự án; hợp đồng dữ liệu, đường ống và sản phẩm dữ liệu."
+          ]
+        },
+        "clip-public-field": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Vướng mắc đủ loại có chính sách thời hạn và tổ công tác; nhật ký thi công có ngày thiếu; biên bản chất lượng, thí nghiệm, điểm không phù hợp; hai ảnh giống nhau ở hai dự án.",
+            "Thửa đất, hộ, kiểm đếm, phương án bồi thường, giấy phép có quy tắc cổng; bàn giao tài sản và yêu cầu bảo hành."
+          ]
+        },
+        "clip-public-lifecycle": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Đề xuất chủ trương và thẩm định có quyết định; cấu trúc công việc, điều chỉnh, phân công lãnh đạo, yêu cầu giải trình, chuyển đơn vị."
+          ]
+        },
+        "clip-public-capital-control": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Dự toán được giao, hạn mức khả dụng, khoản giữ vốn trước cam kết, sổ cái tra theo ngày, đề xuất điều chuyển theo hiệu suất."
+          ]
+        },
+        "clip-public-payments-extra": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Hồ sơ thanh toán có sai lệch, bút toán đảo, đồng hồ Kho bạc có hồ sơ trả lại với lý do chuẩn, một ngoại lệ vượt trần, quyết toán niên độ."
+          ]
+        },
+        "clip-public-reports-close": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Một kỳ đã chốt có chữ ký số, một lần mở lại có lý do; tệp Excel nhập qua bảng ánh xạ; báo cáo giám sát đã phát hành, đã nộp và một lần đính chính; biểu mẫu Bộ Tài chính đã giao."
+          ]
+        },
+        "clip-public-bid-analysis": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Gói thầu có hồ sơ dự thầu nhiều tệp đã qua OCR, một lượt phân tích AI có dẫn chứng, biên bản đánh giá."
+          ]
+        },
+        "clip-public-contract-site": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Hợp đồng có yêu cầu thay đổi và phụ lục, khối lượng, kiểm tra chất lượng và nghiệm thu đã ghi, một yêu cầu bồi hoàn chậm tiến độ."
+          ]
+        },
+        "clip-public-portal": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Hồ sơ giám sát cộng đồng có phản ánh và phản hồi; bản ghi công khai đã công bố qua danh sách trường cho phép."
+          ]
+        },
+        "clip-public-platform": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Giao diện thương hiệu mới của đơn vị, mã trùng chờ hợp nhất, sự cố chất lượng dữ liệu, mẫu thông báo và một yêu cầu gửi diện rộng, lịch sử sao lưu."
+          ]
+        },
+        "clip-public-phone-extra": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Tài khoản cán bộ và lãnh đạo có dữ liệu cho các màn điện thoại còn lại; phim quay trên máy ảo theo tên cảnh trong thư mục phone."
+          ]
+        }
       }
     },
     "enterprise": {
       "groups": {
-        "clip-ent-projects": { "proof": "RUN_VERIFIED" },
-        "clip-ent-funding": { "proof": "RUN_VERIFIED" },
-        "clip-ent-directives": { "proof": "RUN_VERIFIED" },
-        "clip-ent-ebs": { "proof": "RUN_VERIFIED" },
-        "clip-ent-reports": { "proof": "RUN_VERIFIED" },
-        "clip-ent-capital": { "proof": "RUN_VERIFIED" },
-        "clip-ent-documents": { "proof": "RUN_VERIFIED" },
-        "clip-ent-procurement": { "proof": "RUN_VERIFIED" },
-        "clip-ent-contracts": { "proof": "RUN_VERIFIED" },
-        "clip-ent-workflow": { "proof": "RUN_VERIFIED" },
-        "clip-ent-disbursement": { "proof": "RUN_VERIFIED" },
-        "clip-ent-bi": { "proof": "RUN_VERIFIED" }
+        "clip-ent-projects": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-funding": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-directives": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-ebs": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-reports": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-capital": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-documents": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-procurement": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-contracts": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-workflow": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-disbursement": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-bi": {
+          "proof": "RUN_VERIFIED"
+        }
       },
       "chapters": {
-        "intro": { "groups": [] },
-        "leader-home": { "groups": ["clip-ent-projects", "clip-ent-funding"] },
-        "capital": { "groups": ["clip-ent-funding"] },
-        "projects": { "groups": ["clip-ent-projects"] },
-        "reports-pvn": { "groups": ["clip-ent-reports"], "gaps": ["Sáu biểu mẫu là bản demo do hệ thống tự thiết kế, đóng dấu MẪU DEMO — chờ mẫu chính thức."] },
-        "workflow": { "groups": ["clip-ent-reports"] },
-        "hpm-ebs": { "groups": ["clip-ent-reports", "clip-ent-ebs"], "gaps": ["Bản demo không bao giờ được HPM chấp nhận: nhật ký đẩy có một lần ghi tệp và một lần bị từ chối kèm lý do."] },
-        "directives": { "groups": ["clip-ent-directives"] },
-        "docs-ai": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp chưa có nhóm cho kho hồ sơ dự án và trợ lý AI: cần nhóm bổ sung hoặc quay trên kho đã có."] },
-        "analytics": { "groups": ["clip-ent-projects", "clip-ent-funding"], "gaps": ["Chưa nạp được gói chỉ tiêu BI; các chương dùng chung cần số liệu đủ dày trên bộ dữ liệu doanh nghiệp."] },
-        "alerts": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp không có nhóm luật và cảnh báo; chạy các nhóm cảnh báo của bộ công khai trên bản doanh nghiệp hoặc quay chương dùng chung trên bộ công khai."] },
-        "contractors": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp không có nhóm nhà thầu; cần nhóm bổ sung hoặc dùng cảnh quay chung."] },
-        "process-tree": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp không có nhóm quy trình gói thầu; cần chạy nhóm quy trình trên bản doanh nghiệp hoặc dùng cảnh quay chung."] },
-        "phone": { "groups": ["clip-ent-projects", "clip-ent-directives"], "gaps": ["Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu."] },
-        "close": { "groups": [] }
+        "intro": {
+          "groups": []
+        },
+        "leader-home": {
+          "groups": [
+            "clip-ent-projects",
+            "clip-ent-funding"
+          ]
+        },
+        "capital": {
+          "groups": [
+            "clip-ent-funding"
+          ]
+        },
+        "projects": {
+          "groups": [
+            "clip-ent-projects"
+          ]
+        },
+        "reports-pvn": {
+          "groups": [
+            "clip-ent-reports"
+          ],
+          "gaps": [
+            "Sáu biểu mẫu là bản demo do hệ thống tự thiết kế, đóng dấu MẪU DEMO — chờ mẫu chính thức."
+          ]
+        },
+        "workflow": {
+          "groups": [
+            "clip-ent-reports"
+          ]
+        },
+        "hpm-ebs": {
+          "groups": [
+            "clip-ent-reports",
+            "clip-ent-ebs"
+          ],
+          "gaps": [
+            "Bản demo không bao giờ được HPM chấp nhận: nhật ký đẩy có một lần ghi tệp và một lần bị từ chối kèm lý do."
+          ]
+        },
+        "directives": {
+          "groups": [
+            "clip-ent-directives"
+          ]
+        },
+        "docs-ai": {
+          "groups": [],
+          "gaps": [
+            "Bộ dữ liệu doanh nghiệp chưa có nhóm cho kho hồ sơ dự án và trợ lý AI: cần nhóm bổ sung hoặc quay trên kho đã có."
+          ]
+        },
+        "analytics": {
+          "groups": [
+            "clip-ent-projects",
+            "clip-ent-funding"
+          ],
+          "gaps": [
+            "Chưa nạp được gói chỉ tiêu BI; các chương dùng chung cần số liệu đủ dày trên bộ dữ liệu doanh nghiệp."
+          ]
+        },
+        "alerts": {
+          "groups": [],
+          "gaps": [
+            "Bộ dữ liệu doanh nghiệp không có nhóm luật và cảnh báo; chạy các nhóm cảnh báo của bộ công khai trên bản doanh nghiệp hoặc quay chương dùng chung trên bộ công khai."
+          ]
+        },
+        "contractors": {
+          "groups": [],
+          "gaps": [
+            "Bộ dữ liệu doanh nghiệp không có nhóm nhà thầu; cần nhóm bổ sung hoặc dùng cảnh quay chung."
+          ]
+        },
+        "process-tree": {
+          "groups": [],
+          "gaps": [
+            "Bộ dữ liệu doanh nghiệp không có nhóm quy trình gói thầu; cần chạy nhóm quy trình trên bản doanh nghiệp hoặc dùng cảnh quay chung."
+          ]
+        },
+        "phone": {
+          "groups": [
+            "clip-ent-projects",
+            "clip-ent-directives"
+          ],
+          "gaps": [
+            "Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu."
+          ]
+        },
+        "close": {
+          "groups": []
+        },
+        "contractors-plus": {
+          "groups": [
+            "clip-ent-vendor",
+            "clip-ent-procurement",
+            "clip-ent-contracts"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "contractor-portal": {
+          "groups": [
+            "clip-ent-vendor"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "claims-warnings": {
+          "groups": [
+            "clip-ent-claims",
+            "clip-ent-contracts"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "alerts-plus": {
+          "groups": [
+            "clip-ent-alert-governance"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "delegation": {
+          "groups": [
+            "clip-ent-alert-governance"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "audit-controls": {
+          "groups": [
+            "clip-ent-audit-controls"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "risk-forecast": {
+          "groups": [
+            "clip-ent-fund-forecast",
+            "clip-ent-risk-lookahead",
+            "clip-ent-bi",
+            "clip-ent-funding"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "project-life": {
+          "groups": [
+            "clip-ent-projects",
+            "clip-ent-lifecycle"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "reports-close": {
+          "groups": [
+            "clip-ent-funding",
+            "clip-ent-reports-close"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "ent-cycle": {
+          "groups": [
+            "clip-ent-snapshot-close",
+            "clip-ent-narrative",
+            "clip-ent-approval-push",
+            "clip-ent-org-pack",
+            "clip-ent-codes",
+            "clip-ent-cross-compare-pdf",
+            "clip-ent-calendar",
+            "clip-ent-presentation",
+            "clip-ent-equipment-audit"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "procurement-desk": {
+          "groups": [
+            "clip-ent-procurement",
+            "clip-ent-bid-analysis"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "contract-delivery": {
+          "groups": [
+            "clip-ent-contracts",
+            "clip-ent-contract-site"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "field-ops": {
+          "groups": [
+            "clip-ent-field"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "docs-ai-plus": {
+          "groups": [
+            "clip-ent-docs-ai",
+            "clip-ent-documents"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "correspondence": {
+          "groups": [
+            "clip-ent-correspondence"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "integration": {
+          "groups": [
+            "clip-ent-integration",
+            "clip-ent-ebs"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "platform": {
+          "groups": [
+            "clip-ent-platform"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "phone-plus": {
+          "groups": [
+            "clip-ent-phone-extra"
+          ],
+          "gaps": [
+            "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
+          ]
+        },
+        "features-tour": {
+          "groups": []
+        }
+      },
+      "plannedGroups": {
+        "clip-ent-vendor": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Nhà thầu minh họa có kỳ tài chính, khai quan hệ cá nhân, sổ bảo đảm, hạng rủi ro, chứng chỉ, sự kiện uy tín; liên kết đầu mối và sàng lọc; tài khoản thành viên khách contractorUser, thư mời, yêu cầu, đánh giá và kế hoạch khắc phục."
+          ]
+        },
+        "clip-ent-claims": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Điều khoản claim, claim ở nhiều trạng thái, cảnh báo sớm hợp đồng có đánh giá và biện pháp, đồng hồ quyết toán hợp đồng cho 8 hợp đồng của bộ doanh nghiệp."
+          ]
+        },
+        "clip-ent-alert-governance": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Cảnh báo leo thang, người vắng mặt có người thay, thiết lập cá nhân, thang kênh, phản hồi cảnh báo sai, ủy quyền vĩnh viễn và làm thay đã duyệt."
+          ]
+        },
+        "clip-ent-audit-controls": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Cuộc kiểm toán nội bộ có phát hiện và kiến nghị; chạy quét red flag; tố giác và sổ quà tặng."
+          ]
+        },
+        "clip-ent-fund-forecast": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Lô số liệu vốn theo kỳ của doanh nghiệp, dự báo và độ chính xác, nhật ký quyết định, dự án dừng có kế hoạch khởi động lại."
+          ]
+        },
+        "clip-ent-risk-lookahead": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Chạy chấm lại rủi ro dự án, kế hoạch nhìn trước đã công bố, bài học kinh nghiệm, bộ chỉ tiêu hiệu quả đã chốt và số thực."
+          ]
+        },
+        "clip-ent-docs-ai": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Kho hồ sơ dự án có phiên bản và luồng duyệt, phiếu chuyển giao, lượt hỏi trợ lý AI có trích dẫn trên máy chủ của đơn vị, danh mục kiểm, chính sách phân loại dữ liệu."
+          ]
+        },
+        "clip-ent-correspondence": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Văn bản đi và đến của doanh nghiệp ở các bước, quy tắc bảo quản."
+          ]
+        },
+        "clip-ent-integration": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Bộ kết nối của Hub (HPM, EBS, kho dữ liệu), tài khoản máy và tài khoản BI, mục đối chiếu mã dự án, hợp đồng dữ liệu và sản phẩm dữ liệu."
+          ]
+        },
+        "clip-ent-field": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Vướng mắc, nhật ký thi công, chất lượng, giấy phép, bàn giao tài sản của các dự án doanh nghiệp (không có giải phóng mặt bằng cho dự án mua sắm thiết bị)."
+          ]
+        },
+        "clip-ent-lifecycle": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Đề xuất chủ trương, thẩm định, cấu trúc công việc, điều chỉnh, phân công lãnh đạo và yêu cầu giải trình cho dự án doanh nghiệp."
+          ]
+        },
+        "clip-ent-reports-close": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Lô số liệu theo kỳ, một kỳ đã chốt có chữ ký số và một lần mở lại, tệp Excel nhập qua bảng ánh xạ, luồng duyệt dựng bằng giao diện."
+          ]
+        },
+        "clip-ent-bid-analysis": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Gói thầu có hồ sơ dự thầu nhiều tệp đã qua OCR và một lượt phân tích AI có dẫn chứng."
+          ]
+        },
+        "clip-ent-contract-site": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Hợp đồng có yêu cầu thay đổi, phụ lục, khối lượng, chất lượng và nghiệm thu đã ghi."
+          ]
+        },
+        "clip-ent-platform": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Chủ đề và biểu trưng của doanh nghiệp, mã trùng chờ hợp nhất, sự cố chất lượng dữ liệu, mẫu thông báo, lịch sử sao lưu."
+          ]
+        },
+        "clip-ent-phone-extra": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Tài khoản cán bộ và lãnh đạo có dữ liệu cho các màn điện thoại còn lại; phim quay trên máy ảo theo tên cảnh trong thư mục phone-ent."
+          ]
+        },
+        "clip-ent-snapshot-close": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-3a: kế hoạch vốn và chỉ tiêu đã nhập đủ cho một kỳ để dựng và chốt ảnh chụp doanh nghiệp, cùng một kỳ còn thiếu để quay lời từ chối."
+          ]
+        },
+        "clip-ent-narrative": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-3b: thuyết minh tám mục của kỳ trước, danh mục nguyên nhân chuẩn và kết quả chỉ đạo giao ban của kỳ."
+          ]
+        },
+        "clip-ent-approval-push": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-3c: luồng duyệt có bước đẩy HPM đang chờ biên nhận, một lần bị từ chối."
+          ]
+        },
+        "clip-ent-org-pack": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-3d: gói tổ chức mẫu chín đầu mối nạp qua đường nhập chuyển đổi (chạy thử, áp dụng bởi người khác)."
+          ]
+        },
+        "clip-ent-codes": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-3e: mục đối chiếu mã dự án EBS và HPM, danh mục loại dự án và nguồn kế hoạch mới."
+          ]
+        },
+        "clip-ent-cross-compare-pdf": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-4a và ENT-4b: một kỳ có hai loại báo cáo lệch nhau, cấu hình bố cục đã lưu, bản PDF đã sinh."
+          ]
+        },
+        "clip-ent-calendar": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-4c: lịch kỳ có hạn từng bước và nhắc việc đã gửi, chỉ đạo giao ban cho màn PWA."
+          ]
+        },
+        "clip-ent-presentation": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-4d: kế hoạch enterprise theo công ty, đơn vị, dự án và số cùng kỳ năm trước."
+          ]
+        },
+        "clip-ent-equipment-audit": {
+          "proof": "NOT_DONE",
+          "needs": [
+            "Làn ENT-4e: gói mua sắm thiết bị của Ban Thương mại, chính sách chi tiết nhật ký đã bật, danh mục tỷ giá."
+          ]
+        }
       }
     }
   }

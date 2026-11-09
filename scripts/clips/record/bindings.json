@@ -84,6 +84,12 @@
       "snooze": [
         "role:button:Hoãn|Tạm hoãn"
       ],
+      "reply": [
+        "role:button:Trả lời|Phản hồi|Gửi"
+      ],
+      "return-comment": [
+        "role:button:Trả lại|Yêu cầu sửa"
+      ],
       "ask": [
         "role:button:Hỏi|Gửi câu hỏi|Gửi"
       ],
