@@ -113,6 +113,8 @@ test.describe('PRJ-01 to PRJ-03 project register', () => {
 
     // The register lists it in its stage with the badge of the missing national code, and the filters narrow the list.
     await page.goto(`/prj/prj-01?devUser=projectManager`);
+    // The register pages by code (20 a page) and the specs of the same run leave many projects behind: the person looks the code up, as in a register of hundreds.
+    await field(page, vi['prj.list.query.label']).fill(code);
     const row = page.locator('tr[data-project-id]', { hasText: code });
     await expect(row).toBeVisible();
     await expect(row.getByTestId('stage')).toHaveText(vi['prj.stage.concept.label']);
