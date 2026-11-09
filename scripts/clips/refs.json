@@ -2,6 +2,22 @@
   "schema": "clip-refs/1",
   "note": "Symbolic UI references of the scenario step lists. The recorder spec binds each to a locator (a test id, a role and name from the string tables, or a component hook). Descriptions are in English.",
   "refs": {
+    "adm.absence.cover-list": {
+      "screen": "ADM-28",
+      "what": "absence / cover list (adm)"
+    },
+    "adm.absence.coverage-gaps": {
+      "screen": "ADM-28",
+      "what": "absence / coverage gaps (adm)"
+    },
+    "adm.acting.limits": {
+      "screen": "ADM-26",
+      "what": "acting / limits (adm)"
+    },
+    "adm.acting.request": {
+      "screen": "ADM-26",
+      "what": "acting / request (adm)"
+    },
     "adm.alert-types.first-row": {
       "screen": "ADM-23",
       "what": "alert types / first row (adm)"
@@ -10,13 +26,77 @@
       "screen": "ADM-23",
       "what": "alert types / required fields (adm)"
     },
+    "adm.approval.push-step": {
+      "screen": "ADM-18",
+      "what": "approval / push step (adm)"
+    },
     "adm.audit-log.latest-rows": {
       "screen": "ADM-11",
       "what": "audit log / latest rows (adm)"
     },
+    "adm.audit.before-after-detail": {
+      "screen": "ADM-11",
+      "what": "audit / before after detail (adm)"
+    },
+    "adm.common.catalogues": {
+      "screen": "ADM-05",
+      "what": "common / catalogues (adm)"
+    },
+    "adm.common.digital-signature": {
+      "screen": "ADM-08",
+      "what": "common / digital signature (adm)"
+    },
+    "adm.common.working-calendar": {
+      "screen": "ADM-07",
+      "what": "common / working calendar (adm)"
+    },
     "adm.delegation.coverage-check": {
       "screen": "ADM-04",
       "what": "delegation / coverage check (adm)"
+    },
+    "adm.delegation.permanent-request": {
+      "screen": "ADM-25",
+      "what": "delegation / permanent request (adm)"
+    },
+    "adm.delegation.temporary": {
+      "screen": "ADM-04",
+      "what": "delegation / temporary (adm)"
+    },
+    "adm.org.guest-members": {
+      "screen": "ADM-17",
+      "what": "org / guest members (adm)"
+    },
+    "adm.org.reorganise": {
+      "screen": "ADM-16",
+      "what": "org / reorganise (adm)"
+    },
+    "adm.org.roles-permissions": {
+      "screen": "ADM-03",
+      "what": "org / roles permissions (adm)"
+    },
+    "adm.org.tree": {
+      "screen": "ADM-01",
+      "what": "org / tree (adm)"
+    },
+    "adm.org.users-invite": {
+      "screen": "ADM-02",
+      "what": "org / users invite (adm)"
+    },
+    "adm.period-scope.grants": {
+      "screen": "ADM-27",
+      "what": "period scope / grants (adm)"
+    },
+    "adm.period-scope.period-codes": {
+      "screen": "ADM-27",
+      "what": "period scope / period codes (adm)"
+    },
+    "adm.rules.compare-versions": {
+      "screen": "ADM-22",
+      "what": "rules / compare versions (adm)"
+    },
+    "adm.rules.draft-version": {
+      "screen": "ADM-21",
+      "what": "rules / draft version (adm)"
     },
     "adm.rules.funding-taxonomy": {
       "screen": "ADM-19",
@@ -25,6 +105,30 @@
     "adm.security.sso-mfa": {
       "screen": "ADM-11",
       "what": "security / sso mfa (adm)"
+    },
+    "adm.sync.integration-mapping": {
+      "screen": "ADM-09",
+      "what": "sync / integration mapping (adm)"
+    },
+    "adm.sync.migration-batch": {
+      "screen": "ADM-13",
+      "what": "sync / migration batch (adm)"
+    },
+    "adm.sync.monitoring": {
+      "screen": "ADM-10",
+      "what": "sync / monitoring (adm)"
+    },
+    "adm.sync.retention": {
+      "screen": "ADM-12",
+      "what": "sync / retention (adm)"
+    },
+    "adm.workflow.authority-matrix": {
+      "screen": "ADM-15",
+      "what": "workflow / authority matrix (adm)"
+    },
+    "adm.workflow.builder": {
+      "screen": "ADM-06",
+      "what": "workflow / builder (adm)"
     },
     "ai.assistant.ask": {
       "screen": "LLM-22",
@@ -82,13 +186,93 @@
       "screen": "HOME-02",
       "what": "snooze / reason (alerts)"
     },
+    "ast.assets.handover-list": {
+      "screen": "AST-01",
+      "what": "assets / handover list (ast)"
+    },
+    "ast.assets.minutes-defects": {
+      "screen": "AST-02",
+      "what": "assets / minutes defects (ast)"
+    },
+    "ast.assets.warranty-claims": {
+      "screen": "AST-05",
+      "what": "assets / warranty claims (ast)"
+    },
+    "ast.assets.warranty-retention": {
+      "screen": "AST-04",
+      "what": "assets / warranty retention (ast)"
+    },
+    "ast.effectiveness.trigger": {
+      "screen": "AST-07",
+      "what": "effectiveness / trigger (ast)"
+    },
+    "aud.case.header": {
+      "screen": "AUD-03",
+      "what": "case / header (aud)"
+    },
+    "aud.conclusion.intake": {
+      "screen": "AUD-04",
+      "what": "conclusion / intake (aud)"
+    },
+    "aud.evidence.upload": {
+      "screen": "AUD-09",
+      "what": "evidence / upload (aud)"
+    },
+    "aud.findings.list": {
+      "screen": "AUD-05",
+      "what": "findings / list (aud)"
+    },
+    "aud.gifts.register": {
+      "screen": "AUD-19",
+      "what": "gifts / register (aud)"
+    },
+    "aud.inspections.list": {
+      "screen": "AUD-02",
+      "what": "inspections / list (aud)"
+    },
     "aud.integrity.findings": {
       "screen": "AUD-12",
       "what": "integrity / findings (aud)"
     },
+    "aud.overdue.escalation": {
+      "screen": "AUD-11",
+      "what": "overdue / escalation (aud)"
+    },
+    "aud.overview.tiles": {
+      "screen": "AUD-01",
+      "what": "overview / tiles (aud)"
+    },
+    "aud.recommendations.assignment": {
+      "screen": "AUD-06",
+      "what": "recommendations / assignment (aud)"
+    },
+    "aud.recommendations.investor-order": {
+      "screen": "AUD-17",
+      "what": "recommendations / investor order (aud)"
+    },
+    "aud.recommendations.progress": {
+      "screen": "AUD-07",
+      "what": "recommendations / progress (aud)"
+    },
+    "aud.recovery.payment-match": {
+      "screen": "AUD-08",
+      "what": "recovery / payment match (aud)"
+    },
+    "aud.red-flag.detail": {
+      "screen": "AUD-15",
+      "what": "red flag / detail (aud)"
+    },
+    "aud.red-flag.indicator-ledger": {
+      "screen": "AUD-16",
+      "what": "red flag / indicator ledger (aud)"
+    },
     "aud.red-flags.indicator-list": {
       "screen": "AUD-14",
       "what": "red flags / indicator list (aud)"
+    },
+    "aud.whistle.channel": {
+      "screen": "AUD-18",
+      "what": "whistle / channel (aud)"
     },
     "ban.alerts.acknowledge": {
       "screen": "BAN-05",
@@ -122,6 +306,10 @@
       "screen": "BAN-01",
       "what": "dashboard / year end forecast band (committee)"
     },
+    "ban.dashboard.presentation-mode": {
+      "screen": "BAN-01",
+      "what": "dashboard / presentation mode (ban)"
+    },
     "ban.pack.roles": {
       "screen": "BAN-03",
       "what": "pack / maker, checker and approver (committee)"
@@ -137,6 +325,34 @@
     "ban.tracker.units": {
       "screen": "BAN-04",
       "what": "tracker / units with open, overdue and escalated directives (committee)"
+    },
+    "bi.bi.certified-datasets": {
+      "screen": "BI-19",
+      "what": "bi / certified datasets (bi)"
+    },
+    "bi.bottleneck.halted-projects": {
+      "screen": "BI-28",
+      "what": "bottleneck / halted projects (bi)"
+    },
+    "bi.bottleneck.held-amount": {
+      "screen": "BI-27",
+      "what": "bottleneck / held amount (bi)"
+    },
+    "bi.builder.dashboard": {
+      "screen": "BI-03",
+      "what": "builder / dashboard (bi)"
+    },
+    "bi.builder.explorer": {
+      "screen": "BI-09",
+      "what": "builder / explorer (bi)"
+    },
+    "bi.builder.metric-catalogue": {
+      "screen": "BI-05",
+      "what": "builder / metric catalogue (bi)"
+    },
+    "bi.builder.row-column-security": {
+      "screen": "BI-08",
+      "what": "builder / row column security (bi)"
     },
     "bi.chart-builder.dataset": {
       "screen": "BI-02",
@@ -158,6 +374,30 @@
       "screen": "BI-18",
       "what": "datasets / state column (bi)"
     },
+    "bi.decisions.log": {
+      "screen": "BI-22",
+      "what": "decisions / log (bi)"
+    },
+    "bi.export.scope": {
+      "screen": "BI-16",
+      "what": "export / scope (bi)"
+    },
+    "bi.forecast.backtest": {
+      "screen": "BI-30",
+      "what": "forecast / backtest (bi)"
+    },
+    "bi.forecast.year-end-band": {
+      "screen": "BI-21",
+      "what": "forecast / year end band (bi)"
+    },
+    "bi.freshness.scorecard": {
+      "screen": "BI-23",
+      "what": "freshness / scorecard (bi)"
+    },
+    "bi.heatmap.grid": {
+      "screen": "BI-29",
+      "what": "heatmap / grid (bi)"
+    },
     "bi.kpi-register.formula-panel": {
       "screen": "BI-20",
       "what": "kpi register / formula panel (bi)"
@@ -174,6 +414,18 @@
       "screen": "BI-11",
       "what": "publication / compare versions (bi)"
     },
+    "bi.ranking.annotations": {
+      "screen": "BI-26",
+      "what": "ranking / annotations (bi)"
+    },
+    "bi.ranking.multi-metric": {
+      "screen": "BI-25",
+      "what": "ranking / multi metric (bi)"
+    },
+    "bi.registry.from-code": {
+      "screen": "BI-15",
+      "what": "registry / from code (bi)"
+    },
     "bi.schedule.new": {
       "screen": "BI-12",
       "what": "schedule / new (bi)"
@@ -181,6 +433,34 @@
     "bi.schedule.recipients-scope": {
       "screen": "BI-12",
       "what": "schedule / recipients scope (bi)"
+    },
+    "bi.sharing.dashboard": {
+      "screen": "BI-17",
+      "what": "sharing / dashboard (bi)"
+    },
+    "bi.trace.source-path": {
+      "screen": "BI-24",
+      "what": "trace / source path (bi)"
+    },
+    "bid.analysis.compare-bids": {
+      "screen": "BID-10",
+      "what": "analysis / compare bids (bid)"
+    },
+    "bid.analysis.evidence-bench": {
+      "screen": "BID-09",
+      "what": "analysis / evidence bench (bid)"
+    },
+    "bid.analysis.ocr-check": {
+      "screen": "BID-06",
+      "what": "analysis / ocr check (bid)"
+    },
+    "bid.analysis.progress": {
+      "screen": "BID-08",
+      "what": "analysis / progress (bid)"
+    },
+    "bid.analysis.run-config": {
+      "screen": "BID-07",
+      "what": "analysis / run config (bid)"
     },
     "bid.board.column-totals": {
       "screen": "BID-28",
@@ -274,9 +554,37 @@
       "screen": "BID-33",
       "what": "egp / recon / resolution (bid)"
     },
+    "bid.evaluation.clarification": {
+      "screen": "BID-11",
+      "what": "evaluation / clarification (bid)"
+    },
+    "bid.evaluation.contract-handover": {
+      "screen": "BID-14",
+      "what": "evaluation / contract handover (bid)"
+    },
+    "bid.evaluation.expert-review": {
+      "screen": "BID-12",
+      "what": "evaluation / expert review (bid)"
+    },
+    "bid.evaluation.minutes": {
+      "screen": "BID-13",
+      "what": "evaluation / minutes (bid)"
+    },
+    "bid.package.criteria": {
+      "screen": "BID-04",
+      "what": "package / criteria (bid)"
+    },
+    "bid.package.intake": {
+      "screen": "BID-05",
+      "what": "package / intake (bid)"
+    },
     "bid.package.required-items": {
       "screen": "BID-29",
       "what": "package / required items (bid)"
+    },
+    "bid.package.setup": {
+      "screen": "BID-03",
+      "what": "package / setup (bid)"
     },
     "bid.package.stepper": {
       "screen": "BID-29",
@@ -293,6 +601,34 @@
     "bid.package.timeline-import-entry": {
       "screen": "BID-29",
       "what": "package / timeline import entry (bid)"
+    },
+    "bid.petitions.outcomes": {
+      "screen": "BID-34",
+      "what": "petitions / outcomes (bid)"
+    },
+    "bid.plan.adjust": {
+      "screen": "BID-16",
+      "what": "plan / adjust (bid)"
+    },
+    "bid.plan.milestones": {
+      "screen": "BID-17",
+      "what": "plan / milestones (bid)"
+    },
+    "bid.plan.result-approval": {
+      "screen": "BID-18",
+      "what": "plan / result approval (bid)"
+    },
+    "bid.plan.selection-plan": {
+      "screen": "BID-15",
+      "what": "plan / selection plan (bid)"
+    },
+    "bid.protests.list": {
+      "screen": "BID-20",
+      "what": "protests / list (bid)"
+    },
+    "bid.protests.outcome": {
+      "screen": "BID-34",
+      "what": "protests / outcome (bid)"
     },
     "bid.restrictions.from-file-difference": {
       "screen": "BID-21",
@@ -330,6 +666,66 @@
       "screen": "BID-27",
       "what": "tree / panel tab packages (bid)"
     },
+    "cap.capital.allocation": {
+      "screen": "CAP-06",
+      "what": "capital / allocation (cap)"
+    },
+    "cap.capital.allocation-decisions": {
+      "screen": "CAP-05",
+      "what": "capital / allocation decisions (cap)"
+    },
+    "cap.capital.carry-over": {
+      "screen": "CAP-11",
+      "what": "capital / carry over (cap)"
+    },
+    "cap.capital.mid-term": {
+      "screen": "CAP-01",
+      "what": "capital / mid term (cap)"
+    },
+    "cap.capital.monthly-registration": {
+      "screen": "CAP-08",
+      "what": "capital / monthly registration (cap)"
+    },
+    "cap.capital.option": {
+      "screen": "CAP-02",
+      "what": "capital / option (cap)"
+    },
+    "cap.capital.plan-approval": {
+      "screen": "CAP-10",
+      "what": "capital / plan approval (cap)"
+    },
+    "cap.capital.plan-tracking": {
+      "screen": "CAP-15",
+      "what": "capital / plan tracking (cap)"
+    },
+    "cap.capital.sources": {
+      "screen": "CAP-04",
+      "what": "capital / sources (cap)"
+    },
+    "cap.control.available-limit": {
+      "screen": "CAP-17",
+      "what": "control / available limit (cap)"
+    },
+    "cap.control.contract-cost-forecast": {
+      "screen": "CAP-22",
+      "what": "control / contract cost forecast (cap)"
+    },
+    "cap.control.estimate-ledger": {
+      "screen": "CAP-16",
+      "what": "control / estimate ledger (cap)"
+    },
+    "cap.control.extension": {
+      "screen": "CAP-20",
+      "what": "control / extension (cap)"
+    },
+    "cap.control.hold-before-commitment": {
+      "screen": "CAP-18",
+      "what": "control / hold before commitment (cap)"
+    },
+    "cap.control.ledger-as-of": {
+      "screen": "CAP-21",
+      "what": "control / ledger as of (cap)"
+    },
     "cap.estimates.conversion-history": {
       "screen": "CAP-12",
       "what": "estimates / conversion history (cap)"
@@ -342,6 +738,14 @@
       "screen": "CAP-19",
       "what": "realloc / simulate (cap)"
     },
+    "cap.transfer.impact-simulation": {
+      "screen": "CAP-23",
+      "what": "transfer / impact simulation (cap)"
+    },
+    "cap.transfer.performance-proposal": {
+      "screen": "CAP-23",
+      "what": "transfer / performance proposal (cap)"
+    },
     "cap.versions.compare": {
       "screen": "CAP-03",
       "what": "versions / compare (cap)"
@@ -349,6 +753,54 @@
     "ctr.change-chain.board": {
       "screen": "CTR-19",
       "what": "change chain / board (ctr)"
+    },
+    "ctr.change.addendum-compare": {
+      "screen": "CTR-08",
+      "what": "change / addendum compare (ctr)"
+    },
+    "ctr.change.request": {
+      "screen": "CTR-07",
+      "what": "change / request (ctr)"
+    },
+    "ctr.change.suspend-terminate": {
+      "screen": "CTR-22",
+      "what": "change / suspend terminate (ctr)"
+    },
+    "ctr.change.tier-config": {
+      "screen": "CTR-20",
+      "what": "change / tier config (ctr)"
+    },
+    "ctr.claims.limitation-clock": {
+      "screen": "CTR-33",
+      "what": "claims / limitation clock (ctr)"
+    },
+    "ctr.claims.register": {
+      "screen": "CTR-32",
+      "what": "claims / register (ctr)"
+    },
+    "ctr.claims.term-approval": {
+      "screen": "CTR-34",
+      "what": "claims / term approval (ctr)"
+    },
+    "ctr.claims.timeline": {
+      "screen": "CTR-32",
+      "what": "claims / timeline (ctr)"
+    },
+    "ctr.closeout.completion-handover": {
+      "screen": "CTR-15",
+      "what": "closeout / completion handover (ctr)"
+    },
+    "ctr.closeout.contractor-export": {
+      "screen": "CTR-24",
+      "what": "closeout / contractor export (ctr)"
+    },
+    "ctr.closeout.delay-compensation": {
+      "screen": "CTR-14",
+      "what": "closeout / delay compensation (ctr)"
+    },
+    "ctr.closeout.warranty": {
+      "screen": "CTR-16",
+      "what": "closeout / warranty (ctr)"
     },
     "ctr.closure.checklist": {
       "screen": "CTR-17",
@@ -362,9 +814,33 @@
       "screen": "CTR-31",
       "what": "concentration / top5 table (ctr)"
     },
+    "ctr.contract.advance-schedule": {
+      "screen": "CTR-06",
+      "what": "contract / advance schedule (ctr)"
+    },
+    "ctr.contract.boq-milestones": {
+      "screen": "CTR-04",
+      "what": "contract / boq milestones (ctr)"
+    },
+    "ctr.contract.drafting-signing": {
+      "screen": "CTR-02",
+      "what": "contract / drafting signing (ctr)"
+    },
+    "ctr.contract.versions": {
+      "screen": "CTR-26",
+      "what": "contract / versions (ctr)"
+    },
     "ctr.guarantees.expiry-column": {
       "screen": "CTR-05",
       "what": "guarantees / expiry column (ctr)"
+    },
+    "ctr.links.contract-map": {
+      "screen": "CTR-39",
+      "what": "links / contract map (ctr)"
+    },
+    "ctr.performance.proposal": {
+      "screen": "CTR-37",
+      "what": "performance / proposal (ctr)"
     },
     "ctr.portfolio.first-row": {
       "screen": "CTR-01",
@@ -390,6 +866,78 @@
       "screen": "CTR-28",
       "what": "report hub / export xlsx (ctr)"
     },
+    "ctr.scorecard.contractor": {
+      "screen": "CTR-23",
+      "what": "scorecard / contractor list (ctr)"
+    },
+    "ctr.scorecard.view": {
+      "screen": "CTR-23",
+      "what": "scorecard / show (ctr)"
+    },
+    "ctr.settlement.clock-list": {
+      "screen": "CTR-38",
+      "what": "settlement / clock list (ctr)"
+    },
+    "ctr.site.acceptance": {
+      "screen": "CTR-12",
+      "what": "site / acceptance (ctr)"
+    },
+    "ctr.site.diary": {
+      "screen": "CTR-09",
+      "what": "site / diary (ctr)"
+    },
+    "ctr.site.payment-value": {
+      "screen": "CTR-13",
+      "what": "site / payment value (ctr)"
+    },
+    "ctr.site.quality-ncr": {
+      "screen": "CTR-11",
+      "what": "site / quality ncr (ctr)"
+    },
+    "ctr.site.quantities": {
+      "screen": "CTR-10",
+      "what": "site / quantities (ctr)"
+    },
+    "ctr.warnings.assessment": {
+      "screen": "CTR-36",
+      "what": "warnings / assessment (ctr)"
+    },
+    "ctr.warnings.register": {
+      "screen": "CTR-35",
+      "what": "warnings / register (ctr)"
+    },
+    "dgv.data-contract.change-approval": {
+      "screen": "DGV-19",
+      "what": "data contract / change approval (dgv)"
+    },
+    "dgv.data-contract.schema": {
+      "screen": "DGV-13",
+      "what": "data contract / schema (dgv)"
+    },
+    "dgv.data-product.certification": {
+      "screen": "DGV-18",
+      "what": "data product / certification (dgv)"
+    },
+    "dgv.pipeline.mapping": {
+      "screen": "DGV-14",
+      "what": "pipeline / mapping (dgv)"
+    },
+    "dgv.quality.control-room": {
+      "screen": "DGV-01",
+      "what": "quality / control room (dgv)"
+    },
+    "dgv.quality.glossary": {
+      "screen": "DGV-02",
+      "what": "quality / glossary (dgv)"
+    },
+    "dgv.quality.incidents": {
+      "screen": "DGV-08",
+      "what": "quality / incidents (dgv)"
+    },
+    "dgv.quality.rules": {
+      "screen": "DGV-06",
+      "what": "quality / rules (dgv)"
+    },
     "dir.board.first-overdue": {
       "screen": "DIR-01",
       "what": "board / first overdue (dir)"
@@ -410,9 +958,81 @@
       "screen": "DIR-01",
       "what": "meeting / directive list (dir)"
     },
+    "dir.sign.directives": {
+      "screen": "DIR-06",
+      "what": "sign / directives (dir)"
+    },
+    "dis.calendar.configurable": {
+      "screen": "DIS-14",
+      "what": "calendar / configurable (dis)"
+    },
+    "dis.calendar.investor-total": {
+      "screen": "DIS-12",
+      "what": "calendar / investor total (dis)"
+    },
+    "dis.calendar.periods": {
+      "screen": "DIS-14",
+      "what": "calendar / periods (dis)"
+    },
+    "dis.calendar.submission-board": {
+      "screen": "DIS-15",
+      "what": "calendar / submission board (dis)"
+    },
+    "dis.definitions.cross-check": {
+      "screen": "DIS-26",
+      "what": "definitions / cross check (dis)"
+    },
+    "dis.definitions.golden": {
+      "screen": "DIS-25",
+      "what": "definitions / golden (dis)"
+    },
+    "dis.definitions.two-rates": {
+      "screen": "DIS-19",
+      "what": "definitions / two rates (dis)"
+    },
+    "dis.entry.bulk": {
+      "screen": "DIS-10",
+      "what": "entry / bulk (dis)"
+    },
+    "dis.entry.full-table": {
+      "screen": "DIS-16",
+      "what": "entry / full table (dis)"
+    },
+    "dis.export.formats": {
+      "screen": "DIS-17",
+      "what": "export / formats (dis)"
+    },
+    "dis.export.preview": {
+      "screen": "DIS-17",
+      "what": "export / preview (dis)"
+    },
+    "dis.figures.batch-approval": {
+      "screen": "DIS-28",
+      "what": "figures / batch approval (dis)"
+    },
+    "dis.figures.conversion-history": {
+      "screen": "DIS-29",
+      "what": "figures / conversion history (dis)"
+    },
+    "dis.figures.period-table": {
+      "screen": "DIS-27",
+      "what": "figures / period table (dis)"
+    },
+    "dis.forecast.accuracy": {
+      "screen": "DIS-31",
+      "what": "forecast / accuracy (dis)"
+    },
     "dis.forecast.band": {
       "screen": "HOME-09",
       "what": "forecast / band (dis)"
+    },
+    "dis.forecast.milestones": {
+      "screen": "DIS-30",
+      "what": "forecast / milestones (dis)"
+    },
+    "dis.forecast.weekly-plan": {
+      "screen": "DIS-24",
+      "what": "forecast / weekly plan (dis)"
     },
     "dis.freeze.snapshot-hash": {
       "screen": "DIS-21",
@@ -422,6 +1042,26 @@
       "screen": "DIS-03",
       "what": "funding / matrix (dis)"
     },
+    "dis.history.compare": {
+      "screen": "DIS-11",
+      "what": "history / compare (dis)"
+    },
+    "dis.history.monthly-narrative": {
+      "screen": "DIS-13",
+      "what": "history / monthly narrative (dis)"
+    },
+    "dis.narrative.cause-list": {
+      "screen": "DIS-13",
+      "what": "narrative / cause list (dis)"
+    },
+    "dis.narrative.eight-fields": {
+      "screen": "DIS-13",
+      "what": "narrative / eight fields (dis)"
+    },
+    "dis.narrative.inherit-previous": {
+      "screen": "DIS-13",
+      "what": "narrative / inherit previous (dis)"
+    },
     "dis.review.submit": {
       "screen": "DIS-03",
       "what": "review / submit (dis)"
@@ -430,9 +1070,77 @@
       "screen": "DIS-06",
       "what": "review / warnings (dis)"
     },
+    "dis.snapshot.build-close": {
+      "screen": "DIS-21",
+      "what": "snapshot / build close (dis)"
+    },
+    "dis.snapshot.figures": {
+      "screen": "DIS-27",
+      "what": "snapshot / figures (dis)"
+    },
+    "dis.snapshot.missing-units": {
+      "screen": "DIS-21",
+      "what": "snapshot / missing units (dis)"
+    },
     "dis.warning-rules.version-column": {
       "screen": "DIS-20",
       "what": "warning rules / version column (dis)"
+    },
+    "doc.archive.files": {
+      "screen": "DOC-17",
+      "what": "archive / files (doc)"
+    },
+    "doc.archive.numbering-books": {
+      "screen": "DOC-21",
+      "what": "archive / numbering books (doc)"
+    },
+    "doc.archive.overview": {
+      "screen": "DOC-01",
+      "what": "archive / overview (doc)"
+    },
+    "doc.archive.retention-rules": {
+      "screen": "DOC-18",
+      "what": "archive / retention rules (doc)"
+    },
+    "doc.compare.diff-view": {
+      "screen": "DOC-27",
+      "what": "compare / diff view (doc)"
+    },
+    "doc.compare.versions": {
+      "screen": "DOC-27",
+      "what": "compare / versions (doc)"
+    },
+    "doc.incoming.handling": {
+      "screen": "DOC-13",
+      "what": "incoming / handling (doc)"
+    },
+    "doc.incoming.intake": {
+      "screen": "DOC-11",
+      "what": "incoming / intake (doc)"
+    },
+    "doc.incoming.register-assign": {
+      "screen": "DOC-12",
+      "what": "incoming / register assign (doc)"
+    },
+    "doc.issue.distribution": {
+      "screen": "DOC-08",
+      "what": "issue / distribution (doc)"
+    },
+    "doc.issue.interconnect": {
+      "screen": "DOC-20",
+      "what": "issue / interconnect (doc)"
+    },
+    "doc.issue.outgoing-register": {
+      "screen": "DOC-10",
+      "what": "issue / outgoing register (doc)"
+    },
+    "doc.issue.recall-correct": {
+      "screen": "DOC-19",
+      "what": "issue / recall correct (doc)"
+    },
+    "doc.outgoing.draft": {
+      "screen": "DOC-02",
+      "what": "outgoing / draft (doc)"
     },
     "doc.repo.first-file": {
       "screen": "DOC-24",
@@ -442,13 +1150,85 @@
       "screen": "DOC-24",
       "what": "repo / ocr citation (doc)"
     },
+    "doc.review-board.return": {
+      "screen": "DOC-26",
+      "what": "review board / return (doc)"
+    },
+    "doc.review-board.stages": {
+      "screen": "DOC-26",
+      "what": "review board / stages (doc)"
+    },
     "doc.review.stage-bar": {
       "screen": "DOC-24",
       "what": "review / stage bar (doc)"
     },
+    "doc.sign.documents": {
+      "screen": "DOC-22",
+      "what": "sign / documents (doc)"
+    },
+    "doc.sign.incoming": {
+      "screen": "DOC-23",
+      "what": "sign / incoming (doc)"
+    },
+    "doc.signing.leader-sign": {
+      "screen": "DOC-05",
+      "what": "signing / leader sign (doc)"
+    },
+    "doc.signing.number-and-seal": {
+      "screen": "DOC-06",
+      "what": "signing / number and seal (doc)"
+    },
+    "doc.signing.review": {
+      "screen": "DOC-04",
+      "what": "signing / review (doc)"
+    },
+    "doc.signing.verify": {
+      "screen": "DOC-07",
+      "what": "signing / verify (doc)"
+    },
+    "doc.templates.layout-rules": {
+      "screen": "DOC-16",
+      "what": "templates / layout rules (doc)"
+    },
+    "doc.templates.library": {
+      "screen": "DOC-14",
+      "what": "templates / library (doc)"
+    },
+    "doc.transmittal.review-deadline": {
+      "screen": "DOC-29",
+      "what": "transmittal / review deadline (doc)"
+    },
+    "doc.transmittal.state-board": {
+      "screen": "DOC-28",
+      "what": "transmittal / state board (doc)"
+    },
+    "doc.viewer.citation-id": {
+      "screen": "DOC-25",
+      "what": "viewer / citation id (doc)"
+    },
+    "doc.viewer.document": {
+      "screen": "DOC-25",
+      "what": "viewer / document (doc)"
+    },
+    "ebs.connection.dry-run": {
+      "screen": "EBS-01",
+      "what": "connection / dry run (ebs)"
+    },
+    "ebs.connection.file-import": {
+      "screen": "EBS-01",
+      "what": "connection / file import (ebs)"
+    },
+    "ebs.connection.status": {
+      "screen": "EBS-01",
+      "what": "connection / status (ebs)"
+    },
     "ebs.reconcile.difference-rows": {
       "screen": "EBS-02",
       "what": "reconcile / difference rows (ebs)"
+    },
+    "ent.calendar.step-board": {
+      "screen": "planned:ent-calendar-board",
+      "what": "calendar / step board (ent)"
     },
     "ent.capital.estimate-to-actual": {
       "screen": "HOME-07",
@@ -458,6 +1238,14 @@
       "screen": "HOME-07",
       "what": "capital / structure bar (ent)"
     },
+    "ent.cross-compare.gap-explanation": {
+      "screen": "planned:ent-cross-compare",
+      "what": "cross compare / gap explanation (ent)"
+    },
+    "ent.cross-compare.report-types": {
+      "screen": "planned:ent-cross-compare",
+      "what": "cross compare / report types (ent)"
+    },
     "ent.dictionary.indicator-row": {
       "screen": "IND-01",
       "what": "dictionary / indicator row (ent)"
@@ -466,9 +1254,29 @@
       "screen": "IND-01",
       "what": "entry rules / violation hint (ent)"
     },
+    "ent.equipment.delay-causes": {
+      "screen": "planned:ent-equipment-procurement",
+      "what": "equipment / delay causes (ent)"
+    },
+    "ent.equipment.package-list": {
+      "screen": "planned:ent-equipment-procurement",
+      "what": "equipment / package list (ent)"
+    },
     "ent.home.kpi-strip": {
       "screen": "HOME-09",
       "what": "home / kpi strip (ent)"
+    },
+    "ent.layout.config-editor": {
+      "screen": "planned:ent-layout-config",
+      "what": "layout / config editor (ent)"
+    },
+    "ent.org-pack.input-points": {
+      "screen": "planned:ent-org-pack",
+      "what": "org pack / input points (ent)"
+    },
+    "ent.org-pack.roles": {
+      "screen": "planned:ent-org-pack",
+      "what": "org pack / roles (ent)"
     },
     "feed.connection.health": {
       "screen": "FEED-01",
@@ -494,6 +1302,14 @@
       "screen": "HOME-09",
       "what": "context bar (home)"
     },
+    "home.dashboard.enterprise-rates": {
+      "screen": "HOME-01",
+      "what": "dashboard / enterprise rates (home)"
+    },
+    "home.deferred.list": {
+      "screen": "HOME-12",
+      "what": "deferred / list (home)"
+    },
     "home.drill.first-unit": {
       "screen": "HOME-10",
       "what": "drill / first unit (home)"
@@ -501,6 +1317,22 @@
     "home.drill.record-link": {
       "screen": "HOME-10",
       "what": "drill / record link (home)"
+    },
+    "home.early-warning.rules": {
+      "screen": "HOME-03",
+      "what": "early warning / rules (home)"
+    },
+    "home.feedback.queue": {
+      "screen": "HOME-30",
+      "what": "feedback / queue (home)"
+    },
+    "home.lifecycle.closed-reopened": {
+      "screen": "HOME-31",
+      "what": "lifecycle / closed reopened (home)"
+    },
+    "home.lifecycle.flood-group": {
+      "screen": "HOME-31",
+      "what": "lifecycle / flood group (home)"
     },
     "home.map.first-marker": {
       "screen": "HOME-05",
@@ -526,6 +1358,18 @@
       "screen": "HOME-10",
       "what": "rate tiles / drill link (home)"
     },
+    "hpm.correction.new-version": {
+      "screen": "HPM-02",
+      "what": "correction / new version (hpm)"
+    },
+    "hpm.correction.reason": {
+      "screen": "HPM-02",
+      "what": "correction / reason (hpm)"
+    },
+    "hpm.push.awaiting-receipt": {
+      "screen": "HPM-01",
+      "what": "push / awaiting receipt (hpm)"
+    },
     "hpm.push.idempotency-key": {
       "screen": "HPM-01",
       "what": "push / idempotency key (hpm)"
@@ -538,33 +1382,421 @@
       "screen": "HPM-01",
       "what": "push / stale refusal (hpm)"
     },
+    "hub.catalogue.connector-list": {
+      "screen": "HUB-01",
+      "what": "catalogue / connector list (hub)"
+    },
+    "hub.catalogue.health-summary": {
+      "screen": "HUB-01",
+      "what": "catalogue / health summary (hub)"
+    },
+    "hub.connector.freshness-rule": {
+      "screen": "HUB-02",
+      "what": "connector / freshness rule (hub)"
+    },
+    "hub.connector.tabs": {
+      "screen": "HUB-02",
+      "what": "connector / tabs (hub)"
+    },
+    "hub.incidents.log": {
+      "screen": "HUB-03",
+      "what": "incidents / log (hub)"
+    },
+    "iam.access.choose-organisation": {
+      "screen": "IAM-04",
+      "what": "access / choose organisation (iam)"
+    },
+    "iam.access.effective-scope": {
+      "screen": "IAM-09",
+      "what": "access / effective scope (iam)"
+    },
+    "iam.access.global-search": {
+      "screen": "IAM-07",
+      "what": "access / global search (iam)"
+    },
+    "iam.access.sessions-devices": {
+      "screen": "IAM-06",
+      "what": "access / sessions devices (iam)"
+    },
+    "ind.entry.excel-mapping": {
+      "screen": "IND-03",
+      "what": "entry / excel mapping (ind)"
+    },
+    "int.accounts.list": {
+      "screen": "INT-01",
+      "what": "accounts / list (int)"
+    },
+    "int.accounts.scopes-keys": {
+      "screen": "INT-02",
+      "what": "accounts / scopes keys (int)"
+    },
+    "int.bi.accounts": {
+      "screen": "INT-04",
+      "what": "bi / accounts (int)"
+    },
+    "int.crosswalk.ebs-hpm-codes": {
+      "screen": "INT-03",
+      "what": "crosswalk / ebs hpm codes (int)"
+    },
+    "int.crosswalk.project-codes": {
+      "screen": "INT-03",
+      "what": "crosswalk / project codes (int)"
+    },
+    "int.open-api.access-log": {
+      "screen": "INT-05",
+      "what": "open api / access log (int)"
+    },
     "int.open-api.machine-accounts": {
       "screen": "INT-05",
       "what": "open api / machine accounts (int)"
+    },
+    "int.open-api.rate-limit": {
+      "screen": "INT-05",
+      "what": "open api / rate limit (int)"
+    },
+    "iss.issues.escalate-extend": {
+      "screen": "ISS-04",
+      "what": "issues / escalate extend (iss)"
+    },
+    "iss.issues.list": {
+      "screen": "ISS-01",
+      "what": "issues / list (iss)"
+    },
+    "iss.issues.new": {
+      "screen": "ISS-02",
+      "what": "issues / new (iss)"
+    },
+    "iss.issues.origins": {
+      "screen": "ISS-11",
+      "what": "issues / origins (iss)"
+    },
+    "iss.issues.site-check": {
+      "screen": "ISS-05",
+      "what": "issues / site check (iss)"
+    },
+    "iss.issues.sla-policy": {
+      "screen": "ISS-09",
+      "what": "issues / sla policy (iss)"
+    },
+    "iss.issues.task-force": {
+      "screen": "ISS-10",
+      "what": "issues / task force (iss)"
+    },
+    "iss.issues.weekly-matrix": {
+      "screen": "ISS-08",
+      "what": "issues / weekly matrix (iss)"
+    },
+    "iss.issues.weekly-progress": {
+      "screen": "ISS-06",
+      "what": "issues / weekly progress (iss)"
+    },
+    "iss.issues.workspace": {
+      "screen": "ISS-03",
+      "what": "issues / workspace (iss)"
+    },
+    "llm.admin.budget": {
+      "screen": "LLM-07",
+      "what": "admin / budget (llm)"
+    },
+    "llm.admin.emergency-stop": {
+      "screen": "LLM-18",
+      "what": "admin / emergency stop (llm)"
+    },
+    "llm.admin.guardrails": {
+      "screen": "LLM-15",
+      "what": "admin / guardrails (llm)"
+    },
+    "llm.admin.overview": {
+      "screen": "LLM-01",
+      "what": "admin / overview (llm)"
+    },
+    "llm.admin.routing-fallback": {
+      "screen": "LLM-05",
+      "what": "admin / routing fallback (llm)"
+    },
+    "llm.assistant.human-decision": {
+      "screen": "LLM-23",
+      "what": "assistant / human decision (llm)"
+    },
+    "llm.assistant.run-record": {
+      "screen": "LLM-23",
+      "what": "assistant / run record (llm)"
+    },
+    "llm.assistant.statements-labels": {
+      "screen": "LLM-22",
+      "what": "assistant / statements labels (llm)"
+    },
+    "llm.performance.ai-suggestion": {
+      "screen": "LLM-25",
+      "what": "performance / ai suggestion (llm)"
+    },
+    "llm.policy.data-classes": {
+      "screen": "LLM-19",
+      "what": "policy / data classes (llm)"
+    },
+    "llm.policy.exceptions": {
+      "screen": "LLM-27",
+      "what": "policy / exceptions (llm)"
+    },
+    "llm.policy.routing-log": {
+      "screen": "LLM-21",
+      "what": "policy / routing log (llm)"
+    },
+    "llm.review.checklists": {
+      "screen": "LLM-26",
+      "what": "review / checklists (llm)"
+    },
+    "llm.review.dossier-verdict": {
+      "screen": "LLM-24",
+      "what": "review / dossier verdict (llm)"
+    },
+    "lnd.land.compensation-plan": {
+      "screen": "LND-05",
+      "what": "land / compensation plan (lnd)"
+    },
+    "lnd.land.complaints": {
+      "screen": "LND-08",
+      "what": "land / complaints (lnd)"
+    },
+    "lnd.land.inventory": {
+      "screen": "LND-04",
+      "what": "land / inventory (lnd)"
+    },
+    "lnd.land.land-fund-progress": {
+      "screen": "LND-11",
+      "what": "land / land fund progress (lnd)"
+    },
+    "lnd.land.overview": {
+      "screen": "LND-01",
+      "what": "land / overview (lnd)"
+    },
+    "lnd.land.parcels": {
+      "screen": "LND-02",
+      "what": "land / parcels (lnd)"
+    },
+    "lnd.land.payments": {
+      "screen": "LND-07",
+      "what": "land / payments (lnd)"
+    },
+    "lnd.land.posting": {
+      "screen": "LND-06",
+      "what": "land / posting (lnd)"
+    },
+    "lnd.land.resettlement": {
+      "screen": "LND-12",
+      "what": "land / resettlement (lnd)"
+    },
+    "lnd.land.segment-handover": {
+      "screen": "LND-10",
+      "what": "land / segment handover (lnd)"
+    },
+    "mdm.catalogue.exchange-rates": {
+      "screen": "MDM-12",
+      "what": "catalogue / exchange rates (mdm)"
     },
     "mdm.crosswalk.multi-system-codes": {
       "screen": "BID-23",
       "what": "crosswalk / multi system codes (mdm)"
     },
+    "mdm.crosswalk.project-type-catalogue": {
+      "screen": "MDM-35",
+      "what": "crosswalk / project type catalogue (mdm)"
+    },
+    "mdm.crosswalk.records": {
+      "screen": "MDM-35",
+      "what": "crosswalk / records (mdm)"
+    },
+    "mdm.mdm.catalogue-hub": {
+      "screen": "MDM-01",
+      "what": "mdm / catalogue hub (mdm)"
+    },
+    "mdm.mdm.inheritance": {
+      "screen": "MDM-37",
+      "what": "mdm / inheritance (mdm)"
+    },
+    "mdm.mdm.merge-duplicates": {
+      "screen": "MDM-30",
+      "what": "mdm / merge duplicates (mdm)"
+    },
+    "mdm.mdm.merger-history": {
+      "screen": "MDM-02",
+      "what": "mdm / merger history (mdm)"
+    },
+    "mdm.mdm.survivorship": {
+      "screen": "MDM-36",
+      "what": "mdm / survivorship (mdm)"
+    },
+    "mne.effectiveness.target-set": {
+      "screen": "MNE-11",
+      "what": "effectiveness / target set (mne)"
+    },
+    "mne.effectiveness.variance": {
+      "screen": "MNE-11",
+      "what": "effectiveness / variance (mne)"
+    },
     "mne.evaluation.target-vs-actual": {
       "screen": "MNE-08",
       "what": "evaluation / target vs actual (mne)"
+    },
+    "mne.monitoring.corrections": {
+      "screen": "MNE-10",
+      "what": "monitoring / corrections (mne)"
+    },
+    "mne.monitoring.duty-calendar": {
+      "screen": "MNE-01",
+      "what": "monitoring / duty calendar (mne)"
+    },
+    "mne.monitoring.export-confirm": {
+      "screen": "MNE-06",
+      "what": "monitoring / export confirm (mne)"
+    },
+    "mne.monitoring.form-catalogue": {
+      "screen": "MNE-02",
+      "what": "monitoring / form catalogue (mne)"
+    },
+    "mne.monitoring.periodic-report": {
+      "screen": "MNE-03",
+      "what": "monitoring / periodic report (mne)"
+    },
+    "mne.monitoring.project-report": {
+      "screen": "MNE-04",
+      "what": "monitoring / project report (mne)"
+    },
+    "mne.monitoring.review-approve-issue": {
+      "screen": "MNE-05",
+      "what": "monitoring / review approve issue (mne)"
+    },
+    "mne.monitoring.submission-progress": {
+      "screen": "MNE-09",
+      "what": "monitoring / submission progress (mne)"
+    },
+    "mne.monitoring.weekly-quick": {
+      "screen": "MNE-07",
+      "what": "monitoring / weekly quick (mne)"
+    },
+    "mob.MOB-33>alerts.open-from-notice": {
+      "screen": "MOB-32",
+      "what": "MOB 33>alerts / open from notice (mob)"
     },
     "mob.ai.first-citation": {
       "screen": "MOB-37",
       "what": "ai / first citation (mob)"
     },
+    "mob.alerts.channel-settings": {
+      "screen": "MOB-34",
+      "what": "alerts / channel settings (mob)"
+    },
+    "mob.alerts.inbox": {
+      "screen": "MOB-32",
+      "what": "alerts / inbox (mob)"
+    },
     "mob.approvals.first-task": {
       "screen": "MOB-23",
       "what": "approvals / first task (mob)"
+    },
+    "mob.chat.inbox": {
+      "screen": "MOB-35",
+      "what": "chat / inbox (mob)"
+    },
+    "mob.chat.notification-settings": {
+      "screen": "MOB-34",
+      "what": "chat / notification settings (mob)"
+    },
+    "mob.chat.record-thread": {
+      "screen": "MOB-36",
+      "what": "chat / record thread (mob)"
+    },
+    "mob.chat.search": {
+      "screen": "MOB-51",
+      "what": "chat / search (mob)"
+    },
+    "mob.committee.dashboard-phone": {
+      "screen": "MOB-72",
+      "what": "committee / dashboard phone (mob)"
+    },
+    "mob.diary.land-tasks": {
+      "screen": "MOB-68",
+      "what": "diary / land tasks (mob)"
+    },
+    "mob.enterprise-home.ebs-differences": {
+      "screen": "MOB-07",
+      "what": "enterprise home / ebs differences (mob)"
+    },
+    "mob.enterprise-home.hpm-status": {
+      "screen": "MOB-07",
+      "what": "enterprise home / hpm status (mob)"
+    },
+    "mob.entry.attachments": {
+      "screen": "MOB-19",
+      "what": "entry / attachments (mob)"
+    },
+    "mob.entry.next-month": {
+      "screen": "MOB-18",
+      "what": "entry / next month (mob)"
+    },
+    "mob.entry.quantities": {
+      "screen": "MOB-14",
+      "what": "entry / quantities (mob)"
+    },
+    "mob.entry.year-capital": {
+      "screen": "MOB-15",
+      "what": "entry / year capital (mob)"
+    },
+    "mob.field.acceptance-approval": {
+      "screen": "MOB-65",
+      "what": "field / acceptance approval (mob)"
+    },
+    "mob.field.handover-warranty": {
+      "screen": "MOB-66",
+      "what": "field / handover warranty (mob)"
+    },
+    "mob.field.quality-check": {
+      "screen": "MOB-64",
+      "what": "field / quality check (mob)"
+    },
+    "mob.field.quantity-evidence": {
+      "screen": "MOB-63",
+      "what": "field / quantity evidence (mob)"
+    },
+    "mob.first-run.camera-location-permission": {
+      "screen": "MOB-06",
+      "what": "first run / camera location permission (mob)"
+    },
+    "mob.first-run.choose-unit-role": {
+      "screen": "MOB-04",
+      "what": "first run / choose unit role (mob)"
+    },
+    "mob.first-run.notification-permission": {
+      "screen": "MOB-05",
+      "what": "first run / notification permission (mob)"
+    },
+    "mob.first-run.welcome": {
+      "screen": "MOB-01",
+      "what": "first run / welcome (mob)"
     },
     "mob.home.alert-card": {
       "screen": "MOB-07",
       "what": "home / alert card (mob)"
     },
+    "mob.home.capital-plan": {
+      "screen": "MOB-12",
+      "what": "home / capital plan (mob)"
+    },
+    "mob.home.field-map": {
+      "screen": "MOB-11",
+      "what": "home / field map (mob)"
+    },
     "mob.home.figure-info": {
       "screen": "MOB-07",
       "what": "home / figure info (mob)"
+    },
+    "mob.home.project-detail": {
+      "screen": "MOB-10",
+      "what": "home / project detail (mob)"
+    },
+    "mob.home.staff": {
+      "screen": "MOB-08",
+      "what": "home / staff (mob)"
     },
     "mob.inbox.first-item": {
       "screen": "MOB-32",
@@ -578,6 +1810,26 @@
       "screen": "MOB-28",
       "what": "issue / take photo (mob)"
     },
+    "mob.monthly.end-estimate": {
+      "screen": "MOB-56",
+      "what": "monthly / end estimate (mob)"
+    },
+    "mob.monthly.funding-structure": {
+      "screen": "MOB-58",
+      "what": "monthly / funding structure (mob)"
+    },
+    "mob.monthly.narrative": {
+      "screen": "MOB-55",
+      "what": "monthly / narrative (mob)"
+    },
+    "mob.monthly.not-submitted": {
+      "screen": "MOB-57",
+      "what": "monthly / not submitted (mob)"
+    },
+    "mob.monthly.weekly-issues": {
+      "screen": "MOB-59",
+      "what": "monthly / weekly issues (mob)"
+    },
     "mob.projects.first-item": {
       "screen": "MOB-09",
       "what": "projects / first item (mob)"
@@ -586,25 +1838,137 @@
       "screen": "MOB-13",
       "what": "report / submit (mob)"
     },
+    "mob.risk.analysis-summary": {
+      "screen": "MOB-38",
+      "what": "risk / analysis summary (mob)"
+    },
+    "mob.risk.contractor-detail": {
+      "screen": "MOB-74",
+      "what": "risk / contractor detail (mob)"
+    },
+    "mob.risk.contractor-ranking": {
+      "screen": "MOB-73",
+      "what": "risk / contractor ranking (mob)"
+    },
+    "mob.risk.my-dashboard": {
+      "screen": "MOB-40",
+      "what": "risk / my dashboard (mob)"
+    },
+    "mob.states.maintenance": {
+      "screen": "MOB-54",
+      "what": "states / maintenance (mob)"
+    },
+    "mob.states.no-permission": {
+      "screen": "MOB-45",
+      "what": "states / no permission (mob)"
+    },
+    "mob.states.service-error": {
+      "screen": "MOB-53",
+      "what": "states / service error (mob)"
+    },
+    "mob.states.session-expired": {
+      "screen": "MOB-44",
+      "what": "states / session expired (mob)"
+    },
+    "mob.treasury.payment-tracking": {
+      "screen": "MOB-27",
+      "what": "treasury / payment tracking (mob)"
+    },
+    "mob.treasury.reconcile": {
+      "screen": "MOB-60",
+      "what": "treasury / reconcile (mob)"
+    },
     "mob.tree.first-node": {
       "screen": "MOB-71",
       "what": "tree / first node (mob)"
+    },
+    "not.delivery.journey": {
+      "screen": "NOT-12",
+      "what": "delivery / journey (not)"
+    },
+    "not.escalation.levels": {
+      "screen": "NOT-19",
+      "what": "escalation / levels (not)"
+    },
+    "not.escalation.promoted-list": {
+      "screen": "NOT-19",
+      "what": "escalation / promoted list (not)"
     },
     "not.journey.delivery-receipts": {
       "screen": "NOT-03",
       "what": "journey / delivery receipts (not)"
     },
+    "not.ladder.receipts": {
+      "screen": "NOT-30",
+      "what": "ladder / receipts (not)"
+    },
+    "not.ladder.steps": {
+      "screen": "NOT-30",
+      "what": "ladder / steps (not)"
+    },
+    "not.notify.broadcast-approval": {
+      "screen": "NOT-16",
+      "what": "notify / broadcast approval (not)"
+    },
+    "not.notify.ops-overview": {
+      "screen": "NOT-04",
+      "what": "notify / ops overview (not)"
+    },
+    "not.notify.schedule": {
+      "screen": "NOT-10",
+      "what": "notify / schedule (not)"
+    },
+    "not.notify.templates": {
+      "screen": "NOT-07",
+      "what": "notify / templates (not)"
+    },
     "not.preferences.quiet-hours": {
       "screen": "NOT-03",
       "what": "preferences / quiet hours (not)"
+    },
+    "not.profile.quiet-hours": {
+      "screen": "NOT-03",
+      "what": "profile / quiet hours (not)"
+    },
+    "not.profile.settings": {
+      "screen": "NOT-18",
+      "what": "profile / settings (not)"
+    },
+    "not.push.devices": {
+      "screen": "NOT-14",
+      "what": "push / devices (not)"
+    },
+    "not.push.revoke": {
+      "screen": "NOT-14",
+      "what": "push / revoke (not)"
     },
     "not.workflow.teams-channel-step": {
       "screen": "NOT-06",
       "what": "workflow / teams channel step (not)"
     },
+    "omni.notify.unified-inbox": {
+      "screen": "OMNI-01",
+      "what": "notify / unified inbox (omni)"
+    },
     "pay.advance.plan-vs-actual": {
       "screen": "PAY-18",
       "what": "advance / plan vs actual (pay)"
+    },
+    "pay.advance.recovery": {
+      "screen": "PAY-07",
+      "what": "advance / recovery (pay)"
+    },
+    "pay.advance.request": {
+      "screen": "PAY-11",
+      "what": "advance / request (pay)"
+    },
+    "pay.clocks.ceiling-exception": {
+      "screen": "PAY-21",
+      "what": "clocks / ceiling exception (pay)"
+    },
+    "pay.clocks.treasury": {
+      "screen": "PAY-22",
+      "what": "clocks / treasury (pay)"
     },
     "pay.conditions.blocking-reason": {
       "screen": "PAY-19",
@@ -618,13 +1982,85 @@
       "screen": "PAY-20",
       "what": "daily recon / difference rows (pay)"
     },
+    "pay.mismatch.chain-trace": {
+      "screen": "PAY-17",
+      "what": "mismatch / chain trace (pay)"
+    },
+    "pay.mismatch.handling": {
+      "screen": "PAY-06",
+      "what": "mismatch / handling (pay)"
+    },
+    "pay.mismatch.reverse-adjust": {
+      "screen": "PAY-08",
+      "what": "mismatch / reverse adjust (pay)"
+    },
+    "pay.payment.create": {
+      "screen": "PAY-02",
+      "what": "payment / create (pay)"
+    },
+    "pay.payment.documents": {
+      "screen": "PAY-03",
+      "what": "payment / documents (pay)"
+    },
+    "pay.payment.list": {
+      "screen": "PAY-01",
+      "what": "payment / list (pay)"
+    },
+    "pay.settlement.annual": {
+      "screen": "PAY-15",
+      "what": "settlement / annual (pay)"
+    },
+    "pay.settlement.forms-deadlines": {
+      "screen": "PAY-16",
+      "what": "settlement / forms deadlines (pay)"
+    },
     "pay.three-way.mismatch": {
       "screen": "PAY-10",
       "what": "three way / mismatch (pay)"
     },
+    "pay.treasury.forms": {
+      "screen": "PAY-14",
+      "what": "treasury / forms (pay)"
+    },
+    "pay.treasury.project-tracking": {
+      "screen": "PAY-09",
+      "what": "treasury / project tracking (pay)"
+    },
+    "pay.treasury.statement-import": {
+      "screen": "PAY-13",
+      "what": "treasury / statement import (pay)"
+    },
+    "pay.treasury.tracking": {
+      "screen": "PAY-04",
+      "what": "treasury / tracking (pay)"
+    },
+    "pmt.permits.expiry-alerts": {
+      "screen": "PMT-05",
+      "what": "permits / expiry alerts (pmt)"
+    },
+    "pmt.permits.gate-rules": {
+      "screen": "PMT-04",
+      "what": "permits / gate rules (pmt)"
+    },
+    "pmt.permits.legal-file": {
+      "screen": "PMT-01",
+      "what": "permits / legal file (pmt)"
+    },
+    "pmt.permits.waiver": {
+      "screen": "PMT-06",
+      "what": "permits / waiver (pmt)"
+    },
     "prj.appraisal.criteria-scores": {
       "screen": "PRJ-14",
       "what": "appraisal / criteria scores (prj)"
+    },
+    "prj.community.feedback-responses": {
+      "screen": "PRJ-32",
+      "what": "community / feedback responses (prj)"
+    },
+    "prj.community.files": {
+      "screen": "PRJ-31",
+      "what": "community / files (prj)"
     },
     "prj.evm.s-curve": {
       "screen": "PRJ-27",
@@ -642,6 +2078,14 @@
       "screen": "PRJ-24",
       "what": "feasibility / sensitivity (prj)"
     },
+    "prj.lessons.closing-gate": {
+      "screen": "PRJ-29",
+      "what": "lessons / closing gate (prj)"
+    },
+    "prj.lessons.entries": {
+      "screen": "PRJ-29",
+      "what": "lessons / entries (prj)"
+    },
     "prj.lifecycle.gates": {
       "screen": "PRJ-14",
       "what": "lifecycle / gates (prj)"
@@ -650,25 +2094,189 @@
       "screen": "PRJ-01",
       "what": "list / kind filter (prj)"
     },
+    "prj.look-ahead.constraints": {
+      "screen": "PRJ-30",
+      "what": "look ahead / constraints (prj)"
+    },
+    "prj.look-ahead.items": {
+      "screen": "PRJ-30",
+      "what": "look ahead / items (prj)"
+    },
+    "prj.portal.allow-list": {
+      "screen": "PRJ-33",
+      "what": "portal / allow list (prj)"
+    },
+    "prj.portal.open-data-export": {
+      "screen": "PRJ-34",
+      "what": "portal / open data export (prj)"
+    },
+    "prj.portal.public-projects": {
+      "screen": "PRJ-34",
+      "what": "portal / public projects (prj)"
+    },
+    "prj.portal.publish": {
+      "screen": "PRJ-33",
+      "what": "portal / publish (prj)"
+    },
+    "prj.project.adjustment": {
+      "screen": "PRJ-06",
+      "what": "project / adjustment (prj)"
+    },
+    "prj.project.appraisal-decision": {
+      "screen": "PRJ-10",
+      "what": "project / appraisal decision (prj)"
+    },
+    "prj.project.asset-handover": {
+      "screen": "PRJ-11",
+      "what": "project / asset handover (prj)"
+    },
+    "prj.project.create": {
+      "screen": "PRJ-02",
+      "what": "project / create (prj)"
+    },
+    "prj.project.explanation-requests": {
+      "screen": "PRJ-19",
+      "what": "project / explanation requests (prj)"
+    },
+    "prj.project.leader-assignment": {
+      "screen": "PRJ-17",
+      "what": "project / leader assignment (prj)"
+    },
+    "prj.project.legal-file": {
+      "screen": "PRJ-04",
+      "what": "project / legal file (prj)"
+    },
+    "prj.project.milestones": {
+      "screen": "PRJ-07",
+      "what": "project / milestones (prj)"
+    },
+    "prj.project.monthly-follow-up": {
+      "screen": "PRJ-13",
+      "what": "project / monthly follow up (prj)"
+    },
+    "prj.project.national-code": {
+      "screen": "PRJ-21",
+      "what": "project / national code (prj)"
+    },
+    "prj.project.proposal": {
+      "screen": "PRJ-09",
+      "what": "project / proposal (prj)"
+    },
+    "prj.project.settlement": {
+      "screen": "PRJ-12",
+      "what": "project / settlement (prj)"
+    },
+    "prj.project.task-force": {
+      "screen": "PRJ-18",
+      "what": "project / task force (prj)"
+    },
+    "prj.project.team": {
+      "screen": "PRJ-08",
+      "what": "project / team (prj)"
+    },
+    "prj.project.unit-transfer": {
+      "screen": "PRJ-20",
+      "what": "project / unit transfer (prj)"
+    },
+    "prj.project.wbs": {
+      "screen": "PRJ-05",
+      "what": "project / wbs (prj)"
+    },
+    "prj.project.workspace": {
+      "screen": "PRJ-03",
+      "what": "project / workspace (prj)"
+    },
     "prj.risk.before-after-score": {
       "screen": "PRJ-16",
       "what": "risk / before after score (prj)"
+    },
+    "prj.risk.register": {
+      "screen": "PRJ-16",
+      "what": "risk / register (prj)"
+    },
+    "prj.risk.score-history": {
+      "screen": "PRJ-28",
+      "what": "risk / score history (prj)"
+    },
+    "prj.risk.signal-lines": {
+      "screen": "PRJ-28",
+      "what": "risk / signal lines (prj)"
+    },
+    "pwa.approvals.approve": {
+      "screen": "PWA-02",
+      "what": "approvals / approve (pwa)"
     },
     "pwa.approvals.queue": {
       "screen": "PWA-02",
       "what": "approvals / queue (pwa)"
     },
+    "pwa.approvals.queue-item": {
+      "screen": "PWA-02",
+      "what": "approvals / queue item (pwa)"
+    },
+    "pwa.approvals.return-comment": {
+      "screen": "PWA-02",
+      "what": "approvals / return comment (pwa)"
+    },
     "pwa.dashboard.cards": {
       "screen": "PWA-03",
       "what": "dashboard / cards (pwa)"
+    },
+    "pwa.directives.tracking": {
+      "screen": "PWA-04",
+      "what": "directives / tracking (pwa)"
     },
     "pwa.install.button": {
       "screen": "PWA-01",
       "what": "install / button of the install card (pwa)"
     },
+    "qms.diary.coverage": {
+      "screen": "QMS-11",
+      "what": "diary / coverage (qms)"
+    },
+    "qms.diary.daily-sign": {
+      "screen": "QMS-02",
+      "what": "diary / daily sign (qms)"
+    },
+    "qms.diary.offline": {
+      "screen": "QMS-09",
+      "what": "diary / offline (qms)"
+    },
+    "qms.diary.photo-checks": {
+      "screen": "QMS-10",
+      "what": "diary / photo checks (qms)"
+    },
+    "qms.diary.supervisor-opinion": {
+      "screen": "QMS-03",
+      "what": "diary / supervisor opinion (qms)"
+    },
+    "qms.photos.cross-project-check": {
+      "screen": "QMS-12",
+      "what": "photos / cross project check (qms)"
+    },
+    "qms.photos.geotagged-store": {
+      "screen": "QMS-08",
+      "what": "photos / geotagged store (qms)"
+    },
+    "qms.quality.inspection-request": {
+      "screen": "QMS-04",
+      "what": "quality / inspection request (qms)"
+    },
+    "qms.quality.material-tests": {
+      "screen": "QMS-06",
+      "what": "quality / material tests (qms)"
+    },
+    "qms.quality.nonconformity": {
+      "screen": "QMS-07",
+      "what": "quality / nonconformity (qms)"
+    },
     "rpt.forms.demo-stamp": {
       "screen": "RPT-01",
       "what": "forms / demo stamp (rpt)"
+    },
+    "rpt.forms.pdf-download": {
+      "screen": "RPT-03",
+      "what": "forms / pdf download (rpt)"
     },
     "rpt.forms.status-column": {
       "screen": "RPT-01",
@@ -698,6 +2306,46 @@
       "screen": "RPT-03",
       "what": "issued / three roles (rpt)"
     },
+    "rpt.lock.digital-signature": {
+      "screen": "RPT-06",
+      "what": "lock / digital signature (rpt)"
+    },
+    "rpt.lock.draft-review": {
+      "screen": "RPT-02",
+      "what": "lock / draft review (rpt)"
+    },
+    "rpt.lock.period-lock": {
+      "screen": "RPT-06",
+      "what": "lock / period lock (rpt)"
+    },
+    "rpt.mof.delivery-log": {
+      "screen": "RPT-04",
+      "what": "mof / delivery log (rpt)"
+    },
+    "rpt.mof.form": {
+      "screen": "RPT-05",
+      "what": "mof / form (rpt)"
+    },
+    "sas.branding.feature-package": {
+      "screen": "SAS-06",
+      "what": "branding / feature package (sas)"
+    },
+    "sas.branding.theme-logo": {
+      "screen": "SAS-04",
+      "what": "branding / theme logo (sas)"
+    },
+    "sas.ops.backup-restore": {
+      "screen": "SAS-21",
+      "what": "ops / backup restore (sas)"
+    },
+    "sas.ops.feature-flags": {
+      "screen": "SAS-20",
+      "what": "ops / feature flags (sas)"
+    },
+    "sas.ops.platform-health": {
+      "screen": "SAS-18",
+      "what": "ops / platform health (sas)"
+    },
     "shell.alert-bell": {
       "screen": "HOME-01",
       "what": "alert bell (shell)"
@@ -706,9 +2354,125 @@
       "screen": "BID-01",
       "what": "bank accounts / two approvers (vnd)"
     },
+    "vnd.bid-security.forfeit-proposal": {
+      "screen": "VND-09",
+      "what": "bid security / forfeit proposal (vnd)"
+    },
+    "vnd.bid-security.register": {
+      "screen": "VND-09",
+      "what": "bid security / register (vnd)"
+    },
+    "vnd.credentials.expiry-column": {
+      "screen": "VND-05",
+      "what": "credentials / expiry column (vnd)"
+    },
+    "vnd.credentials.key-staff": {
+      "screen": "VND-05",
+      "what": "credentials / key staff (vnd)"
+    },
+    "vnd.debarment.procedure": {
+      "screen": "VND-03",
+      "what": "debarment / procedure (vnd)"
+    },
+    "vnd.finance.load-signal": {
+      "screen": "VND-08",
+      "what": "finance / load signal (vnd)"
+    },
+    "vnd.finance.ratios": {
+      "screen": "VND-08",
+      "what": "finance / ratios (vnd)"
+    },
+    "vnd.leads.ranked-list": {
+      "screen": "VND-13",
+      "what": "leads / ranked list (vnd)"
+    },
+    "vnd.link-graph.graph": {
+      "screen": "VND-14",
+      "what": "link graph / graph (vnd)"
+    },
+    "vnd.link-graph.table-fallback": {
+      "screen": "VND-14",
+      "what": "link graph / table fallback (vnd)"
+    },
+    "vnd.package-controls.decision-column": {
+      "screen": "VND-07",
+      "what": "package controls / decision column (vnd)"
+    },
+    "vnd.package-controls.finance-check": {
+      "screen": "VND-07",
+      "what": "package controls / finance check (vnd)"
+    },
+    "vnd.package-controls.independence-findings": {
+      "screen": "VND-07",
+      "what": "package controls / independence findings (vnd)"
+    },
+    "vnd.performance.disclosure": {
+      "screen": "VND-12",
+      "what": "performance / disclosure (vnd)"
+    },
+    "vnd.petitions.statistics": {
+      "screen": "VND-22",
+      "what": "petitions / statistics (vnd)"
+    },
+    "vnd.portal.attachments-limits": {
+      "screen": "VND-24",
+      "what": "portal / attachments limits (vnd)"
+    },
+    "vnd.portal.certificates": {
+      "screen": "VND-18",
+      "what": "portal / certificates (vnd)"
+    },
+    "vnd.portal.invitations": {
+      "screen": "VND-23",
+      "what": "portal / invitations (vnd)"
+    },
     "vnd.portal.my-evaluations": {
       "screen": "VND-16",
       "what": "portal / my evaluations (vnd)"
+    },
+    "vnd.portal.my-profile": {
+      "screen": "VND-16",
+      "what": "portal / my profile (vnd)"
+    },
+    "vnd.portal.reconfirmation": {
+      "screen": "VND-16",
+      "what": "portal / reconfirmation (vnd)"
+    },
+    "vnd.portal.remediation-plan": {
+      "screen": "VND-21",
+      "what": "portal / remediation plan (vnd)"
+    },
+    "vnd.portal.reply": {
+      "screen": "VND-17",
+      "what": "portal / reply (vnd)"
+    },
+    "vnd.portal.requests-list": {
+      "screen": "VND-17",
+      "what": "portal / requests list (vnd)"
+    },
+    "vnd.portal.settings": {
+      "screen": "VND-20",
+      "what": "portal / settings (vnd)"
+    },
+    "vnd.reputation.events": {
+      "screen": "VND-06",
+      "what": "reputation / events (vnd)"
+    },
+    "vnd.risk-grade.signal-lines": {
+      "screen": "VND-11",
+      "what": "risk grade / signal lines (vnd)"
+    },
+    "vnd.risk-grade.tier-column": {
+      "screen": "VND-11",
+      "what": "risk grade / tier column (vnd)"
+    },
+    "vnd.screening.hits": {
+      "screen": "VND-15",
+      "what": "screening / hits (vnd)"
+    },
+    "vnd.screening.runs": {
+      "screen": "VND-15",
+      "what": "screening / runs (vnd)"
     },
     "vnd.subcontracts.paid-confirmation": {
       "screen": "VND-10",
@@ -717,14 +2481,6 @@
     "wf.period.step-deadlines": {
       "screen": "ADM-18",
       "what": "period / step deadlines (wf)"
-    },
-    "ctr.scorecard.contractor": {
-      "screen": "CTR-23",
-      "what": "scorecard / contractor list (ctr)"
-    },
-    "ctr.scorecard.view": {
-      "screen": "CTR-23",
-      "what": "scorecard / show (ctr)"
     }
   }
 }

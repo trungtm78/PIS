@@ -1,0 +1,158 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "delegation",
+  "title": "Ủy quyền, làm thay và vắng mặt",
+  "summary": "Identity and access of IAM-2 and GOV-9: permanent delegation with a second approver and a review date, acting on behalf with both identities in the log, scope by reporting period, absence cover and coverage of alert recipients.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "del-permanent",
+      "chapter": "delegation",
+      "main": false,
+      "narration": "Ủy quyền vĩnh viễn là một yêu cầu. Người ủy quyền đề nghị, người thứ ba duyệt, không phải người ủy quyền cũng không phải người được ủy quyền. Ngày xem xét lại là hạn hiệu lực, quá hạn mà không xem xét thì ủy quyền dừng ngay. Vòng ủy quyền giữa các người bị từ chối.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-04",
+          "ADM-25"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-04"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.delegation.temporary"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-25"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.delegation.permanent-request"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Người thứ ba duyệt · quá hạn xem xét thì dừng",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 19.4
+    },
+    {
+      "id": "del-acting",
+      "chapter": "delegation",
+      "main": false,
+      "narration": "Làm thay chỉ dành cho nhập liệu, không dành cho quyết định. Cần người duyệt thứ hai, tối đa tám giờ. Mọi dòng nhật ký ghi cả hai danh tính, người làm thay và người được thay.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-26"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.acting.request"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.acting.limits"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "del-period-scope",
+      "chapter": "delegation",
+      "main": false,
+      "narration": "Quyền theo kỳ báo cáo giới hạn người dùng vào những kỳ được phép khi nhập hoặc gửi báo cáo tuần. Không đặt giới hạn thì hệ thống chạy như trước, không có gì thay đổi.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-27"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.period-scope.grants"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.period-scope.period-codes"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.4
+    },
+    {
+      "id": "del-absence-cover",
+      "chapter": "delegation",
+      "main": false,
+      "narration": "Người nhận cảnh báo vắng mặt thì người thay được khai và được người thứ ba cho phép. Người thay đọc việc của người vắng trong phạm vi quyền của chính mình. Báo cáo độ phủ chỉ ra vị trí còn trống và cảnh báo mồ côi khi chủ đã rời đi.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-28"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-28"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.absence.cover-list"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.absence.coverage-gaps"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Thay là chuyển chú ý, không chuyển thẩm quyền",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 17.6
+    }
+  ]
+}

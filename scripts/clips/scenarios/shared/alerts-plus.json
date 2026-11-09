@@ -1,0 +1,207 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "alerts-plus",
+  "title": "Cảnh báo nâng cao và leo thang",
+  "summary": "Alert governance beyond the bell (GOV-9, GOV-10): escalation by policy, the channel ladder with receipts, the personal notification profile, wrong-alert feedback, auto-close and reopen, flood protection, deferred work and the operations view of notifications.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "al-escalation-policy",
+      "chapter": "alerts-plus",
+      "main": false,
+      "narration": "Cảnh báo không ai xử lý sẽ leo thang theo chính sách: trước hết lên người phụ trách chức năng, rồi lên lãnh đạo trực tiếp theo cây tổ chức. Quyền duyệt vẫn theo ma trận thẩm quyền. Leo thang chỉ chuyển sự chú ý, không chuyển quyền.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-19"
+        },
+        {
+          "do": "spot",
+          "ref": "not.escalation.levels"
+        },
+        {
+          "do": "spot",
+          "ref": "not.escalation.promoted-list"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Leo thang chuyển chú ý, không chuyển quyền",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "al-channel-ladder",
+      "chapter": "alerts-plus",
+      "main": false,
+      "narration": "Kênh gửi đi theo thang: trước trong ứng dụng, rồi thông báo đẩy, thư điện tử và tin nhắn khi quá hạn. Mỗi lần gửi có biên nhận và người nhận xác nhận đã đọc. Thông báo đẩy chỉ mang một câu cố định, một con số và một đường dẫn, không mang nội dung nhạy cảm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-30",
+          "NOT-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-30"
+        },
+        {
+          "do": "spot",
+          "ref": "not.ladder.steps"
+        },
+        {
+          "do": "spot",
+          "ref": "not.ladder.receipts"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-12"
+        },
+        {
+          "do": "spot",
+          "ref": "not.delivery.journey"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 19.1
+    },
+    {
+      "id": "al-my-profile",
+      "chapter": "alerts-plus",
+      "main": false,
+      "narration": "Mỗi người đặt cách nhận cảnh báo của mình: mức độ, kênh, giờ yên lặng và bản tóm tắt hằng ngày. Loại cảnh báo khẩn có thể được phép xuyên giờ yên lặng nếu quy tắc cho phép.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-18",
+          "NOT-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-18"
+        },
+        {
+          "do": "spot",
+          "ref": "not.profile.settings"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-03"
+        },
+        {
+          "do": "spot",
+          "ref": "not.profile.quiet-hours"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "al-wrong-feedback",
+      "chapter": "alerts-plus",
+      "main": false,
+      "narration": "Cảnh báo sai thì người nhận bấm là không đúng, kèm lý do. Hàng chờ rà soát xem xét và chỉnh ngưỡng. Cảnh báo tự đóng khi điều kiện hết và mở lại nếu tái phát. Cảnh báo dồn dập được gộp lại để không làm ngập người nhận.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-30",
+          "HOME-31"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-30"
+        },
+        {
+          "do": "spot",
+          "ref": "home.feedback.queue"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-31"
+        },
+        {
+          "do": "spot",
+          "ref": "home.lifecycle.closed-reopened"
+        },
+        {
+          "do": "spot",
+          "ref": "home.lifecycle.flood-group"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17
+    },
+    {
+      "id": "al-deferred",
+      "chapter": "alerts-plus",
+      "main": false,
+      "narration": "Việc bị hoãn không biến mất. Màn riêng liệt kê việc đã hoãn kèm lý do và ngày xem lại. Quy tắc cảnh báo sớm hiện ngưỡng đang áp dụng và nguồn của ngưỡng, để người xem biết vì sao hệ thống báo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-12",
+          "HOME-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-12"
+        },
+        {
+          "do": "spot",
+          "ref": "home.deferred.list"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-03"
+        },
+        {
+          "do": "spot",
+          "ref": "home.early-warning.rules"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    }
+  ]
+}

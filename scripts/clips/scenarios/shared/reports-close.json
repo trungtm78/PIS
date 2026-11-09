@@ -1,0 +1,350 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "reports-close",
+  "title": "Báo cáo biểu mẫu và chốt kỳ",
+  "summary": "Funding figures by period of FND-1 (original and adjusted plan, estimates, actuals, rates, batches approved by a second person, conversion history), indicator definitions with golden figures and cross checks, the reporting calendar and submission board, period lock with digital signature, the approval flow builder and the matrix of authority (WF-1), Excel entry through an approved mapping (IND-1), history and narrative, export preview in several formats.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "rc-period-figures",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Số liệu vốn theo kỳ gồm kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ. Lô số liệu do một người lập, người khác duyệt. Mỗi kỳ giữ lịch sử các lần ước rồi số thực thay thế, nên không ai sửa lặng lẽ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-27",
+          "DIS-28",
+          "DIS-29"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-27"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.figures.period-table"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-28"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.figures.batch-approval"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-29"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.figures.conversion-history"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Người lập ≠ người duyệt lô số liệu",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 17.3
+    },
+    {
+      "id": "rc-definitions",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Định nghĩa chỉ tiêu kỳ, từ đầu năm và lũy kế được viết một lần và có bộ số kiểm. Hai tỷ lệ giải ngân chạy song song để so sánh. Kiểm tổng chéo giữa đơn vị, nguồn vốn và dự án phát hiện ngay số bị lệch.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-25",
+          "DIS-26",
+          "DIS-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-25"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.definitions.golden"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-26"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.definitions.cross-check"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-19"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.definitions.two-rates"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "rc-calendar-board",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Lịch kỳ và khóa sổ cho biết kỳ nào mở, kỳ nào đã đóng và hạn nộp. Bảng tiến độ nộp báo cáo cho thấy đơn vị nào đã nộp, đơn vị nào còn thiếu. Tổng hợp theo chủ đầu tư lên số cho lãnh đạo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-14",
+          "DIS-15",
+          "DIS-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-14"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.calendar.periods"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-15"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.calendar.submission-board"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-12"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.calendar.investor-total"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "rc-lock-sign",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Chốt kỳ khóa số liệu, báo cáo phát hành được ký số. Mở lại kỳ đã chốt phải có lý do và để lại vết. Bản nháp báo cáo xem trước được, rồi đi qua luồng kiểm tra, phê duyệt, phát hành.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "RPT-06",
+          "RPT-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "RPT-06"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.lock.period-lock"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.lock.digital-signature"
+        },
+        {
+          "do": "open",
+          "screen": "RPT-02"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.lock.draft-review"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "rc-workflow-builder",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Quản trị dựng luồng phê duyệt bằng giao diện, không cần lập trình: bước, người duyệt song song, hạn xử lý. Ma trận thẩm quyền xác định ai duyệt đến mức nào. Luồng dùng chung cho báo cáo, hồ sơ, tài liệu và lô số liệu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-06",
+          "ADM-15"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-06"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.workflow.builder"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-15"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.workflow.authority-matrix"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "rc-excel-entry",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Đơn vị nhập từ tệp Excel qua bảng ánh xạ đã được duyệt, nên cột nào vào chỉ tiêu nào đã cố định. Nhập hàng loạt chạy thử trước khi áp dụng. Bảng số liệu đầy đủ cho cấu hình cột theo nhu cầu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "IND-03",
+          "DIS-10",
+          "DIS-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "IND-03"
+        },
+        {
+          "do": "spot",
+          "ref": "ind.entry.excel-mapping"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-10"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.entry.bulk"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-16"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.entry.full-table"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "rc-history-narrative",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Lịch sử và so sánh đặt báo cáo kỳ này cạnh các kỳ trước. Báo cáo thuyết minh tháng nêu tình hình, nguyên nhân và đề xuất của từng dự án, nên lãnh đạo đọc được câu chuyện đằng sau con số.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-11",
+          "DIS-13"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-11"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.history.compare"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-13"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.history.monthly-narrative"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "rc-export-formats",
+      "chapter": "reports-close",
+      "main": false,
+      "narration": "Mọi bảng số liệu xuất được ra Excel, Word, PDF hoặc CSV. Xem trước xuất cho thấy đúng những gì sẽ có trong tệp. Quyền và nhật ký của mọi định dạng giống hệt nhau.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-17"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.export.preview"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.export.formats"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    }
+  ]
+}

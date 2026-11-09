@@ -89,6 +89,10 @@
     "outro-enterprise": {
       "kind": "animatic",
       "description": "Closing card for the enterprise edition."
+    },
+    "features-more": {
+      "kind": "animatic",
+      "description": "Map of the chapters that are cut on their own: one line per added chapter, in the order of the film, so the main video points to every other feature."
     }
   },
   "typed": {},
@@ -138,6 +142,12 @@
       "id": "docs-ai",
       "title": "Hồ sơ dự án và trợ lý AI",
       "summary": "The project document store with OCR and versions, the AI assistant on a self-hosted model."
+    },
+    {
+      "id": "features-tour",
+      "title": "Các chức năng khác của hệ thống",
+      "summary": "One animatic that names every added chapter, so the main video points to all the other features; each of them is cut on its own.",
+      "standalone": false
     },
     {
       "id": "close",
@@ -1104,6 +1114,92 @@
       "expectedSec": 15.7
     },
     {
+      "id": "ebs-connection",
+      "chapter": "hpm-ebs",
+      "main": false,
+      "narration": "Kết nối Oracle EBS cho biết trạng thái, cho chạy thử và nhập tệp sổ kế toán. Chạy thử liệt kê dòng lỗi trước khi áp dụng, và nhập lại cùng một tệp bị từ chối. Mẫu tệp kế toán là giả định tạm, chờ tài liệu chính thức.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "EBS-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "EBS-01"
+        },
+        {
+          "do": "spot",
+          "ref": "ebs.connection.status"
+        },
+        {
+          "do": "spot",
+          "ref": "ebs.connection.dry-run"
+        },
+        {
+          "do": "spot",
+          "ref": "ebs.connection.file-import"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
+          "atSec": 6,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 17.9,
+      "stamps": [
+        "external-assumption"
+      ]
+    },
+    {
+      "id": "hpm-correction",
+      "chapter": "hpm-ebs",
+      "main": false,
+      "narration": "Khi số của một kỳ đã được HPM nhận mà phải đính chính, màn riêng ghi lý do, người duyệt và phiên bản mới. Bản cũ vẫn còn trong lịch sử, và lần đẩy sau mang khóa của phiên bản mới nên HPM không nhận trùng. Việc nhận của HPM vẫn là giả định tạm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HPM-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "HPM-02"
+        },
+        {
+          "do": "spot",
+          "ref": "hpm.correction.reason"
+        },
+        {
+          "do": "spot",
+          "ref": "hpm.correction.new-version"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
+          "atSec": 6,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 20.3,
+      "stamps": [
+        "external-assumption"
+      ]
+    },
+    {
       "id": "dir-track",
       "chapter": "directives",
       "main": true,
@@ -1366,6 +1462,110 @@
     },
     {
       "include": "shared/phone.json"
+    },
+    {
+      "include": "shared/contractors-plus.json"
+    },
+    {
+      "include": "shared/contractor-portal.json"
+    },
+    {
+      "include": "shared/claims-warnings.json"
+    },
+    {
+      "include": "shared/alerts-plus.json"
+    },
+    {
+      "include": "shared/delegation.json"
+    },
+    {
+      "include": "shared/audit-controls.json"
+    },
+    {
+      "include": "shared/risk-forecast.json"
+    },
+    {
+      "include": "shared/project-life.json"
+    },
+    {
+      "include": "shared/reports-close.json"
+    },
+    {
+      "include": "enterprise/ent-cycle.json"
+    },
+    {
+      "include": "shared/procurement-desk.json"
+    },
+    {
+      "include": "shared/contract-delivery.json"
+    },
+    {
+      "include": "shared/field-ops.json"
+    },
+    {
+      "include": "shared/docs-ai-plus.json"
+    },
+    {
+      "include": "shared/correspondence.json"
+    },
+    {
+      "include": "shared/integration.json"
+    },
+    {
+      "include": "shared/platform.json"
+    },
+    {
+      "include": "shared/phone-plus.json"
+    },
+    {
+      "id": "ent-tour-more",
+      "chapter": "features-tour",
+      "main": true,
+      "narration": "Phần mềm còn nhiều chức năng khác, mỗi chức năng có một đoạn phim riêng. Về nhà thầu có quản lý nâng cao và cổng nhà thầu. Về hợp đồng có claim, cảnh báo sớm và nghiệm thu. Về giám sát có thanh tra kiểm toán, dự báo và rủi ro. Còn có báo cáo, văn thư ký số, hồ sơ và AI, tích hợp, điện thoại và PWA nâng cao.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "features-more"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "features-more"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 25.5
+    },
+    {
+      "id": "ent-tour-cycle",
+      "chapter": "features-tour",
+      "main": false,
+      "narration": "Riêng bản doanh nghiệp có chu kỳ báo cáo đầy đủ. Đó là chốt kỳ, thuyết minh tám mục, đẩy HPM chờ biên nhận, so sánh chéo, xuất PDF, lịch nhắc việc, trình chiếu và mua sắm thiết bị.",
+      "screen": {
+        "platform": "animatic",
+        "screens": [],
+        "animatic": "features-more"
+      },
+      "steps": [
+        {
+          "do": "animatic",
+          "id": "features-more"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5,
+      "requires": [
+        "ENT-3a",
+        "ENT-3b",
+        "ENT-3c",
+        "ENT-3d",
+        "ENT-3e",
+        "ENT-4a",
+        "ENT-4b",
+        "ENT-4c",
+        "ENT-4d",
+        "ENT-4e"
+      ]
     },
     {
       "id": "ent-close-trust",

@@ -1,0 +1,591 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "field-ops",
+  "title": "Hiện trường, chất lượng và giải phóng mặt bằng",
+  "summary": "Issue management with SLA and escalation, the electronic site diary with coverage, quality inspection, materials testing and corrective actions, field photo store with checks across projects, land clearance from parcels to resettlement, permits with gates, asset handover and warranty.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "iss-register",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Vướng mắc được ghi nhận từ web hoặc điện thoại, có loại, mức độ, hạn và người xử lý. Không gian xử lý gom trao đổi, tài liệu và nhiệm vụ của một vướng mắc vào một chỗ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ISS-01",
+          "ISS-02",
+          "ISS-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-01"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.list"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-02"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.new"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-03"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.workspace"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "iss-escalate",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Chuyển cấp và gia hạn đều cần lý do. Chính sách thời hạn xử lý đặt theo loại vướng mắc và đơn vị. Leo thang lập tổ công tác, và vướng mắc phát sinh từ giải phóng mặt bằng, giấy phép hay chất lượng đi thẳng vào đây.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ISS-04",
+          "ISS-09",
+          "ISS-10",
+          "ISS-11"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-04"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.escalate-extend"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-09"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.sla-policy"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-10"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.task-force"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-11"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.origins"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "iss-weekly",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Kiểm tra hiện trường ghi kết quả ngay tại chỗ. Tiến độ xử lý theo tuần và ma trận vướng mắc theo tuần cho lãnh đạo thấy việc nào kéo dài. Một vướng mắc chỉ đóng sau khi xác nhận hoàn tất.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ISS-05",
+          "ISS-06",
+          "ISS-07",
+          "ISS-08"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-05"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.site-check"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-06"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.weekly-progress"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-07"
+        },
+        {
+          "do": "open",
+          "screen": "ISS-08"
+        },
+        {
+          "do": "spot",
+          "ref": "iss.issues.weekly-matrix"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "qms-diary",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Nhật ký thi công điện tử được lập và ký theo ngày. Giám sát ghi ý kiến, chủ đầu tư xác nhận. Màn độ phủ nhật ký cảnh báo những ngày làm việc còn thiếu nhật ký.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "QMS-01",
+          "QMS-02",
+          "QMS-03",
+          "QMS-11"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-01"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-02"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.diary.daily-sign"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-03"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.diary.supervisor-opinion"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-11"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.diary.coverage"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    },
+    {
+      "id": "qms-quality",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Đề nghị kiểm tra và nghiệm thu đi thành biên bản chất lượng. Kết quả thí nghiệm vật liệu gắn với hạng mục. Điểm không phù hợp có hành động khắc phục, người chịu trách nhiệm và hạn đóng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "QMS-04",
+          "QMS-05",
+          "QMS-06",
+          "QMS-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-04"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.quality.inspection-request"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-05"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-06"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.quality.material-tests"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-07"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.quality.nonconformity"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "qms-photos",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Kho ảnh hiện trường lưu ảnh có định vị và thời điểm chụp. Hệ thống tìm ảnh giống nhau giữa các dự án và đưa ra danh sách ảnh cần giải trình.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "QMS-08",
+          "QMS-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-08"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.photos.geotagged-store"
+        },
+        {
+          "do": "open",
+          "screen": "QMS-12"
+        },
+        {
+          "do": "spot",
+          "ref": "qms.photos.cross-project-check"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.1
+    },
+    {
+      "id": "lnd-survey",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Giải phóng mặt bằng theo dõi từng dự án: thửa đất và ranh giới, hộ bị ảnh hưởng, kiểm đếm. Tổng quan cho biết bao nhiêu thửa đã kiểm đếm, bao nhiêu còn vướng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LND-01",
+          "LND-02",
+          "LND-03",
+          "LND-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "LND-01"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.overview"
+        },
+        {
+          "do": "open",
+          "screen": "LND-02"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.parcels"
+        },
+        {
+          "do": "open",
+          "screen": "LND-03"
+        },
+        {
+          "do": "open",
+          "screen": "LND-04"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.inventory"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.8
+    },
+    {
+      "id": "lnd-compensation",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Phương án bồi thường, hỗ trợ và tái định cư được niêm yết lấy ý kiến, rồi chi trả cho từng hộ. Khiếu nại được ghi và xử lý. Cưỡng chế chỉ là bước cuối, có hồ sơ đầy đủ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LND-05",
+          "LND-06",
+          "LND-07",
+          "LND-08",
+          "LND-09"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "LND-05"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.compensation-plan"
+        },
+        {
+          "do": "open",
+          "screen": "LND-06"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.posting"
+        },
+        {
+          "do": "open",
+          "screen": "LND-07"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.payments"
+        },
+        {
+          "do": "open",
+          "screen": "LND-08"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.complaints"
+        },
+        {
+          "do": "open",
+          "screen": "LND-09"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "lnd-handover",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Mặt bằng được bàn giao theo từng đoạn hoặc từng ki lô mét cho nhà thầu. Khi Trung tâm quỹ đất thực hiện, tiến độ vẫn được theo dõi. Tái định cư và yêu cầu của chủ thể dữ liệu về thông tin cá nhân đều có chỗ xử lý.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "LND-10",
+          "LND-11",
+          "LND-12",
+          "LND-13"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "LND-10"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.segment-handover"
+        },
+        {
+          "do": "open",
+          "screen": "LND-11"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.land-fund-progress"
+        },
+        {
+          "do": "open",
+          "screen": "LND-12"
+        },
+        {
+          "do": "spot",
+          "ref": "lnd.land.resettlement"
+        },
+        {
+          "do": "open",
+          "screen": "LND-13"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17
+    },
+    {
+      "id": "pmt-permits",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Hồ sơ pháp lý và giấy phép của dự án có hạn hiệu lực. Quy tắc cổng chặn một mốc khi còn thiếu giấy phép bắt buộc. Giấy phép sắp hết hạn tạo cảnh báo, và miễn trừ phải có lý do được duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PMT-01",
+          "PMT-02",
+          "PMT-04",
+          "PMT-05",
+          "PMT-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PMT-01"
+        },
+        {
+          "do": "spot",
+          "ref": "pmt.permits.legal-file"
+        },
+        {
+          "do": "open",
+          "screen": "PMT-02"
+        },
+        {
+          "do": "open",
+          "screen": "PMT-04"
+        },
+        {
+          "do": "spot",
+          "ref": "pmt.permits.gate-rules"
+        },
+        {
+          "do": "open",
+          "screen": "PMT-05"
+        },
+        {
+          "do": "spot",
+          "ref": "pmt.permits.expiry-alerts"
+        },
+        {
+          "do": "open",
+          "screen": "PMT-06"
+        },
+        {
+          "do": "spot",
+          "ref": "pmt.permits.waiver"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "ast-handover",
+      "chapter": "field-ops",
+      "main": false,
+      "narration": "Bàn giao tài sản có biên bản kèm danh sách tồn tại. Bảo hành và tiền giữ lại được theo dõi cho đến khi hết hạn, yêu cầu bảo hành có trạng thái xử lý. Hồ sơ tài sản nối sang đơn vị vận hành và bảo trì.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AST-01",
+          "AST-02",
+          "AST-03",
+          "AST-04",
+          "AST-05",
+          "AST-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "AST-01"
+        },
+        {
+          "do": "spot",
+          "ref": "ast.assets.handover-list"
+        },
+        {
+          "do": "open",
+          "screen": "AST-02"
+        },
+        {
+          "do": "spot",
+          "ref": "ast.assets.minutes-defects"
+        },
+        {
+          "do": "open",
+          "screen": "AST-03"
+        },
+        {
+          "do": "open",
+          "screen": "AST-04"
+        },
+        {
+          "do": "spot",
+          "ref": "ast.assets.warranty-retention"
+        },
+        {
+          "do": "open",
+          "screen": "AST-05"
+        },
+        {
+          "do": "spot",
+          "ref": "ast.assets.warranty-claims"
+        },
+        {
+          "do": "open",
+          "screen": "AST-06"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    }
+  ]
+}
