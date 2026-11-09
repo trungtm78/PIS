@@ -1890,4 +1890,5 @@ export type { AccountCreator, PortalInvitationRow } from './vnd-portal-invitatio
 export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
-export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { BackupRequestStore } from './backup-request-store.ts';
+export type { BackupDecision, BackupRequestRow } from './backup-request-store.ts';

@@ -13650,5 +13650,29 @@
     "platform": "web",
     "req": "FR-BID-34",
     "source": "Phần việc còn lại của VND-3 (kiến nghị chưa có kết quả); kế hoạch PORTAL-2"
+  },
+  {
+    "id": "ADM-29",
+    "module": "ADM",
+    "moduleName": "Quản trị tenant",
+    "title": "Sao lưu và yêu cầu sao lưu thủ công",
+    "kind": "table",
+    "fields": [
+      "Trạng thái bản sao lưu gần nhất",
+      "Lần kiểm tra gần nhất",
+      "Loại sao lưu",
+      "Kho lưu",
+      "Lý do",
+      "Người yêu cầu",
+      "Người duyệt",
+      "Nhãn bản sao lưu",
+      "Trạng thái"
+    ],
+    "role": "System Admin; Tenant Admin",
+    "rule": "Yêu cầu và duyệt do hai người khác nhau; giao diện không chạy sao lưu, chỉ ghi yêu cầu và hiển thị trạng thái đọc từ nguồn trạng thái",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-ADM-29",
+    "source": "HSKT YCK.06"
   }
 ]

@@ -98,6 +98,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'cancelActingRequest': CommandResultResponse.fromJson,
   'cancelAdvance': PayAdvanceCommandResultResponse.fromJson,
   'cancelAuditEngagement': CommandResultResponse.fromJson,
+  'cancelBackupRequest': CommandResultResponse.fromJson,
   'cancelCampaign': CommandResultResponse.fromJson,
   'cancelContractDraft': CommandResultResponse.fromJson,
   'cancelDirective': CommandResultResponse.fromJson,
@@ -271,6 +272,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'decideAllocationExtension': CommandResultResponse.fromJson,
   'decideAppropriation': CommandResultResponse.fromJson,
   'decideApprovalTask': CommandResultResponse.fromJson,
+  'decideBackupRequest': CommandResultResponse.fromJson,
   'decideBiPublication': CommandResultResponse.fromJson,
   'decideBiReader': CommandResultResponse.fromJson,
   'decideCampaign': CommandResultResponse.fromJson,
@@ -885,6 +887,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listAuditRecommendations': asObject,
   'listAuditRecoveryLinks': asObject,
   'listAvcPolicies': asObject,
+  'listBackupRequests': BackupRequestPageResponse.fromJson,
   'listBatchGates': ListBatchGatesResponse.fromJson,
   'listBiAccessPolicies': asObject,
   'listBiDatasets': asObject,
@@ -1279,6 +1282,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'recordAuditConclusion': CommandResultResponse.fromJson,
   'recordAuditDisputeDecision': CommandResultResponse.fromJson,
   'recordAuditFinding': CommandResultResponse.fromJson,
+  'recordBackupOutcome': CommandResultResponse.fromJson,
   'recordClaimStep': CommandResultResponse.fromJson,
   'recordClarificationAnswer': CommandResultResponse.fromJson,
   'recordConsumerApproval': CommandResultResponse.fromJson,
@@ -1386,6 +1390,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'requestAiExternalException': CommandResultResponse.fromJson,
   'requestAllocationExtension': CommandResultResponse.fromJson,
   'requestAuditFollowUpReport': CommandResultResponse.fromJson,
+  'requestBackup': CommandResultResponse.fromJson,
   'requestBiExport': CommandResultResponse.fromJson,
   'requestDirectiveExtension': CommandResultResponse.fromJson,
   'requestDisbursementException': CommandResultResponse.fromJson,
@@ -5111,6 +5116,210 @@ final class AudRecoverySummaryResponse implements ResponseModel {
         'recovered_vnd': recoveredVnd,
         'remaining_vnd': remainingVnd,
         'completion_rate': completionRate,
+        ...extra,
+      };
+}
+
+final class BackupRequestPageResponse implements ResponseModel {
+  const BackupRequestPageResponse({
+    required this.state,
+    required this.items,
+    required this.nextCursor,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BackupRequestPageResponse.fromJson(Object? json, [String path = 'BackupRequestPageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BackupRequestPageResponse(
+      state: requiredField(map, path, 'state', BackupStateResponse.fromJson),
+      items: requiredField(map, path, 'items', asList(BackupRequestResponse.fromJson)),
+      nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'state', 'items', 'next_cursor'}, strict: false),
+    );
+  }
+
+  final BackupStateResponse state;
+  final List<BackupRequestResponse> items;
+  final String? nextCursor;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'state': state.toJson(),
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'next_cursor': nextCursor,
+        ...extra,
+      };
+}
+
+final class BackupRequestResponse implements ResponseModel {
+  const BackupRequestResponse({
+    required this.id,
+    required this.kind,
+    required this.repository,
+    required this.reason,
+    required this.status,
+    required this.requestedBy,
+    required this.requestedAt,
+    required this.decidedBy,
+    required this.decidedAt,
+    required this.decisionReason,
+    required this.recordedBy,
+    required this.finishedAt,
+    required this.backupLabel,
+    required this.outcomeNote,
+    required this.version,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BackupRequestResponse.fromJson(Object? json, [String path = 'BackupRequestResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BackupRequestResponse(
+      id: requiredField(map, path, 'id', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      repository: requiredField(map, path, 'repository', asInt),
+      reason: requiredField(map, path, 'reason', asString),
+      status: requiredField(map, path, 'status', asString),
+      requestedBy: requiredField(map, path, 'requested_by', asString),
+      requestedAt: requiredField(map, path, 'requested_at', asString),
+      decidedBy: requiredField(map, path, 'decided_by', nullable(asString)),
+      decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
+      decisionReason: requiredField(map, path, 'decision_reason', nullable(asString)),
+      recordedBy: requiredField(map, path, 'recorded_by', nullable(asString)),
+      finishedAt: requiredField(map, path, 'finished_at', nullable(asString)),
+      backupLabel: requiredField(map, path, 'backup_label', nullable(asString)),
+      outcomeNote: requiredField(map, path, 'outcome_note', nullable(asString)),
+      version: requiredField(map, path, 'version', asInt),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'repository', 'reason', 'status', 'requested_by', 'requested_at', 'decided_by', 'decided_at', 'decision_reason', 'recorded_by', 'finished_at', 'backup_label', 'outcome_note', 'version'}, strict: false),
+    );
+  }
+
+  final String id;
+  final String kind;
+  final int repository;
+  final String reason;
+  final String status;
+  final String requestedBy;
+  final String requestedAt;
+  final String? decidedBy;
+  final String? decidedAt;
+  final String? decisionReason;
+  final String? recordedBy;
+  final String? finishedAt;
+  final String? backupLabel;
+  final String? outcomeNote;
+  final int version;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'kind': kind,
+        'repository': repository,
+        'reason': reason,
+        'status': status,
+        'requested_by': requestedBy,
+        'requested_at': requestedAt,
+        'decided_by': decidedBy,
+        'decided_at': decidedAt,
+        'decision_reason': decisionReason,
+        'recorded_by': recordedBy,
+        'finished_at': finishedAt,
+        'backup_label': backupLabel,
+        'outcome_note': outcomeNote,
+        'version': version,
+        ...extra,
+      };
+}
+
+final class BackupStateResponse implements ResponseModel {
+  const BackupStateResponse({
+    required this.source,
+    required this.readAt,
+    required this.backups,
+    required this.lastVerifyAt,
+    required this.health,
+    required this.detail,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BackupStateResponse.fromJson(Object? json, [String path = 'BackupStateResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BackupStateResponse(
+      source: requiredField(map, path, 'source', asString),
+      readAt: requiredField(map, path, 'read_at', asString),
+      backups: requiredField(map, path, 'backups', asList(BackupStateResponseBackupsItem.fromJson)),
+      lastVerifyAt: requiredField(map, path, 'last_verify_at', nullable(asString)),
+      health: requiredField(map, path, 'health', asString),
+      detail: requiredField(map, path, 'detail', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'source', 'read_at', 'backups', 'last_verify_at', 'health', 'detail'}, strict: false),
+    );
+  }
+
+  final String source;
+  final String readAt;
+  final List<BackupStateResponseBackupsItem> backups;
+  final String? lastVerifyAt;
+  final String health;
+  final String? detail;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'read_at': readAt,
+        'backups': backups.map((e0) => e0.toJson()).toList(),
+        'last_verify_at': lastVerifyAt,
+        'health': health,
+        'detail': detail,
+        ...extra,
+      };
+}
+
+final class BackupStateResponseBackupsItem implements ResponseModel {
+  const BackupStateResponseBackupsItem({
+    required this.label,
+    required this.kind,
+    required this.finishedAt,
+    required this.repository,
+    required this.failed,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory BackupStateResponseBackupsItem.fromJson(Object? json, [String path = 'BackupStateResponseBackupsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return BackupStateResponseBackupsItem(
+      label: requiredField(map, path, 'label', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      finishedAt: requiredField(map, path, 'finished_at', asString),
+      repository: requiredField(map, path, 'repository', asInt),
+      failed: requiredField(map, path, 'failed', asBool),
+      extra: unknownFields(map, path, const <String>{'label', 'kind', 'finished_at', 'repository', 'failed'}, strict: false),
+    );
+  }
+
+  final String label;
+  final String kind;
+  final String finishedAt;
+  final int repository;
+  final bool failed;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'label': label,
+        'kind': kind,
+        'finished_at': finishedAt,
+        'repository': repository,
+        'failed': failed,
         ...extra,
       };
 }

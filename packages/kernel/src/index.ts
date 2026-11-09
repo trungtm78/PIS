@@ -3223,3 +3223,5 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
+export { BACKUP_KINDS, BACKUP_LABEL_PATTERN, BACKUP_MAX_AGE_HOURS, BACKUP_REASON_MAX, BACKUP_REASON_MIN, BACKUP_REPOSITORIES, backupHealthOf, backupKindOfLabel, backupRequestDefects } from './backup-request.ts';
+export type { BackupHealth, BackupKind, BackupRepository, BackupRequestInput, BackupRequestStatus, BackupState, BackupStateEntry } from './backup-request.ts';

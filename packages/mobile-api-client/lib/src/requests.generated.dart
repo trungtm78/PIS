@@ -1390,6 +1390,60 @@ final class AudVerification implements RequestModel {
       };
 }
 
+final class BackupRequestCreate implements RequestModel {
+  const BackupRequestCreate({
+    required this.kind,
+    required this.reason,
+    this.repository,
+  });
+
+  final String kind;
+  final int? repository;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        if (repository != null) 'repository': repository,
+        'reason': reason,
+      };
+}
+
+final class BackupRequestDecision implements RequestModel {
+  const BackupRequestDecision({
+    required this.decision,
+    this.reason,
+  });
+
+  final String decision;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class BackupRequestOutcome implements RequestModel {
+  const BackupRequestOutcome({
+    required this.outcome,
+    this.backupLabel,
+    this.note,
+  });
+
+  final String outcome;
+  final String? backupLabel;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        if (backupLabel != null) 'backup_label': backupLabel,
+        if (note != null) 'note': note,
+      };
+}
+
 final class BiAccessPolicyDraft implements RequestModel {
   const BiAccessPolicyDraft({
     required this.datasetId,
