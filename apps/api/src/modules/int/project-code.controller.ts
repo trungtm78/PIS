@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { PERMISSIONS } from '@machvon/contracts';
 import { BidWorkflowReads, ProjectCodeStore, SourceSystemStore, TenantDatabase } from '@machvon/db';
 import type { ProjectCodeFilter } from '@machvon/db';
-import { DomainError, EGP_MAPPING_STATUSES, SOURCE_SYSTEM_KINDS, egpReasonOf, projectCodeRequestOf, sourceSystemRequestOf } from '@machvon/kernel';
+import { DomainError, EGP_MAPPING_STATUSES, SOURCE_SYSTEM_KINDS, egpReasonOf, projectCodeRequestOf, sourceSystemRequestOf, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -184,6 +184,21 @@ export class ProjectCodeReadsController {
         next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAtKey, id: last.id }) : null,
         counts: await this.codes.counts(tx),
         systems: systems.map((row) => ({ code: row.code, name: row.name, code_pattern: row.codePattern })),
+        coverage: await Promise.all(
+          systems.map(async (row) => {
+            const covered = await this.codes.coverage(tx, row.code, vietnamDateOf(now));
+            return {
+              source_system: covered.sourceSystem,
+              projects: covered.projects,
+              mapped: covered.mapped,
+              direct_only: covered.directOnly,
+              unmapped: covered.unmapped,
+              proposed: covered.proposed,
+              shadows: covered.shadows,
+              direct_fallback: covered.directFallback,
+            };
+          }),
+        ),
         can_propose: holdsOnWholeTenant(access, PERMISSIONS.proposeProjectCode),
         as_of: now.toISOString(),
       };

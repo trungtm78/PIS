@@ -8,6 +8,16 @@ const TENANT = "nullif(current_setting('app.tenant_id', true), '')::uuid";
 const UNIQUE_VIOLATION = '23505';
 const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`;
 
+/**
+ * The systems whose project codes are also read by direct match against the code of our own projects while the crosswalk is being introduced (ENT-3e: Oracle EBS and HPM, expand then contract). A code of such a
+ * system may not be mapped to a project when it is, as text, the code of ANOTHER project: the direct reading would have meant that other project and the mapping would move its history. A public process registers none.
+ */
+const DIRECT_MATCH_SYSTEMS = new Set<string>();
+export function registerDirectMatchSystem(code: string): void {
+  DIRECT_MATCH_SYSTEMS.add(code);
+}
+export const isDirectMatchSystem = (code: string): boolean => DIRECT_MATCH_SYSTEMS.has(code);
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // The systems whose codes we map.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -190,6 +200,19 @@ const codeOf = (row: ProjectCodeSql): ProjectCodeRow => ({
   createdAtKey: row.created_at_key,
 });
 
+/** How far the codes of one system reach over the projects of the tenant on a day (ENT-3e). `directOnly` are the projects without an ACTIVE code that the direct match still serves; `unmapped` those it does not. */
+export interface ProjectCodeCoverage {
+  sourceSystem: string;
+  projects: number;
+  mapped: number;
+  directOnly: number;
+  unmapped: number;
+  proposed: number;
+  /** ACTIVE codes that are, as text, the code of ANOTHER project: the crosswalk and the direct match read them differently. */
+  shadows: number;
+  directFallback: boolean;
+}
+
 export interface ProjectCodeFilter {
   sourceSystem?: string | undefined;
   status?: EgpMappingStatus | undefined;
@@ -246,6 +269,7 @@ export class ProjectCodeStore {
       [request.sourceSystem, request.externalCode, projectId],
     );
     if (taken.length > 0) throw new DomainError('CROSSWALK_DUPLICATE', 409, 'external_code', { extensions: { reason: taken.some((row) => row.subject_id !== projectId) ? 'EXTERNAL_CODE_TAKEN' : 'SUBJECT_HAS_OTHER_CODE' } });
+    await this.assertKeepsHistory(tx, request.sourceSystem, request.externalCode, projectId);
     const id = randomUUID();
     try {
       await tx.query(
@@ -259,6 +283,31 @@ export class ProjectCodeStore {
       throw error;
     }
     return (await this.find(tx, id)) as ProjectCodeRow;
+  }
+
+  /** Counts, for one system and a day: the projects, those with an ACTIVE code that holds, the codes waiting for a second person and the ACTIVE codes that shadow the direct reading of another project. */
+  async coverage(tx: TenantTx, sourceSystem: string, day: string): Promise<ProjectCodeCoverage> {
+    const [row] = await tx.query<{ projects: string; mapped: string; proposed: string; shadows: string }>(
+      `select (select count(*) from machvon.project)::text as projects,
+              (select count(distinct x.subject_id) from machvon.master_crosswalk x where x.subject_type = 'PROJECT' and x.external_type = '${PROJECT_CODE_EXTERNAL_TYPE}' and x.source_system = $1 and x.status = 'ACTIVE'
+                  and x.valid_from <= $2::date and (x.valid_until is null or x.valid_until > $2::date))::text as mapped,
+              (select count(*) from machvon.master_crosswalk x where x.subject_type = 'PROJECT' and x.external_type = '${PROJECT_CODE_EXTERNAL_TYPE}' and x.source_system = $1 and x.status = 'PROPOSED')::text as proposed,
+              (select count(*) from machvon.master_crosswalk x join machvon.project p on p.tenant_id = x.tenant_id and p.code = x.external_code and p.id <> x.subject_id
+                where x.subject_type = 'PROJECT' and x.external_type = '${PROJECT_CODE_EXTERNAL_TYPE}' and x.source_system = $1 and x.status = 'ACTIVE'
+                  and x.valid_from <= $2::date and (x.valid_until is null or x.valid_until > $2::date))::text as shadows`,
+      [sourceSystem, day],
+    );
+    const projects = Number(row?.projects ?? 0);
+    const mapped = Number(row?.mapped ?? 0);
+    const directFallback = isDirectMatchSystem(sourceSystem);
+    return { sourceSystem, projects, mapped, directOnly: directFallback ? projects - mapped : 0, unmapped: directFallback ? 0 : projects - mapped, proposed: Number(row?.proposed ?? 0), shadows: Number(row?.shadows ?? 0), directFallback };
+  }
+
+  /** For a system that is also read by direct match: the code may not be the code of another project (409 `CROSSWALK_DUPLICATE`, reason `EXTERNAL_CODE_IS_OTHER_PROJECT`). */
+  private async assertKeepsHistory(tx: TenantTx, sourceSystem: string, externalCode: string, projectId: string): Promise<void> {
+    if (!isDirectMatchSystem(sourceSystem)) return;
+    const other = await tx.query<{ id: string }>('select id from machvon.project where code = $1 and id <> $2::uuid', [externalCode, projectId]);
+    if (other.length > 0) throw new DomainError('CROSSWALK_DUPLICATE', 409, 'external_code', { extensions: { reason: 'EXTERNAL_CODE_IS_OTHER_PROJECT' } });
   }
 
   /** Approves, rejects or retires a code (a versioned command). The kernel decides the edge, the maker-checker rule and the reason; an approval is judged once more against the ACTIVE codes. */
@@ -283,6 +332,7 @@ export class ProjectCodeStore {
           if (before.validUntil !== null && before.validUntil <= today) throw new DomainError('VALIDATION_FAILED', 422, 'valid_until');
           const system = await new SourceSystemStore().byCode(tx, before.sourceSystem);
           if (system === undefined || system.status !== 'ACTIVE') throw new DomainError('VALIDATION_FAILED', 422, 'source_system');
+          await this.assertKeepsHistory(tx, before.sourceSystem, before.externalCode, before.projectId);
         }
         await tx.query(
           `update machvon.master_crosswalk set status = $2, approved_by = $3::uuid, approved_at = $5::timestamptz, decision_reason = $4, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid`,

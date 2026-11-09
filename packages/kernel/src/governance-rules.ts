@@ -1296,6 +1296,7 @@ export const registerEnterpriseRules = (): void =>
         tags: list(shape({ code: codeText(), label: text(120), carries_amount: bool }), 20),
         measures: list(oneOf(...MEASURES), 2, 1),
         origin_groups: shape({ PRIMARY: list(codeText(), 12), ADDED: list(codeText(), 12) }),
+        origin_decisions: optionally(list(shape({ origin: codeText(), kinds: list(codeText(), 12, 1) }), 12)),
         entry_mode: oneOf(...ENTRY_MODES),
         phasing_must_sum: bool,
         actuals_source: list(shape({ class_codes: list(codeText(), 12, 1), source: oneOf(...ACTUAL_SOURCES) }), 12, 1),

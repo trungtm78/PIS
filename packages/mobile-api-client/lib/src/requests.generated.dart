@@ -2399,6 +2399,7 @@ final class CapAppropriation implements RequestModel {
     this.extensionDocumentId,
     this.supersedesId,
     this.capitalPlanId,
+    this.decisionKind,
   });
 
   final String fundSourceVersionId;
@@ -2414,6 +2415,7 @@ final class CapAppropriation implements RequestModel {
   final String? extensionDocumentId;
   final String? supersedesId;
   final String? capitalPlanId;
+  final String? decisionKind;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -2430,6 +2432,7 @@ final class CapAppropriation implements RequestModel {
         if (extensionDocumentId != null) 'extension_document_id': extensionDocumentId,
         if (supersedesId != null) 'supersedes_id': supersedesId,
         if (capitalPlanId != null) 'capital_plan_id': capitalPlanId,
+        if (decisionKind != null) 'decision_kind': decisionKind,
       };
 }
 
@@ -7159,19 +7162,6 @@ final class EntConnectionState implements RequestModel {
       };
 }
 
-final class EnterpriseSnapshotBuild implements RequestModel {
-  const EnterpriseSnapshotBuild({
-    required this.periodId,
-  });
-
-  final String periodId;
-
-  @override
-  Map<String, Object?> toJson() => <String, Object?>{
-        'period_id': periodId,
-      };
-}
-
 final class EntitlementOverrideRequest implements RequestModel {
   const EntitlementOverrideRequest({
     required this.featureCode,
@@ -7197,6 +7187,19 @@ final class EntitlementOverrideRequest implements RequestModel {
         'valid_from': validFrom,
         'valid_until': validUntil,
         'reason': reason,
+      };
+}
+
+final class EntOrgPackMaterialiseRequest implements RequestModel {
+  const EntOrgPackMaterialiseRequest({
+    required this.batchId,
+  });
+
+  final String batchId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'batch_id': batchId,
       };
 }
 

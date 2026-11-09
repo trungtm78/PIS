@@ -1,0 +1,52 @@
+{
+  "source": "Kế hoạch ENT-3e (đối chiếu HSKT Phần mềm quản lý ĐTXD v0.3, mục MD.01 và MD.02); danh mục là giá trị khởi đầu của hệ thống, chưa được khách hàng xác nhận",
+  "projectType": {
+    "formula": "Loại dự án của bản doanh nghiệp: mỗi mã là một loại; kind gom loại về nhóm của danh mục dùng chung (xây dựng cơ bản, mua sắm, sửa chữa lớn); master_key là khóa của mục PROJECT_TYPE trong danh mục chủ",
+    "source": "HSKT Phần mềm quản lý ĐTXD v0.3 (26 11 03), mục MD.01; kế hoạch ENT-3e, quyết định thiết kế ngày 2026-11-09"
+  },
+  "startFlag": {
+    "formula": "Cờ giai đoạn của dự án trong năm kế hoạch: khởi công mới nếu năm khởi công trùng năm kế hoạch, chuyển tiếp nếu đã khởi công từ năm trước; dự án chưa khởi công đến hết năm kế hoạch thì không mang cờ",
+    "source": "HSKT Phần mềm quản lý ĐTXD v0.3 (26 11 03), mục MD.01 và TH.03; kế hoạch ENT-3e"
+  },
+  "milestone": {
+    "formula": "Mốc vòng đời đầu tư của dự án doanh nghiệp, theo thứ tự sequence tăng dần; evidence_kinds là các loại hồ sơ pháp lý chứng minh mốc đã đạt; required cho biết mốc bắt buộc",
+    "source": "HSKT Phần mềm quản lý ĐTXD v0.3 (26 11 03), mục MD.02; kế hoạch ENT-3e"
+  },
+  "legalDocType": {
+    "formula": "Loại hồ sơ pháp lý của dự án doanh nghiệp: issuer là nơi ban hành (Tập đoàn, Tổng công ty, nhà nước); purpose cho biết loại này giao vốn (CAPITAL_ASSIGNMENT) hay chứng minh một mốc (LIFECYCLE_EVIDENCE)",
+    "source": "HSKT Phần mềm quản lý ĐTXD v0.3 (26 11 03), mục MD.02 và CN.01; kế hoạch ENT-3e"
+  },
+  "projectTypes": {
+    "CAPEX_CONSTRUCTION": "Đầu tư xây dựng cơ bản",
+    "EQUIPMENT_PROCUREMENT": "Mua sắm trang thiết bị",
+    "MAJOR_REPAIR": "Sửa chữa lớn"
+  },
+  "startFlags": {
+    "NEW_START": "Khởi công mới",
+    "CONTINUING": "Chuyển tiếp"
+  },
+  "milestones": {
+    "INVESTMENT_POLICY": "Chủ trương đầu tư",
+    "INVESTMENT_CERTIFICATE": "Giấy chứng nhận đăng ký đầu tư",
+    "FS_APPROVAL": "Phê duyệt báo cáo nghiên cứu khả thi (FS)",
+    "TMDT_APPROVAL": "Phê duyệt tổng mức đầu tư",
+    "CONTRACTOR_SELECTION_PLAN": "Kế hoạch lựa chọn nhà thầu",
+    "GROUNDBREAKING": "Khởi công",
+    "ACCEPTANCE": "Nghiệm thu",
+    "FINAL_SETTLEMENT": "Quyết toán"
+  },
+  "legalDocTypes": {
+    "GROUP_RESOLUTION": "Nghị quyết của Tập đoàn",
+    "GROUP_DECISION": "Quyết định của Tập đoàn",
+    "COMPANY_RESOLUTION": "Nghị quyết của Tổng công ty",
+    "COMPANY_DECISION": "Quyết định của Tổng công ty",
+    "INVESTMENT_POLICY_DECISION": "Quyết định chủ trương đầu tư",
+    "INVESTMENT_CERTIFICATE_DOC": "Giấy chứng nhận đăng ký đầu tư",
+    "FS_APPROVAL_DECISION": "Quyết định phê duyệt báo cáo nghiên cứu khả thi",
+    "TMDT_APPROVAL_DECISION": "Quyết định phê duyệt tổng mức đầu tư",
+    "CONTRACTOR_PLAN_DECISION": "Quyết định phê duyệt kế hoạch lựa chọn nhà thầu",
+    "GROUNDBREAKING_RECORD": "Biên bản hoặc quyết định khởi công",
+    "ACCEPTANCE_RECORD": "Biên bản nghiệm thu",
+    "SETTLEMENT_DECISION": "Quyết định phê duyệt quyết toán"
+  }
+}

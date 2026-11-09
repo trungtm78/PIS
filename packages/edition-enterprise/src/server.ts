@@ -11,3 +11,5 @@ export * from './integration/exports.ts';
 export * from './leader/exports.ts';
 // The scheduled e-mail delivery of issued report forms (ENT-4d).
 export * from './delivery/exports.ts';
+// The organisation pack of the enterprise edition (ENT-3d): the PVFCCo template, the store that loads and verifies it, and the registration of its mapping and verifier in the batch import.
+export * from './org-pack/exports.ts';

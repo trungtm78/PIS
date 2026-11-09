@@ -1,4 +1,4 @@
-import { CATEGORIES, ORIGINS, categoryOf, isPublished, sumVnd, toAppropriation } from '../cap/model';
+import { ALL_ORIGINS, CATEGORIES, ORIGINS, categoryOf, isPublished, sumVnd, toAppropriation } from '../cap/model';
 import type { AppropriationLine, Category, Origin } from '../cap/model';
 
 /** The categories that stand as cards of their own, in the order of the screen; CTMTQG is not one: it is part of its parent (HOME 3 F6). */
@@ -120,7 +120,7 @@ function subsetFigure(parents: readonly FundingRow[], registered: readonly Fundi
 
 const compareRows = (a: FundingRow, b: FundingRow): number =>
   CATEGORIES.indexOf(categoryOf(a.fundSource)) - CATEGORIES.indexOf(categoryOf(b.fundSource)) ||
-  ORIGINS.indexOf(a.origin) - ORIGINS.indexOf(b.origin) ||
+  ALL_ORIGINS.indexOf(a.origin) - ALL_ORIGINS.indexOf(b.origin) ||
   a.fundSource.businessKey.localeCompare(b.fundSource.businessKey) ||
   a.id.localeCompare(b.id);
 

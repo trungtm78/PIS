@@ -7,6 +7,7 @@ import { EbsImportController, EbsReadsController, EbsReconciliationController } 
 import { directoryFileSink } from './file-sink';
 import { LeaderReadsController } from './leader.controller';
 import { ReportMailCommandController, ReportMailReadsController } from './report-mail.controller';
+import { OrgPackController } from './org-pack.controller';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from './hpm.controller';
 import { HPM_FILE_SINK, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
 
@@ -46,4 +47,15 @@ export const leaderModule = defineModule({ code: 'LDR', editions: ['enterprise']
 export const reportMailModule = defineModule({ code: 'RML', editions: ['enterprise'], controllers: [ReportMailReadsController, ReportMailCommandController] });
 
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
-export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, leaderModule, reportMailModule];
+/**
+ * The organisation and the roles of the edition (ENT-3d): the PVFCCo template pack, the plan and verification against the tenant, and the command that turns an applied batch of the pack file into units, roles and proposals for approval.
+ * The module exists in the enterprise edition only.
+ */
+export const orgPackModule = defineModule({
+  code: 'ORG',
+  editions: ['enterprise'],
+  controllers: [OrgPackController],
+});
+
+/** The modules of the enterprise edition, in the order the registry mounts them after its own. */
+export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, orgPackModule, leaderModule, reportMailModule];

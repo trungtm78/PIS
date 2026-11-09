@@ -87,6 +87,8 @@ export interface FundingPack {
   measures: readonly Measure[];
   /** The origin of a plan line (CAP `origin`) to the part of the denominator it belongs to. */
   originGroups: { primary: readonly string[]; added: readonly string[] };
+  /** The kinds of decision document (codes of the legal-document catalogue) that may back an appropriation of each origin; an origin that is not here binds no kind (the public pack binds none). */
+  originDecisions: ReadonlyMap<string, readonly string[]>;
   entryMode: EntryMode;
   phasingMustSum: boolean;
   /** The source of the actual figure of each class. */
@@ -139,6 +141,11 @@ export function refineFundingPack(params: Record<string, unknown>): string | und
   const primary = strings(groups['PRIMARY']);
   const added = strings(groups['ADDED']);
   if (duplicate(primary) || duplicate(added) || primary.some((origin) => added.includes(origin))) return 'origin_groups';
+  const decisions = records(params['origin_decisions']);
+  if (duplicate(decisions.map((one) => text(one['origin'])))) return 'origin_decisions';
+  for (const one of decisions) {
+    if (![...primary, ...added].includes(text(one['origin'])) || duplicate(strings(one['kinds'])) || strings(one['kinds']).length === 0) return 'origin_decisions';
+  }
   const sourced = records(params['actuals_source']).flatMap((one) => strings(one['class_codes']));
   if (duplicate(sourced) || !classCodes.every((code) => sourced.includes(code)) || !sourced.every((code) => classCodes.includes(code))) return 'actuals_source';
   const ratios = records(params['ratios']);
@@ -170,6 +177,7 @@ export function parseFundingPack(packCode: string, params: unknown): FundingPack
     tags: records(params['tags']).map((one) => ({ code: text(one['code']), label: text(one['label']), carriesAmount: flag(one['carries_amount']) })),
     measures: strings(params['measures']) as Measure[],
     originGroups: { primary: strings(groups['PRIMARY']), added: strings(groups['ADDED']) },
+    originDecisions: new Map(records(params['origin_decisions']).map((one) => [text(one['origin']), strings(one['kinds'])] as const)),
     entryMode: text(params['entry_mode']) as EntryMode,
     phasingMustSum: flag(params['phasing_must_sum']),
     actualsSource: sources,
@@ -237,6 +245,11 @@ export function enterprisePackParams(): Record<string, unknown> {
     ],
     measures: ['EXECUTED', 'DISBURSED'],
     origin_groups: { PRIMARY: ['GROUP_ASSIGNED', 'BOARD_APPROVED', 'CARRYOVER'], ADDED: [] },
+    origin_decisions: [
+      { origin: 'GROUP_ASSIGNED', kinds: ['GROUP_RESOLUTION', 'GROUP_DECISION'] },
+      { origin: 'BOARD_APPROVED', kinds: ['COMPANY_RESOLUTION', 'COMPANY_DECISION'] },
+      { origin: 'CARRYOVER', kinds: ['GROUP_RESOLUTION', 'GROUP_DECISION', 'COMPANY_RESOLUTION', 'COMPANY_DECISION'] },
+    ],
     entry_mode: 'PERIOD_ENTRY',
     phasing_must_sum: true,
     actuals_source: [{ class_codes: ['EQUITY', 'LOAN', 'OTHER'], source: 'ERP' }],
@@ -290,4 +303,23 @@ export function assertClassCrosswalk(before: FundingPack, after: FundingPack, cr
 /** The pack of a tenant that already has a frozen snapshot cannot change to another pack (409 `TAXONOMY_PACK_LOCKED`); a new version of the same pack is allowed. */
 export function assertPackChange(current: string | null, next: string, hasFrozenSnapshot: boolean): void {
   if (current !== null && current !== next && hasFrozenSnapshot) throw new DomainError('TAXONOMY_PACK_LOCKED', 409, 'package');
+}
+
+/** The origins an appropriation of the pack may carry: both groups. */
+export const originsOfPack = (pack: FundingPack): readonly string[] => [...pack.originGroups.primary, ...pack.originGroups.added];
+
+/** The budget levels an appropriation of the pack may carry: the tiers of the pack (the enterprise pack has the single level `ALL`). */
+export const budgetLevelsOfPack = (pack: FundingPack): readonly string[] => pack.tiers.map((one) => one.code);
+
+/**
+ * Judges the origin, the budget level and the kind of decision of an appropriation against the pack of the process (CAP, ENT-3e): the origin and the level must be listed by the pack; an origin the pack binds to kinds of
+ * decision document (the enterprise pack: the resolution of the group backs `GROUP_ASSIGNED`, the decision of the company backs `BOARD_APPROVED`) needs one of those kinds; an origin it binds to none takes no kind, so the
+ * public pack behaves as it always did. 422 `VALIDATION_FAILED` naming the field.
+ */
+export function assertAppropriationForPack(pack: FundingPack, input: { origin: string; budgetLevel: string; decisionKind: string | null | undefined }): void {
+  if (!originsOfPack(pack).includes(input.origin)) throw new DomainError('VALIDATION_FAILED', 422, 'origin');
+  if (!budgetLevelsOfPack(pack).includes(input.budgetLevel)) throw new DomainError('VALIDATION_FAILED', 422, 'budget_level');
+  const kinds = pack.originDecisions.get(input.origin);
+  const given = input.decisionKind ?? null;
+  if (kinds === undefined ? given !== null : given === null || !kinds.includes(given)) throw new DomainError('VALIDATION_FAILED', 422, 'decision_kind');
 }

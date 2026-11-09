@@ -228551,14 +228551,133 @@
         ]
       }
     },
-    "/enterprise-snapshots": {
-      "post": {
-        "operationId": "buildEnterpriseSnapshot",
-        "summary": "Dựng bản chốt kỳ doanh nghiệp từ số liệu vốn đã duyệt và chỉ tiêu đã nhập; từ chối kèm danh sách đơn vị chưa nộp; kỳ đã chốt chỉ dựng lại sau khi mở lại kỳ (ENT-3a, DIS-30)",
+    "/enterprise/org-pack": {
+      "get": {
+        "operationId": "getEnterpriseOrgPack",
+        "summary": "Tổ chức và vai trò của bản enterprise: gói mẫu PVFCCo hoặc gói của một lô đã áp dụng, kế hoạch nạp và báo cáo kiểm chứng (ENT-3d)",
         "tags": [
-          "DIS"
+          "ORG"
         ],
-        "x-permission": "funding.snapshot.build",
+        "x-permission": "adm.migration.read",
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntOrgPack"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/enterprise/org-pack/materialisations": {
+      "post": {
+        "operationId": "materialiseEnterpriseOrgPack",
+        "summary": "Biến lô gói tổ chức đã áp dụng thành đơn vị, vai trò và đề xuất quy tắc, danh mục chờ duyệt; chạy lại không đổi gì (ENT-3d)",
+        "tags": [
+          "ORG"
+        ],
+        "x-permission": "adm.migration.approve",
         "parameters": [
           {
             "name": "Idempotency-Key",
@@ -228575,7 +228694,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EnterpriseSnapshotBuild"
+                "$ref": "#/components/schemas/EntOrgPackMaterialiseRequest"
               }
             }
           }
@@ -228586,7 +228705,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/EntOrgPackMaterialisation"
                 }
               }
             }
@@ -228674,535 +228793,14 @@
         },
         "x-error-codes": [
           "VALIDATION_FAILED",
-          "PERIOD_STATE_INVALID",
-          "SNAPSHOT_FROZEN",
-          "SNAPSHOT_BUILD_IN_PROGRESS",
-          "ENTERPRISE_SNAPSHOT_INCOMPLETE"
+          "MIGRATION_STATE_INVALID",
+          "ORG_PACK_INVALID",
+          "SCOPE_DENIED",
+          "ROLE_ESCALATION_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "enterprise.snapshot_built.v1"
-        ]
-      },
-      "get": {
-        "operationId": "listEnterpriseSnapshots",
-        "summary": "Các bản chốt kỳ doanh nghiệp, mới nhất trước, theo kỳ và trạng thái (ENT-3a, DIS-30)",
-        "tags": [
-          "DIS"
-        ],
-        "x-permission": "funding.snapshot.read",
-        "parameters": [
-          {
-            "name": "period_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "x-read-model": true,
-        "x-exposure": "dto",
-        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
-        "responses": {
-          "200": {
-            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EnterpriseSnapshotList"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request / field not allowed (DTO allowlist)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthenticated",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden / scope / self-approval / entitlement",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found within scope (never discloses other tenants)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Version / state / idempotency conflict",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Domain invariant failure",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Dependency unavailable",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          }
-        },
-        "x-error-codes": [
-          "VALIDATION_FAILED"
-        ]
-      }
-    },
-    "/enterprise-snapshots/{id}/freeze": {
-      "post": {
-        "operationId": "freezeEnterpriseSnapshot",
-        "summary": "Chốt bản chốt kỳ doanh nghiệp bằng mã băm lược đồ 2; người dựng không tự chốt; bản chốt trước của cùng kỳ thành SUPERSEDED (ENT-3a, DIS-31)",
-        "tags": [
-          "DIS"
-        ],
-        "x-permission": "funding.snapshot.freeze",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "Idempotency-Key",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 16
-            }
-          },
-          {
-            "name": "If-Match",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Strong ETag of the current resource version; required for changes to versioned records."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Command accepted; returns resource id/version/status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request / field not allowed (DTO allowlist)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthenticated",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden / scope / self-approval / entitlement",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found within scope (never discloses other tenants)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Version / state / idempotency conflict",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Domain invariant failure",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Dependency unavailable",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          }
-        },
-        "x-error-codes": [
-          "SNAPSHOT_FROZEN",
-          "SNAPSHOT_NOT_BUILT",
-          "PERIOD_STATE_INVALID",
-          "SELF_APPROVAL_DENIED",
-          "VERSION_CONFLICT"
-        ],
-        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
-        "x-domain-events": [
-          "enterprise.snapshot_frozen.v1"
-        ]
-      }
-    },
-    "/enterprise-snapshots/{id}": {
-      "get": {
-        "operationId": "getEnterpriseSnapshot",
-        "summary": "Chi tiết một bản chốt kỳ doanh nghiệp đọc qua một bộ đọc duy nhất: tổng, theo đơn vị, theo dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản (ENT-3a, DIS-31)",
-        "tags": [
-          "DIS"
-        ],
-        "x-permission": "funding.snapshot.read",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "measure",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-read-model": true,
-        "x-exposure": "dto",
-        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
-        "responses": {
-          "200": {
-            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EnterpriseSnapshotDetail"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request / field not allowed (DTO allowlist)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthenticated",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden / scope / self-approval / entitlement",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found within scope (never discloses other tenants)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Version / state / idempotency conflict",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Domain invariant failure",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Dependency unavailable",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          }
-        },
-        "x-error-codes": [
-          "VALIDATION_FAILED"
-        ]
-      }
-    },
-    "/enterprise-snapshot-readiness": {
-      "get": {
-        "operationId": "getEnterpriseSnapshotReadiness",
-        "summary": "Kỳ đã đủ số liệu để dựng bản chốt chưa: đơn vị, dự án, ô và tháng còn thiếu, lô chờ duyệt, bản đã chốt và điều kiện dựng lại (ENT-3a, DIS-30)",
-        "tags": [
-          "DIS"
-        ],
-        "x-permission": "funding.snapshot.build",
-        "parameters": [
-          {
-            "name": "period_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "x-read-model": true,
-        "x-exposure": "dto",
-        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
-        "responses": {
-          "200": {
-            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EnterpriseSnapshotReadiness"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request / field not allowed (DTO allowlist)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthenticated",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden / scope / self-approval / entitlement",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found within scope (never discloses other tenants)",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Version / state / idempotency conflict",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Domain invariant failure",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Dependency unavailable",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          }
-        },
-        "x-error-codes": [
-          "VALIDATION_FAILED"
+          "ent.org_pack.materialised.v1"
         ]
       }
     },
@@ -233006,7 +232604,9 @@
             "enum": [
               "CURRENT_YEAR",
               "CARRYOVER",
-              "OTHER"
+              "OTHER",
+              "EQUITY",
+              "LOAN"
             ]
           },
           "source_year": {
@@ -233116,14 +232716,17 @@
               "LOCAL_ADDED",
               "CARRYOVER",
               "CENTRAL_SUPPORT",
-              "REVENUE_INCREASE"
+              "REVENUE_INCREASE",
+              "GROUP_ASSIGNED",
+              "BOARD_APPROVED"
             ]
           },
           "budget_level": {
             "type": "string",
             "enum": [
               "CENTRAL",
-              "LOCAL"
+              "LOCAL",
+              "ALL"
             ]
           },
           "program_master_version_id": {
@@ -233160,6 +232763,10 @@
           "capital_plan_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "decision_kind": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
           }
         }
       },
@@ -291717,6 +291324,12 @@
           },
           "as_of": {
             "type": "string"
+          },
+          "coverage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectCodeCoverage"
+            }
           }
         }
       },
@@ -309920,258 +309533,642 @@
           }
         }
       },
-      "EnterpriseSnapshotBuild": {
+      "ProjectCodeCoverage": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "period_id"
-        ],
-        "properties": {
-          "period_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "EnterpriseSnapshot": {
-        "type": "object",
-        "additionalProperties": true,
-        "required": [
-          "id",
-          "period_id",
-          "period_code",
-          "status",
-          "revision",
-          "version",
-          "payload_sha256",
-          "taxonomy_pack",
-          "row_count"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "period_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "period_code": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "BUILDING",
-              "FROZEN",
-              "SUPERSEDED",
-              "FAILED"
-            ]
-          },
-          "revision": {
-            "type": "integer"
-          },
-          "version": {
-            "type": "integer"
-          },
-          "payload_sha256": {
-            "type": "string",
-            "nullable": true
-          },
-          "taxonomy_pack": {
-            "type": "string"
-          },
-          "taxonomy_version": {
-            "type": "integer"
-          },
-          "hash_schema": {
-            "type": "integer"
-          },
-          "definition_status": {
-            "type": "string"
-          },
-          "row_count": {
-            "type": "integer"
-          },
-          "figure_count": {
-            "type": "integer"
-          },
-          "indicator_count": {
-            "type": "integer"
-          },
-          "as_of_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "as_of_date": {
-            "type": "string",
-            "format": "date"
-          },
-          "supersedes_id": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "frozen_by": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "frozen_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "created_by": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "EnterpriseSnapshotList": {
-        "type": "object",
-        "additionalProperties": true,
-        "required": [
-          "items",
-          "next_cursor"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EnterpriseSnapshot"
-            }
-          },
-          "next_cursor": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "EnterpriseSnapshotDetail": {
-        "type": "object",
-        "additionalProperties": true,
-        "required": [
-          "snapshot",
-          "period",
-          "measure",
-          "totals",
-          "by_unit",
+          "source_system",
           "projects",
-          "indicators",
-          "lineage",
-          "actions",
+          "mapped",
+          "direct_only",
+          "unmapped",
+          "proposed",
+          "shadows",
+          "direct_fallback"
+        ],
+        "properties": {
+          "source_system": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "integer"
+          },
+          "mapped": {
+            "type": "integer"
+          },
+          "direct_only": {
+            "type": "integer"
+          },
+          "unmapped": {
+            "type": "integer"
+          },
+          "proposed": {
+            "type": "integer"
+          },
+          "shadows": {
+            "type": "integer"
+          },
+          "direct_fallback": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntOrgPack": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "digest",
+          "source",
+          "batch_id",
+          "directory_prefix",
+          "loader",
+          "file_csv",
+          "units",
+          "roles",
+          "seats",
+          "steps",
+          "delegation",
+          "absence",
+          "doa",
+          "catalogue",
+          "plan",
+          "counts",
+          "seat_counts",
+          "stray_grants",
+          "structure_complete",
+          "defects",
           "as_of"
         ],
         "properties": {
-          "snapshot": {
-            "$ref": "#/components/schemas/EnterpriseSnapshot"
-          },
-          "period": {
-            "type": "object"
-          },
-          "pack": {
-            "type": "object"
-          },
-          "measure": {
+          "label": {
             "type": "string"
           },
-          "totals": {
-            "type": "object"
+          "digest": {
+            "type": "string"
           },
-          "by_unit": {
-            "type": "array",
-            "items": {
-              "type": "object"
+          "source": {
+            "type": "string",
+            "enum": [
+              "TEMPLATE",
+              "BATCH"
+            ]
+          },
+          "batch_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "directory_prefix": {
+            "type": "string"
+          },
+          "loader": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target_entity",
+              "mapping_version",
+              "source_system",
+              "file_name",
+              "file_sha256",
+              "row_count"
+            ],
+            "properties": {
+              "target_entity": {
+                "type": "string"
+              },
+              "mapping_version": {
+                "type": "string"
+              },
+              "source_system": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "file_sha256": {
+                "type": "string"
+              },
+              "row_count": {
+                "type": "integer"
+              }
             }
           },
-          "projects": {
+          "file_csv": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "units": {
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "parent_code",
+                "unit_function",
+                "placeholder",
+                "present"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parent_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unit_function": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "boolean"
+                },
+                "present": {
+                  "type": "boolean"
+                }
+              }
             }
           },
-          "indicators": {
+          "roles": {
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "kind",
+                "rank",
+                "permissions",
+                "present"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "rank": {
+                  "type": "integer"
+                },
+                "permissions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "present": {
+                  "type": "boolean"
+                }
+              }
             }
           },
-          "lineage": {
+          "seats": {
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "ad_group",
+                "role_code",
+                "unit_code",
+                "scope_kind",
+                "min_holders",
+                "max_holders",
+                "holders",
+                "state"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "ad_group": {
+                  "type": "string"
+                },
+                "role_code": {
+                  "type": "string"
+                },
+                "unit_code": {
+                  "type": "string"
+                },
+                "scope_kind": {
+                  "type": "string"
+                },
+                "min_holders": {
+                  "type": "integer"
+                },
+                "max_holders": {
+                  "type": "integer"
+                },
+                "holders": {
+                  "type": "integer"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "VACANT",
+                    "FILLED",
+                    "OVER"
+                  ]
+                }
+              }
             }
           },
-          "hash_verified": {
-            "type": "boolean",
-            "nullable": true
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind",
+                "name",
+                "assignee",
+                "role_code",
+                "unit_code",
+                "sla_working_hours",
+                "on_timeout"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "assignee": {
+                  "type": "string"
+                },
+                "role_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unit_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sla_working_hours": {
+                  "type": "integer"
+                },
+                "on_timeout": {
+                  "type": "string"
+                }
+              }
+            }
           },
-          "actions": {
-            "type": "object"
+          "delegation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "delegable_roles",
+              "max_days",
+              "standing_review_days"
+            ],
+            "properties": {
+              "delegable_roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "max_days": {
+                "type": "integer"
+              },
+              "standing_review_days": {
+                "type": "integer"
+              }
+            }
+          },
+          "absence": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "doa": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "document_type",
+              "unit_code",
+              "role_code",
+              "approval_levels"
+            ],
+            "properties": {
+              "document_type": {
+                "type": "string"
+              },
+              "unit_code": {
+                "type": "string"
+              },
+              "role_code": {
+                "type": "string"
+              },
+              "approval_levels": {
+                "type": "integer"
+              }
+            }
+          },
+          "catalogue": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "master_type",
+                "key",
+                "label",
+                "parent_key"
+              ],
+              "properties": {
+                "master_type": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "parent_key": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "plan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "section",
+                "key",
+                "action",
+                "detail"
+              ],
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "CREATE",
+                    "UNCHANGED",
+                    "PENDING",
+                    "DRIFT",
+                    "BLOCKED"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "CREATE",
+              "UNCHANGED",
+              "PENDING",
+              "DRIFT",
+              "BLOCKED"
+            ],
+            "properties": {
+              "CREATE": {
+                "type": "integer"
+              },
+              "UNCHANGED": {
+                "type": "integer"
+              },
+              "PENDING": {
+                "type": "integer"
+              },
+              "DRIFT": {
+                "type": "integer"
+              },
+              "BLOCKED": {
+                "type": "integer"
+              }
+            }
+          },
+          "seat_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "VACANT",
+              "FILLED",
+              "OVER"
+            ],
+            "properties": {
+              "VACANT": {
+                "type": "integer"
+              },
+              "FILLED": {
+                "type": "integer"
+              },
+              "OVER": {
+                "type": "integer"
+              }
+            }
+          },
+          "stray_grants": {
+            "type": "integer"
+          },
+          "structure_complete": {
+            "type": "boolean"
+          },
+          "defects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "key",
+                "field",
+                "message"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "as_of": {
-            "type": "string",
-            "format": "date"
+            "type": "string"
           }
         }
       },
-      "EnterpriseSnapshotReadiness": {
+      "EntOrgPackMaterialiseRequest": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
-          "period",
-          "pack",
-          "complete",
-          "planned_cells",
-          "projects",
-          "missing_units",
-          "waiting_batches",
-          "frozen",
-          "rebuild_allowed",
-          "actions"
+          "batch_id"
         ],
         "properties": {
-          "period": {
-            "type": "object"
+          "batch_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "EntOrgPackMaterialisation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "digest",
+          "batch_id",
+          "items",
+          "counts",
+          "seat_counts",
+          "stray_grants",
+          "structure_complete"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
           },
-          "pack": {
-            "type": "object"
+          "digest": {
+            "type": "string"
           },
-          "complete": {
-            "type": "boolean"
+          "batch_id": {
+            "type": "string"
           },
-          "planned_cells": {
-            "type": "integer"
-          },
-          "projects": {
-            "type": "integer"
-          },
-          "missing_units": {
+          "items": {
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "section",
+                "key",
+                "result",
+                "detail",
+                "id"
+              ],
+              "properties": {
+                "section": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "CREATED",
+                    "UNCHANGED",
+                    "PENDING",
+                    "DRIFT",
+                    "BLOCKED"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
             }
           },
-          "waiting_batches": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          },
-          "frozen": {
+          "counts": {
             "type": "object",
-            "nullable": true
+            "additionalProperties": false,
+            "required": [
+              "CREATED",
+              "UNCHANGED",
+              "PENDING",
+              "DRIFT",
+              "BLOCKED"
+            ],
+            "properties": {
+              "CREATED": {
+                "type": "integer"
+              },
+              "UNCHANGED": {
+                "type": "integer"
+              },
+              "PENDING": {
+                "type": "integer"
+              },
+              "DRIFT": {
+                "type": "integer"
+              },
+              "BLOCKED": {
+                "type": "integer"
+              }
+            }
           },
-          "rebuild_allowed": {
+          "seat_counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "VACANT",
+              "FILLED",
+              "OVER"
+            ],
+            "properties": {
+              "VACANT": {
+                "type": "integer"
+              },
+              "FILLED": {
+                "type": "integer"
+              },
+              "OVER": {
+                "type": "integer"
+              }
+            }
+          },
+          "stray_grants": {
+            "type": "integer"
+          },
+          "structure_complete": {
             "type": "boolean"
-          },
-          "actions": {
-            "type": "object"
           }
         }
       },

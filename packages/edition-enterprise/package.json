@@ -9,7 +9,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "jest --coverage",
     "templates:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-demo-templates.mjs",
-    "templates:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-demo-templates.mjs --check"
+    "templates:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-demo-templates.mjs --check",
+    "org-pack:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-org-pack.mjs",
+    "org-pack:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-org-pack.mjs --check"
   },
   "jest": {
     "preset": "../../jest.preset.cjs",

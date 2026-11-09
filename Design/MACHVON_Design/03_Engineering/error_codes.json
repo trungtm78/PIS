@@ -7428,13 +7428,13 @@
       "statusBasis": "spec",
       "source": "spec:BID"
     },
-    "ENTERPRISE_SNAPSHOT_INCOMPLETE": {
+    "ORG_PACK_INVALID": {
       "status": 422,
-      "title": "Enterprise snapshot incomplete",
-      "meaning": "Kỳ doanh nghiệp chưa đủ số liệu để chốt: còn đầu mối chưa nộp số thực của ô kế hoạch; phản hồi liệt kê đơn vị, dự án, ô và tháng còn thiếu (ENT-3a, DL.03).",
-      "module": "DIS",
+      "title": "Organisation pack invalid",
+      "meaning": "Gói tổ chức của lô nhập không hợp lệ: lô không phải của gói, hoặc các dòng đã áp dụng không còn đúng quy tắc của gói",
+      "module": "ADM",
       "statusBasis": "spec",
-      "source": "spec:DIS"
+      "source": "spec:ADM"
     }
   }
 }

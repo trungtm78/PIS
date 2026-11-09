@@ -963,6 +963,7 @@
     "resolveEbsDifference",
     "reassignEbsDifference",
     "createReportMailSchedule",
-    "retireReportMailSchedule"
+    "retireReportMailSchedule",
+    "materialiseEnterpriseOrgPack"
   ]
 }

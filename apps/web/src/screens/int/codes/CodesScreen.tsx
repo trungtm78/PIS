@@ -16,6 +16,7 @@ import { CodeDialogs } from './CodeDialogs';
 import type { CodeDialog } from './CodeDialogs';
 import { codeStatusLabel, systemKindLabel } from './code-labels';
 import { CODE_FILTERS } from './code-model';
+import { CoverageStrip } from './CoverageStrip';
 import '../int.css';
 
 type T = Translator['t'];
@@ -118,6 +119,7 @@ function CodesContent({ route }: ScreenProps) {
               />
             )}
           </SectionCard>
+          <CoverageStrip coverage={first?.coverage} />
           <SectionCard
             title={t('int.codes.list.title')}
             status={

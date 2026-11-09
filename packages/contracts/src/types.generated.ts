@@ -26043,25 +26043,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/enterprise-snapshots": {
+    "/enterprise/org-pack": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Các bản chốt kỳ doanh nghiệp, mới nhất trước, theo kỳ và trạng thái (ENT-3a, DIS-30) */
-        get: operations["listEnterpriseSnapshots"];
+        /** Tổ chức và vai trò của bản enterprise: gói mẫu PVFCCo hoặc gói của một lô đã áp dụng, kế hoạch nạp và báo cáo kiểm chứng (ENT-3d) */
+        get: operations["getEnterpriseOrgPack"];
         put?: never;
-        /** Dựng bản chốt kỳ doanh nghiệp từ số liệu vốn đã duyệt và chỉ tiêu đã nhập; từ chối kèm danh sách đơn vị chưa nộp; kỳ đã chốt chỉ dựng lại sau khi mở lại kỳ (ENT-3a, DIS-30) */
-        post: operations["buildEnterpriseSnapshot"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/enterprise-snapshots/{id}/freeze": {
+    "/enterprise/org-pack/materialisations": {
         parameters: {
             query?: never;
             header?: never;
@@ -26070,42 +26069,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Chốt bản chốt kỳ doanh nghiệp bằng mã băm lược đồ 2; người dựng không tự chốt; bản chốt trước của cùng kỳ thành SUPERSEDED (ENT-3a, DIS-31) */
-        post: operations["freezeEnterpriseSnapshot"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/enterprise-snapshots/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Chi tiết một bản chốt kỳ doanh nghiệp đọc qua một bộ đọc duy nhất: tổng, theo đơn vị, theo dự án, tỷ lệ kèm tử số mẫu số, chỉ tiêu, dòng dõi phiên bản (ENT-3a, DIS-31) */
-        get: operations["getEnterpriseSnapshot"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/enterprise-snapshot-readiness": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Kỳ đã đủ số liệu để dựng bản chốt chưa: đơn vị, dự án, ô và tháng còn thiếu, lô chờ duyệt, bản đã chốt và điều kiện dựng lại (ENT-3a, DIS-30) */
-        get: operations["getEnterpriseSnapshotReadiness"];
-        put?: never;
-        post?: never;
+        /** Biến lô gói tổ chức đã áp dụng thành đơn vị, vai trò và đề xuất quy tắc, danh mục chờ duyệt; chạy lại không đổi gì (ENT-3d) */
+        post: operations["materialiseEnterpriseOrgPack"];
         delete?: never;
         options?: never;
         head?: never;
@@ -26963,7 +26928,7 @@ export interface components {
             /** Format: uuid */
             appropriation_id: string;
             /** @enum {string} */
-            bucket: "CURRENT_YEAR" | "CARRYOVER" | "OTHER";
+            bucket: "CURRENT_YEAR" | "CARRYOVER" | "OTHER" | "EQUITY" | "LOAN";
             source_year: number;
             amount_vnd: components["schemas"]["Money"];
             ctmtqg_subset_vnd?: components["schemas"]["Money"];
@@ -26992,9 +26957,9 @@ export interface components {
             fund_source_version_id: string;
             plan_year: number;
             /** @enum {string} */
-            origin: "PM_ASSIGNED" | "LOCAL_ADDED" | "CARRYOVER" | "CENTRAL_SUPPORT" | "REVENUE_INCREASE";
+            origin: "PM_ASSIGNED" | "LOCAL_ADDED" | "CARRYOVER" | "CENTRAL_SUPPORT" | "REVENUE_INCREASE" | "GROUP_ASSIGNED" | "BOARD_APPROVED";
             /** @enum {string} */
-            budget_level: "CENTRAL" | "LOCAL";
+            budget_level: "CENTRAL" | "LOCAL" | "ALL";
             /** Format: uuid */
             program_master_version_id?: string;
             amount_vnd: components["schemas"]["Money"];
@@ -27010,6 +26975,7 @@ export interface components {
             supersedes_id?: string;
             /** Format: uuid */
             capital_plan_id?: string;
+            decision_kind?: string;
         };
         CapReservation: {
             /** Format: uuid */
@@ -42154,6 +42120,7 @@ export interface components {
             systems: components["schemas"]["ProjectCodeSystem"][];
             can_propose: boolean;
             as_of: string;
+            coverage?: components["schemas"]["ProjectCodeCoverage"][];
         };
         ProjectCodePropose: {
             source_system: string;
@@ -46588,81 +46555,149 @@ export interface components {
             };
             as_of: string;
         };
-        EnterpriseSnapshotBuild: {
-            /** Format: uuid */
-            period_id: string;
-        };
-        EnterpriseSnapshot: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            period_id: string;
-            period_code: string;
-            /** @enum {string} */
-            status: "BUILDING" | "FROZEN" | "SUPERSEDED" | "FAILED";
-            revision: number;
-            version: number;
-            payload_sha256: string | null;
-            taxonomy_pack: string;
-            taxonomy_version?: number;
-            hash_schema?: number;
-            definition_status?: string;
-            row_count: number;
-            figure_count?: number;
-            indicator_count?: number;
-            /** Format: date-time */
-            as_of_at?: string;
-            /** Format: date */
-            as_of_date?: string;
-            /** Format: uuid */
-            supersedes_id?: string | null;
-            /** Format: uuid */
-            frozen_by?: string | null;
-            /** Format: date-time */
-            frozen_at?: string | null;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: uuid */
-            created_by?: string;
-        } & {
-            [key: string]: unknown;
-        };
-        EnterpriseSnapshotList: {
-            items: components["schemas"]["EnterpriseSnapshot"][];
-            next_cursor: string | null;
-        } & {
-            [key: string]: unknown;
-        };
-        EnterpriseSnapshotDetail: {
-            snapshot: components["schemas"]["EnterpriseSnapshot"];
-            period: Record<string, never>;
-            pack?: Record<string, never>;
-            measure: string;
-            totals: Record<string, never>;
-            by_unit: Record<string, never>[];
-            projects: Record<string, never>[];
-            indicators: Record<string, never>[];
-            lineage: Record<string, never>[];
-            hash_verified?: boolean | null;
-            actions: Record<string, never>;
-            /** Format: date */
-            as_of: string;
-        } & {
-            [key: string]: unknown;
-        };
-        EnterpriseSnapshotReadiness: {
-            period: Record<string, never>;
-            pack: Record<string, never>;
-            complete: boolean;
-            planned_cells: number;
+        ProjectCodeCoverage: {
+            source_system: string;
             projects: number;
-            missing_units: Record<string, never>[];
-            waiting_batches: Record<string, never>[];
-            frozen: Record<string, never> | null;
-            rebuild_allowed: boolean;
-            actions: Record<string, never>;
-        } & {
-            [key: string]: unknown;
+            mapped: number;
+            direct_only: number;
+            unmapped: number;
+            proposed: number;
+            shadows: number;
+            direct_fallback: boolean;
+        };
+        EntOrgPack: {
+            label: string;
+            digest: string;
+            /** @enum {string} */
+            source: "TEMPLATE" | "BATCH";
+            batch_id: string | null;
+            directory_prefix: string;
+            loader: {
+                target_entity: string;
+                mapping_version: string;
+                source_system: string;
+                file_name: string;
+                file_sha256: string;
+                row_count: number;
+            };
+            file_csv: string | null;
+            units: {
+                code: string;
+                name: string;
+                parent_code: string | null;
+                unit_function: string;
+                placeholder: boolean;
+                present: boolean;
+            }[];
+            roles: {
+                code: string;
+                name: string;
+                kind: string;
+                rank: number;
+                permissions: string[];
+                present: boolean;
+            }[];
+            seats: {
+                key: string;
+                ad_group: string;
+                role_code: string;
+                unit_code: string;
+                scope_kind: string;
+                min_holders: number;
+                max_holders: number;
+                holders: number;
+                /** @enum {string} */
+                state: "VACANT" | "FILLED" | "OVER";
+            }[];
+            steps: {
+                id: string;
+                kind: string;
+                name: string;
+                assignee: string;
+                role_code: string | null;
+                unit_code: string | null;
+                sla_working_hours: number;
+                on_timeout: string;
+            }[];
+            delegation: {
+                delegable_roles: string[];
+                max_days: number;
+                standing_review_days: number;
+            };
+            absence: {
+                [key: string]: unknown;
+            };
+            doa: {
+                document_type: string;
+                unit_code: string;
+                role_code: string;
+                approval_levels: number;
+            };
+            catalogue: {
+                master_type: string;
+                key: string;
+                label: string;
+                parent_key: string | null;
+            }[];
+            plan: {
+                section: string;
+                key: string;
+                /** @enum {string} */
+                action: "CREATE" | "UNCHANGED" | "PENDING" | "DRIFT" | "BLOCKED";
+                detail: string;
+            }[];
+            counts: {
+                CREATE: number;
+                UNCHANGED: number;
+                PENDING: number;
+                DRIFT: number;
+                BLOCKED: number;
+            };
+            seat_counts: {
+                VACANT: number;
+                FILLED: number;
+                OVER: number;
+            };
+            stray_grants: number;
+            structure_complete: boolean;
+            defects: {
+                code: string;
+                key: string;
+                field: string;
+                message: string;
+            }[];
+            as_of: string;
+        };
+        EntOrgPackMaterialiseRequest: {
+            /** Format: uuid */
+            batch_id: string;
+        };
+        EntOrgPackMaterialisation: {
+            label: string;
+            digest: string;
+            batch_id: string;
+            items: {
+                section: string;
+                key: string;
+                /** @enum {string} */
+                result: "CREATED" | "UNCHANGED" | "PENDING" | "DRIFT" | "BLOCKED";
+                detail: string;
+                id: string | null;
+            }[];
+            counts: {
+                CREATED: number;
+                UNCHANGED: number;
+                PENDING: number;
+                DRIFT: number;
+                BLOCKED: number;
+            };
+            seat_counts: {
+                VACANT: number;
+                FILLED: number;
+                OVER: number;
+            };
+            stray_grants: number;
+            structure_complete: boolean;
         };
         LeaderRateRow: {
             /** @enum {string} */
@@ -206735,12 +206770,10 @@ export interface operations {
             };
         };
     };
-    listEnterpriseSnapshots: {
+    getEnterpriseOrgPack: {
         parameters: {
             query?: {
-                period_id?: string;
-                status?: string;
-                limit?: number;
+                batch_id?: string;
             };
             header?: never;
             path?: never;
@@ -206754,7 +206787,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EnterpriseSnapshotList"];
+                    "application/json": components["schemas"]["EntOrgPack"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -206831,7 +206864,7 @@ export interface operations {
             };
         };
     };
-    buildEnterpriseSnapshot: {
+    materialiseEnterpriseOrgPack: {
         parameters: {
             query?: never;
             header: {
@@ -206842,7 +206875,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EnterpriseSnapshotBuild"];
+                "application/json": components["schemas"]["EntOrgPackMaterialiseRequest"];
             };
         };
         responses: {
@@ -206852,295 +206885,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
-                };
-            };
-            /** @description Invalid request / field not allowed (DTO allowlist) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Unauthenticated */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Forbidden / scope / self-approval / entitlement */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Not found within scope (never discloses other tenants) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Version / state / idempotency conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Domain invariant failure */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Rate limit */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Dependency unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    freezeEnterpriseSnapshot: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
-                "If-Match": string;
-            };
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Command accepted; returns resource id/version/status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CommandResult"];
-                };
-            };
-            /** @description Invalid request / field not allowed (DTO allowlist) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Unauthenticated */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Forbidden / scope / self-approval / entitlement */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Not found within scope (never discloses other tenants) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Version / state / idempotency conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Domain invariant failure */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Rate limit */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Dependency unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    getEnterpriseSnapshot: {
-        parameters: {
-            query?: {
-                measure?: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EnterpriseSnapshotDetail"];
-                };
-            };
-            /** @description Invalid request / field not allowed (DTO allowlist) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Unauthenticated */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Forbidden / scope / self-approval / entitlement */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Not found within scope (never discloses other tenants) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Version / state / idempotency conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Domain invariant failure */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Rate limit */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Dependency unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    getEnterpriseSnapshotReadiness: {
-        parameters: {
-            query: {
-                period_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EnterpriseSnapshotReadiness"];
+                    "application/json": components["schemas"]["EntOrgPackMaterialisation"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
