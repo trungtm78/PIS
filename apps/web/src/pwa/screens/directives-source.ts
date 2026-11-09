@@ -7,7 +7,7 @@ import type { DirectiveLine, DirectiveStatus, Summary } from '../../screens/dir/
  * The source of the directive tracking view (PWA-04, YCK.01). It reads the real operations of the directive module, through the same hooks as DIR-03:
  * `listDirectives` (the directives of the reader's scope, narrowed by status, overdue and unit, page after page), `getDirectiveSummary` (the counts with the
  * formula of each number) and, for the detail, `getDirective`. The screen is written against `DirectivesSource` so a test can provide a reading; the default
- * is `liveSource`, which asks the server. A directive carries its clock (`phase`, `days_to_due`, `overdue_days`, computed by the server) and its progress
+ * is `useLiveSource`, which asks the server. A directive carries its clock (`phase`, `days_to_due`, `overdue_days`, computed by the server) and its progress
  * lives in the timeline of its detail, not in the list.
  */
 export interface DirectivesQuery {
@@ -44,7 +44,7 @@ export type DirectivesReading =
 export type DirectivesSource = (query: DirectivesQuery) => DirectivesReading;
 
 /** The default source: the list and the summary of the directive module, read live. */
-export const liveSource: DirectivesSource = (query) => {
+export const useLiveSource: DirectivesSource = (query) => {
   const filter = { status: query.status, unitId: query.unitId, projectId: '', meetingId: '', assignedToMe: false, overdue: query.overdue, q: '', dueFrom: '', dueTo: '' };
   const list = useDirectiveList(filter, PAGE_SIZE);
   const summary = useSummary({ unitId: query.unitId, projectId: '', meetingId: '' });
@@ -69,7 +69,7 @@ export const liveSource: DirectivesSource = (query) => {
   };
 };
 
-export const DirectivesSourceContext = createContext<DirectivesSource>(liveSource);
+export const DirectivesSourceContext = createContext<DirectivesSource>(useLiveSource);
 
 /** The directives of the signed-in person's scope, from whatever source the application provides. */
 export function useDirectives(query: DirectivesQuery): DirectivesReading {
