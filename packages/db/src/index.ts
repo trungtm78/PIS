@@ -1903,15 +1903,15 @@ export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-atta
 // ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
 export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
 export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';
-export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { CALENDAR_REMINDER_METRIC, MAX_REMINDERS_PER_PASS, REMINDER_HORIZON_DAYS, runCalendarReminders } from './reporting-calendar-reminders.ts';
+export { CALENDAR_REMINDER_METRIC, MAX_REMINDERS_PER_PASS, REMINDER_HORIZON_DAYS, runCalendarReminders } from './reporting-calendar-reminders.ts';
 export type { CalendarReminderResult } from './reporting-calendar-reminders.ts';
 export { ReportingCalendarStore, WHOLE_TENANT, figureKeyOf, seriesKeyOf } from './reporting-calendar-store.ts';
 export type { CalendarMeetingRow, CalendarPeriodRow, ScheduleReminderRecord, UnitFactsRow } from './reporting-calendar-store.ts';
 export { ReportingScheduleReader } from './reporting-schedule-reader.ts';
 export type { ScheduleReading } from './reporting-schedule-reader.ts';
-export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { EquipmentProcurementStore } from './equipment-procurement-store.ts';
+export { EquipmentProcurementStore } from './equipment-procurement-store.ts';
 export type { EquipmentCreateInput, EquipmentLine, EquipmentListFilter, EquipmentPatch } from './equipment-procurement-store.ts';
-export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { BackupRequestStore } from './backup-request-store.ts';
+export { BackupRequestStore } from './backup-request-store.ts';
 export type { BackupDecision, BackupRequestRow } from './backup-request-store.ts';
 
 export { EntNarrativeStore } from './ent-narrative-store.ts';
