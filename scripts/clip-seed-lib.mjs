@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, BI. */
-export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-bi'];
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-bi', 'clip-ent-alert-triage'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
@@ -37,9 +37,13 @@ export const DATASET_PHASES = {
   ],
   enterprise: [
     { clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts'] },
+    // The warning rules are published before the weekly snapshots are frozen (the freeze evaluates them); the equipment lines tie to the packages and contracts made above.
+    { clockDays: 0, groups: ['clip-ent-alerts', 'clip-ent-equipment'] },
     // The package workflows are driven at seven clocks (each package has its own), so the process tree shows late steps beside the ones on time.
     ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-ent-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
     { clockDays: 0, groups: ['clip-ent-disbursement', 'clip-ent-bi'] },
+    // The leader handles the warnings the freeze of the weekly snapshots opened (the job runs after the freeze).
+    { clockDays: 0, groups: ['clip-ent-alert-triage'] },
   ],
 };
 
