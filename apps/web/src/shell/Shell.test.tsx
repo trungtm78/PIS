@@ -1,6 +1,7 @@
 import { act, cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { t } from '../i18n';
 import vi_ from '../i18n/vi.json';
 import { mockMatchMedia, renderApp, TENANT_A, TENANT_B } from '../test/render';
 
@@ -287,9 +288,13 @@ describe('tenant switch (AC-ST-KERNEL-031-3)', () => {
 });
 
 describe('help and account', () => {
-  it('links the help and account destinations', async () => {
+  it('opens the guide of the screen from the header and links the help centre and the account', async () => {
     renderApp('/home/home-01');
-    expect(screen.getByRole('link', { name: vi_['shell.nav.help.label'] })).toHaveAttribute('href', '/iam/iam-08');
+    await userEvent.click(screen.getByRole('button', { name: t('shell.help.open.label') }));
+    const guide = await screen.findByRole('dialog', { name: t('shell.help.drawer.title', { screen: 'Tổng quan điều hành' }) });
+    expect(within(guide).getByRole('link', { name: t('shell.help.centre.label') })).toHaveAttribute('href', '/iam/iam-08');
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     const account = screen.getByRole('link', { name: accountLabel });
     expect(account).toHaveAttribute('href', '/iam/iam-05');
     expect(within(account).getByText('Nguyễn An')).toBeInTheDocument();

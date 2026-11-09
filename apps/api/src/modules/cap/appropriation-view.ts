@@ -27,6 +27,8 @@ export function appropriationView(row: AppropriationRow): Record<string, unknown
     remaining_vnd: row.remainingVnd,
     decision_document: { id: row.decisionDocumentId, symbol: row.decisionSymbol, issued_on: row.decisionIssuedOn },
     issuing_authority: row.issuingAuthority,
+    // Only an appropriation of the enterprise pack carries the kind of its decision document: the line of a public one is what it always was.
+    ...(row.decisionKind === null ? {} : { decision_kind: row.decisionKind }),
     source_year: row.sourceYear,
     is_extended: row.isExtended,
     extended_to: row.extendedTo,

@@ -66,7 +66,23 @@ export function notificationFromPush(data: string | undefined, words: PushWords)
   };
 }
 
+/**
+ * The receipt token a push may carry (`rcpt`): an opaque capability that lets the worker tell the server the notification was shown or opened. Only a string of the
+ * exact size and alphabet of a token is taken (the server decides if it is valid), so nothing else can ride in this member.
+ */
+export const RECEIPT_LENGTH = 114;
+export function receiptFromPush(data: string | undefined): string | undefined {
+  try {
+    const parsed: unknown = data === undefined || data === '' ? undefined : JSON.parse(data);
+    const value = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>).rcpt : undefined;
+    return isReceipt(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+export const isReceipt = (value: unknown): value is string => typeof value === 'string' && value.length === RECEIPT_LENGTH && /^[A-Za-z0-9_-]+$/.test(value);
+
 /** The data of the push of a notification, as the server writes it. */
-export function pushDataOf(title: string, url: string): string {
-  return JSON.stringify({ v: 1, title: isGenericTitle(title) ? title.trim() : '', url: safeDeepLink(url) });
+export function pushDataOf(title: string, url: string, receipt?: string): string {
+  return JSON.stringify({ v: 1, title: isGenericTitle(title) ? title.trim() : '', url: safeDeepLink(url), ...(isReceipt(receipt) ? { rcpt: receipt } : {}) });
 }

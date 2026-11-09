@@ -1,5 +1,6 @@
 import { defineModule } from '../module-descriptor';
 import { registerMofReportForms, registerPublicReportForms } from './form-registry';
+import { LayoutPreviewController } from './layout-preview.controller';
 import { PeriodReportController, PeriodReportReadsController } from './period-report.controller';
 import { ReportController } from './report.controller';
 import { ReportReadsController } from './report-reads.controller';
@@ -14,5 +15,5 @@ registerMofReportForms();
  */
 export const rptModule = defineModule({
   code: 'RPT',
-  controllers: [ReportController, ReportReadsController, PeriodReportController, PeriodReportReadsController],
+  controllers: [ReportController, ReportReadsController, LayoutPreviewController, PeriodReportController, PeriodReportReadsController],
 });

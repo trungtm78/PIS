@@ -24970,6 +24970,79 @@
     ]
   },
   {
+    "id": "UI-RPT-07",
+    "source": "FR-RPT-07",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bố cục biểu mẫu cấu hình; người dùng có quyền và người dùng không có quyền; route RPT-07",
+    "steps": [
+      "Mở RPT-07 từ menu và deep link; kiểm nhãn trường: Mã bố cục, Loại (nội bộ, theo yêu cầu của Sở, Ban, Ngành), Phiên bản đang hiệu lực, Trạng thái phiên bản, Người lập, Người duyệt, Hiệu lực từ, Mã băm bố cục",
+      "Thực hiện thao tác chính theo quy tắc: Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-07"
+    ],
+    "expected": "Bố cục biểu mẫu cấu hình: hiển thị đúng các trường, áp quy tắc \"Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-07"
+    ]
+  },
+  {
+    "id": "UI-RPT-08",
+    "source": "FR-RPT-08",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Soạn bố cục biểu mẫu; người dùng có quyền và người dùng không có quyền; route RPT-08",
+    "steps": [
+      "Mở RPT-08 từ menu và deep link; kiểm nhãn trường: Loại và tên biểu mẫu, Đơn vị yêu cầu và văn bản yêu cầu, Chỉ tiêu, tiêu đề và cơ sở kỳ, Cột bảng dự án và thứ tự, Nhóm dự án, Tổng cộng và người ký, Xem trước bằng số liệu minh họa, Lý do và hiệu lực",
+      "Thực hiện thao tác chính theo quy tắc: Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-08"
+    ],
+    "expected": "Soạn bố cục biểu mẫu: hiển thị đúng các trường, áp quy tắc \"Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-08"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3410",
+    "source": "ENT-4b",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A weekly report and a configured form with the same data; the workbook template, the Word skeleton where there is one.",
+    "steps": [
+      "Generate the report and open the workbook, the Word file and the PDF",
+      "Issue the copy and download the PDF"
+    ],
+    "expected": "The cells, formulas, words and the number of pages of the three files agree; the PDF is named by the file-name rule and kept with its hash; the copy records the hash of the layout.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-07",
+      "FR-RPT-08"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3411",
+    "source": "ENT-4b",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A layout drafted by user A as a rule of the type REPORT_LAYOUT; users B and C.",
+    "steps": [
+      "A drafts, B submits, C approves",
+      "Generate and issue a report of the configured form",
+      "Approve a newer version of the layout and open the issued copy again"
+    ],
+    "expected": "The form is offered from the day it is in force; the issued copy keeps the version and the hash of its layout; the official forms of PVN, HPM and the Ministry cannot be configured.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-07",
+      "FR-RPT-08"
+    ]
+  },
+  {
     "id": "UAT-PLAN-3002",
     "source": "GOV-12",
     "type": "business",
@@ -25844,6 +25917,60 @@
     "evidence": null,
     "covers": [
       "FR-VND-24"
+    ]
+  },
+  {
+    "id": "UI-ORG-01",
+    "source": "FR-ADM-ENT3D",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, edition enterprise; a user with adm.migration.read and a read-only user; route ORG-01",
+    "steps": [
+      "Open ORG-01 from the menu and by deep link; check the labelled fields: units, roles, seats with directory groups, staged approval, delegation, catalogue, plan and verification",
+      "Enter the id of an applied batch, show its pack, create the units and roles",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "All sections shown, the template note visible, no write in the read-only mode",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-ORG-1",
+    "source": "ORG.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenant TNT-A with a root unit and an administrator who is not the registrar (story ST-ORG-001)",
+    "steps": [
+      "Register and dry run a broken pack: the error names the row",
+      "Register, dry run and apply the template pack by two different people",
+      "Materialise the applied batch twice"
+    ],
+    "expected": "The broken pack stops at the dry run; the first run creates units and roles and proposes the rest; the second creates nothing",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-ORG-2",
+    "source": "ORG.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Enterprise edition, tenant TNT-A with a root unit and an administrator who is not the registrar (story ST-ORG-001)",
+    "steps": [
+      "Give the entry role to a person of one input point with the scope of that unit",
+      "Read the permissions of that person in their unit and in another",
+      "Do the same for the planning reviewer and the leadership viewer"
+    ],
+    "expected": "The entry person holds ind.entry in their unit only; the planning reviewer and the leadership see every unit; the leadership role holds only reads",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
     ]
   }
 ]

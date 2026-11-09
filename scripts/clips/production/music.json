@@ -131,6 +131,35 @@
           "note": "Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên."
         },
         {
+          "id": "pub-more",
+          "chapters": [
+            "features-tour",
+            "contractors-plus",
+            "contractor-portal",
+            "claims-warnings",
+            "alerts-plus",
+            "delegation",
+            "audit-controls",
+            "risk-forecast",
+            "project-life",
+            "capital-control",
+            "payments",
+            "reports-close",
+            "monitoring",
+            "procurement-desk",
+            "contract-delivery",
+            "field-ops",
+            "docs-ai-plus",
+            "correspondence",
+            "integration",
+            "portal-public",
+            "platform",
+            "phone-plus"
+          ],
+          "level": "quiet",
+          "note": "Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này."
+        },
+        {
           "id": "pub-close",
           "chapters": [
             "close"
@@ -193,6 +222,32 @@
           ],
           "level": "lift",
           "note": "Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên."
+        },
+        {
+          "id": "ent-more",
+          "chapters": [
+            "features-tour",
+            "contractors-plus",
+            "contractor-portal",
+            "claims-warnings",
+            "alerts-plus",
+            "delegation",
+            "audit-controls",
+            "risk-forecast",
+            "project-life",
+            "reports-close",
+            "ent-cycle",
+            "procurement-desk",
+            "contract-delivery",
+            "field-ops",
+            "docs-ai-plus",
+            "correspondence",
+            "integration",
+            "platform",
+            "phone-plus"
+          ],
+          "level": "quiet",
+          "note": "Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này."
         },
         {
           "id": "ent-close",

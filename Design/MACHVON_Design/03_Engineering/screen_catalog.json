@@ -13652,6 +13652,74 @@
     "source": "Phần việc còn lại của VND-3 (kiến nghị chưa có kết quả); kế hoạch PORTAL-2"
   },
   {
+    "id": "ORG-01",
+    "module": "ORG",
+    "moduleName": "Tổ chức enterprise",
+    "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+    "kind": "dashboard",
+    "fields": [
+      "Đơn vị và 09 đầu mối",
+      "Vai trò và phạm vi",
+      "Chỗ ngồi và nhóm thư mục",
+      "Quy trình duyệt từng bước",
+      "Ủy quyền",
+      "Danh mục dùng chung",
+      "Kế hoạch nạp và báo cáo kiểm chứng"
+    ],
+    "role": "Quản trị Ban CĐS&CNTT, Ban KHĐT, lãnh đạo xem",
+    "rule": "Chỉ đọc; gói mẫu PVFCCO-TEMPLATE không có người, không có tài khoản; nạp qua lô nhập ADM (chạy thử, áp dụng bởi người khác) rồi biến thành đối tượng thật; không ghi đè khác biệt",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADM-ENT3D",
+    "source": "HSKT v0.3 HT.02, HT.03, MD.03, QT.01"
+  },
+  {
+    "id": "RPT-07",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "Bố cục biểu mẫu cấu hình",
+    "kind": "table",
+    "fields": [
+      "Mã bố cục",
+      "Loại (nội bộ, theo yêu cầu của Sở, Ban, Ngành)",
+      "Phiên bản đang hiệu lực",
+      "Trạng thái phiên bản",
+      "Người lập",
+      "Người duyệt",
+      "Hiệu lực từ",
+      "Mã băm bố cục"
+    ],
+    "role": "Người lập báo cáo, lãnh đạo duyệt",
+    "rule": "Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RPT-07",
+    "source": "Làn ENT-4b; kế hoạch ENT-3 G5, rà soát R23; HSKT BC.01"
+  },
+  {
+    "id": "RPT-08",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "Soạn bố cục biểu mẫu",
+    "kind": "form",
+    "fields": [
+      "Loại và tên biểu mẫu",
+      "Đơn vị yêu cầu và văn bản yêu cầu",
+      "Chỉ tiêu, tiêu đề và cơ sở kỳ",
+      "Cột bảng dự án và thứ tự",
+      "Nhóm dự án",
+      "Tổng cộng và người ký",
+      "Xem trước bằng số liệu minh họa",
+      "Lý do và hiệu lực"
+    ],
+    "role": "Người lập báo cáo",
+    "rule": "Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-RPT-08",
+    "source": "Làn ENT-4b; kế hoạch ENT-3 G5, rà soát R23; HSKT BC.01"
+  },
+  {
     "id": "MOB-75",
     "module": "MOB",
     "moduleName": "Ứng dụng iOS và Android",

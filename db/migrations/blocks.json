@@ -381,6 +381,21 @@
       "slice": "PORTAL-2",
       "from": 2640,
       "to": 2659
+    },
+    {
+      "slice": "ENT-3",
+      "from": 2740,
+      "to": 2759
+    },
+    {
+      "slice": "ENT4B-1",
+      "from": 2760,
+      "to": 2779
+    },
+    {
+      "slice": "WEBPUSH-1",
+      "from": 2860,
+      "to": 2879
     }
   ]
 }

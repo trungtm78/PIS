@@ -3,7 +3,7 @@ import { DomainError, VND_SCALE, addDecimal, asUuid, compareDecimal, requirePosi
 import { CapAppropriationStore } from './cap-appropriation-store.ts';
 import type { AppropriationOrigin, BudgetLevel } from './cap-appropriation-store.ts';
 import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
-import { CapPlanReads, LINE_BUCKETS, PLAN_KINDS } from './cap-plan-reads.ts';
+import { CapPlanReads, ENTERPRISE_LINE_BUCKETS, LINE_BUCKETS, PLAN_KINDS } from './cap-plan-reads.ts';
 import type { LineBucket, PlanKind, PlanReadScope, PlanStatus } from './cap-plan-reads.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -173,6 +173,8 @@ interface AppropriationLock {
   sourceYear: number;
   origin: AppropriationOrigin;
   budgetLevel: BudgetLevel;
+  /** PUBLIC or ENTERPRISE: the pack the appropriation is counted in; its plan lines are counted in the same one. */
+  taxonomyPack: string;
   amountVnd: string;
   allocatedTotalVnd: string;
   fundSourceVersionId: string;
@@ -189,6 +191,7 @@ interface AppropriationLockSql {
   source_year: number;
   origin: AppropriationOrigin;
   budget_level: BudgetLevel;
+  taxonomy_pack: string;
   amount_vnd: string;
   allocated_total_vnd: string;
   fund_source_version_id: string;
@@ -276,7 +279,7 @@ function checkedDraft(input: DraftInput): CheckedDraft {
   if (input.lines.length + removeLineIds.length === 0 || input.lines.length > MAX_LINES_PER_COMMAND || removeLineIds.length > MAX_LINES_PER_COMMAND) throw invalid('lines');
   const seen = new Set<string>();
   const lines = input.lines.map((line): CheckedLine => {
-    if (!LINE_BUCKETS.includes(line.bucket)) throw invalid('bucket');
+    if (!(LINE_BUCKETS as readonly string[]).includes(line.bucket) && !(ENTERPRISE_LINE_BUCKETS as readonly string[]).includes(line.bucket)) throw invalid('bucket');
     const amountVnd = amountOf(line.amountVnd, 'amount_vnd');
     const checked: CheckedLine = {
       projectId: uuidOf(line.projectId, 'project_id'),
@@ -548,7 +551,7 @@ export class CapPlanStore {
   private async lockAppropriations(tx: TenantTx, ids: readonly string[]): Promise<Map<string, AppropriationLock>> {
     if (ids.length === 0) return new Map();
     const rows = await tx.query<AppropriationLockSql>(
-      `select id, status, plan_year, source_year, origin, budget_level, amount_vnd::text as amount_vnd, allocated_total_vnd::text as allocated_total_vnd,
+      `select id, status, plan_year, source_year, origin, budget_level, taxonomy_pack, amount_vnd::text as amount_vnd, allocated_total_vnd::text as allocated_total_vnd,
               fund_source_version_id, program_master_version_id, is_extended, extended_to::text as extended_to, extension_document_id
          from machvon.appropriation where id = any($1::uuid[]) order by id for update`,
       [[...ids]],
@@ -563,6 +566,7 @@ export class CapPlanStore {
           sourceYear: row.source_year,
           origin: row.origin,
           budgetLevel: row.budget_level,
+          taxonomyPack: row.taxonomy_pack,
           amountVnd: row.amount_vnd,
           allocatedTotalVnd: row.allocated_total_vnd,
           fundSourceVersionId: row.fund_source_version_id,
@@ -584,7 +588,14 @@ export class CapPlanStore {
     const inPlan = plan.planKind === 'ANNUAL' ? appropriation.planYear === plan.planYear : appropriation.planYear >= plan.periodFromYear && appropriation.planYear <= plan.periodToYear;
     if (!inPlan) throw invalid('appropriation_id');
     if (line.sourceYear !== appropriation.sourceYear) throw invalid('source_year');
-    if ((appropriation.origin === 'CARRYOVER') !== (line.bucket === 'CARRYOVER')) throw invalid('bucket');
+    if (appropriation.taxonomyPack === 'ENTERPRISE') {
+      // The enterprise pack has no carry-over class and no subset: a carried-over appropriation is spent in the classes of the pack like any other (ENT-3e).
+      if (!(ENTERPRISE_LINE_BUCKETS as readonly string[]).includes(line.bucket)) throw invalid('bucket');
+      if (line.ctmtqgSubsetVnd !== '0') throw invalid('ctmtqg_subset_vnd');
+    } else {
+      if (!(LINE_BUCKETS as readonly string[]).includes(line.bucket)) throw invalid('bucket');
+      if ((appropriation.origin === 'CARRYOVER') !== (line.bucket === 'CARRYOVER')) throw invalid('bucket');
+    }
     if (line.programMasterVersionId === undefined) return undefined;
     const program = await this.register.masterInForce(tx, 'program_master_version_id', line.programMasterVersionId, ['PROGRAM'], today);
     if (appropriation.programMasterVersionId !== null) {
@@ -633,9 +644,9 @@ export class CapPlanStore {
     await tx.query(
       `insert into machvon.allocation_line
          (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin,
-          is_extended, extended_to, extension_document_id, program_master_version_id, previous_line_id, created_by, updated_by, version)
+          is_extended, extended_to, extension_document_id, program_master_version_id, previous_line_id, created_by, updated_by, version, taxonomy_pack)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4, $5::integer, $6::numeric, $7::numeric, $8::uuid, $9::uuid, $10, $11,
-               $12::boolean, $13::date, $14::uuid, $15::uuid, $16::uuid, $17::uuid, $17::uuid, 1)`,
+               $12::boolean, $13::date, $14::uuid, $15::uuid, $16::uuid, $17::uuid, $17::uuid, 1, $18)`,
       [
         row.id,
         row.planVersionId,
@@ -654,6 +665,7 @@ export class CapPlanStore {
         row.programId,
         row.previousId,
         row.actor,
+        appropriation.taxonomyPack,
       ],
     );
   }

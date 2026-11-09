@@ -159,6 +159,8 @@ export function channelLabel(t: T, channel: string): string {
       return t('gov10.ladder.channel.push');
     case 'EMAIL':
       return t('gov10.ladder.channel.email');
+    case 'TEAMS':
+      return t('gov10.ladder.channel.teams');
     case 'ZALO':
       return t('gov10.ladder.channel.zalo');
     default:

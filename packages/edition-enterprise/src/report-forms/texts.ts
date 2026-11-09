@@ -13,6 +13,8 @@ const FOLDERS: readonly (readonly string[])[] = [
   ['src', 'report-forms', 'messages'],
   ['packages', 'edition-enterprise', 'src', 'integration', 'messages'],
   ['src', 'integration', 'messages'],
+  ['packages', 'edition-enterprise', 'src', 'org-pack', 'messages'],
+  ['src', 'org-pack', 'messages'],
 ];
 
 const CACHE = new Map<string, unknown>();

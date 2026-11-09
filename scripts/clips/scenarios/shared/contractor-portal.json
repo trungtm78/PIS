@@ -1,0 +1,231 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "contractor-portal",
+  "title": "Cổng nhà thầu",
+  "summary": "The contractor portal of VND-3: own profile and annual re-confirmation, requests and replies with clocks, certificates and attachments, evaluations with remediation plans, petitions and claims statistics with the open contracting export, invitations and portal management.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "portal-home",
+      "chapter": "contractor-portal",
+      "main": false,
+      "narration": "Nhà thầu có cổng riêng và chỉ thấy hồ sơ của chính mình. Trang đầu nêu việc cần làm: yêu cầu chờ trả lời, chứng chỉ sắp hết hạn và tái xác nhận hằng năm. Dữ liệu của nhà thầu khác, chỉ báo đáng ngờ và đầu mối điều tra không bao giờ hiện.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "contractorUser"
+        },
+        {
+          "do": "open",
+          "screen": "VND-16"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.my-profile"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.reconfirmation"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Chỉ thấy dữ liệu của chính mình",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "portal-requests",
+      "chapter": "contractor-portal",
+      "main": false,
+      "narration": "Bên mời thầu hỏi, nhà thầu trả lời ngay trên cổng và trong thời hạn. Mỗi yêu cầu có đồng hồ, tệp đính kèm và lịch sử. Tỷ lệ trả lời đúng hạn được tính cho cả hai phía.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "contractorUser"
+        },
+        {
+          "do": "open",
+          "screen": "VND-17"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.requests-list"
+        },
+        {
+          "do": "click",
+          "ref": "vnd.portal.reply"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "portal-certificates",
+      "chapter": "contractor-portal",
+      "main": false,
+      "narration": "Nhà thầu tự tải chứng chỉ mới lên cổng. Tệp có giới hạn loại và dung lượng. Cán bộ của bên mời thầu xác minh, rồi chứng chỉ mới có hiệu lực.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-18",
+          "VND-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "contractorUser"
+        },
+        {
+          "do": "open",
+          "screen": "VND-18"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.certificates"
+        },
+        {
+          "do": "open",
+          "screen": "VND-24"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.attachments-limits"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.5
+    },
+    {
+      "id": "portal-evaluations",
+      "chapter": "contractor-portal",
+      "main": false,
+      "narration": "Nhà thầu xem đánh giá thực hiện hợp đồng của mình và phản hồi trong thời hạn. Khi bị xếp thấp, nhà thầu nộp kế hoạch khắc phục. Bên mời thầu theo dõi từng bước cho đến khi hoàn tất.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-19",
+          "VND-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "contractorUser"
+        },
+        {
+          "do": "open",
+          "screen": "VND-19"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.my-evaluations"
+        },
+        {
+          "do": "open",
+          "screen": "VND-21"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.remediation-plan"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "portal-petitions",
+      "chapter": "contractor-portal",
+      "main": false,
+      "narration": "Kiến nghị và claim của nhà thầu có thống kê riêng: số kiến nghị, kết quả giải quyết và thời gian xử lý. Danh sách các bên của hợp đồng xuất được theo chuẩn dữ liệu mở về hợp đồng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-22",
+          "BID-34"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "VND-22"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.petitions.statistics"
+        },
+        {
+          "do": "open",
+          "screen": "BID-34"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.petitions.outcomes"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "portal-admin",
+      "chapter": "contractor-portal",
+      "main": false,
+      "narration": "Phía quản trị mời nhà thầu bằng thư mời có hạn, bật hoặc khóa cổng và đặt giới hạn tệp. Nhà thầu là thành viên khách gắn với đúng một nhà thầu. Mọi thao tác lấy nhà thầu từ tài khoản, không bao giờ từ nội dung yêu cầu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-20",
+          "VND-23"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "VND-20"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.settings"
+        },
+        {
+          "do": "open",
+          "screen": "VND-23"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.portal.invitations"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    }
+  ]
+}

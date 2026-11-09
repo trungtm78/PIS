@@ -1,0 +1,273 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "audit-controls",
+  "title": "Thanh tra, kiểm toán và tín hiệu rủi ro",
+  "summary": "Inspection and audit of AUD-1 with the red flag detail and indicator ledger of GOV-10, audit recommendations in the ranking of investors, the anonymous report channel and the gifts register of GOV-12.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "aud-list",
+      "chapter": "audit-controls",
+      "main": false,
+      "narration": "Cán bộ thanh tra, kiểm toán theo dõi mọi cuộc thanh tra trong một danh sách. Mỗi cuộc có trạng thái và hạn, từ lập kế hoạch đến kết luận.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-01",
+          "AUD-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-01"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.overview.tiles"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-02"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.inspections.list"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 10.5
+    },
+    {
+      "id": "aud-findings",
+      "chapter": "audit-controls",
+      "main": false,
+      "narration": "Hồ sơ cuộc kiểm toán tiếp nhận kết luận và báo cáo, rồi ghi từng phát hiện kèm căn cứ. Mỗi phát hiện về sau trở thành kiến nghị có người chịu trách nhiệm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-03",
+          "AUD-04",
+          "AUD-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-03"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.case.header"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-04"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.conclusion.intake"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-05"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.findings.list"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.8
+    },
+    {
+      "id": "aud-recommendations",
+      "chapter": "audit-controls",
+      "main": false,
+      "narration": "Kiến nghị được phân công cho đơn vị và theo dõi đến khi thực hiện xong. Kiến nghị chưa thực hiện được xếp thứ tự theo hồ sơ của từng chủ đầu tư, và đi vào xếp hạng chủ đầu tư.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-06",
+          "AUD-07",
+          "AUD-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-06"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.recommendations.assignment"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-07"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.recommendations.progress"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-17"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.recommendations.investor-order"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "aud-remediation",
+      "chapter": "audit-controls",
+      "main": false,
+      "narration": "Thu hồi tài chính được đối chiếu với thanh toán. Đơn vị đính kèm bằng chứng khắc phục, rồi báo cáo kết quả thực hiện kiến nghị. Quá hạn thì cảnh báo và leo thang lên cấp cao hơn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-08",
+          "AUD-09",
+          "AUD-10",
+          "AUD-11"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-08"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.recovery.payment-match"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-09"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.evidence.upload"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-10"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-11"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.overdue.escalation"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "aud-redflag-detail",
+      "chapter": "audit-controls",
+      "main": false,
+      "narration": "Mỗi tín hiệu rủi ro mua sắm có trang chi tiết: chỉ báo nào kích hoạt, dữ liệu nào làm căn cứ, ai đang xem xét. Sổ chỉ báo ghi từng chỉ báo cùng công thức, nguồn và ngày hiệu lực. Tỷ lệ báo nhầm được đo để chỉnh lại chỉ báo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-15",
+          "AUD-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-15"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.red-flag.detail"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-16"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.red-flag.indicator-ledger"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Tín hiệu để điều tra, không phải kết luận",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 17.6
+    },
+    {
+      "id": "aud-whistle-gifts",
+      "chapter": "audit-controls",
+      "main": false,
+      "narration": "Kênh tố giác ẩn danh có xác nhận đã nhận và hạn xử lý, người xử lý không thấy danh tính người tố giác. Sổ quà tặng ghi quà nhận và quà từ chối, có ngưỡng giá trị bắt buộc phải khai.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "AUD-18",
+          "AUD-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-18"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.whistle.channel"
+        },
+        {
+          "do": "open",
+          "screen": "AUD-19"
+        },
+        {
+          "do": "spot",
+          "ref": "aud.gifts.register"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    }
+  ]
+}

@@ -21669,6 +21669,56 @@
     ]
   },
   {
+    "id": "BL-RPT-07",
+    "requirement": "FR-RPT-07",
+    "screen": "RPT-07",
+    "title": "Bố cục biểu mẫu cấu hình",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "RPT,ADM",
+    "fields": [
+      "Mã bố cục",
+      "Loại (nội bộ, theo yêu cầu của Sở, Ban, Ngành)",
+      "Phiên bản đang hiệu lực",
+      "Trạng thái phiên bản",
+      "Người lập",
+      "Người duyệt",
+      "Hiệu lực từ",
+      "Mã băm bố cục"
+    ],
+    "rule": "Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.",
+    "stories": [
+      "ST-RPT-131"
+    ]
+  },
+  {
+    "id": "BL-RPT-08",
+    "requirement": "FR-RPT-08",
+    "screen": "RPT-08",
+    "title": "Soạn bố cục biểu mẫu",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "RPT,ADM",
+    "fields": [
+      "Loại và tên biểu mẫu",
+      "Đơn vị yêu cầu và văn bản yêu cầu",
+      "Chỉ tiêu, tiêu đề và cơ sở kỳ",
+      "Cột bảng dự án và thứ tự",
+      "Nhóm dự án",
+      "Tổng cộng và người ký",
+      "Xem trước bằng số liệu minh họa",
+      "Lý do và hiệu lực"
+    ],
+    "rule": "Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.",
+    "stories": [
+      "ST-RPT-131"
+    ]
+  },
+  {
     "id": "BL-PRJ-31",
     "requirement": "FR-PRJ-31",
     "screen": "PRJ-31",
@@ -22559,6 +22609,42 @@
     "release": "R3",
     "stories": [
       "ST-BID-033"
+    ]
+  },
+  {
+    "id": "BL-ORG-01",
+    "requirement": "FR-ADM-ENT3D",
+    "screen": "ORG-01",
+    "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+    "module": "ORG",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM, IAM, MDM",
+    "fields": [
+      "Đơn vị và 09 đầu mối",
+      "Vai trò và phạm vi",
+      "Chỗ ngồi và nhóm thư mục",
+      "Quy trình duyệt từng bước",
+      "Ủy quyền",
+      "Danh mục dùng chung",
+      "Kế hoạch nạp và báo cáo kiểm chứng"
+    ],
+    "rule": "Gói mẫu PVFCCO-TEMPLATE không có người, không có tài khoản; nạp qua lô nhập ADM (chạy thử, áp dụng bởi người khác); chạy lại không đổi gì; khác biệt chỉ báo, không ghi đè; quy tắc, ma trận và danh mục chỉ được đề xuất",
+    "test_ids": [
+      "UI-ORG-01",
+      "UAT-PLAN-ORG-1",
+      "UAT-PLAN-ORG-2"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules đã review; operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; mục PENDING-EXTERNAL đã có chủ",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency) + UI 7 trạng thái/accessibility + audit/outbox + UAT-AC liên quan pass; hạng mục PENDING-EXTERNAL không được nghiệm thu khi chưa có xác nhận của bên nhận",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ORG-001"
     ]
   }
 ]

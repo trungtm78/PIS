@@ -191,7 +191,7 @@ export function redFlagEmptyKind(summary: RedFlagSummary | undefined): 'denied' 
 
 // -- the channel ladder -------------------------------------------------------------------------------------------------------------------------------------------------------
 
-export type LadderChannel = 'IN_APP' | 'PUSH' | 'EMAIL' | 'ZALO' | 'SMS';
+export type LadderChannel = 'IN_APP' | 'PUSH' | 'EMAIL' | 'TEAMS' | 'ZALO' | 'SMS';
 export type RungState = 'QUEUED' | 'SENT' | 'DELIVERED' | 'SEEN' | 'FAILED' | 'SUPPRESSED';
 
 export interface LadderPolicyView {
@@ -236,7 +236,7 @@ export interface LadderKpiView {
   byChannel: Array<{ channel: LadderChannel; sent: number; delivered: number; seen: number; failed: number; suppressed: number; noWorkflow: number }>;
 }
 
-const CHANNELS: readonly LadderChannel[] = ['IN_APP', 'PUSH', 'EMAIL', 'ZALO', 'SMS'];
+const CHANNELS: readonly LadderChannel[] = ['IN_APP', 'PUSH', 'EMAIL', 'TEAMS', 'ZALO', 'SMS'];
 const channelOf = (value: unknown): LadderChannel => CHANNELS.find((entry) => entry === value) ?? 'IN_APP';
 const RUNG_STATES: readonly RungState[] = ['QUEUED', 'SENT', 'DELIVERED', 'SEEN', 'FAILED', 'SUPPRESSED'];
 

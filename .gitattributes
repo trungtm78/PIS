@@ -3,3 +3,4 @@
 *.sh text eol=lf
 *.yml text eol=lf
 *.ttf binary
+packages/edition-enterprise/templates/org-pack/*.csv -text

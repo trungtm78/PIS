@@ -250,6 +250,19 @@ test('the directory group to role map and the realm agree, and only the filtered
   found(scratch((s) => s.remove(MAP)), 'ARTEFACT_MISSING', /ad-group-role-map/);
 });
 
+test('the directory groups of a tenant pack stay inside the import filter and grant no realm role (ENT-3d)', () => {
+  const groups = JSON.parse(readFileSync(join(REPO_ROOT, MAP), 'utf8')).tenantMappings;
+  assert.ok(groups.length >= 20, 'the real map carries the groups of the PVFCCo template pack');
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings[0].adGroup = 'OTHER-GROUP'; })), 'ROLE_MAP', /not a MACHVON- group/);
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings[1].adGroup = m.tenantMappings[0].adGroup; })), 'ROLE_MAP', /named twice/);
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings[0].adGroup = 'MACHVON-SYSTEM-ADMINS'; })), 'ROLE_MAP', /also a control-plane group/);
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings[0].tenantRole = 'SystemAdmin'; })), 'ROLE_MAP', /names no tenant role/);
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings[0].scopeKind = 'PROJECT'; })), 'ROLE_MAP', /scope a seat cannot have/);
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings[0].unit = 'not a unit'; })), 'ROLE_MAP', /names no unit/);
+  found(scratch((s) => s.json(MAP, (m) => { m.tenantMappings = 'x'; })), 'ROLE_MAP', /must be a list/);
+  found(scratch((s) => s.json(REALM, (r) => { r.groups.push({ name: groups[0].adGroup, path: '/' + groups[0].adGroup, realmRoles: ['mfa-webauthn-required'] }); })), 'ROLE_MAP', /group of the realm; a tenant group grants no realm role/);
+});
+
 test('backups: the weakening of the policy is reported through the backup verifier', () => {
   found(scratch((s) => s.json('infra/backup/backup-policy.json', (p) => { p.immutability.objectLock.mode = 'GOVERNANCE'; })), 'BACKUP_POLICY_VIOLATION', /BACKUP_IMMUTABLE/);
   found(scratch((s) => s.json('infra/backup/backup-policy.json', (p) => { p.targets.rtoHours = 12; })), 'BACKUP_POLICY_VIOLATION', /BACKUP_TARGETS/);

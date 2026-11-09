@@ -146,9 +146,9 @@ export class CapPlanRevisionStore {
        ), inserted_lines as (
          insert into machvon.allocation_line
            (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin,
-            is_extended, extended_to, extension_document_id, program_master_version_id, previous_line_id, created_by, updated_by, version)
+            is_extended, extended_to, extension_document_id, program_master_version_id, previous_line_id, created_by, updated_by, version, taxonomy_pack)
          select al.tenant_id, gen_random_uuid(), old.new_id, al.fund_source_version_id, al.bucket, al.source_year, al.amount_vnd, al.ctmtqg_subset_vnd, al.appropriation_id, al.project_id,
-                al.budget_level, al.origin, al.is_extended, al.extended_to, al.extension_document_id, al.program_master_version_id, al.id, $4::uuid, $4::uuid, 1
+                al.budget_level, al.origin, al.is_extended, al.extended_to, al.extension_document_id, al.program_master_version_id, al.id, $4::uuid, $4::uuid, 1, al.taxonomy_pack
            from machvon.allocation_line al join old on old.old_id = al.plan_version_id
          returning id
        )

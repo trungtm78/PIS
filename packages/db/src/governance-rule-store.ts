@@ -201,6 +201,8 @@ export class GovernanceRuleStore {
     if (!isRuleTypeName(input.type)) throw invalid('rule_type');
     ruleTypeOf(input.type);
     if (!isRuleCode(input.code)) throw invalid('code');
+    const codePattern = ruleTypeOf(input.type).codePattern;
+    if (codePattern !== undefined && !new RegExp(codePattern).test(input.code)) throw invalid('code');
     const reason = assertReason(input.reason, 'reason');
     const params = validateRuleParams(input.type, input.params);
     assertRulePeriod(input.effectiveFrom, input.effectiveTo);

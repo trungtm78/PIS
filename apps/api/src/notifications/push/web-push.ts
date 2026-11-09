@@ -14,6 +14,9 @@
 import { createECDH, createHash, createPrivateKey, hkdfSync, randomBytes, sign, createCipheriv } from 'node:crypto';
 import { DomainError, OPAQUE_LINK } from '@machvon/kernel';
 import type { PushProviderAnswer, PushProviderMessage, PushProviderPort } from './ports';
+import { TenantRateLimiter, receiptKeysFromEnv, secretFromEnv, tenantLimitFromEnv, webPushStateOf } from './web-push-config';
+import type { Environment, SecretFileReader, WebPushState } from './web-push-config';
+import { looksLikeReceipt, mintReceipt } from './web-push-receipt';
 
 /** The platform a web subscription is registered under (`registerDevice`, `platform: 'web'`). */
 export const WEB_PLATFORM = 'web';
@@ -106,11 +109,12 @@ export const isSafeWebLink = (link: string): boolean => OPAQUE_LINK.test(link) |
  * of the product) and the link. A link that names a record is refused here as the last look before the push service (the template is judged when it is
  * written, and again by `assertLockScreenSafe`); nothing else can be put in the message because there is no other member.
  */
-export function webPushDataOf(title: string | undefined, link: string | undefined): string {
+export function webPushDataOf(title: string | undefined, link: string | undefined, receipt?: string): string {
   const url = link === undefined || link === '' ? '/m' : link;
   if (!isSafeWebLink(url)) throw new DomainError('TEMPLATE_INVALID', 422, 'lockscreen_link');
   const text = (title ?? '').trim();
-  return JSON.stringify({ v: 1, title: isGenericTitle(text) ? text : '', url });
+  // The receipt is the one member besides the three: an opaque token (see web-push-receipt.ts) that lets the worker say the notification was shown or opened.
+  return JSON.stringify({ v: 1, title: isGenericTitle(text) ? text : '', url, ...(looksLikeReceipt(receipt) ? { rcpt: receipt } : {}) });
 }
 
 // ---- the sender --------------------------------------------------------------------------------------------------------------------------------------
@@ -221,6 +225,15 @@ export function vapidAuthorization(config: VapidConfig, endpoint: string, nowSec
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/** The pause a push service asks for in `Retry-After` (RFC 9110: a number of seconds or an HTTP date), or undefined when it asks for none. */
+export function retryAfterSecondsOf(header: string | null, nowMs: number): number | undefined {
+  if (header === null || header.trim() === '') return undefined;
+  const seconds = Number(header);
+  if (Number.isFinite(seconds)) return seconds > 0 ? Math.ceil(seconds) : undefined;
+  const at = Date.parse(header);
+  return Number.isNaN(at) || at <= nowMs ? undefined : Math.ceil((at - nowMs) / 1000);
+}
+
 /** The real sender: encrypts the message, signs the request with the VAPID key and POSTs it to the endpoint of the subscription. */
 export class VapidWebPushSender implements WebPushSender {
   constructor(
@@ -246,10 +259,10 @@ export class VapidWebPushSender implements WebPushSender {
       redirect: 'error',
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
-    const retryAfter = Number(response.headers.get('retry-after'));
+    const retryAfter = retryAfterSecondsOf(response.headers.get('retry-after'), this.now());
     return {
       status: response.status,
-      ...(Number.isFinite(retryAfter) && retryAfter > 0 ? { retryAfterSeconds: retryAfter } : {}),
+      ...(retryAfter === undefined ? {} : { retryAfterSeconds: retryAfter }),
       ...(response.headers.get('location') === null ? {} : { location: response.headers.get('location') as string }),
     };
   }
@@ -257,20 +270,14 @@ export class VapidWebPushSender implements WebPushSender {
 
 // ---- the configuration -------------------------------------------------------------------------------------------------------------------------------
 
-type Environment = Readonly<Record<string, string | undefined>>;
-
-/** `secret://<environment>/<path>` is the variable `MACHVON_SECRET_<ENVIRONMENT>_<PATH>`, the convention of the webhook secrets, until the vault of the platform is deployed. */
-const secretVariable = (reference: string): string => `MACHVON_SECRET_${reference.replace(/^secret:\/\//, '').replace(/[^A-Za-z0-9]/g, '_').toUpperCase()}`;
-
 /**
  * The VAPID keys of the deployment, or undefined when they are not all set (the stand-in is used). The public key is in `MACHVON_WEBPUSH_VAPID_PUBLIC_KEY`;
- * the private key is in `MACHVON_WEBPUSH_VAPID_PRIVATE_KEY`, or named by a vault reference in `MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_REF`; the contact is
+ * the private key is in a file named by `MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_FILE`, or named by a vault reference in `MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_REF`, or in `MACHVON_WEBPUSH_VAPID_PRIVATE_KEY`; the contact is
  * `MACHVON_WEBPUSH_SUBJECT`. A key that is not a P-256 key of the right size counts as not set.
  */
-export function vapidConfigFromEnv(env: Environment): VapidConfig | undefined {
+export function vapidConfigFromEnv(env: Environment, read?: SecretFileReader): VapidConfig | undefined {
   const publicKey = env.MACHVON_WEBPUSH_VAPID_PUBLIC_KEY?.trim();
-  const reference = env.MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_REF?.trim();
-  const privateKey = (reference === undefined || reference === '' ? env.MACHVON_WEBPUSH_VAPID_PRIVATE_KEY : env[secretVariable(reference)])?.trim();
+  const privateKey = secretFromEnv(env, 'MACHVON_WEBPUSH_VAPID_PRIVATE_KEY', read);
   const subject = env.MACHVON_WEBPUSH_SUBJECT?.trim();
   if (publicKey === undefined || privateKey === undefined || subject === undefined) return undefined;
   if (decodeKey(publicKey, 65)?.[0] !== 0x04 || decodeKey(privateKey, 32) === undefined) return undefined;
@@ -286,34 +293,61 @@ export function allowedSuffixesFromEnv(env: Environment): readonly string[] {
   return [...DEFAULT_PUSH_SERVICE_SUFFIXES, ...extra];
 }
 
-/** The sender of the deployment: the real one when the VAPID keys are configured, else the stand-in. */
-export function webPushSenderFromEnv(env: Environment): { sender: WebPushSender; mode: 'vapid' | 'mock' } {
-  const config = vapidConfigFromEnv(env);
-  return config === undefined ? { sender: new MockWebPushSender(), mode: 'mock' } : { sender: new VapidWebPushSender(config), mode: 'vapid' };
+/** The sender of the deployment: the real one when the VAPID keys are configured, else the stand-in. `state` says how far the real one has been proven (web-push-config.ts). */
+export function webPushSenderFromEnv(env: Environment, read?: SecretFileReader): { sender: WebPushSender; mode: 'vapid' | 'mock'; state: WebPushState } {
+  const config = vapidConfigFromEnv(env, read);
+  return config === undefined
+    ? { sender: new MockWebPushSender(), mode: 'mock', state: 'MOCK' }
+    : { sender: new VapidWebPushSender(config), mode: 'vapid', state: webPushStateOf(true, env) };
+}
+
+/** The provider of the web devices of the deployment with its limit per tenant and its receipt key, and the state of the channel. */
+export function webPushProviderFromEnv(env: Environment, read?: SecretFileReader): { provider: WebPushProvider; mode: 'vapid' | 'mock'; state: WebPushState } {
+  const { sender, mode, state } = webPushSenderFromEnv(env, read);
+  const provider = new WebPushProvider(sender, allowedSuffixesFromEnv(env), { limiter: new TenantRateLimiter(tenantLimitFromEnv(env)), receiptKeys: receiptKeysFromEnv(env, read) });
+  return { provider, mode, state };
 }
 
 // ---- the provider -----------------------------------------------------------------------------------------------------------------------------------
 
 const TTL_SECONDS = 24 * 3600;
+/** The urgency of RFC 8030 for the priority the engine keeps: a critical alert wakes the device now, a low one waits for the device to be awake anyway. */
+export function urgencyOf(priority: string | undefined): WebPushSendOptions['urgency'] {
+  if (priority === 'CRITICAL' || priority === 'HIGH') return 'high';
+  if (priority === 'LOW') return 'low';
+  return 'normal';
+}
+/** A critical alert is kept for a shorter time than an ordinary one: an alert that is hours old is no longer the alert. */
+const TTL_BY_URGENCY: Readonly<Record<WebPushSendOptions['urgency'], number>> = { high: 4 * 3600, normal: TTL_SECONDS, low: TTL_SECONDS, 'very-low': TTL_SECONDS };
 
 /** The topic of a send: a hash of its idempotency key in the 32 characters RFC 8030 allows, so a repeated send replaces the message that waits instead of ringing twice. */
 export const topicOf = (idempotencyKey: string): string => createHash('sha256').update(idempotencyKey, 'utf8').digest('base64url').slice(0, 32);
 
 /** The answer of a push service in the codes of the engine (`classifyFcmError`): a cancelled subscription is a token nobody knows, an outage is tried again. */
 export function answerCodeOf(result: WebPushSendResult): PushProviderAnswer {
+  const pause = result.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: result.retryAfterSeconds };
   if (result.status >= 200 && result.status < 300) return { ok: true, messageId: result.location ?? `web-push-${result.status}` };
   if (result.status === 404 || result.status === 410) return { ok: false, code: 'UNREGISTERED' };
-  if (result.status === 429) return { ok: false, code: 'QUOTA_EXCEEDED' };
-  if (result.status >= 500) return { ok: false, code: 'UNAVAILABLE' };
+  if (result.status === 429) return { ok: false, code: 'QUOTA_EXCEEDED', ...pause };
+  if (result.status >= 500) return { ok: false, code: 'UNAVAILABLE', ...pause };
   if (result.status === 401 || result.status === 403) return { ok: false, code: 'THIRD_PARTY_AUTH_ERROR' };
   return { ok: false, code: 'INVALID_ARGUMENT' };
 }
 
 /** The provider of the web devices over a sender: one call for one device, in the words of `PushProviderPort`. */
+export interface WebPushProviderOptions {
+  /** The limit of messages per tenant; none when absent. */
+  limiter?: TenantRateLimiter;
+  /** The keys of the receipt (the first signs). None: the push carries no receipt and the acknowledgement path is off. */
+  receiptKeys?: readonly string[];
+  now?: () => number;
+}
+
 export class WebPushProvider implements PushProviderPort {
   constructor(
     private readonly sender: WebPushSender,
     private readonly allowedSuffixes: readonly string[] = DEFAULT_PUSH_SERVICE_SUFFIXES,
+    private readonly options: WebPushProviderOptions = {},
   ) {}
 
   async send(message: PushProviderMessage): Promise<PushProviderAnswer> {
@@ -323,14 +357,27 @@ export class WebPushProvider implements PushProviderPort {
     const subscription = parseWebPushSubscription(message.token);
     // A token that is not a subscription, or an address that is not a push service, is a token nobody knows: the device is revoked.
     if (subscription === undefined || !endpointAllowed(subscription.endpoint, this.allowedSuffixes)) return { ok: false, code: 'INVALID_ARGUMENT_TOKEN' };
+    // One tenant cannot use up the quota of the key that every tenant of the process shares: past its limit the send waits (the engine retries after the pause).
+    if (message.tenantId !== undefined && this.options.limiter !== undefined) {
+      const taken = this.options.limiter.take(message.tenantId);
+      if (!taken.ok) return { ok: false, code: 'QUOTA_EXCEEDED', retryAfterSeconds: taken.retryAfterSeconds };
+    }
+    const link = message.data.deep_link;
+    const receiptKey = this.options.receiptKeys?.[0];
+    const notificationId = link === undefined ? undefined : /^\/r\/([^/]+)$/.exec(link)?.[1];
+    const receipt =
+      receiptKey === undefined || message.tenantId === undefined || message.deviceId === undefined || notificationId === undefined
+        ? undefined
+        : mintReceipt(receiptKey, { tenantId: message.tenantId, notificationId, deviceId: message.deviceId }, Math.floor((this.options.now ?? Date.now)() / 1000));
     let payload: string;
     try {
-      payload = webPushDataOf(message.body, message.data.deep_link);
+      payload = webPushDataOf(message.body, link, receipt);
     } catch {
       return { ok: false, code: 'INVALID_ARGUMENT' };
     }
+    const urgency = urgencyOf(message.priority);
     try {
-      return answerCodeOf(await this.sender.send(subscription, payload, { ttlSeconds: TTL_SECONDS, urgency: 'normal', topic: topicOf(message.idempotencyKey) }));
+      return answerCodeOf(await this.sender.send(subscription, payload, { ttlSeconds: TTL_BY_URGENCY[urgency], urgency, topic: topicOf(message.idempotencyKey) }));
     } catch {
       // The push service could not be reached: tried again.
       return { ok: false, code: 'UNAVAILABLE' };

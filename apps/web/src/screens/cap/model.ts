@@ -9,10 +9,16 @@ export const BOOK_PATH = '/cap/cap-16';
 export const FUND_PATH = '/cap/cap-04';
 export const SUPPORT_PATH = '/cap/cap-14';
 
+/** The origins the public form offers and the public filters list. */
 export const ORIGINS = ['PM_ASSIGNED', 'LOCAL_ADDED', 'CARRYOVER', 'CENTRAL_SUPPORT', 'REVENUE_INCREASE'] as const;
-export type Origin = (typeof ORIGINS)[number];
+/** The origins of the enterprise pack (ENT-3e): the resolution of the group and the decision of the company. The register shows them when the server returns them; the public form never offers them. */
+export const ENTERPRISE_ORIGINS = ['GROUP_ASSIGNED', 'BOARD_APPROVED'] as const;
+export type Origin = (typeof ORIGINS)[number] | (typeof ENTERPRISE_ORIGINS)[number];
+export const ALL_ORIGINS: readonly Origin[] = [...ORIGINS, ...ENTERPRISE_ORIGINS];
 export const BUDGET_LEVELS = ['CENTRAL', 'LOCAL'] as const;
-export type BudgetLevel = (typeof BUDGET_LEVELS)[number];
+/** The single level of the enterprise pack. */
+export const ENTERPRISE_LEVEL = 'ALL';
+export type BudgetLevel = (typeof BUDGET_LEVELS)[number] | typeof ENTERPRISE_LEVEL;
 export type AppropriationStatus = 'DRAFT' | 'APPROVED' | 'PUBLISHED' | 'SUPERSEDED' | 'REJECTED';
 const STATUSES: readonly string[] = ['DRAFT', 'APPROVED', 'PUBLISHED', 'SUPERSEDED', 'REJECTED'];
 
@@ -121,9 +127,9 @@ export function toAppropriation(raw: unknown): AppropriationLine | undefined {
     id === undefined ||
     fundSource === null ||
     origin === undefined ||
-    !(ORIGINS as readonly string[]).includes(origin) ||
+    !(ALL_ORIGINS as readonly string[]).includes(origin) ||
     level === undefined ||
-    !(BUDGET_LEVELS as readonly string[]).includes(level) ||
+    !([...BUDGET_LEVELS, ENTERPRISE_LEVEL] as readonly string[]).includes(level) ||
     status === undefined ||
     !STATUSES.includes(status) ||
     planYear === undefined ||
@@ -259,7 +265,7 @@ export function sortLines(lines: readonly AppropriationLine[]): AppropriationLin
   return [...lines].sort(
     (a, b) =>
       b.planYear - a.planYear ||
-      ORIGINS.indexOf(a.origin) - ORIGINS.indexOf(b.origin) ||
+      ALL_ORIGINS.indexOf(a.origin) - ALL_ORIGINS.indexOf(b.origin) ||
       a.fundSource.businessKey.localeCompare(b.fundSource.businessKey) ||
       a.id.localeCompare(b.id),
   );
@@ -275,7 +281,7 @@ export interface OriginGroup {
 }
 
 /** The published lines of some origins, one group per origin that has any: groups are never merged into one another (CAP 3.1 BR-CAP-11). */
-export function groupByOrigin(lines: readonly AppropriationLine[], origins: readonly Origin[] = ORIGINS): OriginGroup[] {
+export function groupByOrigin(lines: readonly AppropriationLine[], origins: readonly Origin[] = ALL_ORIGINS): OriginGroup[] {
   return origins
     .map((origin) => {
       const own = sortLines(lines.filter((line) => line.origin === origin && isPublished(line)));

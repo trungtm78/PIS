@@ -109,6 +109,7 @@ describe('the layout of the portal (layout rules 1 to 3)', () => {
     expect(screen.getByTestId('portal-frame')).toBeTruthy();
     expect(screen.getByText('routed screen')).toBeTruthy();
     expect(screen.getByText(word('vnp.frame.product.text'))).toBeTruthy();
+    expect(screen.getByRole('button', { name: translator.t('shell.help.open.label') })).toBeTruthy();
     expect(document.querySelector('aside, .sidebar, [role="search"], [aria-label*="Cần xử lý"]')).toBeNull();
   });
 });

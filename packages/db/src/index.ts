@@ -372,7 +372,7 @@ export type {
   TypePolicySummary,
   TypeScope,
 } from './master-store.ts';
-export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, packDigest, sealPack } from './master-baseline.ts';
+export { BASELINE_EVENT, BASELINE_PACK, BASELINE_SOURCE, applyBaseline, editionBaselines, packDigest, registerEditionBaseline, sealPack } from './master-baseline.ts';
 export type { BaselineEntry, BaselinePack, BaselineResult } from './master-baseline.ts';
 export { MasterRules } from './master-rules.ts';
 export type { BoundPeriod, CalendarPeriods, NationalCodeRule, RuleReading, SuggestedGroup, AppraisalCriteriaSet, AppraisalCriterionRule } from './master-rules.ts';
@@ -1741,8 +1741,8 @@ export { BiReaderStore } from './int-bi-reader-store.ts';
 export type { BiReaderEventRow, BiReaderRow } from './int-bi-reader-store.ts';
 export { AccessLogStore, AccessOverviewReads, ExportDatasetStore, MachineAccountStore, OpenReads, liveAccount, lookupClient } from './int-open-api-store.ts';
 export type { AccessLogFilter, AccessLogRow, ClientLookup, ExportDatasetRow, LiveAccount, MachineAccountFilter, MachineAccountRow, MachineCredentialRow, OpenPage, ProductChoice } from './int-open-api-store.ts';
-export { ProjectCodeStore, SourceSystemStore } from './int-project-code-store.ts';
-export type { ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
+export { ProjectCodeStore, SourceSystemStore, isDirectMatchSystem, registerDirectMatchSystem } from './int-project-code-store.ts';
+export type { ProjectCodeCoverage, ProjectCodeFilter, ProjectCodeRow, SourceSystemRow } from './int-project-code-store.ts';
 export { StandingRequestStore } from './iam-standing-store.ts';
 export type { NewStandingRequest, StandingRequestRecord, StandingRequestStatus } from './iam-standing-store.ts';
 export { ActingStore } from './iam-acting-store.ts';
@@ -1891,3 +1891,5 @@ export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
+export { registerMigrationVerifier } from './adm-migration-store.ts';
+export type { MigrationVerifier } from './adm-migration-store.ts';

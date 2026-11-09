@@ -10,6 +10,14 @@ import type { HpmAcceptance } from './hpm-rules.ts';
  * store); it never opens a connection to anything. An API adapter replaces it when the customer publishes the interface, with nothing else changing: the ledger, the rules and the screens read the port, not the adapter.
  */
 
+/** One project of the report and the code HPM knows it by (ENT-3e): `via` says whether the code came from the crosswalk or is our own code sent under the fallback of this version. */
+export interface HpmProjectCode {
+  projectId: string;
+  ourCode: string;
+  hpmCode: string;
+  via: 'CROSSWALK' | 'DIRECT' | 'UNMAPPED';
+}
+
 /** What the adapter is given: the report as issued, with its key (the same key on every retry) and the numbers that identify it. */
 export interface HpmDeliveryRequest {
   key: string;
@@ -25,6 +33,8 @@ export interface HpmDeliveryRequest {
     sha256: string;
     snapshot: { snapshotId: string; revision: number; cutoff: string } | null;
     marks: IssuedCopyMarks | null;
+    /** The projects of the snapshot with their HPM codes; absent for a copy that has no snapshot (the manifest then has no list, as before). */
+    projectCodes?: readonly HpmProjectCode[];
   };
   fileName: string;
   bytes: Uint8Array;
@@ -81,6 +91,12 @@ export function hpmManifestOf(request: HpmDeliveryRequest): Record<string, unkno
     report_sha256: request.copy.sha256,
     attachments: (request.attachments ?? []).map((file) => ({ file: file.name, sha256: createHash('sha256').update(file.bytes).digest('hex') })),
     snapshot: request.copy.snapshot === null ? null : { snapshot_id: request.copy.snapshot.snapshotId, revision: request.copy.snapshot.revision, cutoff: request.copy.snapshot.cutoff },
+    ...(request.copy.projectCodes === undefined
+      ? {}
+      : {
+          project_codes: request.copy.projectCodes.map((one) => ({ project_id: one.projectId, our_code: one.ourCode, hpm_code: one.hpmCode, via: one.via })),
+          project_codes_unmapped: request.copy.projectCodes.filter((one) => one.via !== 'CROSSWALK').length,
+        }),
     form_status: request.copy.marks?.formStatus ?? null,
     demo_mark: request.copy.marks?.demoMark ?? null,
     sent_at: request.sentAt.toISOString(),

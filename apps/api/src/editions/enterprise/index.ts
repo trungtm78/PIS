@@ -5,6 +5,7 @@ import type { HpmFileSink } from '@machvon/edition-enterprise/src/server.ts';
 import { defineModule } from '../../modules/module-descriptor';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
 import { directoryFileSink } from './file-sink';
+import { OrgPackController } from './org-pack.controller';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from './hpm.controller';
 import { HPM_FILE_SINK, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
 
@@ -37,5 +38,15 @@ export const ebsModule = defineModule({
   controllers: [EbsReadsController, EbsImportController, EbsReconciliationController],
 });
 
+/**
+ * The organisation and the roles of the edition (ENT-3d): the PVFCCo template pack, the plan and verification against the tenant, and the command that turns an applied batch of the pack file into units, roles and proposals for approval.
+ * The module exists in the enterprise edition only.
+ */
+export const orgPackModule = defineModule({
+  code: 'ORG',
+  editions: ['enterprise'],
+  controllers: [OrgPackController],
+});
+
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
-export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule];
+export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, orgPackModule];

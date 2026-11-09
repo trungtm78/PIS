@@ -2175,9 +2175,16 @@ export { DEMO_FORMS_ENV, DEMO_MARK, GRID_COLUMN_CAP, GRID_ROW_CAP, LAYOUT_STATUS
 export type { CellBinding, CellFormat, DayRange, FilledGrid, FilledNarrative, GridCell, GridCellKind, GridIssue, GridIssueCode, GridMerge, GridRow, IssuableOptions, LayoutCell, LayoutColumn, LayoutRow, LayoutRowKind, LayoutStatus, MoneyScale, NarrativeBlock, NarrativeIssue, PeriodBasis, ReportFigure, ReportFillData, ReportFormEntry, ReportIndicatorDefinition, ReportLayout, ReportLocale, FormPeriod, FormPeriodKind, ReportScalar, ResolvedBasis } from './report-layout.ts';
 export { ISSUE_ACTIONS, ISSUE_ROLES, ISSUE_STATES, advanceIssue, assertAcceptable, assertDeliverable, assertDistinctSignatories, assertIntegrity, assertLineage, countsAsAcceptedCopy, isDemoCopy, issueKeyOf, issueMarksOf, nextIssueOf, seriesKeyOf } from './report-issue.ts';
 export type { IssueAction, IssueActors, IssueRole, IssueSignatories, IssueState, IssueStep, IssuedCopyMarks, IssuedCopyRef, NextIssue, SnapshotRevisionRef } from './report-issue.ts';
-export { PREVIEW_ROW_CAP, RECEIVER_CODE, REPORT_CHANNELS, REPORT_FILE_FORMATS, assertDeliveryTarget, assertPeriodFitsForm, packageDigestOf, previewOf } from './report-form.ts';
-export type { PreviewCell, PreviewRow, ReportChannel, ReportDataSourceKind, ReportFileFormat, ReportFormBundle, ReportPreview, ReportTemplateBytes } from './report-form.ts';
+export { PREVIEW_ROW_CAP, RECEIVER_CODE, REPORT_CHANNELS, REPORT_FILE_FORMATS, REPORT_OUTPUT_FORMATS, assertDeliveryTarget, assertPeriodFitsForm, packageDigestOf, previewOf } from './report-form.ts';
+export type { PreviewCell, PreviewRow, ReportChannel, ReportDataSourceKind, ReportFileFormat, ReportFormBundle, ReportOutputFormat, ReportPreview, ReportTemplateBytes } from './report-form.ts';
 export { DIS_WEEKLY_CODE, DIS_WEEKLY_FORM_REF, DIS_WEEKLY_INDICATORS, DIS_WEEKLY_LAYOUT, DIS_WEEKLY_SHEET, DIS_WEEKLY_VERSION, WEEKLY_ORG_FALLBACK, weeklySnapshotLine } from './report-public-forms.ts';
+export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf } from './report-document.ts';
+export type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from './report-document.ts';
+export { columnNumberOf, evaluateFormula, roundHalfAway } from './report-formula.ts';
+export { ENT4B_TEXT } from './messages/ent4b-texts.ts';
+export { AGENCY_REQUEST_DEFAULT, CONFIG_CODE_PATTERN, CONFIG_CODE_PREFIX, CONFIG_COLUMN_KEYS, CONFIG_DEFAULT_PROVIDER, CONFIG_INTERNAL_RECEIVER, CONFIG_KINDS, CONFIG_LIMITS, CONFIG_MONEY_COLUMNS, CONFIG_SIGNATURES, INTERNAL_OVERVIEW_DEFAULT, PROTECTED_RECEIVERS, REPORT_LAYOUT_RULE_TYPE, REPORT_LAYOUT_SCHEMA, compileLayoutConfig, groupDatasetOf, illustrativeLayoutData, layoutConfigOf, refineLayoutConfig, registerReportLayoutRules } from './report-layout-config.ts';
+export type { CompileOptions, CompiledLayout, ConfigColumn, ConfigColumnKey, ConfigGroup, ConfigIndicator, ConfigKind, ConfigSignature, LayoutConfig } from './report-layout-config.ts';
+export type { CellLookup, FormulaValue } from './report-formula.ts';
 // The directives of the steering meetings (lane DIR-1).
 export { DIRECTIVE_ALERT_SOURCE, DIRECTIVE_EVENT_TYPES, DIRECTIVE_POLICY_DEFAULTS, DIRECTIVE_POLICY_DEFAULT_CODE, DIRECTIVE_RULE_TYPES, DIRECTIVE_SCOPE_KINDS, DIRECTIVE_STATUSES, MEETING_TYPES, STORED_DIRECTIVE_STATUSES, assertCloseEvidence, assertDirectiveCloser, assertExtension, assertExtensionDecider, defaultDirectivePolicy, directiveClock, directiveScopeKindOf, directiveStateAt, directiveStatusOf, effectiveDirectiveStatus, meetingTypeOf, nextDirectiveStatus, parseDirectivePolicy, periodCounts, periodFacts, addDaysTo as addDirectiveDays, daysBetweenDays as directiveDaysBetween, isDay as isDirectiveDay } from './directive.ts';
 export type { DirectiveClock, DirectiveEventType, DirectiveHistory, DirectiveHistoryEvent, DirectiveMove, DirectivePhase, DirectivePolicy, DirectivePolicyReading, DirectiveRuleType, DirectiveScopeKind, DirectiveStateAt, DirectiveStatus, MeetingType, PeriodCounts, PeriodDirectiveFacts, StoredDirectiveStatus } from './directive.ts';
@@ -2439,11 +2446,14 @@ export {
   assertClassAndTier,
   assertClassCrosswalk,
   assertPackChange,
+  assertAppropriationForPack,
+  budgetLevelsOfPack,
   builtInPack,
   builtInPackParams,
   enterprisePackParams,
   fundingPackCodeOfEdition,
   isFundingPackCode,
+  originsOfPack,
   parseFundingPack,
   publicPackParams,
   refineFundingPack,
@@ -3223,3 +3233,7 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
+export { registerMigrationMapping } from './migration-batch.ts';
+export { ADMIN_MIN_HOLDERS, DECISION_PERMISSIONS, GROUP_SUFFIX, ORG_PACK_COLUMNS, ORG_PACK_ENTITY, ORG_PACK_MAPPING, ORG_PACK_MAPPING_VERSION, ORG_PACK_ROW_KINDS, PLANNING_MIN_HOLDERS, ROLE_KINDS, SEAT_SCOPES, UNIT_FUNCTIONS, directoryGroupOf, directoryMappings, doaKey, doaRuleContent, entryKey, judgeOrgPack, judgeOrgPackRows, orgPackCsv, orgPackDigest, orgPackOfRows, orgPackRows, planOrgPack, policyKey, roleKey, seatKey, seatReports, stepKey, unitKey, verifyOrgPack, workflowRuleParams } from './org-pack.ts';
+export type { OrgPack, OrgPackRowKind, OrgPackState, OrgPackVerification, PackAbsence, PackDefect, PackDelegation, PackDoa, PackEntry, PackRole, PackRow, PackSeat, PackStep, PackUnit, PlanAction, PlanItem, PlanSection, RoleKind, SeatReport, SeatScope, SeatState, UnitFunction } from './org-pack.ts';
+export { addRowErrors } from './migration-batch.ts';
