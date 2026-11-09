@@ -167,9 +167,10 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect(reply.status).toBe(200);
     const items = reply.json.items as Array<Record<string, unknown>>;
     // The public forms: the weekly report of DIS, the meeting pack of the committee (BAN-1) and the four forms for the Ministry of Finance (GOV-12).
-    expect(items.map((item) => item.code)).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE, 'MOF-DIS-MONTHLY', 'MOF-DIS-QUARTERLY', 'MOF-DIS-WEEKLY', 'MOF-DIS-YEARLY']);
+    // ENT-4b: after the forms owned by code come the layouts a tenant configures without code (the two starting layouts of the rule type REPORT_LAYOUT).
+    expect(items.map((item) => item.code)).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE, 'MOF-DIS-MONTHLY', 'MOF-DIS-QUARTERLY', 'MOF-DIS-WEEKLY', 'MOF-DIS-YEARLY', 'CFG_AGENCY_REQUEST', 'CFG_INTERNAL_OVERVIEW']);
     expect(items.find((item) => item.code === DIS_WEEKLY_CODE)).toMatchObject({ edition: 'public', status: 'READY', official: 'CONFIRMED', data_source: 'LIVE', registered: false, issuable: true, demo_mark: null, whole_tenant: true });
-    expect(items.map((item) => item.code).filter((code) => !String(code).startsWith('MOF-DIS-'))).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE]);
+    expect(items.map((item) => item.code).filter((code) => !String(code).startsWith('MOF-DIS-') && !String(code).startsWith('CFG_'))).toEqual([COMMITTEE_PACK_CODE, DIS_WEEKLY_CODE]);
     expect(items[0]).toMatchObject({ edition: 'public', status: 'READY', official: 'CONFIRMED', data_source: 'LIVE', registered: false, issuable: true, demo_mark: null, whole_tenant: true });
     expect(reply.json).toMatchObject({ demo_mode: false, can_generate: false });
     // No enterprise form is in a public process (npm run edition:check holds the sources to it too).
@@ -251,7 +252,18 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect(file.status).toBe(200);
     expect(sha(Buffer.from(file.json.content_base64 as string, 'base64'))).toBe((issue.files as Array<{ sha256: string }>)[0]?.sha256);
     expect((await call('GET', `/report-engine/issues/${issueId}/files/DOCX`, { member: READER })).status).toBe(404);
-    expect((await call('GET', `/report-engine/issues/${issueId}/files/PDF`, { member: READER })).status).toBe(422);
+    // ENT-4b: the PDF of the same document is kept with its own hash, named by the file-name rule, checked on every read, and carries the layout hash of the copy.
+    const pdf = await call('GET', `/report-engine/issues/${issueId}/files/PDF`, { member: READER });
+    expect(pdf.status).toBe(200);
+    expect(pdf.json.name).toMatch(/^DIS-WEEKLY_2027-10-17_v01_[0-9a-f]{8}.pdf$/);
+    const pdfBytes = Buffer.from(pdf.json.content_base64 as string, 'base64');
+    expect(pdfBytes.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+    expect(sha(pdfBytes)).toBe(pdf.json.sha256);
+    expect((issue.files as Array<{ format: string }>).map((one) => one.format)).toEqual(['XLSX', 'PDF']);
+    expect(issue.layout_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect((await call('GET', `/report-engine/issues/${issueId}/files/ODS`, { member: READER })).status).toBe(422);
+    // The package digest is still the digest of the workbook alone: the PDF is a rendition, not a second source.
+    expect((issue.files as Array<{ sha256: string }>)[0]?.sha256).not.toBe(issue.sha256);
     // Insert-only: not even the owner of the database changes or removes an issued copy; an issued draft is frozen too.
     await expect(rows('update machvon.report_issue set reason = $1 where id = $2', ['x'.repeat(12), issueId])).rejects.toThrow(/never changes/);
     await expect(rows('delete from machvon.report_issue where id = $1', [issueId])).rejects.toThrow(/never changes/);
@@ -373,5 +385,29 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     const preview = detail.preview as { rows: Array<{ row: number; cells: Array<{ col: number; text: string }> }> };
     expect(preview.rows.find((row) => row.row === 6)?.cells.find((cell) => cell.col === 3)?.text).toBe('');
     expect((detail.issues as Array<{ code: string }>).every((issue) => issue.code === 'NO_FIGURE')).toBe(true);
+  });
+
+it('ENT-4b: makes a form that a tenant configured without code, keeps the version and the hash of its layout with the PDF, and finds no configured form under another code', async () => {
+    const period = { kind: 'MONTH', year: 2027, index: 10 };
+    const made = await call('POST', '/report-engine/drafts', { member: PREPARER, body: { layout_code: 'CFG_INTERNAL_OVERVIEW', period } });
+    expect(made.status).toBe(200);
+    expect(made.json).toMatchObject({ outcome: 'CREATED', revision: 1 });
+    const draft = await draftOf(made.json.draft_id as string);
+    // A starting layout is version v0; the copy records the hash of the layout and the PDF next to the workbook.
+    expect(draft).toMatchObject({ layout_code: 'CFG_INTERNAL_OVERVIEW', layout_version: 'v0', form_status: 'READY', data_source: 'LIVE' });
+    expect(draft.layout_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect((draft.files as Array<{ format: string }>).map((one) => one.format)).toEqual(['XLSX', 'PDF']);
+    const pdf = await call('GET', `/report-engine/drafts/${made.json.draft_id as string}/files/PDF`, { member: READER });
+    expect(pdf.status).toBe(200);
+    expect(sha(Buffer.from(pdf.json.content_base64 as string, 'base64'))).toBe(pdf.json.sha256);
+    // The same layout and data is the same draft; the registered layout row is the one version.
+    expect((await call('POST', '/report-engine/drafts', { member: PREPARER, body: { layout_code: 'CFG_INTERNAL_OVERVIEW', period } })).json).toMatchObject({ outcome: 'EXISTING', draft_id: made.json.draft_id });
+    expect((await rows('select count(*)::int as n from machvon.report_layout where code = $1', ['CFG_INTERNAL_OVERVIEW']))[0]).toMatchObject({ n: 1 });
+    // A demo layout is generated only while demo forms are on (R18), whatever made it.
+    const quarter = { kind: 'QUARTER', year: 2027, index: 3 };
+    const refused = await call('POST', '/report-engine/drafts', { member: PREPARER, body: { layout_code: 'CFG_AGENCY_REQUEST', period: quarter } });
+    expect([409, 422]).toContain(refused.status);
+    // A code that is not a configured one is not found as one.
+    expect((await call('POST', '/report-engine/drafts', { member: PREPARER, body: { layout_code: 'CFG_NO_SUCH_FORM', period } })).status).toBe(404);
   });
 });

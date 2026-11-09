@@ -55754,6 +55754,108 @@
       ]
     },
     {
+      "id": "ST-RPT-131",
+      "epic": "EP-RPT",
+      "feature": "FT-RPT-01",
+      "module": "RPT",
+      "title": "PDF of the report forms and report layouts chosen without code",
+      "narrative": "As a reporting officer I get the PDF of a report form next to its workbook and Word file, made from the same document, and I choose the indicators, columns and project groups of an internal form or of a form a Department, Board or Sector asked for without code, with versions, a maker and an approver, and a preview.",
+      "release": "R2",
+      "screens": [
+        "RPT-07",
+        "RPT-08"
+      ],
+      "operations": [
+        "previewReportLayout",
+        "getReportDraftFile",
+        "getReportIssueFile",
+        "generateReport"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01",
+        "NFR-PERFORMANCE-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-RPT-131-1",
+          "given": "A form of the enterprise edition or the weekly form, and the same data",
+          "when": "The workbook, the Word file and the PDF are made",
+          "then": "The cells, formulas, words of the narrative and the number of pages agree; the PDF is kept with its own hash and the name rule, the digest of the copy stays that of the workbook and the Word file, and the copy records the hash of the layout",
+          "test_id": "UAT-PLAN-3410"
+        },
+        {
+          "id": "AC-ST-RPT-131-2",
+          "given": "A layout drafted as a rule of the type REPORT_LAYOUT by one person",
+          "when": "It is submitted and approved by two other people, then a report is generated and issued, then a newer version of the layout is approved",
+          "then": "The configured form is offered from the day the version is in force; the issued copy keeps the version and the hash of the layout it was made from; a rule cannot take the code of a form owned by code and a form for PVN, HPM or the Ministry cannot be configured",
+          "test_id": "UAT-PLAN-3411"
+        }
+      ],
+      "dependencies": [
+        "ST-RPT-001"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "The official forms of the Departments, Boards and Sectors are not supplied: a configured form is a layout the tenant chooses, and project group data comes from the provider of the figures of the enterprise edition when it is connected."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-RPT-131-1",
+          "kind": "backend",
+          "title": "One document model for the three writers, the PDF writer, the layout hash and the rule type REPORT_LAYOUT",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-131-2",
+          "kind": "web",
+          "title": "RPT-07 and RPT-08 screens built with the kit, with the live preview from illustrative data",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-131-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for RPT-07, RPT-08",
+          "test_ids": []
+        },
+        {
+          "id": "TK-RPT-131-4",
+          "kind": "qa",
+          "title": "Golden tests that the workbook, the Word file and the PDF agree; API and authorization tests",
+          "test_ids": [
+            "UAT-PLAN-3410",
+            "UAT-PLAN-3411"
+          ]
+        },
+        {
+          "id": "TK-RPT-131-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the standard UI states and accessibility",
+          "test_ids": [
+            "UI-RPT-07",
+            "UI-RPT-08"
+          ]
+        }
+      ]
+    },
+    {
       "id": "ST-PRJ-121",
       "epic": "EP-PRJ",
       "feature": "FT-PRJ-07",

@@ -21576,6 +21576,56 @@
     ]
   },
   {
+    "id": "BL-RPT-07",
+    "requirement": "FR-RPT-07",
+    "screen": "RPT-07",
+    "title": "Bố cục biểu mẫu cấu hình",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "RPT,ADM",
+    "fields": [
+      "Mã bố cục",
+      "Loại (nội bộ, theo yêu cầu của Sở, Ban, Ngành)",
+      "Phiên bản đang hiệu lực",
+      "Trạng thái phiên bản",
+      "Người lập",
+      "Người duyệt",
+      "Hiệu lực từ",
+      "Mã băm bố cục"
+    ],
+    "rule": "Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.",
+    "stories": [
+      "ST-RPT-131"
+    ]
+  },
+  {
+    "id": "BL-RPT-08",
+    "requirement": "FR-RPT-08",
+    "screen": "RPT-08",
+    "title": "Soạn bố cục biểu mẫu",
+    "module": "RPT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "RPT,ADM",
+    "fields": [
+      "Loại và tên biểu mẫu",
+      "Đơn vị yêu cầu và văn bản yêu cầu",
+      "Chỉ tiêu, tiêu đề và cơ sở kỳ",
+      "Cột bảng dự án và thứ tự",
+      "Nhóm dự án",
+      "Tổng cộng và người ký",
+      "Xem trước bằng số liệu minh họa",
+      "Lý do và hiệu lực"
+    ],
+    "rule": "Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.",
+    "stories": [
+      "ST-RPT-131"
+    ]
+  },
+  {
     "id": "BL-PRJ-31",
     "requirement": "FR-PRJ-31",
     "screen": "PRJ-31",

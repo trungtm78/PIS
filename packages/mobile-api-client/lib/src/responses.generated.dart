@@ -1201,6 +1201,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'previewFinanceFeedFile': asObject,
   'previewIndicatorImport': IndPreviewResultResponse.fromJson,
   'previewPlanChange': PlanChangePreviewResponse.fromJson,
+  'previewReportLayout': RptLayoutPreviewResponse.fromJson,
   'promoteAllocationScenario': CommandResultResponse.fromJson,
   'promoteChangeRequest': CommandResultResponse.fromJson,
   'proposeAlertCover': CommandResultResponse.fromJson,
@@ -57662,6 +57663,7 @@ final class RptDraftResponse implements ResponseModel {
     required this.demoFormsOff,
     required this.preview,
     required this.issues,
+    this.layoutSha256,
     this.extra = const <String, Object?>{},
   });
 
@@ -57697,7 +57699,8 @@ final class RptDraftResponse implements ResponseModel {
       demoFormsOff: requiredField(map, path, 'demo_forms_off', asBool),
       preview: requiredField(map, path, 'preview', asAny),
       issues: requiredField(map, path, 'issues', asList(RptGridIssueResponse.fromJson)),
-      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'layout_version', 'layout_name', 'period_code', 'period', 'state', 'base_revision', 'reason', 'package_sha256', 'files', 'data_source', 'form_status', 'demo_mark', 'snapshot', 'issue_count', 'prepared_by', 'prepared_by_name', 'checked_by_name', 'approved_by_name', 'issue_id', 'version', 'created_at', 'can_check', 'can_approve', 'can_issue', 'demo_forms_off', 'preview', 'issues'}, strict: true),
+      layoutSha256: optionalField(map, path, 'layout_sha256', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'layout_version', 'layout_name', 'period_code', 'period', 'state', 'base_revision', 'reason', 'package_sha256', 'files', 'data_source', 'form_status', 'demo_mark', 'snapshot', 'issue_count', 'prepared_by', 'prepared_by_name', 'checked_by_name', 'approved_by_name', 'issue_id', 'version', 'created_at', 'can_check', 'can_approve', 'can_issue', 'demo_forms_off', 'preview', 'issues', 'layout_sha256'}, strict: true),
     );
   }
 
@@ -57730,6 +57733,7 @@ final class RptDraftResponse implements ResponseModel {
   final bool demoFormsOff;
   final Object? preview;
   final List<RptGridIssueResponse> issues;
+  final String? layoutSha256;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -57765,6 +57769,7 @@ final class RptDraftResponse implements ResponseModel {
         'demo_forms_off': demoFormsOff,
         'preview': preview,
         'issues': issues.map((e0) => e0.toJson()).toList(),
+        if (layoutSha256 != null) 'layout_sha256': layoutSha256,
         ...extra,
       };
 }
@@ -57994,6 +57999,7 @@ final class RptIssueResponse implements ResponseModel {
     required this.issues,
     required this.canDeliver,
     required this.canAnswer,
+    this.layoutSha256,
     this.extra = const <String, Object?>{},
   });
 
@@ -58029,7 +58035,8 @@ final class RptIssueResponse implements ResponseModel {
       issues: requiredField(map, path, 'issues', asList(RptGridIssueResponse.fromJson)),
       canDeliver: requiredField(map, path, 'can_deliver', asBool),
       canAnswer: requiredField(map, path, 'can_answer', asBool),
-      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'layout_version', 'layout_name', 'period_code', 'period', 'revision', 'supersedes_id', 'reason', 'sha256', 'files', 'data_source', 'form_status', 'demo_mark', 'counts_as_accepted', 'snapshot', 'issue_count', 'prepared_by_name', 'checked_by_name', 'approved_by_name', 'issued_by_name', 'issued_at', 'is_current', 'current_revision', 'chain', 'deliveries', 'issues', 'can_deliver', 'can_answer'}, strict: true),
+      layoutSha256: optionalField(map, path, 'layout_sha256', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'layout_version', 'layout_name', 'period_code', 'period', 'revision', 'supersedes_id', 'reason', 'sha256', 'files', 'data_source', 'form_status', 'demo_mark', 'counts_as_accepted', 'snapshot', 'issue_count', 'prepared_by_name', 'checked_by_name', 'approved_by_name', 'issued_by_name', 'issued_at', 'is_current', 'current_revision', 'chain', 'deliveries', 'issues', 'can_deliver', 'can_answer', 'layout_sha256'}, strict: true),
     );
   }
 
@@ -58062,6 +58069,7 @@ final class RptIssueResponse implements ResponseModel {
   final List<RptGridIssueResponse> issues;
   final bool canDeliver;
   final bool canAnswer;
+  final String? layoutSha256;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -58097,6 +58105,57 @@ final class RptIssueResponse implements ResponseModel {
         'issues': issues.map((e0) => e0.toJson()).toList(),
         'can_deliver': canDeliver,
         'can_answer': canAnswer,
+        if (layoutSha256 != null) 'layout_sha256': layoutSha256,
+        ...extra,
+      };
+}
+
+final class RptLayoutPreviewResponse implements ResponseModel {
+  const RptLayoutPreviewResponse({
+    required this.valid,
+    required this.problem,
+    required this.formName,
+    required this.status,
+    required this.datasets,
+    required this.preview,
+    required this.issues,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory RptLayoutPreviewResponse.fromJson(Object? json, [String path = 'RptLayoutPreviewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return RptLayoutPreviewResponse(
+      valid: requiredField(map, path, 'valid', asBool),
+      problem: requiredField(map, path, 'problem', nullable(asString)),
+      formName: requiredField(map, path, 'form_name', nullable(asString)),
+      status: requiredField(map, path, 'status', nullable(asString)),
+      datasets: requiredField(map, path, 'datasets', asList(asString)),
+      preview: requiredField(map, path, 'preview', asAny),
+      issues: requiredField(map, path, 'issues', asList(RptGridIssueResponse.fromJson)),
+      extra: unknownFields(map, path, const <String>{'valid', 'problem', 'form_name', 'status', 'datasets', 'preview', 'issues'}, strict: true),
+    );
+  }
+
+  final bool valid;
+  final String? problem;
+  final String? formName;
+  final String? status;
+  final List<String> datasets;
+  final Object? preview;
+  final List<RptGridIssueResponse> issues;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'valid': valid,
+        'problem': problem,
+        'form_name': formName,
+        'status': status,
+        'datasets': datasets,
+        'preview': preview,
+        'issues': issues.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }

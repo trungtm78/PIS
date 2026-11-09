@@ -583,6 +583,9 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'MNE-11': () => import('../../screens/mne/effect/EffectivenessScreen'),
   'RPT-05': () => import('../../screens/gov12/rpt/MofFormsScreen'),
   'RPT-06': () => import('../../screens/gov12/rpt/PeriodLockScreen'),
+  // ENT-4b: layouts of forms configured without code (REPORT_LAYOUT rules): the list with its versions, and the editor with the live preview.
+  'RPT-07': () => import('../../screens/rpt/layout/LayoutListScreen'),
+  'RPT-08': () => import('../../screens/rpt/layout/LayoutEditorScreen'),
   'PRJ-31': () => import('../../screens/gov12/prj/MonitoringListScreen'),
   'PRJ-32': () => import('../../screens/gov12/prj/MonitoringDetailScreen'),
   'PRJ-33': () => import('../../screens/gov12/prj/PortalAdminScreen'),

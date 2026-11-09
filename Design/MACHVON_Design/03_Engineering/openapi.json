@@ -159716,7 +159716,8 @@
               "type": "string",
               "enum": [
                 "XLSX",
-                "DOCX"
+                "DOCX",
+                "PDF"
               ]
             }
           }
@@ -160547,7 +160548,8 @@
               "type": "string",
               "enum": [
                 "XLSX",
-                "DOCX"
+                "DOCX",
+                "PDF"
               ]
             }
           }
@@ -228803,6 +228805,134 @@
           "ent.org_pack.materialised.v1"
         ]
       }
+    },
+    "/report-engine/layout-previews": {
+      "post": {
+        "operationId": "previewReportLayout",
+        "summary": "Xem trước bố cục biểu mẫu đang soạn bằng số liệu minh họa, không lưu gì (ENT-4b)",
+        "tags": [
+          "RPT"
+        ],
+        "x-permission": "rpt.generate",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RptLayoutPreviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RptLayoutPreview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
     }
   },
   "components": {
@@ -272494,7 +272624,8 @@
             "type": "string",
             "enum": [
               "XLSX",
-              "DOCX"
+              "DOCX",
+              "PDF"
             ]
           },
           "sha256": {
@@ -272844,6 +272975,14 @@
             "items": {
               "$ref": "#/components/schemas/RptGridIssue"
             }
+          },
+          "layout_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded"
           }
         }
       },
@@ -273199,6 +273338,14 @@
           },
           "can_answer": {
             "type": "boolean"
+          },
+          "layout_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded"
           }
         }
       },
@@ -273379,7 +273526,8 @@
             "type": "string",
             "enum": [
               "XLSX",
-              "DOCX"
+              "DOCX",
+              "PDF"
             ]
           },
           "sha256": {
@@ -309369,6 +309517,90 @@
           },
           "structure_complete": {
             "type": "boolean"
+          }
+        }
+      },
+      "RptLayoutPreviewRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "params"
+        ],
+        "properties": {
+          "params": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The params of a REPORT_LAYOUT rule as the user is editing them; nothing is stored"
+          },
+          "period": {
+            "$ref": "#/components/schemas/RptPeriod"
+          }
+        }
+      },
+      "RptLayoutPreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "valid",
+          "problem",
+          "form_name",
+          "status",
+          "datasets",
+          "preview",
+          "issues"
+        ],
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "problem": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The first field the layout is refused for"
+          },
+          "form_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "PENDING_EXTERNAL",
+              "DEMO",
+              "DRAFT",
+              "READY",
+              null
+            ]
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The datasets the project groups read from the provider of the figures"
+          },
+          "preview": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RptPreview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RptGridIssue"
+            }
           }
         }
       }

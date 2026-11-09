@@ -24,6 +24,7 @@ import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
+import { configuredFormOf } from './configured-forms';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess } from './form-registry';
 import { renderReport } from './render';
@@ -93,13 +94,14 @@ export class ReportController {
   @Command({ operation: 'generateReport' })
   async generate(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['RptGenerate']): Promise<Schemas['RptGenerated']> {
     this.assertWhole(access, PERMISSIONS.generateReport);
-    const bundle = REPORT_FORMS.get(body.layout_code);
-    if (bundle === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout_code');
-    const period = periodOf(body.period);
-    assertPeriodFitsForm(bundle.periodKind, period);
     const { tx } = scope;
     const now = this.clock();
     const today = vietnamDateOf(now);
+    // A form owned by code, else a layout the tenant configured without code (the version of its rule in force today).
+    const bundle = REPORT_FORMS.get(body.layout_code) ?? (await configuredFormOf(tx, body.layout_code, today))?.bundle;
+    if (bundle === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'layout_code');
+    const period = periodOf(body.period);
+    assertPeriodFitsForm(bundle.periodKind, period);
     const by = scope.tenant.membershipId;
     // A DEMO form is generated only while demo forms are on (TEMPLATE_UNCONFIRMED otherwise); the marks of the copy come from the form as it is today.
     const demoMode = await demoModeOf(tx, today, bundle.layout.status);
@@ -136,6 +138,8 @@ export class ReportController {
 
     const xlsxSha = await reportStore.putOutput(tx, 'XLSX', rendered.xlsx, by);
     const docxSha = rendered.docx === null ? null : await reportStore.putOutput(tx, 'DOCX', rendered.docx, by);
+    // The PDF is a rendition of the same document: it is stored with its own hash and is not part of the package digest (a report made before the PDF existed is still a repeat).
+    const pdfSha = await reportStore.putOutput(tx, 'PDF', rendered.pdf, by);
     const packageSha = packageDigestOf([{ format: 'XLSX', sha256: xlsxSha }, ...(docxSha === null ? [] : [{ format: 'DOCX' as ReportFileFormat, sha256: docxSha }])]);
     const code = periodCode(period);
     await periodStore.assertOpen(tx, bundle.layout.code, code);
@@ -160,6 +164,8 @@ export class ReportController {
       reason: head === undefined ? null : (body.reason ?? null),
       xlsxSha256: xlsxSha,
       docxSha256: docxSha,
+      pdfSha256: pdfSha,
+      layoutSha256: rendered.layoutSha256,
       packageSha256: packageSha,
       dataSource: bundle.dataSource,
       snapshotRef: snapshot,
@@ -218,6 +224,7 @@ export class ReportController {
         names: (revision) => ({
           xlsx: reportFileName({ code: draft.layoutCode, period: draft.period, revision, sha256: draft.xlsxSha256, extension: 'xlsx' }),
           docx: draft.docxSha256 === null ? null : reportFileName({ code: draft.layoutCode, period: draft.period, revision, sha256: draft.docxSha256, extension: 'docx' }),
+          pdf: draft.pdfSha256 === null ? null : reportFileName({ code: draft.layoutCode, period: draft.period, revision, sha256: draft.pdfSha256, extension: 'pdf' }),
         }),
       },
       scope.expectedVersion ?? 0,
@@ -247,6 +254,8 @@ export class ReportController {
         sha256: row.sha256,
         xlsx_sha256: row.xlsxSha256,
         docx_sha256: row.docxSha256,
+        pdf_sha256: row.pdfSha256,
+        layout_sha256: row.layoutSha256,
         form_status: row.formStatus,
         counts_as_accepted: row.countsAsAccepted,
         snapshot_id: row.snapshotRef?.snapshotId ?? null,

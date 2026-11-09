@@ -1,0 +1,75 @@
+{
+  "steps": [
+    {
+      "command": "add-schema",
+      "name": "RptLayoutPreviewRequest",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["params"],
+        "properties": {
+          "params": { "type": "object", "additionalProperties": true, "description": "The params of a REPORT_LAYOUT rule as the user is editing them; nothing is stored" },
+          "period": { "$ref": "#/components/schemas/RptPeriod" }
+        }
+      }
+    },
+    {
+      "command": "add-schema",
+      "name": "RptLayoutPreview",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["valid", "problem", "form_name", "status", "datasets", "preview", "issues"],
+        "properties": {
+          "valid": { "type": "boolean" },
+          "problem": { "type": ["string", "null"], "description": "The first field the layout is refused for" },
+          "form_name": { "type": ["string", "null"] },
+          "status": { "type": ["string", "null"], "enum": ["PENDING_EXTERNAL", "DEMO", "DRAFT", "READY", null] },
+          "datasets": { "type": "array", "items": { "type": "string" }, "description": "The datasets the project groups read from the provider of the figures" },
+          "preview": { "oneOf": [{ "$ref": "#/components/schemas/RptPreview" }, { "type": "null" }] },
+          "issues": { "type": "array", "items": { "$ref": "#/components/schemas/RptGridIssue" } }
+        }
+      }
+    },
+    {
+      "command": "add-operation",
+      "path": "/report-engine/layout-previews",
+      "method": "post",
+      "build": {
+        "operationId": "previewReportLayout",
+        "summary": "Xem trước bố cục biểu mẫu đang soạn bằng số liệu minh họa, không lưu gì (ENT-4b)",
+        "tags": ["RPT"],
+        "permission": "rpt.generate",
+        "requestRef": "RptLayoutPreviewRequest",
+        "responseRef": "RptLayoutPreview",
+        "errorCodes": ["VALIDATION_FAILED", "SCOPE_DENIED"]
+      }
+    },
+    {
+      "command": "add-screen",
+      "module": "RPT",
+      "title": "Bố cục biểu mẫu cấu hình",
+      "kind": "table",
+      "fields": ["Mã bố cục", "Loại (nội bộ, theo yêu cầu của Sở, Ban, Ngành)", "Phiên bản đang hiệu lực", "Trạng thái phiên bản", "Người lập", "Người duyệt", "Hiệu lực từ", "Mã băm bố cục"],
+      "role": "Người lập báo cáo, lãnh đạo duyệt",
+      "rule": "Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.",
+      "phase": "P1",
+      "platform": "web",
+      "req": "FR-RPT-07",
+      "source": "Làn ENT-4b; kế hoạch ENT-3 G5, rà soát R23; HSKT BC.01"
+    },
+    {
+      "command": "add-screen",
+      "module": "RPT",
+      "title": "Soạn bố cục biểu mẫu",
+      "kind": "form",
+      "fields": ["Loại và tên biểu mẫu", "Đơn vị yêu cầu và văn bản yêu cầu", "Chỉ tiêu, tiêu đề và cơ sở kỳ", "Cột bảng dự án và thứ tự", "Nhóm dự án", "Tổng cộng và người ký", "Xem trước bằng số liệu minh họa", "Lý do và hiệu lực"],
+      "role": "Người lập báo cáo",
+      "rule": "Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.",
+      "phase": "P1",
+      "platform": "web",
+      "req": "FR-RPT-08",
+      "source": "Làn ENT-4b; kế hoạch ENT-3 G5, rà soát R23; HSKT BC.01"
+    }
+  ]
+}

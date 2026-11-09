@@ -26077,6 +26077,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/report-engine/layout-previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Xem trước bố cục biểu mẫu đang soạn bằng số liệu minh họa, không lưu gì (ENT-4b) */
+        post: operations["previewReportLayout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -37861,7 +37878,7 @@ export interface components {
         };
         RptFileInfo: {
             /** @enum {string} */
-            format: "XLSX" | "DOCX";
+            format: "XLSX" | "DOCX" | "PDF";
             sha256: string;
             /** @description The file name of an issued copy; a draft has none yet */
             name: string | null;
@@ -37940,6 +37957,8 @@ export interface components {
             /** @description Only on the single read */
             preview: components["schemas"]["RptPreview"] | null;
             issues: components["schemas"]["RptGridIssue"][];
+            /** @description The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded */
+            layout_sha256?: string | null;
         };
         RptDraftPage: {
             items: components["schemas"]["RptDraft"][];
@@ -38019,6 +38038,8 @@ export interface components {
             issues: components["schemas"]["RptGridIssue"][];
             can_deliver: boolean;
             can_answer: boolean;
+            /** @description The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded */
+            layout_sha256?: string | null;
         };
         RptIssuePage: {
             items: components["schemas"]["RptIssue"][];
@@ -38063,7 +38084,7 @@ export interface components {
         };
         RptFileContent: {
             /** @enum {string} */
-            format: "XLSX" | "DOCX";
+            format: "XLSX" | "DOCX" | "PDF";
             sha256: string;
             name: string;
             size_bytes: number;
@@ -46612,6 +46633,25 @@ export interface components {
             };
             stray_grants: number;
             structure_complete: boolean;
+        };
+        RptLayoutPreviewRequest: {
+            /** @description The params of a REPORT_LAYOUT rule as the user is editing them; nothing is stored */
+            params: {
+                [key: string]: unknown;
+            };
+            period?: components["schemas"]["RptPeriod"];
+        };
+        RptLayoutPreview: {
+            valid: boolean;
+            /** @description The first field the layout is refused for */
+            problem: string | null;
+            form_name: string | null;
+            /** @enum {string|null} */
+            status: "PENDING_EXTERNAL" | "DEMO" | "DRAFT" | "READY" | null;
+            /** @description The datasets the project groups read from the provider of the figures */
+            datasets: string[];
+            preview: components["schemas"]["RptPreview"] | null;
+            issues: components["schemas"]["RptGridIssue"][];
         };
     };
     responses: never;
@@ -157505,7 +157545,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                format: "XLSX" | "DOCX";
+                format: "XLSX" | "DOCX" | "PDF";
             };
             cookie?: never;
         };
@@ -158086,7 +158126,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                format: "XLSX" | "DOCX";
+                format: "XLSX" | "DOCX" | "PDF";
             };
             cookie?: never;
         };
@@ -206654,6 +206694,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EntOrgPackMaterialisation"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    previewReportLayout: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RptLayoutPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RptLayoutPreview"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

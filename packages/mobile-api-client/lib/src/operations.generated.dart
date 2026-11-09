@@ -1200,6 +1200,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'previewFinanceFeedFile': OperationDescriptor(method: 'POST', path: '/finance-feed/imports/preview', versioned: false, stepUp: null, permission: 'fin.feed.preview'),
   'previewIndicatorImport': OperationDescriptor(method: 'POST', path: '/indicator-imports/preview', versioned: false, stepUp: null, permission: 'ind.import.preview'),
   'previewPlanChange': OperationDescriptor(method: 'POST', path: '/system/subscriptions/{subscriptionId}/plan-change-previews', versioned: false, stepUp: null, permission: 'system.billing.manage'),
+  'previewReportLayout': OperationDescriptor(method: 'POST', path: '/report-engine/layout-previews', versioned: false, stepUp: null, permission: 'rpt.generate'),
   'promoteAllocationScenario': OperationDescriptor(method: 'POST', path: '/allocation-scenarios/{id}/promote', versioned: true, stepUp: null, permission: 'capital.reallocation.propose'),
   'promoteChangeRequest': OperationDescriptor(method: 'POST', path: '/change-requests/{id}/promote', versioned: true, stepUp: null, permission: 'change.manage'),
   'proposeAlertCover': OperationDescriptor(method: 'POST', path: '/home/alert-absences/{id}/covers', versioned: false, stepUp: null, permission: 'home.read'),
