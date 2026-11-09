@@ -32,12 +32,9 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'ADM-25': () => import('../../screens/adm/authority/StandingDelegationScreen'),
   'ADM-26': () => import('../../screens/adm/authority/ActingScreen'),
   'ADM-27': () => import('../../screens/adm/authority/PeriodScopeScreen'),
-<<<<<<< HEAD
   'ADM-29': () => import('../../screens/adm/audit-detail/AuditDetailPolicyScreen'),
   'ADM-30': () => import('../../screens/adm/capacity/LogCapacityScreen'),
-=======
   'ADM-29': () => import('../../screens/adm/backups/BackupsScreen'),
->>>>>>> lane/infra2
   'AUD-01': () => import('../../screens/aud/recovery/OverviewScreen'),
   'AUD-02': () => import('../../screens/aud/EngagementListScreen'),
   'AUD-03': () => import('../../screens/aud/EngagementDetailScreen'),
