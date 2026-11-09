@@ -15,7 +15,7 @@ Branch `lane/delivery1`, worktree `D:\PIS-delivery1`. Source: plan "ENT-3" gap G
 - [x] 5. Documents 05 and 06 (SIT/UAT scripts by requirement code; data conversion plan and the mapping of the 05 Excel forms).
 - [x] 6. Documents 07 and 08 (training; parallel run for two periods).
 - [x] 7. Documents 09, 10, 11 and `docs/delivery/README.md` (acceptance minutes, handover checklist, PENDING-EXTERNAL register, index with the 7 phases and approvals).
-- [ ] 8. Independent review of `git diff main...HEAD` (Codex if the limit is lifted, else a fresh read-only subagent), triage, fixes, `git merge main`, final report.
+- [x] 8. Independent review of `git diff main...HEAD` (Codex if the limit is lifted, else a fresh read-only subagent), triage, fixes, `git merge main`, final report.
 
 ## Tests per step
 Step 2: `node --test scripts/hskt-trace.test.mjs`, `node scripts/hskt-trace.mjs check`. Steps 3 to 7: the same checker (documents named by the matrix must exist and the register must list every external item); markdown only.
