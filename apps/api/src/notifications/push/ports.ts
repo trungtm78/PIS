@@ -15,12 +15,18 @@ export interface PushProviderMessage {
   silent: boolean;
   /** One send of one notification to one device: a provider that supports it sends once however often it is asked. */
   idempotencyKey: string;
+  /** The tenant the send is made for (a provider that limits or signs per tenant needs it); absent in older callers. */
+  tenantId?: string;
+  /** The device record the token belongs to (the receipt of a web push is bound to it). */
+  deviceId?: string;
+  /** The priority of the notification as the engine keeps it (`CRITICAL`, `HIGH`, ...): a provider that has an urgency header maps it. */
+  priority?: string;
 }
 
 export type PushProviderAnswer =
   | { ok: true; messageId: string }
-  /** `code` is the error code of FCM or the reason of APNs, as the provider wrote it. */
-  | { ok: false; code: string };
+  /** `code` is the error code of FCM or the reason of APNs, as the provider wrote it; `retryAfterSeconds` is the pause the provider asked for. */
+  | { ok: false; code: string; retryAfterSeconds?: number };
 
 export interface PushProviderPort {
   send(message: PushProviderMessage): Promise<PushProviderAnswer>;

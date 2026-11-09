@@ -116,3 +116,37 @@ describe('the message of a rung', () => {
     expect(ladderEventType('ZALO')).toBe('home.alert_ladder_zalo.v1');
   });
 });
+
+describe('the ladder with e-mail and Teams after an unacknowledged push (YCK.01)', () => {
+  const policy = ladderPolicyOf({
+    rungs: [
+      { channel: 'IN_APP', wait_minutes: 0 },
+      { channel: 'PUSH', wait_minutes: 20 },
+      { channel: 'EMAIL', wait_minutes: 30 },
+      { channel: 'TEAMS', wait_minutes: 30 },
+    ],
+    stop_when: 'SEEN',
+    hand_off: 'ESCALATE',
+    hand_off_after_minutes: 30,
+    expires_after_minutes: 1440,
+  });
+  const record = (index: number, state: RungRecord['state'], sentMinute: number): RungRecord => ({ index, channel: policy.rungs[index]?.channel ?? 'IN_APP', state, sentAt: at(sentMinute).toISOString() });
+  const run = (rungs: RungRecord[], minutes: number): LadderInput => ({ policy, rungs, now: at(minutes), startedAt: T0, acted: false, cleared: false, escalated: false });
+
+  it('accepts TEAMS as a rung and names its engine channel and its event', () => {
+    expect(policy.rungs.map((rungOfPolicy) => rungOfPolicy.channel)).toEqual(['IN_APP', 'PUSH', 'EMAIL', 'TEAMS']);
+    expect(ladderEventType('TEAMS')).toBe('home.alert_ladder_teams.v1');
+  });
+
+  it('waits the configured time for the push, then sends the e-mail, then Teams, then hands the alert on', () => {
+    // The push was shown on the device (a receipt of DELIVERED) but not opened: the policy wants it SEEN, so the wait runs out and the e-mail goes.
+    expect(nextLadderMove(run([record(0, 'DELIVERED', 0), record(1, 'DELIVERED', 0)], 19))).toEqual({ kind: 'WAIT', until: at(20).toISOString() });
+    expect(nextLadderMove(run([record(0, 'DELIVERED', 0), record(1, 'DELIVERED', 0)], 20))).toEqual({ kind: 'SEND_RUNG', index: 2 });
+    expect(nextLadderMove(run([record(0, 'DELIVERED', 0), record(1, 'SENT', 0), record(2, 'SENT', 20)], 50))).toEqual({ kind: 'SEND_RUNG', index: 3 });
+    expect(nextLadderMove(run([record(0, 'DELIVERED', 0), record(1, 'SENT', 0), record(2, 'SENT', 20), record(3, 'SENT', 50)], 110))).toEqual({ kind: 'ESCALATE' });
+  });
+
+  it('ends the ladder as soon as the person taps the push (a receipt of SEEN), without e-mail or Teams', () => {
+    expect(nextLadderMove(run([record(0, 'DELIVERED', 0), record(1, 'SEEN', 0)], 5))).toEqual({ kind: 'DONE', by: 'RECEIPT' });
+  });
+});

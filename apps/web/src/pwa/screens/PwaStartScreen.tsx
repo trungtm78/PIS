@@ -15,10 +15,11 @@ import './pwa.css';
 export const APPROVALS_PATH = '/m/approvals';
 export const DASHBOARD_PATH = '/m/dashboard';
 export const DIRECTIVES_PATH = '/m/directives';
+const NOTIFICATIONS_PATH = '/m/notifications';
 
 type T = Translator['t'];
 
-function pushText(t: T, state: PushControlState): string {
+export function pushStateText(t: T, state: PushControlState): string {
   switch (state) {
     case 'checking':
       return t('pwa.push.state.checking');
@@ -154,7 +155,7 @@ function PushCard({ pushDeps }: { pushDeps: PushControlDeps | undefined }) {
       <h2 id="pwa-push-title">{t('pwa.push.card.title')}</h2>
       <p>{t('pwa.push.card.privacy')}</p>
       <p role="status" data-testid="push-state" data-state={push.state}>
-        {pushText(t, push.state)}
+        {pushStateText(t, push.state)}
       </p>
       {push.state === 'off' || push.state === 'failed' ? (
         <button type="button" className="ui-button ui-button--primary pwa-touch" data-action="enable-push" onClick={() => void push.enable()}>
@@ -166,6 +167,9 @@ function PushCard({ pushDeps }: { pushDeps: PushControlDeps | undefined }) {
           {t('pwa.push.action.disable')}
         </button>
       ) : null}
+      <Link to={NOTIFICATIONS_PATH} className="pwa-touch" data-entry="notifications">
+        {t('webpush.start.link')}
+      </Link>
     </section>
   );
 }

@@ -2,6 +2,8 @@
 @import '../bid/bid.css';
 
 .int-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.int-coverage { display: flex; flex-direction: column; gap: var(--mv-space-8); margin: 0; padding: 0; list-style: none; }
+.int-coverage li { display: flex; flex-wrap: wrap; gap: var(--mv-space-12); align-items: baseline; }
 .int-receipt { border-color: var(--mv-color-success); background: var(--mv-color-success-soft); }
 
 .int-chips { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin: var(--mv-space-12) 0; padding: 0; border: 0; }

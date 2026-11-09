@@ -3,6 +3,8 @@ import { cleanup, configure, screen, waitFor, within } from '@testing-library/re
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { t as tr } from '../../i18n';
+import { EditionProvider } from '../../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../../editions/edition';
 import vi_ from '../../i18n/vi.json';
 import { harness, mount, routeOf } from '../mne/test-support';
 import type { Harness } from '../mne/test-support';
@@ -462,5 +464,47 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     else expect(await screen.findByText(vi_['states.denied.title'])).toBeTruthy();
     expect(screen.getByTestId('home-context')).toBeTruthy();
     expect(screen.getByLabelText(vi_['home.filter.unit.label'])).toBeTruthy();
+  });
+});
+
+describe('HOME-09: presentation mode and the leader panel slot (ENT-4d, BC.02)', () => {
+  it('presents the rates, the changes and the cash flow as boards over the page and leaves with Escape', async () => {
+    mount(<CommandCenterScreen route={CC} />, client({ latest: () => body(), others: () => ({ rows: [], items: [] }) }), { permissions: READER });
+    await screen.findByTestId('home-rates');
+    await userEvent.click(screen.getByTestId('present-open'));
+    const presentation = await screen.findByRole('dialog', { name: tr('home.present.page.title') });
+    expect(within(presentation).getByRole('heading', { level: 2, name: tr('home.present.rates.title') })).toBeTruthy();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(within(presentation).getByRole('heading', { level: 2, name: tr('home.present.changes.title') })).toBeTruthy();
+    // A public build has no leader panel: three boards, no slot.
+    expect(within(presentation).getByTestId('presentation-status').textContent).toContain(tr('ui.presentation.position.text', { index: 2, total: 3 }));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: tr('home.present.page.title') })).toBeNull());
+  });
+
+  it('draws the panel of the edition under the rates and adds its two boards to the presentation, and draws nothing for the public edition', async () => {
+    const Panel = ({ part }: { part: string }) => <div data-testid={`leader-panel-${part}`}>panel {part}</div>;
+    const edition = { manifest: PUBLIC_BUNDLE.manifest, slots: { leaderPanel: Panel } };
+    mount(
+      <EditionProvider edition={edition}>
+        <CommandCenterScreen route={CC} />
+      </EditionProvider>,
+      client({ latest: () => body(), others: () => ({ rows: [], items: [] }) }),
+      { permissions: READER },
+    );
+    await screen.findByTestId('home-rates');
+    expect(screen.getByTestId('leader-panel-all')).toBeTruthy();
+    await userEvent.click(screen.getByTestId('present-open'));
+    const presentation = await screen.findByRole('dialog', { name: tr('home.present.page.title') });
+    expect(within(presentation).getByTestId('presentation-status').textContent).toContain(tr('ui.presentation.position.text', { index: 1, total: 5 }));
+    await userEvent.keyboard('{End}');
+    expect(within(presentation).getByRole('heading', { level: 2, name: tr('home.present.leaderTiles.title') })).toBeTruthy();
+    expect(within(presentation).getByTestId('leader-panel-tiles')).toBeTruthy();
+  });
+
+  it('shows no leader panel for the public edition', async () => {
+    mount(<CommandCenterScreen route={CC} />, client({ latest: () => body(), others: () => ({ rows: [], items: [] }) }), { permissions: READER });
+    await screen.findByTestId('home-rates');
+    expect(screen.queryByTestId('leader-panel-all')).toBeNull();
   });
 });

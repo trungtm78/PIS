@@ -229,17 +229,20 @@ export function reopenRecord(outcome: ReopenOutcome, row: PeriodReopenRow, perio
     status: row.status,
   };
   const decided = row.decidedAt === null || row.windowUntil === null ? {} : { approved_by: row.approvedBy, decided_at: row.decidedAt, window_until: row.windowUntil, window_hours: hoursBetween(row.decidedAt, row.windowUntil) };
+  // HT.06: when the tenant opted in for `period_reopen`, the audit keeps the whole request before and after the step (the status it left, and the request as it now stands).
+  const left = outcome === 'requested' ? null : { status: outcome === 'expired' && row.decidedAt !== null ? 'APPROVED' : 'REQUESTED' };
+  const detail = (after: Record<string, unknown>) => ({ before: left, after });
   const audit = { action: `dis.period_reopen_${outcome}`, resourceType: REOPEN_RESOURCE, resourceId: row.id, reason };
   switch (outcome) {
     case 'requested':
-      return { audit: { ...audit, diff: base } };
+      return { audit: { ...audit, diff: base, detail: detail(base) } };
     case 'rejected':
-      return { audit: { ...audit, diff: { ...base, decided_by: row.decidedBy, decided_at: row.decidedAt } } };
+      return { audit: { ...audit, diff: { ...base, decided_by: row.decidedBy, decided_at: row.decidedAt }, detail: detail({ ...base, decided_by: row.decidedBy, decided_at: row.decidedAt, reason }) } };
     case 'expired':
-      return { audit: { ...audit, diff: { ...base, ...decided, trigger: 'AUTO' } } };
+      return { audit: { ...audit, diff: { ...base, ...decided, trigger: 'AUTO' }, detail: detail({ ...base, ...decided, trigger: 'AUTO' }) } };
     case 'approved':
       return {
-        audit: { ...audit, diff: { ...base, ...decided } },
+        audit: { ...audit, diff: { ...base, ...decided }, detail: detail({ ...base, ...decided, reason }) },
         event: {
           aggregateType: REOPEN_RESOURCE,
           aggregateId: row.id,

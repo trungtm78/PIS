@@ -1,0 +1,14 @@
+{
+  "id": "LOG_CAPACITY_EXCEEDED",
+  "severity": "critical",
+  "channel": "product",
+  "owner": "tenant-administration",
+  "runbook": "docs/runbooks/alerts/LOG_CAPACITY_EXCEEDED.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "log_capacity_exceeded",
+    "above": 0
+  },
+  "summary": "A log class of a tenant is over its cap and the nightly run could not bring it back."
+}

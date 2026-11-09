@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { camel } from '../mdm/catalogues';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { isDefinitiveRefusal } from '../../api/attempt-registry';
@@ -12,7 +13,7 @@ import { issueFieldMessage, issueProblemMessage, sourceLabel } from './issue-lab
 import { EMPTY_FORM, FIELD_OF_DETAIL, ISSUE_CREATE_PERMISSION, LIST_PATH, describeProblem, hasPermission, toCreateBody, validateForm, workspaceLink } from './issue-model';
 import type { FieldProblem, IssueField, IssueForm } from './issue-model';
 import { severityLabel } from './labels';
-import { SEVERITIES } from './model';
+import { SEVERITIES, splitCategories } from './model';
 import type { Severity } from './model';
 import './iss.css';
 
@@ -37,6 +38,7 @@ function IssueCreateContent({ route }: ScreenProps) {
   const projects = useProjects(canCreate);
   const units = useUnits();
   const categories = useCategories();
+  const split = splitCategories(categories.data ?? []);
   const create = useCreateIssue();
   const [form, setForm] = useState<IssueForm>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<IssueField, FieldProblem>>>({});
@@ -148,7 +150,16 @@ function IssueCreateContent({ route }: ScreenProps) {
             <Field id="issue-category" label={t('iss.create.category.label')} error={problemOf('categoryVersionId')}>
               <select id="issue-category" value={form.categoryVersionId} aria-invalid={problemOf('categoryVersionId') !== undefined} onChange={(event) => change({ categoryVersionId: event.target.value })}>
                 <option value="">{t('iss.create.choose.option')}</option>
-                {(categories.data ?? []).map((category) => (
+                {split.causes.map((family) => (
+                  <optgroup key={family.group} label={`${t('iss.create.category.causes')} · ${t(`iss.delayCause.group.${camel(family.group)}`)}`}>
+                    {family.items.map((category) => (
+                      <option key={category.versionId} value={category.versionId}>
+                        {category.key} · {category.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+                {split.others.map((category) => (
                   <option key={category.versionId} value={category.versionId}>
                     {category.key} · {category.label}
                   </option>

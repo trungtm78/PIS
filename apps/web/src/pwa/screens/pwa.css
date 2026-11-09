@@ -63,3 +63,16 @@
 .prc1-funnel__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); min-height: 44px; padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
 .prc1-funnel__name { flex: 1 1 140px; font-weight: 600; }
 .prc1-funnel__count { font-variant-numeric: tabular-nums; }
+
+.pwa-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  margin: 0 0 var(--space-3, 0.75rem);
+}
+.pwa-facts dt {
+  font-weight: 600;
+}
+.pwa-facts dd {
+  margin: 0;
+}

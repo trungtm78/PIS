@@ -24,6 +24,8 @@ export const BUSINESS_TYPES: readonly BusinessTypeSpec[] = [
   { code: 'contract.change', documentType: 'CONTRACT_CHANGE', commands: { APPROVED: 'approveContractChange', RETURNED: 'returnContractChange', REJECTED: 'rejectContractChange' }, ownerModule: 'CTR', enabledByDefault: false },
   { code: 'period.reopen', documentType: 'PERIOD_REOPEN', commands: { APPROVED: 'reopenPeriod', RETURNED: 'returnPeriodReopen', REJECTED: 'rejectPeriodReopen' }, ownerModule: 'DIS', enabledByDefault: false },
   { code: 'document.review', documentType: 'DOCUMENT_REVIEW', commands: { APPROVED: 'approveDocumentReview', RETURNED: 'requestDocumentSupplement', REJECTED: 'rejectDocumentReview' }, ownerModule: 'DOC', enabledByDefault: false },
+  { code: 'fnd.figures.accept', documentType: 'FND_FIGURE_ACCEPT', commands: { APPROVED: 'acceptFundingFigures', RETURNED: 'returnFundingFigures', REJECTED: 'rejectFundingFigures' }, ownerModule: 'FND', enabledByDefault: false },
+  { code: 'ind.entry.accept', documentType: 'IND_ENTRY_ACCEPT', commands: { APPROVED: 'acceptIndicatorEntry', RETURNED: 'returnIndicatorEntry', REJECTED: 'rejectIndicatorEntry' }, ownerModule: 'IND', enabledByDefault: false },
 ];
 
 export const businessTypeOf = (code: string): BusinessTypeSpec | undefined => BUSINESS_TYPES.find((type) => type.code === code);

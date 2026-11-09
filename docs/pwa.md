@@ -11,13 +11,15 @@ They sit under `/m` in the same application, behind the same sign-in and tenant 
 | PWA-01 | `/m` | The start page the installed application opens (`start_url` of the manifest): three entries, how to install, how to turn on notifications | the count of the approval queue; nothing else |
 | PWA-02 | `/m/approvals` | The approval queue of the period data: approve (the comment is optional) or return for correction (the comment is required) | `get_resources_approval_task` (`mine`, `Pending`) and `decideApprovalTask` (`If-Match` the version of the task, `aal2`), the same operations as the approval inbox of the phone application and the monitor ADM-18 |
 | PWA-03 | `/m/dashboard` | The leader dashboard: the context of every figure, the amount disbursed with its ring, the two rates side by side, the plan, what waits, "Cần xử lý ngay" | `getCommandCenter` and the alert source of the bell, through the model, hooks and kit of HOME-09, so the figures cannot differ from the full screen |
-| PWA-04 | `/m/directives` | The directive tracking: who issued it, the unit, the deadline, the progress | `useDirectives` (below); no data until the directive entity exists |
+| PWA-04 | `/m/directives`, `/m/directives/:id` | The directive tracking: the steering meeting that gave it, the unit, the deadline, the status (open, in progress, done, overdue, cancelled), the progress; the detail shows the latest progress and the timeline, read only | `listDirectives` (status filter, pages by cursor) and `getDirective` of the directive module (DIR-1) through `src/pwa/screens/directives-api-source.ts`, provided by `PwaRoutes` |
 
 States (design.md): loading is a skeleton and never a 0; empty has its kinds (nothing waits / the filter found nothing / the module is not built); an error names itself and retries in place; stale says when the list was read ("Số liệu cũ ... lúc HH:mm") and keeps the list; denied says the scope is hidden and names nothing; offline is the standard offline card; submitting locks the sheet (one request however often it is tapped); success is a receipt (record, step, time, next step); version conflict and "already decided" offer to reload the list and decide again; period locked, licence expired, self-approval and "second factor needed" are said in words, with the second factor asked for in place. A read-only session shows no decision control.
 
 A decision is one request, sent while the page is online, under the version of the task on the screen. It is never queued, never retried by the page on its own, and never sent from a notification. A repeat of the same intention after a lost answer reuses the idempotency key, so the server records it once.
 
-### Directives contract (TODO for the lane that builds the directive entity, DIR-1)
+### Directives contract (wired to the directive module by ENT-4c)
+
+The list of the API does not carry the progress that was reported, so a card says "open the detail to see the progress" (`progressKnown: false`) and the detail shows the latest progress of the timeline; "not reported" is said only where the timeline is known. Without a provider (a screen mounted alone) the default source still says `notBuilt`.
 
 The screen is written against `src/pwa/screens/directives-source.ts`: a typed hook `useDirectives({ status })` that returns `loading`, `notBuilt`, `error`, or `ready` with the items, the time they were read, whether they are stale and the sources that could not be read. The default source says `notBuilt`, which the screen shows as its own empty state ("Chưa có dữ liệu chỉ đạo"), never as "no directive" and never with invented items. To plug the entity in, provide a source through `DirectivesSourceContext` (or make it the default of the context). The shape the screen needs:
 
@@ -97,9 +99,16 @@ A generic title and a link, never an amount or a name. The data is `{"v":1,"titl
 | Server | `apps/api/src/notifications/push/web-push.ts`, wired in `notifications/delivery/wiring.ts` |
 | Tests | `src/pwa/**/*.test.ts(x)`, `apps/api/test/notifications/web-push.test.ts`, `apps/web/e2e/pwa-flows.spec.ts` (written, not run in the lane; the last block needs `E2E_PWA_PREVIEW_URL`) |
 
+## Web push in operation (lane WEBPUSH)
+
+- **State of the channel:** `MOCK` (no VAPID key), `PENDING_SPIKE` (keys set, real sender, runs outside production only), `VERIFIED` (`MACHVON_WEBPUSH_SPIKE_VERIFIED=true` after `docs/runbooks/web-push-spike.md`; probe: `scripts/web-push-probe.mjs`). In production the web channel (provider `web-push`, `PUSH_FCM`) is registered only when `VERIFIED`.
+- **Keys** come from a file (`MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_FILE`, `MACHVON_WEBPUSH_RECEIPT_KEY_FILE`), else a vault reference, else the variable. A limit per tenant (`MACHVON_WEBPUSH_TENANT_PER_MINUTE`, default 600) answers QUOTA_EXCEEDED with a pause; the pause a push service asks for (`Retry-After`) reaches the delivery engine; priority CRITICAL/HIGH sends `Urgency: high` with a 4 hour TTL.
+- **Receipt:** the push carries `rcpt`, an opaque HMAC token bound to tenant, notification and device (48 hours). The worker posts `{receipt, event: SHOWN|CLICKED}` to `POST /push/receipts` (`acknowledgePush`, public, no session): the send moves ProviderAccepted -> Delivered -> Read through the monotonic reducer, idempotent. The alert ladder (NOT-30) reads these statuses as rung receipts, so an unacknowledged push is waited out by the `wait_minutes` of its rung and the next rung (e-mail, Teams) is sent; `TEAMS` is now a ladder channel.
+- **Page:** `/m/notifications` (PWA-05): permission, subscribe, unsubscribe, test notification to myself (`sendMyTestPush`).
+
 ## Not here (yet)
 
-- The sandbox spike of the real push services and the promotion of the web channel from MOCK to VERIFIED.
+- The live check itself (needs real browser subscriptions): the channel stays `PENDING_SPIKE`.
 - The directive entity (DIR-1) and its list operation: the hook is the contract.
 - A shared constant for the manager start paths between the server and the worker (they are repeated, and tested against each other).
 - A web push for `PUSH_FCM` in production is not registered (no MOCK adapter runs there), like FCM and APNs.

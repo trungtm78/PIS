@@ -328,6 +328,8 @@
     "recordPermitMilestone",
     "recordPlanFeedback",
     "recordProcurementMilestone",
+    "saveAuditDetailPolicy",
+    "saveLogCapacityPolicy",
     "recordProjectAppraisal",
     "recordRecoveryNotice",
     "recordMaterialTestResult",
@@ -440,6 +442,7 @@
     "adoptContractRating",
     "withdrawContractRating",
     "generateReport",
+    "previewReportLayout",
     "checkReport",
     "approveReport",
     "issueReport",
@@ -530,7 +533,7 @@
     "runReconciliation",
     "updateMyProfile",
     "revokeMySession",
-    "revokeMyDevice",
+    "revokeMyDevice","sendMyTestPush",
     "createWorkflowDraft",
     "updateWorkflowDraft",
     "publishWorkflowVersion",
@@ -541,6 +544,10 @@
     "proposeUnitReorganization",
     "decideUnitReorganization",
     "revokeDelegation",
+    "requestBackup",
+    "decideBackupRequest",
+    "cancelBackupRequest",
+    "recordBackupOutcome",
     "createStandingDelegationRequest",
     "decideStandingDelegationRequest",
     "cancelStandingDelegationRequest",
@@ -893,7 +900,9 @@
     "recordProcurementPetitionOutcome",
     "confirmProcurementPetitionOutcome",
     "returnProcurementPetitionOutcome",
-    "uploadPortalAttachment"
+    "uploadPortalAttachment",
+    "buildEnterpriseSnapshot",
+    "freezeEnterpriseSnapshot"
   ],
   "controlCommands": [
     "decideTenantRestore",
@@ -941,7 +950,7 @@
   "identityCommands": [
     "acceptInvitation",
     "issueOpenApiToken",
-    "receiveChannelWebhook",
+    "receiveChannelWebhook","acknowledgePush",
     "receiveEInvoiceWebhook",
     "receivePaymentWebhook",
     "selectTenantContext",
@@ -950,6 +959,8 @@
     "replyWhistleReportAsReporter"
   ],
   "enterpriseCommands": [
+    "createEquipmentProcurementItem",
+    "updateEquipmentProcurementItem",
     "setHpmConnectionState",
     "submitHpmPush",
     "retryHpmPush",
@@ -962,6 +973,9 @@
     "importEbsFile",
     "reconcileEbs",
     "resolveEbsDifference",
-    "reassignEbsDifference"
+    "reassignEbsDifference",
+    "createReportMailSchedule",
+    "retireReportMailSchedule",
+    "materialiseEnterpriseOrgPack"
   ]
 }

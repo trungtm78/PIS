@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { checkBackupPolicy } from './backup-verify.mjs';
 import { checkNativeDeps } from './native-deps-check.mjs';
+import { checkEgressScript, checkMalwareScan, checkRansomwareCatalogue, checkRealmImport } from './infra-security.mjs';
 
 const POLICY_FILE = 'infra/policies/artefacts.json';
 const DIGEST = /@sha256:[0-9a-f]{64}$/;
@@ -39,6 +40,10 @@ export const ARTEFACT_FINDING_CODES = [
   'SCAN_WORKFLOW',
   'WORKFLOW_FLOATING_ACTION',
   'NATIVE_DEPS',
+  'MALWARE_SCAN',
+  'EGRESS_RULES',
+  'RANSOMWARE_CATALOGUE',
+  'REALM_IMPORT',
 ];
 
 const finding = (code, file, detail = '') => ({ code, file, detail });
@@ -439,6 +444,58 @@ function checkRoleMap(root, policy, realm, ldap, findings) {
   const platformRoles = readJson(root, 'infra/keycloak/realm-template.json')?.realmRoles ?? [];
   const covered = new Set([...mapped.values()].flat());
   for (const role of platformRoles) if (!covered.has(role)) findings.push(finding('ROLE_MAP', rule.roleMapFile, `the platform role ${role} has no directory group`));
+  checkTenantMappings(rule, map, mapped, groups, roles, prefix, findings);
+}
+
+/**
+ * The directory groups that fill the seats of the organisation pack of a tenant (ENT-3d): each one names a role of the tenant and the unit it is held in or the whole tenant. They grant no realm role and no control-plane
+ * role, they live inside the same `MACHVON-*` import filter, no group is named twice or is also a control-plane group or a group the realm holds, and the scope is one a seat can have.
+ */
+function checkTenantMappings(rule, map, mapped, groups, roles, prefix, findings) {
+  if (map.tenantMappings === undefined) return;
+  const bad = (detail) => findings.push(finding('ROLE_MAP', rule.roleMapFile, detail));
+  if (!Array.isArray(map.tenantMappings)) {
+    bad('tenantMappings must be a list');
+    return;
+  }
+  const seen = new Set();
+  for (const entry of map.tenantMappings) {
+    const group = entry?.adGroup;
+    if (typeof group !== 'string' || !/^MACHVON-[A-Z0-9][A-Z0-9-]{1,56}$/.test(group)) {
+      bad(`tenantMappings: ${String(group)} is not a MACHVON- group name`);
+      continue;
+    }
+    if (prefix !== undefined && !group.startsWith(prefix)) bad(`tenantMappings: ${group} is outside the filter ${map.groupFilter}`);
+    if (seen.has(group)) bad(`tenantMappings: ${group} is named twice`);
+    seen.add(group);
+    if (mapped.has(group)) bad(`tenantMappings: ${group} is also a control-plane group`);
+    if (groups.some((candidate) => candidate.name === group)) bad(`tenantMappings: ${group} is a group of the realm; a tenant group grants no realm role`);
+    if (typeof entry.tenantRole !== 'string' || !/^[A-Z][A-Z0-9_]{1,59}$/.test(entry.tenantRole) || roles.has(entry.tenantRole)) bad(`tenantMappings: ${group} names no tenant role (a realm role is not one)`);
+    if (!['UNIT_ONLY', 'UNIT_SUBTREE', 'TENANT'].includes(entry.scopeKind)) bad(`tenantMappings: ${group} has a scope a seat cannot have`);
+    if (typeof entry.unit !== 'string' || !/^[A-Z][A-Z0-9_]{1,39}$/.test(entry.unit)) bad(`tenantMappings: ${group} names no unit`);
+    if (typeof entry.pack !== 'string' || !/^[A-Z][A-Z0-9-]{2,39}$/.test(entry.pack)) bad(`tenantMappings: ${group} names no pack`);
+  }
+}
+
+/** The checks of HSKT YCK.07 that read several artefacts at once: the malware scan wiring, the egress script, the ransomware catalogue and the Keycloak import rules. */
+function checkSecurityEvidence(root, policy, yaml, findings) {
+  const rule = policy.security;
+  if (rule === undefined) return;
+  const compose = yaml === undefined ? undefined : parseYaml(yaml, readText(root, policy.compose.file) ?? '');
+  if (compose !== undefined) {
+    for (const detail of checkMalwareScan(compose, rule.malwareScan)) findings.push(finding('MALWARE_SCAN', policy.compose.file, detail));
+    const realm = readJson(root, policy.identity.realmFile);
+    if (realm !== undefined) {
+      const environment = new Set(Object.keys(compose.services?.[rule.realmImport.service]?.environment ?? {}));
+      for (const detail of checkRealmImport(realm, { environment })) findings.push(finding('REALM_IMPORT', policy.identity.realmFile, detail));
+    }
+  }
+  const script = readText(root, rule.egress.script);
+  if (script !== undefined) {
+    const subnet = compose?.networks?.[policy.compose.egress.network]?.ipam?.config?.[0]?.subnet;
+    for (const detail of checkEgressScript(script, yaml === undefined ? rule.egress.subnet : subnet)) findings.push(finding('EGRESS_RULES', rule.egress.script, detail));
+  }
+  for (const detail of checkRansomwareCatalogue(root, rule.ransomware)) findings.push(finding('RANSOMWARE_CATALOGUE', rule.ransomware.catalogue, detail));
 }
 
 function checkWorkflows(root, policy, yaml, findings) {
@@ -518,5 +575,6 @@ export function checkArtefacts(root, options = {}) {
     for (const entry of checkNativeDeps(root).findings) findings.push(finding('NATIVE_DEPS', 'infra/onprem/native-deps.json', `${entry.code}: ${entry.detail}`));
   }
   checkWorkflows(root, policy, yaml, findings);
+  checkSecurityEvidence(root, policy, yaml, findings);
   return { checked: true, yamlSkipped: yaml === undefined, findings };
 }

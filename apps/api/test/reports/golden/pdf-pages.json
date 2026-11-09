@@ -1,0 +1,38 @@
+{
+  "COMMITTEE-PERIODIC": {
+    "pages": 3,
+    "sheetPages": 2,
+    "cells": 849,
+    "narrative": 29
+  },
+  "HPM-MONTHLY": {
+    "pages": 2,
+    "sheetPages": 2,
+    "cells": 712,
+    "narrative": 0
+  },
+  "INVEST-STEERING": {
+    "pages": 3,
+    "sheetPages": 2,
+    "cells": 654,
+    "narrative": 24
+  },
+  "PLANT-PHU-MY": {
+    "pages": 2,
+    "sheetPages": 1,
+    "cells": 371,
+    "narrative": 28
+  },
+  "PVN-MONTHLY": {
+    "pages": 2,
+    "sheetPages": 2,
+    "cells": 861,
+    "narrative": 0
+  },
+  "PVN-QUARTERLY-F2": {
+    "pages": 3,
+    "sheetPages": 2,
+    "cells": 1006,
+    "narrative": 27
+  }
+}

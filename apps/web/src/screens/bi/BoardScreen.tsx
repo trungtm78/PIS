@@ -6,7 +6,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, FilterPanel, KpiStrip, KpiTile, SectionCard } from '../../ui';
+import { ContextBar, FilterPanel, KpiStrip, KpiTile, PresentButton, PresentationMode, SectionCard } from '../../ui';
+import type { PresentationBoard } from '../../ui';
 import { Field } from '../mne/components';
 import '../dis/dis.css';
 import './bi.css';
@@ -42,6 +43,23 @@ function BoardContent({ route }: ScreenProps) {
   const chosen = served.find((version) => version.id === asked) ?? served[0];
   const state = useScreenState({ isLoading: metrics.isLoading || datasets.isLoading || (disbursement !== undefined && versions.isLoading), error: metrics.error ?? datasets.error ?? versions.error, data: metrics.data === undefined ? undefined : certified });
   const { tenant } = useSession();
+  const [presenting, setPresenting] = useState(false);
+  // The presentation shows the same tiles a few at a time (a projector reads six figures, not thirty), the filter and the links left behind.
+  const boards: PresentationBoard[] = [];
+  for (let from = 0; from < certified.length; from += PRESENT_PAGE) {
+    const page = certified.slice(from, from + PRESENT_PAGE);
+    boards.push({
+      id: `page-${from}`,
+      title: t('bi.present.page.text', { from: from + 1, to: from + page.length }),
+      content: (
+        <KpiStrip label={t('bi.board.strip.label')}>
+          {page.map((metric) => (
+            <Tile key={`${metric.id}:${chosen?.id ?? ''}`} metric={metric} snapshotId={chosen?.id} dataset={disbursement} />
+          ))}
+        </KpiStrip>
+      ),
+    });
+  }
   const retry = (): void => {
     void metrics.refetch();
     void datasets.refetch();
@@ -54,6 +72,8 @@ function BoardContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('bi.board.page.title')}</h1>
           <p>{t('bi.board.page.subtitle')}</p>
         </div>
+        <PresentButton onOpen={() => setPresenting(true)} disabled={boards.length === 0} />
+        {presenting && boards.length > 0 ? <PresentationMode title={t('bi.present.title.text', { period: chosen?.asOfPeriod ?? '' })} boards={boards} onExit={() => setPresenting(false)} /> : null}
       </div>
       <ContextBar
         items={[
@@ -93,6 +113,8 @@ function BoardContent({ route }: ScreenProps) {
 }
 
 const NO_FIGURE = '—';
+/** How many tiles one board of the presentation holds. */
+const PRESENT_PAGE = 6;
 
 /** One certified metric: the figure of the snapshot in a KPI tile, and under it the labels every number of BI carries and the way to the workbench. A tile that cannot be given says why and shows a dash, never 0. */
 function Tile({ metric, snapshotId, dataset }: { metric: Metric; snapshotId: string | undefined; dataset: Dataset | undefined }) {

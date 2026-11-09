@@ -317,6 +317,9 @@ export interface CategoryOption {
   versionId: string;
   key: string;
   label: string;
+  /** The entry is a standard cause of delay (MDM-17 attribute `delay_cause`, ENT-4e) and the family it is listed under. */
+  delayCause?: true;
+  causeGroup?: string;
 }
 
 export function toCategory(raw: unknown): CategoryOption | undefined {
@@ -324,7 +327,20 @@ export function toCategory(raw: unknown): CategoryOption | undefined {
   const versionId = text(raw.version_id);
   const key = text(raw.business_key);
   if (versionId === undefined || key === undefined || raw.status !== 'EFFECTIVE') return undefined;
-  return { versionId, key, label: text(raw.label) ?? key };
+  const attributes = isRecord(raw.attributes) ? raw.attributes : undefined;
+  const cause = attributes?.delay_cause === true;
+  const group = text(attributes?.cause_group);
+  return { versionId, key, label: text(raw.label) ?? key, ...(cause ? { delayCause: true as const, causeGroup: group ?? 'OTHER' } : {}) };
+}
+
+/** The categories split into the standard causes of delay (in the order of their families) and the others, for the choice of the category of an issue. */
+export function splitCategories(categories: readonly CategoryOption[]): { causes: Array<{ group: string; items: CategoryOption[] }>; others: CategoryOption[] } {
+  const order = ['SITE_CLEARANCE', 'CAPITAL', 'PROCEDURE', 'CONTRACTOR', 'DESIGN', 'WEATHER', 'SUPPLY', 'OTHER'];
+  const causes = order.flatMap((group) => {
+    const items = categories.filter((category) => category.delayCause === true && (category.causeGroup ?? 'OTHER') === group);
+    return items.length === 0 ? [] : [{ group, items }];
+  });
+  return { causes, others: categories.filter((category) => category.delayCause !== true) };
 }
 
 export interface UnitOption {

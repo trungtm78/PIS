@@ -119,9 +119,8 @@ void main() {
   });
 
   group('the device adapter of push is not plugged in: the defaults are a clear no-op', () {
-    // GAP (no push plugin in pubspec.yaml, no FCM or APNs wiring in android/ or ios/): a build has no push token and no
-    // arrival stream. When the adapter on firebase_messaging exists it overrides pushPlatformProvider and pushArrivalsProvider
-    // in the app root; the tab badge and the alert list then follow a push without any change above these two ports.
+    // A build without MACHVON_PUSH=fcm (and the four MACHVON_FCM_* options) selects the null adapter: no push token and no arrival
+    // stream. The device adapter is selected by the configuration (push_adapter_test.dart); nothing above these two ports changes.
     test('pushArrivalsProvider emits nothing and ends at once, and pushPlatformProvider gives no token, no permission and no refresh', () async {
       final ProviderContainer container = ProviderContainer();
       addTearDown(container.dispose);

@@ -73,4 +73,9 @@ final class FakePush implements PushPlatform {
 
   @override
   Stream<String> get tokenRefreshes => const Stream<String>.empty();
+
+  bool forgotten = false;
+
+  @override
+  Future<void> forgetToken() async => forgotten = true;
 }

@@ -1,11 +1,13 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, FilterPanel } from '../../ui';
+import { ContextBar, FilterPanel, PresentButton, PresentationMode } from '../../ui';
+import type { PresentationBoard } from '../../ui';
+import { useEdition } from '../../editions/EditionContext';
 import { clockText } from '../home/overview-model';
 import { AlertsBlock, AttentionTop, DimensionTabs, DirectiveSummary, ProvinceCard, UnitsBlock } from './dashboard-parts';
 import { ChangesBlock, FeedNotice, FigureTile, PolicyNotice, Guarded } from './components';
@@ -69,6 +71,56 @@ function DashboardContent() {
     setParams(target);
   };
   const setFilter = (key: FilterKey, value: string): void => change({ ...filters, [key]: value });
+  const [presenting, setPresenting] = useState(false);
+  const LeaderPanel = useEdition().slots?.leaderPanel;
+  // The boards of the presentation at a meeting: the figures only, the filters and the buttons of the page stay behind.
+  const boards: PresentationBoard[] =
+    data === undefined
+      ? []
+      : [
+          {
+            id: 'figures',
+            title: t('ban.present.figures.title'),
+            content: (
+              <>
+                <section className="ban-figures" aria-label={t('ban.dash.figures.aria')}>
+                  {toFigures(data.figures).map((tile) => (
+                    <FigureTile key={tile.metricCode} tile={tile} />
+                  ))}
+                </section>
+                <ProvinceCard row={data.province} />
+              </>
+            ),
+          },
+          { id: 'dimension', title: t('ban.present.dimension.title'), content: <DimensionTabs workspace={data} dimension={dimension} filtered={applied > 0} onChoose={() => undefined} /> },
+          {
+            id: 'attention',
+            title: t('ban.present.attention.title'),
+            content: (
+              <>
+                <ChangesBlock changes={data.changes} />
+                <AttentionTop items={data.attention} total={data.attention_total} noData={data.feed.empty} />
+              </>
+            ),
+          },
+          {
+            id: 'watch',
+            title: t('ban.present.watch.title'),
+            content: (
+              <>
+                <UnitsBlock units={data.units} />
+                <AlertsBlock alerts={data.alerts} />
+                <DirectiveSummary tracker={data.directives} />
+              </>
+            ),
+          },
+          ...(LeaderPanel === undefined
+            ? []
+            : [
+                { id: 'leader-rates', title: t('home.present.leaderRates.title'), content: <LeaderPanel part="rates" /> },
+                { id: 'leader-tiles', title: t('home.present.leaderTiles.title'), content: <LeaderPanel part="tiles" /> },
+              ]),
+        ];
 
   return (
     <>
@@ -88,6 +140,11 @@ function DashboardContent() {
           <FeedNotice feed={data.feed} />
         </>
       )}
+      <div className="ban-actions">
+        <PresentButton onOpen={() => setPresenting(true)} disabled={data === undefined} />
+      </div>
+      {presenting && boards.length > 0 ? <PresentationMode title={t('ban.present.page.title')} boards={boards} onExit={() => setPresenting(false)} /> : null}
+      {data === undefined || LeaderPanel === undefined ? null : <LeaderPanel part="all" />}
       <FilterPanel
         applied={applied}
         actions={

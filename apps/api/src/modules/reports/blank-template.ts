@@ -10,7 +10,7 @@ const FONT = 'Times New Roman';
  * (`headerMode: WRITE`), so the template holds no words; a customer's own form is a template file made by the customer and read as it is. Deterministic: fixed dates and a normalised zip, so the same layout always gives
  * the same bytes (and the same sha256 in the register of template files).
  */
-export async function buildBlankTemplate(layout: ReportLayout): Promise<Uint8Array> {
+export async function buildBlankTemplate(layout: ReportLayout, options: { landscape?: boolean | undefined } = {}): Promise<Uint8Array> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'MACHVON';
   workbook.lastModifiedBy = 'MACHVON';
@@ -23,7 +23,7 @@ export async function buildBlankTemplate(layout: ReportLayout): Promise<Uint8Arr
     target.width = column.width ?? 14;
     target.font = { name: FONT, size: 12 };
   }
-  sheet.pageSetup = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+  sheet.pageSetup = { paperSize: 9, orientation: options.landscape === true ? 'landscape' : 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
   const written = await workbook.xlsx.writeBuffer();
   return normalizeZip(new Uint8Array(written as ArrayBuffer));
 }

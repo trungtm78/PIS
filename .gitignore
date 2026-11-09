@@ -52,3 +52,7 @@ scripts/clips/**/out/
 scripts/clips/**/frames/
 scripts/clips/**/*.mp4
 scripts/clips/**/*.webm
+
+# JVM crash and replay logs written by a tool that crashed (already matched by *.log; named so nobody force-adds them)
+hs_err_pid*.log
+replay_pid*.log

@@ -1,10 +1,14 @@
 import { InboxHandlerRegistry, IntegrationInboxProcessor, TenantDatabase } from '@machvon/db';
 import { defineModule } from '../module-descriptor';
 import { ActingCommandsController, ActingReadsController } from './acting.controller';
+import { BackupRequestCommandsController, BackupRequestReadsController } from './backup-request.controller';
+import { BACKUP_STATE_PORT, backupStateFromEnvironment } from './backup-state.port';
 import { PeriodScopeCommandsController, PeriodScopeReadsController } from './period-scope.controller';
 import { StandingDelegationCommandsController, StandingDelegationReadsController } from './standing-delegation.controller';
 import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
+import { APPROVAL_PUSH_SOURCES, ApprovalHoldService, ApprovalPushSources } from './approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, ApprovalBootGuard, ApprovalService, FinalCommandRegistry } from './approval.service';
+import { AuditDetailPoliciesController, AuditEventDetailController, LogCapacityController } from './audit-detail.controller';
 import { AuditEventsController } from './audit-events.controller';
 import { AuditExportsController } from './audit-export.controller';
 import { SigningCertificateReadsController, SigningCertificatesController } from './certificates.controller';
@@ -37,6 +41,9 @@ export const admModule = defineModule({
   code: 'ADM',
   controllers: [
     AuditEventsController,
+    AuditDetailPoliciesController,
+    AuditEventDetailController,
+    LogCapacityController,
     AuditExportsController,
     LegalHoldsController,
     LegalHoldReadsController,
@@ -81,12 +88,17 @@ export const admModule = defineModule({
     ActingReadsController,
     PeriodScopeCommandsController,
     PeriodScopeReadsController,
+    BackupRequestCommandsController,
+    BackupRequestReadsController,
   ],
   // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
   providers: [
     // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles exist in a test build only).
     { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
     ApprovalService,
+    // The PUSH step of the staged approval waits for the receipt of the receiver (ENT-3c, R22): the owners register what they hand over, the edition that has a receiver provides APPROVAL_PUSH_PORT.
+    { provide: APPROVAL_PUSH_SOURCES, useFactory: () => new ApprovalPushSources() },
+    ApprovalHoldService,
     // Stops the process at boot when an enabled business type has no real final command (R14).
     ApprovalBootGuard,
     // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): the saga stops at the first project it has to move.
@@ -98,5 +110,7 @@ export const admModule = defineModule({
     { provide: ADM_INBOX_PROCESSOR, useFactory: (database: TenantDatabase, registry: InboxHandlerRegistry) => new IntegrationInboxProcessor(database, registry), inject: [TenantDatabase, ADM_INBOX_HANDLERS] },
     // MACHVON_ENVIRONMENT names the deployment (infra/environments); unset or unknown means production, where a MOCK adapter is never Active.
     { provide: ADM_ENVIRONMENT, useFactory: () => process.env.MACHVON_ENVIRONMENT },
+    // Where the screen of the backups reads the last backup and verification from (INFRA-2): files the host writes; none configured means UNKNOWN.
+    { provide: BACKUP_STATE_PORT, useFactory: () => backupStateFromEnvironment() },
   ],
 });

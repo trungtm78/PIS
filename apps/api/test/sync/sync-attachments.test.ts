@@ -8,6 +8,7 @@ import { ATTACHMENT_CHUNK_BYTES, loadErrorRegistry, signTenantContext } from '@m
 import { CommandModule } from '../../src/command.module';
 import { FileService } from '../../src/modules/files';
 import { FsObjectStorage } from '../../src/modules/files/fs-object-storage';
+import { ScanUnavailableError } from '../../src/modules/files/clamd-scan';
 import { MockScanPort, eicarBytes } from '../../src/modules/files/mock-scan';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
@@ -179,6 +180,21 @@ describe('the attachments a phone uploads in chunks (ST-MOB-009, MOB-19)', () =>
     await expect(files.download({ tenantId: TENANT_A, membershipId: memberId(PHONE_USER), scopeVersion: 1 }, key)).rejects.toMatchObject({ status: 422 });
     // Complete again is not a second scan.
     expect((await complete(id, sha(bytes))).status).toBe(409);
+  });
+
+  it('YCK.07: a scanner that gives no verdict neither cleans nor condemns the file: complete is refused with 409 and the phone completes again once the scanner is back', async () => {
+    const bytes = photo(MIB + 10);
+    const started = await start(bytes);
+    const id = idOf(started);
+    for (const link of linksOf(started)) await send(link, bytes);
+    const away = jest.spyOn(scanner, 'scan').mockRejectedValueOnce(new ScanUnavailableError('CONNECTION'));
+    const refused = await complete(id, sha(bytes));
+    expect(refused.status).toBe(409);
+    away.mockRestore();
+    expect(await row(id)).toMatchObject({ status: 'UPLOADING' });
+    const done = await complete(id, sha(bytes));
+    expect(done.status).toBe(200);
+    expect(done.json).toMatchObject({ status: 'CLEAN' });
   });
 
   it('AC-ST-MOB-009-3 UAT-NFR-TENANCY-05: a link of one tenant used for the key of another, and an expired link, are both refused, and the storage key is always under the tenant prefix', async () => {

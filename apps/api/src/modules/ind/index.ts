@@ -1,4 +1,5 @@
 import { defineModule } from '../module-descriptor';
+import { IndEntryApprovalBinding } from './entry-approval.binding';
 import { IndEntryController } from './entry.controller';
 import { IndImportController } from './import.controller';
 import { IndReadsController } from './reads.controller';
@@ -11,5 +12,7 @@ import { IndReadsController } from './reads.controller';
  */
 export const indModule = defineModule({
   code: 'IND',
+  // Binds the final command and the PUSH source of the staged approval of entry batches (ENT-3c).
+  providers: [IndEntryApprovalBinding],
   controllers: [IndReadsController, IndEntryController, IndImportController],
 });

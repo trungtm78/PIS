@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import { PUBLIC_EDITION_MANIFEST, moduleInMenu, screenInEdition } from '@machvon/kernel/src/edition.ts';
 import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
 import { translator } from '../i18n';
@@ -18,6 +19,18 @@ export interface WebEditionBundle {
    * public product names none of it. `resolveScreen` reads them after the screens of the table.
    */
   readonly screens?: Readonly<Record<string, ScreenLoader>>;
+  /**
+   * Places inside screens of the shared table where the edition adds a part of its own (ENT-4d): the leader panel of the enterprise edition (rates against the annual plan by company, unit and project, and the tiles of what
+   * is blocked or overdue) shows on the command center and the committee dashboard through this slot; a public build has none and the screens draw nothing in its place.
+   */
+  readonly slots?: WebEditionSlots;
+}
+
+/** Which part of the leader panel a screen asks for: the rates, the tiles, or both one under the other. */
+export type LeaderPanelPart = 'rates' | 'tiles' | 'all';
+
+export interface WebEditionSlots {
+  readonly leaderPanel?: ComponentType<{ part: LeaderPanelPart }>;
 }
 
 export const PUBLIC_BUNDLE: WebEditionBundle = { manifest: PUBLIC_EDITION_MANIFEST };

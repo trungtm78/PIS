@@ -2,7 +2,11 @@ import {
   ADVANCE_CATEGORIES,
   CALENDAR_TIMEZONES,
   CONSTRUCTION_GRADES,
+  DELAY_CAUSE_GROUPS,
   DomainError,
+  FX_PERIOD_KINDS,
+  FX_RATE_KINDS,
+  FX_SOURCES,
   INSPECTION_TYPES,
   LAND_DAY_COUNTS,
   LAND_TIMER_CODES,
@@ -17,6 +21,7 @@ import {
   WEEKDAYS,
   assertCalendar,
   capPercentFor,
+  fxRateFindings,
   percentScaled,
 } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
@@ -119,12 +124,20 @@ const text = (value: unknown, max: number): value is string => typeof value === 
 export const FUND_CATEGORIES = ['NSTW', 'NSDP', 'ODA', 'CTMTQG', 'OTHER'] as const;
 export const FUND_RELATIONS = ['ADDITIVE', 'SUBSET_OF'] as const;
 export const PROGRAM_KINDS = ['CTMTQG', 'NATIONAL_TARGET', 'SECTORAL', 'LOCAL'] as const;
-export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] as const;
+export const PROJECT_TYPE_KINDS = ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER', 'MAJOR_REPAIR'] as const;
 export const AUTHORITY_SCOPES = ['NATIONAL', 'MINISTRY', 'PROVINCE', 'COMMUNE'] as const;
 export const RULE_OWNER_MODULES = ['PRJ', 'CAP', 'DIS', 'PAY', 'CTR', 'MNE', 'DOC', 'DGV', 'LND', 'BID', 'QMS', 'AST'] as const;
 export const NATIONAL_CODE_MODES = ['BLOCK', 'WARN'] as const;
 export const TREASURY_LEVELS = ['CENTRAL', 'PROVINCE', 'DISTRICT'] as const;
 export const UNIT_DIMENSIONS = ['LENGTH', 'AREA', 'VOLUME', 'MASS', 'COUNT', 'OTHER'] as const;
+/** The shared catalogues of the report chain (MD.03 of the customer spec, ENT-3d): the grain of a reporting period and how many months it spans, who a report is for and how it reaches the agency, and the kind of a unit of measure of a figure. */
+export const REPORTING_GRAINS = ['MONTH', 'QUARTER', 'YEAR', 'MEETING'] as const;
+export const REPORTING_GRAIN_MONTHS: Readonly<Record<(typeof REPORTING_GRAINS)[number], number>> = { MONTH: 1, QUARTER: 3, YEAR: 12, MEETING: 0 };
+export const REPORT_AUDIENCES = ['INTERNAL', 'PARENT_GROUP', 'EXTERNAL_AGENCY'] as const;
+export const AGENCY_KINDS = ['PARENT_GROUP', 'COMMITTEE', 'DEPARTMENT', 'INTERNAL_MEETING'] as const;
+export const DELIVERY_CHANNELS = ['HPM', 'FILE', 'EMAIL', 'MEETING'] as const;
+export const REPORT_UNIT_KINDS = ['MONEY', 'RATIO', 'COUNT', 'AREA', 'OTHER'] as const;
+const FUNDING_CLASS_CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
 const DEADLINE_TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 /** A factor is a positive decimal string: exact, never a float (a unit converts through it to the base unit of its dimension). */
 const FACTOR = /^(?:0|[1-9]\d*)(?:\.\d{1,12})?$/;
@@ -370,7 +383,63 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     fields: [
       { name: 'handler_unit_key', kind: 'text', maxLength: 100, pattern: KEY },
       { name: 'sla_priority_key', kind: 'key', refType: 'PRIORITY' },
+      // ENT-4e: the entry may be named as a standard cause of delay (project issue form, narrative forms) and the family it is listed under.
+      { name: 'delay_cause', kind: 'boolean' },
+      { name: 'cause_group', kind: 'choice', choices: DELAY_CAUSE_GROUPS },
     ],
+    check: ({ content }) => {
+      if (content.attributes.cause_group !== undefined && content.attributes.delay_cause !== true) fail('attributes.cause_group');
+    },
+  },
+  {
+    masterType: 'REPORTING_PERIOD_KIND',
+    fields: [
+      { name: 'grain', kind: 'choice', required: true, choices: REPORTING_GRAINS },
+      { name: 'months', kind: 'integer', required: true, min: 0, max: 12 },
+      { name: 'entry_deadline_working_days', kind: 'integer', required: true, min: 1, max: 60 },
+    ],
+    check: ({ content }) => {
+      // The length of the period follows from its grain: a month is one, a quarter three, a year twelve, a meeting none (it has a date, not a length).
+      const grain = content.attributes.grain as (typeof REPORTING_GRAINS)[number];
+      if (content.attributes.months !== REPORTING_GRAIN_MONTHS[grain]) fail('attributes.months');
+    },
+  },
+  {
+    masterType: 'REPORT_TYPE',
+    fields: [
+      { name: 'period_kind_key', kind: 'key', required: true, refType: 'REPORTING_PERIOD_KIND' },
+      { name: 'audience', kind: 'choice', required: true, choices: REPORT_AUDIENCES },
+      { name: 'form_code', kind: 'text', maxLength: 100, pattern: KEY },
+    ],
+  },
+  {
+    masterType: 'RECEIVING_AGENCY',
+    fields: [
+      { name: 'agency_kind', kind: 'choice', required: true, choices: AGENCY_KINDS },
+      { name: 'report_type_keys', kind: 'keys', refType: 'REPORT_TYPE', maxItems: 30 },
+      { name: 'channel', kind: 'choice', required: true, choices: DELIVERY_CHANNELS },
+    ],
+  },
+  {
+    masterType: 'CAPITAL_SOURCE',
+    fields: [
+      // The code of the class of the funding taxonomy pack of the edition (FND-1): a figure is entered under the class, and the catalogue is the managed list the screens offer.
+      { name: 'fnd_class_code', kind: 'text', required: true, maxLength: 40, pattern: FUNDING_CLASS_CODE },
+      { name: 'repayable', kind: 'boolean' },
+    ],
+  },
+  {
+    masterType: 'REPORT_UNIT',
+    fields: [
+      { name: 'kind', kind: 'choice', required: true, choices: REPORT_UNIT_KINDS },
+      { name: 'symbol', kind: 'text', required: true, maxLength: 16 },
+      { name: 'factor', kind: 'text', required: true, maxLength: 32, pattern: FACTOR },
+      { name: 'scale', kind: 'integer', required: true, min: 0, max: 8 },
+      { name: 'rounding', kind: 'choice', required: true, choices: ROUNDING_MODES },
+    ],
+    check: ({ content }) => {
+      if (!/[1-9]/.test(String(content.attributes.factor))) fail('attributes.factor');
+    },
   },
   {
     masterType: 'CONTRACTOR_CRITERION',
@@ -481,6 +550,38 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     check: ({ content, businessKey }) => {
       // The code of the entry is the ISO code: the key and the attribute never disagree.
       if (content.attributes.iso_code !== businessKey) fail('attributes.iso_code');
+    },
+  },
+  {
+    // MD.03 (ENT-4e): one entry per pair and kind of rate (`USD_VND_OFFICIAL_AVERAGE`), one version per day or period, each with its source and the decision that fixed it. The conversion is in the kernel (fx-rate.ts).
+    masterType: 'FX_RATE',
+    fields: [
+      { name: 'base_currency', kind: 'text', required: true, maxLength: 3, pattern: CURRENCY_CODE },
+      { name: 'quote_currency', kind: 'text', required: true, maxLength: 3, pattern: CURRENCY_CODE },
+      { name: 'rate', kind: 'text', required: true, maxLength: 21 },
+      { name: 'rate_kind', kind: 'choice', required: true, choices: FX_RATE_KINDS },
+      { name: 'period_kind', kind: 'choice', required: true, choices: FX_PERIOD_KINDS },
+      { name: 'source', kind: 'choice', required: true, choices: FX_SOURCES },
+      { name: 'source_ref', kind: 'text', required: true, maxLength: 200 },
+      { name: 'approval_ref', kind: 'text', maxLength: 200 },
+    ],
+    strict: true,
+    check: async ({ content, businessKey, lookup }) => {
+      const attributes = content.attributes;
+      if (businessKey !== `${String(attributes.base_currency)}_${String(attributes.quote_currency)}_${String(attributes.rate_kind)}`) fail('attributes.rate_kind');
+      const found = fxRateFindings({
+        baseCurrency: String(attributes.base_currency),
+        quoteCurrency: String(attributes.quote_currency),
+        rate: String(attributes.rate),
+        periodKind: attributes.period_kind as (typeof FX_PERIOD_KINDS)[number],
+        validFrom: content.validFrom,
+        validUntil: content.validUntil,
+        sourceRef: String(attributes.source_ref),
+      })[0];
+      if (found !== undefined) fail(found.code === 'PERIOD_NOT_ALIGNED' ? 'valid_from' : `attributes.${found.field}`);
+      for (const field of ['base_currency', 'quote_currency']) {
+        if ((await lookup.entry('CURRENCY', String(attributes[field]))) === undefined) fail(`attributes.${field}`);
+      }
     },
   },
   {

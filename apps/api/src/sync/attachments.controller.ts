@@ -202,6 +202,8 @@ export class SyncAttachmentsController {
     // The file is stored under the key the upload was given, and the row decides what it is: if this attempt does not commit, nothing refers to what it stored (the row is still UPLOADING with its chunks), and the next
     // attempt stores the same file under the same key. Nothing is removed on a rollback, so a failed attempt can never remove the file that another one stored.
     const verdict = await this.files.storeAndScan(scope.tenant, record.storageKey, bytes, record.mime);
+    // No verdict (the scanner is not configured or away): the file is neither clean nor infected. Nothing is settled and the request is refused with 409 SCAN_PENDING, so this attempt rolls back and the phone completes the upload again later (closed by default).
+    if (verdict === 'PENDING') throw new DomainError('SCAN_PENDING', 409);
     const settled = await this.store.settle(scope.tx, record.id, verdict === 'CLEAN' ? 'CLEAN' : 'INFECTED');
     this.dropParts(scope, record);
     await scope.audit({

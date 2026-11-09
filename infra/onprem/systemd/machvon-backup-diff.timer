@@ -1,0 +1,10 @@
+[Unit]
+Description=MACHVON weekly differential backup
+
+[Timer]
+OnCalendar=Sun *-*-* 12:30:00
+Persistent=true
+Unit=machvon-backup@diff.service
+
+[Install]
+WantedBy=timers.target

@@ -27,6 +27,12 @@ export const FINDING_CODES = [
   'BACKUP_TARGETS',
   'BACKUP_SECOND_SITE',
   'BACKUP_DRILL',
+  'BACKUP_CYCLES',
+  'BACKUP_MINIMUM',
+  'BACKUP_ARCHIVE',
+  'BACKUP_OFFLINE_COPY',
+  'BACKUP_DRILL_LEDGER',
+  'BACKUP_DRILL_OVERDUE',
   'BACKUP_CONFIG_SECRET',
   'BACKUP_LIVE_COMMAND',
   'BACKUP_LIVE_LOCK',
@@ -66,7 +72,16 @@ export function parsePgbackrestConf(text) {
   return options;
 }
 
-const calendarOf = (text) => /^OnCalendar=(.+)$/m.exec(text ?? '')?.[1]?.trim();
+const TIMERS = { full: 'machvon-backup-full.timer', incremental: 'machvon-backup-incr.timer', differential: 'machvon-backup-diff.timer', monthly: 'machvon-backup-monthly.timer', verify: 'machvon-backup-verify.timer' };
+/** The kind of backup each schedule entry takes (pgBackRest --type), and the cycles and kinds the policy must cover. */
+const SCHEDULE_TYPE = { full: 'full', incremental: 'incr', differential: 'diff', monthly: 'full' };
+const REQUIRED_CYCLES = ['daily', 'weekly', 'monthly'];
+const REQUIRED_TYPES = ['full', 'diff', 'incr'];
+const DRILL_VERDICTS = ['matches', 'targets-missed', 'does-not-match'];
+const HEX64 = /^[0-9a-f]{64}$/;
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+const calendarOf =(text) => /^OnCalendar=(.+)$/m.exec(text ?? '')?.[1]?.trim();
 
 /**
  * The offline check of the backup policy and of every file that implements it: the schedule (and the systemd timers that run it), immutability (object lock in COMPLIANCE mode with
@@ -80,15 +95,28 @@ export function checkBackupPolicy(root) {
   if (policy === undefined || operations === undefined || typeof policy.schedule !== 'object' || policy.schedule === null) return { findings: [finding('BACKUP_POLICY_INVALID', POLICY_FILE)], policy: undefined };
   const limits = operations.postgres;
 
-  const { full, incremental, wal, verify } = policy.schedule;
-  const timers = { full: 'machvon-backup-full.timer', incremental: 'machvon-backup-incr.timer', verify: 'machvon-backup-verify.timer' };
-  for (const [name, entry] of Object.entries({ full, incremental, verify })) {
+  const { wal } = policy.schedule;
+  const systemd = join(root, 'infra', 'onprem', 'systemd');
+  for (const [name, timer] of Object.entries(TIMERS)) {
+    const entry = policy.schedule[name];
     if (typeof entry?.onCalendar !== 'string' || entry.onCalendar === '') findings.push(finding('BACKUP_SCHEDULE_INCOMPLETE', name));
     else {
-      const unit = calendarOf(readText(join(root, 'infra', 'onprem', 'systemd', timers[name])));
-      if (unit !== entry.onCalendar) findings.push(finding('BACKUP_SCHEDULE_UNITS', `${timers[name]}: ${unit ?? 'missing'} instead of ${entry.onCalendar}`));
+      const unit = calendarOf(readText(join(systemd, timer)));
+      if (unit !== entry.onCalendar) findings.push(finding('BACKUP_SCHEDULE_UNITS', `${timer}: ${unit ?? 'missing'} instead of ${entry.onCalendar}`));
     }
   }
+  const differentialTimer = readText(join(systemd, TIMERS.differential));
+  if (differentialTimer !== undefined && !/^Unit=machvon-backup@diff\.service\r?$/m.test(differentialTimer)) findings.push(finding('BACKUP_SCHEDULE_UNITS', `${TIMERS.differential} must start machvon-backup@diff.service`));
+  const monthlyService = readText(join(systemd, 'machvon-backup-monthly.service')) ?? '';
+  if (!/--type=full\b/.test(monthlyService) || !/--repo=2\b/.test(monthlyService)) findings.push(finding('BACKUP_SCHEDULE_UNITS', 'machvon-backup-monthly.service must run a full backup into repository 2 (--type=full --repo=2)'));
+
+  const covered = new Set();
+  for (const cycle of REQUIRED_CYCLES) {
+    const members = policy.cycles?.[cycle];
+    if (!Array.isArray(members) || members.length === 0 || members.some((member) => SCHEDULE_TYPE[member] === undefined || policy.schedule[member] === undefined)) findings.push(finding('BACKUP_CYCLES', `the ${cycle} cycle must name scheduled backups`));
+    else for (const member of members) covered.add(SCHEDULE_TYPE[member]);
+  }
+  for (const type of REQUIRED_TYPES) if (!covered.has(type)) findings.push(finding('BACKUP_CYCLES', `no cycle takes a ${type} backup`));
   const conf = readText(join(root, 'infra', 'postgres', 'postgresql.conf.tpl')) ?? '';
   const archiveTimeout = /^\s*archive_timeout\s*=\s*'?(\d+)s?'?/m.exec(conf)?.[1];
   if (wal?.mode !== 'continuous' || !(wal.archiveTimeoutSeconds > 0 && wal.archiveTimeoutSeconds <= limits.maxArchiveTimeoutSeconds) || (archiveTimeout !== undefined && Number(archiveTimeout) !== wal.archiveTimeoutSeconds)) {
@@ -143,7 +171,89 @@ export function checkBackupPolicy(root) {
   if (drill?.frequency !== 'quarterly' || !(drill.maxDaysBetweenDrills <= 92) || missingChecks.length > 0 || !existsSync(join(root, String(drill?.runbook))) || !existsSync(join(root, String(drill?.script)))) {
     findings.push(finding('BACKUP_DRILL', `a quarterly drill with a script, a runbook and the checks ${REQUIRED_DRILL_CHECKS.join(', ')} is required`));
   }
+  checkCopies({ root, policy, conf: conf2, findings });
+  checkLedger({ root, policy, findings });
   return { findings, policy };
+}
+
+/** Retention minimum (at least three latest backups), the archive repository, the offline copy: YCK.06. */
+function checkCopies({ root, policy, conf, findings }) {
+  const minimum = policy.retention?.minimumBackups;
+  if (!(Number.isInteger(minimum) && minimum >= 3)) findings.push(finding('BACKUP_MINIMUM', 'retention.minimumBackups must be at least 3'));
+  else {
+    const fullType = conf.get('global.repo1-retention-full-type');
+    const fullKept = Number(conf.get('global.repo1-retention-full'));
+    if (conf.size > 0 && fullType === 'count' && !(fullKept >= minimum)) findings.push(finding('BACKUP_MINIMUM', `repo1-retention-full keeps ${fullKept} full backups, the policy keeps at least ${minimum}`));
+    // With time based retention the daily full backup yields one full backup a day: the days must reach the minimum.
+    if (fullType === 'time' && !(policy.retention.fullDays >= minimum)) findings.push(finding('BACKUP_MINIMUM', `fullDays ${policy.retention.fullDays} cannot keep ${minimum} daily full backups`));
+    const archiveKept = Number(conf.get('global.repo2-retention-full'));
+    if (conf.size > 0 && !(archiveKept >= minimum)) findings.push(finding('BACKUP_MINIMUM', `repo2-retention-full keeps ${archiveKept} full backups, the policy keeps at least ${minimum}`));
+  }
+  const differentialCount = policy.retention?.differentialCount;
+  if (!(Number.isInteger(differentialCount) && differentialCount >= 1) || (conf.size > 0 && Number(conf.get('global.repo1-retention-diff')) !== differentialCount)) findings.push(finding('BACKUP_MINIMUM', 'repo1-retention-diff must equal retention.differentialCount (at least 1)'));
+
+  const archive = policy.archive;
+  const lock = archive?.objectLock;
+  if (archive?.repository !== 2 || archive.separateBucket !== true || archive.separateCredentials !== true) findings.push(finding('BACKUP_ARCHIVE', 'the archive must be repository 2 with its own bucket and its own credentials'));
+  if (lock?.enabled !== true || lock.mode !== 'COMPLIANCE' || !(Number.isInteger(lock.retentionDays) && Number.isInteger(archive?.monthsKept) && lock.retentionDays >= archive.monthsKept * 31)) findings.push(finding('BACKUP_ARCHIVE', 'the archive object lock must be COMPLIANCE and outlive the months kept'));
+  if (archive?.passphraseFile === undefined || archive.passphraseFile === policy.encryption?.clientSide?.passphraseFile) findings.push(finding('BACKUP_ARCHIVE', 'the archive needs its own pass phrase file, different from the operational one'));
+  if (conf.size > 0) {
+    const path = conf.get('global.repo2-path');
+    if (conf.get('global.repo2-type') !== 's3' || !/^aes-256-/.test(String(conf.get('global.repo2-cipher-type'))) || path === undefined || path === conf.get('global.repo1-path')) findings.push(finding('BACKUP_ARCHIVE', 'pgbackrest.conf must configure repo2 as an encrypted S3 repository at a path of its own'));
+    if (Number(conf.get('global.repo2-retention-full')) !== archive?.retentionFull) findings.push(finding('BACKUP_ARCHIVE', 'repo2-retention-full must equal archive.retentionFull'));
+  }
+  const compose = readText(join(root, 'infra', 'onprem', 'compose', 'compose.yaml')) ?? '';
+  if (archive?.passphraseFile !== undefined && !compose.includes(`/run/secrets/${archive.passphraseFile}`)) findings.push(finding('BACKUP_ARCHIVE', `compose.yaml does not hand the secret ${archive.passphraseFile} to the database and backup services`));
+  if (!compose.includes('PGBACKREST_REPO2_S3_BUCKET: ${BACKUP_ARCHIVE_S3_BUCKET}') || !compose.includes('/run/secrets/backup_archive_s3_access_key')) findings.push(finding('BACKUP_ARCHIVE', 'compose.yaml must give repo2 its own bucket variable and its own access keys'));
+  const archiveLock = readJson(join(root, 'infra', 'backup', 'bucket', 'archive', 'object-lock-configuration.json'));
+  const archiveRule = archiveLock?.Rule?.DefaultRetention;
+  if (archiveLock?.ObjectLockEnabled !== 'Enabled' || archiveRule?.Mode !== lock?.mode || archiveRule?.Days !== lock?.retentionDays) findings.push(finding('BACKUP_ARCHIVE', 'bucket/archive/object-lock-configuration.json differs from the policy'));
+
+  const offline = policy.offlineCopy;
+  const runbook = readText(join(root, String(offline?.runbook))) ?? '';
+  if (offline?.required !== true || !(offline.custodians >= 2) || typeof offline.frequency !== 'string' || typeof offline.medium !== 'string') findings.push(finding('BACKUP_OFFLINE_COPY', 'an offline copy with a frequency, a medium and two custodians is required'));
+  else if (!runbook.split(/\r?\n/).some((line) => /^#{2,4} /.test(line) && line.replace(/^#+ /, '').trim() === offline.runbookSection)) findings.push(finding('BACKUP_OFFLINE_COPY', `${offline.runbook} has no section "${offline.runbookSection}"`));
+}
+
+/** The structure of the restore drill ledger: dated, ordered, complete, witnessed by somebody other than the operator. The age is judged by drillStatus, not here. */
+function checkLedger({ root, policy, findings }) {
+  const path = policy.restoreDrill?.ledger;
+  const ledger = typeof path === 'string' ? readJson(join(root, path)) : undefined;
+  const problem = (detail) => findings.push(finding('BACKUP_DRILL_LEDGER', detail));
+  if (ledger === undefined || !Array.isArray(ledger.entries) || !DAY.test(String(ledger.firstDrillDueBy))) {
+    problem(`${path ?? 'restoreDrill.ledger'} is missing or malformed (entries[], firstDrillDueBy)`);
+    return;
+  }
+  let previous = '';
+  const ids = new Set();
+  ledger.entries.forEach((entry, index) => {
+    const label = `entry ${index + 1}`;
+    if (typeof entry.id !== 'string' || entry.id === '' || ids.has(entry.id)) problem(`${label}: id missing or repeated`);
+    ids.add(entry.id);
+    if (!DAY.test(String(entry.performedOn)) || entry.performedOn < previous) problem(`${label}: performedOn must be a date and not earlier than the entry before`);
+    previous = String(entry.performedOn);
+    if (['reportSha256', 'sourceManifestSha256', 'restoredManifestSha256'].some((key) => !HEX64.test(String(entry[key])))) problem(`${label}: the sha256 of the report and of both manifests are required`);
+    if (!DRILL_VERDICTS.includes(entry.verdict)) problem(`${label}: verdict must be one of ${DRILL_VERDICTS.join(', ')}`);
+    if (!(entry.rpoSeconds >= 0) || !(entry.rtoSeconds >= 0)) problem(`${label}: rpoSeconds and rtoSeconds are required`);
+    if (typeof entry.operator !== 'string' || typeof entry.witness !== 'string' || entry.operator === '' || entry.witness === '' || entry.operator === entry.witness) problem(`${label}: operator and witness are required and must be two people`);
+    if (typeof entry.release !== 'string' || entry.release === '') problem(`${label}: the restored release is required`);
+  });
+}
+
+/**
+ * The age of the last restore drill against restoreDrill.maxDaysBetweenDrills. A clock dependent judgement, so it is not part of the offline lint: `backup-verify drill-status` prints it and
+ * exits 1 when the last drill is too old or did not match. States: NEVER_DRILLED (before the date the first drill is due), OVERDUE, FAILED, TARGETS_MISSED, CURRENT.
+ */
+export function drillStatus(root, now = new Date()) {
+  const policy = readJson(join(root, POLICY_FILE));
+  const ledger = readJson(join(root, String(policy?.restoreDrill?.ledger)));
+  const maxDays = policy?.restoreDrill?.maxDaysBetweenDrills;
+  if (policy === undefined || ledger === undefined || !Array.isArray(ledger.entries) || !(maxDays > 0)) return { state: 'OVERDUE', lastDrill: null, daysSince: null, maxDays: maxDays ?? null, detail: 'ledger or policy unreadable' };
+  const last = ledger.entries.at(-1);
+  if (last === undefined) return { state: now.getTime() > Date.parse(`${ledger.firstDrillDueBy}T23:59:59Z`) ? 'OVERDUE' : 'NEVER_DRILLED', lastDrill: null, daysSince: null, maxDays, detail: `first drill due by ${ledger.firstDrillDueBy}` };
+  const daysSince = Math.floor((now.getTime() - Date.parse(`${last.performedOn}T00:00:00Z`)) / 86_400_000);
+  const state = daysSince > maxDays ? 'OVERDUE' : last.verdict === 'does-not-match' ? 'FAILED' : last.verdict === 'targets-missed' ? 'TARGETS_MISSED' : 'CURRENT';
+  return { state, lastDrill: last.performedOn, daysSince, maxDays, detail: `last drill ${last.performedOn}, verdict ${last.verdict}` };
 }
 
 const defaultRun = (command, args) => spawnSync(command, args, { encoding: 'utf8', maxBuffer: 1 << 24 });
@@ -161,12 +271,12 @@ const parse = (result) => {
  * on, default encryption on. With `probe`, writes one tiny object, then tries to delete its version and to shorten its retention: both must be refused (the object stays until its retention ends).
  * `run` is injected, so the tests need neither a network nor the CLI.
  */
-export function verifyBucket({ policy, bucket, endpoint, region, probe = false, run = defaultRun, now = () => new Date() }) {
+export function verifyBucket({ policy, bucket, endpoint, region, probe = false, run = defaultRun, now = () => new Date(), lock: lockPolicy = policy.immutability.objectLock, label = '' }) {
   const findings = [];
   const checks = [];
   const base = ['s3api', '--endpoint-url', endpoint, ...(region === undefined ? [] : ['--region', region]), '--output', 'json'];
   const call = (action, extra) => run('aws', [base[0], action, ...base.slice(1), '--bucket', bucket, ...extra]);
-  const record = (name, ok, detail = '') => checks.push({ name, ok, detail });
+  const record = (name, ok, detail = '') => checks.push({ name: `${label}${name}`, ok, detail });
 
   const lock = call('get-object-lock-configuration', []);
   if (lock.status !== 0) {
@@ -176,9 +286,9 @@ export function verifyBucket({ policy, bucket, endpoint, region, probe = false, 
     const configuration = parse(lock)?.ObjectLockConfiguration;
     const rule = configuration?.Rule?.DefaultRetention;
     const days = rule?.Days ?? (rule?.Years === undefined ? undefined : rule.Years * 365);
-    const ok = configuration?.ObjectLockEnabled === 'Enabled' && rule?.Mode === policy.immutability.objectLock.mode && days >= policy.immutability.objectLock.retentionDays;
+    const ok = configuration?.ObjectLockEnabled === 'Enabled' && rule?.Mode === lockPolicy.mode && days >= lockPolicy.retentionDays;
     record('object-lock', ok, `${rule?.Mode ?? 'none'} ${days ?? 0} days`);
-    if (!ok) findings.push(finding('BACKUP_LIVE_LOCK', `${rule?.Mode ?? 'no default retention'} ${days ?? 0} days; the policy needs ${policy.immutability.objectLock.mode} ${policy.immutability.objectLock.retentionDays} days`));
+    if (!ok) findings.push(finding('BACKUP_LIVE_LOCK', `${rule?.Mode ?? 'no default retention'} ${days ?? 0} days; the policy needs ${lockPolicy.mode} ${lockPolicy.retentionDays} days`));
   }
   const versioning = call('get-bucket-versioning', []);
   const versioningOk = versioning.status === 0 && parse(versioning)?.Status === 'Enabled';
@@ -220,7 +330,7 @@ export function main(argv, { log = console.log, run = defaultRun, now = () => ne
     parsed = parseArgs({
       args: argv,
       allowPositionals: true,
-      options: { root: { type: 'string', default: REPO_ROOT }, bucket: { type: 'string' }, endpoint: { type: 'string' }, region: { type: 'string' }, probe: { type: 'boolean', default: false }, evidence: { type: 'string' }, locale: { type: 'string', default: DEFAULT_LOCALE } },
+      options: { root: { type: 'string', default: REPO_ROOT }, bucket: { type: 'string' }, endpoint: { type: 'string' }, region: { type: 'string' }, probe: { type: 'boolean', default: false }, 'archive-bucket': { type: 'string' }, 'archive-endpoint': { type: 'string' }, evidence: { type: 'string' }, locale: { type: 'string', default: DEFAULT_LOCALE } },
     });
   } catch {
     log(loadOnpremMessages(DEFAULT_LOCALE)['backupVerify.usage']);
@@ -230,9 +340,16 @@ export function main(argv, { log = console.log, run = defaultRun, now = () => ne
   const messages = loadOnpremMessages(values.locale);
   const root = resolve(values.root);
   const mode = positionals[0] ?? 'offline';
-  if (mode !== 'offline' && mode !== 'live') {
+  if (mode !== 'offline' && mode !== 'live' && mode !== 'drill-status') {
     log(messages['backupVerify.usage']);
     return 2;
+  }
+  if (mode === 'drill-status') {
+    const status = drillStatus(root, now());
+    log(format(messages['backupVerify.drillStatus'], { state: status.state, detail: status.detail }));
+    const failing = status.state === 'OVERDUE' || status.state === 'FAILED';
+    if (failing) log(format(messages['backupVerify.code.BACKUP_DRILL_OVERDUE'], { detail: status.detail }));
+    return failing ? 1 : 0;
   }
   const offline = checkBackupPolicy(root);
   let findings = [...offline.findings];
@@ -246,6 +363,11 @@ export function main(argv, { log = console.log, run = defaultRun, now = () => ne
       const live = verifyBucket({ policy: offline.policy, bucket: values.bucket, endpoint: values.endpoint, region: values.region, probe: values.probe, run, now });
       findings = [...findings, ...live.findings];
       checks = live.checks;
+      if (values['archive-bucket'] !== undefined) {
+        const archive = verifyBucket({ policy: offline.policy, bucket: values['archive-bucket'], endpoint: values['archive-endpoint'] ?? values.endpoint, region: values.region, probe: values.probe, run, now, lock: offline.policy.archive?.objectLock ?? offline.policy.immutability.objectLock, label: 'archive:' });
+        findings = [...findings, ...archive.findings];
+        checks = [...checks, ...archive.checks];
+      }
     }
   }
   for (const entry of findings) log(format(messages[`backupVerify.code.${entry.code}`], { detail: entry.detail }));

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { SectionCard, Stepper } from '../../../ui';
 import { formatMoment } from './decision-model';
@@ -24,6 +25,16 @@ export function WorkflowSteps({ reportId }: { reportId: string }) {
           {workflow.steps.map((step) => (
             <li key={step.id} data-step={step.id} data-state={step.state}>
               <strong>{step.name}</strong>
+              {step.state === 'AWAITING_RECEIPT' ? <span data-testid="step-awaiting-receipt"> {t('ent3c.workflow.awaitingReceipt.text')}</span> : null}
+              {step.state === 'PUSH_FAILED' ? <span data-testid="step-push-failed"> {t('ent3c.workflow.pushFailed.text')}</span> : null}
+              {step.receipt?.screen === 'HPM-01' ? (
+                <span>
+                  {' '}
+                  <Link to="/hpm/hpm-01" data-testid="step-receipt-link">
+                    {t('ent3c.workflow.receiptLink.link')}
+                  </Link>
+                </span>
+              ) : null}
               {step.dueAt === null ? null : <span> {t('dis.workflow.due.text', { at: formatMoment(step.dueAt) })}</span>}
               {step.tasks.map((task) => {
                 const name = task.assigneeName ?? t('dis.workflow.noname.text');

@@ -42,6 +42,7 @@ import {
   AuditSealJob,
   AuditWriter,
   BASELINE_PACK,
+  editionBaselines,
   BidPetitionDue,
   CapAllocationExtensionStore,
   CapBalanceReconcileJob,
@@ -87,11 +88,13 @@ import {
   PmtWaiverExpiry,
   PrjExplanationOverdueJob,
   PrjTransferApplyJob,
+  LogCapacityJob,
   RetentionJob,
   SubscriptionStore,
   applyBaseline,
   registeredTenantIds,
   sharedMockEInvoiceProvider,
+  runCalendarReminders,
   standardJobs,
 } from '@machvon/db';
 import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, PlacementMover, ReorganizationProjectPort, TenantDatabase, TenantRestoreEngine } from '@machvon/db';
@@ -133,6 +136,8 @@ export interface WorkersDeps {
   exportFiles?: Pick<FileService, 'storeGenerated' | 'readStored' | 'listKind' | 'remove'>;
   /** The store of the document module: the files that rows refer to and the file service does not hold are read from it for the export. */
   documentFiles?: { get(key: string): Promise<{ bytes: Uint8Array } | undefined> };
+  /** The e-mail delivery of issued report forms by schedule (ENT-4d): bound only by an enterprise process, on the channel port; without it the job `report-mail-runner` is not scheduled. */
+  reportMailRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The DNS lookup and the certificate authority of the domains of the tenants (ST-SAS-017); the MOCK pair of the process when none is given. */
   domainPorts?: DomainPorts;
   /** The data path of the promotions of tenants to a silo (ST-SAS-018); the stand-in of the process outside production, none in production until the replication on the chosen cloud is confirmed (D02). */
@@ -235,6 +240,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const riskRescore = new RiskRescoreJob(audit, deps.metrics);
   const diaryCoverage = new QmsDiaryCoverageJob(deps.metrics);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
+  const logCapacity = new LogCapacityJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.exportFiles === undefined ? {} : { archives: deps.exportFiles }) });
   const inbox =
     deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const finops = new LlmFinopsStore();
@@ -253,6 +259,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     masterBaseline: {
       apply: async (ctx) => {
         const applied = await deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, BASELINE_PACK, ctx.membershipId));
+        // The packs of the edition (the enterprise project types) follow in a transaction of their own, so a pack of the edition that is refused never undoes the platform pack; a public process registers none.
+        for (const pack of editionBaselines()) await deps.tenants.withTenant(ctx, (tx) => applyBaseline(tx, pack, ctx.membershipId));
         // The permit type catalogue starts from its working assumptions (ST-PMT-001); a code the tenant already has is left alone. A separate transaction: one cannot undo the other.
         await deps.tenants.withTenant(ctx, (tx) => permitTypes.seedWorkingAssumptions(tx, ctx.membershipId, audit));
         return applied;
@@ -260,7 +268,20 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     },
     disPeriods: { autoclose: (ctx) => deps.tenants.withTenant(ctx, (tx) => disPeriods.run(tx, ctx.membershipId, new Date())) },
     disReopens: { expire: (ctx) => deps.tenants.withTenant(ctx, (tx) => disReopens.run(tx, ctx.membershipId, new Date())) },
-    retention: { run: (ctx, now) => retention.run(ctx, now) },
+    retention: {
+      run: async (ctx, now) => {
+        // The caps on the log classes run after the retention rule, in the same nightly pass; a failure of one does not hide the other (HT.06).
+        const outcome = await retention.run(ctx, now).then(
+          (done) => ({ done }),
+          (error: unknown) => ({ error }),
+        );
+        await logCapacity.run(ctx, now).catch((error: unknown) => {
+          if (!('error' in outcome)) throw error;
+        });
+        if ('error' in outcome) throw outcome.error;
+        return outcome.done;
+      },
+    },
     guaranteeExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => guaranteeExpiry.run(tx, ctx.membershipId, now)) },
     retentionDue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => retentionDue.run(tx, now)) },
     revisionEffective: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => revisionEffective.run(tx, ctx.membershipId, now)) },
@@ -300,6 +321,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
               ),
           },
         }),
+    ...(deps.reportMailRunner === undefined ? {} : { reportMailRunner: deps.reportMailRunner }),
     // The heavy queries of BI are answered by the worker, for the person who asked, and what they kept is taken away after its hour.
     biQueryJobs: { run: (ctx, now) => runQueryJobsIn(deps.tenants, ctx, now, { audit, clock: () => new Date(), ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) }) },
     biQueryAnswerExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => expireQueryAnswers(tx, now)) },
@@ -384,6 +406,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
           settlementClocks.sync(tx, ctx.membershipId, audit, async (event) => void (await enqueueSettlementClockEvent(tx, { aggregateType: 'contract_settlement_clock', aggregateVersion: 1, schemaVersion: 1, ...event })), now),
         ),
     },
+    calendarReminder: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => runCalendarReminders(tx, ctx.tenantId, now, (name, labels) => deps.metrics?.increment(name, labels))) },
     accessCache: deps.accessCache,
   });
 

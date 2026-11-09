@@ -181,3 +181,28 @@ test('the book labels a scene as part of the main video only when this edition p
   const publicSection = publicBook.slice(publicBook.indexOf('### `home-drill`'));
   assert.match(publicSection.slice(0, publicSection.indexOf('**Lời đọc**')), /có trong video chính/u);
 });
+
+test('planned screens, planned seed groups and waiting scenes are understood by the production check', () => {
+  const fact = screenFact('planned:ent-org-pack', all.context, all.facts);
+  assert.equal(fact.kind, 'planned');
+  assert.equal(fact.lane, 'ENT-3d');
+  assert.equal(fact.implemented, false);
+  const enterprise = checkClip('enterprise-phu-my', { ...shared, strict: true });
+  assert.deepEqual(enterprise.problems.filter((p) => /planned:/u.test(p)), []);
+  assert.ok(enterprise.warnings.some((w) => /scene ec-org-pack waits for lane ENT-3d/u.test(w)));
+  assert.ok(enterprise.warnings.some((w) => /screen planned:ent-org-pack waits for lane ENT-3d/u.test(w)));
+  const scene = loadScenario('enterprise-phu-my').scenes.find((candidate) => candidate.id === 'ec-org-pack');
+  const items = shotChecklist(scene, loadScenario('enterprise-phu-my'), all.context, all.facts, all.production);
+  assert.ok(items.some((item) => item.kind === 'requires' && /ENT-3d/u.test(item.text)));
+  const planned = all.production.readiness.datasets.public.plannedGroups;
+  assert.ok(Object.keys(planned).length >= 15);
+  for (const state of Object.values(planned)) assert.equal(state.proof, 'NOT_DONE');
+  assert.ok(dataRisks(loadScenario('public-investment'), all.production).has('contractors-plus'));
+});
+
+test('a planned group must be NOT_DONE with a list of what it creates, must not exist in the dataset, and a chapter may not name an unknown group', () => {
+  assert.ok(check(({ production }) => (production.readiness.datasets.public.plannedGroups['clip-public-claims'].proof = 'RUN_VERIFIED')).problems.some((p) => /must be NOT_DONE/u.test(p)));
+  assert.ok(check(({ production }) => (production.readiness.datasets.public.plannedGroups['clip-public-claims'].needs = [])).problems.some((p) => /must list what its seed creates/u.test(p)));
+  assert.ok(check(({ production }) => (production.readiness.datasets.public.plannedGroups.capital = { proof: 'NOT_DONE', needs: ['x'] })).problems.some((p) => /exists in the dataset now/u.test(p)));
+  assert.ok(check(({ production }) => production.readiness.datasets.public.chapters['field-ops'].groups.push('no-such-group')).problems.some((p) => /not in the dataset and not a planned group/u.test(p)));
+});

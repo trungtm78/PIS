@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "description": "Catalogue of the ransomware scenarios of the MACHVON on-prem installation (HSKT YCK.07), machine readable. Each scenario names the way in, what the attacker wants, the controls that stop, detect or undo it, the evidence that each control exists (a file, optionally with a text it must contain) and the tests that prove it. scripts/infra-security.mjs (checkRansomwareCatalogue, run by npm run infra:check) refuses a scenario without a preventive and a detective or recovery control, without evidence that exists, or without a test that exists. The human readable form is docs/security/ransomware-scenarios.md.",
+  "requiredVectors": ["file-upload-exec", "rce", "injection", "privilege-escalation", "session-takeover", "password-guessing", "third-party-cve", "direct-db-backup-access"],
+  "scenarios": [
+    {
+      "id": "RW-01",
+      "vector": "file-upload-exec",
+      "title": "Malicious file uploaded and executed or served",
+      "attackerGoal": "Plant an executable, a script or a macro document through an upload, a portal attachment or an import file, and get it run by a user or by the server.",
+      "controls": [
+        { "kind": "preventive", "description": "The type of an upload is judged by its bytes, not its name or declared type; only PDF, images and the office types of the purpose pass", "evidence": [{ "path": "packages/kernel/src/object-storage.ts", "contains": "validateUpload" }] },
+        { "kind": "preventive", "description": "Every upload is scanned by ClamAV (clamd INSTREAM) before it can be linked or downloaded; no scanner, a failing scanner or a timeout leaves the file PENDING, an infected file is quarantined for good", "evidence": [{ "path": "apps/api/src/modules/files/clamd-scan.ts", "contains": "zINSTREAM" }, { "path": "apps/api/src/modules/files/quarantine.ts" }] },
+        { "kind": "preventive", "description": "Portal uploads are scanned before they are stored and refused when the scanner is unavailable", "evidence": [{ "path": "apps/api/src/modules/bid/portal-upload-scan.ts", "contains": "CLAMAV" }] },
+        { "kind": "preventive", "description": "Containers run with a read-only root and without the ability to execute from writable volumes of other services; the scanner sits on the internal app network only", "evidence": [{ "path": "infra/onprem/compose/compose.yaml", "contains": "read_only: true" }] },
+        { "kind": "detective", "description": "A scan event (HELD or QUARANTINED) is logged with tenant and key for the operator", "evidence": [{ "path": "apps/api/src/modules/files/index.ts", "contains": "onScanEvent" }] },
+        { "kind": "recovery", "description": "Immutable, encrypted backups at a second site and an offline copy bring the data back without the planted file", "evidence": [{ "path": "infra/backup/backup-policy.json", "contains": "COMPLIANCE" }] }
+      ],
+      "tests": ["apps/api/test/files/clamd-scan.test.ts", "apps/api/test/files/files.test.ts", "packages/kernel/test/object-storage.test.ts"],
+      "residualRisk": "A file that no signature knows yet passes the scan; the type allowlist and the absence of any server side execution of uploaded content limit what it can do. Signatures are refreshed with every release bundle (at least monthly)."
+    },
+    {
+      "id": "RW-02",
+      "vector": "rce",
+      "title": "Remote code execution in the API, the web edge or a container",
+      "attackerGoal": "Run code on a host through a flaw in the application or a library and encrypt what the process can reach.",
+      "controls": [
+        { "kind": "preventive", "description": "Services run as non-root with dropped capabilities, no-new-privileges and read-only roots; the data network is internal", "evidence": [{ "path": "infra/onprem/compose/compose.yaml", "contains": "no-new-privileges:true" }, { "path": "infra/onprem/docker/api.Dockerfile", "contains": "USER node" }] },
+        { "kind": "preventive", "description": "A strict content security policy and security headers on the web edge and on every API response", "evidence": [{ "path": "apps/api/src/security/security-headers.ts", "contains": "default-src 'none'" }] },
+        { "kind": "detective", "description": "CodeQL static analysis with the security-extended query suite and a filesystem and image scan on every change", "evidence": [{ "path": ".github/workflows/security.yml", "contains": "security-extended" }, { "path": "infra/scan/trivy.yaml" }] },
+        { "kind": "recovery", "description": "The containers hold no state: they are replaced from the signed offline bundle and the data is restored from the backups", "evidence": [{ "path": "infra/onprem/bundle/rollback.sh" }, { "path": "docs/runbooks/infra/restore-drill.md" }] }
+      ],
+      "tests": ["scripts/infra-artefacts.test.mjs", "apps/api/src/security/security-headers.test.ts"],
+      "residualRisk": "A zero day in the runtime can still run code inside one container; hardening confines it to that container and to the data its database role may touch (row level security)."
+    },
+    {
+      "id": "RW-03",
+      "vector": "injection",
+      "title": "SQL or command injection",
+      "attackerGoal": "Read or rewrite data, or run commands, through a crafted request field.",
+      "controls": [
+        { "kind": "preventive", "description": "Request bodies are validated against the contract and unknown fields are refused before a handler runs", "evidence": [{ "path": "apps/api/test/allowlist.pipe.test.ts" }, { "path": "apps/api/test/request-validation.test.ts" }] },
+        { "kind": "preventive", "description": "Row level security is enabled and forced on every tenant table, so an injected statement still sees one tenant only", "evidence": [{ "path": "packages/db/test/rls-catalog.test.ts" }] },
+        { "kind": "detective", "description": "CodeQL queries for injection and the dynamic ZAP scans of the API", "evidence": [{ "path": ".github/workflows/security.yml", "contains": "codeql" }, { "path": ".github/workflows/dast.yml" }] },
+        { "kind": "recovery", "description": "Point in time recovery to the moment before the damage", "evidence": [{ "path": "docs/runbooks/infra/restore-drill.md" }] }
+      ],
+      "tests": ["apps/api/test/allowlist.pipe.test.ts", "apps/api/test/request-validation.test.ts", "packages/db/test/rls-catalog.test.ts"],
+      "residualRisk": "Statements built from strings by new code are caught by review and CodeQL, not by a runtime guard; the application role cannot alter schema or disable row level security."
+    },
+    {
+      "id": "RW-04",
+      "vector": "privilege-escalation",
+      "title": "Privilege escalation inside the application",
+      "attackerGoal": "Use a low privilege account to reach administration, other tenants or approval powers and then delete or encrypt business data.",
+      "controls": [
+        { "kind": "preventive", "description": "Every command passes the policy guard; the negative matrix proves that a caller without the permission changes nothing, for every command", "evidence": [{ "path": "apps/api/src/policy.guard.ts" }, { "path": "apps/api/test/authz/negative-matrix.test.ts" }] },
+        { "kind": "preventive", "description": "Maker-checker: the person who asks never decides, and the backup request follows the same rule", "evidence": [{ "path": "apps/api/test/authz/maker-checker.ts" }] },
+        { "kind": "detective", "description": "Audit events for every command with actor, target and reason", "evidence": [{ "path": "apps/api/test/audit-events.test.ts" }] },
+        { "kind": "recovery", "description": "Tenant level restore and whole cluster restore with checksum comparison", "evidence": [{ "path": "docs/runbooks/infra/restore-drill.md" }, { "path": "infra/backup/restore-drill-ledger.json" }] }
+      ],
+      "tests": ["apps/api/test/authz/negative-matrix.test.ts", "apps/api/test/policy-guard.test.ts", "apps/api/test/audit-events.test.ts"],
+      "residualRisk": "An administrator with legitimate rights acting maliciously is limited by the second approver and by the audit trail, not prevented."
+    },
+    {
+      "id": "RW-05",
+      "vector": "session-takeover",
+      "title": "Session, token or administrator account takeover",
+      "attackerGoal": "Steal or replay a session or token, or take over an administrator account, and operate the system as that person.",
+      "controls": [
+        { "kind": "preventive", "description": "Second factor is mandatory (TOTP or WebAuthn, aal2 for the platform roles); refresh tokens rotate with no reuse; PKCE S256 and exact https redirect URIs", "evidence": [{ "path": "infra/keycloak/onprem/machvon-realm.json", "contains": "revokeRefreshToken" }, { "path": "docs/security/identity-test-plan.md" }] },
+        { "kind": "preventive", "description": "Sessions can be revoked and a revoked session is refused within the revocation lag", "evidence": [{ "path": "apps/api/test/session/user-session-deny-list.test.ts" }, { "path": "apps/api/test/authz/revocation-lag.test.ts" }] },
+        { "kind": "detective", "description": "Audit of sign-ins, step-up and administrator commands", "evidence": [{ "path": "apps/api/test/audit-events.test.ts" }] },
+        { "kind": "recovery", "description": "Immutable backups cannot be deleted even by a stolen administrator account of the installation", "evidence": [{ "path": "infra/backup/bucket/writer-policy.json", "contains": "DeleteObjectVersion" }] }
+      ],
+      "tests": ["scripts/infra-artefacts.test.mjs", "apps/api/test/auth/jwt.test.ts", "apps/api/test/session/user-session-deny-list.test.ts"],
+      "residualRisk": "A user who approves an attacker's second factor prompt is stopped only by the audit and by the limits of what one role may do."
+    },
+    {
+      "id": "RW-06",
+      "vector": "password-guessing",
+      "title": "Password guessing and credential stuffing",
+      "attackerGoal": "Guess or reuse passwords against the sign-in page or the directory.",
+      "controls": [
+        { "kind": "preventive", "description": "Five failures lock the account for 15 minutes, temporarily, with no permanent lockout that could be abused; a second factor is still required after a correct password", "evidence": [{ "path": "infra/keycloak/onprem/machvon-realm.json", "contains": "bruteForceProtected" }, { "path": "infra/policies/artefacts.json", "contains": "failureFactor" }] },
+        { "kind": "preventive", "description": "Local registration and local password reset are off: passwords live in the directory only", "evidence": [{ "path": "infra/keycloak/onprem/machvon-realm.json", "contains": "registrationAllowed" }] },
+        { "kind": "detective", "description": "Lockout and failed sign-in events are in the identity test plan and the Keycloak event log", "evidence": [{ "path": "docs/security/identity-test-plan.md" }] },
+        { "kind": "recovery", "description": "The directory remains the source of truth: disabling a group removes access at the next token", "evidence": [{ "path": "infra/keycloak/onprem/ad-group-role-map.json" }] }
+      ],
+      "tests": ["scripts/infra-artefacts.test.mjs", "scripts/infra-check.test.mjs"],
+      "residualRisk": "Slow, distributed guessing below the lock threshold is limited by the second factor, not by the lock."
+    },
+    {
+      "id": "RW-07",
+      "vector": "third-party-cve",
+      "title": "Exploit of a vulnerable third-party component",
+      "attackerGoal": "Use a published flaw in a dependency, a base image or a service (PostgreSQL, Keycloak, nginx, a library) to get in.",
+      "controls": [
+        { "kind": "preventive", "description": "Pinned versions and digests, no floating tags, a supply-chain audit that fails on high advisories, a native dependency check, and images rebuilt for every release", "evidence": [{ "path": "scripts/supply-chain-check.mjs" }, { "path": "infra/onprem/images.json" }] },
+        { "kind": "detective", "description": "Dependency review, image scan (HIGH and CRITICAL fail the build) and SBOM for every release", "evidence": [{ "path": "infra/scan/trivy.yaml" }, { "path": ".github/workflows/images.yml" }] },
+        { "kind": "recovery", "description": "Upgrade and rollback by the signed offline bundle", "evidence": [{ "path": "docs/runbooks/infra/onprem-upgrade-rollback.md" }] }
+      ],
+      "tests": ["scripts/supply-chain-check.test.mjs", "scripts/infra-artefacts.test.mjs", "scripts/onprem-bundle.test.mjs"],
+      "residualRisk": "The window between publication of a flaw and the next release bundle; the monthly rebuild and the out of band emergency bundle bound it."
+    },
+    {
+      "id": "RW-08",
+      "vector": "direct-db-backup-access",
+      "title": "Direct access to the database or to the backups",
+      "attackerGoal": "Reach PostgreSQL or the backup repository directly from the network or with stolen operator credentials and encrypt, delete or exfiltrate the data and the backups.",
+      "controls": [
+        { "kind": "preventive", "description": "The database and the application live on internal networks with no published port; the only way out is the egress network, limited by the host firewall to the object store and the directory and dropped otherwise", "evidence": [{ "path": "infra/onprem/compose/compose.yaml", "contains": "internal: true" }, { "path": "infra/onprem/config/egress-firewall.sh", "contains": "-j DROP" }] },
+        { "kind": "preventive", "description": "Backups are encrypted on the client side, written with a writer identity that cannot delete or shorten locked versions, locked in COMPLIANCE mode, and the archive repository has its own bucket, credentials and pass phrase", "evidence": [{ "path": "infra/backup/backup-policy.json", "contains": "adminAndWriterAreDifferentPeople" }, { "path": "infra/backup/bucket/archive/object-lock-configuration.json", "contains": "COMPLIANCE" }] },
+        { "kind": "preventive", "description": "An offline copy outside the reach of every production account, kept by two custodians", "evidence": [{ "path": "docs/runbooks/infra/backup-immutable.md", "contains": "Offline copy" }] },
+        { "kind": "detective", "description": "Weekly verification of the repository, the live lock probe, and the alerts on WAL archive failure and backup age", "evidence": [{ "path": "infra/onprem/systemd/machvon-backup-verify.timer" }, { "path": "infra/alerts/postgres.json" }] },
+        { "kind": "recovery", "description": "Restore drills every quarter with a ledger of evidence; an overdue or failed drill is reported", "evidence": [{ "path": "infra/backup/restore-drill-ledger.json" }, { "path": "scripts/backup-verify.mjs", "contains": "drillStatus" }] }
+      ],
+      "tests": ["scripts/backup-verify.test.mjs", "scripts/backup-cycles.test.mjs", "scripts/egress-rules.test.mjs", "scripts/onprem-bundle.test.mjs"],
+      "residualRisk": "Until the first restore drill is recorded the restore path is proven only by tests of the tooling; the ledger says so (drill-status NEVER_DRILLED)."
+    },
+    {
+      "id": "RW-09",
+      "vector": "egress-exfiltration",
+      "title": "Command and control and data exfiltration over the network",
+      "attackerGoal": "After a foothold, call out to an attacker's server to fetch tools, receive commands or send data before encrypting.",
+      "controls": [
+        { "kind": "preventive", "description": "Only db, backup and keycloak may join the egress network, and the host firewall allows it to the object store and the directory only; every other service has no route out", "evidence": [{ "path": "infra/policies/artefacts.json", "contains": "egress" }, { "path": "infra/onprem/config/egress-firewall.sh", "contains": "MACHVON-EGRESS" }] },
+        { "kind": "detective", "description": "The firewall chain ends in DROP; dropped connections show in the host log", "evidence": [{ "path": "infra/onprem/config/egress-firewall.sh", "contains": "-j DROP" }] },
+        { "kind": "recovery", "description": "Isolate the host, rebuild from the bundle, restore from the immutable copy", "evidence": [{ "path": "docs/runbooks/infra/onprem-install.md" }] }
+      ],
+      "tests": ["scripts/egress-rules.test.mjs", "scripts/infra-security.test.mjs", "scripts/infra-artefacts.test.mjs"],
+      "residualRisk": "The three services that have a route out can still reach the two allowed destinations; a compromised database host could write to the object store (which cannot delete)."
+    }
+  ]
+}

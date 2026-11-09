@@ -1,5 +1,5 @@
 import { hpmAcceptance, integrationTexts } from '@machvon/edition-enterprise/src/server.ts';
-import type { EbsItemRow, EbsRunRow, HpmAttemptRow, HpmCorrectionRow, HpmPushRow } from '@machvon/edition-enterprise/src/server.ts';
+import type { EbsItemRow, EbsRunRow, HpmAdjustmentRow, HpmAttemptRow, HpmCorrectionRow, HpmPushRow } from '@machvon/edition-enterprise/src/server.ts';
 
 /** The names of people by id, as the reads of BID give them (`BidWorkflowReads.names`). */
 export type Names = ReadonlyMap<string, string>;
@@ -93,6 +93,38 @@ export function correctionDto(row: HpmCorrectionRow, names: Names, caller: Calle
     version: row.version,
     created_at: row.createdAt,
     actions: { may_decide: caller.mayDecideCorrection && row.state === 'PROPOSED' && row.proposedBy !== caller.membershipId },
+    mode: 'OVERWRITE',
+  };
+}
+
+/**
+ * An adjustment in the next period (TH.01) in the shape of a correction, the second mode of the same family: the period is the one the figure was wrong in, the revision the accepted one, there is no reopening, and the
+ * amount is booked in the target period. "Consumed" reads as applied by the push of the target period.
+ */
+export function adjustmentDto(row: HpmAdjustmentRow, names: Names, caller: Caller): Record<string, unknown> {
+  return {
+    id: row.id,
+    layout_code: row.layoutCode,
+    period: row.sourcePeriod,
+    from_revision: row.sourceRevision,
+    period_reopen_id: null,
+    reason: row.reason,
+    state: row.state,
+    proposed_by: row.proposedBy,
+    proposed_by_name: nameOf(names, row.proposedBy),
+    decided_by: row.decidedBy,
+    decided_by_name: nameOf(names, row.decidedBy),
+    decided_at: row.decidedAt,
+    decision_reason: row.decisionReason,
+    consumed_by_push_id: row.appliedPushId,
+    consumed_at: row.appliedAt,
+    version: row.version,
+    created_at: row.createdAt,
+    actions: { may_decide: caller.mayDecideCorrection && row.state === 'PROPOSED' && row.proposedBy !== caller.membershipId },
+    mode: 'ADJUST_NEXT_PERIOD',
+    target_period: row.targetPeriod,
+    subject_code: row.subjectCode,
+    amount_vnd: row.amountVnd,
   };
 }
 

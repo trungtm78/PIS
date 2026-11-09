@@ -108,6 +108,7 @@ import {
 import { TEMPLATE_FIXTURES } from '../suite';
 import { ALERT_GOVERNANCE_FIXTURES } from '../suite';
 import { ACTING_FIXTURES, PERIOD_SCOPE_FIXTURES, STANDING_REQUEST_FIXTURES } from '../suite';
+import { BACKUP_REQUEST_FIXTURES } from '../suite';
 import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY_INCIDENT_FIXTURES, SELF_FIXTURES, SOURCE_FIXTURES, WORKFLOW_FIXTURES } from '../suite';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
@@ -369,6 +370,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'acceptFundingFigures', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].batchId, versioned: true, body: {} },
   { operation: 'returnFundingFigures', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].batchId, versioned: true, body: { reason: 'Isolation foreign return attempt' } },
   { operation: 'withdrawFundingFigures', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].batchId, versioned: true, body: { reason: 'Isolation foreign withdrawal attempt' } },
+  // ENT-3a: another tenant's snapshot id answers as one that does not exist (the fixture id is not a snapshot of either tenant).
+  { operation: 'getEnterpriseSnapshot', method: 'GET', id: FUNDING_FIGURE_FIXTURES['TNT-B'].figureId },
+  { operation: 'freezeEnterpriseSnapshot', method: 'POST', id: FUNDING_FIGURE_FIXTURES['TNT-B'].figureId, versioned: true, body: {} },
   { operation: 'releaseFundReservation', method: 'POST', id: RESERVATION_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
   { operation: 'requestAllocationExtension', method: 'POST', id: CAPITAL_PLAN_FIXTURES['TNT-B'].lineId, body: { amount_vnd: '100', extended_to: '2027-03-31', reason_code: 'GPMB_CHAM' } },
   { operation: 'decideAllocationExtension', method: 'POST', id: EXTENSION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision' } },
@@ -477,6 +481,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'applyReportImport', method: 'POST', id: REPORT_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'getReportExportDownload', method: 'GET', id: REPORT_EXPORT_FIXTURES['TNT-B'].id },
   { operation: 'getSubmissionProgress', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
+  { operation: 'getReportingCalendarBoard', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
   { operation: 'listPeriodSnapshotLines', method: 'GET', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id },
   { operation: 'freezePeriodSnapshot', method: 'POST', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'publishEarlyWarningRule', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },
@@ -722,6 +727,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'revokeActing', method: 'POST', id: ACTING_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'get_resources_period_scope_id', method: 'GET', id: PERIOD_SCOPE_FIXTURES['TNT-B'].id },
   { operation: 'liftPeriodScope', method: 'POST', id: PERIOD_SCOPE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the lifting' } },
+  // INFRA-2: a foreign backup request is as absent as a foreign delegation.
+  { operation: 'decideBackupRequest', method: 'POST', id: BACKUP_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation probe of the decision' } },
+  { operation: 'cancelBackupRequest', method: 'POST', id: BACKUP_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation probe of the withdrawal' } },
+  { operation: 'recordBackupOutcome', method: 'POST', id: BACKUP_REQUEST_FIXTURES['TNT-B'].id, versioned: true, body: { outcome: 'failed', note: 'Isolation probe of the outcome' } },
   { operation: 'updateWorkflowDraft', method: 'PUT', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { business_type: 'report.accept', definition: { steps: [], terminal: {} } } },
   { operation: 'publishWorkflowVersion', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].versionId, versioned: true, body: { reason: 'Isolation probe of the publication' } },
   { operation: 'decideApprovalTask', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].taskId, versioned: true, body: { decision: 'approve' } },

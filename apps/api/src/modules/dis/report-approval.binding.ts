@@ -3,6 +3,8 @@ import { DisReportStore } from '@machvon/db';
 import type { FinalCommand, ScopeBuilder } from '@machvon/db';
 import { DomainError, NOOP_METRICS, REPORT_ACCEPT_BUSINESS_TYPE, REPORT_WORKFLOW_RESOURCE, message } from '@machvon/kernel';
 import type { DecisionInput, MetricsSink } from '@machvon/kernel';
+import { APPROVAL_PUSH_SOURCES } from '../adm/approval-hold.service';
+import type { ApprovalPushSource, ApprovalPushSources } from '../adm/approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS } from '../adm/approval.service';
 import type { FinalCommandRegistry } from '../adm/approval.service';
 import { applyReportDecision } from './report-decision.core';
@@ -60,6 +62,39 @@ export function reportAcceptHandler(options: { clock: () => Date; metrics: Metri
   };
 }
 
+/**
+ * What the PUSH step of the staged approval hands over for a weekly report (ENT-3c): the report as it was approved, keyed by its project, the last day of its period and its revision. The newest revision of the report is
+ * the head the receiver judges staleness against (R17): a report corrected meanwhile makes this revision out of date.
+ */
+export function reportPushSource(): ApprovalPushSource {
+  const reports = new DisReportStore();
+  return {
+    owner: 'REPORT',
+    resourceType: REPORT_WORKFLOW_RESOURCE,
+    layoutBase: 'DIS_WEEKLY',
+    async describe(tx, instance) {
+      const detail = await reports.find(tx, instance.resourceId, EVERYTHING);
+      if (detail === undefined) return undefined;
+      const latest = await reports.latestFor(tx, detail.projectId, detail.periodId);
+      return {
+        subjectCode: detail.project.code,
+        period: detail.period.endDate,
+        revision: detail.revision,
+        headRevision: Math.max(detail.revision, latest?.revision ?? 0),
+        facts: {
+          project_code: detail.project.code,
+          period_code: detail.period.code,
+          report_type: detail.reportType,
+          measurement_basis: detail.measurementBasis,
+          payload_hash: detail.payloadHash,
+          totals: detail.totals,
+          lines: detail.lines.map((line) => ({ bucket: line.bucket, budget_level: line.budgetLevel, cumulative_vnd: line.cumulativeVnd, ctmtqg_vnd: line.ctmtqgVnd, next_month_vnd: line.nextMonthVnd })),
+        },
+      };
+    },
+  };
+}
+
 /** Binds the final command of `report.accept` into the registry of the approval engine when the application starts, so that the boot guard of ADM finds a real handler for the business type DIS owns. */
 @Injectable()
 export class DisReportApprovalBinding {
@@ -67,7 +102,9 @@ export class DisReportApprovalBinding {
     @Optional() @Inject(APPROVAL_FINAL_COMMANDS) commands?: FinalCommandRegistry,
     @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
     @Optional() @Inject(DIS_METRICS) metrics?: MetricsSink,
+    @Optional() @Inject(APPROVAL_PUSH_SOURCES) sources?: ApprovalPushSources,
   ) {
+    sources?.register(reportPushSource());
     commands?.register(REPORT_ACCEPT_BUSINESS_TYPE, reportAcceptHandler({ clock: clock ?? ((): Date => new Date()), metrics: metrics ?? NOOP_METRICS }));
   }
 }

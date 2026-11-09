@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { argument, flag, loadVoices, mapLimit, positionals, readJson, sha256 } from './common.mjs';
-import { loadScenario, selectScenes, speedOf } from './scenario.mjs';
+import { loadScenario, recordableScenes, speedOf } from './scenario.mjs';
 import { speechText } from './text.mjs';
 
 /**
@@ -194,7 +194,7 @@ async function main(argv) {
   try {
     const index = await synthesizeScenes({
       scenario,
-      scenes: selectScenes(scenario, cut),
+      scenes: recordableScenes(scenario, cut, { includePending: flag(argv, 'include-pending') }),
       manifest: manifestPath === undefined ? undefined : readJson(manifestPath),
       mode: sample ? 'sample' : 'manifest',
       voiceId: argument(argv, 'voice'),

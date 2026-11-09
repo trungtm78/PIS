@@ -68,9 +68,10 @@ export interface ViewContext {
   today: string;
 }
 
-const fileDtos = (xlsx: string, docx: string | null, sizes: Map<string, number>, names: { xlsx: string | null; docx: string | null }): Schemas['RptFileInfo'][] => [
+const fileDtos = (xlsx: string, docx: string | null, pdf: string | null, sizes: Map<string, number>, names: { xlsx: string | null; docx: string | null; pdf: string | null }): Schemas['RptFileInfo'][] => [
   { format: 'XLSX', sha256: xlsx, name: names.xlsx, size_bytes: sizes.get(xlsx) ?? 0 },
   ...(docx === null ? [] : [{ format: 'DOCX' as const, sha256: docx, name: names.docx, size_bytes: sizes.get(docx) ?? 0 }]),
+  ...(pdf === null ? [] : [{ format: 'PDF' as const, sha256: pdf, name: names.pdf, size_bytes: sizes.get(pdf) ?? 0 }]),
 ];
 
 const snapshotDto = (ref: { snapshotId: string; revision: number; cutoff: string } | null): Schemas['RptSnapshotRef'] | null => (ref === null ? null : { snapshot_id: ref.snapshotId, revision: ref.revision, cutoff: ref.cutoff });
@@ -80,7 +81,7 @@ export async function draftDtos(context: ViewContext, rows: readonly ReportDraft
   const { tx } = context;
   const held = effectivePermissions(context.access, context.now);
   const layouts = await reportStore.layoutsByIds(tx, rows.map((row) => row.layoutId));
-  const sizes = await reportStore.outputSizes(tx, rows.flatMap((row) => [row.xlsxSha256, ...(row.docxSha256 === null ? [] : [row.docxSha256])]));
+  const sizes = await reportStore.outputSizes(tx, rows.flatMap((row) => [row.xlsxSha256, ...(row.docxSha256 === null ? [] : [row.docxSha256]), ...(row.pdfSha256 === null ? [] : [row.pdfSha256])]));
   const names = await people.names(tx, rows.flatMap((row) => [row.preparedBy, row.checkedBy, row.approvedBy]));
   const demoOff = new Map<string, boolean>();
   for (const row of rows) {
@@ -101,7 +102,8 @@ export async function draftDtos(context: ViewContext, rows: readonly ReportDraft
       base_revision: row.baseRevision,
       reason: row.reason,
       package_sha256: row.packageSha256,
-      files: fileDtos(row.xlsxSha256, row.docxSha256, sizes, { xlsx: null, docx: null }),
+      files: fileDtos(row.xlsxSha256, row.docxSha256, row.pdfSha256, sizes, { xlsx: null, docx: null, pdf: null }),
+      layout_sha256: row.layoutSha256,
       data_source: row.dataSource,
       form_status: row.marks.formStatus,
       demo_mark: row.marks.demoMark,
@@ -153,7 +155,7 @@ export async function issueDtos(context: ViewContext, rows: readonly ReportIssue
   const held = effectivePermissions(context.access, context.now);
   const layouts = await reportStore.layoutsByIds(tx, rows.map((row) => row.layoutId));
   const heads = await reportStore.headRevisions(tx, rows);
-  const sizes = await reportStore.outputSizes(tx, rows.flatMap((row) => [row.xlsxSha256, ...(row.docxSha256 === null ? [] : [row.docxSha256])]));
+  const sizes = await reportStore.outputSizes(tx, rows.flatMap((row) => [row.xlsxSha256, ...(row.docxSha256 === null ? [] : [row.docxSha256]), ...(row.pdfSha256 === null ? [] : [row.pdfSha256])]));
   const names = await people.names(tx, rows.flatMap((row) => [row.preparedBy, row.checkedBy, row.approvedBy, row.issuedBy]));
   const result: Schemas['RptIssue'][] = [];
   for (const row of rows) {
@@ -171,7 +173,8 @@ export async function issueDtos(context: ViewContext, rows: readonly ReportIssue
       supersedes_id: row.supersedesId,
       reason: row.reason,
       sha256: row.sha256,
-      files: fileDtos(row.xlsxSha256, row.docxSha256, sizes, { xlsx: row.xlsxName, docx: row.docxName }),
+      files: fileDtos(row.xlsxSha256, row.docxSha256, row.pdfSha256, sizes, { xlsx: row.xlsxName, docx: row.docxName, pdf: row.pdfName }),
+      layout_sha256: row.layoutSha256,
       data_source: row.dataSource,
       form_status: row.formStatus,
       demo_mark: row.demoMark,
