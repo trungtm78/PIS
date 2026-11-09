@@ -336,10 +336,12 @@ export function orgPackRows(pack: OrgPack): Array<Record<(typeof ORG_PACK_COLUMN
   ];
 }
 
+const BYTE_ORDER_MARK = String.fromCharCode(0xfeff);
+
 /** The file of a pack: UTF-8 with a byte-order mark and CRLF lines, the header first. */
 export function orgPackCsv(pack: OrgPack): string {
   const lines = [csvLine([...ORG_PACK_COLUMNS]), ...orgPackRows(pack).map((row) => csvLine(ORG_PACK_COLUMNS.map((column) => row[column])))];
-  return `﻿${lines.join('\r\n')}\r\n`;
+  return `${BYTE_ORDER_MARK}${lines.join('\r\n')}\r\n`;
 }
 
 /** The digest of the pack: the same pack always has the same digest, whatever order the rows came in. */
