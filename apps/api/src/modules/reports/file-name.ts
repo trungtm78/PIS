@@ -34,7 +34,7 @@ export interface FileNameParts {
   /** The revision of the issued copy, from 1. */
   revision: number;
   sha256: string;
-  extension: 'xlsx' | 'docx';
+  extension: 'xlsx' | 'docx' | 'pdf';
   /** The day of the issue, `YYYY-MM-DD`. */
   issuedOn?: string | undefined;
 }

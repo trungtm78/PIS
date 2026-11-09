@@ -2,8 +2,8 @@ import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/co
 import { PERMISSIONS } from '@machvon/contracts';
 import { TenantDatabase } from '@machvon/db';
 import type { ReportIssueFilter } from '@machvon/db';
-import { DomainError, ISSUE_STATES, REPORT_FILE_FORMATS, assertIntegrity, effectivePermissions, holdsPermission, vietnamDateOf } from '@machvon/kernel';
-import type { EffectiveAccess, IssueState, ReportFileFormat, TenantContext } from '@machvon/kernel';
+import { DomainError, ISSUE_STATES, REPORT_OUTPUT_FORMATS, assertIntegrity, effectivePermissions, holdsPermission, vietnamDateOf } from '@machvon/kernel';
+import type { EffectiveAccess, IssueState, ReportOutputFormat, TenantContext } from '@machvon/kernel';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -37,9 +37,9 @@ function flagOf(value: unknown, field: string): boolean | undefined {
   return value === 'true';
 }
 
-const formatOf = (value: string): ReportFileFormat => {
-  if (!(REPORT_FILE_FORMATS as readonly string[]).includes(value)) throw new DomainError('VALIDATION_FAILED', 422, 'format');
-  return value as ReportFileFormat;
+const formatOf = (value: string): ReportOutputFormat => {
+  if (!(REPORT_OUTPUT_FORMATS as readonly string[]).includes(value)) throw new DomainError('VALIDATION_FAILED', 422, 'format');
+  return value as ReportOutputFormat;
 };
 
 /**
@@ -116,12 +116,12 @@ export class ReportReadsController {
       if (draft === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
       assertLayoutAccess(access, draft.layoutCode);
       const format = formatOf(formatText);
-      const sha = format === 'XLSX' ? draft.xlsxSha256 : draft.docxSha256;
+      const sha = format === 'XLSX' ? draft.xlsxSha256 : format === 'DOCX' ? draft.docxSha256 : draft.pdfSha256;
       if (sha === null) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'format');
       const stored = await reportStore.outputBytes(tx, sha);
       if (stored === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'file');
       assertIntegrity({ sha256: sha }, sha256Hex(stored.bytes));
-      const name = reportFileName({ code: draft.layoutCode, period: draft.period, revision: draft.baseRevision + 1, sha256: sha, extension: format === 'XLSX' ? 'xlsx' : 'docx' });
+      const name = reportFileName({ code: draft.layoutCode, period: draft.period, revision: draft.baseRevision + 1, sha256: sha, extension: format === 'XLSX' ? 'xlsx' : format === 'DOCX' ? 'docx' : 'pdf' });
       return { format, sha256: sha, name, size_bytes: stored.bytes.length, content_base64: Buffer.from(stored.bytes).toString('base64') };
     });
   }
@@ -174,8 +174,8 @@ export class ReportReadsController {
       if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
       assertLayoutAccess(access, copy.layoutCode);
       const format = formatOf(formatText);
-      const sha = format === 'XLSX' ? copy.xlsxSha256 : copy.docxSha256;
-      const name = format === 'XLSX' ? copy.xlsxName : copy.docxName;
+      const sha = format === 'XLSX' ? copy.xlsxSha256 : format === 'DOCX' ? copy.docxSha256 : copy.pdfSha256;
+      const name = format === 'XLSX' ? copy.xlsxName : format === 'DOCX' ? copy.docxName : copy.pdfName;
       if (sha === null || name === null) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'format');
       const stored = await reportStore.outputBytes(tx, sha);
       if (stored === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'file');

@@ -15,6 +15,9 @@ import type { FilledGrid, FilledNarrative, FormPeriod, FormPeriodKind, GridCellK
 export type ReportDataSourceKind = 'LIVE' | 'ILLUSTRATIVE';
 export const REPORT_FILE_FORMATS = ['XLSX', 'DOCX'] as const;
 export type ReportFileFormat = (typeof REPORT_FILE_FORMATS)[number];
+/** The files a copy can hold: the two that make its digest, and the PDF, a rendition of the same document that is recorded with its own hash (ENT-4b). */
+export const REPORT_OUTPUT_FORMATS = ['XLSX', 'DOCX', 'PDF'] as const;
+export type ReportOutputFormat = (typeof REPORT_OUTPUT_FORMATS)[number];
 
 export interface ReportTemplateBytes {
   xlsx: Uint8Array;

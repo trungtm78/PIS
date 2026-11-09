@@ -159716,7 +159716,8 @@
               "type": "string",
               "enum": [
                 "XLSX",
-                "DOCX"
+                "DOCX",
+                "PDF"
               ]
             }
           }
@@ -160547,7 +160548,8 @@
               "type": "string",
               "enum": [
                 "XLSX",
-                "DOCX"
+                "DOCX",
+                "PDF"
               ]
             }
           }
@@ -272232,7 +272234,8 @@
             "type": "string",
             "enum": [
               "XLSX",
-              "DOCX"
+              "DOCX",
+              "PDF"
             ]
           },
           "sha256": {
@@ -272582,6 +272585,14 @@
             "items": {
               "$ref": "#/components/schemas/RptGridIssue"
             }
+          },
+          "layout_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded"
           }
         }
       },
@@ -272937,6 +272948,14 @@
           },
           "can_answer": {
             "type": "boolean"
+          },
+          "layout_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The hash of the layout (and narrative skeleton) the files were made from; null for a copy made before the layout hash was recorded"
           }
         }
       },
@@ -273117,7 +273136,8 @@
             "type": "string",
             "enum": [
               "XLSX",
-              "DOCX"
+              "DOCX",
+              "PDF"
             ]
           },
           "sha256": {

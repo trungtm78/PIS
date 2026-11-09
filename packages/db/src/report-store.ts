@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { DomainError, advanceIssue, assertAcceptable, assertDeliverable, assertLineage, nextIssueOf, versionConflict } from '@machvon/kernel';
-import type { FormPeriod, FormPeriodKind, IssueAction, IssuedCopyMarks, IssuedCopyRef, IssueState, LayoutStatus, ReportDataSourceKind, ReportFileFormat, ReportLayout, NarrativeBlock, SnapshotRevisionRef } from '@machvon/kernel';
+import type { FormPeriod, FormPeriodKind, IssueAction, IssuedCopyMarks, IssuedCopyRef, IssueState, LayoutStatus, ReportDataSourceKind, ReportFileFormat, ReportLayout, ReportOutputFormat, NarrativeBlock, SnapshotRevisionRef } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -106,6 +106,10 @@ export interface ReportDraftRow {
   reason: string | null;
   xlsxSha256: string;
   docxSha256: string | null;
+  /** The PDF rendition of the same document (ENT-4b): recorded with its own hash, not part of the package digest. */
+  pdfSha256: string | null;
+  /** The hash of the layout (and narrative skeleton) that made the files; null for a draft made before ENT-4b. */
+  layoutSha256: string | null;
   packageSha256: string;
   dataSource: ReportDataSourceKind;
   snapshotRef: SnapshotRevisionRef | null;
@@ -134,6 +138,8 @@ interface DraftSql {
   reason: string | null;
   xlsx_sha256: string;
   docx_sha256: string | null;
+  pdf_sha256: string | null;
+  layout_sha256: string | null;
   package_sha256: string;
   data_source: ReportDataSourceKind;
   snapshot_ref: SnapshotRevisionRef | null;
@@ -150,7 +156,7 @@ interface DraftSql {
   updated_at: string;
 }
 
-const DRAFT_SELECT = `select id, layout_id, layout_code, layout_version, period_code, period, state, base_revision, reason, xlsx_sha256, docx_sha256, package_sha256, data_source, snapshot_ref, marks, grid_issues,
+const DRAFT_SELECT = `select id, layout_id, layout_code, layout_version, period_code, period, state, base_revision, reason, xlsx_sha256, docx_sha256, pdf_sha256, layout_sha256, package_sha256, data_source, snapshot_ref, marks, grid_issues,
   prepared_by, checked_by, to_char(checked_at at time zone 'UTC', ${ISO}) as checked_at, approved_by, to_char(approved_at at time zone 'UTC', ${ISO}) as approved_at, issue_id, version::text as version,
   to_char(created_at at time zone 'UTC', ${ISO}) as created_at, to_char(updated_at at time zone 'UTC', ${ISO}) as updated_at from machvon.report_draft`;
 
@@ -166,6 +172,8 @@ const draftOf = (row: DraftSql): ReportDraftRow => ({
   reason: row.reason,
   xlsxSha256: row.xlsx_sha256,
   docxSha256: row.docx_sha256,
+  pdfSha256: row.pdf_sha256,
+  layoutSha256: row.layout_sha256,
   packageSha256: row.package_sha256,
   dataSource: row.data_source,
   snapshotRef: row.snapshot_ref,
@@ -190,6 +198,8 @@ export interface NewDraft {
   reason: string | null;
   xlsxSha256: string;
   docxSha256: string | null;
+  pdfSha256: string | null;
+  layoutSha256: string;
   packageSha256: string;
   dataSource: ReportDataSourceKind;
   snapshotRef: SnapshotRevisionRef | null;
@@ -213,8 +223,11 @@ export interface ReportIssueRow {
   sha256: string;
   xlsxSha256: string;
   docxSha256: string | null;
+  pdfSha256: string | null;
+  layoutSha256: string | null;
   xlsxName: string;
   docxName: string | null;
+  pdfName: string | null;
   dataSource: ReportDataSourceKind;
   snapshotRef: SnapshotRevisionRef | null;
   formStatus: LayoutStatus;
@@ -242,8 +255,11 @@ interface IssueSql {
   sha256: string;
   xlsx_sha256: string;
   docx_sha256: string | null;
+  pdf_sha256: string | null;
+  layout_sha256: string | null;
   xlsx_name: string;
   docx_name: string | null;
+  pdf_name: string | null;
   data_source: ReportDataSourceKind;
   snapshot_ref: SnapshotRevisionRef | null;
   form_status: LayoutStatus;
@@ -257,7 +273,7 @@ interface IssueSql {
   issued_at: string;
 }
 
-const ISSUE_SELECT = `select id, layout_id, layout_code, layout_version, period_code, period, revision, supersedes_id, reason, draft_id, sha256, xlsx_sha256, docx_sha256, xlsx_name, docx_name, data_source, snapshot_ref,
+const ISSUE_SELECT = `select id, layout_id, layout_code, layout_version, period_code, period, revision, supersedes_id, reason, draft_id, sha256, xlsx_sha256, docx_sha256, pdf_sha256, layout_sha256, xlsx_name, docx_name, pdf_name, data_source, snapshot_ref,
   form_status, demo_mark, counts_as_accepted, grid_issues, prepared_by, checked_by, approved_by, issued_by, to_char(issued_at at time zone 'UTC', ${ISO}) as issued_at from machvon.report_issue`;
 
 const issueOf = (row: IssueSql): ReportIssueRow => ({
@@ -274,8 +290,11 @@ const issueOf = (row: IssueSql): ReportIssueRow => ({
   sha256: row.sha256,
   xlsxSha256: row.xlsx_sha256,
   docxSha256: row.docx_sha256,
+  pdfSha256: row.pdf_sha256,
+  layoutSha256: row.layout_sha256,
   xlsxName: row.xlsx_name,
   docxName: row.docx_name,
+  pdfName: row.pdf_name,
   dataSource: row.data_source,
   snapshotRef: row.snapshot_ref,
   formStatus: row.form_status,
@@ -376,7 +395,7 @@ export interface IssueRequest {
   draft: ReportDraftRow;
   issuedBy: string;
   /** The names of the files of the copy: the revision is only known once the series is locked, so the caller gives the rule, not the names. */
-  names: (revision: number) => { xlsx: string; docx: string | null };
+  names: (revision: number) => { xlsx: string; docx: string | null; pdf: string | null };
 }
 
 export class ReportStore {
@@ -394,7 +413,7 @@ export class ReportStore {
   }
 
   /** Keeps a generated file once per hash; returns the hash. */
-  async putOutput(tx: TenantTx, format: ReportFileFormat, bytes: Uint8Array, by: string): Promise<string> {
+  async putOutput(tx: TenantTx, format: ReportOutputFormat, bytes: Uint8Array, by: string): Promise<string> {
     const sha = sha256Of(bytes);
     await tx.query(
       `insert into machvon.report_output_file (tenant_id, sha256, format, size_bytes, content, created_by) values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5)
@@ -433,8 +452,8 @@ export class ReportStore {
     return rows[0] === undefined ? undefined : new Uint8Array(rows[0].content);
   }
 
-  async outputBytes(tx: TenantTx, sha256: string): Promise<{ bytes: Uint8Array; format: ReportFileFormat } | undefined> {
-    const rows = await tx.query<{ content: Buffer; format: ReportFileFormat }>('select content, format from machvon.report_output_file where sha256 = $1', [sha256]);
+  async outputBytes(tx: TenantTx, sha256: string): Promise<{ bytes: Uint8Array; format: ReportOutputFormat } | undefined> {
+    const rows = await tx.query<{ content: Buffer; format: ReportOutputFormat }>('select content, format from machvon.report_output_file where sha256 = $1', [sha256]);
     return rows[0] === undefined ? undefined : { bytes: new Uint8Array(rows[0].content), format: rows[0].format };
   }
 
@@ -532,9 +551,9 @@ export class ReportStore {
 
   async insertDraft(tx: TenantTx, input: NewDraft): Promise<ReportDraftRow> {
     const rows = await tx.query<DraftSql>(
-      `insert into machvon.report_draft (tenant_id, layout_id, layout_code, layout_version, period_code, period, base_revision, reason, xlsx_sha256, docx_sha256, package_sha256, data_source, snapshot_ref, marks, grid_issues,
+      `insert into machvon.report_draft (tenant_id, layout_id, layout_code, layout_version, period_code, period, base_revision, reason, xlsx_sha256, docx_sha256, pdf_sha256, layout_sha256, package_sha256, data_source, snapshot_ref, marks, grid_issues,
          preview, prepared_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18)
        returning id`,
       [
         input.layout.id,
@@ -546,6 +565,8 @@ export class ReportStore {
         input.reason,
         input.xlsxSha256,
         input.docxSha256,
+        input.pdfSha256,
+        input.layoutSha256,
         input.packageSha256,
         input.dataSource,
         input.snapshotRef === null ? null : JSON.stringify(input.snapshotRef),
@@ -613,9 +634,9 @@ export class ReportStore {
     if (locked.baseRevision !== headRevision) throw new DomainError('REPORT_OUT_OF_DATE', 409, 'revision', { extensions: { current_revision: headRevision } });
     const names = request.names(next.revision);
     const inserted = await tx.query<IssueSql>(
-      `insert into machvon.report_issue (tenant_id, layout_id, layout_code, layout_version, period_code, period, revision, supersedes_id, reason, draft_id, sha256, xlsx_sha256, docx_sha256, xlsx_name, docx_name,
+      `insert into machvon.report_issue (tenant_id, layout_id, layout_code, layout_version, period_code, period, revision, supersedes_id, reason, draft_id, sha256, xlsx_sha256, docx_sha256, pdf_sha256, layout_sha256, xlsx_name, docx_name, pdf_name,
          data_source, snapshot_ref, form_status, demo_mark, counts_as_accepted, grid_issues, prepared_by, checked_by, approved_by, issued_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16::jsonb, $17, $18, $19, $20::jsonb, $21, $22, $23, $24)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21, $22::jsonb, $23, $24, $25, $26)
        returning id`,
       [
         locked.layoutId,
@@ -630,8 +651,11 @@ export class ReportStore {
         locked.packageSha256,
         locked.xlsxSha256,
         locked.docxSha256,
+        locked.pdfSha256,
+        locked.layoutSha256,
         names.xlsx,
         names.docx,
+        names.pdf,
         locked.dataSource,
         locked.snapshotRef === null ? null : JSON.stringify(locked.snapshotRef),
         locked.marks.formStatus,
