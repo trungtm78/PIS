@@ -33,7 +33,7 @@ export interface AlertQueryOptions {
 /** The counts of a view (urgent / action / watch), refreshed every minute and when the window gets focus again. A failure after a good answer keeps the last answer (the caller shows it as old). */
 export function useAlertCounts(view: AlertView = 'mine', options: AlertQueryOptions = {}) {
   const client = useApiClient();
-  const { tenant } = useSession();
+  const { tenant, controlPlane } = useSession();
   const query = useQuery<AlertCountsAnswer>({
     queryKey: countsKey(tenant?.id, tenant?.membershipId, view),
     queryFn: async () => {
@@ -41,7 +41,8 @@ export function useAlertCounts(view: AlertView = 'mine', options: AlertQueryOpti
       if (answer === undefined) throw new Error('the counts of the alert centre could not be read');
       return answer;
     },
-    enabled: tenant !== undefined && (options.enabled ?? true),
+    // The work of a person is a tenant's: the control plane has none and the tenant plane refuses it (403).
+    enabled: tenant !== undefined && controlPlane !== true && (options.enabled ?? true),
     refetchInterval: options.refreshMs ?? COUNTS_REFRESH_MS,
     refetchOnWindowFocus: true,
     staleTime: 0,
@@ -53,11 +54,11 @@ export function useAlertCounts(view: AlertView = 'mine', options: AlertQueryOpti
 /** The items of a view; the full list is read only while `enabled` (the drawer is open, or the band is on the page). */
 export function useAlertItems(view: AlertView = 'mine', options: AlertQueryOptions = {}) {
   const client = useApiClient();
-  const { tenant } = useSession();
+  const { tenant, controlPlane } = useSession();
   const query = useQuery<AlertListAnswer>({
     queryKey: itemsKey(tenant?.id, tenant?.membershipId, view),
     queryFn: async () => toListAnswer(await client.read('getMyWork', { query: { view, limit: DRAWER_PAGE_SIZE } }), view),
-    enabled: tenant !== undefined && (options.enabled ?? true),
+    enabled: tenant !== undefined && controlPlane !== true && (options.enabled ?? true),
     refetchInterval: options.refreshMs ?? false,
     refetchOnWindowFocus: true,
     staleTime: 0,

@@ -145,7 +145,7 @@ export interface MountResult extends RenderResult {
 }
 
 /** Renders a component under a router, a query client, a session and the fake client. */
-export function mount(element: ReactElement, h: Harness, path = '/'): MountResult {
+export function mount(element: ReactElement, h: Harness, path = '/', sessionOverrides: Partial<SessionValue> = {}): MountResult {
   const session: SessionValue = {
     tenant: TENANT_A,
     tenants: [TENANT_A],
@@ -153,6 +153,7 @@ export function mount(element: ReactElement, h: Harness, path = '/'): MountResul
     access: ALL_MODULES_VISIBLE,
     switchTenant: () => undefined,
     getSession: () => Promise.resolve({ token: 'token' }),
+    ...sessionOverrides,
   };
   const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   const view = render(

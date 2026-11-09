@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
+import { useSession } from '../../session/SessionContext';
 import { AlertCenter } from './AlertCenter';
 import { useAlertCounts, useRefreshOnNotification } from './hooks';
 import './alerts.css';
@@ -21,6 +22,7 @@ export function AlertBell() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
+  const { controlPlane } = useSession();
   const counts = useAlertCounts('mine');
   useRefreshOnNotification();
 
@@ -41,6 +43,8 @@ export function AlertBell() {
   const accessibleName = notes.length === 0 ? name : `${name}, ${notes.join(', ')}`;
   const urgent = answer?.counts.urgent ?? 0;
   const warn = partial || stale || (answer === undefined && counts.isError);
+  // The control plane has no work of its own: there is nothing for the bell to count.
+  if (controlPlane === true) return null;
 
   return (
     <>
