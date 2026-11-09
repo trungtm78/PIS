@@ -1,6 +1,8 @@
-import { DomainError, activeGrants, periodCoveredByDays, addWorkingTime, advanceWorkflow, assertValidDefinition, businessTypeOf, canonicalJson, finalCommandKey, requiredApprovals, scopeContains, sha256Hex, slaAction, vietnamDateOf, versionConflict, withinDelegation } from '@machvon/kernel';
-import type { ApprovalDecisionKind, ApprovalSlaAction, ApprovalWorkflowDefinition, EffectiveAccess, ResourceRef, WorkflowOutcome, WorkflowStep } from '@machvon/kernel';
+import { DomainError, HOLD_STEP_KIND, activeGrants, periodCoveredByDays, addWorkingTime, advanceWorkflow, assertValidDefinition, businessTypeOf, canonicalJson, finalCommandKey, requiredApprovals, scopeContains, sha256Hex, slaAction, vietnamDateOf, versionConflict, withinDelegation } from '@machvon/kernel';
+import type { ApprovalDecisionKind, ApprovalSlaAction, ApprovalWorkflowDefinition, EffectiveAccess, HoldState, PushStatus, ResourceRef, WorkflowOutcome, WorkflowStep } from '@machvon/kernel';
 import { randomUUID } from 'node:crypto';
+import { ApprovalHoldStore } from './approval-hold-store.ts';
+import type { HoldRecord } from './approval-hold-store.ts';
 import { DoaMatrixStore } from './doa-matrix-store.ts';
 import { loadAccessIn } from './effective-access-store.ts';
 import { SCOPE_CONTAINS_UNIT } from './signer-authority-store.ts';
@@ -289,6 +291,22 @@ export interface StartInput {
   now: Date;
 }
 
+/** What the receiver of the PUSH step answered to the package: the state the step is in, and the push it belongs to. */
+export interface HoldAnswer {
+  state: HoldState;
+  pushId: string | null;
+  pushKey: string | null;
+  pushStatus: PushStatus | null;
+  resourceRevision: number | null;
+}
+
+/**
+ * The PUSH step does not finish by itself (ENT-3c, R22): when the process has a receiver, the approval that would complete the step first hands the package over. The hook runs after every authorisation check and before
+ * the task is written; it answers the state of the hold (the package was written and waits for the receipt, or could not be written), or nothing when there is no receiver for this record. A refusal it throws (a revision
+ * the receiver already replaced) refuses the decision and writes nothing.
+ */
+export type HoldHook = (call: { tx: TenantTx; instance: InstanceRecord; task: TaskRecord; caller: string; reason: string | undefined; now: Date; effects: ApprovalEffects }) => Promise<HoldAnswer | undefined>;
+
 export interface DecideInput {
   taskId: string;
   expectedVersion: number;
@@ -297,6 +315,8 @@ export interface DecideInput {
   returnToStep: string | undefined;
   now: Date;
   finish: FinalCommand;
+  /** Present where the process has a receiver for the PUSH step; absent, the PUSH step is the person step it has always been. */
+  hold?: HoldHook | undefined;
 }
 
 /** What one pass of the SLA did for a tenant, and the figures of its gauges. */
@@ -320,7 +340,9 @@ export interface SlaSweepResult {
 /** What a decision did, for the audit row and the answer. */
 export type DecisionResult =
   | { kind: 'DECIDED'; task: TaskRecord; instance: InstanceRecord; step: 'STAYED' | 'NEXT_STEP' | 'RETURNED_TO_STEP' | 'COMPLETED'; outcome: string | null; finalCommand: string | null; createdTaskIds: string[]; delegationId: string | null }
-  | { kind: 'SELF_APPROVAL'; task: TaskRecord; reassignedTo: string | null };
+  | { kind: 'SELF_APPROVAL'; task: TaskRecord; reassignedTo: string | null }
+  /** The PUSH step handed its package over and waits for the receipt: the task is still pending, the instance still running. */
+  | { kind: 'HELD'; task: TaskRecord; instance: InstanceRecord; hold: HoldRecord };
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
@@ -332,6 +354,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 export class ApprovalStore {
   private readonly doa = new DoaMatrixStore();
   private readonly calendars = new WorkCalendarStore();
+  private readonly holds = new ApprovalHoldStore();
 
   // ---- the definitions ---------------------------------------------------------------------------------------------------------------
 
@@ -555,6 +578,7 @@ export class ApprovalStore {
   }
 
   private async endCancelled(tx: TenantTx, effects: ApprovalEffects, instance: InstanceRecord, reason: string, now: Date, by: 'MODULE' | 'OPERATOR'): Promise<void> {
+    await this.holds.cancelOpen(tx, instance.id, now);
     await tx.query("update machvon.approval_task set status = 'Cancelled', version = version + 1 where workflow_instance_id = $1::uuid and status = 'Pending'", [instance.id]);
     await tx.query("update machvon.workflow_instance set status = 'Cancelled', outcome = 'CANCELLED', ended_at = $2::timestamptz, version = version + 1 where id = $1::uuid", [instance.id, now.toISOString()]);
     await effects.audit({ action: 'workflow.instance_cancelled', resourceType: 'workflow_instance', resourceId: instance.id, reason, diff: { business_type: instance.businessType, resource_type: instance.resourceType, resource_id: instance.resourceId, by } });
@@ -643,6 +667,66 @@ export class ApprovalStore {
     const callerUser = userOf(caller);
     if (step.assignee_rule.type === 'DOA' && callerUser !== undefined && (await this.previousApprovers(tx, instance.id, definition, task.stepIndex)).has(callerUser)) throw new DomainError('APPROVER_NOT_AUTHORIZED', 403, 'approved_earlier');
 
+    // The PUSH step (ENT-3c, R22): the approval that would complete it hands the package to the receiver first. The step is done only when the receiver answers; until then the task stays pending and the hold says why.
+    if (input.decision === 'approve' && input.hold !== undefined && step.tag === HOLD_STEP_KIND) {
+      const [given] = await tx.query<{ approvals: string }>(
+        "select count(distinct m.user_id)::text as approvals from machvon.approval_task t join machvon.membership m on m.tenant_id = t.tenant_id and m.id = t.decided_by where t.workflow_instance_id = $1::uuid and t.step_index = $2 and t.status = 'Decided' and t.decision = 'approve' and t.decision_seq > $3::integer",
+        [instance.id, task.stepIndex, (instanceRow as { step_entered_seq: number }).step_entered_seq],
+      );
+      if (Number(given?.approvals ?? 0) + 1 >= requiredApprovals(step, instance.doaLevels ?? undefined)) {
+        const open = await this.holds.openFor(tx, task.id, true);
+        // A second approval while the package waits for its receipt changes nothing: the step is already held.
+        if (open !== undefined && open.state === 'AWAITING_RECEIPT') {
+          await effects.audit({ action: 'approval.step_held', resourceType: 'approval_task', resourceId: task.id, diff: { step_id: task.stepId, hold_state: open.state, push_status: open.pushStatus, attempts: open.attempts, instance_id: instance.id, resource_revision: open.resourceRevision, repeated: true } });
+          return { kind: 'HELD', task, instance, hold: open };
+        }
+        const answer = await input.hold({ tx, instance, task, caller, reason: input.reason, now: input.now, effects });
+        if (answer !== undefined) {
+          const held = await this.holds.hold(tx, {
+            workflowInstanceId: instance.id,
+            taskId: task.id,
+            stepKey: task.stepId,
+            state: answer.state,
+            heldBy: caller,
+            onBehalfOfId: onBehalfOf,
+            delegationId,
+            reason: input.reason === undefined || input.reason.trim() === '' ? null : input.reason.trim(),
+            pushId: answer.pushId,
+            pushKey: answer.pushKey,
+            pushStatus: answer.pushStatus,
+            resourceRevision: answer.resourceRevision,
+            now: input.now,
+          });
+          if (answer.state !== 'PUSHED') {
+            await effects.audit({ action: 'approval.step_held', resourceType: 'approval_task', resourceId: task.id, diff: { step_id: task.stepId, hold_state: held.state, push_status: held.pushStatus, attempts: held.attempts, instance_id: instance.id, resource_revision: held.resourceRevision } });
+            await effects.emit({
+              aggregateType: 'approval_task',
+              aggregateId: task.id,
+              aggregateVersion: task.version,
+              type: 'adm.approval_step.held.v1',
+              schemaVersion: 1,
+              payload: { task_id: task.id, instance_id: instance.id, business_type: instance.businessType, step_id: task.stepId, hold_state: held.state, push_id: held.pushId, resource_type: instance.resourceType, resource_id: instance.resourceId },
+              eventKey: `approval_task:${task.id}:held:${held.attempts}`,
+            });
+            return { kind: 'HELD', task, instance, hold: held };
+          }
+        }
+      }
+    }
+    return this.settle(tx, effects, input, { task, instance, definition, stepEnteredSeq: (instanceRow as { step_entered_seq: number }).step_entered_seq, caller, onBehalfOf, delegationId });
+  }
+
+  /**
+   * The rest of a decision once it is allowed: the task is written, the instance moves to its next step, goes back, or ends by calling the final command. `release` runs it for the person whose PUSH step was held, when the
+   * receiver confirmed; nothing in it asks who may decide, that was judged when the step was held.
+   */
+  private async settle(
+    tx: TenantTx,
+    effects: ApprovalEffects,
+    input: Pick<DecideInput, 'decision' | 'reason' | 'returnToStep' | 'now' | 'finish'>,
+    context: { task: TaskRecord; instance: InstanceRecord; definition: ApprovalWorkflowDefinition; stepEnteredSeq: number; caller: string; onBehalfOf: string | null; delegationId: string | null },
+  ): Promise<DecisionResult> {
+    const { task, instance, definition, stepEnteredSeq, caller, onBehalfOf, delegationId } = context;
     const sequence = instance.decisionSeq + 1;
     const reason = input.reason === undefined || input.reason.trim() === '' ? null : input.reason.trim();
     await tx.query(
@@ -652,7 +736,7 @@ export class ApprovalStore {
     await tx.query('update machvon.workflow_instance set decision_seq = $2, version = version + 1 where id = $1::uuid', [instance.id, sequence]);
     const [counted] = await tx.query<{ approvals: string }>(
       "select count(distinct m.user_id)::text as approvals from machvon.approval_task t join machvon.membership m on m.tenant_id = t.tenant_id and m.id = t.decided_by where t.workflow_instance_id = $1::uuid and t.step_index = $2 and t.status = 'Decided' and t.decision = 'approve' and t.decision_seq > $3::integer",
-      [instance.id, task.stepIndex, (instanceRow as { step_entered_seq: number }).step_entered_seq],
+      [instance.id, task.stepIndex, stepEnteredSeq],
     );
     const next = advanceWorkflow(definition, task.stepIndex, input.decision, Number(counted?.approvals ?? 0), instance.doaLevels ?? undefined, input.returnToStep);
 
@@ -661,12 +745,14 @@ export class ApprovalStore {
     let outcome: string | null = null;
     let finalCommand: string | null = null;
     if (next.kind === 'NEXT_STEP' || next.kind === 'RETURN_TO_STEP') {
+      await this.holds.cancelOpen(tx, instance.id, input.now);
       await tx.query("update machvon.approval_task set status = 'Cancelled', version = version + 1 where workflow_instance_id = $1::uuid and status = 'Pending'", [instance.id]);
       await tx.query('update machvon.workflow_instance set current_step = $2, step_entered_seq = $3::integer where id = $1::uuid', [instance.id, next.stepIndex, sequence]);
       const approvers = await this.previousApprovers(tx, instance.id, definition, next.stepIndex);
       created.push(...(await this.openStep(tx, { ...instance, currentStep: next.stepIndex }, definition, next.stepIndex, input.now, approvers)));
       stepResult = next.kind === 'NEXT_STEP' ? 'NEXT_STEP' : 'RETURNED_TO_STEP';
     } else if (next.kind === 'COMPLETE') {
+      await this.holds.cancelOpen(tx, instance.id, input.now);
       await tx.query("update machvon.approval_task set status = 'Cancelled', version = version + 1 where workflow_instance_id = $1::uuid and status = 'Pending'", [instance.id]);
       finalCommand = definition.terminal[next.outcome === 'APPROVED' ? 'approved' : next.outcome === 'RETURNED' ? 'returned' : 'rejected'];
       // The domain's own transition table is the guard (BR-ADM-07): when it refuses, the record is left as it was and the instance says so.
@@ -711,6 +797,56 @@ export class ApprovalStore {
       }
     }
     return { kind: 'DECIDED', task: decided ?? task, instance: after ?? instance, step: stepResult, outcome, finalCommand, createdTaskIds: created, delegationId };
+  }
+
+  // ---- the receipt of a held PUSH step (ENT-3c, R22) -----------------------------------------------------------------------------------
+
+  /**
+   * The receiver answered the package of a held PUSH step. An acceptance finishes the decision of the person who held it, as theirs (the final command runs once, with the key of the instance, and the instance ends);
+   * a rejection ends the hold and leaves the task pending, so the record goes back by the usual return. Nothing in it asks who may decide: that was judged when the step was held. Returns undefined when the push has
+   * no hold waiting for it (a push that is not a step of an approval, or a hold the end of the instance cancelled).
+   */
+  async answerHold(
+    tx: TenantTx,
+    effects: ApprovalEffects,
+    input: { pushId: string; outcome: 'ACCEPTED' | 'REJECTED'; by: string; reference: string; now: Date; finish: FinalCommand },
+  ): Promise<{ kind: 'RELEASED'; hold: HoldRecord; decision: DecisionResult } | { kind: 'REJECTED'; hold: HoldRecord } | undefined> {
+    const peek = await this.holds.forPush(tx, input.pushId);
+    if (peek === undefined) return undefined;
+    // The instance first, as a decision does, then the hold and the task.
+    await tx.query('select id from machvon.workflow_instance where id = $1::uuid for update', [peek.workflowInstanceId]);
+    const hold = await this.holds.find(tx, peek.id, true);
+    // A hold that is no longer waiting (the instance ended or went back meanwhile) has nothing to release; the receipt of the push stands on its own.
+    if (hold === undefined || hold.state !== 'AWAITING_RECEIPT') return undefined;
+    // The person who held the step is never the one who confirms it (the table says so too): a refusal here is a clean 403, not a database error.
+    if (hold.heldBy === input.by) throw new DomainError('SELF_APPROVAL_DENIED', 403, 'actor');
+    const answered = await this.holds.answer(tx, hold, { outcome: input.outcome, by: input.by, reference: input.reference, at: input.now });
+    if (!answered.release) {
+      await effects.audit({ action: 'approval.step_receipt_rejected', resourceType: 'approval_task', resourceId: hold.taskId, diff: { step_id: hold.stepKey, instance_id: hold.workflowInstanceId, push_id: input.pushId } });
+      return { kind: 'REJECTED', hold: answered.hold };
+    }
+    const [locked] = await tx.query<TaskRow>(`select ${TASK_COLUMNS} from ${TASK_FROM} where t.id = $1::uuid for update of t`, [hold.taskId]);
+    if (locked === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const task = toTask(locked);
+    const { instance, definition, stepEnteredSeq } = await this.instanceOf(tx, hold.workflowInstanceId);
+    if (task.status !== 'Pending' || instance.status !== 'Running') throw new DomainError('TASK_ALREADY_DECIDED', 409, 'status');
+    // The decision is the one of the person who held the step; the receipt is a condition of it, audited by the command that recorded it.
+    const decision = await this.settle(tx, { ...effects, actor: hold.heldBy }, { decision: 'approve', reason: hold.decisionReason ?? undefined, returnToStep: undefined, now: input.now, finish: input.finish }, {
+      task,
+      instance,
+      definition,
+      stepEnteredSeq,
+      caller: hold.heldBy,
+      onBehalfOf: hold.onBehalfOfId,
+      delegationId: hold.delegationId,
+    });
+    await effects.audit({ action: 'approval.step_released', resourceType: 'approval_task', resourceId: task.id, diff: { step_id: task.stepId, instance_id: instance.id, push_id: input.pushId, step: decision.kind === 'DECIDED' ? decision.step : null, outcome: decision.kind === 'DECIDED' ? decision.outcome : null } });
+    return { kind: 'RELEASED', hold: answered.hold, decision };
+  }
+
+  /** The holds of some instances, for the screens that show the steps (a held PUSH step reads "awaiting receipt"). */
+  holdsOf(tx: TenantTx, instanceIds: readonly string[]): Promise<HoldRecord[]> {
+    return this.holds.forInstances(tx, instanceIds);
   }
 
   // ---- the operations on a running approval (ADM-18) -----------------------------------------------------------------------------------
@@ -799,6 +935,7 @@ export class ApprovalStore {
     const candidates = await tx.query<{ id: string; workflow_instance_id: string }>(
       `select t.id, t.workflow_instance_id from machvon.approval_task t join machvon.workflow_instance i on i.tenant_id = t.tenant_id and i.id = t.workflow_instance_id
         where t.status = 'Pending' and i.status = 'Running' and ((t.reminded_at is null and t.remind_at <= $1::timestamptz) or t.due_at <= $1::timestamptz) and (t.next_reminder_at is null or t.next_reminder_at <= $1::timestamptz)
+          and not exists (select 1 from machvon.approval_step_hold h where h.tenant_id = t.tenant_id and h.task_id = t.id and h.state = 'AWAITING_RECEIPT')
         order by t.due_at, t.id limit $2::int`,
       [now.toISOString(), SLA_PASS_LIMIT],
     );

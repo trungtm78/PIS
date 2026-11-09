@@ -1421,6 +1421,8 @@ export type { EvalDatasetRow, EvalRunRow, ProfileInput, ProfileRow, PromptInput,
 export { IamSelfStore } from './iam-self-store.ts';
 export type { DeviceRevocation, DeviceView, ProfileRecord, SessionRevocation, SessionView } from './iam-self-store.ts';
 export { ApprovalStore, SLA_PASS_LIMIT as APPROVAL_SLA_PASS_LIMIT } from './approval-store.ts';
+export { ApprovalHoldStore } from './approval-hold-store.ts';
+export type { HoldInput, HoldRecord } from './approval-hold-store.ts';
 export {
   REORGANIZATION_FAILED_GAUGE,
   REORGANIZATION_STEPS_PER_PASS,
@@ -1444,6 +1446,8 @@ export type {
   ApprovalEffects,
   DecisionResult,
   FinalCommand,
+  HoldAnswer,
+  HoldHook,
   SlaSweepResult as ApprovalSlaSweepResult,
   InstanceRecord as WorkflowInstanceRecord,
   StartInput as ApprovalStartInput,
@@ -1677,6 +1681,8 @@ export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from '.
 export { ReportStore, copyRefOf } from './report-store.ts';
 export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
+export { ENTRY_BATCH_STATUSES, IND_ENTRY_BATCH_RESOURCE, IndEntryBatchStore } from './ind-entry-batch-store.ts';
+export type { EntryBatchFigure, EntryBatchFilter, EntryBatchRow, EntryBatchStatus } from './ind-entry-batch-store.ts';
 export { IND_FIGURE_RESOURCE, figureSetLockKey, IndDictionaryStore, IndEntryRuleStore, IndImportReads, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
 export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter as IndFigureFilter, FigureOutcome, FigureRow as IndFigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';
@@ -1894,3 +1900,6 @@ export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-atta
 // ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
 export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
 export type { EnterpriseBuildInput, EnterpriseSnapshotRow, EnterpriseSnapshotStatus, Readiness as EnterpriseReadiness, WaitingBatch as EnterpriseWaitingBatch } from './enterprise-snapshot-store.ts';
+<<<<<<< HEAD
+=======
+>>>>>>> lane/ent3c

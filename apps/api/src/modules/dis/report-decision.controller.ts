@@ -12,6 +12,7 @@ import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { assertPeriodReach } from './period-gate';
 import { OperationId } from '../../operation-id.decorator';
+import { ApprovalHoldService } from '../adm/approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
 import type { FinalCommandRegistry } from '../adm/approval.service';
 import { ReportApprovalFlow } from './report-approval.flow';
@@ -96,10 +97,11 @@ export class ReportDecisionController {
     @Optional() @Inject(DIS_CLOCK) clock?: () => Date,
     @Optional() @Inject(DIS_METRICS) metrics?: MetricsSink,
     @Optional() @Inject(APPROVAL_FINAL_COMMANDS) commands?: FinalCommandRegistry,
+    @Optional() @Inject(ApprovalHoldService) holds?: ApprovalHoldService,
   ) {
     this.clock = clock ?? ((): Date => new Date());
     this.metrics = metrics ?? NOOP_METRICS;
-    this.flow = new ReportApprovalFlow(commands);
+    this.flow = new ReportApprovalFlow(commands, holds);
   }
 
   @Post('reports/:id/decision')
@@ -129,7 +131,9 @@ export class ReportDecisionController {
         const applied: { version: number | undefined } = { version: undefined };
         const step = await this.flow.approve(scope.tx, effectsOf(scope), instance, input, now, async () => {
           applied.version = (await applyReportDecision(this.reports, scope.tx, effects, { head, detail }, input, now, this.metrics)).version;
-        });
+        }, scope.tenant.tenantId);
+        // The PUSH step handed its package over: the report is decided when the receiver confirms, not before (R22).
+        if (step.step === 'HELD') return commandResult(scope, step.hold?.state === 'PUSH_FAILED' ? 'PUSH_FAILED' : 'AWAITING_RECEIPT', head.version, id);
         if (step.step !== 'COMPLETED' || applied.version === undefined) return commandResult(scope, 'STEP_APPROVED', head.version, id);
         return commandResult(scope, 'ACCEPTED', applied.version, id);
       }

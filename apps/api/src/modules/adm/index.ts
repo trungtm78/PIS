@@ -4,6 +4,7 @@ import { ActingCommandsController, ActingReadsController } from './acting.contro
 import { PeriodScopeCommandsController, PeriodScopeReadsController } from './period-scope.controller';
 import { StandingDelegationCommandsController, StandingDelegationReadsController } from './standing-delegation.controller';
 import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
+import { APPROVAL_PUSH_SOURCES, ApprovalHoldService, ApprovalPushSources } from './approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, ApprovalBootGuard, ApprovalService, FinalCommandRegistry } from './approval.service';
 import { AuditEventsController } from './audit-events.controller';
 import { AuditExportsController } from './audit-export.controller';
@@ -87,6 +88,9 @@ export const admModule = defineModule({
     // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles exist in a test build only).
     { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
     ApprovalService,
+    // The PUSH step of the staged approval waits for the receipt of the receiver (ENT-3c, R22): the owners register what they hand over, the edition that has a receiver provides APPROVAL_PUSH_PORT.
+    { provide: APPROVAL_PUSH_SOURCES, useFactory: () => new ApprovalPushSources() },
+    ApprovalHoldService,
     // Stops the process at boot when an enabled business type has no real final command (R14).
     ApprovalBootGuard,
     // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): the saga stops at the first project it has to move.

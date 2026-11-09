@@ -7746,23 +7746,32 @@ final class HpmCorrectionPropose implements RequestModel {
     required this.layoutCode,
     required this.period,
     required this.fromRevision,
-    required this.periodReopenId,
     required this.reason,
+    this.periodReopenId,
+    this.mode,
+    this.subjectCode,
+    this.amountVnd,
   });
 
   final String layoutCode;
   final String period;
   final int fromRevision;
-  final String periodReopenId;
+  final String? periodReopenId;
   final String reason;
+  final String? mode;
+  final String? subjectCode;
+  final String? amountVnd;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'layout_code': layoutCode,
         'period': period,
         'from_revision': fromRevision,
-        'period_reopen_id': periodReopenId,
+        if (periodReopenId != null) 'period_reopen_id': periodReopenId,
         'reason': reason,
+        if (mode != null) 'mode': mode,
+        if (subjectCode != null) 'subject_code': subjectCode,
+        if (amountVnd != null) 'amount_vnd': amountVnd,
       };
 }
 

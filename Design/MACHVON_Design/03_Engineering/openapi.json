@@ -273249,9 +273249,12 @@
                   "enum": [
                     "WAITING",
                     "CURRENT",
+                    "AWAITING_RECEIPT",
+                    "PUSH_FAILED",
                     "DONE",
                     "CANCELLED"
-                  ]
+                  ],
+                  "description": "AWAITING_RECEIPT is the PUSH step that handed its package to the receiver and waits for the receipt; PUSH_FAILED is the same step when the package could not be written (the step is tried again with the same key)."
                 },
                 "sla_working_hours": {
                   "type": "number"
@@ -273317,6 +273320,57 @@
                         "format": "date-time",
                         "nullable": true
                       }
+                    }
+                  }
+                },
+                "receipt": {
+                  "type": "object",
+                  "nullable": true,
+                  "description": "The receipt the PUSH step waits for (ENT-3c, R22); null for any other step.",
+                  "properties": {
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "AWAITING_RECEIPT",
+                        "PUSH_FAILED",
+                        "PUSHED",
+                        "REJECTED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "push_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "push_key": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "push_status": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "attempts": {
+                      "type": "integer"
+                    },
+                    "held_by": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "held_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "receipt_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "receiver_screen": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The screen where the receipt is recorded (HPM-01); null where no receiver exists."
                     }
                   }
                 }
@@ -297115,7 +297169,8 @@
           "consumed_at",
           "version",
           "created_at",
-          "actions"
+          "actions",
+          "mode"
         ],
         "properties": {
           "id": {
@@ -297132,7 +297187,10 @@
             "type": "integer"
           },
           "period_reopen_id": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "uuid"
           },
           "reason": {
@@ -297144,7 +297202,8 @@
               "PROPOSED",
               "APPROVED",
               "REJECTED",
-              "CONSUMED"
+              "CONSUMED",
+              "APPLIED"
             ]
           },
           "proposed_by": {
@@ -297212,6 +297271,33 @@
                 "type": "boolean"
               }
             }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "OVERWRITE",
+              "ADJUST_NEXT_PERIOD"
+            ],
+            "description": "OVERWRITE replaces the accepted revision after a reopening; ADJUST_NEXT_PERIOD books the difference in the next period and leaves the accepted period as it is (TH.01)."
+          },
+          "target_period": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subject_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "amount_vnd": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Signed whole dong, for an adjustment in the next period."
           }
         }
       },
@@ -297248,7 +297334,6 @@
           "layout_code",
           "period",
           "from_revision",
-          "period_reopen_id",
           "reason"
         ],
         "properties": {
@@ -297270,12 +297355,30 @@
           "period_reopen_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The approved reopening of the period (DIS) whose window is open"
+            "description": "OVERWRITE: the approved reopening of the period (DIS) whose window is open; not used by ADJUST_NEXT_PERIOD."
           },
           "reason": {
             "type": "string",
             "minLength": 10,
             "maxLength": 2000
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "OVERWRITE",
+              "ADJUST_NEXT_PERIOD"
+            ],
+            "default": "OVERWRITE"
+          },
+          "subject_code": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,79}$",
+            "description": "ADJUST_NEXT_PERIOD: what the amount is about."
+          },
+          "amount_vnd": {
+            "type": "string",
+            "pattern": "^-?[1-9][0-9]{0,23}$",
+            "description": "ADJUST_NEXT_PERIOD: signed whole dong booked in the next period."
           }
         }
       },

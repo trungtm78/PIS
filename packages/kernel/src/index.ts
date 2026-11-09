@@ -2120,7 +2120,7 @@ export { COVERAGE_CALENDAR, MAX_COVERAGE_DAYS, SIGN_ALLOWED_WORKING_DAYS, covera
 export type { Coverage, CoverageDay, CoverageDiary, CoverageRange, CoverageState, CoverageTotals } from './qms-coverage.ts';
 export { LABEL_ATTRIBUTE, attributeKey, SURVIVORSHIP_STRATEGIES, checkSurvivorshipRule, mergeRecords, unmergeSurvivor } from './master-merge.ts';
 export type { AttributeDecision, DecisionBy, MergeRecord, MergeResult, MergeSide, SurvivorshipRuleInput, SurvivorshipStrategy, UnmergeInput, UnmergeResult } from './master-merge.ts';
-export { MAX_MIGRATION_ROWS, MIGRATION_ENTITY_PATTERN, MIGRATION_LOT_SIZE, MIGRATION_MAPPINGS, MIGRATION_TABULAR_LIMITS, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch } from './migration-batch.ts';
+export { MAX_MIGRATION_ROWS, MIGRATION_ENTITY_PATTERN, MIGRATION_LOT_SIZE, MIGRATION_MAPPINGS, MIGRATION_TABULAR_LIMITS, checkReferences, checkRegistration, judgeMigrationFile, migrationMappingOf, totalsMatch, registerMigrationMapping, addRowErrors } from './migration-batch.ts';
 export type { ControlTotals, JudgedRow, MigrationJudgement, MigrationMapping, MigrationReference, RowError } from './migration-batch.ts';
 export { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, MAX_RETRIEVED, assertEmbedding, assertWithin, checkCollection, chunkPages, cosineDistance, retrievalLimit } from './ai-knowledge.ts';
 export type { Chunk as KnowledgeChunk, CollectionInput as KnowledgeCollectionInput } from './ai-knowledge.ts';
@@ -2408,6 +2408,30 @@ export {
   reportWorkflowOf,
 } from './dis-report-workflow.ts';
 export type { ReportStepKind, ReportWorkflow, ReportWorkflowStep, WorkflowMode } from './dis-report-workflow.ts';
+export {
+  FND_FIGURE_BUSINESS_TYPE,
+  FND_FIGURE_RESOURCE,
+  FND_FIGURE_RULE_CODE,
+  HOLD_STATES,
+  HOLD_STEP_KIND,
+  IND_ENTRY_BUSINESS_TYPE,
+  IND_ENTRY_RESOURCE,
+  IND_ENTRY_RULE_CODE,
+  OPEN_HOLD_STATES,
+  STAGED_APPROVALS,
+  STAGED_OWNERS,
+  approvalPushKeyOf,
+  holdMoveOnReceipt,
+  holdStateAfterPush,
+  holdsStep,
+  isOpenHold,
+  pushLayoutCodeOf,
+  pushPackageOf,
+  stagedApprovalOf,
+  stagedApprovalOfBusinessType,
+  stepStateOf,
+} from './staged-approval.ts';
+export type { HoldState, PushPackage, PushStatus, StagedApprovalSpec, StagedOwner } from './staged-approval.ts';
 export { TEAMS_CHANNEL, TEAMS_OUTBOX_VARIABLE, TEAMS_PROVIDER, teamsCardOf } from './teams-channel.ts';
 export type { TeamsCard } from './teams-channel.ts';
 export {
@@ -2553,11 +2577,10 @@ export type { Indicator as FundingIndicator, MoneyIndicator, MoneyIndicatorCode 
 export { addPublicSums, buildPackLines, publicIndicatorsOf, publicRateFigures, publicRateSums, publicRates, treasuryCoverage as publicTreasuryCoverage, treasuryNet } from './fnd-public.ts';
 export type { PublicCoverage, PublicIndicator, PublicLine, PublicPlanCell, PublicProject, PublicRateFigures, PublicRateReason, PublicRateSums, PublicRates, PublicReportedCell, PublicTreasuryEntry } from './fnd-public.ts';
 export { HASH_SCHEMAS, figureRowsOf, snapshotHashFor } from './fnd-snapshot.ts';
-export type { HashSchema, HashSchema2Extras, HashedFigureLine, SnapshotFigure, SnapshotHashHeader } from './fnd-snapshot.ts';
+export type { HashSchema, HashSchema2Extras, HashedFigureLine, SnapshotFigure, SnapshotHashHeader, SnapshotIndicator } from './fnd-snapshot.ts';
 // ENT-3a: the enterprise period snapshot, its completeness rule and the one reader of it (docs/ent-snapshot.md).
 export { ENTERPRISE_OFFICIAL_KIND, EnterpriseFigureReader, PLAN_TO_DATE_KIND, PROJECT_TOTAL_CLASS, TMDT_KIND, completenessOf, completenessProjectOf, enterpriseRowsOf, enterpriseSnapshotHash, isPlannedCell, projectRowsFromBook } from './enterprise-snapshot.ts';
 export type { Completeness, CompletenessProject, EnterpriseHashInput, EnterpriseSnapshotView, MissingCell, MissingProject, MissingUnit, ReaderScope } from './enterprise-snapshot.ts';
-export type { SnapshotIndicator } from './fnd-snapshot.ts';
 // VND-1: the contractor profile, the accounts, the certificates, the debarment register and the reputation ledger (docs/vendor-management.md).
 export * from './vendor-profile.ts';
 export * from './vendor-payee.ts';
@@ -3237,7 +3260,5 @@ export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
 export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
 export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';
-export { registerMigrationMapping } from './migration-batch.ts';
 export { ADMIN_MIN_HOLDERS, DECISION_PERMISSIONS, GROUP_SUFFIX, ORG_PACK_COLUMNS, ORG_PACK_ENTITY, ORG_PACK_MAPPING, ORG_PACK_MAPPING_VERSION, ORG_PACK_ROW_KINDS, PLANNING_MIN_HOLDERS, ROLE_KINDS, SEAT_SCOPES, UNIT_FUNCTIONS, directoryGroupOf, directoryMappings, doaKey, doaRuleContent, entryKey, judgeOrgPack, judgeOrgPackRows, orgPackCsv, orgPackDigest, orgPackOfRows, orgPackRows, planOrgPack, policyKey, roleKey, seatKey, seatReports, stepKey, unitKey, verifyOrgPack, workflowRuleParams } from './org-pack.ts';
 export type { OrgPack, OrgPackRowKind, OrgPackState, OrgPackVerification, PackAbsence, PackDefect, PackDelegation, PackDoa, PackEntry, PackRole, PackRow, PackSeat, PackStep, PackUnit, PlanAction, PlanItem, PlanSection, RoleKind, SeatReport, SeatScope, SeatState, UnitFunction } from './org-pack.ts';
-export { addRowErrors } from './migration-batch.ts';

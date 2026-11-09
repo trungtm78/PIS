@@ -22603,6 +22603,7 @@ final class DisReportWorkflowResponseStepsItem implements ResponseModel {
     required this.tasks,
     this.dueAt,
     this.overdue,
+    this.receipt,
     this.extra = const <String, Object?>{},
   });
 
@@ -22617,7 +22618,8 @@ final class DisReportWorkflowResponseStepsItem implements ResponseModel {
       dueAt: optionalField(map, path, 'due_at', nullable(asString)),
       overdue: optionalField(map, path, 'overdue', asBool),
       tasks: requiredField(map, path, 'tasks', asList(DisReportWorkflowResponseStepsItemTasksItem.fromJson)),
-      extra: unknownFields(map, path, const <String>{'id', 'kind', 'name', 'status', 'sla_working_hours', 'due_at', 'overdue', 'tasks'}, strict: false),
+      receipt: optionalField(map, path, 'receipt', nullable(DisReportWorkflowResponseStepsItemReceipt.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'name', 'status', 'sla_working_hours', 'due_at', 'overdue', 'tasks', 'receipt'}, strict: false),
     );
   }
 
@@ -22629,6 +22631,7 @@ final class DisReportWorkflowResponseStepsItem implements ResponseModel {
   final String? dueAt;
   final bool? overdue;
   final List<DisReportWorkflowResponseStepsItemTasksItem> tasks;
+  final DisReportWorkflowResponseStepsItemReceipt? receipt;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -22643,6 +22646,65 @@ final class DisReportWorkflowResponseStepsItem implements ResponseModel {
         if (dueAt != null) 'due_at': dueAt,
         if (overdue != null) 'overdue': overdue,
         'tasks': tasks.map((e0) => e0.toJson()).toList(),
+        if (receipt != null) 'receipt': receipt!.toJson(),
+        ...extra,
+      };
+}
+
+final class DisReportWorkflowResponseStepsItemReceipt implements ResponseModel {
+  const DisReportWorkflowResponseStepsItemReceipt({
+    this.state,
+    this.pushId,
+    this.pushKey,
+    this.pushStatus,
+    this.attempts,
+    this.heldBy,
+    this.heldAt,
+    this.receiptAt,
+    this.receiverScreen,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory DisReportWorkflowResponseStepsItemReceipt.fromJson(Object? json, [String path = 'DisReportWorkflowResponseStepsItemReceipt']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return DisReportWorkflowResponseStepsItemReceipt(
+      state: optionalField(map, path, 'state', asString),
+      pushId: optionalField(map, path, 'push_id', nullable(asString)),
+      pushKey: optionalField(map, path, 'push_key', nullable(asString)),
+      pushStatus: optionalField(map, path, 'push_status', nullable(asString)),
+      attempts: optionalField(map, path, 'attempts', asInt),
+      heldBy: optionalField(map, path, 'held_by', asString),
+      heldAt: optionalField(map, path, 'held_at', asString),
+      receiptAt: optionalField(map, path, 'receipt_at', nullable(asString)),
+      receiverScreen: optionalField(map, path, 'receiver_screen', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'state', 'push_id', 'push_key', 'push_status', 'attempts', 'held_by', 'held_at', 'receipt_at', 'receiver_screen'}, strict: false),
+    );
+  }
+
+  final String? state;
+  final String? pushId;
+  final String? pushKey;
+  final String? pushStatus;
+  final int? attempts;
+  final String? heldBy;
+  final String? heldAt;
+  final String? receiptAt;
+  final String? receiverScreen;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (state != null) 'state': state,
+        if (pushId != null) 'push_id': pushId,
+        if (pushKey != null) 'push_key': pushKey,
+        if (pushStatus != null) 'push_status': pushStatus,
+        if (attempts != null) 'attempts': attempts,
+        if (heldBy != null) 'held_by': heldBy,
+        if (heldAt != null) 'held_at': heldAt,
+        if (receiptAt != null) 'receipt_at': receiptAt,
+        if (receiverScreen != null) 'receiver_screen': receiverScreen,
         ...extra,
       };
 }
@@ -37679,6 +37741,10 @@ final class HpmCorrectionResponse implements ResponseModel {
     required this.version,
     required this.createdAt,
     required this.actions,
+    required this.mode,
+    this.targetPeriod,
+    this.subjectCode,
+    this.amountVnd,
     this.extra = const <String, Object?>{},
   });
 
@@ -37689,7 +37755,7 @@ final class HpmCorrectionResponse implements ResponseModel {
       layoutCode: requiredField(map, path, 'layout_code', asString),
       period: requiredField(map, path, 'period', asString),
       fromRevision: requiredField(map, path, 'from_revision', asInt),
-      periodReopenId: requiredField(map, path, 'period_reopen_id', asString),
+      periodReopenId: requiredField(map, path, 'period_reopen_id', nullable(asString)),
       reason: requiredField(map, path, 'reason', asString),
       state: requiredField(map, path, 'state', asString),
       proposedBy: requiredField(map, path, 'proposed_by', asString),
@@ -37703,7 +37769,11 @@ final class HpmCorrectionResponse implements ResponseModel {
       version: requiredField(map, path, 'version', asInt),
       createdAt: requiredField(map, path, 'created_at', asString),
       actions: requiredField(map, path, 'actions', HpmCorrectionResponseActions.fromJson),
-      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'period', 'from_revision', 'period_reopen_id', 'reason', 'state', 'proposed_by', 'proposed_by_name', 'decided_by', 'decided_by_name', 'decided_at', 'decision_reason', 'consumed_by_push_id', 'consumed_at', 'version', 'created_at', 'actions'}, strict: true),
+      mode: requiredField(map, path, 'mode', asString),
+      targetPeriod: optionalField(map, path, 'target_period', nullable(asString)),
+      subjectCode: optionalField(map, path, 'subject_code', nullable(asString)),
+      amountVnd: optionalField(map, path, 'amount_vnd', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'layout_code', 'period', 'from_revision', 'period_reopen_id', 'reason', 'state', 'proposed_by', 'proposed_by_name', 'decided_by', 'decided_by_name', 'decided_at', 'decision_reason', 'consumed_by_push_id', 'consumed_at', 'version', 'created_at', 'actions', 'mode', 'target_period', 'subject_code', 'amount_vnd'}, strict: true),
     );
   }
 
@@ -37711,7 +37781,7 @@ final class HpmCorrectionResponse implements ResponseModel {
   final String layoutCode;
   final String period;
   final int fromRevision;
-  final String periodReopenId;
+  final String? periodReopenId;
   final String reason;
   final String state;
   final String proposedBy;
@@ -37725,6 +37795,10 @@ final class HpmCorrectionResponse implements ResponseModel {
   final int version;
   final String createdAt;
   final HpmCorrectionResponseActions actions;
+  final String mode;
+  final String? targetPeriod;
+  final String? subjectCode;
+  final String? amountVnd;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -37749,6 +37823,10 @@ final class HpmCorrectionResponse implements ResponseModel {
         'version': version,
         'created_at': createdAt,
         'actions': actions.toJson(),
+        'mode': mode,
+        if (targetPeriod != null) 'target_period': targetPeriod,
+        if (subjectCode != null) 'subject_code': subjectCode,
+        if (amountVnd != null) 'amount_vnd': amountVnd,
         ...extra,
       };
 }

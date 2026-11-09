@@ -15,6 +15,7 @@ import { WORKFLOW_DEFAULTS_AS_OF, WORKFLOW_DEFAULTS_FORMULA, WORKFLOW_DEFAULTS_S
 import { MILESTONE_KINDS } from './procurement-file.ts';
 import { FEED_TEXT } from './messages/finance-feed-texts.ts';
 import { APPROVAL_WORKFLOW_RULE_TYPE, REPORT_STEP_ASSIGNEE_TYPES, REPORT_STEP_KINDS, REPORT_WORKFLOW_RULE_CODE, WORKFLOW_MODES, defaultReportWorkflowParams, reportWorkflowDefect } from './dis-report-workflow.ts';
+import { FND_FIGURE_RULE_CODE, IND_ENTRY_RULE_CODE } from './staged-approval.ts';
 import { DATA_ENTRY_EXTRA_DEFAULTS, DATA_ENTRY_RULE_FIELDS, INDICATOR_IMPORT_FIELDS, INDICATOR_IMPORT_RULE_TYPE, INDICATOR_KPI_FIELDS, INDICATOR_SEEDS, indicatorSeedParams, refineDataEntryRule, refineImportMapping, sampleMappingParams } from './ind-definitions.ts';
 import { MONEY_RULE_DEFAULTS, parseMoneyRuleParams } from './money-control-policy.ts';
 import type { MoneyRuleType } from './money-control-policy.ts';
@@ -1431,7 +1432,7 @@ export const registerApprovalWorkflowRules = (): void =>
     registerRuleType({
       type: APPROVAL_WORKFLOW_RULE_TYPE,
       ownerModule: 'ADM',
-      modules: ['ADM', 'DIS'],
+      modules: ['ADM', 'DIS', 'FND', 'IND'],
       formula: message('gov.rules.register_approval_workflow_rules.formula'),
       source: message('gov.rules.register_approval_workflow_rules.source'),
       asOf: AS_OF,
@@ -1457,7 +1458,11 @@ export const registerApprovalWorkflowRules = (): void =>
         ),
       },
       refine: reportWorkflowDefect,
-      defaults: { [REPORT_WORKFLOW_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.report_accept.formula') }) },
+      defaults: {
+        [REPORT_WORKFLOW_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.report_accept.formula') }),
+        [FND_FIGURE_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.fnd_figure_accept.formula') }),
+        [IND_ENTRY_RULE_CODE]: rule(defaultReportWorkflowParams(), 'UNVERIFIED', { formula: message('gov.rules.approval_workflow.ind_entry_accept.formula') }),
+      },
     });
   });
 
